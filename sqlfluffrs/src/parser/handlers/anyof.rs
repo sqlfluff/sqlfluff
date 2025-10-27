@@ -1051,7 +1051,7 @@ impl crate::parser::Parser<'_> {
     ///
     /// This uses the same parsing logic as the main parser but in a non-destructive way,
     /// similar to how terminators are checked.
-    fn try_match_grammar(
+    pub(crate) fn try_match_grammar(
         &mut self,
         grammar: Arc<Grammar>,
         pos: usize,

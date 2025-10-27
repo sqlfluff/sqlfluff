@@ -116,7 +116,7 @@ impl Parser<'_> {
         iteration_count: usize,
     ) -> Result<NextStep, ParseError> {
         // Destructure Grammar::Ref fields
-        let (name, optional, allow_gaps, ref_terminators, reset_terminators) =
+        let (name, optional, allow_gaps, ref_terminators, reset_terminators, exclude) =
             match grammar.as_ref() {
                 Grammar::Ref {
                     name,
@@ -124,6 +124,7 @@ impl Parser<'_> {
                     allow_gaps,
                     terminators: ref_terminators,
                     reset_terminators,
+                    exclude,
                     ..
                 } => (
                     name,
@@ -131,9 +132,18 @@ impl Parser<'_> {
                     allow_gaps,
                     ref_terminators,
                     reset_terminators,
+                    exclude,
                 ),
                 _ => panic!("handle_ref_initial called with non-Ref grammar"),
             };
+        // Add exclude logic: if exclude grammar matches, return empty result
+        if let Some(exclude_grammar) = exclude {
+            let exclude_match = self.try_match_grammar((**exclude_grammar).clone(), frame.pos, parent_terminators);
+            if exclude_match.is_some() {
+                stack.results.insert(frame.frame_id, (Node::Empty, frame.pos, None));
+                return Ok(NextStep::Fallthrough);
+            }
+        }
         log::debug!(
             "Ref to segment: {}, optional: {}, allow_gaps: {}",
             name,

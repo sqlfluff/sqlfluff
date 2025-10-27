@@ -210,6 +210,7 @@ pub enum Grammar {
     Ref {
         name: &'static str,
         optional: bool,
+        exclude: Option<Box<Arc<Grammar>>>,
         terminators: Vec<Arc<Grammar>>,
         reset_terminators: bool,
         allow_gaps: bool,

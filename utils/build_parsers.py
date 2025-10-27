@@ -123,6 +123,13 @@ def _to_rust_parser_grammar(match_grammar, parse_context):
         print(f'    name: "{match_grammar._ref}",')
         print(f"    optional: {str(match_grammar.is_optional()).lower()},")
         print(f"    allow_gaps: {str(match_grammar.allow_gaps).lower()},")
+        # Add exclude field
+        if hasattr(match_grammar, "exclude") and match_grammar.exclude is not None:
+            print("    exclude: Some(Box::new(")
+            _to_rust_parser_grammar(match_grammar.exclude, parse_context)
+            print("    )),")
+        else:
+            print("    exclude: None,")
         print("    terminators: vec![")
         for term_grammar in match_grammar.terminators:
             _to_rust_parser_grammar(term_grammar, parse_context)

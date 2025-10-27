@@ -54,6 +54,7 @@ Arc::new(Grammar::Ref {
     name: "GrantKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -79,6 +80,7 @@ Arc::new(Grammar::Ref {
     name: "CreateKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -94,6 +96,7 @@ Arc::new(Grammar::Ref {
     name: "RoleKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -107,6 +110,7 @@ Arc::new(Grammar::Ref {
     name: "UserKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -120,6 +124,7 @@ Arc::new(Grammar::Ref {
     name: "WarehouseKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -133,6 +138,7 @@ Arc::new(Grammar::Ref {
     name: "DatabaseKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -146,6 +152,7 @@ Arc::new(Grammar::Ref {
     name: "IntegrationKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -164,7 +171,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["INTEGRATION".to_string(), "ROLE".to_string(), "WAREHOUSE".to_string(), "USER".to_string(), "DATABASE".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["DATABASE".to_string(), "ROLE".to_string(), "WAREHOUSE".to_string(), "INTEGRATION".to_string(), "USER".to_string()]),
         token_types: hashbrown::HashSet::from_iter([]),
     }),
 })
@@ -188,6 +195,7 @@ Arc::new(Grammar::Ref {
     name: "ApplyKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -201,6 +209,7 @@ Arc::new(Grammar::Ref {
     name: "MaskingKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -214,6 +223,7 @@ Arc::new(Grammar::Ref {
     name: "PolicyKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -242,6 +252,7 @@ Arc::new(Grammar::Ref {
     name: "ExecuteKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -255,6 +266,7 @@ Arc::new(Grammar::Ref {
     name: "TaskKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -283,6 +295,7 @@ Arc::new(Grammar::Ref {
     name: "ManageKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -296,6 +309,7 @@ Arc::new(Grammar::Ref {
     name: "GrantsKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -324,6 +338,7 @@ Arc::new(Grammar::Ref {
     name: "MonitorKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -339,6 +354,7 @@ Arc::new(Grammar::Ref {
     name: "ExecutionKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -352,6 +368,7 @@ Arc::new(Grammar::Ref {
     name: "UsageKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -370,7 +387,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["USAGE".to_string(), "EXECUTION".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["EXECUTION".to_string(), "USAGE".to_string()]),
         token_types: hashbrown::HashSet::from_iter([]),
     }),
 })
@@ -397,7 +414,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["MONITOR".to_string(), "MANAGE".to_string(), "APPLY".to_string(), "CREATE".to_string(), "EXECUTE".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["EXECUTE".to_string(), "APPLY".to_string(), "CREATE".to_string(), "MANAGE".to_string(), "MONITOR".to_string()]),
         token_types: hashbrown::HashSet::from_iter([]),
     }),
 })
@@ -412,6 +429,7 @@ Arc::new(Grammar::Ref {
     name: "CreateKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -427,6 +445,7 @@ Arc::new(Grammar::Ref {
     name: "SchemaKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -442,6 +461,7 @@ Arc::new(Grammar::Ref {
     name: "MaskingKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -455,6 +475,7 @@ Arc::new(Grammar::Ref {
     name: "PolicyKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -481,6 +502,7 @@ Arc::new(Grammar::Ref {
     name: "PipeKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -496,6 +518,7 @@ Arc::new(Grammar::Ref {
     name: "TableKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -509,6 +532,7 @@ Arc::new(Grammar::Ref {
     name: "ViewKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -522,6 +546,7 @@ Arc::new(Grammar::Ref {
     name: "StageKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -535,6 +560,7 @@ Arc::new(Grammar::Ref {
     name: "FunctionKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -548,6 +574,7 @@ Arc::new(Grammar::Ref {
     name: "ProcedureKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -561,6 +588,7 @@ Arc::new(Grammar::Ref {
     name: "RoutineKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -574,6 +602,7 @@ Arc::new(Grammar::Ref {
     name: "SequenceKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -587,6 +616,7 @@ Arc::new(Grammar::Ref {
     name: "StreamKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -600,6 +630,7 @@ Arc::new(Grammar::Ref {
     name: "TaskKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -615,6 +646,7 @@ Arc::new(Grammar::Ref {
     name: "MaterializedKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -628,6 +660,7 @@ Arc::new(Grammar::Ref {
     name: "ViewKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -656,6 +689,7 @@ Arc::new(Grammar::Ref {
     name: "ExternalKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -669,6 +703,7 @@ Arc::new(Grammar::Ref {
     name: "TableKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -697,6 +732,7 @@ Arc::new(Grammar::Ref {
     name: "FileKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -710,6 +746,7 @@ Arc::new(Grammar::Ref {
     name: "FormatKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -741,7 +778,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["PROCEDURE".to_string(), "STREAM".to_string(), "SEQUENCE".to_string(), "VIEW".to_string(), "EXTERNAL".to_string(), "TASK".to_string(), "MATERIALIZED".to_string(), "TABLE".to_string(), "STAGE".to_string(), "FUNCTION".to_string(), "FILE".to_string(), "ROUTINE".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["FUNCTION".to_string(), "ROUTINE".to_string(), "SEQUENCE".to_string(), "TASK".to_string(), "EXTERNAL".to_string(), "VIEW".to_string(), "STREAM".to_string(), "TABLE".to_string(), "PROCEDURE".to_string(), "FILE".to_string(), "MATERIALIZED".to_string(), "STAGE".to_string()]),
         token_types: hashbrown::HashSet::from_iter([]),
     }),
 })
@@ -755,7 +792,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["PROCEDURE".to_string(), "STREAM".to_string(), "SEQUENCE".to_string(), "VIEW".to_string(), "EXTERNAL".to_string(), "MASKING".to_string(), "TASK".to_string(), "PIPE".to_string(), "MATERIALIZED".to_string(), "TABLE".to_string(), "FUNCTION".to_string(), "STAGE".to_string(), "SCHEMA".to_string(), "FILE".to_string(), "ROUTINE".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["FUNCTION".to_string(), "ROUTINE".to_string(), "SEQUENCE".to_string(), "EXTERNAL".to_string(), "PROCEDURE".to_string(), "VIEW".to_string(), "PIPE".to_string(), "STAGE".to_string(), "STREAM".to_string(), "TABLE".to_string(), "MASKING".to_string(), "FILE".to_string(), "SCHEMA".to_string(), "MATERIALIZED".to_string(), "TASK".to_string()]),
         token_types: hashbrown::HashSet::from_iter([]),
     }),
 })
@@ -779,6 +816,7 @@ Arc::new(Grammar::Ref {
     name: "UseKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -794,6 +832,7 @@ Arc::new(Grammar::Ref {
     name: "SchemaKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -807,6 +846,7 @@ Arc::new(Grammar::Ref {
     name: "CatalogKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -849,6 +889,7 @@ Arc::new(Grammar::Ref {
     name: "ImportedKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -862,6 +903,7 @@ Arc::new(Grammar::Ref {
     name: "PrivilegesKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -888,6 +930,7 @@ Arc::new(Grammar::Ref {
     name: "ApplyKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -901,6 +944,7 @@ Arc::new(Grammar::Ref {
     name: "ConnectKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -914,6 +958,7 @@ Arc::new(Grammar::Ref {
     name: "CreateKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -927,6 +972,7 @@ Arc::new(Grammar::Ref {
     name: "DeleteKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -940,6 +986,7 @@ Arc::new(Grammar::Ref {
     name: "ExecuteKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -953,6 +1000,7 @@ Arc::new(Grammar::Ref {
     name: "InsertKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -966,6 +1014,7 @@ Arc::new(Grammar::Ref {
     name: "ModifyKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -979,6 +1028,7 @@ Arc::new(Grammar::Ref {
     name: "MonitorKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -992,6 +1042,7 @@ Arc::new(Grammar::Ref {
     name: "OperateKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -1005,6 +1056,7 @@ Arc::new(Grammar::Ref {
     name: "OwnershipKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -1018,6 +1070,7 @@ Arc::new(Grammar::Ref {
     name: "ReadKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -1031,6 +1084,7 @@ Arc::new(Grammar::Ref {
     name: "Reference_usageKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -1044,6 +1098,7 @@ Arc::new(Grammar::Ref {
     name: "ReferencesKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -1057,6 +1112,7 @@ Arc::new(Grammar::Ref {
     name: "SelectKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -1070,6 +1126,7 @@ Arc::new(Grammar::Ref {
     name: "TempKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -1083,6 +1140,7 @@ Arc::new(Grammar::Ref {
     name: "TemporaryKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -1096,6 +1154,7 @@ Arc::new(Grammar::Ref {
     name: "TriggerKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -1109,6 +1168,7 @@ Arc::new(Grammar::Ref {
     name: "TruncateKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -1122,6 +1182,7 @@ Arc::new(Grammar::Ref {
     name: "UpdateKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -1135,6 +1196,7 @@ Arc::new(Grammar::Ref {
     name: "UsageKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -1148,6 +1210,7 @@ Arc::new(Grammar::Ref {
     name: "Use_any_roleKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -1161,6 +1224,7 @@ Arc::new(Grammar::Ref {
     name: "WriteKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -1176,6 +1240,7 @@ Arc::new(Grammar::Ref {
     name: "AllKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -1189,6 +1254,7 @@ Arc::new(Grammar::Ref {
     name: "PrivilegesKeywordSegment",
     optional: true,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -1220,7 +1286,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["OPERATE".to_string(), "WRITE".to_string(), "TRUNCATE".to_string(), "ALL".to_string(), "MODIFY".to_string(), "USE".to_string(), "REFERENCE_USAGE".to_string(), "USAGE".to_string(), "CONNECT".to_string(), "OWNERSHIP".to_string(), "TRIGGER".to_string(), "APPLY".to_string(), "UPDATE".to_string(), "SELECT".to_string(), "TEMPORARY".to_string(), "READ".to_string(), "DELETE".to_string(), "IMPORTED".to_string(), "MONITOR".to_string(), "REFERENCES".to_string(), "CREATE".to_string(), "TEMP".to_string(), "USE_ANY_ROLE".to_string(), "EXECUTE".to_string(), "INSERT".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["TEMPORARY".to_string(), "UPDATE".to_string(), "APPLY".to_string(), "IMPORTED".to_string(), "ALL".to_string(), "TRIGGER".to_string(), "TEMP".to_string(), "OWNERSHIP".to_string(), "SELECT".to_string(), "MONITOR".to_string(), "USE".to_string(), "DELETE".to_string(), "OPERATE".to_string(), "WRITE".to_string(), "INSERT".to_string(), "CONNECT".to_string(), "READ".to_string(), "REFERENCE_USAGE".to_string(), "REFERENCES".to_string(), "TRUNCATE".to_string(), "MODIFY".to_string(), "USAGE".to_string(), "CREATE".to_string(), "EXECUTE".to_string(), "USE_ANY_ROLE".to_string()]),
         token_types: hashbrown::HashSet::from_iter([]),
     }),
 })
@@ -1229,6 +1295,7 @@ Arc::new(Grammar::Ref {
     name: "BracketedColumnReferenceListGrammar",
     optional: true,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -1246,7 +1313,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["OPERATE".to_string(), "WRITE".to_string(), "TRUNCATE".to_string(), "ALL".to_string(), "MODIFY".to_string(), "USE".to_string(), "REFERENCE_USAGE".to_string(), "USAGE".to_string(), "CONNECT".to_string(), "OWNERSHIP".to_string(), "TRIGGER".to_string(), "APPLY".to_string(), "UPDATE".to_string(), "SELECT".to_string(), "TEMPORARY".to_string(), "READ".to_string(), "DELETE".to_string(), "IMPORTED".to_string(), "MONITOR".to_string(), "REFERENCES".to_string(), "CREATE".to_string(), "TEMP".to_string(), "USE_ANY_ROLE".to_string(), "EXECUTE".to_string(), "INSERT".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["TEMPORARY".to_string(), "UPDATE".to_string(), "APPLY".to_string(), "IMPORTED".to_string(), "ALL".to_string(), "TRIGGER".to_string(), "TEMP".to_string(), "OWNERSHIP".to_string(), "SELECT".to_string(), "MONITOR".to_string(), "USE".to_string(), "DELETE".to_string(), "OPERATE".to_string(), "WRITE".to_string(), "INSERT".to_string(), "CONNECT".to_string(), "READ".to_string(), "REFERENCE_USAGE".to_string(), "REFERENCES".to_string(), "TRUNCATE".to_string(), "MODIFY".to_string(), "USAGE".to_string(), "CREATE".to_string(), "EXECUTE".to_string(), "USE_ANY_ROLE".to_string()]),
         token_types: hashbrown::HashSet::from_iter([]),
     }),
 })
@@ -1260,7 +1327,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["OPERATE".to_string(), "WRITE".to_string(), "TRUNCATE".to_string(), "ALL".to_string(), "MODIFY".to_string(), "REFERENCE_USAGE".to_string(), "USAGE".to_string(), "CONNECT".to_string(), "TEMP".to_string(), "OWNERSHIP".to_string(), "TRIGGER".to_string(), "APPLY".to_string(), "UPDATE".to_string(), "SELECT".to_string(), "TEMPORARY".to_string(), "READ".to_string(), "DELETE".to_string(), "MONITOR".to_string(), "IMPORTED".to_string(), "REFERENCES".to_string(), "CREATE".to_string(), "MANAGE".to_string(), "USE".to_string(), "USE_ANY_ROLE".to_string(), "EXECUTE".to_string(), "INSERT".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["TEMPORARY".to_string(), "UPDATE".to_string(), "APPLY".to_string(), "IMPORTED".to_string(), "ALL".to_string(), "MANAGE".to_string(), "TRIGGER".to_string(), "TEMP".to_string(), "OWNERSHIP".to_string(), "MONITOR".to_string(), "SELECT".to_string(), "USE".to_string(), "DELETE".to_string(), "OPERATE".to_string(), "WRITE".to_string(), "INSERT".to_string(), "CONNECT".to_string(), "READ".to_string(), "REFERENCE_USAGE".to_string(), "REFERENCES".to_string(), "TRUNCATE".to_string(), "MODIFY".to_string(), "USAGE".to_string(), "CREATE".to_string(), "EXECUTE".to_string(), "USE_ANY_ROLE".to_string()]),
         token_types: hashbrown::HashSet::from_iter([]),
     }),
 })
@@ -1271,6 +1338,7 @@ Arc::new(Grammar::Ref {
     name: "CommaSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -1287,6 +1355,7 @@ Arc::new(Grammar::Ref {
     name: "OnKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -1302,7 +1371,7 @@ Arc::new(Grammar::Ref {
     min_delimiters: 0,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["OPERATE".to_string(), "WRITE".to_string(), "TRUNCATE".to_string(), "ALL".to_string(), "MODIFY".to_string(), "REFERENCE_USAGE".to_string(), "USAGE".to_string(), "CONNECT".to_string(), "TEMP".to_string(), "OWNERSHIP".to_string(), "TRIGGER".to_string(), "APPLY".to_string(), "UPDATE".to_string(), "SELECT".to_string(), "TEMPORARY".to_string(), "READ".to_string(), "DELETE".to_string(), "MONITOR".to_string(), "IMPORTED".to_string(), "REFERENCES".to_string(), "CREATE".to_string(), "MANAGE".to_string(), "USE".to_string(), "USE_ANY_ROLE".to_string(), "EXECUTE".to_string(), "INSERT".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["TEMPORARY".to_string(), "UPDATE".to_string(), "APPLY".to_string(), "IMPORTED".to_string(), "ALL".to_string(), "MANAGE".to_string(), "TRIGGER".to_string(), "TEMP".to_string(), "OWNERSHIP".to_string(), "MONITOR".to_string(), "SELECT".to_string(), "USE".to_string(), "DELETE".to_string(), "OPERATE".to_string(), "WRITE".to_string(), "INSERT".to_string(), "CONNECT".to_string(), "READ".to_string(), "REFERENCE_USAGE".to_string(), "REFERENCES".to_string(), "TRUNCATE".to_string(), "MODIFY".to_string(), "USAGE".to_string(), "CREATE".to_string(), "EXECUTE".to_string(), "USE_ANY_ROLE".to_string()]),
         token_types: hashbrown::HashSet::from_iter([]),
     }),
 })
@@ -1311,6 +1380,7 @@ Arc::new(Grammar::Ref {
     name: "OnKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -1326,6 +1396,7 @@ Arc::new(Grammar::Ref {
     name: "AccountKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -1345,6 +1416,7 @@ Arc::new(Grammar::Ref {
     name: "ResourceKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -1358,6 +1430,7 @@ Arc::new(Grammar::Ref {
     name: "MonitorKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -1384,6 +1457,7 @@ Arc::new(Grammar::Ref {
     name: "WarehouseKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -1397,6 +1471,7 @@ Arc::new(Grammar::Ref {
     name: "DatabaseKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -1410,6 +1485,7 @@ Arc::new(Grammar::Ref {
     name: "DomainKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -1423,6 +1499,7 @@ Arc::new(Grammar::Ref {
     name: "IntegrationKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -1436,6 +1513,7 @@ Arc::new(Grammar::Ref {
     name: "LanguageKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -1449,6 +1527,7 @@ Arc::new(Grammar::Ref {
     name: "SchemaKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -1462,6 +1541,7 @@ Arc::new(Grammar::Ref {
     name: "CatalogKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -1475,6 +1555,7 @@ Arc::new(Grammar::Ref {
     name: "RoleKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -1488,6 +1569,7 @@ Arc::new(Grammar::Ref {
     name: "TablespaceKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -1501,6 +1583,7 @@ Arc::new(Grammar::Ref {
     name: "TypeKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -1516,6 +1599,7 @@ Arc::new(Grammar::Ref {
     name: "ForeignKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -1531,6 +1615,7 @@ Arc::new(Grammar::Ref {
     name: "ServerKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -1546,6 +1631,7 @@ Arc::new(Grammar::Ref {
     name: "DataKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -1559,6 +1645,7 @@ Arc::new(Grammar::Ref {
     name: "WrapperKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -1614,6 +1701,7 @@ Arc::new(Grammar::Ref {
     name: "AllKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -1627,6 +1715,7 @@ Arc::new(Grammar::Ref {
     name: "SchemasKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -1640,6 +1729,7 @@ Arc::new(Grammar::Ref {
     name: "InKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -1653,6 +1743,7 @@ Arc::new(Grammar::Ref {
     name: "DatabaseKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -1681,6 +1772,7 @@ Arc::new(Grammar::Ref {
     name: "FutureKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -1694,6 +1786,7 @@ Arc::new(Grammar::Ref {
     name: "SchemasKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -1707,6 +1800,7 @@ Arc::new(Grammar::Ref {
     name: "InKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -1720,6 +1814,7 @@ Arc::new(Grammar::Ref {
     name: "DatabaseKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -1748,6 +1843,7 @@ Arc::new(Grammar::Ref {
     name: "TableKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -1761,6 +1857,7 @@ Arc::new(Grammar::Ref {
     name: "ViewKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -1774,6 +1871,7 @@ Arc::new(Grammar::Ref {
     name: "StageKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -1787,6 +1885,7 @@ Arc::new(Grammar::Ref {
     name: "FunctionKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -1800,6 +1899,7 @@ Arc::new(Grammar::Ref {
     name: "ProcedureKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -1813,6 +1913,7 @@ Arc::new(Grammar::Ref {
     name: "RoutineKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -1826,6 +1927,7 @@ Arc::new(Grammar::Ref {
     name: "SequenceKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -1839,6 +1941,7 @@ Arc::new(Grammar::Ref {
     name: "StreamKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -1852,6 +1955,7 @@ Arc::new(Grammar::Ref {
     name: "TaskKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -1867,6 +1971,7 @@ Arc::new(Grammar::Ref {
     name: "MaterializedKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -1880,6 +1985,7 @@ Arc::new(Grammar::Ref {
     name: "ViewKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -1908,6 +2014,7 @@ Arc::new(Grammar::Ref {
     name: "ExternalKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -1921,6 +2028,7 @@ Arc::new(Grammar::Ref {
     name: "TableKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -1949,6 +2057,7 @@ Arc::new(Grammar::Ref {
     name: "FileKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -1962,6 +2071,7 @@ Arc::new(Grammar::Ref {
     name: "FormatKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -1993,7 +2103,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["PROCEDURE".to_string(), "STREAM".to_string(), "SEQUENCE".to_string(), "VIEW".to_string(), "EXTERNAL".to_string(), "TASK".to_string(), "MATERIALIZED".to_string(), "TABLE".to_string(), "STAGE".to_string(), "FUNCTION".to_string(), "FILE".to_string(), "ROUTINE".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["FUNCTION".to_string(), "ROUTINE".to_string(), "SEQUENCE".to_string(), "TASK".to_string(), "EXTERNAL".to_string(), "VIEW".to_string(), "STREAM".to_string(), "TABLE".to_string(), "PROCEDURE".to_string(), "FILE".to_string(), "MATERIALIZED".to_string(), "STAGE".to_string()]),
         token_types: hashbrown::HashSet::from_iter([]),
     }),
 })
@@ -2004,6 +2114,7 @@ Arc::new(Grammar::Ref {
     name: "AllKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -2019,6 +2130,7 @@ Arc::new(Grammar::Ref {
     name: "TablesKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -2032,6 +2144,7 @@ Arc::new(Grammar::Ref {
     name: "ViewsKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -2045,6 +2158,7 @@ Arc::new(Grammar::Ref {
     name: "StagesKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -2058,6 +2172,7 @@ Arc::new(Grammar::Ref {
     name: "FunctionsKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -2071,6 +2186,7 @@ Arc::new(Grammar::Ref {
     name: "ProceduresKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -2084,6 +2200,7 @@ Arc::new(Grammar::Ref {
     name: "RoutinesKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -2097,6 +2214,7 @@ Arc::new(Grammar::Ref {
     name: "SequencesKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -2110,6 +2228,7 @@ Arc::new(Grammar::Ref {
     name: "StreamsKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -2123,6 +2242,7 @@ Arc::new(Grammar::Ref {
     name: "TasksKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -2141,7 +2261,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["TASKS".to_string(), "ROUTINES".to_string(), "SEQUENCES".to_string(), "VIEWS".to_string(), "PROCEDURES".to_string(), "TABLES".to_string(), "STREAMS".to_string(), "FUNCTIONS".to_string(), "STAGES".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["STAGES".to_string(), "VIEWS".to_string(), "FUNCTIONS".to_string(), "TABLES".to_string(), "PROCEDURES".to_string(), "SEQUENCES".to_string(), "STREAMS".to_string(), "ROUTINES".to_string(), "TASKS".to_string()]),
         token_types: hashbrown::HashSet::from_iter([]),
     }),
 })
@@ -2150,6 +2270,7 @@ Arc::new(Grammar::Ref {
     name: "InKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -2163,6 +2284,7 @@ Arc::new(Grammar::Ref {
     name: "SchemaKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -2191,6 +2313,7 @@ Arc::new(Grammar::Ref {
     name: "FutureKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -2206,6 +2329,7 @@ Arc::new(Grammar::Ref {
     name: "TablesKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -2219,6 +2343,7 @@ Arc::new(Grammar::Ref {
     name: "ViewsKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -2232,6 +2357,7 @@ Arc::new(Grammar::Ref {
     name: "StagesKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -2245,6 +2371,7 @@ Arc::new(Grammar::Ref {
     name: "FunctionsKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -2258,6 +2385,7 @@ Arc::new(Grammar::Ref {
     name: "ProceduresKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -2271,6 +2399,7 @@ Arc::new(Grammar::Ref {
     name: "RoutinesKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -2284,6 +2413,7 @@ Arc::new(Grammar::Ref {
     name: "SequencesKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -2297,6 +2427,7 @@ Arc::new(Grammar::Ref {
     name: "StreamsKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -2310,6 +2441,7 @@ Arc::new(Grammar::Ref {
     name: "TasksKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -2328,7 +2460,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["TASKS".to_string(), "ROUTINES".to_string(), "SEQUENCES".to_string(), "VIEWS".to_string(), "PROCEDURES".to_string(), "TABLES".to_string(), "STREAMS".to_string(), "FUNCTIONS".to_string(), "STAGES".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["STAGES".to_string(), "VIEWS".to_string(), "FUNCTIONS".to_string(), "TABLES".to_string(), "PROCEDURES".to_string(), "SEQUENCES".to_string(), "STREAMS".to_string(), "ROUTINES".to_string(), "TASKS".to_string()]),
         token_types: hashbrown::HashSet::from_iter([]),
     }),
 })
@@ -2337,6 +2469,7 @@ Arc::new(Grammar::Ref {
     name: "InKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -2352,6 +2485,7 @@ Arc::new(Grammar::Ref {
     name: "DatabaseKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -2365,6 +2499,7 @@ Arc::new(Grammar::Ref {
     name: "SchemaKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -2383,7 +2518,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["SCHEMA".to_string(), "DATABASE".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["DATABASE".to_string(), "SCHEMA".to_string()]),
         token_types: hashbrown::HashSet::from_iter([]),
     }),
 })
@@ -2410,7 +2545,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["PROCEDURE".to_string(), "STREAM".to_string(), "ROLE".to_string(), "FUTURE".to_string(), "EXTERNAL".to_string(), "LANGUAGE".to_string(), "RESOURCE".to_string(), "ALL".to_string(), "TASK".to_string(), "STAGE".to_string(), "FUNCTION".to_string(), "FOREIGN".to_string(), "DATABASE".to_string(), "FILE".to_string(), "ROUTINE".to_string(), "DOMAIN".to_string(), "WAREHOUSE".to_string(), "SEQUENCE".to_string(), "VIEW".to_string(), "CATALOG".to_string(), "TYPE".to_string(), "MATERIALIZED".to_string(), "TABLE".to_string(), "TABLESPACE".to_string(), "SCHEMA".to_string(), "INTEGRATION".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["EXTERNAL".to_string(), "ROUTINE".to_string(), "ALL".to_string(), "CATALOG".to_string(), "VIEW".to_string(), "INTEGRATION".to_string(), "DOMAIN".to_string(), "TYPE".to_string(), "STREAM".to_string(), "PROCEDURE".to_string(), "FUTURE".to_string(), "FILE".to_string(), "SCHEMA".to_string(), "MATERIALIZED".to_string(), "STAGE".to_string(), "FUNCTION".to_string(), "TABLESPACE".to_string(), "SEQUENCE".to_string(), "RESOURCE".to_string(), "LANGUAGE".to_string(), "WAREHOUSE".to_string(), "FOREIGN".to_string(), "DATABASE".to_string(), "ROLE".to_string(), "TABLE".to_string(), "TASK".to_string()]),
         token_types: hashbrown::HashSet::from_iter([]),
     }),
 })
@@ -2421,6 +2556,7 @@ Arc::new(Grammar::Ref {
     name: "ObjectReferenceSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -2433,6 +2569,7 @@ Arc::new(Grammar::Ref {
     name: "FunctionNameSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -2443,6 +2580,7 @@ Arc::new(Grammar::Ref {
     name: "FunctionParameterListGrammar",
     optional: true,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -2466,6 +2604,7 @@ Arc::new(Grammar::Ref {
     name: "WildcardIdentifierSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -2478,6 +2617,7 @@ Arc::new(Grammar::Ref {
     name: "CommaSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -2494,6 +2634,7 @@ Arc::new(Grammar::Ref {
     name: "ToKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -2507,6 +2648,7 @@ Arc::new(Grammar::Ref {
     name: "FromKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -2540,6 +2682,7 @@ Arc::new(Grammar::Ref {
     name: "LargeKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -2553,6 +2696,7 @@ Arc::new(Grammar::Ref {
     name: "ObjectKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -2566,6 +2710,7 @@ Arc::new(Grammar::Ref {
     name: "NumericLiteralSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -2607,7 +2752,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["OPERATE".to_string(), "WRITE".to_string(), "TRUNCATE".to_string(), "ALL".to_string(), "MODIFY".to_string(), "REFERENCE_USAGE".to_string(), "USAGE".to_string(), "CONNECT".to_string(), "TEMP".to_string(), "OWNERSHIP".to_string(), "TRIGGER".to_string(), "APPLY".to_string(), "UPDATE".to_string(), "SELECT".to_string(), "TEMPORARY".to_string(), "READ".to_string(), "DELETE".to_string(), "MONITOR".to_string(), "IMPORTED".to_string(), "REFERENCES".to_string(), "CREATE".to_string(), "MANAGE".to_string(), "USE".to_string(), "USE_ANY_ROLE".to_string(), "EXECUTE".to_string(), "INSERT".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["TEMPORARY".to_string(), "UPDATE".to_string(), "APPLY".to_string(), "IMPORTED".to_string(), "ALL".to_string(), "MANAGE".to_string(), "TRIGGER".to_string(), "TEMP".to_string(), "OWNERSHIP".to_string(), "MONITOR".to_string(), "SELECT".to_string(), "USE".to_string(), "DELETE".to_string(), "OPERATE".to_string(), "WRITE".to_string(), "INSERT".to_string(), "CONNECT".to_string(), "READ".to_string(), "REFERENCE_USAGE".to_string(), "REFERENCES".to_string(), "TRUNCATE".to_string(), "MODIFY".to_string(), "USAGE".to_string(), "CREATE".to_string(), "EXECUTE".to_string(), "USE_ANY_ROLE".to_string()]),
         token_types: hashbrown::HashSet::from_iter([]),
     }),
 })
@@ -2618,6 +2763,7 @@ Arc::new(Grammar::Ref {
     name: "RoleKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -2631,6 +2777,7 @@ Arc::new(Grammar::Ref {
     name: "ObjectReferenceSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -2656,6 +2803,7 @@ Arc::new(Grammar::Ref {
     name: "OwnershipKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -2669,6 +2817,7 @@ Arc::new(Grammar::Ref {
     name: "OnKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -2682,6 +2831,7 @@ Arc::new(Grammar::Ref {
     name: "UserKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -2695,6 +2845,7 @@ Arc::new(Grammar::Ref {
     name: "ObjectReferenceSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -2718,6 +2869,7 @@ Arc::new(Grammar::Ref {
     name: "ObjectReferenceSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -2739,6 +2891,7 @@ Arc::new(Grammar::Ref {
     name: "ToKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -2754,6 +2907,7 @@ Arc::new(Grammar::Ref {
     name: "GroupKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -2767,6 +2921,7 @@ Arc::new(Grammar::Ref {
     name: "UserKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -2780,6 +2935,7 @@ Arc::new(Grammar::Ref {
     name: "RoleKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -2793,6 +2949,7 @@ Arc::new(Grammar::Ref {
     name: "ShareKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -2811,7 +2968,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["GROUP".to_string(), "ROLE".to_string(), "SHARE".to_string(), "USER".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["SHARE".to_string(), "GROUP".to_string(), "ROLE".to_string(), "USER".to_string()]),
         token_types: hashbrown::HashSet::from_iter([]),
     }),
 })
@@ -2824,6 +2981,7 @@ Arc::new(Grammar::Ref {
     name: "RoleReferenceSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -2834,6 +2992,7 @@ Arc::new(Grammar::Ref {
     name: "FunctionSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -2844,6 +3003,7 @@ Arc::new(Grammar::Ref {
     name: "PublicKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -2870,6 +3030,7 @@ Arc::new(Grammar::Ref {
     name: "CommaSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -2898,6 +3059,7 @@ Arc::new(Grammar::Ref {
     name: "WithKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -2911,6 +3073,7 @@ Arc::new(Grammar::Ref {
     name: "GrantKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -2924,6 +3087,7 @@ Arc::new(Grammar::Ref {
     name: "OptionKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -2952,6 +3116,7 @@ Arc::new(Grammar::Ref {
     name: "WithKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -2965,6 +3130,7 @@ Arc::new(Grammar::Ref {
     name: "AdminKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -2978,6 +3144,7 @@ Arc::new(Grammar::Ref {
     name: "OptionKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -3006,6 +3173,7 @@ Arc::new(Grammar::Ref {
     name: "CopyKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -3019,6 +3187,7 @@ Arc::new(Grammar::Ref {
     name: "CurrentKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -3032,6 +3201,7 @@ Arc::new(Grammar::Ref {
     name: "GrantsKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -3074,6 +3244,7 @@ Arc::new(Grammar::Ref {
     name: "GrantedKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -3087,6 +3258,7 @@ Arc::new(Grammar::Ref {
     name: "ByKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -3102,6 +3274,7 @@ Arc::new(Grammar::Ref {
     name: "Current_userKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -3115,6 +3288,7 @@ Arc::new(Grammar::Ref {
     name: "Session_userKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -3128,6 +3302,7 @@ Arc::new(Grammar::Ref {
     name: "ObjectReferenceSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -3177,6 +3352,7 @@ Arc::new(Grammar::Ref {
     name: "RevokeKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -3192,6 +3368,7 @@ Arc::new(Grammar::Ref {
     name: "GrantKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -3205,6 +3382,7 @@ Arc::new(Grammar::Ref {
     name: "OptionKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -3218,6 +3396,7 @@ Arc::new(Grammar::Ref {
     name: "ForKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -3256,6 +3435,7 @@ Arc::new(Grammar::Ref {
     name: "CreateKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -3271,6 +3451,7 @@ Arc::new(Grammar::Ref {
     name: "RoleKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -3284,6 +3465,7 @@ Arc::new(Grammar::Ref {
     name: "UserKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -3297,6 +3479,7 @@ Arc::new(Grammar::Ref {
     name: "WarehouseKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -3310,6 +3493,7 @@ Arc::new(Grammar::Ref {
     name: "DatabaseKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -3323,6 +3507,7 @@ Arc::new(Grammar::Ref {
     name: "IntegrationKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -3341,7 +3526,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["INTEGRATION".to_string(), "ROLE".to_string(), "WAREHOUSE".to_string(), "USER".to_string(), "DATABASE".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["DATABASE".to_string(), "ROLE".to_string(), "WAREHOUSE".to_string(), "INTEGRATION".to_string(), "USER".to_string()]),
         token_types: hashbrown::HashSet::from_iter([]),
     }),
 })
@@ -3365,6 +3550,7 @@ Arc::new(Grammar::Ref {
     name: "ApplyKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -3378,6 +3564,7 @@ Arc::new(Grammar::Ref {
     name: "MaskingKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -3391,6 +3578,7 @@ Arc::new(Grammar::Ref {
     name: "PolicyKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -3419,6 +3607,7 @@ Arc::new(Grammar::Ref {
     name: "ExecuteKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -3432,6 +3621,7 @@ Arc::new(Grammar::Ref {
     name: "TaskKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -3460,6 +3650,7 @@ Arc::new(Grammar::Ref {
     name: "ManageKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -3473,6 +3664,7 @@ Arc::new(Grammar::Ref {
     name: "GrantsKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -3501,6 +3693,7 @@ Arc::new(Grammar::Ref {
     name: "MonitorKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -3516,6 +3709,7 @@ Arc::new(Grammar::Ref {
     name: "ExecutionKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -3529,6 +3723,7 @@ Arc::new(Grammar::Ref {
     name: "UsageKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -3547,7 +3742,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["USAGE".to_string(), "EXECUTION".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["EXECUTION".to_string(), "USAGE".to_string()]),
         token_types: hashbrown::HashSet::from_iter([]),
     }),
 })
@@ -3574,7 +3769,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["MONITOR".to_string(), "MANAGE".to_string(), "APPLY".to_string(), "CREATE".to_string(), "EXECUTE".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["EXECUTE".to_string(), "APPLY".to_string(), "CREATE".to_string(), "MANAGE".to_string(), "MONITOR".to_string()]),
         token_types: hashbrown::HashSet::from_iter([]),
     }),
 })
@@ -3589,6 +3784,7 @@ Arc::new(Grammar::Ref {
     name: "CreateKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -3604,6 +3800,7 @@ Arc::new(Grammar::Ref {
     name: "SchemaKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -3619,6 +3816,7 @@ Arc::new(Grammar::Ref {
     name: "MaskingKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -3632,6 +3830,7 @@ Arc::new(Grammar::Ref {
     name: "PolicyKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -3658,6 +3857,7 @@ Arc::new(Grammar::Ref {
     name: "PipeKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -3673,6 +3873,7 @@ Arc::new(Grammar::Ref {
     name: "TableKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -3686,6 +3887,7 @@ Arc::new(Grammar::Ref {
     name: "ViewKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -3699,6 +3901,7 @@ Arc::new(Grammar::Ref {
     name: "StageKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -3712,6 +3915,7 @@ Arc::new(Grammar::Ref {
     name: "FunctionKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -3725,6 +3929,7 @@ Arc::new(Grammar::Ref {
     name: "ProcedureKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -3738,6 +3943,7 @@ Arc::new(Grammar::Ref {
     name: "RoutineKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -3751,6 +3957,7 @@ Arc::new(Grammar::Ref {
     name: "SequenceKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -3764,6 +3971,7 @@ Arc::new(Grammar::Ref {
     name: "StreamKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -3777,6 +3985,7 @@ Arc::new(Grammar::Ref {
     name: "TaskKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -3792,6 +4001,7 @@ Arc::new(Grammar::Ref {
     name: "MaterializedKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -3805,6 +4015,7 @@ Arc::new(Grammar::Ref {
     name: "ViewKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -3833,6 +4044,7 @@ Arc::new(Grammar::Ref {
     name: "ExternalKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -3846,6 +4058,7 @@ Arc::new(Grammar::Ref {
     name: "TableKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -3874,6 +4087,7 @@ Arc::new(Grammar::Ref {
     name: "FileKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -3887,6 +4101,7 @@ Arc::new(Grammar::Ref {
     name: "FormatKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -3918,7 +4133,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["PROCEDURE".to_string(), "STREAM".to_string(), "SEQUENCE".to_string(), "VIEW".to_string(), "EXTERNAL".to_string(), "TASK".to_string(), "MATERIALIZED".to_string(), "TABLE".to_string(), "STAGE".to_string(), "FUNCTION".to_string(), "FILE".to_string(), "ROUTINE".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["FUNCTION".to_string(), "ROUTINE".to_string(), "SEQUENCE".to_string(), "TASK".to_string(), "EXTERNAL".to_string(), "VIEW".to_string(), "STREAM".to_string(), "TABLE".to_string(), "PROCEDURE".to_string(), "FILE".to_string(), "MATERIALIZED".to_string(), "STAGE".to_string()]),
         token_types: hashbrown::HashSet::from_iter([]),
     }),
 })
@@ -3932,7 +4147,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["PROCEDURE".to_string(), "STREAM".to_string(), "SEQUENCE".to_string(), "VIEW".to_string(), "EXTERNAL".to_string(), "MASKING".to_string(), "TASK".to_string(), "PIPE".to_string(), "MATERIALIZED".to_string(), "TABLE".to_string(), "FUNCTION".to_string(), "STAGE".to_string(), "SCHEMA".to_string(), "FILE".to_string(), "ROUTINE".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["FUNCTION".to_string(), "ROUTINE".to_string(), "SEQUENCE".to_string(), "EXTERNAL".to_string(), "PROCEDURE".to_string(), "VIEW".to_string(), "PIPE".to_string(), "STAGE".to_string(), "STREAM".to_string(), "TABLE".to_string(), "MASKING".to_string(), "FILE".to_string(), "SCHEMA".to_string(), "MATERIALIZED".to_string(), "TASK".to_string()]),
         token_types: hashbrown::HashSet::from_iter([]),
     }),
 })
@@ -3956,6 +4171,7 @@ Arc::new(Grammar::Ref {
     name: "UseKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -3971,6 +4187,7 @@ Arc::new(Grammar::Ref {
     name: "SchemaKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -3984,6 +4201,7 @@ Arc::new(Grammar::Ref {
     name: "CatalogKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -4026,6 +4244,7 @@ Arc::new(Grammar::Ref {
     name: "ImportedKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -4039,6 +4258,7 @@ Arc::new(Grammar::Ref {
     name: "PrivilegesKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -4065,6 +4285,7 @@ Arc::new(Grammar::Ref {
     name: "ApplyKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -4078,6 +4299,7 @@ Arc::new(Grammar::Ref {
     name: "ConnectKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -4091,6 +4313,7 @@ Arc::new(Grammar::Ref {
     name: "CreateKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -4104,6 +4327,7 @@ Arc::new(Grammar::Ref {
     name: "DeleteKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -4117,6 +4341,7 @@ Arc::new(Grammar::Ref {
     name: "ExecuteKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -4130,6 +4355,7 @@ Arc::new(Grammar::Ref {
     name: "InsertKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -4143,6 +4369,7 @@ Arc::new(Grammar::Ref {
     name: "ModifyKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -4156,6 +4383,7 @@ Arc::new(Grammar::Ref {
     name: "MonitorKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -4169,6 +4397,7 @@ Arc::new(Grammar::Ref {
     name: "OperateKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -4182,6 +4411,7 @@ Arc::new(Grammar::Ref {
     name: "OwnershipKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -4195,6 +4425,7 @@ Arc::new(Grammar::Ref {
     name: "ReadKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -4208,6 +4439,7 @@ Arc::new(Grammar::Ref {
     name: "Reference_usageKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -4221,6 +4453,7 @@ Arc::new(Grammar::Ref {
     name: "ReferencesKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -4234,6 +4467,7 @@ Arc::new(Grammar::Ref {
     name: "SelectKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -4247,6 +4481,7 @@ Arc::new(Grammar::Ref {
     name: "TempKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -4260,6 +4495,7 @@ Arc::new(Grammar::Ref {
     name: "TemporaryKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -4273,6 +4509,7 @@ Arc::new(Grammar::Ref {
     name: "TriggerKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -4286,6 +4523,7 @@ Arc::new(Grammar::Ref {
     name: "TruncateKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -4299,6 +4537,7 @@ Arc::new(Grammar::Ref {
     name: "UpdateKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -4312,6 +4551,7 @@ Arc::new(Grammar::Ref {
     name: "UsageKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -4325,6 +4565,7 @@ Arc::new(Grammar::Ref {
     name: "Use_any_roleKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -4338,6 +4579,7 @@ Arc::new(Grammar::Ref {
     name: "WriteKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -4353,6 +4595,7 @@ Arc::new(Grammar::Ref {
     name: "AllKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -4366,6 +4609,7 @@ Arc::new(Grammar::Ref {
     name: "PrivilegesKeywordSegment",
     optional: true,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -4397,7 +4641,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["OPERATE".to_string(), "WRITE".to_string(), "TRUNCATE".to_string(), "ALL".to_string(), "MODIFY".to_string(), "USE".to_string(), "REFERENCE_USAGE".to_string(), "USAGE".to_string(), "CONNECT".to_string(), "OWNERSHIP".to_string(), "TRIGGER".to_string(), "APPLY".to_string(), "UPDATE".to_string(), "SELECT".to_string(), "TEMPORARY".to_string(), "READ".to_string(), "DELETE".to_string(), "IMPORTED".to_string(), "MONITOR".to_string(), "REFERENCES".to_string(), "CREATE".to_string(), "TEMP".to_string(), "USE_ANY_ROLE".to_string(), "EXECUTE".to_string(), "INSERT".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["TEMPORARY".to_string(), "UPDATE".to_string(), "APPLY".to_string(), "IMPORTED".to_string(), "ALL".to_string(), "TRIGGER".to_string(), "TEMP".to_string(), "OWNERSHIP".to_string(), "SELECT".to_string(), "MONITOR".to_string(), "USE".to_string(), "DELETE".to_string(), "OPERATE".to_string(), "WRITE".to_string(), "INSERT".to_string(), "CONNECT".to_string(), "READ".to_string(), "REFERENCE_USAGE".to_string(), "REFERENCES".to_string(), "TRUNCATE".to_string(), "MODIFY".to_string(), "USAGE".to_string(), "CREATE".to_string(), "EXECUTE".to_string(), "USE_ANY_ROLE".to_string()]),
         token_types: hashbrown::HashSet::from_iter([]),
     }),
 })
@@ -4406,6 +4650,7 @@ Arc::new(Grammar::Ref {
     name: "BracketedColumnReferenceListGrammar",
     optional: true,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -4423,7 +4668,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["OPERATE".to_string(), "WRITE".to_string(), "TRUNCATE".to_string(), "ALL".to_string(), "MODIFY".to_string(), "USE".to_string(), "REFERENCE_USAGE".to_string(), "USAGE".to_string(), "CONNECT".to_string(), "OWNERSHIP".to_string(), "TRIGGER".to_string(), "APPLY".to_string(), "UPDATE".to_string(), "SELECT".to_string(), "TEMPORARY".to_string(), "READ".to_string(), "DELETE".to_string(), "IMPORTED".to_string(), "MONITOR".to_string(), "REFERENCES".to_string(), "CREATE".to_string(), "TEMP".to_string(), "USE_ANY_ROLE".to_string(), "EXECUTE".to_string(), "INSERT".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["TEMPORARY".to_string(), "UPDATE".to_string(), "APPLY".to_string(), "IMPORTED".to_string(), "ALL".to_string(), "TRIGGER".to_string(), "TEMP".to_string(), "OWNERSHIP".to_string(), "SELECT".to_string(), "MONITOR".to_string(), "USE".to_string(), "DELETE".to_string(), "OPERATE".to_string(), "WRITE".to_string(), "INSERT".to_string(), "CONNECT".to_string(), "READ".to_string(), "REFERENCE_USAGE".to_string(), "REFERENCES".to_string(), "TRUNCATE".to_string(), "MODIFY".to_string(), "USAGE".to_string(), "CREATE".to_string(), "EXECUTE".to_string(), "USE_ANY_ROLE".to_string()]),
         token_types: hashbrown::HashSet::from_iter([]),
     }),
 })
@@ -4437,7 +4682,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["OPERATE".to_string(), "WRITE".to_string(), "TRUNCATE".to_string(), "ALL".to_string(), "MODIFY".to_string(), "REFERENCE_USAGE".to_string(), "USAGE".to_string(), "CONNECT".to_string(), "TEMP".to_string(), "OWNERSHIP".to_string(), "TRIGGER".to_string(), "APPLY".to_string(), "UPDATE".to_string(), "SELECT".to_string(), "TEMPORARY".to_string(), "READ".to_string(), "DELETE".to_string(), "MONITOR".to_string(), "IMPORTED".to_string(), "REFERENCES".to_string(), "CREATE".to_string(), "MANAGE".to_string(), "USE".to_string(), "USE_ANY_ROLE".to_string(), "EXECUTE".to_string(), "INSERT".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["TEMPORARY".to_string(), "UPDATE".to_string(), "APPLY".to_string(), "IMPORTED".to_string(), "ALL".to_string(), "MANAGE".to_string(), "TRIGGER".to_string(), "TEMP".to_string(), "OWNERSHIP".to_string(), "MONITOR".to_string(), "SELECT".to_string(), "USE".to_string(), "DELETE".to_string(), "OPERATE".to_string(), "WRITE".to_string(), "INSERT".to_string(), "CONNECT".to_string(), "READ".to_string(), "REFERENCE_USAGE".to_string(), "REFERENCES".to_string(), "TRUNCATE".to_string(), "MODIFY".to_string(), "USAGE".to_string(), "CREATE".to_string(), "EXECUTE".to_string(), "USE_ANY_ROLE".to_string()]),
         token_types: hashbrown::HashSet::from_iter([]),
     }),
 })
@@ -4448,6 +4693,7 @@ Arc::new(Grammar::Ref {
     name: "CommaSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -4464,6 +4710,7 @@ Arc::new(Grammar::Ref {
     name: "OnKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -4479,7 +4726,7 @@ Arc::new(Grammar::Ref {
     min_delimiters: 0,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["OPERATE".to_string(), "WRITE".to_string(), "TRUNCATE".to_string(), "ALL".to_string(), "MODIFY".to_string(), "REFERENCE_USAGE".to_string(), "USAGE".to_string(), "CONNECT".to_string(), "TEMP".to_string(), "OWNERSHIP".to_string(), "TRIGGER".to_string(), "APPLY".to_string(), "UPDATE".to_string(), "SELECT".to_string(), "TEMPORARY".to_string(), "READ".to_string(), "DELETE".to_string(), "MONITOR".to_string(), "IMPORTED".to_string(), "REFERENCES".to_string(), "CREATE".to_string(), "MANAGE".to_string(), "USE".to_string(), "USE_ANY_ROLE".to_string(), "EXECUTE".to_string(), "INSERT".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["TEMPORARY".to_string(), "UPDATE".to_string(), "APPLY".to_string(), "IMPORTED".to_string(), "ALL".to_string(), "MANAGE".to_string(), "TRIGGER".to_string(), "TEMP".to_string(), "OWNERSHIP".to_string(), "MONITOR".to_string(), "SELECT".to_string(), "USE".to_string(), "DELETE".to_string(), "OPERATE".to_string(), "WRITE".to_string(), "INSERT".to_string(), "CONNECT".to_string(), "READ".to_string(), "REFERENCE_USAGE".to_string(), "REFERENCES".to_string(), "TRUNCATE".to_string(), "MODIFY".to_string(), "USAGE".to_string(), "CREATE".to_string(), "EXECUTE".to_string(), "USE_ANY_ROLE".to_string()]),
         token_types: hashbrown::HashSet::from_iter([]),
     }),
 })
@@ -4488,6 +4735,7 @@ Arc::new(Grammar::Ref {
     name: "OnKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -4503,6 +4751,7 @@ Arc::new(Grammar::Ref {
     name: "AccountKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -4522,6 +4771,7 @@ Arc::new(Grammar::Ref {
     name: "ResourceKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -4535,6 +4785,7 @@ Arc::new(Grammar::Ref {
     name: "MonitorKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -4561,6 +4812,7 @@ Arc::new(Grammar::Ref {
     name: "WarehouseKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -4574,6 +4826,7 @@ Arc::new(Grammar::Ref {
     name: "DatabaseKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -4587,6 +4840,7 @@ Arc::new(Grammar::Ref {
     name: "DomainKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -4600,6 +4854,7 @@ Arc::new(Grammar::Ref {
     name: "IntegrationKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -4613,6 +4868,7 @@ Arc::new(Grammar::Ref {
     name: "LanguageKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -4626,6 +4882,7 @@ Arc::new(Grammar::Ref {
     name: "SchemaKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -4639,6 +4896,7 @@ Arc::new(Grammar::Ref {
     name: "CatalogKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -4652,6 +4910,7 @@ Arc::new(Grammar::Ref {
     name: "RoleKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -4665,6 +4924,7 @@ Arc::new(Grammar::Ref {
     name: "TablespaceKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -4678,6 +4938,7 @@ Arc::new(Grammar::Ref {
     name: "TypeKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -4693,6 +4954,7 @@ Arc::new(Grammar::Ref {
     name: "ForeignKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -4708,6 +4970,7 @@ Arc::new(Grammar::Ref {
     name: "ServerKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -4723,6 +4986,7 @@ Arc::new(Grammar::Ref {
     name: "DataKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -4736,6 +5000,7 @@ Arc::new(Grammar::Ref {
     name: "WrapperKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -4791,6 +5056,7 @@ Arc::new(Grammar::Ref {
     name: "AllKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -4804,6 +5070,7 @@ Arc::new(Grammar::Ref {
     name: "SchemasKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -4817,6 +5084,7 @@ Arc::new(Grammar::Ref {
     name: "InKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -4830,6 +5098,7 @@ Arc::new(Grammar::Ref {
     name: "DatabaseKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -4858,6 +5127,7 @@ Arc::new(Grammar::Ref {
     name: "FutureKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -4871,6 +5141,7 @@ Arc::new(Grammar::Ref {
     name: "SchemasKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -4884,6 +5155,7 @@ Arc::new(Grammar::Ref {
     name: "InKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -4897,6 +5169,7 @@ Arc::new(Grammar::Ref {
     name: "DatabaseKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -4925,6 +5198,7 @@ Arc::new(Grammar::Ref {
     name: "TableKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -4938,6 +5212,7 @@ Arc::new(Grammar::Ref {
     name: "ViewKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -4951,6 +5226,7 @@ Arc::new(Grammar::Ref {
     name: "StageKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -4964,6 +5240,7 @@ Arc::new(Grammar::Ref {
     name: "FunctionKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -4977,6 +5254,7 @@ Arc::new(Grammar::Ref {
     name: "ProcedureKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -4990,6 +5268,7 @@ Arc::new(Grammar::Ref {
     name: "RoutineKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -5003,6 +5282,7 @@ Arc::new(Grammar::Ref {
     name: "SequenceKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -5016,6 +5296,7 @@ Arc::new(Grammar::Ref {
     name: "StreamKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -5029,6 +5310,7 @@ Arc::new(Grammar::Ref {
     name: "TaskKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -5044,6 +5326,7 @@ Arc::new(Grammar::Ref {
     name: "MaterializedKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -5057,6 +5340,7 @@ Arc::new(Grammar::Ref {
     name: "ViewKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -5085,6 +5369,7 @@ Arc::new(Grammar::Ref {
     name: "ExternalKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -5098,6 +5383,7 @@ Arc::new(Grammar::Ref {
     name: "TableKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -5126,6 +5412,7 @@ Arc::new(Grammar::Ref {
     name: "FileKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -5139,6 +5426,7 @@ Arc::new(Grammar::Ref {
     name: "FormatKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -5170,7 +5458,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["PROCEDURE".to_string(), "STREAM".to_string(), "SEQUENCE".to_string(), "VIEW".to_string(), "EXTERNAL".to_string(), "TASK".to_string(), "MATERIALIZED".to_string(), "TABLE".to_string(), "STAGE".to_string(), "FUNCTION".to_string(), "FILE".to_string(), "ROUTINE".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["FUNCTION".to_string(), "ROUTINE".to_string(), "SEQUENCE".to_string(), "TASK".to_string(), "EXTERNAL".to_string(), "VIEW".to_string(), "STREAM".to_string(), "TABLE".to_string(), "PROCEDURE".to_string(), "FILE".to_string(), "MATERIALIZED".to_string(), "STAGE".to_string()]),
         token_types: hashbrown::HashSet::from_iter([]),
     }),
 })
@@ -5181,6 +5469,7 @@ Arc::new(Grammar::Ref {
     name: "AllKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -5196,6 +5485,7 @@ Arc::new(Grammar::Ref {
     name: "TablesKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -5209,6 +5499,7 @@ Arc::new(Grammar::Ref {
     name: "ViewsKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -5222,6 +5513,7 @@ Arc::new(Grammar::Ref {
     name: "StagesKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -5235,6 +5527,7 @@ Arc::new(Grammar::Ref {
     name: "FunctionsKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -5248,6 +5541,7 @@ Arc::new(Grammar::Ref {
     name: "ProceduresKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -5261,6 +5555,7 @@ Arc::new(Grammar::Ref {
     name: "RoutinesKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -5274,6 +5569,7 @@ Arc::new(Grammar::Ref {
     name: "SequencesKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -5287,6 +5583,7 @@ Arc::new(Grammar::Ref {
     name: "StreamsKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -5300,6 +5597,7 @@ Arc::new(Grammar::Ref {
     name: "TasksKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -5318,7 +5616,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["TASKS".to_string(), "ROUTINES".to_string(), "SEQUENCES".to_string(), "VIEWS".to_string(), "PROCEDURES".to_string(), "TABLES".to_string(), "STREAMS".to_string(), "FUNCTIONS".to_string(), "STAGES".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["STAGES".to_string(), "VIEWS".to_string(), "FUNCTIONS".to_string(), "TABLES".to_string(), "PROCEDURES".to_string(), "SEQUENCES".to_string(), "STREAMS".to_string(), "ROUTINES".to_string(), "TASKS".to_string()]),
         token_types: hashbrown::HashSet::from_iter([]),
     }),
 })
@@ -5327,6 +5625,7 @@ Arc::new(Grammar::Ref {
     name: "InKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -5340,6 +5639,7 @@ Arc::new(Grammar::Ref {
     name: "SchemaKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -5368,6 +5668,7 @@ Arc::new(Grammar::Ref {
     name: "FutureKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -5383,6 +5684,7 @@ Arc::new(Grammar::Ref {
     name: "TablesKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -5396,6 +5698,7 @@ Arc::new(Grammar::Ref {
     name: "ViewsKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -5409,6 +5712,7 @@ Arc::new(Grammar::Ref {
     name: "StagesKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -5422,6 +5726,7 @@ Arc::new(Grammar::Ref {
     name: "FunctionsKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -5435,6 +5740,7 @@ Arc::new(Grammar::Ref {
     name: "ProceduresKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -5448,6 +5754,7 @@ Arc::new(Grammar::Ref {
     name: "RoutinesKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -5461,6 +5768,7 @@ Arc::new(Grammar::Ref {
     name: "SequencesKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -5474,6 +5782,7 @@ Arc::new(Grammar::Ref {
     name: "StreamsKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -5487,6 +5796,7 @@ Arc::new(Grammar::Ref {
     name: "TasksKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -5505,7 +5815,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["TASKS".to_string(), "ROUTINES".to_string(), "SEQUENCES".to_string(), "VIEWS".to_string(), "PROCEDURES".to_string(), "TABLES".to_string(), "STREAMS".to_string(), "FUNCTIONS".to_string(), "STAGES".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["STAGES".to_string(), "VIEWS".to_string(), "FUNCTIONS".to_string(), "TABLES".to_string(), "PROCEDURES".to_string(), "SEQUENCES".to_string(), "STREAMS".to_string(), "ROUTINES".to_string(), "TASKS".to_string()]),
         token_types: hashbrown::HashSet::from_iter([]),
     }),
 })
@@ -5514,6 +5824,7 @@ Arc::new(Grammar::Ref {
     name: "InKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -5529,6 +5840,7 @@ Arc::new(Grammar::Ref {
     name: "DatabaseKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -5542,6 +5854,7 @@ Arc::new(Grammar::Ref {
     name: "SchemaKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -5560,7 +5873,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["SCHEMA".to_string(), "DATABASE".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["DATABASE".to_string(), "SCHEMA".to_string()]),
         token_types: hashbrown::HashSet::from_iter([]),
     }),
 })
@@ -5587,7 +5900,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["PROCEDURE".to_string(), "STREAM".to_string(), "ROLE".to_string(), "FUTURE".to_string(), "EXTERNAL".to_string(), "LANGUAGE".to_string(), "RESOURCE".to_string(), "ALL".to_string(), "TASK".to_string(), "STAGE".to_string(), "FUNCTION".to_string(), "FOREIGN".to_string(), "DATABASE".to_string(), "FILE".to_string(), "ROUTINE".to_string(), "DOMAIN".to_string(), "WAREHOUSE".to_string(), "SEQUENCE".to_string(), "VIEW".to_string(), "CATALOG".to_string(), "TYPE".to_string(), "MATERIALIZED".to_string(), "TABLE".to_string(), "TABLESPACE".to_string(), "SCHEMA".to_string(), "INTEGRATION".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["EXTERNAL".to_string(), "ROUTINE".to_string(), "ALL".to_string(), "CATALOG".to_string(), "VIEW".to_string(), "INTEGRATION".to_string(), "DOMAIN".to_string(), "TYPE".to_string(), "STREAM".to_string(), "PROCEDURE".to_string(), "FUTURE".to_string(), "FILE".to_string(), "SCHEMA".to_string(), "MATERIALIZED".to_string(), "STAGE".to_string(), "FUNCTION".to_string(), "TABLESPACE".to_string(), "SEQUENCE".to_string(), "RESOURCE".to_string(), "LANGUAGE".to_string(), "WAREHOUSE".to_string(), "FOREIGN".to_string(), "DATABASE".to_string(), "ROLE".to_string(), "TABLE".to_string(), "TASK".to_string()]),
         token_types: hashbrown::HashSet::from_iter([]),
     }),
 })
@@ -5598,6 +5911,7 @@ Arc::new(Grammar::Ref {
     name: "ObjectReferenceSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -5610,6 +5924,7 @@ Arc::new(Grammar::Ref {
     name: "FunctionNameSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -5620,6 +5935,7 @@ Arc::new(Grammar::Ref {
     name: "FunctionParameterListGrammar",
     optional: true,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -5643,6 +5959,7 @@ Arc::new(Grammar::Ref {
     name: "WildcardIdentifierSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -5655,6 +5972,7 @@ Arc::new(Grammar::Ref {
     name: "CommaSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -5671,6 +5989,7 @@ Arc::new(Grammar::Ref {
     name: "ToKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -5684,6 +6003,7 @@ Arc::new(Grammar::Ref {
     name: "FromKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -5717,6 +6037,7 @@ Arc::new(Grammar::Ref {
     name: "LargeKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -5730,6 +6051,7 @@ Arc::new(Grammar::Ref {
     name: "ObjectKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -5743,6 +6065,7 @@ Arc::new(Grammar::Ref {
     name: "NumericLiteralSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -5784,7 +6107,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["OPERATE".to_string(), "WRITE".to_string(), "TRUNCATE".to_string(), "ALL".to_string(), "MODIFY".to_string(), "REFERENCE_USAGE".to_string(), "USAGE".to_string(), "CONNECT".to_string(), "TEMP".to_string(), "OWNERSHIP".to_string(), "TRIGGER".to_string(), "APPLY".to_string(), "UPDATE".to_string(), "SELECT".to_string(), "TEMPORARY".to_string(), "READ".to_string(), "DELETE".to_string(), "MONITOR".to_string(), "IMPORTED".to_string(), "REFERENCES".to_string(), "CREATE".to_string(), "MANAGE".to_string(), "USE".to_string(), "USE_ANY_ROLE".to_string(), "EXECUTE".to_string(), "INSERT".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["TEMPORARY".to_string(), "UPDATE".to_string(), "APPLY".to_string(), "IMPORTED".to_string(), "ALL".to_string(), "MANAGE".to_string(), "TRIGGER".to_string(), "TEMP".to_string(), "OWNERSHIP".to_string(), "MONITOR".to_string(), "SELECT".to_string(), "USE".to_string(), "DELETE".to_string(), "OPERATE".to_string(), "WRITE".to_string(), "INSERT".to_string(), "CONNECT".to_string(), "READ".to_string(), "REFERENCE_USAGE".to_string(), "REFERENCES".to_string(), "TRUNCATE".to_string(), "MODIFY".to_string(), "USAGE".to_string(), "CREATE".to_string(), "EXECUTE".to_string(), "USE_ANY_ROLE".to_string()]),
         token_types: hashbrown::HashSet::from_iter([]),
     }),
 })
@@ -5795,6 +6118,7 @@ Arc::new(Grammar::Ref {
     name: "RoleKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -5808,6 +6132,7 @@ Arc::new(Grammar::Ref {
     name: "ObjectReferenceSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -5833,6 +6158,7 @@ Arc::new(Grammar::Ref {
     name: "OwnershipKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -5846,6 +6172,7 @@ Arc::new(Grammar::Ref {
     name: "OnKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -5859,6 +6186,7 @@ Arc::new(Grammar::Ref {
     name: "UserKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -5872,6 +6200,7 @@ Arc::new(Grammar::Ref {
     name: "ObjectReferenceSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -5895,6 +6224,7 @@ Arc::new(Grammar::Ref {
     name: "ObjectReferenceSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -5916,6 +6246,7 @@ Arc::new(Grammar::Ref {
     name: "FromKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -5931,6 +6262,7 @@ Arc::new(Grammar::Ref {
     name: "GroupKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -5944,6 +6276,7 @@ Arc::new(Grammar::Ref {
     name: "UserKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -5957,6 +6290,7 @@ Arc::new(Grammar::Ref {
     name: "RoleKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -5970,6 +6304,7 @@ Arc::new(Grammar::Ref {
     name: "ShareKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -5988,7 +6323,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["GROUP".to_string(), "ROLE".to_string(), "SHARE".to_string(), "USER".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["SHARE".to_string(), "GROUP".to_string(), "ROLE".to_string(), "USER".to_string()]),
         token_types: hashbrown::HashSet::from_iter([]),
     }),
 })
@@ -5999,6 +6334,7 @@ Arc::new(Grammar::Ref {
     name: "ObjectReferenceSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -6011,6 +6347,7 @@ Arc::new(Grammar::Ref {
     name: "CommaSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -6035,6 +6372,7 @@ Arc::new(Grammar::Ref {
     name: "DropBehaviorGrammar",
     optional: true,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -6080,6 +6418,7 @@ Arc::new(Grammar::Ref {
     name: "ArrayAccessorSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -6194,6 +6533,7 @@ Arc::new(Grammar::Ref {
     name: "OrderByClauseSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -6215,6 +6555,7 @@ Arc::new(Grammar::Ref {
     name: "AsAliasOperatorSegment",
     optional: true,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -6232,6 +6573,7 @@ Arc::new(Grammar::Ref {
     name: "SingleIdentifierGrammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -6244,6 +6586,7 @@ Arc::new(Grammar::Ref {
     name: "SingleIdentifierListSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -6295,6 +6638,7 @@ Arc::new(Grammar::Ref {
     name: "SingleQuotedIdentifierSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -6346,6 +6690,7 @@ Arc::new(Grammar::Ref {
     name: "TableReferenceSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -6356,6 +6701,7 @@ Arc::new(Grammar::Ref {
     name: "AliasExpressionSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -6424,6 +6770,7 @@ Arc::new(Grammar::Ref {
     name: "IncrementKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -6437,6 +6784,7 @@ Arc::new(Grammar::Ref {
     name: "ByKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -6450,6 +6798,7 @@ Arc::new(Grammar::Ref {
     name: "NumericLiteralSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -6476,11 +6825,12 @@ Arc::new(Grammar::Ref {
     name: "SequenceMinValueGrammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["MINVALUE".to_string(), "NO".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["NO".to_string(), "MINVALUE".to_string()]),
         token_types: hashbrown::HashSet::from_iter([]),
     }),
 })
@@ -6489,11 +6839,12 @@ Arc::new(Grammar::Ref {
     name: "SequenceMaxValueGrammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["MAXVALUE".to_string(), "NO".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["NO".to_string(), "MAXVALUE".to_string()]),
         token_types: hashbrown::HashSet::from_iter([]),
     }),
 })
@@ -6506,6 +6857,7 @@ Arc::new(Grammar::Ref {
     name: "CacheKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -6519,6 +6871,7 @@ Arc::new(Grammar::Ref {
     name: "NumericLiteralSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -6545,6 +6898,7 @@ Arc::new(Grammar::Ref {
     name: "NocacheKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -6574,6 +6928,7 @@ Arc::new(Grammar::Ref {
     name: "CycleKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -6587,6 +6942,7 @@ Arc::new(Grammar::Ref {
     name: "NocycleKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -6605,7 +6961,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["CYCLE".to_string(), "NOCYCLE".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["NOCYCLE".to_string(), "CYCLE".to_string()]),
         token_types: hashbrown::HashSet::from_iter([]),
     }),
 })
@@ -6614,11 +6970,12 @@ Arc::new(Grammar::Ref {
     name: "OrderNoOrderGrammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["NOORDER".to_string(), "ORDER".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["ORDER".to_string(), "NOORDER".to_string()]),
         token_types: hashbrown::HashSet::from_iter([]),
     }),
 })
@@ -6632,7 +6989,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["INCREMENT".to_string(), "CACHE".to_string(), "NOORDER".to_string(), "NOCACHE".to_string(), "MAXVALUE".to_string(), "NO".to_string(), "NOCYCLE".to_string(), "ORDER".to_string(), "CYCLE".to_string(), "MINVALUE".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["ORDER".to_string(), "NOORDER".to_string(), "MINVALUE".to_string(), "NOCYCLE".to_string(), "NO".to_string(), "MAXVALUE".to_string(), "NOCACHE".to_string(), "CYCLE".to_string(), "CACHE".to_string(), "INCREMENT".to_string()]),
         token_types: hashbrown::HashSet::from_iter([]),
     }),
 })
@@ -6647,6 +7004,7 @@ Arc::new(Grammar::Ref {
     name: "AlterKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -6660,6 +7018,7 @@ Arc::new(Grammar::Ref {
     name: "SequenceKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -6673,6 +7032,7 @@ Arc::new(Grammar::Ref {
     name: "SequenceReferenceSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -6685,11 +7045,12 @@ Arc::new(Grammar::Ref {
     name: "AlterSequenceOptionsSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["INCREMENT".to_string(), "CACHE".to_string(), "NOORDER".to_string(), "NOCACHE".to_string(), "MAXVALUE".to_string(), "NO".to_string(), "NOCYCLE".to_string(), "ORDER".to_string(), "CYCLE".to_string(), "MINVALUE".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["ORDER".to_string(), "NOORDER".to_string(), "MINVALUE".to_string(), "NOCYCLE".to_string(), "NO".to_string(), "MAXVALUE".to_string(), "NOCACHE".to_string(), "CYCLE".to_string(), "CACHE".to_string(), "INCREMENT".to_string()]),
         token_types: hashbrown::HashSet::from_iter([]),
     }),
 })
@@ -6706,7 +7067,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["INCREMENT".to_string(), "CACHE".to_string(), "NOORDER".to_string(), "NOCACHE".to_string(), "MAXVALUE".to_string(), "NO".to_string(), "NOCYCLE".to_string(), "ORDER".to_string(), "CYCLE".to_string(), "MINVALUE".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["ORDER".to_string(), "NOORDER".to_string(), "MINVALUE".to_string(), "NOCYCLE".to_string(), "NO".to_string(), "MAXVALUE".to_string(), "NOCACHE".to_string(), "CYCLE".to_string(), "CACHE".to_string(), "INCREMENT".to_string()]),
         token_types: hashbrown::HashSet::from_iter([]),
     }),
 })
@@ -6733,6 +7094,7 @@ Arc::new(Grammar::Ref {
     name: "DropKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -6746,6 +7108,7 @@ Arc::new(Grammar::Ref {
     name: "ColumnKeywordSegment",
     optional: true,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -6759,6 +7122,7 @@ Arc::new(Grammar::Ref {
     name: "IfExistsGrammar",
     optional: true,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -6772,6 +7136,7 @@ Arc::new(Grammar::Ref {
     name: "SingleIdentifierGrammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -6802,6 +7167,7 @@ Arc::new(Grammar::Ref {
     name: "ParameterNameSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -6812,6 +7178,7 @@ Arc::new(Grammar::Ref {
     name: "EqualsSegment",
     optional: true,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -6827,6 +7194,7 @@ Arc::new(Grammar::Ref {
     name: "LiteralGrammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -6837,6 +7205,7 @@ Arc::new(Grammar::Ref {
     name: "NakedIdentifierSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -6872,6 +7241,7 @@ Arc::new(Grammar::Ref {
     name: "AddKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -6885,6 +7255,7 @@ Arc::new(Grammar::Ref {
     name: "ModifyKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -6903,7 +7274,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["MODIFY".to_string(), "ADD".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["ADD".to_string(), "MODIFY".to_string()]),
         token_types: hashbrown::HashSet::from_iter([]),
     }),
 })
@@ -6912,6 +7283,7 @@ Arc::new(Grammar::Ref {
     name: "ColumnKeywordSegment",
     optional: true,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -6925,6 +7297,7 @@ Arc::new(Grammar::Ref {
     name: "ColumnDefinitionSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -6941,6 +7314,7 @@ Arc::new(Grammar::Ref {
     name: "FirstKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -6954,6 +7328,7 @@ Arc::new(Grammar::Ref {
     name: "AfterKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -6972,7 +7347,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["FIRST".to_string(), "AFTER".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["AFTER".to_string(), "FIRST".to_string()]),
         token_types: hashbrown::HashSet::from_iter([]),
     }),
 })
@@ -6981,6 +7356,7 @@ Arc::new(Grammar::Ref {
     name: "ColumnReferenceSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -6995,7 +7371,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["FIRST".to_string(), "AFTER".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["AFTER".to_string(), "FIRST".to_string()]),
         token_types: hashbrown::HashSet::from_iter([]),
     }),
 })
@@ -7004,6 +7380,7 @@ Arc::new(Grammar::Ref {
     name: "BracketedColumnReferenceListGrammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -7022,7 +7399,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["FIRST".to_string(), "AFTER".to_string(), "(".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["AFTER".to_string(), "(".to_string(), "FIRST".to_string()]),
         token_types: hashbrown::HashSet::from_iter([]),
     }),
 })
@@ -7035,7 +7412,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["MODIFY".to_string(), "ADD".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["ADD".to_string(), "MODIFY".to_string()]),
         token_types: hashbrown::HashSet::from_iter([]),
     }),
 })
@@ -7044,6 +7421,7 @@ Arc::new(Grammar::Ref {
     name: "AlterTableDropColumnGrammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -7059,6 +7437,7 @@ Arc::new(Grammar::Ref {
     name: "RenameKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -7074,6 +7453,7 @@ Arc::new(Grammar::Ref {
     name: "AsKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -7087,6 +7467,7 @@ Arc::new(Grammar::Ref {
     name: "ToKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -7114,6 +7495,7 @@ Arc::new(Grammar::Ref {
     name: "TableReferenceSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -7154,6 +7536,7 @@ Arc::new(Grammar::Ref {
     name: "AlterKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -7167,6 +7550,7 @@ Arc::new(Grammar::Ref {
     name: "TableKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -7180,6 +7564,7 @@ Arc::new(Grammar::Ref {
     name: "TableReferenceSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -7192,6 +7577,7 @@ Arc::new(Grammar::Ref {
     name: "AlterTableOptionsGrammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -7204,6 +7590,7 @@ Arc::new(Grammar::Ref {
     name: "CommaSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -7336,6 +7723,7 @@ Arc::new(Grammar::Ref {
     name: "PlusSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -7349,6 +7737,7 @@ Arc::new(Grammar::Ref {
     name: "MinusSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -7362,6 +7751,7 @@ Arc::new(Grammar::Ref {
     name: "DivideSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -7375,6 +7765,7 @@ Arc::new(Grammar::Ref {
     name: "MultiplySegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -7388,6 +7779,7 @@ Arc::new(Grammar::Ref {
     name: "ModuloSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -7401,6 +7793,7 @@ Arc::new(Grammar::Ref {
     name: "BitwiseAndSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -7414,6 +7807,7 @@ Arc::new(Grammar::Ref {
     name: "BitwiseOrSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -7427,6 +7821,7 @@ Arc::new(Grammar::Ref {
     name: "BitwiseXorSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -7440,6 +7835,7 @@ Arc::new(Grammar::Ref {
     name: "BitwiseLShiftSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -7453,6 +7849,7 @@ Arc::new(Grammar::Ref {
     name: "BitwiseRShiftSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -7471,7 +7868,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["*".to_string(), "<".to_string(), "/".to_string(), ">".to_string(), "|".to_string(), "-".to_string(), "%".to_string(), "^".to_string(), "+".to_string(), "&".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["+".to_string(), "%".to_string(), "<".to_string(), "&".to_string(), "|".to_string(), "^".to_string(), ">".to_string(), "*".to_string(), "-".to_string(), "/".to_string()]),
         token_types: hashbrown::HashSet::from_iter([]),
     }),
 })
@@ -7490,6 +7887,7 @@ Arc::new(Grammar::Ref {
     name: "NumericLiteralSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -7503,6 +7901,7 @@ Arc::new(Grammar::Ref {
     name: "ExpressionSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -7526,6 +7925,7 @@ Arc::new(Grammar::Ref {
     name: "SliceSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -7605,6 +8005,7 @@ Arc::new(Grammar::Ref {
     name: "BaseExpressionElementGrammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -7617,6 +8018,7 @@ Arc::new(Grammar::Ref {
     name: "CommaSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -7684,6 +8086,7 @@ Arc::new(Grammar::Ref {
     name: "AsKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -7835,6 +8238,7 @@ Arc::new(Grammar::Ref {
     name: "Auto_incrementKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -7926,6 +8330,7 @@ Arc::new(Grammar::Ref {
     name: "LiteralGrammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -7936,11 +8341,12 @@ Arc::new(Grammar::Ref {
     name: "BareFunctionSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["CURRENT_TIMESTAMP".to_string(), "CURRENT_TIME".to_string(), "CURRENT_DATE".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["CURRENT_TIME".to_string(), "CURRENT_DATE".to_string(), "CURRENT_TIMESTAMP".to_string()]),
         token_types: hashbrown::HashSet::from_iter([]),
     }),
 })
@@ -7949,6 +8355,7 @@ Arc::new(Grammar::Ref {
     name: "IntervalExpressionSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -7962,6 +8369,7 @@ Arc::new(Grammar::Ref {
     name: "FunctionSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -7972,6 +8380,7 @@ Arc::new(Grammar::Ref {
     name: "ColumnReferenceSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -7982,6 +8391,7 @@ Arc::new(Grammar::Ref {
     name: "ExpressionSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -7994,6 +8404,7 @@ Arc::new(Grammar::Ref {
     name: "DatatypeSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -8004,6 +8415,7 @@ Arc::new(Grammar::Ref {
     name: "LiteralGrammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -8028,6 +8440,7 @@ Arc::new(Grammar::Ref {
     name: "CommaSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -8041,6 +8454,7 @@ Arc::new(Grammar::Ref {
     name: "AsKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -8142,11 +8556,12 @@ Arc::new(Grammar::Ref {
     name: "ArithmeticBinaryOperatorGrammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["*".to_string(), "<".to_string(), "/".to_string(), ">".to_string(), "|".to_string(), "-".to_string(), "%".to_string(), "^".to_string(), "+".to_string(), "&".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["+".to_string(), "%".to_string(), "<".to_string(), "&".to_string(), "|".to_string(), "^".to_string(), ">".to_string(), "*".to_string(), "-".to_string(), "/".to_string()]),
         token_types: hashbrown::HashSet::from_iter([]),
     }),
 })
@@ -8155,6 +8570,7 @@ Arc::new(Grammar::Ref {
     name: "StringBinaryOperatorGrammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -8168,6 +8584,7 @@ Arc::new(Grammar::Ref {
     name: "BooleanBinaryOperatorGrammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -8181,11 +8598,12 @@ Arc::new(Grammar::Ref {
     name: "ComparisonOperatorGrammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["!".to_string(), "<".to_string(), ">".to_string(), "=".to_string(), "IS".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["=".to_string(), "<".to_string(), ">".to_string(), "!".to_string(), "IS".to_string()]),
         token_types: hashbrown::HashSet::from_iter(["like_operator".to_string()]),
     }),
 })
@@ -8199,7 +8617,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["!".to_string(), "*".to_string(), "<".to_string(), "OR".to_string(), "/".to_string(), ">".to_string(), "=".to_string(), "IS".to_string(), "|".to_string(), "-".to_string(), "%".to_string(), "^".to_string(), "AND".to_string(), "+".to_string(), "&".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["=".to_string(), "+".to_string(), "OR".to_string(), "!".to_string(), "%".to_string(), "IS".to_string(), "<".to_string(), "AND".to_string(), "&".to_string(), "|".to_string(), "^".to_string(), ">".to_string(), "*".to_string(), "-".to_string(), "/".to_string()]),
         token_types: hashbrown::HashSet::from_iter(["like_operator".to_string()]),
     }),
 })
@@ -8260,6 +8678,7 @@ Arc::new(Grammar::Ref {
     name: "AmpersandSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -8279,6 +8698,7 @@ Arc::new(Grammar::Ref {
     name: "RawLessThanSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -8292,6 +8712,7 @@ Arc::new(Grammar::Ref {
     name: "RawLessThanSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -8322,6 +8743,7 @@ Arc::new(Grammar::Ref {
     name: "PipeSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -8341,6 +8763,7 @@ Arc::new(Grammar::Ref {
     name: "RawGreaterThanSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -8354,6 +8777,7 @@ Arc::new(Grammar::Ref {
     name: "RawGreaterThanSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -8415,6 +8839,7 @@ Arc::new(Grammar::Ref {
     name: "AndOperatorGrammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -8428,6 +8853,7 @@ Arc::new(Grammar::Ref {
     name: "OrOperatorGrammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -8470,6 +8896,7 @@ Arc::new(Grammar::Ref {
     name: "TrueSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -8483,6 +8910,7 @@ Arc::new(Grammar::Ref {
     name: "FalseSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -8528,6 +8956,7 @@ Arc::new(Grammar::Ref {
     name: "LiteralGrammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -8540,6 +8969,7 @@ Arc::new(Grammar::Ref {
     name: "CommaSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -8602,6 +9032,7 @@ Arc::new(Grammar::Ref {
     name: "ColumnReferenceSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -8614,6 +9045,7 @@ Arc::new(Grammar::Ref {
     name: "CommaSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -8682,11 +9114,12 @@ Arc::new(Grammar::Ref {
     name: "UnorderedSetExpressionSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["SELECT".to_string(), "(".to_string(), "VALUE".to_string(), "VALUES".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["VALUES".to_string(), "VALUE".to_string(), "(".to_string(), "SELECT".to_string()]),
         token_types: hashbrown::HashSet::from_iter([]),
     }),
 })
@@ -8782,6 +9215,7 @@ Arc::new(Grammar::Ref {
     name: "SingleIdentifierListSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -8829,6 +9263,7 @@ Arc::new(Grammar::Ref {
     name: "SingleIdentifierGrammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -8839,6 +9274,7 @@ Arc::new(Grammar::Ref {
     name: "CTEColumnList",
     optional: true,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -8852,6 +9288,7 @@ Arc::new(Grammar::Ref {
     name: "AsKeywordSegment",
     optional: true,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -8867,11 +9304,12 @@ Arc::new(Grammar::Ref {
     name: "SelectableGrammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["(".to_string(), "VALUE".to_string(), "VALUES".to_string(), "SELECT".to_string(), "WITH".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["VALUES".to_string(), "VALUE".to_string(), "(".to_string(), "WITH".to_string(), "SELECT".to_string()]),
         token_types: hashbrown::HashSet::from_iter([]),
     }),
 })
@@ -8989,6 +9427,7 @@ Arc::new(Grammar::Ref {
     name: "CaseKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -9006,6 +9445,7 @@ Arc::new(Grammar::Ref {
     name: "WhenClauseSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -9026,6 +9466,7 @@ Arc::new(Grammar::Ref {
     name: "ElseKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -9039,6 +9480,7 @@ Arc::new(Grammar::Ref {
     name: "EndKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -9062,11 +9504,13 @@ Arc::new(Grammar::Ref {
     name: "ElseClauseSegment",
     optional: true,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
 Arc::new(Grammar::Ref {
     name: "EndKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -9090,6 +9534,7 @@ Arc::new(Grammar::Ref {
     name: "EndKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -9118,6 +9563,7 @@ Arc::new(Grammar::Ref {
     name: "CaseKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -9131,6 +9577,7 @@ Arc::new(Grammar::Ref {
     name: "ExpressionSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -9145,6 +9592,7 @@ Arc::new(Grammar::Ref {
     name: "WhenClauseSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -9165,6 +9613,7 @@ Arc::new(Grammar::Ref {
     name: "ElseKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -9178,6 +9627,7 @@ Arc::new(Grammar::Ref {
     name: "EndKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -9201,11 +9651,13 @@ Arc::new(Grammar::Ref {
     name: "ElseClauseSegment",
     optional: true,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
 Arc::new(Grammar::Ref {
     name: "EndKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -9229,6 +9681,7 @@ Arc::new(Grammar::Ref {
     name: "EndKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -9259,11 +9712,12 @@ Arc::new(Grammar::Ref {
     name: "ComparisonOperatorGrammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["!".to_string(), "<".to_string(), ">".to_string(), "=".to_string(), "IS".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["=".to_string(), "<".to_string(), ">".to_string(), "!".to_string(), "IS".to_string()]),
         token_types: hashbrown::HashSet::from_iter(["like_operator".to_string()]),
     }),
 })
@@ -9272,6 +9726,7 @@ Arc::new(Grammar::Ref {
     name: "CommaSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -9285,11 +9740,12 @@ Arc::new(Grammar::Ref {
     name: "BinaryOperatorGrammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["!".to_string(), "*".to_string(), "<".to_string(), "OR".to_string(), "/".to_string(), ">".to_string(), "=".to_string(), "IS".to_string(), "|".to_string(), "-".to_string(), "%".to_string(), "^".to_string(), "AND".to_string(), "+".to_string(), "&".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["=".to_string(), "+".to_string(), "OR".to_string(), "!".to_string(), "%".to_string(), "IS".to_string(), "<".to_string(), "AND".to_string(), "&".to_string(), "|".to_string(), "^".to_string(), ">".to_string(), "*".to_string(), "-".to_string(), "/".to_string()]),
         token_types: hashbrown::HashSet::from_iter(["like_operator".to_string()]),
     }),
 })
@@ -9652,6 +10108,7 @@ Arc::new(Grammar::Ref {
     name: "QuotedLiteralSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -9667,6 +10124,7 @@ Arc::new(Grammar::Ref {
     name: "SingleIdentifierGrammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -9679,6 +10137,7 @@ Arc::new(Grammar::Ref {
     name: "ObjectReferenceDelimiterGrammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -9695,6 +10154,7 @@ Arc::new(Grammar::Ref {
     name: "ObjectReferenceTerminatorGrammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -9799,6 +10259,7 @@ Arc::new(Grammar::Ref {
     name: "ShorthandCastSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -9809,6 +10270,7 @@ Arc::new(Grammar::Ref {
     name: "LiteralGrammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -9819,6 +10281,7 @@ Arc::new(Grammar::Ref {
     name: "FunctionSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -9829,11 +10292,12 @@ Arc::new(Grammar::Ref {
     name: "BareFunctionSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["CURRENT_TIMESTAMP".to_string(), "CURRENT_TIME".to_string(), "CURRENT_DATE".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["CURRENT_TIME".to_string(), "CURRENT_DATE".to_string(), "CURRENT_TIMESTAMP".to_string()]),
         token_types: hashbrown::HashSet::from_iter([]),
     }),
 })
@@ -9861,6 +10325,7 @@ Arc::new(Grammar::Ref {
     name: "ConstraintKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -9874,6 +10339,7 @@ Arc::new(Grammar::Ref {
     name: "ObjectReferenceSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -9901,6 +10367,7 @@ Arc::new(Grammar::Ref {
     name: "NotKeywordSegment",
     optional: true,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -9914,6 +10381,7 @@ Arc::new(Grammar::Ref {
     name: "NullKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -9931,7 +10399,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["NOT".to_string(), "NULL".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["NULL".to_string(), "NOT".to_string()]),
         token_types: hashbrown::HashSet::from_iter([]),
     }),
 })
@@ -9942,6 +10410,7 @@ Arc::new(Grammar::Ref {
     name: "CheckKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -9957,6 +10426,7 @@ Arc::new(Grammar::Ref {
     name: "ExpressionSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -10013,6 +10483,7 @@ Arc::new(Grammar::Ref {
     name: "DefaultKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -10026,6 +10497,7 @@ Arc::new(Grammar::Ref {
     name: "ColumnConstraintDefaultGrammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -10051,6 +10523,7 @@ Arc::new(Grammar::Ref {
     name: "PrimaryKeyGrammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -10064,6 +10537,7 @@ Arc::new(Grammar::Ref {
     name: "NotEnforcedGrammar",
     optional: true,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -10087,6 +10561,7 @@ Arc::new(Grammar::Ref {
     name: "UniqueKeyGrammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -10100,6 +10575,7 @@ Arc::new(Grammar::Ref {
     name: "AutoIncrementGrammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -10115,6 +10591,7 @@ Arc::new(Grammar::Ref {
     name: "ReferenceDefinitionGrammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -10128,6 +10605,7 @@ Arc::new(Grammar::Ref {
     name: "NotEnforcedGrammar",
     optional: true,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -10151,6 +10629,7 @@ Arc::new(Grammar::Ref {
     name: "CommentClauseSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -10166,6 +10645,7 @@ Arc::new(Grammar::Ref {
     name: "CollateKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -10179,6 +10659,7 @@ Arc::new(Grammar::Ref {
     name: "CollationReferenceSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -10202,6 +10683,7 @@ Arc::new(Grammar::Ref {
     name: "ColumnGeneratedGrammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -10239,6 +10721,7 @@ Arc::new(Grammar::Ref {
     name: "SingleIdentifierGrammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -10249,6 +10732,7 @@ Arc::new(Grammar::Ref {
     name: "DatatypeSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -10296,6 +10780,7 @@ Arc::new(Grammar::Ref {
     name: "ColumnConstraintSegment",
     optional: true,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -10351,6 +10836,7 @@ Arc::new(Grammar::Ref {
     name: "SingleIdentifierGrammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -10363,6 +10849,7 @@ Arc::new(Grammar::Ref {
     name: "ObjectReferenceDelimiterGrammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -10379,6 +10866,7 @@ Arc::new(Grammar::Ref {
     name: "ObjectReferenceTerminatorGrammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -10417,6 +10905,7 @@ Arc::new(Grammar::Ref {
     name: "ColumnsExpressionNameGrammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -10483,6 +10972,7 @@ Arc::new(Grammar::Ref {
     name: "CommentKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -10496,6 +10986,7 @@ Arc::new(Grammar::Ref {
     name: "QuotedLiteralSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -10565,6 +11056,7 @@ Arc::new(Grammar::Ref {
     name: "EqualsSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -10578,6 +11070,7 @@ Arc::new(Grammar::Ref {
     name: "GreaterThanSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -10591,6 +11084,7 @@ Arc::new(Grammar::Ref {
     name: "LessThanSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -10604,6 +11098,7 @@ Arc::new(Grammar::Ref {
     name: "GreaterThanOrEqualToSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -10617,6 +11112,7 @@ Arc::new(Grammar::Ref {
     name: "LessThanOrEqualToSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -10630,11 +11126,12 @@ Arc::new(Grammar::Ref {
     name: "NotEqualToSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["!".to_string(), "<".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["<".to_string(), "!".to_string()]),
         token_types: hashbrown::HashSet::from_iter([]),
     }),
 })
@@ -10643,6 +11140,7 @@ Arc::new(Grammar::Ref {
     name: "LikeOperatorSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -10656,6 +11154,7 @@ Arc::new(Grammar::Ref {
     name: "IsDistinctFromGrammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -10674,7 +11173,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["!".to_string(), "<".to_string(), ">".to_string(), "=".to_string(), "IS".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["=".to_string(), "<".to_string(), ">".to_string(), "!".to_string(), "IS".to_string()]),
         token_types: hashbrown::HashSet::from_iter(["like_operator".to_string()]),
     }),
 })
@@ -10743,6 +11242,7 @@ Arc::new(Grammar::Ref {
     name: "PipeSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -10756,6 +11256,7 @@ Arc::new(Grammar::Ref {
     name: "PipeSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -10805,6 +11306,7 @@ Arc::new(Grammar::Ref {
     name: "CrossKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -10823,11 +11325,12 @@ Arc::new(Grammar::Ref {
     name: "JoinTypeKeywordsGrammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["FULL".to_string(), "LEFT".to_string(), "INNER".to_string(), "RIGHT".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["INNER".to_string(), "RIGHT".to_string(), "FULL".to_string(), "LEFT".to_string()]),
         token_types: hashbrown::HashSet::from_iter([]),
     }),
 })
@@ -10836,6 +11339,7 @@ Arc::new(Grammar::Ref {
     name: "ConditionalCrossJoinKeywordsGrammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -10849,6 +11353,7 @@ Arc::new(Grammar::Ref {
     name: "NonStandardJoinTypeKeywordsGrammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -11076,6 +11581,7 @@ Arc::new(Grammar::Ref {
     name: "CreateKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -11089,6 +11595,7 @@ Arc::new(Grammar::Ref {
     name: "CastKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -11104,6 +11611,7 @@ Arc::new(Grammar::Ref {
     name: "DatatypeSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -11114,6 +11622,7 @@ Arc::new(Grammar::Ref {
     name: "AsKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -11127,6 +11636,7 @@ Arc::new(Grammar::Ref {
     name: "DatatypeSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -11168,6 +11678,7 @@ Arc::new(Grammar::Ref {
     name: "WithKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -11181,6 +11692,7 @@ Arc::new(Grammar::Ref {
     name: "SpecificKeywordSegment",
     optional: true,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -11196,6 +11708,7 @@ Arc::new(Grammar::Ref {
     name: "RoutineKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -11209,6 +11722,7 @@ Arc::new(Grammar::Ref {
     name: "FunctionKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -11222,6 +11736,7 @@ Arc::new(Grammar::Ref {
     name: "ProcedureKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -11239,6 +11754,7 @@ Arc::new(Grammar::Ref {
     name: "InstanceKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -11252,6 +11768,7 @@ Arc::new(Grammar::Ref {
     name: "StaticKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -11265,6 +11782,7 @@ Arc::new(Grammar::Ref {
     name: "ConstructorKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -11283,7 +11801,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["CONSTRUCTOR".to_string(), "INSTANCE".to_string(), "STATIC".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["CONSTRUCTOR".to_string(), "STATIC".to_string(), "INSTANCE".to_string()]),
         token_types: hashbrown::HashSet::from_iter([]),
     }),
 })
@@ -11292,6 +11810,7 @@ Arc::new(Grammar::Ref {
     name: "MethodKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -11309,7 +11828,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["CONSTRUCTOR".to_string(), "METHOD".to_string(), "INSTANCE".to_string(), "STATIC".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["CONSTRUCTOR".to_string(), "METHOD".to_string(), "STATIC".to_string(), "INSTANCE".to_string()]),
         token_types: hashbrown::HashSet::from_iter([]),
     }),
 })
@@ -11323,7 +11842,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["PROCEDURE".to_string(), "METHOD".to_string(), "CONSTRUCTOR".to_string(), "FUNCTION".to_string(), "STATIC".to_string(), "INSTANCE".to_string(), "ROUTINE".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["FUNCTION".to_string(), "ROUTINE".to_string(), "METHOD".to_string(), "STATIC".to_string(), "INSTANCE".to_string(), "PROCEDURE".to_string(), "CONSTRUCTOR".to_string()]),
         token_types: hashbrown::HashSet::from_iter([]),
     }),
 })
@@ -11332,6 +11851,7 @@ Arc::new(Grammar::Ref {
     name: "FunctionNameSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -11342,6 +11862,7 @@ Arc::new(Grammar::Ref {
     name: "FunctionParameterListGrammar",
     optional: true,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -11357,6 +11878,7 @@ Arc::new(Grammar::Ref {
     name: "ForKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -11370,6 +11892,7 @@ Arc::new(Grammar::Ref {
     name: "ObjectReferenceSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -11395,6 +11918,7 @@ Arc::new(Grammar::Ref {
     name: "AsKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -11408,6 +11932,7 @@ Arc::new(Grammar::Ref {
     name: "AssignmentKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -11453,6 +11978,7 @@ Arc::new(Grammar::Ref {
     name: "CreateKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -11466,6 +11992,7 @@ Arc::new(Grammar::Ref {
     name: "DatabaseKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -11479,6 +12006,7 @@ Arc::new(Grammar::Ref {
     name: "IfNotExistsGrammar",
     optional: true,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -11492,6 +12020,7 @@ Arc::new(Grammar::Ref {
     name: "DatabaseReferenceSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -11521,6 +12050,7 @@ Arc::new(Grammar::Ref {
     name: "CreateKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -11534,6 +12064,7 @@ Arc::new(Grammar::Ref {
     name: "OrReplaceGrammar",
     optional: true,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -11547,11 +12078,12 @@ Arc::new(Grammar::Ref {
     name: "TemporaryGrammar",
     optional: true,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["TEMP".to_string(), "TEMPORARY".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["TEMPORARY".to_string(), "TEMP".to_string()]),
         token_types: hashbrown::HashSet::from_iter([]),
     }),
 })
@@ -11560,6 +12092,7 @@ Arc::new(Grammar::Ref {
     name: "FunctionKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -11573,6 +12106,7 @@ Arc::new(Grammar::Ref {
     name: "IfNotExistsGrammar",
     optional: true,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -11586,6 +12120,7 @@ Arc::new(Grammar::Ref {
     name: "FunctionNameSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -11596,6 +12131,7 @@ Arc::new(Grammar::Ref {
     name: "FunctionParameterListGrammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -11611,6 +12147,7 @@ Arc::new(Grammar::Ref {
     name: "ReturnsKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -11624,6 +12161,7 @@ Arc::new(Grammar::Ref {
     name: "DatatypeSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -11647,6 +12185,7 @@ Arc::new(Grammar::Ref {
     name: "FunctionDefinitionGrammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -11679,6 +12218,7 @@ Arc::new(Grammar::Ref {
     name: "CreateKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -11692,6 +12232,7 @@ Arc::new(Grammar::Ref {
     name: "OrReplaceGrammar",
     optional: true,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -11705,6 +12246,7 @@ Arc::new(Grammar::Ref {
     name: "UniqueKeywordSegment",
     optional: true,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -11718,6 +12260,7 @@ Arc::new(Grammar::Ref {
     name: "IndexKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -11731,6 +12274,7 @@ Arc::new(Grammar::Ref {
     name: "IfNotExistsGrammar",
     optional: true,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -11744,6 +12288,7 @@ Arc::new(Grammar::Ref {
     name: "IndexReferenceSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -11754,6 +12299,7 @@ Arc::new(Grammar::Ref {
     name: "OnKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -11767,6 +12313,7 @@ Arc::new(Grammar::Ref {
     name: "TableReferenceSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -11783,6 +12330,7 @@ Arc::new(Grammar::Ref {
     name: "IndexColumnDefinitionSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -11795,6 +12343,7 @@ Arc::new(Grammar::Ref {
     name: "CommaSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -11892,6 +12441,7 @@ Arc::new(Grammar::Ref {
     name: "CreateKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -11905,6 +12455,7 @@ Arc::new(Grammar::Ref {
     name: "OrReplaceGrammar",
     optional: true,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -11918,6 +12469,7 @@ Arc::new(Grammar::Ref {
     name: "ModelKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -11931,6 +12483,7 @@ Arc::new(Grammar::Ref {
     name: "IfNotExistsGrammar",
     optional: true,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -11944,6 +12497,7 @@ Arc::new(Grammar::Ref {
     name: "ObjectReferenceSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -11956,6 +12510,7 @@ Arc::new(Grammar::Ref {
     name: "OptionsKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -11975,6 +12530,7 @@ Arc::new(Grammar::Ref {
     name: "ParameterNameSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -11985,6 +12541,7 @@ Arc::new(Grammar::Ref {
     name: "EqualsSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -12000,6 +12557,7 @@ Arc::new(Grammar::Ref {
     name: "LiteralGrammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -12014,6 +12572,7 @@ Arc::new(Grammar::Ref {
     name: "QuotedLiteralSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -12029,6 +12588,7 @@ Arc::new(Grammar::Ref {
     name: "CommaSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -12110,6 +12670,7 @@ Arc::new(Grammar::Ref {
     name: "CommaSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -12178,6 +12739,7 @@ Arc::new(Grammar::Ref {
     name: "AsKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -12191,11 +12753,12 @@ Arc::new(Grammar::Ref {
     name: "SelectableGrammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["(".to_string(), "VALUE".to_string(), "VALUES".to_string(), "SELECT".to_string(), "WITH".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["VALUES".to_string(), "VALUE".to_string(), "(".to_string(), "WITH".to_string(), "SELECT".to_string()]),
         token_types: hashbrown::HashSet::from_iter([]),
     }),
 })
@@ -12223,6 +12786,7 @@ Arc::new(Grammar::Ref {
     name: "CreateKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -12236,6 +12800,7 @@ Arc::new(Grammar::Ref {
     name: "RoleKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -12249,6 +12814,7 @@ Arc::new(Grammar::Ref {
     name: "IfNotExistsGrammar",
     optional: true,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -12262,6 +12828,7 @@ Arc::new(Grammar::Ref {
     name: "RoleReferenceSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -12291,6 +12858,7 @@ Arc::new(Grammar::Ref {
     name: "CreateKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -12304,6 +12872,7 @@ Arc::new(Grammar::Ref {
     name: "SchemaKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -12317,6 +12886,7 @@ Arc::new(Grammar::Ref {
     name: "IfNotExistsGrammar",
     optional: true,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -12330,6 +12900,7 @@ Arc::new(Grammar::Ref {
     name: "SchemaReferenceSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -12361,6 +12932,7 @@ Arc::new(Grammar::Ref {
     name: "IncrementKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -12374,6 +12946,7 @@ Arc::new(Grammar::Ref {
     name: "ByKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -12387,6 +12960,7 @@ Arc::new(Grammar::Ref {
     name: "NumericLiteralSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -12415,6 +12989,7 @@ Arc::new(Grammar::Ref {
     name: "StartKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -12428,6 +13003,7 @@ Arc::new(Grammar::Ref {
     name: "WithKeywordSegment",
     optional: true,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -12441,6 +13017,7 @@ Arc::new(Grammar::Ref {
     name: "NumericLiteralSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -12467,11 +13044,12 @@ Arc::new(Grammar::Ref {
     name: "SequenceMinValueGrammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["MINVALUE".to_string(), "NO".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["NO".to_string(), "MINVALUE".to_string()]),
         token_types: hashbrown::HashSet::from_iter([]),
     }),
 })
@@ -12480,11 +13058,12 @@ Arc::new(Grammar::Ref {
     name: "SequenceMaxValueGrammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["MAXVALUE".to_string(), "NO".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["NO".to_string(), "MAXVALUE".to_string()]),
         token_types: hashbrown::HashSet::from_iter([]),
     }),
 })
@@ -12497,6 +13076,7 @@ Arc::new(Grammar::Ref {
     name: "CacheKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -12510,6 +13090,7 @@ Arc::new(Grammar::Ref {
     name: "NumericLiteralSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -12536,6 +13117,7 @@ Arc::new(Grammar::Ref {
     name: "NocacheKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -12565,6 +13147,7 @@ Arc::new(Grammar::Ref {
     name: "CycleKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -12578,6 +13161,7 @@ Arc::new(Grammar::Ref {
     name: "NocycleKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -12596,7 +13180,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["CYCLE".to_string(), "NOCYCLE".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["NOCYCLE".to_string(), "CYCLE".to_string()]),
         token_types: hashbrown::HashSet::from_iter([]),
     }),
 })
@@ -12605,11 +13189,12 @@ Arc::new(Grammar::Ref {
     name: "OrderNoOrderGrammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["NOORDER".to_string(), "ORDER".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["ORDER".to_string(), "NOORDER".to_string()]),
         token_types: hashbrown::HashSet::from_iter([]),
     }),
 })
@@ -12623,7 +13208,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["INCREMENT".to_string(), "CACHE".to_string(), "NOORDER".to_string(), "NOCACHE".to_string(), "MAXVALUE".to_string(), "NO".to_string(), "NOCYCLE".to_string(), "ORDER".to_string(), "CYCLE".to_string(), "MINVALUE".to_string(), "START".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["ORDER".to_string(), "NOORDER".to_string(), "MINVALUE".to_string(), "NOCYCLE".to_string(), "NO".to_string(), "MAXVALUE".to_string(), "START".to_string(), "NOCACHE".to_string(), "CYCLE".to_string(), "CACHE".to_string(), "INCREMENT".to_string()]),
         token_types: hashbrown::HashSet::from_iter([]),
     }),
 })
@@ -12638,6 +13223,7 @@ Arc::new(Grammar::Ref {
     name: "CreateKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -12651,6 +13237,7 @@ Arc::new(Grammar::Ref {
     name: "SequenceKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -12664,6 +13251,7 @@ Arc::new(Grammar::Ref {
     name: "SequenceReferenceSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -12676,11 +13264,12 @@ Arc::new(Grammar::Ref {
     name: "CreateSequenceOptionsSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["INCREMENT".to_string(), "CACHE".to_string(), "NOORDER".to_string(), "NOCACHE".to_string(), "MAXVALUE".to_string(), "NO".to_string(), "NOCYCLE".to_string(), "ORDER".to_string(), "CYCLE".to_string(), "MINVALUE".to_string(), "START".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["ORDER".to_string(), "NOORDER".to_string(), "MINVALUE".to_string(), "NOCYCLE".to_string(), "NO".to_string(), "MAXVALUE".to_string(), "START".to_string(), "NOCACHE".to_string(), "CYCLE".to_string(), "CACHE".to_string(), "INCREMENT".to_string()]),
         token_types: hashbrown::HashSet::from_iter([]),
     }),
 })
@@ -12697,7 +13286,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["INCREMENT".to_string(), "CACHE".to_string(), "NOORDER".to_string(), "NOCACHE".to_string(), "MAXVALUE".to_string(), "NO".to_string(), "NOCYCLE".to_string(), "ORDER".to_string(), "CYCLE".to_string(), "MINVALUE".to_string(), "START".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["ORDER".to_string(), "NOORDER".to_string(), "MINVALUE".to_string(), "NOCYCLE".to_string(), "NO".to_string(), "MAXVALUE".to_string(), "START".to_string(), "NOCACHE".to_string(), "CYCLE".to_string(), "CACHE".to_string(), "INCREMENT".to_string()]),
         token_types: hashbrown::HashSet::from_iter([]),
     }),
 })
@@ -12725,6 +13314,7 @@ Arc::new(Grammar::Ref {
     name: "CreateKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -12738,6 +13328,7 @@ Arc::new(Grammar::Ref {
     name: "OrReplaceGrammar",
     optional: true,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -12751,11 +13342,12 @@ Arc::new(Grammar::Ref {
     name: "TemporaryTransientGrammar",
     optional: true,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["TRANSIENT".to_string(), "TEMP".to_string(), "TEMPORARY".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["TEMPORARY".to_string(), "TEMP".to_string(), "TRANSIENT".to_string()]),
         token_types: hashbrown::HashSet::from_iter([]),
     }),
 })
@@ -12764,6 +13356,7 @@ Arc::new(Grammar::Ref {
     name: "TableKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -12777,6 +13370,7 @@ Arc::new(Grammar::Ref {
     name: "IfNotExistsGrammar",
     optional: true,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -12790,6 +13384,7 @@ Arc::new(Grammar::Ref {
     name: "TableReferenceSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -12810,11 +13405,12 @@ Arc::new(Grammar::Ref {
     name: "TableConstraintSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["CONSTRAINT".to_string(), "FOREIGN".to_string(), "UNIQUE".to_string(), "PRIMARY".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["FOREIGN".to_string(), "CONSTRAINT".to_string(), "PRIMARY".to_string(), "UNIQUE".to_string()]),
         token_types: hashbrown::HashSet::from_iter([]),
     }),
 })
@@ -12823,6 +13419,7 @@ Arc::new(Grammar::Ref {
     name: "ColumnDefinitionSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -12846,6 +13443,7 @@ Arc::new(Grammar::Ref {
     name: "CommaSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -12901,6 +13499,7 @@ Arc::new(Grammar::Ref {
     name: "CommentClauseSegment",
     optional: true,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -12929,6 +13528,7 @@ Arc::new(Grammar::Ref {
     name: "AsKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -12946,11 +13546,12 @@ Arc::new(Grammar::Ref {
     name: "SelectableGrammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["(".to_string(), "VALUE".to_string(), "VALUES".to_string(), "SELECT".to_string(), "WITH".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["VALUES".to_string(), "VALUE".to_string(), "(".to_string(), "WITH".to_string(), "SELECT".to_string()]),
         token_types: hashbrown::HashSet::from_iter([]),
     }),
 })
@@ -12990,11 +13591,12 @@ Arc::new(Grammar::Ref {
     name: "SelectableGrammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["(".to_string(), "VALUE".to_string(), "VALUES".to_string(), "SELECT".to_string(), "WITH".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["VALUES".to_string(), "VALUE".to_string(), "(".to_string(), "WITH".to_string(), "SELECT".to_string()]),
         token_types: hashbrown::HashSet::from_iter([]),
     }),
 })
@@ -13008,7 +13610,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["(".to_string(), "VALUE".to_string(), "VALUES".to_string(), "SELECT".to_string(), "WITH".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["VALUES".to_string(), "VALUE".to_string(), "(".to_string(), "WITH".to_string(), "SELECT".to_string()]),
         token_types: hashbrown::HashSet::from_iter([]),
     }),
 })
@@ -13032,6 +13634,7 @@ Arc::new(Grammar::Ref {
     name: "LikeKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -13045,6 +13648,7 @@ Arc::new(Grammar::Ref {
     name: "TableReferenceSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -13073,7 +13677,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["LIKE".to_string(), "AS".to_string(), "(".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["(".to_string(), "LIKE".to_string(), "AS".to_string()]),
         token_types: hashbrown::HashSet::from_iter([]),
     }),
 })
@@ -13082,6 +13686,7 @@ Arc::new(Grammar::Ref {
     name: "TableEndClauseSegment",
     optional: true,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -13111,6 +13716,7 @@ Arc::new(Grammar::Ref {
     name: "CreateKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -13124,6 +13730,7 @@ Arc::new(Grammar::Ref {
     name: "TriggerKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -13137,6 +13744,7 @@ Arc::new(Grammar::Ref {
     name: "TriggerReferenceSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -13149,6 +13757,7 @@ Arc::new(Grammar::Ref {
     name: "BeforeKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -13162,6 +13771,7 @@ Arc::new(Grammar::Ref {
     name: "AfterKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -13177,6 +13787,7 @@ Arc::new(Grammar::Ref {
     name: "InsteadKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -13190,6 +13801,7 @@ Arc::new(Grammar::Ref {
     name: "OfKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -13221,7 +13833,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["BEFORE".to_string(), "INSTEAD".to_string(), "AFTER".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["BEFORE".to_string(), "AFTER".to_string(), "INSTEAD".to_string()]),
         token_types: hashbrown::HashSet::from_iter([]),
     }),
 })
@@ -13232,6 +13844,7 @@ Arc::new(Grammar::Ref {
     name: "InsertKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -13245,6 +13858,7 @@ Arc::new(Grammar::Ref {
     name: "DeleteKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -13260,6 +13874,7 @@ Arc::new(Grammar::Ref {
     name: "UpdateKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -13273,6 +13888,7 @@ Arc::new(Grammar::Ref {
     name: "OfKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -13288,6 +13904,7 @@ Arc::new(Grammar::Ref {
     name: "ColumnReferenceSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -13300,6 +13917,7 @@ Arc::new(Grammar::Ref {
     name: "CommaSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -13316,6 +13934,7 @@ Arc::new(Grammar::Ref {
     name: "OrKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -13329,6 +13948,7 @@ Arc::new(Grammar::Ref {
     name: "OnKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -13365,6 +13985,7 @@ Arc::new(Grammar::Ref {
     name: "OrKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -13381,6 +14002,7 @@ Arc::new(Grammar::Ref {
     name: "OnKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -13396,7 +14018,7 @@ Arc::new(Grammar::Ref {
     min_delimiters: 0,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["UPDATE".to_string(), "DELETE".to_string(), "INSERT".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["DELETE".to_string(), "INSERT".to_string(), "UPDATE".to_string()]),
         token_types: hashbrown::HashSet::from_iter([]),
     }),
 })
@@ -13405,6 +14027,7 @@ Arc::new(Grammar::Ref {
     name: "OnKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -13418,6 +14041,7 @@ Arc::new(Grammar::Ref {
     name: "TableReferenceSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -13432,6 +14056,7 @@ Arc::new(Grammar::Ref {
     name: "ReferencingKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -13445,6 +14070,7 @@ Arc::new(Grammar::Ref {
     name: "OldKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -13458,6 +14084,7 @@ Arc::new(Grammar::Ref {
     name: "RowKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -13471,6 +14098,7 @@ Arc::new(Grammar::Ref {
     name: "AsKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -13484,6 +14112,7 @@ Arc::new(Grammar::Ref {
     name: "ParameterNameSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -13494,6 +14123,7 @@ Arc::new(Grammar::Ref {
     name: "NewKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -13507,6 +14137,7 @@ Arc::new(Grammar::Ref {
     name: "RowKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -13520,6 +14151,7 @@ Arc::new(Grammar::Ref {
     name: "AsKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -13533,6 +14165,7 @@ Arc::new(Grammar::Ref {
     name: "ParameterNameSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -13558,6 +14191,7 @@ Arc::new(Grammar::Ref {
     name: "FromKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -13571,6 +14205,7 @@ Arc::new(Grammar::Ref {
     name: "TableReferenceSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -13598,6 +14233,7 @@ Arc::new(Grammar::Ref {
     name: "NotKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -13611,6 +14247,7 @@ Arc::new(Grammar::Ref {
     name: "DeferrableKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -13639,6 +14276,7 @@ Arc::new(Grammar::Ref {
     name: "DeferrableKeywordSegment",
     optional: true,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -13656,6 +14294,7 @@ Arc::new(Grammar::Ref {
     name: "InitiallyKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -13669,6 +14308,7 @@ Arc::new(Grammar::Ref {
     name: "ImmediateKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -13697,6 +14337,7 @@ Arc::new(Grammar::Ref {
     name: "InitiallyKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -13710,6 +14351,7 @@ Arc::new(Grammar::Ref {
     name: "DeferredKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -13768,7 +14410,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["NOT".to_string(), "INITIALLY".to_string(), "DEFERRABLE".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["INITIALLY".to_string(), "DEFERRABLE".to_string(), "NOT".to_string()]),
         token_types: hashbrown::HashSet::from_iter([]),
     }),
 })
@@ -13779,6 +14421,7 @@ Arc::new(Grammar::Ref {
     name: "ForKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -13792,6 +14435,7 @@ Arc::new(Grammar::Ref {
     name: "EachKeywordSegment",
     optional: true,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -13807,6 +14451,7 @@ Arc::new(Grammar::Ref {
     name: "RowKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -13820,6 +14465,7 @@ Arc::new(Grammar::Ref {
     name: "StatementKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -13862,6 +14508,7 @@ Arc::new(Grammar::Ref {
     name: "WhenKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -13877,6 +14524,7 @@ Arc::new(Grammar::Ref {
     name: "ExpressionSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -13939,7 +14587,7 @@ Arc::new(Grammar::StringParser {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["FROM".to_string(), "FOR".to_string(), "INITIALLY".to_string(), "DEFERRABLE".to_string(), "NOT".to_string(), "WHEN".to_string(), "REFERENCING".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["REFERENCING".to_string(), "WHEN".to_string(), "FOR".to_string(), "NOT".to_string(), "INITIALLY".to_string(), "DEFERRABLE".to_string(), "FROM".to_string()]),
         token_types: hashbrown::HashSet::from_iter([]),
     }),
 })
@@ -13950,6 +14598,7 @@ Arc::new(Grammar::Ref {
     name: "ExecuteKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -13963,6 +14612,7 @@ Arc::new(Grammar::Ref {
     name: "ProcedureKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -13976,6 +14626,7 @@ Arc::new(Grammar::Ref {
     name: "FunctionNameIdentifierSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -13989,6 +14640,7 @@ Arc::new(Grammar::Ref {
     name: "FunctionContentsSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -14034,6 +14686,7 @@ Arc::new(Grammar::Ref {
     name: "CreateKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -14047,6 +14700,7 @@ Arc::new(Grammar::Ref {
     name: "UserKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -14060,6 +14714,7 @@ Arc::new(Grammar::Ref {
     name: "RoleReferenceSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -14089,6 +14744,7 @@ Arc::new(Grammar::Ref {
     name: "CreateKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -14102,6 +14758,7 @@ Arc::new(Grammar::Ref {
     name: "OrReplaceGrammar",
     optional: true,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -14115,6 +14772,7 @@ Arc::new(Grammar::Ref {
     name: "ViewKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -14128,6 +14786,7 @@ Arc::new(Grammar::Ref {
     name: "IfNotExistsGrammar",
     optional: true,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -14141,6 +14800,7 @@ Arc::new(Grammar::Ref {
     name: "TableReferenceSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -14151,6 +14811,7 @@ Arc::new(Grammar::Ref {
     name: "BracketedColumnReferenceListGrammar",
     optional: true,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -14164,6 +14825,7 @@ Arc::new(Grammar::Ref {
     name: "AsKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -14181,11 +14843,12 @@ Arc::new(Grammar::Ref {
     name: "SelectableGrammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["(".to_string(), "VALUE".to_string(), "VALUES".to_string(), "SELECT".to_string(), "WITH".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["VALUES".to_string(), "VALUE".to_string(), "(".to_string(), "WITH".to_string(), "SELECT".to_string()]),
         token_types: hashbrown::HashSet::from_iter([]),
     }),
 })
@@ -14225,11 +14888,12 @@ Arc::new(Grammar::Ref {
     name: "SelectableGrammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["(".to_string(), "VALUE".to_string(), "VALUES".to_string(), "SELECT".to_string(), "WITH".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["VALUES".to_string(), "VALUE".to_string(), "(".to_string(), "WITH".to_string(), "SELECT".to_string()]),
         token_types: hashbrown::HashSet::from_iter([]),
     }),
 })
@@ -14243,7 +14907,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["(".to_string(), "VALUE".to_string(), "VALUES".to_string(), "SELECT".to_string(), "WITH".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["VALUES".to_string(), "VALUE".to_string(), "(".to_string(), "WITH".to_string(), "SELECT".to_string()]),
         token_types: hashbrown::HashSet::from_iter([]),
     }),
 })
@@ -14252,6 +14916,7 @@ Arc::new(Grammar::Ref {
     name: "WithNoSchemaBindingClauseSegment",
     optional: true,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -14357,6 +15022,7 @@ Arc::new(Grammar::Ref {
     name: "CubeFunctionNameSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -14370,6 +15036,7 @@ Arc::new(Grammar::Ref {
     name: "RollupFunctionNameSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -14388,7 +15055,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["ROLLUP".to_string(), "CUBE".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["CUBE".to_string(), "ROLLUP".to_string()]),
         token_types: hashbrown::HashSet::from_iter([]),
     }),
 })
@@ -14399,6 +15066,7 @@ Arc::new(Grammar::Ref {
     name: "GroupingExpressionList",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -14444,7 +15112,7 @@ Arc::new(Grammar::StringParser {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["ROLLUP".to_string(), "CUBE".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["CUBE".to_string(), "ROLLUP".to_string()]),
         token_types: hashbrown::HashSet::from_iter([]),
     }),
 })
@@ -14609,6 +15277,7 @@ Arc::new(Grammar::Ref {
     name: "SingleIdentifierGrammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -14621,6 +15290,7 @@ Arc::new(Grammar::Ref {
     name: "ObjectReferenceDelimiterGrammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -14637,6 +15307,7 @@ Arc::new(Grammar::Ref {
     name: "ObjectReferenceTerminatorGrammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -14681,6 +15352,18 @@ Arc::new(Grammar::Ref {
     name: "SingleIdentifierGrammar",
     optional: false,
     allow_gaps: true,
+    exclude: Some(Box::new(
+Arc::new(Grammar::Ref {
+    name: "NakedIdentifierSegment",
+    optional: false,
+    allow_gaps: true,
+    exclude: None,
+    terminators: vec![
+    ],
+    reset_terminators: false,
+    simple_hint: None,
+})
+    )),
     terminators: vec![
     ],
     reset_terminators: false,
@@ -14708,6 +15391,7 @@ Arc::new(Grammar::Ref {
     name: "TimeWithTZGrammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -14723,6 +15407,7 @@ Arc::new(Grammar::Ref {
     name: "DoubleKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -14736,6 +15421,7 @@ Arc::new(Grammar::Ref {
     name: "PrecisionKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -14770,6 +15456,7 @@ Arc::new(Grammar::Ref {
     name: "CharacterKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -14783,6 +15470,7 @@ Arc::new(Grammar::Ref {
     name: "BinaryKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -14812,6 +15500,7 @@ Arc::new(Grammar::Ref {
     name: "VaryingKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -14827,6 +15516,7 @@ Arc::new(Grammar::Ref {
     name: "LargeKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -14840,6 +15530,7 @@ Arc::new(Grammar::Ref {
     name: "ObjectKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -14897,6 +15588,7 @@ Arc::new(Grammar::Ref {
     name: "SingleIdentifierGrammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -14907,6 +15599,7 @@ Arc::new(Grammar::Ref {
     name: "DotSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -14930,6 +15623,7 @@ Arc::new(Grammar::Ref {
     name: "DatatypeIdentifierSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -14961,6 +15655,7 @@ Arc::new(Grammar::Ref {
     name: "BracketedArguments",
     optional: true,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -14976,6 +15671,7 @@ Arc::new(Grammar::Ref {
     name: "UnsignedKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -14989,6 +15685,7 @@ Arc::new(Grammar::Ref {
     name: "CharCharacterSetGrammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -15023,6 +15720,7 @@ Arc::new(Grammar::Ref {
     name: "ArrayTypeSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -15068,6 +15766,7 @@ Arc::new(Grammar::Ref {
     name: "DatePartFunctionName",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -15091,11 +15790,12 @@ Arc::new(Grammar::Ref {
     name: "DatetimeUnitSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["MINUTE".to_string(), "QUARTER".to_string(), "MONTH".to_string(), "WEEKDAY".to_string(), "DAYOFYEAR".to_string(), "HOUR".to_string(), "MILLISECOND".to_string(), "DAY".to_string(), "WEEK".to_string(), "YEAR".to_string(), "SECOND".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["HOUR".to_string(), "WEEK".to_string(), "QUARTER".to_string(), "YEAR".to_string(), "DAY".to_string(), "DAYOFYEAR".to_string(), "SECOND".to_string(), "MINUTE".to_string(), "MONTH".to_string(), "WEEKDAY".to_string(), "MILLISECOND".to_string()]),
         token_types: hashbrown::HashSet::from_iter([]),
     }),
 })
@@ -15104,6 +15804,7 @@ Arc::new(Grammar::Ref {
     name: "FunctionContentsGrammar",
     optional: true,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -15116,6 +15817,7 @@ Arc::new(Grammar::Ref {
     name: "CommaSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -15191,6 +15893,7 @@ Arc::new(Grammar::Ref {
     name: "DateKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -15204,6 +15907,7 @@ Arc::new(Grammar::Ref {
     name: "TimeKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -15217,6 +15921,7 @@ Arc::new(Grammar::Ref {
     name: "TimestampKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -15230,6 +15935,7 @@ Arc::new(Grammar::Ref {
     name: "IntervalKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -15248,7 +15954,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["TIME".to_string(), "TIMESTAMP".to_string(), "INTERVAL".to_string(), "DATE".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["INTERVAL".to_string(), "DATE".to_string(), "TIME".to_string(), "TIMESTAMP".to_string()]),
         token_types: hashbrown::HashSet::from_iter([]),
     }),
 })
@@ -15268,7 +15974,7 @@ Arc::new(Grammar::TypedParser {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["TIME".to_string(), "TIMESTAMP".to_string(), "INTERVAL".to_string(), "DATE".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["INTERVAL".to_string(), "DATE".to_string(), "TIME".to_string(), "TIMESTAMP".to_string()]),
         token_types: hashbrown::HashSet::from_iter([]),
     }),
 })
@@ -15477,6 +16183,7 @@ Arc::new(Grammar::Ref {
     name: "DefaultKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -15490,6 +16197,7 @@ Arc::new(Grammar::Ref {
     name: "ValuesKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -15612,6 +16320,7 @@ Arc::new(Grammar::Ref {
     name: "DeleteKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -15625,6 +16334,7 @@ Arc::new(Grammar::Ref {
     name: "FromClauseSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -15638,6 +16348,7 @@ Arc::new(Grammar::Ref {
     name: "WhereClauseSegment",
     optional: true,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -15667,6 +16378,7 @@ Arc::new(Grammar::Ref {
     name: "SemicolonSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -15776,6 +16488,7 @@ Arc::new(Grammar::Ref {
     name: "DescribeKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -15789,6 +16502,7 @@ Arc::new(Grammar::Ref {
     name: "NakedIdentifierSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -15799,6 +16513,7 @@ Arc::new(Grammar::Ref {
     name: "ObjectReferenceSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -16017,6 +16732,7 @@ Arc::new(Grammar::Ref {
     name: "RestrictKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -16030,6 +16746,7 @@ Arc::new(Grammar::Ref {
     name: "CascadeKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -16063,6 +16780,7 @@ Arc::new(Grammar::Ref {
     name: "DropKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -16076,6 +16794,7 @@ Arc::new(Grammar::Ref {
     name: "CastKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -16091,6 +16810,7 @@ Arc::new(Grammar::Ref {
     name: "DatatypeSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -16101,6 +16821,7 @@ Arc::new(Grammar::Ref {
     name: "AsKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -16114,6 +16835,7 @@ Arc::new(Grammar::Ref {
     name: "DatatypeSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -16155,6 +16877,7 @@ Arc::new(Grammar::Ref {
     name: "DropBehaviorGrammar",
     optional: true,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -16187,6 +16910,7 @@ Arc::new(Grammar::Ref {
     name: "DropKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -16200,6 +16924,7 @@ Arc::new(Grammar::Ref {
     name: "DatabaseKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -16213,6 +16938,7 @@ Arc::new(Grammar::Ref {
     name: "IfExistsGrammar",
     optional: true,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -16226,6 +16952,7 @@ Arc::new(Grammar::Ref {
     name: "DatabaseReferenceSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -16236,6 +16963,7 @@ Arc::new(Grammar::Ref {
     name: "DropBehaviorGrammar",
     optional: true,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -16268,6 +16996,7 @@ Arc::new(Grammar::Ref {
     name: "DropKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -16281,6 +17010,7 @@ Arc::new(Grammar::Ref {
     name: "FunctionKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -16294,6 +17024,7 @@ Arc::new(Grammar::Ref {
     name: "IfExistsGrammar",
     optional: true,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -16307,6 +17038,7 @@ Arc::new(Grammar::Ref {
     name: "FunctionNameSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -16336,6 +17068,7 @@ Arc::new(Grammar::Ref {
     name: "DropKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -16349,6 +17082,7 @@ Arc::new(Grammar::Ref {
     name: "IndexKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -16362,6 +17096,7 @@ Arc::new(Grammar::Ref {
     name: "IfExistsGrammar",
     optional: true,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -16375,6 +17110,7 @@ Arc::new(Grammar::Ref {
     name: "IndexReferenceSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -16385,6 +17121,7 @@ Arc::new(Grammar::Ref {
     name: "DropBehaviorGrammar",
     optional: true,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -16427,6 +17164,7 @@ Arc::new(Grammar::Ref {
     name: "DropKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -16440,6 +17178,7 @@ Arc::new(Grammar::Ref {
     name: "ModelKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -16453,6 +17192,7 @@ Arc::new(Grammar::Ref {
     name: "IfExistsGrammar",
     optional: true,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -16466,6 +17206,7 @@ Arc::new(Grammar::Ref {
     name: "ObjectReferenceSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -16495,6 +17236,7 @@ Arc::new(Grammar::Ref {
     name: "DropKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -16508,6 +17250,7 @@ Arc::new(Grammar::Ref {
     name: "RoleKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -16521,6 +17264,7 @@ Arc::new(Grammar::Ref {
     name: "IfExistsGrammar",
     optional: true,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -16534,6 +17278,7 @@ Arc::new(Grammar::Ref {
     name: "SingleIdentifierGrammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -16563,6 +17308,7 @@ Arc::new(Grammar::Ref {
     name: "DropKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -16576,6 +17322,7 @@ Arc::new(Grammar::Ref {
     name: "SchemaKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -16589,6 +17336,7 @@ Arc::new(Grammar::Ref {
     name: "IfExistsGrammar",
     optional: true,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -16602,6 +17350,7 @@ Arc::new(Grammar::Ref {
     name: "SchemaReferenceSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -16612,6 +17361,7 @@ Arc::new(Grammar::Ref {
     name: "DropBehaviorGrammar",
     optional: true,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -16644,6 +17394,7 @@ Arc::new(Grammar::Ref {
     name: "DropKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -16657,6 +17408,7 @@ Arc::new(Grammar::Ref {
     name: "SequenceKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -16670,6 +17422,7 @@ Arc::new(Grammar::Ref {
     name: "SequenceReferenceSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -16699,6 +17452,7 @@ Arc::new(Grammar::Ref {
     name: "DropKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -16712,11 +17466,12 @@ Arc::new(Grammar::Ref {
     name: "TemporaryGrammar",
     optional: true,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["TEMP".to_string(), "TEMPORARY".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["TEMPORARY".to_string(), "TEMP".to_string()]),
         token_types: hashbrown::HashSet::from_iter([]),
     }),
 })
@@ -16725,6 +17480,7 @@ Arc::new(Grammar::Ref {
     name: "TableKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -16738,6 +17494,7 @@ Arc::new(Grammar::Ref {
     name: "IfExistsGrammar",
     optional: true,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -16753,6 +17510,7 @@ Arc::new(Grammar::Ref {
     name: "TableReferenceSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -16765,6 +17523,7 @@ Arc::new(Grammar::Ref {
     name: "CommaSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -16789,6 +17548,7 @@ Arc::new(Grammar::Ref {
     name: "DropBehaviorGrammar",
     optional: true,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -16821,6 +17581,7 @@ Arc::new(Grammar::Ref {
     name: "DropKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -16834,6 +17595,7 @@ Arc::new(Grammar::Ref {
     name: "TriggerKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -16847,6 +17609,7 @@ Arc::new(Grammar::Ref {
     name: "IfExistsGrammar",
     optional: true,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -16860,6 +17623,7 @@ Arc::new(Grammar::Ref {
     name: "TriggerReferenceSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -16889,6 +17653,7 @@ Arc::new(Grammar::Ref {
     name: "DropKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -16902,6 +17667,7 @@ Arc::new(Grammar::Ref {
     name: "TypeKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -16915,6 +17681,7 @@ Arc::new(Grammar::Ref {
     name: "IfExistsGrammar",
     optional: true,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -16928,6 +17695,7 @@ Arc::new(Grammar::Ref {
     name: "ObjectReferenceSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -16938,6 +17706,7 @@ Arc::new(Grammar::Ref {
     name: "DropBehaviorGrammar",
     optional: true,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -16970,6 +17739,7 @@ Arc::new(Grammar::Ref {
     name: "DropKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -16983,6 +17753,7 @@ Arc::new(Grammar::Ref {
     name: "UserKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -16996,6 +17767,7 @@ Arc::new(Grammar::Ref {
     name: "IfExistsGrammar",
     optional: true,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -17009,6 +17781,7 @@ Arc::new(Grammar::Ref {
     name: "RoleReferenceSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -17038,6 +17811,7 @@ Arc::new(Grammar::Ref {
     name: "DropKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -17051,6 +17825,7 @@ Arc::new(Grammar::Ref {
     name: "ViewKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -17064,6 +17839,7 @@ Arc::new(Grammar::Ref {
     name: "IfExistsGrammar",
     optional: true,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -17077,6 +17853,7 @@ Arc::new(Grammar::Ref {
     name: "TableReferenceSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -17087,6 +17864,7 @@ Arc::new(Grammar::Ref {
     name: "DropBehaviorGrammar",
     optional: true,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -17189,6 +17967,7 @@ Arc::new(Grammar::Ref {
     name: "ElseKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -17204,6 +17983,7 @@ Arc::new(Grammar::Ref {
     name: "ExpressionSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -17292,6 +18072,7 @@ Arc::new(Grammar::Ref {
     name: "StructTypeSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -17302,6 +18083,7 @@ Arc::new(Grammar::Ref {
     name: "EmptyStructLiteralBracketsSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -17439,6 +18221,7 @@ Arc::new(Grammar::Ref {
     name: "RawEqualsSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -17628,6 +18411,7 @@ Arc::new(Grammar::Ref {
     name: "ExplainKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -17643,11 +18427,12 @@ Arc::new(Grammar::Ref {
     name: "SelectableGrammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["(".to_string(), "VALUE".to_string(), "VALUES".to_string(), "SELECT".to_string(), "WITH".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["VALUES".to_string(), "VALUE".to_string(), "(".to_string(), "WITH".to_string(), "SELECT".to_string()]),
         token_types: hashbrown::HashSet::from_iter([]),
     }),
 })
@@ -17656,6 +18441,7 @@ Arc::new(Grammar::Ref {
     name: "InsertStatementSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -17669,6 +18455,7 @@ Arc::new(Grammar::Ref {
     name: "UpdateStatementSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -17682,6 +18469,7 @@ Arc::new(Grammar::Ref {
     name: "DeleteStatementSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -17700,7 +18488,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["DELETE".to_string(), "(".to_string(), "VALUE".to_string(), "VALUES".to_string(), "UPDATE".to_string(), "SELECT".to_string(), "WITH".to_string(), "INSERT".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["VALUES".to_string(), "INSERT".to_string(), "DELETE".to_string(), "UPDATE".to_string(), "VALUE".to_string(), "(".to_string(), "WITH".to_string(), "SELECT".to_string()]),
         token_types: hashbrown::HashSet::from_iter([]),
     }),
 })
@@ -17726,6 +18514,7 @@ Arc::new(Grammar::Ref {
     name: "Expression_A_Grammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -17741,6 +18530,7 @@ Arc::new(Grammar::Ref {
     name: "Tail_Recurse_Expression_A_Grammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -17755,11 +18545,12 @@ Arc::new(Grammar::Ref {
     name: "LikeExpressionGrammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["NOT".to_string(), "LIKE".to_string(), "ILIKE".to_string(), "RLIKE".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["RLIKE".to_string(), "LIKE".to_string(), "NOT".to_string(), "ILIKE".to_string()]),
         token_types: hashbrown::HashSet::from_iter([]),
     }),
 })
@@ -17770,11 +18561,12 @@ Arc::new(Grammar::Ref {
     name: "BinaryOperatorGrammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["!".to_string(), "*".to_string(), "<".to_string(), "OR".to_string(), "/".to_string(), ">".to_string(), "=".to_string(), "IS".to_string(), "|".to_string(), "-".to_string(), "%".to_string(), "^".to_string(), "AND".to_string(), "+".to_string(), "&".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["=".to_string(), "+".to_string(), "OR".to_string(), "!".to_string(), "%".to_string(), "IS".to_string(), "<".to_string(), "AND".to_string(), "&".to_string(), "|".to_string(), "^".to_string(), ">".to_string(), "*".to_string(), "-".to_string(), "/".to_string()]),
         token_types: hashbrown::HashSet::from_iter(["like_operator".to_string()]),
     }),
 })
@@ -17783,6 +18575,7 @@ Arc::new(Grammar::Ref {
     name: "Tail_Recurse_Expression_A_Grammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -17797,7 +18590,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["!".to_string(), "*".to_string(), "<".to_string(), "OR".to_string(), "/".to_string(), ">".to_string(), "=".to_string(), "IS".to_string(), "|".to_string(), "-".to_string(), "%".to_string(), "^".to_string(), "AND".to_string(), "+".to_string(), "&".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["=".to_string(), "+".to_string(), "OR".to_string(), "!".to_string(), "%".to_string(), "IS".to_string(), "<".to_string(), "AND".to_string(), "&".to_string(), "|".to_string(), "^".to_string(), ">".to_string(), "*".to_string(), "-".to_string(), "/".to_string()]),
         token_types: hashbrown::HashSet::from_iter(["like_operator".to_string()]),
     }),
 })
@@ -17806,11 +18599,12 @@ Arc::new(Grammar::Ref {
     name: "InOperatorGrammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["NOT".to_string(), "IN".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["IN".to_string(), "NOT".to_string()]),
         token_types: hashbrown::HashSet::from_iter([]),
     }),
 })
@@ -17821,6 +18615,7 @@ Arc::new(Grammar::Ref {
     name: "IsKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -17834,6 +18629,7 @@ Arc::new(Grammar::Ref {
     name: "NotKeywordSegment",
     optional: true,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -17847,6 +18643,7 @@ Arc::new(Grammar::Ref {
     name: "IsClauseGrammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -17870,6 +18667,7 @@ Arc::new(Grammar::Ref {
     name: "IsNullGrammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -17880,6 +18678,7 @@ Arc::new(Grammar::Ref {
     name: "NotNullGrammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -17890,6 +18689,7 @@ Arc::new(Grammar::Ref {
     name: "CollateGrammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -17902,6 +18702,7 @@ Arc::new(Grammar::Ref {
     name: "NotKeywordSegment",
     optional: true,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -17915,6 +18716,7 @@ Arc::new(Grammar::Ref {
     name: "BetweenKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -17928,6 +18730,7 @@ Arc::new(Grammar::Ref {
     name: "Expression_B_Grammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -17938,6 +18741,7 @@ Arc::new(Grammar::Ref {
     name: "AndKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -17951,6 +18755,7 @@ Arc::new(Grammar::Ref {
     name: "Tail_Recurse_Expression_A_Grammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -17965,7 +18770,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["NOT".to_string(), "BETWEEN".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["BETWEEN".to_string(), "NOT".to_string()]),
         token_types: hashbrown::HashSet::from_iter([]),
     }),
 })
@@ -17976,6 +18781,7 @@ Arc::new(Grammar::Ref {
     name: "PatternMatchingGrammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -17986,6 +18792,7 @@ Arc::new(Grammar::Ref {
     name: "Expression_A_Grammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -18046,11 +18853,41 @@ Arc::new(Grammar::Ref {
     name: "SignedSegmentGrammar",
     optional: false,
     allow_gaps: true,
+    exclude: Some(Box::new(
+Arc::new(Grammar::Sequence {
+    elements: vec![
+Arc::new(Grammar::Ref {
+    name: "QualifiedNumericLiteralSegment",
+    optional: false,
+    allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["-".to_string(), "+".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["+".to_string(), "-".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
+})
+,
+    ],
+    optional: false,
+    terminators: vec![
+    ],
+    reset_terminators: false,
+    allow_gaps: true,
+    parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["+".to_string(), "-".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
+})
+    )),
+    terminators: vec![
+    ],
+    reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["+".to_string(), "-".to_string()]),
         token_types: hashbrown::HashSet::from_iter([]),
     }),
 })
@@ -18059,6 +18896,7 @@ Arc::new(Grammar::Ref {
     name: "TildeSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -18072,6 +18910,7 @@ Arc::new(Grammar::Ref {
     name: "NotOperatorGrammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -18085,6 +18924,7 @@ Arc::new(Grammar::Ref {
     name: "PriorKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -18103,7 +18943,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["~".to_string(), "-".to_string(), "NOT".to_string(), "+".to_string(), "PRIOR".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["PRIOR".to_string(), "NOT".to_string(), "+".to_string(), "-".to_string(), "~".to_string()]),
         token_types: hashbrown::HashSet::from_iter([]),
     }),
 })
@@ -18117,6 +18957,7 @@ Arc::new(Grammar::Ref {
     name: "Tail_Recurse_Expression_B_Grammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -18135,11 +18976,12 @@ Arc::new(Grammar::Ref {
     name: "ArithmeticBinaryOperatorGrammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["*".to_string(), "<".to_string(), "/".to_string(), ">".to_string(), "|".to_string(), "-".to_string(), "%".to_string(), "^".to_string(), "+".to_string(), "&".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["+".to_string(), "%".to_string(), "<".to_string(), "&".to_string(), "|".to_string(), "^".to_string(), ">".to_string(), "*".to_string(), "-".to_string(), "/".to_string()]),
         token_types: hashbrown::HashSet::from_iter([]),
     }),
 })
@@ -18148,6 +18990,7 @@ Arc::new(Grammar::Ref {
     name: "StringBinaryOperatorGrammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -18161,11 +19004,12 @@ Arc::new(Grammar::Ref {
     name: "ComparisonOperatorGrammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["!".to_string(), "<".to_string(), ">".to_string(), "=".to_string(), "IS".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["=".to_string(), "<".to_string(), ">".to_string(), "!".to_string(), "IS".to_string()]),
         token_types: hashbrown::HashSet::from_iter(["like_operator".to_string()]),
     }),
 })
@@ -18179,7 +19023,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["!".to_string(), "*".to_string(), "<".to_string(), "/".to_string(), ">".to_string(), "=".to_string(), "IS".to_string(), "|".to_string(), "-".to_string(), "%".to_string(), "^".to_string(), "+".to_string(), "&".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["=".to_string(), "+".to_string(), "!".to_string(), "%".to_string(), "IS".to_string(), "<".to_string(), "&".to_string(), "|".to_string(), "^".to_string(), ">".to_string(), "*".to_string(), "-".to_string(), "/".to_string()]),
         token_types: hashbrown::HashSet::from_iter(["like_operator".to_string()]),
     }),
 })
@@ -18188,6 +19032,7 @@ Arc::new(Grammar::Ref {
     name: "Tail_Recurse_Expression_B_Grammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -18202,7 +19047,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["!".to_string(), "*".to_string(), "<".to_string(), "/".to_string(), ">".to_string(), "=".to_string(), "IS".to_string(), "|".to_string(), "-".to_string(), "%".to_string(), "^".to_string(), "+".to_string(), "&".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["=".to_string(), "+".to_string(), "!".to_string(), "%".to_string(), "IS".to_string(), "<".to_string(), "&".to_string(), "|".to_string(), "^".to_string(), ">".to_string(), "*".to_string(), "-".to_string(), "/".to_string()]),
         token_types: hashbrown::HashSet::from_iter(["like_operator".to_string()]),
     }),
 })
@@ -18216,7 +19061,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["!".to_string(), "*".to_string(), "<".to_string(), "/".to_string(), ">".to_string(), "=".to_string(), "IS".to_string(), "|".to_string(), "-".to_string(), "%".to_string(), "^".to_string(), "+".to_string(), "&".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["=".to_string(), "+".to_string(), "!".to_string(), "%".to_string(), "IS".to_string(), "<".to_string(), "&".to_string(), "|".to_string(), "^".to_string(), ">".to_string(), "*".to_string(), "-".to_string(), "/".to_string()]),
         token_types: hashbrown::HashSet::from_iter(["like_operator".to_string()]),
     }),
 })
@@ -18233,7 +19078,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["!".to_string(), "*".to_string(), "<".to_string(), "/".to_string(), ">".to_string(), "=".to_string(), "IS".to_string(), "|".to_string(), "-".to_string(), "%".to_string(), "^".to_string(), "+".to_string(), "&".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["=".to_string(), "+".to_string(), "!".to_string(), "%".to_string(), "IS".to_string(), "<".to_string(), "&".to_string(), "|".to_string(), "^".to_string(), ">".to_string(), "*".to_string(), "-".to_string(), "/".to_string()]),
         token_types: hashbrown::HashSet::from_iter(["like_operator".to_string()]),
     }),
 })
@@ -18257,11 +19102,41 @@ Arc::new(Grammar::Ref {
     name: "SignedSegmentGrammar",
     optional: false,
     allow_gaps: true,
+    exclude: Some(Box::new(
+Arc::new(Grammar::Sequence {
+    elements: vec![
+Arc::new(Grammar::Ref {
+    name: "QualifiedNumericLiteralSegment",
+    optional: false,
+    allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["-".to_string(), "+".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["+".to_string(), "-".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
+})
+,
+    ],
+    optional: false,
+    terminators: vec![
+    ],
+    reset_terminators: false,
+    allow_gaps: true,
+    parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["+".to_string(), "-".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
+})
+    )),
+    terminators: vec![
+    ],
+    reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["+".to_string(), "-".to_string()]),
         token_types: hashbrown::HashSet::from_iter([]),
     }),
 })
@@ -18270,6 +19145,7 @@ Arc::new(Grammar::Ref {
     name: "TildeSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -18288,7 +19164,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["~".to_string(), "-".to_string(), "+".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["+".to_string(), "-".to_string(), "~".to_string()]),
         token_types: hashbrown::HashSet::from_iter([]),
     }),
 })
@@ -18304,6 +19180,7 @@ Arc::new(Grammar::Ref {
     name: "ExistsKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -18319,11 +19196,12 @@ Arc::new(Grammar::Ref {
     name: "SelectableGrammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["(".to_string(), "VALUE".to_string(), "VALUES".to_string(), "SELECT".to_string(), "WITH".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["VALUES".to_string(), "VALUE".to_string(), "(".to_string(), "WITH".to_string(), "SELECT".to_string()]),
         token_types: hashbrown::HashSet::from_iter([]),
     }),
 })
@@ -18380,6 +19258,7 @@ Arc::new(Grammar::Ref {
     name: "Expression_D_Grammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -18390,6 +19269,7 @@ Arc::new(Grammar::Ref {
     name: "CaseExpressionSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -18416,6 +19296,7 @@ Arc::new(Grammar::Ref {
     name: "TimeZoneGrammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -18456,6 +19337,7 @@ Arc::new(Grammar::Ref {
     name: "ShorthandCastSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -18470,6 +19352,7 @@ Arc::new(Grammar::Ref {
     name: "CommaSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -18497,11 +19380,12 @@ Arc::new(Grammar::Ref {
     name: "BareFunctionSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["CURRENT_TIMESTAMP".to_string(), "CURRENT_TIME".to_string(), "CURRENT_DATE".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["CURRENT_TIME".to_string(), "CURRENT_DATE".to_string(), "CURRENT_TIMESTAMP".to_string()]),
         token_types: hashbrown::HashSet::from_iter([]),
     }),
 })
@@ -18510,6 +19394,7 @@ Arc::new(Grammar::Ref {
     name: "FunctionSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -18524,6 +19409,7 @@ Arc::new(Grammar::Ref {
     name: "ExpressionSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -18534,11 +19420,12 @@ Arc::new(Grammar::Ref {
     name: "SelectableGrammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["(".to_string(), "VALUE".to_string(), "VALUES".to_string(), "SELECT".to_string(), "WITH".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["VALUES".to_string(), "VALUE".to_string(), "(".to_string(), "WITH".to_string(), "SELECT".to_string()]),
         token_types: hashbrown::HashSet::from_iter([]),
     }),
 })
@@ -18549,6 +19436,7 @@ Arc::new(Grammar::Ref {
     name: "LiteralGrammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -18559,6 +19447,7 @@ Arc::new(Grammar::Ref {
     name: "ColumnReferenceSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -18569,6 +19458,7 @@ Arc::new(Grammar::Ref {
     name: "FunctionSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -18579,6 +19469,7 @@ Arc::new(Grammar::Ref {
     name: "LocalAliasSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -18589,6 +19480,7 @@ Arc::new(Grammar::Ref {
     name: "ExpressionSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -18601,6 +19493,7 @@ Arc::new(Grammar::Ref {
     name: "CommaSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -18667,6 +19560,7 @@ Arc::new(Grammar::Ref {
     name: "Expression_D_Potential_Select_Statement_Without_Brackets",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -18679,6 +19573,7 @@ Arc::new(Grammar::Ref {
     name: "SingleIdentifierGrammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -18689,6 +19584,7 @@ Arc::new(Grammar::Ref {
     name: "ObjectReferenceDelimiterGrammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -18702,6 +19598,7 @@ Arc::new(Grammar::Ref {
     name: "StarSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -18729,6 +19626,7 @@ Arc::new(Grammar::Ref {
     name: "StructTypeSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -18739,6 +19637,7 @@ Arc::new(Grammar::Ref {
     name: "MapTypeSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -18764,6 +19663,7 @@ Arc::new(Grammar::Ref {
     name: "ExpressionSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -18776,6 +19676,7 @@ Arc::new(Grammar::Ref {
     name: "CommaSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -18843,6 +19744,7 @@ Arc::new(Grammar::Ref {
     name: "DatatypeSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -18855,6 +19757,7 @@ Arc::new(Grammar::Ref {
     name: "QuotedLiteralSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -18868,6 +19771,7 @@ Arc::new(Grammar::Ref {
     name: "NumericLiteralSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -18881,6 +19785,7 @@ Arc::new(Grammar::Ref {
     name: "BooleanLiteralGrammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -18894,6 +19799,7 @@ Arc::new(Grammar::Ref {
     name: "NullLiteralSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -18907,11 +19813,12 @@ Arc::new(Grammar::Ref {
     name: "DateTimeLiteralGrammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["TIME".to_string(), "TIMESTAMP".to_string(), "INTERVAL".to_string(), "DATE".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["INTERVAL".to_string(), "DATE".to_string(), "TIME".to_string(), "TIMESTAMP".to_string()]),
         token_types: hashbrown::HashSet::from_iter([]),
     }),
 })
@@ -18925,8 +19832,8 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["TIME".to_string(), "TIMESTAMP".to_string(), "INTERVAL".to_string(), "DATE".to_string(), "TRUE".to_string(), "NULL".to_string(), "FALSE".to_string()]),
-        token_types: hashbrown::HashSet::from_iter(["single_quote".to_string(), "numeric_literal".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["TRUE".to_string(), "INTERVAL".to_string(), "TIMESTAMP".to_string(), "FALSE".to_string(), "DATE".to_string(), "TIME".to_string(), "NULL".to_string()]),
+        token_types: hashbrown::HashSet::from_iter(["numeric_literal".to_string(), "single_quote".to_string()]),
     }),
 })
 ,
@@ -18944,6 +19851,7 @@ Arc::new(Grammar::Ref {
     name: "LocalAliasSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -18954,6 +19862,7 @@ Arc::new(Grammar::Ref {
     name: "ListComprehensionGrammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -18968,6 +19877,7 @@ Arc::new(Grammar::Ref {
     name: "CommaSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -18988,6 +19898,7 @@ Arc::new(Grammar::Ref {
     name: "AccessorGrammar",
     optional: true,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -19016,6 +19927,7 @@ Arc::new(Grammar::Ref {
     name: "SelectStatementSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -19029,6 +19941,7 @@ Arc::new(Grammar::Ref {
     name: "LiteralGrammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -19039,6 +19952,7 @@ Arc::new(Grammar::Ref {
     name: "IntervalExpressionSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -19052,6 +19966,7 @@ Arc::new(Grammar::Ref {
     name: "TypedStructLiteralSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -19062,6 +19977,7 @@ Arc::new(Grammar::Ref {
     name: "ArrayExpressionSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -19072,6 +19988,7 @@ Arc::new(Grammar::Ref {
     name: "ColumnReferenceSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -19082,6 +19999,7 @@ Arc::new(Grammar::Ref {
     name: "OverlapsClauseSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -19127,6 +20045,7 @@ Arc::new(Grammar::Ref {
     name: "SingleIdentifierGrammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -19139,6 +20058,7 @@ Arc::new(Grammar::Ref {
     name: "ObjectReferenceDelimiterGrammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -19155,6 +20075,7 @@ Arc::new(Grammar::Ref {
     name: "ObjectReferenceTerminatorGrammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -19219,6 +20140,7 @@ Arc::new(Grammar::Ref {
     name: "FetchKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -19234,6 +20156,7 @@ Arc::new(Grammar::Ref {
     name: "FirstKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -19247,6 +20170,7 @@ Arc::new(Grammar::Ref {
     name: "NextKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -19265,7 +20189,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["NEXT".to_string(), "FIRST".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["FIRST".to_string(), "NEXT".to_string()]),
         token_types: hashbrown::HashSet::from_iter([]),
     }),
 })
@@ -19276,6 +20200,7 @@ Arc::new(Grammar::Ref {
     name: "NumericLiteralSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -19289,6 +20214,21 @@ Arc::new(Grammar::Ref {
     name: "ExpressionSegment",
     optional: false,
     allow_gaps: true,
+    exclude: Some(Box::new(
+Arc::new(Grammar::Ref {
+    name: "RowKeywordSegment",
+    optional: false,
+    allow_gaps: true,
+    exclude: None,
+    terminators: vec![
+    ],
+    reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["ROW".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
+})
+    )),
     terminators: vec![
     ],
     reset_terminators: false,
@@ -19312,6 +20252,7 @@ Arc::new(Grammar::Ref {
     name: "RowKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -19325,6 +20266,7 @@ Arc::new(Grammar::Ref {
     name: "RowsKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -19354,6 +20296,7 @@ Arc::new(Grammar::Ref {
     name: "OnlyKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -19369,6 +20312,7 @@ Arc::new(Grammar::Ref {
     name: "WithKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -19382,6 +20326,7 @@ Arc::new(Grammar::Ref {
     name: "TiesKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -19413,7 +20358,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["ONLY".to_string(), "WITH".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["WITH".to_string(), "ONLY".to_string()]),
         token_types: hashbrown::HashSet::from_iter([]),
     }),
 })
@@ -19473,6 +20418,7 @@ Arc::new(Grammar::Ref {
     name: "DelimiterGrammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -19505,11 +20451,12 @@ Arc::new(Grammar::Ref {
     name: "StatementSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["GRANT".to_string(), "END".to_string(), "VALUE".to_string(), "BEGIN".to_string(), "TRUNCATE".to_string(), "ALTER".to_string(), "ROLLBACK".to_string(), "START".to_string(), "EXPLAIN".to_string(), "UPDATE".to_string(), "SELECT".to_string(), "SET".to_string(), "MERGE".to_string(), "DROP".to_string(), "DELETE".to_string(), "(".to_string(), "COMMIT".to_string(), "DESCRIBE".to_string(), "VALUES".to_string(), "CREATE".to_string(), "USE".to_string(), "REVOKE".to_string(), "WITH".to_string(), "INSERT".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["UPDATE".to_string(), "ALTER".to_string(), "COMMIT".to_string(), "ROLLBACK".to_string(), "(".to_string(), "BEGIN".to_string(), "SELECT".to_string(), "DESCRIBE".to_string(), "GRANT".to_string(), "DELETE".to_string(), "MERGE".to_string(), "USE".to_string(), "SET".to_string(), "INSERT".to_string(), "DROP".to_string(), "REVOKE".to_string(), "END".to_string(), "VALUES".to_string(), "TRUNCATE".to_string(), "START".to_string(), "EXPLAIN".to_string(), "CREATE".to_string(), "VALUE".to_string(), "WITH".to_string()]),
         token_types: hashbrown::HashSet::from_iter([]),
     }),
 })
@@ -19522,6 +20469,7 @@ Arc::new(Grammar::Ref {
     name: "DelimiterGrammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -19557,7 +20505,7 @@ Arc::new(Grammar::Ref {
     min_delimiters: 0,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["GRANT".to_string(), "END".to_string(), "VALUE".to_string(), "BEGIN".to_string(), "TRUNCATE".to_string(), "ALTER".to_string(), "ROLLBACK".to_string(), "START".to_string(), "EXPLAIN".to_string(), "UPDATE".to_string(), "SELECT".to_string(), "SET".to_string(), "MERGE".to_string(), "DROP".to_string(), "DELETE".to_string(), "(".to_string(), "COMMIT".to_string(), "DESCRIBE".to_string(), "VALUES".to_string(), "CREATE".to_string(), "USE".to_string(), "REVOKE".to_string(), "WITH".to_string(), "INSERT".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["UPDATE".to_string(), "ALTER".to_string(), "COMMIT".to_string(), "ROLLBACK".to_string(), "(".to_string(), "BEGIN".to_string(), "SELECT".to_string(), "DESCRIBE".to_string(), "GRANT".to_string(), "DELETE".to_string(), "MERGE".to_string(), "USE".to_string(), "SET".to_string(), "INSERT".to_string(), "DROP".to_string(), "REVOKE".to_string(), "END".to_string(), "VALUES".to_string(), "TRUNCATE".to_string(), "START".to_string(), "EXPLAIN".to_string(), "CREATE".to_string(), "VALUE".to_string(), "WITH".to_string()]),
         token_types: hashbrown::HashSet::from_iter([]),
     }),
 })
@@ -19568,6 +20516,7 @@ Arc::new(Grammar::Ref {
     name: "DelimiterGrammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -19602,7 +20551,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter([";".to_string(), "GRANT".to_string(), "END".to_string(), "VALUE".to_string(), "BEGIN".to_string(), "TRUNCATE".to_string(), "ALTER".to_string(), "ROLLBACK".to_string(), "START".to_string(), "EXPLAIN".to_string(), "UPDATE".to_string(), "SELECT".to_string(), "SET".to_string(), "MERGE".to_string(), "DROP".to_string(), "DELETE".to_string(), "(".to_string(), "COMMIT".to_string(), "DESCRIBE".to_string(), "VALUES".to_string(), "CREATE".to_string(), "USE".to_string(), "REVOKE".to_string(), "WITH".to_string(), "INSERT".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["UPDATE".to_string(), "ALTER".to_string(), "COMMIT".to_string(), "ROLLBACK".to_string(), ";".to_string(), "BEGIN".to_string(), "SELECT".to_string(), "DESCRIBE".to_string(), "GRANT".to_string(), "DELETE".to_string(), "MERGE".to_string(), "USE".to_string(), "SET".to_string(), "INSERT".to_string(), "DROP".to_string(), "REVOKE".to_string(), "END".to_string(), "VALUES".to_string(), "TRUNCATE".to_string(), "START".to_string(), "EXPLAIN".to_string(), "CREATE".to_string(), "VALUE".to_string(), "(".to_string(), "WITH".to_string()]),
         token_types: hashbrown::HashSet::from_iter([]),
     }),
 })
@@ -19626,6 +20575,7 @@ Arc::new(Grammar::Ref {
     name: "FilterKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -19643,6 +20593,7 @@ Arc::new(Grammar::Ref {
     name: "WhereKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -19656,6 +20607,7 @@ Arc::new(Grammar::Ref {
     name: "ExpressionSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -19838,6 +20790,7 @@ Arc::new(Grammar::Ref {
     name: "ForeignKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -19851,6 +20804,7 @@ Arc::new(Grammar::Ref {
     name: "KeyKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -19933,11 +20887,12 @@ Arc::new(Grammar::Ref {
     name: "FrameClauseUnitGrammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["RANGE".to_string(), "ROWS".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["ROWS".to_string(), "RANGE".to_string()]),
         token_types: hashbrown::HashSet::from_iter([]),
     }),
 })
@@ -19952,6 +20907,7 @@ Arc::new(Grammar::Ref {
     name: "CurrentKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -19965,6 +20921,7 @@ Arc::new(Grammar::Ref {
     name: "RowKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -19995,6 +20952,7 @@ Arc::new(Grammar::Ref {
     name: "NumericLiteralSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -20008,6 +20966,7 @@ Arc::new(Grammar::Ref {
     name: "IntervalExpressionSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -20021,6 +20980,7 @@ Arc::new(Grammar::Ref {
     name: "UnboundedKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -20034,6 +20994,7 @@ Arc::new(Grammar::Ref {
     name: "ColumnReferenceSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -20057,6 +21018,7 @@ Arc::new(Grammar::Ref {
     name: "PrecedingKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -20070,6 +21032,7 @@ Arc::new(Grammar::Ref {
     name: "FollowingKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -20120,6 +21083,7 @@ Arc::new(Grammar::Ref {
     name: "BetweenKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -20137,6 +21101,7 @@ Arc::new(Grammar::Ref {
     name: "CurrentKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -20150,6 +21115,7 @@ Arc::new(Grammar::Ref {
     name: "RowKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -20180,6 +21146,7 @@ Arc::new(Grammar::Ref {
     name: "NumericLiteralSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -20193,6 +21160,7 @@ Arc::new(Grammar::Ref {
     name: "IntervalExpressionSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -20206,6 +21174,7 @@ Arc::new(Grammar::Ref {
     name: "UnboundedKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -20219,6 +21188,7 @@ Arc::new(Grammar::Ref {
     name: "ColumnReferenceSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -20242,6 +21212,7 @@ Arc::new(Grammar::Ref {
     name: "PrecedingKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -20255,6 +21226,7 @@ Arc::new(Grammar::Ref {
     name: "FollowingKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -20303,6 +21275,7 @@ Arc::new(Grammar::Ref {
     name: "AndKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -20320,6 +21293,7 @@ Arc::new(Grammar::Ref {
     name: "CurrentKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -20333,6 +21307,7 @@ Arc::new(Grammar::Ref {
     name: "RowKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -20363,6 +21338,7 @@ Arc::new(Grammar::Ref {
     name: "NumericLiteralSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -20376,6 +21352,7 @@ Arc::new(Grammar::Ref {
     name: "IntervalExpressionSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -20389,6 +21366,7 @@ Arc::new(Grammar::Ref {
     name: "UnboundedKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -20402,6 +21380,7 @@ Arc::new(Grammar::Ref {
     name: "ColumnReferenceSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -20425,6 +21404,7 @@ Arc::new(Grammar::Ref {
     name: "PrecedingKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -20438,6 +21418,7 @@ Arc::new(Grammar::Ref {
     name: "FollowingKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -20514,7 +21495,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["RANGE".to_string(), "ROWS".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["ROWS".to_string(), "RANGE".to_string()]),
         token_types: hashbrown::HashSet::from_iter([]),
     }),
 })
@@ -20528,6 +21509,7 @@ Arc::new(Grammar::Ref {
     name: "RowsKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -20541,6 +21523,7 @@ Arc::new(Grammar::Ref {
     name: "RangeKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -20559,7 +21542,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["RANGE".to_string(), "ROWS".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["ROWS".to_string(), "RANGE".to_string()]),
         token_types: hashbrown::HashSet::from_iter([]),
     }),
 })
@@ -20614,6 +21597,7 @@ Arc::new(Grammar::Ref {
     name: "FromKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -20629,6 +21613,7 @@ Arc::new(Grammar::Ref {
     name: "FromExpressionSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -20641,6 +21626,7 @@ Arc::new(Grammar::Ref {
     name: "CommaSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -20683,6 +21669,7 @@ Arc::new(Grammar::Ref {
     name: "WhereKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -20696,6 +21683,7 @@ Arc::new(Grammar::Ref {
     name: "LimitClauseSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -20711,6 +21699,7 @@ Arc::new(Grammar::Ref {
     name: "GroupKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -20724,6 +21713,7 @@ Arc::new(Grammar::Ref {
     name: "ByKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -20752,6 +21742,7 @@ Arc::new(Grammar::Ref {
     name: "OrderKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -20765,6 +21756,7 @@ Arc::new(Grammar::Ref {
     name: "ByKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -20791,6 +21783,7 @@ Arc::new(Grammar::Ref {
     name: "HavingKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -20804,6 +21797,7 @@ Arc::new(Grammar::Ref {
     name: "QualifyKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -20817,6 +21811,7 @@ Arc::new(Grammar::Ref {
     name: "WindowKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -20830,11 +21825,12 @@ Arc::new(Grammar::Ref {
     name: "SetOperatorSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["EXCEPT".to_string(), "MINUS".to_string(), "INTERSECT".to_string(), "UNION".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["INTERSECT".to_string(), "MINUS".to_string(), "UNION".to_string(), "EXCEPT".to_string()]),
         token_types: hashbrown::HashSet::from_iter([]),
     }),
 })
@@ -20843,6 +21839,7 @@ Arc::new(Grammar::Ref {
     name: "WithNoSchemaBindingClauseSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -20856,6 +21853,7 @@ Arc::new(Grammar::Ref {
     name: "WithDataClauseSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -20869,6 +21867,7 @@ Arc::new(Grammar::Ref {
     name: "FetchKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -20882,6 +21881,7 @@ Arc::new(Grammar::Ref {
     name: "OffsetKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -20900,7 +21900,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["OFFSET".to_string(), "QUALIFY".to_string(), "INTERSECT".to_string(), "HAVING".to_string(), "GROUP".to_string(), "EXCEPT".to_string(), "UNION".to_string(), "ORDER".to_string(), "WINDOW".to_string(), "WHERE".to_string(), "MINUS".to_string(), "FETCH".to_string(), "LIMIT".to_string(), "WITH".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["ORDER".to_string(), "FETCH".to_string(), "WHERE".to_string(), "LIMIT".to_string(), "OFFSET".to_string(), "HAVING".to_string(), "GROUP".to_string(), "MINUS".to_string(), "UNION".to_string(), "WINDOW".to_string(), "QUALIFY".to_string(), "INTERSECT".to_string(), "WITH".to_string(), "EXCEPT".to_string()]),
         token_types: hashbrown::HashSet::from_iter([]),
     }),
 })
@@ -20917,6 +21917,7 @@ Arc::new(Grammar::Ref {
     name: "PreTableFunctionKeywordsGrammar",
     optional: true,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -20931,6 +21932,7 @@ Arc::new(Grammar::Ref {
     name: "TableExpressionSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -20972,6 +21974,7 @@ Arc::new(Grammar::Ref {
     name: "TableExpressionSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -20993,6 +21996,7 @@ Arc::new(Grammar::Ref {
     name: "TemporalQuerySegment",
     optional: true,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -21003,6 +22007,70 @@ Arc::new(Grammar::Ref {
     name: "AliasExpressionSegment",
     optional: true,
     allow_gaps: true,
+    exclude: Some(Box::new(
+Arc::new(Grammar::OneOf {
+    elements: vec![
+Arc::new(Grammar::Ref {
+    name: "FromClauseTerminatorGrammar",
+    optional: false,
+    allow_gaps: true,
+    exclude: None,
+    terminators: vec![
+    ],
+    reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["ORDER".to_string(), "FETCH".to_string(), "WHERE".to_string(), "LIMIT".to_string(), "OFFSET".to_string(), "HAVING".to_string(), "GROUP".to_string(), "MINUS".to_string(), "UNION".to_string(), "WINDOW".to_string(), "QUALIFY".to_string(), "INTERSECT".to_string(), "WITH".to_string(), "EXCEPT".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
+})
+,
+Arc::new(Grammar::Ref {
+    name: "SamplingExpressionSegment",
+    optional: false,
+    allow_gaps: true,
+    exclude: None,
+    terminators: vec![
+    ],
+    reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["TABLESAMPLE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
+})
+,
+Arc::new(Grammar::Ref {
+    name: "JoinLikeClauseGrammar",
+    optional: false,
+    allow_gaps: true,
+    exclude: None,
+    terminators: vec![
+    ],
+    reset_terminators: false,
+    simple_hint: None,
+})
+,
+Arc::new(Grammar::Ref {
+    name: "JoinClauseSegment",
+    optional: false,
+    allow_gaps: true,
+    exclude: None,
+    terminators: vec![
+    ],
+    reset_terminators: false,
+    simple_hint: None,
+})
+,
+    ],
+    exclude: None,
+    optional: false,
+    terminators: vec![
+    ],
+    reset_terminators: false,
+    allow_gaps: true,
+    parse_mode: ParseMode::Strict,
+    simple_hint: None,
+})
+    )),
     terminators: vec![
     ],
     reset_terminators: false,
@@ -21015,6 +22083,7 @@ Arc::new(Grammar::Ref {
     name: "WithKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -21028,6 +22097,7 @@ Arc::new(Grammar::Ref {
     name: "OffsetKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -21041,6 +22111,7 @@ Arc::new(Grammar::Ref {
     name: "AliasExpressionSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -21064,6 +22135,7 @@ Arc::new(Grammar::Ref {
     name: "SamplingExpressionSegment",
     optional: true,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -21077,6 +22149,7 @@ Arc::new(Grammar::Ref {
     name: "PostTableExpressionGrammar",
     optional: true,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -21103,6 +22176,7 @@ Arc::new(Grammar::Ref {
     name: "PreTableFunctionKeywordsGrammar",
     optional: true,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -21117,6 +22191,7 @@ Arc::new(Grammar::Ref {
     name: "TableExpressionSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -21158,6 +22233,7 @@ Arc::new(Grammar::Ref {
     name: "TableExpressionSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -21179,6 +22255,7 @@ Arc::new(Grammar::Ref {
     name: "TemporalQuerySegment",
     optional: true,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -21189,6 +22266,70 @@ Arc::new(Grammar::Ref {
     name: "AliasExpressionSegment",
     optional: true,
     allow_gaps: true,
+    exclude: Some(Box::new(
+Arc::new(Grammar::OneOf {
+    elements: vec![
+Arc::new(Grammar::Ref {
+    name: "FromClauseTerminatorGrammar",
+    optional: false,
+    allow_gaps: true,
+    exclude: None,
+    terminators: vec![
+    ],
+    reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["ORDER".to_string(), "FETCH".to_string(), "WHERE".to_string(), "LIMIT".to_string(), "OFFSET".to_string(), "HAVING".to_string(), "GROUP".to_string(), "MINUS".to_string(), "UNION".to_string(), "WINDOW".to_string(), "QUALIFY".to_string(), "INTERSECT".to_string(), "WITH".to_string(), "EXCEPT".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
+})
+,
+Arc::new(Grammar::Ref {
+    name: "SamplingExpressionSegment",
+    optional: false,
+    allow_gaps: true,
+    exclude: None,
+    terminators: vec![
+    ],
+    reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["TABLESAMPLE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
+})
+,
+Arc::new(Grammar::Ref {
+    name: "JoinLikeClauseGrammar",
+    optional: false,
+    allow_gaps: true,
+    exclude: None,
+    terminators: vec![
+    ],
+    reset_terminators: false,
+    simple_hint: None,
+})
+,
+Arc::new(Grammar::Ref {
+    name: "JoinClauseSegment",
+    optional: false,
+    allow_gaps: true,
+    exclude: None,
+    terminators: vec![
+    ],
+    reset_terminators: false,
+    simple_hint: None,
+})
+,
+    ],
+    exclude: None,
+    optional: false,
+    terminators: vec![
+    ],
+    reset_terminators: false,
+    allow_gaps: true,
+    parse_mode: ParseMode::Strict,
+    simple_hint: None,
+})
+    )),
     terminators: vec![
     ],
     reset_terminators: false,
@@ -21201,6 +22342,7 @@ Arc::new(Grammar::Ref {
     name: "WithKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -21214,6 +22356,7 @@ Arc::new(Grammar::Ref {
     name: "OffsetKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -21227,6 +22370,7 @@ Arc::new(Grammar::Ref {
     name: "AliasExpressionSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -21250,6 +22394,7 @@ Arc::new(Grammar::Ref {
     name: "SamplingExpressionSegment",
     optional: true,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -21263,6 +22408,7 @@ Arc::new(Grammar::Ref {
     name: "PostTableExpressionGrammar",
     optional: true,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -21285,6 +22431,7 @@ Arc::new(Grammar::Ref {
     name: "JoinClauseSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -21375,6 +22522,7 @@ Arc::new(Grammar::Ref {
     name: "MLTableExpressionSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -21388,6 +22536,7 @@ Arc::new(Grammar::Ref {
     name: "FromExpressionElementSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -21400,6 +22549,7 @@ Arc::new(Grammar::Ref {
     name: "FromExpressionSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -21447,6 +22597,7 @@ Arc::new(Grammar::Ref {
     name: "OrderKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -21460,6 +22611,7 @@ Arc::new(Grammar::Ref {
     name: "ByKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -21488,6 +22640,7 @@ Arc::new(Grammar::Ref {
     name: "GroupKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -21501,6 +22654,7 @@ Arc::new(Grammar::Ref {
     name: "ByKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -21544,6 +22698,7 @@ Arc::new(Grammar::Ref {
     name: "JoinClauseSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -21554,6 +22709,7 @@ Arc::new(Grammar::Ref {
     name: "JoinLikeClauseGrammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -21594,6 +22750,7 @@ Arc::new(Grammar::Ref {
     name: "OrderKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -21607,6 +22764,7 @@ Arc::new(Grammar::Ref {
     name: "ByKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -21635,6 +22793,7 @@ Arc::new(Grammar::Ref {
     name: "GroupKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -21648,6 +22807,7 @@ Arc::new(Grammar::Ref {
     name: "ByKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -21730,6 +22890,7 @@ Arc::new(Grammar::Ref {
     name: "MLTableExpressionSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -21743,6 +22904,7 @@ Arc::new(Grammar::Ref {
     name: "FromExpressionElementSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -21755,6 +22917,7 @@ Arc::new(Grammar::Ref {
     name: "FromExpressionSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -21802,6 +22965,7 @@ Arc::new(Grammar::Ref {
     name: "OrderKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -21815,6 +22979,7 @@ Arc::new(Grammar::Ref {
     name: "ByKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -21843,6 +23008,7 @@ Arc::new(Grammar::Ref {
     name: "GroupKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -21856,6 +23022,7 @@ Arc::new(Grammar::Ref {
     name: "ByKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -21899,6 +23066,7 @@ Arc::new(Grammar::Ref {
     name: "JoinClauseSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -21909,6 +23077,7 @@ Arc::new(Grammar::Ref {
     name: "JoinLikeClauseGrammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -21949,6 +23118,7 @@ Arc::new(Grammar::Ref {
     name: "OrderKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -21962,6 +23132,7 @@ Arc::new(Grammar::Ref {
     name: "ByKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -21990,6 +23161,7 @@ Arc::new(Grammar::Ref {
     name: "GroupKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -22003,6 +23175,7 @@ Arc::new(Grammar::Ref {
     name: "ByKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -22092,6 +23265,7 @@ Arc::new(Grammar::Ref {
     name: "ExpressionSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -22107,6 +23281,7 @@ Arc::new(Grammar::Ref {
     name: "ExpressionSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -22119,6 +23294,7 @@ Arc::new(Grammar::Ref {
     name: "ExpressionSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -22129,6 +23305,7 @@ Arc::new(Grammar::Ref {
     name: "AsKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -22142,6 +23319,7 @@ Arc::new(Grammar::Ref {
     name: "DatatypeSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -22164,11 +23342,12 @@ Arc::new(Grammar::Ref {
     name: "TrimParametersGrammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["TRAILING".to_string(), "BOTH".to_string(), "LEADING".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["BOTH".to_string(), "LEADING".to_string(), "TRAILING".to_string()]),
         token_types: hashbrown::HashSet::from_iter([]),
     }),
 })
@@ -22177,6 +23356,21 @@ Arc::new(Grammar::Ref {
     name: "ExpressionSegment",
     optional: true,
     allow_gaps: true,
+    exclude: Some(Box::new(
+Arc::new(Grammar::Ref {
+    name: "FromKeywordSegment",
+    optional: false,
+    allow_gaps: true,
+    exclude: None,
+    terminators: vec![
+    ],
+    reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["FROM".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
+})
+    )),
     terminators: vec![
     ],
     reset_terminators: false,
@@ -22187,6 +23381,7 @@ Arc::new(Grammar::Ref {
     name: "FromKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -22200,6 +23395,7 @@ Arc::new(Grammar::Ref {
     name: "ExpressionSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -22214,7 +23410,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["TRAILING".to_string(), "BOTH".to_string(), "LEADING".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["BOTH".to_string(), "LEADING".to_string(), "TRAILING".to_string()]),
         token_types: hashbrown::HashSet::from_iter([]),
     }),
 })
@@ -22227,11 +23423,12 @@ Arc::new(Grammar::Ref {
     name: "DatetimeUnitSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["MINUTE".to_string(), "QUARTER".to_string(), "MONTH".to_string(), "WEEKDAY".to_string(), "DAYOFYEAR".to_string(), "HOUR".to_string(), "MILLISECOND".to_string(), "DAY".to_string(), "WEEK".to_string(), "YEAR".to_string(), "SECOND".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["HOUR".to_string(), "WEEK".to_string(), "QUARTER".to_string(), "YEAR".to_string(), "DAY".to_string(), "DAYOFYEAR".to_string(), "SECOND".to_string(), "MINUTE".to_string(), "MONTH".to_string(), "WEEKDAY".to_string(), "MILLISECOND".to_string()]),
         token_types: hashbrown::HashSet::from_iter([]),
     }),
 })
@@ -22240,6 +23437,7 @@ Arc::new(Grammar::Ref {
     name: "ExpressionSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -22261,6 +23459,7 @@ Arc::new(Grammar::Ref {
     name: "FromKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -22274,6 +23473,7 @@ Arc::new(Grammar::Ref {
     name: "ExpressionSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -22296,6 +23496,7 @@ Arc::new(Grammar::Ref {
     name: "DistinctKeywordSegment",
     optional: true,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -22311,6 +23512,7 @@ Arc::new(Grammar::Ref {
     name: "StarSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -22326,6 +23528,7 @@ Arc::new(Grammar::Ref {
     name: "FunctionContentsExpressionGrammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -22338,6 +23541,7 @@ Arc::new(Grammar::Ref {
     name: "CommaSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -22383,6 +23587,7 @@ Arc::new(Grammar::Ref {
     name: "AggregateOrderByClause",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -22398,6 +23603,7 @@ Arc::new(Grammar::Ref {
     name: "SeparatorKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -22411,6 +23617,7 @@ Arc::new(Grammar::Ref {
     name: "LiteralGrammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -22438,6 +23645,7 @@ Arc::new(Grammar::Ref {
     name: "QuotedLiteralSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -22451,6 +23659,7 @@ Arc::new(Grammar::Ref {
     name: "SingleIdentifierGrammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -22461,6 +23670,7 @@ Arc::new(Grammar::Ref {
     name: "ColumnReferenceSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -22482,6 +23692,7 @@ Arc::new(Grammar::Ref {
     name: "InKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -22497,6 +23708,7 @@ Arc::new(Grammar::Ref {
     name: "QuotedLiteralSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -22510,6 +23722,7 @@ Arc::new(Grammar::Ref {
     name: "SingleIdentifierGrammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -22520,6 +23733,7 @@ Arc::new(Grammar::Ref {
     name: "ColumnReferenceSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -22551,6 +23765,7 @@ Arc::new(Grammar::Ref {
     name: "IgnoreRespectNullsGrammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -22564,6 +23779,7 @@ Arc::new(Grammar::Ref {
     name: "IndexColumnDefinitionSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -22574,6 +23790,7 @@ Arc::new(Grammar::Ref {
     name: "EmptyStructLiteralSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -22606,6 +23823,7 @@ Arc::new(Grammar::Ref {
     name: "FunctionContentsGrammar",
     optional: true,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -22666,6 +23884,7 @@ Arc::new(Grammar::Ref {
     name: "AsKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -22679,6 +23898,7 @@ Arc::new(Grammar::Ref {
     name: "QuotedLiteralSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -22694,6 +23914,7 @@ Arc::new(Grammar::Ref {
     name: "LanguageKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -22707,6 +23928,7 @@ Arc::new(Grammar::Ref {
     name: "NakedIdentifierSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -22773,6 +23995,7 @@ Arc::new(Grammar::Ref {
     name: "SingleIdentifierGrammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -22783,6 +24006,7 @@ Arc::new(Grammar::Ref {
     name: "DotSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -22813,6 +24037,7 @@ Arc::new(Grammar::Ref {
     name: "BracketedSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -22835,6 +24060,7 @@ Arc::new(Grammar::Ref {
     name: "FunctionNameIdentifierSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -22848,6 +24074,7 @@ Arc::new(Grammar::Ref {
     name: "QuotedIdentifierSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -22865,6 +24092,7 @@ Arc::new(Grammar::Ref {
     name: "BracketedSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -22905,6 +24133,7 @@ Arc::new(Grammar::Ref {
     name: "ParameterNameSegment",
     optional: true,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -22919,6 +24148,7 @@ Arc::new(Grammar::Ref {
     name: "AnyKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -22932,6 +24162,7 @@ Arc::new(Grammar::Ref {
     name: "TypeKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -22958,6 +24189,7 @@ Arc::new(Grammar::Ref {
     name: "DatatypeSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -22993,6 +24225,7 @@ Arc::new(Grammar::Ref {
     name: "AnyKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -23006,6 +24239,7 @@ Arc::new(Grammar::Ref {
     name: "TypeKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -23032,6 +24266,7 @@ Arc::new(Grammar::Ref {
     name: "DatatypeSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -23072,6 +24307,7 @@ Arc::new(Grammar::Ref {
     name: "FunctionParameterGrammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -23084,6 +24320,7 @@ Arc::new(Grammar::Ref {
     name: "CommaSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -23147,6 +24384,7 @@ Arc::new(Grammar::Ref {
     name: "DatePartFunctionNameSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -23160,6 +24398,7 @@ Arc::new(Grammar::Ref {
     name: "DateTimeFunctionContentsSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -23186,6 +24425,7 @@ Arc::new(Grammar::Ref {
     name: "ColumnsExpressionGrammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -23200,6 +24440,59 @@ Arc::new(Grammar::Ref {
     name: "FunctionNameSegment",
     optional: false,
     allow_gaps: true,
+    exclude: Some(Box::new(
+Arc::new(Grammar::OneOf {
+    elements: vec![
+Arc::new(Grammar::Ref {
+    name: "DatePartFunctionNameSegment",
+    optional: false,
+    allow_gaps: true,
+    exclude: None,
+    terminators: vec![
+    ],
+    reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["DATEADD".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
+})
+,
+Arc::new(Grammar::Ref {
+    name: "ColumnsExpressionFunctionNameSegment",
+    optional: false,
+    allow_gaps: true,
+    exclude: None,
+    terminators: vec![
+    ],
+    reset_terminators: false,
+    simple_hint: None,
+})
+,
+Arc::new(Grammar::Ref {
+    name: "ValuesClauseSegment",
+    optional: false,
+    allow_gaps: true,
+    exclude: None,
+    terminators: vec![
+    ],
+    reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["VALUES".to_string(), "VALUE".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
+})
+,
+    ],
+    exclude: None,
+    optional: false,
+    terminators: vec![
+    ],
+    reset_terminators: false,
+    allow_gaps: true,
+    parse_mode: ParseMode::Strict,
+    simple_hint: None,
+})
+    )),
     terminators: vec![
     ],
     reset_terminators: false,
@@ -23210,6 +24503,7 @@ Arc::new(Grammar::Ref {
     name: "FunctionContentsSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -23233,6 +24527,7 @@ Arc::new(Grammar::Ref {
     name: "PostFunctionGrammar",
     optional: true,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -23410,6 +24705,7 @@ Arc::new(Grammar::Ref {
     name: "RawGreaterThanSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -23423,6 +24719,7 @@ Arc::new(Grammar::Ref {
     name: "RawEqualsSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -23453,6 +24750,7 @@ Arc::new(Grammar::Ref {
     name: "RawGreaterThanSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -23482,6 +24780,7 @@ Arc::new(Grammar::Ref {
     name: "GroupKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -23495,6 +24794,7 @@ Arc::new(Grammar::Ref {
     name: "ByKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -23512,6 +24812,7 @@ Arc::new(Grammar::Ref {
     name: "AllKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -23525,6 +24826,7 @@ Arc::new(Grammar::Ref {
     name: "GroupingSetsClauseSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -23538,11 +24840,12 @@ Arc::new(Grammar::Ref {
     name: "CubeRollupClauseSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["ROLLUP".to_string(), "CUBE".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["CUBE".to_string(), "ROLLUP".to_string()]),
         token_types: hashbrown::HashSet::from_iter([]),
     }),
 })
@@ -23557,6 +24860,7 @@ Arc::new(Grammar::Ref {
     name: "ColumnReferenceSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -23567,6 +24871,7 @@ Arc::new(Grammar::Ref {
     name: "NumericLiteralSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -23580,6 +24885,7 @@ Arc::new(Grammar::Ref {
     name: "ExpressionSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -23603,6 +24909,7 @@ Arc::new(Grammar::Ref {
     name: "CommaSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -23619,11 +24926,12 @@ Arc::new(Grammar::Ref {
     name: "GroupByClauseTerminatorGrammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["WINDOW".to_string(), "ORDER".to_string(), "QUALIFY".to_string(), "HAVING".to_string(), "FETCH".to_string(), "LIMIT".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["HAVING".to_string(), "ORDER".to_string(), "LIMIT".to_string(), "FETCH".to_string(), "WINDOW".to_string(), "QUALIFY".to_string()]),
         token_types: hashbrown::HashSet::from_iter([]),
     }),
 })
@@ -23683,6 +24991,7 @@ Arc::new(Grammar::Ref {
     name: "OrderKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -23696,6 +25005,7 @@ Arc::new(Grammar::Ref {
     name: "ByKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -23722,6 +25032,7 @@ Arc::new(Grammar::Ref {
     name: "LimitClauseSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -23735,6 +25046,7 @@ Arc::new(Grammar::Ref {
     name: "HavingKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -23748,6 +25060,7 @@ Arc::new(Grammar::Ref {
     name: "QualifyKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -23761,6 +25074,7 @@ Arc::new(Grammar::Ref {
     name: "WindowKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -23774,6 +25088,7 @@ Arc::new(Grammar::Ref {
     name: "FetchKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -23792,7 +25107,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["WINDOW".to_string(), "ORDER".to_string(), "QUALIFY".to_string(), "HAVING".to_string(), "FETCH".to_string(), "LIMIT".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["HAVING".to_string(), "ORDER".to_string(), "LIMIT".to_string(), "FETCH".to_string(), "WINDOW".to_string(), "QUALIFY".to_string()]),
         token_types: hashbrown::HashSet::from_iter([]),
     }),
 })
@@ -23821,6 +25136,7 @@ Arc::new(Grammar::Ref {
     name: "ColumnReferenceSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -23831,6 +25147,7 @@ Arc::new(Grammar::Ref {
     name: "NumericLiteralSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -23844,6 +25161,7 @@ Arc::new(Grammar::Ref {
     name: "ExpressionSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -23900,6 +25218,7 @@ Arc::new(Grammar::Ref {
     name: "CommaSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -23916,11 +25235,12 @@ Arc::new(Grammar::Ref {
     name: "GroupByClauseTerminatorGrammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["WINDOW".to_string(), "ORDER".to_string(), "QUALIFY".to_string(), "HAVING".to_string(), "FETCH".to_string(), "LIMIT".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["HAVING".to_string(), "ORDER".to_string(), "LIMIT".to_string(), "FETCH".to_string(), "WINDOW".to_string(), "QUALIFY".to_string()]),
         token_types: hashbrown::HashSet::from_iter([]),
     }),
 })
@@ -23963,6 +25283,7 @@ Arc::new(Grammar::Ref {
     name: "GroupingKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -23976,6 +25297,7 @@ Arc::new(Grammar::Ref {
     name: "SetsKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -23993,11 +25315,12 @@ Arc::new(Grammar::Ref {
     name: "CubeRollupClauseSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["ROLLUP".to_string(), "CUBE".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["CUBE".to_string(), "ROLLUP".to_string()]),
         token_types: hashbrown::HashSet::from_iter([]),
     }),
 })
@@ -24006,6 +25329,7 @@ Arc::new(Grammar::Ref {
     name: "GroupingExpressionList",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -24018,6 +25342,7 @@ Arc::new(Grammar::Ref {
     name: "CommaSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -24102,6 +25427,7 @@ Arc::new(Grammar::Ref {
     name: "HavingKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -24121,6 +25447,7 @@ Arc::new(Grammar::Ref {
     name: "ExpressionSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -24162,6 +25489,7 @@ Arc::new(Grammar::Ref {
     name: "ExpressionSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -24205,6 +25533,7 @@ Arc::new(Grammar::Ref {
     name: "OrderKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -24218,6 +25547,7 @@ Arc::new(Grammar::Ref {
     name: "ByKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -24244,6 +25574,7 @@ Arc::new(Grammar::Ref {
     name: "LimitClauseSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -24257,6 +25588,7 @@ Arc::new(Grammar::Ref {
     name: "QualifyKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -24270,6 +25602,7 @@ Arc::new(Grammar::Ref {
     name: "WindowKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -24283,6 +25616,7 @@ Arc::new(Grammar::Ref {
     name: "FetchKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -24301,7 +25635,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["ORDER".to_string(), "QUALIFY".to_string(), "WINDOW".to_string(), "FETCH".to_string(), "LIMIT".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["LIMIT".to_string(), "ORDER".to_string(), "FETCH".to_string(), "WINDOW".to_string(), "QUALIFY".to_string()]),
         token_types: hashbrown::HashSet::from_iter([]),
     }),
 })
@@ -24498,6 +25832,7 @@ Arc::new(Grammar::Ref {
     name: "IfKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -24511,6 +25846,7 @@ Arc::new(Grammar::Ref {
     name: "ExistsKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -24552,6 +25888,7 @@ Arc::new(Grammar::Ref {
     name: "IfKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -24565,6 +25902,7 @@ Arc::new(Grammar::Ref {
     name: "NotKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -24578,6 +25916,7 @@ Arc::new(Grammar::Ref {
     name: "ExistsKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -24621,6 +25960,7 @@ Arc::new(Grammar::Ref {
     name: "IgnoreKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -24634,6 +25974,7 @@ Arc::new(Grammar::Ref {
     name: "RespectKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -24661,6 +26002,7 @@ Arc::new(Grammar::Ref {
     name: "NullsKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -24767,6 +26109,7 @@ Arc::new(Grammar::Ref {
     name: "NotKeywordSegment",
     optional: true,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -24780,6 +26123,7 @@ Arc::new(Grammar::Ref {
     name: "InKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -24801,6 +26145,7 @@ Arc::new(Grammar::Ref {
     name: "Expression_A_Grammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -24813,6 +26158,7 @@ Arc::new(Grammar::Ref {
     name: "CommaSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -24837,11 +26183,12 @@ Arc::new(Grammar::Ref {
     name: "SelectableGrammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["(".to_string(), "VALUE".to_string(), "VALUES".to_string(), "SELECT".to_string(), "WITH".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["VALUES".to_string(), "VALUE".to_string(), "(".to_string(), "WITH".to_string(), "SELECT".to_string()]),
         token_types: hashbrown::HashSet::from_iter([]),
     }),
 })
@@ -24892,6 +26239,7 @@ Arc::new(Grammar::Ref {
     name: "FunctionSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -24917,7 +26265,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["NOT".to_string(), "IN".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["IN".to_string(), "NOT".to_string()]),
         token_types: hashbrown::HashSet::from_iter([]),
     }),
 })
@@ -24967,6 +26315,7 @@ Arc::new(Grammar::Ref {
     name: "SingleIdentifierGrammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -24979,6 +26328,7 @@ Arc::new(Grammar::Ref {
     name: "AscKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -24992,6 +26342,7 @@ Arc::new(Grammar::Ref {
     name: "DescKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -25010,7 +26361,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["DESC".to_string(), "ASC".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["ASC".to_string(), "DESC".to_string()]),
         token_types: hashbrown::HashSet::from_iter([]),
     }),
 })
@@ -25045,6 +26396,7 @@ Arc::new(Grammar::Ref {
     name: "SingleIdentifierGrammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -25057,6 +26409,7 @@ Arc::new(Grammar::Ref {
     name: "ObjectReferenceDelimiterGrammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -25073,6 +26426,7 @@ Arc::new(Grammar::Ref {
     name: "ObjectReferenceTerminatorGrammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -25227,6 +26581,7 @@ Arc::new(Grammar::Ref {
     name: "InsertKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -25240,6 +26595,7 @@ Arc::new(Grammar::Ref {
     name: "OverwriteKeywordSegment",
     optional: true,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -25253,6 +26609,7 @@ Arc::new(Grammar::Ref {
     name: "IntoKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -25266,6 +26623,7 @@ Arc::new(Grammar::Ref {
     name: "TableReferenceSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -25278,11 +26636,12 @@ Arc::new(Grammar::Ref {
     name: "SelectableGrammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["(".to_string(), "VALUE".to_string(), "VALUES".to_string(), "SELECT".to_string(), "WITH".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["VALUES".to_string(), "VALUE".to_string(), "(".to_string(), "WITH".to_string(), "SELECT".to_string()]),
         token_types: hashbrown::HashSet::from_iter([]),
     }),
 })
@@ -25293,6 +26652,7 @@ Arc::new(Grammar::Ref {
     name: "BracketedColumnReferenceListGrammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -25306,11 +26666,12 @@ Arc::new(Grammar::Ref {
     name: "SelectableGrammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["(".to_string(), "VALUE".to_string(), "VALUES".to_string(), "SELECT".to_string(), "WITH".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["VALUES".to_string(), "VALUE".to_string(), "(".to_string(), "WITH".to_string(), "SELECT".to_string()]),
         token_types: hashbrown::HashSet::from_iter([]),
     }),
 })
@@ -25332,6 +26693,7 @@ Arc::new(Grammar::Ref {
     name: "DefaultValuesGrammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -25350,7 +26712,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["(".to_string(), "DEFAULT".to_string(), "VALUE".to_string(), "VALUES".to_string(), "SELECT".to_string(), "WITH".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["VALUES".to_string(), "DEFAULT".to_string(), "VALUE".to_string(), "(".to_string(), "WITH".to_string(), "SELECT".to_string()]),
         token_types: hashbrown::HashSet::from_iter([]),
     }),
 })
@@ -25528,6 +26890,7 @@ Arc::new(Grammar::Ref {
     name: "IntervalKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -25545,6 +26908,7 @@ Arc::new(Grammar::Ref {
     name: "NumericLiteralSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -25560,6 +26924,7 @@ Arc::new(Grammar::Ref {
     name: "QuotedLiteralSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -25573,11 +26938,12 @@ Arc::new(Grammar::Ref {
     name: "DatetimeUnitSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["MINUTE".to_string(), "QUARTER".to_string(), "MONTH".to_string(), "WEEKDAY".to_string(), "DAYOFYEAR".to_string(), "HOUR".to_string(), "MILLISECOND".to_string(), "DAY".to_string(), "WEEK".to_string(), "YEAR".to_string(), "SECOND".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["HOUR".to_string(), "WEEK".to_string(), "QUARTER".to_string(), "YEAR".to_string(), "DAY".to_string(), "DAYOFYEAR".to_string(), "SECOND".to_string(), "MINUTE".to_string(), "MONTH".to_string(), "WEEKDAY".to_string(), "MILLISECOND".to_string()]),
         token_types: hashbrown::HashSet::from_iter([]),
     }),
 })
@@ -25591,7 +26957,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["MINUTE".to_string(), "QUARTER".to_string(), "MONTH".to_string(), "WEEKDAY".to_string(), "DAYOFYEAR".to_string(), "HOUR".to_string(), "MILLISECOND".to_string(), "DAY".to_string(), "WEEK".to_string(), "YEAR".to_string(), "SECOND".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["HOUR".to_string(), "WEEK".to_string(), "QUARTER".to_string(), "YEAR".to_string(), "DAY".to_string(), "DAYOFYEAR".to_string(), "SECOND".to_string(), "MINUTE".to_string(), "MONTH".to_string(), "WEEKDAY".to_string(), "MILLISECOND".to_string()]),
         token_types: hashbrown::HashSet::from_iter(["single_quote".to_string()]),
     }),
 })
@@ -25613,6 +26979,7 @@ Arc::new(Grammar::Ref {
     name: "QuotedLiteralSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -25628,6 +26995,7 @@ Arc::new(Grammar::Ref {
     name: "QuotedLiteralSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -25643,6 +27011,7 @@ Arc::new(Grammar::Ref {
     name: "QuotedLiteralSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -25656,11 +27025,12 @@ Arc::new(Grammar::Ref {
     name: "DatetimeUnitSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["MINUTE".to_string(), "QUARTER".to_string(), "MONTH".to_string(), "WEEKDAY".to_string(), "DAYOFYEAR".to_string(), "HOUR".to_string(), "MILLISECOND".to_string(), "DAY".to_string(), "WEEK".to_string(), "YEAR".to_string(), "SECOND".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["HOUR".to_string(), "WEEK".to_string(), "QUARTER".to_string(), "YEAR".to_string(), "DAY".to_string(), "DAYOFYEAR".to_string(), "SECOND".to_string(), "MINUTE".to_string(), "MONTH".to_string(), "WEEKDAY".to_string(), "MILLISECOND".to_string()]),
         token_types: hashbrown::HashSet::from_iter([]),
     }),
 })
@@ -25674,7 +27044,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["MINUTE".to_string(), "QUARTER".to_string(), "MONTH".to_string(), "WEEKDAY".to_string(), "DAYOFYEAR".to_string(), "HOUR".to_string(), "MILLISECOND".to_string(), "DAY".to_string(), "WEEK".to_string(), "YEAR".to_string(), "SECOND".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["HOUR".to_string(), "WEEK".to_string(), "QUARTER".to_string(), "YEAR".to_string(), "DAY".to_string(), "DAYOFYEAR".to_string(), "SECOND".to_string(), "MINUTE".to_string(), "MONTH".to_string(), "WEEKDAY".to_string(), "MILLISECOND".to_string()]),
         token_types: hashbrown::HashSet::from_iter(["single_quote".to_string()]),
     }),
 })
@@ -25702,7 +27072,7 @@ Arc::new(Grammar::Ref {
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
         raw_values: hashbrown::HashSet::from_iter([]),
-        token_types: hashbrown::HashSet::from_iter(["single_quote".to_string(), "numeric_literal".to_string()]),
+        token_types: hashbrown::HashSet::from_iter(["numeric_literal".to_string(), "single_quote".to_string()]),
     }),
 })
 ,
@@ -25758,6 +27128,7 @@ Arc::new(Grammar::Ref {
     name: "NullLiteralSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -25771,6 +27142,7 @@ Arc::new(Grammar::Ref {
     name: "NanLiteralSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -25784,6 +27156,7 @@ Arc::new(Grammar::Ref {
     name: "UnknownLiteralSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -25794,6 +27167,7 @@ Arc::new(Grammar::Ref {
     name: "BooleanLiteralGrammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -25807,6 +27181,7 @@ Arc::new(Grammar::Ref {
     name: "NormalizedGrammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -25833,6 +27208,7 @@ Arc::new(Grammar::Ref {
     name: "IsKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -25846,6 +27222,7 @@ Arc::new(Grammar::Ref {
     name: "NotKeywordSegment",
     optional: true,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -25859,6 +27236,7 @@ Arc::new(Grammar::Ref {
     name: "DistinctKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -25872,6 +27250,7 @@ Arc::new(Grammar::Ref {
     name: "FromKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -25961,6 +27340,7 @@ Arc::new(Grammar::Ref {
     name: "ConditionalJoinKeywordsGrammar",
     optional: true,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -25971,6 +27351,7 @@ Arc::new(Grammar::Ref {
     name: "JoinKeywordsGrammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -25986,6 +27367,7 @@ Arc::new(Grammar::Ref {
     name: "FromExpressionElementSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -25998,6 +27380,7 @@ Arc::new(Grammar::Ref {
     name: "NestedJoinGrammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -26028,6 +27411,7 @@ Arc::new(Grammar::Ref {
     name: "MatchConditionSegment",
     optional: true,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -26040,6 +27424,7 @@ Arc::new(Grammar::Ref {
     name: "JoinOnConditionSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -26053,6 +27438,7 @@ Arc::new(Grammar::Ref {
     name: "JoinUsingConditionGrammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -26104,6 +27490,7 @@ Arc::new(Grammar::Ref {
     name: "UnconditionalJoinKeywordsGrammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -26114,6 +27501,7 @@ Arc::new(Grammar::Ref {
     name: "JoinKeywordsGrammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -26129,6 +27517,7 @@ Arc::new(Grammar::Ref {
     name: "FromExpressionElementSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -26139,6 +27528,7 @@ Arc::new(Grammar::Ref {
     name: "MatchConditionSegment",
     optional: true,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -26163,6 +27553,7 @@ Arc::new(Grammar::Ref {
     name: "ExtendedNaturalJoinKeywordsGrammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -26175,6 +27566,7 @@ Arc::new(Grammar::Ref {
     name: "FromExpressionElementSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -26223,6 +27615,7 @@ Arc::new(Grammar::Ref {
     name: "JoinKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -26260,6 +27653,7 @@ Arc::new(Grammar::Ref {
     name: "OnKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -26279,6 +27673,7 @@ Arc::new(Grammar::Ref {
     name: "ExpressionSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -26320,6 +27715,7 @@ Arc::new(Grammar::Ref {
     name: "ExpressionSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -26361,6 +27757,7 @@ Arc::new(Grammar::Ref {
     name: "InnerKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -26378,6 +27775,7 @@ Arc::new(Grammar::Ref {
     name: "FullKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -26391,6 +27789,7 @@ Arc::new(Grammar::Ref {
     name: "LeftKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -26404,6 +27803,7 @@ Arc::new(Grammar::Ref {
     name: "RightKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -26422,7 +27822,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["LEFT".to_string(), "FULL".to_string(), "RIGHT".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["RIGHT".to_string(), "FULL".to_string(), "LEFT".to_string()]),
         token_types: hashbrown::HashSet::from_iter([]),
     }),
 })
@@ -26431,6 +27831,7 @@ Arc::new(Grammar::Ref {
     name: "OuterKeywordSegment",
     optional: true,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -26448,7 +27849,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["LEFT".to_string(), "FULL".to_string(), "RIGHT".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["RIGHT".to_string(), "FULL".to_string(), "LEFT".to_string()]),
         token_types: hashbrown::HashSet::from_iter([]),
     }),
 })
@@ -26462,7 +27863,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["FULL".to_string(), "LEFT".to_string(), "INNER".to_string(), "RIGHT".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["INNER".to_string(), "RIGHT".to_string(), "FULL".to_string(), "LEFT".to_string()]),
         token_types: hashbrown::HashSet::from_iter([]),
     }),
 })
@@ -26476,6 +27877,7 @@ Arc::new(Grammar::Ref {
     name: "UsingKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -26495,6 +27897,7 @@ Arc::new(Grammar::Ref {
     name: "SingleIdentifierGrammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -26507,6 +27910,7 @@ Arc::new(Grammar::Ref {
     name: "CommaSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -26781,6 +28185,7 @@ Arc::new(Grammar::Ref {
     name: "RawLessThanSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -26794,6 +28199,7 @@ Arc::new(Grammar::Ref {
     name: "RawEqualsSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -26824,6 +28230,7 @@ Arc::new(Grammar::Ref {
     name: "RawLessThanSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -26854,6 +28261,7 @@ Arc::new(Grammar::Ref {
     name: "NotKeywordSegment",
     optional: true,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -26867,11 +28275,12 @@ Arc::new(Grammar::Ref {
     name: "LikeGrammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["ILIKE".to_string(), "LIKE".to_string(), "RLIKE".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["RLIKE".to_string(), "LIKE".to_string(), "ILIKE".to_string()]),
         token_types: hashbrown::HashSet::from_iter([]),
     }),
 })
@@ -26884,7 +28293,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["NOT".to_string(), "LIKE".to_string(), "ILIKE".to_string(), "RLIKE".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["RLIKE".to_string(), "LIKE".to_string(), "NOT".to_string(), "ILIKE".to_string()]),
         token_types: hashbrown::HashSet::from_iter([]),
     }),
 })
@@ -26893,6 +28302,7 @@ Arc::new(Grammar::Ref {
     name: "Expression_A_Grammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -26905,6 +28315,7 @@ Arc::new(Grammar::Ref {
     name: "EscapeKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -26918,6 +28329,7 @@ Arc::new(Grammar::Ref {
     name: "Tail_Recurse_Expression_A_Grammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -26945,7 +28357,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["NOT".to_string(), "LIKE".to_string(), "ILIKE".to_string(), "RLIKE".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["RLIKE".to_string(), "LIKE".to_string(), "NOT".to_string(), "ILIKE".to_string()]),
         token_types: hashbrown::HashSet::from_iter([]),
     }),
 })
@@ -26959,6 +28371,7 @@ Arc::new(Grammar::Ref {
     name: "LikeKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -26972,6 +28385,7 @@ Arc::new(Grammar::Ref {
     name: "RlikeKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -26985,6 +28399,7 @@ Arc::new(Grammar::Ref {
     name: "IlikeKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -27003,7 +28418,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["ILIKE".to_string(), "LIKE".to_string(), "RLIKE".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["RLIKE".to_string(), "LIKE".to_string(), "ILIKE".to_string()]),
         token_types: hashbrown::HashSet::from_iter([]),
     }),
 })
@@ -27038,6 +28453,7 @@ Arc::new(Grammar::Ref {
     name: "LimitKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -27059,6 +28475,7 @@ Arc::new(Grammar::Ref {
     name: "NumericLiteralSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -27072,6 +28489,7 @@ Arc::new(Grammar::Ref {
     name: "ExpressionSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -27082,6 +28500,7 @@ Arc::new(Grammar::Ref {
     name: "AllKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -27139,6 +28558,7 @@ Arc::new(Grammar::Ref {
     name: "NumericLiteralSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -27152,6 +28572,7 @@ Arc::new(Grammar::Ref {
     name: "ExpressionSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -27162,6 +28583,7 @@ Arc::new(Grammar::Ref {
     name: "AllKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -27201,6 +28623,7 @@ Arc::new(Grammar::Ref {
     name: "OffsetKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -27216,6 +28639,7 @@ Arc::new(Grammar::Ref {
     name: "NumericLiteralSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -27229,6 +28653,7 @@ Arc::new(Grammar::Ref {
     name: "ExpressionSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -27265,6 +28690,7 @@ Arc::new(Grammar::Ref {
     name: "CommaSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -27278,6 +28704,7 @@ Arc::new(Grammar::Ref {
     name: "NumericLiteralSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -27309,7 +28736,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["OFFSET".to_string(), ",".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter([",".to_string(), "OFFSET".to_string()]),
         token_types: hashbrown::HashSet::from_iter([]),
     }),
 })
@@ -27383,6 +28810,7 @@ Arc::new(Grammar::Ref {
     name: "QuotedLiteralSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -27396,6 +28824,7 @@ Arc::new(Grammar::Ref {
     name: "NumericLiteralSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -27409,6 +28838,7 @@ Arc::new(Grammar::Ref {
     name: "BooleanLiteralGrammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -27422,11 +28852,12 @@ Arc::new(Grammar::Ref {
     name: "QualifiedNumericLiteralSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["-".to_string(), "+".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["+".to_string(), "-".to_string()]),
         token_types: hashbrown::HashSet::from_iter([]),
     }),
 })
@@ -27435,6 +28866,7 @@ Arc::new(Grammar::Ref {
     name: "NullLiteralSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -27448,11 +28880,12 @@ Arc::new(Grammar::Ref {
     name: "DateTimeLiteralGrammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["TIME".to_string(), "TIMESTAMP".to_string(), "INTERVAL".to_string(), "DATE".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["INTERVAL".to_string(), "DATE".to_string(), "TIME".to_string(), "TIMESTAMP".to_string()]),
         token_types: hashbrown::HashSet::from_iter([]),
     }),
 })
@@ -27461,6 +28894,7 @@ Arc::new(Grammar::Ref {
     name: "ArrayLiteralSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -27474,6 +28908,7 @@ Arc::new(Grammar::Ref {
     name: "TypedArrayLiteralSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -27484,6 +28919,7 @@ Arc::new(Grammar::Ref {
     name: "ObjectLiteralSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -27716,6 +29152,7 @@ Arc::new(Grammar::Ref {
     name: "MlKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -27729,6 +29166,7 @@ Arc::new(Grammar::Ref {
     name: "DotSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -27742,6 +29180,7 @@ Arc::new(Grammar::Ref {
     name: "SingleIdentifierGrammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -27756,6 +29195,7 @@ Arc::new(Grammar::Ref {
     name: "ModelKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -27769,6 +29209,7 @@ Arc::new(Grammar::Ref {
     name: "ObjectReferenceSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -27794,6 +29235,7 @@ Arc::new(Grammar::Ref {
     name: "CommaSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -27809,11 +29251,12 @@ Arc::new(Grammar::Ref {
     name: "SelectableGrammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["(".to_string(), "VALUE".to_string(), "VALUES".to_string(), "SELECT".to_string(), "WITH".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["VALUES".to_string(), "VALUE".to_string(), "(".to_string(), "WITH".to_string(), "SELECT".to_string()]),
         token_types: hashbrown::HashSet::from_iter([]),
     }),
 })
@@ -28066,6 +29509,7 @@ Arc::new(Grammar::Ref {
     name: "DeleteKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -28085,6 +29529,7 @@ Arc::new(Grammar::Ref {
     name: "InsertKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -28100,6 +29545,7 @@ Arc::new(Grammar::Ref {
     name: "BracketedColumnReferenceListGrammar",
     optional: true,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -28115,11 +29561,12 @@ Arc::new(Grammar::Ref {
     name: "ValuesClauseSegment",
     optional: true,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["VALUE".to_string(), "VALUES".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["VALUES".to_string(), "VALUE".to_string()]),
         token_types: hashbrown::HashSet::from_iter([]),
     }),
 })
@@ -28146,6 +29593,7 @@ Arc::new(Grammar::Ref {
     name: "MergeKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -28159,6 +29607,7 @@ Arc::new(Grammar::Ref {
     name: "IntoKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -28201,6 +29650,7 @@ Arc::new(Grammar::Ref {
     name: "MergeMatchedClauseSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -28214,6 +29664,7 @@ Arc::new(Grammar::Ref {
     name: "MergeNotMatchedClauseSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -28250,6 +29701,7 @@ Arc::new(Grammar::Ref {
     name: "WhenKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -28263,6 +29715,7 @@ Arc::new(Grammar::Ref {
     name: "MatchedKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -28278,6 +29731,7 @@ Arc::new(Grammar::Ref {
     name: "AndKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -28291,6 +29745,7 @@ Arc::new(Grammar::Ref {
     name: "ExpressionSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -28314,6 +29769,7 @@ Arc::new(Grammar::Ref {
     name: "ThenKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -28331,6 +29787,7 @@ Arc::new(Grammar::Ref {
     name: "MergeUpdateClauseSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -28344,6 +29801,7 @@ Arc::new(Grammar::Ref {
     name: "MergeDeleteClauseSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -28362,7 +29820,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["UPDATE".to_string(), "DELETE".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["DELETE".to_string(), "UPDATE".to_string()]),
         token_types: hashbrown::HashSet::from_iter([]),
     }),
 })
@@ -28392,6 +29850,7 @@ Arc::new(Grammar::Ref {
     name: "WhenKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -28405,6 +29864,7 @@ Arc::new(Grammar::Ref {
     name: "NotKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -28418,6 +29878,7 @@ Arc::new(Grammar::Ref {
     name: "MatchedKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -28433,6 +29894,7 @@ Arc::new(Grammar::Ref {
     name: "AndKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -28446,6 +29908,7 @@ Arc::new(Grammar::Ref {
     name: "ExpressionSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -28469,6 +29932,7 @@ Arc::new(Grammar::Ref {
     name: "ThenKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -28484,6 +29948,7 @@ Arc::new(Grammar::Ref {
     name: "MergeInsertClauseSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -28518,6 +29983,7 @@ Arc::new(Grammar::Ref {
     name: "MergeIntoLiteralGrammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -28535,6 +30001,7 @@ Arc::new(Grammar::Ref {
     name: "TableReferenceSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -28545,6 +30012,7 @@ Arc::new(Grammar::Ref {
     name: "AliasedTableReferenceGrammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -28568,6 +30036,7 @@ Arc::new(Grammar::Ref {
     name: "UsingKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -28585,6 +30054,7 @@ Arc::new(Grammar::Ref {
     name: "TableReferenceSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -28595,6 +30065,7 @@ Arc::new(Grammar::Ref {
     name: "AliasedTableReferenceGrammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -28609,11 +30080,12 @@ Arc::new(Grammar::Ref {
     name: "SelectableGrammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["(".to_string(), "VALUE".to_string(), "VALUES".to_string(), "SELECT".to_string(), "WITH".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["VALUES".to_string(), "VALUE".to_string(), "(".to_string(), "WITH".to_string(), "SELECT".to_string()]),
         token_types: hashbrown::HashSet::from_iter([]),
     }),
 })
@@ -28653,6 +30125,7 @@ Arc::new(Grammar::Ref {
     name: "AliasExpressionSegment",
     optional: true,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -28691,6 +30164,7 @@ Arc::new(Grammar::Ref {
     name: "JoinOnConditionSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -28706,6 +30180,7 @@ Arc::new(Grammar::Ref {
     name: "MergeMatchSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -28738,6 +30213,7 @@ Arc::new(Grammar::Ref {
     name: "UpdateKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -28753,6 +30229,7 @@ Arc::new(Grammar::Ref {
     name: "SetClauseListSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -29108,7 +30585,7 @@ Arc::new(Grammar::RegexParser {
     token_type: "naked_identifier",
     raw_class: "IdentifierSegment",
     optional: false,
-    anti_template: Some(regex::RegexBuilder::new(r#"^(FULL|ON|UNION|USING|PARTITION|CROSS|LEFT|INNER|OUTER|ORDER|ROWS|NATURAL|SELECT|SET|CASE|INTERVAL|IGNORE|RESPECT|NOT|JOIN|NULL|RIGHT)$"#)         .case_insensitive(true)         .build()         .unwrap()     ),
+    anti_template: Some(regex::RegexBuilder::new(r#"^(IGNORE|ORDER|JOIN|CASE|ON|INTERVAL|PARTITION|ROWS|SELECT|CROSS|SET|INNER|FULL|OUTER|NULL|RESPECT|UNION|RIGHT|NOT|NATURAL|LEFT|USING)$"#)         .case_insensitive(true)         .build()         .unwrap()     ),
 })
 );
 
@@ -29131,6 +30608,7 @@ Arc::new(Grammar::Ref {
     name: "SingleIdentifierGrammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -29141,6 +30619,7 @@ Arc::new(Grammar::Ref {
     name: "AsKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -29156,6 +30635,7 @@ Arc::new(Grammar::Ref {
     name: "SingleIdentifierGrammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -29168,6 +30648,7 @@ Arc::new(Grammar::Ref {
     name: "WindowSpecificationSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -29236,6 +30717,7 @@ Arc::new(Grammar::Ref {
     name: "WindowKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -29253,6 +30735,7 @@ Arc::new(Grammar::Ref {
     name: "NamedWindowExpressionSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -29265,6 +30748,7 @@ Arc::new(Grammar::Ref {
     name: "CommaSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -29349,6 +30833,7 @@ Arc::new(Grammar::Ref {
     name: "NaturalKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -29362,11 +30847,12 @@ Arc::new(Grammar::Ref {
     name: "JoinTypeKeywordsGrammar",
     optional: true,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["FULL".to_string(), "LEFT".to_string(), "INNER".to_string(), "RIGHT".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["INNER".to_string(), "RIGHT".to_string(), "FULL".to_string(), "LEFT".to_string()]),
         token_types: hashbrown::HashSet::from_iter([]),
     }),
 })
@@ -29596,11 +31082,12 @@ Arc::new(Grammar::Ref {
     name: "ValuesClauseSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["VALUE".to_string(), "VALUES".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["VALUES".to_string(), "VALUE".to_string()]),
         token_types: hashbrown::HashSet::from_iter([]),
     }),
 })
@@ -29609,6 +31096,7 @@ Arc::new(Grammar::Ref {
     name: "UnorderedSelectStatementSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -29624,6 +31112,7 @@ Arc::new(Grammar::Ref {
     name: "SelectStatementSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -29670,6 +31159,7 @@ Arc::new(Grammar::Ref {
     name: "WithCompoundStatementSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -29716,11 +31206,12 @@ Arc::new(Grammar::Ref {
     name: "NonSetSelectableGrammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["(".to_string(), "VALUE".to_string(), "VALUES".to_string(), "SELECT".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["VALUES".to_string(), "VALUE".to_string(), "(".to_string(), "SELECT".to_string()]),
         token_types: hashbrown::HashSet::from_iter([]),
     }),
 })
@@ -29760,6 +31251,7 @@ Arc::new(Grammar::Ref {
     name: "BracketedSetExpressionGrammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -29778,7 +31270,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["(".to_string(), "VALUE".to_string(), "VALUES".to_string(), "SELECT".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["VALUES".to_string(), "VALUE".to_string(), "(".to_string(), "SELECT".to_string()]),
         token_types: hashbrown::HashSet::from_iter([]),
     }),
 })
@@ -29797,6 +31289,7 @@ Arc::new(Grammar::Ref {
     name: "UpdateStatementSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -29810,6 +31303,7 @@ Arc::new(Grammar::Ref {
     name: "InsertStatementSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -29823,6 +31317,7 @@ Arc::new(Grammar::Ref {
     name: "DeleteStatementSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -29836,6 +31331,7 @@ Arc::new(Grammar::Ref {
     name: "MergeStatementSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -29854,7 +31350,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["UPDATE".to_string(), "DELETE".to_string(), "MERGE".to_string(), "INSERT".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["DELETE".to_string(), "INSERT".to_string(), "UPDATE".to_string(), "MERGE".to_string()]),
         token_types: hashbrown::HashSet::from_iter([]),
     }),
 })
@@ -29868,11 +31364,12 @@ Arc::new(Grammar::Ref {
     name: "SetExpressionSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["SELECT".to_string(), "(".to_string(), "VALUE".to_string(), "VALUES".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["VALUES".to_string(), "VALUE".to_string(), "(".to_string(), "SELECT".to_string()]),
         token_types: hashbrown::HashSet::from_iter([]),
     }),
 })
@@ -29885,6 +31382,7 @@ Arc::new(Grammar::Ref {
     name: "SelectStatementSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -29929,6 +31427,7 @@ Arc::new(Grammar::Ref {
     name: "SelectStatementSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -29947,7 +31446,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["SELECT".to_string(), "(".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["(".to_string(), "SELECT".to_string()]),
         token_types: hashbrown::HashSet::from_iter([]),
     }),
 })
@@ -29956,11 +31455,12 @@ Arc::new(Grammar::Ref {
     name: "NonSetSelectableGrammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["(".to_string(), "VALUE".to_string(), "VALUES".to_string(), "SELECT".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["VALUES".to_string(), "VALUE".to_string(), "(".to_string(), "SELECT".to_string()]),
         token_types: hashbrown::HashSet::from_iter([]),
     }),
 })
@@ -29974,7 +31474,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["(".to_string(), "VALUE".to_string(), "VALUES".to_string(), "SELECT".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["VALUES".to_string(), "VALUE".to_string(), "(".to_string(), "SELECT".to_string()]),
         token_types: hashbrown::HashSet::from_iter([]),
     }),
 })
@@ -30061,6 +31561,7 @@ Arc::new(Grammar::Ref {
     name: "RawNotSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -30074,6 +31575,7 @@ Arc::new(Grammar::Ref {
     name: "RawEqualsSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -30102,6 +31604,7 @@ Arc::new(Grammar::Ref {
     name: "RawLessThanSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -30115,6 +31618,7 @@ Arc::new(Grammar::Ref {
     name: "RawGreaterThanSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -30146,7 +31650,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["!".to_string(), "<".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["<".to_string(), "!".to_string()]),
         token_types: hashbrown::HashSet::from_iter([]),
     }),
 })
@@ -30316,6 +31820,7 @@ Arc::new(Grammar::Ref {
     name: "QuotedLiteralSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -30329,6 +31834,7 @@ Arc::new(Grammar::Ref {
     name: "ColonSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -30342,6 +31848,7 @@ Arc::new(Grammar::Ref {
     name: "BaseExpressionElementGrammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -30373,6 +31880,7 @@ Arc::new(Grammar::Ref {
     name: "ObjectLiteralElementSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -30388,6 +31896,7 @@ Arc::new(Grammar::Ref {
     name: "CommaSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -30451,6 +31960,7 @@ Arc::new(Grammar::Ref {
     name: "DotSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -30466,6 +31976,7 @@ Arc::new(Grammar::Ref {
     name: "DotSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -30479,6 +31990,7 @@ Arc::new(Grammar::Ref {
     name: "DotSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -30525,6 +32037,7 @@ Arc::new(Grammar::Ref {
     name: "SingleIdentifierGrammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -30537,6 +32050,7 @@ Arc::new(Grammar::Ref {
     name: "ObjectReferenceDelimiterGrammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -30553,6 +32067,7 @@ Arc::new(Grammar::Ref {
     name: "ObjectReferenceTerminatorGrammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -30576,6 +32091,7 @@ Arc::new(Grammar::Ref {
     name: "OnKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -30589,6 +32105,7 @@ Arc::new(Grammar::Ref {
     name: "AsKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -30602,6 +32119,7 @@ Arc::new(Grammar::Ref {
     name: "UsingKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -30615,6 +32133,7 @@ Arc::new(Grammar::Ref {
     name: "CommaSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -30628,6 +32147,7 @@ Arc::new(Grammar::Ref {
     name: "CastOperatorSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -30641,6 +32161,7 @@ Arc::new(Grammar::Ref {
     name: "StartSquareBracketSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -30654,6 +32175,7 @@ Arc::new(Grammar::Ref {
     name: "StartBracketSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -30667,11 +32189,12 @@ Arc::new(Grammar::Ref {
     name: "BinaryOperatorGrammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["!".to_string(), "*".to_string(), "<".to_string(), "OR".to_string(), "/".to_string(), ">".to_string(), "=".to_string(), "IS".to_string(), "|".to_string(), "-".to_string(), "%".to_string(), "^".to_string(), "AND".to_string(), "+".to_string(), "&".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["=".to_string(), "+".to_string(), "OR".to_string(), "!".to_string(), "%".to_string(), "IS".to_string(), "<".to_string(), "AND".to_string(), "&".to_string(), "|".to_string(), "^".to_string(), ">".to_string(), "*".to_string(), "-".to_string(), "/".to_string()]),
         token_types: hashbrown::HashSet::from_iter(["like_operator".to_string()]),
     }),
 })
@@ -30680,6 +32203,7 @@ Arc::new(Grammar::Ref {
     name: "ColonSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -30693,6 +32217,7 @@ Arc::new(Grammar::Ref {
     name: "DelimiterGrammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -30706,6 +32231,7 @@ Arc::new(Grammar::Ref {
     name: "JoinLikeClauseGrammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -30798,6 +32324,7 @@ Arc::new(Grammar::Ref {
     name: "OffsetKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -30813,6 +32340,7 @@ Arc::new(Grammar::Ref {
     name: "NumericLiteralSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -30826,6 +32354,21 @@ Arc::new(Grammar::Ref {
     name: "ExpressionSegment",
     optional: false,
     allow_gaps: true,
+    exclude: Some(Box::new(
+Arc::new(Grammar::Ref {
+    name: "RowKeywordSegment",
+    optional: false,
+    allow_gaps: true,
+    exclude: None,
+    terminators: vec![
+    ],
+    reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["ROW".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
+})
+    )),
     terminators: vec![
     ],
     reset_terminators: false,
@@ -30849,6 +32392,7 @@ Arc::new(Grammar::Ref {
     name: "RowKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -30862,6 +32406,7 @@ Arc::new(Grammar::Ref {
     name: "RowsKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -31117,6 +32662,7 @@ Arc::new(Grammar::Ref {
     name: "OrKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -31130,6 +32676,7 @@ Arc::new(Grammar::Ref {
     name: "ReplaceKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -31162,6 +32709,7 @@ Arc::new(Grammar::Ref {
     name: "OrderKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -31175,6 +32723,7 @@ Arc::new(Grammar::Ref {
     name: "ByKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -31196,6 +32745,7 @@ Arc::new(Grammar::Ref {
     name: "ColumnReferenceSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -31206,6 +32756,7 @@ Arc::new(Grammar::Ref {
     name: "NumericLiteralSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -31219,6 +32770,7 @@ Arc::new(Grammar::Ref {
     name: "ExpressionSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -31242,6 +32794,7 @@ Arc::new(Grammar::Ref {
     name: "AscKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -31255,6 +32808,7 @@ Arc::new(Grammar::Ref {
     name: "DescKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -31273,7 +32827,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["DESC".to_string(), "ASC".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["ASC".to_string(), "DESC".to_string()]),
         token_types: hashbrown::HashSet::from_iter([]),
     }),
 })
@@ -31284,6 +32838,7 @@ Arc::new(Grammar::Ref {
     name: "NullsKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -31299,6 +32854,7 @@ Arc::new(Grammar::Ref {
     name: "FirstKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -31312,6 +32868,7 @@ Arc::new(Grammar::Ref {
     name: "LastKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -31352,6 +32909,7 @@ Arc::new(Grammar::Ref {
     name: "WithFillSegment",
     optional: true,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -31374,6 +32932,7 @@ Arc::new(Grammar::Ref {
     name: "CommaSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -31390,6 +32949,7 @@ Arc::new(Grammar::Ref {
     name: "LimitClauseSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -31403,11 +32963,12 @@ Arc::new(Grammar::Ref {
     name: "FrameClauseUnitGrammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["RANGE".to_string(), "ROWS".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["ROWS".to_string(), "RANGE".to_string()]),
         token_types: hashbrown::HashSet::from_iter([]),
     }),
 })
@@ -31444,6 +33005,7 @@ Arc::new(Grammar::Ref {
     name: "LimitClauseSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -31457,6 +33019,7 @@ Arc::new(Grammar::Ref {
     name: "HavingKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -31470,6 +33033,7 @@ Arc::new(Grammar::Ref {
     name: "QualifyKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -31483,6 +33047,7 @@ Arc::new(Grammar::Ref {
     name: "WindowKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -31496,11 +33061,12 @@ Arc::new(Grammar::Ref {
     name: "FrameClauseUnitGrammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["RANGE".to_string(), "ROWS".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["ROWS".to_string(), "RANGE".to_string()]),
         token_types: hashbrown::HashSet::from_iter([]),
     }),
 })
@@ -31509,6 +33075,7 @@ Arc::new(Grammar::Ref {
     name: "SeparatorKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -31522,6 +33089,7 @@ Arc::new(Grammar::Ref {
     name: "FetchKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -31540,7 +33108,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["FETCH".to_string(), "QUALIFY".to_string(), "WINDOW".to_string(), "HAVING".to_string(), "RANGE".to_string(), "ROWS".to_string(), "LIMIT".to_string(), "SEPARATOR".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["HAVING".to_string(), "LIMIT".to_string(), "SEPARATOR".to_string(), "FETCH".to_string(), "WINDOW".to_string(), "QUALIFY".to_string(), "ROWS".to_string(), "RANGE".to_string()]),
         token_types: hashbrown::HashSet::from_iter([]),
     }),
 })
@@ -31564,6 +33132,7 @@ Arc::new(Grammar::Ref {
     name: "OrderKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -31577,6 +33146,7 @@ Arc::new(Grammar::Ref {
     name: "NoorderKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -31595,7 +33165,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["NOORDER".to_string(), "ORDER".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["ORDER".to_string(), "NOORDER".to_string()]),
         token_types: hashbrown::HashSet::from_iter([]),
     }),
 })
@@ -31682,6 +33252,7 @@ Arc::new(Grammar::Ref {
     name: "IgnoreRespectNullsGrammar",
     optional: true,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -31695,6 +33266,7 @@ Arc::new(Grammar::Ref {
     name: "OverKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -31710,6 +33282,7 @@ Arc::new(Grammar::Ref {
     name: "SingleIdentifierGrammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -31722,6 +33295,7 @@ Arc::new(Grammar::Ref {
     name: "WindowSpecificationSegment",
     optional: true,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -31802,6 +33376,7 @@ Arc::new(Grammar::Ref {
     name: "OverlapsKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -31821,11 +33396,12 @@ Arc::new(Grammar::Ref {
     name: "DateTimeLiteralGrammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["TIME".to_string(), "TIMESTAMP".to_string(), "INTERVAL".to_string(), "DATE".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["INTERVAL".to_string(), "DATE".to_string(), "TIME".to_string(), "TIMESTAMP".to_string()]),
         token_types: hashbrown::HashSet::from_iter([]),
     }),
 })
@@ -31834,6 +33410,7 @@ Arc::new(Grammar::Ref {
     name: "CommaSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -31847,11 +33424,12 @@ Arc::new(Grammar::Ref {
     name: "DateTimeLiteralGrammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["TIME".to_string(), "TIMESTAMP".to_string(), "INTERVAL".to_string(), "DATE".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["INTERVAL".to_string(), "DATE".to_string(), "TIME".to_string(), "TIMESTAMP".to_string()]),
         token_types: hashbrown::HashSet::from_iter([]),
     }),
 })
@@ -31904,6 +33482,7 @@ Arc::new(Grammar::Ref {
     name: "ColumnReferenceSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -32138,6 +33717,7 @@ Arc::new(Grammar::Ref {
     name: "PartitionKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -32151,6 +33731,7 @@ Arc::new(Grammar::Ref {
     name: "ByKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -32172,6 +33753,7 @@ Arc::new(Grammar::Ref {
     name: "ExpressionSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -32184,6 +33766,7 @@ Arc::new(Grammar::Ref {
     name: "CommaSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -32241,6 +33824,7 @@ Arc::new(Grammar::Ref {
     name: "ExpressionSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -32253,6 +33837,7 @@ Arc::new(Grammar::Ref {
     name: "CommaSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -32351,6 +33936,7 @@ Arc::new(Grammar::Ref {
     name: "SlashSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -32375,6 +33961,7 @@ Arc::new(Grammar::Ref {
     name: "SlashSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -32415,6 +34002,7 @@ Arc::new(Grammar::Ref {
     name: "QuotedLiteralSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -32592,6 +34180,7 @@ Arc::new(Grammar::Ref {
     name: "OverClauseSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -32602,6 +34191,7 @@ Arc::new(Grammar::Ref {
     name: "FilterClauseGrammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -32731,6 +34321,7 @@ Arc::new(Grammar::Ref {
     name: "PrimaryKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -32744,6 +34335,7 @@ Arc::new(Grammar::Ref {
     name: "KeyKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -32896,11 +34488,12 @@ Arc::new(Grammar::Ref {
     name: "SignedSegmentGrammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["-".to_string(), "+".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["+".to_string(), "-".to_string()]),
         token_types: hashbrown::HashSet::from_iter([]),
     }),
 })
@@ -32909,6 +34502,7 @@ Arc::new(Grammar::Ref {
     name: "NumericLiteralSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -32926,7 +34520,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["-".to_string(), "+".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["+".to_string(), "-".to_string()]),
         token_types: hashbrown::HashSet::from_iter([]),
     }),
 })
@@ -33168,6 +34762,7 @@ Arc::new(Grammar::Ref {
     name: "ReferencesKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -33181,6 +34776,7 @@ Arc::new(Grammar::Ref {
     name: "TableReferenceSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -33191,6 +34787,7 @@ Arc::new(Grammar::Ref {
     name: "BracketedColumnReferenceListGrammar",
     optional: true,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -33204,6 +34801,7 @@ Arc::new(Grammar::Ref {
     name: "ReferenceMatchGrammar",
     optional: true,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -33221,6 +34819,7 @@ Arc::new(Grammar::Ref {
     name: "OnKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -33234,6 +34833,7 @@ Arc::new(Grammar::Ref {
     name: "DeleteKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -33247,11 +34847,12 @@ Arc::new(Grammar::Ref {
     name: "ReferentialActionGrammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["NO".to_string(), "CASCADE".to_string(), "SET".to_string(), "RESTRICT".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["NO".to_string(), "RESTRICT".to_string(), "CASCADE".to_string(), "SET".to_string()]),
         token_types: hashbrown::HashSet::from_iter([]),
     }),
 })
@@ -33275,6 +34876,7 @@ Arc::new(Grammar::Ref {
     name: "OnKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -33288,6 +34890,7 @@ Arc::new(Grammar::Ref {
     name: "UpdateKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -33301,11 +34904,12 @@ Arc::new(Grammar::Ref {
     name: "ReferentialActionGrammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["NO".to_string(), "CASCADE".to_string(), "SET".to_string(), "RESTRICT".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["NO".to_string(), "RESTRICT".to_string(), "CASCADE".to_string(), "SET".to_string()]),
         token_types: hashbrown::HashSet::from_iter([]),
     }),
 })
@@ -33361,6 +34965,7 @@ Arc::new(Grammar::Ref {
     name: "MatchKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -33376,6 +34981,7 @@ Arc::new(Grammar::Ref {
     name: "FullKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -33389,6 +34995,7 @@ Arc::new(Grammar::Ref {
     name: "PartialKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -33402,6 +35009,7 @@ Arc::new(Grammar::Ref {
     name: "SimpleKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -33477,6 +35085,7 @@ Arc::new(Grammar::Ref {
     name: "RestrictKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -33490,6 +35099,7 @@ Arc::new(Grammar::Ref {
     name: "CascadeKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -33505,6 +35115,7 @@ Arc::new(Grammar::Ref {
     name: "SetKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -33518,6 +35129,7 @@ Arc::new(Grammar::Ref {
     name: "NullKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -33546,6 +35158,7 @@ Arc::new(Grammar::Ref {
     name: "NoKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -33559,6 +35172,7 @@ Arc::new(Grammar::Ref {
     name: "ActionKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -33587,6 +35201,7 @@ Arc::new(Grammar::Ref {
     name: "SetKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -33600,6 +35215,7 @@ Arc::new(Grammar::Ref {
     name: "DefaultKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -33631,7 +35247,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["NO".to_string(), "CASCADE".to_string(), "SET".to_string(), "RESTRICT".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["NO".to_string(), "RESTRICT".to_string(), "CASCADE".to_string(), "SET".to_string()]),
         token_types: hashbrown::HashSet::from_iter([]),
     }),
 })
@@ -34024,6 +35640,7 @@ Arc::new(Grammar::Ref {
     name: "SingleIdentifierGrammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -34221,6 +35838,7 @@ Arc::new(Grammar::Ref {
     name: "TablesampleKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -34236,6 +35854,7 @@ Arc::new(Grammar::Ref {
     name: "BernoulliKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -34249,6 +35868,7 @@ Arc::new(Grammar::Ref {
     name: "SystemKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -34278,6 +35898,7 @@ Arc::new(Grammar::Ref {
     name: "NumericLiteralSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -34326,6 +35947,7 @@ Arc::new(Grammar::Ref {
     name: "RepeatableKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -34355,6 +35977,7 @@ Arc::new(Grammar::Ref {
     name: "NumericLiteralSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -34471,6 +36094,7 @@ Arc::new(Grammar::Ref {
     name: "SingleIdentifierGrammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -34483,6 +36107,7 @@ Arc::new(Grammar::Ref {
     name: "ObjectReferenceDelimiterGrammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -34499,6 +36124,7 @@ Arc::new(Grammar::Ref {
     name: "ObjectReferenceTerminatorGrammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -34643,6 +36269,7 @@ Arc::new(Grammar::Ref {
     name: "WildcardExpressionSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -34655,6 +36282,7 @@ Arc::new(Grammar::Ref {
     name: "BaseExpressionElementGrammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -34665,6 +36293,7 @@ Arc::new(Grammar::Ref {
     name: "AliasExpressionSegment",
     optional: true,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -34702,6 +36331,7 @@ Arc::new(Grammar::Ref {
     name: "DistinctKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -34715,6 +36345,7 @@ Arc::new(Grammar::Ref {
     name: "AllKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -34733,7 +36364,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["DISTINCT".to_string(), "ALL".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["ALL".to_string(), "DISTINCT".to_string()]),
         token_types: hashbrown::HashSet::from_iter([]),
     }),
 })
@@ -34748,6 +36379,7 @@ Arc::new(Grammar::Ref {
     name: "SelectKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -34761,11 +36393,12 @@ Arc::new(Grammar::Ref {
     name: "SelectClauseModifierSegment",
     optional: true,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["DISTINCT".to_string(), "ALL".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["ALL".to_string(), "DISTINCT".to_string()]),
         token_types: hashbrown::HashSet::from_iter([]),
     }),
 })
@@ -34778,6 +36411,7 @@ Arc::new(Grammar::Ref {
     name: "SelectClauseElementSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -34790,6 +36424,7 @@ Arc::new(Grammar::Ref {
     name: "CommaSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -34819,11 +36454,12 @@ Arc::new(Grammar::Ref {
     name: "SelectClauseTerminatorGrammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["FROM".to_string(), "INTERSECT".to_string(), "UNION".to_string(), "EXCEPT".to_string(), "ORDER".to_string(), "OVERLAPS".to_string(), "WHERE".to_string(), "MINUS".to_string(), "FETCH".to_string(), "LIMIT".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["ORDER".to_string(), "FETCH".to_string(), "WHERE".to_string(), "LIMIT".to_string(), "FROM".to_string(), "MINUS".to_string(), "UNION".to_string(), "OVERLAPS".to_string(), "INTERSECT".to_string(), "EXCEPT".to_string()]),
         token_types: hashbrown::HashSet::from_iter([]),
     }),
 })
@@ -34847,6 +36483,7 @@ Arc::new(Grammar::Ref {
     name: "FromKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -34860,6 +36497,7 @@ Arc::new(Grammar::Ref {
     name: "WhereKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -34875,6 +36513,7 @@ Arc::new(Grammar::Ref {
     name: "OrderKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -34888,6 +36527,7 @@ Arc::new(Grammar::Ref {
     name: "ByKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -34914,6 +36554,7 @@ Arc::new(Grammar::Ref {
     name: "LimitClauseSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -34927,6 +36568,7 @@ Arc::new(Grammar::Ref {
     name: "OverlapsKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -34940,11 +36582,12 @@ Arc::new(Grammar::Ref {
     name: "SetOperatorSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["EXCEPT".to_string(), "MINUS".to_string(), "INTERSECT".to_string(), "UNION".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["INTERSECT".to_string(), "MINUS".to_string(), "UNION".to_string(), "EXCEPT".to_string()]),
         token_types: hashbrown::HashSet::from_iter([]),
     }),
 })
@@ -34953,6 +36596,7 @@ Arc::new(Grammar::Ref {
     name: "FetchKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -34971,7 +36615,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["FROM".to_string(), "INTERSECT".to_string(), "UNION".to_string(), "EXCEPT".to_string(), "ORDER".to_string(), "OVERLAPS".to_string(), "WHERE".to_string(), "MINUS".to_string(), "FETCH".to_string(), "LIMIT".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["ORDER".to_string(), "FETCH".to_string(), "WHERE".to_string(), "LIMIT".to_string(), "FROM".to_string(), "MINUS".to_string(), "UNION".to_string(), "OVERLAPS".to_string(), "INTERSECT".to_string(), "EXCEPT".to_string()]),
         token_types: hashbrown::HashSet::from_iter([]),
     }),
 })
@@ -34996,6 +36640,7 @@ Arc::new(Grammar::Ref {
     name: "SelectClauseSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -35009,6 +36654,7 @@ Arc::new(Grammar::Ref {
     name: "FromClauseSegment",
     optional: true,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -35022,6 +36668,7 @@ Arc::new(Grammar::Ref {
     name: "WhereClauseSegment",
     optional: true,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -35035,6 +36682,7 @@ Arc::new(Grammar::Ref {
     name: "GroupByClauseSegment",
     optional: true,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -35048,6 +36696,7 @@ Arc::new(Grammar::Ref {
     name: "HavingClauseSegment",
     optional: true,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -35061,6 +36710,7 @@ Arc::new(Grammar::Ref {
     name: "OverlapsClauseSegment",
     optional: true,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -35074,6 +36724,7 @@ Arc::new(Grammar::Ref {
     name: "NamedWindowSegment",
     optional: true,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -35087,6 +36738,7 @@ Arc::new(Grammar::Ref {
     name: "OrderByClauseSegment",
     optional: true,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -35100,6 +36752,7 @@ Arc::new(Grammar::Ref {
     name: "OffsetClauseSegment",
     optional: true,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -35113,6 +36766,7 @@ Arc::new(Grammar::Ref {
     name: "FetchClauseSegment",
     optional: true,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -35126,6 +36780,7 @@ Arc::new(Grammar::Ref {
     name: "LimitClauseSegment",
     optional: true,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -35139,6 +36794,7 @@ Arc::new(Grammar::Ref {
     name: "NamedWindowSegment",
     optional: true,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -35155,11 +36811,12 @@ Arc::new(Grammar::Ref {
     name: "SetOperatorSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["EXCEPT".to_string(), "MINUS".to_string(), "INTERSECT".to_string(), "UNION".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["INTERSECT".to_string(), "MINUS".to_string(), "UNION".to_string(), "EXCEPT".to_string()]),
         token_types: hashbrown::HashSet::from_iter([]),
     }),
 })
@@ -35168,6 +36825,7 @@ Arc::new(Grammar::Ref {
     name: "WithNoSchemaBindingClauseSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -35181,6 +36839,7 @@ Arc::new(Grammar::Ref {
     name: "WithDataClauseSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -35213,6 +36872,7 @@ Arc::new(Grammar::Ref {
     name: "WithCompoundStatementSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -35257,6 +36917,7 @@ Arc::new(Grammar::Ref {
     name: "WithCompoundStatementSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -35288,6 +36949,7 @@ Arc::new(Grammar::Ref {
     name: "WithCompoundNonSelectStatementSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -35332,6 +36994,7 @@ Arc::new(Grammar::Ref {
     name: "WithCompoundNonSelectStatementSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -35359,11 +37022,12 @@ Arc::new(Grammar::Ref {
     name: "NonWithSelectableGrammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["(".to_string(), "VALUE".to_string(), "VALUES".to_string(), "SELECT".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["VALUES".to_string(), "VALUE".to_string(), "(".to_string(), "SELECT".to_string()]),
         token_types: hashbrown::HashSet::from_iter([]),
     }),
 })
@@ -35374,11 +37038,12 @@ Arc::new(Grammar::Ref {
     name: "SelectableGrammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["(".to_string(), "VALUE".to_string(), "VALUES".to_string(), "SELECT".to_string(), "WITH".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["VALUES".to_string(), "VALUE".to_string(), "(".to_string(), "WITH".to_string(), "SELECT".to_string()]),
         token_types: hashbrown::HashSet::from_iter([]),
     }),
 })
@@ -35423,7 +37088,7 @@ Arc::new(Grammar::StringParser {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["(".to_string(), "VALUE".to_string(), "VALUES".to_string(), "SELECT".to_string(), "WITH".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["VALUES".to_string(), "VALUE".to_string(), "(".to_string(), "WITH".to_string(), "SELECT".to_string()]),
         token_types: hashbrown::HashSet::from_iter([]),
     }),
 })
@@ -35489,6 +37154,7 @@ Arc::new(Grammar::Ref {
     name: "MaxvalueKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -35502,6 +37168,7 @@ Arc::new(Grammar::Ref {
     name: "NumericLiteralSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -35530,6 +37197,7 @@ Arc::new(Grammar::Ref {
     name: "NoKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -35543,6 +37211,7 @@ Arc::new(Grammar::Ref {
     name: "MaxvalueKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -35574,7 +37243,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["MAXVALUE".to_string(), "NO".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["NO".to_string(), "MAXVALUE".to_string()]),
         token_types: hashbrown::HashSet::from_iter([]),
     }),
 })
@@ -35590,6 +37259,7 @@ Arc::new(Grammar::Ref {
     name: "MinvalueKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -35603,6 +37273,7 @@ Arc::new(Grammar::Ref {
     name: "NumericLiteralSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -35631,6 +37302,7 @@ Arc::new(Grammar::Ref {
     name: "NoKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -35644,6 +37316,7 @@ Arc::new(Grammar::Ref {
     name: "MinvalueKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -35675,7 +37348,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["MINVALUE".to_string(), "NO".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["NO".to_string(), "MINVALUE".to_string()]),
         token_types: hashbrown::HashSet::from_iter([]),
     }),
 })
@@ -35690,6 +37363,7 @@ Arc::new(Grammar::Ref {
     name: "SingleIdentifierGrammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -35702,6 +37376,7 @@ Arc::new(Grammar::Ref {
     name: "ObjectReferenceDelimiterGrammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -35718,6 +37393,7 @@ Arc::new(Grammar::Ref {
     name: "ObjectReferenceTerminatorGrammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -35802,6 +37478,7 @@ Arc::new(Grammar::Ref {
     name: "SetKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -35819,6 +37496,7 @@ Arc::new(Grammar::Ref {
     name: "SetClauseSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -35831,6 +37509,7 @@ Arc::new(Grammar::Ref {
     name: "CommaSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -35876,6 +37555,7 @@ Arc::new(Grammar::Ref {
     name: "ColumnReferenceSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -35886,6 +37566,7 @@ Arc::new(Grammar::Ref {
     name: "EqualsSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -35901,6 +37582,7 @@ Arc::new(Grammar::Ref {
     name: "LiteralGrammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -35911,11 +37593,12 @@ Arc::new(Grammar::Ref {
     name: "BareFunctionSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["CURRENT_TIMESTAMP".to_string(), "CURRENT_TIME".to_string(), "CURRENT_DATE".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["CURRENT_TIME".to_string(), "CURRENT_DATE".to_string(), "CURRENT_TIMESTAMP".to_string()]),
         token_types: hashbrown::HashSet::from_iter([]),
     }),
 })
@@ -35924,6 +37607,7 @@ Arc::new(Grammar::Ref {
     name: "FunctionSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -35934,6 +37618,7 @@ Arc::new(Grammar::Ref {
     name: "ColumnReferenceSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -35944,6 +37629,7 @@ Arc::new(Grammar::Ref {
     name: "ExpressionSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -35954,11 +37640,12 @@ Arc::new(Grammar::Ref {
     name: "ValuesClauseSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["VALUE".to_string(), "VALUES".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["VALUES".to_string(), "VALUE".to_string()]),
         token_types: hashbrown::HashSet::from_iter([]),
     }),
 })
@@ -35967,6 +37654,7 @@ Arc::new(Grammar::Ref {
     name: "DefaultKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -36007,11 +37695,12 @@ Arc::new(Grammar::Ref {
     name: "NonSetSelectableGrammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["(".to_string(), "VALUE".to_string(), "VALUES".to_string(), "SELECT".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["VALUES".to_string(), "VALUE".to_string(), "(".to_string(), "SELECT".to_string()]),
         token_types: hashbrown::HashSet::from_iter([]),
     }),
 })
@@ -36024,11 +37713,12 @@ Arc::new(Grammar::Ref {
     name: "SetOperatorSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["EXCEPT".to_string(), "MINUS".to_string(), "INTERSECT".to_string(), "UNION".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["INTERSECT".to_string(), "MINUS".to_string(), "UNION".to_string(), "EXCEPT".to_string()]),
         token_types: hashbrown::HashSet::from_iter([]),
     }),
 })
@@ -36037,11 +37727,12 @@ Arc::new(Grammar::Ref {
     name: "NonSetSelectableGrammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["(".to_string(), "VALUE".to_string(), "VALUES".to_string(), "SELECT".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["VALUES".to_string(), "VALUE".to_string(), "(".to_string(), "SELECT".to_string()]),
         token_types: hashbrown::HashSet::from_iter([]),
     }),
 })
@@ -36054,7 +37745,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["EXCEPT".to_string(), "MINUS".to_string(), "INTERSECT".to_string(), "UNION".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["INTERSECT".to_string(), "MINUS".to_string(), "UNION".to_string(), "EXCEPT".to_string()]),
         token_types: hashbrown::HashSet::from_iter([]),
     }),
 })
@@ -36071,7 +37762,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["EXCEPT".to_string(), "MINUS".to_string(), "INTERSECT".to_string(), "UNION".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["INTERSECT".to_string(), "MINUS".to_string(), "UNION".to_string(), "EXCEPT".to_string()]),
         token_types: hashbrown::HashSet::from_iter([]),
     }),
 })
@@ -36080,6 +37771,7 @@ Arc::new(Grammar::Ref {
     name: "OrderByClauseSegment",
     optional: true,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -36093,6 +37785,7 @@ Arc::new(Grammar::Ref {
     name: "LimitClauseSegment",
     optional: true,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -36106,6 +37799,7 @@ Arc::new(Grammar::Ref {
     name: "NamedWindowSegment",
     optional: true,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -36123,7 +37817,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["SELECT".to_string(), "(".to_string(), "VALUE".to_string(), "VALUES".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["VALUES".to_string(), "VALUE".to_string(), "(".to_string(), "SELECT".to_string()]),
         token_types: hashbrown::HashSet::from_iter([]),
     }),
 })
@@ -36148,6 +37842,7 @@ Arc::new(Grammar::Ref {
     name: "UnionGrammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -36165,6 +37860,7 @@ Arc::new(Grammar::Ref {
     name: "IntersectKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -36178,6 +37874,7 @@ Arc::new(Grammar::Ref {
     name: "ExceptKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -36196,7 +37893,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["EXCEPT".to_string(), "INTERSECT".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["INTERSECT".to_string(), "EXCEPT".to_string()]),
         token_types: hashbrown::HashSet::from_iter([]),
     }),
 })
@@ -36205,6 +37902,7 @@ Arc::new(Grammar::Ref {
     name: "AllKeywordSegment",
     optional: true,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -36222,7 +37920,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["EXCEPT".to_string(), "INTERSECT".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["INTERSECT".to_string(), "EXCEPT".to_string()]),
         token_types: hashbrown::HashSet::from_iter([]),
     }),
 })
@@ -36231,6 +37929,7 @@ Arc::new(Grammar::Ref {
     name: "MinusKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -36248,6 +37947,7 @@ Arc::new(Grammar::Ref {
     name: "ExceptKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -36312,7 +38012,7 @@ Arc::new(Grammar::StringParser {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["EXCEPT".to_string(), "MINUS".to_string(), "INTERSECT".to_string(), "UNION".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["INTERSECT".to_string(), "MINUS".to_string(), "UNION".to_string(), "EXCEPT".to_string()]),
         token_types: hashbrown::HashSet::from_iter([]),
     }),
 })
@@ -36327,6 +38027,7 @@ Arc::new(Grammar::Ref {
     name: "SetKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -36340,6 +38041,7 @@ Arc::new(Grammar::Ref {
     name: "SchemaKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -36353,6 +38055,7 @@ Arc::new(Grammar::Ref {
     name: "IfNotExistsGrammar",
     optional: true,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -36366,6 +38069,7 @@ Arc::new(Grammar::Ref {
     name: "SchemaReferenceSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -36447,6 +38151,7 @@ Arc::new(Grammar::Ref {
     name: "Expression_D_Grammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -36457,6 +38162,7 @@ Arc::new(Grammar::Ref {
     name: "CaseExpressionSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -36485,6 +38191,7 @@ Arc::new(Grammar::Ref {
     name: "CastOperatorSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -36498,6 +38205,7 @@ Arc::new(Grammar::Ref {
     name: "DatatypeSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -36508,6 +38216,7 @@ Arc::new(Grammar::Ref {
     name: "TimeZoneGrammar",
     optional: true,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -36596,6 +38305,7 @@ Arc::new(Grammar::Ref {
     name: "PositiveSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -36609,6 +38319,7 @@ Arc::new(Grammar::Ref {
     name: "NegativeSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -36627,7 +38338,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["-".to_string(), "+".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["+".to_string(), "-".to_string()]),
         token_types: hashbrown::HashSet::from_iter([]),
     }),
 })
@@ -36661,6 +38372,7 @@ Arc::new(Grammar::Ref {
     name: "NakedIdentifierSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -36671,6 +38383,7 @@ Arc::new(Grammar::Ref {
     name: "QuotedIdentifierSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -36688,6 +38401,7 @@ Arc::new(Grammar::Ref {
     name: "DotSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -36714,6 +38428,7 @@ Arc::new(Grammar::Ref {
     name: "SingleIdentifierGrammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -36726,6 +38441,7 @@ Arc::new(Grammar::Ref {
     name: "CommaSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -36776,6 +38492,7 @@ Arc::new(Grammar::Ref {
     name: "ArrayTypeSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -36786,6 +38503,7 @@ Arc::new(Grammar::Ref {
     name: "ArrayAccessorSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -37235,11 +38953,12 @@ Arc::new(Grammar::Ref {
     name: "SelectableGrammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["(".to_string(), "VALUE".to_string(), "VALUES".to_string(), "SELECT".to_string(), "WITH".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["VALUES".to_string(), "VALUE".to_string(), "(".to_string(), "WITH".to_string(), "SELECT".to_string()]),
         token_types: hashbrown::HashSet::from_iter([]),
     }),
 })
@@ -37248,6 +38967,7 @@ Arc::new(Grammar::Ref {
     name: "MergeStatementSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -37261,6 +38981,7 @@ Arc::new(Grammar::Ref {
     name: "InsertStatementSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -37274,11 +38995,12 @@ Arc::new(Grammar::Ref {
     name: "TransactionStatementSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["END".to_string(), "COMMIT".to_string(), "ROLLBACK".to_string(), "BEGIN".to_string(), "START".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["START".to_string(), "COMMIT".to_string(), "ROLLBACK".to_string(), "BEGIN".to_string(), "END".to_string()]),
         token_types: hashbrown::HashSet::from_iter([]),
     }),
 })
@@ -37287,6 +39009,7 @@ Arc::new(Grammar::Ref {
     name: "DropTableStatementSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -37300,6 +39023,7 @@ Arc::new(Grammar::Ref {
     name: "DropViewStatementSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -37313,6 +39037,7 @@ Arc::new(Grammar::Ref {
     name: "CreateUserStatementSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -37326,6 +39051,7 @@ Arc::new(Grammar::Ref {
     name: "DropUserStatementSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -37339,6 +39065,7 @@ Arc::new(Grammar::Ref {
     name: "TruncateStatementSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -37352,6 +39079,7 @@ Arc::new(Grammar::Ref {
     name: "AccessStatementSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -37365,6 +39093,7 @@ Arc::new(Grammar::Ref {
     name: "CreateTableStatementSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -37378,6 +39107,7 @@ Arc::new(Grammar::Ref {
     name: "CreateRoleStatementSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -37391,6 +39121,7 @@ Arc::new(Grammar::Ref {
     name: "DropRoleStatementSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -37404,6 +39135,7 @@ Arc::new(Grammar::Ref {
     name: "AlterTableStatementSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -37417,6 +39149,7 @@ Arc::new(Grammar::Ref {
     name: "CreateSchemaStatementSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -37430,6 +39163,7 @@ Arc::new(Grammar::Ref {
     name: "SetSchemaStatementSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -37443,6 +39177,7 @@ Arc::new(Grammar::Ref {
     name: "DropSchemaStatementSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -37456,6 +39191,7 @@ Arc::new(Grammar::Ref {
     name: "DropTypeStatementSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -37469,6 +39205,7 @@ Arc::new(Grammar::Ref {
     name: "CreateDatabaseStatementSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -37482,6 +39219,7 @@ Arc::new(Grammar::Ref {
     name: "DropDatabaseStatementSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -37495,6 +39233,7 @@ Arc::new(Grammar::Ref {
     name: "CreateIndexStatementSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -37508,6 +39247,7 @@ Arc::new(Grammar::Ref {
     name: "DropIndexStatementSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -37521,6 +39261,7 @@ Arc::new(Grammar::Ref {
     name: "CreateViewStatementSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -37534,6 +39275,7 @@ Arc::new(Grammar::Ref {
     name: "DeleteStatementSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -37547,6 +39289,7 @@ Arc::new(Grammar::Ref {
     name: "UpdateStatementSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -37560,6 +39303,7 @@ Arc::new(Grammar::Ref {
     name: "CreateCastStatementSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -37573,6 +39317,7 @@ Arc::new(Grammar::Ref {
     name: "DropCastStatementSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -37586,6 +39331,7 @@ Arc::new(Grammar::Ref {
     name: "CreateFunctionStatementSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -37599,6 +39345,7 @@ Arc::new(Grammar::Ref {
     name: "DropFunctionStatementSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -37612,6 +39359,7 @@ Arc::new(Grammar::Ref {
     name: "CreateModelStatementSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -37625,6 +39373,7 @@ Arc::new(Grammar::Ref {
     name: "DropModelStatementSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -37638,6 +39387,7 @@ Arc::new(Grammar::Ref {
     name: "DescribeStatementSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -37651,6 +39401,7 @@ Arc::new(Grammar::Ref {
     name: "UseStatementSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -37664,6 +39415,7 @@ Arc::new(Grammar::Ref {
     name: "ExplainStatementSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -37677,6 +39429,7 @@ Arc::new(Grammar::Ref {
     name: "CreateSequenceStatementSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -37690,6 +39443,7 @@ Arc::new(Grammar::Ref {
     name: "AlterSequenceStatementSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -37703,6 +39457,7 @@ Arc::new(Grammar::Ref {
     name: "DropSequenceStatementSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -37716,6 +39471,7 @@ Arc::new(Grammar::Ref {
     name: "CreateTriggerStatementSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -37729,6 +39485,7 @@ Arc::new(Grammar::Ref {
     name: "DropTriggerStatementSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -37746,6 +39503,7 @@ Arc::new(Grammar::Ref {
     name: "DelimiterGrammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -37760,7 +39518,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["GRANT".to_string(), "END".to_string(), "VALUE".to_string(), "BEGIN".to_string(), "TRUNCATE".to_string(), "ALTER".to_string(), "ROLLBACK".to_string(), "START".to_string(), "EXPLAIN".to_string(), "UPDATE".to_string(), "SELECT".to_string(), "SET".to_string(), "MERGE".to_string(), "DROP".to_string(), "DELETE".to_string(), "(".to_string(), "COMMIT".to_string(), "DESCRIBE".to_string(), "VALUES".to_string(), "CREATE".to_string(), "USE".to_string(), "REVOKE".to_string(), "WITH".to_string(), "INSERT".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["UPDATE".to_string(), "ALTER".to_string(), "COMMIT".to_string(), "ROLLBACK".to_string(), "(".to_string(), "BEGIN".to_string(), "SELECT".to_string(), "DESCRIBE".to_string(), "GRANT".to_string(), "DELETE".to_string(), "MERGE".to_string(), "USE".to_string(), "SET".to_string(), "INSERT".to_string(), "DROP".to_string(), "REVOKE".to_string(), "END".to_string(), "VALUES".to_string(), "TRUNCATE".to_string(), "START".to_string(), "EXPLAIN".to_string(), "CREATE".to_string(), "VALUE".to_string(), "WITH".to_string()]),
         token_types: hashbrown::HashSet::from_iter([]),
     }),
 })
@@ -37884,6 +39642,7 @@ Arc::new(Grammar::Ref {
     name: "ConcatSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -37931,6 +39690,7 @@ Arc::new(Grammar::Ref {
     name: "BaseExpressionElementGrammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -37941,6 +39701,7 @@ Arc::new(Grammar::Ref {
     name: "AliasExpressionSegment",
     optional: true,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -37963,6 +39724,7 @@ Arc::new(Grammar::Ref {
     name: "CommaSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -38190,6 +39952,7 @@ Arc::new(Grammar::Ref {
     name: "ConstraintKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -38203,6 +39966,7 @@ Arc::new(Grammar::Ref {
     name: "ObjectReferenceSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -38230,6 +39994,7 @@ Arc::new(Grammar::Ref {
     name: "UniqueKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -38243,6 +40008,7 @@ Arc::new(Grammar::Ref {
     name: "BracketedColumnReferenceListGrammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -38271,6 +40037,7 @@ Arc::new(Grammar::Ref {
     name: "PrimaryKeyGrammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -38284,6 +40051,7 @@ Arc::new(Grammar::Ref {
     name: "BracketedColumnReferenceListGrammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -38312,6 +40080,7 @@ Arc::new(Grammar::Ref {
     name: "ForeignKeyGrammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -38325,6 +40094,7 @@ Arc::new(Grammar::Ref {
     name: "BracketedColumnReferenceListGrammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -38338,6 +40108,7 @@ Arc::new(Grammar::Ref {
     name: "ReferenceDefinitionGrammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -38369,7 +40140,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["FOREIGN".to_string(), "UNIQUE".to_string(), "PRIMARY".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["UNIQUE".to_string(), "PRIMARY".to_string(), "FOREIGN".to_string()]),
         token_types: hashbrown::HashSet::from_iter([]),
     }),
 })
@@ -38382,7 +40153,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["CONSTRAINT".to_string(), "FOREIGN".to_string(), "UNIQUE".to_string(), "PRIMARY".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["FOREIGN".to_string(), "CONSTRAINT".to_string(), "PRIMARY".to_string(), "UNIQUE".to_string()]),
         token_types: hashbrown::HashSet::from_iter([]),
     }),
 })
@@ -38403,11 +40174,12 @@ Arc::new(Grammar::Ref {
     name: "ValuesClauseSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["VALUE".to_string(), "VALUES".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["VALUES".to_string(), "VALUE".to_string()]),
         token_types: hashbrown::HashSet::from_iter([]),
     }),
 })
@@ -38416,11 +40188,12 @@ Arc::new(Grammar::Ref {
     name: "BareFunctionSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["CURRENT_TIMESTAMP".to_string(), "CURRENT_TIME".to_string(), "CURRENT_DATE".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["CURRENT_TIME".to_string(), "CURRENT_DATE".to_string(), "CURRENT_TIMESTAMP".to_string()]),
         token_types: hashbrown::HashSet::from_iter([]),
     }),
 })
@@ -38429,6 +40202,7 @@ Arc::new(Grammar::Ref {
     name: "FunctionSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -38439,6 +40213,7 @@ Arc::new(Grammar::Ref {
     name: "TableReferenceSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -38451,11 +40226,12 @@ Arc::new(Grammar::Ref {
     name: "SelectableGrammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["(".to_string(), "VALUE".to_string(), "VALUES".to_string(), "SELECT".to_string(), "WITH".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["VALUES".to_string(), "VALUE".to_string(), "(".to_string(), "WITH".to_string(), "SELECT".to_string()]),
         token_types: hashbrown::HashSet::from_iter([]),
     }),
 })
@@ -38497,6 +40273,7 @@ Arc::new(Grammar::Ref {
     name: "MergeStatementSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -38568,6 +40345,7 @@ Arc::new(Grammar::Ref {
     name: "SingleIdentifierGrammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -38580,6 +40358,7 @@ Arc::new(Grammar::Ref {
     name: "ObjectReferenceDelimiterGrammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -38596,6 +40375,7 @@ Arc::new(Grammar::Ref {
     name: "ObjectReferenceTerminatorGrammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -38660,6 +40440,7 @@ Arc::new(Grammar::Ref {
     name: "SingleIdentifierGrammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -38672,6 +40453,7 @@ Arc::new(Grammar::Ref {
     name: "ObjectReferenceDelimiterGrammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -38688,6 +40470,7 @@ Arc::new(Grammar::Ref {
     name: "ObjectReferenceTerminatorGrammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -38712,6 +40495,7 @@ Arc::new(Grammar::Ref {
     name: "SingleIdentifierGrammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -38724,6 +40508,7 @@ Arc::new(Grammar::Ref {
     name: "ObjectReferenceDelimiterGrammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -38740,6 +40525,7 @@ Arc::new(Grammar::Ref {
     name: "ObjectReferenceTerminatorGrammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -38765,11 +40551,12 @@ Arc::new(Grammar::Ref {
     name: "Expression_A_Unary_Operator_Grammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["~".to_string(), "-".to_string(), "NOT".to_string(), "+".to_string(), "PRIOR".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["PRIOR".to_string(), "NOT".to_string(), "+".to_string(), "-".to_string(), "~".to_string()]),
         token_types: hashbrown::HashSet::from_iter([]),
     }),
 })
@@ -38785,11 +40572,12 @@ Arc::new(Grammar::Ref {
     name: "BinaryOperatorGrammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["!".to_string(), "*".to_string(), "<".to_string(), "OR".to_string(), "/".to_string(), ">".to_string(), "=".to_string(), "IS".to_string(), "|".to_string(), "-".to_string(), "%".to_string(), "^".to_string(), "AND".to_string(), "+".to_string(), "&".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["=".to_string(), "+".to_string(), "OR".to_string(), "!".to_string(), "%".to_string(), "IS".to_string(), "<".to_string(), "AND".to_string(), "&".to_string(), "|".to_string(), "^".to_string(), ">".to_string(), "*".to_string(), "-".to_string(), "/".to_string()]),
         token_types: hashbrown::HashSet::from_iter(["like_operator".to_string()]),
     }),
 })
@@ -38799,7 +40587,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["~".to_string(), "-".to_string(), "NOT".to_string(), "+".to_string(), "PRIOR".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["PRIOR".to_string(), "NOT".to_string(), "+".to_string(), "-".to_string(), "~".to_string()]),
         token_types: hashbrown::HashSet::from_iter([]),
     }),
 })
@@ -38808,6 +40596,7 @@ Arc::new(Grammar::Ref {
     name: "Expression_C_Grammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -38835,11 +40624,12 @@ Arc::new(Grammar::Ref {
     name: "Expression_B_Unary_Operator_Grammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["~".to_string(), "-".to_string(), "+".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["+".to_string(), "-".to_string(), "~".to_string()]),
         token_types: hashbrown::HashSet::from_iter([]),
     }),
 })
@@ -38856,7 +40646,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["~".to_string(), "-".to_string(), "+".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["+".to_string(), "-".to_string(), "~".to_string()]),
         token_types: hashbrown::HashSet::from_iter([]),
     }),
 })
@@ -38865,6 +40655,7 @@ Arc::new(Grammar::Ref {
     name: "Expression_C_Grammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -38936,6 +40727,7 @@ Arc::new(Grammar::Ref {
     name: "TempKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -38949,6 +40741,7 @@ Arc::new(Grammar::Ref {
     name: "TemporaryKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -38967,7 +40760,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["TEMP".to_string(), "TEMPORARY".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["TEMPORARY".to_string(), "TEMP".to_string()]),
         token_types: hashbrown::HashSet::from_iter([]),
     }),
 })
@@ -38991,6 +40784,7 @@ Arc::new(Grammar::Ref {
     name: "TransientKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -39004,11 +40798,12 @@ Arc::new(Grammar::Ref {
     name: "TemporaryGrammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["TEMP".to_string(), "TEMPORARY".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["TEMPORARY".to_string(), "TEMP".to_string()]),
         token_types: hashbrown::HashSet::from_iter([]),
     }),
 })
@@ -39022,7 +40817,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["TRANSIENT".to_string(), "TEMP".to_string(), "TEMPORARY".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["TEMPORARY".to_string(), "TEMP".to_string(), "TRANSIENT".to_string()]),
         token_types: hashbrown::HashSet::from_iter([]),
     }),
 })
@@ -39128,6 +40923,7 @@ Arc::new(Grammar::Ref {
     name: "TimeKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -39141,6 +40937,7 @@ Arc::new(Grammar::Ref {
     name: "TimestampKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -39168,6 +40965,7 @@ Arc::new(Grammar::Ref {
     name: "BracketedArguments",
     optional: true,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -39185,6 +40983,7 @@ Arc::new(Grammar::Ref {
     name: "WithKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -39198,6 +40997,7 @@ Arc::new(Grammar::Ref {
     name: "WithoutKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -39225,6 +41025,7 @@ Arc::new(Grammar::Ref {
     name: "TimeKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -39238,6 +41039,7 @@ Arc::new(Grammar::Ref {
     name: "ZoneKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -39285,6 +41087,7 @@ Arc::new(Grammar::Ref {
     name: "AtKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -39298,6 +41101,7 @@ Arc::new(Grammar::Ref {
     name: "TimeKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -39311,6 +41115,7 @@ Arc::new(Grammar::Ref {
     name: "ZoneKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -39324,6 +41129,7 @@ Arc::new(Grammar::Ref {
     name: "ExpressionSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -39502,6 +41308,7 @@ Arc::new(Grammar::Ref {
     name: "StartKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -39515,6 +41322,7 @@ Arc::new(Grammar::Ref {
     name: "BeginKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -39528,6 +41336,7 @@ Arc::new(Grammar::Ref {
     name: "CommitKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -39541,6 +41350,7 @@ Arc::new(Grammar::Ref {
     name: "RollbackKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -39554,6 +41364,7 @@ Arc::new(Grammar::Ref {
     name: "EndKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -39572,7 +41383,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["END".to_string(), "COMMIT".to_string(), "ROLLBACK".to_string(), "BEGIN".to_string(), "START".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["START".to_string(), "COMMIT".to_string(), "ROLLBACK".to_string(), "BEGIN".to_string(), "END".to_string()]),
         token_types: hashbrown::HashSet::from_iter([]),
     }),
 })
@@ -39583,6 +41394,7 @@ Arc::new(Grammar::Ref {
     name: "TransactionKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -39596,6 +41408,7 @@ Arc::new(Grammar::Ref {
     name: "WorkKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -39614,7 +41427,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["WORK".to_string(), "TRANSACTION".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["TRANSACTION".to_string(), "WORK".to_string()]),
         token_types: hashbrown::HashSet::from_iter([]),
     }),
 })
@@ -39625,6 +41438,7 @@ Arc::new(Grammar::Ref {
     name: "NameKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -39638,6 +41452,7 @@ Arc::new(Grammar::Ref {
     name: "SingleIdentifierGrammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -39663,6 +41478,7 @@ Arc::new(Grammar::Ref {
     name: "AndKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -39676,6 +41492,7 @@ Arc::new(Grammar::Ref {
     name: "NoKeywordSegment",
     optional: true,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -39689,6 +41506,7 @@ Arc::new(Grammar::Ref {
     name: "ChainKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -39719,7 +41537,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["END".to_string(), "COMMIT".to_string(), "ROLLBACK".to_string(), "BEGIN".to_string(), "START".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["START".to_string(), "COMMIT".to_string(), "ROLLBACK".to_string(), "BEGIN".to_string(), "END".to_string()]),
         token_types: hashbrown::HashSet::from_iter([]),
     }),
 })
@@ -39844,6 +41662,7 @@ Arc::new(Grammar::Ref {
     name: "SingleIdentifierGrammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -39856,6 +41675,7 @@ Arc::new(Grammar::Ref {
     name: "ObjectReferenceDelimiterGrammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -39872,6 +41692,7 @@ Arc::new(Grammar::Ref {
     name: "ObjectReferenceTerminatorGrammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -39935,6 +41756,7 @@ Arc::new(Grammar::Ref {
     name: "BothKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -39948,6 +41770,7 @@ Arc::new(Grammar::Ref {
     name: "LeadingKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -39961,6 +41784,7 @@ Arc::new(Grammar::Ref {
     name: "TrailingKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -39979,7 +41803,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["TRAILING".to_string(), "BOTH".to_string(), "LEADING".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["BOTH".to_string(), "LEADING".to_string(), "TRAILING".to_string()]),
         token_types: hashbrown::HashSet::from_iter([]),
     }),
 })
@@ -40024,6 +41848,7 @@ Arc::new(Grammar::Ref {
     name: "TruncateKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -40037,6 +41862,7 @@ Arc::new(Grammar::Ref {
     name: "TableKeywordSegment",
     optional: true,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -40050,6 +41876,7 @@ Arc::new(Grammar::Ref {
     name: "TableReferenceSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -40101,6 +41928,7 @@ Arc::new(Grammar::Ref {
     name: "BaseExpressionElementGrammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -40113,6 +41941,7 @@ Arc::new(Grammar::Ref {
     name: "CommaSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -40184,6 +42013,7 @@ Arc::new(Grammar::Ref {
     name: "ArrayTypeSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -40194,6 +42024,7 @@ Arc::new(Grammar::Ref {
     name: "ArrayLiteralSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -40223,6 +42054,7 @@ Arc::new(Grammar::Ref {
     name: "StructTypeSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -40233,6 +42065,7 @@ Arc::new(Grammar::Ref {
     name: "StructLiteralSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -40306,6 +42139,7 @@ Arc::new(Grammar::Ref {
     name: "NaturalJoinKeywordsGrammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -40319,6 +42153,7 @@ Arc::new(Grammar::Ref {
     name: "UnconditionalCrossJoinKeywordsGrammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -40329,6 +42164,7 @@ Arc::new(Grammar::Ref {
     name: "HorizontalJoinKeywordsGrammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -40385,6 +42221,7 @@ Arc::new(Grammar::Ref {
     name: "UnionKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -40400,6 +42237,7 @@ Arc::new(Grammar::Ref {
     name: "DistinctKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -40413,6 +42251,7 @@ Arc::new(Grammar::Ref {
     name: "AllKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -40431,7 +42270,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["DISTINCT".to_string(), "ALL".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["ALL".to_string(), "DISTINCT".to_string()]),
         token_types: hashbrown::HashSet::from_iter([]),
     }),
 })
@@ -40468,6 +42307,7 @@ Arc::new(Grammar::Ref {
     name: "UniqueKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -40565,6 +42405,7 @@ Arc::new(Grammar::Ref {
     name: "SelectClauseSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -40578,6 +42419,7 @@ Arc::new(Grammar::Ref {
     name: "FromClauseSegment",
     optional: true,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -40591,6 +42433,7 @@ Arc::new(Grammar::Ref {
     name: "WhereClauseSegment",
     optional: true,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -40604,6 +42447,7 @@ Arc::new(Grammar::Ref {
     name: "GroupByClauseSegment",
     optional: true,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -40617,6 +42461,7 @@ Arc::new(Grammar::Ref {
     name: "HavingClauseSegment",
     optional: true,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -40630,6 +42475,7 @@ Arc::new(Grammar::Ref {
     name: "OverlapsClauseSegment",
     optional: true,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -40643,6 +42489,7 @@ Arc::new(Grammar::Ref {
     name: "NamedWindowSegment",
     optional: true,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -40659,11 +42506,12 @@ Arc::new(Grammar::Ref {
     name: "SetOperatorSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["EXCEPT".to_string(), "MINUS".to_string(), "INTERSECT".to_string(), "UNION".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["INTERSECT".to_string(), "MINUS".to_string(), "UNION".to_string(), "EXCEPT".to_string()]),
         token_types: hashbrown::HashSet::from_iter([]),
     }),
 })
@@ -40672,6 +42520,7 @@ Arc::new(Grammar::Ref {
     name: "WithNoSchemaBindingClauseSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -40685,6 +42534,7 @@ Arc::new(Grammar::Ref {
     name: "WithDataClauseSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -40698,6 +42548,7 @@ Arc::new(Grammar::Ref {
     name: "OrderByClauseSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -40711,6 +42562,7 @@ Arc::new(Grammar::Ref {
     name: "LimitClauseSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -40740,11 +42592,12 @@ Arc::new(Grammar::Ref {
     name: "NonSetSelectableGrammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["(".to_string(), "VALUE".to_string(), "VALUES".to_string(), "SELECT".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["VALUES".to_string(), "VALUE".to_string(), "(".to_string(), "SELECT".to_string()]),
         token_types: hashbrown::HashSet::from_iter([]),
     }),
 })
@@ -40757,11 +42610,12 @@ Arc::new(Grammar::Ref {
     name: "SetOperatorSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["EXCEPT".to_string(), "MINUS".to_string(), "INTERSECT".to_string(), "UNION".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["INTERSECT".to_string(), "MINUS".to_string(), "UNION".to_string(), "EXCEPT".to_string()]),
         token_types: hashbrown::HashSet::from_iter([]),
     }),
 })
@@ -40770,11 +42624,12 @@ Arc::new(Grammar::Ref {
     name: "NonSetSelectableGrammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["(".to_string(), "VALUE".to_string(), "VALUES".to_string(), "SELECT".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["VALUES".to_string(), "VALUE".to_string(), "(".to_string(), "SELECT".to_string()]),
         token_types: hashbrown::HashSet::from_iter([]),
     }),
 })
@@ -40787,7 +42642,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["EXCEPT".to_string(), "MINUS".to_string(), "INTERSECT".to_string(), "UNION".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["INTERSECT".to_string(), "MINUS".to_string(), "UNION".to_string(), "EXCEPT".to_string()]),
         token_types: hashbrown::HashSet::from_iter([]),
     }),
 })
@@ -40804,7 +42659,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["EXCEPT".to_string(), "MINUS".to_string(), "INTERSECT".to_string(), "UNION".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["INTERSECT".to_string(), "MINUS".to_string(), "UNION".to_string(), "EXCEPT".to_string()]),
         token_types: hashbrown::HashSet::from_iter([]),
     }),
 })
@@ -40817,7 +42672,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["SELECT".to_string(), "(".to_string(), "VALUE".to_string(), "VALUES".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["VALUES".to_string(), "VALUE".to_string(), "(".to_string(), "SELECT".to_string()]),
         token_types: hashbrown::HashSet::from_iter([]),
     }),
 })
@@ -40862,6 +42717,7 @@ Arc::new(Grammar::Ref {
     name: "UpdateKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -40877,6 +42733,7 @@ Arc::new(Grammar::Ref {
     name: "TableReferenceSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -40887,6 +42744,21 @@ Arc::new(Grammar::Ref {
     name: "AliasExpressionSegment",
     optional: true,
     allow_gaps: true,
+    exclude: Some(Box::new(
+Arc::new(Grammar::Ref {
+    name: "SetKeywordSegment",
+    optional: false,
+    allow_gaps: true,
+    exclude: None,
+    terminators: vec![
+    ],
+    reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["SET".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
+})
+    )),
     terminators: vec![
     ],
     reset_terminators: false,
@@ -40899,6 +42771,7 @@ Arc::new(Grammar::Ref {
     name: "SetClauseListSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -40912,6 +42785,7 @@ Arc::new(Grammar::Ref {
     name: "FromClauseSegment",
     optional: true,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -40925,6 +42799,7 @@ Arc::new(Grammar::Ref {
     name: "WhereClauseSegment",
     optional: true,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -40997,6 +42872,7 @@ Arc::new(Grammar::Ref {
     name: "UseKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -41010,6 +42886,7 @@ Arc::new(Grammar::Ref {
     name: "DatabaseReferenceSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -41201,6 +43078,7 @@ Arc::new(Grammar::Ref {
     name: "ValueKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -41214,6 +43092,7 @@ Arc::new(Grammar::Ref {
     name: "ValuesKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -41232,7 +43111,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["VALUE".to_string(), "VALUES".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["VALUES".to_string(), "VALUE".to_string()]),
         token_types: hashbrown::HashSet::from_iter([]),
     }),
 })
@@ -41245,6 +43124,7 @@ Arc::new(Grammar::Ref {
     name: "RowKeywordSegment",
     optional: true,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -41262,6 +43142,7 @@ Arc::new(Grammar::Ref {
     name: "DefaultKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -41275,6 +43156,7 @@ Arc::new(Grammar::Ref {
     name: "LiteralGrammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -41285,6 +43167,7 @@ Arc::new(Grammar::Ref {
     name: "ExpressionSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -41297,6 +43180,7 @@ Arc::new(Grammar::Ref {
     name: "CommaSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -41367,6 +43251,7 @@ Arc::new(Grammar::Ref {
     name: "CommaSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -41398,7 +43283,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["VALUE".to_string(), "VALUES".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["VALUES".to_string(), "VALUE".to_string()]),
         token_types: hashbrown::HashSet::from_iter([]),
     }),
 })
@@ -41613,6 +43498,7 @@ Arc::new(Grammar::Ref {
     name: "WhenKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -41630,6 +43516,7 @@ Arc::new(Grammar::Ref {
     name: "ExpressionSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -41654,6 +43541,7 @@ Arc::new(Grammar::Ref {
     name: "ThenKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -41669,6 +43557,7 @@ Arc::new(Grammar::Ref {
     name: "ExpressionSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -41722,6 +43611,7 @@ Arc::new(Grammar::Ref {
     name: "WhereKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -41741,6 +43631,7 @@ Arc::new(Grammar::Ref {
     name: "ExpressionSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -41782,6 +43673,7 @@ Arc::new(Grammar::Ref {
     name: "ExpressionSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -41823,6 +43715,7 @@ Arc::new(Grammar::Ref {
     name: "LimitClauseSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -41838,6 +43731,7 @@ Arc::new(Grammar::Ref {
     name: "GroupKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -41851,6 +43745,7 @@ Arc::new(Grammar::Ref {
     name: "ByKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -41879,6 +43774,7 @@ Arc::new(Grammar::Ref {
     name: "OrderKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -41892,6 +43788,7 @@ Arc::new(Grammar::Ref {
     name: "ByKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -41918,6 +43815,7 @@ Arc::new(Grammar::Ref {
     name: "HavingKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -41931,6 +43829,7 @@ Arc::new(Grammar::Ref {
     name: "QualifyKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -41944,6 +43843,7 @@ Arc::new(Grammar::Ref {
     name: "WindowKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -41957,6 +43857,7 @@ Arc::new(Grammar::Ref {
     name: "OverlapsKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -41970,6 +43871,7 @@ Arc::new(Grammar::Ref {
     name: "FetchKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -41988,7 +43890,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["WINDOW".to_string(), "ORDER".to_string(), "OVERLAPS".to_string(), "QUALIFY".to_string(), "HAVING".to_string(), "GROUP".to_string(), "FETCH".to_string(), "LIMIT".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["HAVING".to_string(), "GROUP".to_string(), "ORDER".to_string(), "FETCH".to_string(), "OVERLAPS".to_string(), "WINDOW".to_string(), "LIMIT".to_string(), "QUALIFY".to_string()]),
         token_types: hashbrown::HashSet::from_iter([]),
     }),
 })
@@ -42041,6 +43943,7 @@ Arc::new(Grammar::Ref {
     name: "WildcardIdentifierSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -42073,6 +43976,7 @@ Arc::new(Grammar::Ref {
     name: "SingleIdentifierGrammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -42083,6 +43987,7 @@ Arc::new(Grammar::Ref {
     name: "ObjectReferenceDelimiterGrammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -42108,6 +44013,7 @@ Arc::new(Grammar::Ref {
     name: "StarSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -42121,6 +44027,7 @@ Arc::new(Grammar::Ref {
     name: "DotSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -42172,6 +44079,7 @@ Arc::new(Grammar::Ref {
     name: "StarSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -42211,6 +44119,51 @@ Arc::new(Grammar::Ref {
     name: "SingleIdentifierGrammar",
     optional: true,
     allow_gaps: true,
+    exclude: Some(Box::new(
+Arc::new(Grammar::OneOf {
+    elements: vec![
+Arc::new(Grammar::Ref {
+    name: "PartitionKeywordSegment",
+    optional: false,
+    allow_gaps: true,
+    exclude: None,
+    terminators: vec![
+    ],
+    reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["PARTITION".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
+})
+,
+Arc::new(Grammar::Ref {
+    name: "OrderKeywordSegment",
+    optional: false,
+    allow_gaps: true,
+    exclude: None,
+    terminators: vec![
+    ],
+    reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["ORDER".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
+})
+,
+    ],
+    exclude: None,
+    optional: false,
+    terminators: vec![
+    ],
+    reset_terminators: false,
+    allow_gaps: true,
+    parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+        raw_values: hashbrown::HashSet::from_iter(["PARTITION".to_string(), "ORDER".to_string()]),
+        token_types: hashbrown::HashSet::from_iter([]),
+    }),
+})
+    )),
     terminators: vec![
     ],
     reset_terminators: false,
@@ -42221,6 +44174,7 @@ Arc::new(Grammar::Ref {
     name: "PartitionClauseSegment",
     optional: true,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -42234,6 +44188,7 @@ Arc::new(Grammar::Ref {
     name: "OrderByClauseSegment",
     optional: true,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -42247,11 +44202,12 @@ Arc::new(Grammar::Ref {
     name: "FrameClauseSegment",
     optional: true,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["RANGE".to_string(), "ROWS".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["ROWS".to_string(), "RANGE".to_string()]),
         token_types: hashbrown::HashSet::from_iter([]),
     }),
 })
@@ -42276,6 +44232,7 @@ Arc::new(Grammar::Ref {
     name: "WithKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -42289,6 +44246,7 @@ Arc::new(Grammar::Ref {
     name: "RecursiveKeywordSegment",
     optional: true,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -42306,6 +44264,7 @@ Arc::new(Grammar::Ref {
     name: "CTEDefinitionSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -42318,6 +44277,7 @@ Arc::new(Grammar::Ref {
     name: "CommaSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -42334,6 +44294,7 @@ Arc::new(Grammar::Ref {
     name: "SelectKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -42357,11 +44318,12 @@ Arc::new(Grammar::Ref {
     name: "NonWithNonSelectableGrammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["UPDATE".to_string(), "DELETE".to_string(), "MERGE".to_string(), "INSERT".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["DELETE".to_string(), "INSERT".to_string(), "UPDATE".to_string(), "MERGE".to_string()]),
         token_types: hashbrown::HashSet::from_iter([]),
     }),
 })
@@ -42389,6 +44351,7 @@ Arc::new(Grammar::Ref {
     name: "WithKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -42402,6 +44365,7 @@ Arc::new(Grammar::Ref {
     name: "RecursiveKeywordSegment",
     optional: true,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -42419,6 +44383,7 @@ Arc::new(Grammar::Ref {
     name: "CTEDefinitionSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -42431,6 +44396,7 @@ Arc::new(Grammar::Ref {
     name: "CommaSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -42447,6 +44413,7 @@ Arc::new(Grammar::Ref {
     name: "SelectKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -42470,11 +44437,12 @@ Arc::new(Grammar::Ref {
     name: "NonWithSelectableGrammar",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
     simple_hint: Some(SimpleHint {
-        raw_values: hashbrown::HashSet::from_iter(["(".to_string(), "VALUE".to_string(), "VALUES".to_string(), "SELECT".to_string()]),
+        raw_values: hashbrown::HashSet::from_iter(["VALUES".to_string(), "VALUE".to_string(), "(".to_string(), "SELECT".to_string()]),
         token_types: hashbrown::HashSet::from_iter([]),
     }),
 })
@@ -42502,6 +44470,7 @@ Arc::new(Grammar::Ref {
     name: "WithKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -42517,6 +44486,7 @@ Arc::new(Grammar::Ref {
     name: "NoKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -42543,6 +44513,7 @@ Arc::new(Grammar::Ref {
     name: "DataKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -42591,6 +44562,7 @@ Arc::new(Grammar::Ref {
     name: "WithKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -42604,6 +44576,7 @@ Arc::new(Grammar::Ref {
     name: "NoKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -42617,6 +44590,7 @@ Arc::new(Grammar::Ref {
     name: "SchemaKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -42630,6 +44604,7 @@ Arc::new(Grammar::Ref {
     name: "BindingKeywordSegment",
     optional: false,
     allow_gaps: true,
+    exclude: None,
     terminators: vec![
     ],
     reset_terminators: false,
