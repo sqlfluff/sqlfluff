@@ -448,14 +448,15 @@ file:
                   select_clause:
                     keyword: SELECT
                     select_clause_element:
-                      expression:
-                      - parameter: '@str'
-                      - comparison_operator:
+                      select_variable_assignment:
+                        parameter: '@str'
+                        assignment_operator:
                           raw_comparison_operator: '='
-                      - parameter: '@str'
-                      - binary_operator: +
-                      - column_reference:
-                          quoted_identifier: '[item]'
+                        expression:
+                          parameter: '@str'
+                          binary_operator: +
+                          column_reference:
+                            quoted_identifier: '[item]'
                   from_clause:
                     keyword: FROM
                     from_expression:

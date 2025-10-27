@@ -32,12 +32,13 @@ file:
         select_clause:
           keyword: SELECT
           select_clause_element:
-            expression:
+            select_variable_assignment:
               parameter: '@I'
-              binary_operator:
-              - raw_comparison_operator: +
-              - raw_comparison_operator: '='
-              integer_literal: '2'
+              assignment_operator:
+                binary_operator: +
+                raw_comparison_operator: '='
+              expression:
+                integer_literal: '2'
         statement_terminator: ;
   - statement:
       select_statement:
@@ -54,12 +55,13 @@ file:
         select_clause:
           keyword: SELECT
           select_clause_element:
-            expression:
+            select_variable_assignment:
               parameter: '@I'
-              binary_operator:
-              - raw_comparison_operator: '-'
-              - raw_comparison_operator: '='
-              integer_literal: '4'
+              assignment_operator:
+                binary_operator: '-'
+                raw_comparison_operator: '='
+              expression:
+                integer_literal: '4'
         statement_terminator: ;
   - statement:
       select_statement:
@@ -76,12 +78,13 @@ file:
         select_clause:
           keyword: SELECT
           select_clause_element:
-            expression:
+            select_variable_assignment:
               parameter: '@I'
-              binary_operator:
-              - raw_comparison_operator: '*'
-              - raw_comparison_operator: '='
-              integer_literal: '6'
+              assignment_operator:
+                binary_operator: '*'
+                raw_comparison_operator: '='
+              expression:
+                integer_literal: '6'
         statement_terminator: ;
   - statement:
       select_statement:
@@ -98,12 +101,13 @@ file:
         select_clause:
           keyword: SELECT
           select_clause_element:
-            expression:
+            select_variable_assignment:
               parameter: '@I'
-              binary_operator:
-              - raw_comparison_operator: /
-              - raw_comparison_operator: '='
-              integer_literal: '8'
+              assignment_operator:
+                binary_operator: /
+                raw_comparison_operator: '='
+              expression:
+                integer_literal: '8'
         statement_terminator: ;
   - statement:
       select_statement:
@@ -120,10 +124,11 @@ file:
         select_clause:
           keyword: SELECT
           select_clause_element:
-            expression:
+            select_variable_assignment:
               parameter: '@I'
-              binary_operator:
-              - raw_comparison_operator: '%'
-              - raw_comparison_operator: '='
-              integer_literal: '10'
+              assignment_operator:
+                binary_operator: '%'
+                raw_comparison_operator: '='
+              expression:
+                integer_literal: '10'
         statement_terminator: ;

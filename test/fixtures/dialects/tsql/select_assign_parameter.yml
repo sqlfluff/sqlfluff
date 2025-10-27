@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 6be0a9325607e51c6aa15fba0677b99c6d51e618dadc4623d74ce1bc4406c2c2
+_hash: c12e52bfe7cab33edb58d9ed56213d79ff70b363ab21f1ac10a49640369bfb2f
 file:
   batch:
   - statement:
@@ -48,14 +48,15 @@ file:
         select_clause:
           keyword: select
           select_clause_element:
-            expression:
+            select_variable_assignment:
               parameter: '@userid_parameter'
-              comparison_operator:
+              assignment_operator:
                 raw_comparison_operator: '='
-              column_reference:
-              - naked_identifier: c
-              - dot: .
-              - naked_identifier: id
+              expression:
+                column_reference:
+                - naked_identifier: c
+                - dot: .
+                - naked_identifier: id
         from_clause:
           keyword: from
           from_expression:
@@ -79,4 +80,238 @@ file:
             comparison_operator:
               raw_comparison_operator: '='
             quoted_literal: "'drjwelch'"
+        statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_modifier:
+            keyword: TOP
+            expression:
+              integer_literal: '1'
+        - select_clause_element:
+            select_variable_assignment:
+              parameter: '@potential_match'
+              assignment_operator:
+                raw_comparison_operator: '='
+              expression:
+                column_reference:
+                  quoted_identifier: '[id]'
+        - comma: ','
+        - select_clause_element:
+            select_variable_assignment:
+              parameter: '@full_name'
+              assignment_operator:
+                raw_comparison_operator: '='
+              expression:
+                function:
+                  function_name:
+                    function_name_identifier: CONCAT
+                  function_contents:
+                    bracketed:
+                    - start_bracket: (
+                    - expression:
+                        column_reference:
+                          naked_identifier: first_name
+                    - comma: ','
+                    - expression:
+                        quoted_literal: "' '"
+                    - comma: ','
+                    - expression:
+                        column_reference:
+                          naked_identifier: surname
+                    - end_bracket: )
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                - quoted_identifier: '[dbo]'
+                - dot: .
+                - quoted_identifier: '[authors]'
+          statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            select_variable_assignment:
+              parameter: '@counter'
+              assignment_operator:
+                binary_operator: +
+                raw_comparison_operator: '='
+              expression:
+                integer_literal: '1'
+        - comma: ','
+        - select_clause_element:
+            select_variable_assignment:
+              parameter: '@sum'
+              assignment_operator:
+                binary_operator: +
+                raw_comparison_operator: '='
+              expression:
+                column_reference:
+                  naked_identifier: amount
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: transactions
+          statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            select_variable_assignment:
+              parameter: '@result'
+              assignment_operator:
+                binary_operator: '*'
+                raw_comparison_operator: '='
+              expression:
+                column_reference:
+                  naked_identifier: factor
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: coefficients
+        where_clause:
+          keyword: WHERE
+          expression:
+            column_reference:
+              naked_identifier: id
+            comparison_operator:
+              raw_comparison_operator: '='
+            integer_literal: '1'
+        statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            select_variable_assignment:
+              parameter: '@text_concat'
+              assignment_operator:
+                raw_comparison_operator: '='
+              expression:
+              - parameter: '@text_concat'
+              - binary_operator: +
+              - quoted_literal: "', '"
+              - binary_operator: +
+              - column_reference:
+                  naked_identifier: description
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: items
+          statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            select_variable_assignment:
+              parameter: '@max_price'
+              assignment_operator:
+                raw_comparison_operator: '='
+              expression:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    select_statement:
+                      select_clause:
+                        keyword: SELECT
+                        select_clause_element:
+                          function:
+                            function_name:
+                              function_name_identifier: MAX
+                            function_contents:
+                              bracketed:
+                                start_bracket: (
+                                expression:
+                                  column_reference:
+                                    naked_identifier: price
+                                end_bracket: )
+                      from_clause:
+                        keyword: FROM
+                        from_expression:
+                          from_expression_element:
+                            table_expression:
+                              table_reference:
+                                naked_identifier: products
+                  end_bracket: )
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: dual
+          statement_terminator: ;
+  - statement:
+      declare_segment:
+      - keyword: DECLARE
+      - parameter: '@var1'
+      - data_type:
+          data_type_identifier: INT
+      - comma: ','
+      - parameter: '@var2'
+      - data_type:
+          data_type_identifier: VARCHAR
+          bracketed_arguments:
+            bracketed:
+              start_bracket: (
+              expression:
+                integer_literal: '50'
+              end_bracket: )
+      - statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            select_variable_assignment:
+              parameter: '@var1'
+              assignment_operator:
+                raw_comparison_operator: '='
+              expression:
+                column_reference:
+                  naked_identifier: id
+        - comma: ','
+        - select_clause_element:
+            select_variable_assignment:
+              parameter: '@var2'
+              assignment_operator:
+                raw_comparison_operator: '='
+              expression:
+                column_reference:
+                  naked_identifier: name
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: description
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: employees
+        where_clause:
+          keyword: WHERE
+          expression:
+            column_reference:
+              naked_identifier: emp_id
+            comparison_operator:
+              raw_comparison_operator: '='
+            integer_literal: '100'
         statement_terminator: ;
