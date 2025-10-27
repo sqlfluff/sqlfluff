@@ -223,7 +223,7 @@ def release(new_version_num):
         # Regardless of platform, write newlines as \n
         write_file = open(filename, "w", encoding="utf-8", newline="\n")
         for line in input_file:
-            if line.startswith("version"):
+            if line.startswith('version = "'):
                 line = f'version = "{new_version_num}"\n'
             write_file.write(line)
         write_file.close()
