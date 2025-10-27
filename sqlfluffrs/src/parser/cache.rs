@@ -7,8 +7,10 @@ use hashbrown::HashMap;
 use std::hash::{Hash, Hasher};
 use std::sync::Arc;
 
-use crate::parser::{Grammar, Node, ParseError};
+use crate::parser::{Node, ParseError, Parser};
 use crate::token::Token;
+
+use sqlfluffrs_types::Grammar;
 
 // /// A simple match hint that allows quick filtering of grammar options
 // /// without performing a full parse. This is the Rust equivalent of the
@@ -92,67 +94,6 @@ use crate::token::Token;
 //     }
 // }
 
-impl Grammar {
-    // /// Extract a simple representation of this grammar for fast pruning.
-    // ///
-    // /// Returns None if the grammar is too complex to simplify.
-    // /// Returns Some(SimpleMatch) with the possible raw strings and token types.
-    // pub fn simple(&self) -> Option<SimpleMatch> {
-    //     match self {
-    //         Grammar::StringParser { template, .. } => Some(SimpleMatch::from_raws(vec![template])),
-    //         Grammar::MultiStringParser { templates, .. } => {
-    //             Some(SimpleMatch::from_raws(templates.to_vec()))
-    //         }
-    //         Grammar::TypedParser { template, .. } => Some(SimpleMatch::from_types(vec![template])),
-    //         Grammar::RegexParser {
-    //             template,
-    //             token_type,
-    //             ..
-    //         } => {
-    //             // Regex is complex, but we can hint with the token type
-    //             Some(SimpleMatch::from_types(vec![token_type]))
-    //         }
-    //         Grammar::Token { token_type } => Some(SimpleMatch::from_types(vec![token_type])),
-    //         Grammar::Sequence { elements, .. } => {
-    //             // Return the simple of the first non-optional element
-    //             for elem in elements {
-    //                 if !is_optional(elem) {
-    //                     return elem.simple();
-    //                 }
-    //             }
-    //             // All elements are optional - too complex
-    //             None
-    //         }
-    //         Grammar::OneOf { elements, .. } => {
-    //             // Try to combine all element simples
-    //             let mut simples = Vec::new();
-    //             for elem in elements {
-    //                 match elem.simple() {
-    //                     Some(s) => simples.push(s),
-    //                     None => return None, // If any element is complex, give up
-    //                 }
-    //             }
-    //             Some(SimpleMatch::combine(simples))
-    //         }
-    //         Grammar::Ref { .. } => {
-    //             // References are tricky - would need dialect lookup
-    //             // For now, mark as complex
-    //             None
-    //         }
-    //         // Complex grammars that can't be simplified
-    //         Grammar::AnyNumberOf { .. }
-    //         | Grammar::AnySetOf { .. }
-    //         | Grammar::Delimited { .. }
-    //         | Grammar::Bracketed { .. }
-    //         | Grammar::Anything
-    //         | Grammar::Meta(_)
-    //         | Grammar::Empty
-    //         | Grammar::Nothing()
-    //         | Grammar::Missing => None,
-    //     }
-    // }
-}
-
 fn is_optional(grammar: Arc<Grammar>) -> bool {
     match grammar.as_ref() {
         Grammar::Sequence { optional, .. } => *optional,
@@ -188,8 +129,8 @@ pub struct CacheKey {
 }
 
 impl CacheKey {
-    pub fn new(pos: usize, grammar: Arc<Grammar>, tokens: &[Token], terminators: &[Arc<Grammar>]) -> Self {
-        let grammar_hash = grammar_hash(grammar);
+    pub fn new(pos: usize, grammar: Arc<Grammar>, tokens: &[Token], terminators: &[Arc<Grammar>], mut cache: &mut HashMap<*const Grammar, u64>) -> Self {
+        let grammar_hash = grammar_hash(grammar, &mut cache);
         let raw = tokens
             .get(pos)
             .map(|t| t.raw().to_string())
@@ -198,7 +139,7 @@ impl CacheKey {
 
         // Hash the terminators - critical for cache correctness!
         // Same grammar at same position with different terminators should be different cache entries
-        let terminators_hash = hash_terminators(terminators);
+        let terminators_hash = hash_terminators(terminators, cache);
 
         CacheKey {
             pos,
@@ -211,12 +152,12 @@ impl CacheKey {
 }
 
 /// Hash terminators for cache key
-fn hash_terminators(terminators: &[Arc<Grammar>]) -> u64 {
+fn hash_terminators(terminators: &[Arc<Grammar>], mut cache: &mut HashMap<*const Grammar, u64>) -> u64 {
     use std::collections::hash_map::DefaultHasher;
     use std::hash::{Hash, Hasher};
 
     // Compute the hash for each terminator grammar
-    let mut hashes: Vec<u64> = terminators.iter().map(|term| grammar_hash(term.clone())).collect();
+    let mut hashes: Vec<u64> = terminators.iter().map(|term| grammar_hash(term.clone(), &mut cache)).collect();
     // Sort the hashes to make the result order-insensitive
     hashes.sort_unstable();
 
@@ -235,8 +176,13 @@ fn hash_terminators(terminators: &[Arc<Grammar>]) -> u64 {
 type CacheValue = Result<(Node, usize, Vec<usize>), ParseError>;
 
 /// Compute a stable hash for a grammar
-fn grammar_hash(grammar: Arc<Grammar>) -> u64 {
+fn grammar_hash(grammar: Arc<Grammar>, cache: &mut HashMap<*const Grammar, u64>) -> u64 {
+    let ptr = Arc::as_ptr(&grammar);
+    if let Some(&cached) = cache.get(&ptr) {
+        return cached;
+    }
     use std::collections::hash_map::DefaultHasher;
+    use std::hash::Hasher;
 
     let mut hasher = DefaultHasher::new();
     grammar_discriminant(grammar.clone()).hash(&mut hasher);
@@ -287,12 +233,12 @@ fn grammar_hash(grammar: Arc<Grammar>) -> u64 {
         // For compound grammars, hash recursively (expensive but necessary)
         Grammar::Sequence { elements, .. } => {
             for elem in elements {
-                grammar_hash(elem.clone()).hash(&mut hasher);
+                grammar_hash(elem.clone(), cache).hash(&mut hasher);
             }
         }
         Grammar::OneOf { elements, .. } => {
             for elem in elements {
-                grammar_hash(elem.clone()).hash(&mut hasher);
+                grammar_hash(elem.clone(), cache).hash(&mut hasher);
             }
         }
         Grammar::AnyNumberOf {
@@ -302,7 +248,7 @@ fn grammar_hash(grammar: Arc<Grammar>) -> u64 {
             ..
         } => {
             for elem in elements {
-                grammar_hash(elem.clone()).hash(&mut hasher);
+                grammar_hash(elem.clone(), cache).hash(&mut hasher);
             }
             min_times.hash(&mut hasher);
             max_times.hash(&mut hasher);
@@ -313,9 +259,9 @@ fn grammar_hash(grammar: Arc<Grammar>) -> u64 {
             ..
         } => {
             for elem in elements {
-                grammar_hash(elem.clone()).hash(&mut hasher);
+                grammar_hash(elem.clone(), cache).hash(&mut hasher);
             }
-            grammar_hash((**delimiter).clone()).hash(&mut hasher);
+            grammar_hash((**delimiter).clone(), cache).hash(&mut hasher);
         }
         Grammar::Bracketed {
             elements,
@@ -323,15 +269,17 @@ fn grammar_hash(grammar: Arc<Grammar>) -> u64 {
             ..
         } => {
             for elem in elements {
-                grammar_hash(elem.clone()).hash(&mut hasher);
+                grammar_hash(elem.clone(), cache).hash(&mut hasher);
             }
-            grammar_hash((*bracket_pairs.0).clone()).hash(&mut hasher);
-            grammar_hash((*bracket_pairs.1).clone()).hash(&mut hasher);
+            grammar_hash((*bracket_pairs.0).clone(), cache).hash(&mut hasher);
+            grammar_hash((*bracket_pairs.1).clone(), cache).hash(&mut hasher);
         }
         _ => {}
     }
 
-    hasher.finish()
+    let result = hasher.finish();
+    cache.insert(ptr, result);
+    result
 }
 
 fn grammar_discriminant(grammar: Arc<Grammar>) -> usize {
@@ -434,7 +382,7 @@ mod tests {
     #[test]
     fn test_cache_key_equivalence_for_terminator_order() {
         use std::sync::Arc;
-        use crate::parser::types::Grammar;
+        use sqlfluffrs_types::Grammar;
 
         // Two different grammars to use as terminators
         let t1 = Arc::new(Grammar::Token { token_type: "foo" });
@@ -454,8 +402,9 @@ mod tests {
         let terms1 = vec![t1.clone(), t2.clone()];
         let terms2 = vec![t2, t1];
 
-        let k1 = super::CacheKey::new(0, g.clone(), &tokens, &terms1);
-        let k2 = super::CacheKey::new(0, g, &tokens, &terms2);
+    let mut cache = hashbrown::HashMap::<*const Grammar, u64>::new();
+    let k1 = super::CacheKey::new(0, g.clone(), &tokens, &terms1, &mut cache);
+    let k2 = super::CacheKey::new(0, g, &tokens, &terms2, &mut cache);
 
         assert_eq!(k1.terminators_hash, k2.terminators_hash, "terminators_hash should be order-insensitive");
         assert_eq!(k1, k2, "CacheKey should be equal for different terminator orders");
@@ -463,7 +412,7 @@ mod tests {
     #[test]
     fn test_cache_key_equivalence_for_identical_anynumberof_with_inline_arcs() {
         use std::sync::Arc;
-        use crate::parser::types::Grammar;
+        use sqlfluffrs_types::Grammar;
 
         let g1 = Arc::new(Grammar::AnyNumberOf {
             elements: vec![
@@ -482,7 +431,7 @@ mod tests {
             terminators: vec![],
             reset_terminators: false,
             allow_gaps: true,
-            parse_mode: crate::parser::types::ParseMode::Strict,
+            parse_mode: ParseMode::Strict,
             simple_hint: None,
         });
         let g2 = Arc::new(Grammar::AnyNumberOf {
@@ -502,17 +451,19 @@ mod tests {
             terminators: vec![],
             reset_terminators: false,
             allow_gaps: true,
-            parse_mode: crate::parser::types::ParseMode::Strict,
+            parse_mode: ParseMode::Strict,
             simple_hint: None,
         });
         assert!(!Arc::ptr_eq(&g1, &g2));
-        let h1 = super::grammar_hash(g1.clone());
-        let h2 = super::grammar_hash(g2.clone());
+    let mut cache = hashbrown::HashMap::<*const Grammar, u64>::new();
+    let h1 = super::grammar_hash(g1.clone(), &mut cache);
+    let h2 = super::grammar_hash(g2.clone(), &mut cache);
         assert_eq!(h1, h2, "Grammar hash should be equal for identical AnyNumberOf with inline Arcs");
         let tokens: Vec<crate::token::Token> = vec![];
         let terms: Vec<Arc<Grammar>> = vec![];
-        let k1 = super::CacheKey::new(0, g1, &tokens, &terms);
-        let k2 = super::CacheKey::new(0, g2, &tokens, &terms);
+    let mut cache = hashbrown::HashMap::<*const Grammar, u64>::new();
+    let k1 = super::CacheKey::new(0, g1, &tokens, &terms, &mut cache);
+    let k2 = super::CacheKey::new(0, g2, &tokens, &terms, &mut cache);
         assert_eq!(k1.grammar_hash, k2.grammar_hash, "CacheKey grammar_hash should match");
         assert_eq!(k1, k2, "CacheKey should be equal for identical AnyNumberOf with inline Arcs");
     }
@@ -520,7 +471,7 @@ mod tests {
     #[test]
     fn test_cache_key_equivalence_for_identical_anysetof_with_inline_arcs() {
         use std::sync::Arc;
-        use crate::parser::types::Grammar;
+        use sqlfluffrs_types::Grammar;
 
         let g1 = Arc::new(Grammar::AnySetOf {
             elements: vec![
@@ -538,7 +489,7 @@ mod tests {
             terminators: vec![],
             reset_terminators: false,
             allow_gaps: true,
-            parse_mode: crate::parser::types::ParseMode::Strict,
+            parse_mode: ParseMode::Strict,
             simple_hint: None,
         });
         let g2 = Arc::new(Grammar::AnySetOf {
@@ -557,17 +508,19 @@ mod tests {
             terminators: vec![],
             reset_terminators: false,
             allow_gaps: true,
-            parse_mode: crate::parser::types::ParseMode::Strict,
+            parse_mode: ParseMode::Strict,
             simple_hint: None,
         });
         assert!(!Arc::ptr_eq(&g1, &g2));
-        let h1 = super::grammar_hash(g1.clone());
-        let h2 = super::grammar_hash(g2.clone());
+    let mut cache = hashbrown::HashMap::<*const Grammar, u64>::new();
+    let h1 = super::grammar_hash(g1.clone(), &mut cache);
+    let h2 = super::grammar_hash(g2.clone(), &mut cache);
         assert_eq!(h1, h2, "Grammar hash should be equal for identical AnySetOf with inline Arcs");
         let tokens: Vec<crate::token::Token> = vec![];
         let terms: Vec<Arc<Grammar>> = vec![];
-        let k1 = super::CacheKey::new(0, g1, &tokens, &terms);
-        let k2 = super::CacheKey::new(0, g2, &tokens, &terms);
+    let mut cache = hashbrown::HashMap::<*const Grammar, u64>::new();
+    let k1 = super::CacheKey::new(0, g1, &tokens, &terms, &mut cache);
+    let k2 = super::CacheKey::new(0, g2, &tokens, &terms, &mut cache);
         assert_eq!(k1.grammar_hash, k2.grammar_hash, "CacheKey grammar_hash should match");
         assert_eq!(k1, k2, "CacheKey should be equal for identical AnySetOf with inline Arcs");
     }
@@ -575,7 +528,7 @@ mod tests {
     #[test]
     fn test_cache_key_equivalence_for_identical_ref() {
         use std::sync::Arc;
-        use crate::parser::types::Grammar;
+        use sqlfluffrs_types::Grammar;
 
         let g1 = Arc::new(Grammar::Ref {
             name: "SomeRef",
@@ -596,13 +549,15 @@ mod tests {
             simple_hint: None,
         });
         assert!(!Arc::ptr_eq(&g1, &g2));
-        let h1 = super::grammar_hash(g1.clone());
-        let h2 = super::grammar_hash(g2.clone());
+    let mut cache = hashbrown::HashMap::<*const Grammar, u64>::new();
+    let h1 = super::grammar_hash(g1.clone(), &mut cache);
+    let h2 = super::grammar_hash(g2.clone(), &mut cache);
         assert_eq!(h1, h2, "Grammar hash should be equal for identical Ref");
         let tokens: Vec<crate::token::Token> = vec![];
         let terms: Vec<Arc<Grammar>> = vec![];
-        let k1 = super::CacheKey::new(0, g1, &tokens, &terms);
-        let k2 = super::CacheKey::new(0, g2, &tokens, &terms);
+    let mut cache = hashbrown::HashMap::<*const Grammar, u64>::new();
+    let k1 = super::CacheKey::new(0, g1, &tokens, &terms, &mut cache);
+    let k2 = super::CacheKey::new(0, g2, &tokens, &terms, &mut cache);
         assert_eq!(k1.grammar_hash, k2.grammar_hash, "CacheKey grammar_hash should match");
         assert_eq!(k1, k2, "CacheKey should be equal for identical Ref");
     }
@@ -610,18 +565,20 @@ mod tests {
     #[test]
     fn test_cache_key_equivalence_for_identical_meta() {
         use std::sync::Arc;
-        use crate::parser::types::Grammar;
+        use sqlfluffrs_types::Grammar;
 
         let g1 = Arc::new(Grammar::Meta("indent"));
         let g2 = Arc::new(Grammar::Meta("indent"));
         assert!(!Arc::ptr_eq(&g1, &g2));
-        let h1 = super::grammar_hash(g1.clone());
-        let h2 = super::grammar_hash(g2.clone());
+    let mut cache = hashbrown::HashMap::<*const Grammar, u64>::new();
+    let h1 = super::grammar_hash(g1.clone(), &mut cache);
+    let h2 = super::grammar_hash(g2.clone(), &mut cache);
         assert_eq!(h1, h2, "Grammar hash should be equal for identical Meta");
         let tokens: Vec<crate::token::Token> = vec![];
         let terms: Vec<Arc<Grammar>> = vec![];
-        let k1 = super::CacheKey::new(0, g1, &tokens, &terms);
-        let k2 = super::CacheKey::new(0, g2, &tokens, &terms);
+    let mut cache = hashbrown::HashMap::<*const Grammar, u64>::new();
+    let k1 = super::CacheKey::new(0, g1, &tokens, &terms, &mut cache);
+    let k2 = super::CacheKey::new(0, g2, &tokens, &terms, &mut cache);
         assert_eq!(k1.grammar_hash, k2.grammar_hash, "CacheKey grammar_hash should match");
         assert_eq!(k1, k2, "CacheKey should be equal for identical Meta");
     }
@@ -629,7 +586,7 @@ mod tests {
     #[test]
     fn test_cache_key_equivalence_for_nothing_anything_empty_missing() {
         use std::sync::Arc;
-        use crate::parser::types::Grammar;
+        use sqlfluffrs_types::Grammar;
 
         let g1 = Arc::new(Grammar::Nothing());
         let g2 = Arc::new(Grammar::Nothing());
@@ -638,50 +595,52 @@ mod tests {
         let g5 = Arc::new(Grammar::Empty);
         let g6 = Arc::new(Grammar::Empty);
         let g7 = Arc::new(Grammar::Missing);
-        let g8 = Arc::new(Grammar::Missing);
+    let g8 = Arc::new(Grammar::Missing);
+
+        let mut cache = hashbrown::HashMap::<*const Grammar, u64>::new();
+        let tokens: Vec<crate::token::Token> = vec![];
+        let terms: Vec<Arc<Grammar>> = vec![];
 
         // Nothing
         assert!(!Arc::ptr_eq(&g1, &g2));
-        let h1 = super::grammar_hash(g1.clone());
-        let h2 = super::grammar_hash(g2.clone());
+        let h1 = super::grammar_hash(g1.clone(), &mut cache);
+        let h2 = super::grammar_hash(g2.clone(), &mut cache);
         assert_eq!(h1, h2, "Grammar hash should be equal for Nothing");
-        let tokens: Vec<crate::token::Token> = vec![];
-        let terms: Vec<Arc<Grammar>> = vec![];
-        let k1 = super::CacheKey::new(0, g1, &tokens, &terms);
-        let k2 = super::CacheKey::new(0, g2, &tokens, &terms);
+        let k1 = super::CacheKey::new(0, g1, &tokens, &terms, &mut cache);
+        let k2 = super::CacheKey::new(0, g2, &tokens, &terms, &mut cache);
         assert_eq!(k1, k2, "CacheKey should be equal for Nothing");
 
         // Anything
         assert!(!Arc::ptr_eq(&g3, &g4));
-        let h3 = super::grammar_hash(g3.clone());
-        let h4 = super::grammar_hash(g4.clone());
+        let h3 = super::grammar_hash(g3.clone(), &mut cache);
+        let h4 = super::grammar_hash(g4.clone(), &mut cache);
         assert_eq!(h3, h4, "Grammar hash should be equal for Anything");
-        let k3 = super::CacheKey::new(0, g3, &tokens, &terms);
-        let k4 = super::CacheKey::new(0, g4, &tokens, &terms);
+        let k3 = super::CacheKey::new(0, g3, &tokens, &terms, &mut cache);
+        let k4 = super::CacheKey::new(0, g4, &tokens, &terms, &mut cache);
         assert_eq!(k3, k4, "CacheKey should be equal for Anything");
 
         // Empty
         assert!(!Arc::ptr_eq(&g5, &g6));
-        let h5 = super::grammar_hash(g5.clone());
-        let h6 = super::grammar_hash(g6.clone());
+        let h5 = super::grammar_hash(g5.clone(), &mut cache);
+        let h6 = super::grammar_hash(g6.clone(), &mut cache);
         assert_eq!(h5, h6, "Grammar hash should be equal for Empty");
-        let k5 = super::CacheKey::new(0, g5, &tokens, &terms);
-        let k6 = super::CacheKey::new(0, g6, &tokens, &terms);
+        let k5 = super::CacheKey::new(0, g5, &tokens, &terms, &mut cache);
+        let k6 = super::CacheKey::new(0, g6, &tokens, &terms, &mut cache);
         assert_eq!(k5, k6, "CacheKey should be equal for Empty");
 
         // Missing
         assert!(!Arc::ptr_eq(&g7, &g8));
-        let h7 = super::grammar_hash(g7.clone());
-        let h8 = super::grammar_hash(g8.clone());
+        let h7 = super::grammar_hash(g7.clone(), &mut cache);
+        let h8 = super::grammar_hash(g8.clone(), &mut cache);
         assert_eq!(h7, h8, "Grammar hash should be equal for Missing");
-        let k7 = super::CacheKey::new(0, g7, &tokens, &terms);
-        let k8 = super::CacheKey::new(0, g8, &tokens, &terms);
+        let k7 = super::CacheKey::new(0, g7, &tokens, &terms, &mut cache);
+        let k8 = super::CacheKey::new(0, g8, &tokens, &terms, &mut cache);
         assert_eq!(k7, k8, "CacheKey should be equal for Missing");
     }
     #[test]
     fn test_cache_key_equivalence_for_identical_sequence_with_inline_arcs() {
         use std::sync::Arc;
-        use crate::parser::types::Grammar;
+        use sqlfluffrs_types::Grammar;
 
         let g1 = Arc::new(Grammar::Sequence {
             elements: vec![
@@ -702,7 +661,7 @@ mod tests {
             terminators: vec![],
             reset_terminators: false,
             allow_gaps: true,
-            parse_mode: crate::parser::types::ParseMode::Strict,
+            parse_mode: ParseMode::Strict,
             simple_hint: None,
         });
         let g2 = Arc::new(Grammar::Sequence {
@@ -724,17 +683,19 @@ mod tests {
             terminators: vec![],
             reset_terminators: false,
             allow_gaps: true,
-            parse_mode: crate::parser::types::ParseMode::Strict,
+            parse_mode: ParseMode::Strict,
             simple_hint: None,
         });
         assert!(!Arc::ptr_eq(&g1, &g2));
-        let h1 = super::grammar_hash(g1.clone());
-        let h2 = super::grammar_hash(g2.clone());
+    let mut cache = hashbrown::HashMap::<*const Grammar, u64>::new();
+    let h1 = super::grammar_hash(g1.clone(), &mut cache);
+    let h2 = super::grammar_hash(g2.clone(), &mut cache);
         assert_eq!(h1, h2, "Grammar hash should be equal for identical Sequence with inline Arcs");
         let tokens: Vec<crate::token::Token> = vec![];
         let terms: Vec<Arc<Grammar>> = vec![];
-        let k1 = super::CacheKey::new(0, g1, &tokens, &terms);
-        let k2 = super::CacheKey::new(0, g2, &tokens, &terms);
+    let mut cache = hashbrown::HashMap::<*const Grammar, u64>::new();
+    let k1 = super::CacheKey::new(0, g1, &tokens, &terms, &mut cache);
+    let k2 = super::CacheKey::new(0, g2, &tokens, &terms, &mut cache);
         assert_eq!(k1.grammar_hash, k2.grammar_hash, "CacheKey grammar_hash should match");
         assert_eq!(k1, k2, "CacheKey should be equal for identical Sequence with inline Arcs");
     }
@@ -742,7 +703,7 @@ mod tests {
     #[test]
     fn test_cache_key_equivalence_for_identical_oneof_with_inline_arcs() {
         use std::sync::Arc;
-        use crate::parser::types::Grammar;
+        use sqlfluffrs_types::Grammar;
 
         let g1 = Arc::new(Grammar::OneOf {
             elements: vec![
@@ -764,7 +725,7 @@ mod tests {
             terminators: vec![],
             reset_terminators: false,
             allow_gaps: true,
-            parse_mode: crate::parser::types::ParseMode::Strict,
+            parse_mode: ParseMode::Strict,
             simple_hint: None,
         });
         let g2 = Arc::new(Grammar::OneOf {
@@ -787,17 +748,19 @@ mod tests {
             terminators: vec![],
             reset_terminators: false,
             allow_gaps: true,
-            parse_mode: crate::parser::types::ParseMode::Strict,
+            parse_mode: ParseMode::Strict,
             simple_hint: None,
         });
         assert!(!Arc::ptr_eq(&g1, &g2));
-        let h1 = super::grammar_hash(g1.clone());
-        let h2 = super::grammar_hash(g2.clone());
+    let mut cache = hashbrown::HashMap::<*const Grammar, u64>::new();
+    let h1 = super::grammar_hash(g1.clone(), &mut cache);
+    let h2 = super::grammar_hash(g2.clone(), &mut cache);
         assert_eq!(h1, h2, "Grammar hash should be equal for identical OneOf with inline Arcs");
         let tokens: Vec<crate::token::Token> = vec![];
         let terms: Vec<Arc<Grammar>> = vec![];
-        let k1 = super::CacheKey::new(0, g1, &tokens, &terms);
-        let k2 = super::CacheKey::new(0, g2, &tokens, &terms);
+    let mut cache = hashbrown::HashMap::<*const Grammar, u64>::new();
+    let k1 = super::CacheKey::new(0, g1, &tokens, &terms, &mut cache);
+    let k2 = super::CacheKey::new(0, g2, &tokens, &terms, &mut cache);
         assert_eq!(k1.grammar_hash, k2.grammar_hash, "CacheKey grammar_hash should match");
         assert_eq!(k1, k2, "CacheKey should be equal for identical OneOf with inline Arcs");
     }
@@ -805,7 +768,7 @@ mod tests {
     #[test]
     fn test_cache_key_equivalence_for_identical_delimited_with_inline_arcs() {
         use std::sync::Arc;
-        use crate::parser::types::Grammar;
+        use sqlfluffrs_types::Grammar;
 
         let g1 = Arc::new(Grammar::Delimited {
             elements: vec![
@@ -828,7 +791,7 @@ mod tests {
             reset_terminators: false,
             allow_gaps: true,
             min_delimiters: 0,
-            parse_mode: crate::parser::types::ParseMode::Strict,
+            parse_mode: ParseMode::Strict,
             simple_hint: None,
         });
         let g2 = Arc::new(Grammar::Delimited {
@@ -852,17 +815,19 @@ mod tests {
             reset_terminators: false,
             allow_gaps: true,
             min_delimiters: 0,
-            parse_mode: crate::parser::types::ParseMode::Strict,
+            parse_mode: ParseMode::Strict,
             simple_hint: None,
         });
         assert!(!Arc::ptr_eq(&g1, &g2));
-        let h1 = super::grammar_hash(g1.clone());
-        let h2 = super::grammar_hash(g2.clone());
+    let mut cache = hashbrown::HashMap::<*const Grammar, u64>::new();
+    let h1 = super::grammar_hash(g1.clone(), &mut cache);
+    let h2 = super::grammar_hash(g2.clone(), &mut cache);
         assert_eq!(h1, h2, "Grammar hash should be equal for identical Delimited with inline Arcs");
         let tokens: Vec<crate::token::Token> = vec![];
         let terms: Vec<Arc<Grammar>> = vec![];
-        let k1 = super::CacheKey::new(0, g1, &tokens, &terms);
-        let k2 = super::CacheKey::new(0, g2, &tokens, &terms);
+    let mut cache = hashbrown::HashMap::<*const Grammar, u64>::new();
+    let k1 = super::CacheKey::new(0, g1, &tokens, &terms, &mut cache);
+    let k2 = super::CacheKey::new(0, g2, &tokens, &terms, &mut cache);
         assert_eq!(k1.grammar_hash, k2.grammar_hash, "CacheKey grammar_hash should match");
         assert_eq!(k1, k2, "CacheKey should be equal for identical Delimited with inline Arcs");
     }
@@ -870,7 +835,7 @@ mod tests {
     #[test]
     fn test_cache_key_equivalence_for_identical_bracketed_with_inline_arcs() {
         use std::sync::Arc;
-        use crate::parser::types::Grammar;
+        use sqlfluffrs_types::Grammar;
 
         let g1 = Arc::new(Grammar::Bracketed {
             elements: vec![
@@ -899,7 +864,7 @@ mod tests {
             terminators: vec![],
             reset_terminators: false,
             allow_gaps: true,
-            parse_mode: crate::parser::types::ParseMode::Strict,
+            parse_mode: ParseMode::Strict,
             simple_hint: None,
         });
         let g2 = Arc::new(Grammar::Bracketed {
@@ -929,24 +894,26 @@ mod tests {
             terminators: vec![],
             reset_terminators: false,
             allow_gaps: true,
-            parse_mode: crate::parser::types::ParseMode::Strict,
+            parse_mode: ParseMode::Strict,
             simple_hint: None,
         });
         assert!(!Arc::ptr_eq(&g1, &g2));
-        let h1 = super::grammar_hash(g1.clone());
-        let h2 = super::grammar_hash(g2.clone());
+    let mut cache = hashbrown::HashMap::<*const Grammar, u64>::new();
+    let h1 = super::grammar_hash(g1.clone(), &mut cache);
+    let h2 = super::grammar_hash(g2.clone(), &mut cache);
         assert_eq!(h1, h2, "Grammar hash should be equal for identical Bracketed with inline Arcs");
         let tokens: Vec<crate::token::Token> = vec![];
         let terms: Vec<Arc<Grammar>> = vec![];
-        let k1 = super::CacheKey::new(0, g1, &tokens, &terms);
-        let k2 = super::CacheKey::new(0, g2, &tokens, &terms);
+    let mut cache = hashbrown::HashMap::<*const Grammar, u64>::new();
+    let k1 = super::CacheKey::new(0, g1, &tokens, &terms, &mut cache);
+    let k2 = super::CacheKey::new(0, g2, &tokens, &terms, &mut cache);
         assert_eq!(k1.grammar_hash, k2.grammar_hash, "CacheKey grammar_hash should match");
         assert_eq!(k1, k2, "CacheKey should be equal for identical Bracketed with inline Arcs");
     }
     #[test]
     fn test_cache_key_equivalence_for_identical_multistringparsers() {
         use std::sync::Arc;
-        use crate::parser::types::Grammar;
+        use sqlfluffrs_types::Grammar;
 
         let g1 = Arc::new(Grammar::MultiStringParser {
             templates: vec!["FOO", "BAR"],
@@ -961,13 +928,15 @@ mod tests {
             optional: false,
         });
         assert!(!Arc::ptr_eq(&g1, &g2));
-        let h1 = super::grammar_hash(g1.clone());
-        let h2 = super::grammar_hash(g2.clone());
+    let mut cache = HashMap::new();
+    let h1 = super::grammar_hash(g1.clone(), &mut cache);
+    let h2 = super::grammar_hash(g2.clone(), &mut cache);
         assert_eq!(h1, h2, "Grammar hash should be equal for identical MultiStringParsers");
         let tokens: Vec<crate::token::Token> = vec![];
         let terms: Vec<Arc<Grammar>> = vec![];
-        let k1 = super::CacheKey::new(0, g1, &tokens, &terms);
-        let k2 = super::CacheKey::new(0, g2, &tokens, &terms);
+    let mut cache = HashMap::new();
+    let k1 = super::CacheKey::new(0, g1, &tokens, &terms, &mut cache);
+    let k2 = super::CacheKey::new(0, g2, &tokens, &terms, &mut cache);
         assert_eq!(k1.grammar_hash, k2.grammar_hash, "CacheKey grammar_hash should match");
         assert_eq!(k1, k2, "CacheKey should be equal for identical MultiStringParsers");
     }
@@ -975,7 +944,7 @@ mod tests {
     #[test]
     fn test_cache_key_equivalence_for_identical_typedparsers() {
         use std::sync::Arc;
-        use crate::parser::types::Grammar;
+        use sqlfluffrs_types::Grammar;
 
         let g1 = Arc::new(Grammar::TypedParser {
             template: "FOO",
@@ -990,13 +959,15 @@ mod tests {
             optional: false,
         });
         assert!(!Arc::ptr_eq(&g1, &g2));
-        let h1 = super::grammar_hash(g1.clone());
-        let h2 = super::grammar_hash(g2.clone());
+    let mut cache = HashMap::new();
+    let h1 = super::grammar_hash(g1.clone(), &mut cache);
+    let h2 = super::grammar_hash(g2.clone(), &mut cache);
         assert_eq!(h1, h2, "Grammar hash should be equal for identical TypedParsers");
         let tokens: Vec<crate::token::Token> = vec![];
         let terms: Vec<Arc<Grammar>> = vec![];
-        let k1 = super::CacheKey::new(0, g1, &tokens, &terms);
-        let k2 = super::CacheKey::new(0, g2, &tokens, &terms);
+    let mut cache = HashMap::new();
+    let k1 = super::CacheKey::new(0, g1, &tokens, &terms, &mut cache);
+    let k2 = super::CacheKey::new(0, g2, &tokens, &terms, &mut cache);
         assert_eq!(k1.grammar_hash, k2.grammar_hash, "CacheKey grammar_hash should match");
         assert_eq!(k1, k2, "CacheKey should be equal for identical TypedParsers");
     }
@@ -1004,7 +975,7 @@ mod tests {
     #[test]
     fn test_cache_key_equivalence_for_identical_regexparsers() {
         use std::sync::Arc;
-        use crate::parser::types::Grammar;
+        use sqlfluffrs_types::Grammar;
         let regex = regex::Regex::new("^[a-z]+$").unwrap();
         let g1 = Arc::new(Grammar::RegexParser {
             template: regex.clone(),
@@ -1021,13 +992,15 @@ mod tests {
             anti_template: None,
         });
         assert!(!Arc::ptr_eq(&g1, &g2));
-        let h1 = super::grammar_hash(g1.clone());
-        let h2 = super::grammar_hash(g2.clone());
+    let mut cache = HashMap::new();
+    let h1 = super::grammar_hash(g1.clone(), &mut cache);
+    let h2 = super::grammar_hash(g2.clone(), &mut cache);
         assert_eq!(h1, h2, "Grammar hash should be equal for identical RegexParsers");
         let tokens: Vec<crate::token::Token> = vec![];
         let terms: Vec<Arc<Grammar>> = vec![];
-        let k1 = super::CacheKey::new(0, g1, &tokens, &terms);
-        let k2 = super::CacheKey::new(0, g2, &tokens, &terms);
+    let mut cache = HashMap::new();
+    let k1 = super::CacheKey::new(0, g1, &tokens, &terms, &mut cache);
+    let k2 = super::CacheKey::new(0, g2, &tokens, &terms, &mut cache);
         assert_eq!(k1.grammar_hash, k2.grammar_hash, "CacheKey grammar_hash should match");
         assert_eq!(k1, k2, "CacheKey should be equal for identical RegexParsers");
     }
@@ -1035,7 +1008,7 @@ mod tests {
     #[test]
     fn test_cache_key_equivalence_for_identical_token() {
         use std::sync::Arc;
-        use crate::parser::types::Grammar;
+        use sqlfluffrs_types::Grammar;
 
         let g1 = Arc::new(Grammar::Token {
             token_type: "word",
@@ -1044,13 +1017,14 @@ mod tests {
             token_type: "word",
         });
         assert!(!Arc::ptr_eq(&g1, &g2));
-        let h1 = super::grammar_hash(g1.clone());
-        let h2 = super::grammar_hash(g2.clone());
+        let mut cache = hashbrown::HashMap::<*const Grammar, u64>::new();
+        let h1 = super::grammar_hash(g1.clone(), &mut cache);
+        let h2 = super::grammar_hash(g2.clone(), &mut cache);
         assert_eq!(h1, h2, "Grammar hash should be equal for identical Token grammars");
         let tokens: Vec<crate::token::Token> = vec![];
         let terms: Vec<Arc<Grammar>> = vec![];
-        let k1 = super::CacheKey::new(0, g1, &tokens, &terms);
-        let k2 = super::CacheKey::new(0, g2, &tokens, &terms);
+        let k1 = super::CacheKey::new(0, g1, &tokens, &terms, &mut cache);
+        let k2 = super::CacheKey::new(0, g2, &tokens, &terms, &mut cache);
         assert_eq!(k1.grammar_hash, k2.grammar_hash, "CacheKey grammar_hash should match");
         assert_eq!(k1, k2, "CacheKey should be equal for identical Token grammars");
     }
@@ -1063,7 +1037,7 @@ mod tests {
     #[test]
     fn test_cache_key_equivalence_for_identical_stringparsers() {
         use std::sync::Arc;
-        use crate::parser::types::Grammar;
+        use sqlfluffrs_types::Grammar;
 
         // Create two different Arc<Grammar> instances with identical StringParser content
         let g1 = Arc::new(Grammar::StringParser {
@@ -1083,20 +1057,22 @@ mod tests {
         assert!(!Arc::ptr_eq(&g1, &g2));
 
         // But their hashes should be equal
-        let h1 = super::grammar_hash(g1.clone());
-        let h2 = super::grammar_hash(g2.clone());
+        let mut cache = hashbrown::HashMap::<*const Grammar, u64>::new();
+        let h1 = super::grammar_hash(g1.clone(), &mut cache);
+        let h2 = super::grammar_hash(g2.clone(), &mut cache);
         assert_eq!(h1, h2, "Grammar hash should be equal for identical StringParsers");
 
         // And their cache keys should be equal for the same position/tokens/terminators
         let tokens: Vec<crate::token::Token> = vec![];
         let terms: Vec<Arc<Grammar>> = vec![];
-        let k1 = super::CacheKey::new(0, g1, &tokens, &terms);
-        let k2 = super::CacheKey::new(0, g2, &tokens, &terms);
+        let k1 = super::CacheKey::new(0, g1, &tokens, &terms, &mut cache);
+        let k2 = super::CacheKey::new(0, g2, &tokens, &terms, &mut cache);
         assert_eq!(k1.grammar_hash, k2.grammar_hash, "CacheKey grammar_hash should match");
         assert_eq!(k1, k2, "CacheKey should be equal for identical StringParsers");
     }
 
     use hashbrown::HashSet;
+    use sqlfluffrs_types::ParseMode;
     #[test]
     fn test_simple_match_string_parser() {
         let grammar = Grammar::StringParser {

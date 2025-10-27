@@ -38,7 +38,7 @@ def generate_use():
     """Generates the `use` statements."""
     print("use std::sync::Arc;")
     print("use once_cell::sync::Lazy;")
-    print("use crate::parser::{Grammar, ParseMode, types::SimpleHint};")
+    print("use sqlfluff_types::{Grammar, ParseMode, SimpleHint};")
 
 
 def matchable_to_const_name(s: str):
@@ -58,9 +58,9 @@ def generate_parser(dialect: str):
     segment_types = []
 
     # TODO: remove this if
-    # if dialect == "ansi":
-    # if dialect not in ("snowflake", "tsql"):
-    if True:
+    if dialect == "ansi":
+        # if dialect not in ("snowflake", "tsql"):
+        # if True:
         for name, match_grammar in sorted(loaded_dialect._library.items()):
             name = name.replace(" ", "_")
             segment_grammars.append(

@@ -5,10 +5,10 @@ use crate::parser::iterative::NextStep;
 use crate::parser::iterative::ParseFrameStack;
 use crate::parser::FrameContext;
 use crate::parser::FrameState;
-use crate::parser::Grammar;
 use crate::parser::Parser;
 use crate::parser::{Node, ParseError, ParseFrame};
 use hashbrown::HashMap;
+use sqlfluffrs_types::Grammar;
 
 impl Parser<'_> {
     /// Handle Empty grammar in iterative parser
@@ -138,9 +138,12 @@ impl Parser<'_> {
             };
         // Add exclude logic: if exclude grammar matches, return empty result
         if let Some(exclude_grammar) = exclude {
-            let exclude_match = self.try_match_grammar((**exclude_grammar).clone(), frame.pos, parent_terminators);
+            let exclude_match =
+                self.try_match_grammar((**exclude_grammar).clone(), frame.pos, parent_terminators);
             if exclude_match.is_some() {
-                stack.results.insert(frame.frame_id, (Node::Empty, frame.pos, None));
+                stack
+                    .results
+                    .insert(frame.frame_id, (Node::Empty, frame.pos, None));
                 return Ok(NextStep::Fallthrough);
             }
         }
@@ -295,6 +298,7 @@ impl Parser<'_> {
             frame.grammar.clone(),
             self.tokens,
             &frame.terminators,
+            &mut self.grammar_hash_cache,
         );
         let transparent_positions: Vec<usize> = self
             .collected_transparent_positions

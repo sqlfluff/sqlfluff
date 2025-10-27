@@ -60,7 +60,7 @@ use crate::dialect::tsql::matcher::{TSQL_KEYWORDS, TSQL_LEXERS};
 pub mod vertica;
 use crate::dialect::vertica::matcher::{VERTICA_KEYWORDS, VERTICA_LEXERS};
 
-use crate::parser::Grammar;
+use sqlfluffrs_types::Grammar;
 use crate::matcher::LexMatcher;
 use std::str::FromStr;
 

@@ -8,9 +8,10 @@ use std::sync::Arc;
 use hashbrown::HashSet;
 
 use super::core::Parser;
-use super::{Grammar, Node};
+use super::Node;
 use crate::parser::utils::skip_start_index_forward_to_code;
 use crate::token::Token;
+use sqlfluffrs_types::Grammar;
 
 impl<'a> Parser<'a> {
     /// Prune options based on simple matchers before attempting full parse.
@@ -37,8 +38,7 @@ impl<'a> Parser<'a> {
         // Get token properties for matching
         // Use ALL types (instance_types + class_types) to match Python's behavior
         let first_raw = first_token.raw_upper();
-        let first_types: HashSet<String> =
-            first_token.get_all_types();
+        let first_types: HashSet<String> = first_token.get_all_types();
 
         // log::debug!(
         //     "Pruning {} options at pos {} (token: '{}', types: {:?})",
@@ -75,13 +75,13 @@ impl<'a> Parser<'a> {
         }
 
         // if pruned_count > 0 {
-            // log::debug!(
-            //     "Pruned from {} to {} options ({} pruned, {:.1}% reduction)",
-            //     options.len(),
-            //     available_options.len(),
-            //     pruned_count,
-            //     100.0 * (pruned_count as f64 / options.len() as f64)
-            // );
+        // log::debug!(
+        //     "Pruned from {} to {} options ({} pruned, {:.1}% reduction)",
+        //     options.len(),
+        //     available_options.len(),
+        //     pruned_count,
+        //     100.0 * (pruned_count as f64 / options.len() as f64)
+        // );
         // }
 
         self.pruning_kept
@@ -556,10 +556,7 @@ impl<'a> Parser<'a> {
             let simple_opt = term.simple_hint(&mut self.simple_hint_cache);
             if let Some(simple) = simple_opt {
                 // Use fast simple matching
-                if simple.can_match_token(
-                    &current_token_raw_upper,
-                    &current_token_types,
-                ) {
+                if simple.can_match_token(&current_token_raw_upper, &current_token_types) {
                     log::debug!("  TERMED Simple terminator matched: {}", term);
                     self.pos = init_pos; // restore original position
                     return true;

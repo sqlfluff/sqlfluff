@@ -1,9 +1,10 @@
 use std::sync::Arc;
 
-use crate::parser::{Node, ParseError, ParseFrame, ParseMode, Grammar};
+use crate::parser::{Node, ParseError, ParseFrame};
 use crate::parser::iterative::{NextStep, ParseFrameStack};
 use crate::parser::{FrameState, FrameContext};
 use crate::parser::DelimitedState;
+use sqlfluffrs_types::{Grammar, ParseMode};
 
 impl crate::parser::Parser<'_> {
     /// Handle Delimited grammar Initial state in iterative parser

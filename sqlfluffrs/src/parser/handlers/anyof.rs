@@ -2,7 +2,8 @@ use std::sync::Arc;
 
 use crate::parser::iterative::{NextStep, ParseFrameStack};
 use crate::parser::utils::apply_parse_mode_to_result;
-use crate::parser::{FrameContext, FrameState, Grammar, Node, ParseError, ParseFrame, ParseMode};
+use crate::parser::{FrameContext, FrameState, Node, ParseError, ParseFrame};
+use sqlfluffrs_types::{Grammar, ParseMode};
 use hashbrown::HashSet;
 
 impl crate::parser::Parser<'_> {

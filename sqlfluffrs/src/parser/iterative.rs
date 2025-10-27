@@ -66,18 +66,14 @@ impl ParseFrameStack {
     // Add more helper methods as needed for dispatch or state management
 }
 
-use std::ops::ControlFlow;
 use std::sync::Arc;
 
-use super::{
-    BracketedState, DelimitedState, FrameContext, FrameState, Grammar, Node, ParseError,
-    ParseFrame, ParseMode,
-};
-
-use super::utils::{apply_parse_mode_to_result, is_grammar_optional};
+use super::{FrameContext, FrameState, Node, ParseError, ParseFrame};
 
 // Import Parser from core module
 use super::core::Parser;
+
+use sqlfluffrs_types::Grammar;
 
 impl Parser<'_> {
     // ========================================================================
@@ -199,6 +195,7 @@ impl Parser<'_> {
             grammar_for_cache,
             self.tokens,
             parent_terminators,
+            &mut self.grammar_hash_cache,
         );
 
         if self.cache_enabled {
@@ -255,11 +252,12 @@ impl Parser<'_> {
 
             // Re-check the cache for this frame before processing, unless disabled
             if self.cache_enabled {
-                let cache_key = super::cache::CacheKey::new(
+                let cache_key = CacheKey::new(
                     frame.pos,
                     frame.grammar.clone(),
                     self.tokens,
                     &frame.terminators,
+                    &mut self.grammar_hash_cache,
                 );
                 if let Some(cached_result) = self.parse_cache.get(&cache_key) {
                     match cached_result {
@@ -495,9 +493,7 @@ impl Parser<'_> {
                             }
 
                             FrameContext::AnySetOf {
-                                count,
-                                matched_idx,
-                                ..
+                                count, matched_idx, ..
                             } => {
                                 log::debug!("[ITERATIVE] AnySetOf WaitingForChild: count={}, matched_idx={}", count, matched_idx);
                                 // Call the new function
@@ -519,7 +515,7 @@ impl Parser<'_> {
                                     &child_end_pos,
                                     &child_element_key,
                                     &mut stack,
-                                    frame_terminators
+                                    frame_terminators,
                                 );
                                 continue 'main_loop;
                             }

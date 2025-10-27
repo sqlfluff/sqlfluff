@@ -19,7 +19,7 @@ def generate_use():
             f"{dialect.label.upper()}_LEXERS}};"
         )
     print()
-    print("use crate::parser::Grammar;")
+    print("use sqlfluff_types::Grammar;")
     print("use crate::matcher::LexMatcher;")
     print("use std::str::FromStr;")
 

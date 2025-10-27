@@ -1,12 +1,10 @@
 use std::sync::Arc;
 
-use crate::{
-    parser::{
-        iterative::{NextStep, ParseFrameStack},
-        BracketedState, FrameContext, FrameState, Grammar, Node, ParseError, ParseFrame, Parser,
-    },
-    ParseMode,
+use crate::parser::{
+    iterative::{NextStep, ParseFrameStack},
+    BracketedState, FrameContext, FrameState, Node, ParseError, ParseFrame, Parser,
 };
+use sqlfluffrs_types::{Grammar, ParseMode};
 
 impl<'a> Parser<'_> {
     /// Handle Sequence grammar Initial state in iterative parser

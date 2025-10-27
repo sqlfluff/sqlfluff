@@ -4,7 +4,8 @@
 
 use std::sync::Arc;
 
-use super::types::{Grammar, Node, ParseMode};
+use sqlfluffrs_types::{Grammar, ParseMode};
+use super::types::Node;
 use crate::token::Token;
 
 /// Check if a grammar element is optional.

@@ -9,7 +9,8 @@ use hashbrown::{HashMap, HashSet};
 
 use crate::parser::{iterative::ParseFrameStack};
 
-use super::types::{Grammar, Node};
+use sqlfluffrs_types::Grammar;
+use super::types::Node;
 
 /// A parse frame represents a single parsing task in the iterative parser.
 ///
