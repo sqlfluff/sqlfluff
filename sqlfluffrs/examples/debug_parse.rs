@@ -1,5 +1,5 @@
-use sqlfluffrs::dialect::Dialect;
-use sqlfluffrs::lexer::{LexInput, Lexer};
+use sqlfluffrs_lexer::{LexInput, Lexer};
+use sqlfluffrs_dialects::Dialect;
 use sqlfluffrs::parser::Parser;
 
 fn main() {
@@ -9,7 +9,8 @@ fn main() {
     let dialect = Dialect::Ansi;
 
     let input = LexInput::String(raw.into());
-    let lexer = Lexer::new(None, dialect);
+    use sqlfluffrs_dialects::dialect::ansi::matcher::ANSI_LEXERS;
+    let lexer = Lexer::new(None, ANSI_LEXERS.to_vec());
     let (tokens, _) = lexer.lex(input, false);
 
     let mut parser = Parser::new(&tokens, dialect);

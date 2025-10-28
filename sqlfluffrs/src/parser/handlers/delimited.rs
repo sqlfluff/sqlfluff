@@ -60,6 +60,16 @@ impl crate::parser::Parser<'_> {
             }
         };
 
+        // Prune options BEFORE any other logic, like Python
+        let pruned_options = self.prune_options(elements);
+        // If no options remain after pruning, treat as no match
+        if pruned_options.is_empty() {
+            stack
+                .results
+                .insert(frame.frame_id, (Node::Empty, pos, None));
+            return Ok(NextStep::Fallthrough);
+        }
+
         // Combine terminators, filtering out delimiter from parent terminators
         // This is critical - delimiter shouldn't terminate the delimited list itself
         let filtered_parent: Vec<Arc<Grammar>> = parent_terminators
@@ -108,26 +118,6 @@ impl crate::parser::Parser<'_> {
             all_terminators.len()
         );
 
-        // Debug terminators for function-related Delimited
-        if elements.iter().any(|e| {
-            matches!(e.as_ref(), Grammar::Ref { name, .. } if name.contains("FunctionContents") || name.contains("DatetimeUnit"))
-        }) {
-            log::debug!("[DELIMITED-DEBUG] Active terminators (count={}):", all_terminators.len());
-            for (i, term) in all_terminators.iter().enumerate() {
-                match term.as_ref() {
-                    Grammar::StringParser { template, .. } => {
-                        log::debug!("  [{}] StringParser('{}')", i, template);
-                    }
-                    Grammar::Ref { name, .. } => {
-                        log::debug!("  [{}] Ref({})", i, name);
-                    }
-                    _ => {
-                        log::debug!("  [{}] {:?}", i, format!("{:?}", term).chars().take(80).collect::<String>());
-                    }
-                }
-            }
-        }
-
         // Check if optional and already terminated
         if optional && (self.is_at_end() || self.is_terminated(&all_terminators)) {
             log::debug!("[ITERATIVE] Delimited: empty optional");
@@ -160,7 +150,7 @@ impl crate::parser::Parser<'_> {
 
         // Create first child to match element (try all elements via OneOf)
         let child_grammar = Grammar::OneOf {
-            elements: elements.to_vec(),
+            elements: pruned_options.to_vec(),
             exclude: None,
             optional: true, // Elements in Delimited are implicitly optional
             terminators: vec![],
@@ -169,23 +159,6 @@ impl crate::parser::Parser<'_> {
             parse_mode,
             simple_hint: None,
         };
-
-        // Debug logging for specific grammars
-        if elements.iter().any(|e| {
-            matches!(e.as_ref(), Grammar::Ref { name, .. } if name.contains("FunctionContents") || name.contains("DatetimeUnit"))
-        }) {
-            log::debug!("[DELIMITED-DEBUG] Creating Delimited OneOf with {} elements at pos {}, max_idx={}", elements.len(), pos, child_max_idx);
-            for (i, elem) in elements.iter().enumerate() {
-                match elem.as_ref(){
-                    Grammar::Ref { name, optional, .. } => {
-                        log::debug!("  [{}] Ref({}) optional={}", i, name, optional);
-                    }
-                    _ => {
-                        log::debug!("  [{}] {:?}", i, elem);
-                    }
-                }
-            }
-        }
 
         let mut child_frame = ParseFrame::new_child(
             stack.frame_id_counter,

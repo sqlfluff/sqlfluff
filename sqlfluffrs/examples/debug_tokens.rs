@@ -1,11 +1,12 @@
-use sqlfluffrs::lexer::{Lexer, LexInput};
-use sqlfluffrs::dialect::Dialect;
+use sqlfluffrs_lexer::{Lexer, LexInput};
+use sqlfluffrs_dialects::Dialect;
 
 fn main() {
     let raw = "SELECT  \t*\n  FROM\n\ttable_name  ";
     let dialect = Dialect::Ansi;
     let input = LexInput::String(raw.into());
-    let lexer = Lexer::new(None, dialect);
+    use sqlfluffrs_dialects::dialect::ansi::matcher::ANSI_LEXERS;
+    let lexer = Lexer::new(None, ANSI_LEXERS.to_vec());
     let (tokens, _) = lexer.lex(input, false);
 
     println!("Total tokens: {}", tokens.len());

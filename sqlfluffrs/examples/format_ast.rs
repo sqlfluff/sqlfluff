@@ -1,9 +1,8 @@
 /// Example demonstrating the format_tree() function to display AST in Python SQLFluff format
-use sqlfluffrs::{
-    dialect::Dialect,
-    lexer::{LexInput, Lexer},
-    parser::Parser,
-};
+use sqlfluffrs_lexer::{LexInput, Lexer};
+use sqlfluffrs_dialects::Dialect;
+use sqlfluffrs_dialects::dialect::ansi::matcher::ANSI_LEXERS;
+use sqlfluffrs::parser::Parser;
 
 fn main() {
     env_logger::init();
@@ -13,7 +12,7 @@ fn main() {
 
     // Lex the SQL
     let input = LexInput::String(sql.into());
-    let lexer = Lexer::new(None, Dialect::Ansi);
+    let lexer = Lexer::new(None, ANSI_LEXERS.to_vec());
     let (tokens, _errors) = lexer.lex(input, false);
 
     // Debug: print tokens

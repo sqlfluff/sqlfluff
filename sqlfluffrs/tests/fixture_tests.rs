@@ -75,10 +75,11 @@ fn test_all_dialect_fixtures() {
 ///
 /// This test suite parses SQL files from test/fixtures/dialects/ and compares
 /// the output against expected YAML files.
+use sqlfluffrs_lexer::{LexInput, Lexer};
+use sqlfluffrs_dialects::Dialect;
+use sqlfluffrs_dialects::dialect::ansi::matcher::ANSI_LEXERS;
 use sqlfluffrs::{
-    lexer::{LexInput, Lexer},
     parser::{Node, Parser},
-    Dialect,
 };
 use std::{fs, str::FromStr};
 use std::path::{Path, PathBuf};
@@ -129,8 +130,9 @@ impl FixtureTest {
         // Parse with Rust parser
         let dialect = Dialect::from_str(&self.dialect).expect("Invalid dialect");
 
-        let input = LexInput::String(sql_content.clone());
-        let lexer = Lexer::new(None, dialect);
+    let input = LexInput::String(sql_content.clone());
+    // TODO: Select the correct lexers for the dialect dynamically
+    let lexer = Lexer::new(None, ANSI_LEXERS.to_vec());
         let (tokens, lex_errors) = lexer.lex(input, false);
 
         if !lex_errors.is_empty() {

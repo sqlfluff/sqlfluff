@@ -10,8 +10,7 @@ use hashbrown::HashSet;
 use super::core::Parser;
 use super::Node;
 use crate::parser::utils::skip_start_index_forward_to_code;
-use crate::token::Token;
-use sqlfluffrs_types::Grammar;
+use sqlfluffrs_types::{Token, Grammar};
 
 impl<'a> Parser<'a> {
     /// Prune options based on simple matchers before attempting full parse.

@@ -1,9 +1,8 @@
 /// Test cache functionality in the parser
-use sqlfluffrs::{
-    lexer::{LexInput, Lexer},
-    parser::Parser,
-    Dialect,
-};
+use sqlfluffrs_lexer::{LexInput, Lexer};
+use sqlfluffrs_dialects::Dialect;
+use sqlfluffrs_dialects::dialect::ansi::matcher::ANSI_LEXERS;
+use sqlfluffrs::parser::Parser;
 
 fn main() {
     // Parse a simple SELECT statement twice
@@ -11,7 +10,7 @@ fn main() {
     let input = LexInput::String(sql.to_string());
     let dialect = Dialect::Ansi;
 
-    let lexer = Lexer::new(None, dialect);
+    let lexer = Lexer::new(None, ANSI_LEXERS.to_vec());
     let (tokens, _errors) = lexer.lex(input, false);
 
     let mut parser = Parser::new(&tokens, dialect);

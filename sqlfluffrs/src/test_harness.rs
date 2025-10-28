@@ -4,13 +4,12 @@
 /// 1. Parse SQL files from test/fixtures/dialects/
 /// 2. Generate YAML output in the format used by SQLFluff
 /// 3. Compare parsed results against expected YAML files
-use crate::{
-    lexer::{LexInput, Lexer},
-    parser::{Node, Parser},
-    Dialect,
-};
+use crate::parser::{Node, Parser};
 use hashbrown::HashSet;
 use serde_yaml::{Mapping, Value};
+use sqlfluffrs_dialects::Dialect;
+use sqlfluffrs_lexer::{LexInput, Lexer};
+use sqlfluffrs_types::Token;
 use std::fs;
 use std::path::{Path, PathBuf};
 
@@ -94,7 +93,7 @@ impl FixtureTest {
         };
 
         let input = LexInput::String(sql_content.clone());
-        let lexer = Lexer::new(None, dialect);
+        let lexer = Lexer::new(None, dialect.get_lexers().clone());
         let (tokens, lex_errors) = lexer.lex(input, false);
 
         if !lex_errors.is_empty() {
@@ -159,10 +158,7 @@ impl FixtureTest {
 }
 
 /// Convert a Node to YAML format matching Python SQLFluff output
-fn node_to_yaml(
-    node: &Node,
-    tokens: &[crate::token::Token],
-) -> Result<String, Box<dyn std::error::Error>> {
+fn node_to_yaml(node: &Node, tokens: &[Token]) -> Result<String, Box<dyn std::error::Error>> {
     // Use code_only=true to match Python's behavior
     let yaml_value = node_to_yaml_value(node, tokens, true)?;
 
@@ -199,7 +195,7 @@ fn node_to_yaml(
 /// * `code_only` - If true, filter out whitespace and meta nodes (matches Python's behavior)
 fn node_to_yaml_value(
     node: &Node,
-    tokens: &[crate::token::Token],
+    tokens: &[Token],
     code_only: bool,
 ) -> Result<Value, Box<dyn std::error::Error>> {
     // Filter out nodes that shouldn't be included in code_only mode
@@ -212,12 +208,27 @@ fn node_to_yaml_value(
 
         Node::Meta { .. } => Ok(Value::Null), // Meta nodes are not in YAML
 
-        Node::Whitespace { raw: _, token_idx: _ } | Node::Newline { raw: _, token_idx: _ } | Node::EndOfFile { raw: _, token_idx: _ } => {
+        Node::Whitespace {
+            raw: _,
+            token_idx: _,
+        }
+        | Node::Newline {
+            raw: _,
+            token_idx: _,
+        }
+        | Node::EndOfFile {
+            raw: _,
+            token_idx: _,
+        } => {
             // These are filtered out in code_only mode
             Ok(Value::Null)
         }
 
-        Node::Token { token_type, raw, token_idx: _ } => {
+        Node::Token {
+            token_type,
+            raw,
+            token_idx: _,
+        } => {
             // Filter whitespace tokens in code_only mode
             if code_only && matches!(token_type.as_str(), "whitespace" | "newline") {
                 Ok(Value::Null)
@@ -233,7 +244,10 @@ fn node_to_yaml_value(
             }
         }
 
-        Node::Unparsable { expected_message: msg, children } => {
+        Node::Unparsable {
+            expected_message: msg,
+            children,
+        } => {
             let mut map = Mapping::new();
             map.insert(
                 Value::String("unparsable".to_string()),
@@ -476,15 +490,13 @@ mod tests {
 
     #[test]
     fn test_node_types() {
-        use crate::{
-            lexer::{LexInput, Lexer},
-            Dialect,
-        };
+        use sqlfluffrs_dialects::Dialect;
+        use sqlfluffrs_lexer::{LexInput, Lexer};
 
         let sql = "SELECT 1";
         let input = LexInput::String(sql.to_string());
         let dialect = Dialect::Ansi;
-        let lexer = Lexer::new(None, dialect);
+        let lexer = Lexer::new(None, dialect.get_lexers().clone());
         let (tokens, _errors) = lexer.lex(input, false);
 
         let mut parser = Parser::new(&tokens, dialect);

@@ -2061,16 +2061,53 @@ dependencies = [
  "serde_json",
  "serde_yaml",
  "slotmap",
+ "sqlfluffrs_dialects",
+ "sqlfluffrs_lexer",
+ "sqlfluffrs_types",
+ "uuid",
+]
+
+[[package]]
+name = "sqlfluffrs_dialects"
+version = "0.0.0"
+dependencies = [
+ "fancy-regex",
+ "hashbrown 0.15.5",
+ "once_cell",
+ "regex",
+ "sqlfluffrs_lexer",
+ "sqlfluffrs_types",
+]
+
+[[package]]
+name = "sqlfluffrs_lexer"
+version = "0.0.0"
+dependencies = [
+ "env_logger",
+ "fancy-regex",
+ "hashbrown 0.15.5",
+ "itertools 0.14.0",
+ "log",
+ "pyo3",
+ "pyo3-log",
+ "regex",
+ "serde",
  "sqlfluffrs_types",
  "uuid",
 ]
 
 [[package]]
 name = "sqlfluffrs_types"
-version = "0.1.0"
+version = "0.0.0"
 dependencies = [
+ "fancy-regex",
  "hashbrown 0.15.5",
+ "log",
+ "pyo3",
+ "pyo3-log",
  "regex",
+ "serde",
+ "uuid",
 ]
 
 [[package]]

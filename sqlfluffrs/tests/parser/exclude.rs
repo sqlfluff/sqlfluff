@@ -5,11 +5,10 @@ use std::sync::Arc;
 /// The `exclude` parameter allows grammars to specify patterns that should
 /// prevent a match if they occur at the current position.
 
-use sqlfluffrs::{
-    lexer::{LexInput, Lexer},
-    parser::{Grammar, Node, ParseError, ParseMode, Parser},
-    Dialect,
-};
+use sqlfluffrs_lexer::{LexInput, Lexer};
+use sqlfluffrs_dialects::Dialect;
+use sqlfluffrs_dialects::dialect::ansi::matcher::ANSI_LEXERS;
+use sqlfluffrs::parser::{Grammar, Node, ParseError, ParseMode, Parser};
 
 #[test]
 fn test_oneof_with_exclude() -> Result<(), ParseError> {
@@ -18,7 +17,7 @@ fn test_oneof_with_exclude() -> Result<(), ParseError> {
     // Test case: OneOf should match 'A' but NOT if 'AB' is present (exclude pattern)
     let input = LexInput::String("A".to_string());
     let dialect = Dialect::Ansi;
-    let lexer = Lexer::new(None, dialect);
+        let lexer = Lexer::new(None, ANSI_LEXERS.to_vec());
     let (tokens, _errors) = lexer.lex(input, false);
 
     let mut parser = Parser::new(&tokens, dialect);
@@ -81,7 +80,7 @@ fn test_oneof_exclude_blocks_match() -> Result<(), ParseError> {
     // Test case: OneOf should NOT match when exclude pattern is present
     let input = LexInput::String("AB".to_string());
     let dialect = Dialect::Ansi;
-    let lexer = Lexer::new(None, dialect);
+        let lexer = Lexer::new(None, ANSI_LEXERS.to_vec());
     let (tokens, _errors) = lexer.lex(input, false);
 
     let mut parser = Parser::new(&tokens, dialect);
@@ -144,7 +143,7 @@ fn test_anynumberof_with_exclude() -> Result<(), ParseError> {
     // Test case: AnyNumberOf should match repeated "A" but not if "B" is present
     let input = LexInput::String("A A A".to_string());
     let dialect = Dialect::Ansi;
-    let lexer = Lexer::new(None, dialect);
+        let lexer = Lexer::new(None, ANSI_LEXERS.to_vec());
     let (tokens, _errors) = lexer.lex(input, false);
 
     let mut parser = Parser::new(&tokens, dialect);

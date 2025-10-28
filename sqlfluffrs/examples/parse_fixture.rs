@@ -5,9 +5,9 @@
 /// Examples:
 ///   cargo run --example parse_fixture -- test/fixtures/dialects/ansi/select_simple_a.sql
 ///   cargo run --example parse_fixture -- test/fixtures/dialects/ansi/select_simple_a.sql --compare
-use sqlfluffrs::lexer::{LexInput, Lexer};
+use sqlfluffrs_lexer::{LexInput, Lexer};
 use sqlfluffrs::parser::Parser;
-use sqlfluffrs::Dialect;
+use sqlfluffrs_dialects::Dialect;
 use std::env;
 use std::fs;
 use std::path::{Path, PathBuf};
@@ -65,7 +65,8 @@ fn main() {
 
     // Lex
     let input = LexInput::String(sql_content);
-    let lexer = Lexer::new(None, dialect);
+    use sqlfluffrs_dialects::dialect::ansi::matcher::ANSI_LEXERS;
+    let lexer = Lexer::new(None, ANSI_LEXERS.to_vec());
     let (tokens, lex_errors) = lexer.lex(input, false);
 
     if !lex_errors.is_empty() {
@@ -100,82 +101,82 @@ fn main() {
     println!("=== PARSE SUCCESS ===");
     println!();
 
+    // // Print match tree
+    // println!("=== MATCH TREE ===");
+    // print_match_tree(&ast, 0);
+    // println!();
+
+    // // Generate YAML
+    // let generated_yaml = match node_to_yaml(&ast) {
+    //     Ok(yaml) => yaml,
+    //     Err(e) => {
+    //         log::debug!("=== YAML CONVERSION ERROR ===");
+    //         log::debug!("{}", e);
+    //         process::exit(1);
+    //     }
+    // };
+
+    // println!("=== GENERATED YAML ===");
+    // println!("{}", generated_yaml);
+
+    // // Compare mode
+    // if compare_mode {
+    //     let yml_path = sql_path.with_extension("yml");
+
+    //     if !yml_path.exists() {
+    //         log::debug!("");
+    //         log::debug!("=== COMPARE MODE: Expected YAML not found ===");
+    //         log::debug!("Expected file: {}", yml_path.display());
+    //         process::exit(1);
+    //     }
+
+    //     let expected_yaml = match fs::read_to_string(&yml_path) {
+    //         Ok(content) => content,
+    //         Err(e) => {
+    //             log::debug!("Error reading expected YAML: {}", e);
+    //             process::exit(1);
+    //         }
+    //     };
+
+    //     println!();
+    //     println!("=== EXPECTED YAML ===");
+    //     println!("{}", expected_yaml);
+    //     println!();
+
+    //     // Simple comparison
+    //     if generated_yaml.trim() == expected_yaml.trim() {
+    //         println!("=== COMPARISON: MATCH ✓ ===");
+    //         process::exit(0);
+    //     } else {
+    //         println!("=== COMPARISON: MISMATCH ✗ ===");
+
+    //         // Show differences
+    //         let gen_lines: Vec<&str> = generated_yaml.lines().collect();
+    //         let exp_lines: Vec<&str> = expected_yaml.lines().collect();
+
+    //         println!();
+    //         println!("Differences:");
+    //         for (i, (gen_line, exp_line)) in gen_lines.iter().zip(exp_lines.iter()).enumerate() {
+    //             if gen_line != exp_line {
+    //                 println!("  Line {}: ", i + 1);
+    //                 println!("    Generated: {}", gen_line);
+    //                 println!("    Expected:  {}", exp_line);
+    //             }
+    //         }
+
+    //         if gen_lines.len() != exp_lines.len() {
+    //             println!();
+    //             println!("  Line count differs:");
+    //             println!("    Generated: {} lines", gen_lines.len());
+    //             println!("    Expected:  {} lines", exp_lines.len());
+    //         }
+
+    //         process::exit(1);
+    //     }
+    // }
+
     parser.print_cache_stats();
     println!();
-
-    // Print match tree
-    println!("=== MATCH TREE ===");
-    print_match_tree(&ast, 0);
-    println!();
-
-    // Generate YAML
-    let generated_yaml = match node_to_yaml(&ast) {
-        Ok(yaml) => yaml,
-        Err(e) => {
-            log::debug!("=== YAML CONVERSION ERROR ===");
-            log::debug!("{}", e);
-            process::exit(1);
-        }
-    };
-
-    println!("=== GENERATED YAML ===");
-    println!("{}", generated_yaml);
-
-    // Compare mode
-    if compare_mode {
-        let yml_path = sql_path.with_extension("yml");
-
-        if !yml_path.exists() {
-            log::debug!("");
-            log::debug!("=== COMPARE MODE: Expected YAML not found ===");
-            log::debug!("Expected file: {}", yml_path.display());
-            process::exit(1);
-        }
-
-        let expected_yaml = match fs::read_to_string(&yml_path) {
-            Ok(content) => content,
-            Err(e) => {
-                log::debug!("Error reading expected YAML: {}", e);
-                process::exit(1);
-            }
-        };
-
-        println!();
-        println!("=== EXPECTED YAML ===");
-        println!("{}", expected_yaml);
-        println!();
-
-        // Simple comparison
-        if generated_yaml.trim() == expected_yaml.trim() {
-            println!("=== COMPARISON: MATCH ✓ ===");
-            process::exit(0);
-        } else {
-            println!("=== COMPARISON: MISMATCH ✗ ===");
-
-            // Show differences
-            let gen_lines: Vec<&str> = generated_yaml.lines().collect();
-            let exp_lines: Vec<&str> = expected_yaml.lines().collect();
-
-            println!();
-            println!("Differences:");
-            for (i, (gen_line, exp_line)) in gen_lines.iter().zip(exp_lines.iter()).enumerate() {
-                if gen_line != exp_line {
-                    println!("  Line {}: ", i + 1);
-                    println!("    Generated: {}", gen_line);
-                    println!("    Expected:  {}", exp_line);
-                }
-            }
-
-            if gen_lines.len() != exp_lines.len() {
-                println!();
-                println!("  Line count differs:");
-                println!("    Generated: {} lines", gen_lines.len());
-                println!("    Expected:  {} lines", exp_lines.len());
-            }
-
-            process::exit(1);
-        }
-    }
 }
 
 /// Infer dialect from file path

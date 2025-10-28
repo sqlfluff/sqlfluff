@@ -4,10 +4,9 @@
 
 use crate::parser::common::parse_sql;
 use sqlfluffrs::parser::{ParseError, Parser};
-use sqlfluffrs::{
-    lexer::{LexInput, Lexer},
-    Dialect,
-};
+use sqlfluffrs_lexer::{LexInput, Lexer};
+use sqlfluffrs_dialects::Dialect;
+use sqlfluffrs_dialects::dialect::ansi::matcher::ANSI_LEXERS;
 
 macro_rules! with_larger_stack {
     ($test_fn:expr) => {{
@@ -40,7 +39,8 @@ fn parse_select_single_item() -> Result<(), ParseError> {
     let raw = "SELECT a";
     let input = LexInput::String(raw.into());
     let dialect = Dialect::Ansi;
-    let lexer = Lexer::new(None, dialect);
+    // TODO: Select the correct lexers for the dialect dynamically
+    let lexer = Lexer::new(None, ANSI_LEXERS.to_vec());
     let (tokens, _errors) = lexer.lex(input, false);
     let mut parser = Parser::new(&tokens, dialect);
 
@@ -68,7 +68,7 @@ fn parse_bracket() -> Result<(), ParseError> {
     let raw = "( this, that )";
     let input = LexInput::String(raw.into());
     let dialect = Dialect::Ansi;
-    let lexer = Lexer::new(None, dialect);
+    let lexer = Lexer::new(None, ANSI_LEXERS.to_vec());
     let (tokens, _errors) = lexer.lex(input, false);
     let mut parser = Parser::new(&tokens, dialect);
 
@@ -101,7 +101,7 @@ fn parse_select_terminator() -> Result<(), ParseError> {
     let raw = "FROM";
     let input = LexInput::String(raw.into());
     let dialect = Dialect::Ansi;
-    let lexer = Lexer::new(None, dialect);
+    let lexer = Lexer::new(None, ANSI_LEXERS.to_vec());
     let (tokens, _errors) = lexer.lex(input, false);
     let mut parser = Parser::new(&tokens, dialect);
 
@@ -122,7 +122,7 @@ fn parse_statements() -> Result<(), ParseError> {
     let raw = "SELECT 1 FROM tabx as b";
     let input = LexInput::String(raw.into());
     let dialect = Dialect::Ansi;
-    let lexer = Lexer::new(None, dialect);
+    let lexer = Lexer::new(None, ANSI_LEXERS.to_vec());
     let (tokens, _errors) = lexer.lex(input, false);
     let mut parser = Parser::new(&tokens, dialect);
 

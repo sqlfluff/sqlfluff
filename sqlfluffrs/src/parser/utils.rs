@@ -4,16 +4,17 @@
 
 use std::sync::Arc;
 
-use sqlfluffrs_types::{Grammar, ParseMode};
 use super::types::Node;
-use crate::token::Token;
+use sqlfluffrs_types::{Grammar, ParseMode, Token};
 
 /// Check if a grammar element is optional.
 ///
 /// Returns true if the grammar can match zero tokens successfully.
 pub fn is_grammar_optional(grammar: Arc<Grammar>) -> bool {
     let result = match grammar.as_ref() {
-        Grammar::Sequence { optional, elements, .. } => {
+        Grammar::Sequence {
+            optional, elements, ..
+        } => {
             // A Sequence is optional if all its elements are optional
             *optional || elements.iter().all(|el| is_grammar_optional(el.clone()))
         }

@@ -59,6 +59,16 @@ impl crate::parser::Parser<'_> {
             }
         };
 
+        // Prune options BEFORE any other logic, like Python
+        let pruned_options = self.prune_options(elements);
+        // If no options remain after pruning, treat as no match
+        if pruned_options.is_empty() {
+            stack
+                .results
+                .insert(frame.frame_id, (Node::Empty, pos, None));
+            return Ok(NextStep::Fallthrough);
+        }
+
         // Check exclude grammar first
         if let Some(exclude_grammar) = exclude {
             let test_result =
@@ -103,7 +113,7 @@ impl crate::parser::Parser<'_> {
 
         frame.state = crate::parser::FrameState::WaitingForChild {
             child_index: 0,
-            total_children: max_times.unwrap_or(usize::MAX).min(elements.len()),
+            total_children: max_times.unwrap_or(usize::MAX).min(pruned_options.len()),
         };
         frame.context = FrameContext::AnySetOf {
             grammar: grammar.clone(),
@@ -119,7 +129,7 @@ impl crate::parser::Parser<'_> {
         stack.push(frame);
 
         let child_grammar = Arc::new(Grammar::OneOf {
-            elements: elements.to_vec(),
+            elements: pruned_options.to_vec(),
             exclude: None,
             optional: false,
             terminators: vec![],
@@ -431,6 +441,16 @@ impl crate::parser::Parser<'_> {
             parse_mode
         );
 
+        // Prune options BEFORE any other logic, like Python
+        let pruned_options = self.prune_options(elements);
+        // If no options remain after pruning, treat as no match
+        if pruned_options.is_empty() {
+            stack
+                .results
+                .insert(frame.frame_id, (Node::Empty, start_idx, None));
+            return Ok(NextStep::Fallthrough);
+        }
+
         if let Some(exclude_grammar) = exclude {
             let test_result =
                 self.try_match_grammar(*exclude_grammar.clone(), start_idx, parent_terminators);
@@ -467,7 +487,7 @@ impl crate::parser::Parser<'_> {
         };
 
         log::debug!("DEBUG [iter {}]: AnyNumberOf Initial at pos={}, parent_max_idx={:?}, elements.len()={}",
-            iteration_count, frame.pos, frame.parent_max_idx, elements.len());
+            iteration_count, frame.pos, frame.parent_max_idx, pruned_options.len());
 
         log::debug!(
             "AnyNumberOf max_idx: {} (tokens.len: {})",
@@ -475,7 +495,7 @@ impl crate::parser::Parser<'_> {
             self.tokens.len()
         );
 
-        let elements = match self.get_available_grammar_options(elements, max_idx) {
+        let elements = match self.get_available_grammar_options(&pruned_options, max_idx) {
             Ok(value) => value.into_iter().collect::<Vec<_>>(),
             Err(value) => {
                 if let Node::Empty = value {
@@ -763,21 +783,21 @@ impl crate::parser::Parser<'_> {
             _ => panic!("handle_oneof_initial called with non-OneOf grammar"),
         };
         let pos = frame.pos;
-        // log::debug!(
-        //     "OneOf Initial state at pos {}, {} elements, parse_mode={:?}",
-        //     pos,
-        //     elements.len(),
-        //     parse_mode
-        // );
+
+        // Prune options BEFORE any other logic, like Python
+        let pruned_options = self.prune_options(elements);
+        // If no options remain after pruning, treat as no match
+        if pruned_options.is_empty() {
+            stack
+                .results
+                .insert(frame.frame_id, (Node::Empty, pos, None));
+            return Ok(NextStep::Fallthrough);
+        }
 
         if let Some(exclude_grammar) = exclude {
             let test_result =
                 self.try_match_grammar(*exclude_grammar.clone(), pos, parent_terminators);
             if test_result.is_some() {
-                // log::debug!(
-                //     "OneOf: exclude grammar matched at pos {}, returning empty",
-                //     pos
-                // );
                 stack
                     .results
                     .insert(frame.frame_id, (Node::Empty, pos, None));
@@ -815,7 +835,6 @@ impl crate::parser::Parser<'_> {
         };
 
         if self.is_terminated(&all_terminators) {
-            // log::debug!("OneOf: Already at terminator");
             self.pos = pos;
 
             let result = if optional {

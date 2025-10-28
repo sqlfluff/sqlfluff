@@ -12,12 +12,8 @@ from sqlfluff.core.parser.lexer import LexerType
 def generate_use():
     """Generates the `use` statements."""
     print("use once_cell::sync::Lazy;")
-    print("use crate::matcher::{LexMatcher, extract_nested_block_comment};")
-    print("use crate::token::Token;")
-    print("use crate::token::config::TokenConfig;")
-    print("use crate::regex::RegexModeGroup;")
-    print("use crate::dialect::Dialect;")
-    print("use hashbrown::HashSet;")
+    print("use sqlfluffrs_lexer::LexMatcher;")
+    print("use sqlfluffrs_types::{Token, TokenConfig, RegexModeGroup};")
 
 
 def segment_to_token_name(s: str):
@@ -188,7 +184,6 @@ def _as_rust_lexer_matcher(lexer_matcher: LexerType, dialect: str, is_subdivide=
 
     return f"""
     LexMatcher::{rust_fn}(
-        Dialect::{dialect},
         "{lexer_matcher.name}",
         {template},{token_closure},
         {subdivider},
@@ -222,6 +217,50 @@ def _generate_token_closure(
         }}"""
 
 
+def generate_extract_nested_block_comments(dialect: str):
+    """This function handles nested block comments."""
+    print(
+        f"""
+fn extract_nested_block_comment(input: &str) -> Option<&str> {{
+    let mut chars = input.chars().peekable();
+    let mut comment = String::new();
+    let dialect = "{dialect}";
+
+    // Ensure the input starts with "/*"
+    if chars.next() != Some('/') || chars.next() != Some('*') {{
+        return None;
+    }}
+
+    comment.push_str("/*"); // Add the opening delimiter
+    let mut depth = 1; // Track nesting level
+
+    while let Some(c) = chars.next() {{
+        comment.push(c);
+
+        if c == '/' && chars.peek() == Some(&'*') {{
+            chars.next(); // Consume '*'
+            comment.push('*');
+            depth += 1;
+        }} else if c == '*' && chars.peek() == Some(&'/') {{
+            chars.next(); // Consume '/'
+            comment.push('/');
+            depth -= 1;
+
+            if depth == 0 {{
+                return Some(&input[..comment.len()]);
+            }}
+        }}
+    }}
+
+    // If we reach here, the comment wasn't properly closed
+    match dialect {{
+        "sqlite" => Some(&input[..comment.len()]),
+        _ => None,
+    }}
+}}"""
+    )
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description="Build generated Rust output for a dialect."
@@ -237,3 +276,5 @@ if __name__ == "__main__":
     generate_reserved_keyword_list(args.dialect)
     print()
     generate_lexer(args.dialect)
+    print()
+    generate_extract_nested_block_comments(args.dialect)

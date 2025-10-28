@@ -38,7 +38,7 @@ def generate_use():
     """Generates the `use` statements."""
     print("use std::sync::Arc;")
     print("use once_cell::sync::Lazy;")
-    print("use sqlfluff_types::{Grammar, ParseMode, SimpleHint};")
+    print("use sqlfluffrs_types::{Grammar, ParseMode, SimpleHint};")
 
 
 def matchable_to_const_name(s: str):

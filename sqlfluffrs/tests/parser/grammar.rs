@@ -5,10 +5,9 @@
 use std::sync::Arc;
 use hashbrown::HashSet;
 use sqlfluffrs::parser::{Grammar, Node, ParseError, ParseMode, Parser};
-use sqlfluffrs::{
-    lexer::{LexInput, Lexer},
-    Dialect,
-};
+use sqlfluffrs_lexer::{LexInput, Lexer};
+use sqlfluffrs_dialects::Dialect;
+use sqlfluffrs_dialects::dialect::ansi::matcher::ANSI_LEXERS;
 
 macro_rules! with_larger_stack {
     ($test_fn:expr) => {{
@@ -30,7 +29,7 @@ fn test_anysetof_basic() -> Result<(), ParseError> {
     let raw = "A B";
     let input = LexInput::String(raw.into());
     let dialect = Dialect::Ansi;
-    let lexer = Lexer::new(None, dialect);
+    let lexer = Lexer::new(None, ANSI_LEXERS.to_vec());
     let (tokens, _errors) = lexer.lex(input, false);
 
     let mut parser = Parser::new(&tokens, dialect);
@@ -86,7 +85,7 @@ fn test_anysetof_order_independent() -> Result<(), ParseError> {
 
         let input = LexInput::String((*raw).into());
         let dialect = Dialect::Ansi;
-        let lexer = Lexer::new(None, dialect);
+    let lexer = Lexer::new(None, ANSI_LEXERS.to_vec());
         let (tokens, _errors) = lexer.lex(input, false);
 
         let mut parser = Parser::new(&tokens, dialect);
@@ -143,7 +142,7 @@ fn test_anysetof_foreign_key() -> Result<(), ParseError> {
         let raw = "REFERENCES other_table(other_col) ON DELETE CASCADE ON UPDATE RESTRICT";
         let input = LexInput::String(raw.into());
         let dialect = Dialect::Ansi;
-        let lexer = Lexer::new(None, dialect);
+    let lexer = Lexer::new(None, ANSI_LEXERS.to_vec());
         let (tokens, _errors) = lexer.lex(input, false);
 
         let mut parser = Parser::new(&tokens, dialect);
@@ -169,7 +168,7 @@ fn test_anysetof_order_independence() -> Result<(), ParseError> {
         println!("\nTesting: {}", raw);
         let input = LexInput::String(raw.into());
         let dialect = Dialect::Ansi;
-        let lexer = Lexer::new(None, dialect);
+    let lexer = Lexer::new(None, ANSI_LEXERS.to_vec());
         let (tokens, _errors) = lexer.lex(input, false);
 
         let mut parser = Parser::new(&tokens, dialect);
@@ -189,7 +188,7 @@ fn test_create_table_simple() -> Result<(), ParseError> {
     let raw = "CREATE TABLE foo (id INT)";
     let input = LexInput::String(raw.into());
     let dialect = Dialect::Ansi;
-    let lexer = Lexer::new(None, dialect);
+    let lexer = Lexer::new(None, ANSI_LEXERS.to_vec());
     let (tokens, _errors) = lexer.lex(input, false);
 
     let mut parser = Parser::new(&tokens, dialect);
@@ -207,7 +206,7 @@ fn test_create_table_two_columns() -> Result<(), ParseError> {
     let raw = "CREATE TABLE foo (id INT, name VARCHAR(100))";
     let input = LexInput::String(raw.into());
     let dialect = Dialect::Ansi;
-    let lexer = Lexer::new(None, dialect);
+    let lexer = Lexer::new(None, ANSI_LEXERS.to_vec());
     let (tokens, _errors) = lexer.lex(input, false);
 
     let mut parser = Parser::new(&tokens, dialect);
@@ -225,7 +224,7 @@ fn test_format_tree() -> Result<(), ParseError> {
     let raw = "SELECT a, b FROM my_table";
     let input = LexInput::String(raw.into());
     let dialect = Dialect::Ansi;
-    let lexer = Lexer::new(None, dialect);
+    let lexer = Lexer::new(None, ANSI_LEXERS.to_vec());
     let (tokens, _errors) = lexer.lex(input, false);
 
     let mut parser = Parser::new(&tokens, dialect);
@@ -247,7 +246,7 @@ fn test_whitespace_in_ast() -> Result<(), ParseError> {
     let raw = "SELECT  a  ,  b  FROM  my_table";
     let input = LexInput::String(raw.into());
     let dialect = Dialect::Ansi;
-    let lexer = Lexer::new(None, dialect);
+    let lexer = Lexer::new(None, ANSI_LEXERS.to_vec());
     let (tokens, _errors) = lexer.lex(input, false);
 
     let mut parser = Parser::new(&tokens, dialect);
@@ -272,7 +271,7 @@ fn test_keyword_tagging() -> Result<(), ParseError> {
     let raw = "SELECT a FROM table";
     let input = LexInput::String(raw.into());
     let dialect = Dialect::Ansi;
-    let lexer = Lexer::new(None, dialect);
+    let lexer = Lexer::new(None, ANSI_LEXERS.to_vec());
     let (tokens, _errors) = lexer.lex(input, false);
 
     let mut parser = Parser::new(&tokens, dialect);
@@ -297,7 +296,7 @@ fn test_no_duplicate_whitespace_tokens() -> Result<(), ParseError> {
     let raw = "SELECT   a   FROM   table";
     let input = LexInput::String(raw.into());
     let dialect = Dialect::Ansi;
-    let lexer = Lexer::new(None, dialect);
+    let lexer = Lexer::new(None, ANSI_LEXERS.to_vec());
     let (tokens, _errors) = lexer.lex(input, false);
 
     let mut parser = Parser::new(&tokens, dialect);

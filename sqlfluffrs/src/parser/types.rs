@@ -1,8 +1,8 @@
 //! Core types for the parser: Grammar, Node, ParseMode
 
-use crate::token::Token;
 use serde_yaml::Mapping;
-use sqlfluffrs_types::Grammar;
+use sqlfluffrs_dialects::Dialect;
+use sqlfluffrs_types::{Token, Grammar};
 
 /// Helper enum for tuple serialization, similar to Python's TupleSerialisedSegment.
 #[derive(Debug, Clone, PartialEq)]
@@ -771,13 +771,13 @@ pub enum ParseErrorType {
 
 /// Context for parsing operations
 pub struct ParseContext {
-    dialect: crate::dialect::Dialect,
+    dialect: Dialect,
     uuid: uuid::Uuid,
     match_segment: String,
 }
 
 impl ParseContext {
-    pub fn new(dialect: crate::dialect::Dialect) -> Self {
+    pub fn new(dialect: Dialect) -> Self {
         let uuid = uuid::Uuid::new_v4();
         ParseContext {
             dialect,
@@ -1053,7 +1053,7 @@ mod tests {
 
     #[test]
     fn test_simple_hint_with_dialect_ref_comma_segment() {
-        use crate::dialect::ansi::parser::COMMA_SEGMENT;
+    use sqlfluffrs_dialects::dialect::ansi::parser::COMMA_SEGMENT;
         use hashbrown::HashSet;
 
         // Create a Ref grammar for CommaSegment

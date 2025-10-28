@@ -6,7 +6,8 @@
 ///
 /// Run with: cargo run --example parse_mode_demo --features python
 
-use sqlfluffrs::{Dialect, ParseMode};
+use sqlfluffrs_dialects::Dialect;
+use sqlfluffrs_types::ParseMode;
 
 fn main() {
     let dialect = Dialect::Ansi;

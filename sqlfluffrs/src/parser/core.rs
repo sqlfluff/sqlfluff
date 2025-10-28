@@ -7,9 +7,8 @@ use std::sync::Arc;
 
 use hashbrown::HashSet;
 
-use crate::{dialect::Dialect, token::Token};
-
-use sqlfluffrs_types::{Grammar, SimpleHint};
+use sqlfluffrs_types::{Grammar, SimpleHint, Token};
+use sqlfluffrs_dialects::Dialect;
 use super::{cache::ParseCache, Node, ParseError};
 
 /// The main parser struct that holds parsing state and provides parsing methods.

@@ -1,7 +1,7 @@
 use hashbrown::HashSet;
-use sqlfluffrs::lexer::{LexInput, Lexer};
+use sqlfluffrs_lexer::{LexInput, Lexer};
 use sqlfluffrs::parser::Parser;
-use sqlfluffrs::Dialect;
+use sqlfluffrs_dialects::Dialect;
 
 fn main() {
     env_logger::init();
@@ -13,7 +13,8 @@ fn main() {
 
     let dialect = Dialect::Ansi;
     let input = LexInput::String(sql.into());
-    let lexer = Lexer::new(None, dialect);
+    use sqlfluffrs_dialects::dialect::ansi::matcher::ANSI_LEXERS;
+    let lexer = Lexer::new(None, ANSI_LEXERS.to_vec());
     let (tokens, _) = lexer.lex(input, false);
 
     println!("\nTokens ({} total):", tokens.len());

@@ -3,10 +3,9 @@
 //! Tests specifically for the iterative (frame-based) parser implementation
 
 use sqlfluffrs::parser::{ParseError, Parser};
-use sqlfluffrs::{
-    lexer::{LexInput, Lexer},
-    Dialect,
-};
+use sqlfluffrs_lexer::{LexInput, Lexer};
+use sqlfluffrs_dialects::Dialect;
+use sqlfluffrs_dialects::dialect::ansi::matcher::ANSI_LEXERS;
 
 macro_rules! with_larger_stack {
     ($test_fn:expr) => {{
@@ -27,7 +26,7 @@ fn test_fully_iterative_parser() -> Result<(), ParseError> {
         let raw = "SELECT a, b FROM my_table WHERE x = 1";
         let input = LexInput::String(raw.into());
         let dialect = Dialect::Ansi;
-        let lexer = Lexer::new(None, dialect);
+    let lexer = Lexer::new(None, ANSI_LEXERS.to_vec());
         let (tokens, _errors) = lexer.lex(input, false);
 
         let mut parser = Parser::new(&tokens, dialect);
@@ -46,7 +45,7 @@ fn test_iterative_simple_literal() -> Result<(), ParseError> {
     let raw = "42";
     let input = LexInput::String(raw.into());
     let dialect = Dialect::Ansi;
-    let lexer = Lexer::new(None, dialect);
+    let lexer = Lexer::new(None, ANSI_LEXERS.to_vec());
     let (tokens, _errors) = lexer.lex(input, false);
 
     let mut parser = Parser::new(&tokens, dialect);
@@ -64,7 +63,7 @@ fn test_iterative_sequence_simple() -> Result<(), ParseError> {
     let raw = "SELECT a";
     let input = LexInput::String(raw.into());
     let dialect = Dialect::Ansi;
-    let lexer = Lexer::new(None, dialect);
+    let lexer = Lexer::new(None, ANSI_LEXERS.to_vec());
     let (tokens, _errors) = lexer.lex(input, false);
 
     let mut parser = Parser::new(&tokens, dialect);
@@ -82,7 +81,7 @@ fn test_iterative_anynumberof_simple() -> Result<(), ParseError> {
     let raw = "a, b, c";
     let input = LexInput::String(raw.into());
     let dialect = Dialect::Ansi;
-    let lexer = Lexer::new(None, dialect);
+    let lexer = Lexer::new(None, ANSI_LEXERS.to_vec());
     let (tokens, _errors) = lexer.lex(input, false);
 
     let mut parser = Parser::new(&tokens, dialect);
@@ -100,7 +99,7 @@ fn test_iterative_bracketed_simple() -> Result<(), ParseError> {
     let raw = "(a, b)";
     let input = LexInput::String(raw.into());
     let dialect = Dialect::Ansi;
-    let lexer = Lexer::new(None, dialect);
+    let lexer = Lexer::new(None, ANSI_LEXERS.to_vec());
     let (tokens, _errors) = lexer.lex(input, false);
 
     let mut parser = Parser::new(&tokens, dialect);
@@ -121,7 +120,7 @@ fn test_iterative_anysetof_simple() -> Result<(), ParseError> {
     let raw = "A B";
     let input = LexInput::String(raw.into());
     let dialect = Dialect::Ansi;
-    let lexer = Lexer::new(None, dialect);
+    let lexer = Lexer::new(None, ANSI_LEXERS.to_vec());
     let (tokens, _errors) = lexer.lex(input, false);
 
     let mut parser = Parser::new(&tokens, dialect);
@@ -143,7 +142,7 @@ fn test_iterative_delimited_simple() -> Result<(), ParseError> {
         let raw = "a, b, c";
         let input = LexInput::String(raw.into());
         let dialect = Dialect::Ansi;
-        let lexer = Lexer::new(None, dialect);
+    let lexer = Lexer::new(None, ANSI_LEXERS.to_vec());
         let (tokens, _errors) = lexer.lex(input, false);
 
         let mut parser = Parser::new(&tokens, dialect);
@@ -164,7 +163,7 @@ fn test_iterative_delimited_single_element() -> Result<(), ParseError> {
         let raw = "a";
         let input = LexInput::String(raw.into());
         let dialect = Dialect::Ansi;
-        let lexer = Lexer::new(None, dialect);
+    let lexer = Lexer::new(None, ANSI_LEXERS.to_vec());
         let (tokens, _errors) = lexer.lex(input, false);
 
         let mut parser = Parser::new(&tokens, dialect);
@@ -185,7 +184,7 @@ fn test_iterative_delimited_long_list() -> Result<(), ParseError> {
         let raw = "a, b, c, d, e, f, g, h, i, j";
         let input = LexInput::String(raw.into());
         let dialect = Dialect::Ansi;
-        let lexer = Lexer::new(None, dialect);
+    let lexer = Lexer::new(None, ANSI_LEXERS.to_vec());
         let (tokens, _errors) = lexer.lex(input, false);
 
         let mut parser = Parser::new(&tokens, dialect);
@@ -205,7 +204,7 @@ fn test_iterative_delimited_with_whitespace() -> Result<(), ParseError> {
         let raw = "a  ,  b  ,  c";
         let input = LexInput::String(raw.into());
         let dialect = Dialect::Ansi;
-        let lexer = Lexer::new(None, dialect);
+    let lexer = Lexer::new(None, ANSI_LEXERS.to_vec());
         let (tokens, _errors) = lexer.lex(input, false);
 
         let mut parser = Parser::new(&tokens, dialect);
@@ -225,7 +224,7 @@ fn test_iterative_delimited_with_newlines() -> Result<(), ParseError> {
         let raw = "a,\nb,\nc";
         let input = LexInput::String(raw.into());
         let dialect = Dialect::Ansi;
-        let lexer = Lexer::new(None, dialect);
+    let lexer = Lexer::new(None, ANSI_LEXERS.to_vec());
         let (tokens, _errors) = lexer.lex(input, false);
 
         let mut parser = Parser::new(&tokens, dialect);
@@ -245,7 +244,7 @@ fn test_iterative_delimited_function_args() -> Result<(), ParseError> {
         let raw = "CONCAT(a, b, c)";
         let input = LexInput::String(raw.into());
         let dialect = Dialect::Ansi;
-        let lexer = Lexer::new(None, dialect);
+    let lexer = Lexer::new(None, ANSI_LEXERS.to_vec());
         let (tokens, _errors) = lexer.lex(input, false);
 
         let mut parser = Parser::new(&tokens, dialect);
@@ -265,7 +264,7 @@ fn test_iterative_delimited_nested() -> Result<(), ParseError> {
         let raw = "FUNC1(a, FUNC2(b, c), d)";
         let input = LexInput::String(raw.into());
         let dialect = Dialect::Ansi;
-        let lexer = Lexer::new(None, dialect);
+    let lexer = Lexer::new(None, ANSI_LEXERS.to_vec());
         let (tokens, _errors) = lexer.lex(input, false);
 
         let mut parser = Parser::new(&tokens, dialect);
@@ -285,7 +284,7 @@ fn test_iterative_delimited_order_by() -> Result<(), ParseError> {
         let raw = "SELECT * FROM t ORDER BY a, b DESC, c ASC";
         let input = LexInput::String(raw.into());
         let dialect = Dialect::Ansi;
-        let lexer = Lexer::new(None, dialect);
+    let lexer = Lexer::new(None, ANSI_LEXERS.to_vec());
         let (tokens, _errors) = lexer.lex(input, false);
 
         let mut parser = Parser::new(&tokens, dialect);
@@ -305,7 +304,7 @@ fn test_iterative_delimited_group_by() -> Result<(), ParseError> {
         let raw = "SELECT a, COUNT(*) FROM t GROUP BY a, b";
         let input = LexInput::String(raw.into());
         let dialect = Dialect::Ansi;
-        let lexer = Lexer::new(None, dialect);
+    let lexer = Lexer::new(None, ANSI_LEXERS.to_vec());
         let (tokens, _errors) = lexer.lex(input, false);
 
         let mut parser = Parser::new(&tokens, dialect);
@@ -334,7 +333,7 @@ fn test_iterative_parser_no_stack_overflow() -> Result<(), ParseError> {
 
         let input = LexInput::String(raw.clone());
         let dialect = Dialect::Ansi;
-        let lexer = Lexer::new(None, dialect);
+    let lexer = Lexer::new(None, ANSI_LEXERS.to_vec());
         let (tokens, _errors) = lexer.lex(input, false);
 
         let mut parser = Parser::new(&tokens, dialect);
@@ -354,7 +353,7 @@ fn test_dateadd_function() -> Result<(), ParseError> {
         let raw = "SELECT DATEADD(DAY, 1, '2024-01-01')";
         let input = LexInput::String(raw.into());
         let dialect = Dialect::Ansi;
-        let lexer = Lexer::new(None, dialect);
+    let lexer = Lexer::new(None, ANSI_LEXERS.to_vec());
         let (tokens, _errors) = lexer.lex(input, false);
 
         let mut parser = Parser::new(&tokens, dialect);
@@ -378,7 +377,7 @@ fn test_dateadd_with_window_function() -> Result<(), ParseError> {
         let raw = "SELECT DATEADD(DAY, ROW_NUMBER() OVER (ORDER BY DateCD ASC), '2014-01-01')";
         let input = LexInput::String(raw.into());
         let dialect = Dialect::Ansi;
-        let lexer = Lexer::new(None, dialect);
+    let lexer = Lexer::new(None, ANSI_LEXERS.to_vec());
         let (tokens, _errors) = lexer.lex(input, false);
 
         println!("\n=== TOKENS ===");
@@ -416,7 +415,7 @@ fn test_dateadd_with_nested_function() -> Result<(), ParseError> {
         let raw = "SELECT DATEADD(DAY, ABS(5), '2024-01-01')";
         let input = LexInput::String(raw.into());
         let dialect = Dialect::Ansi;
-        let lexer = Lexer::new(None, dialect);
+    let lexer = Lexer::new(None, ANSI_LEXERS.to_vec());
         let (tokens, _errors) = lexer.lex(input, false);
 
         println!("\n=== TOKENS ===");

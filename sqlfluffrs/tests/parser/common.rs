@@ -2,11 +2,10 @@
 
 use hashbrown::HashSet;
 use sqlfluffrs::parser::{Node, ParseError, Parser};
-use sqlfluffrs::token::Token;
-use sqlfluffrs::{
-    lexer::{LexInput, Lexer},
-    Dialect,
-};
+use sqlfluffrs_types::token::Token;
+use sqlfluffrs_lexer::{LexInput, Lexer};
+use sqlfluffrs_dialects::Dialect;
+use sqlfluffrs_dialects::dialect::ansi::matcher::ANSI_LEXERS;
 
 /// Macro to run a test with a larger stack size (16MB)
 /// This prevents stack overflow on deeply nested or complex queries
@@ -114,7 +113,8 @@ pub fn collect_token_positions(node: &Node, positions: &mut HashSet<usize>) {
 /// Parse SQL with a given dialect and segment type
 pub fn parse_sql(raw: &str, segment: &str, dialect: Dialect) -> Result<Node, ParseError> {
     let input = LexInput::String(raw.into());
-    let lexer = Lexer::new(None, dialect);
+    // TODO: Select the correct lexers for the dialect dynamically
+    let lexer = Lexer::new(None, ANSI_LEXERS.to_vec());
     let (tokens, _errors) = lexer.lex(input, false);
     let mut parser = Parser::new(&tokens, dialect);
     parser.call_rule(segment, &[])
@@ -127,7 +127,8 @@ pub fn parse_and_verify_tokens(
     dialect: Dialect,
 ) -> Result<(), ParseError> {
     let input = LexInput::String(raw.into());
-    let lexer = Lexer::new(None, dialect);
+    // TODO: Select the correct lexers for the dialect dynamically
+    let lexer = Lexer::new(None, ANSI_LEXERS.to_vec());
     let (tokens, _) = lexer.lex(input, false);
     let mut parser = Parser::new(&tokens, dialect);
     let ast = parser.call_rule(segment, &[])?;

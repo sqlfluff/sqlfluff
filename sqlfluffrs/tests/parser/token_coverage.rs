@@ -4,7 +4,7 @@
 
 use crate::parser::common::parse_and_verify_tokens;
 use sqlfluffrs::parser::ParseError;
-use sqlfluffrs::Dialect;
+use sqlfluffrs_dialects::Dialect;
 
 macro_rules! with_larger_stack {
     ($test_fn:expr) => {{
