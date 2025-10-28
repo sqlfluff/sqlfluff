@@ -758,6 +758,7 @@ class PyLexer:
         found something that we cannot lex. If that happens we should
         package it up as unlexable and keep track of the exceptions.
         """
+        lexer_logger.info("Lexing file using PyLexer.")
         # Make sure we've got a string buffer and a template
         # regardless of what was passed in.
         if isinstance(raw, str):
@@ -932,6 +933,7 @@ try:
             self, raw: Union[str, TemplatedFile]
         ) -> tuple[tuple[BaseSegment, ...], list[SQLLexError]]:
             """Take a string or TemplatedFile and return segments."""
+            lexer_logger.info("Lexing file using RsLexer.")
             tokens, errors = self._lex(raw)
             first_token = tokens[0]
             assert first_token
@@ -950,11 +952,9 @@ try:
             )
 
     _HAS_RUST_LEXER = True
-    lexer_logger.info("Using sqlfluffrs lexer.")
 except ImportError:
     PyRsLexer = None  # type: ignore[assignment, misc]
     _HAS_RUST_LEXER = False
-    lexer_logger.info("sqlfluffrs lexer not present or failed to load.")
 
 
 def get_lexer_class() -> type[Union[PyLexer, "PyRsLexer"]]:
@@ -973,5 +973,7 @@ def get_lexer_class() -> type[Union[PyLexer, "PyRsLexer"]]:
         The lexer class to use (PyRsLexer or PyLexer).
     """
     if _HAS_RUST_LEXER:
+        lexer_logger.info("Rust extensions are available. Using PyRsLexer.")
         return PyRsLexer
+    lexer_logger.info("Rust extensions are not available. Using PyLexer.")
     return PyLexer
