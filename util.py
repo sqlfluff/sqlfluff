@@ -58,7 +58,7 @@ def convert_pep440_to_semver(version: str) -> str:
         4.0.0 -> 4.0.0 (stable versions unchanged)
     """
     # Match PEP 440 pre-release versions: X.Y.Z{a|b|rc}N
-    pep440_pattern = r'^(\d+\.\d+\.\d+)(a|b|rc)(\d+)$'
+    pep440_pattern = r"^(\d+\.\d+\.\d+)(a|b|rc)(\d+)$"
     match = re.match(pep440_pattern, version)
 
     if not match:
@@ -68,11 +68,7 @@ def convert_pep440_to_semver(version: str) -> str:
     base_version, pre_type, pre_num = match.groups()
 
     # Map PEP 440 pre-release identifiers to SemVer
-    pre_type_map = {
-        'a': 'alpha',
-        'b': 'beta',
-        'rc': 'rc'
-    }
+    pre_type_map = {"a": "alpha", "b": "beta", "rc": "rc"}
 
     semver_pre_type = pre_type_map.get(pre_type, pre_type)
     return f"{base_version}-{semver_pre_type}.{pre_num}"
