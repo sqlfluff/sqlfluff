@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 76d320dce1e41205e4befa162fe983feed2b22bc38f36a5a389097e7a12cb1d7
+_hash: 0bdfe03ac5dbfea27f291e0dc5ebd8ca8cc4c5b07f678f1d017f4a0d76612f8e
 file:
   batch:
     statement:
@@ -19,7 +19,7 @@ file:
         - column_definition:
           - quoted_identifier: '[ID]'
           - data_type:
-              data_type_identifier: INT
+              keyword: INT
           - column_constraint_segment:
             - keyword: PRIMARY
             - keyword: KEY
@@ -40,28 +40,28 @@ file:
         - column_definition:
             quoted_identifier: '[DOWNLOADED_TOTAL]'
             data_type:
-              data_type_identifier: INT
+              keyword: INT
             column_constraint_segment:
               keyword: 'NULL'
         - comma: ','
         - column_definition:
             quoted_identifier: '[WARNED_DAILY]'
             data_type:
-              data_type_identifier: INT
+              keyword: INT
             column_constraint_segment:
               keyword: 'NULL'
         - comma: ','
         - column_definition:
             quoted_identifier: '[DATE_OF_REPORT]'
             data_type:
-              data_type_identifier: DATETIME
+              keyword: DATETIME
             column_constraint_segment:
               keyword: 'NULL'
         - comma: ','
         - column_definition:
             naked_identifier: DATE_LAST_INSERTED
             data_type:
-              data_type_identifier: DATETIME
+              keyword: DATETIME
             column_constraint_segment:
               keyword: DEFAULT
               function:
