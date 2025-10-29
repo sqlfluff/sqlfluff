@@ -68,7 +68,6 @@ pub enum Node {
 impl Node {
     /// Merge or list logic matching Python's structural_simplify.
     fn merge_or_list(key: String, contents: Vec<serde_yaml::Value>) -> serde_yaml::Value {
-        use serde_yaml::{Mapping, Value};
         use std::collections::HashSet;
         let mut all_keys = HashSet::new();
         let mut has_duplicates = false;
@@ -107,7 +106,6 @@ impl Node {
     /// This is useful for serialization to YAML/JSON and for parity with Python tests.
     pub fn to_tuple(
         &self,
-        tokens: &[Token],
         code_only: bool,
         show_raw: bool,
         include_meta: bool,
@@ -116,7 +114,7 @@ impl Node {
             Node::Token {
                 token_type,
                 raw,
-                token_idx: _pos,
+                ..
             } => {
                 if show_raw {
                     NodeTupleValue::Raw(token_type.clone(), raw.clone())
@@ -124,14 +122,14 @@ impl Node {
                     NodeTupleValue::Tuple(token_type.clone(), vec![])
                 }
             }
-            Node::Whitespace { raw, token_idx }
-            | Node::Newline { raw, token_idx }
-            | Node::EndOfFile { raw, token_idx } => {
+            Node::Whitespace { raw, .. }
+            | Node::Newline { raw, .. }
+            | Node::EndOfFile { raw, .. } => {
                 // These are filtered in code_only mode
                 if code_only {
-                    NodeTupleValue::Tuple(tokens[*token_idx].token_type.to_string(), vec![])
+                    NodeTupleValue::Tuple(self.get_type().unwrap(), vec![])
                 } else {
-                    NodeTupleValue::Raw(tokens[*token_idx].token_type.to_string(), raw.to_string())
+                    NodeTupleValue::Raw(self.get_type().unwrap(), raw.to_string())
                 }
             }
             Node::Meta {
@@ -141,7 +139,7 @@ impl Node {
                 if include_meta {
                     NodeTupleValue::Raw(meta_type.to_string(), "".to_string())
                 } else {
-                    NodeTupleValue::Tuple("".to_string(), vec![])
+                    NodeTupleValue::Tuple(meta_type.to_string(), vec![])
                 }
             }
             Node::Ref {
@@ -149,14 +147,32 @@ impl Node {
                 child,
                 ..
             } => {
-                // println!("to_tuple: Ref: {:?}", segment_type);
-                let child_node = child.to_tuple(tokens, code_only, show_raw, include_meta);
+                // Recursively flatten only 'sequence' nodes
+                fn flatten_sequence(node: NodeTupleValue) -> NodeTupleValue {
+                    match node {
+                        NodeTupleValue::Tuple(t, v) if t == "sequence" => {
+                            let mut flat = Vec::new();
+                            for c in v {
+                                match flatten_sequence(c) {
+                                    NodeTupleValue::Tuple(inner_t, inner_v) if inner_t == "sequence" => {
+                                        flat.extend(inner_v);
+                                    }
+                                    other => flat.push(other),
+                                }
+                            }
+                            NodeTupleValue::Tuple("sequence".to_string(), flat)
+                        }
+                        other => other,
+                    }
+                }
+
+                let child_node = flatten_sequence(child.to_tuple(code_only, show_raw, include_meta));
                 if let Some(ref_type) = segment_type {
                     match &child_node {
-                        NodeTupleValue::Raw(t, s) => println!("raw child: {}, {}: parent: {}", t, s, ref_type),
-                        NodeTupleValue::Tuple(t, _) => println!("tuple child: {}: parent: {}", t, ref_type),
+                        NodeTupleValue::Raw(t, s) if t == "sequence" => NodeTupleValue::Raw(ref_type.clone(), s.clone()),
+                        NodeTupleValue::Tuple(t, v) if t == "sequence" => NodeTupleValue::Tuple(ref_type.clone(), v.to_vec()),
+                        _ => NodeTupleValue::Tuple(ref_type.clone(), vec![child_node])
                     }
-                    NodeTupleValue::Tuple(ref_type.clone(), vec![child_node])
                 } else {
                     child_node
                 }
@@ -167,7 +183,7 @@ impl Node {
                     if code_only && !child.is_code() {
                         continue;
                     }
-                    let val = child.to_tuple(tokens, code_only, show_raw, include_meta);
+                    let val = child.to_tuple(code_only, show_raw, include_meta);
                     tupled.push(val);
                 }
                 NodeTupleValue::Tuple("sequence".to_string(), tupled)
@@ -178,7 +194,7 @@ impl Node {
                     if code_only && !child.is_code() {
                         continue;
                     }
-                    let val = child.to_tuple(tokens, code_only, show_raw, include_meta);
+                    let val = child.to_tuple(code_only, show_raw, include_meta);
                     tupled.push(val);
                 }
                 NodeTupleValue::Tuple("bracketed".to_string(), tupled)
@@ -192,7 +208,7 @@ impl Node {
                     if code_only && !child.is_code() {
                         continue;
                     }
-                    let val = child.to_tuple(tokens, code_only, show_raw, include_meta);
+                    let val = child.to_tuple(code_only, show_raw, include_meta);
                     tupled.push(val);
                 }
                 NodeTupleValue::Tuple("unparsable".to_string(), tupled)
@@ -204,7 +220,6 @@ impl Node {
     /// Simplify the structure recursively so it serializes nicely in json/yaml.
     /// Mirrors Python's BaseSegment::structural_simplify.
     fn structural_simplify(elem: &NodeTupleValue) -> serde_yaml::Value {
-        use serde_yaml::{Mapping, Value};
         match elem {
             NodeTupleValue::Raw(key, s) => {
                 let mut map = Mapping::new();
@@ -257,30 +272,19 @@ impl Node {
 
     /// Serialize the Node AST to a simplified record structure for YAML/JSON output.
     /// Mirrors Python's BaseSegment::as_record logic.
-    pub fn as_record(&self, tokens: Option<&[Token]>) -> Option<serde_yaml::Value> {
+    pub fn as_record(
+        &self,
+        code_only: bool,
+        show_raw: bool,
+        include_meta: bool,
+    ) -> Option<serde_yaml::Value> {
         // Use to_tuple with the same configuration as Python's structural_simplify
-        // tokens: provided or empty, code_only: false, show_raw: true, include_meta: false
-        let tokens_slice = tokens.unwrap_or(&[]);
-        let tuple_val = self.to_tuple(tokens_slice, false, true, false);
+        let tuple_val = self.to_tuple(code_only, show_raw, include_meta);
 
         // Apply structural_simplify equivalent
         let yaml_val = Node::structural_simplify(&tuple_val);
 
-        // Recursively roll up single-key mappings (structural_simplify)
-        fn rollup(val: serde_yaml::Value) -> serde_yaml::Value {
-            match val {
-                serde_yaml::Value::Mapping(ref m) if m.len() == 1 => {
-                    let (k, v) = m.iter().next().unwrap();
-                    match v {
-                        serde_yaml::Value::Mapping(_) => rollup(v.clone()),
-                        _ => val,
-                    }
-                }
-                _ => val,
-            }
-        }
-
-        Some(rollup(yaml_val))
+        Some(yaml_val)
     }
 
     pub fn is_empty(&self) -> bool {
@@ -622,7 +626,7 @@ impl Node {
 
     /// Get the type of this node based on its variant and token information
     /// This helps determine what kind of segment it represents
-    pub fn get_type(&self, tokens: &[Token]) -> Option<String> {
+    pub fn get_type(&self) -> Option<String> {
         match self {
             Node::Whitespace {
                 raw: _,
@@ -679,7 +683,7 @@ impl Node {
 
     /// Check if this node or its token has a specific type
     pub fn has_type(&self, type_name: &str, tokens: &[Token]) -> bool {
-        if let Some(node_type) = self.get_type(tokens) {
+        if let Some(node_type) = self.get_type() {
             if node_type == type_name {
                 return true;
             }
@@ -775,7 +779,7 @@ mod tests {
     #[test]
     fn test_sequence_node_as_record_empty() {
         let node = Node::Sequence { children: vec![] };
-        let record = node.as_record(None).unwrap();
+        let record = node.as_record(false, true, false).unwrap();
         let expected = Value::Mapping({
             let mut m = serde_yaml::Mapping::new();
             m.insert(Value::String("sequence".to_string()), Value::Null);
@@ -800,7 +804,7 @@ mod tests {
                 },
             ],
         };
-        let record = node.as_record(None).unwrap();
+        let record = node.as_record(false, true, false).unwrap();
         let mut merged = serde_yaml::Mapping::new();
         merged.insert(
             Value::String("keyword".to_string()),
@@ -833,7 +837,7 @@ mod tests {
             segment_type: Some("keyword".to_string()),
             child: Box::new(child),
         };
-        let record = node.as_record(None).unwrap();
+        let record = node.as_record(false, true, false).unwrap();
         let expected = Value::Mapping({
             let mut m = serde_yaml::Mapping::new();
             m.insert(
@@ -858,7 +862,7 @@ mod tests {
             token_type: "indent",
             token_idx: None,
         };
-        let record = node.as_record(None).unwrap();
+        let record = node.as_record(false, true, false).unwrap();
         let expected = Value::Mapping({
             let mut m = serde_yaml::Mapping::new();
             m.insert(Value::String("meta_indent".to_string()), Value::Null);
@@ -884,29 +888,21 @@ mod tests {
                 },
             ],
         };
-        let record = node.as_record(None).unwrap();
+        let record = node.as_record(false, true, false).unwrap();
+        let mut expected_inner = serde_yaml::Mapping::new();
+        expected_inner.insert(
+            Value::String("keyword".to_string()),
+            Value::String("SELECT".to_string()),
+        );
+        expected_inner.insert(
+            Value::String("naked_identifier".to_string()),
+            Value::String("foo".to_string()),
+        );
         let expected = Value::Mapping({
             let mut m = serde_yaml::Mapping::new();
-            let mut seq = Vec::new();
-            seq.push(Value::Mapping({
-                let mut inner = serde_yaml::Mapping::new();
-                inner.insert(
-                    Value::String("keyword".to_string()),
-                    Value::String("SELECT".to_string()),
-                );
-                inner
-            }));
-            seq.push(Value::Mapping({
-                let mut inner = serde_yaml::Mapping::new();
-                inner.insert(
-                    Value::String("naked_identifier".to_string()),
-                    Value::String("foo".to_string()),
-                );
-                inner
-            }));
             m.insert(
                 Value::String("unparsable".to_string()),
-                Value::Sequence(seq),
+                Value::Mapping(expected_inner),
             );
             m
         });
@@ -920,7 +916,7 @@ mod tests {
             raw: "SELECT".to_string(),
             token_idx: 0,
         };
-        let val = node.to_tuple(&[], false, true, false);
+        let val = node.to_tuple(false, true, false);
         assert_eq!(
             val,
             NodeTupleValue::Raw("keyword".to_string(), "SELECT".to_string())
@@ -934,7 +930,7 @@ mod tests {
             raw: "SELECT".to_string(),
             token_idx: 0,
         };
-        let val = node.to_tuple(&[], false, false, false);
+        let val = node.to_tuple(false, false, false);
         assert_eq!(val, NodeTupleValue::Tuple("keyword".to_string(), vec![]));
     }
 
@@ -953,7 +949,7 @@ mod tests {
         let node = Node::Sequence {
             children: vec![child1, child2],
         };
-        let val = node.to_tuple(&[], false, true, false);
+        let val = node.to_tuple(false, true, false);
         assert_eq!(
             val,
             NodeTupleValue::Tuple(
@@ -978,7 +974,7 @@ mod tests {
             segment_type: None,
             child: Box::new(child),
         };
-        let val = node.to_tuple(&[], false, true, false);
+        let val = node.to_tuple(false, true, false);
         assert_eq!(
             val,
             NodeTupleValue::Raw("keyword".to_string(), "SELECT".to_string())
@@ -991,7 +987,7 @@ mod tests {
             token_type: "indent",
             token_idx: None,
         };
-        let val = node.to_tuple(&[], false, false, true);
+        let val = node.to_tuple(false, false, true);
         assert_eq!(
             val,
             NodeTupleValue::Raw("indent".to_string(), "".to_string())
@@ -1004,14 +1000,14 @@ mod tests {
             token_type: "indent",
             token_idx: None,
         };
-        let val = node.to_tuple(&[], false, false, false);
+        let val = node.to_tuple(false, false, false);
         assert_eq!(val, NodeTupleValue::Tuple("indent".to_string(), vec![]));
     }
 
     #[test]
     fn test_empty_node_to_tuple() {
-        let node = Node::Empty;
-        let val = node.to_tuple(&[], false, false, false);
+    let node = Node::Empty;
+    let val = node.to_tuple(false, false, false);
         assert_eq!(val, NodeTupleValue::Tuple("empty".to_string(), vec![]));
     }
 

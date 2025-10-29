@@ -125,7 +125,7 @@ fn main() {
     println!();
 
     println!("=== AS RECORD ===");
-    println!("{:?}", ast.as_record(Some(&tokens)));
+    println!("{:?}", ast.as_record(true, true, false));
     println!();
 
     // Generate YAML
@@ -141,61 +141,61 @@ fn main() {
     println!("=== GENERATED YAML ===");
     println!("{}", generated_yaml);
 
-    // // Compare mode
-    // if compare_mode {
-    //     let yml_path = sql_path.with_extension("yml");
+    // Compare mode
+    if compare_mode {
+        let yml_path = sql_path.with_extension("yml");
 
-    //     if !yml_path.exists() {
-    //         log::debug!("");
-    //         log::debug!("=== COMPARE MODE: Expected YAML not found ===");
-    //         log::debug!("Expected file: {}", yml_path.display());
-    //         process::exit(1);
-    //     }
+        if !yml_path.exists() {
+            log::debug!("");
+            log::debug!("=== COMPARE MODE: Expected YAML not found ===");
+            log::debug!("Expected file: {}", yml_path.display());
+            process::exit(1);
+        }
 
-    //     let expected_yaml = match fs::read_to_string(&yml_path) {
-    //         Ok(content) => content,
-    //         Err(e) => {
-    //             log::debug!("Error reading expected YAML: {}", e);
-    //             process::exit(1);
-    //         }
-    //     };
+        let expected_yaml = match fs::read_to_string(&yml_path) {
+            Ok(content) => content,
+            Err(e) => {
+                log::debug!("Error reading expected YAML: {}", e);
+                process::exit(1);
+            }
+        };
 
-    //     println!();
-    //     println!("=== EXPECTED YAML ===");
-    //     println!("{}", expected_yaml);
-    //     println!();
+        println!();
+        println!("=== EXPECTED YAML ===");
+        println!("{}", expected_yaml);
+        println!();
 
-    //     // Simple comparison
-    //     if generated_yaml.trim() == expected_yaml.trim() {
-    //         println!("=== COMPARISON: MATCH ✓ ===");
-    //         process::exit(0);
-    //     } else {
-    //         println!("=== COMPARISON: MISMATCH ✗ ===");
+        // Simple comparison
+        if generated_yaml.trim() == expected_yaml.trim() {
+            println!("=== COMPARISON: MATCH ✓ ===");
+            process::exit(0);
+        } else {
+            println!("=== COMPARISON: MISMATCH ✗ ===");
 
-    //         // Show differences
-    //         let gen_lines: Vec<&str> = generated_yaml.lines().collect();
-    //         let exp_lines: Vec<&str> = expected_yaml.lines().collect();
+            // Show differences
+            let gen_lines: Vec<&str> = generated_yaml.lines().collect();
+            let exp_lines: Vec<&str> = expected_yaml.lines().collect();
 
-    //         println!();
-    //         println!("Differences:");
-    //         for (i, (gen_line, exp_line)) in gen_lines.iter().zip(exp_lines.iter()).enumerate() {
-    //             if gen_line != exp_line {
-    //                 println!("  Line {}: ", i + 1);
-    //                 println!("    Generated: {}", gen_line);
-    //                 println!("    Expected:  {}", exp_line);
-    //             }
-    //         }
+            println!();
+            println!("Differences:");
+            for (i, (gen_line, exp_line)) in gen_lines.iter().zip(exp_lines.iter()).enumerate() {
+                if gen_line != exp_line {
+                    println!("  Line {}: ", i + 1);
+                    println!("    Generated: {}", gen_line);
+                    println!("    Expected:  {}", exp_line);
+                }
+            }
 
-    //         if gen_lines.len() != exp_lines.len() {
-    //             println!();
-    //             println!("  Line count differs:");
-    //             println!("    Generated: {} lines", gen_lines.len());
-    //             println!("    Expected:  {} lines", exp_lines.len());
-    //         }
+            if gen_lines.len() != exp_lines.len() {
+                println!();
+                println!("  Line count differs:");
+                println!("    Generated: {} lines", gen_lines.len());
+                println!("    Expected:  {} lines", exp_lines.len());
+            }
 
-    //         process::exit(1);
-    //     }
-    // }
+            process::exit(1);
+        }
+    }
 
     parser.print_cache_stats();
     println!();
@@ -389,7 +389,7 @@ fn node_to_yaml(
 
     // Use Node::as_record for YAML serialization
     let mut root_map = Mapping::new();
-    let as_record = node.as_record(Some(&tokens));
+    let as_record = node.as_record(true, true, false);
     // Add hash placeholder
     root_map.insert(
         Value::String("_hash".to_string()),

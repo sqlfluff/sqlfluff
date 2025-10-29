@@ -416,3 +416,91 @@ fn test_delimited_basic() -> Result<(), ParseError> {
     }
     Ok(())
 }
+
+#[test]
+fn test_delimited_optional_and_trailing() -> Result<(), ParseError> {
+    env_logger::try_init().ok();
+    let dialect = Dialect::Ansi;
+    let lexer = Lexer::new(None, ANSI_LEXERS.to_vec());
+
+    // Delimiter: comma (not optional)
+    let delimiter = Box::new(Arc::new(Grammar::StringParser {
+        template: ",",
+        raw_class: "SymbolSegment",
+        token_type: "comma",
+        optional: false,
+    }));
+    // Element: word (A, B, C)
+    let element = Arc::new(Grammar::RegexParser {
+        template: regex::RegexBuilder::new("[A-Z]+").case_insensitive(true).build().unwrap(),
+        raw_class: "WordSegment",
+        token_type: "word",
+        anti_template: None,
+        optional: false,
+    });
+
+    // 1. Trailing delimiter allowed: "A,B,C,"
+    let raw = "A,B,C,";
+    let (tokens, _errors) = lexer.lex(LexInput::String(raw.into()), false);
+    let mut parser = Parser::new(&tokens, dialect);
+    let grammar = Arc::new(Grammar::Delimited {
+        elements: vec![element.clone()],
+        delimiter: delimiter.clone(),
+        allow_trailing: true,
+        optional: false,
+        terminators: vec![],
+        reset_terminators: false,
+        allow_gaps: false,
+        min_delimiters: 0,
+        parse_mode: ParseMode::Strict,
+        simple_hint: None,
+    });
+    let result = parser.parse_with_grammar_cached(grammar.clone(), &[])?;
+    match result {
+        Node::DelimitedList { ref children } => {
+            assert_eq!(children.len(), 6, "Should include trailing delimiter");
+            assert!(matches!(&children[5], Node::Token { token_type, .. } if token_type == "comma"));
+        }
+        _ => panic!("Expected DelimitedList node for trailing delimiter case"),
+    }
+
+    // 2. Trailing delimiter not allowed: "A,B,C,"
+    let raw = "A,B,C,";
+    let (tokens, _errors) = lexer.lex(LexInput::String(raw.into()), false);
+    let mut parser = Parser::new(&tokens, dialect);
+    let grammar = Arc::new(Grammar::Delimited {
+        elements: vec![element.clone()],
+        delimiter: delimiter.clone(),
+        allow_trailing: false,
+        optional: false,
+        terminators: vec![],
+        reset_terminators: false,
+        allow_gaps: false,
+        min_delimiters: 0,
+        parse_mode: ParseMode::Strict,
+        simple_hint: None,
+    });
+    let result = parser.parse_with_grammar_cached(grammar.clone(), &[]);
+    println!("{:#?}", result);
+    assert!(result.is_err(), "Should error if trailing delimiter is not allowed");
+
+    // 3. Minimum delimiters: "A,B"
+    let raw = "A,B";
+    let (tokens, _errors) = lexer.lex(LexInput::String(raw.into()), false);
+    let mut parser = Parser::new(&tokens, dialect);
+    let grammar = Arc::new(Grammar::Delimited {
+        elements: vec![element],
+        delimiter: delimiter,
+        allow_trailing: false,
+        optional: false,
+        terminators: vec![],
+        reset_terminators: false,
+        allow_gaps: false,
+        min_delimiters: 2,
+        parse_mode: ParseMode::Strict,
+        simple_hint: None,
+    });
+    let result = parser.parse_with_grammar_cached(grammar, &[])?;
+    assert!(result.is_empty(), "Should error if not enough delimiters");
+    Ok(())
+}

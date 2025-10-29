@@ -214,7 +214,7 @@ impl crate::parser::Parser<'_> {
         child_element_key: &Option<u64>,
         stack: &mut ParseFrameStack,
         frame_terminators: Vec<Arc<Grammar>>,
-    ) {
+    ) -> Result<(), ParseError> {
         let FrameContext::Delimited {
             grammar,
             delimiter_count,
@@ -274,7 +274,7 @@ impl crate::parser::Parser<'_> {
                                 None,
                             ),
                         );
-                        return;
+                        return Ok(());
                     }
                     stack.results.insert(
                         frame.frame_id,
@@ -286,7 +286,7 @@ impl crate::parser::Parser<'_> {
                             None,
                         ),
                     );
-                    return;
+                    return Ok(());
                 } else {
                     log::debug!(
                         "[ITERATIVE] Delimited element matched: pos {} -> {}",
@@ -347,7 +347,7 @@ impl crate::parser::Parser<'_> {
                                     None,
                                 ),
                             );
-                            return;
+                            return Ok(());
                         }
                         self.pos = *matched_idx;
                         stack.results.insert(
@@ -360,7 +360,7 @@ impl crate::parser::Parser<'_> {
                                 None,
                             ),
                         );
-                        return;
+                        return Ok(());
                     }
                     *state = DelimitedState::MatchingDelimiter;
                     let child_max_idx = *max_idx;
@@ -377,7 +377,7 @@ impl crate::parser::Parser<'_> {
                         child_frame,
                         "Delimited",
                     );
-                    return;
+                    return Ok(());
                 }
             }
             DelimitedState::MatchingDelimiter => {
@@ -422,7 +422,7 @@ impl crate::parser::Parser<'_> {
                             ),
                         );
                     }
-                    return;
+                    return Ok(());
                 } else {
                     log::debug!(
                         "[ITERATIVE] Delimited delimiter matched: pos {} -> {}",
@@ -461,7 +461,7 @@ impl crate::parser::Parser<'_> {
                     if self.is_terminated(&frame_terminators) {
                         log::debug!("[ITERATIVE] Delimited: terminated after delimiter");
                         if !*allow_trailing {
-                            panic!("Trailing delimiter not allowed");
+                            return Err(ParseError::new("Trailing delimiter not allowed".to_string()));
                         }
                         // Handle trailing delimiter if allowed and present
                         if *allow_trailing && delimiter_match.is_some() {
@@ -478,7 +478,7 @@ impl crate::parser::Parser<'_> {
                                     None,
                                 ),
                             );
-                            return;
+                            return Ok(());
                         }
                         stack.results.insert(
                             frame.frame_id,
@@ -490,7 +490,7 @@ impl crate::parser::Parser<'_> {
                                 None,
                             ),
                         );
-                        return;
+                        return Ok(());
                     } else {
                         *state = DelimitedState::MatchingElement;
                         if *allow_gaps {
@@ -514,7 +514,7 @@ impl crate::parser::Parser<'_> {
                                         None,
                                     ),
                                 );
-                                return;
+                                return Ok(());
                             }
                             self.pos = *matched_idx;
                             stack.results.insert(
@@ -527,7 +527,7 @@ impl crate::parser::Parser<'_> {
                                     None,
                                 ),
                             );
-                            return;
+                            return Ok(());
                         }
                         let child_max_idx = *max_idx;
                         let child_grammar = Grammar::OneOf {
@@ -553,7 +553,7 @@ impl crate::parser::Parser<'_> {
                             child_frame,
                             "Delimited",
                         );
-                        return;
+                        return Ok(());
                     }
                 }
             }
