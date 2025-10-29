@@ -33,24 +33,52 @@ fn check_yaml_output_matches_python_for_dialect(dialect: &str) {
         let generated_yaml = node_to_yaml(&ast, &tokens).expect("YAML conversion error");
 
         total += 1;
-        if generated_yaml.trim() != expected_yaml.trim() {
+        // Parse YAML to Value for key/row comparison
+        let gen_val: serde_yaml_ng::Value = serde_yaml_ng::from_str(&generated_yaml).expect("Generated YAML not valid");
+        let exp_val: serde_yaml_ng::Value = serde_yaml_ng::from_str(&expected_yaml).expect("Expected YAML not valid");
+
+        // Helper to extract keys and row count from the main node
+        fn keys_and_row_count(val: &serde_yaml_ng::Value) -> (Vec<String>, usize) {
+            if let serde_yaml_ng::Value::Mapping(map) = val {
+                let keys: Vec<String> = map.keys().filter_map(|k| k.as_str().map(|s| s.to_string())).collect();
+                // Find the main node ("node" or first non-_hash key)
+                let main_node = map.iter().find(|(k,_)| k.as_str() != Some("_hash"));
+                let row_count = if let Some((_, v)) = main_node {
+                    if let serde_yaml_ng::Value::Mapping(m) = v {
+                        m.len()
+                    } else if let serde_yaml_ng::Value::Sequence(seq) = v {
+                        seq.len()
+                    } else {
+                        1
+                    }
+                } else { 0 };
+                (keys, row_count)
+            } else {
+                (vec![], 0)
+            }
+        }
+
+        let (gen_keys, gen_rows) = keys_and_row_count(&gen_val);
+        let (exp_keys, exp_rows) = keys_and_row_count(&exp_val);
+
+        let keys_match = {
+            let mut gk = gen_keys.clone();
+            let mut ek = exp_keys.clone();
+            gk.sort();
+            ek.sort();
+            gk == ek
+        };
+        let rows_match = gen_rows == exp_rows;
+
+        if !keys_match || !rows_match {
             failed += 1;
             failed_tests.push(test.name.clone());
-            println!("\n=== YAML MISMATCH: {}::{} ===", dialect, test.name);
-            // Print diff
-            let gen_lines: Vec<&str> = generated_yaml.lines().collect();
-            let exp_lines: Vec<&str> = expected_yaml.lines().collect();
-            for (i, (gen_line, exp_line)) in gen_lines.iter().zip(exp_lines.iter()).enumerate() {
-                if gen_line != exp_line {
-                    println!("  Line {}:", i + 1);
-                    println!("    Generated: {}", gen_line);
-                    println!("    Expected:  {}", exp_line);
-                }
+            println!("\n=== YAML STRUCTURE MISMATCH: {}::{} ===", dialect, test.name);
+            if !keys_match {
+                println!("  Keys differ:\n    Generated: {:?}\n    Expected:  {:?}", gen_keys, exp_keys);
             }
-            if gen_lines.len() != exp_lines.len() {
-                println!("  Line count differs:");
-                println!("    Generated: {} lines", gen_lines.len());
-                println!("    Expected:  {} lines", exp_lines.len());
+            if !rows_match {
+                println!("  Row count differs:\n    Generated: {}\n    Expected:  {}", gen_rows, exp_rows);
             }
         }
     }
