@@ -358,3 +358,61 @@ fn test_no_duplicate_whitespace_tokens() -> Result<(), ParseError> {
 
     Ok(())
 }
+
+#[test]
+fn test_delimited_basic() -> Result<(), ParseError> {
+    env_logger::try_init().ok();
+
+    // Input: A,B,C
+    let raw = "A,B,C";
+    let input = LexInput::String(raw.into());
+    let dialect = Dialect::Ansi;
+    let lexer = Lexer::new(None, ANSI_LEXERS.to_vec());
+    let (tokens, _errors) = lexer.lex(input, false);
+    let mut parser = Parser::new(&tokens, dialect);
+
+    // Delimiter: comma
+    let delimiter = Arc::new(Grammar::StringParser {
+        template: ",",
+        raw_class: "SymbolSegment",
+        token_type: "comma",
+        optional: false,
+    });
+    // Element: word (A, B, C)
+    let element = Arc::new(Grammar::RegexParser {
+        template: regex::RegexBuilder::new("[A-Z]+").case_insensitive(true).build().unwrap(),
+        raw_class: "WordSegment",
+        token_type: "word",
+        anti_template: None,
+        optional: false,
+    });
+    let grammar = Arc::new(Grammar::Delimited {
+        elements: vec![element],
+        delimiter: Box::new(delimiter),
+        allow_trailing: false,
+        optional: false,
+        terminators: vec![],
+        reset_terminators: false,
+        allow_gaps: false,
+        min_delimiters: 0,
+        parse_mode: ParseMode::Strict,
+        simple_hint: None,
+    });
+
+    let result = parser.parse_with_grammar_cached(grammar, &[])?;
+    println!("\nDelimited parse result: {:#?}", result);
+
+    // Should produce a DelimitedList with 5 children: A, comma, B, comma, C
+    match result {
+        Node::DelimitedList { children } => {
+            assert_eq!(children.len(), 5, "Should have 5 children (A,comma,B,comma,C)");
+            assert!(matches!(&children[0], Node::Token { token_type, .. } if token_type == "word"));
+            assert!(matches!(&children[1], Node::Token { token_type, .. } if token_type == "comma"));
+            assert!(matches!(&children[2], Node::Token { token_type, .. } if token_type == "word"));
+            assert!(matches!(&children[3], Node::Token { token_type, .. } if token_type == "comma"));
+            assert!(matches!(&children[4], Node::Token { token_type, .. } if token_type == "word"));
+        }
+        _ => panic!("Expected DelimitedList node, got: {result:?}"),
+    }
+    Ok(())
+}

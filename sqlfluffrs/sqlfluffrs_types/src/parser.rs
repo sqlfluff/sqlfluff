@@ -231,6 +231,7 @@ pub enum Grammar {
         anti_template: Option<regex::Regex>,
     },
     Meta(&'static str),
+    NonCodeMatcher,
     Nothing(),
     Anything,
     Empty,
@@ -304,7 +305,7 @@ impl Grammar {
             return cached.as_ref().cloned();
         }
 
-        let result = match self {
+    let result = match self {
             // Direct token matchers - can hint by type
             Grammar::Token { token_type } => Some(SimpleHint::from_type(token_type)),
 
@@ -327,6 +328,8 @@ impl Grammar {
                 "indent" | "dedent" => Some(SimpleHint::empty()),
                 _ => None,
             },
+            // NonCodeMatcher: matches whitespace/newline, so hint by type
+            Grammar::NonCodeMatcher => Some(SimpleHint::from_types(&["whitespace", "newline"])),
 
             // Ref: Resolve to referenced grammar (with recursion protection)
             Grammar::Ref { simple_hint, .. } => simple_hint.clone(),
@@ -368,7 +371,8 @@ impl Grammar {
 impl Hash for Grammar {
     fn hash<H: Hasher>(&self, state: &mut H) {
         std::mem::discriminant(self).hash(state);
-        match self {
+    match self {
+            Grammar::NonCodeMatcher => {},
             Grammar::Ref {
                 name,
                 optional,
@@ -476,7 +480,8 @@ impl Hash for Grammar {
 // Implement PartialEq for Grammar
 impl PartialEq for Grammar {
     fn eq(&self, other: &Self) -> bool {
-        match (self, other) {
+    match (self, other) {
+            (Grammar::NonCodeMatcher, Grammar::NonCodeMatcher) => true,
             (
                 Grammar::Sequence {
                     elements: e1,
@@ -733,6 +738,7 @@ impl Display for Grammar {
             Grammar::TypedParser { template, .. } => write!(f, "TypedParser({})", template),
             Grammar::RegexParser { template, .. } => write!(f, "RegexParser({})", template),
             Grammar::Meta(s) => write!(f, "Meta({})", s),
+            Grammar::NonCodeMatcher => write!(f, "NonCodeMatcher"),
             Grammar::Nothing() => write!(f, "Nothing"),
             Grammar::Anything => write!(f, "Anything"),
             Grammar::Empty => write!(f, "Empty"),

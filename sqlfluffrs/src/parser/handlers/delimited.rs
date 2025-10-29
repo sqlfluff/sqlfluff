@@ -1,9 +1,10 @@
 use std::sync::Arc;
 
-use crate::parser::{Node, ParseError, ParseFrame};
 use crate::parser::iterative::{NextStep, ParseFrameStack};
-use crate::parser::{FrameState, FrameContext};
 use crate::parser::DelimitedState;
+use crate::parser::utils::skip_start_index_forward_to_code;
+use crate::parser::{FrameContext, FrameState};
+use crate::parser::{Node, ParseError, ParseFrame};
 use sqlfluffrs_types::{Grammar, ParseMode};
 
 impl crate::parser::Parser<'_> {
@@ -16,8 +17,8 @@ impl crate::parser::Parser<'_> {
         parent_terminators: &[Arc<Grammar>],
         stack: &mut ParseFrameStack,
     ) -> Result<NextStep, ParseError> {
-        let pos = frame.pos;
-        log::debug!("[ITERATIVE] Delimited Initial state at pos {}", pos);
+        let mut working_pos = frame.pos;
+        log::debug!("[ITERATIVE] Delimited Initial state at pos {}", working_pos);
 
         // Destructure the Delimited grammar
         let (
@@ -55,20 +56,23 @@ impl crate::parser::Parser<'_> {
             ),
             _ => {
                 return Err(ParseError {
-                    message: "handle_delimited_initial called with non-Delimited grammar".to_string(),
+                    message: "handle_delimited_initial called with non-Delimited grammar"
+                        .to_string(),
                 });
             }
         };
 
-        // Prune options BEFORE any other logic, like Python
-        let pruned_options = self.prune_options(elements);
-        // If no options remain after pruning, treat as no match
-        if pruned_options.is_empty() {
-            stack
-                .results
-                .insert(frame.frame_id, (Node::Empty, pos, None));
-            return Ok(NextStep::Fallthrough);
-        }
+        // // Prune options BEFORE any other logic, like Python
+        // let pruned_options = self.prune_options(elements);
+        // // If no options remain after pruning, treat as no match
+        // if pruned_options.is_empty() {
+        //     stack
+        //         .results
+        //         .insert(frame.frame_id, (Node::Empty, pos, None));
+        //     return Ok(NextStep::Fallthrough);
+        // }
+
+        // Remove fast NonCodeMatcher: now handled as a real grammar in terminators
 
         // Combine terminators, filtering out delimiter from parent terminators
         // This is critical - delimiter shouldn't terminate the delimited list itself
@@ -78,53 +82,79 @@ impl crate::parser::Parser<'_> {
             .cloned()
             .collect();
 
-        let all_terminators: Vec<Arc<Grammar>> = if reset_terminators {
-            local_terminators.to_vec()
-        } else {
-            local_terminators
-                .iter()
-                .cloned()
-                .chain(filtered_parent)
-                .collect()
-        };
+        let mut all_terminators: Vec<Arc<Grammar>> = local_terminators
+            .iter()
+            .cloned()
+            .chain(filtered_parent)
+            .collect();
+
+        // If allow_gaps is false, add NonCodeMatcher as a real terminator
+        if !allow_gaps {
+            all_terminators.push(Arc::new(Grammar::NonCodeMatcher));
+        }
 
         // Calculate max_idx based on parse_mode and terminators
-        self.pos = pos;
-        let max_idx = if parse_mode == ParseMode::Greedy {
-            // In GREEDY mode, actively look for terminators
-            self.trim_to_terminator(pos, &all_terminators)
-        } else {
-            // In STRICT mode, still need to respect terminators if they exist
-            // Check if there's a terminator anywhere ahead
-            if all_terminators.is_empty() {
-                self.tokens.len()
-            } else {
-                self.trim_to_terminator(pos, &all_terminators)
-            }
-        };
+        // let max_idx = if parse_mode == ParseMode::Greedy {
+        //     // In GREEDY mode, actively look for terminators
+        //     self.trim_to_terminator(pos, &all_terminators)
+        // } else {
+        //     // In STRICT mode, still need to respect terminators if they exist
+        //     // Check if there's a terminator anywhere ahead
+        //     if all_terminators.is_empty() {
+        //         self.tokens.len()
+        //     } else {
+        //         self.trim_to_terminator(pos, &all_terminators)
+        //     }
+        // };
 
         // Apply parent's max_idx limit (simulates Python's segments[:max_idx])
         let max_idx = if let Some(parent_limit) = frame.parent_max_idx {
-            max_idx.min(parent_limit)
+            self.tokens.len().min(parent_limit)
         } else {
-            max_idx
+            self.tokens.len()
         };
 
-        log::debug!(
-            "[ITERATIVE] Delimited max_idx: {} (tokens.len: {}), parse_mode={:?}, terminators.len={}",
-            max_idx,
-            self.tokens.len(),
-            parse_mode,
-            all_terminators.len()
-        );
+        // log::debug!(
+        //     "[ITERATIVE] Delimited max_idx: {} (tokens.len: {}), parse_mode={:?}, terminators.len={}",
+        //     max_idx,
+        //     self.tokens.len(),
+        //     parse_mode,
+        //     all_terminators.len()
+        // );
 
-        // Check if optional and already terminated
-        if optional && (self.is_at_end() || self.is_terminated(&all_terminators)) {
-            log::debug!("[ITERATIVE] Delimited: empty optional");
-            stack
-                .results
-                .insert(frame.frame_id, (Node::DelimitedList { children: vec![] }, pos, None));
-            return Ok(NextStep::Fallthrough); // Don't continue, we stored a result
+        // // Check if optional and already terminated
+        // if optional && (self.is_at_end() || self.is_terminated(&all_terminators)) {
+        //     log::debug!("[ITERATIVE] Delimited: empty optional");
+        //     stack.results.insert(
+        //         frame.frame_id,
+        //         (Node::DelimitedList { children: vec![] }, pos, None),
+        //     );
+        //     return Ok(NextStep::Fallthrough); // Don't continue, we stored a result
+        // }
+
+        if allow_gaps && working_pos > self.pos {
+            working_pos = skip_start_index_forward_to_code(self.tokens, working_pos, max_idx)
+        }
+
+        if working_pos >= max_idx {
+            // End of input or max_idx reached before matching any elements.
+            // This is equivalent to breaking out of the while loop in Python.
+            // Now, handle the "post-while" logic: if optional, succeed with empty list; else, fail.
+            if optional {
+                stack.results.insert(
+                    frame.frame_id,
+                    (
+                        Node::DelimitedList { children: vec![] },
+                        working_pos,
+                        None,
+                    ),
+                );
+                return Ok(NextStep::Fallthrough);
+            } else {
+                return Err(ParseError {
+                    message: "Delimited: expected at least one element, but none found".to_string(),
+                });
+            }
         }
 
         // Create Delimited context
@@ -135,11 +165,12 @@ impl crate::parser::Parser<'_> {
         frame.context = FrameContext::Delimited {
             grammar: grammar.clone(),
             delimiter_count: 0,
-            matched_idx: pos,
-            working_idx: pos,
+            matched_idx: working_pos,
+            working_idx: working_pos,
             max_idx,
             state: DelimitedState::MatchingElement,
             last_child_frame_id: None,
+            delimiter_match: None,
         };
         frame.terminators = all_terminators.clone();
 
@@ -150,7 +181,7 @@ impl crate::parser::Parser<'_> {
 
         // Create first child to match element (try all elements via OneOf)
         let child_grammar = Grammar::OneOf {
-            elements: pruned_options.to_vec(),
+            elements: elements.to_vec(),
             exclude: None,
             optional: true, // Elements in Delimited are implicitly optional
             terminators: vec![],
@@ -163,7 +194,7 @@ impl crate::parser::Parser<'_> {
         let mut child_frame = ParseFrame::new_child(
             stack.frame_id_counter,
             child_grammar.into(),
-            pos,
+            working_pos,
             all_terminators,
             Some(child_max_idx), // Use Delimited's max_idx!
         );
@@ -192,7 +223,9 @@ impl crate::parser::Parser<'_> {
             max_idx,
             state,
             last_child_frame_id: _,
-        } = &mut frame.context else {
+            delimiter_match,
+        } = &mut frame.context
+        else {
             unreachable!("Expected Delimited context");
         };
         let Grammar::Delimited {
@@ -204,23 +237,62 @@ impl crate::parser::Parser<'_> {
             optional,
             parse_mode,
             ..
-        } = grammar.as_ref() else {
+        } = grammar.as_ref()
+        else {
             panic!("Expected Grammar::Delimited in FrameContext::Delimited");
         };
         log::debug!("[ITERATIVE] Delimited WaitingForChild: state={:?}, delimiter_count={}, child_node is_empty={}", state, delimiter_count, child_node.is_empty());
         match state {
             DelimitedState::MatchingElement => {
+                // If allow_gaps, skip non-code tokens before matching
+                if *allow_gaps {
+                    *working_idx = self.skip_start_index_forward_to_code(*working_idx, *max_idx);
+                    self.pos = *working_idx;
+                }
                 if child_node.is_empty() {
-                    log::debug!("[ITERATIVE] Delimited: no element matched at position {}", frame.pos);
-                    log::debug!("[ITERATIVE] Delimited completing with {} items", frame.accumulated.len());
+                    log::debug!(
+                        "[ITERATIVE] Delimited: no element matched at position {}",
+                        frame.pos
+                    );
+                    log::debug!(
+                        "[ITERATIVE] Delimited completing with {} items",
+                        frame.accumulated.len()
+                    );
                     self.pos = *matched_idx;
+                    // Handle trailing delimiter if allowed and present
+                    if *allow_trailing && delimiter_match.is_some() {
+                        frame.accumulated.push(delimiter_match.take().unwrap());
+                        *delimiter_count += 1;
+                    }
+                    // Check min_delimiters at completion
+                    if *delimiter_count < *min_delimiters {
+                        stack.results.insert(
+                            frame.frame_id,
+                            (
+                                Node::DelimitedList { children: vec![] },
+                                frame.pos,
+                                None,
+                            ),
+                        );
+                        return;
+                    }
                     stack.results.insert(
                         frame.frame_id,
-                        (Node::DelimitedList { children: frame.accumulated.clone() }, *matched_idx, None),
+                        (
+                            Node::DelimitedList {
+                                children: frame.accumulated.clone(),
+                            },
+                            *matched_idx,
+                            None,
+                        ),
                     );
                     return;
                 } else {
-                    log::debug!("[ITERATIVE] Delimited element matched: pos {} -> {}", frame.pos, child_end_pos);
+                    log::debug!(
+                        "[ITERATIVE] Delimited element matched: pos {} -> {}",
+                        frame.pos,
+                        child_end_pos
+                    );
                     if *allow_gaps {
                         for check_pos in *matched_idx..*working_idx {
                             if check_pos < self.tokens.len()
@@ -245,64 +317,118 @@ impl crate::parser::Parser<'_> {
                             }
                         }
                     }
+                    // If there was a delimiter match, append it and increment count
+                    if delimiter_match.is_some() {
+                        frame.accumulated.push(delimiter_match.take().unwrap());
+                        *delimiter_count += 1;
+                    }
                     frame.accumulated.push(child_node.clone());
                     *matched_idx = *child_end_pos;
                     *working_idx = *matched_idx;
                     if *allow_gaps {
-                        *working_idx = self.skip_start_index_forward_to_code(*working_idx, *max_idx);
+                        *working_idx =
+                            self.skip_start_index_forward_to_code(*working_idx, *max_idx);
                     }
                     self.pos = *working_idx;
+                    // Only check for terminators before matching the NEXT element
                     if self.is_at_end() || self.is_terminated(&frame_terminators) {
-                        log::debug!("[ITERATIVE] Delimited: at EOF or terminator after element, completing at position {}", matched_idx);
+                        // Handle trailing delimiter if allowed and present
+                        if *allow_trailing && delimiter_match.is_some() {
+                            frame.accumulated.push(delimiter_match.take().unwrap());
+                            *delimiter_count += 1;
+                        }
+                        // Check min_delimiters at completion
+                        if *delimiter_count < *min_delimiters {
+                            stack.results.insert(
+                                frame.frame_id,
+                                (
+                                    Node::DelimitedList { children: vec![] },
+                                    frame.pos,
+                                    None,
+                                ),
+                            );
+                            return;
+                        }
                         self.pos = *matched_idx;
                         stack.results.insert(
                             frame.frame_id,
-                            (Node::DelimitedList { children: frame.accumulated.clone() }, *matched_idx, None),
-                        );
-                        return;
-                    } else {
-                        *state = DelimitedState::MatchingDelimiter;
-                        let child_max_idx = *max_idx;
-                        let child_frame = ParseFrame::new_child(
-                            stack.frame_id_counter,
-                            (**delimiter).clone(),
-                            *working_idx,
-                            frame_terminators.clone(),
-                            Some(child_max_idx),
-                        );
-                        ParseFrame::push_child_and_update_parent(
-                            stack,
-                            frame,
-                            child_frame,
-                            "Delimited",
+                            (
+                                Node::DelimitedList {
+                                    children: frame.accumulated.clone(),
+                                },
+                                *matched_idx,
+                                None,
+                            ),
                         );
                         return;
                     }
+                    *state = DelimitedState::MatchingDelimiter;
+                    let child_max_idx = *max_idx;
+                    let child_frame = ParseFrame::new_child(
+                        stack.frame_id_counter,
+                        (**delimiter).clone(),
+                        *working_idx,
+                        frame_terminators.clone(),
+                        Some(child_max_idx),
+                    );
+                    ParseFrame::push_child_and_update_parent(
+                        stack,
+                        frame,
+                        child_frame,
+                        "Delimited",
+                    );
+                    return;
                 }
             }
             DelimitedState::MatchingDelimiter => {
                 if child_node.is_empty() {
-                    log::debug!("[ITERATIVE] Delimited: no delimiter found, completing at position {}", matched_idx);
+                    log::debug!(
+                        "[ITERATIVE] Delimited: no delimiter found, completing at position {}",
+                        matched_idx
+                    );
+                    // If no delimiter matched, but optional, just continue to element
                     if *delimiter_count < *min_delimiters {
                         if *optional {
                             self.pos = frame.pos;
                             stack.results.insert(
                                 frame.frame_id,
-                                (Node::DelimitedList { children: frame.accumulated.clone() }, frame.pos, None),
+                                (
+                                    Node::DelimitedList { children: vec![] },
+                                    frame.pos,
+                                    None,
+                                ),
                             );
                         } else {
-                            panic!("Expected at least {} delimiters, found {}", min_delimiters, delimiter_count);
+                            panic!(
+                                "Expected at least {} delimiters, found {}",
+                                min_delimiters, delimiter_count
+                            );
                         }
                     } else {
+                        // Handle trailing delimiter if allowed and present
+                        if *allow_trailing && delimiter_match.is_some() {
+                            frame.accumulated.push(delimiter_match.take().unwrap());
+                            *delimiter_count += 1;
+                        }
                         self.pos = *matched_idx;
                         stack.results.insert(
                             frame.frame_id,
-                            (Node::DelimitedList { children: frame.accumulated.clone() }, *matched_idx, None),
+                            (
+                                Node::DelimitedList {
+                                    children: frame.accumulated.clone(),
+                                },
+                                *matched_idx,
+                                None,
+                            ),
                         );
                     }
                     return;
                 } else {
-                    log::debug!("[ITERATIVE] Delimited delimiter matched: pos {} -> {}", working_idx, child_end_pos);
+                    log::debug!(
+                        "[ITERATIVE] Delimited delimiter matched: pos {} -> {}",
+                        working_idx,
+                        child_end_pos
+                    );
                     if *allow_gaps {
                         for check_pos in *matched_idx..*working_idx {
                             if check_pos < self.tokens.len()
@@ -327,33 +453,79 @@ impl crate::parser::Parser<'_> {
                             }
                         }
                     }
-                    frame.accumulated.push(child_node.clone());
+                    // Store the delimiter match for the next element
+                    *delimiter_match = Some(child_node.clone());
                     *matched_idx = *child_end_pos;
                     *working_idx = *matched_idx;
-                    *delimiter_count += 1;
                     self.pos = *matched_idx;
                     if self.is_terminated(&frame_terminators) {
                         log::debug!("[ITERATIVE] Delimited: terminated after delimiter");
                         if !*allow_trailing {
                             panic!("Trailing delimiter not allowed");
                         }
+                        // Handle trailing delimiter if allowed and present
+                        if *allow_trailing && delimiter_match.is_some() {
+                            frame.accumulated.push(delimiter_match.take().unwrap());
+                            *delimiter_count += 1;
+                        }
+                        // Check min_delimiters at completion
+                        if *delimiter_count < *min_delimiters {
+                            stack.results.insert(
+                                frame.frame_id,
+                                (
+                                    Node::DelimitedList { children: vec![] },
+                                    frame.pos,
+                                    None,
+                                ),
+                            );
+                            return;
+                        }
                         stack.results.insert(
                             frame.frame_id,
-                            (Node::DelimitedList { children: frame.accumulated.clone() }, *matched_idx, None),
+                            (
+                                Node::DelimitedList {
+                                    children: frame.accumulated.clone(),
+                                },
+                                *matched_idx,
+                                None,
+                            ),
                         );
                         return;
                     } else {
                         *state = DelimitedState::MatchingElement;
                         if *allow_gaps {
-                            *working_idx = self.skip_start_index_forward_to_code(*working_idx, *max_idx);
+                            *working_idx =
+                                self.skip_start_index_forward_to_code(*working_idx, *max_idx);
                         }
                         self.pos = *working_idx;
                         if self.is_at_end() || self.is_terminated(&frame_terminators) {
-                            log::debug!("[ITERATIVE] Delimited: at terminator/EOF before next element, completing");
+                            // Handle trailing delimiter if allowed and present
+                            if *allow_trailing && delimiter_match.is_some() {
+                                frame.accumulated.push(delimiter_match.take().unwrap());
+                                *delimiter_count += 1;
+                            }
+                            // Check min_delimiters at completion
+                            if *delimiter_count < *min_delimiters {
+                                stack.results.insert(
+                                    frame.frame_id,
+                                    (
+                                        Node::DelimitedList { children: vec![] },
+                                        frame.pos,
+                                        None,
+                                    ),
+                                );
+                                return;
+                            }
                             self.pos = *matched_idx;
                             stack.results.insert(
                                 frame.frame_id,
-                                (Node::DelimitedList { children: frame.accumulated.clone() }, *matched_idx, None),
+                                (
+                                    Node::DelimitedList {
+                                        children: frame.accumulated.clone(),
+                                    },
+                                    *matched_idx,
+                                    None,
+                                ),
                             );
                             return;
                         }

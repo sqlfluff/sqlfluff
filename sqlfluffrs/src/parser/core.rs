@@ -117,7 +117,7 @@ impl<'a> Parser<'a> {
         let final_segment_type = match segment_type {
             Some(st) => Some(st.to_string()),
             None => match &node {
-                Node::Token { token_type: _, raw: t, token_idx: _ } => Some(t.clone()),
+                Node::Token { token_type: t, raw: _, token_idx: _ } => Some(t.clone()),
                 _ => None,
             },
         };

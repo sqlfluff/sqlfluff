@@ -323,4 +323,35 @@ impl Parser<'_> {
             .results
             .insert(frame.frame_id, (final_node, self.pos, None));
     }
+
+    /// Handle NonCodeMatcher grammar in iterative parser
+    pub fn handle_noncode_matcher_initial(
+        &mut self,
+        frame: &ParseFrame,
+        results: &mut HashMap<usize, (Node, usize, Option<u64>)>,
+    ) -> Result<NextStep, ParseError> {
+        self.pos = frame.pos;
+        if let Some(tok) = self.peek() {
+            let typ = tok.get_type();
+            if typ == "whitespace" || typ == "newline" {
+                results.insert(
+                    frame.frame_id,
+                    (
+                        Node::Token {
+                            token_type: typ.to_string(),
+                            raw: tok.raw().to_string(),
+                            token_idx: self.pos,
+                        },
+                        self.pos + 1,
+                        None,
+                    ),
+                );
+                self.bump();
+                return Ok(NextStep::Fallthrough);
+            }
+        }
+        // No match
+        results.insert(frame.frame_id, (Node::Empty, frame.pos, None));
+        Ok(NextStep::Fallthrough)
+    }
 }

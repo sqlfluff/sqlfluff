@@ -162,6 +162,10 @@ impl Parser<'_> {
             Grammar::Delimited { .. } => {
                 self.handle_delimited_initial(grammar, frame, &terminators, stack)
             }
+
+            Grammar::NonCodeMatcher => {
+                self.handle_noncode_matcher_initial(frame, &mut stack.results)
+            }
         }
     }
 

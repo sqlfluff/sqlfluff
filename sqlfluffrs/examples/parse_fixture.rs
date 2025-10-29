@@ -35,10 +35,30 @@ fn main() {
             args[0]
         );
         process::exit(1);
-    }
+}
 
     let sql_path = PathBuf::from(&args[1]);
-    let compare_mode = args.len() > 2 && args[2] == "--compare";
+    let mut compare_mode = false;
+    let mut out_path: Option<PathBuf> = None;
+    let mut code_only = false;
+    let mut i = 2;
+    while i < args.len() {
+        match args[i].as_str() {
+            "--compare" => compare_mode = true,
+            "--out" => {
+                if i + 1 < args.len() {
+                    out_path = Some(PathBuf::from(&args[i + 1]));
+                    i += 1;
+                } else {
+                    eprintln!("Missing filename after --out");
+                    process::exit(1);
+                }
+            }
+            "--code-only" => code_only = true,
+            _ => {}
+        }
+        i += 1;
+    }
 
     if !sql_path.exists() {
         log::debug!("Error: File not found: {}", sql_path.display());
@@ -85,7 +105,6 @@ fn main() {
 
     // Parse
     let mut parser = Parser::new(&tokens, dialect);
-    // Disable parse cache for this run (for debugging)
     parser.set_cache_enabled(true);
     let ast = match parser.call_rule_as_root() {
         Ok(node) => node,
@@ -97,27 +116,30 @@ fn main() {
     };
 
     println!("DEBUG: AST node type: {:?}", ast);
-
     println!("=== PARSE SUCCESS ===");
     println!();
 
-    // // Print match tree
-    // println!("=== MATCH TREE ===");
-    // print_match_tree(&ast, 0);
-    // println!();
+    // Print match tree (optional, can be removed if not needed)
+    println!("=== MATCH TREE ===");
+    print_match_tree(&ast, 0);
+    println!();
 
-    // // Generate YAML
-    // let generated_yaml = match node_to_yaml(&ast) {
-    //     Ok(yaml) => yaml,
-    //     Err(e) => {
-    //         log::debug!("=== YAML CONVERSION ERROR ===");
-    //         log::debug!("{}", e);
-    //         process::exit(1);
-    //     }
-    // };
+    println!("=== AS RECORD ===");
+    println!("{:?}", ast.as_record(Some(&tokens)));
+    println!();
 
-    // println!("=== GENERATED YAML ===");
-    // println!("{}", generated_yaml);
+    // Generate YAML
+    let generated_yaml = match node_to_yaml(&ast, &tokens) {
+        Ok(yaml) => yaml,
+        Err(e) => {
+            log::debug!("=== YAML CONVERSION ERROR ===");
+            log::debug!("{}", e);
+            process::exit(1);
+        }
+    };
+
+    println!("=== GENERATED YAML ===");
+    println!("{}", generated_yaml);
 
     // // Compare mode
     // if compare_mode {
@@ -358,7 +380,7 @@ fn get_node_slice(
 /// Convert a Node to YAML format matching Python SQLFluff output
 fn node_to_yaml(
     node: &sqlfluffrs::parser::Node,
-    // tokens: &[sqlfluffrs::token::Token],
+    tokens: &[sqlfluffrs_types::token::Token],
 ) -> Result<String, Box<dyn std::error::Error>> {
     use serde_yaml::{Mapping, Value};
 
@@ -367,7 +389,7 @@ fn node_to_yaml(
 
     // Use Node::as_record for YAML serialization
     let mut root_map = Mapping::new();
-    let as_record = node.as_record();
+    let as_record = node.as_record(Some(&tokens));
     // Add hash placeholder
     root_map.insert(
         Value::String("_hash".to_string()),
@@ -399,160 +421,160 @@ fn node_to_yaml(
     Ok(format!("{}{}", header, yaml_str))
 }
 
-/// Recursively convert a Node to a YAML Value
-pub fn node_to_yaml_value(
-    node: &sqlfluffrs::parser::Node,
-    code_only: bool,
-) -> Result<serde_yaml::Value, Box<dyn std::error::Error>> {
-    use serde_yaml::{Mapping, Value};
-    use sqlfluffrs::parser::Node;
+// /// Recursively convert a Node to a YAML Value
+// pub fn node_to_yaml_value(
+//     node: &sqlfluffrs::parser::Node,
+//     code_only: bool,
+// ) -> Result<serde_yaml::Value, Box<dyn std::error::Error>> {
+//     use serde_yaml::{Mapping, Value};
+//     use sqlfluffrs::parser::Node;
 
-    match node {
-        Node::Token {
-            token_type,
-            raw,
-            token_idx: _pos,
-        } => {
-            let mut map = Mapping::new();
-            map.insert(
-                Value::String(token_type.clone()),
-                Value::String(raw.clone()),
-            );
-            Ok(Value::Mapping(map))
-        }
-        Node::Whitespace {
-            raw: _raw,
-            token_idx: _pos,
-        }
-        | Node::Newline {
-            raw: _raw,
-            token_idx: _pos,
-        }
-        | Node::EndOfFile {
-            raw: _raw,
-            token_idx: _pos,
-        } => {
-            // These are filtered in code_only mode
-            if code_only {
-                Ok(Value::Sequence(vec![]))
-            } else {
-                let mut map = Mapping::new();
-                match node {
-                    Node::Whitespace { raw, token_idx: _ } => {
-                        map.insert(
-                            Value::String("whitespace".to_string()),
-                            Value::String(raw.clone()),
-                        );
-                    }
-                    Node::Newline { raw, token_idx: _ } => {
-                        map.insert(
-                            Value::String("newline".to_string()),
-                            Value::String(raw.clone()),
-                        );
-                    }
-                    Node::EndOfFile { raw, token_idx: _ } => {
-                        map.insert(
-                            Value::String("end_of_file".to_string()),
-                            Value::String(raw.clone()),
-                        );
-                    }
-                    _ => {}
-                }
-                Ok(Value::Mapping(map))
-            }
-        }
-        Node::Ref {
-            name: _,
-            segment_type,
-            child,
-        } => {
-            // Get child YAML first
-            let child_yaml = node_to_yaml_value(child, code_only)?;
+//     match node {
+//         Node::Token {
+//             token_type,
+//             raw,
+//             token_idx: _pos,
+//         } => {
+//             let mut map = Mapping::new();
+//             map.insert(
+//                 Value::String(token_type.clone()),
+//                 Value::String(raw.clone()),
+//             );
+//             Ok(Value::Mapping(map))
+//         }
+//         Node::Whitespace {
+//             raw: _raw,
+//             token_idx: _pos,
+//         }
+//         | Node::Newline {
+//             raw: _raw,
+//             token_idx: _pos,
+//         }
+//         | Node::EndOfFile {
+//             raw: _raw,
+//             token_idx: _pos,
+//         } => {
+//             // These are filtered in code_only mode
+//             if code_only {
+//                 Ok(Value::Sequence(vec![]))
+//             } else {
+//                 let mut map = Mapping::new();
+//                 match node {
+//                     Node::Whitespace { raw, token_idx: _ } => {
+//                         map.insert(
+//                             Value::String("whitespace".to_string()),
+//                             Value::String(raw.clone()),
+//                         );
+//                     }
+//                     Node::Newline { raw, token_idx: _ } => {
+//                         map.insert(
+//                             Value::String("newline".to_string()),
+//                             Value::String(raw.clone()),
+//                         );
+//                     }
+//                     Node::EndOfFile { raw, token_idx: _ } => {
+//                         map.insert(
+//                             Value::String("end_of_file".to_string()),
+//                             Value::String(raw.clone()),
+//                         );
+//                     }
+//                     _ => {}
+//                 }
+//                 Ok(Value::Mapping(map))
+//             }
+//         }
+//         Node::Ref {
+//             name: _,
+//             segment_type,
+//             child,
+//         } => {
+//             // Get child YAML first
+//             let child_yaml = node_to_yaml_value(child, code_only)?;
 
-            // If we have a segment_type, wrap it
-            if let Some(seg_type) = segment_type {
-                if let Value::Sequence(items) = child_yaml {
-                    let mut map = Mapping::new();
-                    map.insert(Value::String(seg_type.clone()), Value::Sequence(items));
-                    Ok(Value::Mapping(map))
-                } else {
-                    // Child is already a mapping or other value, wrap it in sequence
-                    let mut map = Mapping::new();
-                    map.insert(
-                        Value::String(seg_type.clone()),
-                        Value::Sequence(vec![child_yaml]),
-                    );
-                    Ok(Value::Mapping(map))
-                }
-            } else {
-                // No segment type, just pass through
-                Ok(child_yaml)
-            }
-        }
-        Node::Sequence { children } | Node::DelimitedList { children } => {
-            let mut items = Vec::new();
-            for child in children {
-                // Filter out non-code elements if code_only is true
-                if code_only && !child.is_code() {
-                    continue;
-                }
-                let child_yaml = node_to_yaml_value(child, code_only)?;
-                // Skip empty sequences
-                if matches!(child_yaml, Value::Sequence(ref v) if v.is_empty()) {
-                    continue;
-                }
-                items.push(child_yaml);
-            }
-            Ok(Value::Sequence(items))
-        }
-        Node::Bracketed { children } => {
-            // Bracketed node - create a mapping with "bracketed" key
-            let mut items = Vec::new();
-            for child in children {
-                if code_only && !child.is_code() {
-                    continue;
-                }
-                let child_yaml = node_to_yaml_value(child, code_only)?;
-                // Skip empty sequences
-                if matches!(child_yaml, Value::Sequence(ref v) if v.is_empty()) {
-                    continue;
-                }
-                items.push(child_yaml);
-            }
+//             // If we have a segment_type, wrap it
+//             if let Some(seg_type) = segment_type {
+//                 if let Value::Sequence(items) = child_yaml {
+//                     let mut map = Mapping::new();
+//                     map.insert(Value::String(seg_type.clone()), Value::Sequence(items));
+//                     Ok(Value::Mapping(map))
+//                 } else {
+//                     // Child is already a mapping or other value, wrap it in sequence
+//                     let mut map = Mapping::new();
+//                     map.insert(
+//                         Value::String(seg_type.clone()),
+//                         Value::Sequence(vec![child_yaml]),
+//                     );
+//                     Ok(Value::Mapping(map))
+//                 }
+//             } else {
+//                 // No segment type, just pass through
+//                 Ok(child_yaml)
+//             }
+//         }
+//         Node::Sequence { children } | Node::DelimitedList { children } => {
+//             let mut items = Vec::new();
+//             for child in children {
+//                 // Filter out non-code elements if code_only is true
+//                 if code_only && !child.is_code() {
+//                     continue;
+//                 }
+//                 let child_yaml = node_to_yaml_value(child, code_only)?;
+//                 // Skip empty sequences
+//                 if matches!(child_yaml, Value::Sequence(ref v) if v.is_empty()) {
+//                     continue;
+//                 }
+//                 items.push(child_yaml);
+//             }
+//             Ok(Value::Sequence(items))
+//         }
+//         Node::Bracketed { children } => {
+//             // Bracketed node - create a mapping with "bracketed" key
+//             let mut items = Vec::new();
+//             for child in children {
+//                 if code_only && !child.is_code() {
+//                     continue;
+//                 }
+//                 let child_yaml = node_to_yaml_value(child, code_only)?;
+//                 // Skip empty sequences
+//                 if matches!(child_yaml, Value::Sequence(ref v) if v.is_empty()) {
+//                     continue;
+//                 }
+//                 items.push(child_yaml);
+//             }
 
-            let mut map = Mapping::new();
-            map.insert(
-                Value::String("bracketed".to_string()),
-                Value::Sequence(items),
-            );
-            Ok(Value::Mapping(map))
-        }
-        Node::Unparsable {
-            expected_message: _msg,
-            children,
-        } => {
-            let mut items = Vec::new();
-            for child in children {
-                if code_only && !child.is_code() {
-                    continue;
-                }
-                let child_yaml = node_to_yaml_value(child, code_only)?;
-                items.push(child_yaml);
-            }
+//             let mut map = Mapping::new();
+//             map.insert(
+//                 Value::String("bracketed".to_string()),
+//                 Value::Sequence(items),
+//             );
+//             Ok(Value::Mapping(map))
+//         }
+//         Node::Unparsable {
+//             expected_message: _msg,
+//             children,
+//         } => {
+//             let mut items = Vec::new();
+//             for child in children {
+//                 if code_only && !child.is_code() {
+//                     continue;
+//                 }
+//                 let child_yaml = node_to_yaml_value(child, code_only)?;
+//                 items.push(child_yaml);
+//             }
 
-            let mut map = Mapping::new();
-            map.insert(
-                Value::String("unparsable".to_string()),
-                Value::Sequence(items),
-            );
-            Ok(Value::Mapping(map))
-        }
-        Node::Empty | Node::Meta { .. } => {
-            // Empty nodes and meta nodes are typically filtered out
-            Ok(Value::Sequence(vec![]))
-        }
-    }
-}
+//             let mut map = Mapping::new();
+//             map.insert(
+//                 Value::String("unparsable".to_string()),
+//                 Value::Sequence(items),
+//             );
+//             Ok(Value::Mapping(map))
+//         }
+//         Node::Empty | Node::Meta { .. } => {
+//             // Empty nodes and meta nodes are typically filtered out
+//             Ok(Value::Sequence(vec![]))
+//         }
+//     }
+// }
 
 /// Compute a hash for a serde_yaml::Value, excluding the _hash field.
 /// Returns a lowercase hex string (SHA256).

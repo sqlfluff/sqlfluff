@@ -13,6 +13,46 @@ use crate::parser::utils::skip_start_index_forward_to_code;
 use sqlfluffrs_types::{Token, Grammar};
 
 impl<'a> Parser<'a> {
+    /// Prune terminators based on simple matchers before attempting full termination check.
+    ///
+    /// Only prunes if the next token is code and allow_gaps is false. Otherwise, returns all terminators.
+    /// This matches Python's conservative pruning logic.
+    pub(crate) fn prune_terminators(&mut self, terminators: &[Arc<Grammar>]) -> Vec<Arc<Grammar>> {
+        // If allow_gaps is true, do NOT prune: gaps may skip to a code token later.
+        // (We don't have allow_gaps here, so this must be handled by the caller. If needed, add as param.)
+        // For now, only prune if the next token is code; otherwise, return all terminators.
+
+        let first_token = self.tokens.get(self.pos);
+        if let Some(tok) = first_token {
+            if !tok.is_code() {
+                // Next token is not code (could be gap/whitespace), so don't prune
+                return terminators.iter().cloned().collect();
+            }
+        } else {
+            // No token at all (EOF), can't prune
+            return terminators.iter().cloned().collect();
+        }
+
+        let first_token = first_token.unwrap();
+        let first_raw = first_token.raw_upper();
+        let first_types: HashSet<String> = first_token.get_all_types();
+
+        let mut available_terminators = Vec::new();
+        for term in terminators {
+            match term.simple_hint(&mut self.simple_hint_cache) {
+                None => {
+                    // Complex terminator - must try full match
+                    available_terminators.push(term.clone());
+                }
+                Some(hint) => {
+                    if hint.can_match_token(&first_raw, &first_types) {
+                        available_terminators.push(term.clone());
+                    }
+                }
+            }
+        }
+        available_terminators
+    }
     /// Prune options based on simple matchers before attempting full parse.
     ///
     /// This is the Rust equivalent of Python's `prune_options()` function.
@@ -283,8 +323,8 @@ impl<'a> Parser<'a> {
                 }
             } else {
                 Node::Token {
-                    token_type: tok.raw(),
-                    raw: tok.token_type.clone(),
+                    token_type: tok.token_type.clone(),
+                    raw: tok.raw(),
                     token_idx: token_pos,
                 } // Fallback for other non-code tokens
             };
@@ -533,9 +573,11 @@ impl<'a> Parser<'a> {
             }
         }
 
+        // Prune terminators before checking, to reduce unnecessary checks
+        let pruned_terminators = self.prune_terminators(terminators);
         log::debug!(
-            "  TERM Checking terminators: {:?} at pos {:?}",
-            terminators,
+            "  TERM Checking pruned terminators: {:?} at pos {:?}",
+            pruned_terminators,
             self.pos
         );
 
@@ -551,7 +593,7 @@ impl<'a> Parser<'a> {
         let current_token_types = current_token.get_all_types();
 
         // First pass: check all simple terminators (fast path)
-        for term in terminators.iter() {
+        for term in pruned_terminators.iter() {
             let simple_opt = term.simple_hint(&mut self.simple_hint_cache);
             if let Some(simple) = simple_opt {
                 // Use fast simple matching
@@ -565,7 +607,7 @@ impl<'a> Parser<'a> {
         }
 
         // Second pass: check complex terminators that need full parsing (slow path)
-        for term in terminators.iter() {
+        for term in pruned_terminators.iter() {
             // Skip simple terminators (already checked)
             if term.simple_hint(&mut self.simple_hint_cache).is_some() {
                 continue;

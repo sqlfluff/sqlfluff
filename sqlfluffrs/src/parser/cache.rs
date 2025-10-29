@@ -302,6 +302,7 @@ fn grammar_discriminant(grammar: Arc<Grammar>) -> usize {
         Grammar::Empty => 15,
         Grammar::Missing => 16,
         Grammar::Token { .. } => 17,
+        Grammar::NonCodeMatcher => 18,
     }
 }
 
