@@ -3,8 +3,8 @@ use std::sync::Arc;
 use crate::parser::iterative::{NextStep, ParseFrameStack};
 use crate::parser::utils::apply_parse_mode_to_result;
 use crate::parser::{FrameContext, FrameState, Node, ParseError, ParseFrame};
-use sqlfluffrs_types::{Grammar, ParseMode};
 use hashbrown::HashSet;
+use sqlfluffrs_types::{Grammar, ParseMode};
 
 impl crate::parser::Parser<'_> {
     /// Handle AnySetOf grammar Initial state in iterative parser
@@ -15,6 +15,12 @@ impl crate::parser::Parser<'_> {
         parent_terminators: &[Arc<Grammar>],
         stack: &mut ParseFrameStack,
     ) -> Result<NextStep, ParseError> {
+        log::debug!(
+            "START AnySetOf: frame_id={}, pos={}, grammar={:?}",
+            frame.frame_id,
+            frame.pos,
+            grammar
+        );
         let pos = frame.pos;
         log::debug!("[ITERATIVE] AnySetOf Initial state at pos {}", pos);
 
@@ -80,6 +86,7 @@ impl crate::parser::Parser<'_> {
                 );
                 return Ok(NextStep::Continue);
             }
+            log::debug!("exclude grammar missed!")
         }
 
         let all_terminators: Vec<Arc<Grammar>> = if reset_terminators {
@@ -93,17 +100,18 @@ impl crate::parser::Parser<'_> {
         };
 
         self.pos = pos;
-        let max_idx = if parse_mode == ParseMode::Greedy {
+
+        let mut max_idx = if parse_mode == ParseMode::Greedy {
             self.trim_to_terminator(pos, &all_terminators)
         } else {
             self.tokens.len()
         };
-
-        let max_idx = if let Some(parent_limit) = frame.parent_max_idx {
-            max_idx.min(parent_limit)
-        } else {
-            max_idx
-        };
+        if max_idx > 0 {
+            max_idx = self.skip_stop_index_backward_to_code(max_idx, pos);
+        }
+        if let Some(parent_limit) = frame.parent_max_idx {
+            max_idx = max_idx.min(parent_limit);
+        }
 
         log::debug!(
             "[ITERATIVE] AnySetOf max_idx: {} (tokens.len: {})",
@@ -388,6 +396,12 @@ impl crate::parser::Parser<'_> {
         stack: &mut ParseFrameStack,
         iteration_count: usize,
     ) -> Result<NextStep, ParseError> {
+        log::debug!(
+            "START AnyNumberOf: frame_id={}, pos={}, grammar={:?}",
+            frame.frame_id,
+            frame.pos,
+            grammar
+        );
         let (
             elements,
             min_times,
@@ -461,6 +475,7 @@ impl crate::parser::Parser<'_> {
                 );
                 return Ok(NextStep::Continue);
             }
+            log::debug!("exclude grammar missed!")
         }
 
         let all_terminators: Vec<Arc<Grammar>> = if reset_terminators {
@@ -474,17 +489,18 @@ impl crate::parser::Parser<'_> {
         };
 
         self.pos = start_idx;
-        let max_idx = if parse_mode == ParseMode::Greedy {
+
+        let mut max_idx = if parse_mode == ParseMode::Greedy {
             self.trim_to_terminator(start_idx, &all_terminators)
         } else {
             self.tokens.len()
         };
-
-        let max_idx = if let Some(parent_limit) = frame.parent_max_idx {
-            max_idx.min(parent_limit)
-        } else {
-            max_idx
-        };
+        if max_idx > 0 {
+            max_idx = self.skip_stop_index_backward_to_code(max_idx, start_idx);
+        }
+        if let Some(parent_limit) = frame.parent_max_idx {
+            max_idx = max_idx.min(parent_limit);
+        }
 
         log::debug!("DEBUG [iter {}]: AnyNumberOf Initial at pos={}, parent_max_idx={:?}, elements.len()={}",
             iteration_count, frame.pos, frame.parent_max_idx, pruned_options.len());
@@ -752,6 +768,12 @@ impl crate::parser::Parser<'_> {
         parent_terminators: &[Arc<Grammar>],
         stack: &mut ParseFrameStack,
     ) -> Result<NextStep, ParseError> {
+        log::debug!(
+            "START OneOf: frame_id={}, pos={}, grammar={:?}",
+            frame.frame_id,
+            frame.pos,
+            grammar
+        );
         // Destructure Grammar::OneOf fields
         let (
             elements,
@@ -803,6 +825,7 @@ impl crate::parser::Parser<'_> {
                     .insert(frame.frame_id, (Node::Empty, pos, None));
                 return Ok(NextStep::Fallthrough);
             }
+            log::debug!("exclude grammar missed!")
         }
 
         let leading_ws = if allow_gaps {
@@ -810,7 +833,7 @@ impl crate::parser::Parser<'_> {
         } else {
             Vec::new()
         };
-        let post_skip_pos = self.pos;
+        let mut post_skip_pos = self.pos;
 
         let all_terminators: Vec<Arc<Grammar>> = if reset_terminators {
             local_terminators.to_vec()
@@ -822,17 +845,17 @@ impl crate::parser::Parser<'_> {
                 .collect()
         };
 
-        let max_idx = if parse_mode == ParseMode::Greedy {
+        let mut max_idx = if parse_mode == ParseMode::Greedy {
             self.trim_to_terminator(post_skip_pos, &all_terminators)
         } else {
             self.tokens.len()
         };
-
-        let max_idx = if let Some(parent_limit) = frame.parent_max_idx {
-            max_idx.min(parent_limit)
-        } else {
-            max_idx
-        };
+        if max_idx > 0 {
+            max_idx = self.skip_stop_index_backward_to_code(max_idx, post_skip_pos);
+        }
+        if let Some(parent_limit) = frame.parent_max_idx {
+            max_idx = max_idx.min(parent_limit);
+        }
 
         if self.is_terminated(&all_terminators) {
             self.pos = pos;
@@ -1095,15 +1118,11 @@ impl crate::parser::Parser<'_> {
         // If the grammar matched, return the end position
         match result {
             Ok(node) => {
-                // Only consider it a match if we actually consumed something
-                // or if it's an empty match at the exact position
-                if end_pos > pos {
+                // Only consider it a match if we actually consumed something meaningful (not just whitespace)
+                if end_pos > pos && !matches!(node, Node::Empty) {
                     Some(end_pos)
-                } else if matches!(node, Node::Empty) {
-                    // Empty nodes might still be valid matches (like optional elements)
-                    None
                 } else {
-                    Some(end_pos)
+                    None
                 }
             }
             Err(_) => None,

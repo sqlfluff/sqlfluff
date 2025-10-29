@@ -1,6 +1,6 @@
 //! Core types for the parser: Grammar, Node, ParseMode
 
-use serde_yaml::{Mapping, Value};
+use serde_yaml_ng::{Mapping, Value};
 use sqlfluffrs_dialects::Dialect;
 use sqlfluffrs_types::{Grammar, Token};
 
@@ -67,7 +67,7 @@ pub enum Node {
 
 impl Node {
     /// Merge or list logic matching Python's structural_simplify.
-    fn merge_or_list(key: String, contents: Vec<serde_yaml::Value>) -> serde_yaml::Value {
+    fn merge_or_list(key: String, contents: Vec<serde_yaml_ng::Value>) -> serde_yaml_ng::Value {
         use std::collections::HashSet;
         let mut all_keys = HashSet::new();
         let mut has_duplicates = false;
@@ -189,13 +189,34 @@ impl Node {
                 NodeTupleValue::Tuple("sequence".to_string(), tupled)
             }
             Node::Bracketed { children } => {
+                // Use the same flatten_sequence logic as in Ref
+                fn flatten_sequence(node: NodeTupleValue) -> Vec<NodeTupleValue> {
+                    match node {
+                        NodeTupleValue::Tuple(t, v) if t == "sequence" => {
+                            let mut flat = Vec::new();
+                            for c in v {
+                                for item in flatten_sequence(c) {
+                                    match item {
+                                        NodeTupleValue::Tuple(inner_t, inner_v) if inner_t == "sequence" => {
+                                            flat.extend(inner_v);
+                                        }
+                                        other => flat.push(other),
+                                    }
+                                }
+                            }
+                            flat
+                        }
+                        other => vec![other],
+                    }
+                }
+
                 let mut tupled = vec![];
                 for child in children {
                     if code_only && !child.is_code() {
                         continue;
                     }
-                    let val = child.to_tuple(code_only, show_raw, include_meta);
-                    tupled.push(val);
+                    let val = flatten_sequence(child.to_tuple(code_only, show_raw, include_meta));
+                    tupled.extend(val);
                 }
                 NodeTupleValue::Tuple("bracketed".to_string(), tupled)
             }
@@ -219,7 +240,7 @@ impl Node {
 
     /// Simplify the structure recursively so it serializes nicely in json/yaml.
     /// Mirrors Python's BaseSegment::structural_simplify.
-    fn structural_simplify(elem: &NodeTupleValue) -> serde_yaml::Value {
+    fn structural_simplify(elem: &NodeTupleValue) -> serde_yaml_ng::Value {
         match elem {
             NodeTupleValue::Raw(key, s) => {
                 let mut map = Mapping::new();
@@ -277,7 +298,7 @@ impl Node {
         code_only: bool,
         show_raw: bool,
         include_meta: bool,
-    ) -> Option<serde_yaml::Value> {
+    ) -> Option<serde_yaml_ng::Value> {
         // Use to_tuple with the same configuration as Python's structural_simplify
         let tuple_val = self.to_tuple(code_only, show_raw, include_meta);
 
@@ -773,7 +794,7 @@ impl ParseContext {
 mod tests {
     use super::*;
 
-    use serde_yaml::Value;
+    use serde_yaml_ng::Value;
     use sqlfluffrs_types::SimpleHint;
 
     #[test]
@@ -781,7 +802,7 @@ mod tests {
         let node = Node::Sequence { children: vec![] };
         let record = node.as_record(false, true, false).unwrap();
         let expected = Value::Mapping({
-            let mut m = serde_yaml::Mapping::new();
+            let mut m = serde_yaml_ng::Mapping::new();
             m.insert(Value::String("sequence".to_string()), Value::Null);
             m
         });
@@ -805,7 +826,7 @@ mod tests {
             ],
         };
         let record = node.as_record(false, true, false).unwrap();
-        let mut merged = serde_yaml::Mapping::new();
+        let mut merged = serde_yaml_ng::Mapping::new();
         merged.insert(
             Value::String("keyword".to_string()),
             Value::String("SELECT".to_string()),
@@ -815,7 +836,7 @@ mod tests {
             Value::String("foo".to_string()),
         );
         let expected = Value::Mapping({
-            let mut m = serde_yaml::Mapping::new();
+            let mut m = serde_yaml_ng::Mapping::new();
             m.insert(
                 Value::String("sequence".to_string()),
                 Value::Mapping(merged),
@@ -839,11 +860,11 @@ mod tests {
         };
         let record = node.as_record(false, true, false).unwrap();
         let expected = Value::Mapping({
-            let mut m = serde_yaml::Mapping::new();
+            let mut m = serde_yaml_ng::Mapping::new();
             m.insert(
                 Value::String("keyword".to_string()),
                 Value::Mapping({
-                    let mut inner = serde_yaml::Mapping::new();
+                    let mut inner = serde_yaml_ng::Mapping::new();
                     inner.insert(
                         Value::String("keyword".to_string()),
                         Value::String("SELECT".to_string()),
@@ -864,7 +885,7 @@ mod tests {
         };
         let record = node.as_record(false, true, false).unwrap();
         let expected = Value::Mapping({
-            let mut m = serde_yaml::Mapping::new();
+            let mut m = serde_yaml_ng::Mapping::new();
             m.insert(Value::String("meta_indent".to_string()), Value::Null);
             m
         });
@@ -889,7 +910,7 @@ mod tests {
             ],
         };
         let record = node.as_record(false, true, false).unwrap();
-        let mut expected_inner = serde_yaml::Mapping::new();
+        let mut expected_inner = serde_yaml_ng::Mapping::new();
         expected_inner.insert(
             Value::String("keyword".to_string()),
             Value::String("SELECT".to_string()),
@@ -899,7 +920,7 @@ mod tests {
             Value::String("foo".to_string()),
         );
         let expected = Value::Mapping({
-            let mut m = serde_yaml::Mapping::new();
+            let mut m = serde_yaml_ng::Mapping::new();
             m.insert(
                 Value::String("unparsable".to_string()),
                 Value::Mapping(expected_inner),
@@ -1014,7 +1035,7 @@ mod tests {
     #[test]
     fn test_simple_hint_with_dialect_ref_comma_segment() {
         use hashbrown::HashSet;
-        use serde_yaml::{Mapping, Value};
+        use serde_yaml_ng::{Mapping, Value};
         use sqlfluffrs_dialects::dialect::ansi::parser::COMMA_SEGMENT;
 
         // Create a Ref grammar for CommaSegment

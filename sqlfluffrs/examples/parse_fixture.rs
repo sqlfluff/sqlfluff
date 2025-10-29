@@ -15,7 +15,7 @@ use std::process;
 use std::str::FromStr;
 
 use blake2::{Blake2s256, Digest};
-use serde_yaml::Value;
+use serde_yaml_ng::Value;
 
 fn main() {
     env_logger::init();
@@ -35,7 +35,7 @@ fn main() {
             args[0]
         );
         process::exit(1);
-}
+    }
 
     let sql_path = PathBuf::from(&args[1]);
     let mut compare_mode = false;
@@ -212,10 +212,7 @@ fn infer_dialect(path: &Path) -> Dialect {
 }
 
 /// Print the match tree in a format similar to Python SQLFluff
-fn print_match_tree(
-    node: &sqlfluffrs::parser::Node,
-    depth: usize,
-) {
+fn print_match_tree(node: &sqlfluffrs::parser::Node, depth: usize) {
     use sqlfluffrs::parser::Node;
 
     let indent = "  ".repeat(depth);
@@ -334,9 +331,7 @@ fn print_match_tree(
 }
 
 /// Get the start and end position (token indices) for a node
-fn get_node_slice(
-    node: &sqlfluffrs::parser::Node,
-) -> (usize, usize) {
+fn get_node_slice(node: &sqlfluffrs::parser::Node) -> (usize, usize) {
     use sqlfluffrs::parser::Node;
 
     match node {
@@ -382,12 +377,9 @@ fn node_to_yaml(
     node: &sqlfluffrs::parser::Node,
     tokens: &[sqlfluffrs_types::token::Token],
 ) -> Result<String, Box<dyn std::error::Error>> {
-    use serde_yaml::{Mapping, Value};
+    use serde_yaml_ng::{Mapping, Value};
 
     // Use code_only=true to match Python's behavior
-    // let yaml_value = node_to_yaml_value(node, tokens, true)?;
-
-    // Use Node::as_record for YAML serialization
     let mut root_map = Mapping::new();
     let as_record = node.as_record(true, true, false);
     // Add hash placeholder
@@ -401,12 +393,11 @@ fn node_to_yaml(
             root_map.insert(k, v);
         }
     } else {
-        // fallback: just insert the node under a generic key
         root_map.insert(
             Value::String("node".to_string()),
             as_record.expect("Node as_record should not be None"),
         );
-    };
+    }
 
     // Add header comments
     let header = "# YML test files are auto-generated from SQL files and should not be edited by\n\
@@ -417,16 +408,46 @@ fn node_to_yaml(
 
     let mut yaml_val = Value::Mapping(root_map);
     insert_yaml_hash(&mut yaml_val);
-    let yaml_str = serde_yaml::to_string(&yaml_val)?;
-    Ok(format!("{}{}", header, yaml_str))
+    let yaml_str = serde_yaml_ng::to_string(&yaml_val)?;
+    let quoted = process_yaml_11(yaml_str);
+    Ok(format!("{}{}", header, quoted))
+}
+
+fn process_yaml_11(yaml_str: String) -> String {
+    // Post-process: quote values in the given list in single quotes to match pyyaml safe_dump
+    let unquoted_keywords = ["NO", "YES", "ON", "OFF", "NULL", "TRUE", "FALSE", "="];
+    let quoted = yaml_str
+        .lines()
+        .map(|line| {
+            if let Some((k, v)) = line.split_once(": ") {
+                // Convert triple single quoted strings to single quoted
+                let v = if v.starts_with("'''") && v.ends_with("'''") && v.len() > 6 {
+                    let inner = &v[3..v.len()-3];
+                    format!("'{}'", inner.replace("'", "''"))
+                } else {
+                    v.to_string()
+                };
+                // Only quote if value is in the list and not already quoted
+                if unquoted_keywords.contains(&v.to_uppercase().as_str()) && !v.starts_with('"') && !v.starts_with('\'') {
+                    format!("{}: '{}'", k, v)
+                } else {
+                    format!("{}: {}", k, v)
+                }
+            } else {
+                line.to_string()
+            }
+        })
+        .collect::<Vec<_>>()
+        .join("\n");
+    format!("{}\n", quoted)
 }
 
 // /// Recursively convert a Node to a YAML Value
 // pub fn node_to_yaml_value(
 //     node: &sqlfluffrs::parser::Node,
 //     code_only: bool,
-// ) -> Result<serde_yaml::Value, Box<dyn std::error::Error>> {
-//     use serde_yaml::{Mapping, Value};
+// ) -> Result<serde_yaml_ng::Value, Box<dyn std::error::Error>> {
+//     use serde_yaml_ng::{Mapping, Value};
 //     use sqlfluffrs::parser::Node;
 
 //     match node {
@@ -576,7 +597,7 @@ fn node_to_yaml(
 //     }
 // }
 
-/// Compute a hash for a serde_yaml::Value, excluding the _hash field.
+/// Compute a hash for a serde_yaml_ng::Value, excluding the _hash field.
 /// Returns a lowercase hex string (SHA256).
 pub fn compute_yaml_hash(yaml: &Value) -> String {
     // Remove _hash field if present
@@ -589,9 +610,9 @@ pub fn compute_yaml_hash(yaml: &Value) -> String {
         _ => yaml.clone(),
     };
     // Dump to canonical YAML string (no comments)
-    let yaml_str = serde_yaml::to_string(&clean).unwrap();
+    let yaml_str = process_yaml_11(serde_yaml_ng::to_string(&clean).unwrap());
     // Compute SHA256 hash
-    let mut hasher = Blake2s256::new();
+    let mut hasher = blake2::Blake2s256::new();
     hasher.update(yaml_str.as_bytes());
     format!("{:x}", hasher.finalize())
 }
@@ -607,12 +628,12 @@ pub fn insert_yaml_hash(yaml: &mut Value) {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use serde_yaml::Value;
+    use serde_yaml_ng::Value;
     use std::collections::BTreeMap;
 
     #[test]
     fn test_hash_insertion() {
-        let mut map = serde_yaml::Mapping::new();
+        let mut map = serde_yaml_ng::Mapping::new();
         map.insert(
             Value::String("foo".to_string()),
             Value::String("bar".to_string()),

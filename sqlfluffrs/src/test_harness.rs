@@ -6,7 +6,7 @@
 /// 3. Compare parsed results against expected YAML files
 use crate::parser::{Node, Parser};
 use hashbrown::HashSet;
-use serde_yaml::{Mapping, Value};
+use serde_yaml_ng::{Mapping, Value};
 use sqlfluffrs_dialects::Dialect;
 use sqlfluffrs_lexer::{LexInput, Lexer};
 use sqlfluffrs_types::Token;
@@ -183,7 +183,7 @@ fn node_to_yaml(node: &Node, tokens: &[Token]) -> Result<String, Box<dyn std::er
                   # `python test/generate_parse_fixture_yml.py`  to generate them after adding or\n\
                   # altering SQL files.\n";
 
-    let yaml_str = serde_yaml::to_string(&Value::Mapping(root_map))?;
+    let yaml_str = serde_yaml_ng::to_string(&Value::Mapping(root_map))?;
     Ok(format!("{}{}", header, yaml_str))
 }
 
@@ -408,8 +408,8 @@ fn node_to_yaml_value(
 /// Compare two YAML strings (ignoring hash and comments)
 fn compare_yaml(generated: &str, expected: &str) -> bool {
     // Parse both as YAML
-    let gen_yaml: Result<Value, _> = serde_yaml::from_str(generated);
-    let exp_yaml: Result<Value, _> = serde_yaml::from_str(expected);
+    let gen_yaml: Result<Value, _> = serde_yaml_ng::from_str(generated);
+    let exp_yaml: Result<Value, _> = serde_yaml_ng::from_str(expected);
 
     match (gen_yaml, exp_yaml) {
         (Ok(gen), Ok(exp)) => {

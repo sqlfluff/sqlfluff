@@ -17,12 +17,18 @@ impl Parser<'_> {
         frame: &ParseFrame,
         results: &mut HashMap<usize, (Node, usize, Option<u64>)>,
     ) -> Result<NextStep, ParseError> {
+        log::debug!(
+            "START Empty: frame_id={}, pos={}",
+            frame.frame_id,
+            frame.pos
+        );
         results.insert(frame.frame_id, (Node::Empty, frame.pos, None));
         Ok(NextStep::Fallthrough)
     }
 
     /// Handle Missing grammar in iterative parser
     pub fn handle_missing_initial(&mut self) -> Result<NextStep, ParseError> {
+        log::debug!("START Missing");
         log::debug!("Trying missing grammar");
         Err(ParseError::new("Encountered Missing grammar".into()))
     }
@@ -34,6 +40,12 @@ impl Parser<'_> {
         frame: &ParseFrame,
         results: &mut HashMap<usize, (Node, usize, Option<u64>)>,
     ) -> Result<NextStep, ParseError> {
+        log::debug!(
+            "START Meta: frame_id={}, pos={}, grammar={:?}",
+            frame.frame_id,
+            frame.pos,
+            grammar
+        );
         let token_type = match grammar.as_ref() {
             Grammar::Meta(token_type) => *token_type,
             _ => {
@@ -64,6 +76,11 @@ impl Parser<'_> {
         parent_terminators: &[Arc<Grammar>],
         results: &mut HashMap<usize, (Node, usize, Option<u64>)>,
     ) -> Result<NextStep, ParseError> {
+        log::debug!(
+            "START Anything: frame_id={}, pos={}",
+            frame.frame_id,
+            frame.pos
+        );
         self.pos = frame.pos;
         let mut anything_tokens = vec![];
 
@@ -101,6 +118,11 @@ impl Parser<'_> {
         frame: &ParseFrame,
         results: &mut HashMap<usize, (Node, usize, Option<u64>)>,
     ) -> Result<NextStep, ParseError> {
+        log::debug!(
+            "START Nothing: frame_id={}, pos={}",
+            frame.frame_id,
+            frame.pos
+        );
         log::debug!("Nothing grammar encountered, returning Empty");
         results.insert(frame.frame_id, (Node::Empty, frame.pos, None));
         Ok(NextStep::Fallthrough)
@@ -115,6 +137,12 @@ impl Parser<'_> {
         stack: &mut ParseFrameStack,
         iteration_count: usize,
     ) -> Result<NextStep, ParseError> {
+        log::debug!(
+            "START Ref: frame_id={}, pos={}, grammar={:?}",
+            frame.frame_id,
+            frame.pos,
+            grammar
+        );
         // Destructure Grammar::Ref fields
         let (name, optional, allow_gaps, ref_terminators, reset_terminators, exclude) =
             match grammar.as_ref() {
@@ -144,8 +172,10 @@ impl Parser<'_> {
                 stack
                     .results
                     .insert(frame.frame_id, (Node::Empty, frame.pos, None));
+                log::debug!("exclude grammar hit: {:?}!", exclude_match);
                 return Ok(NextStep::Fallthrough);
             }
+            log::debug!("exclude grammar missed!");
         }
         log::debug!(
             "Ref to segment: {}, optional: {}, allow_gaps: {}",
@@ -330,6 +360,11 @@ impl Parser<'_> {
         frame: &ParseFrame,
         results: &mut HashMap<usize, (Node, usize, Option<u64>)>,
     ) -> Result<NextStep, ParseError> {
+        log::debug!(
+            "START NonCodeMatcher: frame_id={}, pos={}",
+            frame.frame_id,
+            frame.pos
+        );
         self.pos = frame.pos;
         if let Some(tok) = self.peek() {
             let typ = tok.get_type();

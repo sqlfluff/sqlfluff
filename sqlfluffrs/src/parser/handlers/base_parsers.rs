@@ -16,6 +16,12 @@ impl Parser<'_> {
         iteration_count: usize,
         results: &mut HashMap<usize, (Node, usize, Option<u64>)>,
     ) -> Result<NextStep, ParseError> {
+        log::debug!(
+            "START StringParser: frame_id={}, pos={}, grammar={:?}",
+            frame.frame_id,
+            frame.pos,
+            grammar
+        );
         let (template, token_type) = match grammar.as_ref() {
             Grammar::StringParser {
                 template,
@@ -32,11 +38,20 @@ impl Parser<'_> {
         self.skip_transparent(true);
         let tok_raw = self.peek().cloned();
 
+        log::debug!(
+            "START StringParser: frame_id={}, pos={}, template='{}', token_type='{}', peeked_token={:?}",
+            frame.frame_id,
+            self.pos,
+            template,
+            token_type,
+            tok_raw.as_ref().map(|t| t.raw())
+        );
+
         match tok_raw {
             Some(tok) if tok.raw().eq_ignore_ascii_case(template) => {
                 let token_pos = self.pos;
                 self.bump();
-                log::debug!("MATCHED String matched: {}", tok);
+                log::debug!("MATCHED StringParser: frame_id={}, matched token: {}", frame.frame_id, tok.raw());
 
                 let node = Node::Token {
                     token_type: token_type.to_string(),
@@ -46,7 +61,7 @@ impl Parser<'_> {
                 results.insert(frame.frame_id, (node, self.pos, None));
             }
             _ => {
-                log::debug!("String parser didn't match '{}', returning Empty", template);
+                log::debug!("NOMATCH StringParser: frame_id={}, template='{}', peeked_token={:?}", frame.frame_id, template, tok_raw.as_ref().map(|t| t.raw()));
                 log::debug!(
                     "DEBUG [iter {}]: StringParser('{}') frame_id={} storing Empty result",
                     iteration_count,
@@ -66,6 +81,12 @@ impl Parser<'_> {
         frame: &ParseFrame,
         results: &mut HashMap<usize, (Node, usize, Option<u64>)>,
     ) -> Result<NextStep, ParseError> {
+        log::debug!(
+            "START MultiStringParser: frame_id={}, pos={}, grammar={:?}",
+            frame.frame_id,
+            frame.pos,
+            grammar
+        );
         let (templates, token_type) = match grammar.as_ref() {
             Grammar::MultiStringParser {
                 templates,
@@ -115,6 +136,12 @@ impl Parser<'_> {
         frame: &ParseFrame,
         results: &mut HashMap<usize, (Node, usize, Option<u64>)>,
     ) -> Result<NextStep, ParseError> {
+        log::debug!(
+            "START TypedParser: frame_id={}, pos={}, grammar={:?}",
+            frame.frame_id,
+            frame.pos,
+            grammar
+        );
         let (template, token_type) = match grammar.as_ref() {
             Grammar::TypedParser {
                 template,
@@ -128,11 +155,12 @@ impl Parser<'_> {
             }
         };
         log::debug!(
-            "DEBUG: TypedParser frame_id={}, pos={}, parent_max_idx={:?}, template={:?}",
+            "START TypedParser: frame_id={}, pos={}, template='{}', token_type='{}', peeked_token={:?}",
             frame.frame_id,
-            frame.pos,
-            frame.parent_max_idx,
-            template
+            self.pos,
+            template,
+            token_type,
+            self.peek().as_ref().map(|t| t.raw())
         );
 
         self.pos = frame.pos;
@@ -152,11 +180,12 @@ impl Parser<'_> {
                 let token_pos = self.pos;
                 self.bump();
                 log::debug!(
-                    "DEBUG: TypedParser MATCHED! frame_id={}, consumed token at pos={}",
+                    "MATCHED TypedParser: frame_id={}, matched token: type={}, raw={}",
                     frame.frame_id,
-                    token_pos
+                    tok.token_type,
+                    raw
                 );
-                log::debug!("MATCHED Typed matched: {}", tok.token_type);
+                log::debug!("MATCHED Node::Token: type={}, raw={}, token_idx={}", tok.token_type, raw, token_pos);
                 let node = Node::Token {
                     token_type: token_type.to_string(),
                     raw,
@@ -165,15 +194,17 @@ impl Parser<'_> {
                 results.insert(frame.frame_id, (node, self.pos, None));
             } else {
                 log::debug!(
-                    "DEBUG: TypedParser FAILED to match! frame_id={}, expected='{}', found='{}'",
+                    "NOMATCH TypedParser: frame_id={}, expected type '{}', found type '{}', raw '{}'",
                     frame.frame_id,
                     template,
-                    tok.token_type
+                    tok.token_type,
+                    tok.raw()
                 );
                 log::debug!(
-                    "Typed parser failed: expected '{}', found '{}'",
+                    "FAILED Node::Token: expected type '{}', found type '{}', raw '{}'",
                     template,
-                    tok.token_type
+                    tok.token_type,
+                    tok.raw()
                 );
                 results.insert(frame.frame_id, (Node::Empty, frame.pos, None));
             }
@@ -197,6 +228,12 @@ impl Parser<'_> {
         frame: &ParseFrame,
         results: &mut HashMap<usize, (Node, usize, Option<u64>)>,
     ) -> Result<NextStep, ParseError> {
+        log::debug!(
+            "START RegexParser: frame_id={}, pos={}, grammar={:?}",
+            frame.frame_id,
+            frame.pos,
+            grammar
+        );
         let (template, anti_template, token_type) = match grammar.as_ref() {
             Grammar::RegexParser {
                 template,
