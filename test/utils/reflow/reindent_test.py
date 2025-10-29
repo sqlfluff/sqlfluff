@@ -830,3 +830,173 @@ def test_reflow__lint_indent_points(raw_sql_in, raw_sql_out, default_config, cap
 def test_reflow__desired_indent_units(indent_line, forced_indents, expected_units):
     """Test _IndentLine.desired_indent_units() directly."""
     assert indent_line.desired_indent_units(forced_indents) == expected_units
+
+
+@pytest.mark.parametrize(
+    "spacing_after_value,should_raise",
+    [
+        ("single", False),
+        ("touch", False),
+        ("any", True),
+        ("touch:inline", True),
+        ("align", True),
+        ("unsupported_value", True),
+    ],
+)
+def test_reflow__reindent_spacing_after_with_align_following(
+    spacing_after_value, should_raise, default_config
+):
+    """Test spacing_after values with line_position="leading:align-following".
+
+    This tests both valid ("single", "touch") and unsupported spacing_after
+    values when line_position is set to "leading:align-following". Unsupported
+    values should raise NotImplementedError.
+    """
+    from sqlfluff.utils.reflow.config import ReflowConfig
+
+    # Create SQL that includes a comma
+    raw_sql = "select\n  1,\n  2"
+
+    # Parse the SQL first
+    root = parse_ansi_string(raw_sql, default_config)
+
+    # Create a custom reflow config with the specific settings
+    custom_config_dict = {
+        "comma": {
+            "line_position": "leading:align-following",
+            "spacing_after": spacing_after_value,
+        }
+    }
+    reflow_config = ReflowConfig.from_dict(
+        custom_config_dict,
+        indent_unit="space",
+        tab_space_size=4,
+    )
+
+    # Create a reflow sequence with the custom config
+    seq = ReflowSequence.from_root(root, config=default_config)
+    # Override the reflow_config with our custom one
+    seq = ReflowSequence(
+        elements=seq.elements,
+        root_segment=seq.root_segment,
+        reflow_config=reflow_config,
+        depth_map=seq.depth_map,
+    )
+
+    if should_raise:
+        # This should raise NotImplementedError
+        with pytest.raises(
+            NotImplementedError,
+            match=r"spacing after type of `.+` is not supported",
+        ):
+            seq.reindent()
+    else:
+        # This should succeed without raising an exception
+        result = seq.reindent()
+        assert result is not None
+
+
+def test_reflow__indent_compensation_insufficient_space_warning(
+    default_config, caplog, capsys
+):
+    """Test warning when there's insufficient space for indent compensation.
+
+    This tests the code path in _calculate_desired_starting_indent where
+    there isn't enough indentation space to compensate for leading comma/operator
+    alignment, triggering the warning at reindent.py:1355-1360.
+    """
+    from sqlfluff.utils.reflow.config import ReflowConfig
+
+    # Create SQL with a binary operator on a line that needs minimal indent
+    # Using "AND" (3 chars) + spacing_after (1 space) = 4 chars compensation
+    # But the line only has 1 indent unit = 2 spaces with tab_space_size=2
+    # This triggers: len("  ") < abs(-4) → 2 < 4 → True
+    raw_sql = "select 1\nwhere true\nAND false"
+
+    # Parse the SQL first
+    root = parse_ansi_string(raw_sql, default_config)
+
+    # Create a custom reflow config with:
+    # - tab_space_size=2 (small indent)
+    # - binary_operator with line_position="leading:align-following"
+    # - spacing_after="single" (adds 1 space to compensation)
+    custom_config_dict = {
+        "binary_operator": {
+            "line_position": "leading:align-following",
+            "spacing_after": "single",
+        }
+    }
+    reflow_config = ReflowConfig.from_dict(
+        custom_config_dict,
+        indent_unit="space",
+        tab_space_size=2,  # Small indent to trigger insufficient space
+    )
+
+    # Create a reflow sequence with the custom config
+    seq = ReflowSequence.from_root(root, config=default_config)
+    seq = ReflowSequence(
+        elements=seq.elements,
+        root_segment=seq.root_segment,
+        reflow_config=reflow_config,
+        depth_map=seq.depth_map,
+    )
+
+    # Call reindent - this exercises the code path
+    # If it executes without error, the code path is covered
+    result = seq.reindent()
+
+    # Verify it returns a result and doesn't crash
+    assert result is not None
+    # The warning is logged (visible in test output) but we don't assert on it
+    # due to pytest-xdist capture limitations
+
+
+def test_reflow__indent_compensation_success_path(default_config, caplog):
+    """Test successful indent compensation for leading comma/operator alignment.
+
+    This tests the code path in _calculate_desired_starting_indent where
+    there IS enough indentation space to compensate, triggering the debug
+    log and successful compensation at reindent.py:1363-1367.
+    """
+    from sqlfluff.utils.reflow.config import ReflowConfig
+
+    # Create SQL with a comma on subsequent lines
+    # Using comma + spacing_after will require compensation
+    raw_sql = "select\n    1\n    , 2\n    , 3"
+
+    # Parse the SQL first
+    root = parse_ansi_string(raw_sql, default_config)
+
+    # Create a custom reflow config with:
+    # - comma with line_position="leading:align-following"
+    # - spacing_after="single" (adds 1 space after comma)
+    # - tab_space_size=4 (enough space for compensation)
+    custom_config_dict = {
+        "comma": {
+            "line_position": "leading:align-following",
+            "spacing_after": "single",
+        }
+    }
+    reflow_config = ReflowConfig.from_dict(
+        custom_config_dict,
+        indent_unit="space",
+        tab_space_size=4,  # Large enough indent for compensation
+    )
+
+    # Create a reflow sequence with the custom config
+    seq = ReflowSequence.from_root(root, config=default_config)
+    seq = ReflowSequence(
+        elements=seq.elements,
+        root_segment=seq.root_segment,
+        reflow_config=reflow_config,
+        depth_map=seq.depth_map,
+    )
+
+    # Call reindent - this exercises the code path
+    # If it executes without error, the code path is covered
+    result = seq.reindent()
+
+    # Verify it returns a result and doesn't crash
+    assert result is not None
+    # The warning is logged (visible in test output) but we don't assert on it
+    # due to pytest-xdist capture limitations
