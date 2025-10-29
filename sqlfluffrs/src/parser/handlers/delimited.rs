@@ -1,8 +1,8 @@
 use std::sync::Arc;
 
 use crate::parser::iterative::{NextStep, ParseFrameStack};
-use crate::parser::DelimitedState;
 use crate::parser::utils::skip_start_index_forward_to_code;
+use crate::parser::DelimitedState;
 use crate::parser::{FrameContext, FrameState};
 use crate::parser::{Node, ParseError, ParseFrame};
 use sqlfluffrs_types::{Grammar, ParseMode};
@@ -55,10 +55,11 @@ impl crate::parser::Parser<'_> {
                 *parse_mode,
             ),
             _ => {
-                return Err(ParseError {
-                    message: "handle_delimited_initial called with non-Delimited grammar"
-                        .to_string(),
-                });
+                return Err(ParseError::with_context(
+                    "handle_delimited_initial called with non-Delimited grammar".to_string(),
+                    Some(self.pos),
+                    Some(grammar),
+                ));
             }
         };
 
@@ -143,17 +144,15 @@ impl crate::parser::Parser<'_> {
             if optional {
                 stack.results.insert(
                     frame.frame_id,
-                    (
-                        Node::DelimitedList { children: vec![] },
-                        working_pos,
-                        None,
-                    ),
+                    (Node::DelimitedList { children: vec![] }, working_pos, None),
                 );
                 return Ok(NextStep::Fallthrough);
             } else {
-                return Err(ParseError {
-                    message: "Delimited: expected at least one element, but none found".to_string(),
-                });
+                return Err(ParseError::with_context(
+                    "Delimited: expected at least one element, but none found".to_string(),
+                    Some(self.pos),
+                    Some(grammar),
+                ));
             }
         }
 
@@ -268,11 +267,7 @@ impl crate::parser::Parser<'_> {
                     if *delimiter_count < *min_delimiters {
                         stack.results.insert(
                             frame.frame_id,
-                            (
-                                Node::DelimitedList { children: vec![] },
-                                frame.pos,
-                                None,
-                            ),
+                            (Node::DelimitedList { children: vec![] }, frame.pos, None),
                         );
                         return Ok(());
                     }
@@ -341,11 +336,7 @@ impl crate::parser::Parser<'_> {
                         if *delimiter_count < *min_delimiters {
                             stack.results.insert(
                                 frame.frame_id,
-                                (
-                                    Node::DelimitedList { children: vec![] },
-                                    frame.pos,
-                                    None,
-                                ),
+                                (Node::DelimitedList { children: vec![] }, frame.pos, None),
                             );
                             return Ok(());
                         }
@@ -392,11 +383,7 @@ impl crate::parser::Parser<'_> {
                             self.pos = frame.pos;
                             stack.results.insert(
                                 frame.frame_id,
-                                (
-                                    Node::DelimitedList { children: vec![] },
-                                    frame.pos,
-                                    None,
-                                ),
+                                (Node::DelimitedList { children: vec![] }, frame.pos, None),
                             );
                         } else {
                             panic!(
@@ -461,7 +448,9 @@ impl crate::parser::Parser<'_> {
                     if self.is_terminated(&frame_terminators) {
                         log::debug!("[ITERATIVE] Delimited: terminated after delimiter");
                         if !*allow_trailing {
-                            return Err(ParseError::new("Trailing delimiter not allowed".to_string()));
+                            return Err(ParseError::new(
+                                "Trailing delimiter not allowed".to_string(),
+                            ));
                         }
                         // Handle trailing delimiter if allowed and present
                         if *allow_trailing && delimiter_match.is_some() {
@@ -472,11 +461,7 @@ impl crate::parser::Parser<'_> {
                         if *delimiter_count < *min_delimiters {
                             stack.results.insert(
                                 frame.frame_id,
-                                (
-                                    Node::DelimitedList { children: vec![] },
-                                    frame.pos,
-                                    None,
-                                ),
+                                (Node::DelimitedList { children: vec![] }, frame.pos, None),
                             );
                             return Ok(());
                         }
@@ -508,11 +493,7 @@ impl crate::parser::Parser<'_> {
                             if *delimiter_count < *min_delimiters {
                                 stack.results.insert(
                                     frame.frame_id,
-                                    (
-                                        Node::DelimitedList { children: vec![] },
-                                        frame.pos,
-                                        None,
-                                    ),
+                                    (Node::DelimitedList { children: vec![] }, frame.pos, None),
                                 );
                                 return Ok(());
                             }

@@ -59,9 +59,11 @@ impl crate::parser::Parser<'_> {
                 *parse_mode,
             ),
             _ => {
-                return Err(ParseError {
-                    message: "handle_anysetof_initial called with non-AnySetOf grammar".to_string(),
-                });
+                return Err(ParseError::with_context(
+                    "handle_anysetof_initial called with non-AnySetOf grammar".to_string(),
+                    Some(self.pos),
+                    Some(grammar),
+                ));
             }
         };
 
@@ -79,7 +81,7 @@ impl crate::parser::Parser<'_> {
         if let Some(exclude_grammar) = exclude {
             let test_result =
                 self.try_match_grammar((**exclude_grammar).clone(), pos, parent_terminators);
-            if test_result.is_some() {
+            if test_result.is_ok() {
                 log::debug!(
                     "AnySetOf: exclude grammar matched at pos {}, returning empty",
                     pos
@@ -439,10 +441,11 @@ impl crate::parser::Parser<'_> {
                 *parse_mode,
             ),
             _ => {
-                return Err(ParseError {
-                    message: "handle_anynumberof_initial called with non-AnyNumberOf grammar"
-                        .to_string(),
-                });
+                return Err(ParseError::with_context(
+                    "handle_anynumberof_initial called with non-AnyNumberOf grammar".to_string(),
+                    Some(self.pos),
+                    Some(grammar),
+                ));
             }
         };
         let start_idx = frame.pos;
@@ -468,7 +471,7 @@ impl crate::parser::Parser<'_> {
         if let Some(exclude_grammar) = exclude {
             let test_result =
                 self.try_match_grammar(*exclude_grammar.clone(), start_idx, parent_terminators);
-            if test_result.is_some() {
+            if test_result.is_ok() {
                 log::debug!(
                     "AnyNumberOf: exclude grammar matched at pos {}, returning empty",
                     start_idx
@@ -819,7 +822,7 @@ impl crate::parser::Parser<'_> {
         if let Some(exclude_grammar) = exclude {
             let test_result =
                 self.try_match_grammar(*exclude_grammar.clone(), pos, parent_terminators);
-            if test_result.is_some() {
+            if test_result.is_ok() {
                 stack
                     .results
                     .insert(frame.frame_id, (Node::Empty, pos, None));
@@ -1099,7 +1102,7 @@ impl crate::parser::Parser<'_> {
         grammar: Arc<Grammar>,
         pos: usize,
         terminators: &[Arc<Grammar>],
-    ) -> Option<usize> {
+    ) -> Result<usize, ParseError> {
         // Save current state
         let saved_pos = self.pos;
 
@@ -1107,7 +1110,7 @@ impl crate::parser::Parser<'_> {
         // This will temporarily move the parser position but we'll restore it
         self.pos = pos;
 
-        let result = self.parse_with_grammar_cached(grammar, terminators);
+        let result = self.parse_with_grammar_cached(&grammar, terminators);
 
         // Get the end position before restoring
         let end_pos = self.pos;
@@ -1120,12 +1123,16 @@ impl crate::parser::Parser<'_> {
             Ok(node) => {
                 // Only consider it a match if we actually consumed something meaningful (not just whitespace)
                 if end_pos > pos && !matches!(node, Node::Empty) {
-                    Some(end_pos)
+                    Ok(end_pos)
                 } else {
-                    None
+                    Err(ParseError::with_context(
+                        "trying but only an empty match found".to_string(),
+                        Some(self.pos),
+                        Some(grammar),
+                    ))
                 }
             }
-            Err(_) => None,
+            Err(s) => Err(s),
         }
     }
 }

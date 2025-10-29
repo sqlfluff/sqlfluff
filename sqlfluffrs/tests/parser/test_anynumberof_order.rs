@@ -12,7 +12,7 @@ fn test_anynumberof_trim_function() {
 
     let mut parser = Parser::new(&tokens, sqlfluffrs_dialects::Dialect::Ansi);
     let _ = env_logger::builder().is_test(true).try_init();
-    let node = parser.parse_with_grammar_cached(grammar, &[]).unwrap();
+    let node = parser.parse_with_grammar_cached(&grammar, &[]).unwrap();
     println!("{:#?}", node);
     // The result should match the TRIM grammar, not the EXTRACT/SUBSTRING grammar
     assert!(contains_trim_parameters_grammar(&node), "Should contain TrimParametersGrammar");
@@ -31,7 +31,7 @@ fn test_anynumberof_trim_function_with_expression() {
 
     let mut parser = Parser::new(&tokens, sqlfluffrs_dialects::Dialect::Ansi);
     let _ = env_logger::builder().is_test(true).try_init();
-    let node = parser.parse_with_grammar_cached(grammar, &[]).unwrap();
+    let node = parser.parse_with_grammar_cached(&grammar, &[]).unwrap();
     println!("{:#?}", node);
     // The result should match the TRIM grammar, not the EXTRACT/SUBSTRING grammar
     assert!(contains_trim_parameters_grammar(&node), "Should contain TrimParametersGrammar");
@@ -66,7 +66,7 @@ fn test_anynumberof_order_and_earliest_match() {
 
     let mut parser = Parser::new(&tokens, sqlfluffrs_dialects::Dialect::Ansi);
     let _ = env_logger::builder().is_test(true).try_init();
-    let node = parser.parse_with_grammar_cached(grammar, &[]).unwrap();
+    let node = parser.parse_with_grammar_cached(&grammar, &[]).unwrap();
     // The result should match the TRIM grammar, not the EXTRACT/SUBSTRING grammar
     println!("{:#?}", node);
     assert!(contains_trim_parameters_grammar(&node), "Should contain TrimParametersGrammar");
@@ -99,7 +99,7 @@ fn test_anynumberof_order_and_earliest_match_with_expression() {
     let grammar = get_ansi_segment_grammar("FunctionContentsGrammar").expect("FunctionContentsGrammar not found");
 
     let mut parser = Parser::new(&tokens, sqlfluffrs_dialects::Dialect::Ansi);
-    let node = parser.parse_with_grammar_cached(grammar, &[]).unwrap();
+    let node = parser.parse_with_grammar_cached(&grammar, &[]).unwrap();
     // The result should match the TRIM grammar, not the EXTRACT/SUBSTRING grammar
     println!("{:#?}", node);
     assert!(contains_trim_parameters_grammar(&node), "Should contain TrimParametersGrammar");

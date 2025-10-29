@@ -657,10 +657,11 @@ impl<'a> Parser<'_> {
                 parse_mode,
             ),
             _ => {
-                return Err(ParseError {
-                    message: "handle_bracketed_initial called with non-Bracketed grammar"
-                        .to_string(),
-                });
+                return Err(ParseError::with_context(
+                    "handle_bracketed_initial called with non-Bracketed grammar".to_string(),
+                    Some(self.pos),
+                    Some(grammar),
+                ));
             }
         };
         let start_idx = frame.pos;

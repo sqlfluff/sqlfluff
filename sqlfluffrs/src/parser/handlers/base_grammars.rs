@@ -30,7 +30,11 @@ impl Parser<'_> {
     pub fn handle_missing_initial(&mut self) -> Result<NextStep, ParseError> {
         log::debug!("START Missing");
         log::debug!("Trying missing grammar");
-        Err(ParseError::new("Encountered Missing grammar".into()))
+        Err(ParseError::with_context(
+            "Encountered Missing grammar".into(),
+            Some(self.pos),
+            None,
+        ))
     }
 
     /// Handle Meta grammar in iterative parser
@@ -49,8 +53,10 @@ impl Parser<'_> {
         let token_type = match grammar.as_ref() {
             Grammar::Meta(token_type) => *token_type,
             _ => {
-                return Err(ParseError::new(
+                return Err(ParseError::with_context(
                     "handle_meta_initial called with non-Meta grammar".into(),
+                    Some(self.pos),
+                    Some(grammar),
                 ));
             }
         };
@@ -168,7 +174,7 @@ impl Parser<'_> {
         if let Some(exclude_grammar) = exclude {
             let exclude_match =
                 self.try_match_grammar((**exclude_grammar).clone(), frame.pos, parent_terminators);
-            if exclude_match.is_some() {
+            if exclude_match.is_ok() {
                 stack
                     .results
                     .insert(frame.frame_id, (Node::Empty, frame.pos, None));
@@ -272,7 +278,10 @@ impl Parser<'_> {
                     Ok(NextStep::Fallthrough) // Don't continue, we stored a result
                 } else {
                     log::debug!("Iterative Ref failed (grammar not found), returning error");
-                    Err(ParseError::unknown_segment(name.to_string()))
+                    Err(ParseError::unknown_segment(
+                        name.to_string(),
+                        Some(self.pos),
+                    ))
                 }
             }
         }

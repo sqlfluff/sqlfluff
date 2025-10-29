@@ -16,7 +16,7 @@ mod iterative;
 mod utils;
 
 // Re-export public types
-pub use types::{Node, ParseError, SegmentDef, Parsed, ParseErrorType, ParseContext};
+pub use types::{Node, ParseError, SegmentDef, ParseErrorType, ParseContext};
 pub use core::Parser;
 pub use sqlfluffrs_types::{Grammar, ParseMode};
 

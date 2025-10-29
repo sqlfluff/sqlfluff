@@ -62,7 +62,7 @@ fn test_anysetof_basic() -> Result<(), ParseError> {
     });
 
     // Use the internal parse method directly
-    let result = parser.parse_with_grammar_cached(grammar, &[])?;
+    let result = parser.parse_with_grammar_cached(&grammar, &[])?;
 
     println!("\nParsed successfully!");
     println!("Result: {:#?}", result);
@@ -116,7 +116,7 @@ fn test_anysetof_order_independent() -> Result<(), ParseError> {
             simple_hint: None,
         });
 
-        let result = parser.parse_with_grammar_cached(grammar, &[])?;
+        let result = parser.parse_with_grammar_cached(&grammar, &[])?;
 
         println!("Result: {:#?}", result);
 
@@ -399,7 +399,7 @@ fn test_delimited_basic() -> Result<(), ParseError> {
         simple_hint: None,
     });
 
-    let result = parser.parse_with_grammar_cached(grammar, &[])?;
+    let result = parser.parse_with_grammar_cached(&grammar, &[])?;
     println!("\nDelimited parse result: {:#?}", result);
 
     // Should produce a DelimitedList with 5 children: A, comma, B, comma, C
@@ -455,7 +455,7 @@ fn test_delimited_optional_and_trailing() -> Result<(), ParseError> {
         parse_mode: ParseMode::Strict,
         simple_hint: None,
     });
-    let result = parser.parse_with_grammar_cached(grammar.clone(), &[])?;
+    let result = parser.parse_with_grammar_cached(&grammar.clone(), &[])?;
     match result {
         Node::DelimitedList { ref children } => {
             assert_eq!(children.len(), 6, "Should include trailing delimiter");
@@ -480,7 +480,7 @@ fn test_delimited_optional_and_trailing() -> Result<(), ParseError> {
         parse_mode: ParseMode::Strict,
         simple_hint: None,
     });
-    let result = parser.parse_with_grammar_cached(grammar.clone(), &[]);
+    let result = parser.parse_with_grammar_cached(&grammar, &[]);
     println!("{:#?}", result);
     assert!(result.is_err(), "Should error if trailing delimiter is not allowed");
 
@@ -500,7 +500,7 @@ fn test_delimited_optional_and_trailing() -> Result<(), ParseError> {
         parse_mode: ParseMode::Strict,
         simple_hint: None,
     });
-    let result = parser.parse_with_grammar_cached(grammar, &[])?;
+    let result = parser.parse_with_grammar_cached(&grammar, &[])?;
     assert!(result.is_empty(), "Should error if not enough delimiters");
     Ok(())
 }

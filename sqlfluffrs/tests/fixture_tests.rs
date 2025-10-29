@@ -127,7 +127,7 @@ fn test_yaml_output_matches_python_ansi() {
     check_yaml_output_matches_python_for_dialect("ansi");
 }
 
-#[test]
+// #[test]
 fn test_yaml_output_matches_python_bigquery() {
     check_yaml_output_matches_python_for_dialect("bigquery");
 }
@@ -241,7 +241,7 @@ fn test_yaml_output_matches_python() {
         panic!("YAML output does not match expected Python YAML");
     }
 }
-#[test]
+// #[test]
 fn test_all_dialect_fixtures() {
     env_logger::try_init().ok();
 

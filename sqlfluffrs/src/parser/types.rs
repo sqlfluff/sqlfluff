@@ -1,5 +1,7 @@
 //! Core types for the parser: Grammar, Node, ParseMode
 
+use std::sync::Arc;
+
 use serde_yaml_ng::{Mapping, Value};
 use sqlfluffrs_dialects::Dialect;
 use sqlfluffrs_types::{Grammar, Token};
@@ -676,7 +678,7 @@ impl Node {
             Node::Bracketed { children: _ } => Some("bracketed".to_string()),
             Node::Meta {
                 token_type: name, ..
-            } => Some(format!("meta_{}", name)),
+            } => Some(name.to_string()),
             Node::Empty => None,
         }
     }
@@ -746,22 +748,52 @@ fn camel_to_snake(s: &str) -> String {
 #[derive(Debug, Clone)]
 pub struct ParseError {
     pub message: String,
+    pub pos: Option<usize>,
+    pub grammar: Option<Arc<Grammar>>,
+    pub children: Vec<ParseError>,
 }
 
 impl ParseError {
     pub fn new(message: String) -> Self {
-        ParseError { message }
-    }
-
-    pub fn unknown_segment(name: String) -> ParseError {
         ParseError {
-            message: format!("Unknown segment: {}", name),
+            message,
+            pos: None,
+            grammar: None,
+            children: vec![],
         }
     }
-}
 
-pub struct Parsed {
-    // This struct is intentionally left empty for now.
+    pub fn with_context(
+        message: String,
+        pos: Option<usize>,
+        grammar: Option<Arc<Grammar>>,
+    ) -> Self {
+        ParseError {
+            message,
+            pos,
+            grammar,
+            children: vec![],
+        }
+    }
+
+    pub fn with_child(mut self, child: ParseError) -> Self {
+        self.children.push(child);
+        self
+    }
+
+    pub fn with_children(mut self, children: Vec<ParseError>) -> Self {
+        self.children.extend(children);
+        self
+    }
+
+    pub fn unknown_segment(name: String, pos: Option<usize>) -> ParseError {
+        ParseError {
+            message: format!("Unknown segment: {}", name),
+            pos,
+            grammar: None,
+            children: vec![],
+        }
+    }
 }
 
 pub enum ParseErrorType {
@@ -886,7 +918,7 @@ mod tests {
         let record = node.as_record(false, true, false).unwrap();
         let expected = Value::Mapping({
             let mut m = serde_yaml_ng::Mapping::new();
-            m.insert(Value::String("meta_indent".to_string()), Value::Null);
+            m.insert(Value::String("indent".to_string()), Value::Null);
             m
         });
         assert_eq!(record, expected);

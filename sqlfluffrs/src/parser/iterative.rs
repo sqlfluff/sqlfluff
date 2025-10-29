@@ -179,7 +179,7 @@ impl Parser<'_> {
     /// stack-based state machine to avoid stack overflow on deeply nested grammars.
     pub fn parse_iterative(
         &mut self,
-        grammar: Arc<Grammar>,
+        grammar: &Arc<Grammar>,
         parent_terminators: &[Arc<Grammar>],
     ) -> Result<Node, ParseError> {
         use super::cache::CacheKey;
@@ -239,7 +239,7 @@ impl Parser<'_> {
         stack.frame_id_counter += 1;
         stack.push(&mut ParseFrame {
             frame_id: initial_frame_id,
-            grammar: grammar,
+            grammar: grammar.clone(),
             pos: self.pos,
             terminators: parent_terminators.to_vec(),
             state: FrameState::Initial,

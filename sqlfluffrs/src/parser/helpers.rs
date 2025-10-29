@@ -148,7 +148,7 @@ impl<'a> Parser<'a> {
 
         for (match_idx, opt) in available_options.iter().enumerate() {
             let saved_pos = self.pos;
-            match self.parse_with_grammar_cached(opt.clone(), terminators) {
+            match self.parse_with_grammar_cached(&opt, terminators) {
                 Ok(node) => {
                     let length = self.pos - saved_pos;
                     log::debug!("Option {} matched with length {}: {:#?}", opt, length, node);
@@ -618,7 +618,7 @@ impl<'a> Parser<'a> {
             let check_pos = self.pos;
             self.pos = saved_pos;
 
-            if let Ok(node) = self.parse_with_grammar_cached(term.clone(), &[]) {
+            if let Ok(node) = self.parse_with_grammar_cached(&term, &[]) {
                 // Check if the node is "empty" in various ways
                 let is_empty = node.is_empty();
 
