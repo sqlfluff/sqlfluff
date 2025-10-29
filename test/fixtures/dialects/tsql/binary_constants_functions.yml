@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: f12221a8e7cfa2d7e24322b9d1eefb122cd5e4ec0fef843a0c1f313430a51751
+_hash: 957e4dd80af29d29016e24e2462732d294f07c16eb44b1e47286f593166a6ac4
 file:
   batch:
   - statement:
@@ -21,7 +21,7 @@ file:
                     binary_literal: '0x0'
                   keyword: as
                   data_type:
-                    data_type_identifier: uniqueidentifier
+                    keyword: uniqueidentifier
                   end_bracket: )
         statement_terminator: ;
   - statement:
@@ -39,7 +39,7 @@ file:
                     binary_literal: '0xAE'
                   keyword: as
                   data_type:
-                    data_type_identifier: binary
+                    keyword: binary
                     bracketed_arguments:
                       bracketed:
                         start_bracket: (
@@ -63,7 +63,7 @@ file:
                     binary_literal: '0x12Ef'
                   keyword: as
                   data_type:
-                    data_type_identifier: varbinary
+                    keyword: varbinary
                     bracketed_arguments:
                       bracketed:
                         start_bracket: (
@@ -87,7 +87,7 @@ file:
                     binary_literal: 0X0
                   keyword: as
                   data_type:
-                    data_type_identifier: uniqueidentifier
+                    keyword: uniqueidentifier
                   end_bracket: )
         statement_terminator: ;
   - statement:
@@ -102,7 +102,7 @@ file:
                 bracketed:
                   start_bracket: (
                   data_type:
-                    data_type_identifier: binary
+                    keyword: binary
                     bracketed_arguments:
                       bracketed:
                         start_bracket: (
@@ -129,7 +129,7 @@ file:
                     binary_literal: 0x
                   keyword: as
                   data_type:
-                    data_type_identifier: binary
+                    keyword: binary
                     bracketed_arguments:
                       bracketed:
                         start_bracket: (

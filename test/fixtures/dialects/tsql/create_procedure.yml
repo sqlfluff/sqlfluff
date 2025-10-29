@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: c7c3995df07a16741818ad7afc051c9674964d12885cb033f569dd745c2be3e7
+_hash: 107937b14f619379e730b7ecc4c864dcb5596b9b798d8609926f61ea37c5ef15
 file:
 - batch:
     statement:
@@ -163,7 +163,7 @@ file:
             start_bracket: (
             parameter: '@id'
             data_type:
-              data_type_identifier: UNIQUEIDENTIFIER
+              keyword: UNIQUEIDENTIFIER
             end_bracket: )
       - keyword: AS
       - procedure_statement:
@@ -190,7 +190,7 @@ file:
           - start_bracket: (
           - parameter: '@id'
           - data_type:
-              data_type_identifier: UNIQUEIDENTIFIER
+              keyword: UNIQUEIDENTIFIER
           - keyword: 'NULL'
           - comparison_operator:
               raw_comparison_operator: '='
@@ -199,7 +199,7 @@ file:
           - comma: ','
           - parameter: '@fooReadonly'
           - data_type:
-              data_type_identifier: NVARCHAR
+              keyword: NVARCHAR
               bracketed_arguments:
                 bracketed:
                   start_bracket: (
@@ -214,8 +214,8 @@ file:
           - comma: ','
           - parameter: '@bar'
           - data_type:
-              data_type_identifier: BIT
-              keyword: VARYING
+              keyword: BIT
+          - keyword: VARYING
           - keyword: 'NULL'
           - comparison_operator:
               raw_comparison_operator: '='
@@ -225,7 +225,7 @@ file:
           - comma: ','
           - parameter: '@output'
           - data_type:
-              data_type_identifier: TINYINT
+              keyword: TINYINT
           - keyword: OUT
           - end_bracket: )
       - keyword: AS
@@ -301,7 +301,7 @@ file:
           - start_bracket: (
           - parameter: '@id'
           - data_type:
-              data_type_identifier: UNIQUEIDENTIFIER
+              keyword: UNIQUEIDENTIFIER
           - keyword: 'NULL'
           - comparison_operator:
               raw_comparison_operator: '='
@@ -310,7 +310,7 @@ file:
           - comma: ','
           - parameter: '@bar'
           - data_type:
-              data_type_identifier: NVARCHAR
+              keyword: NVARCHAR
               bracketed_arguments:
                 bracketed:
                   start_bracket: (
@@ -362,7 +362,7 @@ file:
           - start_bracket: (
           - parameter: '@id'
           - data_type:
-              data_type_identifier: UNIQUEIDENTIFIER
+              keyword: UNIQUEIDENTIFIER
           - keyword: 'NULL'
           - comparison_operator:
               raw_comparison_operator: '='
@@ -371,7 +371,7 @@ file:
           - comma: ','
           - parameter: '@bar'
           - data_type:
-              data_type_identifier: NVARCHAR
+              keyword: NVARCHAR
               bracketed_arguments:
                 bracketed:
                   start_bracket: (
@@ -430,7 +430,7 @@ file:
           - start_bracket: (
           - parameter: '@id'
           - data_type:
-              data_type_identifier: INT
+              keyword: INT
           - keyword: NOT
           - keyword: 'NULL'
           - end_bracket: )
@@ -506,7 +506,7 @@ file:
           - start_bracket: (
           - parameter: '@id'
           - data_type:
-              data_type_identifier: INT
+              keyword: INT
           - keyword: NOT
           - keyword: 'NULL'
           - end_bracket: )
@@ -567,7 +567,7 @@ file:
           - start_bracket: (
           - parameter: '@id'
           - data_type:
-              data_type_identifier: INT
+              keyword: INT
           - keyword: NOT
           - keyword: 'NULL'
           - end_bracket: )
@@ -685,7 +685,7 @@ file:
           - start_bracket: (
           - parameter: '@id'
           - data_type:
-              data_type_identifier: UNIQUEIDENTIFIER
+              keyword: UNIQUEIDENTIFIER
           - comparison_operator:
               raw_comparison_operator: '='
           - expression:
@@ -699,7 +699,7 @@ file:
           - comma: ','
           - parameter: '@output'
           - data_type:
-              data_type_identifier: NVARCHAR
+              keyword: NVARCHAR
               bracketed_arguments:
                 bracketed:
                   start_bracket: (
@@ -710,7 +710,7 @@ file:
           - comma: ','
           - parameter: '@activated'
           - data_type:
-              data_type_identifier: BIT
+              keyword: BIT
           - keyword: OUT
           - keyword: READONLY
           - end_bracket: )

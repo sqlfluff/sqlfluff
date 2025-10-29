@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: f6bad0bf899b761319fb4b73e547803469634de54af1ba37cde6b6b131b225c1
+_hash: 6b76efbc79d231f5aaeddc946c691411d1f1ab3fe4cca9d66245fb7b364200c2
 file:
   batch:
   - statement:
@@ -20,7 +20,7 @@ file:
         keyword: DECLARE
         parameter: '@BinaryVariable2'
         data_type:
-          data_type_identifier: BINARY
+          keyword: BINARY
           bracketed_arguments:
             bracketed:
               start_bracket: (

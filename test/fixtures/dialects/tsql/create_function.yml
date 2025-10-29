@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 7d5de0e4d9becaba930116f389423f5ecd48dcee6a43ccd5e13e48d2f4d80edd
+_hash: 3b4238d20b24f436b24fd67d165d544f053e2708d0cf45585a2c824d21258277
 file:
 - batch:
     statement:
@@ -19,11 +19,11 @@ file:
             start_bracket: (
             parameter: '@DATE'
             data_type:
-              data_type_identifier: datetime
+              keyword: datetime
             end_bracket: )
       - keyword: RETURNS
       - data_type:
-          data_type_identifier: int
+          keyword: int
       - function_option_segment:
           keyword: WITH
           execute_as_clause:
@@ -40,7 +40,7 @@ file:
                   keyword: DECLARE
                   parameter: '@ISOweek'
                   data_type:
-                    data_type_identifier: int
+                    keyword: int
                   statement_terminator: ;
             - statement:
                 set_local_variable_segment:
@@ -92,7 +92,7 @@ file:
                                           end_bracket: )
                                   keyword: as
                                   data_type:
-                                    data_type_identifier: CHAR
+                                    keyword: CHAR
                                     bracketed_arguments:
                                       bracketed:
                                         start_bracket: (
@@ -155,7 +155,7 @@ file:
                                         integer_literal: '1'
                                       keyword: AS
                                       data_type:
-                                        data_type_identifier: CHAR
+                                        keyword: CHAR
                                         bracketed_arguments:
                                           bracketed:
                                             start_bracket: (
@@ -188,7 +188,7 @@ file:
                                               end_bracket: )
                                       keyword: AS
                                       data_type:
-                                        data_type_identifier: CHAR
+                                        keyword: CHAR
                                         bracketed_arguments:
                                           bracketed:
                                             start_bracket: (
@@ -305,7 +305,7 @@ file:
           column_definition:
             naked_identifier: i
             data_type:
-              data_type_identifier: int
+              keyword: int
           end_bracket: )
       - keyword: AS
       - procedure_statement:
@@ -347,11 +347,11 @@ file:
             parameter: '@DATE'
             keyword: as
             data_type:
-              data_type_identifier: datetime
+              keyword: datetime
             end_bracket: )
       - keyword: RETURNS
       - data_type:
-          data_type_identifier: INT
+          keyword: INT
       - keyword: AS
       - procedure_statement:
           statement:
@@ -379,11 +379,11 @@ file:
             parameter: '@DATE'
             keyword: as
             data_type:
-              data_type_identifier: datetime
+              keyword: datetime
             end_bracket: )
       - keyword: RETURNS
       - data_type:
-          data_type_identifier: INT
+          keyword: INT
       - keyword: AS
       - procedure_statement:
           statement:
@@ -417,7 +417,7 @@ file:
             end_bracket: )
       - keyword: RETURNS
       - data_type:
-          data_type_identifier: nvarchar
+          keyword: nvarchar
           bracketed_arguments:
             bracketed:
               start_bracket: (
@@ -433,7 +433,7 @@ file:
                   keyword: DECLARE
                   parameter: '@str'
                   data_type:
-                    data_type_identifier: nvarchar
+                    keyword: nvarchar
                     bracketed_arguments:
                       bracketed:
                         start_bracket: (
@@ -512,11 +512,11 @@ file:
             start_bracket: (
             parameter: '@my_parameter'
             data_type:
-              data_type_identifier: int
+              keyword: int
             end_bracket: )
       - keyword: returns
       - data_type:
-          data_type_identifier: int
+          keyword: int
       - function_option_segment:
         - keyword: with
         - keyword: schemabinding

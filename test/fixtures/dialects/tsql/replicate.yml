@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: d67b316df0440ff6e5b0fe9acaf0ce7a7c66debf44236b90f8d10e800922cb47
+_hash: 6ac6965b128d761c9e35efcdde63c517e596241aef028627d86b560e9e6b1ee8
 file:
   batch:
   - statement:
@@ -88,7 +88,7 @@ file:
         keyword: DECLARE
         parameter: '@BinVar'
         data_type:
-          data_type_identifier: varbinary
+          keyword: varbinary
           bracketed_arguments:
             bracketed:
               start_bracket: (
@@ -124,7 +124,7 @@ file:
                       - end_bracket: )
                 keyword: AS
                 data_type:
-                  data_type_identifier: varbinary
+                  keyword: varbinary
                   bracketed_arguments:
                     bracketed:
                       start_bracket: (

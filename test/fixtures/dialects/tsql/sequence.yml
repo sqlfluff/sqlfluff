@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: c4323152aa3d00f532c08d31c215e13a456982293f741a4aee205503766310f5
+_hash: 7cf1fb9fb2e93752e7fabaca6b940a39700f31ce3cba9663839b400b5d24d462
 file:
 - batch:
     statement:
@@ -34,7 +34,7 @@ file:
       - create_sequence_options_segment:
           keyword: AS
           data_type:
-            data_type_identifier: decimal
+            keyword: decimal
             bracketed_arguments:
               bracketed:
               - start_bracket: (
