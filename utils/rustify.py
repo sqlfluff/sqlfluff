@@ -44,18 +44,24 @@ if __name__ == "__main__":
     dialects_list = [
         (
             f"utils/{builder}.py",
-            f"sqlfluffrs/src/dialect/{dialect.label.lower()}/{file}.rs",
+            "sqlfluffrs/sqlfluffrs_dialects/src/dialect/"
+            f"{dialect.label.lower()}/{file}.rs",
             args,
         )
         for dialect in dialect_readout()
         for builder, file, args in [
             ("build_dialect", "mod", []),
             ("build_lexers", "matcher", [dialect.label.lower()]),
+            # ("build_parsers", "parser", [dialect.label.lower()]),
         ]
     ]
 
     file_pair_list = [
-        ("utils/build_dialects.py", "sqlfluffrs/src/dialect/mod.rs", []),
+        (
+            "utils/build_dialects.py",
+            "sqlfluffrs/sqlfluffrs_dialects/src/dialect/mod.rs",
+            [],
+        ),
         *dialects_list,
     ]
     parser = argparse.ArgumentParser(
