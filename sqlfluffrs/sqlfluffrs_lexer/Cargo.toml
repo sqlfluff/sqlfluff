@@ -1,0 +1,21 @@
+[package]
+name = "sqlfluffrs_lexer"
+edition = "2024"
+
+[dependencies]
+env_logger = "0.11.8"
+regex = { version = "1.11.2", features = ["perf"] }
+fancy-regex = "0.16.2"
+hashbrown = "0.15.5"
+log = "0.4.28"
+itertools = "0.14.0"
+serde = { version = "1.0.225", features = ["derive"] }
+uuid = { version = "1.18.1", features = ["v4"] }
+sqlfluffrs_types = { path = "../sqlfluffrs_types" }
+sqlfluffrs_dialects = { path = "../sqlfluffrs_dialects" }
+pyo3 = { version = "0.26.0", optional = true, features = ["hashbrown", "extension-module", "uuid"] }
+pyo3-log = { version = "0.13.0", optional = true }
+
+[features]
+unicode = []
+python = ["unicode", "pyo3", "sqlfluffrs_types/python"]
