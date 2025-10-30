@@ -8,7 +8,7 @@
 /// but we still want different cache keys for different parse modes.
 #[cfg(test)]
 mod parse_mode_equality_tests {
-    use sqlfluffrs::parser::{Grammar, ParseMode};
+    use sqlfluffrs_parser::parser::{Grammar, ParseMode};
 
     #[test]
     fn test_parse_mode_method() {

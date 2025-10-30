@@ -8,7 +8,7 @@ use std::sync::Arc;
 use sqlfluffrs_lexer::{LexInput, Lexer};
 use sqlfluffrs_dialects::Dialect;
 use sqlfluffrs_dialects::dialect::ansi::matcher::ANSI_LEXERS;
-use sqlfluffrs::parser::{Grammar, Node, ParseError, ParseMode, Parser};
+use sqlfluffrs_parser::parser::{Grammar, Node, ParseError, ParseMode, Parser};
 
 #[test]
 fn test_oneof_with_exclude() -> Result<(), ParseError> {

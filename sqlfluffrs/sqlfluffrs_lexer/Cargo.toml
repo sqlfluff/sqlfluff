@@ -1,6 +1,6 @@
 [package]
 name = "sqlfluffrs_lexer"
-edition = "2024"
+edition = "2021"
 
 [dependencies]
 env_logger = "0.11.8"

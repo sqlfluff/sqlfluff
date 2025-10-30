@@ -1,6 +1,6 @@
 use sqlfluffrs_lexer::{LexInput, Lexer};
 use sqlfluffrs_dialects::Dialect;
-use sqlfluffrs::parser::Parser;
+use sqlfluffrs_parser::parser::Parser;
 
 fn main() {
     env_logger::init();

@@ -26,7 +26,7 @@ fn check_yaml_output_matches_python_for_dialect(dialect: &str) {
         let lexer = sqlfluffrs_lexer::Lexer::new(None, dialect_obj.get_lexers().to_vec());
         let (tokens, lex_errors) = lexer.lex(input, false);
         assert!(lex_errors.is_empty(), "Lexer errors: {:?}", lex_errors);
-        let mut parser = sqlfluffrs::parser::Parser::new(&tokens, dialect_obj);
+        let mut parser = sqlfluffrs_parser::parser::Parser::new(&tokens, dialect_obj);
         let ast = parser.call_rule_as_root().expect("Parse error");
 
         // Generate YAML
@@ -141,7 +141,7 @@ use sqlfluffrs_lexer::{LexInput, Lexer};
 use sqlfluffrs_dialects::Dialect;
 
 /// Helper: Generate YAML from AST using the same logic as examples/parse_fixture.rs
-fn node_to_yaml(node: &sqlfluffrs::parser::Node, _tokens: &[sqlfluffrs_types::token::Token]) -> Result<String, Box<dyn std::error::Error>> {
+fn node_to_yaml(node: &sqlfluffrs_parser::parser::Node, _tokens: &[sqlfluffrs_types::token::Token]) -> Result<String, Box<dyn std::error::Error>> {
     use serde_yaml_ng::{Mapping, Value};
     let mut root_map = Mapping::new();
     let as_record = node.as_record(true, true, false);
@@ -214,7 +214,7 @@ fn test_yaml_output_matches_python() {
     let (tokens, lex_errors) = lexer.lex(input, false);
     assert!(lex_errors.is_empty(), "Lexer errors: {:?}", lex_errors);
     // Parse
-    let mut parser = sqlfluffrs::parser::Parser::new(&tokens, Dialect::Ansi);
+    let mut parser = sqlfluffrs_parser::parser::Parser::new(&tokens, Dialect::Ansi);
     let ast = parser.call_rule_as_root().expect("Parse error");
     // Generate YAML
     let generated_yaml = node_to_yaml(&ast, &tokens).expect("YAML generation failed");
@@ -320,7 +320,7 @@ fn test_all_dialect_fixtures() {
 /// This test suite parses SQL files from test/fixtures/dialects/ and compares
 /// the output against expected YAML files.
 use sqlfluffrs_dialects::dialect::ansi::matcher::ANSI_LEXERS;
-use sqlfluffrs::{
+use sqlfluffrs_parser::{
     parser::{Node, Parser},
 };
 use std::{str::FromStr};

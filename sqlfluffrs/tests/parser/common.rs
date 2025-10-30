@@ -1,7 +1,7 @@
 //! Common test helpers and utilities
 
 use hashbrown::HashSet;
-use sqlfluffrs::parser::{Node, ParseError, Parser};
+use sqlfluffrs_parser::parser::{Node, ParseError, Parser};
 use sqlfluffrs_types::token::Token;
 use sqlfluffrs_lexer::{LexInput, Lexer};
 use sqlfluffrs_dialects::Dialect;

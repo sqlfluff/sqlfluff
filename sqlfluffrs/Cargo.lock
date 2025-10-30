@@ -2063,6 +2063,7 @@ dependencies = [
  "slotmap",
  "sqlfluffrs_dialects",
  "sqlfluffrs_lexer",
+ "sqlfluffrs_parser",
  "sqlfluffrs_types",
  "uuid",
 ]
@@ -2091,6 +2092,20 @@ dependencies = [
  "pyo3-log",
  "regex",
  "serde",
+ "sqlfluffrs_dialects",
+ "sqlfluffrs_types",
+ "uuid",
+]
+
+[[package]]
+name = "sqlfluffrs_parser"
+version = "0.0.0"
+dependencies = [
+ "env_logger",
+ "hashbrown 0.15.5",
+ "log",
+ "regex",
+ "serde_yaml_ng",
  "sqlfluffrs_dialects",
  "sqlfluffrs_types",
  "uuid",

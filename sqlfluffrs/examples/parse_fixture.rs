@@ -6,7 +6,7 @@
 ///   cargo run --example parse_fixture -- test/fixtures/dialects/ansi/select_simple_a.sql
 ///   cargo run --example parse_fixture -- test/fixtures/dialects/ansi/select_simple_a.sql --compare
 use sqlfluffrs_lexer::{LexInput, Lexer};
-use sqlfluffrs::parser::Parser;
+use sqlfluffrs_parser::parser::Parser;
 use sqlfluffrs_dialects::Dialect;
 use std::env;
 use std::fs;
@@ -212,8 +212,8 @@ fn infer_dialect(path: &Path) -> Dialect {
 }
 
 /// Print the match tree in a format similar to Python SQLFluff
-fn print_match_tree(node: &sqlfluffrs::parser::Node, depth: usize) {
-    use sqlfluffrs::parser::Node;
+fn print_match_tree(node: &sqlfluffrs_parser::parser::Node, depth: usize) {
+    use sqlfluffrs_parser::parser::Node;
 
     let indent = "  ".repeat(depth);
     let prefix = if depth == 0 { "" } else { "+" };
@@ -331,8 +331,8 @@ fn print_match_tree(node: &sqlfluffrs::parser::Node, depth: usize) {
 }
 
 /// Get the start and end position (token indices) for a node
-fn get_node_slice(node: &sqlfluffrs::parser::Node) -> (usize, usize) {
-    use sqlfluffrs::parser::Node;
+fn get_node_slice(node: &sqlfluffrs_parser::parser::Node) -> (usize, usize) {
+    use sqlfluffrs_parser::parser::Node;
 
     match node {
         Node::Token {
@@ -374,7 +374,7 @@ fn get_node_slice(node: &sqlfluffrs::parser::Node) -> (usize, usize) {
 
 /// Convert a Node to YAML format matching Python SQLFluff output
 fn node_to_yaml(
-    node: &sqlfluffrs::parser::Node,
+    node: &sqlfluffrs_parser::parser::Node,
     tokens: &[sqlfluffrs_types::token::Token],
 ) -> Result<String, Box<dyn std::error::Error>> {
     use serde_yaml_ng::{Mapping, Value};
@@ -444,11 +444,11 @@ fn process_yaml_11(yaml_str: String) -> String {
 
 // /// Recursively convert a Node to a YAML Value
 // pub fn node_to_yaml_value(
-//     node: &sqlfluffrs::parser::Node,
+//     node: &sqlfluffrs_parser::parser::Node,
 //     code_only: bool,
 // ) -> Result<serde_yaml_ng::Value, Box<dyn std::error::Error>> {
 //     use serde_yaml_ng::{Mapping, Value};
-//     use sqlfluffrs::parser::Node;
+//     use sqlfluffrs_parser::parser::Node;
 
 //     match node {
 //         Node::Token {

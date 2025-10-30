@@ -37,7 +37,7 @@ fn test_anynumberof_trim_function_with_expression() {
     assert!(contains_trim_parameters_grammar(&node), "Should contain TrimParametersGrammar");
 }
 
-use sqlfluffrs::parser::{Parser, Node};
+use sqlfluffrs_parser::parser::{Parser, Node};
 fn contains_trim_parameters_grammar(node: &Node) -> bool {
     match node {
         Node::Ref { name, .. } if name == "TrimParametersGrammar" => true,

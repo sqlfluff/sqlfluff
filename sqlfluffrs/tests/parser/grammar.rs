@@ -3,7 +3,7 @@
 //! Tests for specific grammar features like AnySetOf, Delimited, Bracketed, etc.
 
 use hashbrown::HashSet;
-use sqlfluffrs::parser::{Grammar, Node, ParseError, ParseMode, Parser};
+use sqlfluffrs_parser::parser::{Grammar, Node, ParseError, ParseMode, Parser};
 use sqlfluffrs_dialects::dialect::ansi::matcher::ANSI_LEXERS;
 use sqlfluffrs_dialects::Dialect;
 use sqlfluffrs_lexer::{LexInput, Lexer};
@@ -708,7 +708,7 @@ fn test_anynumberof_optional_and_empty() -> Result<(), ParseError> {
 #[test]
 fn test_delimited_various_cases() -> Result<(), ParseError> {
     env_logger::try_init().ok();
-    use sqlfluffrs::parser::Grammar;
+    use sqlfluffrs_parser::parser::Grammar;
     // Each tuple: (input, min_delimiters, allow_gaps, allow_trailing, expected_match_len)
     let cases = vec![
         ("bar \t .     bar", 0, true, false, 5),
@@ -804,7 +804,7 @@ fn test_nothing_grammar_matches_nothing() -> Result<(), ParseError> {
 
 #[test]
 fn test_ref_eq_and_repr() {
-    use sqlfluffrs::parser::Grammar;
+    use sqlfluffrs_parser::parser::Grammar;
     // Simulate Ref grammar equality and repr
     let r1 = Grammar::Ref {
         name: "foo",
@@ -1003,7 +1003,7 @@ fn test_sequence_nested_match() -> Result<(), ParseError> {
 
 #[test]
 fn test_sequence_modes_various_cases() -> Result<(), ParseError> {
-    use sqlfluffrs::parser::ParseMode;
+    use sqlfluffrs_parser::parser::ParseMode;
     // Each tuple: (mode, input, sequence, terminators, expect_match, expect_token)
     let cases = vec![
         // STRICT, full match

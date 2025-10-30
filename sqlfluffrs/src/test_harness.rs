@@ -1,14 +1,14 @@
+use hashbrown::HashSet;
+use serde_yaml_ng::{Mapping, Value};
+use sqlfluffrs_dialects::Dialect;
+use sqlfluffrs_lexer::{LexInput, Lexer};
 /// Test harness for parsing SQL fixtures and comparing with YAML expectations
 ///
 /// This module provides functionality to:
 /// 1. Parse SQL files from test/fixtures/dialects/
 /// 2. Generate YAML output in the format used by SQLFluff
 /// 3. Compare parsed results against expected YAML files
-use crate::parser::{Node, Parser};
-use hashbrown::HashSet;
-use serde_yaml_ng::{Mapping, Value};
-use sqlfluffrs_dialects::Dialect;
-use sqlfluffrs_lexer::{LexInput, Lexer};
+use sqlfluffrs_parser::parser::{Node, Parser};
 use sqlfluffrs_types::Token;
 use std::fs;
 use std::path::{Path, PathBuf};

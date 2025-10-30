@@ -2,7 +2,7 @@
 use sqlfluffrs_lexer::{LexInput, Lexer};
 use sqlfluffrs_dialects::Dialect;
 use sqlfluffrs_dialects::dialect::ansi::matcher::ANSI_LEXERS;
-use sqlfluffrs::parser::Parser;
+use sqlfluffrs_parser::parser::Parser;
 
 fn main() {
     // Parse a simple SELECT statement twice
