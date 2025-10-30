@@ -2075,7 +2075,6 @@ dependencies = [
  "hashbrown 0.15.5",
  "once_cell",
  "regex",
- "sqlfluffrs_lexer",
  "sqlfluffrs_types",
 ]
 
@@ -2092,6 +2091,7 @@ dependencies = [
  "pyo3-log",
  "regex",
  "serde",
+ "sqlfluffrs_dialects",
  "sqlfluffrs_types",
  "uuid",
 ]
@@ -2100,9 +2100,11 @@ dependencies = [
 name = "sqlfluffrs_types"
 version = "0.0.0"
 dependencies = [
+ "bincode",
  "fancy-regex",
  "hashbrown 0.15.5",
  "log",
+ "once_cell",
  "pyo3",
  "pyo3-log",
  "regex",

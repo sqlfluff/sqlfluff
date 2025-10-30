@@ -1,6 +1,6 @@
 /* This is a generated file! */
 use once_cell::sync::Lazy;
-use sqlfluffrs_lexer::LexMatcher;
+use sqlfluffrs_types::LexMatcher;
 use sqlfluffrs_types::{Token, TokenConfig, RegexModeGroup};
 
 pub static DATABRICKS_KEYWORDS: Lazy<Vec<String>> = Lazy::new(|| { vec![

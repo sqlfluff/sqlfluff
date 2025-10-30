@@ -4,7 +4,7 @@ use fancy_regex::{Regex as FancyRegex, RegexBuilder as FancyRegexBuilder};
 use hashbrown::HashSet;
 use regex::{Regex, RegexBuilder};
 
-use sqlfluffrs_types::{PositionMarker, RegexModeGroup, Token};
+use crate::{PositionMarker, RegexModeGroup, Token};
 
 // use sqlfluffrs_dialects::Dialect;
 

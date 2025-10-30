@@ -12,7 +12,7 @@ from sqlfluff.core.parser.lexer import LexerType
 def generate_use():
     """Generates the `use` statements."""
     print("use once_cell::sync::Lazy;")
-    print("use sqlfluffrs_lexer::LexMatcher;")
+    print("use sqlfluffrs_types::LexMatcher;")
     print("use sqlfluffrs_types::{Token, TokenConfig, RegexModeGroup};")
 
 

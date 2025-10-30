@@ -61,7 +61,7 @@ pub mod vertica;
 use crate::dialect::vertica::matcher::{VERTICA_KEYWORDS, VERTICA_LEXERS};
 
 use sqlfluffrs_types::Grammar;
-use sqlfluffrs_lexer::LexMatcher;
+use sqlfluffrs_types::LexMatcher;
 use std::str::FromStr;
 
 #[derive(Debug, Eq, PartialEq, Hash, Copy, Clone)]

@@ -20,7 +20,7 @@ def generate_use():
         )
     print()
     print("use sqlfluffrs_types::Grammar;")
-    print("use sqlfluffrs_lexer::LexMatcher;")
+    print("use sqlfluffrs_types::LexMatcher;")
     print("use std::str::FromStr;")
 
 
