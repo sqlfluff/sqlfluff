@@ -1,6 +1,6 @@
 [package]
 name = "sqlfluffrs_dialects"
-edition = "2024"
+edition = "2021"
 
 [dependencies]
 hashbrown = "0.15.5"
