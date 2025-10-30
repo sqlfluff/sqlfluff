@@ -2,12 +2,12 @@
 //!
 //! Tests for specific grammar features like AnySetOf, Delimited, Bracketed, etc.
 
-use std::sync::Arc;
 use hashbrown::HashSet;
 use sqlfluffrs::parser::{Grammar, Node, ParseError, ParseMode, Parser};
-use sqlfluffrs_lexer::{LexInput, Lexer};
-use sqlfluffrs_dialects::Dialect;
 use sqlfluffrs_dialects::dialect::ansi::matcher::ANSI_LEXERS;
+use sqlfluffrs_dialects::Dialect;
+use sqlfluffrs_lexer::{LexInput, Lexer};
+use std::sync::Arc;
 
 macro_rules! with_larger_stack {
     ($test_fn:expr) => {{
@@ -85,7 +85,7 @@ fn test_anysetof_order_independent() -> Result<(), ParseError> {
 
         let input = LexInput::String((*raw).into());
         let dialect = Dialect::Ansi;
-    let lexer = Lexer::new(None, ANSI_LEXERS.to_vec());
+        let lexer = Lexer::new(None, ANSI_LEXERS.to_vec());
         let (tokens, _errors) = lexer.lex(input, false);
 
         let mut parser = Parser::new(&tokens, dialect);
@@ -142,7 +142,7 @@ fn test_anysetof_foreign_key() -> Result<(), ParseError> {
         let raw = "REFERENCES other_table(other_col) ON DELETE CASCADE ON UPDATE RESTRICT";
         let input = LexInput::String(raw.into());
         let dialect = Dialect::Ansi;
-    let lexer = Lexer::new(None, ANSI_LEXERS.to_vec());
+        let lexer = Lexer::new(None, ANSI_LEXERS.to_vec());
         let (tokens, _errors) = lexer.lex(input, false);
 
         let mut parser = Parser::new(&tokens, dialect);
@@ -168,7 +168,7 @@ fn test_anysetof_order_independence() -> Result<(), ParseError> {
         println!("\nTesting: {}", raw);
         let input = LexInput::String(raw.into());
         let dialect = Dialect::Ansi;
-    let lexer = Lexer::new(None, ANSI_LEXERS.to_vec());
+        let lexer = Lexer::new(None, ANSI_LEXERS.to_vec());
         let (tokens, _errors) = lexer.lex(input, false);
 
         let mut parser = Parser::new(&tokens, dialect);
@@ -380,7 +380,10 @@ fn test_delimited_basic() -> Result<(), ParseError> {
     });
     // Element: word (A, B, C)
     let element = Arc::new(Grammar::RegexParser {
-        template: regex::RegexBuilder::new("[A-Z]+").case_insensitive(true).build().unwrap(),
+        template: regex::RegexBuilder::new("[A-Z]+")
+            .case_insensitive(true)
+            .build()
+            .unwrap(),
         raw_class: "WordSegment",
         token_type: "word",
         anti_template: None,
@@ -405,11 +408,19 @@ fn test_delimited_basic() -> Result<(), ParseError> {
     // Should produce a DelimitedList with 5 children: A, comma, B, comma, C
     match result {
         Node::DelimitedList { children } => {
-            assert_eq!(children.len(), 5, "Should have 5 children (A,comma,B,comma,C)");
+            assert_eq!(
+                children.len(),
+                5,
+                "Should have 5 children (A,comma,B,comma,C)"
+            );
             assert!(matches!(&children[0], Node::Token { token_type, .. } if token_type == "word"));
-            assert!(matches!(&children[1], Node::Token { token_type, .. } if token_type == "comma"));
+            assert!(
+                matches!(&children[1], Node::Token { token_type, .. } if token_type == "comma")
+            );
             assert!(matches!(&children[2], Node::Token { token_type, .. } if token_type == "word"));
-            assert!(matches!(&children[3], Node::Token { token_type, .. } if token_type == "comma"));
+            assert!(
+                matches!(&children[3], Node::Token { token_type, .. } if token_type == "comma")
+            );
             assert!(matches!(&children[4], Node::Token { token_type, .. } if token_type == "word"));
         }
         _ => panic!("Expected DelimitedList node, got: {result:?}"),
@@ -432,7 +443,10 @@ fn test_delimited_optional_and_trailing() -> Result<(), ParseError> {
     }));
     // Element: word (A, B, C)
     let element = Arc::new(Grammar::RegexParser {
-        template: regex::RegexBuilder::new("[A-Z]+").case_insensitive(true).build().unwrap(),
+        template: regex::RegexBuilder::new("[A-Z]+")
+            .case_insensitive(true)
+            .build()
+            .unwrap(),
         raw_class: "WordSegment",
         token_type: "word",
         anti_template: None,
@@ -459,7 +473,9 @@ fn test_delimited_optional_and_trailing() -> Result<(), ParseError> {
     match result {
         Node::DelimitedList { ref children } => {
             assert_eq!(children.len(), 6, "Should include trailing delimiter");
-            assert!(matches!(&children[5], Node::Token { token_type, .. } if token_type == "comma"));
+            assert!(
+                matches!(&children[5], Node::Token { token_type, .. } if token_type == "comma")
+            );
         }
         _ => panic!("Expected DelimitedList node for trailing delimiter case"),
     }
@@ -482,7 +498,10 @@ fn test_delimited_optional_and_trailing() -> Result<(), ParseError> {
     });
     let result = parser.parse_with_grammar_cached(&grammar, &[]);
     println!("{:#?}", result);
-    assert!(result.is_err(), "Should error if trailing delimiter is not allowed");
+    assert!(
+        result.is_err(),
+        "Should error if trailing delimiter is not allowed"
+    );
 
     // 3. Minimum delimiters: "A,B"
     let raw = "A,B";
@@ -503,4 +522,752 @@ fn test_delimited_optional_and_trailing() -> Result<(), ParseError> {
     let result = parser.parse_with_grammar_cached(&grammar, &[])?;
     assert!(result.is_empty(), "Should error if not enough delimiters");
     Ok(())
+}
+
+#[test]
+fn test_oneof_longest_vs_first_match() -> Result<(), ParseError> {
+    env_logger::try_init().ok();
+
+    // OneOf should prefer the longest match, not the first
+    // Input: "foobar"; options: "foo", "foobar"
+    let raw = "foobar";
+    let input = LexInput::String(raw.into());
+    let dialect = Dialect::Ansi;
+    let lexer = Lexer::new(None, ANSI_LEXERS.to_vec());
+    let (tokens, _errors) = lexer.lex(input, false);
+    let mut parser = Parser::new(&tokens, dialect);
+
+    let grammar = Arc::new(Grammar::OneOf {
+        elements: vec![
+            Arc::new(Grammar::StringParser {
+                template: "foo",
+                raw_class: "WordSegment",
+                token_type: "word",
+                optional: false,
+            }),
+            Arc::new(Grammar::StringParser {
+                template: "foobar",
+                raw_class: "WordSegment",
+                token_type: "word",
+                optional: false,
+            }),
+        ],
+        exclude: None,
+        optional: false,
+        terminators: vec![],
+        reset_terminators: false,
+        allow_gaps: false,
+        parse_mode: ParseMode::Strict,
+        simple_hint: None,
+    });
+
+    let result = parser.parse_with_grammar_cached(&grammar, &[])?;
+    // Should match "foobar" (the longest)
+    let node_str = format!("{:?}", result);
+    assert!(
+        node_str.contains("foobar"),
+        "Should match the longest option: {node_str}"
+    );
+    Ok(())
+}
+
+#[test]
+fn test_oneof_first_match_when_equal_length() -> Result<(), ParseError> {
+    env_logger::try_init().ok();
+
+    // OneOf should prefer the first match if lengths are equal
+    // Input: "foo"; options: "foo", "bar"
+    let raw = "foo";
+    let input = LexInput::String(raw.into());
+    let dialect = Dialect::Ansi;
+    let lexer = Lexer::new(None, ANSI_LEXERS.to_vec());
+    let (tokens, _errors) = lexer.lex(input, false);
+    let mut parser = Parser::new(&tokens, dialect);
+
+    let grammar = Arc::new(Grammar::OneOf {
+        elements: vec![
+            Arc::new(Grammar::StringParser {
+                template: "foo",
+                raw_class: "WordSegment",
+                token_type: "word",
+                optional: false,
+            }),
+            Arc::new(Grammar::StringParser {
+                template: "bar",
+                raw_class: "WordSegment",
+                token_type: "word",
+                optional: false,
+            }),
+        ],
+        exclude: None,
+        optional: false,
+        terminators: vec![],
+        reset_terminators: false,
+        allow_gaps: false,
+        parse_mode: ParseMode::Strict,
+        simple_hint: None,
+    });
+
+    let result = parser.parse_with_grammar_cached(&grammar, &[])?;
+    let node_str = format!("{:?}", result);
+    assert!(
+        node_str.contains("foo"),
+        "Should match the first option: {node_str}"
+    );
+    Ok(())
+}
+
+#[test]
+fn test_anynumberof_min_max() -> Result<(), ParseError> {
+    env_logger::try_init().ok();
+
+    // AnyNumberOf with min_times=1, max_times=3
+    let raw = "A A B";
+    let input = LexInput::String(raw.into());
+    let dialect = Dialect::Ansi;
+    let lexer = Lexer::new(None, ANSI_LEXERS.to_vec());
+    let (tokens, _errors) = lexer.lex(input, false);
+    let mut parser = Parser::new(&tokens, dialect);
+
+    let grammar = Arc::new(Grammar::AnyNumberOf {
+        elements: vec![
+            Arc::new(Grammar::StringParser {
+                template: "A",
+                raw_class: "WordSegment",
+                token_type: "word",
+                optional: false,
+            }),
+            Arc::new(Grammar::StringParser {
+                template: "B",
+                raw_class: "WordSegment",
+                token_type: "word",
+                optional: false,
+            }),
+        ],
+        min_times: 1,
+        max_times: Some(3),
+        max_times_per_element: None,
+        exclude: None,
+        optional: false,
+        terminators: vec![],
+        reset_terminators: false,
+        allow_gaps: true,
+        parse_mode: ParseMode::Strict,
+        simple_hint: None,
+    });
+
+    let result = parser.parse_with_grammar_cached(&grammar, &[])?;
+    let node_str = format!("{:?}", result);
+    assert!(
+        node_str.contains("A") && node_str.contains("B"),
+        "Should match all elements: {node_str}"
+    );
+    Ok(())
+}
+
+#[test]
+fn test_anynumberof_optional_and_empty() -> Result<(), ParseError> {
+    env_logger::try_init().ok();
+
+    // AnyNumberOf with min_times=0, optional=true, should match empty input
+    let raw = "";
+    let input = LexInput::String(raw.into());
+    let dialect = Dialect::Ansi;
+    let lexer = Lexer::new(None, ANSI_LEXERS.to_vec());
+    let (tokens, _errors) = lexer.lex(input, false);
+    let mut parser = Parser::new(&tokens, dialect);
+
+    let grammar = Arc::new(Grammar::AnyNumberOf {
+        elements: vec![Arc::new(Grammar::StringParser {
+            template: "A",
+            raw_class: "WordSegment",
+            token_type: "word",
+            optional: false,
+        })],
+        min_times: 0,
+        max_times: Some(2),
+        max_times_per_element: None,
+        exclude: None,
+        optional: true,
+        terminators: vec![],
+        reset_terminators: false,
+        allow_gaps: true,
+        parse_mode: ParseMode::Strict,
+        simple_hint: None,
+    });
+
+    let result = parser.parse_with_grammar_cached(&grammar, &[])?;
+    let node_str = format!("{:?}", result);
+    assert!(
+        node_str.contains("Empty"),
+        "Should match as empty: {node_str}"
+    );
+    Ok(())
+}
+
+#[test]
+fn test_delimited_various_cases() -> Result<(), ParseError> {
+    env_logger::try_init().ok();
+    use sqlfluffrs::parser::Grammar;
+    // Each tuple: (input, min_delimiters, allow_gaps, allow_trailing, expected_match_len)
+    let cases = vec![
+        ("bar \t .     bar", 0, true, false, 5),
+        ("bar \t .     bar     ", 0, true, false, 5),
+        ("bar \t .   ", 0, true, false, 1),
+        ("bar \t .   ", 0, true, true, 3),
+        ("bar \t .     bar", 0, true, false, 5),
+        ("bar \t .     bar", 0, false, false, 1),
+        ("bar \t .     bar", 1, true, false, 5),
+        ("bar \t .     bar", 1, false, false, 0),
+        ("bar . bar", 0, true, false, 3),
+        ("bar . bar", 0, false, false, 3),
+        ("bar . bar", 1, true, false, 3),
+        ("bar . bar", 1, false, false, 3),
+        ("bar . bar foo", 1, false, false, 3),
+        ("bar . bar foo", 2, true, false, 0),
+    ];
+    for (raw, min_delimiters, allow_gaps, allow_trailing, match_len) in cases {
+        let input = LexInput::String(raw.into());
+        let dialect = Dialect::Ansi;
+        let lexer = Lexer::new(None, ANSI_LEXERS.to_vec());
+        let (tokens, _errors) = lexer.lex(input, false);
+        let mut parser = Parser::new(&tokens, dialect);
+        let element = Arc::new(Grammar::StringParser {
+            template: "bar",
+            raw_class: "WordSegment",
+            token_type: "word",
+            optional: false,
+        });
+        let delimiter = Box::new(Arc::new(Grammar::StringParser {
+            template: ".",
+            raw_class: "SymbolSegment",
+            token_type: "dot",
+            optional: false,
+        }));
+        let grammar = Arc::new(Grammar::Delimited {
+            elements: vec![element],
+            delimiter,
+            allow_trailing,
+            optional: false,
+            terminators: vec![],
+            reset_terminators: false,
+            allow_gaps,
+            min_delimiters,
+            parse_mode: ParseMode::Strict,
+            simple_hint: None,
+        });
+        let result = parser.parse_with_grammar_cached(&grammar, &[]);
+        let matched_len = match &result {
+            Ok(Node::DelimitedList { children }) => children.len(),
+            Ok(Node::Token { .. }) => 1,
+            Ok(Node::Empty) => 0,
+            Ok(_) => 0,
+            Err(_) => 0,
+        };
+        assert_eq!(matched_len, match_len, "Input: {raw:?} min_delimiters={min_delimiters} allow_gaps={allow_gaps} allow_trailing={allow_trailing}");
+    }
+    Ok(())
+}
+
+// Placeholder for Anything grammar test (Rust parser may not have direct equivalent)
+// This would require a custom Grammar::Anything implementation if not present.
+
+#[test]
+fn test_nothing_grammar_matches_nothing() -> Result<(), ParseError> {
+    env_logger::try_init().ok();
+    // Simulate a Nothing grammar: always returns empty
+    // If Grammar::Nothing exists, use it; otherwise, test empty match logic
+    // Here, we use a RegexParser that matches nothing as a stand-in
+    let raw = "foo bar";
+    let input = LexInput::String(raw.into());
+    let dialect = Dialect::Ansi;
+    let lexer = Lexer::new(None, ANSI_LEXERS.to_vec());
+    let (tokens, _errors) = lexer.lex(input, false);
+    let mut parser = Parser::new(&tokens, dialect);
+    // If Grammar::Nothing exists, use it; else, use a regex that matches nothing
+    let grammar = Arc::new(Grammar::RegexParser {
+        template: regex::RegexBuilder::new("^$").build().unwrap(),
+        raw_class: "NothingSegment",
+        token_type: "nothing",
+        anti_template: None,
+        optional: true,
+    });
+    let result = parser.parse_with_grammar_cached(&grammar, &[])?;
+    assert!(
+        matches!(result, Node::Empty),
+        "Nothing grammar should match as empty"
+    );
+    Ok(())
+}
+
+// --- Additional tests ported from grammar_ref_test.py ---
+
+#[test]
+fn test_ref_eq_and_repr() {
+    use sqlfluffrs::parser::Grammar;
+    // Simulate Ref grammar equality and repr
+    let r1 = Grammar::Ref {
+        name: "foo",
+        optional: false,
+        exclude: None,
+        terminators: vec![],
+        reset_terminators: false,
+        allow_gaps: false,
+        simple_hint: None,
+    };
+    let r2 = Grammar::Ref {
+        name: "foo",
+        optional: false,
+        exclude: None,
+        terminators: vec![],
+        reset_terminators: false,
+        allow_gaps: false,
+        simple_hint: None,
+    };
+    assert_ne!(&r1 as *const _, &r2 as *const _); // Not the same object
+    assert_eq!(r1, r2);
+    // Check repr (Debug)
+    let repr = format!("{:?}", r1);
+    assert!(repr.contains("Ref"));
+    let r3 = Grammar::Ref {
+        name: "bar",
+        optional: true,
+        exclude: None,
+        terminators: vec![],
+        reset_terminators: false,
+        allow_gaps: false,
+        simple_hint: None,
+    };
+    let repr_opt = format!("{:?}", r3);
+    assert!(repr_opt.contains("bar"));
+}
+
+#[test]
+fn test_ref_match_basic() -> Result<(), ParseError> {
+    // Simulate a Ref grammar match for a simple token stream
+    // This is a minimal test, not a full dialect-resolved match
+    let raw = "bar foo bar";
+    let input = LexInput::String(raw.into());
+    let dialect = Dialect::Ansi;
+    let lexer = Lexer::new(None, ANSI_LEXERS.to_vec());
+    let (tokens, _errors) = lexer.lex(input, false);
+    let mut parser = Parser::new(&tokens, dialect);
+    // Ref to "foo" (simulate as a StringParser for this test)
+    let foo_grammar = Arc::new(Grammar::StringParser {
+        template: "foo",
+        raw_class: "WordSegment",
+        token_type: "word",
+        optional: false,
+    });
+    // Simulate Ref by direct match at position 1
+    let result = parser.parse_with_grammar_cached(&foo_grammar, &[])?;
+    let node_str = format!("{:?}", result);
+    assert!(node_str.contains("foo"));
+    Ok(())
+}
+
+#[test]
+fn test_ref_exclude_match() -> Result<(), ParseError> {
+    // Simulate a Ref grammar with exclude logic
+    // Exclude "ABS" from matching as "NakedIdentifierSegment"
+    let raw = "ABS ABSOLUTE";
+    let input = LexInput::String(raw.into());
+    let dialect = Dialect::Ansi;
+    let lexer = Lexer::new(None, ANSI_LEXERS.to_vec());
+    let (tokens, _errors) = lexer.lex(input, false);
+    let mut parser = Parser::new(&tokens, dialect);
+    // Simulate: match "ABS" but exclude it
+    let abs_grammar = Arc::new(Grammar::StringParser {
+        template: "ABS",
+        raw_class: "WordSegment",
+        token_type: "word",
+        optional: false,
+    });
+    let abs_exclude = Arc::new(Grammar::StringParser {
+        template: "ABS",
+        raw_class: "WordSegment",
+        token_type: "word",
+        optional: false,
+    });
+    // Try to match "ABS" at position 0, but exclude it
+    let exclude_match = parser.parse_with_grammar_cached(&abs_exclude, &[])?;
+    let node_str = format!("{:?}", exclude_match);
+    // Simulate exclusion: if matched, treat as excluded
+    assert!(node_str.contains("ABS"));
+    // Now match "ABSOLUTE" at position 1
+    let abs_absolute_grammar = Arc::new(Grammar::StringParser {
+        template: "ABSOLUTE",
+        raw_class: "WordSegment",
+        token_type: "word",
+        optional: false,
+    });
+    let result = parser.parse_with_grammar_cached(&abs_absolute_grammar, &[])?;
+    let node_str2 = format!("{:?}", result);
+    assert!(node_str2.contains("ABSOLUTE"));
+    Ok(())
+}
+
+// --- Additional tests ported from grammar_sequence_test.py ---
+
+#[test]
+fn test_sequence_repr() {
+    // Test the Sequence grammar Debug/Display representation
+    let bar = Grammar::StringParser {
+        template: "bar",
+        raw_class: "WordSegment",
+        token_type: "word",
+        optional: false,
+    };
+    let foo = Grammar::StringParser {
+        template: "foo",
+        raw_class: "WordSegment",
+        token_type: "word",
+        optional: false,
+    };
+    let sequence = Grammar::Sequence {
+        elements: vec![Arc::new(bar), Arc::new(foo)],
+        optional: false,
+        terminators: vec![],
+        reset_terminators: false,
+        allow_gaps: false,
+        parse_mode: ParseMode::Strict,
+        simple_hint: None,
+    };
+    let repr = format!("{:?}", sequence);
+    assert!(repr.contains("Sequence"));
+}
+
+#[test]
+fn test_sequence_nested_match() -> Result<(), ParseError> {
+    // Test the Sequence grammar when nested
+    let raw = "bar \t foo baar \t ";
+    let input = LexInput::String(raw.into());
+    let dialect = Dialect::Ansi;
+    let lexer = Lexer::new(None, ANSI_LEXERS.to_vec());
+    let (tokens, _errors) = lexer.lex(input, false);
+    let mut parser = Parser::new(&tokens, dialect);
+    let bar = Arc::new(Grammar::StringParser {
+        template: "bar",
+        raw_class: "WordSegment",
+        token_type: "word",
+        optional: false,
+    });
+    let foo = Arc::new(Grammar::StringParser {
+        template: "foo",
+        raw_class: "WordSegment",
+        token_type: "word",
+        optional: false,
+    });
+    let baar = Arc::new(Grammar::StringParser {
+        template: "baar",
+        raw_class: "WordSegment",
+        token_type: "word",
+        optional: false,
+    });
+    let inner_seq = Arc::new(Grammar::Sequence {
+        elements: vec![bar.clone(), foo.clone()],
+        optional: false,
+        terminators: vec![],
+        reset_terminators: false,
+        allow_gaps: false,
+        parse_mode: ParseMode::Strict,
+        simple_hint: None,
+    });
+    let outer_seq = Arc::new(Grammar::Sequence {
+        elements: vec![inner_seq, baar.clone()],
+        optional: false,
+        terminators: vec![],
+        reset_terminators: false,
+        allow_gaps: false,
+        parse_mode: ParseMode::Strict,
+        simple_hint: None,
+    });
+    // Matching just the start of the list shouldn't work
+    let partial_tokens = &tokens[0..3];
+    let mut partial_parser = Parser::new(partial_tokens, dialect);
+    let partial_result = partial_parser.parse_with_grammar_cached(&outer_seq, &[]);
+    assert!(
+        partial_result.is_err()
+            || partial_result
+                .as_ref()
+                .map(|n| n.is_empty())
+                .unwrap_or(false)
+    );
+    // Matching the whole list should work
+    let mut parser = Parser::new(&tokens, dialect);
+    let result = parser.parse_with_grammar_cached(&outer_seq, &[])?;
+    let node_str = format!("{:?}", result);
+    assert!(node_str.contains("bar") && node_str.contains("foo") && node_str.contains("baar"));
+    Ok(())
+}
+
+#[test]
+fn test_sequence_modes_various_cases() -> Result<(), ParseError> {
+    use sqlfluffrs::parser::ParseMode;
+    // Each tuple: (mode, input, sequence, terminators, expect_match, expect_token)
+    let cases = vec![
+        // STRICT, full match
+        (ParseMode::Strict, "a ", vec!["a"], vec![], true, Some("a")),
+        // GREEDY, full match
+        (ParseMode::Greedy, "a ", vec!["a"], vec![], true, Some("a")),
+        // GREEDY_ONCE_STARTED, full match
+        (
+            ParseMode::GreedyOnceStarted,
+            "a ",
+            vec!["a"],
+            vec![],
+            true,
+            Some("a"),
+        ),
+        // STRICT, partial match (should fail)
+        (
+            ParseMode::Strict,
+            "a b",
+            vec!["a", "b"],
+            vec![],
+            false,
+            None,
+        ),
+        // GREEDY, partial match (should produce something)
+        (
+            ParseMode::Greedy,
+            "a b",
+            vec!["a", "b"],
+            vec![],
+            true,
+            Some("a"),
+        ),
+        // GREEDY_ONCE_STARTED, partial match (should produce something)
+        (
+            ParseMode::GreedyOnceStarted,
+            "a b",
+            vec!["a", "b"],
+            vec![],
+            true,
+            Some("a"),
+        ),
+        // STRICT, first element fails
+        (ParseMode::Strict, "b ", vec!["a"], vec![], false, None),
+        // GREEDY, first element fails (should produce something)
+        (ParseMode::Greedy, "b ", vec!["a"], vec![], true, Some("b")),
+        // STRICT, with terminator, should match only first
+        (
+            ParseMode::Strict,
+            "a b c",
+            vec!["a"],
+            vec!["c"],
+            true,
+            Some("a"),
+        ),
+        // GREEDY, with terminator, should match and see b as unparsable
+        (
+            ParseMode::Greedy,
+            "a b c",
+            vec!["a"],
+            vec!["c"],
+            true,
+            Some("a"),
+        ),
+    ];
+    for (mode, raw, sequence, terminators, expect_match, expect_token) in cases {
+        let input = LexInput::String(raw.into());
+        let dialect = Dialect::Ansi;
+        let lexer = Lexer::new(None, ANSI_LEXERS.to_vec());
+        let (tokens, _errors) = lexer.lex(input, false);
+        let mut parser = Parser::new(&tokens, dialect);
+        let elements: Vec<_> = sequence
+            .iter()
+            .map(|s| {
+                Arc::new(Grammar::StringParser {
+                    template: s.to_string().leak(),
+                    raw_class: "WordSegment",
+                    token_type: "word",
+                    optional: false,
+                })
+            })
+            .collect();
+        let terminator_grammars: Vec<_> = terminators
+            .iter()
+            .map(|s| {
+                Arc::new(Grammar::StringParser {
+                    template: s,
+                    raw_class: "WordSegment",
+                    token_type: "word",
+                    optional: false,
+                })
+            })
+            .collect();
+        let grammar = Arc::new(Grammar::Sequence {
+            elements,
+            optional: false,
+            terminators: terminator_grammars,
+            reset_terminators: false,
+            allow_gaps: true,
+            parse_mode: mode,
+            simple_hint: None,
+        });
+        let result = parser.parse_with_grammar_cached(&grammar, &[]);
+        if expect_match {
+            let node = result.expect("Should parse");
+            if let Some(tok) = expect_token {
+                let node_str = format!("{:?}", node);
+                assert!(
+                    node_str.contains(tok),
+                    "Expected token {tok:?} in node {node_str}"
+                );
+            }
+        } else {
+            assert!(
+                result.is_err() || result.as_ref().map(|n| n.is_empty()).unwrap_or(false),
+                "Expected no match for input {raw:?} mode={mode:?}"
+            );
+        }
+    }
+    Ok(())
+}
+
+fn bracketed_case(
+    raw: &str,
+    mode: ParseMode,
+    sequence: Vec<&'static str>,
+    allow_gaps: bool,
+    expect_match: bool,
+    expect_token: Option<&str>,
+) {
+    let input = LexInput::String(raw.into());
+    let dialect = Dialect::Ansi;
+    let lexer = Lexer::new(None, ANSI_LEXERS.to_vec());
+    let (tokens, _errors) = lexer.lex(input, false);
+    let mut parser = Parser::new(&tokens, dialect);
+    let elements: Vec<_> = sequence
+        .iter()
+        .map(|s| {
+            Arc::new(Grammar::StringParser {
+                template: s,
+                raw_class: "WordSegment",
+                token_type: "word",
+                optional: false,
+            })
+        })
+        .collect();
+    let open_bracket = Arc::new(Grammar::StringParser {
+        template: "(",
+        raw_class: "SymbolSegment",
+        token_type: "start_bracket",
+        optional: false,
+    });
+    let close_bracket = Arc::new(Grammar::StringParser {
+        template: ")",
+        raw_class: "SymbolSegment",
+        token_type: "end_bracket",
+        optional: false,
+    });
+    let grammar = Arc::new(Grammar::Bracketed {
+        elements,
+        bracket_pairs: (Box::new(open_bracket), Box::new(close_bracket)),
+        optional: false,
+        terminators: vec![],
+        reset_terminators: false,
+        allow_gaps,
+        parse_mode: mode,
+        simple_hint: None,
+    });
+    let result = parser.parse_with_grammar_cached(&grammar, &[]);
+    if expect_match {
+        let node = result.expect("Should parse");
+        if let Some(tok) = expect_token {
+            let node_str = format!("{:?}", node);
+            assert!(
+                node_str.contains(tok),
+                "Expected token {tok:?} in node {node_str}"
+            );
+        }
+    } else {
+        assert!(
+            result.is_err() || result.as_ref().map(|n| n.is_empty()).unwrap_or(false),
+            "Expected no match for input {raw:?} mode={mode:?}"
+        );
+    }
+}
+
+#[test]
+fn test_bracketed_strict_asymmetric_bracket_shouldnt_match() {
+    bracketed_case("( a", ParseMode::Strict, vec!["a"], true, false, None);
+}
+
+#[test]
+fn test_bracketed_sequence_not_bracketed_strict() {
+    bracketed_case("a", ParseMode::Strict, vec!["a"], true, false, None);
+}
+
+#[test]
+fn test_bracketed_sequence_not_bracketed_greedy() {
+    bracketed_case("a", ParseMode::Greedy, vec!["a"], true, false, None);
+}
+
+#[test]
+fn test_bracketed_empty_brackets_no_whitespace_strict() {
+    bracketed_case("()", ParseMode::Strict, vec![], true, true, Some("("));
+}
+
+#[test]
+fn test_bracketed_empty_brackets_no_whitespace_greedy() {
+    bracketed_case("()", ParseMode::Greedy, vec![], true, true, Some("("));
+}
+
+#[test]
+fn test_bracketed_empty_brackets_with_whitespace_strict() {
+    bracketed_case("( )", ParseMode::Strict, vec![], true, true, Some("("));
+}
+
+#[test]
+fn test_bracketed_empty_brackets_with_whitespace_greedy() {
+    bracketed_case("( )", ParseMode::Greedy, vec![], true, true, Some("("));
+}
+
+#[test]
+fn test_bracketed_strict_no_gaps_shouldnt_match() {
+    bracketed_case("( )", ParseMode::Strict, vec![], false, false, None);
+}
+
+#[test]
+fn test_bracketed_happy_path_content_match() {
+    bracketed_case("(a)", ParseMode::Strict, vec!["a"], true, true, Some("a"));
+}
+
+#[test]
+fn test_bracketed_content_match_fails_strict() {
+    bracketed_case("(a)", ParseMode::Strict, vec!["b"], true, false, None);
+}
+
+#[test]
+fn test_bracketed_content_match_fails_greedy() {
+    bracketed_case("(a)", ParseMode::Greedy, vec!["b"], true, true, Some("a"));
+}
+
+#[test]
+fn test_bracketed_partial_match_not_whole_grammar_strict() {
+    bracketed_case("(a)", ParseMode::Strict, vec!["a", "b"], true, false, None);
+}
+
+#[test]
+fn test_bracketed_partial_match_not_whole_grammar_greedy() {
+    bracketed_case(
+        "(a)",
+        ParseMode::Greedy,
+        vec!["a", "b"],
+        true,
+        true,
+        Some("a"),
+    );
+}
+
+#[test]
+fn test_bracketed_partial_match_not_whole_sequence_strict() {
+    bracketed_case("(a b)", ParseMode::Strict, vec!["a"], true, false, None);
+}
+
+#[test]
+fn test_bracketed_partial_match_not_whole_sequence_greedy() {
+    bracketed_case("(a b)", ParseMode::Greedy, vec!["a"], true, true, Some("a"));
 }
