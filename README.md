@@ -180,5 +180,5 @@ the guide to [contributing](CONTRIBUTING.md).
 
 # Sponsors
 
-<img src="images/datacoves.png" alt="Datacoves" width="150"/><br>
+<img src="https://raw.githubusercontent.com/sqlfluff/sqlfluff/refs/heads/main/images/datacoves.png" alt="Datacoves" width="150"/><br>
 The turnkey analytics stack, find out more at [Datacoves.com](https://datacoves.com/).

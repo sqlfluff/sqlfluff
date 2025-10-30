@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: b44bb276247dcbbab68f753a8a413e6eaf328f2abe27f4d12c600a01191b70a3
+_hash: 249081eb652b90bad1986b81738e12f27032b0d65473925172d58d648a4b6bb4
 file:
 - batch:
   - statement:
@@ -226,7 +226,7 @@ file:
         keyword: DECLARE
         parameter: '@statement'
         data_type:
-          data_type_identifier: nvarchar
+          keyword: nvarchar
           bracketed_arguments:
             bracketed:
               start_bracket: (
@@ -258,7 +258,7 @@ file:
       - parameter: '@s1'
       - keyword: AS
       - data_type:
-          data_type_identifier: varchar
+          keyword: varchar
           bracketed_arguments:
             bracketed:
               start_bracket: (
@@ -275,7 +275,7 @@ file:
         keyword: DECLARE
         parameter: '@s2'
         data_type:
-          data_type_identifier: varchar
+          keyword: varchar
           bracketed_arguments:
             bracketed:
               start_bracket: (
@@ -394,7 +394,7 @@ file:
       - parameter: '@CheckDate'
       - keyword: AS
       - data_type:
-          data_type_identifier: DATETIME
+          keyword: DATETIME
       - comparison_operator:
           raw_comparison_operator: '='
       - expression:
@@ -457,7 +457,7 @@ file:
       - parameter: '@retstat'
       - keyword: AS
       - data_type:
-          data_type_identifier: INT
+          keyword: INT
       - statement_terminator: ;
   - statement:
       execute_script_statement:
@@ -484,7 +484,7 @@ file:
       - parameter: '@proc_name'
       - keyword: AS
       - data_type:
-          data_type_identifier: VARCHAR
+          keyword: VARCHAR
           bracketed_arguments:
             bracketed:
               start_bracket: (
@@ -604,7 +604,7 @@ file:
       - parameter: '@returnstatus'
       - keyword: AS
       - data_type:
-          data_type_identifier: NVARCHAR
+          keyword: NVARCHAR
           bracketed_arguments:
             bracketed:
               start_bracket: (
@@ -659,21 +659,21 @@ file:
             - column_reference:
                 quoted_identifier: '[Reporting Level]'
             - data_type:
-                data_type_identifier: INT
+                keyword: INT
             - keyword: NOT
             - keyword: 'NULL'
             - comma: ','
             - column_reference:
                 quoted_identifier: '[ID of Employee]'
             - data_type:
-                data_type_identifier: INT
+                keyword: INT
             - keyword: NOT
             - keyword: 'NULL'
             - comma: ','
             - column_reference:
                 quoted_identifier: '[Employee First Name]'
             - data_type:
-                data_type_identifier: NVARCHAR
+                keyword: NVARCHAR
                 bracketed_arguments:
                   bracketed:
                     start_bracket: (
@@ -686,7 +686,7 @@ file:
             - column_reference:
                 quoted_identifier: '[Employee Last Name]'
             - data_type:
-                data_type_identifier: NVARCHAR
+                keyword: NVARCHAR
                 bracketed_arguments:
                   bracketed:
                     start_bracket: (
@@ -699,7 +699,7 @@ file:
             - column_reference:
                 quoted_identifier: '[Employee ID of Manager]'
             - data_type:
-                data_type_identifier: NVARCHAR
+                keyword: NVARCHAR
                 bracketed_arguments:
                   bracketed:
                     start_bracket: (
@@ -711,7 +711,7 @@ file:
             - column_reference:
                 quoted_identifier: '[Manager First Name]'
             - data_type:
-                data_type_identifier: NVARCHAR
+                keyword: NVARCHAR
                 bracketed_arguments:
                   bracketed:
                     start_bracket: (
@@ -724,7 +724,7 @@ file:
             - column_reference:
                 quoted_identifier: '[Manager Last Name]'
             - data_type:
-                data_type_identifier: NVARCHAR
+                keyword: NVARCHAR
                 bracketed_arguments:
                   bracketed:
                     start_bracket: (
@@ -756,7 +756,7 @@ file:
             - column_reference:
                 naked_identifier: ProductID
             - data_type:
-                data_type_identifier: INT
+                keyword: INT
             - comma: ','
             - column_reference:
                 quoted_identifier: '[Name]'
@@ -766,7 +766,7 @@ file:
             - column_reference:
                 naked_identifier: ListPrice
             - data_type:
-                data_type_identifier: MONEY
+                keyword: MONEY
             - end_bracket: )
           - comma: ','
           - bracketed:
@@ -779,7 +779,7 @@ file:
             - column_reference:
                 naked_identifier: NumberOfOrders
             - data_type:
-                data_type_identifier: INT
+                keyword: INT
             - end_bracket: )
           - end_bracket: )
       - statement_terminator: ;

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 11877a598cead9942eb3f3431838f17b69899ea620caf38e95cab93076f1966d
+_hash: 854a27a8dfa99b072cf9704e3953bcbf040bdf3fbe4ab454b8f5af8fe4d88e9b
 file:
   batch:
   - statement:
@@ -16,7 +16,7 @@ file:
       - bracketed:
           start_bracket: (
           data_type:
-            data_type_identifier: INT
+            keyword: INT
           end_bracket: )
       - keyword: AS
       - keyword: RANGE
@@ -42,7 +42,7 @@ file:
       - bracketed:
           start_bracket: (
           data_type:
-            data_type_identifier: CHAR
+            keyword: CHAR
             bracketed_arguments:
               bracketed:
                 start_bracket: (
@@ -74,7 +74,7 @@ file:
       - bracketed:
           start_bracket: (
           data_type:
-            data_type_identifier: date
+            keyword: date
           end_bracket: )
       - keyword: AS
       - keyword: RANGE
