@@ -5,7 +5,6 @@
 /// 2. Use the parse_mode() method to get the ParseMode for any grammar
 ///
 /// Run with: cargo run --example parse_mode_demo --features python
-
 use sqlfluffrs_dialects::Dialect;
 use sqlfluffrs_types::ParseMode;
 
@@ -14,12 +13,18 @@ fn main() {
 
     // Get a grammar that has a parse_mode
     if let Some(grammar) = dialect.get_segment_grammar("SelectStatementSegment") {
-        println!("SelectStatementSegment parse_mode: {:?}", grammar.parse_mode());
+        println!(
+            "SelectStatementSegment parse_mode: {:?}",
+            grammar.parse_mode()
+        );
     }
 
     // Get another grammar
     if let Some(grammar) = dialect.get_segment_grammar("BracketedColumnReferenceListGrammar") {
-        println!("BracketedColumnReferenceListGrammar parse_mode: {:?}", grammar.parse_mode());
+        println!(
+            "BracketedColumnReferenceListGrammar parse_mode: {:?}",
+            grammar.parse_mode()
+        );
     }
 
     println!("\nParseMode variants:");

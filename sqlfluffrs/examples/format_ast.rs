@@ -1,7 +1,7 @@
+use sqlfluffrs_dialects::dialect::ansi::matcher::ANSI_LEXERS;
+use sqlfluffrs_dialects::Dialect;
 /// Example demonstrating the format_tree() function to display AST in Python SQLFluff format
 use sqlfluffrs_lexer::{LexInput, Lexer};
-use sqlfluffrs_dialects::Dialect;
-use sqlfluffrs_dialects::dialect::ansi::matcher::ANSI_LEXERS;
 use sqlfluffrs_parser::parser::Parser;
 
 fn main() {
@@ -18,13 +18,19 @@ fn main() {
     // Debug: print tokens
     println!("=== Tokens ===");
     for (i, token) in tokens.iter().enumerate() {
-        println!("Token {}: '{}' | {}", i, token.raw().replace('\n', "\\n"), token.get_type());
+        println!(
+            "Token {}: '{}' | {}",
+            i,
+            token.raw().replace('\n', "\\n"),
+            token.get_type()
+        );
     }
     println!();
 
     // Parse the tokens
     let mut parser = Parser::new(&tokens, Dialect::Ansi);
-    let ast = parser.call_rule("FileSegment", &[])
+    let ast = parser
+        .call_rule("FileSegment", &[])
         .expect("Failed to parse");
 
     println!("=== AST ===");
@@ -32,7 +38,11 @@ fn main() {
     println!();
 
     // Debug: check parser position after parsing
-    println!("Parser position after parsing: {} / {}", parser.pos, tokens.len());
+    println!(
+        "Parser position after parsing: {} / {}",
+        parser.pos,
+        tokens.len()
+    );
 
     // Check if newline/end_of_file are in AST
     let ast_str = format!("{:?}", ast);

@@ -1,9 +1,9 @@
 use criterion::{criterion_group, criterion_main, Criterion};
 
-use sqlfluffrs_parser::parser::Parser;
 use sqlfluffrs_dialects::dialect::ansi::matcher::ANSI_LEXERS;
 use sqlfluffrs_dialects::Dialect;
 use sqlfluffrs_lexer::{LexInput, Lexer};
+use sqlfluffrs_parser::parser::Parser;
 
 fn bench_parse_simple_select(c: &mut Criterion) {
     let sql = "SELECT a, b FROM foo WHERE c = 1";
@@ -79,7 +79,6 @@ fn bench_parse_complex_joins(c: &mut Criterion) {
 
 use std::fs;
 use std::path::Path;
-
 
 // Helper to get fixture path relative to sqlfluffrs/ directory
 fn fixture_path(filename: &str) -> std::path::PathBuf {

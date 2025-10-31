@@ -1,5 +1,5 @@
-use sqlfluffrs_lexer::{LexInput, Lexer};
 use sqlfluffrs_dialects::Dialect;
+use sqlfluffrs_lexer::{LexInput, Lexer};
 use sqlfluffrs_parser::parser::Parser;
 
 fn main() {

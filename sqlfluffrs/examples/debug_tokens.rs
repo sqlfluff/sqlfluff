@@ -1,5 +1,5 @@
-use sqlfluffrs_lexer::{Lexer, LexInput};
 use sqlfluffrs_dialects::Dialect;
+use sqlfluffrs_lexer::{LexInput, Lexer};
 
 fn main() {
     let raw = "SELECT  \t*\n  FROM\n\ttable_name  ";

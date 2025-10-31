@@ -1,11 +1,12 @@
-use sqlfluffrs_lexer::{LexInput, Lexer};
 use sqlfluffrs_dialects::Dialect;
+use sqlfluffrs_lexer::{LexInput, Lexer};
 use sqlfluffrs_parser::parser::Parser;
 
 fn main() {
     env_logger::init();
 
-    let sql = "SELECT DATEADD(DAY, ROW_NUMBER() OVER (ORDER BY DateCD ASC), '2014-01-01') AS dt FROM boo";
+    let sql =
+        "SELECT DATEADD(DAY, ROW_NUMBER() OVER (ORDER BY DateCD ASC), '2014-01-01') AS dt FROM boo";
     let dialect = Dialect::Ansi;
 
     println!("Parsing: {}", sql);

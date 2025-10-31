@@ -1,3 +1,4 @@
+use sqlfluffrs_dialects::Dialect;
 /// Command-line utility to parse a fixture SQL file and output YAML
 ///
 /// Usage: cargo run --example parse_fixture -- <path_to_sql_file> [--compare]
@@ -7,7 +8,6 @@
 ///   cargo run --example parse_fixture -- test/fixtures/dialects/ansi/select_simple_a.sql --compare
 use sqlfluffrs_lexer::{LexInput, Lexer};
 use sqlfluffrs_parser::parser::Parser;
-use sqlfluffrs_dialects::Dialect;
 use std::env;
 use std::fs;
 use std::path::{Path, PathBuf};
@@ -422,13 +422,16 @@ fn process_yaml_11(yaml_str: String) -> String {
             if let Some((k, v)) = line.split_once(": ") {
                 // Convert triple single quoted strings to single quoted
                 let v = if v.starts_with("'''") && v.ends_with("'''") && v.len() > 6 {
-                    let inner = &v[3..v.len()-3];
+                    let inner = &v[3..v.len() - 3];
                     format!("'{}'", inner.replace("'", "''"))
                 } else {
                     v.to_string()
                 };
                 // Only quote if value is in the list and not already quoted
-                if unquoted_keywords.contains(&v.to_uppercase().as_str()) && !v.starts_with('"') && !v.starts_with('\'') {
+                if unquoted_keywords.contains(&v.to_uppercase().as_str())
+                    && !v.starts_with('"')
+                    && !v.starts_with('\'')
+                {
                     format!("{}: '{}'", k, v)
                 } else {
                     format!("{}: {}", k, v)

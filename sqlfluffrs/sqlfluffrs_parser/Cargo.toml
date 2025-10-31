@@ -8,6 +8,7 @@ log = "0.4.28"
 hashbrown = "0.15.5"
 sqlfluffrs_types = { path = "../sqlfluffrs_types" }
 sqlfluffrs_dialects = { path = "../sqlfluffrs_dialects" }
+sqlfluffrs_lexer = { path = "../sqlfluffrs_lexer" }
 uuid = { version = "1.18.1", features = ["v4"] }
 serde_yaml_ng = "0.10.0"
 regex = { version = "1.11.2", features = ["perf"] }

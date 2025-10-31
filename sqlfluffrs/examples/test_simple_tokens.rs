@@ -1,7 +1,7 @@
 use hashbrown::HashSet;
+use sqlfluffrs_dialects::Dialect;
 use sqlfluffrs_lexer::{LexInput, Lexer};
 use sqlfluffrs_parser::parser::Parser;
-use sqlfluffrs_dialects::Dialect;
 
 fn main() {
     env_logger::init();
@@ -65,10 +65,7 @@ fn main() {
     }
 }
 
-fn collect_positions(
-    node: &sqlfluffrs_parser::parser::Node,
-    positions: &mut HashSet<usize>,
-) {
+fn collect_positions(node: &sqlfluffrs_parser::parser::Node, positions: &mut HashSet<usize>) {
     use sqlfluffrs_parser::parser::Node;
     match node {
         Node::Whitespace {
