@@ -69,7 +69,9 @@ class Rule_CV06(BaseRule):
         for seg in reversed(file_segment.segments):
             if seg.is_type("statement"):
                 return seg
-        return None
+        # If no direct statement found, look recursively (e.g., T-SQL batch structure)
+        statements = list(file_segment.recursive_crawl("statement"))
+        return statements[-1] if statements else None
 
     def _has_final_non_semicolon_terminator(self, file_segment: BaseSegment) -> bool:
         """Check if a statement has a non-semicolon terminator at the end."""
@@ -332,26 +334,74 @@ class Rule_CV06(BaseRule):
     def _ensure_final_semicolon(
         self, parent_segment: BaseSegment
     ) -> Optional[LintResult]:
-        # Iterate backwards over complete stack to find
-        # if the final semi-colon is already present.
-        anchor_segment = parent_segment.segments[-1]
-        trigger_segment = parent_segment.segments[-1]
+        # Get the last statement in the file (may be nested in a batch)
+        last_statement = self._get_last_statement(parent_segment)
+        if not last_statement:
+            return None  # File does not contain any statements
+
+        # Find the container segment that directly contains the last statement
+        # (This could be the file itself or a batch segment in T-SQL)
+        statement_container = None
+        for seg in parent_segment.segments:
+            if seg.is_type("statement") and seg is last_statement:
+                statement_container = parent_segment
+                break
+            elif seg.is_code:
+                # Check if this code segment contains the last statement
+                statements_in_seg = list(seg.recursive_crawl("statement"))
+                if last_statement in statements_in_seg:
+                    # The statement is inside this code segment
+                    # Now find the direct container
+                    for subseg in seg.segments:
+                        if subseg is last_statement:
+                            statement_container = seg
+                            break
+                    if not statement_container:  # pragma: no cover
+                        # Statement is deeper, need to search recursively
+                        # This is a defensive fallback for deeply nested structures
+                        statement_container = seg
+                    break
+
+        if not statement_container:  # pragma: no cover
+            return None
+
+        # Check if there's a semicolon terminator after the last statement
         semi_colon_exist_flag = False
+        found_last_statement = False
+        for seg in statement_container.segments:
+            if seg is last_statement:
+                found_last_statement = True
+            elif found_last_statement:
+                if seg.is_type("statement_terminator") and self._is_segment_semicolon(
+                    seg
+                ):
+                    semi_colon_exist_flag = True
+                    break
+                elif seg.is_code:  # pragma: no cover
+                    # Hit another code segment, no terminator found
+                    # Edge case: multiple statements without delimiters between them
+                    break
+
+        if semi_colon_exist_flag:
+            return None  # Semicolon already exists
+
+        # Iterate backwards over complete stack to find anchor point
+        # Start from the statement container, not the parent
+        anchor_segment = statement_container.segments[-1]
+        trigger_segment = statement_container.segments[-1]
         is_one_line = False
         before_segment = []
-        for segment in parent_segment.segments[::-1]:
+        for segment in statement_container.segments[::-1]:
             anchor_segment = segment
-            if segment.is_type("statement_terminator"):
-                if self._is_segment_semicolon(segment):
-                    semi_colon_exist_flag = True
-            elif segment.is_code:
-                is_one_line = self._is_one_line_statement(parent_segment, segment)
+            if segment.is_code:
+                is_one_line = self._is_one_line_statement(
+                    parent_segment, last_statement
+                )
                 break
             elif not segment.is_meta:
                 before_segment.append(segment)
             trigger_segment = segment
-        else:
-            return None  # File does not contain any statements
+
         self.logger.debug("Trigger on: %s", trigger_segment)
         self.logger.debug("Anchoring on: %s", anchor_segment)
 
@@ -404,7 +454,7 @@ class Rule_CV06(BaseRule):
                 anchor=trigger_segment,
                 fixes=fixes,
             )
-        return None
+        return None  # pragma: no cover
 
     def _eval(self, context: RuleContext) -> list[LintResult]:
         """Statements must end with a semi-colon."""
@@ -415,29 +465,45 @@ class Rule_CV06(BaseRule):
         # We should only be dealing with a root segment
         assert context.segment.is_type("file")
         results = []
-        for idx, seg in enumerate(context.segment.segments):
-            res = None
-            # First we can simply handle the case of existing semi-colon alignment.
-            if seg.is_type("statement_terminator"):
-                # If it's a terminator then we know it's a raw.
-                seg = cast(RawSegment, seg)
-                self.logger.debug("Handling semi-colon: %s", seg)
 
-                if self._is_segment_semicolon(seg):
-                    res = self._handle_semicolon(seg, context.segment)
-            # Otherwise handle the end of the file separately.
-            elif (
-                self.require_final_semicolon
-                and idx == len(context.segment.segments) - 1
-            ):
-                self.logger.debug("Handling final segment: %s", seg)
-                has_final_non_semicolon_terminator = (
-                    self._has_final_non_semicolon_terminator(context.segment)
-                )
+        # Process file segments and any batch segments (for T-SQL)
+        # Collect all containers that should be processed
+        containers_to_process = []
 
-                if not has_final_non_semicolon_terminator:
-                    res = self._ensure_final_semicolon(context.segment)
-            if res:
-                results.append(res)
+        # Always process the file level
+        containers_to_process.append(context.segment)
+
+        # Also process any batch segments (T-SQL specific)
+        for seg in context.segment.segments:
+            if seg.is_type("batch"):
+                containers_to_process.append(seg)
+
+        for container in containers_to_process:
+            for idx, seg in enumerate(container.segments):
+                res = None
+                # First we can simply handle the case of existing semi-colon alignment.
+                if seg.is_type("statement_terminator"):
+                    # If it's a terminator then we know it's a raw.
+                    seg = cast(RawSegment, seg)
+                    self.logger.debug("Handling semi-colon: %s", seg)
+
+                    if self._is_segment_semicolon(seg):
+                        res = self._handle_semicolon(seg, container)
+                # Otherwise handle the end of the container separately.
+                # Only check for final semicolon at the file level, not batch level
+                elif (
+                    self.require_final_semicolon
+                    and container is context.segment  # Only for file, not batch
+                    and idx == len(container.segments) - 1
+                ):
+                    self.logger.debug("Handling final segment: %s", seg)
+                    has_final_non_semicolon_terminator = (
+                        self._has_final_non_semicolon_terminator(container)
+                    )
+
+                    if not has_final_non_semicolon_terminator:
+                        res = self._ensure_final_semicolon(container)
+                if res:
+                    results.append(res)
 
         return results

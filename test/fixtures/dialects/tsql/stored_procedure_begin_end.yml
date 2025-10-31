@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: d347b65a31b4abaca72488837cd358d87dc2ae0c2e56eb3c11f7ca13681801cc
+_hash: 5245623e5346deb0341ff781c9d95fc0af2d518da77f0bdad40ba434797859be
 file:
 - batch:
     statement:
@@ -25,7 +25,7 @@ file:
                     keyword: SELECT
                     select_clause_element:
                       quoted_literal: "'Weekend'"
-                  statement_terminator: ;
+            - statement_terminator: ;
             - statement:
                 select_statement:
                   select_clause:
@@ -40,7 +40,7 @@ file:
                         table_expression:
                           table_reference:
                             naked_identifier: tbl1
-                    statement_terminator: ;
+            - statement_terminator: ;
             - statement:
                 select_statement:
                   select_clause:
@@ -55,7 +55,7 @@ file:
                         table_expression:
                           table_reference:
                             naked_identifier: tbl2
-                    statement_terminator: ;
+            - statement_terminator: ;
             - keyword: END
           statement_terminator: ;
     go_statement:
@@ -94,7 +94,7 @@ file:
             - keyword: SET
             - keyword: NOCOUNT
             - keyword: 'ON'
-            - statement_terminator: ;
+        - statement_terminator: ;
         - statement:
             begin_end_block:
             - keyword: BEGIN
@@ -145,7 +145,7 @@ file:
             - keyword: SET
             - keyword: NOCOUNT
             - keyword: 'ON'
-            - statement_terminator: ;
+        - statement_terminator: ;
         - statement:
             begin_end_block:
             - keyword: BEGIN
@@ -193,7 +193,7 @@ file:
             - keyword: SET
             - keyword: NOCOUNT
             - keyword: 'ON'
-            - statement_terminator: ;
+        - statement_terminator: ;
         - statement:
             begin_end_block:
             - keyword: BEGIN
@@ -207,7 +207,7 @@ file:
                         keyword: SELECT
                         select_clause_element:
                           quoted_literal: "'8'"
-                      statement_terminator: ;
+                - statement_terminator: ;
                 - keyword: END
                 - keyword: TRY
                 - keyword: BEGIN

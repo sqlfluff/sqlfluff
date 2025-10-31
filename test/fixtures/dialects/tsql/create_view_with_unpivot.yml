@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 3ff9accf3326e5c3ff779931121cfa95f74c8d8e9ad0ffd8ecc256fc44f14798
+_hash: 738c7f067fe86110ee4891512e64fa29f95b9e2d38d24a955abc6562b5374059
 file:
   batch:
     statement:
@@ -101,4 +101,4 @@ file:
               - keyword: AS
               - table_reference:
                   naked_identifier: unpvt
-            statement_terminator: ;
+    statement_terminator: ;

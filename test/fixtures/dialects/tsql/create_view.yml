@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: c757b5b7a0d212da48f94f0287fac84bd5be5957f343b9786dc9a6c38c1ae123
+_hash: b3309837c852cd22ce3ce3e0131ef249d3eeef0915c2e0a74a3139de03d78383
 file:
   batch:
   - statement:
@@ -81,7 +81,7 @@ file:
           - keyword: BY
           - column_reference:
               naked_identifier: SalesPersonID
-          statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       create_view_statement:
       - keyword: CREATE
@@ -157,7 +157,7 @@ file:
           - keyword: BY
           - column_reference:
               naked_identifier: SalesPersonID
-          statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       create_view_statement:
       - keyword: CREATE
@@ -238,7 +238,7 @@ file:
                   - comma: ','
                   - numeric_literal: '101'
                   - end_bracket: )
-          statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       create_view_statement:
       - keyword: CREATE
@@ -400,7 +400,7 @@ file:
       - keyword: WITH
       - keyword: CHECK
       - keyword: OPTION
-      - statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       create_view_statement:
       - keyword: CREATE
@@ -498,7 +498,7 @@ file:
                     - naked_identifier: dbo
                     - dot: .
                     - naked_identifier: SUPPLY4
-              statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       create_view_statement:
       - keyword: create

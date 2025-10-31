@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 107644c317cf1d22551986e53c7bf7e79f8ecf2e4b21e7d1c1f12ccb3ddcff8b
+_hash: ef7c9b8f741683854a5a8fe35d4e71338c4b800649f5c485650d9986cebdb69d
 file:
 - batch:
     statement:
@@ -173,7 +173,7 @@ file:
                     start_bracket: (
                     end_bracket: )
         - end_bracket: )
-      - statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       if_then_statement:
         if_clause:
@@ -445,7 +445,7 @@ file:
                     start_bracket: (
                     end_bracket: )
         - end_bracket: )
-      - statement_terminator: ;
+    statement_terminator: ;
     go_statement:
       keyword: GO
 - batch:
@@ -524,7 +524,7 @@ file:
           - index_column_definition:
               naked_identifier: GGD_NAAM
           - end_bracket: )
-      - statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       create_table_statement:
       - keyword: CREATE
@@ -667,4 +667,4 @@ file:
                     integer_literal: '2'
                 - end_bracket: )
         - end_bracket: )
-      - statement_terminator: ;
+  - statement_terminator: ;

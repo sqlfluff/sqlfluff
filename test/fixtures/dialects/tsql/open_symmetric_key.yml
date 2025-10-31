@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 4d6ed32d740ef1cae77c3bcdca9396148fe910ee1d1dd4e57b3232689aa167cd
+_hash: 5c66d99aae2446add2328791453929172427d66380a6597d44089795180f22e9
 file:
 - batch:
     statement:
@@ -24,7 +24,7 @@ file:
                 - keyword: SET
                 - keyword: NOCOUNT
                 - keyword: 'ON'
-                - statement_terminator: ;
+            - statement_terminator: ;
             - statement:
                 open_symmetric_key_statement:
                 - keyword: OPEN
@@ -54,7 +54,7 @@ file:
                           - naked_identifier: sys
                           - dot: .
                           - naked_identifier: tables
-                    statement_terminator: ;
+            - statement_terminator: ;
             - keyword: END
           statement_terminator: ;
     go_statement:

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 70b5da04f9a2080c9a0d439875944f36c83f4ca310d1e1002f0748eb487ab390
+_hash: 5c6537c77c49ca8da3da22e6301be6a4d802cbac8a82a18bb0394360cda0aaf5
 file:
   batch:
   - statement:
@@ -12,49 +12,49 @@ file:
           keyword: select
           select_clause_element:
             binary_literal: '0x0'
-        statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       select_statement:
         select_clause:
           keyword: select
           select_clause_element:
             binary_literal: '0xAE'
-        statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       select_statement:
         select_clause:
           keyword: select
           select_clause_element:
             binary_literal: '0x12Ef'
-        statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       select_statement:
         select_clause:
           keyword: select
           select_clause_element:
             binary_literal: '0x69048AEFDD010E'
-        statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       select_statement:
         select_clause:
           keyword: select
           select_clause_element:
             binary_literal: 0x
-        statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       select_statement:
         select_clause:
           keyword: select
           select_clause_element:
             binary_literal: 0X0
-        statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       select_statement:
         select_clause:
           keyword: select
           select_clause_element:
             binary_literal: 0XAE
-        statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       select_statement:
         select_clause:
@@ -67,7 +67,7 @@ file:
         - comma: ','
         - select_clause_element:
             binary_literal: '0x12Ef'
-        statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       select_statement:
         select_clause:
@@ -77,4 +77,4 @@ file:
         - comma: ','
         - select_clause_element:
             numeric_literal: "X'DEAD'"
-        statement_terminator: ;
+  - statement_terminator: ;

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 096dc0aacf2c57c0c59ad2055c0eefeee101cfd9aaac85cae93629248328735a
+_hash: f8b2ed0cb4bac89e058a421e58baa8496f76b7c599ee31012b38cb1163fd19e0
 file:
 - batch:
     statement:
@@ -27,7 +27,7 @@ file:
             comparison_operator:
               raw_comparison_operator: '='
             integer_literal: '20621'
-        statement_terminator: ;
+    statement_terminator: ;
     go_statement:
       keyword: GO
 - batch:
@@ -55,7 +55,7 @@ file:
             comparison_operator:
               raw_comparison_operator: '='
             integer_literal: '20621'
-        statement_terminator: ;
+    statement_terminator: ;
     go_statement:
       keyword: GO
 - batch:
@@ -83,7 +83,7 @@ file:
             comparison_operator:
               raw_comparison_operator: '='
             integer_literal: '20621'
-        statement_terminator: ;
+    statement_terminator: ;
     go_statement:
       keyword: GO
 - batch:
@@ -104,7 +104,7 @@ file:
             data_type:
               keyword: INT
         - end_bracket: )
-      - statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       delete_statement:
         keyword: DELETE
@@ -131,7 +131,7 @@ file:
             comparison_operator:
               raw_comparison_operator: '='
             integer_literal: '20621'
-        statement_terminator: ;
+  - statement_terminator: ;
   - go_statement:
       keyword: GO
 - batch:
@@ -163,7 +163,7 @@ file:
             data_type:
               keyword: DATETIME
         - end_bracket: )
-      - statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       insert_statement:
         keyword: INSERT
@@ -265,7 +265,7 @@ file:
             data_type:
               keyword: INT
         - end_bracket: )
-      - statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       update_statement:
         keyword: UPDATE
@@ -308,7 +308,7 @@ file:
             comparison_operator:
               raw_comparison_operator: <
             integer_literal: '10'
-        statement_terminator: ;
+  - statement_terminator: ;
   - go_statement:
       keyword: GO
 - batch:
@@ -375,7 +375,7 @@ file:
             comparison_operator:
               raw_comparison_operator: <
             integer_literal: '10'
-        statement_terminator: ;
+    statement_terminator: ;
     go_statement:
       keyword: GO
 - batch:
@@ -417,7 +417,7 @@ file:
                     integer_literal: '50'
                   end_bracket: )
         - end_bracket: )
-      - statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       update_statement:
         keyword: UPDATE
@@ -506,7 +506,7 @@ file:
             comparison_operator:
               raw_comparison_operator: '='
             integer_literal: '16'
-        statement_terminator: ;
+  - statement_terminator: ;
   - go_statement:
       keyword: GO
 - batch:
@@ -533,7 +533,7 @@ file:
             data_type:
               keyword: INT
         - end_bracket: )
-      - statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       merge_statement:
       - keyword: MERGE
@@ -789,7 +789,7 @@ file:
             data_type:
               keyword: INT
         - end_bracket: )
-      - statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       delete_statement:
         keyword: DELETE
@@ -817,7 +817,7 @@ file:
             comparison_operator:
               raw_comparison_operator: '='
             integer_literal: '20621'
-        statement_terminator: ;
+  - statement_terminator: ;
   - go_statement:
       keyword: GO
 - batch:
@@ -838,7 +838,7 @@ file:
             data_type:
               keyword: INT
         - end_bracket: )
-      - statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       delete_statement:
         keyword: DELETE
@@ -873,7 +873,7 @@ file:
             comparison_operator:
               raw_comparison_operator: '='
             integer_literal: '20621'
-        statement_terminator: ;
+  - statement_terminator: ;
   - go_statement:
       keyword: GO
 - batch:
@@ -937,6 +937,6 @@ file:
             comparison_operator:
               raw_comparison_operator: '='
             integer_literal: '680'
-        statement_terminator: ;
+    statement_terminator: ;
     go_statement:
       keyword: GO

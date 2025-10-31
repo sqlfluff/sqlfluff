@@ -151,10 +151,20 @@ class Rule_TQ02(BaseRule):
             )
         )
 
-        # Insert END after last statement
-        # Look for the actual end - skip trailing whitespace/newlines
-        # within the last statement
+        # Insert END after last statement and its terminator (if present)
+        # In the current branch, statement_terminator is a peer of statement,
+        # so we need to check if there's a terminator after the last statement
         insert_after_seg = procedure_statement.segments[last_statement_idx]
+
+        # Check if there's a statement_terminator after the last statement
+        for idx in range(last_statement_idx + 1, len(procedure_statement.segments)):
+            seg = procedure_statement.segments[idx]
+            if seg.is_type("statement_terminator"):
+                insert_after_seg = seg
+                break
+            elif seg.is_code:
+                # Hit another code segment, no terminator after last statement
+                break
 
         end_keyword = KeywordSegment("END")
 
