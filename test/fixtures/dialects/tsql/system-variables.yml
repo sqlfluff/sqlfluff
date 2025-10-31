@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 4cd1eeca509cfeee9351ef5b487e4850de5b3ee9640472a42ad627a44771a30e
+_hash: 2024d31b6fffc35962a56edee8776f4c757654a92b8face719468c330a19e85a
 file:
 - batch:
   - statement:
@@ -44,7 +44,7 @@ file:
             keyword: PRINT
             expression:
               quoted_literal: "'Warning: No rows were updated'"
-            statement_terminator: ;
+        statement_terminator: ;
   - statement:
       if_then_statement:
         if_clause:
@@ -62,7 +62,7 @@ file:
                 keyword: PRINT
                 expression:
                   quoted_literal: "N'A check constraint violation occurred.'"
-                statement_terminator: ;
+          - statement_terminator: ;
           - keyword: END
   - go_statement:
       keyword: GO
@@ -77,7 +77,7 @@ file:
               alias_operator:
                 keyword: AS
               quoted_identifier: "'Identity'"
-        statement_terminator: ;
+    statement_terminator: ;
     go_statement:
       keyword: GO
 - batch:
@@ -99,6 +99,6 @@ file:
               alias_operator:
                 keyword: AS
               quoted_identifier: "'Packets Received'"
-        statement_terminator: ;
+    statement_terminator: ;
     go_statement:
       keyword: GO

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 0e83e439d8537e3a217e2edb9a9ce855eb646bed22849f13436e830e9739a3aa
+_hash: 60891b245681061259475a9a4a8f2482c80687d4f1bcb02b67ac75679ee67fb2
 file:
   batch:
   - statement:
@@ -44,7 +44,7 @@ file:
           - dot: .
           - naked_identifier: column1
         - keyword: desc
-        statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       select_statement:
         select_clause:
@@ -72,7 +72,7 @@ file:
                 - naked_identifier: HumanResources
                 - dot: .
                 - naked_identifier: Employee
-          statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       select_statement:
         select_clause:
@@ -106,7 +106,7 @@ file:
         - column_reference:
             naked_identifier: HireDate
         - keyword: DESC
-        statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       select_statement:
         select_clause:
@@ -141,7 +141,7 @@ file:
         - column_reference:
             naked_identifier: HireDate
         - keyword: DESC
-        statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       select_statement:
         select_clause:
@@ -256,4 +256,4 @@ file:
         - column_reference:
             naked_identifier: Rate
         - keyword: DESC
-        statement_terminator: ;
+  - statement_terminator: ;

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: f976367f46436f7644ecd237eb486bc3e16deb73403f9ff1886f6e683f190589
+_hash: c247f23f260be5e3615b39aab72649df4419da3f005fe86c1ac18cda8c29ee76
 file:
   batch:
   - statement:
@@ -12,7 +12,7 @@ file:
       - keyword: view
       - table_reference:
           naked_identifier: some_view
-      - statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       drop_view_statement:
       - keyword: drop
@@ -21,7 +21,7 @@ file:
       - keyword: exists
       - table_reference:
           naked_identifier: some_view
-      - statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       drop_view_statement:
       - keyword: drop
@@ -29,7 +29,7 @@ file:
       - table_reference:
           naked_identifier: some_view
       - keyword: restrict
-      - statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       drop_view_statement:
       - keyword: drop
@@ -39,7 +39,7 @@ file:
       - table_reference:
           naked_identifier: some_view
       - keyword: restrict
-      - statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       drop_view_statement:
       - keyword: drop
@@ -47,7 +47,7 @@ file:
       - table_reference:
           naked_identifier: some_view
       - keyword: cascade
-      - statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       drop_view_statement:
       - keyword: drop
@@ -57,4 +57,4 @@ file:
       - table_reference:
           naked_identifier: some_view
       - keyword: cascade
-      - statement_terminator: ;
+  - statement_terminator: ;

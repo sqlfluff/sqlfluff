@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 338d3d7ad69017f1e9b81e93287706284ed802a6b3cf5d2865056e6504e2b5f1
+_hash: b58e0c490b0e21c3c38931d514f207da53fe5c0938942d65f0fcef5c4daea889
 file:
 - batch:
     statement:
@@ -87,7 +87,7 @@ file:
               raw_comparison_operator: '='
           - expression:
               quoted_literal: "'Reminder'"
-          - statement_terminator: ;
+      - statement_terminator: ;
     go_statement:
       keyword: GO
 - batch:
@@ -129,7 +129,7 @@ file:
             statement:
               return_segment:
                 keyword: RETURN
-                statement_terminator: ;
+            statement_terminator: ;
       - statement:
           if_then_statement:
             if_clause:
@@ -210,7 +210,7 @@ file:
                   transaction_statement:
                   - keyword: ROLLBACK
                   - keyword: TRANSACTION
-                  - statement_terminator: ;
+              - statement_terminator: ;
               - statement:
                   return_segment:
                     keyword: RETURN
@@ -246,7 +246,7 @@ file:
             statement:
               return_segment:
                 keyword: RETURN
-                statement_terminator: ;
+            statement_terminator: ;
       - statement:
           raiserror_statement:
             keyword: RAISERROR
@@ -319,7 +319,7 @@ file:
             keyword: PRINT
             expression:
               quoted_literal: "'Database Created.'"
-            statement_terminator: ;
+      - statement_terminator: ;
       - statement:
           select_statement:
             select_clause:
@@ -423,7 +423,7 @@ file:
                 statement:
                   transaction_statement:
                     keyword: ROLLBACK
-                    statement_terminator: ;
+                statement_terminator: ;
           - keyword: END
       - statement_terminator: ;
     go_statement:

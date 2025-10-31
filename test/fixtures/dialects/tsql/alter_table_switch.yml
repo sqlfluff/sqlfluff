@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 0f5c6dde85625695134ea93ec3cf15cb09894dcf3d84d9adc6472b88f8caff2b
+_hash: 9877b89a7b3c96ec9e5766e99ef93a7e5e9073613ee64bd0e9107c1e24d162f1
 file:
   batch:
   - statement:
@@ -28,7 +28,7 @@ file:
             raw_comparison_operator: '='
         - keyword: 'ON'
         - end_bracket: )
-      - statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       alter_table_switch_statement:
       - keyword: ALTER
@@ -41,7 +41,7 @@ file:
       - keyword: TO
       - object_reference:
           naked_identifier: NonPartitionTable
-      - statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       alter_table_switch_statement:
       - keyword: ALTER
@@ -56,7 +56,7 @@ file:
           quoted_identifier: '[OrdersHistory]'
       - keyword: PARTITION
       - numeric_literal: '2'
-      - statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       alter_table_switch_statement:
       - keyword: ALTER
@@ -71,7 +71,7 @@ file:
           quoted_identifier: '[OrdersHistory]'
       - keyword: PARTITION
       - numeric_literal: '3'
-      - statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       alter_table_switch_statement:
       - keyword: ALTER
@@ -104,7 +104,7 @@ file:
           - keyword: NONE
           - end_bracket: )
           end_bracket: )
-      - statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       alter_table_switch_statement:
       - keyword: ALTER
@@ -136,4 +136,4 @@ file:
           - keyword: SELF
           - end_bracket: )
           end_bracket: )
-      - statement_terminator: ;
+  - statement_terminator: ;

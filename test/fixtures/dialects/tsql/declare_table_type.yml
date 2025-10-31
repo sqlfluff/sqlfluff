@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 654120f7d34317b7261532ce5589e5027417555a57d9a3b8045a6957caf87d7b
+_hash: fff818dae10eb906b41219628754aca31aa0aad29d1f048b377c87a0be3b988d
 file:
   batch:
   - statement:
@@ -46,7 +46,7 @@ file:
                   naked_identifier: EmpID
                 end_bracket: )
         - end_bracket: )
-      - statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       declare_segment:
       - keyword: DECLARE
@@ -110,4 +110,4 @@ file:
                 - keyword: END
               end_bracket: )
         - end_bracket: )
-      - statement_terminator: ;
+  - statement_terminator: ;

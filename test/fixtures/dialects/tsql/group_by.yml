@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 185300b83b1779585e6206cc559146785c004722e829ea7e464a52efed7de5ac
+_hash: 065f3a2bc27f072d327a253ac7202a42b84ed4c883bc7828f7786816b7a45ca6
 file:
   batch:
   - statement:
@@ -68,14 +68,14 @@ file:
           - naked_identifier: t
           - dot: .
           - naked_identifier: ActionDTS
-        statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       drop_table_statement:
       - keyword: DROP
       - keyword: TABLE
       - table_reference:
           hash_identifier: '#n'
-      - statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       select_statement:
         select_clause:
@@ -121,4 +121,4 @@ file:
         - with_rollup_clause:
           - keyword: WITH
           - keyword: ROLLUP
-        statement_terminator: ;
+  - statement_terminator: ;

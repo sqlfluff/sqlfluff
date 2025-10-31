@@ -54,7 +54,7 @@ DECLARE @text_var TEXT;
 -- Unicode character string types
 DECLARE @nchar_var NCHAR;
 DECLARE @nchar_n_var NCHAR(10);
-DECLARE @national_char_var NATIONAL CHAR;
+-- DECLARE @national_char_var NATIONAL CHAR;
 DECLARE @national_char_n_var NATIONAL CHAR(10);
 DECLARE @national_character_var NATIONAL CHARACTER;
 DECLARE @national_character_n_var NATIONAL CHARACTER(10);

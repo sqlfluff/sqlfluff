@@ -3,14 +3,14 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: e7d54ab2bb7fdd538c66ae10b2121cf135211f0c544a173cb3fa01acdc2756c0
+_hash: cb28dd616a3bee1317e04620dc8d8eac7f595a200a57daddeee661f825e05351
 file:
   batch:
   - statement:
       transaction_statement:
       - keyword: BEGIN
       - keyword: TRANSACTION
-      - statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       delete_statement:
       - keyword: DELETE
@@ -27,16 +27,16 @@ file:
             comparison_operator:
               raw_comparison_operator: '='
             integer_literal: '13'
-      - statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       transaction_statement:
         keyword: COMMIT
-        statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       transaction_statement:
       - keyword: BEGIN
       - keyword: TRAN
-      - statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       delete_statement:
       - keyword: DELETE
@@ -53,41 +53,41 @@ file:
             comparison_operator:
               raw_comparison_operator: '='
             integer_literal: '13'
-      - statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       transaction_statement:
       - keyword: ROLLBACK
       - keyword: TRAN
-      - statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       transaction_statement:
       - keyword: BEGIN
       - keyword: TRAN
-      - statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       transaction_statement:
       - keyword: SAVE
       - keyword: TRANSACTION
-      - statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       transaction_statement:
       - keyword: BEGIN
       - keyword: TRAN
       - naked_identifier: namey
-      - statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       transaction_statement:
         keyword: ROLLBACK
         naked_identifier: namey
-        statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       transaction_statement:
       - keyword: SAVE
       - keyword: TRAN
       - parameter: '@variable'
-      - statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       transaction_statement:
         keyword: COMMIT
         parameter: '@variable'
-        statement_terminator: ;
+  - statement_terminator: ;

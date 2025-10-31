@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: f469a95b210e16fd7e3ee97313ad08ed1a9e8442214716151d51665a2f4f453f
+_hash: aab0470f603d6f46048c69966a09167c79aaf2e4f4a865336f02842a151444a9
 file:
   batch:
     statement:
@@ -65,5 +65,5 @@ file:
                 keyword: PRINT
                 expression:
                   quoted_literal: "N'The other process is not yet done.'"
-                statement_terminator: ;
+          - statement_terminator: ;
           - keyword: END

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 7e41f1f1bb239e02afd4c0a98446b40b2bac89c9a5a17c2801b9806bd9c348c8
+_hash: a5c0b0194015a606735493aaa6ead91ff50b4fc42cc1704eb59598a0acecca3c
 file:
 - batch:
   - statement:
@@ -12,56 +12,56 @@ file:
         parameter: '@tinyint_var'
         data_type:
           keyword: TINYINT
-        statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       declare_segment:
         keyword: DECLARE
         parameter: '@smallint_var'
         data_type:
           keyword: SMALLINT
-        statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       declare_segment:
         keyword: DECLARE
         parameter: '@int_var'
         data_type:
           keyword: INT
-        statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       declare_segment:
         keyword: DECLARE
         parameter: '@bigint_var'
         data_type:
           keyword: BIGINT
-        statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       declare_segment:
         keyword: DECLARE
         parameter: '@bit_var'
         data_type:
           keyword: BIT
-        statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       declare_segment:
         keyword: DECLARE
         parameter: '@money_var'
         data_type:
           keyword: MONEY
-        statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       declare_segment:
         keyword: DECLARE
         parameter: '@smallmoney_var'
         data_type:
           keyword: SMALLMONEY
-        statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       declare_segment:
         keyword: DECLARE
         parameter: '@decimal_var'
         data_type:
           keyword: DECIMAL
-        statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       declare_segment:
         keyword: DECLARE
@@ -74,7 +74,7 @@ file:
               expression:
                 integer_literal: '10'
               end_bracket: )
-        statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       declare_segment:
         keyword: DECLARE
@@ -90,14 +90,14 @@ file:
             - expression:
                 integer_literal: '2'
             - end_bracket: )
-        statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       declare_segment:
         keyword: DECLARE
         parameter: '@numeric_var'
         data_type:
           keyword: NUMERIC
-        statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       declare_segment:
         keyword: DECLARE
@@ -110,7 +110,7 @@ file:
               expression:
                 integer_literal: '18'
               end_bracket: )
-        statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       declare_segment:
         keyword: DECLARE
@@ -126,14 +126,14 @@ file:
             - expression:
                 integer_literal: '4'
             - end_bracket: )
-        statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       declare_segment:
         keyword: DECLARE
         parameter: '@dec_var'
         data_type:
           keyword: DEC
-        statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       declare_segment:
         keyword: DECLARE
@@ -146,7 +146,7 @@ file:
               expression:
                 integer_literal: '15'
               end_bracket: )
-        statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       declare_segment:
         keyword: DECLARE
@@ -162,14 +162,14 @@ file:
             - expression:
                 integer_literal: '3'
             - end_bracket: )
-        statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       declare_segment:
         keyword: DECLARE
         parameter: '@float_var'
         data_type:
           keyword: FLOAT
-        statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       declare_segment:
         keyword: DECLARE
@@ -182,42 +182,42 @@ file:
               expression:
                 integer_literal: '24'
               end_bracket: )
-        statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       declare_segment:
         keyword: DECLARE
         parameter: '@real_var'
         data_type:
           keyword: REAL
-        statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       declare_segment:
         keyword: DECLARE
         parameter: '@date_var'
         data_type:
           keyword: DATE
-        statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       declare_segment:
         keyword: DECLARE
         parameter: '@smalldatetime_var'
         data_type:
           keyword: SMALLDATETIME
-        statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       declare_segment:
         keyword: DECLARE
         parameter: '@datetime_var'
         data_type:
           keyword: DATETIME
-        statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       declare_segment:
         keyword: DECLARE
         parameter: '@time_var'
         data_type:
           keyword: TIME
-        statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       declare_segment:
         keyword: DECLARE
@@ -230,14 +230,14 @@ file:
               expression:
                 integer_literal: '7'
               end_bracket: )
-        statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       declare_segment:
         keyword: DECLARE
         parameter: '@datetime2_var'
         data_type:
           keyword: DATETIME2
-        statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       declare_segment:
         keyword: DECLARE
@@ -250,14 +250,14 @@ file:
               expression:
                 integer_literal: '7'
               end_bracket: )
-        statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       declare_segment:
         keyword: DECLARE
         parameter: '@datetimeoffset_var'
         data_type:
           keyword: DATETIMEOFFSET
-        statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       declare_segment:
         keyword: DECLARE
@@ -270,14 +270,14 @@ file:
               expression:
                 integer_literal: '7'
               end_bracket: )
-        statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       declare_segment:
         keyword: DECLARE
         parameter: '@char_var'
         data_type:
           keyword: CHAR
-        statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       declare_segment:
         keyword: DECLARE
@@ -290,14 +290,14 @@ file:
               expression:
                 integer_literal: '10'
               end_bracket: )
-        statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       declare_segment:
         keyword: DECLARE
         parameter: '@character_var'
         data_type:
           keyword: CHARACTER
-        statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       declare_segment:
         keyword: DECLARE
@@ -310,7 +310,7 @@ file:
               expression:
                 integer_literal: '10'
               end_bracket: )
-        statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       declare_segment:
         keyword: DECLARE
@@ -318,7 +318,7 @@ file:
         data_type:
         - keyword: CHAR
         - keyword: VARYING
-        statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       declare_segment:
         keyword: DECLARE
@@ -332,7 +332,7 @@ file:
               expression:
                 integer_literal: '100'
               end_bracket: )
-        statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       declare_segment:
         keyword: DECLARE
@@ -340,7 +340,7 @@ file:
         data_type:
         - keyword: CHARACTER
         - keyword: VARYING
-        statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       declare_segment:
         keyword: DECLARE
@@ -354,14 +354,14 @@ file:
               expression:
                 integer_literal: '100'
               end_bracket: )
-        statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       declare_segment:
         keyword: DECLARE
         parameter: '@varchar_var'
         data_type:
           keyword: VARCHAR
-        statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       declare_segment:
         keyword: DECLARE
@@ -374,7 +374,7 @@ file:
               expression:
                 integer_literal: '50'
               end_bracket: )
-        statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       declare_segment:
         keyword: DECLARE
@@ -386,21 +386,21 @@ file:
               start_bracket: (
               keyword: MAX
               end_bracket: )
-        statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       declare_segment:
         keyword: DECLARE
         parameter: '@text_var'
         data_type:
           keyword: TEXT
-        statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       declare_segment:
         keyword: DECLARE
         parameter: '@nchar_var'
         data_type:
           keyword: NCHAR
-        statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       declare_segment:
         keyword: DECLARE
@@ -413,15 +413,7 @@ file:
               expression:
                 integer_literal: '10'
               end_bracket: )
-        statement_terminator: ;
-  - statement:
-      declare_segment:
-        keyword: DECLARE
-        parameter: '@national_char_var'
-        data_type:
-        - keyword: NATIONAL
-        - keyword: CHAR
-        statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       declare_segment:
         keyword: DECLARE
@@ -435,7 +427,7 @@ file:
               expression:
                 integer_literal: '10'
               end_bracket: )
-        statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       declare_segment:
         keyword: DECLARE
@@ -443,7 +435,7 @@ file:
         data_type:
         - keyword: NATIONAL
         - keyword: CHARACTER
-        statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       declare_segment:
         keyword: DECLARE
@@ -457,7 +449,7 @@ file:
               expression:
                 integer_literal: '10'
               end_bracket: )
-        statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       declare_segment:
         keyword: DECLARE
@@ -465,7 +457,7 @@ file:
         data_type:
         - keyword: NCHAR
         - keyword: VARYING
-        statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       declare_segment:
         keyword: DECLARE
@@ -479,14 +471,14 @@ file:
               expression:
                 integer_literal: '100'
               end_bracket: )
-        statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       declare_segment:
         keyword: DECLARE
         parameter: '@nvarchar_var'
         data_type:
           keyword: NVARCHAR
-        statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       declare_segment:
         keyword: DECLARE
@@ -499,7 +491,7 @@ file:
               expression:
                 integer_literal: '50'
               end_bracket: )
-        statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       declare_segment:
         keyword: DECLARE
@@ -511,7 +503,7 @@ file:
               start_bracket: (
               keyword: MAX
               end_bracket: )
-        statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       declare_segment:
         keyword: DECLARE
@@ -520,7 +512,7 @@ file:
         - keyword: NATIONAL
         - keyword: CHARACTER
         - keyword: VARYING
-        statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       declare_segment:
         keyword: DECLARE
@@ -535,21 +527,21 @@ file:
               expression:
                 integer_literal: '100'
               end_bracket: )
-        statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       declare_segment:
         keyword: DECLARE
         parameter: '@ntext_var'
         data_type:
           keyword: NTEXT
-        statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       declare_segment:
         keyword: DECLARE
         parameter: '@binary_var'
         data_type:
           keyword: BINARY
-        statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       declare_segment:
         keyword: DECLARE
@@ -562,14 +554,14 @@ file:
               expression:
                 integer_literal: '10'
               end_bracket: )
-        statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       declare_segment:
         keyword: DECLARE
         parameter: '@varbinary_var'
         data_type:
           keyword: VARBINARY
-        statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       declare_segment:
         keyword: DECLARE
@@ -582,7 +574,7 @@ file:
               expression:
                 integer_literal: '50'
               end_bracket: )
-        statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       declare_segment:
         keyword: DECLARE
@@ -594,91 +586,91 @@ file:
               start_bracket: (
               keyword: MAX
               end_bracket: )
-        statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       declare_segment:
         keyword: DECLARE
         parameter: '@image_var'
         data_type:
           keyword: IMAGE
-        statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       declare_segment:
         keyword: DECLARE
         parameter: '@cursor_var'
         data_type:
           keyword: CURSOR
-        statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       declare_segment:
         keyword: DECLARE
         parameter: '@sql_variant_var'
         data_type:
           keyword: SQL_VARIANT
-        statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       declare_segment:
         keyword: DECLARE
         parameter: '@timestamp_var'
         data_type:
           keyword: TIMESTAMP
-        statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       declare_segment:
         keyword: DECLARE
         parameter: '@rowversion_var'
         data_type:
           keyword: ROWVERSION
-        statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       declare_segment:
         keyword: DECLARE
         parameter: '@uniqueidentifier_var'
         data_type:
           keyword: UNIQUEIDENTIFIER
-        statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       declare_segment:
         keyword: DECLARE
         parameter: '@xml_var'
         data_type:
           keyword: XML
-        statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       declare_segment:
         keyword: DECLARE
         parameter: '@json_var'
         data_type:
           keyword: JSON
-        statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       declare_segment:
         keyword: DECLARE
         parameter: '@geography_var'
         data_type:
           keyword: GEOGRAPHY
-        statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       declare_segment:
         keyword: DECLARE
         parameter: '@geometry_var'
         data_type:
           keyword: GEOMETRY
-        statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       declare_segment:
         keyword: DECLARE
         parameter: '@hierarchyid_var'
         data_type:
           keyword: HIERARCHYID
-        statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       declare_segment:
         keyword: DECLARE
         parameter: '@vector_var'
         data_type:
           keyword: VECTOR
-        statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       declare_segment:
         keyword: DECLARE
@@ -691,14 +683,14 @@ file:
               expression:
                 integer_literal: '1536'
               end_bracket: )
-        statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       declare_segment:
         keyword: DECLARE
         parameter: '@custom_type'
         data_type:
           data_type_identifier: MyCustomType
-        statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       declare_segment:
         keyword: DECLARE
@@ -707,7 +699,7 @@ file:
           naked_identifier: sys
           dot: .
           data_type_identifier: sysname
-        statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       declare_segment:
         keyword: DECLARE
@@ -716,7 +708,7 @@ file:
           quoted_identifier: '[sys]'
           dot: .
           data_type_identifier: '[sysname]'
-        statement_terminator: ;
+  - statement_terminator: ;
   - go_statement:
       keyword: GO
 - batch:
@@ -1005,7 +997,7 @@ file:
             data_type:
               keyword: ROWVERSION
         - end_bracket: )
-      - statement_terminator: ;
+    statement_terminator: ;
     go_statement:
       keyword: GO
 - batch:
@@ -1071,7 +1063,7 @@ file:
                   keyword: RETURN
                   expression:
                     integer_literal: '1'
-                  statement_terminator: ;
+            - statement_terminator: ;
             - keyword: END
           statement_terminator: ;
     go_statement:
@@ -1125,6 +1117,6 @@ file:
                     keyword: SELECT
                     select_clause_element:
                       parameter: '@param_bigint'
-                  statement_terminator: ;
+            - statement_terminator: ;
             - keyword: END
           statement_terminator: ;

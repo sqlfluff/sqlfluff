@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: aa88b774d251afb10bff49bd8ba6f74a9e5a57e4679cdfa4a11ed9262015f113
+_hash: d2ec7bfa84de4b68204b70e210c95326208c81bafce18eaecaa342bdac073e10
 file:
 - batch:
     statement:
@@ -24,6 +24,6 @@ file:
       - keyword: AUTHORIZATION
       - role_reference:
           quoted_identifier: '[dbo]'
-      - statement_terminator: ;
+    statement_terminator: ;
     go_statement:
       keyword: GO
