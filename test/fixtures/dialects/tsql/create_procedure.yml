@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 107937b14f619379e730b7ecc4c864dcb5596b9b798d8609926f61ea37c5ef15
+_hash: 43ee0bcbbaed4efc2e59573437dd5529121536dd53ca2186ead55eb070783051
 file:
 - batch:
     statement:
@@ -23,7 +23,7 @@ file:
                     keyword: SELECT
                     select_clause_element:
                       integer_literal: '1'
-                  statement_terminator: ;
+            - statement_terminator: ;
             - keyword: END
           statement_terminator: ;
     go_statement:
@@ -48,7 +48,7 @@ file:
                     keyword: SELECT
                     select_clause_element:
                       integer_literal: '1'
-                  statement_terminator: ;
+            - statement_terminator: ;
             - keyword: END
           statement_terminator: ;
     go_statement:
@@ -71,7 +71,7 @@ file:
                     keyword: SELECT
                     select_clause_element:
                       integer_literal: '1'
-                  statement_terminator: ;
+            - statement_terminator: ;
             - keyword: END
           statement_terminator: ;
     go_statement:
@@ -94,7 +94,7 @@ file:
                     keyword: SELECT
                     select_clause_element:
                       integer_literal: '1'
-                  statement_terminator: ;
+            - statement_terminator: ;
             - keyword: END
           statement_terminator: ;
     go_statement:
@@ -119,7 +119,7 @@ file:
                     keyword: SELECT
                     select_clause_element:
                       integer_literal: '1'
-                  statement_terminator: ;
+            - statement_terminator: ;
             - keyword: END
           statement_terminator: ;
     go_statement:
@@ -144,7 +144,7 @@ file:
                     keyword: SELECT
                     select_clause_element:
                       integer_literal: '1'
-                  statement_terminator: ;
+            - statement_terminator: ;
             - keyword: END
           statement_terminator: ;
     go_statement:
@@ -173,7 +173,7 @@ file:
                 keyword: SELECT
                 select_clause_element:
                   integer_literal: '1'
-              statement_terminator: ;
+          statement_terminator: ;
     go_statement:
       keyword: GO
 - batch:
@@ -280,7 +280,7 @@ file:
                           - comma: ','
                           - select_clause_element:
                               parameter: '@fooReadonly'
-                          statement_terminator: ;
+                    - statement_terminator: ;
                     - keyword: END
                   statement_terminator: ;
             - keyword: END
@@ -343,7 +343,7 @@ file:
                     keyword: SELECT
                     select_clause_element:
                       integer_literal: '1'
-                  statement_terminator: ;
+            - statement_terminator: ;
             - keyword: END
           statement_terminator: ;
     go_statement:
@@ -409,7 +409,7 @@ file:
                   - comma: ','
                   - select_clause_element:
                       parameter: '@bar'
-                  statement_terminator: ;
+            - statement_terminator: ;
             - keyword: END
           statement_terminator: ;
     go_statement:
@@ -485,7 +485,7 @@ file:
                     keyword: SELECT
                     select_clause_element:
                       integer_literal: '1'
-                  statement_terminator: ;
+            - statement_terminator: ;
             - keyword: END
           statement_terminator: ;
     go_statement:
@@ -546,7 +546,7 @@ file:
                     keyword: SELECT
                     select_clause_element:
                       integer_literal: '1'
-                  statement_terminator: ;
+            - statement_terminator: ;
             - keyword: END
           statement_terminator: ;
     go_statement:
@@ -618,7 +618,7 @@ file:
                     keyword: SELECT
                     select_clause_element:
                       integer_literal: '1'
-                  statement_terminator: ;
+            - statement_terminator: ;
             - keyword: END
           statement_terminator: ;
     go_statement:
@@ -753,13 +753,13 @@ file:
                 - keyword: SET
                 - keyword: NOCOUNT
                 - keyword: 'ON'
-                - statement_terminator: ;
+            - statement_terminator: ;
             - statement:
                 set_segment:
                 - keyword: SET
                 - keyword: XACT_ABORT
                 - keyword: 'ON'
-                - statement_terminator: ;
+            - statement_terminator: ;
             - keyword: END
     go_statement:
       keyword: GO
@@ -786,7 +786,7 @@ file:
                 - comma: ','
                 - keyword: XACT_ABORT
                 - keyword: 'ON'
-                - statement_terminator: ;
+            - statement_terminator: ;
             - keyword: END
     go_statement:
       keyword: GO
