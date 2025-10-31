@@ -132,6 +132,23 @@ test_pass_atomic_begin_end_block:
     core:
       dialect: tsql
 
+test_fail_multiple_statements_last_missing_semicolon:
+  fail_str: |
+    CREATE PROCEDURE dbo.MyProc
+    AS
+    SELECT ID FROM Table1;
+    SELECT ID FROM Table2
+  fix_str: |
+    CREATE PROCEDURE dbo.MyProc
+    AS
+    BEGIN
+    SELECT ID FROM Table1;
+    SELECT ID FROM Table2
+    END
+  configs:
+    core:
+      dialect: tsql
+
 test_pass_external_name:
   pass_str: |
     CREATE PROCEDURE dbo.ExternalProc
