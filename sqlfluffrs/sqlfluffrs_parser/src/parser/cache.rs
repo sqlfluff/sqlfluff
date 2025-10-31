@@ -326,7 +326,7 @@ impl ParseCache {
         match self.cache.get(key) {
             Some(result) => {
                 self.hits += 1;
-                log::debug!("Cache HIT at pos {} (hash: {})", key.pos, key.grammar_hash);
+                log::debug!("Cache HIT at pos {} (hash: {}, max_idx: {}, term_hash: {}, raw: {})", key.pos, key.grammar_hash, key.max_idx, key.terminators_hash, key.raw);
                 Some(
                     result
                         .clone()

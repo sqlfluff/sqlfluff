@@ -66,6 +66,7 @@ impl ParseFrameStack {
     // Add more helper methods as needed for dispatch or state management
 }
 
+use std::hash::Hash;
 use std::sync::Arc;
 
 use super::{FrameContext, FrameState, Node, ParseError, ParseFrame};
@@ -249,112 +250,29 @@ impl Parser<'_> {
         });
 
         let mut iteration_count = 0_usize;
-        let max_iterations = 1500000_usize; // Higher limit for complex grammars
+        let max_iterations = 150000_usize; // Higher limit for complex grammars
 
         'main_loop: while let Some(mut frame) = stack.pop() {
             iteration_count += 1;
 
             // Re-check the cache for this frame before processing, unless disabled
-            if self.cache_enabled {
-                let cache_key = CacheKey::new(
-                    frame.pos,
-                    frame.grammar.clone(),
-                    self.tokens,
-                    &frame.terminators,
-                    &mut self.grammar_hash_cache,
-                );
-                if let Some(cached_result) = self.parse_cache.get(&cache_key) {
-                    match cached_result {
-                        Ok((node, end_pos, transparent_positions)) => {
-                            log::debug!(
-                                "[LOOP] Cache HIT for grammar {} at pos {} -> end_pos {} (frame_id={})",
-                                frame.grammar,
-                                frame.pos,
-                                end_pos,
-                                frame.frame_id
-                            );
-                            self.pos = end_pos;
-                            for &pos in &transparent_positions {
-                                self.collected_transparent_positions.insert(pos);
-                            }
-                            stack.results.insert(frame.frame_id, (node, end_pos, None));
-                            continue 'main_loop;
-                        }
-                        Err(_e) => {
-                            log::debug!(
-                                "[LOOP] Cache HIT (error) for grammar {} at pos {} (frame_id={})",
-                                frame.grammar,
-                                frame.pos,
-                                frame.frame_id
-                            );
-                            stack
-                                .results
-                                .insert(frame.frame_id, (Node::Empty, frame.pos, None));
-                            continue 'main_loop;
-                        }
-                    }
-                }
+            if let NextStep::Continue = self.check_and_handle_frame_cache(&mut frame, &mut stack)? {
+                continue 'main_loop;
             }
 
             if iteration_count > max_iterations {
-                eprintln!("ERROR: Exceeded max iterations ({})", max_iterations);
-                eprintln!("Last frame: {:?}", frame.grammar);
-                eprintln!("Stack depth: {}", stack.len());
-                eprintln!("Results count: {}", stack.results.len());
-
-                // Print last 20 frames on stack for diagnosis
-                eprintln!("\n=== Last 20 frames on stack ===");
-                for (i, f) in stack.iter().rev().take(20).enumerate() {
-                    eprintln!(
-                        "  [{}] state={:?}, pos={}, grammar={}",
-                        i,
-                        f.state,
-                        f.pos,
-                        match f.grammar.as_ref() {
-                            Grammar::Ref { name, .. } => format!("Ref({})", name),
-                            Grammar::Bracketed { .. } => "Bracketed".to_string(),
-                            Grammar::Delimited { .. } => "Delimited".to_string(),
-                            Grammar::OneOf { elements, .. } =>
-                                format!("OneOf({} elements)", elements.len()),
-                            Grammar::Sequence { elements, .. } =>
-                                format!("Sequence({} elements)", elements.len()),
-                            Grammar::AnyNumberOf { .. } => "AnyNumberOf".to_string(),
-                            Grammar::AnySetOf { .. } => "AnySetOf".to_string(),
-                            _ => "Other".to_string(),
-                        }
-                    );
-                }
-
-                self.print_cache_stats();
-
-                panic!("Infinite loop detected in iterative parser");
+                self.handle_max_iterations_exceeded(&mut stack, max_iterations, &mut frame);
             }
 
             // Debug: Show what frame we're processing periodically
             if iteration_count.is_multiple_of(5000) {
-                log::debug!(
-                    "\nDEBUG [iter {}]: Processing frame_id={}, state={:?}",
-                    iteration_count,
-                    frame.frame_id,
-                    frame.state
-                );
-                log::debug!(
-                    "  Stack size: {}, Results size: {}",
-                    stack.len(),
-                    stack.results.len()
-                );
-                match frame.grammar.as_ref() {
-                    Grammar::Ref { name, .. } => log::debug!("  Grammar: Ref({})", name),
-                    Grammar::Token { token_type } => {
-                        log::debug!("  Grammar: Token({})", token_type)
-                    }
-                    g => log::debug!("  Grammar: {:?}", g),
-                }
+                Self::log_frame_debug_info(&frame, &stack, iteration_count);
             }
 
             log::debug!(
-                "Processing frame {}: grammar={}, pos={}, state={:?}, stack_size={} (BEFORE pop: {})",
+                "Processing frame {}: hash={}, grammar={}, pos={}, state={:?}, stack_size={} (BEFORE pop: {})",
                 frame.frame_id,
+                frame.grammar.cache_key(),
                 frame.grammar,
                 frame.pos,
                 frame.state,
@@ -374,238 +292,14 @@ impl Parser<'_> {
                     child_index,
                     total_children,
                 } => {
-                    // A child parse just completed - get its result
-                    // First get the child frame ID we're waiting for
-                    let child_frame_id = match &frame.context {
-                        FrameContext::Ref {
-                            last_child_frame_id,
-                            ..
-                        } => last_child_frame_id
-                            .expect("Ref WaitingForChild should have last_child_frame_id set"),
-                        FrameContext::Sequence {
-                            last_child_frame_id,
-                            ..
-                        } => last_child_frame_id
-                            .expect("Sequence WaitingForChild should have last_child_frame_id set"),
-                        FrameContext::AnyNumberOf {
-                            last_child_frame_id,
-                            ..
-                        } => last_child_frame_id.expect(
-                            "AnyNumberOf WaitingForChild should have last_child_frame_id set",
-                        ),
-                        FrameContext::OneOf {
-                            last_child_frame_id,
-                            ..
-                        } => last_child_frame_id
-                            .expect("OneOf WaitingForChild should have last_child_frame_id set"),
-                        FrameContext::Bracketed {
-                            last_child_frame_id,
-                            ..
-                        } => last_child_frame_id.expect(
-                            "Bracketed WaitingForChild should have last_child_frame_id set",
-                        ),
-                        FrameContext::AnySetOf {
-                            last_child_frame_id,
-                            ..
-                        } => last_child_frame_id
-                            .expect("AnySetOf WaitingForChild should have last_child_frame_id set"),
-                        FrameContext::Delimited {
-                            last_child_frame_id,
-                            ..
-                        } => last_child_frame_id.expect(
-                            "Delimited WaitingForChild should have last_child_frame_id set",
-                        ),
-                        _ => {
-                            log::error!("WaitingForChild state without child frame ID tracking");
-                            continue;
-                        }
-                    };
-
-                    let child = stack.results.get(&child_frame_id).cloned();
-
-                    if let Some((child_node, child_end_pos, child_element_key)) = &child {
-                        log::debug!(
-                            "Child {} of {} completed (frame_id={}): pos {} -> {}",
-                            child_index,
-                            total_children,
-                            child_frame_id,
-                            frame.pos,
-                            child_end_pos
-                        );
-
-                        // Debug: Show when we find a child result
-                        if iteration_count.is_multiple_of(100) || iteration_count < 200 {
-                            log::debug!(
-                                "DEBUG [iter {}]: Frame {} found child {} result, grammar: {:?}",
-                                iteration_count,
-                                frame.frame_id,
-                                child_frame_id,
-                                match frame.grammar.as_ref() {
-                                    Grammar::Ref { name, .. } => format!("Ref({})", name),
-                                    _ => format!("{:?}", frame.grammar),
-                                }
-                            );
-                        }
-
-                        // Extract frame data we'll need before borrowing
-                        let frame_terminators = frame.terminators.clone();
-
-                        match &mut frame.context {
-                            FrameContext::Ref { .. } => {
-                                self.handle_ref_waiting_for_child(
-                                    &mut frame,
-                                    &child_node,
-                                    &child_end_pos,
-                                    &mut stack,
-                                );
-                                continue 'main_loop; // Frame is complete, move to next frame
-                            }
-
-                            FrameContext::Sequence { .. } => {
-                                self.handle_sequence_waiting_for_child(
-                                    &mut frame,
-                                    &child_node,
-                                    &child_end_pos,
-                                    &mut stack,
-                                    iteration_count,
-                                    frame_terminators,
-                                );
-                                continue 'main_loop;
-                            }
-
-                            FrameContext::AnyNumberOf { .. } => {
-                                self.handle_anynumberof_waiting_for_child(
-                                    &mut frame,
-                                    &child_node,
-                                    &child_end_pos,
-                                    &child_element_key,
-                                    &mut stack,
-                                    iteration_count,
-                                    frame_terminators,
-                                );
-                                continue 'main_loop;
-                            }
-
-                            FrameContext::Bracketed { .. } => {
-                                self.handle_bracketed_waiting_for_child(
-                                    &mut frame,
-                                    &child_node,
-                                    &child_end_pos,
-                                    &mut stack,
-                                );
-                                continue 'main_loop;
-                            }
-
-                            FrameContext::AnySetOf {
-                                count, matched_idx, ..
-                            } => {
-                                log::debug!("[ITERATIVE] AnySetOf WaitingForChild: count={}, matched_idx={}", count, matched_idx);
-                                // Call the new function
-                                self.handle_anysetof_waiting_for_child(
-                                    &mut frame,
-                                    &child_node,
-                                    &child_end_pos,
-                                    &child_element_key,
-                                    &mut stack,
-                                    frame_terminators,
-                                )?;
-                                continue 'main_loop;
-                            }
-
-                            FrameContext::OneOf { .. } => {
-                                self.handle_oneof_waiting_for_child(
-                                    &mut frame,
-                                    &child_node,
-                                    &child_end_pos,
-                                    &child_element_key,
-                                    &mut stack,
-                                    frame_terminators,
-                                );
-                                continue 'main_loop;
-                            }
-
-                            FrameContext::Delimited { .. } => {
-                                self.handle_delimited_waiting_for_child(
-                                    &mut frame,
-                                    &child_node,
-                                    &child_end_pos,
-                                    &child_element_key,
-                                    &mut stack,
-                                    frame_terminators,
-                                );
-                                continue 'main_loop;
-                            }
-
-                            _ => {
-                                // TODO: Handle other grammar types
-                                unimplemented!(
-                                    "WaitingForChild for grammar type: {:?}",
-                                    frame.grammar
-                                );
-                            }
-                        }
-                    } else {
-                        // Child result not found yet - push frame back onto stack and continue
-                        let child_id_str = match &frame.context {
-                            FrameContext::Ref {
-                                last_child_frame_id,
-                                ..
-                            } => format!("{:?}", last_child_frame_id),
-                            FrameContext::Sequence {
-                                last_child_frame_id,
-                                ..
-                            } => format!("{:?}", last_child_frame_id),
-                            FrameContext::AnyNumberOf {
-                                last_child_frame_id,
-                                ..
-                            } => format!("{:?}", last_child_frame_id),
-                            FrameContext::OneOf {
-                                last_child_frame_id,
-                                ..
-                            } => format!("{:?}", last_child_frame_id),
-                            FrameContext::Bracketed {
-                                last_child_frame_id,
-                                ..
-                            } => format!("{:?}", last_child_frame_id),
-                            FrameContext::AnySetOf {
-                                last_child_frame_id,
-                                ..
-                            } => format!("{:?}", last_child_frame_id),
-                            FrameContext::Delimited {
-                                last_child_frame_id,
-                                ..
-                            } => format!("{:?}", last_child_frame_id),
-                            _ => "None".to_string(),
-                        };
-                        log::debug!(
-                            "Child result not found for frame_id={}, last_child_frame_id={}, pushing frame back onto stack",
-                            frame.frame_id,
-                            child_id_str
-                        );
-
-                        // Check if we're in an infinite loop - frame waiting for child that doesn't exist
-                        if iteration_count > 100 && iteration_count.is_multiple_of(100) {
-                            log::debug!("WARNING: Frame {} waiting for child {} but result not found (iteration {})",
-                                frame.frame_id, child_id_str, iteration_count);
-
-                            // Check if child is on stack
-                            if let Ok(child_id) = child_id_str.parse::<usize>() {
-                                let child_on_stack = stack.iter().any(|f| f.frame_id == child_id);
-                                if child_on_stack {
-                                    log::debug!(
-                                        "  -> Child frame {} IS on stack (still being processed)",
-                                        child_id
-                                    );
-                                } else {
-                                    log::debug!("  -> Child frame {} NOT on stack (may have been lost or never created)", child_id);
-                                }
-                            }
-                        }
-
-                        // Push frame back onto stack so it can be re-checked after child completes
-                        // NOTE: We push (not insert at 0) so LIFO order is maintained
-                        stack.push(&mut frame);
-                        continue;
+                    if let NextStep::Continue = self.handle_waiting_for_child(
+                        &mut frame,
+                        &mut stack,
+                        iteration_count,
+                        child_index,
+                        total_children,
+                    )? {
+                        continue 'main_loop;
                     }
                 }
 
@@ -756,6 +450,335 @@ impl Parser<'_> {
             ));
             self.parse_cache.put(cache_key, Err(error.clone()));
             Err(error)
+        }
+    }
+
+    /// Checks the cache for a frame and handles cache hits. Returns true if handled.
+    fn check_and_handle_frame_cache(
+        &mut self,
+        frame: &mut ParseFrame,
+        stack: &mut ParseFrameStack,
+    ) -> Result<NextStep, ParseError> {
+        use super::cache::CacheKey;
+        if self.cache_enabled {
+            let cache_key = CacheKey::new(
+                frame.pos,
+                frame.grammar.clone(),
+                self.tokens,
+                &frame.terminators,
+                &mut self.grammar_hash_cache,
+            );
+            if let Some(cached_result) = self.parse_cache.get(&cache_key) {
+                match cached_result {
+                    Ok((node, end_pos, transparent_positions)) => {
+                        log::debug!(
+                            "[LOOP] Cache HIT for grammar {} at pos {} -> end_pos {} (frame_id={})",
+                            frame.grammar,
+                            frame.pos,
+                            end_pos,
+                            frame.frame_id
+                        );
+                        self.pos = end_pos;
+                        for &pos in &transparent_positions {
+                            self.collected_transparent_positions.insert(pos);
+                        }
+                        stack.results.insert(frame.frame_id, (node, end_pos, None));
+                        return Ok(NextStep::Continue);
+                    }
+                    Err(_e) => {
+                        log::debug!(
+                            "[LOOP] Cache HIT (error) for grammar {} at pos {} (frame_id={})",
+                            frame.grammar,
+                            frame.pos,
+                            frame.frame_id
+                        );
+                        stack
+                            .results
+                            .insert(frame.frame_id, (Node::Empty, frame.pos, None));
+                        return Ok(NextStep::Continue);
+                    }
+                }
+            }
+        }
+        Ok(NextStep::Fallthrough)
+    }
+
+    fn handle_max_iterations_exceeded(
+        &mut self,
+        stack: &mut ParseFrameStack,
+        max_iterations: usize,
+        frame: &mut ParseFrame,
+    ) {
+        eprintln!("ERROR: Exceeded max iterations ({})", max_iterations);
+        eprintln!("Last frame: {:?}", frame.grammar);
+        eprintln!("Stack depth: {}", stack.len());
+        eprintln!("Results count: {}", stack.results.len());
+
+        // Print last 20 frames on stack for diagnosis
+        eprintln!("\n=== Last 20 frames on stack ===");
+        for (i, f) in stack.iter().rev().take(20).enumerate() {
+            eprintln!(
+                "  [{}] state={:?}, pos={}, grammar={}",
+                i,
+                f.state,
+                f.pos,
+                match f.grammar.as_ref() {
+                    Grammar::Ref { name, .. } => format!("Ref({})", name),
+                    Grammar::Bracketed { .. } => "Bracketed".to_string(),
+                    Grammar::Delimited { .. } => "Delimited".to_string(),
+                    Grammar::OneOf { elements, .. } =>
+                        format!("OneOf({} elements)", elements.len()),
+                    Grammar::Sequence { elements, .. } =>
+                        format!("Sequence({} elements)", elements.len()),
+                    Grammar::AnyNumberOf { .. } => "AnyNumberOf".to_string(),
+                    Grammar::AnySetOf { .. } => "AnySetOf".to_string(),
+                    _ => "Other".to_string(),
+                }
+            );
+        }
+
+        self.print_cache_stats();
+
+        panic!("Infinite loop detected in iterative parser");
+    }
+
+    /// Logs debug information about the current frame and stack.
+    fn log_frame_debug_info(frame: &ParseFrame, stack: &ParseFrameStack, iteration_count: usize) {
+        log::debug!(
+            "\nDEBUG [iter {}]: Processing frame_id={}, state={:?}",
+            iteration_count,
+            frame.frame_id,
+            frame.state
+        );
+        log::debug!(
+            "  Stack size: {}, Results size: {}",
+            stack.len(),
+            stack.results.len()
+        );
+        match frame.grammar.as_ref() {
+            Grammar::Ref { name, .. } => log::debug!("  Grammar: Ref({})", name),
+            Grammar::Token { token_type } => {
+                log::debug!("  Grammar: Token({})", token_type)
+            }
+            g => log::debug!("  Grammar: {:?}", g),
+        }
+    }
+
+    /// Dispatch handler for WaitingForChild state.
+    fn handle_waiting_for_child(
+        &mut self,
+        frame: &mut ParseFrame,
+        stack: &mut ParseFrameStack,
+        iteration_count: usize,
+        child_index: usize,
+        total_children: usize,
+    ) -> Result<NextStep, ParseError> {
+        // A child parse just completed - get its result
+        let child_frame_id = match &frame.context {
+            FrameContext::Ref {
+                last_child_frame_id,
+                ..
+            }
+            | FrameContext::Sequence {
+                last_child_frame_id,
+                ..
+            }
+            | FrameContext::AnyNumberOf {
+                last_child_frame_id,
+                ..
+            }
+            | FrameContext::OneOf {
+                last_child_frame_id,
+                ..
+            }
+            | FrameContext::Bracketed {
+                last_child_frame_id,
+                ..
+            }
+            | FrameContext::AnySetOf {
+                last_child_frame_id,
+                ..
+            }
+            | FrameContext::Delimited {
+                last_child_frame_id,
+                ..
+            } => last_child_frame_id.expect("WaitingForChild should have last_child_frame_id set"),
+            _ => {
+                log::error!("WaitingForChild state without child frame ID tracking");
+                return Ok(NextStep::Continue);
+            }
+        };
+
+        let child = stack.results.get(&child_frame_id).cloned();
+
+        if let Some((child_node, child_end_pos, child_element_key)) = &child {
+            log::debug!(
+                "Child {} of {} completed (frame_id={}): pos {} -> {}",
+                child_index,
+                total_children,
+                child_frame_id,
+                frame.pos,
+                child_end_pos
+            );
+
+            // Debug: Show when we find a child result
+            if iteration_count.is_multiple_of(100) || iteration_count < 200 {
+                log::debug!(
+                    "DEBUG [iter {}]: Frame {} found child {} result, grammar: {:?}",
+                    iteration_count,
+                    frame.frame_id,
+                    child_frame_id,
+                    match frame.grammar.as_ref() {
+                        Grammar::Ref { name, .. } => format!("Ref({})", name),
+                        _ => format!("{:?}", frame.grammar),
+                    }
+                );
+            }
+
+            // Extract frame data we'll need before borrowing
+            let frame_terminators = frame.terminators.clone();
+
+            match &mut frame.context {
+                FrameContext::Ref { .. } => {
+                    self.handle_ref_waiting_for_child(frame, child_node, child_end_pos, stack);
+                    Ok(NextStep::Continue)
+                }
+                FrameContext::Sequence { .. } => {
+                    self.handle_sequence_waiting_for_child(
+                        frame,
+                        child_node,
+                        child_end_pos,
+                        stack,
+                        iteration_count,
+                        frame_terminators,
+                    );
+                    Ok(NextStep::Continue)
+                }
+                FrameContext::AnyNumberOf { .. } => {
+                    self.handle_anynumberof_waiting_for_child(
+                        frame,
+                        child_node,
+                        child_end_pos,
+                        child_element_key,
+                        stack,
+                        iteration_count,
+                        frame_terminators,
+                    );
+                    Ok(NextStep::Continue)
+                }
+                FrameContext::Bracketed { .. } => {
+                    self.handle_bracketed_waiting_for_child(
+                        frame,
+                        child_node,
+                        child_end_pos,
+                        stack,
+                    );
+                    Ok(NextStep::Continue)
+                }
+                FrameContext::AnySetOf { .. } => {
+                    self.handle_anysetof_waiting_for_child(
+                        frame,
+                        child_node,
+                        child_end_pos,
+                        child_element_key,
+                        stack,
+                        frame_terminators,
+                    )?;
+                    Ok(NextStep::Continue)
+                }
+                FrameContext::OneOf { .. } => {
+                    self.handle_oneof_waiting_for_child(
+                        frame,
+                        child_node,
+                        child_end_pos,
+                        child_element_key,
+                        stack,
+                        frame_terminators,
+                    );
+                    Ok(NextStep::Continue)
+                }
+                FrameContext::Delimited { .. } => {
+                    self.handle_delimited_waiting_for_child(
+                        frame,
+                        child_node,
+                        child_end_pos,
+                        child_element_key,
+                        stack,
+                        frame_terminators,
+                    )?;
+                    Ok(NextStep::Continue)
+                }
+                _ => {
+                    // TODO: Handle other grammar types
+                    unimplemented!("WaitingForChild for grammar type: {:?}", frame.grammar);
+                }
+            }
+        } else {
+            // Child result not found yet - push frame back onto stack and continue
+            let last_child_frame_id = match &frame.context {
+                FrameContext::Ref {
+                    last_child_frame_id,
+                    ..
+                }
+                | FrameContext::Sequence {
+                    last_child_frame_id,
+                    ..
+                }
+                | FrameContext::AnyNumberOf {
+                    last_child_frame_id,
+                    ..
+                }
+                | FrameContext::OneOf {
+                    last_child_frame_id,
+                    ..
+                }
+                | FrameContext::Bracketed {
+                    last_child_frame_id,
+                    ..
+                }
+                | FrameContext::AnySetOf {
+                    last_child_frame_id,
+                    ..
+                }
+                | FrameContext::Delimited {
+                    last_child_frame_id,
+                    ..
+                } => last_child_frame_id.clone(),
+                _ => None,
+            };
+            log::debug!(
+                "Child result not found for frame_id={}, last_child_frame_id={:?}, pushing frame back onto stack",
+                frame.frame_id,
+                last_child_frame_id
+            );
+
+            // Check if we're in an infinite loop - frame waiting for child that doesn't exist
+            if iteration_count > 100 && iteration_count.is_multiple_of(100) {
+                log::debug!(
+                    "WARNING: Frame {} waiting for child {:?} but result not found (iteration {})",
+                    frame.frame_id,
+                    last_child_frame_id,
+                    iteration_count
+                );
+
+                // Check if child is on stack
+                if let Some(child_id) = last_child_frame_id {
+                    let child_on_stack = stack.iter().any(|f| f.frame_id == child_id);
+                    if child_on_stack {
+                        log::debug!(
+                            "  -> Child frame {} IS on stack (still being processed)",
+                            child_id
+                        );
+                    } else {
+                        panic!("  -> Child frame {} NOT on stack (may have been lost or never created)", child_id);
+                    }
+                }
+            }
+
+            // Push frame back onto stack so it can be re-checked after child completes
+            // NOTE: We push (not insert at 0) so LIFO order is maintained
+            stack.push(frame);
+            Ok(NextStep::Continue)
         }
     }
 }

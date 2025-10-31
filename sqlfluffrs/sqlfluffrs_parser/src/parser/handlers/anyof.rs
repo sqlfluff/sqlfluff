@@ -721,9 +721,10 @@ impl crate::parser::Parser<'_> {
                     children: frame.accumulated.clone(),
                 };
                 log::debug!(
-                    "AnyNumberOf COMPLETE: {} matches, storing result at frame_id={}",
+                    "AnyNumberOf COMPLETE: {} matches, storing result at frame_id={}, matched_idx={}",
                     count,
-                    frame.frame_id
+                    frame.frame_id,
+                    matched_idx
                 );
                 stack
                     .results

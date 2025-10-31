@@ -2,6 +2,8 @@
 //!
 //! Tests that verify all tokens from the input are present in the AST
 
+use std::io::Write;
+
 use crate::parser::common::parse_and_verify_tokens;
 use sqlfluffrs_parser::parser::ParseError;
 use sqlfluffrs_dialects::Dialect;
@@ -20,7 +22,12 @@ macro_rules! with_larger_stack {
 #[test]
 fn test_all_tokens_present_simple_select() -> Result<(), ParseError> {
     with_larger_stack!(|| {
-        env_logger::try_init().ok();
+        let _ = env_logger::builder()
+            .format(|buf, record| {
+                writeln!(buf, "{}: {}", record.level(), record.args())
+            })
+            .is_test(true)
+            .try_init();
         parse_and_verify_tokens("SELECT * FROM table_name", "SelectStatementSegment", Dialect::Ansi)
     })
 }
@@ -28,7 +35,12 @@ fn test_all_tokens_present_simple_select() -> Result<(), ParseError> {
 #[test]
 fn test_all_tokens_present_with_whitespace() -> Result<(), ParseError> {
     with_larger_stack!(|| {
-        env_logger::try_init().ok();
+        let _ = env_logger::builder()
+            .format(|buf, record| {
+                writeln!(buf, "{}: {}", record.level(), record.args())
+            })
+            .is_test(true)
+            .try_init();
         // Multiple spaces, tabs, newlines
         parse_and_verify_tokens("SELECT  \t*\n  FROM\n\ttable_name  ", "SelectStatementSegment", Dialect::Ansi)
     })
@@ -37,7 +49,12 @@ fn test_all_tokens_present_with_whitespace() -> Result<(), ParseError> {
 #[test]
 fn test_all_tokens_present_complex_query() -> Result<(), ParseError> {
     with_larger_stack!(|| {
-        env_logger::try_init().ok();
+        let _ = env_logger::builder()
+            .format(|buf, record| {
+                writeln!(buf, "{}: {}", record.level(), record.args())
+            })
+            .is_test(true)
+            .try_init();
 
         let raw = r#"SELECT
     t1.id,
@@ -58,7 +75,12 @@ LIMIT 10"#;
 #[test]
 fn test_all_tokens_present_with_subquery() -> Result<(), ParseError> {
     with_larger_stack!(|| {
-        env_logger::try_init().ok();
+        let _ = env_logger::builder()
+            .format(|buf, record| {
+                writeln!(buf, "{}: {}", record.level(), record.args())
+            })
+            .is_test(true)
+            .try_init();
 
         let raw = r#"SELECT * FROM (
     SELECT id, name
@@ -74,7 +96,12 @@ WHERE subquery.id > 100"#;
 #[test]
 fn test_all_tokens_present_case_expression() -> Result<(), ParseError> {
     with_larger_stack!(|| {
-        env_logger::try_init().ok();
+        let _ = env_logger::builder()
+            .format(|buf, record| {
+                writeln!(buf, "{}: {}", record.level(), record.args())
+            })
+            .is_test(true)
+            .try_init();
 
         let raw = r#"SELECT
     CASE
@@ -91,7 +118,12 @@ FROM users"#;
 #[test]
 fn test_all_tokens_present_wildcards() -> Result<(), ParseError> {
     with_larger_stack!(|| {
-        env_logger::try_init().ok();
+        let _ = env_logger::builder()
+            .format(|buf, record| {
+                writeln!(buf, "{}: {}", record.level(), record.args())
+            })
+            .is_test(true)
+            .try_init();
         // Test various wildcard patterns
         parse_and_verify_tokens(
             "SELECT *, table1.*, schema.table2.* FROM table1, schema.table2",
@@ -103,7 +135,12 @@ fn test_all_tokens_present_wildcards() -> Result<(), ParseError> {
 #[test]
 fn test_all_tokens_present_with_backtracking() -> Result<(), ParseError> {
     with_larger_stack!(|| {
-        env_logger::try_init().ok();
+        let _ = env_logger::builder()
+            .format(|buf, record| {
+                writeln!(buf, "{}: {}", record.level(), record.args())
+            })
+            .is_test(true)
+            .try_init();
         // This tests backtracking in OneOf - could match as function call or column ref
         parse_and_verify_tokens("SELECT COUNT(*) FROM table_name", "SelectStatementSegment", Dialect::Ansi)
     })
@@ -112,7 +149,12 @@ fn test_all_tokens_present_with_backtracking() -> Result<(), ParseError> {
 #[test]
 fn test_all_tokens_present_anysetof() -> Result<(), ParseError> {
     with_larger_stack!(|| {
-        env_logger::try_init().ok();
+        let _ = env_logger::builder()
+            .format(|buf, record| {
+                writeln!(buf, "{}: {}", record.level(), record.args())
+            })
+            .is_test(true)
+            .try_init();
         // Test AnySetOf with multiple elements in different orders
         parse_and_verify_tokens(
             "FOREIGN KEY (col) REFERENCES other(col) ON UPDATE CASCADE ON DELETE SET NULL",
@@ -124,7 +166,12 @@ fn test_all_tokens_present_anysetof() -> Result<(), ParseError> {
 #[test]
 fn test_all_tokens_present_delimited() -> Result<(), ParseError> {
     with_larger_stack!(|| {
-        env_logger::try_init().ok();
+        let _ = env_logger::builder()
+            .format(|buf, record| {
+                writeln!(buf, "{}: {}", record.level(), record.args())
+            })
+            .is_test(true)
+            .try_init();
         // Test Delimited with many elements and trailing commas
         parse_and_verify_tokens(
             "SELECT col1, col2, col3, col4, col5 FROM table_name",
@@ -136,7 +183,12 @@ fn test_all_tokens_present_delimited() -> Result<(), ParseError> {
 #[test]
 fn test_all_tokens_present_bracketed() -> Result<(), ParseError> {
     with_larger_stack!(|| {
-        env_logger::try_init().ok();
+        let _ = env_logger::builder()
+            .format(|buf, record| {
+                writeln!(buf, "{}: {}", record.level(), record.args())
+            })
+            .is_test(true)
+            .try_init();
         // Test Bracketed expressions with nested content
         parse_and_verify_tokens(
             "SELECT (a + b) * (c - d) FROM table_name",
@@ -148,7 +200,12 @@ fn test_all_tokens_present_bracketed() -> Result<(), ParseError> {
 #[test]
 fn test_all_tokens_present_sequence_allow_gaps_false() -> Result<(), ParseError> {
     with_larger_stack!(|| {
-        env_logger::try_init().ok();
+        let _ = env_logger::builder()
+            .format(|buf, record| {
+                writeln!(buf, "{}: {}", record.level(), record.args())
+            })
+            .is_test(true)
+            .try_init();
         // Specifically test sequences with allow_gaps=false (like WildcardIdentifierSegment)
         // This is the case that triggered our retroactive collection fix
         parse_and_verify_tokens(
@@ -161,7 +218,12 @@ fn test_all_tokens_present_sequence_allow_gaps_false() -> Result<(), ParseError>
 #[test]
 fn test_all_tokens_present_mixed_whitespace() -> Result<(), ParseError> {
     with_larger_stack!(|| {
-        env_logger::try_init().ok();
+        let _ = env_logger::builder()
+            .format(|buf, record| {
+                writeln!(buf, "{}: {}", record.level(), record.args())
+            })
+            .is_test(true)
+            .try_init();
         // Mix of spaces, tabs, and multiple newlines
         parse_and_verify_tokens("SELECT\n\n  *  \t\n FROM  \t table_name\n\n", "SelectStatementSegment", Dialect::Ansi)
     })
@@ -170,7 +232,12 @@ fn test_all_tokens_present_mixed_whitespace() -> Result<(), ParseError> {
 #[test]
 fn test_all_tokens_present_insert_statement() -> Result<(), ParseError> {
     with_larger_stack!(|| {
-        env_logger::try_init().ok();
+        let _ = env_logger::builder()
+            .format(|buf, record| {
+                writeln!(buf, "{}: {}", record.level(), record.args())
+            })
+            .is_test(true)
+            .try_init();
         parse_and_verify_tokens(
             "INSERT INTO users (id, name, email) VALUES (1, 'John', 'john@example.com')",
             "InsertStatementSegment", Dialect::Ansi,
@@ -181,7 +248,12 @@ fn test_all_tokens_present_insert_statement() -> Result<(), ParseError> {
 #[test]
 fn test_all_tokens_present_update_statement() -> Result<(), ParseError> {
     with_larger_stack!(|| {
-        env_logger::try_init().ok();
+        let _ = env_logger::builder()
+            .format(|buf, record| {
+                writeln!(buf, "{}: {}", record.level(), record.args())
+            })
+            .is_test(true)
+            .try_init();
         parse_and_verify_tokens(
             "UPDATE users SET name = 'Jane', status = 'active' WHERE id = 1",
             "UpdateStatementSegment", Dialect::Ansi,
@@ -192,7 +264,12 @@ fn test_all_tokens_present_update_statement() -> Result<(), ParseError> {
 #[test]
 fn test_all_tokens_present_create_table() -> Result<(), ParseError> {
     with_larger_stack!(|| {
-        env_logger::try_init().ok();
+        let _ = env_logger::builder()
+            .format(|buf, record| {
+                writeln!(buf, "{}: {}", record.level(), record.args())
+            })
+            .is_test(true)
+            .try_init();
 
         let raw = r#"CREATE TABLE users (
     id INTEGER PRIMARY KEY,

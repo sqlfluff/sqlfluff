@@ -657,11 +657,7 @@ impl<'a> Parser<'_> {
                 parse_mode,
             ),
             _ => {
-                return Err(ParseError::with_context(
-                    "handle_bracketed_initial called with non-Bracketed grammar".to_string(),
-                    Some(self.pos),
-                    Some(grammar),
-                ));
+                panic!("handle_bracketed_initial called with non-Bracketed grammar");
             }
         };
         let start_idx = frame.pos;
@@ -683,46 +679,12 @@ impl<'a> Parser<'_> {
                 .collect()
         };
 
-        // Update frame with Bracketed context
-        frame.state = FrameState::WaitingForChild {
-            child_index: 0,
-            total_children: 3, // open, content, close
-        };
-        frame.context = FrameContext::Bracketed {
-            grammar: grammar.clone(),
-            state: BracketedState::MatchingOpen,
-            last_child_frame_id: None,
-            bracket_max_idx: None,
-        };
-        frame.terminators = all_terminators.clone();
-        stack.push(frame);
-
         // Start by trying to match the opening bracket
-        let mut child_frame = ParseFrame {
-            frame_id: stack.frame_id_counter,
-            grammar: (*bracket_pairs.0).clone(),
-            pos: start_idx,
-            terminators: all_terminators,
-            state: FrameState::Initial,
-            accumulated: vec![],
-            context: FrameContext::None,
-            parent_max_idx: stack.last_mut().unwrap().parent_max_idx, // Propagate parent's limit!
-        };
-
-        // Update parent's last_child_frame_id
-        {
-            let next_child_id = stack.frame_id_counter;
-            if let Some(parent_frame) = stack.last_mut() {
-                if let FrameContext::Bracketed {
-                    last_child_frame_id,
-                    ..
-                } = &mut parent_frame.context
-                {
-                    *last_child_frame_id = Some(next_child_id);
-                }
-            }
-        }
-
+        // TODO: check if we need to pass terminators here
+        initialize_bracketed_frame(&grammar, frame, stack, all_terminators.clone());
+        let mut child_frame =
+            create_child_frame(stack, &bracket_pairs.0, start_idx, all_terminators.clone());
+        update_parent_last_child_frame(stack);
         stack.increment_frame_id_counter();
         stack.push(&mut child_frame);
         Ok(NextStep::Continue)
@@ -744,7 +706,7 @@ impl<'a> Parser<'_> {
             bracket_max_idx,
         } = &mut frame.context
         else {
-            unreachable!("Expected Bracketed context");
+            panic!("Expected Bracketed context");
         };
         let local_bracket_max_idx = *bracket_max_idx;
         log::debug!(
@@ -1050,6 +1012,59 @@ impl<'a> Parser<'_> {
                         .insert(frame.frame_id, (result_node, *child_end_pos, None));
                     return;
                 }
+            }
+        }
+    }
+}
+
+fn initialize_bracketed_frame(
+    grammar: &Arc<Grammar>,
+    frame: &mut ParseFrame,
+    stack: &mut ParseFrameStack,
+    all_terminators: Vec<Arc<Grammar>>,
+) {
+    // Update frame with Bracketed context
+    frame.state = FrameState::WaitingForChild {
+        child_index: 0,
+        total_children: 3, // open, content, close
+    };
+    frame.context = FrameContext::Bracketed {
+        grammar: grammar.clone(),
+        state: BracketedState::MatchingOpen,
+        last_child_frame_id: None,
+        bracket_max_idx: None,
+    };
+    frame.terminators = all_terminators;
+    stack.push(frame);
+}
+
+fn create_child_frame(
+    stack: &mut ParseFrameStack,
+    grammar: &Arc<Grammar>,
+    start_idx: usize,
+    terminators: Vec<Arc<Grammar>>,
+) -> ParseFrame {
+    ParseFrame {
+        frame_id: stack.frame_id_counter,
+        grammar: grammar.clone(),
+        pos: start_idx,
+        terminators: terminators,
+        state: FrameState::Initial,
+        accumulated: vec![],
+        context: FrameContext::None,
+        parent_max_idx: stack.last_mut().unwrap().parent_max_idx, // Propagate parent's limit!
+    }
+}
+fn update_parent_last_child_frame(stack: &mut ParseFrameStack) {
+    let next_child_id = stack.frame_id_counter;
+    if let Some(parent_frame) = stack.last_mut() {
+        match &mut parent_frame.context {
+            FrameContext::Bracketed {
+                last_child_frame_id,
+                ..
+            } => *last_child_frame_id = Some(next_child_id),
+            _ => {
+                todo!("implement update_parent_last_child_frame for this grammar type");
             }
         }
     }
