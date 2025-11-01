@@ -360,6 +360,32 @@ impl Node {
         }
     }
 
+    /// Get the last (end) token index from this node
+    /// For leaf nodes, returns the same as get_token_idx()
+    /// For container nodes, recursively finds the last token in children
+    pub fn get_end_token_idx(&self) -> Option<usize> {
+        match self {
+            // Leaf nodes - return their token index
+            Node::Token { token_idx: idx, .. }
+            | Node::Whitespace { token_idx: idx, .. }
+            | Node::Newline { token_idx: idx, .. }
+            | Node::EndOfFile { token_idx: idx, .. } => Some(*idx),
+
+            // Container nodes - find last token in children
+            Node::Sequence { children }
+            | Node::DelimitedList { children }
+            | Node::Bracketed { children }
+            | Node::Unparsable { children, .. } => {
+                children.iter().rev().find_map(|child| child.get_end_token_idx())
+            }
+
+            Node::Ref { child, .. } => child.get_end_token_idx(),
+
+            // Empty and Meta nodes have no tokens
+            Node::Empty | Node::Meta { .. } => None,
+        }
+    }
+
     /// Format the AST to mirror Python SQLFluff's parse output format.
     pub fn format_tree(&self, tokens: &[Token]) -> String {
         let mut output = String::new();

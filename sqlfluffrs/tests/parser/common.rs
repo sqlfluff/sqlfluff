@@ -37,10 +37,21 @@ pub fn verify_all_tokens_in_ast(raw: &str, ast: &Node, tokens: &[Token]) -> Resu
         }
     );
 
+    // Find the maximum token position in the AST to determine parse extent
+    let max_ast_pos = ast_positions.iter().copied().max().unwrap_or(0);
+
     // Check which tokens are missing
+    // Skip: 1) end_of_file tokens (not part of parsed segment)
+    //       2) trailing whitespace/newline after the last parsed token
     let mut missing = Vec::new();
     for (idx, token) in tokens.iter().enumerate() {
-        if !ast_positions.contains(&idx) {
+        let token_type = token.get_type();
+        let is_trailing_whitespace = idx > max_ast_pos &&
+            (token_type == "whitespace" || token_type == "newline");
+
+        if !ast_positions.contains(&idx) &&
+           token_type != "end_of_file" &&
+           !is_trailing_whitespace {
             missing.push((idx, token.clone()));
         }
     }

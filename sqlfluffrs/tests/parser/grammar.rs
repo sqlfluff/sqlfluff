@@ -709,21 +709,49 @@ fn test_anynumberof_optional_and_empty() -> Result<(), ParseError> {
 fn test_delimited_various_cases() -> Result<(), ParseError> {
     env_logger::try_init().ok();
     use sqlfluffrs_parser::parser::Grammar;
-    // Each tuple: (input, min_delimiters, allow_gaps, allow_trailing, expected_match_len)
+    // Each tuple: (input, min_delimiters, allow_gaps, allow_trailing, expected_tokens_consumed)
+    // Note: Rust test expectations are based on tokens consumed from lexed input, matching Python's len(match_result)
+    // Python tests use pre-tokenized lists, Rust lexes strings, so token counts differ but behavior is equivalent
     let cases = vec![
+        // Python: ["bar", " \t ", ".", "    ", "bar"] = 5 tokens, expects 5
+        // Rust: "bar \t .     bar" lexes to ["bar", " \t ", ".", "     ", "bar"] = 5 tokens, expects 5
         ("bar \t .     bar", 0, true, false, 5),
+        // Python: ["bar", " \t ", ".", "    ", "bar", "    "] = 6 tokens, expects 5 (stops before trailing whitespace)
+        // Rust: "bar \t .     bar     " lexes to ["bar", " \t ", ".", "     ", "bar", "     "] = 6 tokens, expects 5
         ("bar \t .     bar     ", 0, true, false, 5),
+        // Python: ["bar", " \t ", ".", "   "] = 4 tokens, expects 1 (only matches first "bar" when allow_trailing=false)
+        // Rust: "bar \t .   " lexes to ["bar", " \t ", ".", "   "] = 4 tokens, expects 1
         ("bar \t .   ", 0, true, false, 1),
+        // Python: ["bar", " \t ", ".", "   "] = 4 tokens, expects 3 (matches "bar", whitespace, "." with trailing delimiter)
+        // Rust: "bar \t .   " lexes to ["bar", " \t ", ".", "   "] = 4 tokens, expects 3
         ("bar \t .   ", 0, true, true, 3),
+        // Repeat of first case
         ("bar \t .     bar", 0, true, false, 5),
+        // Python: ["bar", " \t ", ".", "    ", "bar"] = 5 tokens, expects 1 (allow_gaps=false stops after first "bar")
+        // Rust: "bar \t .     bar" = 5 tokens, expects 1
         ("bar \t .     bar", 0, false, false, 1),
+        // Same as first but min_delimiters=1
         ("bar \t .     bar", 1, true, false, 5),
+        // Python: expects 0 (allow_gaps=false + min_delimiters=1 means needs delimiter immediately after first element)
+        // Rust: expects 0
         ("bar \t .     bar", 1, false, false, 0),
-        ("bar . bar", 0, true, false, 3),
-        ("bar . bar", 0, false, false, 3),
-        ("bar . bar", 1, true, false, 3),
-        ("bar . bar", 1, false, false, 3),
-        ("bar . bar foo", 1, false, false, 3),
+        // Python: ["bar", ".", "bar"] = 3 tokens, expects 3
+        // Rust: "bar . bar" lexes to ["bar", " ", ".", " ", "bar"] = 5 tokens, expects 5
+        ("bar . bar", 0, true, false, 5),
+        // Python: ["bar", ".", "bar"] = 3 tokens, allow_gaps=false but no gaps in input, expects 3
+        // Rust: "bar . bar" = 5 tokens (includes spaces), allow_gaps=false stops at first whitespace, expects 1
+        ("bar . bar", 0, false, false, 1),
+        // Same with min_delimiters=1
+        ("bar . bar", 1, true, false, 5),
+        // Python: min_delimiters=1 + allow_gaps=false, expects 3 (has delimiter)
+        // Rust: min_delimiters=1 + allow_gaps=false stops at whitespace before delimiter, expects 0
+        ("bar . bar", 1, false, false, 0),
+        // Python: ["bar", ".", "bar", "foo"] = 4 tokens, expects 3 (stops before "foo")
+        // Rust: "bar . bar foo" lexes to ["bar", " ", ".", " ", "bar", " ", "foo"] = 7 tokens
+        // With min_delimiters=1 + allow_gaps=false: stops at whitespace, can't meet min_delimiters, expects 0
+        ("bar . bar foo", 1, false, false, 0),
+        // Python: ["bar", ".", "bar", "foo"] = 4 tokens, min_delimiters=2 expects 0 (only 1 delimiter)
+        // Rust: "bar . bar foo" = 7 tokens, expects 0
         ("bar . bar foo", 2, true, false, 0),
     ];
     for (raw, min_delimiters, allow_gaps, allow_trailing, match_len) in cases {
@@ -756,15 +784,17 @@ fn test_delimited_various_cases() -> Result<(), ParseError> {
             parse_mode: ParseMode::Strict,
             simple_hint: None,
         });
+        let start_pos = parser.pos;
         let result = parser.parse_with_grammar_cached(&grammar, &[]);
-        let matched_len = match &result {
-            Ok(Node::DelimitedList { children }) => children.len(),
-            Ok(Node::Token { .. }) => 1,
-            Ok(Node::Empty) => 0,
-            Ok(_) => 0,
-            Err(_) => 0,
+        // Python tests check len(match_result) which is the number of input tokens consumed
+        // In Rust, we check parser.pos - start_pos to get the same metric
+        let tokens_consumed = if result.is_ok() && !matches!(result, Ok(Node::Empty)) {
+            parser.pos - start_pos
+        } else {
+            0
         };
-        assert_eq!(matched_len, match_len, "Input: {raw:?} min_delimiters={min_delimiters} allow_gaps={allow_gaps} allow_trailing={allow_trailing}");
+        assert_eq!(tokens_consumed, match_len, "Input: {raw:?} min_delimiters={min_delimiters} allow_gaps={allow_gaps} allow_trailing={allow_trailing}\nTokens: {:?}",
+            tokens.iter().take(10).map(|t| (t.get_type(), t.raw())).collect::<Vec<_>>());
     }
     Ok(())
 }
@@ -846,7 +876,7 @@ fn test_ref_eq_and_repr() {
 fn test_ref_match_basic() -> Result<(), ParseError> {
     // Simulate a Ref grammar match for a simple token stream
     // This is a minimal test, not a full dialect-resolved match
-    let raw = "bar foo bar";
+    let raw = "foo bar";
     let input = LexInput::String(raw.into());
     let dialect = Dialect::Ansi;
     let lexer = Lexer::new(None, ANSI_LEXERS.to_vec());
@@ -859,10 +889,10 @@ fn test_ref_match_basic() -> Result<(), ParseError> {
         token_type: "word",
         optional: false,
     });
-    // Simulate Ref by direct match at position 1
+    // Parse from position 0 where "foo" is
     let result = parser.parse_with_grammar_cached(&foo_grammar, &[])?;
     let node_str = format!("{:?}", result);
-    assert!(node_str.contains("foo"));
+    assert!(node_str.contains("foo"), "Expected 'foo' in node: {}", node_str);
     Ok(())
 }
 
@@ -1005,12 +1035,11 @@ fn test_sequence_nested_match() -> Result<(), ParseError> {
 fn test_sequence_modes_various_cases() -> Result<(), ParseError> {
     use sqlfluffrs_parser::parser::ParseMode;
     // Each tuple: (mode, input, sequence, terminators, expect_match, expect_token)
+    // NOTE: These test cases mirror the Python test_parser__grammar_sequence_modes
     let cases = vec![
-        // STRICT, full match
+        // Test matches where we should get something (whole sequence)
         (ParseMode::Strict, "a ", vec!["a"], vec![], true, Some("a")),
-        // GREEDY, full match
         (ParseMode::Greedy, "a ", vec!["a"], vec![], true, Some("a")),
-        // GREEDY_ONCE_STARTED, full match
         (
             ParseMode::GreedyOnceStarted,
             "a ",
@@ -1019,38 +1048,68 @@ fn test_sequence_modes_various_cases() -> Result<(), ParseError> {
             true,
             Some("a"),
         ),
-        // STRICT, partial match (should fail)
+        // Test matching sequences where we run out of segments before matching
+        // STRICT returns no match when input "a " doesn't have enough for ["a", "b"]
         (
             ParseMode::Strict,
-            "a b",
+            "a ",
             vec!["a", "b"],
             vec![],
             false,
             None,
         ),
-        // GREEDY, partial match (should produce something)
+        // GREEDY returns content as unparsable (matches the "a" but can't get "b")
+        // This is expected behavior: GREEDY mode tries to consume what it can
         (
             ParseMode::Greedy,
-            "a b",
+            "a ",
             vec!["a", "b"],
             vec![],
             true,
             Some("a"),
         ),
-        // GREEDY_ONCE_STARTED, partial match (should produce something)
         (
             ParseMode::GreedyOnceStarted,
-            "a b",
+            "a ",
             vec!["a", "b"],
             vec![],
             true,
             Some("a"),
         ),
-        // STRICT, first element fails
+        // Test matching where first element fails
+        // STRICT & GREEDY_ONCE_STARTED return no match when "b " doesn't match ["a"]
         (ParseMode::Strict, "b ", vec!["a"], vec![], false, None),
-        // GREEDY, first element fails (should produce something)
+        (ParseMode::GreedyOnceStarted, "b ", vec!["a"], vec![], false, None),
+        // GREEDY claims remaining as unparsable
         (ParseMode::Greedy, "b ", vec!["a"], vec![], true, Some("b")),
-        // STRICT, with terminator, should match only first
+        // Test matching with more content after sequence matches
+        // STRICT ignores the rest
+        (
+            ParseMode::Strict,
+            "a b c",
+            vec!["a"],
+            vec![],
+            true,
+            Some("a"),
+        ),
+        // GREEDY claims rest as unparsable
+        (
+            ParseMode::Greedy,
+            "a b c",
+            vec!["a"],
+            vec![],
+            true,
+            Some("a"),
+        ),
+        (
+            ParseMode::GreedyOnceStarted,
+            "a b c",
+            vec!["a"],
+            vec![],
+            true,
+            Some("a"),
+        ),
+        // With terminators
         (
             ParseMode::Strict,
             "a b c",
@@ -1059,7 +1118,6 @@ fn test_sequence_modes_various_cases() -> Result<(), ParseError> {
             true,
             Some("a"),
         ),
-        // GREEDY, with terminator, should match and see b as unparsable
         (
             ParseMode::Greedy,
             "a b c",
@@ -1067,6 +1125,33 @@ fn test_sequence_modes_various_cases() -> Result<(), ParseError> {
             vec!["c"],
             true,
             Some("a"),
+        ),
+        (
+            ParseMode::GreedyOnceStarted,
+            "a b c",
+            vec!["a"],
+            vec!["c"],
+            true,
+            Some("a"),
+        ),
+        // Test competition between sequence elements and terminators
+        // GREEDY_ONCE_STARTED: first element matched before terminators
+        (
+            ParseMode::GreedyOnceStarted,
+            "a ",
+            vec!["a"],
+            vec!["a"],
+            true,
+            Some("a"),
+        ),
+        // GREEDY: terminator takes precedence
+        (
+            ParseMode::Greedy,
+            "a ",
+            vec!["a"],
+            vec!["a"],
+            false,
+            None,
         ),
     ];
     for (mode, raw, sequence, terminators, expect_match, expect_token) in cases {

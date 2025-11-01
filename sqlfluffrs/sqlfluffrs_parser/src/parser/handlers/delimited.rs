@@ -294,6 +294,9 @@ impl crate::parser::Parser<'_> {
                         frame.pos,
                         child_end_pos
                     );
+                    // Python parity: collect all whitespace/newline nodes between matched_idx and working_idx
+                    // In Python, these are implicitly included via the slice range in MatchResult.apply()
+                    // Python includes ALL whitespace, not just "non-trivial" whitespace
                     if *allow_gaps {
                         for check_pos in *matched_idx..*working_idx {
                             if check_pos < self.tokens.len()
@@ -302,15 +305,16 @@ impl crate::parser::Parser<'_> {
                             {
                                 let tok = &self.tokens[check_pos];
                                 let tok_type = tok.get_type();
+                                let tok_raw = tok.raw();
                                 if tok_type == "whitespace" {
                                     frame.accumulated.push(Node::Whitespace {
-                                        raw: tok.raw().to_string(),
+                                        raw: tok_raw.to_string(),
                                         token_idx: check_pos,
                                     });
                                     self.collected_transparent_positions.insert(check_pos);
                                 } else if tok_type == "newline" {
                                     frame.accumulated.push(Node::Newline {
-                                        raw: tok.raw().to_string(),
+                                        raw: tok_raw.to_string(),
                                         token_idx: check_pos,
                                     });
                                     self.collected_transparent_positions.insert(check_pos);
@@ -360,6 +364,37 @@ impl crate::parser::Parser<'_> {
                         return Ok(());
                     }
                     *state = DelimitedState::MatchingDelimiter;
+                    // If allow_gaps=false and next position has ANY whitespace, stop matching
+                    // Python's NonCodeMatcher would terminate here
+                    if !*allow_gaps && *working_idx < self.tokens.len() {
+                        let tok = &self.tokens[*working_idx];
+                        if !tok.is_code() {
+                            log::debug!(
+                                "[ITERATIVE] Delimited: allow_gaps=false and next position {} has whitespace, completing",
+                                *working_idx
+                            );
+                            // Check min_delimiters at completion
+                            if *delimiter_count < *min_delimiters {
+                                stack.results.insert(
+                                    frame.frame_id,
+                                    (Node::DelimitedList { children: vec![] }, frame.pos, None),
+                                );
+                                return Ok(());
+                            }
+                            self.pos = *matched_idx;
+                            stack.results.insert(
+                                frame.frame_id,
+                                (
+                                    Node::DelimitedList {
+                                        children: frame.accumulated.clone(),
+                                    },
+                                    *matched_idx,
+                                    None,
+                                ),
+                            );
+                            return Ok(());
+                        }
+                    }
                     let child_max_idx = *max_idx;
                     let child_frame = ParseFrame::new_child(
                         stack.frame_id_counter,
@@ -383,20 +418,14 @@ impl crate::parser::Parser<'_> {
                         "[ITERATIVE] Delimited: no delimiter found, completing at position {}",
                         matched_idx
                     );
-                    // If no delimiter matched, but optional, just continue to element
+                    // If no delimiter matched, check min_delimiters
                     if *delimiter_count < *min_delimiters {
-                        if *optional {
-                            self.pos = frame.pos;
-                            stack.results.insert(
-                                frame.frame_id,
-                                (Node::DelimitedList { children: vec![] }, frame.pos, None),
-                            );
-                        } else {
-                            panic!(
-                                "Expected at least {} delimiters, found {}",
-                                min_delimiters, delimiter_count
-                            );
-                        }
+                        // If not enough delimiters, return empty match
+                        self.pos = frame.pos;
+                        stack.results.insert(
+                            frame.frame_id,
+                            (Node::DelimitedList { children: vec![] }, frame.pos, None),
+                        );
                     } else {
                         // Handle trailing delimiter if allowed and present
                         if *allow_trailing && delimiter_match.is_some() {
@@ -422,6 +451,11 @@ impl crate::parser::Parser<'_> {
                         working_idx,
                         child_end_pos
                     );
+                    // Track accumulated length before adding whitespace for potential backtrack
+                    let accumulated_len_before_gaps = frame.accumulated.len();
+                    // Python parity: collect all whitespace/newline nodes between matched_idx and working_idx
+                    // In Python, these are implicitly included via the slice range in MatchResult.apply()
+                    // Python includes ALL whitespace, not just "non-trivial" whitespace
                     if *allow_gaps {
                         for check_pos in *matched_idx..*working_idx {
                             if check_pos < self.tokens.len()
@@ -430,15 +464,16 @@ impl crate::parser::Parser<'_> {
                             {
                                 let tok = &self.tokens[check_pos];
                                 let tok_type = tok.get_type();
+                                let tok_raw = tok.raw();
                                 if tok_type == "whitespace" {
                                     frame.accumulated.push(Node::Whitespace {
-                                        raw: tok.raw().to_string(),
+                                        raw: tok_raw.to_string(),
                                         token_idx: check_pos,
                                     });
                                     self.collected_transparent_positions.insert(check_pos);
                                 } else if tok_type == "newline" {
                                     frame.accumulated.push(Node::Newline {
-                                        raw: tok.raw().to_string(),
+                                        raw: tok_raw.to_string(),
                                         token_idx: check_pos,
                                     });
                                     self.collected_transparent_positions.insert(check_pos);
@@ -448,15 +483,51 @@ impl crate::parser::Parser<'_> {
                     }
                     // Store the delimiter match for the next element
                     *delimiter_match = Some(child_node.clone());
+                    // Save position before delimiter for potential backtrack
+                    let pos_before_delimiter = *matched_idx;
                     *matched_idx = *child_end_pos;
                     *working_idx = *matched_idx;
                     self.pos = *matched_idx;
                     if self.is_terminated(&frame_terminators) {
                         log::debug!("[ITERATIVE] Delimited: terminated after delimiter");
                         if !*allow_trailing {
-                            return Err(ParseError::new(
-                                "Trailing delimiter not allowed".to_string(),
-                            ));
+                            // When allow_trailing=false and we hit a terminator after a delimiter:
+                            // - If we haven't matched any delimiters yet (delimiter_count==0), backtrack
+                            // - If we've already matched delimiters (delimiter_count>0), return error
+                            if *delimiter_count == 0 {
+                                // Backtrack: don't consume the delimiter
+                                log::debug!("[ITERATIVE] Delimited: backtracking - not consuming trailing delimiter");
+                                // Restore position to before the delimiter and discard delimiter_match
+                                *delimiter_match = None;
+                                self.pos = pos_before_delimiter;
+                                // Also remove any whitespace nodes we added before the delimiter
+                                frame.accumulated.truncate(accumulated_len_before_gaps);
+                                // Check min_delimiters at completion
+                                if *delimiter_count < *min_delimiters {
+                                    stack.results.insert(
+                                        frame.frame_id,
+                                        (Node::DelimitedList { children: vec![] }, frame.pos, None),
+                                    );
+                                    return Ok(());
+                                }
+                                stack.results.insert(
+                                    frame.frame_id,
+                                    (
+                                        Node::DelimitedList {
+                                            children: frame.accumulated.clone(),
+                                        },
+                                        pos_before_delimiter,
+                                        None,
+                                    ),
+                                );
+                                return Ok(());
+                            } else {
+                                // We've already matched delimiters, so return error
+                                log::debug!("[ITERATIVE] Delimited: trailing delimiter not allowed after matching delimiters");
+                                return Err(ParseError::new(
+                                    "Trailing delimiter not allowed".to_string(),
+                                ));
+                            }
                         }
                         // Handle trailing delimiter if allowed and present
                         if *allow_trailing && delimiter_match.is_some() {

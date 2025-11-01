@@ -79,6 +79,13 @@ fn check_yaml_output_matches_python_for_dialect(dialect: &str) {
             }
             if !rows_match {
                 println!("  Row count differs:\n    Generated: {}\n    Expected:  {}", gen_rows, exp_rows);
+                if test.name == "table_expression" {
+                    println!("\n=== GENERATED YAML ===\n{}", generated_yaml);
+                    println!("\n=== EXPECTED YAML (first 100 lines) ===");
+                    for (i, line) in expected_yaml.lines().take(100).enumerate() {
+                        println!("{}: {}", i+1, line);
+                    }
+                }
             }
         }
     }

@@ -704,7 +704,13 @@ impl<'a> Parser<'_> {
                 next_pos = _idx;
             }
             let next_elem_idx = current_elem_idx + 1;
+            // DEBUG: Log the state before the early return check
+            log::debug!("SEQUENCE CONTINUATION CHECK: next_pos={}, current_max_idx={}, next_elem_idx={}, elements_clone.len()={}",
+                next_pos, current_max_idx, next_elem_idx, elements_clone.len());
+
+            // Check if we've reached the max_idx boundary
             if next_pos >= current_max_idx && next_elem_idx < elements_clone.len() {
+                // Determine if the next element (skipping Meta elements) is optional
                 let mut check_idx = next_elem_idx;
                 let mut next_element_optional = true;
                 while check_idx < elements_clone.len() {
@@ -715,23 +721,40 @@ impl<'a> Parser<'_> {
                         break;
                     }
                 }
+
                 if next_element_optional {
-                    for pos in tentatively_collected.iter() {
-                        self.collected_transparent_positions.insert(*pos);
-                    }
-                    self.pos = current_matched_idx;
-                    let result_node = if frame.accumulated.is_empty() {
-                        Node::Empty
+                    // BUGFIX: The early return logic here is problematic when the previous element
+                    // (e.g., FROM clause) successfully parsed beyond current_max_idx. This happens when
+                    // max_idx was conservatively trimmed to a terminator (like "WITH"), but that
+                    // terminator turned out to be part of a valid grammar construct (like "WITH OFFSET").
+                    //
+                    // If we successfully parsed past max_idx, we should UPDATE max_idx rather than
+                    // stopping early. The fact that we parsed successfully means max_idx was too conservative.
+                    if next_pos > current_max_idx {
+                        log::debug!("SEQUENCE: next_pos ({}) > current_max_idx ({}), updating max_idx to allow continuation", next_pos, current_max_idx);
+                        // Update max_idx to at least next_pos, but keep original_max_idx as upper bound
+                        *max_idx = next_pos.max(current_max_idx).min(current_original_max_idx);
+                        log::debug!("SEQUENCE: Updated max_idx to {}", *max_idx);
                     } else {
-                        Node::Sequence {
-                            children: frame.accumulated.clone(),
+                        // Original logic: return early when we've hit max_idx and next element is optional
+                        for pos in tentatively_collected.iter() {
+                            self.collected_transparent_positions.insert(*pos);
                         }
-                    };
-                    stack
-                        .results
-                        .insert(frame.frame_id, (result_node, current_matched_idx, None));
-                    return;
+                        self.pos = current_matched_idx;
+                        let result_node = if frame.accumulated.is_empty() {
+                            Node::Empty
+                        } else {
+                            Node::Sequence {
+                                children: frame.accumulated.clone(),
+                            }
+                        };
+                        stack
+                            .results
+                            .insert(frame.frame_id, (result_node, current_matched_idx, None));
+                        return;
+                    }
                 } else {
+                    // Next element is required but we've hit max_idx - return what we have
                     if current_parse_mode == crate::parser::ParseMode::Strict
                         || frame.accumulated.is_empty()
                     {

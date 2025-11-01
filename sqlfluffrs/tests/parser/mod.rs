@@ -11,6 +11,8 @@
 mod common;
 mod basic_sql;
 mod grammar;
+mod grammar_extended;
+mod grammar_python_parity;
 mod iterative;
 mod exclude;
 mod token_coverage;
