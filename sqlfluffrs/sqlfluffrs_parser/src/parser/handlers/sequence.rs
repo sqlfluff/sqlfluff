@@ -38,8 +38,8 @@ impl<'a> Parser<'_> {
                 _ => panic!("handle_sequence_initial called with non-Sequence grammar"),
             };
         let pos = frame.pos;
-        log::debug!("DEBUG: Sequence Initial at pos={}, parent_max_idx={:?}, allow_gaps={}, elements.len()={}",
-                  pos, frame.parent_max_idx, allow_gaps, elements.len());
+        log::debug!("DEBUG: Sequence Initial at pos={}, parent_max_idx={:?}, allow_gaps={}, elements.len()={}, parse_mode={:?}",
+                  pos, frame.parent_max_idx, allow_gaps, elements.len(), parse_mode);
         let start_idx = pos; // Where did we start
 
         // Combine parent and local terminators
@@ -68,6 +68,8 @@ impl<'a> Parser<'_> {
             max_idx
         };
 
+        log::debug!("DEBUG: Sequence Initial calculated max_idx={}, frame.parent_max_idx={:?}", max_idx, frame.parent_max_idx);
+
         // Update frame with Sequence context
         frame.state = FrameState::WaitingForChild {
             child_index: 0,
@@ -93,6 +95,24 @@ impl<'a> Parser<'_> {
         } else {
             start_idx
         };
+
+        // Handle empty elements case - sequence with no elements should succeed immediately
+        if elements.is_empty() {
+            // Pop the frame we just pushed
+            stack.pop();
+            // Return empty sequence
+            stack.results.insert(
+                current_frame_id,
+                (
+                    Node::Sequence {
+                        children: vec![],
+                    },
+                    start_idx,
+                    None,
+                ),
+            );
+            return Ok(NextStep::Fallthrough);
+        }
 
         // Push first child to parse
         if !elements.is_empty() {
@@ -323,14 +343,133 @@ impl<'a> Parser<'_> {
                 );
                 log::debug!("  Expected: {}", element_desc);
                 log::debug!("  At position: {} (found: {})", element_start, found_token);
-                log::debug!("Sequence: required element returned Empty, returning Empty");
-                self.pos = frame.pos;
-                for pos in tentatively_collected.iter() {
-                    self.collected_transparent_positions.remove(pos);
+
+                // Python reference: sequence.py Sequence.match() lines ~240-280
+                // When a required element fails to match, check parse_mode:
+                // - STRICT: return Empty (no match)
+                // - GREEDY_ONCE_STARTED: if nothing matched yet, return Empty; else wrap as unparsable
+                // - GREEDY: wrap remaining content as unparsable
+                if *parse_mode == ParseMode::Strict {
+                    log::debug!("Sequence: STRICT mode - required element returned Empty, returning Empty");
+                    self.pos = frame.pos;
+                    for pos in tentatively_collected.iter() {
+                        self.collected_transparent_positions.remove(pos);
+                    }
+                    stack
+                        .results
+                        .insert(frame.frame_id, (Node::Empty, frame.pos, None));
+                    return;
                 }
-                stack
-                    .results
-                    .insert(frame.frame_id, (Node::Empty, frame.pos, None));
+
+                // GREEDY or GREEDY_ONCE_STARTED mode
+                // Check if we've matched anything yet
+                if element_start == frame.pos {
+                    // Haven't matched anything yet
+                    if *parse_mode == ParseMode::GreedyOnceStarted {
+                        // GREEDY_ONCE_STARTED with no matches yet: return Empty
+                        log::debug!("Sequence: GREEDY_ONCE_STARTED mode - no matches yet, returning Empty");
+                        self.pos = frame.pos;
+                        for pos in tentatively_collected.iter() {
+                            self.collected_transparent_positions.remove(pos);
+                        }
+                        stack
+                            .results
+                            .insert(frame.frame_id, (Node::Empty, frame.pos, None));
+                        return;
+                    }
+
+                    // GREEDY mode with no matches: wrap all content as unparsable
+                    log::debug!("Sequence: GREEDY mode - wrapping all content from {} to {} as unparsable", element_start, *max_idx);
+                    let unparsable_children: Vec<Node> = (element_start..*max_idx)
+                        .filter_map(|pos| {
+                            if pos < self.tokens.len() {
+                                let tok = &self.tokens[pos];
+                                Some(Node::Token {
+                                    token_type: tok.get_type(),
+                                    raw: tok.raw().to_string(),
+                                    token_idx: pos,
+                                })
+                            } else {
+                                None
+                            }
+                        })
+                        .collect();
+
+                    let unparsable_node = Node::Unparsable {
+                        children: unparsable_children,
+                        expected_message: element_desc,
+                    };
+
+                    stack.results.insert(
+                        frame.frame_id,
+                        (unparsable_node, *max_idx, None),
+                    );
+                    return;
+                }
+
+                // We've already matched some elements - wrap remaining content as unparsable
+                log::debug!("Sequence: GREEDY mode - partial match, wrapping remaining content from {} to {} as unparsable", element_start, *max_idx);
+
+                // Collect any remaining whitespace/newlines if allow_gaps
+                let unparsable_start = if *allow_gaps {
+                    self.skip_start_index_forward_to_code(element_start, *max_idx)
+                } else {
+                    element_start
+                };
+
+                // Add whitespace between last match and unparsable content
+                if *allow_gaps && unparsable_start > element_start {
+                    for pos in element_start..unparsable_start {
+                        if pos < self.tokens.len() {
+                            let tok = &self.tokens[pos];
+                            let tok_type = tok.get_type();
+                            if tok_type == "whitespace" {
+                                frame.accumulated.push(Node::Whitespace {
+                                    raw: tok.raw().to_string(),
+                                    token_idx: pos,
+                                });
+                            } else if tok_type == "newline" {
+                                frame.accumulated.push(Node::Newline {
+                                    raw: tok.raw().to_string(),
+                                    token_idx: pos,
+                                });
+                            }
+                        }
+                    }
+                }
+
+                // Create unparsable node for remaining content
+                let unparsable_children: Vec<Node> = (unparsable_start..*max_idx)
+                    .filter_map(|pos| {
+                        if pos < self.tokens.len() {
+                            let tok = &self.tokens[pos];
+                            Some(Node::Token {
+                                token_type: tok.get_type(),
+                                raw: tok.raw().to_string(),
+                                token_idx: pos,
+                            })
+                        } else {
+                            None
+                        }
+                    })
+                    .collect();
+
+                let unparsable_node = Node::Unparsable {
+                    children: unparsable_children,
+                    expected_message: element_desc,
+                };
+
+                frame.accumulated.push(unparsable_node);
+
+                // Complete the sequence with what we have
+                let result_node = Node::Sequence {
+                    children: frame.accumulated.clone(),
+                };
+
+                stack.results.insert(
+                    frame.frame_id,
+                    (result_node, *max_idx, None),
+                );
                 return;
             }
         } else {
@@ -388,9 +527,11 @@ impl<'a> Parser<'_> {
                     "GREEDY_ONCE_STARTED: Trimming max_idx after first match from {} to terminator",
                     *max_idx
                 );
-                *max_idx = self.trim_to_terminator(*matched_idx, &frame_terminators);
+                let new_max_idx = self.trim_to_terminator(*matched_idx, &frame_terminators);
+                // Respect the original parent max_idx constraint
+                *max_idx = new_max_idx.min(*original_max_idx);
                 *first_match = false;
-                log::debug!("  New max_idx: {}", *max_idx);
+                log::debug!("  New max_idx: {} (trimmed to {}, constrained by original {})", *max_idx, new_max_idx, *original_max_idx);
             }
         }
         let current_matched_idx = *matched_idx;
@@ -408,6 +549,77 @@ impl<'a> Parser<'_> {
                 current_elem_idx,
                 elements_clone.len()
             );
+
+            // Python reference: sequence.py Sequence.match() lines ~344-360
+            // After matching all elements, check if there's remaining content in GREEDY modes
+            // If so, wrap it as unparsable
+            log::debug!(
+                "[SEQUENCE] Completion check: frame_id={}, parse_mode={:?}, matched_idx={}, max_idx={}, elements.len={}",
+                frame.frame_id, current_parse_mode, current_matched_idx, current_max_idx, elements_clone.len()
+            );
+            if current_parse_mode != ParseMode::Strict {
+                // Skip whitespace if allow_gaps
+                let unparsable_start = if current_allow_gaps {
+                    self.skip_start_index_forward_to_code(current_matched_idx, current_max_idx)
+                } else {
+                    current_matched_idx
+                };
+
+                // If there's content between where we finished and max_idx, it's unparsable
+                if unparsable_start < current_max_idx {
+                    log::debug!(
+                        "Sequence GREEDY: wrapping remaining content from {} to {} as unparsable",
+                        unparsable_start,
+                        current_max_idx
+                    );
+
+                    // Collect whitespace before unparsable content if allow_gaps
+                    if current_allow_gaps && unparsable_start > current_matched_idx {
+                        for pos in current_matched_idx..unparsable_start {
+                            if pos < self.tokens.len() {
+                                let tok = &self.tokens[pos];
+                                let tok_type = tok.get_type();
+                                if tok_type == "whitespace" {
+                                    frame.accumulated.push(Node::Whitespace {
+                                        raw: tok.raw().to_string(),
+                                        token_idx: pos,
+                                    });
+                                } else if tok_type == "newline" {
+                                    frame.accumulated.push(Node::Newline {
+                                        raw: tok.raw().to_string(),
+                                        token_idx: pos,
+                                    });
+                                }
+                            }
+                        }
+                    }
+
+                    // Create unparsable node for remaining content
+                    let unparsable_children: Vec<Node> = (unparsable_start..current_max_idx)
+                        .filter_map(|pos| {
+                            if pos < self.tokens.len() {
+                                let tok = &self.tokens[pos];
+                                Some(Node::Token {
+                                    token_type: tok.get_type(),
+                                    raw: tok.raw().to_string(),
+                                    token_idx: pos,
+                                })
+                            } else {
+                                None
+                            }
+                        })
+                        .collect();
+
+                    if !unparsable_children.is_empty() {
+                        let unparsable_node = Node::Unparsable {
+                            children: unparsable_children,
+                            expected_message: "end of sequence".to_string(),
+                        };
+                        frame.accumulated.push(unparsable_node);
+                    }
+                }
+            }
+
             let result_node = if frame.accumulated.is_empty() {
                 log::debug!("WARNING: Sequence completing with EMPTY accumulated! frame_id={}, current_elem_idx={}, elements.len={}", frame.frame_id, current_elem_idx, elements_clone.len());
                 Node::Empty
@@ -420,9 +632,16 @@ impl<'a> Parser<'_> {
                 "Sequence COMPLETE: Storing result at frame_id={}",
                 frame.frame_id
             );
+            // In STRICT mode, end at current_matched_idx (where we actually matched to)
+            // In GREEDY modes, end at current_max_idx (we consumed extra content as unparsable)
+            let end_pos = if current_parse_mode == ParseMode::Strict {
+                current_matched_idx
+            } else {
+                current_max_idx
+            };
             stack
                 .results
-                .insert(frame.frame_id, (result_node, current_matched_idx, None));
+                .insert(frame.frame_id, (result_node, end_pos, None));
             return;
         } else {
             let mut next_pos = current_matched_idx;
@@ -764,6 +983,30 @@ impl<'a> Parser<'_> {
                             close_idx
                         );
                     }
+
+                    // If allow_gaps is false and there's whitespace after opening bracket, fail in STRICT mode
+                    if !*allow_gaps && *parse_mode == ParseMode::Strict {
+                        // Check if there's any whitespace/newline between opening bracket and next code token
+                        let mut check_pos = content_start_idx;
+                        while check_pos < self.tokens.len() {
+                            if let Some(tok) = self.tokens.get(check_pos) {
+                                if tok.is_code() {
+                                    break;
+                                } else {
+                                    // Found whitespace/newline and allow_gaps is false - fail
+                                    log::debug!(
+                                        "Bracketed: allow_gaps=false, found whitespace/newline at {}, failing in STRICT mode",
+                                        check_pos
+                                    );
+                                    self.pos = frame.pos;
+                                    stack.results.insert(frame.frame_id, (Node::Empty, frame.pos, None));
+                                    return;
+                                }
+                            }
+                            check_pos += 1;
+                        }
+                    }
+
                     if *allow_gaps {
                         let code_idx = self
                             .skip_start_index_forward_to_code(content_start_idx, self.tokens.len());
@@ -836,6 +1079,12 @@ impl<'a> Parser<'_> {
                         break;
                     }
                 }
+                // Python reference: sequence.py Bracketed.match() lines ~530-570
+                // In Python, Bracketed doesn't pre-compute the closing bracket position.
+                // Instead, it lets Sequence.match() handle the content (which may return
+                // unparsable segments in GREEDY mode), then matches the closing bracket.
+                // This Rust logic optimizes by pre-computing the bracket position, but
+                // must still respect GREEDY mode semantics.
                 if let Some(expected_close_pos) = local_bracket_max_idx {
                     log::debug!(
                         "[BRACKET-DEBUG] After skipping ws/nl: check_pos={}, expected_close_pos={}",
@@ -843,12 +1092,20 @@ impl<'a> Parser<'_> {
                         expected_close_pos
                     );
                     if check_pos != expected_close_pos {
-                        log::debug!("[BRACKET-DEBUG] Bracketed content did not end at closing bracket (check_pos != expected_close_pos), returning Node::Empty for retry. frame_id={}, frame.pos={}", frame.frame_id, frame.pos);
-                        self.pos = frame.pos;
-                        stack
-                            .results
-                            .insert(frame.frame_id, (Node::Empty, frame.pos, None));
-                        return;
+                        // Content didn't end exactly at the closing bracket.
+                        // In STRICT mode: retry (return Empty)
+                        // In GREEDY mode: continue anyway - the content may contain unparsable
+                        // segments, which is allowed in GREEDY mode
+                        if *parse_mode == ParseMode::Strict {
+                            log::debug!("[BRACKET-DEBUG] STRICT mode: Bracketed content did not end at closing bracket, returning Node::Empty for retry. frame_id={}, frame.pos={}", frame.frame_id, frame.pos);
+                            self.pos = frame.pos;
+                            stack
+                                .results
+                                .insert(frame.frame_id, (Node::Empty, frame.pos, None));
+                            return;
+                        } else {
+                            log::debug!("[BRACKET-DEBUG] GREEDY mode: Content didn't end at bracket, but continuing (may contain unparsable). check_pos={}, expected_close_pos={}", check_pos, expected_close_pos);
+                        }
                     } else {
                         log::debug!("[BRACKET-DEBUG] Bracketed content ends at expected closing bracket (check_pos == expected_close_pos)");
                     }

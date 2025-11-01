@@ -144,9 +144,10 @@ impl Parser<'_> {
         iteration_count: usize,
     ) -> Result<NextStep, ParseError> {
         log::debug!(
-            "START Ref: frame_id={}, pos={}, grammar={:?}",
+            "START Ref: frame_id={}, pos={}, parent_max_idx={:?}, grammar={:?}",
             frame.frame_id,
             frame.pos,
+            frame.parent_max_idx,
             grammar
         );
         // Destructure Grammar::Ref fields
@@ -218,6 +219,11 @@ impl Parser<'_> {
 
                 // Clone child_grammar for debug log before moving it into child_frame
                 let child_grammar_for_debug = child_grammar.clone();
+
+                log::debug!(
+                    "DEBUG Ref frame_id={} creating child frame_id={} with parent_max_idx={:?}",
+                    frame.frame_id, child_frame_id, frame.parent_max_idx
+                );
 
                 let mut child_frame = ParseFrame {
                     frame_id: child_frame_id,
@@ -332,10 +338,13 @@ impl Parser<'_> {
         self.pos = *child_end_pos;
 
         // Store Ref result in cache for future reuse
+        // Use frame's parent_max_idx if available, otherwise tokens.len()
+        let max_idx = frame.parent_max_idx.unwrap_or(self.tokens.len());
         let cache_key = CacheKey::new(
             *saved_pos,
             frame.grammar.clone(),
             self.tokens,
+            max_idx,
             &frame.terminators,
             &mut self.grammar_hash_cache,
         );

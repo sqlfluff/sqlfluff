@@ -195,10 +195,13 @@ impl Parser<'_> {
         let start_pos = self.pos;
         let grammar_for_log = grammar.clone();
         let grammar_for_cache = grammar.clone();
+        // For entry point, use tokens.len() as max_idx
+        let max_idx = self.tokens.len();
         let cache_key = CacheKey::new(
             start_pos,
             grammar_for_cache,
             self.tokens,
+            max_idx,
             parent_terminators,
             &mut self.grammar_hash_cache,
         );
@@ -461,10 +464,13 @@ impl Parser<'_> {
     ) -> Result<NextStep, ParseError> {
         use super::cache::CacheKey;
         if self.cache_enabled {
+            // Use frame's parent_max_idx if available, otherwise tokens.len()
+            let max_idx = frame.parent_max_idx.unwrap_or(self.tokens.len());
             let cache_key = CacheKey::new(
                 frame.pos,
                 frame.grammar.clone(),
                 self.tokens,
+                max_idx,
                 &frame.terminators,
                 &mut self.grammar_hash_cache,
             );

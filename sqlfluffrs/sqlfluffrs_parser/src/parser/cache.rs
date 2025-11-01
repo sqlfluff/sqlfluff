@@ -128,13 +128,12 @@ pub struct CacheKey {
 }
 
 impl CacheKey {
-    pub fn new(pos: usize, grammar: Arc<Grammar>, tokens: &[Token], terminators: &[Arc<Grammar>], mut cache: &mut HashMap<*const Grammar, u64>) -> Self {
+    pub fn new(pos: usize, grammar: Arc<Grammar>, tokens: &[Token], max_idx: usize, terminators: &[Arc<Grammar>], mut cache: &mut HashMap<*const Grammar, u64>) -> Self {
         let grammar_hash = grammar_hash(grammar, &mut cache);
         let raw = tokens
             .get(pos)
             .map(|t| t.raw().to_string())
             .unwrap_or_default();
-        let max_idx = tokens.len();
 
         // Hash the terminators - critical for cache correctness!
         // Same grammar at same position with different terminators should be different cache entries
@@ -403,8 +402,9 @@ mod tests {
         let terms2 = vec![t2, t1];
 
     let mut cache = hashbrown::HashMap::<*const Grammar, u64>::new();
-    let k1 = super::CacheKey::new(0, g.clone(), &tokens, &terms1, &mut cache);
-    let k2 = super::CacheKey::new(0, g, &tokens, &terms2, &mut cache);
+    let max_idx = tokens.len();
+    let k1 = super::CacheKey::new(0, g.clone(), &tokens, max_idx, &terms1, &mut cache);
+    let k2 = super::CacheKey::new(0, g, &tokens, max_idx, &terms2, &mut cache);
 
         assert_eq!(k1.terminators_hash, k2.terminators_hash, "terminators_hash should be order-insensitive");
         assert_eq!(k1, k2, "CacheKey should be equal for different terminator orders");
@@ -462,8 +462,8 @@ mod tests {
         let tokens: Vec<Token> = vec![];
         let terms: Vec<Arc<Grammar>> = vec![];
     let mut cache = hashbrown::HashMap::<*const Grammar, u64>::new();
-    let k1 = super::CacheKey::new(0, g1, &tokens, &terms, &mut cache);
-    let k2 = super::CacheKey::new(0, g2, &tokens, &terms, &mut cache);
+    let k1 = super::CacheKey::new(0, g1, &tokens, tokens.len(), &terms, &mut cache);
+    let k2 = super::CacheKey::new(0, g2, &tokens, tokens.len(), &terms, &mut cache);
         assert_eq!(k1.grammar_hash, k2.grammar_hash, "CacheKey grammar_hash should match");
         assert_eq!(k1, k2, "CacheKey should be equal for identical AnyNumberOf with inline Arcs");
     }
@@ -519,8 +519,8 @@ mod tests {
         let tokens: Vec<Token> = vec![];
         let terms: Vec<Arc<Grammar>> = vec![];
     let mut cache = hashbrown::HashMap::<*const Grammar, u64>::new();
-    let k1 = super::CacheKey::new(0, g1, &tokens, &terms, &mut cache);
-    let k2 = super::CacheKey::new(0, g2, &tokens, &terms, &mut cache);
+    let k1 = super::CacheKey::new(0, g1, &tokens, tokens.len(), &terms, &mut cache);
+    let k2 = super::CacheKey::new(0, g2, &tokens, tokens.len(), &terms, &mut cache);
         assert_eq!(k1.grammar_hash, k2.grammar_hash, "CacheKey grammar_hash should match");
         assert_eq!(k1, k2, "CacheKey should be equal for identical AnySetOf with inline Arcs");
     }
@@ -556,8 +556,8 @@ mod tests {
         let tokens: Vec<Token> = vec![];
         let terms: Vec<Arc<Grammar>> = vec![];
     let mut cache = hashbrown::HashMap::<*const Grammar, u64>::new();
-    let k1 = super::CacheKey::new(0, g1, &tokens, &terms, &mut cache);
-    let k2 = super::CacheKey::new(0, g2, &tokens, &terms, &mut cache);
+    let k1 = super::CacheKey::new(0, g1, &tokens, tokens.len(), &terms, &mut cache);
+    let k2 = super::CacheKey::new(0, g2, &tokens, tokens.len(), &terms, &mut cache);
         assert_eq!(k1.grammar_hash, k2.grammar_hash, "CacheKey grammar_hash should match");
         assert_eq!(k1, k2, "CacheKey should be equal for identical Ref");
     }
@@ -577,8 +577,8 @@ mod tests {
         let tokens: Vec<Token> = vec![];
         let terms: Vec<Arc<Grammar>> = vec![];
     let mut cache = hashbrown::HashMap::<*const Grammar, u64>::new();
-    let k1 = super::CacheKey::new(0, g1, &tokens, &terms, &mut cache);
-    let k2 = super::CacheKey::new(0, g2, &tokens, &terms, &mut cache);
+    let k1 = super::CacheKey::new(0, g1, &tokens, tokens.len(), &terms, &mut cache);
+    let k2 = super::CacheKey::new(0, g2, &tokens, tokens.len(), &terms, &mut cache);
         assert_eq!(k1.grammar_hash, k2.grammar_hash, "CacheKey grammar_hash should match");
         assert_eq!(k1, k2, "CacheKey should be equal for identical Meta");
     }
@@ -606,8 +606,8 @@ mod tests {
         let h1 = super::grammar_hash(g1.clone(), &mut cache);
         let h2 = super::grammar_hash(g2.clone(), &mut cache);
         assert_eq!(h1, h2, "Grammar hash should be equal for Nothing");
-        let k1 = super::CacheKey::new(0, g1, &tokens, &terms, &mut cache);
-        let k2 = super::CacheKey::new(0, g2, &tokens, &terms, &mut cache);
+        let k1 = super::CacheKey::new(0, g1, &tokens, tokens.len(), &terms, &mut cache);
+        let k2 = super::CacheKey::new(0, g2, &tokens, tokens.len(), &terms, &mut cache);
         assert_eq!(k1, k2, "CacheKey should be equal for Nothing");
 
         // Anything
@@ -615,8 +615,8 @@ mod tests {
         let h3 = super::grammar_hash(g3.clone(), &mut cache);
         let h4 = super::grammar_hash(g4.clone(), &mut cache);
         assert_eq!(h3, h4, "Grammar hash should be equal for Anything");
-        let k3 = super::CacheKey::new(0, g3, &tokens, &terms, &mut cache);
-        let k4 = super::CacheKey::new(0, g4, &tokens, &terms, &mut cache);
+        let k3 = super::CacheKey::new(0, g3, &tokens, tokens.len(), &terms, &mut cache);
+        let k4 = super::CacheKey::new(0, g4, &tokens, tokens.len(), &terms, &mut cache);
         assert_eq!(k3, k4, "CacheKey should be equal for Anything");
 
         // Empty
@@ -624,8 +624,8 @@ mod tests {
         let h5 = super::grammar_hash(g5.clone(), &mut cache);
         let h6 = super::grammar_hash(g6.clone(), &mut cache);
         assert_eq!(h5, h6, "Grammar hash should be equal for Empty");
-        let k5 = super::CacheKey::new(0, g5, &tokens, &terms, &mut cache);
-        let k6 = super::CacheKey::new(0, g6, &tokens, &terms, &mut cache);
+        let k5 = super::CacheKey::new(0, g5, &tokens, tokens.len(), &terms, &mut cache);
+        let k6 = super::CacheKey::new(0, g6, &tokens, tokens.len(), &terms, &mut cache);
         assert_eq!(k5, k6, "CacheKey should be equal for Empty");
 
         // Missing
@@ -633,8 +633,8 @@ mod tests {
         let h7 = super::grammar_hash(g7.clone(), &mut cache);
         let h8 = super::grammar_hash(g8.clone(), &mut cache);
         assert_eq!(h7, h8, "Grammar hash should be equal for Missing");
-        let k7 = super::CacheKey::new(0, g7, &tokens, &terms, &mut cache);
-        let k8 = super::CacheKey::new(0, g8, &tokens, &terms, &mut cache);
+        let k7 = super::CacheKey::new(0, g7, &tokens, tokens.len(), &terms, &mut cache);
+        let k8 = super::CacheKey::new(0, g8, &tokens, tokens.len(), &terms, &mut cache);
         assert_eq!(k7, k8, "CacheKey should be equal for Missing");
     }
     #[test]
@@ -694,8 +694,8 @@ mod tests {
         let tokens: Vec<Token> = vec![];
         let terms: Vec<Arc<Grammar>> = vec![];
     let mut cache = hashbrown::HashMap::<*const Grammar, u64>::new();
-    let k1 = super::CacheKey::new(0, g1, &tokens, &terms, &mut cache);
-    let k2 = super::CacheKey::new(0, g2, &tokens, &terms, &mut cache);
+    let k1 = super::CacheKey::new(0, g1, &tokens, tokens.len(), &terms, &mut cache);
+    let k2 = super::CacheKey::new(0, g2, &tokens, tokens.len(), &terms, &mut cache);
         assert_eq!(k1.grammar_hash, k2.grammar_hash, "CacheKey grammar_hash should match");
         assert_eq!(k1, k2, "CacheKey should be equal for identical Sequence with inline Arcs");
     }
@@ -759,8 +759,8 @@ mod tests {
         let tokens: Vec<Token> = vec![];
         let terms: Vec<Arc<Grammar>> = vec![];
     let mut cache = hashbrown::HashMap::<*const Grammar, u64>::new();
-    let k1 = super::CacheKey::new(0, g1, &tokens, &terms, &mut cache);
-    let k2 = super::CacheKey::new(0, g2, &tokens, &terms, &mut cache);
+    let k1 = super::CacheKey::new(0, g1, &tokens, tokens.len(), &terms, &mut cache);
+    let k2 = super::CacheKey::new(0, g2, &tokens, tokens.len(), &terms, &mut cache);
         assert_eq!(k1.grammar_hash, k2.grammar_hash, "CacheKey grammar_hash should match");
         assert_eq!(k1, k2, "CacheKey should be equal for identical OneOf with inline Arcs");
     }
@@ -826,8 +826,8 @@ mod tests {
         let tokens: Vec<Token> = vec![];
         let terms: Vec<Arc<Grammar>> = vec![];
     let mut cache = hashbrown::HashMap::<*const Grammar, u64>::new();
-    let k1 = super::CacheKey::new(0, g1, &tokens, &terms, &mut cache);
-    let k2 = super::CacheKey::new(0, g2, &tokens, &terms, &mut cache);
+    let k1 = super::CacheKey::new(0, g1, &tokens, tokens.len(), &terms, &mut cache);
+    let k2 = super::CacheKey::new(0, g2, &tokens, tokens.len(), &terms, &mut cache);
         assert_eq!(k1.grammar_hash, k2.grammar_hash, "CacheKey grammar_hash should match");
         assert_eq!(k1, k2, "CacheKey should be equal for identical Delimited with inline Arcs");
     }
@@ -905,8 +905,8 @@ mod tests {
         let tokens: Vec<Token> = vec![];
         let terms: Vec<Arc<Grammar>> = vec![];
     let mut cache = hashbrown::HashMap::<*const Grammar, u64>::new();
-    let k1 = super::CacheKey::new(0, g1, &tokens, &terms, &mut cache);
-    let k2 = super::CacheKey::new(0, g2, &tokens, &terms, &mut cache);
+    let k1 = super::CacheKey::new(0, g1, &tokens, tokens.len(), &terms, &mut cache);
+    let k2 = super::CacheKey::new(0, g2, &tokens, tokens.len(), &terms, &mut cache);
         assert_eq!(k1.grammar_hash, k2.grammar_hash, "CacheKey grammar_hash should match");
         assert_eq!(k1, k2, "CacheKey should be equal for identical Bracketed with inline Arcs");
     }
@@ -935,8 +935,8 @@ mod tests {
         let tokens: Vec<Token> = vec![];
         let terms: Vec<Arc<Grammar>> = vec![];
     let mut cache = HashMap::new();
-    let k1 = super::CacheKey::new(0, g1, &tokens, &terms, &mut cache);
-    let k2 = super::CacheKey::new(0, g2, &tokens, &terms, &mut cache);
+    let k1 = super::CacheKey::new(0, g1, &tokens, tokens.len(), &terms, &mut cache);
+    let k2 = super::CacheKey::new(0, g2, &tokens, tokens.len(), &terms, &mut cache);
         assert_eq!(k1.grammar_hash, k2.grammar_hash, "CacheKey grammar_hash should match");
         assert_eq!(k1, k2, "CacheKey should be equal for identical MultiStringParsers");
     }
@@ -966,8 +966,8 @@ mod tests {
         let tokens: Vec<Token> = vec![];
         let terms: Vec<Arc<Grammar>> = vec![];
     let mut cache = HashMap::new();
-    let k1 = super::CacheKey::new(0, g1, &tokens, &terms, &mut cache);
-    let k2 = super::CacheKey::new(0, g2, &tokens, &terms, &mut cache);
+    let k1 = super::CacheKey::new(0, g1, &tokens, tokens.len(), &terms, &mut cache);
+    let k2 = super::CacheKey::new(0, g2, &tokens, tokens.len(), &terms, &mut cache);
         assert_eq!(k1.grammar_hash, k2.grammar_hash, "CacheKey grammar_hash should match");
         assert_eq!(k1, k2, "CacheKey should be equal for identical TypedParsers");
     }
@@ -999,8 +999,8 @@ mod tests {
         let tokens: Vec<Token> = vec![];
         let terms: Vec<Arc<Grammar>> = vec![];
     let mut cache = HashMap::new();
-    let k1 = super::CacheKey::new(0, g1, &tokens, &terms, &mut cache);
-    let k2 = super::CacheKey::new(0, g2, &tokens, &terms, &mut cache);
+    let k1 = super::CacheKey::new(0, g1, &tokens, tokens.len(), &terms, &mut cache);
+    let k2 = super::CacheKey::new(0, g2, &tokens, tokens.len(), &terms, &mut cache);
         assert_eq!(k1.grammar_hash, k2.grammar_hash, "CacheKey grammar_hash should match");
         assert_eq!(k1, k2, "CacheKey should be equal for identical RegexParsers");
     }
@@ -1023,8 +1023,8 @@ mod tests {
         assert_eq!(h1, h2, "Grammar hash should be equal for identical Token grammars");
         let tokens: Vec<Token> = vec![];
         let terms: Vec<Arc<Grammar>> = vec![];
-        let k1 = super::CacheKey::new(0, g1, &tokens, &terms, &mut cache);
-        let k2 = super::CacheKey::new(0, g2, &tokens, &terms, &mut cache);
+        let k1 = super::CacheKey::new(0, g1, &tokens, tokens.len(), &terms, &mut cache);
+        let k2 = super::CacheKey::new(0, g2, &tokens, tokens.len(), &terms, &mut cache);
         assert_eq!(k1.grammar_hash, k2.grammar_hash, "CacheKey grammar_hash should match");
         assert_eq!(k1, k2, "CacheKey should be equal for identical Token grammars");
     }
@@ -1065,8 +1065,8 @@ mod tests {
         // And their cache keys should be equal for the same position/tokens/terminators
         let tokens: Vec<Token> = vec![];
         let terms: Vec<Arc<Grammar>> = vec![];
-        let k1 = super::CacheKey::new(0, g1, &tokens, &terms, &mut cache);
-        let k2 = super::CacheKey::new(0, g2, &tokens, &terms, &mut cache);
+        let k1 = super::CacheKey::new(0, g1, &tokens, tokens.len(), &terms, &mut cache);
+        let k2 = super::CacheKey::new(0, g2, &tokens, tokens.len(), &terms, &mut cache);
         assert_eq!(k1.grammar_hash, k2.grammar_hash, "CacheKey grammar_hash should match");
         assert_eq!(k1, k2, "CacheKey should be equal for identical StringParsers");
     }

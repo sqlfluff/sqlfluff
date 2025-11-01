@@ -175,7 +175,13 @@ impl crate::parser::Parser<'_> {
 
         // Extract max_idx before moving frame - this is the limit for children!
         // Children should be constrained by the Delimited's calculated max_idx
-        let child_max_idx = max_idx;
+        // AND trimmed to the next delimiter position to prevent elements from consuming delimiters
+        let delimiter_max_idx = self.trim_to_terminator(working_pos, &[(**delimiter).clone()]);
+        let child_max_idx = max_idx.min(delimiter_max_idx);
+        log::debug!(
+            "[DELIMITED] Trimming child_max_idx: working_pos={}, max_idx={}, delimiter_max_idx={}, child_max_idx={}",
+            working_pos, max_idx, delimiter_max_idx, child_max_idx
+        );
         stack.push(frame);
 
         // Create first child to match element (try all elements via OneOf)
@@ -195,7 +201,7 @@ impl crate::parser::Parser<'_> {
             child_grammar.into(),
             working_pos,
             all_terminators,
-            Some(child_max_idx), // Use Delimited's max_idx!
+            Some(child_max_idx), // Use Delimited's max_idx trimmed to next delimiter!
         );
 
         // Update parent's last_child_frame_id and push child
@@ -510,7 +516,9 @@ impl crate::parser::Parser<'_> {
                             );
                             return Ok(());
                         }
-                        let child_max_idx = *max_idx;
+                        // Trim child_max_idx to next delimiter to prevent elements from consuming delimiters
+                        let delimiter_max_idx = self.trim_to_terminator(*working_idx, &[(**delimiter).clone()]);
+                        let child_max_idx = (*max_idx).min(delimiter_max_idx);
                         let child_grammar = Grammar::OneOf {
                             elements: elements.clone(),
                             exclude: None,
