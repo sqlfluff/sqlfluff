@@ -35,7 +35,6 @@ impl Parser<'_> {
             }
         };
         self.pos = frame.pos;
-        self.skip_transparent(true);
         let tok_raw = self.peek().cloned();
 
         log::debug!(
@@ -101,7 +100,6 @@ impl Parser<'_> {
             }
         };
         self.pos = frame.pos;
-        self.skip_transparent(true);
         let token = self.peek().cloned();
 
         match token {
@@ -164,7 +162,6 @@ impl Parser<'_> {
         );
 
         self.pos = frame.pos;
-        self.skip_transparent(true);
 
         if let Some(token) = self.peek() {
             let tok = token.clone();
@@ -248,7 +245,6 @@ impl Parser<'_> {
             }
         };
         self.pos = frame.pos;
-        self.skip_transparent(true);
         let token = self.peek().cloned();
 
         match token {

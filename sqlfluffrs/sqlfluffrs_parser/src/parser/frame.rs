@@ -253,6 +253,7 @@ pub enum FrameContext {
         segment_type: Option<String>,
         saved_pos: usize, // Position before skipping transparent tokens
         last_child_frame_id: Option<usize>, // Track which child frame we created
+        leading_transparent: Vec<Node>, // Transparent tokens collected before the child
     },
     Sequence {
         grammar: Arc<Grammar>,

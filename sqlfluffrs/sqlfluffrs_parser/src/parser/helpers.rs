@@ -470,6 +470,19 @@ impl<'a> Parser<'a> {
         start_idx: usize,
         terminators: &[Arc<Grammar>],
     ) -> usize {
+        self.trim_to_terminator_with_elements(start_idx, terminators, &[])
+    }
+
+    /// Trim to the first terminator position, considering what elements we're parsing.
+    ///
+    /// This variant is smarter about terminators - if a token matches both a terminator
+    /// and an element we're trying to parse, it won't treat it as a terminator.
+    pub(crate) fn trim_to_terminator_with_elements(
+        &mut self,
+        start_idx: usize,
+        terminators: &[Arc<Grammar>],
+        elements: &[Arc<Grammar>],
+    ) -> usize {
         if start_idx >= self.tokens.len() {
             return self.tokens.len();
         }
@@ -477,7 +490,7 @@ impl<'a> Parser<'a> {
         let saved_pos = self.pos;
 
         // Check if already at a terminator immediately
-        if self.is_terminated(terminators) {
+        if self.is_terminated_with_elements(terminators, elements) {
             self.pos = saved_pos;
             return start_idx;
         }
@@ -496,7 +509,7 @@ impl<'a> Parser<'a> {
             self.pos = idx;
 
             // Check if current position is a terminator
-            if self.is_terminated(terminators) {
+            if self.is_terminated_with_elements(terminators, elements) {
                 log::debug!("[TRIM_TO_TERM] Found terminator at idx={}", idx);
                 term_pos = idx;
                 break;
@@ -548,6 +561,7 @@ impl<'a> Parser<'a> {
         self.skip_stop_index_backward_to_code(term_pos, start_idx)
     }
 
+
     /// Check if the current position is at a terminator
     ///
     /// This uses fast simple matching where possible, falling back to full parsing
@@ -592,53 +606,210 @@ impl<'a> Parser<'a> {
         let current_token_raw_upper = current_token.raw_upper();
         let current_token_types = current_token.get_all_types();
 
-        // First pass: check all simple terminators (fast path)
+        // Check all terminators - use full parse for multi-token terminators
         for term in pruned_terminators.iter() {
             let simple_opt = term.simple_hint(&mut self.simple_hint_cache);
+
+            // Check if terminator is a complex grammar (e.g., Sequence with multiple elements)
+            // These need full parsing even if they have simple hints
+            let needs_full_parse = matches!(
+                term.as_ref(),
+                Grammar::Sequence { elements, .. } if elements.len() > 1
+            );
+
             if let Some(simple) = simple_opt {
                 // Use fast simple matching
                 if simple.can_match_token(&current_token_raw_upper, &current_token_types) {
-                    log::debug!("  TERMED Simple terminator matched: {}", term);
-                    self.pos = init_pos; // restore original position
-                    return true;
+                    // For complex grammars like Sequence("GROUP", "BY"), do full parse
+                    if needs_full_parse {
+                        let check_pos = self.pos;
+                        self.pos = saved_pos;
+
+                        if let Ok(node) = self.parse_with_grammar_cached(&term, &[]) {
+                            let is_empty = node.is_empty();
+                            self.pos = check_pos;
+
+                            if !is_empty {
+                                log::debug!("  TERMED Complex terminator fully matched: {}", term);
+                                self.pos = init_pos;
+                                return true;
+                            }
+                        } else {
+                            self.pos = check_pos;
+                        }
+                        log::debug!("  Complex terminator did not fully match: {}", term);
+                    } else {
+                        // Simple terminator - simple hint match is sufficient
+                        log::debug!("  TERMED Simple terminator matched: {}", term);
+                        self.pos = init_pos; // restore original position
+                        return true;
+                    }
                 }
                 log::debug!("  Simple terminator did not match: {}", term);
-            }
-        }
-
-        // Second pass: check complex terminators that need full parsing (slow path)
-        for term in pruned_terminators.iter() {
-            // Skip simple terminators (already checked)
-            if term.simple_hint(&mut self.simple_hint_cache).is_some() {
-                continue;
-            }
-
-            // Complex terminator - need full parse
-            // Use the same parser to share the cache, but save/restore position
-            let check_pos = self.pos;
-            self.pos = saved_pos;
-
-            if let Ok(node) = self.parse_with_grammar_cached(&term, &[]) {
-                // Check if the node is "empty" in various ways
-                let is_empty = node.is_empty();
-
-                // Restore position before returning
-                self.pos = check_pos;
-
-                if !is_empty {
-                    log::debug!("  TERMED Complex terminator matched: {}", term);
-                    self.pos = init_pos; // restore original position
-                    return true;
-                }
             } else {
-                // Restore position after failed parse
-                self.pos = check_pos;
+                // No simple hint - need full parse
+                // Use the same parser to share the cache, but save/restore position
+                let check_pos = self.pos;
+                self.pos = saved_pos;
+
+                if let Ok(node) = self.parse_with_grammar_cached(&term, &[]) {
+                    // Check if the node is "empty" in various ways
+                    let is_empty = node.is_empty();
+
+                    // Restore position before returning
+                    self.pos = check_pos;
+
+                    if !is_empty {
+                        log::debug!("  TERMED Complex terminator matched: {}", term);
+                        self.pos = init_pos; // restore original position
+                        return true;
+                    }
+                } else {
+                    // Restore position after failed parse
+                    self.pos = check_pos;
+                }
+                log::debug!("  Complex terminator did not match: {}", term);
             }
-            log::debug!("  Complex terminator did not match: {}", term);
         }
 
         log::debug!("  NOTERM No terminators matched");
         self.pos = init_pos; // restore original position
+        false
+    }
+
+    /// Check if we're at a terminator, considering what elements we're trying to parse.
+    ///
+    /// This is smarter than simple terminator checking - if the current token could match
+    /// BOTH a terminator AND an element we're trying to parse, we prefer trying the element first.
+    /// This prevents terminators from incorrectly blocking valid parses.
+    ///
+    /// For example, when parsing `1 + ~(...)`, the `~` token can match both:
+    /// - BinaryOperatorGrammar (terminator) - because ~ is lexed as "like_operator" type
+    /// - Expression_A_Unary_Operator_Grammar (element) - because ~ is the tilde unary operator
+    ///
+    /// We should try the unary operator first, not terminate prematurely.
+    pub fn is_terminated_with_elements(
+        &mut self,
+        terminators: &[Arc<Grammar>],
+        elements: &[Arc<Grammar>],
+    ) -> bool {
+        let init_pos = self.pos;
+        self.skip_transparent(true);
+        let saved_pos = self.pos;
+
+        // Check if we've reached end of file
+        if self.is_at_end() {
+            log::debug!("  TERMED Reached end of file");
+            self.pos = init_pos;
+            return true;
+        }
+
+        // Check if current token is end_of_file type
+        if let Some(tok) = self.peek() {
+            if tok.get_type() == "end_of_file" {
+                log::debug!("  TERMED Found end_of_file token");
+                self.pos = init_pos;
+                return true;
+            }
+        }
+
+        // Prune terminators before checking
+        let pruned_terminators = self.prune_terminators(terminators);
+        log::debug!(
+            "  TERM Checking {} pruned terminators at pos {}",
+            pruned_terminators.len(),
+            self.pos
+        );
+
+        // Get current token for simple matching
+        let current_token = self.peek();
+        if current_token.is_none() {
+            log::debug!("  NOTERM No current token");
+            self.pos = init_pos;
+            return false;
+        }
+        let current_token = current_token.unwrap();
+        let current_token_raw_upper = current_token.raw_upper();
+        let current_token_types = current_token.get_all_types();
+
+        // Check all terminators - use full parse for multi-token terminators
+        for term in pruned_terminators.iter() {
+            let simple_opt = term.simple_hint(&mut self.simple_hint_cache);
+
+            // Check if terminator is a complex grammar (e.g., Sequence with multiple elements)
+            // These need full parsing even if they have simple hints
+            let needs_full_parse = matches!(
+                term.as_ref(),
+                Grammar::Sequence { elements, .. } if elements.len() > 1
+            );
+
+            if let Some(simple) = simple_opt {
+                // Use fast simple matching for simple terminators
+                if simple.can_match_token(&current_token_raw_upper, &current_token_types) {
+                    // Before terminating, check if any element could also match this token
+                    // If so, we should try the element first (don't terminate yet)
+                    if !elements.is_empty() {
+                        for element in elements {
+                            let element_hint_opt = element.simple_hint(&mut self.simple_hint_cache);
+                            if let Some(element_hint) = element_hint_opt {
+                                if element_hint.can_match_token(&current_token_raw_upper, &current_token_types) {
+                                    log::debug!("  NOTERM Token matches both terminator {} and element {} - trying element first", term, element);
+                                    self.pos = init_pos;
+                                    return false;
+                                }
+                            }
+                        }
+                    }
+
+                    // For complex grammars like Sequence("GROUP", "BY"), do full parse
+                    if needs_full_parse {
+                        let check_pos = self.pos;
+                        self.pos = saved_pos;
+
+                        if let Ok(node) = self.parse_with_grammar_cached(&term, &[]) {
+                            let is_empty = node.is_empty();
+                            self.pos = check_pos;
+
+                            if !is_empty {
+                                log::debug!("  TERMED Complex terminator fully matched: {}", term);
+                                self.pos = init_pos;
+                                return true;
+                            }
+                        } else {
+                            self.pos = check_pos;
+                        }
+                        log::debug!("  Complex terminator did not fully match: {}", term);
+                    } else {
+                        // Simple terminator - simple hint match is sufficient
+                        log::debug!("  TERMED Simple terminator matched: {}", term);
+                        self.pos = init_pos;
+                        return true;
+                    }
+                }
+                log::debug!("  Simple terminator did not match: {}", term);
+            } else {
+                // No simple hint - need full parse
+                let check_pos = self.pos;
+                self.pos = saved_pos;
+
+                if let Ok(node) = self.parse_with_grammar_cached(&term, &[]) {
+                    let is_empty = node.is_empty();
+                    self.pos = check_pos;
+
+                    if !is_empty {
+                        log::debug!("  TERMED Complex terminator matched: {}", term);
+                        self.pos = init_pos;
+                        return true;
+                    }
+                } else {
+                    self.pos = check_pos;
+                }
+                log::debug!("  Complex terminator did not match: {}", term);
+            }
+        }
+
+        log::debug!("  NOTERM No terminators matched");
+        self.pos = init_pos;
         false
     }
 }

@@ -924,16 +924,23 @@ fn test_ref_exclude_match() -> Result<(), ParseError> {
     let node_str = format!("{:?}", exclude_match);
     // Simulate exclusion: if matched, treat as excluded
     assert!(node_str.contains("ABS"));
-    // Now match "ABSOLUTE" at position 1
+
+    // After matching "ABS", parser is at position 1 (whitespace).
+    // Since base parsers no longer skip transparent tokens, trying to match
+    // "ABSOLUTE" directly will fail (it's at position 2, not 1).
+    // This is expected behavior - in real usage, a Sequence would handle the whitespace.
     let abs_absolute_grammar = Arc::new(Grammar::StringParser {
         template: "ABSOLUTE",
         raw_class: "WordSegment",
         token_type: "word",
         optional: false,
     });
-    let result = parser.parse_with_grammar_cached(&abs_absolute_grammar, &[])?;
-    let node_str2 = format!("{:?}", result);
-    assert!(node_str2.contains("ABSOLUTE"));
+    let result = parser.parse_with_grammar_cached(&abs_absolute_grammar, &[]);
+
+    // The match should fail or return Empty because parser is at whitespace
+    assert!(result.is_err() || result.as_ref().unwrap().is_empty(),
+        "Expected match to fail because parser is at whitespace position");
+
     Ok(())
 }
 
@@ -999,7 +1006,7 @@ fn test_sequence_nested_match() -> Result<(), ParseError> {
         optional: false,
         terminators: vec![],
         reset_terminators: false,
-        allow_gaps: false,
+        allow_gaps: true,  // Python default
         parse_mode: ParseMode::Strict,
         simple_hint: None,
     });
@@ -1008,7 +1015,7 @@ fn test_sequence_nested_match() -> Result<(), ParseError> {
         optional: false,
         terminators: vec![],
         reset_terminators: false,
-        allow_gaps: false,
+        allow_gaps: true,  // Python default
         parse_mode: ParseMode::Strict,
         simple_hint: None,
     });

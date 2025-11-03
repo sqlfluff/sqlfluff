@@ -495,8 +495,8 @@ def rust_simple_hint(match_grammar, parse_context: DummyParseContext):
         hint = match_grammar.simple(parse_context)
         if hint is None:
             return "None"
-        raw = ", ".join(f'"{v}".to_string()' for v in hint[0])
-        types = ", ".join(f'"{t}".to_string()' for t in hint[1])
+        raw = ", ".join(f'"{v}".to_string()' for v in sorted(hint[0]))
+        types = ", ".join(f'"{t}".to_string()' for t in sorted(hint[1]))
         return f"""Some(SimpleHint {{
             raw_values: hashbrown::HashSet::from_iter([{raw}]),
             token_types: hashbrown::HashSet::from_iter([{types}]),

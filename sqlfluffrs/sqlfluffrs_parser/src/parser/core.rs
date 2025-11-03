@@ -11,6 +11,16 @@ use super::{cache::ParseCache, Node, ParseError};
 use sqlfluffrs_dialects::Dialect;
 use sqlfluffrs_types::{Grammar, SimpleHint, Token};
 
+/// A checkpoint in the collection history that tracks which tokens were collected
+/// at a specific point. Used for backtracking.
+#[derive(Debug, Clone)]
+pub struct CollectionCheckpoint {
+    /// Frame ID associated with this checkpoint
+    pub frame_id: usize,
+    /// Token positions that were marked as collected at this checkpoint
+    pub positions: Vec<usize>,
+}
+
 /// The main parser struct that holds parsing state and provides parsing methods.
 pub struct Parser<'a> {
     pub grammar_hash_cache: hashbrown::HashMap<*const Grammar, u64>,
@@ -21,6 +31,9 @@ pub struct Parser<'a> {
     pub parse_cache: ParseCache,
     pub cache_enabled: bool,
     pub collected_transparent_positions: HashSet<usize>, // Track which token positions have had transparent tokens collected
+    /// Stack of collection checkpoints for backtracking.
+    /// Each checkpoint records which tokens were marked as collected at that point.
+    pub collection_stack: Vec<CollectionCheckpoint>,
     pub pruning_calls: std::cell::Cell<usize>,           // Track number of prune_options calls
     pub pruning_total: std::cell::Cell<usize>,           // Total options considered
     pub pruning_kept: std::cell::Cell<usize>,            // Options kept after pruning
@@ -37,6 +50,7 @@ impl<'a> Parser<'a> {
             dialect,
             parse_cache: ParseCache::new(),
             collected_transparent_positions: HashSet::new(),
+            collection_stack: Vec::new(),
             pruning_calls: std::cell::Cell::new(0),
             pruning_total: std::cell::Cell::new(0),
             pruning_kept: std::cell::Cell::new(0),
@@ -135,11 +149,15 @@ impl<'a> Parser<'a> {
         };
 
         // Wrap in a Ref node for type clarity
-        Ok(Node::Ref {
+        let result = Node::Ref {
             name: name.to_string(),
             segment_type: final_segment_type,
             child: Box::new(node),
-        })
+        };
+
+        // Deduplicate whitespace/newline nodes to handle cases where both
+        // parent and child grammars collected the same tokens
+        Ok(result.deduplicate())
     }
 
     pub fn call_rule_as_root(&mut self) -> Result<Node, ParseError> {
@@ -157,13 +175,14 @@ impl<'a> Parser<'a> {
 
         if token_slice.is_empty() {
             // Wrap in a Ref node for type clarity
-            return Ok(Node::Ref {
+            let result = Node::Ref {
                 name: "Root".to_string(),
                 segment_type: Some("file".to_string()),
                 child: Box::new(Node::Sequence {
                     children: end_nodes,
                 }),
-            });
+            };
+            return Ok(result.deduplicate());
         }
 
         self.tokens = token_slice;
@@ -179,11 +198,12 @@ impl<'a> Parser<'a> {
                     n = Node::Sequence { children };
                     self.pos += end_len;
                 }
-                Ok(Node::Ref {
+                let result = Node::Ref {
                     name: "Root".to_string(),
                     segment_type: Some("file".to_string()),
                     child: Box::new(n),
-                })
+                };
+                Ok(result.deduplicate())
             }
             Err(e) => Err(e),
         }
@@ -231,5 +251,58 @@ impl<'a> Parser<'a> {
     /// Lookup SegmentDef by name
     pub fn get_segment_grammar(&self, name: &str) -> Option<Arc<Grammar>> {
         self.dialect.get_segment_grammar(name)
+    }
+
+    /// Push a checkpoint onto the collection stack when starting to process a grammar.
+    /// This records the current state so we can backtrack if needed.
+    pub fn push_collection_checkpoint(&mut self, frame_id: usize) {
+        self.collection_stack.push(CollectionCheckpoint {
+            frame_id,
+            positions: Vec::new(),
+        });
+        log::debug!("Pushed collection checkpoint for frame_id={}, stack depth={}", frame_id, self.collection_stack.len());
+    }
+
+    /// Mark a token position as collected and record it in the current checkpoint.
+    /// Returns true if the position was newly inserted, false if it was already collected.
+    pub fn mark_position_collected(&mut self, pos: usize) -> bool {
+        let was_new = self.collected_transparent_positions.insert(pos);
+        if was_new {
+            // Record this collection in the current checkpoint
+            if let Some(checkpoint) = self.collection_stack.last_mut() {
+                checkpoint.positions.push(pos);
+                log::debug!("Marked position {} as collected in checkpoint for frame_id={}", pos, checkpoint.frame_id);
+            }
+        }
+        was_new
+    }
+
+    /// Pop a checkpoint and commit its collections (keep them marked).
+    /// This is called when a grammar successfully produces a result that will be used.
+    pub fn commit_collection_checkpoint(&mut self, frame_id: usize) {
+        if let Some(checkpoint) = self.collection_stack.pop() {
+            if checkpoint.frame_id != frame_id {
+                log::warn!("Checkpoint frame_id mismatch: expected {}, got {}", frame_id, checkpoint.frame_id);
+            }
+            log::debug!("Committed {} collected positions for frame_id={}, stack depth now={}",
+                checkpoint.positions.len(), frame_id, self.collection_stack.len());
+            // Positions remain in collected_transparent_positions - they're committed
+        }
+    }
+
+    /// Pop a checkpoint and rollback its collections (unmark them).
+    /// This is called when a grammar fails or is abandoned during backtracking.
+    pub fn rollback_collection_checkpoint(&mut self, frame_id: usize) {
+        if let Some(checkpoint) = self.collection_stack.pop() {
+            if checkpoint.frame_id != frame_id {
+                log::warn!("Checkpoint frame_id mismatch during rollback: expected {}, got {}", frame_id, checkpoint.frame_id);
+            }
+            log::debug!("Rolling back {} collected positions for frame_id={}, stack depth now={}",
+                checkpoint.positions.len(), frame_id, self.collection_stack.len());
+            // Remove all positions that were marked during this checkpoint
+            for pos in checkpoint.positions {
+                self.collected_transparent_positions.remove(&pos);
+            }
+        }
     }
 }

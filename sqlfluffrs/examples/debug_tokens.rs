@@ -2,7 +2,7 @@ use sqlfluffrs_dialects::Dialect;
 use sqlfluffrs_lexer::{LexInput, Lexer};
 
 fn main() {
-    let raw = "SELECT  \t*\n  FROM\n\ttable_name  ";
+    let raw = "SELECT 1 + ~(~2 * 3) >= 4 + ~6+13 as val;";
     let dialect = Dialect::Ansi;
     let input = LexInput::String(raw.into());
     use sqlfluffrs_dialects::dialect::ansi::matcher::ANSI_LEXERS;
@@ -11,6 +11,6 @@ fn main() {
 
     println!("Total tokens: {}", tokens.len());
     for (idx, token) in tokens.iter().enumerate() {
-        println!("{}: {:?} (type: {})", idx, token.raw(), token.get_type());
+        println!("{}: {:?} (type: {}) code={}", idx, token.raw(), token.get_type(), token.is_code());
     }
 }

@@ -16,6 +16,10 @@ pub enum NextStep {
 pub struct ParseFrameStack {
     stack: Vec<ParseFrame>,
     pub results: hashbrown::HashMap<usize, (Node, usize, Option<u64>)>,
+    /// Transparent token positions collected by each result.
+    /// Key is frame_id, value is list of token positions.
+    /// These positions should only be marked as globally collected when the result is actually used.
+    pub transparent_positions: hashbrown::HashMap<usize, Vec<usize>>,
     pub frame_id_counter: usize,
     // Add any additional state fields here as needed
 }
@@ -31,6 +35,7 @@ impl ParseFrameStack {
         ParseFrameStack {
             stack: Vec::new(),
             results: hashbrown::HashMap::new(),
+            transparent_positions: hashbrown::HashMap::new(),
             frame_id_counter: 0,
         }
     }
@@ -402,6 +407,15 @@ impl Parser<'_> {
             );
             self.pos = *end_pos;
 
+            // Mark transparent tokens as globally collected now that we're using this result
+            if let Some(transparent_positions) = stack.transparent_positions.get(&initial_frame_id) {
+                for &pos in transparent_positions {
+                    if !self.collected_transparent_positions.insert(pos) {
+                        log::warn!("WARNING (initial): Position {} was already collected! Duplicate marking.", pos);
+                    }
+                }
+            }
+
             // If the parse failed (returned Empty), provide diagnostic information
             if node.is_empty() {
                 log::debug!("\n=== PARSE FAILED ===");
@@ -626,6 +640,11 @@ impl Parser<'_> {
                 frame.pos,
                 child_end_pos
             );
+
+            // Note: We intentionally do NOT mark transparent positions globally here.
+            // Marking happens only when frames commit their results, not when results are retrieved.
+            // This prevents interference between speculative parses while still preventing duplicates
+            // in the final committed AST.
 
             // Debug: Show when we find a child result
             if iteration_count.is_multiple_of(100) || iteration_count < 200 {

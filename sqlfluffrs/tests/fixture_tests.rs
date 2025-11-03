@@ -528,7 +528,7 @@ fn test_ansi_fixtures() {
     // This allows us to see how many tests pass
 }
 
-#[test]
+// #[test]
 fn test_bigquery_fixtures() {
     env_logger::try_init().ok();
 

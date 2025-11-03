@@ -171,7 +171,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-            raw_values: hashbrown::HashSet::from_iter(["DATABASE".to_string(), "ROLE".to_string(), "WAREHOUSE".to_string(), "INTEGRATION".to_string(), "USER".to_string()]),
+            raw_values: hashbrown::HashSet::from_iter(["DATABASE".to_string(), "INTEGRATION".to_string(), "ROLE".to_string(), "USER".to_string(), "WAREHOUSE".to_string()]),
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
@@ -387,7 +387,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-            raw_values: hashbrown::HashSet::from_iter(["USAGE".to_string(), "EXECUTION".to_string()]),
+            raw_values: hashbrown::HashSet::from_iter(["EXECUTION".to_string(), "USAGE".to_string()]),
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
@@ -414,7 +414,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-            raw_values: hashbrown::HashSet::from_iter(["APPLY".to_string(), "MANAGE".to_string(), "EXECUTE".to_string(), "MONITOR".to_string(), "CREATE".to_string()]),
+            raw_values: hashbrown::HashSet::from_iter(["APPLY".to_string(), "CREATE".to_string(), "EXECUTE".to_string(), "MANAGE".to_string(), "MONITOR".to_string()]),
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
@@ -778,7 +778,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-            raw_values: hashbrown::HashSet::from_iter(["SEQUENCE".to_string(), "FILE".to_string(), "STREAM".to_string(), "TABLE".to_string(), "MATERIALIZED".to_string(), "TASK".to_string(), "EXTERNAL".to_string(), "FUNCTION".to_string(), "VIEW".to_string(), "PROCEDURE".to_string(), "ROUTINE".to_string(), "STAGE".to_string()]),
+            raw_values: hashbrown::HashSet::from_iter(["EXTERNAL".to_string(), "FILE".to_string(), "FUNCTION".to_string(), "MATERIALIZED".to_string(), "PROCEDURE".to_string(), "ROUTINE".to_string(), "SEQUENCE".to_string(), "STAGE".to_string(), "STREAM".to_string(), "TABLE".to_string(), "TASK".to_string(), "VIEW".to_string()]),
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
@@ -792,7 +792,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-            raw_values: hashbrown::HashSet::from_iter(["SEQUENCE".to_string(), "FILE".to_string(), "STREAM".to_string(), "SCHEMA".to_string(), "TABLE".to_string(), "PIPE".to_string(), "MATERIALIZED".to_string(), "TASK".to_string(), "EXTERNAL".to_string(), "FUNCTION".to_string(), "MASKING".to_string(), "VIEW".to_string(), "PROCEDURE".to_string(), "ROUTINE".to_string(), "STAGE".to_string()]),
+            raw_values: hashbrown::HashSet::from_iter(["EXTERNAL".to_string(), "FILE".to_string(), "FUNCTION".to_string(), "MASKING".to_string(), "MATERIALIZED".to_string(), "PIPE".to_string(), "PROCEDURE".to_string(), "ROUTINE".to_string(), "SCHEMA".to_string(), "SEQUENCE".to_string(), "STAGE".to_string(), "STREAM".to_string(), "TABLE".to_string(), "TASK".to_string(), "VIEW".to_string()]),
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
@@ -1286,7 +1286,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-            raw_values: hashbrown::HashSet::from_iter(["USE".to_string(), "REFERENCE_USAGE".to_string(), "TRIGGER".to_string(), "SELECT".to_string(), "CREATE".to_string(), "USE_ANY_ROLE".to_string(), "UPDATE".to_string(), "READ".to_string(), "APPLY".to_string(), "ALL".to_string(), "REFERENCES".to_string(), "TEMPORARY".to_string(), "EXECUTE".to_string(), "MONITOR".to_string(), "TRUNCATE".to_string(), "MODIFY".to_string(), "IMPORTED".to_string(), "DELETE".to_string(), "OWNERSHIP".to_string(), "TEMP".to_string(), "WRITE".to_string(), "CONNECT".to_string(), "OPERATE".to_string(), "INSERT".to_string(), "USAGE".to_string()]),
+            raw_values: hashbrown::HashSet::from_iter(["ALL".to_string(), "APPLY".to_string(), "CONNECT".to_string(), "CREATE".to_string(), "DELETE".to_string(), "EXECUTE".to_string(), "IMPORTED".to_string(), "INSERT".to_string(), "MODIFY".to_string(), "MONITOR".to_string(), "OPERATE".to_string(), "OWNERSHIP".to_string(), "READ".to_string(), "REFERENCES".to_string(), "REFERENCE_USAGE".to_string(), "SELECT".to_string(), "TEMP".to_string(), "TEMPORARY".to_string(), "TRIGGER".to_string(), "TRUNCATE".to_string(), "UPDATE".to_string(), "USAGE".to_string(), "USE".to_string(), "USE_ANY_ROLE".to_string(), "WRITE".to_string()]),
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
@@ -1313,7 +1313,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-            raw_values: hashbrown::HashSet::from_iter(["USE".to_string(), "REFERENCE_USAGE".to_string(), "TRIGGER".to_string(), "SELECT".to_string(), "CREATE".to_string(), "USE_ANY_ROLE".to_string(), "UPDATE".to_string(), "READ".to_string(), "APPLY".to_string(), "ALL".to_string(), "REFERENCES".to_string(), "TEMPORARY".to_string(), "EXECUTE".to_string(), "MONITOR".to_string(), "TRUNCATE".to_string(), "MODIFY".to_string(), "IMPORTED".to_string(), "DELETE".to_string(), "OWNERSHIP".to_string(), "TEMP".to_string(), "WRITE".to_string(), "CONNECT".to_string(), "OPERATE".to_string(), "INSERT".to_string(), "USAGE".to_string()]),
+            raw_values: hashbrown::HashSet::from_iter(["ALL".to_string(), "APPLY".to_string(), "CONNECT".to_string(), "CREATE".to_string(), "DELETE".to_string(), "EXECUTE".to_string(), "IMPORTED".to_string(), "INSERT".to_string(), "MODIFY".to_string(), "MONITOR".to_string(), "OPERATE".to_string(), "OWNERSHIP".to_string(), "READ".to_string(), "REFERENCES".to_string(), "REFERENCE_USAGE".to_string(), "SELECT".to_string(), "TEMP".to_string(), "TEMPORARY".to_string(), "TRIGGER".to_string(), "TRUNCATE".to_string(), "UPDATE".to_string(), "USAGE".to_string(), "USE".to_string(), "USE_ANY_ROLE".to_string(), "WRITE".to_string()]),
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
@@ -1327,7 +1327,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-            raw_values: hashbrown::HashSet::from_iter(["USE".to_string(), "REFERENCE_USAGE".to_string(), "TRIGGER".to_string(), "SELECT".to_string(), "CREATE".to_string(), "USE_ANY_ROLE".to_string(), "UPDATE".to_string(), "READ".to_string(), "APPLY".to_string(), "ALL".to_string(), "REFERENCES".to_string(), "USAGE".to_string(), "EXECUTE".to_string(), "MONITOR".to_string(), "TEMPORARY".to_string(), "TRUNCATE".to_string(), "MODIFY".to_string(), "IMPORTED".to_string(), "DELETE".to_string(), "OWNERSHIP".to_string(), "TEMP".to_string(), "WRITE".to_string(), "CONNECT".to_string(), "OPERATE".to_string(), "INSERT".to_string(), "MANAGE".to_string()]),
+            raw_values: hashbrown::HashSet::from_iter(["ALL".to_string(), "APPLY".to_string(), "CONNECT".to_string(), "CREATE".to_string(), "DELETE".to_string(), "EXECUTE".to_string(), "IMPORTED".to_string(), "INSERT".to_string(), "MANAGE".to_string(), "MODIFY".to_string(), "MONITOR".to_string(), "OPERATE".to_string(), "OWNERSHIP".to_string(), "READ".to_string(), "REFERENCES".to_string(), "REFERENCE_USAGE".to_string(), "SELECT".to_string(), "TEMP".to_string(), "TEMPORARY".to_string(), "TRIGGER".to_string(), "TRUNCATE".to_string(), "UPDATE".to_string(), "USAGE".to_string(), "USE".to_string(), "USE_ANY_ROLE".to_string(), "WRITE".to_string()]),
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
@@ -1371,7 +1371,7 @@ Arc::new(Grammar::Ref {
     min_delimiters: 0,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-            raw_values: hashbrown::HashSet::from_iter(["USE".to_string(), "REFERENCE_USAGE".to_string(), "TRIGGER".to_string(), "SELECT".to_string(), "CREATE".to_string(), "USE_ANY_ROLE".to_string(), "UPDATE".to_string(), "READ".to_string(), "APPLY".to_string(), "ALL".to_string(), "REFERENCES".to_string(), "USAGE".to_string(), "EXECUTE".to_string(), "MONITOR".to_string(), "TEMPORARY".to_string(), "TRUNCATE".to_string(), "MODIFY".to_string(), "IMPORTED".to_string(), "DELETE".to_string(), "OWNERSHIP".to_string(), "TEMP".to_string(), "WRITE".to_string(), "CONNECT".to_string(), "OPERATE".to_string(), "INSERT".to_string(), "MANAGE".to_string()]),
+            raw_values: hashbrown::HashSet::from_iter(["ALL".to_string(), "APPLY".to_string(), "CONNECT".to_string(), "CREATE".to_string(), "DELETE".to_string(), "EXECUTE".to_string(), "IMPORTED".to_string(), "INSERT".to_string(), "MANAGE".to_string(), "MODIFY".to_string(), "MONITOR".to_string(), "OPERATE".to_string(), "OWNERSHIP".to_string(), "READ".to_string(), "REFERENCES".to_string(), "REFERENCE_USAGE".to_string(), "SELECT".to_string(), "TEMP".to_string(), "TEMPORARY".to_string(), "TRIGGER".to_string(), "TRUNCATE".to_string(), "UPDATE".to_string(), "USAGE".to_string(), "USE".to_string(), "USE_ANY_ROLE".to_string(), "WRITE".to_string()]),
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
@@ -2103,7 +2103,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-            raw_values: hashbrown::HashSet::from_iter(["SEQUENCE".to_string(), "FILE".to_string(), "STREAM".to_string(), "TABLE".to_string(), "MATERIALIZED".to_string(), "TASK".to_string(), "EXTERNAL".to_string(), "FUNCTION".to_string(), "VIEW".to_string(), "PROCEDURE".to_string(), "ROUTINE".to_string(), "STAGE".to_string()]),
+            raw_values: hashbrown::HashSet::from_iter(["EXTERNAL".to_string(), "FILE".to_string(), "FUNCTION".to_string(), "MATERIALIZED".to_string(), "PROCEDURE".to_string(), "ROUTINE".to_string(), "SEQUENCE".to_string(), "STAGE".to_string(), "STREAM".to_string(), "TABLE".to_string(), "TASK".to_string(), "VIEW".to_string()]),
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
@@ -2261,7 +2261,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-            raw_values: hashbrown::HashSet::from_iter(["ROUTINES".to_string(), "SEQUENCES".to_string(), "FUNCTIONS".to_string(), "STREAMS".to_string(), "TABLES".to_string(), "VIEWS".to_string(), "TASKS".to_string(), "STAGES".to_string(), "PROCEDURES".to_string()]),
+            raw_values: hashbrown::HashSet::from_iter(["FUNCTIONS".to_string(), "PROCEDURES".to_string(), "ROUTINES".to_string(), "SEQUENCES".to_string(), "STAGES".to_string(), "STREAMS".to_string(), "TABLES".to_string(), "TASKS".to_string(), "VIEWS".to_string()]),
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
@@ -2460,7 +2460,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-            raw_values: hashbrown::HashSet::from_iter(["ROUTINES".to_string(), "SEQUENCES".to_string(), "FUNCTIONS".to_string(), "STREAMS".to_string(), "TABLES".to_string(), "VIEWS".to_string(), "TASKS".to_string(), "STAGES".to_string(), "PROCEDURES".to_string()]),
+            raw_values: hashbrown::HashSet::from_iter(["FUNCTIONS".to_string(), "PROCEDURES".to_string(), "ROUTINES".to_string(), "SEQUENCES".to_string(), "STAGES".to_string(), "STREAMS".to_string(), "TABLES".to_string(), "TASKS".to_string(), "VIEWS".to_string()]),
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
@@ -2545,7 +2545,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-            raw_values: hashbrown::HashSet::from_iter(["STAGE".to_string(), "WAREHOUSE".to_string(), "INTEGRATION".to_string(), "CATALOG".to_string(), "ROLE".to_string(), "FUNCTION".to_string(), "ALL".to_string(), "ROUTINE".to_string(), "FOREIGN".to_string(), "DATABASE".to_string(), "SEQUENCE".to_string(), "FILE".to_string(), "STREAM".to_string(), "RESOURCE".to_string(), "SCHEMA".to_string(), "DOMAIN".to_string(), "FUTURE".to_string(), "TABLE".to_string(), "MATERIALIZED".to_string(), "TASK".to_string(), "EXTERNAL".to_string(), "TYPE".to_string(), "VIEW".to_string(), "PROCEDURE".to_string(), "LANGUAGE".to_string(), "TABLESPACE".to_string()]),
+            raw_values: hashbrown::HashSet::from_iter(["ALL".to_string(), "CATALOG".to_string(), "DATABASE".to_string(), "DOMAIN".to_string(), "EXTERNAL".to_string(), "FILE".to_string(), "FOREIGN".to_string(), "FUNCTION".to_string(), "FUTURE".to_string(), "INTEGRATION".to_string(), "LANGUAGE".to_string(), "MATERIALIZED".to_string(), "PROCEDURE".to_string(), "RESOURCE".to_string(), "ROLE".to_string(), "ROUTINE".to_string(), "SCHEMA".to_string(), "SEQUENCE".to_string(), "STAGE".to_string(), "STREAM".to_string(), "TABLE".to_string(), "TABLESPACE".to_string(), "TASK".to_string(), "TYPE".to_string(), "VIEW".to_string(), "WAREHOUSE".to_string()]),
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
@@ -2752,7 +2752,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-            raw_values: hashbrown::HashSet::from_iter(["USE".to_string(), "REFERENCE_USAGE".to_string(), "TRIGGER".to_string(), "SELECT".to_string(), "CREATE".to_string(), "USE_ANY_ROLE".to_string(), "UPDATE".to_string(), "READ".to_string(), "APPLY".to_string(), "ALL".to_string(), "REFERENCES".to_string(), "USAGE".to_string(), "EXECUTE".to_string(), "MONITOR".to_string(), "TEMPORARY".to_string(), "TRUNCATE".to_string(), "MODIFY".to_string(), "IMPORTED".to_string(), "DELETE".to_string(), "OWNERSHIP".to_string(), "TEMP".to_string(), "WRITE".to_string(), "CONNECT".to_string(), "OPERATE".to_string(), "INSERT".to_string(), "MANAGE".to_string()]),
+            raw_values: hashbrown::HashSet::from_iter(["ALL".to_string(), "APPLY".to_string(), "CONNECT".to_string(), "CREATE".to_string(), "DELETE".to_string(), "EXECUTE".to_string(), "IMPORTED".to_string(), "INSERT".to_string(), "MANAGE".to_string(), "MODIFY".to_string(), "MONITOR".to_string(), "OPERATE".to_string(), "OWNERSHIP".to_string(), "READ".to_string(), "REFERENCES".to_string(), "REFERENCE_USAGE".to_string(), "SELECT".to_string(), "TEMP".to_string(), "TEMPORARY".to_string(), "TRIGGER".to_string(), "TRUNCATE".to_string(), "UPDATE".to_string(), "USAGE".to_string(), "USE".to_string(), "USE_ANY_ROLE".to_string(), "WRITE".to_string()]),
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
@@ -2968,7 +2968,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-            raw_values: hashbrown::HashSet::from_iter(["ROLE".to_string(), "GROUP".to_string(), "SHARE".to_string(), "USER".to_string()]),
+            raw_values: hashbrown::HashSet::from_iter(["GROUP".to_string(), "ROLE".to_string(), "SHARE".to_string(), "USER".to_string()]),
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
@@ -3526,7 +3526,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-            raw_values: hashbrown::HashSet::from_iter(["DATABASE".to_string(), "ROLE".to_string(), "WAREHOUSE".to_string(), "INTEGRATION".to_string(), "USER".to_string()]),
+            raw_values: hashbrown::HashSet::from_iter(["DATABASE".to_string(), "INTEGRATION".to_string(), "ROLE".to_string(), "USER".to_string(), "WAREHOUSE".to_string()]),
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
@@ -3742,7 +3742,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-            raw_values: hashbrown::HashSet::from_iter(["USAGE".to_string(), "EXECUTION".to_string()]),
+            raw_values: hashbrown::HashSet::from_iter(["EXECUTION".to_string(), "USAGE".to_string()]),
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
@@ -3769,7 +3769,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-            raw_values: hashbrown::HashSet::from_iter(["APPLY".to_string(), "MANAGE".to_string(), "EXECUTE".to_string(), "MONITOR".to_string(), "CREATE".to_string()]),
+            raw_values: hashbrown::HashSet::from_iter(["APPLY".to_string(), "CREATE".to_string(), "EXECUTE".to_string(), "MANAGE".to_string(), "MONITOR".to_string()]),
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
@@ -4133,7 +4133,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-            raw_values: hashbrown::HashSet::from_iter(["SEQUENCE".to_string(), "FILE".to_string(), "STREAM".to_string(), "TABLE".to_string(), "MATERIALIZED".to_string(), "TASK".to_string(), "EXTERNAL".to_string(), "FUNCTION".to_string(), "VIEW".to_string(), "PROCEDURE".to_string(), "ROUTINE".to_string(), "STAGE".to_string()]),
+            raw_values: hashbrown::HashSet::from_iter(["EXTERNAL".to_string(), "FILE".to_string(), "FUNCTION".to_string(), "MATERIALIZED".to_string(), "PROCEDURE".to_string(), "ROUTINE".to_string(), "SEQUENCE".to_string(), "STAGE".to_string(), "STREAM".to_string(), "TABLE".to_string(), "TASK".to_string(), "VIEW".to_string()]),
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
@@ -4147,7 +4147,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-            raw_values: hashbrown::HashSet::from_iter(["SEQUENCE".to_string(), "FILE".to_string(), "STREAM".to_string(), "SCHEMA".to_string(), "TABLE".to_string(), "PIPE".to_string(), "MATERIALIZED".to_string(), "TASK".to_string(), "EXTERNAL".to_string(), "FUNCTION".to_string(), "MASKING".to_string(), "VIEW".to_string(), "PROCEDURE".to_string(), "ROUTINE".to_string(), "STAGE".to_string()]),
+            raw_values: hashbrown::HashSet::from_iter(["EXTERNAL".to_string(), "FILE".to_string(), "FUNCTION".to_string(), "MASKING".to_string(), "MATERIALIZED".to_string(), "PIPE".to_string(), "PROCEDURE".to_string(), "ROUTINE".to_string(), "SCHEMA".to_string(), "SEQUENCE".to_string(), "STAGE".to_string(), "STREAM".to_string(), "TABLE".to_string(), "TASK".to_string(), "VIEW".to_string()]),
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
@@ -4641,7 +4641,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-            raw_values: hashbrown::HashSet::from_iter(["USE".to_string(), "REFERENCE_USAGE".to_string(), "TRIGGER".to_string(), "SELECT".to_string(), "CREATE".to_string(), "USE_ANY_ROLE".to_string(), "UPDATE".to_string(), "READ".to_string(), "APPLY".to_string(), "ALL".to_string(), "REFERENCES".to_string(), "TEMPORARY".to_string(), "EXECUTE".to_string(), "MONITOR".to_string(), "TRUNCATE".to_string(), "MODIFY".to_string(), "IMPORTED".to_string(), "DELETE".to_string(), "OWNERSHIP".to_string(), "TEMP".to_string(), "WRITE".to_string(), "CONNECT".to_string(), "OPERATE".to_string(), "INSERT".to_string(), "USAGE".to_string()]),
+            raw_values: hashbrown::HashSet::from_iter(["ALL".to_string(), "APPLY".to_string(), "CONNECT".to_string(), "CREATE".to_string(), "DELETE".to_string(), "EXECUTE".to_string(), "IMPORTED".to_string(), "INSERT".to_string(), "MODIFY".to_string(), "MONITOR".to_string(), "OPERATE".to_string(), "OWNERSHIP".to_string(), "READ".to_string(), "REFERENCES".to_string(), "REFERENCE_USAGE".to_string(), "SELECT".to_string(), "TEMP".to_string(), "TEMPORARY".to_string(), "TRIGGER".to_string(), "TRUNCATE".to_string(), "UPDATE".to_string(), "USAGE".to_string(), "USE".to_string(), "USE_ANY_ROLE".to_string(), "WRITE".to_string()]),
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
@@ -4668,7 +4668,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-            raw_values: hashbrown::HashSet::from_iter(["USE".to_string(), "REFERENCE_USAGE".to_string(), "TRIGGER".to_string(), "SELECT".to_string(), "CREATE".to_string(), "USE_ANY_ROLE".to_string(), "UPDATE".to_string(), "READ".to_string(), "APPLY".to_string(), "ALL".to_string(), "REFERENCES".to_string(), "TEMPORARY".to_string(), "EXECUTE".to_string(), "MONITOR".to_string(), "TRUNCATE".to_string(), "MODIFY".to_string(), "IMPORTED".to_string(), "DELETE".to_string(), "OWNERSHIP".to_string(), "TEMP".to_string(), "WRITE".to_string(), "CONNECT".to_string(), "OPERATE".to_string(), "INSERT".to_string(), "USAGE".to_string()]),
+            raw_values: hashbrown::HashSet::from_iter(["ALL".to_string(), "APPLY".to_string(), "CONNECT".to_string(), "CREATE".to_string(), "DELETE".to_string(), "EXECUTE".to_string(), "IMPORTED".to_string(), "INSERT".to_string(), "MODIFY".to_string(), "MONITOR".to_string(), "OPERATE".to_string(), "OWNERSHIP".to_string(), "READ".to_string(), "REFERENCES".to_string(), "REFERENCE_USAGE".to_string(), "SELECT".to_string(), "TEMP".to_string(), "TEMPORARY".to_string(), "TRIGGER".to_string(), "TRUNCATE".to_string(), "UPDATE".to_string(), "USAGE".to_string(), "USE".to_string(), "USE_ANY_ROLE".to_string(), "WRITE".to_string()]),
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
@@ -4682,7 +4682,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-            raw_values: hashbrown::HashSet::from_iter(["USE".to_string(), "REFERENCE_USAGE".to_string(), "TRIGGER".to_string(), "SELECT".to_string(), "CREATE".to_string(), "USE_ANY_ROLE".to_string(), "UPDATE".to_string(), "READ".to_string(), "APPLY".to_string(), "ALL".to_string(), "REFERENCES".to_string(), "USAGE".to_string(), "EXECUTE".to_string(), "MONITOR".to_string(), "TEMPORARY".to_string(), "TRUNCATE".to_string(), "MODIFY".to_string(), "IMPORTED".to_string(), "DELETE".to_string(), "OWNERSHIP".to_string(), "TEMP".to_string(), "WRITE".to_string(), "CONNECT".to_string(), "OPERATE".to_string(), "INSERT".to_string(), "MANAGE".to_string()]),
+            raw_values: hashbrown::HashSet::from_iter(["ALL".to_string(), "APPLY".to_string(), "CONNECT".to_string(), "CREATE".to_string(), "DELETE".to_string(), "EXECUTE".to_string(), "IMPORTED".to_string(), "INSERT".to_string(), "MANAGE".to_string(), "MODIFY".to_string(), "MONITOR".to_string(), "OPERATE".to_string(), "OWNERSHIP".to_string(), "READ".to_string(), "REFERENCES".to_string(), "REFERENCE_USAGE".to_string(), "SELECT".to_string(), "TEMP".to_string(), "TEMPORARY".to_string(), "TRIGGER".to_string(), "TRUNCATE".to_string(), "UPDATE".to_string(), "USAGE".to_string(), "USE".to_string(), "USE_ANY_ROLE".to_string(), "WRITE".to_string()]),
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
@@ -4726,7 +4726,7 @@ Arc::new(Grammar::Ref {
     min_delimiters: 0,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-            raw_values: hashbrown::HashSet::from_iter(["USE".to_string(), "REFERENCE_USAGE".to_string(), "TRIGGER".to_string(), "SELECT".to_string(), "CREATE".to_string(), "USE_ANY_ROLE".to_string(), "UPDATE".to_string(), "READ".to_string(), "APPLY".to_string(), "ALL".to_string(), "REFERENCES".to_string(), "USAGE".to_string(), "EXECUTE".to_string(), "MONITOR".to_string(), "TEMPORARY".to_string(), "TRUNCATE".to_string(), "MODIFY".to_string(), "IMPORTED".to_string(), "DELETE".to_string(), "OWNERSHIP".to_string(), "TEMP".to_string(), "WRITE".to_string(), "CONNECT".to_string(), "OPERATE".to_string(), "INSERT".to_string(), "MANAGE".to_string()]),
+            raw_values: hashbrown::HashSet::from_iter(["ALL".to_string(), "APPLY".to_string(), "CONNECT".to_string(), "CREATE".to_string(), "DELETE".to_string(), "EXECUTE".to_string(), "IMPORTED".to_string(), "INSERT".to_string(), "MANAGE".to_string(), "MODIFY".to_string(), "MONITOR".to_string(), "OPERATE".to_string(), "OWNERSHIP".to_string(), "READ".to_string(), "REFERENCES".to_string(), "REFERENCE_USAGE".to_string(), "SELECT".to_string(), "TEMP".to_string(), "TEMPORARY".to_string(), "TRIGGER".to_string(), "TRUNCATE".to_string(), "UPDATE".to_string(), "USAGE".to_string(), "USE".to_string(), "USE_ANY_ROLE".to_string(), "WRITE".to_string()]),
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
@@ -5458,7 +5458,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-            raw_values: hashbrown::HashSet::from_iter(["SEQUENCE".to_string(), "FILE".to_string(), "STREAM".to_string(), "TABLE".to_string(), "MATERIALIZED".to_string(), "TASK".to_string(), "EXTERNAL".to_string(), "FUNCTION".to_string(), "VIEW".to_string(), "PROCEDURE".to_string(), "ROUTINE".to_string(), "STAGE".to_string()]),
+            raw_values: hashbrown::HashSet::from_iter(["EXTERNAL".to_string(), "FILE".to_string(), "FUNCTION".to_string(), "MATERIALIZED".to_string(), "PROCEDURE".to_string(), "ROUTINE".to_string(), "SEQUENCE".to_string(), "STAGE".to_string(), "STREAM".to_string(), "TABLE".to_string(), "TASK".to_string(), "VIEW".to_string()]),
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
@@ -5616,7 +5616,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-            raw_values: hashbrown::HashSet::from_iter(["ROUTINES".to_string(), "SEQUENCES".to_string(), "FUNCTIONS".to_string(), "STREAMS".to_string(), "TABLES".to_string(), "VIEWS".to_string(), "TASKS".to_string(), "STAGES".to_string(), "PROCEDURES".to_string()]),
+            raw_values: hashbrown::HashSet::from_iter(["FUNCTIONS".to_string(), "PROCEDURES".to_string(), "ROUTINES".to_string(), "SEQUENCES".to_string(), "STAGES".to_string(), "STREAMS".to_string(), "TABLES".to_string(), "TASKS".to_string(), "VIEWS".to_string()]),
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
@@ -5815,7 +5815,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-            raw_values: hashbrown::HashSet::from_iter(["ROUTINES".to_string(), "SEQUENCES".to_string(), "FUNCTIONS".to_string(), "STREAMS".to_string(), "TABLES".to_string(), "VIEWS".to_string(), "TASKS".to_string(), "STAGES".to_string(), "PROCEDURES".to_string()]),
+            raw_values: hashbrown::HashSet::from_iter(["FUNCTIONS".to_string(), "PROCEDURES".to_string(), "ROUTINES".to_string(), "SEQUENCES".to_string(), "STAGES".to_string(), "STREAMS".to_string(), "TABLES".to_string(), "TASKS".to_string(), "VIEWS".to_string()]),
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
@@ -5900,7 +5900,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-            raw_values: hashbrown::HashSet::from_iter(["STAGE".to_string(), "WAREHOUSE".to_string(), "INTEGRATION".to_string(), "CATALOG".to_string(), "ROLE".to_string(), "FUNCTION".to_string(), "ALL".to_string(), "ROUTINE".to_string(), "FOREIGN".to_string(), "DATABASE".to_string(), "SEQUENCE".to_string(), "FILE".to_string(), "STREAM".to_string(), "RESOURCE".to_string(), "SCHEMA".to_string(), "DOMAIN".to_string(), "FUTURE".to_string(), "TABLE".to_string(), "MATERIALIZED".to_string(), "TASK".to_string(), "EXTERNAL".to_string(), "TYPE".to_string(), "VIEW".to_string(), "PROCEDURE".to_string(), "LANGUAGE".to_string(), "TABLESPACE".to_string()]),
+            raw_values: hashbrown::HashSet::from_iter(["ALL".to_string(), "CATALOG".to_string(), "DATABASE".to_string(), "DOMAIN".to_string(), "EXTERNAL".to_string(), "FILE".to_string(), "FOREIGN".to_string(), "FUNCTION".to_string(), "FUTURE".to_string(), "INTEGRATION".to_string(), "LANGUAGE".to_string(), "MATERIALIZED".to_string(), "PROCEDURE".to_string(), "RESOURCE".to_string(), "ROLE".to_string(), "ROUTINE".to_string(), "SCHEMA".to_string(), "SEQUENCE".to_string(), "STAGE".to_string(), "STREAM".to_string(), "TABLE".to_string(), "TABLESPACE".to_string(), "TASK".to_string(), "TYPE".to_string(), "VIEW".to_string(), "WAREHOUSE".to_string()]),
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
@@ -6107,7 +6107,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-            raw_values: hashbrown::HashSet::from_iter(["USE".to_string(), "REFERENCE_USAGE".to_string(), "TRIGGER".to_string(), "SELECT".to_string(), "CREATE".to_string(), "USE_ANY_ROLE".to_string(), "UPDATE".to_string(), "READ".to_string(), "APPLY".to_string(), "ALL".to_string(), "REFERENCES".to_string(), "USAGE".to_string(), "EXECUTE".to_string(), "MONITOR".to_string(), "TEMPORARY".to_string(), "TRUNCATE".to_string(), "MODIFY".to_string(), "IMPORTED".to_string(), "DELETE".to_string(), "OWNERSHIP".to_string(), "TEMP".to_string(), "WRITE".to_string(), "CONNECT".to_string(), "OPERATE".to_string(), "INSERT".to_string(), "MANAGE".to_string()]),
+            raw_values: hashbrown::HashSet::from_iter(["ALL".to_string(), "APPLY".to_string(), "CONNECT".to_string(), "CREATE".to_string(), "DELETE".to_string(), "EXECUTE".to_string(), "IMPORTED".to_string(), "INSERT".to_string(), "MANAGE".to_string(), "MODIFY".to_string(), "MONITOR".to_string(), "OPERATE".to_string(), "OWNERSHIP".to_string(), "READ".to_string(), "REFERENCES".to_string(), "REFERENCE_USAGE".to_string(), "SELECT".to_string(), "TEMP".to_string(), "TEMPORARY".to_string(), "TRIGGER".to_string(), "TRUNCATE".to_string(), "UPDATE".to_string(), "USAGE".to_string(), "USE".to_string(), "USE_ANY_ROLE".to_string(), "WRITE".to_string()]),
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
@@ -6323,7 +6323,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-            raw_values: hashbrown::HashSet::from_iter(["ROLE".to_string(), "GROUP".to_string(), "SHARE".to_string(), "USER".to_string()]),
+            raw_values: hashbrown::HashSet::from_iter(["GROUP".to_string(), "ROLE".to_string(), "SHARE".to_string(), "USER".to_string()]),
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
@@ -6404,7 +6404,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-            raw_values: hashbrown::HashSet::from_iter(["REVOKE".to_string(), "GRANT".to_string()]),
+            raw_values: hashbrown::HashSet::from_iter(["GRANT".to_string(), "REVOKE".to_string()]),
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
@@ -6917,7 +6917,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-            raw_values: hashbrown::HashSet::from_iter(["NOCACHE".to_string(), "CACHE".to_string()]),
+            raw_values: hashbrown::HashSet::from_iter(["CACHE".to_string(), "NOCACHE".to_string()]),
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
@@ -6961,7 +6961,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-            raw_values: hashbrown::HashSet::from_iter(["NOCYCLE".to_string(), "CYCLE".to_string()]),
+            raw_values: hashbrown::HashSet::from_iter(["CYCLE".to_string(), "NOCYCLE".to_string()]),
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
@@ -6975,7 +6975,7 @@ Arc::new(Grammar::Ref {
     ],
     reset_terminators: false,
     simple_hint: Some(SimpleHint {
-            raw_values: hashbrown::HashSet::from_iter(["ORDER".to_string(), "NOORDER".to_string()]),
+            raw_values: hashbrown::HashSet::from_iter(["NOORDER".to_string(), "ORDER".to_string()]),
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
@@ -6989,7 +6989,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-            raw_values: hashbrown::HashSet::from_iter(["MINVALUE".to_string(), "MAXVALUE".to_string(), "NOORDER".to_string(), "NOCYCLE".to_string(), "INCREMENT".to_string(), "NOCACHE".to_string(), "NO".to_string(), "ORDER".to_string(), "CYCLE".to_string(), "CACHE".to_string()]),
+            raw_values: hashbrown::HashSet::from_iter(["CACHE".to_string(), "CYCLE".to_string(), "INCREMENT".to_string(), "MAXVALUE".to_string(), "MINVALUE".to_string(), "NO".to_string(), "NOCACHE".to_string(), "NOCYCLE".to_string(), "NOORDER".to_string(), "ORDER".to_string()]),
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
@@ -7050,7 +7050,7 @@ Arc::new(Grammar::Ref {
     ],
     reset_terminators: false,
     simple_hint: Some(SimpleHint {
-            raw_values: hashbrown::HashSet::from_iter(["MINVALUE".to_string(), "MAXVALUE".to_string(), "NOORDER".to_string(), "NOCYCLE".to_string(), "INCREMENT".to_string(), "NOCACHE".to_string(), "NO".to_string(), "ORDER".to_string(), "CYCLE".to_string(), "CACHE".to_string()]),
+            raw_values: hashbrown::HashSet::from_iter(["CACHE".to_string(), "CYCLE".to_string(), "INCREMENT".to_string(), "MAXVALUE".to_string(), "MINVALUE".to_string(), "NO".to_string(), "NOCACHE".to_string(), "NOCYCLE".to_string(), "NOORDER".to_string(), "ORDER".to_string()]),
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
@@ -7067,7 +7067,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-            raw_values: hashbrown::HashSet::from_iter(["MINVALUE".to_string(), "MAXVALUE".to_string(), "NOORDER".to_string(), "NOCYCLE".to_string(), "INCREMENT".to_string(), "NOCACHE".to_string(), "NO".to_string(), "ORDER".to_string(), "CYCLE".to_string(), "CACHE".to_string()]),
+            raw_values: hashbrown::HashSet::from_iter(["CACHE".to_string(), "CYCLE".to_string(), "INCREMENT".to_string(), "MAXVALUE".to_string(), "MINVALUE".to_string(), "NO".to_string(), "NOCACHE".to_string(), "NOCYCLE".to_string(), "NOORDER".to_string(), "ORDER".to_string()]),
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
@@ -7274,7 +7274,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-            raw_values: hashbrown::HashSet::from_iter(["MODIFY".to_string(), "ADD".to_string()]),
+            raw_values: hashbrown::HashSet::from_iter(["ADD".to_string(), "MODIFY".to_string()]),
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
@@ -7399,7 +7399,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-            raw_values: hashbrown::HashSet::from_iter(["AFTER".to_string(), "FIRST".to_string(), "(".to_string()]),
+            raw_values: hashbrown::HashSet::from_iter(["(".to_string(), "AFTER".to_string(), "FIRST".to_string()]),
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
@@ -7412,7 +7412,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-            raw_values: hashbrown::HashSet::from_iter(["MODIFY".to_string(), "ADD".to_string()]),
+            raw_values: hashbrown::HashSet::from_iter(["ADD".to_string(), "MODIFY".to_string()]),
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
@@ -7868,7 +7868,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-            raw_values: hashbrown::HashSet::from_iter(["+".to_string(), "^".to_string(), "<".to_string(), "|".to_string(), "*".to_string(), "&".to_string(), ">".to_string(), "/".to_string(), "%".to_string(), "-".to_string()]),
+            raw_values: hashbrown::HashSet::from_iter(["%".to_string(), "&".to_string(), "*".to_string(), "+".to_string(), "-".to_string(), "/".to_string(), "<".to_string(), ">".to_string(), "^".to_string(), "|".to_string()]),
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
@@ -8346,7 +8346,7 @@ Arc::new(Grammar::Ref {
     ],
     reset_terminators: false,
     simple_hint: Some(SimpleHint {
-            raw_values: hashbrown::HashSet::from_iter(["CURRENT_TIME".to_string(), "CURRENT_DATE".to_string(), "CURRENT_TIMESTAMP".to_string()]),
+            raw_values: hashbrown::HashSet::from_iter(["CURRENT_DATE".to_string(), "CURRENT_TIME".to_string(), "CURRENT_TIMESTAMP".to_string()]),
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
@@ -8561,7 +8561,7 @@ Arc::new(Grammar::Ref {
     ],
     reset_terminators: false,
     simple_hint: Some(SimpleHint {
-            raw_values: hashbrown::HashSet::from_iter(["+".to_string(), "^".to_string(), "<".to_string(), "|".to_string(), "*".to_string(), "&".to_string(), ">".to_string(), "/".to_string(), "%".to_string(), "-".to_string()]),
+            raw_values: hashbrown::HashSet::from_iter(["%".to_string(), "&".to_string(), "*".to_string(), "+".to_string(), "-".to_string(), "/".to_string(), "<".to_string(), ">".to_string(), "^".to_string(), "|".to_string()]),
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
@@ -8603,7 +8603,7 @@ Arc::new(Grammar::Ref {
     ],
     reset_terminators: false,
     simple_hint: Some(SimpleHint {
-            raw_values: hashbrown::HashSet::from_iter([">".to_string(), "<".to_string(), "!".to_string(), "IS".to_string(), "=".to_string()]),
+            raw_values: hashbrown::HashSet::from_iter(["!".to_string(), "<".to_string(), "=".to_string(), ">".to_string(), "IS".to_string()]),
             token_types: hashbrown::HashSet::from_iter(["like_operator".to_string()]),
         }),
 })
@@ -8617,7 +8617,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-            raw_values: hashbrown::HashSet::from_iter(["+".to_string(), "^".to_string(), "<".to_string(), "!".to_string(), "IS".to_string(), "AND".to_string(), "OR".to_string(), "|".to_string(), "*".to_string(), "&".to_string(), ">".to_string(), "/".to_string(), "%".to_string(), "-".to_string(), "=".to_string()]),
+            raw_values: hashbrown::HashSet::from_iter(["!".to_string(), "%".to_string(), "&".to_string(), "*".to_string(), "+".to_string(), "-".to_string(), "/".to_string(), "<".to_string(), "=".to_string(), ">".to_string(), "AND".to_string(), "IS".to_string(), "OR".to_string(), "^".to_string(), "|".to_string()]),
             token_types: hashbrown::HashSet::from_iter(["like_operator".to_string()]),
         }),
 })
@@ -9119,7 +9119,7 @@ Arc::new(Grammar::Ref {
     ],
     reset_terminators: false,
     simple_hint: Some(SimpleHint {
-            raw_values: hashbrown::HashSet::from_iter(["VALUE".to_string(), "(".to_string(), "SELECT".to_string(), "VALUES".to_string()]),
+            raw_values: hashbrown::HashSet::from_iter(["(".to_string(), "SELECT".to_string(), "VALUE".to_string(), "VALUES".to_string()]),
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
@@ -9309,7 +9309,7 @@ Arc::new(Grammar::Ref {
     ],
     reset_terminators: false,
     simple_hint: Some(SimpleHint {
-            raw_values: hashbrown::HashSet::from_iter(["(".to_string(), "SELECT".to_string(), "WITH".to_string(), "VALUES".to_string(), "VALUE".to_string()]),
+            raw_values: hashbrown::HashSet::from_iter(["(".to_string(), "SELECT".to_string(), "VALUE".to_string(), "VALUES".to_string(), "WITH".to_string()]),
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
@@ -9717,7 +9717,7 @@ Arc::new(Grammar::Ref {
     ],
     reset_terminators: false,
     simple_hint: Some(SimpleHint {
-            raw_values: hashbrown::HashSet::from_iter([">".to_string(), "<".to_string(), "!".to_string(), "IS".to_string(), "=".to_string()]),
+            raw_values: hashbrown::HashSet::from_iter(["!".to_string(), "<".to_string(), "=".to_string(), ">".to_string(), "IS".to_string()]),
             token_types: hashbrown::HashSet::from_iter(["like_operator".to_string()]),
         }),
 })
@@ -9745,7 +9745,7 @@ Arc::new(Grammar::Ref {
     ],
     reset_terminators: false,
     simple_hint: Some(SimpleHint {
-            raw_values: hashbrown::HashSet::from_iter(["+".to_string(), "^".to_string(), "<".to_string(), "!".to_string(), "IS".to_string(), "AND".to_string(), "OR".to_string(), "|".to_string(), "*".to_string(), "&".to_string(), ">".to_string(), "/".to_string(), "%".to_string(), "-".to_string(), "=".to_string()]),
+            raw_values: hashbrown::HashSet::from_iter(["!".to_string(), "%".to_string(), "&".to_string(), "*".to_string(), "+".to_string(), "-".to_string(), "/".to_string(), "<".to_string(), "=".to_string(), ">".to_string(), "AND".to_string(), "IS".to_string(), "OR".to_string(), "^".to_string(), "|".to_string()]),
             token_types: hashbrown::HashSet::from_iter(["like_operator".to_string()]),
         }),
 })
@@ -10297,7 +10297,7 @@ Arc::new(Grammar::Ref {
     ],
     reset_terminators: false,
     simple_hint: Some(SimpleHint {
-            raw_values: hashbrown::HashSet::from_iter(["CURRENT_TIME".to_string(), "CURRENT_DATE".to_string(), "CURRENT_TIMESTAMP".to_string()]),
+            raw_values: hashbrown::HashSet::from_iter(["CURRENT_DATE".to_string(), "CURRENT_TIME".to_string(), "CURRENT_TIMESTAMP".to_string()]),
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
@@ -10399,7 +10399,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-            raw_values: hashbrown::HashSet::from_iter(["NULL".to_string(), "NOT".to_string()]),
+            raw_values: hashbrown::HashSet::from_iter(["NOT".to_string(), "NULL".to_string()]),
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
@@ -11131,7 +11131,7 @@ Arc::new(Grammar::Ref {
     ],
     reset_terminators: false,
     simple_hint: Some(SimpleHint {
-            raw_values: hashbrown::HashSet::from_iter(["<".to_string(), "!".to_string()]),
+            raw_values: hashbrown::HashSet::from_iter(["!".to_string(), "<".to_string()]),
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
@@ -11173,7 +11173,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-            raw_values: hashbrown::HashSet::from_iter([">".to_string(), "<".to_string(), "!".to_string(), "IS".to_string(), "=".to_string()]),
+            raw_values: hashbrown::HashSet::from_iter(["!".to_string(), "<".to_string(), "=".to_string(), ">".to_string(), "IS".to_string()]),
             token_types: hashbrown::HashSet::from_iter(["like_operator".to_string()]),
         }),
 })
@@ -11330,7 +11330,7 @@ Arc::new(Grammar::Ref {
     ],
     reset_terminators: false,
     simple_hint: Some(SimpleHint {
-            raw_values: hashbrown::HashSet::from_iter(["LEFT".to_string(), "INNER".to_string(), "RIGHT".to_string(), "FULL".to_string()]),
+            raw_values: hashbrown::HashSet::from_iter(["FULL".to_string(), "INNER".to_string(), "LEFT".to_string(), "RIGHT".to_string()]),
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
@@ -11801,7 +11801,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-            raw_values: hashbrown::HashSet::from_iter(["INSTANCE".to_string(), "STATIC".to_string(), "CONSTRUCTOR".to_string()]),
+            raw_values: hashbrown::HashSet::from_iter(["CONSTRUCTOR".to_string(), "INSTANCE".to_string(), "STATIC".to_string()]),
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
@@ -11828,7 +11828,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-            raw_values: hashbrown::HashSet::from_iter(["INSTANCE".to_string(), "METHOD".to_string(), "STATIC".to_string(), "CONSTRUCTOR".to_string()]),
+            raw_values: hashbrown::HashSet::from_iter(["CONSTRUCTOR".to_string(), "INSTANCE".to_string(), "METHOD".to_string(), "STATIC".to_string()]),
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
@@ -11842,7 +11842,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-            raw_values: hashbrown::HashSet::from_iter(["METHOD".to_string(), "CONSTRUCTOR".to_string(), "FUNCTION".to_string(), "ROUTINE".to_string(), "PROCEDURE".to_string(), "STATIC".to_string(), "INSTANCE".to_string()]),
+            raw_values: hashbrown::HashSet::from_iter(["CONSTRUCTOR".to_string(), "FUNCTION".to_string(), "INSTANCE".to_string(), "METHOD".to_string(), "PROCEDURE".to_string(), "ROUTINE".to_string(), "STATIC".to_string()]),
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
@@ -12083,7 +12083,7 @@ Arc::new(Grammar::Ref {
     ],
     reset_terminators: false,
     simple_hint: Some(SimpleHint {
-            raw_values: hashbrown::HashSet::from_iter(["TEMPORARY".to_string(), "TEMP".to_string()]),
+            raw_values: hashbrown::HashSet::from_iter(["TEMP".to_string(), "TEMPORARY".to_string()]),
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
@@ -12758,7 +12758,7 @@ Arc::new(Grammar::Ref {
     ],
     reset_terminators: false,
     simple_hint: Some(SimpleHint {
-            raw_values: hashbrown::HashSet::from_iter(["(".to_string(), "SELECT".to_string(), "WITH".to_string(), "VALUES".to_string(), "VALUE".to_string()]),
+            raw_values: hashbrown::HashSet::from_iter(["(".to_string(), "SELECT".to_string(), "VALUE".to_string(), "VALUES".to_string(), "WITH".to_string()]),
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
@@ -13136,7 +13136,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-            raw_values: hashbrown::HashSet::from_iter(["NOCACHE".to_string(), "CACHE".to_string()]),
+            raw_values: hashbrown::HashSet::from_iter(["CACHE".to_string(), "NOCACHE".to_string()]),
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
@@ -13180,7 +13180,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-            raw_values: hashbrown::HashSet::from_iter(["NOCYCLE".to_string(), "CYCLE".to_string()]),
+            raw_values: hashbrown::HashSet::from_iter(["CYCLE".to_string(), "NOCYCLE".to_string()]),
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
@@ -13194,7 +13194,7 @@ Arc::new(Grammar::Ref {
     ],
     reset_terminators: false,
     simple_hint: Some(SimpleHint {
-            raw_values: hashbrown::HashSet::from_iter(["ORDER".to_string(), "NOORDER".to_string()]),
+            raw_values: hashbrown::HashSet::from_iter(["NOORDER".to_string(), "ORDER".to_string()]),
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
@@ -13208,7 +13208,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-            raw_values: hashbrown::HashSet::from_iter(["MINVALUE".to_string(), "MAXVALUE".to_string(), "NOORDER".to_string(), "NOCYCLE".to_string(), "START".to_string(), "INCREMENT".to_string(), "NOCACHE".to_string(), "NO".to_string(), "ORDER".to_string(), "CYCLE".to_string(), "CACHE".to_string()]),
+            raw_values: hashbrown::HashSet::from_iter(["CACHE".to_string(), "CYCLE".to_string(), "INCREMENT".to_string(), "MAXVALUE".to_string(), "MINVALUE".to_string(), "NO".to_string(), "NOCACHE".to_string(), "NOCYCLE".to_string(), "NOORDER".to_string(), "ORDER".to_string(), "START".to_string()]),
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
@@ -13269,7 +13269,7 @@ Arc::new(Grammar::Ref {
     ],
     reset_terminators: false,
     simple_hint: Some(SimpleHint {
-            raw_values: hashbrown::HashSet::from_iter(["MINVALUE".to_string(), "MAXVALUE".to_string(), "NOORDER".to_string(), "NOCYCLE".to_string(), "START".to_string(), "INCREMENT".to_string(), "NOCACHE".to_string(), "NO".to_string(), "ORDER".to_string(), "CYCLE".to_string(), "CACHE".to_string()]),
+            raw_values: hashbrown::HashSet::from_iter(["CACHE".to_string(), "CYCLE".to_string(), "INCREMENT".to_string(), "MAXVALUE".to_string(), "MINVALUE".to_string(), "NO".to_string(), "NOCACHE".to_string(), "NOCYCLE".to_string(), "NOORDER".to_string(), "ORDER".to_string(), "START".to_string()]),
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
@@ -13286,7 +13286,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-            raw_values: hashbrown::HashSet::from_iter(["MINVALUE".to_string(), "MAXVALUE".to_string(), "NOORDER".to_string(), "NOCYCLE".to_string(), "START".to_string(), "INCREMENT".to_string(), "NOCACHE".to_string(), "NO".to_string(), "ORDER".to_string(), "CYCLE".to_string(), "CACHE".to_string()]),
+            raw_values: hashbrown::HashSet::from_iter(["CACHE".to_string(), "CYCLE".to_string(), "INCREMENT".to_string(), "MAXVALUE".to_string(), "MINVALUE".to_string(), "NO".to_string(), "NOCACHE".to_string(), "NOCYCLE".to_string(), "NOORDER".to_string(), "ORDER".to_string(), "START".to_string()]),
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
@@ -13410,7 +13410,7 @@ Arc::new(Grammar::Ref {
     ],
     reset_terminators: false,
     simple_hint: Some(SimpleHint {
-            raw_values: hashbrown::HashSet::from_iter(["CONSTRAINT".to_string(), "UNIQUE".to_string(), "FOREIGN".to_string(), "PRIMARY".to_string()]),
+            raw_values: hashbrown::HashSet::from_iter(["CONSTRAINT".to_string(), "FOREIGN".to_string(), "PRIMARY".to_string(), "UNIQUE".to_string()]),
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
@@ -13551,7 +13551,7 @@ Arc::new(Grammar::Ref {
     ],
     reset_terminators: false,
     simple_hint: Some(SimpleHint {
-            raw_values: hashbrown::HashSet::from_iter(["(".to_string(), "SELECT".to_string(), "WITH".to_string(), "VALUES".to_string(), "VALUE".to_string()]),
+            raw_values: hashbrown::HashSet::from_iter(["(".to_string(), "SELECT".to_string(), "VALUE".to_string(), "VALUES".to_string(), "WITH".to_string()]),
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
@@ -13596,7 +13596,7 @@ Arc::new(Grammar::Ref {
     ],
     reset_terminators: false,
     simple_hint: Some(SimpleHint {
-            raw_values: hashbrown::HashSet::from_iter(["(".to_string(), "SELECT".to_string(), "WITH".to_string(), "VALUES".to_string(), "VALUE".to_string()]),
+            raw_values: hashbrown::HashSet::from_iter(["(".to_string(), "SELECT".to_string(), "VALUE".to_string(), "VALUES".to_string(), "WITH".to_string()]),
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
@@ -13610,7 +13610,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-            raw_values: hashbrown::HashSet::from_iter(["(".to_string(), "SELECT".to_string(), "WITH".to_string(), "VALUES".to_string(), "VALUE".to_string()]),
+            raw_values: hashbrown::HashSet::from_iter(["(".to_string(), "SELECT".to_string(), "VALUE".to_string(), "VALUES".to_string(), "WITH".to_string()]),
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
@@ -13677,7 +13677,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-            raw_values: hashbrown::HashSet::from_iter(["AS".to_string(), "LIKE".to_string(), "(".to_string()]),
+            raw_values: hashbrown::HashSet::from_iter(["(".to_string(), "AS".to_string(), "LIKE".to_string()]),
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
@@ -14410,7 +14410,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-            raw_values: hashbrown::HashSet::from_iter(["NOT".to_string(), "DEFERRABLE".to_string(), "INITIALLY".to_string()]),
+            raw_values: hashbrown::HashSet::from_iter(["DEFERRABLE".to_string(), "INITIALLY".to_string(), "NOT".to_string()]),
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
@@ -14587,7 +14587,7 @@ Arc::new(Grammar::StringParser {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-            raw_values: hashbrown::HashSet::from_iter(["FOR".to_string(), "NOT".to_string(), "DEFERRABLE".to_string(), "INITIALLY".to_string(), "WHEN".to_string(), "REFERENCING".to_string(), "FROM".to_string()]),
+            raw_values: hashbrown::HashSet::from_iter(["DEFERRABLE".to_string(), "FOR".to_string(), "FROM".to_string(), "INITIALLY".to_string(), "NOT".to_string(), "REFERENCING".to_string(), "WHEN".to_string()]),
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
@@ -14848,7 +14848,7 @@ Arc::new(Grammar::Ref {
     ],
     reset_terminators: false,
     simple_hint: Some(SimpleHint {
-            raw_values: hashbrown::HashSet::from_iter(["(".to_string(), "SELECT".to_string(), "WITH".to_string(), "VALUES".to_string(), "VALUE".to_string()]),
+            raw_values: hashbrown::HashSet::from_iter(["(".to_string(), "SELECT".to_string(), "VALUE".to_string(), "VALUES".to_string(), "WITH".to_string()]),
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
@@ -14893,7 +14893,7 @@ Arc::new(Grammar::Ref {
     ],
     reset_terminators: false,
     simple_hint: Some(SimpleHint {
-            raw_values: hashbrown::HashSet::from_iter(["(".to_string(), "SELECT".to_string(), "WITH".to_string(), "VALUES".to_string(), "VALUE".to_string()]),
+            raw_values: hashbrown::HashSet::from_iter(["(".to_string(), "SELECT".to_string(), "VALUE".to_string(), "VALUES".to_string(), "WITH".to_string()]),
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
@@ -14907,7 +14907,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-            raw_values: hashbrown::HashSet::from_iter(["(".to_string(), "SELECT".to_string(), "WITH".to_string(), "VALUES".to_string(), "VALUE".to_string()]),
+            raw_values: hashbrown::HashSet::from_iter(["(".to_string(), "SELECT".to_string(), "VALUE".to_string(), "VALUES".to_string(), "WITH".to_string()]),
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
@@ -15055,7 +15055,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-            raw_values: hashbrown::HashSet::from_iter(["ROLLUP".to_string(), "CUBE".to_string()]),
+            raw_values: hashbrown::HashSet::from_iter(["CUBE".to_string(), "ROLLUP".to_string()]),
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
@@ -15112,7 +15112,7 @@ Arc::new(Grammar::StringParser {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-            raw_values: hashbrown::HashSet::from_iter(["ROLLUP".to_string(), "CUBE".to_string()]),
+            raw_values: hashbrown::HashSet::from_iter(["CUBE".to_string(), "ROLLUP".to_string()]),
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
@@ -15562,7 +15562,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-            raw_values: hashbrown::HashSet::from_iter(["VARYING".to_string(), "LARGE".to_string()]),
+            raw_values: hashbrown::HashSet::from_iter(["LARGE".to_string(), "VARYING".to_string()]),
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
@@ -15795,7 +15795,7 @@ Arc::new(Grammar::Ref {
     ],
     reset_terminators: false,
     simple_hint: Some(SimpleHint {
-            raw_values: hashbrown::HashSet::from_iter(["QUARTER".to_string(), "DAY".to_string(), "HOUR".to_string(), "YEAR".to_string(), "WEEKDAY".to_string(), "WEEK".to_string(), "SECOND".to_string(), "MONTH".to_string(), "MILLISECOND".to_string(), "MINUTE".to_string(), "DAYOFYEAR".to_string()]),
+            raw_values: hashbrown::HashSet::from_iter(["DAY".to_string(), "DAYOFYEAR".to_string(), "HOUR".to_string(), "MILLISECOND".to_string(), "MINUTE".to_string(), "MONTH".to_string(), "QUARTER".to_string(), "SECOND".to_string(), "WEEK".to_string(), "WEEKDAY".to_string(), "YEAR".to_string()]),
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
@@ -15954,7 +15954,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-            raw_values: hashbrown::HashSet::from_iter(["INTERVAL".to_string(), "TIME".to_string(), "DATE".to_string(), "TIMESTAMP".to_string()]),
+            raw_values: hashbrown::HashSet::from_iter(["DATE".to_string(), "INTERVAL".to_string(), "TIME".to_string(), "TIMESTAMP".to_string()]),
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
@@ -15974,7 +15974,7 @@ Arc::new(Grammar::TypedParser {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-            raw_values: hashbrown::HashSet::from_iter(["INTERVAL".to_string(), "TIME".to_string(), "DATE".to_string(), "TIMESTAMP".to_string()]),
+            raw_values: hashbrown::HashSet::from_iter(["DATE".to_string(), "INTERVAL".to_string(), "TIME".to_string(), "TIMESTAMP".to_string()]),
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
@@ -17471,7 +17471,7 @@ Arc::new(Grammar::Ref {
     ],
     reset_terminators: false,
     simple_hint: Some(SimpleHint {
-            raw_values: hashbrown::HashSet::from_iter(["TEMPORARY".to_string(), "TEMP".to_string()]),
+            raw_values: hashbrown::HashSet::from_iter(["TEMP".to_string(), "TEMPORARY".to_string()]),
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
@@ -18432,7 +18432,7 @@ Arc::new(Grammar::Ref {
     ],
     reset_terminators: false,
     simple_hint: Some(SimpleHint {
-            raw_values: hashbrown::HashSet::from_iter(["(".to_string(), "SELECT".to_string(), "WITH".to_string(), "VALUES".to_string(), "VALUE".to_string()]),
+            raw_values: hashbrown::HashSet::from_iter(["(".to_string(), "SELECT".to_string(), "VALUE".to_string(), "VALUES".to_string(), "WITH".to_string()]),
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
@@ -18488,7 +18488,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-            raw_values: hashbrown::HashSet::from_iter(["(".to_string(), "SELECT".to_string(), "WITH".to_string(), "VALUES".to_string(), "INSERT".to_string(), "VALUE".to_string(), "DELETE".to_string(), "UPDATE".to_string()]),
+            raw_values: hashbrown::HashSet::from_iter(["(".to_string(), "DELETE".to_string(), "INSERT".to_string(), "SELECT".to_string(), "UPDATE".to_string(), "VALUE".to_string(), "VALUES".to_string(), "WITH".to_string()]),
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
@@ -18550,7 +18550,7 @@ Arc::new(Grammar::Ref {
     ],
     reset_terminators: false,
     simple_hint: Some(SimpleHint {
-            raw_values: hashbrown::HashSet::from_iter(["NOT".to_string(), "RLIKE".to_string(), "ILIKE".to_string(), "LIKE".to_string()]),
+            raw_values: hashbrown::HashSet::from_iter(["ILIKE".to_string(), "LIKE".to_string(), "NOT".to_string(), "RLIKE".to_string()]),
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
@@ -18566,7 +18566,7 @@ Arc::new(Grammar::Ref {
     ],
     reset_terminators: false,
     simple_hint: Some(SimpleHint {
-            raw_values: hashbrown::HashSet::from_iter(["+".to_string(), "^".to_string(), "<".to_string(), "!".to_string(), "IS".to_string(), "AND".to_string(), "OR".to_string(), "|".to_string(), "*".to_string(), "&".to_string(), ">".to_string(), "/".to_string(), "%".to_string(), "-".to_string(), "=".to_string()]),
+            raw_values: hashbrown::HashSet::from_iter(["!".to_string(), "%".to_string(), "&".to_string(), "*".to_string(), "+".to_string(), "-".to_string(), "/".to_string(), "<".to_string(), "=".to_string(), ">".to_string(), "AND".to_string(), "IS".to_string(), "OR".to_string(), "^".to_string(), "|".to_string()]),
             token_types: hashbrown::HashSet::from_iter(["like_operator".to_string()]),
         }),
 })
@@ -18590,7 +18590,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-            raw_values: hashbrown::HashSet::from_iter(["+".to_string(), "^".to_string(), "<".to_string(), "!".to_string(), "IS".to_string(), "AND".to_string(), "OR".to_string(), "|".to_string(), "*".to_string(), "&".to_string(), ">".to_string(), "/".to_string(), "%".to_string(), "-".to_string(), "=".to_string()]),
+            raw_values: hashbrown::HashSet::from_iter(["!".to_string(), "%".to_string(), "&".to_string(), "*".to_string(), "+".to_string(), "-".to_string(), "/".to_string(), "<".to_string(), "=".to_string(), ">".to_string(), "AND".to_string(), "IS".to_string(), "OR".to_string(), "^".to_string(), "|".to_string()]),
             token_types: hashbrown::HashSet::from_iter(["like_operator".to_string()]),
         }),
 })
@@ -18604,7 +18604,7 @@ Arc::new(Grammar::Ref {
     ],
     reset_terminators: false,
     simple_hint: Some(SimpleHint {
-            raw_values: hashbrown::HashSet::from_iter(["NOT".to_string(), "IN".to_string()]),
+            raw_values: hashbrown::HashSet::from_iter(["IN".to_string(), "NOT".to_string()]),
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
@@ -18770,7 +18770,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-            raw_values: hashbrown::HashSet::from_iter(["NOT".to_string(), "BETWEEN".to_string()]),
+            raw_values: hashbrown::HashSet::from_iter(["BETWEEN".to_string(), "NOT".to_string()]),
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
@@ -18943,7 +18943,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-            raw_values: hashbrown::HashSet::from_iter(["PRIOR".to_string(), "+".to_string(), "NOT".to_string(), "-".to_string(), "~".to_string()]),
+            raw_values: hashbrown::HashSet::from_iter(["+".to_string(), "-".to_string(), "NOT".to_string(), "PRIOR".to_string(), "~".to_string()]),
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
@@ -18981,7 +18981,7 @@ Arc::new(Grammar::Ref {
     ],
     reset_terminators: false,
     simple_hint: Some(SimpleHint {
-            raw_values: hashbrown::HashSet::from_iter(["+".to_string(), "^".to_string(), "<".to_string(), "|".to_string(), "*".to_string(), "&".to_string(), ">".to_string(), "/".to_string(), "%".to_string(), "-".to_string()]),
+            raw_values: hashbrown::HashSet::from_iter(["%".to_string(), "&".to_string(), "*".to_string(), "+".to_string(), "-".to_string(), "/".to_string(), "<".to_string(), ">".to_string(), "^".to_string(), "|".to_string()]),
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
@@ -19009,7 +19009,7 @@ Arc::new(Grammar::Ref {
     ],
     reset_terminators: false,
     simple_hint: Some(SimpleHint {
-            raw_values: hashbrown::HashSet::from_iter([">".to_string(), "<".to_string(), "!".to_string(), "IS".to_string(), "=".to_string()]),
+            raw_values: hashbrown::HashSet::from_iter(["!".to_string(), "<".to_string(), "=".to_string(), ">".to_string(), "IS".to_string()]),
             token_types: hashbrown::HashSet::from_iter(["like_operator".to_string()]),
         }),
 })
@@ -19023,7 +19023,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-            raw_values: hashbrown::HashSet::from_iter(["+".to_string(), "^".to_string(), "<".to_string(), "!".to_string(), "IS".to_string(), "|".to_string(), "*".to_string(), "&".to_string(), ">".to_string(), "/".to_string(), "%".to_string(), "-".to_string(), "=".to_string()]),
+            raw_values: hashbrown::HashSet::from_iter(["!".to_string(), "%".to_string(), "&".to_string(), "*".to_string(), "+".to_string(), "-".to_string(), "/".to_string(), "<".to_string(), "=".to_string(), ">".to_string(), "IS".to_string(), "^".to_string(), "|".to_string()]),
             token_types: hashbrown::HashSet::from_iter(["like_operator".to_string()]),
         }),
 })
@@ -19047,7 +19047,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-            raw_values: hashbrown::HashSet::from_iter(["+".to_string(), "^".to_string(), "<".to_string(), "!".to_string(), "IS".to_string(), "|".to_string(), "*".to_string(), "&".to_string(), ">".to_string(), "/".to_string(), "%".to_string(), "-".to_string(), "=".to_string()]),
+            raw_values: hashbrown::HashSet::from_iter(["!".to_string(), "%".to_string(), "&".to_string(), "*".to_string(), "+".to_string(), "-".to_string(), "/".to_string(), "<".to_string(), "=".to_string(), ">".to_string(), "IS".to_string(), "^".to_string(), "|".to_string()]),
             token_types: hashbrown::HashSet::from_iter(["like_operator".to_string()]),
         }),
 })
@@ -19061,7 +19061,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-            raw_values: hashbrown::HashSet::from_iter(["+".to_string(), "^".to_string(), "<".to_string(), "!".to_string(), "IS".to_string(), "|".to_string(), "*".to_string(), "&".to_string(), ">".to_string(), "/".to_string(), "%".to_string(), "-".to_string(), "=".to_string()]),
+            raw_values: hashbrown::HashSet::from_iter(["!".to_string(), "%".to_string(), "&".to_string(), "*".to_string(), "+".to_string(), "-".to_string(), "/".to_string(), "<".to_string(), "=".to_string(), ">".to_string(), "IS".to_string(), "^".to_string(), "|".to_string()]),
             token_types: hashbrown::HashSet::from_iter(["like_operator".to_string()]),
         }),
 })
@@ -19078,7 +19078,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-            raw_values: hashbrown::HashSet::from_iter(["+".to_string(), "^".to_string(), "<".to_string(), "!".to_string(), "IS".to_string(), "|".to_string(), "*".to_string(), "&".to_string(), ">".to_string(), "/".to_string(), "%".to_string(), "-".to_string(), "=".to_string()]),
+            raw_values: hashbrown::HashSet::from_iter(["!".to_string(), "%".to_string(), "&".to_string(), "*".to_string(), "+".to_string(), "-".to_string(), "/".to_string(), "<".to_string(), "=".to_string(), ">".to_string(), "IS".to_string(), "^".to_string(), "|".to_string()]),
             token_types: hashbrown::HashSet::from_iter(["like_operator".to_string()]),
         }),
 })
@@ -19164,7 +19164,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-            raw_values: hashbrown::HashSet::from_iter(["+".to_string(), "~".to_string(), "-".to_string()]),
+            raw_values: hashbrown::HashSet::from_iter(["+".to_string(), "-".to_string(), "~".to_string()]),
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
@@ -19201,7 +19201,7 @@ Arc::new(Grammar::Ref {
     ],
     reset_terminators: false,
     simple_hint: Some(SimpleHint {
-            raw_values: hashbrown::HashSet::from_iter(["(".to_string(), "SELECT".to_string(), "WITH".to_string(), "VALUES".to_string(), "VALUE".to_string()]),
+            raw_values: hashbrown::HashSet::from_iter(["(".to_string(), "SELECT".to_string(), "VALUE".to_string(), "VALUES".to_string(), "WITH".to_string()]),
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
@@ -19385,7 +19385,7 @@ Arc::new(Grammar::Ref {
     ],
     reset_terminators: false,
     simple_hint: Some(SimpleHint {
-            raw_values: hashbrown::HashSet::from_iter(["CURRENT_TIME".to_string(), "CURRENT_DATE".to_string(), "CURRENT_TIMESTAMP".to_string()]),
+            raw_values: hashbrown::HashSet::from_iter(["CURRENT_DATE".to_string(), "CURRENT_TIME".to_string(), "CURRENT_TIMESTAMP".to_string()]),
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
@@ -19425,7 +19425,7 @@ Arc::new(Grammar::Ref {
     ],
     reset_terminators: false,
     simple_hint: Some(SimpleHint {
-            raw_values: hashbrown::HashSet::from_iter(["(".to_string(), "SELECT".to_string(), "WITH".to_string(), "VALUES".to_string(), "VALUE".to_string()]),
+            raw_values: hashbrown::HashSet::from_iter(["(".to_string(), "SELECT".to_string(), "VALUE".to_string(), "VALUES".to_string(), "WITH".to_string()]),
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
@@ -19818,7 +19818,7 @@ Arc::new(Grammar::Ref {
     ],
     reset_terminators: false,
     simple_hint: Some(SimpleHint {
-            raw_values: hashbrown::HashSet::from_iter(["INTERVAL".to_string(), "TIME".to_string(), "DATE".to_string(), "TIMESTAMP".to_string()]),
+            raw_values: hashbrown::HashSet::from_iter(["DATE".to_string(), "INTERVAL".to_string(), "TIME".to_string(), "TIMESTAMP".to_string()]),
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
@@ -19832,8 +19832,8 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-            raw_values: hashbrown::HashSet::from_iter(["FALSE".to_string(), "INTERVAL".to_string(), "TIME".to_string(), "TRUE".to_string(), "NULL".to_string(), "DATE".to_string(), "TIMESTAMP".to_string()]),
-            token_types: hashbrown::HashSet::from_iter(["single_quote".to_string(), "numeric_literal".to_string()]),
+            raw_values: hashbrown::HashSet::from_iter(["DATE".to_string(), "FALSE".to_string(), "INTERVAL".to_string(), "NULL".to_string(), "TIME".to_string(), "TIMESTAMP".to_string(), "TRUE".to_string()]),
+            token_types: hashbrown::HashSet::from_iter(["numeric_literal".to_string(), "single_quote".to_string()]),
         }),
 })
 ,
@@ -20285,7 +20285,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-            raw_values: hashbrown::HashSet::from_iter(["ROWS".to_string(), "ROW".to_string()]),
+            raw_values: hashbrown::HashSet::from_iter(["ROW".to_string(), "ROWS".to_string()]),
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
@@ -20456,7 +20456,7 @@ Arc::new(Grammar::Ref {
     ],
     reset_terminators: false,
     simple_hint: Some(SimpleHint {
-            raw_values: hashbrown::HashSet::from_iter(["USE".to_string(), "DESCRIBE".to_string(), "(".to_string(), "SELECT".to_string(), "REVOKE".to_string(), "CREATE".to_string(), "MERGE".to_string(), "UPDATE".to_string(), "ROLLBACK".to_string(), "SET".to_string(), "WITH".to_string(), "EXPLAIN".to_string(), "BEGIN".to_string(), "TRUNCATE".to_string(), "END".to_string(), "DELETE".to_string(), "COMMIT".to_string(), "ALTER".to_string(), "START".to_string(), "VALUES".to_string(), "INSERT".to_string(), "GRANT".to_string(), "VALUE".to_string(), "DROP".to_string()]),
+            raw_values: hashbrown::HashSet::from_iter(["(".to_string(), "ALTER".to_string(), "BEGIN".to_string(), "COMMIT".to_string(), "CREATE".to_string(), "DELETE".to_string(), "DESCRIBE".to_string(), "DROP".to_string(), "END".to_string(), "EXPLAIN".to_string(), "GRANT".to_string(), "INSERT".to_string(), "MERGE".to_string(), "REVOKE".to_string(), "ROLLBACK".to_string(), "SELECT".to_string(), "SET".to_string(), "START".to_string(), "TRUNCATE".to_string(), "UPDATE".to_string(), "USE".to_string(), "VALUE".to_string(), "VALUES".to_string(), "WITH".to_string()]),
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
@@ -20505,7 +20505,7 @@ Arc::new(Grammar::Ref {
     min_delimiters: 0,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-            raw_values: hashbrown::HashSet::from_iter(["USE".to_string(), "DESCRIBE".to_string(), "(".to_string(), "SELECT".to_string(), "REVOKE".to_string(), "CREATE".to_string(), "MERGE".to_string(), "UPDATE".to_string(), "ROLLBACK".to_string(), "SET".to_string(), "WITH".to_string(), "EXPLAIN".to_string(), "BEGIN".to_string(), "TRUNCATE".to_string(), "END".to_string(), "DELETE".to_string(), "COMMIT".to_string(), "ALTER".to_string(), "START".to_string(), "VALUES".to_string(), "INSERT".to_string(), "GRANT".to_string(), "VALUE".to_string(), "DROP".to_string()]),
+            raw_values: hashbrown::HashSet::from_iter(["(".to_string(), "ALTER".to_string(), "BEGIN".to_string(), "COMMIT".to_string(), "CREATE".to_string(), "DELETE".to_string(), "DESCRIBE".to_string(), "DROP".to_string(), "END".to_string(), "EXPLAIN".to_string(), "GRANT".to_string(), "INSERT".to_string(), "MERGE".to_string(), "REVOKE".to_string(), "ROLLBACK".to_string(), "SELECT".to_string(), "SET".to_string(), "START".to_string(), "TRUNCATE".to_string(), "UPDATE".to_string(), "USE".to_string(), "VALUE".to_string(), "VALUES".to_string(), "WITH".to_string()]),
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
@@ -20551,7 +20551,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-            raw_values: hashbrown::HashSet::from_iter(["USE".to_string(), "DESCRIBE".to_string(), "(".to_string(), "SELECT".to_string(), "REVOKE".to_string(), "CREATE".to_string(), "MERGE".to_string(), "UPDATE".to_string(), ";".to_string(), "ROLLBACK".to_string(), "SET".to_string(), "WITH".to_string(), "EXPLAIN".to_string(), "BEGIN".to_string(), "TRUNCATE".to_string(), "END".to_string(), "DELETE".to_string(), "GRANT".to_string(), "COMMIT".to_string(), "ALTER".to_string(), "START".to_string(), "INSERT".to_string(), "VALUES".to_string(), "VALUE".to_string(), "DROP".to_string()]),
+            raw_values: hashbrown::HashSet::from_iter(["(".to_string(), ";".to_string(), "ALTER".to_string(), "BEGIN".to_string(), "COMMIT".to_string(), "CREATE".to_string(), "DELETE".to_string(), "DESCRIBE".to_string(), "DROP".to_string(), "END".to_string(), "EXPLAIN".to_string(), "GRANT".to_string(), "INSERT".to_string(), "MERGE".to_string(), "REVOKE".to_string(), "ROLLBACK".to_string(), "SELECT".to_string(), "SET".to_string(), "START".to_string(), "TRUNCATE".to_string(), "UPDATE".to_string(), "USE".to_string(), "VALUE".to_string(), "VALUES".to_string(), "WITH".to_string()]),
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
@@ -20892,7 +20892,7 @@ Arc::new(Grammar::Ref {
     ],
     reset_terminators: false,
     simple_hint: Some(SimpleHint {
-            raw_values: hashbrown::HashSet::from_iter(["ROWS".to_string(), "RANGE".to_string()]),
+            raw_values: hashbrown::HashSet::from_iter(["RANGE".to_string(), "ROWS".to_string()]),
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
@@ -21495,7 +21495,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-            raw_values: hashbrown::HashSet::from_iter(["ROWS".to_string(), "RANGE".to_string()]),
+            raw_values: hashbrown::HashSet::from_iter(["RANGE".to_string(), "ROWS".to_string()]),
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
@@ -21542,7 +21542,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-            raw_values: hashbrown::HashSet::from_iter(["ROWS".to_string(), "RANGE".to_string()]),
+            raw_values: hashbrown::HashSet::from_iter(["RANGE".to_string(), "ROWS".to_string()]),
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
@@ -21830,7 +21830,7 @@ Arc::new(Grammar::Ref {
     ],
     reset_terminators: false,
     simple_hint: Some(SimpleHint {
-            raw_values: hashbrown::HashSet::from_iter(["UNION".to_string(), "EXCEPT".to_string(), "MINUS".to_string(), "INTERSECT".to_string()]),
+            raw_values: hashbrown::HashSet::from_iter(["EXCEPT".to_string(), "INTERSECT".to_string(), "MINUS".to_string(), "UNION".to_string()]),
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
@@ -21900,7 +21900,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-            raw_values: hashbrown::HashSet::from_iter(["WITH".to_string(), "GROUP".to_string(), "UNION".to_string(), "HAVING".to_string(), "EXCEPT".to_string(), "WHERE".to_string(), "FETCH".to_string(), "OFFSET".to_string(), "QUALIFY".to_string(), "WINDOW".to_string(), "INTERSECT".to_string(), "ORDER".to_string(), "MINUS".to_string(), "LIMIT".to_string()]),
+            raw_values: hashbrown::HashSet::from_iter(["EXCEPT".to_string(), "FETCH".to_string(), "GROUP".to_string(), "HAVING".to_string(), "INTERSECT".to_string(), "LIMIT".to_string(), "MINUS".to_string(), "OFFSET".to_string(), "ORDER".to_string(), "QUALIFY".to_string(), "UNION".to_string(), "WHERE".to_string(), "WINDOW".to_string(), "WITH".to_string()]),
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
@@ -22019,7 +22019,7 @@ Arc::new(Grammar::Ref {
     ],
     reset_terminators: false,
     simple_hint: Some(SimpleHint {
-            raw_values: hashbrown::HashSet::from_iter(["WITH".to_string(), "GROUP".to_string(), "UNION".to_string(), "HAVING".to_string(), "EXCEPT".to_string(), "WHERE".to_string(), "FETCH".to_string(), "OFFSET".to_string(), "QUALIFY".to_string(), "WINDOW".to_string(), "INTERSECT".to_string(), "ORDER".to_string(), "MINUS".to_string(), "LIMIT".to_string()]),
+            raw_values: hashbrown::HashSet::from_iter(["EXCEPT".to_string(), "FETCH".to_string(), "GROUP".to_string(), "HAVING".to_string(), "INTERSECT".to_string(), "LIMIT".to_string(), "MINUS".to_string(), "OFFSET".to_string(), "ORDER".to_string(), "QUALIFY".to_string(), "UNION".to_string(), "WHERE".to_string(), "WINDOW".to_string(), "WITH".to_string()]),
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
@@ -22278,7 +22278,7 @@ Arc::new(Grammar::Ref {
     ],
     reset_terminators: false,
     simple_hint: Some(SimpleHint {
-            raw_values: hashbrown::HashSet::from_iter(["WITH".to_string(), "GROUP".to_string(), "UNION".to_string(), "HAVING".to_string(), "EXCEPT".to_string(), "WHERE".to_string(), "FETCH".to_string(), "OFFSET".to_string(), "QUALIFY".to_string(), "WINDOW".to_string(), "INTERSECT".to_string(), "ORDER".to_string(), "MINUS".to_string(), "LIMIT".to_string()]),
+            raw_values: hashbrown::HashSet::from_iter(["EXCEPT".to_string(), "FETCH".to_string(), "GROUP".to_string(), "HAVING".to_string(), "INTERSECT".to_string(), "LIMIT".to_string(), "MINUS".to_string(), "OFFSET".to_string(), "ORDER".to_string(), "QUALIFY".to_string(), "UNION".to_string(), "WHERE".to_string(), "WINDOW".to_string(), "WITH".to_string()]),
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
@@ -23428,7 +23428,7 @@ Arc::new(Grammar::Ref {
     ],
     reset_terminators: false,
     simple_hint: Some(SimpleHint {
-            raw_values: hashbrown::HashSet::from_iter(["QUARTER".to_string(), "DAY".to_string(), "HOUR".to_string(), "YEAR".to_string(), "WEEKDAY".to_string(), "WEEK".to_string(), "SECOND".to_string(), "MONTH".to_string(), "MILLISECOND".to_string(), "MINUTE".to_string(), "DAYOFYEAR".to_string()]),
+            raw_values: hashbrown::HashSet::from_iter(["DAY".to_string(), "DAYOFYEAR".to_string(), "HOUR".to_string(), "MILLISECOND".to_string(), "MINUTE".to_string(), "MONTH".to_string(), "QUARTER".to_string(), "SECOND".to_string(), "WEEK".to_string(), "WEEKDAY".to_string(), "YEAR".to_string()]),
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
@@ -24108,7 +24108,7 @@ Arc::new(Grammar::Ref {
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
             raw_values: hashbrown::HashSet::from_iter([]),
-            token_types: hashbrown::HashSet::from_iter(["word".to_string(), "double_quote".to_string()]),
+            token_types: hashbrown::HashSet::from_iter(["double_quote".to_string(), "word".to_string()]),
         }),
 })
 ,
@@ -24845,7 +24845,7 @@ Arc::new(Grammar::Ref {
     ],
     reset_terminators: false,
     simple_hint: Some(SimpleHint {
-            raw_values: hashbrown::HashSet::from_iter(["ROLLUP".to_string(), "CUBE".to_string()]),
+            raw_values: hashbrown::HashSet::from_iter(["CUBE".to_string(), "ROLLUP".to_string()]),
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
@@ -24931,7 +24931,7 @@ Arc::new(Grammar::Ref {
     ],
     reset_terminators: false,
     simple_hint: Some(SimpleHint {
-            raw_values: hashbrown::HashSet::from_iter(["FETCH".to_string(), "QUALIFY".to_string(), "WINDOW".to_string(), "ORDER".to_string(), "HAVING".to_string(), "LIMIT".to_string()]),
+            raw_values: hashbrown::HashSet::from_iter(["FETCH".to_string(), "HAVING".to_string(), "LIMIT".to_string(), "ORDER".to_string(), "QUALIFY".to_string(), "WINDOW".to_string()]),
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
@@ -25107,7 +25107,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-            raw_values: hashbrown::HashSet::from_iter(["FETCH".to_string(), "QUALIFY".to_string(), "WINDOW".to_string(), "ORDER".to_string(), "HAVING".to_string(), "LIMIT".to_string()]),
+            raw_values: hashbrown::HashSet::from_iter(["FETCH".to_string(), "HAVING".to_string(), "LIMIT".to_string(), "ORDER".to_string(), "QUALIFY".to_string(), "WINDOW".to_string()]),
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
@@ -25240,7 +25240,7 @@ Arc::new(Grammar::Ref {
     ],
     reset_terminators: false,
     simple_hint: Some(SimpleHint {
-            raw_values: hashbrown::HashSet::from_iter(["FETCH".to_string(), "QUALIFY".to_string(), "WINDOW".to_string(), "ORDER".to_string(), "HAVING".to_string(), "LIMIT".to_string()]),
+            raw_values: hashbrown::HashSet::from_iter(["FETCH".to_string(), "HAVING".to_string(), "LIMIT".to_string(), "ORDER".to_string(), "QUALIFY".to_string(), "WINDOW".to_string()]),
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
@@ -25320,7 +25320,7 @@ Arc::new(Grammar::Ref {
     ],
     reset_terminators: false,
     simple_hint: Some(SimpleHint {
-            raw_values: hashbrown::HashSet::from_iter(["ROLLUP".to_string(), "CUBE".to_string()]),
+            raw_values: hashbrown::HashSet::from_iter(["CUBE".to_string(), "ROLLUP".to_string()]),
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
@@ -25635,7 +25635,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-            raw_values: hashbrown::HashSet::from_iter(["FETCH".to_string(), "QUALIFY".to_string(), "WINDOW".to_string(), "ORDER".to_string(), "LIMIT".to_string()]),
+            raw_values: hashbrown::HashSet::from_iter(["FETCH".to_string(), "LIMIT".to_string(), "ORDER".to_string(), "QUALIFY".to_string(), "WINDOW".to_string()]),
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
@@ -26188,7 +26188,7 @@ Arc::new(Grammar::Ref {
     ],
     reset_terminators: false,
     simple_hint: Some(SimpleHint {
-            raw_values: hashbrown::HashSet::from_iter(["(".to_string(), "SELECT".to_string(), "WITH".to_string(), "VALUES".to_string(), "VALUE".to_string()]),
+            raw_values: hashbrown::HashSet::from_iter(["(".to_string(), "SELECT".to_string(), "VALUE".to_string(), "VALUES".to_string(), "WITH".to_string()]),
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
@@ -26265,7 +26265,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-            raw_values: hashbrown::HashSet::from_iter(["NOT".to_string(), "IN".to_string()]),
+            raw_values: hashbrown::HashSet::from_iter(["IN".to_string(), "NOT".to_string()]),
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
@@ -26641,7 +26641,7 @@ Arc::new(Grammar::Ref {
     ],
     reset_terminators: false,
     simple_hint: Some(SimpleHint {
-            raw_values: hashbrown::HashSet::from_iter(["(".to_string(), "SELECT".to_string(), "WITH".to_string(), "VALUES".to_string(), "VALUE".to_string()]),
+            raw_values: hashbrown::HashSet::from_iter(["(".to_string(), "SELECT".to_string(), "VALUE".to_string(), "VALUES".to_string(), "WITH".to_string()]),
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
@@ -26671,7 +26671,7 @@ Arc::new(Grammar::Ref {
     ],
     reset_terminators: false,
     simple_hint: Some(SimpleHint {
-            raw_values: hashbrown::HashSet::from_iter(["(".to_string(), "SELECT".to_string(), "WITH".to_string(), "VALUES".to_string(), "VALUE".to_string()]),
+            raw_values: hashbrown::HashSet::from_iter(["(".to_string(), "SELECT".to_string(), "VALUE".to_string(), "VALUES".to_string(), "WITH".to_string()]),
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
@@ -26712,7 +26712,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-            raw_values: hashbrown::HashSet::from_iter(["(".to_string(), "SELECT".to_string(), "WITH".to_string(), "VALUES".to_string(), "VALUE".to_string(), "DEFAULT".to_string()]),
+            raw_values: hashbrown::HashSet::from_iter(["(".to_string(), "DEFAULT".to_string(), "SELECT".to_string(), "VALUE".to_string(), "VALUES".to_string(), "WITH".to_string()]),
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
@@ -26943,7 +26943,7 @@ Arc::new(Grammar::Ref {
     ],
     reset_terminators: false,
     simple_hint: Some(SimpleHint {
-            raw_values: hashbrown::HashSet::from_iter(["QUARTER".to_string(), "DAY".to_string(), "HOUR".to_string(), "YEAR".to_string(), "WEEKDAY".to_string(), "WEEK".to_string(), "SECOND".to_string(), "MONTH".to_string(), "MILLISECOND".to_string(), "MINUTE".to_string(), "DAYOFYEAR".to_string()]),
+            raw_values: hashbrown::HashSet::from_iter(["DAY".to_string(), "DAYOFYEAR".to_string(), "HOUR".to_string(), "MILLISECOND".to_string(), "MINUTE".to_string(), "MONTH".to_string(), "QUARTER".to_string(), "SECOND".to_string(), "WEEK".to_string(), "WEEKDAY".to_string(), "YEAR".to_string()]),
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
@@ -26957,7 +26957,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-            raw_values: hashbrown::HashSet::from_iter(["QUARTER".to_string(), "DAY".to_string(), "HOUR".to_string(), "YEAR".to_string(), "WEEKDAY".to_string(), "WEEK".to_string(), "SECOND".to_string(), "MONTH".to_string(), "MILLISECOND".to_string(), "MINUTE".to_string(), "DAYOFYEAR".to_string()]),
+            raw_values: hashbrown::HashSet::from_iter(["DAY".to_string(), "DAYOFYEAR".to_string(), "HOUR".to_string(), "MILLISECOND".to_string(), "MINUTE".to_string(), "MONTH".to_string(), "QUARTER".to_string(), "SECOND".to_string(), "WEEK".to_string(), "WEEKDAY".to_string(), "YEAR".to_string()]),
             token_types: hashbrown::HashSet::from_iter(["single_quote".to_string()]),
         }),
 })
@@ -27030,7 +27030,7 @@ Arc::new(Grammar::Ref {
     ],
     reset_terminators: false,
     simple_hint: Some(SimpleHint {
-            raw_values: hashbrown::HashSet::from_iter(["QUARTER".to_string(), "DAY".to_string(), "HOUR".to_string(), "YEAR".to_string(), "WEEKDAY".to_string(), "WEEK".to_string(), "SECOND".to_string(), "MONTH".to_string(), "MILLISECOND".to_string(), "MINUTE".to_string(), "DAYOFYEAR".to_string()]),
+            raw_values: hashbrown::HashSet::from_iter(["DAY".to_string(), "DAYOFYEAR".to_string(), "HOUR".to_string(), "MILLISECOND".to_string(), "MINUTE".to_string(), "MONTH".to_string(), "QUARTER".to_string(), "SECOND".to_string(), "WEEK".to_string(), "WEEKDAY".to_string(), "YEAR".to_string()]),
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
@@ -27044,7 +27044,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-            raw_values: hashbrown::HashSet::from_iter(["QUARTER".to_string(), "DAY".to_string(), "HOUR".to_string(), "YEAR".to_string(), "WEEKDAY".to_string(), "WEEK".to_string(), "SECOND".to_string(), "MONTH".to_string(), "MILLISECOND".to_string(), "MINUTE".to_string(), "DAYOFYEAR".to_string()]),
+            raw_values: hashbrown::HashSet::from_iter(["DAY".to_string(), "DAYOFYEAR".to_string(), "HOUR".to_string(), "MILLISECOND".to_string(), "MINUTE".to_string(), "MONTH".to_string(), "QUARTER".to_string(), "SECOND".to_string(), "WEEK".to_string(), "WEEKDAY".to_string(), "YEAR".to_string()]),
             token_types: hashbrown::HashSet::from_iter(["single_quote".to_string()]),
         }),
 })
@@ -27072,7 +27072,7 @@ Arc::new(Grammar::Ref {
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
             raw_values: hashbrown::HashSet::from_iter([]),
-            token_types: hashbrown::HashSet::from_iter(["single_quote".to_string(), "numeric_literal".to_string()]),
+            token_types: hashbrown::HashSet::from_iter(["numeric_literal".to_string(), "single_quote".to_string()]),
         }),
 })
 ,
@@ -27457,7 +27457,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-            raw_values: hashbrown::HashSet::from_iter(["USING".to_string(), "ON".to_string()]),
+            raw_values: hashbrown::HashSet::from_iter(["ON".to_string(), "USING".to_string()]),
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
@@ -27822,7 +27822,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-            raw_values: hashbrown::HashSet::from_iter(["LEFT".to_string(), "FULL".to_string(), "RIGHT".to_string()]),
+            raw_values: hashbrown::HashSet::from_iter(["FULL".to_string(), "LEFT".to_string(), "RIGHT".to_string()]),
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
@@ -27849,7 +27849,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-            raw_values: hashbrown::HashSet::from_iter(["LEFT".to_string(), "FULL".to_string(), "RIGHT".to_string()]),
+            raw_values: hashbrown::HashSet::from_iter(["FULL".to_string(), "LEFT".to_string(), "RIGHT".to_string()]),
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
@@ -27863,7 +27863,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-            raw_values: hashbrown::HashSet::from_iter(["LEFT".to_string(), "INNER".to_string(), "RIGHT".to_string(), "FULL".to_string()]),
+            raw_values: hashbrown::HashSet::from_iter(["FULL".to_string(), "INNER".to_string(), "LEFT".to_string(), "RIGHT".to_string()]),
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
@@ -28280,7 +28280,7 @@ Arc::new(Grammar::Ref {
     ],
     reset_terminators: false,
     simple_hint: Some(SimpleHint {
-            raw_values: hashbrown::HashSet::from_iter(["RLIKE".to_string(), "LIKE".to_string(), "ILIKE".to_string()]),
+            raw_values: hashbrown::HashSet::from_iter(["ILIKE".to_string(), "LIKE".to_string(), "RLIKE".to_string()]),
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
@@ -28293,7 +28293,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-            raw_values: hashbrown::HashSet::from_iter(["NOT".to_string(), "RLIKE".to_string(), "ILIKE".to_string(), "LIKE".to_string()]),
+            raw_values: hashbrown::HashSet::from_iter(["ILIKE".to_string(), "LIKE".to_string(), "NOT".to_string(), "RLIKE".to_string()]),
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
@@ -28357,7 +28357,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-            raw_values: hashbrown::HashSet::from_iter(["NOT".to_string(), "RLIKE".to_string(), "ILIKE".to_string(), "LIKE".to_string()]),
+            raw_values: hashbrown::HashSet::from_iter(["ILIKE".to_string(), "LIKE".to_string(), "NOT".to_string(), "RLIKE".to_string()]),
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
@@ -28418,7 +28418,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-            raw_values: hashbrown::HashSet::from_iter(["RLIKE".to_string(), "LIKE".to_string(), "ILIKE".to_string()]),
+            raw_values: hashbrown::HashSet::from_iter(["ILIKE".to_string(), "LIKE".to_string(), "RLIKE".to_string()]),
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
@@ -28885,7 +28885,7 @@ Arc::new(Grammar::Ref {
     ],
     reset_terminators: false,
     simple_hint: Some(SimpleHint {
-            raw_values: hashbrown::HashSet::from_iter(["INTERVAL".to_string(), "TIME".to_string(), "DATE".to_string(), "TIMESTAMP".to_string()]),
+            raw_values: hashbrown::HashSet::from_iter(["DATE".to_string(), "INTERVAL".to_string(), "TIME".to_string(), "TIMESTAMP".to_string()]),
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
@@ -29256,7 +29256,7 @@ Arc::new(Grammar::Ref {
     ],
     reset_terminators: false,
     simple_hint: Some(SimpleHint {
-            raw_values: hashbrown::HashSet::from_iter(["(".to_string(), "SELECT".to_string(), "WITH".to_string(), "VALUES".to_string(), "VALUE".to_string()]),
+            raw_values: hashbrown::HashSet::from_iter(["(".to_string(), "SELECT".to_string(), "VALUE".to_string(), "VALUES".to_string(), "WITH".to_string()]),
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
@@ -30085,7 +30085,7 @@ Arc::new(Grammar::Ref {
     ],
     reset_terminators: false,
     simple_hint: Some(SimpleHint {
-            raw_values: hashbrown::HashSet::from_iter(["(".to_string(), "SELECT".to_string(), "WITH".to_string(), "VALUES".to_string(), "VALUE".to_string()]),
+            raw_values: hashbrown::HashSet::from_iter(["(".to_string(), "SELECT".to_string(), "VALUE".to_string(), "VALUES".to_string(), "WITH".to_string()]),
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
@@ -30585,7 +30585,7 @@ Arc::new(Grammar::RegexParser {
     token_type: "naked_identifier",
     raw_class: "IdentifierSegment",
     optional: false,
-    anti_template: Some(regex::RegexBuilder::new(r#"^(NOT|CROSS|SELECT|NULL|ROWS|INTERVAL|INNER|SET|ORDER|OUTER|JOIN|USING|ON|RIGHT|NATURAL|UNION|CASE|IGNORE|PARTITION|LEFT|FULL|RESPECT)$"#)         .case_insensitive(true)         .build()         .unwrap()     ),
+    anti_template: Some(regex::RegexBuilder::new(r#"^(IGNORE|NOT|SELECT|RESPECT|ROWS|NULL|FULL|UNION|INNER|ORDER|NATURAL|PARTITION|CASE|USING|RIGHT|SET|ON|INTERVAL|JOIN|OUTER|CROSS|LEFT)$"#)         .case_insensitive(true)         .build()         .unwrap()     ),
 })
 );
 
@@ -30852,7 +30852,7 @@ Arc::new(Grammar::Ref {
     ],
     reset_terminators: false,
     simple_hint: Some(SimpleHint {
-            raw_values: hashbrown::HashSet::from_iter(["LEFT".to_string(), "INNER".to_string(), "RIGHT".to_string(), "FULL".to_string()]),
+            raw_values: hashbrown::HashSet::from_iter(["FULL".to_string(), "INNER".to_string(), "LEFT".to_string(), "RIGHT".to_string()]),
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
@@ -31211,7 +31211,7 @@ Arc::new(Grammar::Ref {
     ],
     reset_terminators: false,
     simple_hint: Some(SimpleHint {
-            raw_values: hashbrown::HashSet::from_iter(["(".to_string(), "SELECT".to_string(), "VALUES".to_string(), "VALUE".to_string()]),
+            raw_values: hashbrown::HashSet::from_iter(["(".to_string(), "SELECT".to_string(), "VALUE".to_string(), "VALUES".to_string()]),
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
@@ -31270,7 +31270,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-            raw_values: hashbrown::HashSet::from_iter(["(".to_string(), "SELECT".to_string(), "VALUES".to_string(), "VALUE".to_string()]),
+            raw_values: hashbrown::HashSet::from_iter(["(".to_string(), "SELECT".to_string(), "VALUE".to_string(), "VALUES".to_string()]),
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
@@ -31350,7 +31350,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-            raw_values: hashbrown::HashSet::from_iter(["MERGE".to_string(), "DELETE".to_string(), "INSERT".to_string(), "UPDATE".to_string()]),
+            raw_values: hashbrown::HashSet::from_iter(["DELETE".to_string(), "INSERT".to_string(), "MERGE".to_string(), "UPDATE".to_string()]),
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
@@ -31369,7 +31369,7 @@ Arc::new(Grammar::Ref {
     ],
     reset_terminators: false,
     simple_hint: Some(SimpleHint {
-            raw_values: hashbrown::HashSet::from_iter(["VALUE".to_string(), "(".to_string(), "SELECT".to_string(), "VALUES".to_string()]),
+            raw_values: hashbrown::HashSet::from_iter(["(".to_string(), "SELECT".to_string(), "VALUE".to_string(), "VALUES".to_string()]),
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
@@ -31460,7 +31460,7 @@ Arc::new(Grammar::Ref {
     ],
     reset_terminators: false,
     simple_hint: Some(SimpleHint {
-            raw_values: hashbrown::HashSet::from_iter(["(".to_string(), "SELECT".to_string(), "VALUES".to_string(), "VALUE".to_string()]),
+            raw_values: hashbrown::HashSet::from_iter(["(".to_string(), "SELECT".to_string(), "VALUE".to_string(), "VALUES".to_string()]),
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
@@ -31474,7 +31474,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-            raw_values: hashbrown::HashSet::from_iter(["(".to_string(), "SELECT".to_string(), "VALUES".to_string(), "VALUE".to_string()]),
+            raw_values: hashbrown::HashSet::from_iter(["(".to_string(), "SELECT".to_string(), "VALUE".to_string(), "VALUES".to_string()]),
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
@@ -31650,7 +31650,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-            raw_values: hashbrown::HashSet::from_iter(["<".to_string(), "!".to_string()]),
+            raw_values: hashbrown::HashSet::from_iter(["!".to_string(), "<".to_string()]),
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
@@ -32194,7 +32194,7 @@ Arc::new(Grammar::Ref {
     ],
     reset_terminators: false,
     simple_hint: Some(SimpleHint {
-            raw_values: hashbrown::HashSet::from_iter(["+".to_string(), "^".to_string(), "<".to_string(), "!".to_string(), "IS".to_string(), "AND".to_string(), "OR".to_string(), "|".to_string(), "*".to_string(), "&".to_string(), ">".to_string(), "/".to_string(), "%".to_string(), "-".to_string(), "=".to_string()]),
+            raw_values: hashbrown::HashSet::from_iter(["!".to_string(), "%".to_string(), "&".to_string(), "*".to_string(), "+".to_string(), "-".to_string(), "/".to_string(), "<".to_string(), "=".to_string(), ">".to_string(), "AND".to_string(), "IS".to_string(), "OR".to_string(), "^".to_string(), "|".to_string()]),
             token_types: hashbrown::HashSet::from_iter(["like_operator".to_string()]),
         }),
 })
@@ -32425,7 +32425,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-            raw_values: hashbrown::HashSet::from_iter(["ROWS".to_string(), "ROW".to_string()]),
+            raw_values: hashbrown::HashSet::from_iter(["ROW".to_string(), "ROWS".to_string()]),
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
@@ -32968,7 +32968,7 @@ Arc::new(Grammar::Ref {
     ],
     reset_terminators: false,
     simple_hint: Some(SimpleHint {
-            raw_values: hashbrown::HashSet::from_iter(["ROWS".to_string(), "RANGE".to_string()]),
+            raw_values: hashbrown::HashSet::from_iter(["RANGE".to_string(), "ROWS".to_string()]),
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
@@ -33066,7 +33066,7 @@ Arc::new(Grammar::Ref {
     ],
     reset_terminators: false,
     simple_hint: Some(SimpleHint {
-            raw_values: hashbrown::HashSet::from_iter(["ROWS".to_string(), "RANGE".to_string()]),
+            raw_values: hashbrown::HashSet::from_iter(["RANGE".to_string(), "ROWS".to_string()]),
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
@@ -33108,7 +33108,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-            raw_values: hashbrown::HashSet::from_iter(["ROWS".to_string(), "FETCH".to_string(), "SEPARATOR".to_string(), "WINDOW".to_string(), "QUALIFY".to_string(), "HAVING".to_string(), "RANGE".to_string(), "LIMIT".to_string()]),
+            raw_values: hashbrown::HashSet::from_iter(["FETCH".to_string(), "HAVING".to_string(), "LIMIT".to_string(), "QUALIFY".to_string(), "RANGE".to_string(), "ROWS".to_string(), "SEPARATOR".to_string(), "WINDOW".to_string()]),
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
@@ -33165,7 +33165,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-            raw_values: hashbrown::HashSet::from_iter(["ORDER".to_string(), "NOORDER".to_string()]),
+            raw_values: hashbrown::HashSet::from_iter(["NOORDER".to_string(), "ORDER".to_string()]),
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
@@ -33401,7 +33401,7 @@ Arc::new(Grammar::Ref {
     ],
     reset_terminators: false,
     simple_hint: Some(SimpleHint {
-            raw_values: hashbrown::HashSet::from_iter(["INTERVAL".to_string(), "TIME".to_string(), "DATE".to_string(), "TIMESTAMP".to_string()]),
+            raw_values: hashbrown::HashSet::from_iter(["DATE".to_string(), "INTERVAL".to_string(), "TIME".to_string(), "TIMESTAMP".to_string()]),
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
@@ -33429,7 +33429,7 @@ Arc::new(Grammar::Ref {
     ],
     reset_terminators: false,
     simple_hint: Some(SimpleHint {
-            raw_values: hashbrown::HashSet::from_iter(["INTERVAL".to_string(), "TIME".to_string(), "DATE".to_string(), "TIMESTAMP".to_string()]),
+            raw_values: hashbrown::HashSet::from_iter(["DATE".to_string(), "INTERVAL".to_string(), "TIME".to_string(), "TIMESTAMP".to_string()]),
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
@@ -34852,7 +34852,7 @@ Arc::new(Grammar::Ref {
     ],
     reset_terminators: false,
     simple_hint: Some(SimpleHint {
-            raw_values: hashbrown::HashSet::from_iter(["NO".to_string(), "SET".to_string(), "CASCADE".to_string(), "RESTRICT".to_string()]),
+            raw_values: hashbrown::HashSet::from_iter(["CASCADE".to_string(), "NO".to_string(), "RESTRICT".to_string(), "SET".to_string()]),
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
@@ -34909,7 +34909,7 @@ Arc::new(Grammar::Ref {
     ],
     reset_terminators: false,
     simple_hint: Some(SimpleHint {
-            raw_values: hashbrown::HashSet::from_iter(["NO".to_string(), "SET".to_string(), "CASCADE".to_string(), "RESTRICT".to_string()]),
+            raw_values: hashbrown::HashSet::from_iter(["CASCADE".to_string(), "NO".to_string(), "RESTRICT".to_string(), "SET".to_string()]),
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
@@ -35028,7 +35028,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-            raw_values: hashbrown::HashSet::from_iter(["PARTIAL".to_string(), "SIMPLE".to_string(), "FULL".to_string()]),
+            raw_values: hashbrown::HashSet::from_iter(["FULL".to_string(), "PARTIAL".to_string(), "SIMPLE".to_string()]),
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
@@ -35247,7 +35247,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-            raw_values: hashbrown::HashSet::from_iter(["NO".to_string(), "SET".to_string(), "CASCADE".to_string(), "RESTRICT".to_string()]),
+            raw_values: hashbrown::HashSet::from_iter(["CASCADE".to_string(), "NO".to_string(), "RESTRICT".to_string(), "SET".to_string()]),
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
@@ -35887,7 +35887,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-            raw_values: hashbrown::HashSet::from_iter(["SYSTEM".to_string(), "BERNOULLI".to_string()]),
+            raw_values: hashbrown::HashSet::from_iter(["BERNOULLI".to_string(), "SYSTEM".to_string()]),
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
@@ -36459,7 +36459,7 @@ Arc::new(Grammar::Ref {
     ],
     reset_terminators: false,
     simple_hint: Some(SimpleHint {
-            raw_values: hashbrown::HashSet::from_iter(["OVERLAPS".to_string(), "UNION".to_string(), "EXCEPT".to_string(), "WHERE".to_string(), "FROM".to_string(), "FETCH".to_string(), "INTERSECT".to_string(), "ORDER".to_string(), "MINUS".to_string(), "LIMIT".to_string()]),
+            raw_values: hashbrown::HashSet::from_iter(["EXCEPT".to_string(), "FETCH".to_string(), "FROM".to_string(), "INTERSECT".to_string(), "LIMIT".to_string(), "MINUS".to_string(), "ORDER".to_string(), "OVERLAPS".to_string(), "UNION".to_string(), "WHERE".to_string()]),
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
@@ -36587,7 +36587,7 @@ Arc::new(Grammar::Ref {
     ],
     reset_terminators: false,
     simple_hint: Some(SimpleHint {
-            raw_values: hashbrown::HashSet::from_iter(["UNION".to_string(), "EXCEPT".to_string(), "MINUS".to_string(), "INTERSECT".to_string()]),
+            raw_values: hashbrown::HashSet::from_iter(["EXCEPT".to_string(), "INTERSECT".to_string(), "MINUS".to_string(), "UNION".to_string()]),
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
@@ -36615,7 +36615,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-            raw_values: hashbrown::HashSet::from_iter(["OVERLAPS".to_string(), "UNION".to_string(), "EXCEPT".to_string(), "WHERE".to_string(), "FROM".to_string(), "FETCH".to_string(), "INTERSECT".to_string(), "ORDER".to_string(), "MINUS".to_string(), "LIMIT".to_string()]),
+            raw_values: hashbrown::HashSet::from_iter(["EXCEPT".to_string(), "FETCH".to_string(), "FROM".to_string(), "INTERSECT".to_string(), "LIMIT".to_string(), "MINUS".to_string(), "ORDER".to_string(), "OVERLAPS".to_string(), "UNION".to_string(), "WHERE".to_string()]),
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
@@ -36816,7 +36816,7 @@ Arc::new(Grammar::Ref {
     ],
     reset_terminators: false,
     simple_hint: Some(SimpleHint {
-            raw_values: hashbrown::HashSet::from_iter(["UNION".to_string(), "EXCEPT".to_string(), "MINUS".to_string(), "INTERSECT".to_string()]),
+            raw_values: hashbrown::HashSet::from_iter(["EXCEPT".to_string(), "INTERSECT".to_string(), "MINUS".to_string(), "UNION".to_string()]),
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
@@ -37027,7 +37027,7 @@ Arc::new(Grammar::Ref {
     ],
     reset_terminators: false,
     simple_hint: Some(SimpleHint {
-            raw_values: hashbrown::HashSet::from_iter(["(".to_string(), "SELECT".to_string(), "VALUES".to_string(), "VALUE".to_string()]),
+            raw_values: hashbrown::HashSet::from_iter(["(".to_string(), "SELECT".to_string(), "VALUE".to_string(), "VALUES".to_string()]),
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
@@ -37043,7 +37043,7 @@ Arc::new(Grammar::Ref {
     ],
     reset_terminators: false,
     simple_hint: Some(SimpleHint {
-            raw_values: hashbrown::HashSet::from_iter(["(".to_string(), "SELECT".to_string(), "WITH".to_string(), "VALUES".to_string(), "VALUE".to_string()]),
+            raw_values: hashbrown::HashSet::from_iter(["(".to_string(), "SELECT".to_string(), "VALUE".to_string(), "VALUES".to_string(), "WITH".to_string()]),
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
@@ -37088,7 +37088,7 @@ Arc::new(Grammar::StringParser {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-            raw_values: hashbrown::HashSet::from_iter(["(".to_string(), "SELECT".to_string(), "WITH".to_string(), "VALUES".to_string(), "VALUE".to_string()]),
+            raw_values: hashbrown::HashSet::from_iter(["(".to_string(), "SELECT".to_string(), "VALUE".to_string(), "VALUES".to_string(), "WITH".to_string()]),
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
@@ -37598,7 +37598,7 @@ Arc::new(Grammar::Ref {
     ],
     reset_terminators: false,
     simple_hint: Some(SimpleHint {
-            raw_values: hashbrown::HashSet::from_iter(["CURRENT_TIME".to_string(), "CURRENT_DATE".to_string(), "CURRENT_TIMESTAMP".to_string()]),
+            raw_values: hashbrown::HashSet::from_iter(["CURRENT_DATE".to_string(), "CURRENT_TIME".to_string(), "CURRENT_TIMESTAMP".to_string()]),
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
@@ -37700,7 +37700,7 @@ Arc::new(Grammar::Ref {
     ],
     reset_terminators: false,
     simple_hint: Some(SimpleHint {
-            raw_values: hashbrown::HashSet::from_iter(["(".to_string(), "SELECT".to_string(), "VALUES".to_string(), "VALUE".to_string()]),
+            raw_values: hashbrown::HashSet::from_iter(["(".to_string(), "SELECT".to_string(), "VALUE".to_string(), "VALUES".to_string()]),
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
@@ -37718,7 +37718,7 @@ Arc::new(Grammar::Ref {
     ],
     reset_terminators: false,
     simple_hint: Some(SimpleHint {
-            raw_values: hashbrown::HashSet::from_iter(["UNION".to_string(), "EXCEPT".to_string(), "MINUS".to_string(), "INTERSECT".to_string()]),
+            raw_values: hashbrown::HashSet::from_iter(["EXCEPT".to_string(), "INTERSECT".to_string(), "MINUS".to_string(), "UNION".to_string()]),
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
@@ -37732,7 +37732,7 @@ Arc::new(Grammar::Ref {
     ],
     reset_terminators: false,
     simple_hint: Some(SimpleHint {
-            raw_values: hashbrown::HashSet::from_iter(["(".to_string(), "SELECT".to_string(), "VALUES".to_string(), "VALUE".to_string()]),
+            raw_values: hashbrown::HashSet::from_iter(["(".to_string(), "SELECT".to_string(), "VALUE".to_string(), "VALUES".to_string()]),
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
@@ -37745,7 +37745,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-            raw_values: hashbrown::HashSet::from_iter(["UNION".to_string(), "EXCEPT".to_string(), "MINUS".to_string(), "INTERSECT".to_string()]),
+            raw_values: hashbrown::HashSet::from_iter(["EXCEPT".to_string(), "INTERSECT".to_string(), "MINUS".to_string(), "UNION".to_string()]),
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
@@ -37762,7 +37762,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-            raw_values: hashbrown::HashSet::from_iter(["UNION".to_string(), "EXCEPT".to_string(), "MINUS".to_string(), "INTERSECT".to_string()]),
+            raw_values: hashbrown::HashSet::from_iter(["EXCEPT".to_string(), "INTERSECT".to_string(), "MINUS".to_string(), "UNION".to_string()]),
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
@@ -37817,7 +37817,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-            raw_values: hashbrown::HashSet::from_iter(["VALUE".to_string(), "(".to_string(), "SELECT".to_string(), "VALUES".to_string()]),
+            raw_values: hashbrown::HashSet::from_iter(["(".to_string(), "SELECT".to_string(), "VALUE".to_string(), "VALUES".to_string()]),
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
@@ -38012,7 +38012,7 @@ Arc::new(Grammar::StringParser {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-            raw_values: hashbrown::HashSet::from_iter(["UNION".to_string(), "EXCEPT".to_string(), "MINUS".to_string(), "INTERSECT".to_string()]),
+            raw_values: hashbrown::HashSet::from_iter(["EXCEPT".to_string(), "INTERSECT".to_string(), "MINUS".to_string(), "UNION".to_string()]),
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
@@ -38958,7 +38958,7 @@ Arc::new(Grammar::Ref {
     ],
     reset_terminators: false,
     simple_hint: Some(SimpleHint {
-            raw_values: hashbrown::HashSet::from_iter(["(".to_string(), "SELECT".to_string(), "WITH".to_string(), "VALUES".to_string(), "VALUE".to_string()]),
+            raw_values: hashbrown::HashSet::from_iter(["(".to_string(), "SELECT".to_string(), "VALUE".to_string(), "VALUES".to_string(), "WITH".to_string()]),
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
@@ -39000,7 +39000,7 @@ Arc::new(Grammar::Ref {
     ],
     reset_terminators: false,
     simple_hint: Some(SimpleHint {
-            raw_values: hashbrown::HashSet::from_iter(["START".to_string(), "ROLLBACK".to_string(), "BEGIN".to_string(), "COMMIT".to_string(), "END".to_string()]),
+            raw_values: hashbrown::HashSet::from_iter(["BEGIN".to_string(), "COMMIT".to_string(), "END".to_string(), "ROLLBACK".to_string(), "START".to_string()]),
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
@@ -39084,7 +39084,7 @@ Arc::new(Grammar::Ref {
     ],
     reset_terminators: false,
     simple_hint: Some(SimpleHint {
-            raw_values: hashbrown::HashSet::from_iter(["REVOKE".to_string(), "GRANT".to_string()]),
+            raw_values: hashbrown::HashSet::from_iter(["GRANT".to_string(), "REVOKE".to_string()]),
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
@@ -39518,7 +39518,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-            raw_values: hashbrown::HashSet::from_iter(["USE".to_string(), "DESCRIBE".to_string(), "(".to_string(), "SELECT".to_string(), "REVOKE".to_string(), "CREATE".to_string(), "MERGE".to_string(), "UPDATE".to_string(), "ROLLBACK".to_string(), "SET".to_string(), "WITH".to_string(), "EXPLAIN".to_string(), "BEGIN".to_string(), "TRUNCATE".to_string(), "END".to_string(), "DELETE".to_string(), "COMMIT".to_string(), "ALTER".to_string(), "START".to_string(), "VALUES".to_string(), "INSERT".to_string(), "GRANT".to_string(), "VALUE".to_string(), "DROP".to_string()]),
+            raw_values: hashbrown::HashSet::from_iter(["(".to_string(), "ALTER".to_string(), "BEGIN".to_string(), "COMMIT".to_string(), "CREATE".to_string(), "DELETE".to_string(), "DESCRIBE".to_string(), "DROP".to_string(), "END".to_string(), "EXPLAIN".to_string(), "GRANT".to_string(), "INSERT".to_string(), "MERGE".to_string(), "REVOKE".to_string(), "ROLLBACK".to_string(), "SELECT".to_string(), "SET".to_string(), "START".to_string(), "TRUNCATE".to_string(), "UPDATE".to_string(), "USE".to_string(), "VALUE".to_string(), "VALUES".to_string(), "WITH".to_string()]),
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
@@ -40140,7 +40140,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-            raw_values: hashbrown::HashSet::from_iter(["UNIQUE".to_string(), "FOREIGN".to_string(), "PRIMARY".to_string()]),
+            raw_values: hashbrown::HashSet::from_iter(["FOREIGN".to_string(), "PRIMARY".to_string(), "UNIQUE".to_string()]),
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
@@ -40153,7 +40153,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-            raw_values: hashbrown::HashSet::from_iter(["CONSTRAINT".to_string(), "UNIQUE".to_string(), "FOREIGN".to_string(), "PRIMARY".to_string()]),
+            raw_values: hashbrown::HashSet::from_iter(["CONSTRAINT".to_string(), "FOREIGN".to_string(), "PRIMARY".to_string(), "UNIQUE".to_string()]),
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
@@ -40193,7 +40193,7 @@ Arc::new(Grammar::Ref {
     ],
     reset_terminators: false,
     simple_hint: Some(SimpleHint {
-            raw_values: hashbrown::HashSet::from_iter(["CURRENT_TIME".to_string(), "CURRENT_DATE".to_string(), "CURRENT_TIMESTAMP".to_string()]),
+            raw_values: hashbrown::HashSet::from_iter(["CURRENT_DATE".to_string(), "CURRENT_TIME".to_string(), "CURRENT_TIMESTAMP".to_string()]),
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
@@ -40231,7 +40231,7 @@ Arc::new(Grammar::Ref {
     ],
     reset_terminators: false,
     simple_hint: Some(SimpleHint {
-            raw_values: hashbrown::HashSet::from_iter(["(".to_string(), "SELECT".to_string(), "WITH".to_string(), "VALUES".to_string(), "VALUE".to_string()]),
+            raw_values: hashbrown::HashSet::from_iter(["(".to_string(), "SELECT".to_string(), "VALUE".to_string(), "VALUES".to_string(), "WITH".to_string()]),
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
@@ -40556,7 +40556,7 @@ Arc::new(Grammar::Ref {
     ],
     reset_terminators: false,
     simple_hint: Some(SimpleHint {
-            raw_values: hashbrown::HashSet::from_iter(["PRIOR".to_string(), "+".to_string(), "NOT".to_string(), "-".to_string(), "~".to_string()]),
+            raw_values: hashbrown::HashSet::from_iter(["+".to_string(), "-".to_string(), "NOT".to_string(), "PRIOR".to_string(), "~".to_string()]),
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
@@ -40577,7 +40577,7 @@ Arc::new(Grammar::Ref {
     ],
     reset_terminators: false,
     simple_hint: Some(SimpleHint {
-            raw_values: hashbrown::HashSet::from_iter(["+".to_string(), "^".to_string(), "<".to_string(), "!".to_string(), "IS".to_string(), "AND".to_string(), "OR".to_string(), "|".to_string(), "*".to_string(), "&".to_string(), ">".to_string(), "/".to_string(), "%".to_string(), "-".to_string(), "=".to_string()]),
+            raw_values: hashbrown::HashSet::from_iter(["!".to_string(), "%".to_string(), "&".to_string(), "*".to_string(), "+".to_string(), "-".to_string(), "/".to_string(), "<".to_string(), "=".to_string(), ">".to_string(), "AND".to_string(), "IS".to_string(), "OR".to_string(), "^".to_string(), "|".to_string()]),
             token_types: hashbrown::HashSet::from_iter(["like_operator".to_string()]),
         }),
 })
@@ -40587,7 +40587,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-            raw_values: hashbrown::HashSet::from_iter(["PRIOR".to_string(), "+".to_string(), "NOT".to_string(), "-".to_string(), "~".to_string()]),
+            raw_values: hashbrown::HashSet::from_iter(["+".to_string(), "-".to_string(), "NOT".to_string(), "PRIOR".to_string(), "~".to_string()]),
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
@@ -40629,7 +40629,7 @@ Arc::new(Grammar::Ref {
     ],
     reset_terminators: false,
     simple_hint: Some(SimpleHint {
-            raw_values: hashbrown::HashSet::from_iter(["+".to_string(), "~".to_string(), "-".to_string()]),
+            raw_values: hashbrown::HashSet::from_iter(["+".to_string(), "-".to_string(), "~".to_string()]),
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
@@ -40646,7 +40646,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-            raw_values: hashbrown::HashSet::from_iter(["+".to_string(), "~".to_string(), "-".to_string()]),
+            raw_values: hashbrown::HashSet::from_iter(["+".to_string(), "-".to_string(), "~".to_string()]),
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
@@ -40760,7 +40760,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-            raw_values: hashbrown::HashSet::from_iter(["TEMPORARY".to_string(), "TEMP".to_string()]),
+            raw_values: hashbrown::HashSet::from_iter(["TEMP".to_string(), "TEMPORARY".to_string()]),
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
@@ -40803,7 +40803,7 @@ Arc::new(Grammar::Ref {
     ],
     reset_terminators: false,
     simple_hint: Some(SimpleHint {
-            raw_values: hashbrown::HashSet::from_iter(["TEMPORARY".to_string(), "TEMP".to_string()]),
+            raw_values: hashbrown::HashSet::from_iter(["TEMP".to_string(), "TEMPORARY".to_string()]),
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
@@ -41016,7 +41016,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-            raw_values: hashbrown::HashSet::from_iter(["WITHOUT".to_string(), "WITH".to_string()]),
+            raw_values: hashbrown::HashSet::from_iter(["WITH".to_string(), "WITHOUT".to_string()]),
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
@@ -41057,7 +41057,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-            raw_values: hashbrown::HashSet::from_iter(["WITHOUT".to_string(), "WITH".to_string()]),
+            raw_values: hashbrown::HashSet::from_iter(["WITH".to_string(), "WITHOUT".to_string()]),
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
@@ -41383,7 +41383,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-            raw_values: hashbrown::HashSet::from_iter(["START".to_string(), "ROLLBACK".to_string(), "BEGIN".to_string(), "COMMIT".to_string(), "END".to_string()]),
+            raw_values: hashbrown::HashSet::from_iter(["BEGIN".to_string(), "COMMIT".to_string(), "END".to_string(), "ROLLBACK".to_string(), "START".to_string()]),
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
@@ -41537,7 +41537,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-            raw_values: hashbrown::HashSet::from_iter(["START".to_string(), "ROLLBACK".to_string(), "BEGIN".to_string(), "COMMIT".to_string(), "END".to_string()]),
+            raw_values: hashbrown::HashSet::from_iter(["BEGIN".to_string(), "COMMIT".to_string(), "END".to_string(), "ROLLBACK".to_string(), "START".to_string()]),
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
@@ -42511,7 +42511,7 @@ Arc::new(Grammar::Ref {
     ],
     reset_terminators: false,
     simple_hint: Some(SimpleHint {
-            raw_values: hashbrown::HashSet::from_iter(["UNION".to_string(), "EXCEPT".to_string(), "MINUS".to_string(), "INTERSECT".to_string()]),
+            raw_values: hashbrown::HashSet::from_iter(["EXCEPT".to_string(), "INTERSECT".to_string(), "MINUS".to_string(), "UNION".to_string()]),
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
@@ -42597,7 +42597,7 @@ Arc::new(Grammar::Ref {
     ],
     reset_terminators: false,
     simple_hint: Some(SimpleHint {
-            raw_values: hashbrown::HashSet::from_iter(["(".to_string(), "SELECT".to_string(), "VALUES".to_string(), "VALUE".to_string()]),
+            raw_values: hashbrown::HashSet::from_iter(["(".to_string(), "SELECT".to_string(), "VALUE".to_string(), "VALUES".to_string()]),
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
@@ -42615,7 +42615,7 @@ Arc::new(Grammar::Ref {
     ],
     reset_terminators: false,
     simple_hint: Some(SimpleHint {
-            raw_values: hashbrown::HashSet::from_iter(["UNION".to_string(), "EXCEPT".to_string(), "MINUS".to_string(), "INTERSECT".to_string()]),
+            raw_values: hashbrown::HashSet::from_iter(["EXCEPT".to_string(), "INTERSECT".to_string(), "MINUS".to_string(), "UNION".to_string()]),
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
@@ -42629,7 +42629,7 @@ Arc::new(Grammar::Ref {
     ],
     reset_terminators: false,
     simple_hint: Some(SimpleHint {
-            raw_values: hashbrown::HashSet::from_iter(["(".to_string(), "SELECT".to_string(), "VALUES".to_string(), "VALUE".to_string()]),
+            raw_values: hashbrown::HashSet::from_iter(["(".to_string(), "SELECT".to_string(), "VALUE".to_string(), "VALUES".to_string()]),
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
@@ -42642,7 +42642,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-            raw_values: hashbrown::HashSet::from_iter(["UNION".to_string(), "EXCEPT".to_string(), "MINUS".to_string(), "INTERSECT".to_string()]),
+            raw_values: hashbrown::HashSet::from_iter(["EXCEPT".to_string(), "INTERSECT".to_string(), "MINUS".to_string(), "UNION".to_string()]),
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
@@ -42659,7 +42659,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-            raw_values: hashbrown::HashSet::from_iter(["UNION".to_string(), "EXCEPT".to_string(), "MINUS".to_string(), "INTERSECT".to_string()]),
+            raw_values: hashbrown::HashSet::from_iter(["EXCEPT".to_string(), "INTERSECT".to_string(), "MINUS".to_string(), "UNION".to_string()]),
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
@@ -42672,7 +42672,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-            raw_values: hashbrown::HashSet::from_iter(["VALUE".to_string(), "(".to_string(), "SELECT".to_string(), "VALUES".to_string()]),
+            raw_values: hashbrown::HashSet::from_iter(["(".to_string(), "SELECT".to_string(), "VALUE".to_string(), "VALUES".to_string()]),
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
@@ -43240,7 +43240,7 @@ Arc::new(Grammar::StringParser {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-            raw_values: hashbrown::HashSet::from_iter(["ROW".to_string(), "(".to_string()]),
+            raw_values: hashbrown::HashSet::from_iter(["(".to_string(), "ROW".to_string()]),
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
@@ -43270,7 +43270,7 @@ Arc::new(Grammar::Ref {
     min_delimiters: 0,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-            raw_values: hashbrown::HashSet::from_iter(["ROW".to_string(), "(".to_string()]),
+            raw_values: hashbrown::HashSet::from_iter(["(".to_string(), "ROW".to_string()]),
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
@@ -43890,7 +43890,7 @@ Arc::new(Grammar::Ref {
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
     simple_hint: Some(SimpleHint {
-            raw_values: hashbrown::HashSet::from_iter(["OVERLAPS".to_string(), "FETCH".to_string(), "GROUP".to_string(), "QUALIFY".to_string(), "WINDOW".to_string(), "ORDER".to_string(), "HAVING".to_string(), "LIMIT".to_string()]),
+            raw_values: hashbrown::HashSet::from_iter(["FETCH".to_string(), "GROUP".to_string(), "HAVING".to_string(), "LIMIT".to_string(), "ORDER".to_string(), "OVERLAPS".to_string(), "QUALIFY".to_string(), "WINDOW".to_string()]),
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
@@ -44207,7 +44207,7 @@ Arc::new(Grammar::Ref {
     ],
     reset_terminators: false,
     simple_hint: Some(SimpleHint {
-            raw_values: hashbrown::HashSet::from_iter(["ROWS".to_string(), "RANGE".to_string()]),
+            raw_values: hashbrown::HashSet::from_iter(["RANGE".to_string(), "ROWS".to_string()]),
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
@@ -44323,7 +44323,7 @@ Arc::new(Grammar::Ref {
     ],
     reset_terminators: false,
     simple_hint: Some(SimpleHint {
-            raw_values: hashbrown::HashSet::from_iter(["MERGE".to_string(), "DELETE".to_string(), "INSERT".to_string(), "UPDATE".to_string()]),
+            raw_values: hashbrown::HashSet::from_iter(["DELETE".to_string(), "INSERT".to_string(), "MERGE".to_string(), "UPDATE".to_string()]),
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
@@ -44442,7 +44442,7 @@ Arc::new(Grammar::Ref {
     ],
     reset_terminators: false,
     simple_hint: Some(SimpleHint {
-            raw_values: hashbrown::HashSet::from_iter(["(".to_string(), "SELECT".to_string(), "VALUES".to_string(), "VALUE".to_string()]),
+            raw_values: hashbrown::HashSet::from_iter(["(".to_string(), "SELECT".to_string(), "VALUE".to_string(), "VALUES".to_string()]),
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })

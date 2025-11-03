@@ -301,23 +301,28 @@ impl crate::parser::Parser<'_> {
                         for check_pos in *matched_idx..*working_idx {
                             if check_pos < self.tokens.len()
                                 && !self.tokens[check_pos].is_code()
-                                && !self.collected_transparent_positions.contains(&check_pos)
                             {
                                 let tok = &self.tokens[check_pos];
                                 let tok_type = tok.get_type();
                                 let tok_raw = tok.raw();
-                                if tok_type == "whitespace" {
-                                    frame.accumulated.push(Node::Whitespace {
-                                        raw: tok_raw.to_string(),
-                                        token_idx: check_pos,
-                                    });
-                                    self.collected_transparent_positions.insert(check_pos);
-                                } else if tok_type == "newline" {
-                                    frame.accumulated.push(Node::Newline {
-                                        raw: tok_raw.to_string(),
-                                        token_idx: check_pos,
-                                    });
-                                    self.collected_transparent_positions.insert(check_pos);
+                                // Only check if already in frame's accumulated (duplicates across grammars will be handled by deduplication)
+                                let already_in_frame = frame.accumulated.iter().any(|node| match node {
+                                    Node::Whitespace { token_idx: idx, .. }
+                                    | Node::Newline { token_idx: idx, .. } => *idx == check_pos,
+                                    _ => false,
+                                });
+                                if !already_in_frame {
+                                    if tok_type == "whitespace" {
+                                        frame.accumulated.push(Node::Whitespace {
+                                            raw: tok_raw.to_string(),
+                                            token_idx: check_pos,
+                                        });
+                                    } else if tok_type == "newline" {
+                                        frame.accumulated.push(Node::Newline {
+                                            raw: tok_raw.to_string(),
+                                            token_idx: check_pos,
+                                        });
+                                    }
                                 }
                             }
                         }
@@ -460,23 +465,28 @@ impl crate::parser::Parser<'_> {
                         for check_pos in *matched_idx..*working_idx {
                             if check_pos < self.tokens.len()
                                 && !self.tokens[check_pos].is_code()
-                                && !self.collected_transparent_positions.contains(&check_pos)
                             {
                                 let tok = &self.tokens[check_pos];
                                 let tok_type = tok.get_type();
                                 let tok_raw = tok.raw();
-                                if tok_type == "whitespace" {
-                                    frame.accumulated.push(Node::Whitespace {
-                                        raw: tok_raw.to_string(),
-                                        token_idx: check_pos,
-                                    });
-                                    self.collected_transparent_positions.insert(check_pos);
-                                } else if tok_type == "newline" {
-                                    frame.accumulated.push(Node::Newline {
-                                        raw: tok_raw.to_string(),
-                                        token_idx: check_pos,
-                                    });
-                                    self.collected_transparent_positions.insert(check_pos);
+                                // Only check if already in frame's accumulated
+                                let already_in_frame = frame.accumulated.iter().any(|node| match node {
+                                    Node::Whitespace { token_idx: idx, .. }
+                                    | Node::Newline { token_idx: idx, .. } => *idx == check_pos,
+                                    _ => false,
+                                });
+                                if !already_in_frame {
+                                    if tok_type == "whitespace" {
+                                        frame.accumulated.push(Node::Whitespace {
+                                            raw: tok_raw.to_string(),
+                                            token_idx: check_pos,
+                                        });
+                                    } else if tok_type == "newline" {
+                                        frame.accumulated.push(Node::Newline {
+                                            raw: tok_raw.to_string(),
+                                            token_idx: check_pos,
+                                        });
+                                    }
                                 }
                             }
                         }

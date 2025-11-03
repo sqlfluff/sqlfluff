@@ -192,7 +192,6 @@ impl Parser<'_> {
         );
         let saved = frame.pos;
         self.pos = frame.pos;
-        self.skip_transparent(*allow_gaps);
 
         // Combine parent and local terminators
         let all_terminators: Vec<Arc<Grammar>> = if *reset_terminators {
@@ -246,6 +245,7 @@ impl Parser<'_> {
                     segment_type,
                     saved_pos: saved,
                     last_child_frame_id: Some(child_frame_id), // Track the child we just created
+                    leading_transparent: vec![], // Empty - Sequence handles transparent tokens
                 };
 
                 // Push parent back first, then child (LIFO - child will be processed next)
@@ -305,9 +305,10 @@ impl Parser<'_> {
             grammar,
             segment_type,
             saved_pos,
-            last_child_frame_id: _,
+            last_child_frame_id,
+            leading_transparent: _,
             ..
-        } = &frame.context
+        } = &mut frame.context
         else {
             panic!("Expected FrameContext::Ref in handle_ref_waiting_for_child");
         };
@@ -348,18 +349,20 @@ impl Parser<'_> {
             &frame.terminators,
             &mut self.grammar_hash_cache,
         );
-        let transparent_positions: Vec<usize> = self
-            .collected_transparent_positions
-            .iter()
-            .filter(|&&pos| pos >= *saved_pos && pos < *child_end_pos)
-            .copied()
-            .collect();
+        // Get transparent positions from the child's result in stack, not from the global set.
+        // This avoids double-marking when the cache is later retrieved.
+        let transparent_positions: Vec<usize> = if let Some(child_frame_id) = last_child_frame_id {
+            stack.transparent_positions.get(child_frame_id).cloned().unwrap_or_default()
+        } else {
+            Vec::new()
+        };
 
         log::debug!(
-            "Storing Ref({}) result in cache: pos {} -> {}",
+            "Storing Ref({}) result in cache: pos {} -> {}, {} transparent positions",
             name,
             *saved_pos,
-            *child_end_pos
+            *child_end_pos,
+            transparent_positions.len()
         );
 
         self.parse_cache.put(

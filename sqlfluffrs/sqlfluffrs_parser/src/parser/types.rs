@@ -1,5 +1,6 @@
 //! Core types for the parser: Grammar, Node, ParseMode
 
+use std::collections::HashSet;
 use std::sync::Arc;
 
 use serde_yaml_ng::{Mapping, Value};
@@ -173,6 +174,11 @@ impl Node {
                     match &child_node {
                         NodeTupleValue::Raw(t, s) if t == "sequence" => NodeTupleValue::Raw(ref_type.clone(), s.clone()),
                         NodeTupleValue::Tuple(t, v) if t == "sequence" => NodeTupleValue::Tuple(ref_type.clone(), v.to_vec()),
+                        // Also flatten "bracketed" nodes when ref_type is not "bracketed"
+                        // This handles cases like ArrayLiteralSegment where bracket_persists=False
+                        NodeTupleValue::Tuple(t, v) if t == "bracketed" && ref_type != "bracketed" => {
+                            NodeTupleValue::Tuple(ref_type.clone(), v.to_vec())
+                        }
                         _ => NodeTupleValue::Tuple(ref_type.clone(), vec![child_node])
                     }
                 } else {
@@ -741,6 +747,101 @@ impl Node {
         // Also check class types
         self.get_class_types(tokens)
             .contains(&type_name.to_string())
+    }
+
+    /// Deduplicate whitespace and newline nodes in the AST.
+    /// This removes duplicate token positions recursively throughout the tree.
+    /// Returns a new Node with duplicates removed.
+    pub fn deduplicate(self) -> Node {
+        let mut seen = HashSet::new();
+        self.deduplicate_impl(&mut seen)
+    }
+
+    /// Internal implementation of deduplicate that uses a shared HashSet
+    fn deduplicate_impl(self, seen: &mut HashSet<usize>) -> Node {
+        match self {
+            Node::Sequence { children } => {
+                let deduped = children.into_iter()
+                    .filter_map(|child| {
+                        match &child {
+                            Node::Whitespace { token_idx: pos, .. }
+                            | Node::Newline { token_idx: pos, .. } => {
+                                if seen.insert(*pos) {
+                                    Some(child.deduplicate_impl(seen))
+                                } else {
+                                    None // Skip duplicate
+                                }
+                            }
+                            _ => Some(child.deduplicate_impl(seen))
+                        }
+                    })
+                    .collect();
+                Node::Sequence { children: deduped }
+            }
+            Node::DelimitedList { children } => {
+                let deduped = children.into_iter()
+                    .filter_map(|child| {
+                        match &child {
+                            Node::Whitespace { token_idx: pos, .. }
+                            | Node::Newline { token_idx: pos, .. } => {
+                                if seen.insert(*pos) {
+                                    Some(child.deduplicate_impl(seen))
+                                } else {
+                                    None
+                                }
+                            }
+                            _ => Some(child.deduplicate_impl(seen))
+                        }
+                    })
+                    .collect();
+                Node::DelimitedList { children: deduped }
+            }
+            Node::Bracketed { children } => {
+                let deduped = children.into_iter()
+                    .filter_map(|child| {
+                        match &child {
+                            Node::Whitespace { token_idx: pos, .. }
+                            | Node::Newline { token_idx: pos, .. } => {
+                                if seen.insert(*pos) {
+                                    Some(child.deduplicate_impl(seen))
+                                } else {
+                                    None
+                                }
+                            }
+                            _ => Some(child.deduplicate_impl(seen))
+                        }
+                    })
+                    .collect();
+                Node::Bracketed { children: deduped }
+            }
+            Node::Ref { name, segment_type, child } => {
+                Node::Ref {
+                    name,
+                    segment_type,
+                    child: Box::new(child.deduplicate_impl(seen)),
+                }
+            }
+            Node::Unparsable { expected_message, children } => {
+                let deduped = children.into_iter()
+                    .filter_map(|child| {
+                        match &child {
+                            Node::Whitespace { token_idx: pos, .. }
+                            | Node::Newline { token_idx: pos, .. } => {
+                                if seen.insert(*pos) {
+                                    Some(child.deduplicate_impl(seen))
+                                } else {
+                                    None
+                                }
+                            }
+                            _ => Some(child.deduplicate_impl(seen))
+                        }
+                    })
+                    .collect();
+                Node::Unparsable { expected_message, children: deduped }
+            }
+            // Leaf nodes - just return as-is
+            other => other,
+        }
     }
 }
 

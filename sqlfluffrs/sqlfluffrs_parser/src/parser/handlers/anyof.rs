@@ -494,7 +494,7 @@ impl crate::parser::Parser<'_> {
         self.pos = start_idx;
 
         let mut max_idx = if parse_mode == ParseMode::Greedy {
-            self.trim_to_terminator(start_idx, &all_terminators)
+            self.trim_to_terminator_with_elements(start_idx, &all_terminators, &pruned_options)
         } else {
             self.tokens.len()
         };
@@ -861,7 +861,7 @@ impl crate::parser::Parser<'_> {
             max_idx = max_idx.min(parent_limit);
         }
 
-        if self.is_terminated(&all_terminators) {
+        if self.is_terminated_with_elements(&all_terminators, &pruned_options) {
             self.pos = pos;
 
             let result = if optional {
