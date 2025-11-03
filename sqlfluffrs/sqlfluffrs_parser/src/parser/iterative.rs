@@ -428,7 +428,10 @@ impl Parser<'_> {
             stack.results.len(),
             initial_frame_id
         );
-        for (fid, (_node, _pos, _key)) in stack.results.iter() {
+        // Sort frame IDs for deterministic debug output
+        let mut sorted_frame_ids: Vec<_> = stack.results.keys().copied().collect();
+        sorted_frame_ids.sort_unstable();
+        for fid in sorted_frame_ids {
             log::debug!("  Result frame_id={}", fid);
         }
         if let Some((node, end_pos, _element_key)) = stack.results.get(&initial_frame_id) {
@@ -829,7 +832,6 @@ impl Parser<'_> {
             }
 
             // Push frame back onto stack so it can be re-checked after child completes
-            // NOTE: We push (not insert at 0) so LIFO order is maintained
             stack.push(frame);
             Ok(NextStep::Continue)
         }

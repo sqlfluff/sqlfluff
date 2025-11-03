@@ -1487,9 +1487,18 @@ impl<'a> Parser<'_> {
                             .insert(frame.frame_id, (Node::Empty, frame.pos, None));
                         return;
                     } else {
-                        ParseError::new(
-                            "Couldn't find closing bracket for opening bracket".to_string(),
+                        // In GREEDY mode, not finding a closing bracket is an error
+                        // But we still need to store SOME result so the parent doesn't wait forever
+                        log::error!(
+                            "Bracketed GREEDY mode: Couldn't find closing bracket for opening bracket at pos {}, frame_id={}",
+                            frame.pos,
+                            frame.frame_id
                         );
+                        self.pos = frame.pos;
+                        stack
+                            .results
+                            .insert(frame.frame_id, (Node::Empty, frame.pos, None));
+                        return;
                     }
                 } else {
                     frame.accumulated.push(child_node.clone());

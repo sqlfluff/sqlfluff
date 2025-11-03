@@ -633,42 +633,38 @@ impl crate::parser::Parser<'_> {
         };
 
         if matches!(*first_element, Grammar::Nothing() | Grammar::Empty) {
-            // log::debug!(
-            //     "OneOf: First element is Nothing, handling inline (element_key={})",
-            //     element_key
-            // );
-            let (grammar_clone, leading_clone, post_skip, tried_count, max) =
-                if let FrameContext::OneOf {
-                    grammar,
-                    leading_ws,
-                    post_skip_pos,
-                    longest_match: _,
-                    tried_elements,
-                    max_idx,
-                    last_child_frame_id: _,
-                    current_element_key: _,
-                } = &frame.context
-                {
-                    (grammar.clone(), leading_ws.clone(), *post_skip_pos, *tried_elements, *max_idx)
-                } else {
-                    unreachable!()
-                };
+            log::debug!(
+                "OneOf: First element is Nothing/Empty, handling inline (element_key={})",
+                element_key
+            );
 
+            // Update context to record that we tried this element and it matched Empty
             frame.context = FrameContext::OneOf {
-                grammar: grammar_clone,
-                leading_ws: leading_clone,
-                post_skip_pos: post_skip,
+                grammar: grammar.clone(),
+                leading_ws: leading_ws.clone(),
+                post_skip_pos,
                 longest_match: Some((Node::Empty, 0, element_key)),
-                tried_elements: tried_count + 1,
-                max_idx: max,
+                tried_elements: 1,  // We tried one element
+                max_idx,
                 last_child_frame_id: None,
-                current_element_key: None, // No next element being tried yet
+                current_element_key: None,
             };
-            frame.state = crate::parser::FrameState::WaitingForChild {
+
+            // Since Nothing/Empty is an instant match, simulate what would happen if a child returned Empty
+            // We need to try the next element or finalize the result
+            // Call the WaitingForChild handler with an Empty node
+            frame.state = FrameState::WaitingForChild {
                 child_index: 0,
                 total_children: 1,
             };
-            stack.push(frame);
+            self.handle_oneof_waiting_for_child(
+                frame,
+                &Node::Empty,
+                &post_skip_pos,
+                &Some(element_key),
+                stack,
+                all_terminators,
+            );
             return Ok(NextStep::Continue);
         }
         log::debug!("OneOf: Trying first element (cache_key: {})", element_key);
