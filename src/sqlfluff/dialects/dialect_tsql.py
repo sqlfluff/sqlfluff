@@ -801,6 +801,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("DropSecurityPolicySegment"),
             Ref("CreateSynonymStatementSegment"),
             Ref("DropSynonymStatementSegment"),
+            Ref("CreateServerRoleStatementSegment"),
             # DML Data Manipulation Language
             # https://learn.microsoft.com/en-us/sql/t-sql/queries/queries
             Ref("BulkInsertStatementSegment"),
@@ -7385,6 +7386,27 @@ class CreateRoleStatementSegment(ansi.CreateRoleStatementSegment):
 
     match_grammar = Sequence(
         "CREATE",
+        "ROLE",
+        Ref("RoleReferenceSegment"),
+        Sequence(
+            "AUTHORIZATION",
+            Ref("RoleReferenceSegment"),
+            optional=True,
+        ),
+    )
+
+
+class CreateServerRoleStatementSegment(ansi.CreateRoleStatementSegment):
+    """A `CREATE SERVER ROLE` statement.
+
+    https://learn.microsoft.com/en-us/sql/t-sql/statements/create-server-role-transact-sql?view=sql-server-ver17
+    """
+
+    type = "create_server_role_statement"
+
+    match_grammar = Sequence(
+        "CREATE",
+        "SERVER",
         "ROLE",
         Ref("RoleReferenceSegment"),
         Sequence(
