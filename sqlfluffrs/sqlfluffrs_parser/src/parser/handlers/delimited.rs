@@ -8,7 +8,43 @@ use crate::parser::{Node, ParseError, ParseFrame};
 use sqlfluffrs_types::{Grammar, ParseMode};
 
 impl crate::parser::Parser<'_> {
-    /// Handle Delimited grammar Initial state in iterative parser
+    /// Handle Delimited grammar Initial state in iterative parser.
+    ///
+    /// ## State Machine:
+    /// ```text
+    /// Initial
+    ///   ↓ (prune options, combine terminators, calculate max_idx)
+    ///   ↓ (push OneOf(elements) as child with optional=true)
+    /// MatchingElement
+    ///   ↓ (element matched)
+    ///   ├─→ Collect transparent tokens if allow_gaps
+    ///   ├─→ Check terminators: if terminated, Terminal (success)
+    ///   ├─→ Check for trailing whitespace if !allow_gaps: Terminal if found
+    ///   ├─→ Push delimiter as child
+    ///   └─→ MatchingDelimiter
+    ///   ↓ (element failed)
+    ///   ├─→ Terminal: success if delimiter_count >= min_delimiters
+    ///   └─→ Terminal: fail with Empty if delimiter_count < min_delimiters
+    /// MatchingDelimiter
+    ///   ↓ (delimiter matched)
+    ///   ├─→ Store delimiter_match (for potential trailing delimiter)
+    ///   ├─→ Check terminators: if terminated + !allow_trailing, backtrack or error
+    ///   ├─→ Check terminators: if terminated + allow_trailing, append delimiter, Terminal
+    ///   ├─→ Skip to code if allow_gaps
+    ///   ├─→ Push OneOf(elements) as child
+    ///   └─→ MatchingElement
+    ///   ↓ (delimiter failed)
+    ///   ├─→ Terminal: success if delimiter_count >= min_delimiters
+    ///   └─→ Terminal: fail with Empty if delimiter_count < min_delimiters
+    /// ```
+    ///
+    /// ## Key Behavior:
+    /// - Alternates between matching elements and delimiters
+    /// - Tracks delimiter_count to enforce min_delimiters requirement
+    /// - Handles trailing delimiters based on allow_trailing flag
+    /// - If !allow_gaps and whitespace detected, stops matching
+    /// - Filters delimiter from parent terminators (delimiter shouldn't terminate itself)
+    /// - Trims child max_idx to next delimiter to prevent element from consuming delimiter
     /// Returns true if caller should continue main loop
     pub fn handle_delimited_initial(
         &mut self,
@@ -83,6 +119,9 @@ impl crate::parser::Parser<'_> {
             .cloned()
             .collect();
 
+        // NOTE: Delimited does NOT respect reset_terminators flag
+        // It always combines local + filtered parent terminators
+        // This differs from other handlers but matches Python's behavior
         let mut all_terminators: Vec<Arc<Grammar>> = local_terminators
             .iter()
             .cloned()
@@ -114,24 +153,6 @@ impl crate::parser::Parser<'_> {
         } else {
             self.tokens.len()
         };
-
-        // log::debug!(
-        //     "[ITERATIVE] Delimited max_idx: {} (tokens.len: {}), parse_mode={:?}, terminators.len={}",
-        //     max_idx,
-        //     self.tokens.len(),
-        //     parse_mode,
-        //     all_terminators.len()
-        // );
-
-        // // Check if optional and already terminated
-        // if optional && (self.is_at_end() || self.is_terminated(&all_terminators)) {
-        //     log::debug!("[ITERATIVE] Delimited: empty optional");
-        //     stack.results.insert(
-        //         frame.frame_id,
-        //         (Node::DelimitedList { children: vec![] }, pos, None),
-        //     );
-        //     return Ok(NextStep::Fallthrough); // Don't continue, we stored a result
-        // }
 
         if allow_gaps && working_pos > self.pos {
             working_pos = skip_start_index_forward_to_code(self.tokens, working_pos, max_idx)

@@ -273,6 +273,7 @@ pub enum FrameContext {
         tried_elements: usize,
         max_idx: usize, // Limit for greedy matching
         last_child_frame_id: Option<usize>, // Track child frame for WaitingForChild state
+        current_element_key: Option<u64>, // Cache key of the element currently being tried
     },
     AnyNumberOf {
         grammar: Arc<Grammar>,

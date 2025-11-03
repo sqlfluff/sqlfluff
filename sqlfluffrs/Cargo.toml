@@ -64,5 +64,9 @@ flamegraph = "0.6.8"
 name = "parser_bench"
 harness = false
 
+[[bench]]
+name = "delimited_performance"
+harness = false
+
 [profile.bench]
 debug = true

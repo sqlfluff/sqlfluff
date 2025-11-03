@@ -3,393 +3,30 @@ use std::sync::Arc;
 use crate::parser::iterative::{NextStep, ParseFrameStack};
 use crate::parser::utils::apply_parse_mode_to_result;
 use crate::parser::{FrameContext, FrameState, Node, ParseError, ParseFrame};
-use hashbrown::HashSet;
 use sqlfluffrs_types::{Grammar, ParseMode};
 
 impl crate::parser::Parser<'_> {
-    /// Handle AnySetOf grammar Initial state in iterative parser
-    pub fn handle_anysetof_initial(
-        &mut self,
-        grammar: Arc<Grammar>,
-        frame: &mut ParseFrame,
-        parent_terminators: &[Arc<Grammar>],
-        stack: &mut ParseFrameStack,
-    ) -> Result<NextStep, ParseError> {
-        log::debug!(
-            "START AnySetOf: frame_id={}, pos={}, grammar={:?}",
-            frame.frame_id,
-            frame.pos,
-            grammar
-        );
-        let pos = frame.pos;
-        log::debug!("[ITERATIVE] AnySetOf Initial state at pos {}", pos);
-
-        // Destructure the AnySetOf grammar
-        let (
-            elements,
-            min_times,
-            max_times,
-            exclude,
-            optional,
-            local_terminators,
-            reset_terminators,
-            allow_gaps,
-            parse_mode,
-        ) = match grammar.as_ref() {
-            Grammar::AnySetOf {
-                elements,
-                min_times,
-                max_times,
-                exclude,
-                optional,
-                terminators,
-                reset_terminators,
-                allow_gaps,
-                parse_mode,
-                ..
-            } => (
-                elements,
-                *min_times,
-                max_times.clone(),
-                exclude,
-                *optional,
-                terminators,
-                *reset_terminators,
-                *allow_gaps,
-                *parse_mode,
-            ),
-            _ => {
-                return Err(ParseError::with_context(
-                    "handle_anysetof_initial called with non-AnySetOf grammar".to_string(),
-                    Some(self.pos),
-                    Some(grammar),
-                ));
-            }
-        };
-
-        // Prune options BEFORE any other logic, like Python
-        let pruned_options = self.prune_options(elements);
-        // If no options remain after pruning, treat as no match
-        if pruned_options.is_empty() {
-            stack
-                .results
-                .insert(frame.frame_id, (Node::Empty, pos, None));
-            return Ok(NextStep::Fallthrough);
-        }
-
-        // Check exclude grammar first
-        if let Some(exclude_grammar) = exclude {
-            let test_result =
-                self.try_match_grammar((**exclude_grammar).clone(), pos, parent_terminators);
-            if test_result.is_ok() {
-                log::debug!(
-                    "AnySetOf: exclude grammar matched at pos {}, returning empty",
-                    pos
-                );
-                return Ok(NextStep::Continue);
-            }
-            log::debug!("exclude grammar missed!")
-        }
-
-        let all_terminators: Vec<Arc<Grammar>> = if reset_terminators {
-            local_terminators.to_vec()
-        } else {
-            local_terminators
-                .iter()
-                .cloned()
-                .chain(parent_terminators.iter().cloned())
-                .collect()
-        };
-
-        self.pos = pos;
-
-        let mut max_idx = if parse_mode == ParseMode::Greedy {
-            self.trim_to_terminator(pos, &all_terminators)
-        } else {
-            self.tokens.len()
-        };
-        if max_idx > 0 {
-            max_idx = self.skip_stop_index_backward_to_code(max_idx, pos);
-        }
-        if let Some(parent_limit) = frame.parent_max_idx {
-            max_idx = max_idx.min(parent_limit);
-        }
-
-        log::debug!(
-            "[ITERATIVE] AnySetOf max_idx: {} (tokens.len: {})",
-            max_idx,
-            self.tokens.len()
-        );
-
-        frame.state = crate::parser::FrameState::WaitingForChild {
-            child_index: 0,
-            total_children: max_times.unwrap_or(usize::MAX).min(pruned_options.len()),
-        };
-        frame.context = FrameContext::AnySetOf {
-            grammar: grammar.clone(),
-            count: 0,
-            matched_idx: pos,
-            working_idx: pos,
-            matched_elements: HashSet::new(),
-            max_idx,
-            last_child_frame_id: None,
-        };
-        frame.terminators = all_terminators.clone();
-
-        stack.push(frame);
-
-        let child_grammar = Arc::new(Grammar::OneOf {
-            elements: pruned_options.to_vec(),
-            exclude: None,
-            optional: false,
-            terminators: vec![],
-            reset_terminators: false,
-            allow_gaps,
-            parse_mode,
-            simple_hint: None,
-        });
-
-        let mut child_frame = crate::parser::ParseFrame {
-            frame_id: stack.frame_id_counter,
-            grammar: Arc::clone(&child_grammar),
-            pos,
-            terminators: all_terminators,
-            state: crate::parser::FrameState::Initial,
-            accumulated: vec![],
-            context: FrameContext::None,
-            parent_max_idx: Some(max_idx),
-        };
-
-        let next_child_id = stack.frame_id_counter;
-        if let Some(parent_frame) = stack.last_mut() {
-            if let FrameContext::AnySetOf {
-                last_child_frame_id,
-                ..
-            } = &mut parent_frame.context
-            {
-                last_child_frame_id.replace(next_child_id);
-            }
-        }
-
-        stack.increment_frame_id_counter();
-        stack.push(&mut child_frame);
-        Ok(NextStep::Continue)
-    }
-
-    pub(crate) fn handle_anysetof_waiting_for_child(
-        &mut self,
-        frame: &mut ParseFrame,
-        child_node: &Node,
-        child_end_pos: &usize,
-        child_element_key: &Option<u64>,
-        stack: &mut ParseFrameStack,
-        frame_terminators: Vec<Arc<Grammar>>,
-    ) -> Result<(), ParseError> {
-        let FrameContext::AnySetOf {
-            grammar,
-            count,
-            matched_idx,
-            working_idx,
-            matched_elements,
-            max_idx,
-            ..
-        } = &mut frame.context
-        else {
-            panic!("Expected FrameContext::AnySetOf");
-        };
-        let Grammar::AnySetOf {
-            elements,
-            min_times,
-            max_times,
-            allow_gaps,
-            optional,
-            parse_mode,
-            ..
-        } = grammar.as_ref()
-        else {
-            panic!("Expected Grammar::AnySetOf in FrameContext::AnySetOf");
-        };
-        // Handle child result
-        if child_node.is_empty() {
-            // Child match failed
-            log::debug!(
-                "[ITERATIVE] AnySetOf child failed at position {}",
-                frame.pos
-            );
-
-            // Check if we've met min_times requirement
-            if *count < *min_times {
-                if *optional {
-                    self.pos = frame.pos;
-                    log::debug!("[ITERATIVE] AnySetOf optional, returning Empty");
-                    stack
-                        .results
-                        .insert(frame.frame_id, (Node::Empty, frame.pos, None));
-                    return Ok(());
-                } else {
-                    return Err(ParseError::new(format!(
-                        "Expected at least {} occurrences in AnySetOf, found {}",
-                        min_times, count
-                    )));
-                }
-            } else {
-                // Met min_times, complete with what we have
-                log::debug!(
-                    "[ITERATIVE] AnySetOf met min_times, completing with {} items",
-                    frame.accumulated.len()
-                );
-                self.pos = *matched_idx;
-                let result_node = Node::DelimitedList {
-                    children: frame.accumulated.clone(),
-                };
-                stack
-                    .results
-                    .insert(frame.frame_id, (result_node, *matched_idx, None));
-                return Ok(());
-            }
-        } else {
-            // Child matched successfully!
-            log::debug!(
-                "[ITERATIVE] AnySetOf child matched: pos {} -> {}",
-                frame.pos,
-                child_end_pos
-            );
-
-            // Collect transparent tokens between matched_idx and working_idx if allow_gaps
-            if *allow_gaps {
-                for check_pos in *matched_idx..*working_idx {
-                    if check_pos < self.tokens.len()
-                        && !self.tokens[check_pos].is_code()
-                        && !self.collected_transparent_positions.contains(&check_pos)
-                    {
-                        let tok = &self.tokens[check_pos];
-                        let tok_type = tok.get_type();
-                        if tok_type == "whitespace" {
-                            frame.accumulated.push(Node::Whitespace {
-                                raw: tok.raw().to_string(),
-                                token_idx: check_pos,
-                            });
-                            self.collected_transparent_positions.insert(check_pos);
-                        } else if tok_type == "newline" {
-                            frame.accumulated.push(Node::Newline {
-                                raw: tok.raw().to_string(),
-                                token_idx: check_pos,
-                            });
-                            self.collected_transparent_positions.insert(check_pos);
-                        }
-                    }
-                }
-            }
-
-            // Add matched node
-            frame.accumulated.push(child_node.clone());
-            *matched_idx = *child_end_pos;
-            *working_idx = *matched_idx;
-            *count += 1;
-
-            // Extract element_key from OneOf result and add to matched_elements
-            let element_key = child_element_key.unwrap_or(0);
-            matched_elements.insert(element_key);
-
-            log::debug!(
-                                            "[ITERATIVE] AnySetOf matched item #{}, element_key={}, matched_idx now: {}, matched_elements: {:?}",
-                                            count, element_key, matched_idx, matched_elements
-                                        );
-
-            // Python behavior: Check for complete match (consumed all to max_idx)
-            let reached_max = *matched_idx >= *max_idx;
-
-            if reached_max {
-                log::debug!(
-                    "[ITERATIVE] AnySetOf: Complete match (reached max_idx={}), stopping iteration",
-                    max_idx
-                );
-            }
-
-            // Check termination conditions
-            let should_terminate = reached_max
-                || (*count >= *min_times
-                    && ((max_times.is_some() && *count >= max_times.unwrap())
-                        || matched_elements.len() >= elements.len())); // All unique elements matched
-
-            if should_terminate {
-                log::debug!(
-                                                "[ITERATIVE] AnySetOf terminating: count={}, min_times={}, matched_idx={}, max_idx={}",
-                                                count, min_times, matched_idx, max_idx
-                                            );
-                self.pos = *matched_idx;
-                let result_node = Node::DelimitedList {
-                    children: frame.accumulated.clone(),
-                };
-                stack
-                    .results
-                    .insert(frame.frame_id, (result_node, *matched_idx, None));
-                return Ok(());
-            } else {
-                // Continue - create next child to try remaining elements
-                *working_idx = if *allow_gaps {
-                    self.skip_start_index_forward_to_code(*working_idx, *max_idx)
-                } else {
-                    *working_idx
-                };
-
-                // Filter out already matched elements by element_key
-                let unmatched_elements: Vec<Arc<Grammar>> = elements
-                    .iter()
-                    .filter(|elem| !matched_elements.contains(&elem.cache_key()))
-                    .cloned()
-                    .collect();
-
-                log::debug!(
-                    "[ITERATIVE] AnySetOf continuing: {} unmatched elements of {} total",
-                    unmatched_elements.len(),
-                    elements.len()
-                );
-
-                if unmatched_elements.is_empty() {
-                    // All elements matched - complete
-                    log::debug!("[ITERATIVE] AnySetOf: all elements matched, completing");
-                    self.pos = *matched_idx;
-                    let result_node = Node::DelimitedList {
-                        children: frame.accumulated.clone(),
-                    };
-                    stack
-                        .results
-                        .insert(frame.frame_id, (result_node, *matched_idx, None));
-                    return Ok(());
-                } else {
-                    // Create OneOf with only unmatched elements
-                    let child_grammar = Grammar::OneOf {
-                        elements: unmatched_elements,
-                        exclude: None,
-                        optional: false,
-                        terminators: vec![],
-                        reset_terminators: false,
-                        allow_gaps: *allow_gaps,
-                        parse_mode: *parse_mode,
-                        simple_hint: None,
-                    };
-
-                    // Get parent_max_idx to propagate
-                    let parent_limit = frame.parent_max_idx;
-
-                    let child_frame = ParseFrame::new_child(
-                        stack.frame_id_counter,
-                        child_grammar.into(),
-                        *working_idx,
-                        frame_terminators.clone(),
-                        parent_limit, // Propagate parent's limit!
-                    );
-
-                    ParseFrame::push_child_and_update_parent(stack, frame, child_frame, "AnySetOf");
-                    // Continue to process the child we just pushed
-                    return Ok(());
-                }
-            }
-        }
-    }
-
-    /// Handle AnyNumberOf grammar Initial state in iterative parser
+    /// Handle AnyNumberOf grammar Initial state in iterative parser.
+    ///
+    /// ## State Machine:
+    /// ```text
+    /// Initial
+    ///   ↓ (prune options, check exclude)
+    ///   ↓ (push OneOf child with optional=true)
+    /// WaitingForChild
+    ///   ↓ (child matched)
+    ///   ├─→ Terminal: count >= min_times AND (count >= max_times OR reached max_idx)
+    ///   ├─→ Continue: create new OneOf with same elements, go back to WaitingForChild
+    ///   ↓ (child failed)
+    ///   ├─→ Terminal: count >= min_times (success with what we have)
+    ///   └─→ Terminal: count < min_times (fail with Empty)
+    /// ```
+    ///
+    /// ## Key Behavior:
+    /// - Matches elements in any order, allowing unlimited duplicates (subject to max_times)
+    /// - Unlike AnySetOf, does NOT filter out matched elements (can repeat indefinitely)
+    /// - Tracks per-element counts via option_counter (for max_times_per_element)
+    /// - Terminates when min/max requirements met OR child match fails
     pub fn handle_anynumberof_initial(
         &mut self,
         grammar: Arc<Grammar>,
@@ -481,29 +118,14 @@ impl crate::parser::Parser<'_> {
             log::debug!("exclude grammar missed!")
         }
 
-        let all_terminators: Vec<Arc<Grammar>> = if reset_terminators {
-            any_terminators.to_vec()
-        } else {
-            any_terminators
-                .iter()
-                .cloned()
-                .chain(parent_terminators.iter().cloned())
-                .collect()
-        };
+        // Combine parent and local terminators
+        let all_terminators =
+            self.combine_terminators(any_terminators, parent_terminators, reset_terminators);
 
+        // Calculate max_idx with terminator and parent constraints
+        // AnyNumberOf uses trim_to_terminator_with_elements to avoid over-eager termination
         self.pos = start_idx;
-
-        let mut max_idx = if parse_mode == ParseMode::Greedy {
-            self.trim_to_terminator_with_elements(start_idx, &all_terminators, &pruned_options)
-        } else {
-            self.tokens.len()
-        };
-        if max_idx > 0 {
-            max_idx = self.skip_stop_index_backward_to_code(max_idx, start_idx);
-        }
-        if let Some(parent_limit) = frame.parent_max_idx {
-            max_idx = max_idx.min(parent_limit);
-        }
+        let max_idx = self.calculate_max_idx_with_elements(start_idx, &all_terminators, &pruned_options, parse_mode, frame.parent_max_idx);
 
         log::debug!("DEBUG [iter {}]: AnyNumberOf Initial at pos={}, parent_max_idx={:?}, elements.len()={}",
             iteration_count, frame.pos, frame.parent_max_idx, pruned_options.len());
@@ -514,7 +136,8 @@ impl crate::parser::Parser<'_> {
             self.tokens.len()
         );
 
-        let elements = match self.get_available_grammar_options(&pruned_options, max_idx) {
+        // Check if any options are available (for error handling)
+        let available_check = match self.get_available_grammar_options(&pruned_options, max_idx) {
             Ok(value) => value.into_iter().collect::<Vec<_>>(),
             Err(value) => {
                 if let Node::Empty = value {
@@ -526,9 +149,15 @@ impl crate::parser::Parser<'_> {
             }
         };
 
+        // IMPORTANT: Use ORIGINAL elements for all OneOf children, not filtered!
+        // This ensures consistent element_keys across all iterations.
+        // The pruning above is just for validation; actual matching is controlled
+        // by max_times_per_element (for AnySetOf behavior via delegation).
+        let elements_for_oneof = elements.clone();
+
         frame.state = crate::parser::FrameState::WaitingForChild {
             child_index: 0,
-            total_children: elements.len(),
+            total_children: available_check.len(),
         };
         frame.context = FrameContext::AnyNumberOf {
             grammar,
@@ -543,9 +172,13 @@ impl crate::parser::Parser<'_> {
 
         stack.push(frame);
 
-        if !elements.is_empty() {
+        if !elements_for_oneof.is_empty() {
+            log::debug!(
+                "AnyNumberOf creating initial OneOf with {} elements, option_counter is empty",
+                elements_for_oneof.len()
+            );
             let child_grammar = Arc::new(Grammar::OneOf {
-                elements: elements.to_vec(),
+                elements: elements_for_oneof.to_vec(),
                 exclude: None,
                 optional: true,
                 terminators: all_terminators.clone(),
@@ -622,7 +255,7 @@ impl crate::parser::Parser<'_> {
             elements,
             min_times,
             max_times,
-            max_times_per_element: _,
+            max_times_per_element,
             exclude: _,
             optional: _,
             terminators: _,
@@ -656,11 +289,69 @@ impl crate::parser::Parser<'_> {
                 }
             }
             frame.accumulated.push(child_node.clone());
+
+            // Save previous matched_idx before updating (needed for max_times_per_element rollback)
+            let previous_matched_idx = *matched_idx;
             *matched_idx = *child_end_pos;
             *working_idx = *matched_idx;
             *count += 1;
             let element_key = child_element_key.unwrap_or(0);
+            log::debug!(
+                "AnyNumberOf received match: element_key={}, count before increment={}, child_element_key={:?}",
+                element_key,
+                option_counter.get(&element_key).copied().unwrap_or(0),
+                child_element_key
+            );
             *option_counter.entry(element_key).or_insert(0) += 1;
+
+            // Check max_times_per_element constraint
+            // Python: increments counter, checks > max, returns BEFORE appending
+            // We: already appended, so must remove if exceeded
+            if let Some(max_per_elem) = max_times_per_element {
+                if let Some(elem_count) = option_counter.get(&element_key) {
+                    if *elem_count > *max_per_elem {
+                        // Exceeded max_times_per_element for this specific element
+                        log::debug!(
+                            "AnyNumberOf: element_key={} exceeded max_times_per_element={} (count={}), stopping",
+                            element_key, max_per_elem, elem_count
+                        );
+
+                        // Remove the element that exceeded the limit (to match Python)
+                        frame.accumulated.pop();
+                        *count -= 1;
+                        *matched_idx = previous_matched_idx;
+
+                        // Check if we met min_times without the excess element
+                        if *count >= *min_times {
+                            self.pos = *matched_idx;
+                            let result_node = Node::DelimitedList {
+                                children: frame.accumulated.clone(),
+                            };
+                            log::debug!(
+                                "AnyNumberOf COMPLETE (max_times_per_element): {} matches",
+                                count
+                            );
+                            stack.results.insert(
+                                frame.frame_id,
+                                (result_node, *matched_idx, None),
+                            );
+                            return;
+                        } else {
+                            // Didn't meet min_times, return Empty
+                            self.pos = frame.pos;
+                            log::debug!(
+                                "AnyNumberOf Empty (max_times_per_element exceeded, min_times not met)"
+                            );
+                            stack.results.insert(
+                                frame.frame_id,
+                                (Node::Empty, frame.pos, None),
+                            );
+                            return;
+                        }
+                    }
+                }
+            }
+
             log::debug!(
                 "AnyNumberOf: matched element #{}, element_key={}, matched_idx now: {}",
                 count,
@@ -764,7 +455,28 @@ impl crate::parser::Parser<'_> {
         }
     }
 
-    /// Handle OneOf grammar Initial state in iterative parser
+    /// Handle OneOf grammar Initial state in iterative parser.
+    ///
+    /// ## State Machine:
+    /// ```text
+    /// Initial
+    ///   ↓ (prune options, check exclude, check if already terminated)
+    ///   ↓ (push first element as child)
+    /// WaitingForChild
+    ///   ↓ (child matched)
+    ///   ├─→ Terminal: child consumed to max_idx (perfect match)
+    ///   ├─→ Update longest_match, try next element
+    ///   ↓ (child failed)
+    ///   ├─→ Try next element
+    ///   ↓ (all elements tried)
+    ///   ├─→ Terminal: return longest_match (or Empty/Unparsable if none)
+    /// ```
+    ///
+    /// ## Key Behavior:
+    /// - Tries each element in sequence, keeping track of the longest match
+    /// - Stops early if an element matches all the way to max_idx (perfect match)
+    /// - Returns longest successful match, NOT first match (greedy longest)
+    /// - Can return Empty (if optional) or Unparsable (if parse_mode allows)
     pub fn handle_oneof_initial(
         &mut self,
         grammar: Arc<Grammar>,
@@ -837,31 +549,18 @@ impl crate::parser::Parser<'_> {
         } else {
             Vec::new()
         };
-        let mut post_skip_pos = self.pos;
+        let post_skip_pos = self.pos;
 
-        let all_terminators: Vec<Arc<Grammar>> = if reset_terminators {
-            local_terminators.to_vec()
-        } else {
-            local_terminators
-                .iter()
-                .chain(parent_terminators.iter())
-                .cloned()
-                .collect()
-        };
+        // Combine parent and local terminators
+        let all_terminators =
+            self.combine_terminators(local_terminators, parent_terminators, reset_terminators);
 
-        let mut max_idx = if parse_mode == ParseMode::Greedy {
-            self.trim_to_terminator(post_skip_pos, &all_terminators)
-        } else {
-            self.tokens.len()
-        };
-        if max_idx > 0 {
-            max_idx = self.skip_stop_index_backward_to_code(max_idx, post_skip_pos);
-        }
-        if let Some(parent_limit) = frame.parent_max_idx {
-            max_idx = max_idx.min(parent_limit);
-        }
+        // Calculate max_idx with terminator and parent constraints
+        let max_idx = self.calculate_max_idx(post_skip_pos, &all_terminators, parse_mode, frame.parent_max_idx);
 
-        if self.is_terminated_with_elements(&all_terminators, &pruned_options) {
+        // Check termination using ORIGINAL elements, not pruned
+        // Pruning is for optimization only and shouldn't affect termination logic
+        if self.is_terminated_with_elements(&all_terminators, elements) {
             self.pos = pos;
 
             let result = if optional {
@@ -888,8 +587,8 @@ impl crate::parser::Parser<'_> {
             return Ok(NextStep::Fallthrough);
         }
 
-        let available_options: Vec<Arc<Grammar>> =
-            self.prune_options(&elements).into_iter().collect();
+        // Use the already-pruned options (don't prune again)
+        let available_options = pruned_options;
 
         if available_options.is_empty() {
             // log::debug!("OneOf: No viable options after pruning");
@@ -919,45 +618,51 @@ impl crate::parser::Parser<'_> {
             return Ok(NextStep::Fallthrough);
         }
 
+        let first_element = available_options[0].clone();
+        let element_key = first_element.cache_key();
+
         frame.context = FrameContext::OneOf {
-            grammar,
+            grammar: grammar.clone(), // Clone instead of move since grammar is borrowed above
             leading_ws: leading_ws.clone(),
             post_skip_pos,
             longest_match: None,
             tried_elements: 0,
             max_idx,
             last_child_frame_id: Some(stack.frame_id_counter),
+            current_element_key: Some(element_key), // Store the key of the element we're about to try
         };
-
-        let first_element = available_options[0].clone();
-        let element_key = first_element.cache_key();
 
         if matches!(*first_element, Grammar::Nothing() | Grammar::Empty) {
             // log::debug!(
             //     "OneOf: First element is Nothing, handling inline (element_key={})",
             //     element_key
             // );
-            frame.context = if let FrameContext::OneOf {
-                grammar,
-                leading_ws,
-                post_skip_pos,
-                longest_match: _,
-                tried_elements,
-                max_idx,
-                last_child_frame_id: _,
-            } = &frame.context
-            {
-                FrameContext::OneOf {
-                    grammar: grammar.clone(),
-                    leading_ws: leading_ws.clone(),
-                    post_skip_pos: *post_skip_pos,
-                    longest_match: Some((Node::Empty, 0, element_key)),
-                    tried_elements: *tried_elements + 1,
-                    max_idx: *max_idx,
-                    last_child_frame_id: None,
-                }
-            } else {
-                unreachable!()
+            let (grammar_clone, leading_clone, post_skip, tried_count, max) =
+                if let FrameContext::OneOf {
+                    grammar,
+                    leading_ws,
+                    post_skip_pos,
+                    longest_match: _,
+                    tried_elements,
+                    max_idx,
+                    last_child_frame_id: _,
+                    current_element_key: _,
+                } = &frame.context
+                {
+                    (grammar.clone(), leading_ws.clone(), *post_skip_pos, *tried_elements, *max_idx)
+                } else {
+                    unreachable!()
+                };
+
+            frame.context = FrameContext::OneOf {
+                grammar: grammar_clone,
+                leading_ws: leading_clone,
+                post_skip_pos: post_skip,
+                longest_match: Some((Node::Empty, 0, element_key)),
+                tried_elements: tried_count + 1,
+                max_idx: max,
+                last_child_frame_id: None,
+                current_element_key: None, // No next element being tried yet
             };
             frame.state = crate::parser::FrameState::WaitingForChild {
                 child_index: 0,
@@ -1007,6 +712,7 @@ impl crate::parser::Parser<'_> {
             tried_elements,
             max_idx,
             last_child_frame_id: _,
+            current_element_key,
         } = &mut frame.context
         else {
             unreachable!("Expected OneOf context");
@@ -1023,11 +729,23 @@ impl crate::parser::Parser<'_> {
         };
 
         let consumed = *child_end_pos - *post_skip_pos;
-        let element_key = if *tried_elements < elements.len() {
-            elements[*tried_elements].cache_key()
-        } else {
-            0
-        };
+        // Use the current_element_key that was stored when we created the child frame
+        // This is important when option pruning happens, as we need the key from the actual tried element
+        let element_key = current_element_key.unwrap_or_else(|| {
+            // Fallback: use child_element_key if available (for nested OneOf), or calculate from grammar
+            child_element_key.unwrap_or_else(|| {
+                if *tried_elements < elements.len() {
+                    elements[*tried_elements].cache_key()
+                } else {
+                    0
+                }
+            })
+        });
+
+        log::debug!(
+            "OneOf WaitingForChild: tried_elements={}, elements.len()={}, element_key={} (from current_element_key={:?}), child_empty={}",
+            tried_elements, elements.len(), element_key, current_element_key, child_node.is_empty()
+        );
 
         if !child_node.is_empty() {
             let is_better = longest_match.is_none() || consumed > longest_match.as_ref().unwrap().1;
@@ -1043,6 +761,8 @@ impl crate::parser::Parser<'_> {
         if *tried_elements < elements.len() {
             self.pos = *post_skip_pos;
             let next_element = elements[*tried_elements].clone();
+            let next_element_key = next_element.cache_key();
+            *current_element_key = Some(next_element_key); // Store the key for next iteration
             let child_frame = ParseFrame::new_child(
                 stack.frame_id_counter,
                 next_element,
@@ -1059,6 +779,10 @@ impl crate::parser::Parser<'_> {
         } else {
             if let Some((best_node, best_consumed, best_element_key)) = longest_match {
                 self.pos = *post_skip_pos + *best_consumed;
+                log::debug!(
+                    "OneOf returning match with element_key={}, consumed={}",
+                    best_element_key, best_consumed
+                );
                 let result = if !leading_ws.is_empty() {
                     let mut children = leading_ws.clone();
                     children.push(best_node.clone());

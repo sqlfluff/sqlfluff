@@ -243,6 +243,7 @@ fn grammar_hash(grammar: Arc<Grammar>, cache: &mut HashMap<*const Grammar, u64>)
             elements,
             min_times,
             max_times,
+            max_times_per_element,
             ..
         } => {
             for elem in elements {
@@ -250,6 +251,7 @@ fn grammar_hash(grammar: Arc<Grammar>, cache: &mut HashMap<*const Grammar, u64>)
             }
             min_times.hash(&mut hasher);
             max_times.hash(&mut hasher);
+            max_times_per_element.hash(&mut hasher);
         }
         Grammar::Delimited {
             elements,

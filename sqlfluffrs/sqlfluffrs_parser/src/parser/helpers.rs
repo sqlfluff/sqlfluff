@@ -10,9 +10,149 @@ use hashbrown::HashSet;
 use super::core::Parser;
 use super::Node;
 use crate::parser::utils::skip_start_index_forward_to_code;
-use sqlfluffrs_types::{Token, Grammar};
+use sqlfluffrs_types::{Token, Grammar, ParseMode};
 
 impl<'a> Parser<'a> {
+    /// Combine parent and local terminators based on reset_terminators flag.
+    ///
+    /// This is a common pattern used by all handlers (AnySetOf, AnyNumberOf, OneOf, Sequence, etc.)
+    /// to determine which terminators to use for child parsing.
+    ///
+    /// If reset_terminators is true, only local_terminators are used.
+    /// If reset_terminators is false, both local and parent terminators are combined.
+    pub(crate) fn combine_terminators(
+        &self,
+        local_terminators: &[Arc<Grammar>],
+        parent_terminators: &[Arc<Grammar>],
+        reset_terminators: bool,
+    ) -> Vec<Arc<Grammar>> {
+        if reset_terminators {
+            local_terminators.to_vec()
+        } else {
+            local_terminators
+                .iter()
+                .cloned()
+                .chain(parent_terminators.iter().cloned())
+                .collect()
+        }
+    }
+
+    /// Calculate max_idx for a grammar element, considering terminators and parent constraints.
+    ///
+    /// This is a common pattern used by most handlers to determine the range of tokens
+    /// available for parsing. The calculation:
+    /// 1. Trims to the first terminator position in GREEDY mode
+    /// 2. Applies parent's max_idx constraint
+    /// 3. Trims backward to the last code token
+    ///
+    /// The `elements` parameter is used for AnyNumberOf which needs to check terminators
+    /// against the elements being parsed (to prevent over-eager termination).
+    ///
+    /// Returns the maximum index (exclusive) for parsing.
+    pub(crate) fn calculate_max_idx_with_elements(
+        &mut self,
+        start_idx: usize,
+        terminators: &[Arc<Grammar>],
+        elements: &[Arc<Grammar>],
+        parse_mode: ParseMode,
+        parent_max_idx: Option<usize>,
+    ) -> usize {
+        // Calculate initial max_idx based on parse_mode
+        let mut max_idx = if parse_mode == ParseMode::Greedy {
+            self.trim_to_terminator_with_elements(start_idx, terminators, elements)
+        } else {
+            self.tokens.len()
+        };
+
+        // Trim backward to last code token
+        if max_idx > 0 {
+            max_idx = self.skip_stop_index_backward_to_code(max_idx, start_idx);
+        }
+
+        // Apply parent's constraint
+        if let Some(parent_limit) = parent_max_idx {
+            max_idx = max_idx.min(parent_limit);
+        }
+
+        max_idx
+    }
+
+    /// Calculate max_idx for a grammar element, considering terminators and parent constraints.
+    ///
+    /// This is a common pattern used by most handlers to determine the range of tokens
+    /// available for parsing. The calculation:
+    /// 1. Trims to the first terminator position in GREEDY mode
+    /// 2. Applies parent's max_idx constraint
+    /// 3. Trims backward to the last code token
+    ///
+    /// Returns the maximum index (exclusive) for parsing.
+    pub(crate) fn calculate_max_idx(
+        &mut self,
+        start_idx: usize,
+        terminators: &[Arc<Grammar>],
+        parse_mode: ParseMode,
+        parent_max_idx: Option<usize>,
+    ) -> usize {
+        // Calculate initial max_idx based on parse_mode
+        let mut max_idx = if parse_mode == ParseMode::Greedy {
+            self.trim_to_terminator(start_idx, terminators)
+        } else {
+            self.tokens.len()
+        };
+
+        // Trim backward to last code token
+        if max_idx > 0 {
+            max_idx = self.skip_stop_index_backward_to_code(max_idx, start_idx);
+        }
+
+        // Apply parent's constraint
+        if let Some(parent_limit) = parent_max_idx {
+            max_idx = max_idx.min(parent_limit);
+        }
+
+        max_idx
+    }
+
+    /// Collect transparent tokens (whitespace/newlines) between two positions.
+    ///
+    /// This is a common pattern in handlers when collecting tokens between matched elements.
+    /// Only collects if allow_gaps is true.
+    ///
+    /// Returns a vector of Node::Whitespace and Node::Newline nodes.
+    pub(crate) fn collect_transparent_between(
+        &self,
+        start_pos: usize,
+        end_pos: usize,
+        allow_gaps: bool,
+    ) -> Vec<Node> {
+        let mut nodes = Vec::new();
+
+        if !allow_gaps {
+            return nodes;
+        }
+
+        for pos in start_pos..end_pos {
+            if let Some(tok) = self.tokens.get(pos) {
+                if !tok.is_code() {
+                    let tok_type = tok.get_type();
+                    if tok_type == "whitespace" {
+                        nodes.push(Node::Whitespace {
+                            raw: tok.raw().to_string(),
+                            token_idx: pos,
+                        });
+                    } else if tok_type == "newline" {
+                        nodes.push(Node::Newline {
+                            raw: tok.raw().to_string(),
+                            token_idx: pos,
+                        });
+                    }
+                }
+            }
+        }
+
+        nodes
+    }
+
     /// Prune terminators based on simple matchers before attempting full termination check.
     ///
     /// Only prunes if the next token is code and allow_gaps is false. Otherwise, returns all terminators.

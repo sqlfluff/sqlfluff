@@ -7,7 +7,30 @@ use crate::parser::{
 use sqlfluffrs_types::{Grammar, ParseMode};
 
 impl<'a> Parser<'_> {
-    /// Handle Sequence grammar Initial state in iterative parser
+    /// Handle Sequence grammar Initial state in iterative parser.
+    ///
+    /// ## State Machine:
+    /// ```text
+    /// Initial
+    ///   ↓ (calculate max_idx, push first element as child)
+    /// WaitingForChild (for each element in sequence)
+    ///   ↓ (child matched)
+    ///   ├─→ GREEDY_ONCE_STARTED && first_match: trim max_idx to terminators
+    ///   ├─→ More elements: push next element as child, stay in WaitingForChild
+    ///   └─→ All elements matched: Terminal (success)
+    ///   ↓ (child failed - returned Empty)
+    ///   ├─→ Element is optional: skip to next element
+    ///   ├─→ Element is required + STRICT mode: Terminal (fail with Empty)
+    ///   └─→ Element is required + GREEDY mode: wrap remaining as Unparsable, Terminal
+    /// ```
+    ///
+    /// ## Key Behavior:
+    /// - Elements must match IN ORDER (not interchangeable like OneOf/AnySetOf)
+    /// - Handles Meta elements inline without creating child frames
+    /// - GREEDY_ONCE_STARTED: after first match, trims max_idx to terminators
+    /// - STRICT mode: fails on first required element that doesn't match
+    /// - GREEDY mode: wraps unparsable content and continues
+    /// - Tracks transparent tokens tentatively, commits/rollbacks on success/failure
     /// Returns true if caller should continue main loop
     pub(crate) fn handle_sequence_initial(
         &mut self,
@@ -43,30 +66,12 @@ impl<'a> Parser<'_> {
         let start_idx = pos; // Where did we start
 
         // Combine parent and local terminators
-        let all_terminators: Vec<Arc<Grammar>> = if *reset_terminators {
-            seq_terminators.to_vec()
-        } else {
-            seq_terminators
-                .iter()
-                .cloned()
-                .chain(parent_terminators.iter().cloned())
-                .collect()
-        };
+        let all_terminators =
+            self.combine_terminators(seq_terminators, parent_terminators, *reset_terminators);
 
-        // Calculate max_idx for GREEDY mode
+        // Calculate max_idx with terminator and parent constraints
         self.pos = start_idx;
-        let max_idx = if *parse_mode == ParseMode::Greedy {
-            self.trim_to_terminator(start_idx, &all_terminators)
-        } else {
-            self.tokens.len()
-        };
-
-        // Apply parent's max_idx limit (simulates Python's segments[:max_idx])
-        let max_idx = if let Some(parent_limit) = frame.parent_max_idx {
-            max_idx.min(parent_limit)
-        } else {
-            max_idx
-        };
+        let max_idx = self.calculate_max_idx(start_idx, &all_terminators, *parse_mode, frame.parent_max_idx);
 
         log::debug!("DEBUG: Sequence Initial calculated max_idx={}, frame.parent_max_idx={:?}", max_idx, frame.parent_max_idx);
 
@@ -1044,7 +1049,43 @@ impl<'a> Parser<'_> {
         }
     }
 
-    /// Handle Bracketed grammar Initial state in iterative parser
+    /// Handle Bracketed grammar Initial state in iterative parser.
+    ///
+    /// ## State Machine:
+    /// ```text
+    /// Initial
+    ///   ↓ (push opening bracket grammar as child)
+    /// MatchingOpen
+    ///   ↓ (opening bracket matched)
+    ///   ├─→ Collect whitespace after opener if allow_gaps
+    ///   ├─→ Push Sequence(elements) as child with closing bracket as terminator
+    ///   └─→ MatchingContent
+    ///   ↓ (opening bracket failed)
+    ///   └─→ Terminal (fail with Empty)
+    /// MatchingContent
+    ///   ↓ (content matched)
+    ///   ├─→ Flatten Sequence/DelimitedList children into accumulated
+    ///   ├─→ Collect whitespace before closer if allow_gaps
+    ///   ├─→ Push closing bracket grammar as child
+    ///   └─→ MatchingClose
+    ///   ↓ (content failed - STRICT mode)
+    ///   └─→ Terminal (fail with Empty for retry)
+    ///   ↓ (content failed - GREEDY mode)
+    ///   └─→ Continue (may contain unparsable, which is allowed)
+    /// MatchingClose
+    ///   ↓ (closing bracket matched)
+    ///   └─→ Terminal (success with Bracketed node)
+    ///   ↓ (closing bracket failed)
+    ///   └─→ Terminal (fail with Empty in STRICT, error in GREEDY)
+    /// ```
+    ///
+    /// ## Key Behavior:
+    /// - Three-phase matching: opening bracket → content → closing bracket
+    /// - Pre-computes matching bracket position during lexing (optimization)
+    /// - Content is parsed as Sequence with closing bracket as terminator
+    /// - STRICT mode: fails if content doesn't end exactly at closing bracket
+    /// - GREEDY mode: allows unparsable content within brackets
+    /// - Flattens Sequence/DelimitedList children to avoid double-nesting
     pub(crate) fn handle_bracketed_initial(
         &mut self,
         grammar: Arc<Grammar>,
@@ -1092,15 +1133,8 @@ impl<'a> Parser<'_> {
         );
 
         // Combine parent and local terminators
-        let all_terminators: Vec<Arc<Grammar>> = if *reset_terminators {
-            bracket_terminators.to_vec()
-        } else {
-            bracket_terminators
-                .iter()
-                .cloned()
-                .chain(parent_terminators.iter().cloned())
-                .collect()
-        };
+        let all_terminators =
+            self.combine_terminators(bracket_terminators, parent_terminators, *reset_terminators);
 
         // Start by trying to match the opening bracket
         // TODO: check if we need to pass terminators here

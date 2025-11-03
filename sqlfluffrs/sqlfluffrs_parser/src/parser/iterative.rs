@@ -161,8 +161,40 @@ impl Parser<'_> {
                 self.handle_bracketed_initial(grammar, frame, &terminators, stack)
             }
 
-            Grammar::AnySetOf { .. } => {
-                self.handle_anysetof_initial(grammar, frame, &terminators, stack)
+            Grammar::AnySetOf {
+                elements,
+                min_times,
+                max_times,
+                exclude,
+                optional,
+                terminators: anysetof_terminators,
+                reset_terminators,
+                allow_gaps,
+                parse_mode,
+                simple_hint,
+            } => {
+                // AnySetOf is just AnyNumberOf with max_times_per_element=1
+                // This matches Python's implementation where AnySetOf inherits from AnyNumberOf
+                let anynumberof_grammar = Arc::new(Grammar::AnyNumberOf {
+                    elements: elements.clone(),
+                    min_times: *min_times,
+                    max_times: *max_times,
+                    max_times_per_element: Some(1), // Key: each element can match at most once
+                    exclude: exclude.clone(),
+                    optional: *optional,
+                    terminators: anysetof_terminators.clone(),
+                    reset_terminators: *reset_terminators,
+                    allow_gaps: *allow_gaps,
+                    parse_mode: *parse_mode,
+                    simple_hint: simple_hint.clone(),
+                });
+
+                log::debug!(
+                    "[CONSOLIDATION] AnySetOf at pos {} delegating to AnyNumberOf with max_times_per_element=1",
+                    frame.pos
+                );
+
+                self.handle_anynumberof_initial(anynumberof_grammar, frame, &terminators, stack, iteration_count)
             }
 
             Grammar::Delimited { .. } => {
@@ -701,15 +733,11 @@ impl Parser<'_> {
                     Ok(NextStep::Continue)
                 }
                 FrameContext::AnySetOf { .. } => {
-                    self.handle_anysetof_waiting_for_child(
-                        frame,
-                        child_node,
-                        child_end_pos,
-                        child_element_key,
-                        stack,
-                        frame_terminators,
-                    )?;
-                    Ok(NextStep::Continue)
+                    // AnySetOf now delegates to AnyNumberOf, so this context should never be created
+                    // If we hit this, it means we have a bug in the delegation logic
+                    unreachable!(
+                        "AnySetOf should delegate to AnyNumberOf and never create AnySetOf context"
+                    );
                 }
                 FrameContext::OneOf { .. } => {
                     self.handle_oneof_waiting_for_child(
