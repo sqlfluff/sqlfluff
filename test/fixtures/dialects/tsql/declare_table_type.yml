@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: d3b0ec3d8c84a39c2771499a6b77a972f064f9e171c3b882ebe8126707853168
+_hash: 654120f7d34317b7261532ce5589e5027417555a57d9a3b8045a6957caf87d7b
 file:
   batch:
   - statement:
@@ -16,7 +16,7 @@ file:
         - column_definition:
             naked_identifier: EmpID
             data_type:
-              data_type_identifier: INT
+              keyword: INT
             column_constraint_segment:
             - keyword: NOT
             - keyword: 'NULL'
@@ -24,17 +24,17 @@ file:
         - column_definition:
             naked_identifier: OldVacationHours
             data_type:
-              data_type_identifier: INT
+              keyword: INT
         - comma: ','
         - column_definition:
             naked_identifier: NewVacationHours
             data_type:
-              data_type_identifier: INT
+              keyword: INT
         - comma: ','
         - column_definition:
             naked_identifier: ModifiedDate
             data_type:
-              data_type_identifier: DATETIME
+              keyword: DATETIME
         - comma: ','
         - table_constraint:
           - keyword: PRIMARY
@@ -57,17 +57,17 @@ file:
         - column_definition:
             naked_identifier: ID
             data_type:
-              data_type_identifier: INT
+              keyword: INT
         - comma: ','
         - column_definition:
             naked_identifier: MyCol1
             data_type:
-              data_type_identifier: BIT
+              keyword: BIT
         - comma: ','
         - column_definition:
             naked_identifier: MyCol2
             data_type:
-              data_type_identifier: BIT
+              keyword: BIT
         - comma: ','
         - computed_column_definition:
             naked_identifier: MyComputedCol

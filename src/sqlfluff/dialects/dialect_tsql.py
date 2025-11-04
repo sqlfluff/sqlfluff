@@ -801,6 +801,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("DropSecurityPolicySegment"),
             Ref("CreateSynonymStatementSegment"),
             Ref("DropSynonymStatementSegment"),
+            Ref("CreateServerRoleStatementSegment"),
             # DML Data Manipulation Language
             # https://learn.microsoft.com/en-us/sql/t-sql/queries/queries
             Ref("BulkInsertStatementSegment"),
@@ -3123,7 +3124,9 @@ class BracketedArguments(ansi.BracketedArguments):
 class DatatypeSegment(BaseSegment):
     """A data type segment.
 
-    Updated for Transact-SQL to allow bracketed data types with bracketed schemas.
+    Updated for Transact-SQL to comprehensively support all T-SQL data types.
+    Based on:
+    https://learn.microsoft.com/en-us/sql/t-sql/data-types/data-types-transact-sql
     """
 
     type = "data_type"
@@ -3136,12 +3139,91 @@ class DatatypeSegment(BaseSegment):
             optional=True,
         ),
         OneOf(
-            Ref("DatatypeIdentifierSegment"),
+            # Bracketed data type identifiers (e.g., [sys].[sysname])
             Bracketed(Ref("DatatypeIdentifierSegment"), bracket_type="square"),
+            Sequence(
+                OneOf(
+                    # Exact numeric types - no parameters
+                    "TINYINT",
+                    "SMALLINT",
+                    "INT",
+                    "BIGINT",
+                    "BIT",
+                    "MONEY",
+                    "SMALLMONEY",
+                    # Exact numeric types - with optional precision and scale
+                    Sequence(
+                        OneOf("DECIMAL", "NUMERIC", "DEC"),
+                        Ref("BracketedArguments", optional=True),
+                    ),
+                    # Approximate numeric types
+                    Sequence(
+                        "FLOAT",
+                        Ref("BracketedArguments", optional=True),
+                    ),
+                    "REAL",
+                    # Date and time types
+                    "DATE",
+                    "SMALLDATETIME",
+                    "DATETIME",
+                    Sequence(
+                        OneOf("TIME", "DATETIME2", "DATETIMEOFFSET"),
+                        Ref("BracketedArguments", optional=True),
+                    ),
+                    # Character string types
+                    Sequence(
+                        OneOf("CHAR", "CHARACTER"),
+                        Ref.keyword("VARYING", optional=True),
+                        Ref("BracketedArguments", optional=True),
+                    ),
+                    Sequence(
+                        "VARCHAR",
+                        Ref("BracketedArguments", optional=True),
+                    ),
+                    "TEXT",
+                    # Unicode character string types
+                    Sequence(
+                        OneOf(
+                            "NCHAR", Sequence("NATIONAL", OneOf("CHAR", "CHARACTER"))
+                        ),
+                        Ref.keyword("VARYING", optional=True),
+                        Ref("BracketedArguments", optional=True),
+                    ),
+                    Sequence(
+                        OneOf("NVARCHAR", Sequence("NATIONAL", "CHARACTER", "VARYING")),
+                        Ref("BracketedArguments", optional=True),
+                    ),
+                    "NTEXT",
+                    # Binary string types
+                    Sequence(
+                        OneOf("BINARY", "VARBINARY"),
+                        Ref("BracketedArguments", optional=True),
+                    ),
+                    "IMAGE",
+                    # Other data types
+                    "CURSOR",
+                    "SQL_VARIANT",
+                    "TABLE",
+                    "TIMESTAMP",
+                    "ROWVERSION",
+                    "UNIQUEIDENTIFIER",
+                    "XML",
+                    "JSON",
+                    # Spatial types
+                    "GEOGRAPHY",
+                    "GEOMETRY",
+                    "HIERARCHYID",
+                    # Vector type (Azure SQL Database)
+                    Sequence(
+                        "VECTOR",
+                        Ref("BracketedArguments", optional=True),
+                    ),
+                ),
+            ),
+            # User-defined data types
+            Ref("DatatypeIdentifierSegment"),
         ),
-        # Stop Gap until explicit Data Types as only relevant for character
-        Ref.keyword("VARYING", optional=True),
-        Ref("BracketedArguments", optional=True),
+        # Character set grammar for character types
         Ref("CharCharacterSetGrammar", optional=True),
     )
 
@@ -7304,6 +7386,27 @@ class CreateRoleStatementSegment(ansi.CreateRoleStatementSegment):
 
     match_grammar = Sequence(
         "CREATE",
+        "ROLE",
+        Ref("RoleReferenceSegment"),
+        Sequence(
+            "AUTHORIZATION",
+            Ref("RoleReferenceSegment"),
+            optional=True,
+        ),
+    )
+
+
+class CreateServerRoleStatementSegment(ansi.CreateRoleStatementSegment):
+    """A `CREATE SERVER ROLE` statement.
+
+    https://learn.microsoft.com/en-us/sql/t-sql/statements/create-server-role-transact-sql?view=sql-server-ver17
+    """
+
+    type = "create_server_role_statement"
+
+    match_grammar = Sequence(
+        "CREATE",
+        "SERVER",
         "ROLE",
         Ref("RoleReferenceSegment"),
         Sequence(

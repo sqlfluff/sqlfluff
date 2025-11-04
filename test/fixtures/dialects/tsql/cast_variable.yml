@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 4cdf2eb61314a53ba5b9dcf74737fe51291c226fed8d663d4a44bf55afd4d788
+_hash: e5df4beddfee32cd8de791d969fbfde4e443a2d6751a21d975cc1acf9ae48311
 file:
   batch:
   - statement:
@@ -11,7 +11,7 @@ file:
         keyword: DECLARE
         parameter: '@DateNow'
         data_type:
-          data_type_identifier: date
+          keyword: date
         comparison_operator:
           raw_comparison_operator: '='
         expression:
@@ -74,7 +74,7 @@ file:
                     quoted_literal: "'1900-01-01'"
                   keyword: as
                   data_type:
-                    data_type_identifier: datetime2
+                    keyword: datetime2
                     bracketed_arguments:
                       bracketed:
                         start_bracket: (
@@ -101,7 +101,7 @@ file:
         keyword: declare
         parameter: '@sample'
         data_type:
-          data_type_identifier: nvarchar
+          keyword: nvarchar
           bracketed_arguments:
             bracketed:
               start_bracket: (
@@ -120,7 +120,7 @@ file:
                   integer_literal: '100'
                 keyword: as
                 data_type:
-                  data_type_identifier: nvarchar
+                  keyword: nvarchar
                   bracketed_arguments:
                     bracketed:
                       start_bracket: (

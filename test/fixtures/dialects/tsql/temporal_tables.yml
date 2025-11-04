@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 133f6821f8c566a867edc5e4af101f1ed2bd0d8f1a9ec2d7e2d69a945df52100
+_hash: 885cc3eead4d098a51b9b4b98752367130ee9fc00247b6c21039bf3775428043
 file:
 - batch:
   - statement:
@@ -126,7 +126,7 @@ file:
         keyword: DECLARE
         parameter: '@StartTime'
         data_type:
-          data_type_identifier: DATETIME2
+          keyword: DATETIME2
         comparison_operator:
           raw_comparison_operator: '='
         expression:
@@ -137,7 +137,7 @@ file:
         keyword: DECLARE
         parameter: '@EndTime'
         data_type:
-          data_type_identifier: DATETIME2
+          keyword: DATETIME2
         comparison_operator:
           raw_comparison_operator: '='
         expression:
@@ -171,7 +171,7 @@ file:
         keyword: DECLARE
         parameter: '@PointInTime'
         data_type:
-          data_type_identifier: DATETIME2
+          keyword: DATETIME2
         comparison_operator:
           raw_comparison_operator: '='
         expression:
@@ -213,17 +213,15 @@ file:
             quoted_identifier: '[Column B]'
             data_type:
               data_type_identifier: '[varchar]'
-              bracketed_arguments:
-                bracketed:
-                  start_bracket: (
-                  expression:
-                    integer_literal: '100'
-                  end_bracket: )
+            bracketed:
+              start_bracket: (
+              numeric_literal: '100'
+              end_bracket: )
         - comma: ','
         - column_definition:
             quoted_identifier: '[ColumnC]'
             data_type:
-              data_type_identifier: varchar
+              keyword: varchar
               bracketed_arguments:
                 bracketed:
                   start_bracket: (
@@ -234,7 +232,7 @@ file:
         - column_definition:
             quoted_identifier: '[ColumnDecimal]'
             data_type:
-              data_type_identifier: decimal
+              keyword: decimal
               bracketed_arguments:
                 bracketed:
                 - start_bracket: (
@@ -285,7 +283,7 @@ file:
         - column_definition:
           - naked_identifier: DeptID
           - data_type:
-              data_type_identifier: INT
+              keyword: INT
           - column_constraint_segment:
             - keyword: NOT
             - keyword: 'NULL'
@@ -297,7 +295,7 @@ file:
         - column_definition:
             naked_identifier: DeptName
             data_type:
-              data_type_identifier: VARCHAR
+              keyword: VARCHAR
               bracketed_arguments:
                 bracketed:
                   start_bracket: (
@@ -311,21 +309,21 @@ file:
         - column_definition:
             naked_identifier: ManagerID
             data_type:
-              data_type_identifier: INT
+              keyword: INT
             column_constraint_segment:
               keyword: 'NULL'
         - comma: ','
         - column_definition:
             naked_identifier: ParentDeptID
             data_type:
-              data_type_identifier: INT
+              keyword: INT
             column_constraint_segment:
               keyword: 'NULL'
         - comma: ','
         - column_definition:
           - naked_identifier: ValidFrom
           - data_type:
-              data_type_identifier: DATETIME2
+              keyword: DATETIME2
           - column_constraint_segment:
             - keyword: GENERATED
             - keyword: ALWAYS
@@ -339,7 +337,7 @@ file:
         - column_definition:
           - naked_identifier: ValidTo
           - data_type:
-              data_type_identifier: DATETIME2
+              keyword: DATETIME2
           - column_constraint_segment:
             - keyword: GENERATED
             - keyword: ALWAYS
@@ -400,17 +398,15 @@ file:
             quoted_identifier: '[Column B]'
             data_type:
               data_type_identifier: '[varchar]'
-              bracketed_arguments:
-                bracketed:
-                  start_bracket: (
-                  expression:
-                    integer_literal: '100'
-                  end_bracket: )
+            bracketed:
+              start_bracket: (
+              numeric_literal: '100'
+              end_bracket: )
         - comma: ','
         - column_definition:
             quoted_identifier: '[ColumnC]'
             data_type:
-              data_type_identifier: varchar
+              keyword: varchar
               bracketed_arguments:
                 bracketed:
                   start_bracket: (
@@ -421,7 +417,7 @@ file:
         - column_definition:
             quoted_identifier: '[ColumnDecimal]'
             data_type:
-              data_type_identifier: decimal
+              keyword: decimal
               bracketed_arguments:
                 bracketed:
                 - start_bracket: (
@@ -461,17 +457,15 @@ file:
             quoted_identifier: '[Column B]'
             data_type:
               data_type_identifier: '[varchar]'
-              bracketed_arguments:
-                bracketed:
-                  start_bracket: (
-                  expression:
-                    integer_literal: '100'
-                  end_bracket: )
+            bracketed:
+              start_bracket: (
+              numeric_literal: '100'
+              end_bracket: )
         - comma: ','
         - column_definition:
             quoted_identifier: '[ColumnC]'
             data_type:
-              data_type_identifier: varchar
+              keyword: varchar
               bracketed_arguments:
                 bracketed:
                   start_bracket: (
@@ -482,7 +476,7 @@ file:
         - column_definition:
             quoted_identifier: '[ColumnDecimal]'
             data_type:
-              data_type_identifier: decimal
+              keyword: decimal
               bracketed_arguments:
                 bracketed:
                 - start_bracket: (
@@ -534,17 +528,15 @@ file:
             quoted_identifier: '[Column B]'
             data_type:
               data_type_identifier: '[varchar]'
-              bracketed_arguments:
-                bracketed:
-                  start_bracket: (
-                  expression:
-                    integer_literal: '100'
-                  end_bracket: )
+            bracketed:
+              start_bracket: (
+              numeric_literal: '100'
+              end_bracket: )
         - comma: ','
         - column_definition:
             quoted_identifier: '[ColumnC]'
             data_type:
-              data_type_identifier: varchar
+              keyword: varchar
               bracketed_arguments:
                 bracketed:
                   start_bracket: (
@@ -555,7 +547,7 @@ file:
         - column_definition:
             quoted_identifier: '[ColumnDecimal]'
             data_type:
-              data_type_identifier: decimal
+              keyword: decimal
               bracketed_arguments:
                 bracketed:
                 - start_bracket: (
@@ -613,17 +605,15 @@ file:
             quoted_identifier: '[Column B]'
             data_type:
               data_type_identifier: '[varchar]'
-              bracketed_arguments:
-                bracketed:
-                  start_bracket: (
-                  expression:
-                    integer_literal: '100'
-                  end_bracket: )
+            bracketed:
+              start_bracket: (
+              numeric_literal: '100'
+              end_bracket: )
         - comma: ','
         - column_definition:
             quoted_identifier: '[ColumnC]'
             data_type:
-              data_type_identifier: varchar
+              keyword: varchar
               bracketed_arguments:
                 bracketed:
                   start_bracket: (
@@ -634,7 +624,7 @@ file:
         - column_definition:
             quoted_identifier: '[ColumnDecimal]'
             data_type:
-              data_type_identifier: decimal
+              keyword: decimal
               bracketed_arguments:
                 bracketed:
                 - start_bracket: (
@@ -708,17 +698,15 @@ file:
             quoted_identifier: '[Column B]'
             data_type:
               data_type_identifier: '[varchar]'
-              bracketed_arguments:
-                bracketed:
-                  start_bracket: (
-                  expression:
-                    integer_literal: '100'
-                  end_bracket: )
+            bracketed:
+              start_bracket: (
+              numeric_literal: '100'
+              end_bracket: )
         - comma: ','
         - column_definition:
             quoted_identifier: '[ColumnC]'
             data_type:
-              data_type_identifier: varchar
+              keyword: varchar
               bracketed_arguments:
                 bracketed:
                   start_bracket: (
@@ -729,7 +717,7 @@ file:
         - column_definition:
             quoted_identifier: '[ColumnDecimal]'
             data_type:
-              data_type_identifier: decimal
+              keyword: decimal
               bracketed_arguments:
                 bracketed:
                 - start_bracket: (
@@ -777,17 +765,15 @@ file:
             quoted_identifier: '[Column B]'
             data_type:
               data_type_identifier: '[varchar]'
-              bracketed_arguments:
-                bracketed:
-                  start_bracket: (
-                  expression:
-                    integer_literal: '100'
-                  end_bracket: )
+            bracketed:
+              start_bracket: (
+              numeric_literal: '100'
+              end_bracket: )
         - comma: ','
         - column_definition:
             quoted_identifier: '[ColumnC]'
             data_type:
-              data_type_identifier: varchar
+              keyword: varchar
               bracketed_arguments:
                 bracketed:
                   start_bracket: (
@@ -798,7 +784,7 @@ file:
         - column_definition:
             quoted_identifier: '[ColumnDecimal]'
             data_type:
-              data_type_identifier: decimal
+              keyword: decimal
               bracketed_arguments:
                 bracketed:
                 - start_bracket: (
@@ -848,17 +834,15 @@ file:
             quoted_identifier: '[Column B]'
             data_type:
               data_type_identifier: '[varchar]'
-              bracketed_arguments:
-                bracketed:
-                  start_bracket: (
-                  expression:
-                    integer_literal: '100'
-                  end_bracket: )
+            bracketed:
+              start_bracket: (
+              numeric_literal: '100'
+              end_bracket: )
         - comma: ','
         - column_definition:
             quoted_identifier: '[ColumnC]'
             data_type:
-              data_type_identifier: varchar
+              keyword: varchar
               bracketed_arguments:
                 bracketed:
                   start_bracket: (
@@ -869,7 +853,7 @@ file:
         - column_definition:
             quoted_identifier: '[ColumnDecimal]'
             data_type:
-              data_type_identifier: decimal
+              keyword: decimal
               bracketed_arguments:
                 bracketed:
                 - start_bracket: (
@@ -944,17 +928,15 @@ file:
             quoted_identifier: '[Column B]'
             data_type:
               data_type_identifier: '[varchar]'
-              bracketed_arguments:
-                bracketed:
-                  start_bracket: (
-                  expression:
-                    integer_literal: '100'
-                  end_bracket: )
+            bracketed:
+              start_bracket: (
+              numeric_literal: '100'
+              end_bracket: )
         - comma: ','
         - column_definition:
             quoted_identifier: '[ColumnC]'
             data_type:
-              data_type_identifier: varchar
+              keyword: varchar
               bracketed_arguments:
                 bracketed:
                   start_bracket: (
@@ -965,7 +947,7 @@ file:
         - column_definition:
             quoted_identifier: '[ColumnDecimal]'
             data_type:
-              data_type_identifier: decimal
+              keyword: decimal
               bracketed_arguments:
                 bracketed:
                 - start_bracket: (
