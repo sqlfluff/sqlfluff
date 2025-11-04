@@ -295,9 +295,12 @@ impl Parser<'_> {
         'main_loop: while let Some(mut frame) = stack.pop() {
             iteration_count += 1;
 
-            // Re-check the cache for this frame before processing, unless disabled
-            if let NextStep::Continue = self.check_and_handle_frame_cache(&mut frame, &mut stack)? {
-                continue 'main_loop;
+            // Re-check the cache ONLY for Initial frames
+            // WaitingForChild frames have already started processing and have a child computing the result
+            if matches!(frame.state, FrameState::Initial) {
+                if let NextStep::Continue = self.check_and_handle_frame_cache(&mut frame, &mut stack)? {
+                    continue 'main_loop;
+                }
             }
 
             if iteration_count > max_iterations {
@@ -533,6 +536,8 @@ impl Parser<'_> {
                             end_pos,
                             frame.frame_id
                         );
+                        eprintln!("[CACHE HIT] frame_id={}, grammar={}, pos={} -> end_pos={}, storing cached result",
+                            frame.frame_id, frame.grammar, frame.pos, end_pos);
                         self.pos = end_pos;
                         for &pos in &transparent_positions {
                             self.collected_transparent_positions.insert(pos);
@@ -547,6 +552,8 @@ impl Parser<'_> {
                             frame.pos,
                             frame.frame_id
                         );
+                        eprintln!("[CACHE ERROR] frame_id={}, grammar={}, pos={}, storing Empty and skipping",
+                            frame.frame_id, frame.grammar, frame.pos);
                         stack
                             .results
                             .insert(frame.frame_id, (Node::Empty, frame.pos, None));
@@ -665,8 +672,12 @@ impl Parser<'_> {
         };
 
         let child = stack.results.get(&child_frame_id).cloned();
+        eprintln!("[RESULT GET] parent_frame_id={}, child_frame_id={}, child_found={}",
+            frame.frame_id, child_frame_id, child.is_some());
 
         if let Some((child_node, child_end_pos, child_element_key)) = &child {
+            eprintln!("[RESULT FOUND] parent_frame_id={}, child_frame_id={}, child_end_pos={}",
+                frame.frame_id, child_frame_id, child_end_pos);
             log::debug!(
                 "Child {} of {} completed (frame_id={}): pos {} -> {}",
                 child_index,

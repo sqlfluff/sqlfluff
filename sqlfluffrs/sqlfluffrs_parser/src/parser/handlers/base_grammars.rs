@@ -249,6 +249,8 @@ impl Parser<'_> {
                 };
 
                 // Push parent back first, then child (LIFO - child will be processed next)
+                eprintln!("[REF PUSH] frame_id={}, name={}, pushing parent back onto stack",
+                    frame.frame_id, name);
                 stack.push(frame);
 
                 log::debug!("DEBUG [iter {}]: Ref({}) frame_id={} creating child frame_id={}, child grammar type: {}",
@@ -301,6 +303,9 @@ impl Parser<'_> {
         child_end_pos: &usize,
         stack: &mut ParseFrameStack,
     ) {
+        eprintln!("[REF WAITING] frame_id={}, child_end_pos={}, child_empty={}",
+            frame.frame_id, child_end_pos, child_node.is_empty());
+
         let FrameContext::Ref {
             grammar,
             segment_type,
@@ -337,6 +342,8 @@ impl Parser<'_> {
         };
 
         self.pos = *child_end_pos;
+        eprintln!("[REF CHILD] frame_id={}, name={}, child_end_pos={}, setting self.pos={}",
+            frame.frame_id, name, child_end_pos, self.pos);
 
         // Store Ref result in cache for future reuse
         // Use frame's parent_max_idx if available, otherwise tokens.len()
@@ -370,6 +377,8 @@ impl Parser<'_> {
             Ok((final_node.clone(), self.pos, transparent_positions)),
         );
 
+        eprintln!("[REF RESULT] frame_id={}, name={}, storing result with pos={}",
+            frame.frame_id, name, self.pos);
         stack
             .results
             .insert(frame.frame_id, (final_node, self.pos, None));

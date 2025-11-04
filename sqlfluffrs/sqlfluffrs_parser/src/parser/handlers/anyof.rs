@@ -1,9 +1,11 @@
 use std::sync::Arc;
 
 use crate::parser::iterative::{NextStep, ParseFrameStack};
-use crate::parser::utils::apply_parse_mode_to_result;
+use crate::parser::utils::{apply_parse_mode_to_result, skip_start_index_forward_to_code};
 use crate::parser::{FrameContext, FrameState, Node, ParseError, ParseFrame};
 use sqlfluffrs_types::{Grammar, ParseMode};
+
+type ResultType = (Node, usize, Option<u64>);
 
 impl crate::parser::Parser<'_> {
     /// Handle AnyNumberOf grammar Initial state in iterative parser.
@@ -68,8 +70,8 @@ impl crate::parser::Parser<'_> {
             } => (
                 elements,
                 *min_times,
-                max_times.clone(),
-                max_times_per_element.clone(),
+                max_times,
+                max_times_per_element,
                 exclude,
                 *optional,
                 any_terminators,
@@ -95,6 +97,71 @@ impl crate::parser::Parser<'_> {
             parse_mode
         );
 
+        // Python parity: Check exclude grammar first, before any other logic
+        if let Some(exclude_grammar) = exclude {
+            let test_result =
+                self.try_match_grammar(*exclude_grammar.clone(), start_idx, parent_terminators);
+            if test_result.is_ok() {
+                log::debug!(
+                    "AnyNumberOf: exclude grammar matched at pos {}, returning Empty",
+                    start_idx
+                );
+                stack
+                    .results
+                    .insert(frame.frame_id, (Node::Empty, start_idx, None));
+                return Ok(NextStep::Continue);
+            }
+            log::debug!("AnyNumberOf: exclude grammar did not match, continuing");
+        }
+
+        let option_counter: hashbrown::HashMap<u64, usize> =
+            elements.iter().map(|elem| (elem.cache_key(), 0)).collect();
+        let matched: ResultType = (Node::Empty, start_idx, None);
+        let max_idx = self.tokens.len();
+
+        // Combine parent and local terminators
+        let all_terminators =
+            self.combine_terminators(any_terminators, parent_terminators, reset_terminators);
+
+
+        // If we are in greedy mode, calculate max_idx with terminators (Python parity)
+        // This must happen before we push the child frame, so we don't overrun terminators.
+        let mut max_idx = max_idx;
+        if parse_mode == ParseMode::Greedy {
+            // In GREEDY mode, trim max_idx to the first terminator (if any)
+            // Use all_terminators, which already combines local and parent terminators
+            max_idx = self.trim_to_terminator(start_idx, &all_terminators);
+        }
+
+        // Here we have 0 matches, so if min_times is 0 and we're at max_idx,
+        // or we've hit max times we want to return the results from
+        if min_times == 0 && start_idx >= max_idx {
+            log::debug!(
+                "AnyNumberOf: start_idx ({}) >= max_idx ({}), min_times={}",
+                start_idx,
+                max_idx,
+                min_times
+            );
+            if let Some(value) = self.parse_mode_match_result(
+                frame, stack, parse_mode, start_idx, max_idx, matched,
+            ) {
+                return value;
+            }
+        }
+
+        // if our pos is already at or past max_idx, return Empty match
+        if start_idx >= max_idx {
+            log::debug!(
+            "AnyNumberOf: start_idx ({}) >= max_idx ({}), returning Empty",
+            start_idx,
+            max_idx
+            );
+            stack
+            .results
+            .insert(frame.frame_id, (Node::Empty, start_idx, None));
+            return Ok(NextStep::Continue);
+        }
+
         // Prune options BEFORE any other logic, like Python
         let pruned_options = self.prune_options(elements);
         // If no options remain after pruning, treat as no match
@@ -105,27 +172,16 @@ impl crate::parser::Parser<'_> {
             return Ok(NextStep::Fallthrough);
         }
 
-        if let Some(exclude_grammar) = exclude {
-            let test_result =
-                self.try_match_grammar(*exclude_grammar.clone(), start_idx, parent_terminators);
-            if test_result.is_ok() {
-                log::debug!(
-                    "AnyNumberOf: exclude grammar matched at pos {}, returning empty",
-                    start_idx
-                );
-                return Ok(NextStep::Continue);
-            }
-            log::debug!("exclude grammar missed!")
-        }
-
-        // Combine parent and local terminators
-        let all_terminators =
-            self.combine_terminators(any_terminators, parent_terminators, reset_terminators);
-
         // Calculate max_idx with terminator and parent constraints
         // AnyNumberOf uses trim_to_terminator_with_elements to avoid over-eager termination
         self.pos = start_idx;
-        let max_idx = self.calculate_max_idx_with_elements(start_idx, &all_terminators, &pruned_options, parse_mode, frame.parent_max_idx);
+        let max_idx = self.calculate_max_idx_with_elements(
+            start_idx,
+            &all_terminators,
+            &pruned_options,
+            parse_mode,
+            frame.parent_max_idx,
+        );
 
         log::debug!("DEBUG [iter {}]: AnyNumberOf Initial at pos={}, parent_max_idx={:?}, elements.len()={}",
             iteration_count, frame.pos, frame.parent_max_idx, pruned_options.len());
@@ -164,7 +220,7 @@ impl crate::parser::Parser<'_> {
             count: 0,
             matched_idx: start_idx,
             working_idx: start_idx,
-            option_counter: hashbrown::HashMap::new(),
+            option_counter,
             max_idx,
             last_child_frame_id: None,
         };
@@ -220,6 +276,84 @@ impl crate::parser::Parser<'_> {
             );
         }
         Ok(NextStep::Continue)
+    }
+
+    fn parse_mode_match_result(
+        &mut self,
+        frame: &mut ParseFrame,
+        stack: &mut ParseFrameStack,
+        parse_mode: ParseMode,
+        start_idx: usize,
+        max_idx: usize,
+        current_match: ResultType,
+    ) -> Option<Result<NextStep, ParseError>> {
+        // Rust implementation of _parse_mode_match_result logic:
+        log::debug!(
+            "parse_mode_match_result: start_idx ({}) >= max_idx ({})",
+            start_idx,
+            max_idx,
+        );
+        // If we're being strict, just current match.
+        if parse_mode == ParseMode::Strict {
+            stack.results.insert(frame.frame_id, current_match);
+            return Some(Ok(NextStep::Continue));
+        }
+
+        // If nothing unmatched anyway?
+        // In Rust, tokens are self.tokens, and we want to check if all tokens from start_idx to max_idx are not code.
+        let all_non_code = self.tokens[start_idx..max_idx]
+            .iter()
+            .all(|tok| !tok.is_code());
+
+        if start_idx == max_idx || all_non_code {
+            stack.results.insert(frame.frame_id, current_match);
+            return Some(Ok(NextStep::Continue));
+        }
+
+        // Find the first code token after start_idx
+        let mut trim_idx = self.skip_start_index_forward_to_code(start_idx, max_idx);
+        while trim_idx < max_idx && !self.tokens[trim_idx].is_code() {
+            trim_idx += 1;
+        }
+
+        // Create an unmatched segment (Unparsable)
+        let mut expected = "Nothing else".to_string();
+        if self.tokens.len() > max_idx {
+            expected += &format!(" before {:?}", self.tokens[max_idx].raw());
+        }
+
+        let unmatched_node = Node::Unparsable {
+            children: self.tokens[trim_idx..max_idx]
+                .iter()
+                .enumerate()
+                .map(|(idx, tok)| Node::Token {
+                    token_type: tok.token_type.clone(),
+                    raw: tok.raw().to_string(),
+                    token_idx: trim_idx + idx,
+                })
+                .collect(),
+            expected_message: expected,
+        };
+
+        // Append the unmatched_node to the current_match, as in Python (_parse_mode_match_result)
+        let (mut node, _, _) = current_match;
+        let result_node = match node {
+            Node::Sequence { ref mut children } => {
+                children.push(unmatched_node);
+                node
+            }
+            Node::Empty => Node::Sequence {
+                children: vec![Node::Empty, unmatched_node],
+            },
+            _ => Node::Sequence {
+                children: vec![node, unmatched_node],
+            },
+        };
+
+        stack
+            .results
+            .insert(frame.frame_id, (result_node, max_idx, None));
+        return Some(Ok(NextStep::Continue));
     }
 
     /// Handle AnyNumberOf grammar WaitingForChild state in iterative parser
@@ -331,10 +465,9 @@ impl crate::parser::Parser<'_> {
                                 "AnyNumberOf COMPLETE (max_times_per_element): {} matches",
                                 count
                             );
-                            stack.results.insert(
-                                frame.frame_id,
-                                (result_node, *matched_idx, None),
-                            );
+                            stack
+                                .results
+                                .insert(frame.frame_id, (result_node, *matched_idx, None));
                             return;
                         } else {
                             // Didn't meet min_times, return Empty
@@ -342,10 +475,9 @@ impl crate::parser::Parser<'_> {
                             log::debug!(
                                 "AnyNumberOf Empty (max_times_per_element exceeded, min_times not met)"
                             );
-                            stack.results.insert(
-                                frame.frame_id,
-                                (Node::Empty, frame.pos, None),
-                            );
+                            stack
+                                .results
+                                .insert(frame.frame_id, (Node::Empty, frame.pos, None));
                             return;
                         }
                     }
@@ -556,7 +688,12 @@ impl crate::parser::Parser<'_> {
             self.combine_terminators(local_terminators, parent_terminators, reset_terminators);
 
         // Calculate max_idx with terminator and parent constraints
-        let max_idx = self.calculate_max_idx(post_skip_pos, &all_terminators, parse_mode, frame.parent_max_idx);
+        let max_idx = self.calculate_max_idx(
+            post_skip_pos,
+            &all_terminators,
+            parse_mode,
+            frame.parent_max_idx,
+        );
 
         // Check termination using ORIGINAL elements, not pruned
         // Pruning is for optimization only and shouldn't affect termination logic
@@ -644,7 +781,7 @@ impl crate::parser::Parser<'_> {
                 leading_ws: leading_ws.clone(),
                 post_skip_pos,
                 longest_match: Some((Node::Empty, 0, element_key)),
-                tried_elements: 1,  // We tried one element
+                tried_elements: 1, // We tried one element
                 max_idx,
                 last_child_frame_id: None,
                 current_element_key: None,
@@ -738,18 +875,98 @@ impl crate::parser::Parser<'_> {
             })
         });
 
+        eprintln!("[ONEOF CHILD] frame_id={}, child_empty={}, child_end_pos={}, consumed={}, tried_elements={}/{}, post_skip_pos={}",
+            frame.frame_id, child_node.is_empty(), child_end_pos, consumed, tried_elements, elements.len(), post_skip_pos);
+        if consumed >= 5 {
+            eprintln!("[ONEOF CHILD LONG MATCH] This is a long match! Investigating...");
+            eprintln!("  Grammar: {:?}", grammar);
+        }
+
         log::debug!(
-            "OneOf WaitingForChild: tried_elements={}, elements.len()={}, element_key={} (from current_element_key={:?}), child_empty={}",
-            tried_elements, elements.len(), element_key, current_element_key, child_node.is_empty()
+            "OneOf WaitingForChild: tried_elements={}, elements.len()={}, element_key={} (from current_element_key={:?}), child_empty={}, child_end_pos={}, max_idx={}, consumed={}",
+            tried_elements, elements.len(), element_key, current_element_key, child_node.is_empty(), child_end_pos, max_idx, consumed
         );
 
         if !child_node.is_empty() {
-            let is_better = longest_match.is_none() || consumed > longest_match.as_ref().unwrap().1;
+            // Python parity: Prioritize matches by:
+            // 1. Clean matches over unclean matches (those with Unparsable segments)
+            // 2. Longer matches over shorter matches
+            let child_is_clean = Self::is_node_clean(child_node);
+            let is_better = if let Some((ref current_best, current_consumed, _)) = longest_match {
+                let current_is_clean = Self::is_node_clean(current_best);
+
+                // If child is clean and current is unclean, child is better
+                if child_is_clean && !current_is_clean {
+                    true
+                }
+                // If child is unclean and current is clean, child is NOT better
+                else if !child_is_clean && current_is_clean {
+                    false
+                }
+                // Both clean or both unclean: compare by length
+                else {
+                    consumed > *current_consumed
+                }
+            } else {
+                // No previous match, this is better
+                true
+            };
+
             if is_better {
+                eprintln!("[ONEOF BETTER] frame_id={}, consumed={}, clean={}, replacing previous best",
+                    frame.frame_id, consumed, child_is_clean);
+                log::debug!(
+                    "OneOf: Found better match! element_key={}, consumed={}, child_end_pos={}, max_idx={}, clean={}",
+                    element_key, consumed, child_end_pos, max_idx, child_is_clean
+                );
                 *longest_match = Some((child_node.clone(), consumed, element_key));
-            }
-            if *child_end_pos >= *max_idx {
-                *tried_elements = elements.len();
+
+                // Python parity: Check for early termination conditions
+                // 1. If we've reached max_idx, stop trying more elements
+                if *child_end_pos >= *max_idx {
+                    log::debug!("OneOf: reached max_idx={}, stopping early (perfect match)", max_idx);
+                    *tried_elements = elements.len();
+                }
+                // 2. If this is the last element, we're done (no need to check terminators)
+                else if *tried_elements + 1 >= elements.len() {
+                    log::debug!("OneOf: last element matched, stopping early");
+                    *tried_elements = elements.len();
+                }
+                // 3. Check if a terminator matches after this match
+                else if !frame_terminators.is_empty() {
+                    let next_code_idx = self.skip_start_index_forward_to_code(*child_end_pos, *max_idx);
+                    eprintln!("[ONEOF DEBUG] Checking terminators: child_end_pos={}, next_code_idx={}, max_idx={}, frame_terminators.len()={}",
+                        child_end_pos, next_code_idx, max_idx, frame_terminators.len());
+                    if next_code_idx < self.tokens.len() {
+                        let next_tok = &self.tokens[next_code_idx];
+                        eprintln!("[ONEOF DEBUG] Next token at {}: {:?} (type: {})", next_code_idx, next_tok.raw(), next_tok.get_type());
+                    }
+                    log::debug!(
+                        "OneOf: Checking terminators after match, child_end_pos={}, next_code_idx={}, max_idx={}",
+                        child_end_pos, next_code_idx, max_idx
+                    );
+                    if next_code_idx >= *max_idx {
+                        eprintln!("[ONEOF DEBUG] No more code after match, stopping");
+                        log::debug!("OneOf: no more code segments after match, stopping early");
+                        *tried_elements = elements.len();
+                    } else {
+                        // Check if any terminator matches
+                        for (term_idx, terminator) in frame_terminators.iter().enumerate() {
+                            eprintln!("[ONEOF DEBUG] Trying terminator #{}: {:?}", term_idx, terminator);
+                            if self.try_match_grammar(terminator.clone(), next_code_idx, &[]).is_ok() {
+                                eprintln!("[ONEOF DEBUG] Terminator #{} MATCHED! Stopping early.", term_idx);
+                                log::debug!(
+                                    "OneOf: terminator {:?} matched at pos={}, stopping early (terminated match)",
+                                    terminator, next_code_idx
+                                );
+                                *tried_elements = elements.len();
+                                break;
+                            } else {
+                                eprintln!("[ONEOF DEBUG] Terminator #{} did not match", term_idx);
+                            }
+                        }
+                    }
+                }
             }
         }
         *tried_elements += 1;
@@ -775,9 +992,12 @@ impl crate::parser::Parser<'_> {
         } else {
             if let Some((best_node, best_consumed, best_element_key)) = longest_match {
                 self.pos = *post_skip_pos + *best_consumed;
+                eprintln!("[ONEOF RESULT] Returning match: frame_id={}, element_key={}, consumed={}, final_pos={}",
+                    frame.frame_id, best_element_key, best_consumed, self.pos);
                 log::debug!(
                     "OneOf returning match with element_key={}, consumed={}",
-                    best_element_key, best_consumed
+                    best_element_key,
+                    best_consumed
                 );
                 let result = if !leading_ws.is_empty() {
                     let mut children = leading_ws.clone();
@@ -813,6 +1033,18 @@ impl crate::parser::Parser<'_> {
     }
 
     // Helper methods
+
+    /// Check if a node is "clean" (doesn't contain Unparsable segments).
+    /// Python's longest_match prioritizes clean matches over unclean ones.
+    fn is_node_clean(node: &Node) -> bool {
+        match node {
+            Node::Unparsable { .. } => false,
+            Node::Sequence { children } => children.iter().all(Self::is_node_clean),
+            Node::Ref { child, .. } => Self::is_node_clean(child),
+            _ => true, // Token, Whitespace, Newline, Empty, etc. are all clean
+        }
+    }
+
     /// Try to match a grammar at a specific position without consuming tokens
     /// Returns Some(end_pos) if the grammar matches, None otherwise
     ///

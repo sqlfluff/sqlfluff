@@ -94,6 +94,7 @@ impl<'a> Parser<'a> {
         parent_max_idx: Option<usize>,
     ) -> usize {
         // Calculate initial max_idx based on parse_mode
+        // Python parity: only trim to terminator in GREEDY mode
         let mut max_idx = if parse_mode == ParseMode::Greedy {
             self.trim_to_terminator(start_idx, terminators)
         } else {
@@ -109,6 +110,11 @@ impl<'a> Parser<'a> {
         if let Some(parent_limit) = parent_max_idx {
             max_idx = max_idx.min(parent_limit);
         }
+
+        log::debug!(
+            "calculate_max_idx: start_idx={}, terminators.len()={}, parse_mode={:?}, parent_max_idx={:?}, final_max_idx={}",
+            start_idx, terminators.len(), parse_mode, parent_max_idx, max_idx
+        );
 
         max_idx
     }

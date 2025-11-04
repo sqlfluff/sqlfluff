@@ -303,6 +303,9 @@ impl<'a> Parser<'_> {
         iteration_count: usize,
         frame_terminators: Vec<Arc<Grammar>>,
     ) {
+        eprintln!("[SEQUENCE CHILD] frame_id={}, child_end_pos={}, child_empty={}",
+            frame.frame_id, child_end_pos, child_node.is_empty());
+
         let FrameContext::Sequence {
             grammar,
             matched_idx,
@@ -331,13 +334,18 @@ impl<'a> Parser<'_> {
 
         if child_node.is_empty() {
             let current_element = &elements[*current_element_idx];
+            eprintln!("[SEQUENCE EMPTY] frame_id={}, current_elem_idx={}/{}, is_optional={}",
+                frame.frame_id, *current_element_idx, elements.len(), current_element.is_optional());
             if current_element.is_optional() {
+                eprintln!("[SEQUENCE EMPTY OPT] frame_id={}, moving to next element", frame.frame_id);
                 log::debug!("Sequence: child returned Empty and is optional, continuing to next element");
                 // Don't advance matched_idx or push anything - just move to next element
                 *current_element_idx += 1;
 
                 // Check if we've processed all elements
                 if *current_element_idx >= elements.len() {
+                    eprintln!("[SEQUENCE ALL DONE] frame_id={}, completing after processing all {} elements",
+                        frame.frame_id, elements.len());
                     // All elements processed (some optional and skipped)
                     log::debug!(
                         "Sequence completing after optional elements: current_elem_idx={}, elements.len={}",
@@ -357,6 +365,8 @@ impl<'a> Parser<'_> {
                     stack.transparent_positions.insert(frame.frame_id, tentatively_collected.clone());
                     self.commit_collection_checkpoint(frame.frame_id);
 
+                    eprintln!("[SEQUENCE COMPLETE OPT] frame_id={}, matched_idx={}, parse_mode={:?}",
+                        frame.frame_id, *matched_idx, *parse_mode);
                     stack.results.insert(
                         frame.frame_id,
                         (result_node, *matched_idx, None),
@@ -421,6 +431,8 @@ impl<'a> Parser<'_> {
                 );
                 return;
             } else {
+                eprintln!("[SEQUENCE EMPTY REQ] frame_id={}, required element {} returned Empty!",
+                    frame.frame_id, *current_element_idx);
                 let element_desc = match current_element.as_ref() {
                     Grammar::Ref { name, .. } => format!("Ref({})", name),
                     Grammar::StringParser { template, .. } => {
@@ -576,6 +588,19 @@ impl<'a> Parser<'_> {
             // Collecting here would duplicate tokens that are within the child's range
 
             *matched_idx = *child_end_pos;
+
+            // If the child matched beyond the current max_idx, update max_idx to include it
+            // This can happen in GREEDY_ONCE_STARTED mode where max_idx was trimmed to a
+            // terminator, but subsequent elements (like FROM clause) legitimately parse beyond it
+            if *child_end_pos > *max_idx {
+                log::debug!(
+                    "Sequence: child matched beyond max_idx ({}), extending max_idx to {}",
+                    *max_idx,
+                    *child_end_pos
+                );
+                *max_idx = *child_end_pos;
+            }
+
             frame.accumulated.push(child_node.clone());
             if !*allow_gaps {
                 let mut last_code_consumed = element_start;
@@ -651,7 +676,7 @@ impl<'a> Parser<'_> {
                     .collect();
                 log::debug!(
                     "GREEDY_ONCE_STARTED: Passing {} remaining elements to trim logic",
-                    remaining_elements.len()
+                    remaining_elements.len(),
                 );
                 let new_max_idx = self.trim_to_terminator_with_elements(
                     *matched_idx,
@@ -799,6 +824,8 @@ impl<'a> Parser<'_> {
             } else {
                 current_max_idx
             };
+            eprintln!("[SEQUENCE COMPLETE] frame_id={}, current_matched_idx={}, current_max_idx={}, parse_mode={:?}, end_pos={}",
+                frame.frame_id, current_matched_idx, current_max_idx, current_parse_mode, end_pos);
             stack
                 .results
                 .insert(frame.frame_id, (result_node, end_pos, None));
@@ -869,6 +896,12 @@ impl<'a> Parser<'_> {
                 next_pos, current_max_idx, next_elem_idx, elements_clone.len());
 
             // Check if we've reached the max_idx boundary
+            // We use >= here because when next_pos == max_idx, we're at the boundary.
+            // However, if we just extended max_idx because a child went beyond it, we should
+            // NOT stop here - the extension means we can continue parsing.
+            // The child extension logic (lines 583-594) already updated max_idx if a child
+            // went beyond it, so if we're still at/beyond the boundary here AND we didn't
+            // just extend it, we should check if remaining elements are optional.
             if next_pos >= current_max_idx && next_elem_idx < elements_clone.len() {
                 // Determine if the next element (skipping Meta elements) is optional
                 let mut check_idx = next_elem_idx;
@@ -882,40 +915,9 @@ impl<'a> Parser<'_> {
                     }
                 }
 
-                if next_element_optional {
-                    // BUGFIX: The early return logic here is problematic when the previous element
-                    // (e.g., FROM clause) successfully parsed beyond current_max_idx. This happens when
-                    // max_idx was conservatively trimmed to a terminator (like "WITH"), but that
-                    // terminator turned out to be part of a valid grammar construct (like "WITH OFFSET").
-                    //
-                    // If we successfully parsed past max_idx, we should UPDATE max_idx rather than
-                    // stopping early. The fact that we parsed successfully means max_idx was too conservative.
-                    if next_pos > current_max_idx {
-                        log::debug!("SEQUENCE: next_pos ({}) > current_max_idx ({}), updating max_idx to allow continuation", next_pos, current_max_idx);
-                        // Update max_idx to at least next_pos, but keep original_max_idx as upper bound
-                        *max_idx = next_pos.max(current_max_idx).min(current_original_max_idx);
-                        log::debug!("SEQUENCE: Updated max_idx to {}", *max_idx);
-                    } else {
-                        // Original logic: return early when we've hit max_idx and next element is optional
-                        // Store transparent positions for when this result is used
-                        stack.transparent_positions.insert(frame.frame_id, tentatively_collected.clone());
-                        // Commit the collection checkpoint - this sequence succeeded
-                        self.commit_collection_checkpoint(frame.frame_id);
-                        self.pos = current_matched_idx;
-                        let result_node = if frame.accumulated.is_empty() {
-                            Node::Empty
-                        } else {
-                            Node::Sequence {
-                                children: frame.accumulated.clone(),
-                            }
-                        };
-                        stack
-                            .results
-                            .insert(frame.frame_id, (result_node, current_matched_idx, None));
-                        return;
-                    }
-                } else {
-                    // Next element is required but we've hit max_idx - return what we have
+                if !next_element_optional {
+                    // Next element is required but we've hit max_idx
+                    // Python parity: if required element at boundary, stop the sequence
                     if current_parse_mode == crate::parser::ParseMode::Strict
                         || frame.accumulated.is_empty()
                     {
@@ -940,6 +942,10 @@ impl<'a> Parser<'_> {
                         return;
                     }
                 }
+                // If next_element_optional is true, we DON'T return early.
+                // Python parity: skip optional elements at boundary and continue to next element.
+                // This matches Python's `continue` behavior at line 215 of sequence.py.
+                // The code will naturally continue below to try the next element.
             }
             frame.state = FrameState::WaitingForChild {
                 child_index: match frame.state {
