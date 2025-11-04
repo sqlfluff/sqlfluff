@@ -13,6 +13,7 @@ ALLOWABLE_LAYOUT_CONFIG_KEYS = (
     "align_scope",
     "keyword_line_position",
     "keyword_line_position_exclusions",
+    "alignment_coordinate_space",
 )
 
 ALLOWABLE_IMPLICIT_INDENTS_VALUES = ("forbid", "allow", "require")
