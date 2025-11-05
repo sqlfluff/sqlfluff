@@ -45,7 +45,11 @@ FROM bear_inventory;"#;
             let yaml_str = serde_yaml_ng::to_string(&as_record).unwrap();
             println!("{}", yaml_str);
 
-            println!("\n=== Parser position: {} / {} ===", parser.pos, tokens.len());
+            println!(
+                "\n=== Parser position: {} / {} ===",
+                parser.pos,
+                tokens.len()
+            );
 
             if parser.pos < tokens.len() {
                 println!("\n!!! WARNING: Parser did not consume all tokens !!!");
@@ -62,7 +66,11 @@ FROM bear_inventory;"#;
     }
 
     assert!(ast.is_ok(), "Parse error: {:?}", ast.err());
-    assert!(parser.pos >= tokens.len() - 1,
+    assert!(
+        parser.pos >= tokens.len() - 1,
         "Parser did not consume all tokens. Stopped at {} / {} tokens (last index: {})",
-        parser.pos, tokens.len(), tokens.len() - 1);
+        parser.pos,
+        tokens.len(),
+        tokens.len() - 1
+    );
 }

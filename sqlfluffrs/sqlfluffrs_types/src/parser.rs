@@ -305,7 +305,7 @@ impl Grammar {
             return cached.as_ref().cloned();
         }
 
-    let result = match self {
+        let result = match self {
             // Direct token matchers - can hint by type
             Grammar::Token { token_type } => Some(SimpleHint::from_type(token_type)),
 
@@ -371,8 +371,8 @@ impl Grammar {
 impl Hash for Grammar {
     fn hash<H: Hasher>(&self, state: &mut H) {
         std::mem::discriminant(self).hash(state);
-    match self {
-            Grammar::NonCodeMatcher => {},
+        match self {
+            Grammar::NonCodeMatcher => {}
             Grammar::Ref {
                 name,
                 optional,
@@ -480,7 +480,7 @@ impl Hash for Grammar {
 // Implement PartialEq for Grammar
 impl PartialEq for Grammar {
     fn eq(&self, other: &Self) -> bool {
-    match (self, other) {
+        match (self, other) {
             (Grammar::NonCodeMatcher, Grammar::NonCodeMatcher) => true,
             (
                 Grammar::Sequence {

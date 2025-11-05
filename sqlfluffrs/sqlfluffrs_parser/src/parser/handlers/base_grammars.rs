@@ -221,7 +221,9 @@ impl Parser<'_> {
 
                 log::debug!(
                     "DEBUG Ref frame_id={} creating child frame_id={} with parent_max_idx={:?}",
-                    frame.frame_id, child_frame_id, frame.parent_max_idx
+                    frame.frame_id,
+                    child_frame_id,
+                    frame.parent_max_idx
                 );
 
                 let mut child_frame = ParseFrame {
@@ -249,8 +251,11 @@ impl Parser<'_> {
                 };
 
                 // Push parent back first, then child (LIFO - child will be processed next)
-                log::debug!("[REF PUSH] frame_id={}, name={}, pushing parent back onto stack",
-                    frame.frame_id, name);
+                log::debug!(
+                    "[REF PUSH] frame_id={}, name={}, pushing parent back onto stack",
+                    frame.frame_id,
+                    name
+                );
                 stack.push(frame);
 
                 log::debug!("DEBUG [iter {}]: Ref({}) frame_id={} creating child frame_id={}, child grammar type: {}",
@@ -303,8 +308,12 @@ impl Parser<'_> {
         child_end_pos: &usize,
         stack: &mut ParseFrameStack,
     ) {
-        log::debug!("[REF WAITING] frame_id={}, child_end_pos={}, child_empty={}",
-            frame.frame_id, child_end_pos, child_node.is_empty());
+        log::debug!(
+            "[REF WAITING] frame_id={}, child_end_pos={}, child_empty={}",
+            frame.frame_id,
+            child_end_pos,
+            child_node.is_empty()
+        );
 
         let FrameContext::Ref {
             grammar,
@@ -365,7 +374,9 @@ impl Parser<'_> {
             // that the child may have consumed due to its allow_gaps setting.
             log::debug!(
                 "[REF STRIP PRE] Ref({}) before strip: saved_pos={}, child_end_pos={}",
-                name, saved_pos, child_end_pos
+                name,
+                saved_pos,
+                child_end_pos
             );
 
             let stripped_pos = crate::parser::utils::strip_trailing_non_code(
@@ -376,13 +387,16 @@ impl Parser<'_> {
 
             log::debug!(
                 "[REF STRIP POST] Ref({}) after strip: stripped_pos={}",
-                name, stripped_pos
+                name,
+                stripped_pos
             );
 
             if stripped_pos != *child_end_pos {
                 log::debug!(
                     "[REF STRIP] Ref({}) stripping trailing whitespace: child_end_pos={} -> {}",
-                    name, child_end_pos, stripped_pos
+                    name,
+                    child_end_pos,
+                    stripped_pos
                 );
             }
 
@@ -407,7 +421,11 @@ impl Parser<'_> {
         // Get transparent positions from the child's result in stack, not from the global set.
         // This avoids double-marking when the cache is later retrieved.
         let transparent_positions: Vec<usize> = if let Some(child_frame_id) = last_child_frame_id {
-            stack.transparent_positions.get(child_frame_id).cloned().unwrap_or_default()
+            stack
+                .transparent_positions
+                .get(child_frame_id)
+                .cloned()
+                .unwrap_or_default()
         } else {
             Vec::new()
         };
@@ -425,8 +443,12 @@ impl Parser<'_> {
             Ok((final_node.clone(), result_pos, transparent_positions)),
         );
 
-        log::debug!("[REF RESULT] frame_id={}, name={}, storing result with pos={}",
-            frame.frame_id, name, result_pos);
+        log::debug!(
+            "[REF RESULT] frame_id={}, name={}, storing result with pos={}",
+            frame.frame_id,
+            name,
+            result_pos
+        );
         stack
             .results
             .insert(frame.frame_id, (final_node, result_pos, None));

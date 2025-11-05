@@ -1,5 +1,5 @@
-use sqlfluffrs_lexer::{Lexer, LexInput};
 use sqlfluffrs_dialects::dialect::ansi::matcher::ANSI_LEXERS;
+use sqlfluffrs_lexer::{LexInput, Lexer};
 
 fn main() {
     let input1 = LexInput::String("bar . bar".into());
@@ -10,12 +10,24 @@ fn main() {
     println!("=== Lexing 'bar . bar' ===");
     let (tokens1, _) = lexer.lex(input1, false);
     for (i, token) in tokens1.iter().enumerate() {
-        println!("{}: type='{}', raw='{}', is_code={}", i, token.get_type(), token.raw(), token.is_code());
+        println!(
+            "{}: type='{}', raw='{}', is_code={}",
+            i,
+            token.get_type(),
+            token.raw(),
+            token.is_code()
+        );
     }
 
     println!("\n=== Lexing 'bar \\t .     bar' ===");
     let (tokens2, _) = lexer.lex(input2, false);
     for (i, token) in tokens2.iter().enumerate() {
-        println!("{}: type='{}', raw='{}', is_code={}", i, token.get_type(), token.raw(), token.is_code());
+        println!(
+            "{}: type='{}', raw='{}', is_code={}",
+            i,
+            token.get_type(),
+            token.raw(),
+            token.is_code()
+        );
     }
 }

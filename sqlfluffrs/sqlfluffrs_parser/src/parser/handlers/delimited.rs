@@ -142,10 +142,8 @@ impl crate::parser::Parser<'_> {
         // NOTE: Delimited does NOT respect reset_terminators flag
         // It always combines local + filtered parent terminators
         // This differs from other handlers but matches Python's behavior
-        let mut all_terminators: Vec<Arc<Grammar>> = filtered_local
-            .into_iter()
-            .chain(filtered_parent)
-            .collect();
+        let mut all_terminators: Vec<Arc<Grammar>> =
+            filtered_local.into_iter().chain(filtered_parent).collect();
 
         // If allow_gaps is false, add NonCodeMatcher as a real terminator
         if !allow_gaps {
@@ -226,7 +224,9 @@ impl crate::parser::Parser<'_> {
         let child_max_idx = max_idx;
         log::debug!(
             "[DELIMITED] Initial: working_pos={}, max_idx={}, child_max_idx={}",
-            working_pos, max_idx, child_max_idx
+            working_pos,
+            max_idx,
+            child_max_idx
         );
         stack.push(frame);
 
@@ -242,7 +242,11 @@ impl crate::parser::Parser<'_> {
             simple_hint: None,
         };
 
-        log::debug!("[ITERATIVE] Delimited: pushing child element at working_pos={}, child_max_idx={:?}", working_pos, Some(child_max_idx));
+        log::debug!(
+            "[ITERATIVE] Delimited: pushing child element at working_pos={}, child_max_idx={:?}",
+            working_pos,
+            Some(child_max_idx)
+        );
         let mut child_frame = ParseFrame::new_child(
             stack.frame_id_counter,
             child_grammar.into(),
@@ -301,12 +305,20 @@ impl crate::parser::Parser<'_> {
                 if *allow_gaps {
                     *working_idx = self.skip_start_index_forward_to_code(*working_idx, *max_idx);
                     self.pos = *working_idx;
-                    log::debug!("[ITERATIVE] Delimited: after skipping gaps, working_idx={}, self.pos={}", working_idx, self.pos);
+                    log::debug!(
+                        "[ITERATIVE] Delimited: after skipping gaps, working_idx={}, self.pos={}",
+                        working_idx,
+                        self.pos
+                    );
                 } else {
                     // CRITICAL: Set self.pos to working_idx even when allow_gaps=false!
                     // This ensures terminator checks happen at the correct position.
                     self.pos = *working_idx;
-                    log::debug!("[ITERATIVE] Delimited: allow_gaps=false, working_idx={}, self.pos={}", working_idx, self.pos);
+                    log::debug!(
+                        "[ITERATIVE] Delimited: allow_gaps=false, working_idx={}, self.pos={}",
+                        working_idx,
+                        self.pos
+                    );
                 }
 
                 // Python parity: Check for terminators BEFORE trying to match element/delimiter
@@ -433,18 +445,17 @@ impl crate::parser::Parser<'_> {
                     // Python includes ALL whitespace, not just "non-trivial" whitespace
                     if *allow_gaps {
                         for check_pos in *matched_idx..*working_idx {
-                            if check_pos < self.tokens.len()
-                                && !self.tokens[check_pos].is_code()
-                            {
+                            if check_pos < self.tokens.len() && !self.tokens[check_pos].is_code() {
                                 let tok = &self.tokens[check_pos];
                                 let tok_type = tok.get_type();
                                 let tok_raw = tok.raw();
                                 // Only check if already in frame's accumulated (duplicates across grammars will be handled by deduplication)
-                                let already_in_frame = frame.accumulated.iter().any(|node| match node {
-                                    Node::Whitespace { token_idx: idx, .. }
-                                    | Node::Newline { token_idx: idx, .. } => *idx == check_pos,
-                                    _ => false,
-                                });
+                                let already_in_frame =
+                                    frame.accumulated.iter().any(|node| match node {
+                                        Node::Whitespace { token_idx: idx, .. }
+                                        | Node::Newline { token_idx: idx, .. } => *idx == check_pos,
+                                        _ => false,
+                                    });
                                 if !already_in_frame {
                                     if tok_type == "whitespace" {
                                         frame.accumulated.push(Node::Whitespace {
@@ -572,18 +583,17 @@ impl crate::parser::Parser<'_> {
                     // Python includes ALL whitespace, not just "non-trivial" whitespace
                     if *allow_gaps {
                         for check_pos in *matched_idx..*working_idx {
-                            if check_pos < self.tokens.len()
-                                && !self.tokens[check_pos].is_code()
-                            {
+                            if check_pos < self.tokens.len() && !self.tokens[check_pos].is_code() {
                                 let tok = &self.tokens[check_pos];
                                 let tok_type = tok.get_type();
                                 let tok_raw = tok.raw();
                                 // Only check if already in frame's accumulated
-                                let already_in_frame = frame.accumulated.iter().any(|node| match node {
-                                    Node::Whitespace { token_idx: idx, .. }
-                                    | Node::Newline { token_idx: idx, .. } => *idx == check_pos,
-                                    _ => false,
-                                });
+                                let already_in_frame =
+                                    frame.accumulated.iter().any(|node| match node {
+                                        Node::Whitespace { token_idx: idx, .. }
+                                        | Node::Newline { token_idx: idx, .. } => *idx == check_pos,
+                                        _ => false,
+                                    });
                                 if !already_in_frame {
                                     if tok_type == "whitespace" {
                                         frame.accumulated.push(Node::Whitespace {
@@ -685,7 +695,10 @@ impl crate::parser::Parser<'_> {
                         self.pos = *working_idx;
                         log::debug!("[ITERATIVE] Delimited: changed to MatchingElement, self.pos={}, working_idx={}, checking terminators again...", self.pos, working_idx);
                         let is_term2 = self.is_at_end() || self.is_terminated(&frame_terminators);
-                        log::debug!("[ITERATIVE] Delimited: second terminator check returned: {}", is_term2);
+                        log::debug!(
+                            "[ITERATIVE] Delimited: second terminator check returned: {}",
+                            is_term2
+                        );
                         if is_term2 {
                             // Handle trailing delimiter if allowed and present
                             if *allow_trailing && delimiter_match.is_some() {
@@ -713,7 +726,10 @@ impl crate::parser::Parser<'_> {
                             );
                             return Ok(());
                         }
-                        log::debug!("[ITERATIVE] Delimited: about to push child element at working_pos={}", working_idx);
+                        log::debug!(
+                            "[ITERATIVE] Delimited: about to push child element at working_pos={}",
+                            working_idx
+                        );
                         // Create child for next element
                         // NOTE: We do NOT trim to the next delimiter position for element children.
                         // This is because the element itself might be a Delimited grammar that uses
@@ -733,7 +749,8 @@ impl crate::parser::Parser<'_> {
                         let child_max_idx = *max_idx;
                         log::debug!(
                             "[DELIM-DEBUG] Creating element child at pos={}, with max_idx={}",
-                            *working_idx, child_max_idx
+                            *working_idx,
+                            child_max_idx
                         );
                         let child_grammar = Grammar::OneOf {
                             elements: elements.clone(),

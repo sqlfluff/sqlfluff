@@ -5,20 +5,20 @@
 
 #[macro_use]
 mod macros;
-pub(crate) mod types;
-mod frame;
 mod cache;
 mod core;
+mod frame;
+pub(crate) mod types;
 #[macro_use]
 mod handlers;
-mod helpers;  // Utility methods for Parser
+mod helpers; // Utility methods for Parser
 mod iterative;
 mod utils;
 
 // Re-export public types
-pub use types::{Node, ParseError, SegmentDef, ParseErrorType, ParseContext};
 pub use core::Parser;
 pub use sqlfluffrs_types::{Grammar, ParseMode};
+pub use types::{Node, ParseContext, ParseError, ParseErrorType, SegmentDef};
 
 // Internal re-exports for submodules
-pub(crate) use frame::{ParseFrame, FrameState, FrameContext, BracketedState, DelimitedState};
+pub(crate) use frame::{BracketedState, DelimitedState, FrameContext, FrameState, ParseFrame};

@@ -255,9 +255,7 @@ impl LexMatcher {
                     .flatten()
                     .map(|mat| LexedElement::new(mat.as_str(), self))
             }
-            LexerMode::Function(function) => {
-                (function)(input).map(|s| LexedElement::new(s, self))
-            }
+            LexerMode::Function(function) => (function)(input).map(|s| LexedElement::new(s, self)),
         };
         // println!("{},{}", self.name, t.elapsed().as_nanos());
 

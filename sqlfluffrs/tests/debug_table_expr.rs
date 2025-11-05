@@ -38,7 +38,11 @@ WHERE pos1 = pos2;"#;
             let yaml_str = serde_yaml_ng::to_string(&as_record).unwrap();
             println!("{}", yaml_str);
 
-            println!("\n=== Parser position: {} / {} ===", parser.pos, tokens.len());
+            println!(
+                "\n=== Parser position: {} / {} ===",
+                parser.pos,
+                tokens.len()
+            );
 
             if parser.pos < tokens.len() - 1 {
                 println!("\n!!! WARNING: Parser did not consume all tokens !!!");
@@ -58,7 +62,11 @@ WHERE pos1 = pos2;"#;
     // Parser position should be at or past the last token index
     // tokens.len() is the count, so last index is len() - 1
     // Parser position can be len() if it consumed everything including end_of_file
-    assert!(parser.pos >= tokens.len() - 1,
+    assert!(
+        parser.pos >= tokens.len() - 1,
         "Parser did not consume all tokens. Stopped at {} / {} tokens (last index: {})",
-        parser.pos, tokens.len(), tokens.len() - 1);
+        parser.pos,
+        tokens.len(),
+        tokens.len() - 1
+    );
 }

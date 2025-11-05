@@ -1,11 +1,11 @@
 //! Common test helpers and utilities
 
 use hashbrown::HashSet;
+use sqlfluffrs_dialects::dialect::ansi::matcher::ANSI_LEXERS;
+use sqlfluffrs_dialects::Dialect;
+use sqlfluffrs_lexer::{LexInput, Lexer};
 use sqlfluffrs_parser::parser::{Node, ParseError, Parser};
 use sqlfluffrs_types::token::Token;
-use sqlfluffrs_lexer::{LexInput, Lexer};
-use sqlfluffrs_dialects::Dialect;
-use sqlfluffrs_dialects::dialect::ansi::matcher::ANSI_LEXERS;
 
 /// Macro to run a test with a larger stack size (16MB)
 /// This prevents stack overflow on deeply nested or complex queries
@@ -46,12 +46,10 @@ pub fn verify_all_tokens_in_ast(raw: &str, ast: &Node, tokens: &[Token]) -> Resu
     let mut missing = Vec::new();
     for (idx, token) in tokens.iter().enumerate() {
         let token_type = token.get_type();
-        let is_trailing_whitespace = idx > max_ast_pos &&
-            (token_type == "whitespace" || token_type == "newline");
+        let is_trailing_whitespace =
+            idx > max_ast_pos && (token_type == "whitespace" || token_type == "newline");
 
-        if !ast_positions.contains(&idx) &&
-           token_type != "end_of_file" &&
-           !is_trailing_whitespace {
+        if !ast_positions.contains(&idx) && token_type != "end_of_file" && !is_trailing_whitespace {
             missing.push((idx, token.clone()));
         }
     }

@@ -1,9 +1,9 @@
 use std::sync::Arc;
 
 use crate::parser::iterative::NextStep;
-use sqlfluffrs_types::Grammar;
 use crate::parser::{Node, ParseError, ParseFrame};
 use hashbrown::HashMap;
+use sqlfluffrs_types::Grammar;
 
 use crate::parser::core::Parser;
 
@@ -50,7 +50,11 @@ impl Parser<'_> {
             Some(tok) if tok.raw().eq_ignore_ascii_case(template) => {
                 let token_pos = self.pos;
                 self.bump();
-                log::debug!("MATCHED StringParser: frame_id={}, matched token: {}", frame.frame_id, tok.raw());
+                log::debug!(
+                    "MATCHED StringParser: frame_id={}, matched token: {}",
+                    frame.frame_id,
+                    tok.raw()
+                );
 
                 let node = Node::Token {
                     token_type: token_type.to_string(),
@@ -60,7 +64,12 @@ impl Parser<'_> {
                 results.insert(frame.frame_id, (node, self.pos, None));
             }
             _ => {
-                log::debug!("NOMATCH StringParser: frame_id={}, template='{}', peeked_token={:?}", frame.frame_id, template, tok_raw.as_ref().map(|t| t.raw()));
+                log::debug!(
+                    "NOMATCH StringParser: frame_id={}, template='{}', peeked_token={:?}",
+                    frame.frame_id,
+                    template,
+                    tok_raw.as_ref().map(|t| t.raw())
+                );
                 log::debug!(
                     "DEBUG [iter {}]: StringParser('{}') frame_id={} storing Empty result",
                     iteration_count,
@@ -182,7 +191,12 @@ impl Parser<'_> {
                     tok.token_type,
                     raw
                 );
-                log::debug!("MATCHED Node::Token: type={}, raw={}, token_idx={}", tok.token_type, raw, token_pos);
+                log::debug!(
+                    "MATCHED Node::Token: type={}, raw={}, token_idx={}",
+                    tok.token_type,
+                    raw,
+                    token_pos
+                );
                 let node = Node::Token {
                     token_type: token_type.to_string(),
                     raw,

@@ -3,10 +3,10 @@
 //! Tests for fundamental SQL statements like SELECT, CREATE TABLE, etc.
 
 use crate::parser::common::parse_sql;
-use sqlfluffrs_parser::parser::{ParseError, Parser};
-use sqlfluffrs_lexer::{LexInput, Lexer};
-use sqlfluffrs_dialects::Dialect;
 use sqlfluffrs_dialects::dialect::ansi::matcher::ANSI_LEXERS;
+use sqlfluffrs_dialects::Dialect;
+use sqlfluffrs_lexer::{LexInput, Lexer};
+use sqlfluffrs_parser::parser::{ParseError, Parser};
 
 macro_rules! with_larger_stack {
     ($test_fn:expr) => {{

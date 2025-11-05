@@ -34,11 +34,11 @@ pub struct Parser<'a> {
     /// Stack of collection checkpoints for backtracking.
     /// Each checkpoint records which tokens were marked as collected at that point.
     pub collection_stack: Vec<CollectionCheckpoint>,
-    pub pruning_calls: std::cell::Cell<usize>,           // Track number of prune_options calls
-    pub pruning_total: std::cell::Cell<usize>,           // Total options considered
-    pub pruning_kept: std::cell::Cell<usize>,            // Options kept after pruning
-    pub pruning_hinted: std::cell::Cell<usize>,          // Options that had hints
-    pub pruning_complex: std::cell::Cell<usize>,         // Options that returned None (complex)
+    pub pruning_calls: std::cell::Cell<usize>, // Track number of prune_options calls
+    pub pruning_total: std::cell::Cell<usize>, // Total options considered
+    pub pruning_kept: std::cell::Cell<usize>,  // Options kept after pruning
+    pub pruning_hinted: std::cell::Cell<usize>, // Options that had hints
+    pub pruning_complex: std::cell::Cell<usize>, // Options that returned None (complex)
 }
 
 impl<'a> Parser<'a> {
@@ -260,7 +260,11 @@ impl<'a> Parser<'a> {
             frame_id,
             positions: Vec::new(),
         });
-        log::debug!("Pushed collection checkpoint for frame_id={}, stack depth={}", frame_id, self.collection_stack.len());
+        log::debug!(
+            "Pushed collection checkpoint for frame_id={}, stack depth={}",
+            frame_id,
+            self.collection_stack.len()
+        );
     }
 
     /// Mark a token position as collected and record it in the current checkpoint.
@@ -271,7 +275,11 @@ impl<'a> Parser<'a> {
             // Record this collection in the current checkpoint
             if let Some(checkpoint) = self.collection_stack.last_mut() {
                 checkpoint.positions.push(pos);
-                log::debug!("Marked position {} as collected in checkpoint for frame_id={}", pos, checkpoint.frame_id);
+                log::debug!(
+                    "Marked position {} as collected in checkpoint for frame_id={}",
+                    pos,
+                    checkpoint.frame_id
+                );
             }
         }
         was_new
@@ -282,10 +290,18 @@ impl<'a> Parser<'a> {
     pub fn commit_collection_checkpoint(&mut self, frame_id: usize) {
         if let Some(checkpoint) = self.collection_stack.pop() {
             if checkpoint.frame_id != frame_id {
-                log::warn!("Checkpoint frame_id mismatch: expected {}, got {}", frame_id, checkpoint.frame_id);
+                log::warn!(
+                    "Checkpoint frame_id mismatch: expected {}, got {}",
+                    frame_id,
+                    checkpoint.frame_id
+                );
             }
-            log::debug!("Committed {} collected positions for frame_id={}, stack depth now={}",
-                checkpoint.positions.len(), frame_id, self.collection_stack.len());
+            log::debug!(
+                "Committed {} collected positions for frame_id={}, stack depth now={}",
+                checkpoint.positions.len(),
+                frame_id,
+                self.collection_stack.len()
+            );
             // Positions remain in collected_transparent_positions - they're committed
         }
     }
@@ -295,10 +311,18 @@ impl<'a> Parser<'a> {
     pub fn rollback_collection_checkpoint(&mut self, frame_id: usize) {
         if let Some(checkpoint) = self.collection_stack.pop() {
             if checkpoint.frame_id != frame_id {
-                log::warn!("Checkpoint frame_id mismatch during rollback: expected {}, got {}", frame_id, checkpoint.frame_id);
+                log::warn!(
+                    "Checkpoint frame_id mismatch during rollback: expected {}, got {}",
+                    frame_id,
+                    checkpoint.frame_id
+                );
             }
-            log::debug!("Rolling back {} collected positions for frame_id={}, stack depth now={}",
-                checkpoint.positions.len(), frame_id, self.collection_stack.len());
+            log::debug!(
+                "Rolling back {} collected positions for frame_id={}, stack depth now={}",
+                checkpoint.positions.len(),
+                frame_id,
+                self.collection_stack.len()
+            );
             // Remove all positions that were marked during this checkpoint
             for pos in checkpoint.positions {
                 self.collected_transparent_positions.remove(&pos);

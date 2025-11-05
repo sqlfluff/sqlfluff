@@ -1,10 +1,10 @@
 // Extended grammar tests ported from Python test suite
 // These tests validate parser behavior for OneOf, Sequence, AnyNumberOf patterns
 
-use sqlfluffrs_parser::parser::{Grammar, Node, ParseError, ParseMode, Parser};
 use sqlfluffrs_dialects::dialect::ansi::matcher::ANSI_LEXERS;
 use sqlfluffrs_dialects::Dialect;
 use sqlfluffrs_lexer::{LexInput, Lexer};
+use sqlfluffrs_parser::parser::{Grammar, Node, ParseError, ParseMode, Parser};
 use std::sync::Arc;
 
 /// Test that OneOf takes the longest match when multiple options match
@@ -117,7 +117,9 @@ fn test_oneof_first_match_equal_length() -> Result<(), ParseError> {
 
     // Should use option1 (first match)
     match result {
-        Node::Token { token_type, raw, .. } => {
+        Node::Token {
+            token_type, raw, ..
+        } => {
             assert_eq!(token_type, "option1", "Should use first matching option");
             assert_eq!(raw, "bar");
         }
@@ -168,12 +170,14 @@ fn test_anynumberof_min_max_constraints() -> Result<(), ParseError> {
     // AnyNumberOf returns a DelimitedList in Rust, not a Sequence
     // Count how many 'A' tokens were matched
     let count = match &result {
-        Node::DelimitedList { children } => {
-            children.iter().filter(|n| matches!(n, Node::Token { token_type, .. } if token_type == "word")).count()
-        }
-        Node::Sequence { children } => {
-            children.iter().filter(|n| matches!(n, Node::Token { token_type, .. } if token_type == "word")).count()
-        }
+        Node::DelimitedList { children } => children
+            .iter()
+            .filter(|n| matches!(n, Node::Token { token_type, .. } if token_type == "word"))
+            .count(),
+        Node::Sequence { children } => children
+            .iter()
+            .filter(|n| matches!(n, Node::Token { token_type, .. } if token_type == "word"))
+            .count(),
         _ => panic!("Expected DelimitedList or Sequence node, got {:?}", result),
     };
 
@@ -243,15 +247,23 @@ fn test_anynumberof_min_times_not_met() -> Result<(), ParseError> {
         Ok(other) => {
             // TEMPORARY: Accept this as known issue
             let token_count = match &other {
-                Node::DelimitedList { children } => {
-                    children.iter().filter(|n| matches!(n, Node::Token { .. })).count()
-                }
+                Node::DelimitedList { children } => children
+                    .iter()
+                    .filter(|n| matches!(n, Node::Token { .. }))
+                    .count(),
                 _ => 0,
             };
-            println!("KNOWN ISSUE: AnyNumberOf matched {} tokens despite min_times=3", token_count);
+            println!(
+                "KNOWN ISSUE: AnyNumberOf matched {} tokens despite min_times=3",
+                token_count
+            );
             println!("This is a bug that should be fixed in the AnyNumberOf handler");
             // For now, just verify we got less than min_times
-            assert!(token_count < 3, "Got {} tokens which is less than min_times=3", token_count);
+            assert!(
+                token_count < 3,
+                "Got {} tokens which is less than min_times=3",
+                token_count
+            );
         }
     }
 
@@ -303,13 +315,15 @@ fn test_sequence_with_gaps() -> Result<(), ParseError> {
     match &result {
         Node::Sequence { children } => {
             // Should have SELECT, whitespace, FROM
-            let keyword_count = children.iter()
+            let keyword_count = children
+                .iter()
                 .filter(|n| matches!(n, Node::Token { token_type, .. } if token_type == "keyword"))
                 .count();
             assert_eq!(keyword_count, 2, "Should match both SELECT and FROM");
 
             // Verify whitespace is included
-            let has_whitespace = children.iter()
+            let has_whitespace = children
+                .iter()
                 .any(|n| matches!(n, Node::Whitespace { .. }));
             // Note: Rust Sequence currently may not include all whitespace in the same way Python does
             // This is acceptable as long as the keywords are matched correctly
@@ -376,7 +390,8 @@ fn test_sequence_without_gaps() -> Result<(), ParseError> {
             println!("Matched with {} children: {:?}", children.len(), children);
             // This is acceptable for now - the Sequence does include both keywords
             // even with allow_gaps=false, which is different from Python but not incorrect
-            let keyword_count = children.iter()
+            let keyword_count = children
+                .iter()
                 .filter(|n| matches!(n, Node::Token { token_type, .. } if token_type == "keyword"))
                 .count();
             assert!(keyword_count <= 2, "Should match at most 2 keywords");

@@ -49,7 +49,11 @@ fn test_oneof_takes_longest_match() -> Result<(), ParseError> {
     let result_str = format!("{:?}", result);
 
     // Should match "foobar", not just "foo"
-    assert!(result_str.contains("foobar"), "Should match longest option 'foobar', got: {}", result_str);
+    assert!(
+        result_str.contains("foobar"),
+        "Should match longest option 'foobar', got: {}",
+        result_str
+    );
 
     Ok(())
 }
@@ -89,7 +93,10 @@ fn test_anynumberof_min_max_constraints() -> Result<(), ParseError> {
 
     let mut parser = Parser::new(&tokens, dialect.clone());
     let result = parser.parse_with_grammar_cached(&grammar_min, &[]);
-    assert!(result.is_ok(), "Should match with min_times=2 when we have 3 'a's");
+    assert!(
+        result.is_ok(),
+        "Should match with min_times=2 when we have 3 'a's"
+    );
 
     // Test max_times constraint - parse only 2 of the 3 "a"s
     let grammar_max = Arc::new(Grammar::AnyNumberOf {
@@ -110,7 +117,10 @@ fn test_anynumberof_min_max_constraints() -> Result<(), ParseError> {
     let _result2 = parser2.parse_with_grammar_cached(&grammar_max, &[])?;
 
     // Should stop after 2 matches
-    assert!(parser2.pos >= 2, "Parser should have advanced past at least 2 tokens");
+    assert!(
+        parser2.pos >= 2,
+        "Parser should have advanced past at least 2 tokens"
+    );
 
     Ok(())
 }
@@ -138,7 +148,7 @@ fn test_sequence_with_optional_elements() -> Result<(), ParseError> {
         template: "b",
         raw_class: "WordSegment",
         token_type: "word",
-        optional: true,  // Optional
+        optional: true, // Optional
     });
 
     let c_parser = Arc::new(Grammar::StringParser {
@@ -163,8 +173,11 @@ fn test_sequence_with_optional_elements() -> Result<(), ParseError> {
     let result_str = format!("{:?}", result);
 
     // Should match "a" and "c", skipping optional "b"
-    assert!(result_str.contains("a") && result_str.contains("c"),
-            "Should match 'a' and 'c' with optional 'b' skipped, got: {}", result_str);
+    assert!(
+        result_str.contains("a") && result_str.contains("c"),
+        "Should match 'a' and 'c' with optional 'b' skipped, got: {}",
+        result_str
+    );
 
     Ok(())
 }
@@ -216,7 +229,7 @@ fn test_delimited_trailing_delimiter() -> Result<(), ParseError> {
     let grammar = Arc::new(Grammar::Delimited {
         elements: vec![element],
         delimiter: Box::new(delimiter),
-        allow_trailing: true,  // Allow trailing delimiter
+        allow_trailing: true, // Allow trailing delimiter
         optional: false,
         terminators: vec![],
         reset_terminators: false,
@@ -230,8 +243,11 @@ fn test_delimited_trailing_delimiter() -> Result<(), ParseError> {
     let result_str = format!("{:?}", result);
 
     // Should successfully match with trailing comma
-    assert!(result_str.contains("a") && result_str.contains("b"),
-            "Should match 'a, b,' with trailing delimiter, got: {}", result_str);
+    assert!(
+        result_str.contains("a") && result_str.contains("b"),
+        "Should match 'a, b,' with trailing delimiter, got: {}",
+        result_str
+    );
 
     Ok(())
 }
@@ -294,8 +310,11 @@ fn test_nested_sequences() -> Result<(), ParseError> {
     let result_str = format!("{:?}", result);
 
     // Should match all three elements
-    assert!(result_str.contains("a") && result_str.contains("b") && result_str.contains("c"),
-            "Should match nested sequence 'a b c', got: {}", result_str);
+    assert!(
+        result_str.contains("a") && result_str.contains("b") && result_str.contains("c"),
+        "Should match nested sequence 'a b c', got: {}",
+        result_str
+    );
 
     Ok(())
 }
@@ -342,10 +361,17 @@ fn test_greedy_mode_with_terminators() -> Result<(), ParseError> {
     let result_str = format!("{:?}", result);
 
     // Should match "a" and may include "b" as unparsable, but not "c"
-    assert!(result_str.contains("a"), "Should match 'a', got: {}", result_str);
+    assert!(
+        result_str.contains("a"),
+        "Should match 'a', got: {}",
+        result_str
+    );
 
     // Parser should stop before the terminator "c"
-    assert!(parser.pos < tokens.len(), "Parser should not consume terminator");
+    assert!(
+        parser.pos < tokens.len(),
+        "Parser should not consume terminator"
+    );
 
     Ok(())
 }
@@ -395,8 +421,11 @@ fn test_anynumberof_matches_in_order() -> Result<(), ParseError> {
     let result_str = format!("{:?}", result);
 
     // Should match all four elements
-    assert!(result_str.contains("a") && result_str.contains("b"),
-            "Should match 'a b a b', got: {}", result_str);
+    assert!(
+        result_str.contains("a") && result_str.contains("b"),
+        "Should match 'a b a b', got: {}",
+        result_str
+    );
 
     Ok(())
 }
@@ -429,7 +458,7 @@ fn test_empty_brackets() -> Result<(), ParseError> {
 
     // Empty bracketed content
     let grammar = Arc::new(Grammar::Bracketed {
-        elements: vec![],  // Empty content
+        elements: vec![], // Empty content
         bracket_pairs: (Box::new(open), Box::new(close)),
         optional: false,
         terminators: vec![],

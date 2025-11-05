@@ -3,10 +3,10 @@
 //! Tests for specific grammar features like AnySetOf, Delimited, Bracketed, etc.
 
 use hashbrown::HashSet;
-use sqlfluffrs_parser::parser::{Grammar, Node, ParseError, ParseMode, Parser};
 use sqlfluffrs_dialects::dialect::ansi::matcher::ANSI_LEXERS;
 use sqlfluffrs_dialects::Dialect;
 use sqlfluffrs_lexer::{LexInput, Lexer};
+use sqlfluffrs_parser::parser::{Grammar, Node, ParseError, ParseMode, Parser};
 use std::sync::Arc;
 
 macro_rules! with_larger_stack {
@@ -892,7 +892,11 @@ fn test_ref_match_basic() -> Result<(), ParseError> {
     // Parse from position 0 where "foo" is
     let result = parser.parse_with_grammar_cached(&foo_grammar, &[])?;
     let node_str = format!("{:?}", result);
-    assert!(node_str.contains("foo"), "Expected 'foo' in node: {}", node_str);
+    assert!(
+        node_str.contains("foo"),
+        "Expected 'foo' in node: {}",
+        node_str
+    );
     Ok(())
 }
 
@@ -938,8 +942,10 @@ fn test_ref_exclude_match() -> Result<(), ParseError> {
     let result = parser.parse_with_grammar_cached(&abs_absolute_grammar, &[]);
 
     // The match should fail or return Empty because parser is at whitespace
-    assert!(result.is_err() || result.as_ref().unwrap().is_empty(),
-        "Expected match to fail because parser is at whitespace position");
+    assert!(
+        result.is_err() || result.as_ref().unwrap().is_empty(),
+        "Expected match to fail because parser is at whitespace position"
+    );
 
     Ok(())
 }
@@ -1006,7 +1012,7 @@ fn test_sequence_nested_match() -> Result<(), ParseError> {
         optional: false,
         terminators: vec![],
         reset_terminators: false,
-        allow_gaps: true,  // Python default
+        allow_gaps: true, // Python default
         parse_mode: ParseMode::Strict,
         simple_hint: None,
     });
@@ -1015,7 +1021,7 @@ fn test_sequence_nested_match() -> Result<(), ParseError> {
         optional: false,
         terminators: vec![],
         reset_terminators: false,
-        allow_gaps: true,  // Python default
+        allow_gaps: true, // Python default
         parse_mode: ParseMode::Strict,
         simple_hint: None,
     });
@@ -1057,14 +1063,7 @@ fn test_sequence_modes_various_cases() -> Result<(), ParseError> {
         ),
         // Test matching sequences where we run out of segments before matching
         // STRICT returns no match when input "a " doesn't have enough for ["a", "b"]
-        (
-            ParseMode::Strict,
-            "a ",
-            vec!["a", "b"],
-            vec![],
-            false,
-            None,
-        ),
+        (ParseMode::Strict, "a ", vec!["a", "b"], vec![], false, None),
         // GREEDY returns content as unparsable (matches the "a" but can't get "b")
         // This is expected behavior: GREEDY mode tries to consume what it can
         (
@@ -1086,7 +1085,14 @@ fn test_sequence_modes_various_cases() -> Result<(), ParseError> {
         // Test matching where first element fails
         // STRICT & GREEDY_ONCE_STARTED return no match when "b " doesn't match ["a"]
         (ParseMode::Strict, "b ", vec!["a"], vec![], false, None),
-        (ParseMode::GreedyOnceStarted, "b ", vec!["a"], vec![], false, None),
+        (
+            ParseMode::GreedyOnceStarted,
+            "b ",
+            vec!["a"],
+            vec![],
+            false,
+            None,
+        ),
         // GREEDY claims remaining as unparsable
         (ParseMode::Greedy, "b ", vec!["a"], vec![], true, Some("b")),
         // Test matching with more content after sequence matches
@@ -1152,14 +1158,7 @@ fn test_sequence_modes_various_cases() -> Result<(), ParseError> {
             Some("a"),
         ),
         // GREEDY: terminator takes precedence
-        (
-            ParseMode::Greedy,
-            "a ",
-            vec!["a"],
-            vec!["a"],
-            false,
-            None,
-        ),
+        (ParseMode::Greedy, "a ", vec!["a"], vec!["a"], false, None),
     ];
     for (mode, raw, sequence, terminators, expect_match, expect_token) in cases {
         let input = LexInput::String(raw.into());

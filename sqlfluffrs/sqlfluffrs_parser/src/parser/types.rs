@@ -107,17 +107,10 @@ impl Node {
 
     /// Return a tuple structure from this node, similar to Python BaseSegment::to_tuple.
     /// This is useful for serialization to YAML/JSON and for parity with Python tests.
-    pub fn to_tuple(
-        &self,
-        code_only: bool,
-        show_raw: bool,
-        include_meta: bool,
-    ) -> NodeTupleValue {
+    pub fn to_tuple(&self, code_only: bool, show_raw: bool, include_meta: bool) -> NodeTupleValue {
         match self {
             Node::Token {
-                token_type,
-                raw,
-                ..
+                token_type, raw, ..
             } => {
                 if show_raw {
                     NodeTupleValue::Raw(token_type.clone(), raw.clone())
@@ -157,7 +150,9 @@ impl Node {
                             let mut flat = Vec::new();
                             for c in v {
                                 match flatten_sequence(c) {
-                                    NodeTupleValue::Tuple(inner_t, inner_v) if inner_t == "sequence" => {
+                                    NodeTupleValue::Tuple(inner_t, inner_v)
+                                        if inner_t == "sequence" =>
+                                    {
                                         flat.extend(inner_v);
                                     }
                                     other => flat.push(other),
@@ -169,17 +164,24 @@ impl Node {
                     }
                 }
 
-                let child_node = flatten_sequence(child.to_tuple(code_only, show_raw, include_meta));
+                let child_node =
+                    flatten_sequence(child.to_tuple(code_only, show_raw, include_meta));
                 if let Some(ref_type) = segment_type {
                     match &child_node {
-                        NodeTupleValue::Raw(t, s) if t == "sequence" => NodeTupleValue::Raw(ref_type.clone(), s.clone()),
-                        NodeTupleValue::Tuple(t, v) if t == "sequence" => NodeTupleValue::Tuple(ref_type.clone(), v.to_vec()),
-                        // Also flatten "bracketed" nodes when ref_type is not "bracketed"
-                        // This handles cases like ArrayLiteralSegment where bracket_persists=False
-                        NodeTupleValue::Tuple(t, v) if t == "bracketed" && ref_type != "bracketed" => {
+                        NodeTupleValue::Raw(t, s) if t == "sequence" => {
+                            NodeTupleValue::Raw(ref_type.clone(), s.clone())
+                        }
+                        NodeTupleValue::Tuple(t, v) if t == "sequence" => {
                             NodeTupleValue::Tuple(ref_type.clone(), v.to_vec())
                         }
-                        _ => NodeTupleValue::Tuple(ref_type.clone(), vec![child_node])
+                        // Also flatten "bracketed" nodes when ref_type is not "bracketed"
+                        // This handles cases like ArrayLiteralSegment where bracket_persists=False
+                        NodeTupleValue::Tuple(t, v)
+                            if t == "bracketed" && ref_type != "bracketed" =>
+                        {
+                            NodeTupleValue::Tuple(ref_type.clone(), v.to_vec())
+                        }
+                        _ => NodeTupleValue::Tuple(ref_type.clone(), vec![child_node]),
                     }
                 } else {
                     child_node
@@ -205,7 +207,9 @@ impl Node {
                             for c in v {
                                 for item in flatten_sequence(c) {
                                     match item {
-                                        NodeTupleValue::Tuple(inner_t, inner_v) if inner_t == "sequence" => {
+                                        NodeTupleValue::Tuple(inner_t, inner_v)
+                                            if inner_t == "sequence" =>
+                                        {
                                             flat.extend(inner_v);
                                         }
                                         other => flat.push(other),
@@ -262,7 +266,8 @@ impl Node {
                     Value::Mapping(map)
                 } else {
                     // Simplify all the child elements
-                    let contents: Vec<Value> = value.iter().map(Node::structural_simplify).collect();
+                    let contents: Vec<Value> =
+                        value.iter().map(Node::structural_simplify).collect();
 
                     // Any duplicate elements?
                     let mut subkeys = Vec::new();
@@ -273,7 +278,8 @@ impl Node {
                             }
                         }
                     }
-                    let unique_keys: std::collections::HashSet<_> = subkeys.iter().cloned().collect();
+                    let unique_keys: std::collections::HashSet<_> =
+                        subkeys.iter().cloned().collect();
                     let has_duplicates = unique_keys.len() != subkeys.len();
                     if has_duplicates {
                         // Yes: use a list of single dicts.
@@ -381,9 +387,10 @@ impl Node {
             Node::Sequence { children }
             | Node::DelimitedList { children }
             | Node::Bracketed { children }
-            | Node::Unparsable { children, .. } => {
-                children.iter().rev().find_map(|child| child.get_end_token_idx())
-            }
+            | Node::Unparsable { children, .. } => children
+                .iter()
+                .rev()
+                .find_map(|child| child.get_end_token_idx()),
 
             Node::Ref { child, .. } => child.get_end_token_idx(),
 
@@ -761,7 +768,8 @@ impl Node {
     fn deduplicate_impl(self, seen: &mut HashSet<usize>) -> Node {
         match self {
             Node::Sequence { children } => {
-                let deduped = children.into_iter()
+                let deduped = children
+                    .into_iter()
                     .filter_map(|child| {
                         match &child {
                             Node::Whitespace { token_idx: pos, .. }
@@ -772,72 +780,77 @@ impl Node {
                                     None // Skip duplicate
                                 }
                             }
-                            _ => Some(child.deduplicate_impl(seen))
+                            _ => Some(child.deduplicate_impl(seen)),
                         }
                     })
                     .collect();
                 Node::Sequence { children: deduped }
             }
             Node::DelimitedList { children } => {
-                let deduped = children.into_iter()
-                    .filter_map(|child| {
-                        match &child {
-                            Node::Whitespace { token_idx: pos, .. }
-                            | Node::Newline { token_idx: pos, .. } => {
-                                if seen.insert(*pos) {
-                                    Some(child.deduplicate_impl(seen))
-                                } else {
-                                    None
-                                }
+                let deduped = children
+                    .into_iter()
+                    .filter_map(|child| match &child {
+                        Node::Whitespace { token_idx: pos, .. }
+                        | Node::Newline { token_idx: pos, .. } => {
+                            if seen.insert(*pos) {
+                                Some(child.deduplicate_impl(seen))
+                            } else {
+                                None
                             }
-                            _ => Some(child.deduplicate_impl(seen))
                         }
+                        _ => Some(child.deduplicate_impl(seen)),
                     })
                     .collect();
                 Node::DelimitedList { children: deduped }
             }
             Node::Bracketed { children } => {
-                let deduped = children.into_iter()
-                    .filter_map(|child| {
-                        match &child {
-                            Node::Whitespace { token_idx: pos, .. }
-                            | Node::Newline { token_idx: pos, .. } => {
-                                if seen.insert(*pos) {
-                                    Some(child.deduplicate_impl(seen))
-                                } else {
-                                    None
-                                }
+                let deduped = children
+                    .into_iter()
+                    .filter_map(|child| match &child {
+                        Node::Whitespace { token_idx: pos, .. }
+                        | Node::Newline { token_idx: pos, .. } => {
+                            if seen.insert(*pos) {
+                                Some(child.deduplicate_impl(seen))
+                            } else {
+                                None
                             }
-                            _ => Some(child.deduplicate_impl(seen))
                         }
+                        _ => Some(child.deduplicate_impl(seen)),
                     })
                     .collect();
                 Node::Bracketed { children: deduped }
             }
-            Node::Ref { name, segment_type, child } => {
-                Node::Ref {
-                    name,
-                    segment_type,
-                    child: Box::new(child.deduplicate_impl(seen)),
-                }
-            }
-            Node::Unparsable { expected_message, children } => {
-                let deduped = children.into_iter()
-                    .filter_map(|child| {
-                        match &child {
-                            Node::Whitespace { token_idx: pos, .. }
-                            | Node::Newline { token_idx: pos, .. } => {
-                                if seen.insert(*pos) {
-                                    Some(child.deduplicate_impl(seen))
-                                } else {
-                                    None
-                                }
+            Node::Ref {
+                name,
+                segment_type,
+                child,
+            } => Node::Ref {
+                name,
+                segment_type,
+                child: Box::new(child.deduplicate_impl(seen)),
+            },
+            Node::Unparsable {
+                expected_message,
+                children,
+            } => {
+                let deduped = children
+                    .into_iter()
+                    .filter_map(|child| match &child {
+                        Node::Whitespace { token_idx: pos, .. }
+                        | Node::Newline { token_idx: pos, .. } => {
+                            if seen.insert(*pos) {
+                                Some(child.deduplicate_impl(seen))
+                            } else {
+                                None
                             }
-                            _ => Some(child.deduplicate_impl(seen))
                         }
+                        _ => Some(child.deduplicate_impl(seen)),
                     })
                     .collect();
-                Node::Unparsable { expected_message, children: deduped }
+                Node::Unparsable {
+                    expected_message,
+                    children: deduped,
+                }
             }
             // Leaf nodes - just return as-is
             other => other,
@@ -1186,8 +1199,8 @@ mod tests {
 
     #[test]
     fn test_empty_node_to_tuple() {
-    let node = Node::Empty;
-    let val = node.to_tuple(false, false, false);
+        let node = Node::Empty;
+        let val = node.to_tuple(false, false, false);
         assert_eq!(val, NodeTupleValue::Tuple("empty".to_string(), vec![]));
     }
 

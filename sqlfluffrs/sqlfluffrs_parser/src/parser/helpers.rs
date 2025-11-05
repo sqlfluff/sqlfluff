@@ -10,7 +10,7 @@ use hashbrown::HashSet;
 use super::core::Parser;
 use super::Node;
 use crate::parser::utils::skip_start_index_forward_to_code;
-use sqlfluffrs_types::{Token, Grammar, ParseMode};
+use sqlfluffrs_types::{Grammar, ParseMode, Token};
 
 impl<'a> Parser<'a> {
     /// Combine parent and local terminators based on reset_terminators flag.
@@ -707,7 +707,6 @@ impl<'a> Parser<'a> {
         self.skip_stop_index_backward_to_code(term_pos, start_idx)
     }
 
-
     /// Check if the current position is at a terminator
     ///
     /// This uses fast simple matching where possible, falling back to full parsing
@@ -718,12 +717,22 @@ impl<'a> Parser<'a> {
         // CRITICAL: Check for NonCodeMatcher BEFORE skipping transparent tokens!
         // NonCodeMatcher should match non-code tokens at the CURRENT position,
         // not after skipping them. This is essential for allow_gaps=false behavior.
-        let has_non_code_matcher = terminators.iter().any(|t| matches!(t.as_ref(), Grammar::NonCodeMatcher));
-        log::debug!("  is_terminated at pos {}: has_non_code_matcher={}", init_pos, has_non_code_matcher);
+        let has_non_code_matcher = terminators
+            .iter()
+            .any(|t| matches!(t.as_ref(), Grammar::NonCodeMatcher));
+        log::debug!(
+            "  is_terminated at pos {}: has_non_code_matcher={}",
+            init_pos,
+            has_non_code_matcher
+        );
         if has_non_code_matcher {
             if let Some(tok) = self.peek() {
                 let is_code = tok.is_code();
-                log::debug!("  is_terminated: current token is_code={}, type={}", is_code, tok.get_type());
+                log::debug!(
+                    "  is_terminated: current token is_code={}, type={}",
+                    is_code,
+                    tok.get_type()
+                );
                 if !is_code {
                     log::debug!("  TERMED NonCodeMatcher found non-code token at current position");
                     return true;
@@ -734,7 +743,8 @@ impl<'a> Parser<'a> {
         // Filter out NonCodeMatcher from terminators for the rest of the check
         // We've already checked it at the current position above
         let terminators_without_ncm: Vec<Arc<Grammar>> = if has_non_code_matcher {
-            terminators.iter()
+            terminators
+                .iter()
                 .filter(|t| !matches!(t.as_ref(), Grammar::NonCodeMatcher))
                 .cloned()
                 .collect()
@@ -926,7 +936,9 @@ impl<'a> Parser<'a> {
                         for element in elements {
                             let element_hint_opt = element.simple_hint(&mut self.simple_hint_cache);
                             if let Some(element_hint) = element_hint_opt {
-                                if element_hint.can_match_token(&current_token_raw_upper, &current_token_types) {
+                                if element_hint
+                                    .can_match_token(&current_token_raw_upper, &current_token_types)
+                                {
                                     log::debug!("  NOTERM Token matches both terminator {} and element {} - trying element first", term, element);
                                     self.pos = init_pos;
                                     return false;

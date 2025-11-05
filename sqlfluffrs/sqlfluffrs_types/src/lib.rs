@@ -7,22 +7,22 @@ pub mod slice;
 pub mod templater;
 pub mod token;
 
+#[cfg(feature = "python")]
+pub use config::fluffconfig::python::PyFluffConfig;
 pub use config::fluffconfig::FluffConfig;
-pub use matcher::LexMatcher;
+#[cfg(feature = "python")]
+pub use marker::python::PyPositionMarker;
 pub use marker::PositionMarker;
+pub use matcher::LexMatcher;
 pub use parser::{Grammar, ParseMode, SimpleHint};
 pub use regex::{RegexMode, RegexModeGroup};
 pub use slice::Slice;
-pub use templater::fileslice::{RawFileSlice, TemplatedFileSlice};
-pub use templater::templatefile::TemplatedFile;
-pub use token::{Token, config::TokenConfig};
-#[cfg(feature = "python")]
-pub use marker::python::PyPositionMarker;
-#[cfg(feature = "python")]
-pub use token::python::PyToken;
-#[cfg(feature = "python")]
-pub use config::fluffconfig::python::PyFluffConfig;
 #[cfg(feature = "python")]
 pub use templater::fileslice::python::{PyRawFileSlice, PyTemplatedFileSlice};
+pub use templater::fileslice::{RawFileSlice, TemplatedFileSlice};
 #[cfg(feature = "python")]
 pub use templater::templatefile::python::PyTemplatedFile;
+pub use templater::templatefile::TemplatedFile;
+#[cfg(feature = "python")]
+pub use token::python::PyToken;
+pub use token::{config::TokenConfig, Token};

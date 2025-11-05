@@ -8,12 +8,12 @@
 //! - `token_coverage` - Tests verifying all tokens appear in AST
 //! - `common` - Common test helpers and utilities
 
-mod common;
 mod basic_sql;
+mod common;
+mod exclude;
 mod grammar;
 mod grammar_extended;
 mod grammar_python_parity;
 mod iterative;
-mod exclude;
-mod token_coverage;
 mod test_anynumberof_order;
+mod token_coverage;

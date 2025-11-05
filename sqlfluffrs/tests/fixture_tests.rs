@@ -14,14 +14,14 @@ fn check_yaml_output_matches_python_for_dialect(dialect: &str) {
 
     for test in &tests {
         // Read SQL file
-        let sql_content = std::fs::read_to_string(&test.sql_path)
-            .expect("Failed to read SQL file");
+        let sql_content = std::fs::read_to_string(&test.sql_path).expect("Failed to read SQL file");
         // Read expected YAML
-        let expected_yaml = std::fs::read_to_string(&test.yml_path)
-            .expect("Failed to read expected YAML file");
+        let expected_yaml =
+            std::fs::read_to_string(&test.yml_path).expect("Failed to read expected YAML file");
 
         // Parse with Rust parser
-        let dialect_obj = sqlfluffrs_dialects::Dialect::from_str(&test.dialect).expect("Invalid dialect");
+        let dialect_obj =
+            sqlfluffrs_dialects::Dialect::from_str(&test.dialect).expect("Invalid dialect");
         let input = sqlfluffrs_lexer::LexInput::String(sql_content.clone());
         let lexer = sqlfluffrs_lexer::Lexer::new(None, dialect_obj.get_lexers().to_vec());
         let (tokens, lex_errors) = lexer.lex(input, false);
@@ -34,15 +34,20 @@ fn check_yaml_output_matches_python_for_dialect(dialect: &str) {
 
         total += 1;
         // Parse YAML to Value for key/row comparison
-        let gen_val: serde_yaml_ng::Value = serde_yaml_ng::from_str(&generated_yaml).expect("Generated YAML not valid");
-        let exp_val: serde_yaml_ng::Value = serde_yaml_ng::from_str(&expected_yaml).expect("Expected YAML not valid");
+        let gen_val: serde_yaml_ng::Value =
+            serde_yaml_ng::from_str(&generated_yaml).expect("Generated YAML not valid");
+        let exp_val: serde_yaml_ng::Value =
+            serde_yaml_ng::from_str(&expected_yaml).expect("Expected YAML not valid");
 
         // Helper to extract keys and row count from the main node
         fn keys_and_row_count(val: &serde_yaml_ng::Value) -> (Vec<String>, usize) {
             if let serde_yaml_ng::Value::Mapping(map) = val {
-                let keys: Vec<String> = map.keys().filter_map(|k| k.as_str().map(|s| s.to_string())).collect();
+                let keys: Vec<String> = map
+                    .keys()
+                    .filter_map(|k| k.as_str().map(|s| s.to_string()))
+                    .collect();
                 // Find the main node ("node" or first non-_hash key)
-                let main_node = map.iter().find(|(k,_)| k.as_str() != Some("_hash"));
+                let main_node = map.iter().find(|(k, _)| k.as_str() != Some("_hash"));
                 let row_count = if let Some((_, v)) = main_node {
                     if let serde_yaml_ng::Value::Mapping(m) = v {
                         m.len()
@@ -51,7 +56,9 @@ fn check_yaml_output_matches_python_for_dialect(dialect: &str) {
                     } else {
                         1
                     }
-                } else { 0 };
+                } else {
+                    0
+                };
                 (keys, row_count)
             } else {
                 (vec![], 0)
@@ -73,30 +80,45 @@ fn check_yaml_output_matches_python_for_dialect(dialect: &str) {
         if !keys_match || !rows_match {
             failed += 1;
             failed_tests.push(test.name.clone());
-            println!("\n=== YAML STRUCTURE MISMATCH: {}::{} ===", dialect, test.name);
+            println!(
+                "\n=== YAML STRUCTURE MISMATCH: {}::{} ===",
+                dialect, test.name
+            );
             if !keys_match {
-                println!("  Keys differ:\n    Generated: {:?}\n    Expected:  {:?}", gen_keys, exp_keys);
+                println!(
+                    "  Keys differ:\n    Generated: {:?}\n    Expected:  {:?}",
+                    gen_keys, exp_keys
+                );
             }
             if !rows_match {
-                println!("  Row count differs:\n    Generated: {}\n    Expected:  {}", gen_rows, exp_rows);
+                println!(
+                    "  Row count differs:\n    Generated: {}\n    Expected:  {}",
+                    gen_rows, exp_rows
+                );
                 if test.name == "table_expression" {
                     println!("\n=== GENERATED YAML ===\n{}", generated_yaml);
                     println!("\n=== EXPECTED YAML (first 100 lines) ===");
                     for (i, line) in expected_yaml.lines().take(100).enumerate() {
-                        println!("{}: {}", i+1, line);
+                        println!("{}: {}", i + 1, line);
                     }
                 }
             }
         }
     }
 
-    println!("\nYAML output comparison for dialect '{}': {} total, {} failed", dialect, total, failed);
+    println!(
+        "\nYAML output comparison for dialect '{}': {} total, {} failed",
+        dialect, total, failed
+    );
     if !failed_tests.is_empty() {
         println!("Failed tests for dialect '{}':", dialect);
         for name in &failed_tests {
             println!("  {}::{}", dialect, name);
         }
-    panic!("Some YAML outputs did not match Python reference for dialect '{}'", dialect);
+        panic!(
+            "Some YAML outputs did not match Python reference for dialect '{}'",
+            dialect
+        );
     }
 }
 
@@ -109,13 +131,16 @@ fn process_yaml_11(yaml_str: String) -> String {
             if let Some((k, v)) = line.split_once(": ") {
                 // Convert triple single quoted strings to single quoted
                 let v = if v.starts_with("'''") && v.ends_with("'''") && v.len() > 6 {
-                    let inner = &v[3..v.len()-3];
+                    let inner = &v[3..v.len() - 3];
                     format!("'{}'", inner.replace("'", "''"))
                 } else {
                     v.to_string()
                 };
                 // Only quote if value is in the list and not already quoted
-                if unquoted_keywords.contains(&v.to_uppercase().as_str()) && !v.starts_with('"') && !v.starts_with('\'') {
+                if unquoted_keywords.contains(&v.to_uppercase().as_str())
+                    && !v.starts_with('"')
+                    && !v.starts_with('\'')
+                {
                     format!("{}: '{}'", k, v)
                 } else {
                     format!("{}: {}", k, v)
@@ -142,13 +167,16 @@ fn test_yaml_output_matches_python_bigquery() {
 // Add more dialects as needed, or use a macro to generate tests for all dialects.
 // (Imports above are already present in this file; do not re-import.)
 use serde_yaml_ng::Value;
+use sqlfluffrs_dialects::Dialect;
+use sqlfluffrs_lexer::{LexInput, Lexer};
 use std::fs;
 use std::path::PathBuf;
-use sqlfluffrs_lexer::{LexInput, Lexer};
-use sqlfluffrs_dialects::Dialect;
 
 /// Helper: Generate YAML from AST using the same logic as examples/parse_fixture.rs
-fn node_to_yaml(node: &sqlfluffrs_parser::parser::Node, _tokens: &[sqlfluffrs_types::token::Token]) -> Result<String, Box<dyn std::error::Error>> {
+fn node_to_yaml(
+    node: &sqlfluffrs_parser::parser::Node,
+    _tokens: &[sqlfluffrs_types::token::Token],
+) -> Result<String, Box<dyn std::error::Error>> {
     use serde_yaml_ng::{Mapping, Value};
     let mut root_map = Mapping::new();
     let as_record = node.as_record(true, true, false);
@@ -244,7 +272,11 @@ fn test_yaml_output_matches_python() {
             }
         }
         if gen_lines.len() != exp_lines.len() {
-            println!("  Line count differs: Generated: {} lines, Expected: {} lines", gen_lines.len(), exp_lines.len());
+            println!(
+                "  Line count differs: Generated: {} lines, Expected: {} lines",
+                gen_lines.len(),
+                exp_lines.len()
+            );
         }
         panic!("YAML output does not match expected Python YAML");
     }
@@ -304,14 +336,20 @@ fn test_all_dialect_fixtures() {
                 }
             }
         }
-        println!("Results for {}: {} passed, {} failed", dialect, passed, failed);
+        println!(
+            "Results for {}: {} passed, {} failed",
+            dialect, passed, failed
+        );
         total_passed += passed;
         total_failed += failed;
         all_failed_tests.extend(failed_tests);
     }
 
     println!("\n========================================");
-    println!("Total Results: {} passed, {} failed", total_passed, total_failed);
+    println!(
+        "Total Results: {} passed, {} failed",
+        total_passed, total_failed
+    );
     println!("========================================\n");
 
     if !all_failed_tests.is_empty() {
@@ -327,11 +365,9 @@ fn test_all_dialect_fixtures() {
 ///
 /// This test suite parses SQL files from test/fixtures/dialects/ and compares
 /// the output against expected YAML files.
-use sqlfluffrs_parser::{
-    parser::{Node, Parser},
-};
-use std::{str::FromStr};
-use std::path::{Path};
+use sqlfluffrs_parser::parser::{Node, Parser};
+use std::path::Path;
+use std::str::FromStr;
 
 struct FixtureTest {
     dialect: String,

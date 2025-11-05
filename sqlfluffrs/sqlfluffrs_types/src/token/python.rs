@@ -163,8 +163,8 @@ impl PyToken {
 
     #[getter]
     pub fn cache_key(&self) -> String {
-        use std::hash::{Hash, Hasher};
         use std::collections::hash_map::DefaultHasher;
+        use std::hash::{Hash, Hasher};
 
         let mut hasher = DefaultHasher::new();
         self.0.token_type.hash(&mut hasher);

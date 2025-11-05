@@ -20,15 +20,27 @@ fn test_double_at_sign() {
 
     println!("\n=== Total tokens: {} ===", tokens.len());
     for (i, tok) in tokens.iter().enumerate() {
-        println!("{:3}: token_type={:20} instance_types={:?} raw={:?}",
-                 i, tok.token_type, tok.instance_types, tok.raw());
+        println!(
+            "{:3}: token_type={:20} instance_types={:?} raw={:?}",
+            i,
+            tok.token_type,
+            tok.instance_types,
+            tok.raw()
+        );
     }
 
-    assert!(lex_errors.is_empty(), "Lexer should not produce errors for @@error.message");
+    assert!(
+        lex_errors.is_empty(),
+        "Lexer should not produce errors for @@error.message"
+    );
     assert_eq!(tokens.len(), 2, "Should produce 1 token + EOF");
-    assert!(tokens[0].instance_types.contains(&"double_at_sign_literal".to_string()),
-            "Token should have instance type double_at_sign_literal, got: {:?}",
-            tokens[0].instance_types);
+    assert!(
+        tokens[0]
+            .instance_types
+            .contains(&"double_at_sign_literal".to_string()),
+        "Token should have instance type double_at_sign_literal, got: {:?}",
+        tokens[0].instance_types
+    );
     assert_eq!(tokens[0].raw(), "@@error.message");
 
     // Verify EOF token

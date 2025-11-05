@@ -102,13 +102,12 @@ pub fn skip_stop_index_backward_to_code(
 ///
 /// CRITICAL: end_idx represents where the parser is CURRENTLY positioned (the next
 /// token to process). If that position has whitespace, we should backtrack to exclude it.
-pub fn strip_trailing_non_code(
-    tokens: &[Token],
-    start_idx: usize,
-    end_idx: usize,
-) -> usize {
+pub fn strip_trailing_non_code(tokens: &[Token], start_idx: usize, end_idx: usize) -> usize {
     if end_idx <= start_idx {
-        log::debug!("[STRIP] end_idx <= start_idx, returning start_idx={}", start_idx);
+        log::debug!(
+            "[STRIP] end_idx <= start_idx, returning start_idx={}",
+            start_idx
+        );
         return start_idx;
     }
 
@@ -141,7 +140,10 @@ pub fn strip_trailing_non_code(
             }
         }
         // No code tokens found
-        log::debug!("[STRIP] No code tokens found in range, returning start_idx={}", start_idx);
+        log::debug!(
+            "[STRIP] No code tokens found in range, returning start_idx={}",
+            start_idx
+        );
         return start_idx;
     }
 

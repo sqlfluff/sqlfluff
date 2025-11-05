@@ -1,13 +1,12 @@
 use std::sync::Arc;
 
+use sqlfluffrs_dialects::dialect::ansi::matcher::ANSI_LEXERS;
+use sqlfluffrs_dialects::Dialect;
 /// Tests for the `exclude` grammar functionality
 ///
 /// The `exclude` parameter allows grammars to specify patterns that should
 /// prevent a match if they occur at the current position.
-
 use sqlfluffrs_lexer::{LexInput, Lexer};
-use sqlfluffrs_dialects::Dialect;
-use sqlfluffrs_dialects::dialect::ansi::matcher::ANSI_LEXERS;
 use sqlfluffrs_parser::parser::{Grammar, Node, ParseError, ParseMode, Parser};
 
 #[test]
@@ -17,21 +16,19 @@ fn test_oneof_with_exclude() -> Result<(), ParseError> {
     // Test case: OneOf should match 'A' but NOT if 'AB' is present (exclude pattern)
     let input = LexInput::String("A".to_string());
     let dialect = Dialect::Ansi;
-        let lexer = Lexer::new(None, ANSI_LEXERS.to_vec());
+    let lexer = Lexer::new(None, ANSI_LEXERS.to_vec());
     let (tokens, _errors) = lexer.lex(input, false);
 
     let mut parser = Parser::new(&tokens, dialect);
 
     // Create a OneOf grammar that matches "A" but excludes if "AB" is present
     let grammar = Arc::new(Grammar::OneOf {
-        elements: vec![
-            Arc::new(Grammar::StringParser {
-                template: "A",
-                raw_class: "WordSegment",
-                token_type: "word",
-                optional: false,
-            }),
-        ],
+        elements: vec![Arc::new(Grammar::StringParser {
+            template: "A",
+            raw_class: "WordSegment",
+            token_type: "word",
+            optional: false,
+        })],
         exclude: Some(Box::new(Arc::new(Grammar::Sequence {
             elements: vec![
                 Arc::new(Grammar::StringParser {
@@ -68,7 +65,11 @@ fn test_oneof_with_exclude() -> Result<(), ParseError> {
     println!("\nParsed successfully: {:#?}", result);
 
     // Should have consumed the "A" token (OneOf returns the single matched element directly)
-    assert!(matches!(result, Node::Token { .. }), "Should match A: got {:?}", result);
+    assert!(
+        matches!(result, Node::Token { .. }),
+        "Should match A: got {:?}",
+        result
+    );
 
     Ok(())
 }
@@ -80,21 +81,19 @@ fn test_oneof_exclude_blocks_match() -> Result<(), ParseError> {
     // Test case: OneOf should NOT match when exclude pattern is present
     let input = LexInput::String("AB".to_string());
     let dialect = Dialect::Ansi;
-        let lexer = Lexer::new(None, ANSI_LEXERS.to_vec());
+    let lexer = Lexer::new(None, ANSI_LEXERS.to_vec());
     let (tokens, _errors) = lexer.lex(input, false);
 
     let mut parser = Parser::new(&tokens, dialect);
 
     // Create a OneOf grammar that matches "A" but excludes if "AB" is present
     let grammar = Arc::new(Grammar::OneOf {
-        elements: vec![
-            Arc::new(Grammar::StringParser {
-                template: "A",
-                raw_class: "WordSegment",
-                token_type: "word",
-                optional: false,
-            }),
-        ],
+        elements: vec![Arc::new(Grammar::StringParser {
+            template: "A",
+            raw_class: "WordSegment",
+            token_type: "word",
+            optional: false,
+        })],
         exclude: Some(Box::new(Arc::new(Grammar::Sequence {
             elements: vec![
                 Arc::new(Grammar::StringParser {
@@ -131,7 +130,10 @@ fn test_oneof_exclude_blocks_match() -> Result<(), ParseError> {
     println!("\nExclude triggered, got: {:#?}", result);
 
     // Should be Empty due to exclude
-    assert!(matches!(result, Node::Empty), "Should be empty due to exclude pattern");
+    assert!(
+        matches!(result, Node::Empty),
+        "Should be empty due to exclude pattern"
+    );
 
     Ok(())
 }
@@ -143,21 +145,19 @@ fn test_anynumberof_with_exclude() -> Result<(), ParseError> {
     // Test case: AnyNumberOf should match repeated "A" but not if "B" is present
     let input = LexInput::String("A A A".to_string());
     let dialect = Dialect::Ansi;
-        let lexer = Lexer::new(None, ANSI_LEXERS.to_vec());
+    let lexer = Lexer::new(None, ANSI_LEXERS.to_vec());
     let (tokens, _errors) = lexer.lex(input, false);
 
     let mut parser = Parser::new(&tokens, dialect);
 
     // Create an AnyNumberOf grammar that matches "A" repeatedly but excludes if "B" is present
     let grammar = Arc::new(Grammar::AnyNumberOf {
-        elements: vec![
-            Arc::new(Grammar::StringParser {
-                template: "A",
-                raw_class: "WordSegment",
-                token_type: "word",
-                optional: false,
-            }),
-        ],
+        elements: vec![Arc::new(Grammar::StringParser {
+            template: "A",
+            raw_class: "WordSegment",
+            token_type: "word",
+            optional: false,
+        })],
         min_times: 1,
         max_times: None,
         max_times_per_element: None,
@@ -181,7 +181,11 @@ fn test_anynumberof_with_exclude() -> Result<(), ParseError> {
     println!("\nParsed successfully: {:#?}", result);
 
     // Should have matched multiple A's (AnyNumberOf returns DelimitedList)
-    assert!(matches!(result, Node::DelimitedList { .. }), "Should match multiple A's: got {:?}", result);
+    assert!(
+        matches!(result, Node::DelimitedList { .. }),
+        "Should match multiple A's: got {:?}",
+        result
+    );
 
     Ok(())
 }

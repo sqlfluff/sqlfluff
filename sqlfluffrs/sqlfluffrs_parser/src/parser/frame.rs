@@ -7,10 +7,10 @@ use std::sync::Arc;
 
 use hashbrown::{HashMap, HashSet};
 
-use crate::parser::{iterative::ParseFrameStack};
+use crate::parser::iterative::ParseFrameStack;
 
-use sqlfluffrs_types::Grammar;
 use super::types::Node;
+use sqlfluffrs_types::Grammar;
 
 /// A parse frame represents a single parsing task in the iterative parser.
 ///
@@ -272,9 +272,9 @@ pub enum FrameContext {
         post_skip_pos: usize,
         longest_match: Option<(Node, usize, u64)>, // (node, consumed, element_key)
         tried_elements: usize,
-        max_idx: usize, // Limit for greedy matching
+        max_idx: usize,                     // Limit for greedy matching
         last_child_frame_id: Option<usize>, // Track child frame for WaitingForChild state
-        current_element_key: Option<u64>, // Cache key of the element currently being tried
+        current_element_key: Option<u64>,   // Cache key of the element currently being tried
     },
     AnyNumberOf {
         grammar: Arc<Grammar>,

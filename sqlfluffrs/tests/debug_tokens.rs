@@ -1,8 +1,8 @@
+use hashbrown::HashSet;
 use sqlfluffrs_dialects::dialect::ansi::matcher::ANSI_LEXERS;
 use sqlfluffrs_dialects::Dialect;
 use sqlfluffrs_lexer::{LexInput, Lexer};
 use sqlfluffrs_parser::parser::{Node, Parser};
-use hashbrown::HashSet;
 
 fn collect_token_positions(node: &Node, positions: &mut HashSet<usize>) {
     match node {
@@ -31,9 +31,7 @@ fn collect_token_positions(node: &Node, positions: &mut HashSet<usize>) {
 fn debug_delimited() {
     use std::io::Write;
     let _ = env_logger::builder()
-        .format(|buf, record| {
-            writeln!(buf, "{}: {}", record.level(), record.args())
-        })
+        .format(|buf, record| writeln!(buf, "{}: {}", record.level(), record.args()))
         .filter_level(log::LevelFilter::Debug)
         .is_test(true)
         .try_init();
@@ -46,7 +44,12 @@ fn debug_delimited() {
 
     println!("\n=== TOKENS ===");
     for (idx, token) in tokens.iter().enumerate() {
-        println!("Token {}: {:?} (type: {})", idx, token.raw(), token.get_type());
+        println!(
+            "Token {}: {:?} (type: {})",
+            idx,
+            token.raw(),
+            token.get_type()
+        );
     }
 
     let mut parser = Parser::new(&tokens, Dialect::Ansi);
@@ -63,7 +66,12 @@ fn debug_delimited() {
     println!("\n=== MISSING POSITIONS ===");
     for (idx, token) in tokens.iter().enumerate() {
         if !ast_positions.contains(&idx) && token.get_type() != "end_of_file" {
-            println!("Missing {}: {:?} (type: {})", idx, token.raw(), token.get_type());
+            println!(
+                "Missing {}: {:?} (type: {})",
+                idx,
+                token.raw(),
+                token.get_type()
+            );
         }
     }
 }
@@ -78,7 +86,12 @@ fn debug_bracketed() {
 
     println!("\n=== TOKENS ===");
     for (idx, token) in tokens.iter().enumerate() {
-        println!("Token {}: {:?} (type: {})", idx, token.raw(), token.get_type());
+        println!(
+            "Token {}: {:?} (type: {})",
+            idx,
+            token.raw(),
+            token.get_type()
+        );
     }
 
     let mut parser = Parser::new(&tokens, Dialect::Ansi);
@@ -95,7 +108,12 @@ fn debug_bracketed() {
     println!("\n=== MISSING POSITIONS ===");
     for (idx, token) in tokens.iter().enumerate() {
         if !ast_positions.contains(&idx) && token.get_type() != "end_of_file" {
-            println!("Missing {}: {:?} (type: {})", idx, token.raw(), token.get_type());
+            println!(
+                "Missing {}: {:?} (type: {})",
+                idx,
+                token.raw(),
+                token.get_type()
+            );
         }
     }
 }

@@ -194,7 +194,13 @@ impl Parser<'_> {
                     frame.pos
                 );
 
-                self.handle_anynumberof_initial(anynumberof_grammar, frame, &terminators, stack, iteration_count)
+                self.handle_anynumberof_initial(
+                    anynumberof_grammar,
+                    frame,
+                    &terminators,
+                    stack,
+                    iteration_count,
+                )
             }
 
             Grammar::Delimited { .. } => {
@@ -298,7 +304,9 @@ impl Parser<'_> {
             // Re-check the cache ONLY for Initial frames
             // WaitingForChild frames have already started processing and have a child computing the result
             if matches!(frame.state, FrameState::Initial) {
-                if let NextStep::Continue = self.check_and_handle_frame_cache(&mut frame, &mut stack)? {
+                if let NextStep::Continue =
+                    self.check_and_handle_frame_cache(&mut frame, &mut stack)?
+                {
                     continue 'main_loop;
                 }
             }
@@ -446,7 +454,8 @@ impl Parser<'_> {
             self.pos = *end_pos;
 
             // Mark transparent tokens as globally collected now that we're using this result
-            if let Some(transparent_positions) = stack.transparent_positions.get(&initial_frame_id) {
+            if let Some(transparent_positions) = stack.transparent_positions.get(&initial_frame_id)
+            {
                 for &pos in transparent_positions {
                     if !self.collected_transparent_positions.insert(pos) {
                         log::warn!("WARNING (initial): Position {} was already collected! Duplicate marking.", pos);
@@ -690,12 +699,20 @@ impl Parser<'_> {
         };
 
         let child = stack.results.get(&child_frame_id).cloned();
-        log::debug!("[RESULT GET] parent_frame_id={}, child_frame_id={}, child_found={}",
-            frame.frame_id, child_frame_id, child.is_some());
+        log::debug!(
+            "[RESULT GET] parent_frame_id={}, child_frame_id={}, child_found={}",
+            frame.frame_id,
+            child_frame_id,
+            child.is_some()
+        );
 
         if let Some((child_node, child_end_pos, child_element_key)) = &child {
-            log::debug!("[RESULT FOUND] parent_frame_id={}, child_frame_id={}, child_end_pos={}",
-                frame.frame_id, child_frame_id, child_end_pos);
+            log::debug!(
+                "[RESULT FOUND] parent_frame_id={}, child_frame_id={}, child_end_pos={}",
+                frame.frame_id,
+                child_frame_id,
+                child_end_pos
+            );
             log::debug!(
                 "Child {} of {} completed (frame_id={}): pos {} -> {}",
                 child_index,

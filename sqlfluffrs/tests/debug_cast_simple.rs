@@ -17,8 +17,13 @@ fn test_simple_cast() {
     println!("\n=== SQL: {} ===", sql);
     println!("\n=== Total tokens: {} ===", tokens.len());
     for (i, tok) in tokens.iter().enumerate() {
-        println!("{:3}: {:20} is_code={:5} {:?}",
-            i, tok.token_type, tok.is_code(), tok.raw());
+        println!(
+            "{:3}: {:20} is_code={:5} {:?}",
+            i,
+            tok.token_type,
+            tok.is_code(),
+            tok.raw()
+        );
     }
 
     let dialect = Dialect::Ansi;
@@ -30,13 +35,22 @@ fn test_simple_cast() {
             println!("\n=== AST ===");
             println!("{:#?}", node);
 
-            println!("\n=== Parser position: {} / {} ===", parser.pos, tokens.len());
+            println!(
+                "\n=== Parser position: {} / {} ===",
+                parser.pos,
+                tokens.len()
+            );
 
             if parser.pos < tokens.len() {
                 println!("\n!!! WARNING: Parser did not consume all tokens !!!");
                 println!("Stopped at token {}:", parser.pos);
                 if parser.pos < tokens.len() {
-                    println!("{:3}: {:20} {:?}", parser.pos, tokens[parser.pos].token_type, tokens[parser.pos].raw());
+                    println!(
+                        "{:3}: {:20} {:?}",
+                        parser.pos,
+                        tokens[parser.pos].token_type,
+                        tokens[parser.pos].raw()
+                    );
                 }
             }
         }
@@ -47,7 +61,11 @@ fn test_simple_cast() {
     }
 
     assert!(ast.is_ok(), "Parse error: {:?}", ast.err());
-    assert!(parser.pos >= tokens.len() - 1,
+    assert!(
+        parser.pos >= tokens.len() - 1,
         "Parser did not consume all tokens. Stopped at {} / {} tokens (last index: {})",
-        parser.pos, tokens.len(), tokens.len() - 1);
+        parser.pos,
+        tokens.len(),
+        tokens.len() - 1
+    );
 }

@@ -1,9 +1,9 @@
 use std::sync::Arc;
 
-use sqlfluffrs_types::Grammar;
-use hashbrown::HashMap;
-use crate::parser::{Node, ParseError, ParseFrame};
 use crate::parser::iterative::NextStep;
+use crate::parser::{Node, ParseError, ParseFrame};
+use hashbrown::HashMap;
+use sqlfluffrs_types::Grammar;
 
 use crate::parser::core::Parser;
 
@@ -18,7 +18,9 @@ impl<'a> Parser<'_> {
         let token_type = match grammar.as_ref() {
             Grammar::Token { token_type } => token_type,
             _ => {
-                return Err(ParseError::new("handle_token_initial called with non-Token grammar".into()));
+                return Err(ParseError::new(
+                    "handle_token_initial called with non-Token grammar".into(),
+                ));
             }
         };
         log::debug!("DEBUG: Token grammar frame_id={}, pos={}, parent_max_idx={:?}, token_type={:?}, available_tokens={}",
@@ -41,7 +43,11 @@ impl<'a> Parser<'_> {
                     self.pos
                 );
 
-                let node = Node::Token { token_type: token_type.to_string(), raw: tok.raw(), token_idx: token_pos };
+                let node = Node::Token {
+                    token_type: token_type.to_string(),
+                    raw: tok.raw(),
+                    token_idx: token_pos,
+                };
                 results.insert(frame.frame_id, (node, self.pos, None));
                 Ok(NextStep::Fallthrough)
             } else {

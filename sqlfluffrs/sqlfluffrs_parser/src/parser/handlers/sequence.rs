@@ -71,9 +71,18 @@ impl<'a> Parser<'_> {
 
         // Calculate max_idx with terminator and parent constraints
         self.pos = start_idx;
-        let max_idx = self.calculate_max_idx(start_idx, &all_terminators, *parse_mode, frame.parent_max_idx);
+        let max_idx = self.calculate_max_idx(
+            start_idx,
+            &all_terminators,
+            *parse_mode,
+            frame.parent_max_idx,
+        );
 
-        log::debug!("DEBUG: Sequence Initial calculated max_idx={}, frame.parent_max_idx={:?}", max_idx, frame.parent_max_idx);
+        log::debug!(
+            "DEBUG: Sequence Initial calculated max_idx={}, frame.parent_max_idx={:?}",
+            max_idx,
+            frame.parent_max_idx
+        );
 
         // Push a collection checkpoint for this sequence
         // This allows us to rollback transparent token collections if we backtrack
@@ -114,13 +123,7 @@ impl<'a> Parser<'_> {
             // Return empty sequence
             stack.results.insert(
                 current_frame_id,
-                (
-                    Node::Sequence {
-                        children: vec![],
-                    },
-                    start_idx,
-                    None,
-                ),
+                (Node::Sequence { children: vec![] }, start_idx, None),
             );
             return Ok(NextStep::Fallthrough);
         }
@@ -305,8 +308,12 @@ impl<'a> Parser<'_> {
         iteration_count: usize,
         frame_terminators: Vec<Arc<Grammar>>,
     ) {
-        log::debug!("[SEQUENCE CHILD] frame_id={}, child_end_pos={}, child_empty={}",
-            frame.frame_id, child_end_pos, child_node.is_empty());
+        log::debug!(
+            "[SEQUENCE CHILD] frame_id={}, child_end_pos={}, child_empty={}",
+            frame.frame_id,
+            child_end_pos,
+            child_node.is_empty()
+        );
 
         let FrameContext::Sequence {
             grammar,
@@ -351,7 +358,9 @@ impl<'a> Parser<'_> {
                     Grammar::Sequence { .. } => "Sequence".to_string(),
                     Grammar::OneOf { .. } => "OneOf".to_string(),
                     Grammar::Delimited { .. } => "Delimited".to_string(),
-                    Grammar::StringParser { template, .. } => format!("StringParser('{}')", template),
+                    Grammar::StringParser { template, .. } => {
+                        format!("StringParser('{}')", template)
+                    }
                     _ => format!("{:?}", current_element).chars().take(50).collect(),
                 };
 
@@ -372,8 +381,13 @@ impl<'a> Parser<'_> {
             let child_end_pos = &corrected_child_end_pos;
 
             if current_element.is_optional() {
-                log::debug!("[SEQUENCE EMPTY OPT] frame_id={}, moving to next element", frame.frame_id);
-                log::debug!("Sequence: child returned Empty and is optional, continuing to next element");
+                log::debug!(
+                    "[SEQUENCE EMPTY OPT] frame_id={}, moving to next element",
+                    frame.frame_id
+                );
+                log::debug!(
+                    "Sequence: child returned Empty and is optional, continuing to next element"
+                );
                 // Don't advance matched_idx or push anything - just move to next element
                 *current_element_idx += 1;
 
@@ -397,15 +411,20 @@ impl<'a> Parser<'_> {
                     };
 
                     // Store transparent positions and commit checkpoint
-                    stack.transparent_positions.insert(frame.frame_id, tentatively_collected.clone());
+                    stack
+                        .transparent_positions
+                        .insert(frame.frame_id, tentatively_collected.clone());
                     self.commit_collection_checkpoint(frame.frame_id);
 
-                    log::debug!("[SEQUENCE COMPLETE OPT] frame_id={}, matched_idx={}, parse_mode={:?}",
-                        frame.frame_id, *matched_idx, *parse_mode);
-                    stack.results.insert(
+                    log::debug!(
+                        "[SEQUENCE COMPLETE OPT] frame_id={}, matched_idx={}, parse_mode={:?}",
                         frame.frame_id,
-                        (result_node, *matched_idx, None),
+                        *matched_idx,
+                        *parse_mode
                     );
+                    stack
+                        .results
+                        .insert(frame.frame_id, (result_node, *matched_idx, None));
                     return;
                 }
 
@@ -438,19 +457,22 @@ impl<'a> Parser<'_> {
                             }
                         };
 
-                        stack.transparent_positions.insert(frame.frame_id, tentatively_collected.clone());
+                        stack
+                            .transparent_positions
+                            .insert(frame.frame_id, tentatively_collected.clone());
                         self.commit_collection_checkpoint(frame.frame_id);
 
-                        stack.results.insert(
-                            frame.frame_id,
-                            (result_node, *matched_idx, None),
-                        );
+                        stack
+                            .results
+                            .insert(frame.frame_id, (result_node, *matched_idx, None));
                         return;
                     } else if *parse_mode == ParseMode::Strict {
                         log::debug!("[SEQUENCE BOUNDARY + STRICT] frame_id={}, has required elements, failing", frame.frame_id);
                         // Strict mode and required elements remaining: fail
                         self.rollback_collection_checkpoint(frame.frame_id);
-                        stack.results.insert(frame.frame_id, (Node::Empty, frame.pos, None));
+                        stack
+                            .results
+                            .insert(frame.frame_id, (Node::Empty, frame.pos, None));
                         return;
                     } else {
                         log::debug!("[SEQUENCE BOUNDARY + GREEDY] frame_id={}, has required elements but GREEDY mode, attempting to continue", frame.frame_id);
@@ -474,8 +496,11 @@ impl<'a> Parser<'_> {
                 );
                 return;
             } else {
-                log::debug!("[SEQUENCE EMPTY REQ] frame_id={}, required element {} returned Empty!",
-                    frame.frame_id, *current_element_idx);
+                log::debug!(
+                    "[SEQUENCE EMPTY REQ] frame_id={}, required element {} returned Empty!",
+                    frame.frame_id,
+                    *current_element_idx
+                );
                 let element_desc = match current_element.as_ref() {
                     Grammar::Ref { name, .. } => format!("Ref({})", name),
                     Grammar::StringParser { template, .. } => {
@@ -505,7 +530,9 @@ impl<'a> Parser<'_> {
                 // - GREEDY_ONCE_STARTED: if nothing matched yet, return Empty; else wrap as unparsable
                 // - GREEDY: wrap remaining content as unparsable
                 if *parse_mode == ParseMode::Strict {
-                    log::debug!("Sequence: STRICT mode - required element returned Empty, returning Empty");
+                    log::debug!(
+                        "Sequence: STRICT mode - required element returned Empty, returning Empty"
+                    );
                     self.pos = frame.pos;
                     // Rollback the checkpoint - undoes all collections made during this sequence
                     self.rollback_collection_checkpoint(frame.frame_id);
@@ -521,7 +548,9 @@ impl<'a> Parser<'_> {
                     // Haven't matched anything yet
                     if *parse_mode == ParseMode::GreedyOnceStarted {
                         // GREEDY_ONCE_STARTED with no matches yet: return Empty
-                        log::debug!("Sequence: GREEDY_ONCE_STARTED mode - no matches yet, returning Empty");
+                        log::debug!(
+                            "Sequence: GREEDY_ONCE_STARTED mode - no matches yet, returning Empty"
+                        );
                         self.pos = frame.pos;
                         // Rollback the checkpoint - undoes all collections made during this sequence
                         self.rollback_collection_checkpoint(frame.frame_id);
@@ -532,7 +561,11 @@ impl<'a> Parser<'_> {
                     }
 
                     // GREEDY mode with no matches: wrap all content as unparsable
-                    log::debug!("Sequence: GREEDY mode - wrapping all content from {} to {} as unparsable", element_start, *max_idx);
+                    log::debug!(
+                        "Sequence: GREEDY mode - wrapping all content from {} to {} as unparsable",
+                        element_start,
+                        *max_idx
+                    );
                     let unparsable_children: Vec<Node> = (element_start..*max_idx)
                         .filter_map(|pos| {
                             if pos < self.tokens.len() {
@@ -553,10 +586,9 @@ impl<'a> Parser<'_> {
                         expected_message: element_desc,
                     };
 
-                    stack.results.insert(
-                        frame.frame_id,
-                        (unparsable_node, *max_idx, None),
-                    );
+                    stack
+                        .results
+                        .insert(frame.frame_id, (unparsable_node, *max_idx, None));
                     return;
                 }
 
@@ -619,10 +651,9 @@ impl<'a> Parser<'_> {
                     children: frame.accumulated.clone(),
                 };
 
-                stack.results.insert(
-                    frame.frame_id,
-                    (result_node, *max_idx, None),
-                );
+                stack
+                    .results
+                    .insert(frame.frame_id, (result_node, *max_idx, None));
                 return;
             }
         } else {
@@ -729,7 +760,12 @@ impl<'a> Parser<'_> {
                 // Respect the original parent max_idx constraint
                 *max_idx = new_max_idx.min(*original_max_idx);
                 *first_match = false;
-                log::debug!("  New max_idx: {} (trimmed to {}, constrained by original {})", *max_idx, new_max_idx, *original_max_idx);
+                log::debug!(
+                    "  New max_idx: {} (trimmed to {}, constrained by original {})",
+                    *max_idx,
+                    new_max_idx,
+                    *original_max_idx
+                );
             }
         }
         let current_matched_idx = *matched_idx;
@@ -824,7 +860,9 @@ impl<'a> Parser<'_> {
             } else {
                 //Debug: check if position 15 is in accumulated
                 let has_pos_15 = frame.accumulated.iter().any(|node| match node {
-                    Node::Whitespace { token_idx, .. } | Node::Newline { token_idx, .. } => *token_idx == 15,
+                    Node::Whitespace { token_idx, .. } | Node::Newline { token_idx, .. } => {
+                        *token_idx == 15
+                    }
                     _ => false,
                 });
                 let grammar_desc = match grammar.as_ref() {
@@ -848,7 +886,9 @@ impl<'a> Parser<'_> {
             // because this result might not be used (due to backtracking/caching).
             // Instead, store them in stack.transparent_positions so they can be marked
             // when the parent actually retrieves and uses this result.
-            stack.transparent_positions.insert(frame.frame_id, tentatively_collected.clone());
+            stack
+                .transparent_positions
+                .insert(frame.frame_id, tentatively_collected.clone());
 
             // Pop the collection checkpoint but DON'T commit it globally yet.
             // The positions are stored in transparent_positions, and will be marked globally
@@ -898,12 +938,11 @@ impl<'a> Parser<'_> {
                         let tok = &self.tokens[collect_pos];
                         let tok_type = tok.get_type();
                         // Only check if already in THIS frame's accumulated to avoid duplicating within the same frame
-                        let already_in_frame =
-                            frame.accumulated.iter().any(|node| match node {
-                                Node::Whitespace { token_idx: pos, .. }
-                                | Node::Newline { token_idx: pos, .. } => *pos == collect_pos,
-                                _ => false,
-                            });
+                        let already_in_frame = frame.accumulated.iter().any(|node| match node {
+                            Node::Whitespace { token_idx: pos, .. }
+                            | Node::Newline { token_idx: pos, .. } => *pos == collect_pos,
+                            _ => false,
+                        });
                         if !already_in_frame {
                             if tok_type == "whitespace" {
                                 log::debug!(
@@ -942,8 +981,12 @@ impl<'a> Parser<'_> {
                     Grammar::Meta(m) => format!("Meta({})", m),
                     g => format!("{:?}", g).chars().take(50).collect(),
                 };
-                log::debug!("SEQUENCE NEXT ELEMENT: idx={}, grammar={}, optional={}",
-                    next_elem_idx, next_elem_desc, elements_clone[next_elem_idx].is_optional());
+                log::debug!(
+                    "SEQUENCE NEXT ELEMENT: idx={}, grammar={}, optional={}",
+                    next_elem_idx,
+                    next_elem_desc,
+                    elements_clone[next_elem_idx].is_optional()
+                );
             }
 
             // DEBUG: Log the state before the early return check
@@ -984,7 +1027,9 @@ impl<'a> Parser<'_> {
                         return;
                     } else {
                         // Store transparent positions for when this result is used
-                        stack.transparent_positions.insert(frame.frame_id, tentatively_collected.clone());
+                        stack
+                            .transparent_positions
+                            .insert(frame.frame_id, tentatively_collected.clone());
                         // Commit the collection checkpoint - this sequence succeeded
                         self.commit_collection_checkpoint(frame.frame_id);
                         self.pos = current_matched_idx;
@@ -1084,14 +1129,18 @@ impl<'a> Parser<'_> {
             else {
                 unreachable!();
             };
-            stack.transparent_positions.insert(frame.frame_id, tc.clone());
+            stack
+                .transparent_positions
+                .insert(frame.frame_id, tc.clone());
 
             // Commit the collection checkpoint - this sequence succeeded
             self.commit_collection_checkpoint(frame.frame_id);
 
             // Debug: check if position 15 is in final_accumulated
             let has_pos_15 = final_accumulated.iter().any(|node| match node {
-                Node::Whitespace { token_idx, .. } | Node::Newline { token_idx, .. } => *token_idx == 15,
+                Node::Whitespace { token_idx, .. } | Node::Newline { token_idx, .. } => {
+                    *token_idx == 15
+                }
                 _ => false,
             });
             log::debug!("Sequence completing: has position 15 in final_accumulated = {}, final_accumulated.len() = {}", has_pos_15, final_accumulated.len());
@@ -1298,7 +1347,9 @@ impl<'a> Parser<'_> {
                                         check_pos
                                     );
                                     self.pos = frame.pos;
-                                    stack.results.insert(frame.frame_id, (Node::Empty, frame.pos, None));
+                                    stack
+                                        .results
+                                        .insert(frame.frame_id, (Node::Empty, frame.pos, None));
                                     return;
                                 }
                             }

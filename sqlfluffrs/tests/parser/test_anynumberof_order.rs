@@ -8,14 +8,18 @@ fn test_anynumberof_trim_function() {
     let (tokens, _errors) = lexer.lex(input, false);
 
     // Load the FunctionSegment from the ANSI dialect
-    let grammar = get_ansi_segment_grammar("FunctionSegment").expect("FunctionContentsGrammar not found");
+    let grammar =
+        get_ansi_segment_grammar("FunctionSegment").expect("FunctionContentsGrammar not found");
 
     let mut parser = Parser::new(&tokens, sqlfluffrs_dialects::Dialect::Ansi);
     let _ = env_logger::builder().is_test(true).try_init();
     let node = parser.parse_with_grammar_cached(&grammar, &[]).unwrap();
     println!("{:#?}", node);
     // The result should match the TRIM grammar, not the EXTRACT/SUBSTRING grammar
-    assert!(contains_trim_parameters_grammar(&node), "Should contain TrimParametersGrammar");
+    assert!(
+        contains_trim_parameters_grammar(&node),
+        "Should contain TrimParametersGrammar"
+    );
 }
 
 #[test]
@@ -27,31 +31,37 @@ fn test_anynumberof_trim_function_with_expression() {
     let (tokens, _errors) = lexer.lex(input, false);
 
     // Load the FunctionSegment from the ANSI dialect
-    let grammar = get_ansi_segment_grammar("FunctionSegment").expect("FunctionContentsGrammar not found");
+    let grammar =
+        get_ansi_segment_grammar("FunctionSegment").expect("FunctionContentsGrammar not found");
 
     let mut parser = Parser::new(&tokens, sqlfluffrs_dialects::Dialect::Ansi);
     let _ = env_logger::builder().is_test(true).try_init();
     let node = parser.parse_with_grammar_cached(&grammar, &[]).unwrap();
     println!("{:#?}", node);
     // The result should match the TRIM grammar, not the EXTRACT/SUBSTRING grammar
-    assert!(contains_trim_parameters_grammar(&node), "Should contain TrimParametersGrammar");
+    assert!(
+        contains_trim_parameters_grammar(&node),
+        "Should contain TrimParametersGrammar"
+    );
 }
 
-use sqlfluffrs_parser::parser::{Parser, Node};
+use sqlfluffrs_parser::parser::{Node, Parser};
 fn contains_trim_parameters_grammar(node: &Node) -> bool {
     match node {
         Node::Ref { name, .. } if name == "TrimParametersGrammar" => true,
         Node::Sequence { children }
         | Node::DelimitedList { children }
         | Node::Bracketed { children }
-        | Node::Unparsable { children, .. } => children.iter().any(contains_trim_parameters_grammar),
+        | Node::Unparsable { children, .. } => {
+            children.iter().any(contains_trim_parameters_grammar)
+        }
         Node::Ref { child, .. } => contains_trim_parameters_grammar(child),
         _ => false,
     }
 }
-use sqlfluffrs_lexer::{LexInput, Lexer};
 use sqlfluffrs_dialects::dialect::ansi::matcher::ANSI_LEXERS;
 use sqlfluffrs_dialects::dialect::ansi::parser::get_ansi_segment_grammar;
+use sqlfluffrs_lexer::{LexInput, Lexer};
 
 #[test]
 fn test_anynumberof_order_and_earliest_match() {
@@ -62,14 +72,18 @@ fn test_anynumberof_order_and_earliest_match() {
     let (tokens, _errors) = lexer.lex(input, false);
 
     // Load grammars from the ANSI dialect
-    let grammar = get_ansi_segment_grammar("FunctionContentsGrammar").expect("FunctionContentsGrammar not found");
+    let grammar = get_ansi_segment_grammar("FunctionContentsGrammar")
+        .expect("FunctionContentsGrammar not found");
 
     let mut parser = Parser::new(&tokens, sqlfluffrs_dialects::Dialect::Ansi);
     let _ = env_logger::builder().is_test(true).try_init();
     let node = parser.parse_with_grammar_cached(&grammar, &[]).unwrap();
     // The result should match the TRIM grammar, not the EXTRACT/SUBSTRING grammar
     println!("{:#?}", node);
-    assert!(contains_trim_parameters_grammar(&node), "Should contain TrimParametersGrammar");
+    assert!(
+        contains_trim_parameters_grammar(&node),
+        "Should contain TrimParametersGrammar"
+    );
 }
 
 #[test]
@@ -96,11 +110,15 @@ fn test_anynumberof_order_and_earliest_match_with_expression() {
     let (tokens, _errors) = lexer.lex(input, false);
 
     // Load grammars from the ANSI dialect
-    let grammar = get_ansi_segment_grammar("FunctionContentsGrammar").expect("FunctionContentsGrammar not found");
+    let grammar = get_ansi_segment_grammar("FunctionContentsGrammar")
+        .expect("FunctionContentsGrammar not found");
 
     let mut parser = Parser::new(&tokens, sqlfluffrs_dialects::Dialect::Ansi);
     let node = parser.parse_with_grammar_cached(&grammar, &[]).unwrap();
     // The result should match the TRIM grammar, not the EXTRACT/SUBSTRING grammar
     println!("{:#?}", node);
-    assert!(contains_trim_parameters_grammar(&node), "Should contain TrimParametersGrammar");
+    assert!(
+        contains_trim_parameters_grammar(&node),
+        "Should contain TrimParametersGrammar"
+    );
 }

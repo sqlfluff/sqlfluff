@@ -11,6 +11,12 @@ fn main() {
 
     println!("Total tokens: {}", tokens.len());
     for (idx, token) in tokens.iter().enumerate() {
-        println!("{}: {:?} (type: {}) code={}", idx, token.raw(), token.get_type(), token.is_code());
+        println!(
+            "{}: {:?} (type: {}) code={}",
+            idx,
+            token.raw(),
+            token.get_type(),
+            token.is_code()
+        );
     }
 }
