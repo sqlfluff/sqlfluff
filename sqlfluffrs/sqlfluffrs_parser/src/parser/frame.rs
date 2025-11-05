@@ -309,6 +309,7 @@ pub enum FrameContext {
         state: DelimitedState,
         last_child_frame_id: Option<usize>,
         delimiter_match: Option<Node>,
+        pos_before_delimiter: Option<usize>,
     },
 }
 

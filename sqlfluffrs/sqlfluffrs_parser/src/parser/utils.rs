@@ -92,6 +92,67 @@ pub fn skip_stop_index_backward_to_code(
     min_idx
 }
 
+/// Strip trailing non-code tokens from an end position.
+///
+/// Given start_idx and end_idx where end_idx is the current parser position after
+/// consuming some tokens, checks if we've positioned at whitespace and if so,
+/// backtracks to just after the last code token.
+///
+/// Returns the position after the last code token, or start_idx if no code tokens found.
+///
+/// CRITICAL: end_idx represents where the parser is CURRENTLY positioned (the next
+/// token to process). If that position has whitespace, we should backtrack to exclude it.
+pub fn strip_trailing_non_code(
+    tokens: &[Token],
+    start_idx: usize,
+    end_idx: usize,
+) -> usize {
+    if end_idx <= start_idx {
+        log::debug!("[STRIP] end_idx <= start_idx, returning start_idx={}", start_idx);
+        return start_idx;
+    }
+
+    log::debug!(
+        "[STRIP] Checking if end_idx={} points to whitespace (tokens consumed: [{}, {}))",
+        end_idx,
+        start_idx,
+        end_idx
+    );
+
+    // Special case: Check if we're currently positioned AT whitespace (at end_idx).
+    // If end_idx points to a non-code token (whitespace), we should backtrack to
+    // just after the last code token.
+    if end_idx < tokens.len() && !tokens[end_idx].is_code() {
+        log::debug!(
+            "[STRIP] Token AT end_idx={} is non-code: raw={:?}, backtracking",
+            end_idx,
+            tokens[end_idx].raw()
+        );
+        // Search backward from end_idx-1 to find the last code token
+        for i in (start_idx..end_idx).rev() {
+            if i < tokens.len() && tokens[i].is_code() {
+                let result = i + 1;
+                log::debug!(
+                    "[STRIP] Found last code token at i={}, returning i+1={}",
+                    i,
+                    result
+                );
+                return result;
+            }
+        }
+        // No code tokens found
+        log::debug!("[STRIP] No code tokens found in range, returning start_idx={}", start_idx);
+        return start_idx;
+    }
+
+    // end_idx points to a code token or is at EOF, no stripping needed
+    log::debug!(
+        "[STRIP] Token AT end_idx={} is code or EOF, no strip needed",
+        end_idx
+    );
+    end_idx
+}
+
 /// Apply parse_mode logic to match result.
 ///
 /// In GREEDY mode, this creates UnparsableSegments for any unmatched code tokens.

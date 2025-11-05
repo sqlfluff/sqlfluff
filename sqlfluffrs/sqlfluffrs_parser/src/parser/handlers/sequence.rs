@@ -98,12 +98,14 @@ impl<'a> Parser<'_> {
         let current_frame_id = frame.frame_id; // Save before moving frame
         stack.push(frame);
 
-        // Skip to code if allow_gaps (matching Python's behavior at sequence.py line 196)
-        let first_child_pos = if *allow_gaps {
-            self.skip_start_index_forward_to_code(start_idx, max_idx)
-        } else {
-            start_idx
-        };
+        // DON'T skip whitespace here! Python's Sequence.match skips whitespace IN THE LOOP
+        // before each element match attempt (see sequence.py lines 190-196).
+        // If we skip here and the first element fails, we'll have consumed whitespace
+        // but returned Empty, violating the Empty contract.
+        //
+        // Whitespace should be skipped BETWEEN successfully matched elements, not before
+        // attempting to match the first element. This logic is in handle_sequence_waiting_for_child.
+        let first_child_pos = start_idx; // Start at the original position
 
         // Handle empty elements case - sequence with no elements should succeed immediately
         if elements.is_empty() {
@@ -331,11 +333,44 @@ impl<'a> Parser<'_> {
             panic!("Expected Grammar::Sequence in FrameContext::Sequence");
         };
         let element_start = *matched_idx;
+        let current_element = &elements[*current_element_idx];
 
         if child_node.is_empty() {
-            let current_element = &elements[*current_element_idx];
-            log::debug!("[SEQUENCE EMPTY] frame_id={}, current_elem_idx={}/{}, is_optional={}",
-                frame.frame_id, *current_element_idx, elements.len(), current_element.is_optional());
+            // CRITICAL: When a child returns Empty, it MUST not have consumed any tokens.
+            // In Python, an empty MatchResult has slice(idx, idx) - zero length.
+            // If child_end_pos != element_start, the child consumed tokens before failing,
+            // which violates the Empty contract.
+            //
+            // FIX: Override the buggy child_end_pos with element_start to maintain Python parity.
+            // This handles cases where child grammars with allow_gaps=True call collect_transparent,
+            // advancing self.pos, but then fail to properly restore it before returning Empty.
+            let corrected_child_end_pos = if *child_end_pos != element_start {
+                // Get child grammar description for debugging
+                let child_desc = match current_element.as_ref() {
+                    Grammar::Ref { name, .. } => format!("Ref({})", name),
+                    Grammar::Sequence { .. } => "Sequence".to_string(),
+                    Grammar::OneOf { .. } => "OneOf".to_string(),
+                    Grammar::Delimited { .. } => "Delimited".to_string(),
+                    Grammar::StringParser { template, .. } => format!("StringParser('{}')", template),
+                    _ => format!("{:?}", current_element).chars().take(50).collect(),
+                };
+
+                log::debug!(
+                    "[SEQUENCE FIX] Child {} returned Empty with child_end_pos={} > element_start={}. Correcting to element_start.",
+                    child_desc, *child_end_pos, element_start
+                );
+
+                element_start
+            } else {
+                *child_end_pos
+            };
+
+            log::debug!("[SEQUENCE EMPTY] frame_id={}, current_elem_idx={}/{}, is_optional={}, element_start={}, child_end_pos={}, corrected={}",
+                frame.frame_id, *current_element_idx, elements.len(), current_element.is_optional(), element_start, *child_end_pos, corrected_child_end_pos);
+
+            // Use corrected_child_end_pos for all subsequent logic
+            let child_end_pos = &corrected_child_end_pos;
+
             if current_element.is_optional() {
                 log::debug!("[SEQUENCE EMPTY OPT] frame_id={}, moving to next element", frame.frame_id);
                 log::debug!("Sequence: child returned Empty and is optional, continuing to next element");

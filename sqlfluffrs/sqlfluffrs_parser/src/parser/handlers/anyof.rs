@@ -117,52 +117,12 @@ impl crate::parser::Parser<'_> {
         let option_counter: hashbrown::HashMap<u64, usize> =
             elements.iter().map(|elem| (elem.cache_key(), 0)).collect();
         let matched: ResultType = (Node::Empty, start_idx, None);
-        let max_idx = self.tokens.len();
 
         // Combine parent and local terminators
         let all_terminators =
             self.combine_terminators(any_terminators, parent_terminators, reset_terminators);
 
-
-        // If we are in greedy mode, calculate max_idx with terminators (Python parity)
-        // This must happen before we push the child frame, so we don't overrun terminators.
-        let mut max_idx = max_idx;
-        if parse_mode == ParseMode::Greedy {
-            // In GREEDY mode, trim max_idx to the first terminator (if any)
-            // Use all_terminators, which already combines local and parent terminators
-            max_idx = self.trim_to_terminator(start_idx, &all_terminators);
-        }
-
-        // Here we have 0 matches, so if min_times is 0 and we're at max_idx,
-        // or we've hit max times we want to return the results from
-        if min_times == 0 && start_idx >= max_idx {
-            log::debug!(
-                "AnyNumberOf: start_idx ({}) >= max_idx ({}), min_times={}",
-                start_idx,
-                max_idx,
-                min_times
-            );
-            if let Some(value) = self.parse_mode_match_result(
-                frame, stack, parse_mode, start_idx, max_idx, matched,
-            ) {
-                return value;
-            }
-        }
-
-        // if our pos is already at or past max_idx, return Empty match
-        if start_idx >= max_idx {
-            log::debug!(
-            "AnyNumberOf: start_idx ({}) >= max_idx ({}), returning Empty",
-            start_idx,
-            max_idx
-            );
-            stack
-            .results
-            .insert(frame.frame_id, (Node::Empty, start_idx, None));
-            return Ok(NextStep::Continue);
-        }
-
-        // Prune options BEFORE any other logic, like Python
+        // Prune options BEFORE calculating max_idx (like Python)
         let pruned_options = self.prune_options(elements);
         // If no options remain after pruning, treat as no match
         if pruned_options.is_empty() {
@@ -173,12 +133,12 @@ impl crate::parser::Parser<'_> {
         }
 
         // Calculate max_idx with terminator and parent constraints
-        // AnyNumberOf uses trim_to_terminator_with_elements to avoid over-eager termination
+        // Python parity: Use simple trim_to_terminator (NOT _with_elements variant)
+        // Python's AnyNumberOf just calls trim_to_terminator without element checking
         self.pos = start_idx;
-        let max_idx = self.calculate_max_idx_with_elements(
+        let max_idx = self.calculate_max_idx(
             start_idx,
             &all_terminators,
-            &pruned_options,
             parse_mode,
             frame.parent_max_idx,
         );
@@ -276,84 +236,6 @@ impl crate::parser::Parser<'_> {
             );
         }
         Ok(NextStep::Continue)
-    }
-
-    fn parse_mode_match_result(
-        &mut self,
-        frame: &mut ParseFrame,
-        stack: &mut ParseFrameStack,
-        parse_mode: ParseMode,
-        start_idx: usize,
-        max_idx: usize,
-        current_match: ResultType,
-    ) -> Option<Result<NextStep, ParseError>> {
-        // Rust implementation of _parse_mode_match_result logic:
-        log::debug!(
-            "parse_mode_match_result: start_idx ({}) >= max_idx ({})",
-            start_idx,
-            max_idx,
-        );
-        // If we're being strict, just current match.
-        if parse_mode == ParseMode::Strict {
-            stack.results.insert(frame.frame_id, current_match);
-            return Some(Ok(NextStep::Continue));
-        }
-
-        // If nothing unmatched anyway?
-        // In Rust, tokens are self.tokens, and we want to check if all tokens from start_idx to max_idx are not code.
-        let all_non_code = self.tokens[start_idx..max_idx]
-            .iter()
-            .all(|tok| !tok.is_code());
-
-        if start_idx == max_idx || all_non_code {
-            stack.results.insert(frame.frame_id, current_match);
-            return Some(Ok(NextStep::Continue));
-        }
-
-        // Find the first code token after start_idx
-        let mut trim_idx = self.skip_start_index_forward_to_code(start_idx, max_idx);
-        while trim_idx < max_idx && !self.tokens[trim_idx].is_code() {
-            trim_idx += 1;
-        }
-
-        // Create an unmatched segment (Unparsable)
-        let mut expected = "Nothing else".to_string();
-        if self.tokens.len() > max_idx {
-            expected += &format!(" before {:?}", self.tokens[max_idx].raw());
-        }
-
-        let unmatched_node = Node::Unparsable {
-            children: self.tokens[trim_idx..max_idx]
-                .iter()
-                .enumerate()
-                .map(|(idx, tok)| Node::Token {
-                    token_type: tok.token_type.clone(),
-                    raw: tok.raw().to_string(),
-                    token_idx: trim_idx + idx,
-                })
-                .collect(),
-            expected_message: expected,
-        };
-
-        // Append the unmatched_node to the current_match, as in Python (_parse_mode_match_result)
-        let (mut node, _, _) = current_match;
-        let result_node = match node {
-            Node::Sequence { ref mut children } => {
-                children.push(unmatched_node);
-                node
-            }
-            Node::Empty => Node::Sequence {
-                children: vec![Node::Empty, unmatched_node],
-            },
-            _ => Node::Sequence {
-                children: vec![node, unmatched_node],
-            },
-        };
-
-        stack
-            .results
-            .insert(frame.frame_id, (result_node, max_idx, None));
-        return Some(Ok(NextStep::Continue));
     }
 
     /// Handle AnyNumberOf grammar WaitingForChild state in iterative parser
@@ -984,8 +866,12 @@ impl crate::parser::Parser<'_> {
             };
 
             if is_better {
-                log::debug!("[ONEOF BETTER] frame_id={}, consumed={}, clean={}, replacing previous best",
-                    frame.frame_id, consumed, child_is_clean);
+                log::debug!(
+                    "[ONEOF BETTER] frame_id={}, consumed={}, clean={}, replacing previous best",
+                    frame.frame_id,
+                    consumed,
+                    child_is_clean
+                );
                 log::debug!(
                     "OneOf: Found better match! element_key={}, consumed={}, child_end_pos={}, max_idx={}, clean={}",
                     element_key, consumed, child_end_pos, max_idx, child_is_clean
@@ -995,7 +881,10 @@ impl crate::parser::Parser<'_> {
                 // Python parity: Check for early termination conditions
                 // 1. If we've reached max_idx, stop trying more elements
                 if *child_end_pos >= *max_idx {
-                    log::debug!("OneOf: reached max_idx={}, stopping early (perfect match)", max_idx);
+                    log::debug!(
+                        "OneOf: reached max_idx={}, stopping early (perfect match)",
+                        max_idx
+                    );
                     *tried_elements = elements.len();
                 }
                 // 2. If this is the last element, we're done (no need to check terminators)
@@ -1005,12 +894,18 @@ impl crate::parser::Parser<'_> {
                 }
                 // 3. Check if a terminator matches after this match
                 else if !frame_terminators.is_empty() {
-                    let next_code_idx = self.skip_start_index_forward_to_code(*child_end_pos, *max_idx);
+                    let next_code_idx =
+                        self.skip_start_index_forward_to_code(*child_end_pos, *max_idx);
                     log::debug!("[ONEOF DEBUG] Checking terminators: child_end_pos={}, next_code_idx={}, max_idx={}, frame_terminators.len()={}",
                         child_end_pos, next_code_idx, max_idx, frame_terminators.len());
                     if next_code_idx < self.tokens.len() {
                         let next_tok = &self.tokens[next_code_idx];
-                        log::debug!("[ONEOF DEBUG] Next token at {}: {:?} (type: {})", next_code_idx, next_tok.raw(), next_tok.get_type());
+                        log::debug!(
+                            "[ONEOF DEBUG] Next token at {}: {:?} (type: {})",
+                            next_code_idx,
+                            next_tok.raw(),
+                            next_tok.get_type()
+                        );
                     }
                     log::debug!(
                         "OneOf: Checking terminators after match, child_end_pos={}, next_code_idx={}, max_idx={}",
@@ -1023,9 +918,19 @@ impl crate::parser::Parser<'_> {
                     } else {
                         // Check if any terminator matches
                         for (term_idx, terminator) in frame_terminators.iter().enumerate() {
-                            log::debug!("[ONEOF DEBUG] Trying terminator #{}: {:?}", term_idx, terminator);
-                            if self.try_match_grammar(terminator.clone(), next_code_idx, &[]).is_ok() {
-                                log::debug!("[ONEOF DEBUG] Terminator #{} MATCHED! Stopping early.", term_idx);
+                            log::debug!(
+                                "[ONEOF DEBUG] Trying terminator #{}: {:?}",
+                                term_idx,
+                                terminator
+                            );
+                            if self
+                                .try_match_grammar(terminator.clone(), next_code_idx, &[])
+                                .is_ok()
+                            {
+                                log::debug!(
+                                    "[ONEOF DEBUG] Terminator #{} MATCHED! Stopping early.",
+                                    term_idx
+                                );
                                 log::debug!(
                                     "OneOf: terminator {:?} matched at pos={}, stopping early (terminated match)",
                                     terminator, next_code_idx

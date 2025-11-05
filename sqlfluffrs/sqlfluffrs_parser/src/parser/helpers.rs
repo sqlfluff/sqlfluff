@@ -714,6 +714,34 @@ impl<'a> Parser<'a> {
     /// only when necessary for complex terminators.
     pub fn is_terminated(&mut self, terminators: &[Arc<Grammar>]) -> bool {
         let init_pos = self.pos;
+
+        // CRITICAL: Check for NonCodeMatcher BEFORE skipping transparent tokens!
+        // NonCodeMatcher should match non-code tokens at the CURRENT position,
+        // not after skipping them. This is essential for allow_gaps=false behavior.
+        let has_non_code_matcher = terminators.iter().any(|t| matches!(t.as_ref(), Grammar::NonCodeMatcher));
+        log::debug!("  is_terminated at pos {}: has_non_code_matcher={}", init_pos, has_non_code_matcher);
+        if has_non_code_matcher {
+            if let Some(tok) = self.peek() {
+                let is_code = tok.is_code();
+                log::debug!("  is_terminated: current token is_code={}, type={}", is_code, tok.get_type());
+                if !is_code {
+                    log::debug!("  TERMED NonCodeMatcher found non-code token at current position");
+                    return true;
+                }
+            }
+        }
+
+        // Filter out NonCodeMatcher from terminators for the rest of the check
+        // We've already checked it at the current position above
+        let terminators_without_ncm: Vec<Arc<Grammar>> = if has_non_code_matcher {
+            terminators.iter()
+                .filter(|t| !matches!(t.as_ref(), Grammar::NonCodeMatcher))
+                .cloned()
+                .collect()
+        } else {
+            terminators.to_vec()
+        };
+
         self.skip_transparent(true);
         let saved_pos = self.pos;
 
@@ -734,7 +762,7 @@ impl<'a> Parser<'a> {
         }
 
         // Prune terminators before checking, to reduce unnecessary checks
-        let pruned_terminators = self.prune_terminators(terminators);
+        let pruned_terminators = self.prune_terminators(&terminators_without_ncm);
         log::debug!(
             "  TERM Checking pruned terminators: {:?} at pos {:?}",
             pruned_terminators,

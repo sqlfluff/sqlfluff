@@ -341,9 +341,57 @@ impl Parser<'_> {
             }
         };
 
-        self.pos = *child_end_pos;
-        log::debug!("[REF CHILD] frame_id={}, name={}, child_end_pos={}, setting self.pos={}",
-            frame.frame_id, name, child_end_pos, self.pos);
+        // CRITICAL: When child returns Empty, position should not advance beyond saved_pos.
+        // In Python, an empty MatchResult has slice(idx, idx) - zero length.
+        // If child_end_pos > saved_pos, the child consumed tokens before returning Empty,
+        // which is a bug. We need to ensure the result position is saved_pos in this case.
+        //
+        // CRITICAL: When child returns non-empty, strip trailing whitespace from child_end_pos.
+        // Child grammars with allow_gaps=True may consume trailing whitespace, but Ref should
+        // only report the position after actual content, not trailing whitespace. The parent
+        // Sequence will handle whitespace between elements using its own allow_gaps logic.
+        let result_pos = if child_node.is_empty() {
+            // Empty result: use saved_pos (no advancement)
+            if *child_end_pos != *saved_pos {
+                log::warn!(
+                    "[REF BUG] Ref({}) child returned Empty with child_end_pos={} != saved_pos={}. Correcting to saved_pos.",
+                    name, child_end_pos, saved_pos
+                );
+            }
+            *saved_pos
+        } else {
+            // Non-empty result: strip trailing whitespace from child_end_pos
+            // This ensures that only the actual matched content is included, not trailing whitespace
+            // that the child may have consumed due to its allow_gaps setting.
+            log::debug!(
+                "[REF STRIP PRE] Ref({}) before strip: saved_pos={}, child_end_pos={}",
+                name, saved_pos, child_end_pos
+            );
+
+            let stripped_pos = crate::parser::utils::strip_trailing_non_code(
+                self.tokens,
+                *saved_pos,
+                *child_end_pos,
+            );
+
+            log::debug!(
+                "[REF STRIP POST] Ref({}) after strip: stripped_pos={}",
+                name, stripped_pos
+            );
+
+            if stripped_pos != *child_end_pos {
+                log::debug!(
+                    "[REF STRIP] Ref({}) stripping trailing whitespace: child_end_pos={} -> {}",
+                    name, child_end_pos, stripped_pos
+                );
+            }
+
+            stripped_pos
+        };
+
+        self.pos = result_pos;
+        log::debug!("[REF CHILD] frame_id={}, name={}, child_empty={}, saved_pos={}, child_end_pos={}, result_pos={}, setting self.pos={}",
+            frame.frame_id, name, child_node.is_empty(), saved_pos, child_end_pos, result_pos, self.pos);
 
         // Store Ref result in cache for future reuse
         // Use frame's parent_max_idx if available, otherwise tokens.len()
@@ -368,20 +416,20 @@ impl Parser<'_> {
             "Storing Ref({}) result in cache: pos {} -> {}, {} transparent positions",
             name,
             *saved_pos,
-            *child_end_pos,
+            result_pos,
             transparent_positions.len()
         );
 
         self.parse_cache.put(
             cache_key,
-            Ok((final_node.clone(), self.pos, transparent_positions)),
+            Ok((final_node.clone(), result_pos, transparent_positions)),
         );
 
         log::debug!("[REF RESULT] frame_id={}, name={}, storing result with pos={}",
-            frame.frame_id, name, self.pos);
+            frame.frame_id, name, result_pos);
         stack
             .results
-            .insert(frame.frame_id, (final_node, self.pos, None));
+            .insert(frame.frame_id, (final_node, result_pos, None));
     }
 
     /// Handle NonCodeMatcher grammar in iterative parser
