@@ -908,7 +908,10 @@ impl<'a> Parser<'a> {
                     }
 
                     // For complex grammars like Sequence("GROUP", "BY"), do full parse
-                    if needs_full_parse {
+                    // ALSO for Ref grammars - simple hints are for quick rejection only,
+                    // not quick acceptance (a Ref might have multi-token requirements)
+                    let is_ref = matches!(term.as_ref(), Grammar::Ref { .. });
+                    if needs_full_parse || is_ref {
                         let check_pos = self.pos;
                         self.pos = saved_pos;
 

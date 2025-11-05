@@ -267,6 +267,7 @@ pub enum FrameContext {
     },
     OneOf {
         grammar: Arc<Grammar>,
+        pruned_elements: Vec<Arc<Grammar>>, // Elements after simple_hint pruning
         leading_ws: Vec<Node>,
         post_skip_pos: usize,
         longest_match: Option<(Node, usize, u64)>, // (node, consumed, element_key)

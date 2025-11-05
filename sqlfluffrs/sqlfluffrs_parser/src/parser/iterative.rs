@@ -290,7 +290,7 @@ impl Parser<'_> {
         });
 
         let mut iteration_count = 0_usize;
-        let max_iterations = 150000_usize; // Higher limit for complex grammars
+        let max_iterations = 1500000_usize; // Higher limit for complex grammars
 
         'main_loop: while let Some(mut frame) = stack.pop() {
             iteration_count += 1;
@@ -536,7 +536,7 @@ impl Parser<'_> {
                             end_pos,
                             frame.frame_id
                         );
-                        eprintln!("[CACHE HIT] frame_id={}, grammar={}, pos={} -> end_pos={}, storing cached result",
+                        log::debug!("[CACHE HIT] frame_id={}, grammar={}, pos={} -> end_pos={}, storing cached result",
                             frame.frame_id, frame.grammar, frame.pos, end_pos);
                         self.pos = end_pos;
                         for &pos in &transparent_positions {
@@ -552,7 +552,7 @@ impl Parser<'_> {
                             frame.pos,
                             frame.frame_id
                         );
-                        eprintln!("[CACHE ERROR] frame_id={}, grammar={}, pos={}, storing Empty and skipping",
+                        log::debug!("[CACHE ERROR] frame_id={}, grammar={}, pos={}, storing Empty and skipping",
                             frame.frame_id, frame.grammar, frame.pos);
                         stack
                             .results
@@ -571,15 +571,15 @@ impl Parser<'_> {
         max_iterations: usize,
         frame: &mut ParseFrame,
     ) {
-        eprintln!("ERROR: Exceeded max iterations ({})", max_iterations);
-        eprintln!("Last frame: {:?}", frame.grammar);
-        eprintln!("Stack depth: {}", stack.len());
-        eprintln!("Results count: {}", stack.results.len());
+        log::debug!("ERROR: Exceeded max iterations ({})", max_iterations);
+        log::debug!("Last frame: {:?}", frame.grammar);
+        log::debug!("Stack depth: {}", stack.len());
+        log::debug!("Results count: {}", stack.results.len());
 
         // Print last 20 frames on stack for diagnosis
-        eprintln!("\n=== Last 20 frames on stack ===");
+        log::debug!("\n=== Last 20 frames on stack ===");
         for (i, f) in stack.iter().rev().take(20).enumerate() {
-            eprintln!(
+            log::debug!(
                 "  [{}] state={:?}, pos={}, grammar={}",
                 i,
                 f.state,
@@ -600,6 +600,24 @@ impl Parser<'_> {
         }
 
         self.print_cache_stats();
+
+        println!("Parser at position: {}", self.pos);
+
+        println!("\nTokens around failure point:");
+        let start = self.pos.saturating_sub(3);
+        let end = (self.pos + 4).min(self.tokens.len());
+        for i in start..end {
+            let marker = if i == self.pos { " <<< HERE" } else { "" };
+            if let Some(tok) = self.tokens.get(i) {
+                println!(
+                    "  [{}]: '{}' (type: {}){}",
+                    i,
+                    tok.raw(),
+                    tok.get_type(),
+                    marker
+                );
+            }
+        }
 
         panic!("Infinite loop detected in iterative parser");
     }
@@ -672,11 +690,11 @@ impl Parser<'_> {
         };
 
         let child = stack.results.get(&child_frame_id).cloned();
-        eprintln!("[RESULT GET] parent_frame_id={}, child_frame_id={}, child_found={}",
+        log::debug!("[RESULT GET] parent_frame_id={}, child_frame_id={}, child_found={}",
             frame.frame_id, child_frame_id, child.is_some());
 
         if let Some((child_node, child_end_pos, child_element_key)) = &child {
-            eprintln!("[RESULT FOUND] parent_frame_id={}, child_frame_id={}, child_end_pos={}",
+            log::debug!("[RESULT FOUND] parent_frame_id={}, child_frame_id={}, child_end_pos={}",
                 frame.frame_id, child_frame_id, child_end_pos);
             log::debug!(
                 "Child {} of {} completed (frame_id={}): pos {} -> {}",

@@ -30585,7 +30585,7 @@ Arc::new(Grammar::RegexParser {
     token_type: "naked_identifier",
     raw_class: "IdentifierSegment",
     optional: false,
-    anti_template: Some(regex::RegexBuilder::new(r#"^(IGNORE|NOT|SELECT|RESPECT|ROWS|NULL|FULL|UNION|INNER|ORDER|NATURAL|PARTITION|CASE|USING|RIGHT|SET|ON|INTERVAL|JOIN|OUTER|CROSS|LEFT)$"#)         .case_insensitive(true)         .build()         .unwrap()     ),
+    anti_template: Some(regex::RegexBuilder::new(r#"^(CROSS|PARTITION|IGNORE|JOIN|SET|ORDER|INNER|RESPECT|UNION|CASE|INTERVAL|USING|NULL|FULL|ROWS|SELECT|NOT|ON|NATURAL|RIGHT|OUTER|LEFT)$"#)         .case_insensitive(true)         .build()         .unwrap()     ),
 })
 );
 

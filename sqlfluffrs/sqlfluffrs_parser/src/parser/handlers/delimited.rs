@@ -196,12 +196,17 @@ impl crate::parser::Parser<'_> {
 
         // Extract max_idx before moving frame - this is the limit for children!
         // Children should be constrained by the Delimited's calculated max_idx
-        // AND trimmed to the next delimiter position to prevent elements from consuming delimiters
-        let delimiter_max_idx = self.trim_to_terminator(working_pos, &[(**delimiter).clone()]);
-        let child_max_idx = max_idx.min(delimiter_max_idx);
+        // NOTE: We do NOT trim to the next delimiter position for element children.
+        // This is because the element itself might be a Delimited grammar that uses
+        // the same delimiter internally. Instead, we rely on the element's grammar
+        // to naturally stop at the correct position, and then check for a delimiter
+        // after the element completes.
+        // let delimiter_max_idx = self.trim_to_terminator(working_pos, &[(**delimiter).clone()]);
+        // let child_max_idx = max_idx.min(delimiter_max_idx);
+        let child_max_idx = max_idx;
         log::debug!(
-            "[DELIMITED] Trimming child_max_idx: working_pos={}, max_idx={}, delimiter_max_idx={}, child_max_idx={}",
-            working_pos, max_idx, delimiter_max_idx, child_max_idx
+            "[DELIMITED] Initial: working_pos={}, max_idx={}, child_max_idx={}",
+            working_pos, max_idx, child_max_idx
         );
         stack.push(frame);
 
@@ -618,9 +623,27 @@ impl crate::parser::Parser<'_> {
                             );
                             return Ok(());
                         }
-                        // Trim child_max_idx to next delimiter to prevent elements from consuming delimiters
-                        let delimiter_max_idx = self.trim_to_terminator(*working_idx, &[(**delimiter).clone()]);
-                        let child_max_idx = (*max_idx).min(delimiter_max_idx);
+                        // Create child for next element
+                        // NOTE: We do NOT trim to the next delimiter position for element children.
+                        // This is because the element itself might be a Delimited grammar that uses
+                        // the same delimiter internally. Instead, we rely on the element's grammar
+                        // to naturally stop at the correct position, and then check for a delimiter
+                        // after the element completes.
+                        log::debug!(
+                            "[DELIM-DEBUG] Before creating element child: working_idx={}, matched_idx={}, max_idx={}",
+                            *working_idx, *matched_idx, *max_idx
+                        );
+                        // let delimiter_max_idx = self.trim_to_terminator(*working_idx, &[(**delimiter).clone()]);
+                        // log::debug!(
+                        //     "[DELIM-DEBUG] After trim_to_terminator: delimiter_max_idx={}",
+                        //     delimiter_max_idx
+                        // );
+                        // let child_max_idx = (*max_idx).min(delimiter_max_idx);
+                        let child_max_idx = *max_idx;
+                        log::debug!(
+                            "[DELIM-DEBUG] Creating element child at pos={}, with max_idx={}",
+                            *working_idx, child_max_idx
+                        );
                         let child_grammar = Grammar::OneOf {
                             elements: elements.clone(),
                             exclude: None,

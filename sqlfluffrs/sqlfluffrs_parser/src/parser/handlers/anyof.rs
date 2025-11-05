@@ -403,6 +403,35 @@ impl crate::parser::Parser<'_> {
         };
 
         if !child_node.is_empty() {
+            // CRITICAL: Check if child matched without advancing position (zero-width match)
+            // This prevents infinite recursion when a grammar matches itself at the same position
+            if *child_end_pos == *working_idx {
+                log::warn!(
+                    "AnyNumberOf: child matched but didn't advance position (zero-width match at {}), treating as failed match to prevent infinite loop",
+                    working_idx
+                );
+                // Treat zero-width match as Empty to prevent infinite recursion
+                // Complete with what we've matched so far
+                self.pos = *matched_idx;
+                let result_node = if frame.accumulated.is_empty() {
+                    Node::Empty
+                } else {
+                    Node::DelimitedList {
+                        children: frame.accumulated.clone(),
+                    }
+                };
+                log::debug!(
+                    "AnyNumberOf COMPLETE (zero-width match): {} matches, storing result at frame_id={}, matched_idx={}",
+                    count,
+                    frame.frame_id,
+                    matched_idx
+                );
+                stack
+                    .results
+                    .insert(frame.frame_id, (result_node, *matched_idx, None));
+                return;
+            }
+
             if *allow_gaps && *matched_idx < *working_idx {
                 while *matched_idx < *working_idx {
                     if let Some(tok) = self.tokens.get(*matched_idx) {
@@ -485,10 +514,12 @@ impl crate::parser::Parser<'_> {
             }
 
             log::debug!(
-                "AnyNumberOf: matched element #{}, element_key={}, matched_idx now: {}",
+                "AnyNumberOf: matched element #{}, element_key={}, matched_idx now: {}, working_idx={}, max_idx={}",
                 count,
                 element_key,
-                matched_idx
+                matched_idx,
+                working_idx,
+                max_idx
             );
             let reached_max = *matched_idx >= *max_idx;
             if reached_max {
@@ -499,9 +530,29 @@ impl crate::parser::Parser<'_> {
             }
             let should_continue = !reached_max
                 && (*count < *min_times || (max_times.is_none() || *count < max_times.unwrap()));
+            log::debug!(
+                "AnyNumberOf: reached_max={}, count={}, min_times={}, max_times={:?}, should_continue={}",
+                reached_max, count, min_times, max_times, should_continue
+            );
             if should_continue {
                 if *allow_gaps {
                     *working_idx = self.skip_start_index_forward_to_code(*working_idx, *max_idx);
+                }
+                // After skipping gaps, check if we've reached max_idx
+                if *working_idx >= *max_idx {
+                    log::debug!(
+                        "AnyNumberOf: working_idx ({}) >= max_idx ({}) after skipping gaps, completing",
+                        working_idx,
+                        max_idx
+                    );
+                    self.pos = *matched_idx;
+                    let result_node = Node::DelimitedList {
+                        children: frame.accumulated.clone(),
+                    };
+                    stack
+                        .results
+                        .insert(frame.frame_id, (result_node, *matched_idx, None));
+                    return;
                 }
                 if !elements.is_empty() {
                     let child_grammar = if elements.len() == 1 {
@@ -536,6 +587,21 @@ impl crate::parser::Parser<'_> {
                         iteration_count,
                         stack.len()
                     );
+                    return;
+                } else {
+                    // elements.is_empty() but should_continue - this shouldn't happen normally
+                    // but we need to handle it to avoid infinite loop
+                    log::debug!(
+                        "AnyNumberOf: elements empty but should_continue=true, completing with {} matches",
+                        count
+                    );
+                    self.pos = *matched_idx;
+                    let result_node = Node::DelimitedList {
+                        children: frame.accumulated.clone(),
+                    };
+                    stack
+                        .results
+                        .insert(frame.frame_id, (result_node, *matched_idx, None));
                     return;
                 }
             } else {
@@ -760,6 +826,7 @@ impl crate::parser::Parser<'_> {
 
         frame.context = FrameContext::OneOf {
             grammar: grammar.clone(), // Clone instead of move since grammar is borrowed above
+            pruned_elements: available_options.clone(), // Store pruned options for use in WaitingForChild
             leading_ws: leading_ws.clone(),
             post_skip_pos,
             longest_match: None,
@@ -778,6 +845,7 @@ impl crate::parser::Parser<'_> {
             // Update context to record that we tried this element and it matched Empty
             frame.context = FrameContext::OneOf {
                 grammar: grammar.clone(),
+                pruned_elements: available_options.clone(), // Store pruned options
                 leading_ws: leading_ws.clone(),
                 post_skip_pos,
                 longest_match: Some((Node::Empty, 0, element_key)),
@@ -839,6 +907,7 @@ impl crate::parser::Parser<'_> {
     ) {
         let FrameContext::OneOf {
             grammar,
+            pruned_elements,
             leading_ws,
             post_skip_pos,
             longest_match,
@@ -852,7 +921,6 @@ impl crate::parser::Parser<'_> {
         };
 
         let Grammar::OneOf {
-            elements,
             optional,
             parse_mode,
             ..
@@ -860,6 +928,9 @@ impl crate::parser::Parser<'_> {
         else {
             panic!("Expected Grammar::OneOf in FrameContext::OneOf");
         };
+
+        // Use pruned_elements instead of grammar.elements
+        let elements = pruned_elements;
 
         let consumed = *child_end_pos - *post_skip_pos;
         // Use the current_element_key that was stored when we created the child frame
@@ -875,11 +946,11 @@ impl crate::parser::Parser<'_> {
             })
         });
 
-        eprintln!("[ONEOF CHILD] frame_id={}, child_empty={}, child_end_pos={}, consumed={}, tried_elements={}/{}, post_skip_pos={}",
+        log::debug!("[ONEOF CHILD] frame_id={}, child_empty={}, child_end_pos={}, consumed={}, tried_elements={}/{}, post_skip_pos={}",
             frame.frame_id, child_node.is_empty(), child_end_pos, consumed, tried_elements, elements.len(), post_skip_pos);
         if consumed >= 5 {
-            eprintln!("[ONEOF CHILD LONG MATCH] This is a long match! Investigating...");
-            eprintln!("  Grammar: {:?}", grammar);
+            log::debug!("[ONEOF CHILD LONG MATCH] This is a long match! Investigating...");
+            log::debug!("  Grammar: {:?}", grammar);
         }
 
         log::debug!(
@@ -913,7 +984,7 @@ impl crate::parser::Parser<'_> {
             };
 
             if is_better {
-                eprintln!("[ONEOF BETTER] frame_id={}, consumed={}, clean={}, replacing previous best",
+                log::debug!("[ONEOF BETTER] frame_id={}, consumed={}, clean={}, replacing previous best",
                     frame.frame_id, consumed, child_is_clean);
                 log::debug!(
                     "OneOf: Found better match! element_key={}, consumed={}, child_end_pos={}, max_idx={}, clean={}",
@@ -935,26 +1006,26 @@ impl crate::parser::Parser<'_> {
                 // 3. Check if a terminator matches after this match
                 else if !frame_terminators.is_empty() {
                     let next_code_idx = self.skip_start_index_forward_to_code(*child_end_pos, *max_idx);
-                    eprintln!("[ONEOF DEBUG] Checking terminators: child_end_pos={}, next_code_idx={}, max_idx={}, frame_terminators.len()={}",
+                    log::debug!("[ONEOF DEBUG] Checking terminators: child_end_pos={}, next_code_idx={}, max_idx={}, frame_terminators.len()={}",
                         child_end_pos, next_code_idx, max_idx, frame_terminators.len());
                     if next_code_idx < self.tokens.len() {
                         let next_tok = &self.tokens[next_code_idx];
-                        eprintln!("[ONEOF DEBUG] Next token at {}: {:?} (type: {})", next_code_idx, next_tok.raw(), next_tok.get_type());
+                        log::debug!("[ONEOF DEBUG] Next token at {}: {:?} (type: {})", next_code_idx, next_tok.raw(), next_tok.get_type());
                     }
                     log::debug!(
                         "OneOf: Checking terminators after match, child_end_pos={}, next_code_idx={}, max_idx={}",
                         child_end_pos, next_code_idx, max_idx
                     );
                     if next_code_idx >= *max_idx {
-                        eprintln!("[ONEOF DEBUG] No more code after match, stopping");
+                        log::debug!("[ONEOF DEBUG] No more code after match, stopping");
                         log::debug!("OneOf: no more code segments after match, stopping early");
                         *tried_elements = elements.len();
                     } else {
                         // Check if any terminator matches
                         for (term_idx, terminator) in frame_terminators.iter().enumerate() {
-                            eprintln!("[ONEOF DEBUG] Trying terminator #{}: {:?}", term_idx, terminator);
+                            log::debug!("[ONEOF DEBUG] Trying terminator #{}: {:?}", term_idx, terminator);
                             if self.try_match_grammar(terminator.clone(), next_code_idx, &[]).is_ok() {
-                                eprintln!("[ONEOF DEBUG] Terminator #{} MATCHED! Stopping early.", term_idx);
+                                log::debug!("[ONEOF DEBUG] Terminator #{} MATCHED! Stopping early.", term_idx);
                                 log::debug!(
                                     "OneOf: terminator {:?} matched at pos={}, stopping early (terminated match)",
                                     terminator, next_code_idx
@@ -962,7 +1033,7 @@ impl crate::parser::Parser<'_> {
                                 *tried_elements = elements.len();
                                 break;
                             } else {
-                                eprintln!("[ONEOF DEBUG] Terminator #{} did not match", term_idx);
+                                log::debug!("[ONEOF DEBUG] Terminator #{} did not match", term_idx);
                             }
                         }
                     }
@@ -992,7 +1063,7 @@ impl crate::parser::Parser<'_> {
         } else {
             if let Some((best_node, best_consumed, best_element_key)) = longest_match {
                 self.pos = *post_skip_pos + *best_consumed;
-                eprintln!("[ONEOF RESULT] Returning match: frame_id={}, element_key={}, consumed={}, final_pos={}",
+                log::debug!("[ONEOF RESULT] Returning match: frame_id={}, element_key={}, consumed={}, final_pos={}",
                     frame.frame_id, best_element_key, best_consumed, self.pos);
                 log::debug!(
                     "OneOf returning match with element_key={}, consumed={}",

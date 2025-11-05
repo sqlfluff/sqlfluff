@@ -58,7 +58,7 @@ def generate_parser(dialect: str):
     segment_types = []
 
     # TODO: remove this if
-    if dialect == "ansi":
+    if dialect in ("ansi", "bigquery"):
         # if dialect not in ("snowflake", "tsql"):
         # if True:
         for name, match_grammar in sorted(loaded_dialect._library.items()):

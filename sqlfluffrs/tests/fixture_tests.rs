@@ -134,7 +134,7 @@ fn test_yaml_output_matches_python_ansi() {
     check_yaml_output_matches_python_for_dialect("ansi");
 }
 
-// #[test]
+#[test]
 fn test_yaml_output_matches_python_bigquery() {
     check_yaml_output_matches_python_for_dialect("bigquery");
 }
@@ -217,7 +217,8 @@ fn test_yaml_output_matches_python() {
     let sql_content = fs::read_to_string(&sql_path).expect("Failed to read SQL file");
     // Lex
     let input = LexInput::String(sql_content);
-    let lexer = Lexer::new(None, ANSI_LEXERS.to_vec());
+    let dialect = Dialect::Ansi;
+    let lexer = Lexer::new(None, dialect.get_lexers().to_vec());
     let (tokens, lex_errors) = lexer.lex(input, false);
     assert!(lex_errors.is_empty(), "Lexer errors: {:?}", lex_errors);
     // Parse
@@ -326,7 +327,6 @@ fn test_all_dialect_fixtures() {
 ///
 /// This test suite parses SQL files from test/fixtures/dialects/ and compares
 /// the output against expected YAML files.
-use sqlfluffrs_dialects::dialect::ansi::matcher::ANSI_LEXERS;
 use sqlfluffrs_parser::{
     parser::{Node, Parser},
 };
@@ -379,9 +379,9 @@ impl FixtureTest {
         // Parse with Rust parser
         let dialect = Dialect::from_str(&self.dialect).expect("Invalid dialect");
 
-    let input = LexInput::String(sql_content.clone());
-    // TODO: Select the correct lexers for the dialect dynamically
-    let lexer = Lexer::new(None, ANSI_LEXERS.to_vec());
+        let input = LexInput::String(sql_content.clone());
+        // Use the correct lexers for the dialect
+        let lexer = Lexer::new(None, dialect.get_lexers().to_vec());
         let (tokens, lex_errors) = lexer.lex(input, false);
 
         if !lex_errors.is_empty() {
@@ -528,7 +528,7 @@ fn test_ansi_fixtures() {
     // This allows us to see how many tests pass
 }
 
-// #[test]
+#[test]
 fn test_bigquery_fixtures() {
     env_logger::try_init().ok();
 

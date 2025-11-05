@@ -303,7 +303,7 @@ impl<'a> Parser<'_> {
         iteration_count: usize,
         frame_terminators: Vec<Arc<Grammar>>,
     ) {
-        eprintln!("[SEQUENCE CHILD] frame_id={}, child_end_pos={}, child_empty={}",
+        log::debug!("[SEQUENCE CHILD] frame_id={}, child_end_pos={}, child_empty={}",
             frame.frame_id, child_end_pos, child_node.is_empty());
 
         let FrameContext::Sequence {
@@ -334,17 +334,17 @@ impl<'a> Parser<'_> {
 
         if child_node.is_empty() {
             let current_element = &elements[*current_element_idx];
-            eprintln!("[SEQUENCE EMPTY] frame_id={}, current_elem_idx={}/{}, is_optional={}",
+            log::debug!("[SEQUENCE EMPTY] frame_id={}, current_elem_idx={}/{}, is_optional={}",
                 frame.frame_id, *current_element_idx, elements.len(), current_element.is_optional());
             if current_element.is_optional() {
-                eprintln!("[SEQUENCE EMPTY OPT] frame_id={}, moving to next element", frame.frame_id);
+                log::debug!("[SEQUENCE EMPTY OPT] frame_id={}, moving to next element", frame.frame_id);
                 log::debug!("Sequence: child returned Empty and is optional, continuing to next element");
                 // Don't advance matched_idx or push anything - just move to next element
                 *current_element_idx += 1;
 
                 // Check if we've processed all elements
                 if *current_element_idx >= elements.len() {
-                    eprintln!("[SEQUENCE ALL DONE] frame_id={}, completing after processing all {} elements",
+                    log::debug!("[SEQUENCE ALL DONE] frame_id={}, completing after processing all {} elements",
                         frame.frame_id, elements.len());
                     // All elements processed (some optional and skipped)
                     log::debug!(
@@ -365,7 +365,7 @@ impl<'a> Parser<'_> {
                     stack.transparent_positions.insert(frame.frame_id, tentatively_collected.clone());
                     self.commit_collection_checkpoint(frame.frame_id);
 
-                    eprintln!("[SEQUENCE COMPLETE OPT] frame_id={}, matched_idx={}, parse_mode={:?}",
+                    log::debug!("[SEQUENCE COMPLETE OPT] frame_id={}, matched_idx={}, parse_mode={:?}",
                         frame.frame_id, *matched_idx, *parse_mode);
                     stack.results.insert(
                         frame.frame_id,
@@ -384,12 +384,16 @@ impl<'a> Parser<'_> {
 
                 // Check if we've run out of segments
                 if next_pos >= *max_idx {
+                    log::debug!("[SEQUENCE AT BOUNDARY] frame_id={}, next_pos={}, max_idx={}, checking remaining elements",
+                        frame.frame_id, next_pos, *max_idx);
                     // Check if remaining elements are all optional
                     let remaining_all_optional = elements[next_elem_idx..]
                         .iter()
                         .all(|e| e.is_optional() || matches!(e.as_ref(), Grammar::Meta(_)));
 
                     if remaining_all_optional {
+                        log::debug!("[SEQUENCE BOUNDARY + ALL OPT] frame_id={}, all {} remaining elements are optional, completing",
+                            frame.frame_id, elements.len() - next_elem_idx);
                         // All remaining are optional, we can finish successfully
                         let result_node = if frame.accumulated.is_empty() {
                             Node::Empty
@@ -408,10 +412,14 @@ impl<'a> Parser<'_> {
                         );
                         return;
                     } else if *parse_mode == ParseMode::Strict {
+                        log::debug!("[SEQUENCE BOUNDARY + STRICT] frame_id={}, has required elements, failing", frame.frame_id);
                         // Strict mode and required elements remaining: fail
                         self.rollback_collection_checkpoint(frame.frame_id);
                         stack.results.insert(frame.frame_id, (Node::Empty, frame.pos, None));
                         return;
+                    } else {
+                        log::debug!("[SEQUENCE BOUNDARY + GREEDY] frame_id={}, has required elements but GREEDY mode, attempting to continue", frame.frame_id);
+                        // GREEDY mode: try to continue even at boundary
                     }
                 }
 
@@ -431,7 +439,7 @@ impl<'a> Parser<'_> {
                 );
                 return;
             } else {
-                eprintln!("[SEQUENCE EMPTY REQ] frame_id={}, required element {} returned Empty!",
+                log::debug!("[SEQUENCE EMPTY REQ] frame_id={}, required element {} returned Empty!",
                     frame.frame_id, *current_element_idx);
                 let element_desc = match current_element.as_ref() {
                     Grammar::Ref { name, .. } => format!("Ref({})", name),
@@ -824,7 +832,7 @@ impl<'a> Parser<'_> {
             } else {
                 current_max_idx
             };
-            eprintln!("[SEQUENCE COMPLETE] frame_id={}, current_matched_idx={}, current_max_idx={}, parse_mode={:?}, end_pos={}",
+            log::debug!("[SEQUENCE COMPLETE] frame_id={}, current_matched_idx={}, current_max_idx={}, parse_mode={:?}, end_pos={}",
                 frame.frame_id, current_matched_idx, current_max_idx, current_parse_mode, end_pos);
             stack
                 .results
@@ -891,6 +899,18 @@ impl<'a> Parser<'_> {
                 next_pos = _idx;
             }
             let next_elem_idx = current_elem_idx + 1;
+
+            // Log next element info for debugging
+            if next_elem_idx < elements_clone.len() {
+                let next_elem_desc = match elements_clone[next_elem_idx].as_ref() {
+                    Grammar::Ref { name, .. } => format!("Ref({})", name),
+                    Grammar::Meta(m) => format!("Meta({})", m),
+                    g => format!("{:?}", g).chars().take(50).collect(),
+                };
+                log::debug!("SEQUENCE NEXT ELEMENT: idx={}, grammar={}, optional={}",
+                    next_elem_idx, next_elem_desc, elements_clone[next_elem_idx].is_optional());
+            }
+
             // DEBUG: Log the state before the early return check
             log::debug!("SEQUENCE CONTINUATION CHECK: next_pos={}, current_max_idx={}, next_elem_idx={}, elements_clone.len()={}",
                 next_pos, current_max_idx, next_elem_idx, elements_clone.len());

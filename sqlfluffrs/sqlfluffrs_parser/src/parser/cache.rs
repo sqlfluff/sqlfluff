@@ -174,16 +174,26 @@ fn hash_terminators(terminators: &[Arc<Grammar>], mut cache: &mut HashMap<*const
 type CacheValue = Result<(Node, usize, Vec<usize>), ParseError>;
 
 /// Compute a stable hash for a grammar
-fn grammar_hash(grammar: Arc<Grammar>, cache: &mut HashMap<*const Grammar, u64>) -> u64 {
-    let ptr = Arc::as_ptr(&grammar);
-    if let Some(&cached) = cache.get(&ptr) {
-        return cached;
-    }
+fn grammar_hash(grammar: Arc<Grammar>, _cache: &mut HashMap<*const Grammar, u64>) -> u64 {
+    // CRITICAL FIX: Disabled pointer-based cache due to memory reuse bug
+    // When an Arc<Grammar> is dropped and its memory is reused for a different Grammar,
+    // the pointer-based cache would return the WRONG hash, causing cache corruption.
+    // This led to WHERE clauses being incorrectly parsed as JOIN clauses in BigQuery fixtures.
+    //
+    // The performance impact of removing this cache is minimal since grammar_hash
+    // is only called during CacheKey creation, not during the hot parse loop.
+    //
+    // let ptr = Arc::as_ptr(&grammar);
+    // if let Some(&cached) = cache.get(&ptr) {
+    //     return cached;
+    // }
+
     use std::collections::hash_map::DefaultHasher;
     use std::hash::Hasher;
 
     let mut hasher = DefaultHasher::new();
-    grammar_discriminant(grammar.clone()).hash(&mut hasher);
+    let current_discriminant = grammar_discriminant(grammar.clone());
+    current_discriminant.hash(&mut hasher);
 
     // Hash key identifying fields
     match grammar.as_ref() {
@@ -231,12 +241,12 @@ fn grammar_hash(grammar: Arc<Grammar>, cache: &mut HashMap<*const Grammar, u64>)
         // For compound grammars, hash recursively (expensive but necessary)
         Grammar::Sequence { elements, .. } => {
             for elem in elements {
-                grammar_hash(elem.clone(), cache).hash(&mut hasher);
+                grammar_hash(elem.clone(), _cache).hash(&mut hasher);
             }
         }
         Grammar::OneOf { elements, .. } => {
             for elem in elements {
-                grammar_hash(elem.clone(), cache).hash(&mut hasher);
+                grammar_hash(elem.clone(), _cache).hash(&mut hasher);
             }
         }
         Grammar::AnyNumberOf {
@@ -247,7 +257,7 @@ fn grammar_hash(grammar: Arc<Grammar>, cache: &mut HashMap<*const Grammar, u64>)
             ..
         } => {
             for elem in elements {
-                grammar_hash(elem.clone(), cache).hash(&mut hasher);
+                grammar_hash(elem.clone(), _cache).hash(&mut hasher);
             }
             min_times.hash(&mut hasher);
             max_times.hash(&mut hasher);
@@ -259,9 +269,9 @@ fn grammar_hash(grammar: Arc<Grammar>, cache: &mut HashMap<*const Grammar, u64>)
             ..
         } => {
             for elem in elements {
-                grammar_hash(elem.clone(), cache).hash(&mut hasher);
+                grammar_hash(elem.clone(), _cache).hash(&mut hasher);
             }
-            grammar_hash((**delimiter).clone(), cache).hash(&mut hasher);
+            grammar_hash((**delimiter).clone(), _cache).hash(&mut hasher);
         }
         Grammar::Bracketed {
             elements,
@@ -269,16 +279,17 @@ fn grammar_hash(grammar: Arc<Grammar>, cache: &mut HashMap<*const Grammar, u64>)
             ..
         } => {
             for elem in elements {
-                grammar_hash(elem.clone(), cache).hash(&mut hasher);
+                grammar_hash(elem.clone(), _cache).hash(&mut hasher);
             }
-            grammar_hash((*bracket_pairs.0).clone(), cache).hash(&mut hasher);
-            grammar_hash((*bracket_pairs.1).clone(), cache).hash(&mut hasher);
+            grammar_hash((*bracket_pairs.0).clone(), _cache).hash(&mut hasher);
+            grammar_hash((*bracket_pairs.1).clone(), _cache).hash(&mut hasher);
         }
         _ => {}
     }
 
     let result = hasher.finish();
-    cache.insert(ptr, result);
+    // Pointer-based cache disabled - see comment at top of function
+    // _cache.insert(ptr, result);
     result
 }
 

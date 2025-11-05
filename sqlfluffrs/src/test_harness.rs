@@ -93,7 +93,7 @@ impl FixtureTest {
         };
 
         let input = LexInput::String(sql_content.clone());
-        let lexer = Lexer::new(None, dialect.get_lexers().clone());
+        let lexer = Lexer::new(None, Dialect::get_dialect_lexers(&dialect).clone());
         let (tokens, lex_errors) = lexer.lex(input, false);
 
         if !lex_errors.is_empty() {
@@ -496,7 +496,7 @@ mod tests {
         let sql = "SELECT 1";
         let input = LexInput::String(sql.to_string());
         let dialect = Dialect::Ansi;
-        let lexer = Lexer::new(None, dialect.get_lexers().clone());
+        let lexer = Lexer::new(None, Dialect::get_lexers(&dialect).clone());
         let (tokens, _errors) = lexer.lex(input, false);
 
         let mut parser = Parser::new(&tokens, dialect);
