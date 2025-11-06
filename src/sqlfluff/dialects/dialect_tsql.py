@@ -1139,7 +1139,7 @@ class AlterDatabaseStatementSegment(BaseSegment):
 
     _recovery_options = Sequence(
         "RECOVERY",
-        OneOf("Full", "SIMPLE", "BULK_LOGGED"),
+        OneOf("FULL", "SIMPLE", "BULK_LOGGED"),
     )
 
 
