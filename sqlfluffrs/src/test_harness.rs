@@ -12,6 +12,7 @@ use sqlfluffrs_parser::parser::{Node, Parser};
 use sqlfluffrs_types::Token;
 use std::fs;
 use std::path::{Path, PathBuf};
+use std::str::FromStr;
 
 /// Represents a test case from the fixtures directory
 #[derive(Debug, Clone)]
@@ -78,22 +79,10 @@ impl FixtureTest {
         };
 
         // Parse with Rust parser
-        let dialect = match self.dialect.as_str() {
-            "ansi" => Dialect::Ansi,
-            // Add more dialects as needed
-            _ => {
-                return TestResult {
-                    test: self.clone(),
-                    success: false,
-                    error: Some(format!("Unsupported dialect: {}", self.dialect)),
-                    generated_yaml: None,
-                    expected_yaml: None,
-                }
-            }
-        };
+        let dialect = Dialect::from_str(self.dialect.as_str()).expect("Invalid dialect");
 
         let input = LexInput::String(sql_content.clone());
-        let lexer = Lexer::new(None, Dialect::get_dialect_lexers(&dialect).clone());
+        let lexer = Lexer::new(None, Dialect::get_lexers(&dialect).clone());
         let (tokens, lex_errors) = lexer.lex(input, false);
 
         if !lex_errors.is_empty() {

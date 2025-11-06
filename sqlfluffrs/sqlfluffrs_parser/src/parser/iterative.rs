@@ -11,6 +11,8 @@ pub enum NextStep {
     Continue,
     Break,
     Fallthrough,
+    /// Return a frame to the main loop (typically for transitioning to Complete state)
+    ContinueWith(ParseFrame),
 }
 /// Stack structure for managing ParseFrames and related state
 pub struct ParseFrameStack {
@@ -103,39 +105,83 @@ impl Parser<'_> {
         match grammar.as_ref() {
             // Simple leaf grammars - parse directly without recursion
             Grammar::Token { .. } => {
-                self.handle_token_initial(grammar, frame, &mut stack.results)?;
-                Ok(NextStep::Fallthrough)
+                // Token handler now returns ContinueWith to transition to Complete state
+                let frame_owned = std::mem::replace(frame, ParseFrame::new_child(
+                    0, // dummy values since this frame will be dropped
+                    grammar.clone(),
+                    0,
+                    vec![],
+                    None,
+                ));
+                self.handle_token_initial(grammar, frame_owned, &mut stack.results)
             }
 
-            Grammar::StringParser { .. } => self.handle_string_parser_initial(
-                grammar,
-                frame,
-                iteration_count,
-                &mut stack.results,
-            ),
+            Grammar::StringParser { .. } => {
+                // StringParser handler now returns ContinueWith to transition to Complete state
+                let frame_owned = std::mem::replace(frame, ParseFrame::new_child(
+                    0, // dummy values
+                    grammar.clone(),
+                    0,
+                    vec![],
+                    None,
+                ));
+                self.handle_string_parser_initial(
+                    grammar,
+                    frame_owned,
+                    iteration_count,
+                    &mut stack.results,
+                )
+            }
 
             Grammar::MultiStringParser { .. } => {
-                self.handle_multi_string_parser_initial(grammar, frame, &mut stack.results)
+                let frame_owned = std::mem::replace(frame, ParseFrame::new_child(
+                    0, grammar.clone(), 0, vec![], None,
+                ));
+                self.handle_multi_string_parser_initial(grammar, frame_owned, &mut stack.results)
             }
 
             Grammar::TypedParser { .. } => {
-                self.handle_typed_parser_initial(grammar, frame, &mut stack.results)
+                let frame_owned = std::mem::replace(frame, ParseFrame::new_child(
+                    0, grammar.clone(), 0, vec![], None,
+                ));
+                self.handle_typed_parser_initial(grammar, frame_owned, &mut stack.results)
             }
 
             Grammar::RegexParser { .. } => {
-                self.handle_regex_parser_initial(grammar, frame, &mut stack.results)
+                let frame_owned = std::mem::replace(frame, ParseFrame::new_child(
+                    0, grammar.clone(), 0, vec![], None,
+                ));
+                self.handle_regex_parser_initial(grammar, frame_owned, &mut stack.results)
             }
 
-            Grammar::Meta(_) => self.handle_meta_initial(grammar, frame, &mut stack.results),
+            Grammar::Meta(_) => {
+                let frame_owned = std::mem::replace(frame, ParseFrame::new_child(
+                    0, grammar.clone(), 0, vec![], None,
+                ));
+                self.handle_meta_initial(grammar, frame_owned, &mut stack.results)
+            }
 
-            Grammar::Nothing() => self.handle_nothing_initial(frame, &mut stack.results),
+            Grammar::Nothing() => {
+                let frame_owned = std::mem::replace(frame, ParseFrame::new_child(
+                    0, grammar.clone(), 0, vec![], None,
+                ));
+                self.handle_nothing_initial(frame_owned, &mut stack.results)
+            }
 
-            Grammar::Empty => self.handle_empty_initial(frame, &mut stack.results),
+            Grammar::Empty => {
+                let frame_owned = std::mem::replace(frame, ParseFrame::new_child(
+                    0, grammar.clone(), 0, vec![], None,
+                ));
+                self.handle_empty_initial(frame_owned, &mut stack.results)
+            }
 
             Grammar::Missing => self.handle_missing_initial(),
 
             Grammar::Anything => {
-                self.handle_anything_initial(frame, &terminators, &mut stack.results)
+                let frame_owned = std::mem::replace(frame, ParseFrame::new_child(
+                    0, grammar.clone(), 0, vec![], None,
+                ));
+                self.handle_anything_initial(frame_owned, &terminators, &mut stack.results)
             }
 
             // Complex grammars - need special handling
@@ -293,6 +339,8 @@ impl Parser<'_> {
             accumulated: vec![],
             context: FrameContext::None,
             parent_max_idx: None, // Top-level frame has no parent limit
+            end_pos: None,
+            transparent_positions: None,
         });
 
         let mut iteration_count = 0_usize;
@@ -333,9 +381,20 @@ impl Parser<'_> {
 
             match frame.state {
                 FrameState::Initial => {
+                    // Log grammar path when trying a match
+                    log::debug!(
+                        "🔍 Trying match at pos {}: {}",
+                        frame.pos,
+                        Self::build_grammar_path(&frame, &stack)
+                    );
+                    
                     match self.handle_frame_initial(&mut frame, &mut stack, iteration_count)? {
                         NextStep::Continue => continue 'main_loop,
                         NextStep::Break => break 'main_loop,
+                        NextStep::ContinueWith(mut updated_frame) => {
+                            stack.push(&mut updated_frame);
+                            continue 'main_loop;
+                        }
                         _ => (),
                     }
                 }
@@ -359,9 +418,36 @@ impl Parser<'_> {
                     unimplemented!("Combining state not yet implemented");
                 }
 
-                FrameState::Complete(node) => {
-                    // This frame is done
-                    stack.results.insert(frame.frame_id, (node, self.pos, None));
+                FrameState::Complete(ref node) => {
+                    // Log grammar path - different indicator for Empty vs matched nodes
+                    match node {
+                        Node::Empty => {
+                            log::debug!(
+                                "❌ No match at pos {}: {}",
+                                frame.pos,
+                                Self::build_grammar_path(&frame, &stack)
+                            );
+                        }
+                        _ => {
+                            log::debug!(
+                                "✅ Match at pos {}: {}",
+                                frame.pos,
+                                Self::build_grammar_path(&frame, &stack)
+                            );
+                        }
+                    }
+                    
+                    // Use the end_pos stored in the frame (or fall back to self.pos)
+                    let end_pos = frame.end_pos.unwrap_or(self.pos);
+                    
+                    // Get transparent positions if any
+                    let transparent = frame.transparent_positions.clone().map(|v| {
+                        let bitset = v.iter().fold(0u64, |acc, &pos| acc | (1u64 << pos));
+                        bitset
+                    });
+                    
+                    // This frame is done - insert result
+                    stack.results.insert(frame.frame_id, (node.clone(), end_pos, transparent));
                 }
             }
         }
@@ -632,6 +718,55 @@ impl Parser<'_> {
     }
 
     /// Logs debug information about the current frame and stack.
+    /// Build a grammar path string showing the hierarchy of grammars being parsed
+    /// Format: "file -> statement -> select_statement -> ..."
+    fn build_grammar_path(frame: &ParseFrame, stack: &ParseFrameStack) -> String {
+        let mut path_parts = Vec::new();
+        
+        // Add the current frame's grammar
+        path_parts.push(Self::grammar_name(frame.grammar.as_ref()));
+        
+        // Walk up the stack to build the full path
+        // Stack is in reverse order (top of stack is most recent), so we iterate in reverse
+        for ancestor_frame in stack.iter().rev() {
+            path_parts.insert(0, Self::grammar_name(ancestor_frame.grammar.as_ref()));
+        }
+        
+        path_parts.join(" -> ")
+    }
+    
+    /// Get a short name for a grammar element
+    fn grammar_name(grammar: &Grammar) -> String {
+        match grammar {
+            Grammar::Ref { name, .. } => name.to_string(),
+            Grammar::Token { token_type } => format!("token[{}]", token_type),
+            Grammar::StringParser { template, .. } => format!("'{}'", template),
+            Grammar::MultiStringParser { templates, .. } => {
+                if templates.is_empty() {
+                    "multistring[]".to_string()
+                } else if templates.len() == 1 {
+                    format!("'{}'", templates[0])
+                } else {
+                    format!("multistring[{}]", templates.join("|"))
+                }
+            }
+            Grammar::TypedParser { template, .. } => format!("typed[{}]", template),
+            Grammar::RegexParser { template, .. } => format!("regex[{}]", template),
+            Grammar::Sequence { .. } => "sequence".to_string(),
+            Grammar::OneOf { .. } => "oneof".to_string(),
+            Grammar::AnyNumberOf { .. } => "anynumberof".to_string(),
+            Grammar::AnySetOf { .. } => "anysetof".to_string(),
+            Grammar::Bracketed { .. } => "bracketed".to_string(),
+            Grammar::Delimited { .. } => "delimited".to_string(),
+            Grammar::NonCodeMatcher => "noncode".to_string(),
+            Grammar::Meta(name) => format!("meta[{}]", name),
+            Grammar::Nothing() => "nothing".to_string(),
+            Grammar::Anything => "anything".to_string(),
+            Grammar::Empty => "empty".to_string(),
+            Grammar::Missing => "missing".to_string(),
+        }
+    }
+
     fn log_frame_debug_info(frame: &ParseFrame, stack: &ParseFrameStack, iteration_count: usize) {
         log::debug!(
             "\nDEBUG [iter {}]: Processing frame_id={}, state={:?}",

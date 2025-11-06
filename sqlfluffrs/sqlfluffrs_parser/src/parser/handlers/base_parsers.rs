@@ -1,7 +1,7 @@
 use std::sync::Arc;
 
 use crate::parser::iterative::NextStep;
-use crate::parser::{Node, ParseError, ParseFrame};
+use crate::parser::{FrameState, Node, ParseError, ParseFrame};
 use hashbrown::HashMap;
 use sqlfluffrs_types::Grammar;
 
@@ -12,7 +12,7 @@ impl Parser<'_> {
     pub fn handle_string_parser_initial(
         &mut self,
         grammar: Arc<Grammar>,
-        frame: &ParseFrame,
+        mut frame: ParseFrame,  // Take ownership
         iteration_count: usize,
         results: &mut HashMap<usize, (Node, usize, Option<u64>)>,
     ) -> Result<NextStep, ParseError> {
@@ -61,7 +61,11 @@ impl Parser<'_> {
                     raw: tok.raw(),
                     token_idx: token_pos,
                 };
-                results.insert(frame.frame_id, (node, self.pos, None));
+                // Transition to Complete state
+                frame.state = FrameState::Complete(node);
+                frame.end_pos = Some(self.pos);
+                log::debug!("🎯 StringParser set Complete state for frame {}", frame.frame_id);
+                Ok(NextStep::ContinueWith(frame))
             }
             _ => {
                 log::debug!(
@@ -76,17 +80,20 @@ impl Parser<'_> {
                     template,
                     frame.frame_id
                 );
-                results.insert(frame.frame_id, (Node::Empty, self.pos, None));
+                // Transition to Complete state with Empty
+                frame.state = FrameState::Complete(Node::Empty);
+                frame.end_pos = Some(self.pos);
+                log::debug!("🎯 StringParser set Complete(Empty) for frame {}", frame.frame_id);
+                Ok(NextStep::ContinueWith(frame))
             }
         }
-        Ok(NextStep::Fallthrough)
     }
 
     /// Handle MultiStringParser grammar in iterative parser
     pub fn handle_multi_string_parser_initial(
         &mut self,
         grammar: Arc<Grammar>,
-        frame: &ParseFrame,
+        mut frame: ParseFrame,  // Take ownership
         results: &mut HashMap<usize, (Node, usize, Option<u64>)>,
     ) -> Result<NextStep, ParseError> {
         log::debug!(
@@ -126,21 +133,24 @@ impl Parser<'_> {
                     raw: tok.raw(),
                     token_idx: token_pos,
                 };
-                results.insert(frame.frame_id, (node, self.pos, None));
+                frame.state = FrameState::Complete(node);
+                frame.end_pos = Some(self.pos);
+                Ok(NextStep::ContinueWith(frame))
             }
             _ => {
                 log::debug!("MultiString parser didn't match, returning Empty");
-                results.insert(frame.frame_id, (Node::Empty, self.pos, None));
+                frame.state = FrameState::Complete(Node::Empty);
+                frame.end_pos = Some(self.pos);
+                Ok(NextStep::ContinueWith(frame))
             }
         }
-        Ok(NextStep::Fallthrough)
     }
 
     /// Handle TypedParser grammar in iterative parser
     pub fn handle_typed_parser_initial(
         &mut self,
         grammar: Arc<Grammar>,
-        frame: &ParseFrame,
+        mut frame: ParseFrame,  // Take ownership
         results: &mut HashMap<usize, (Node, usize, Option<u64>)>,
     ) -> Result<NextStep, ParseError> {
         log::debug!(
@@ -202,7 +212,9 @@ impl Parser<'_> {
                     raw,
                     token_idx: token_pos,
                 };
-                results.insert(frame.frame_id, (node, self.pos, None));
+                frame.state = FrameState::Complete(node);
+                frame.end_pos = Some(self.pos);
+                return Ok(NextStep::ContinueWith(frame));
             } else {
                 log::debug!(
                     "NOMATCH TypedParser: frame_id={}, expected type '{}', found type '{}', raw '{}'",
@@ -217,7 +229,9 @@ impl Parser<'_> {
                     tok.token_type,
                     tok.raw()
                 );
-                results.insert(frame.frame_id, (Node::Empty, frame.pos, None));
+                frame.state = FrameState::Complete(Node::Empty);
+                frame.end_pos = Some(frame.pos);
+                return Ok(NextStep::ContinueWith(frame));
             }
         } else {
             log::debug!(
@@ -226,9 +240,11 @@ impl Parser<'_> {
                 frame.pos
             );
             log::debug!("Typed parser at EOF");
-            results.insert(frame.frame_id, (Node::Empty, frame.pos, None));
+            frame.state = FrameState::Complete(Node::Empty);
+            frame.end_pos = Some(frame.pos);
+            return Ok(NextStep::ContinueWith(frame));
         }
-        Ok(NextStep::Fallthrough)
+        unreachable!("All paths should return above")
     }
 
     /// Handle RegexParser grammar in iterative parser
@@ -236,7 +252,7 @@ impl Parser<'_> {
     pub fn handle_regex_parser_initial(
         &mut self,
         grammar: Arc<Grammar>,
-        frame: &ParseFrame,
+        mut frame: ParseFrame,  // Take ownership
         results: &mut HashMap<usize, (Node, usize, Option<u64>)>,
     ) -> Result<NextStep, ParseError> {
         log::debug!(
@@ -270,8 +286,9 @@ impl Parser<'_> {
                     if anti.is_match(&tok.raw()) {
                         log::debug!("Regex anti-matched: {}", tok);
                         log::debug!("RegexParser anti-match, returning Empty");
-                        results.insert(frame.frame_id, (Node::Empty, self.pos, None));
-                        return Ok(NextStep::Continue); // Signal caller to continue to next frame
+                        frame.state = FrameState::Complete(Node::Empty);
+                        frame.end_pos = Some(self.pos);
+                        return Ok(NextStep::ContinueWith(frame));
                     }
                 }
 
@@ -283,13 +300,15 @@ impl Parser<'_> {
                     raw: tok.raw(),
                     token_idx: token_pos,
                 };
-                results.insert(frame.frame_id, (node, self.pos, None));
-                Ok(NextStep::Fallthrough)
+                frame.state = FrameState::Complete(node);
+                frame.end_pos = Some(self.pos);
+                Ok(NextStep::ContinueWith(frame))
             }
             _ => {
                 log::debug!("RegexParser didn't match '{}', returning Empty", template);
-                results.insert(frame.frame_id, (Node::Empty, self.pos, None));
-                Ok(NextStep::Fallthrough)
+                frame.state = FrameState::Complete(Node::Empty);
+                frame.end_pos = Some(self.pos);
+                Ok(NextStep::ContinueWith(frame))
             }
         }
     }

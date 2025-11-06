@@ -14,7 +14,7 @@ impl Parser<'_> {
     /// Handle Empty grammar in iterative parser
     pub fn handle_empty_initial(
         &mut self,
-        frame: &ParseFrame,
+        mut frame: ParseFrame,  // Take ownership
         results: &mut HashMap<usize, (Node, usize, Option<u64>)>,
     ) -> Result<NextStep, ParseError> {
         log::debug!(
@@ -22,8 +22,9 @@ impl Parser<'_> {
             frame.frame_id,
             frame.pos
         );
-        results.insert(frame.frame_id, (Node::Empty, frame.pos, None));
-        Ok(NextStep::Fallthrough)
+        frame.state = FrameState::Complete(Node::Empty);
+        frame.end_pos = Some(frame.pos);
+        Ok(NextStep::ContinueWith(frame))
     }
 
     /// Handle Missing grammar in iterative parser
@@ -41,7 +42,7 @@ impl Parser<'_> {
     pub(crate) fn handle_meta_initial(
         &mut self,
         grammar: Arc<Grammar>,
-        frame: &ParseFrame,
+        mut frame: ParseFrame,  // Take ownership
         results: &mut HashMap<usize, (Node, usize, Option<u64>)>,
     ) -> Result<NextStep, ParseError> {
         log::debug!(
@@ -61,24 +62,18 @@ impl Parser<'_> {
             }
         };
         log::debug!("Doing nothing with meta {}", token_type);
-        results.insert(
-            frame.frame_id,
-            (
-                Node::Meta {
-                    token_type,
-                    token_idx: None,
-                },
-                frame.pos,
-                None,
-            ),
-        );
-        Ok(NextStep::Fallthrough)
+        frame.state = FrameState::Complete(Node::Meta {
+            token_type,
+            token_idx: None,
+        });
+        frame.end_pos = Some(frame.pos);
+        Ok(NextStep::ContinueWith(frame))
     }
 
     /// Handle Anything grammar in iterative parser
     pub fn handle_anything_initial(
         &mut self,
-        frame: &ParseFrame,
+        mut frame: ParseFrame,  // Take ownership
         parent_terminators: &[Arc<Grammar>],
         results: &mut HashMap<usize, (Node, usize, Option<u64>)>,
     ) -> Result<NextStep, ParseError> {
@@ -105,23 +100,17 @@ impl Parser<'_> {
         }
 
         log::debug!("Anything matched tokens: {:?}", anything_tokens);
-        results.insert(
-            frame.frame_id,
-            (
-                Node::DelimitedList {
-                    children: anything_tokens,
-                },
-                self.pos,
-                None,
-            ),
-        );
-        Ok(NextStep::Fallthrough)
+        frame.state = FrameState::Complete(Node::DelimitedList {
+            children: anything_tokens,
+        });
+        frame.end_pos = Some(self.pos);
+        Ok(NextStep::ContinueWith(frame))
     }
 
     /// Handle Nothing grammar in iterative parser
     pub fn handle_nothing_initial(
         &mut self,
-        frame: &ParseFrame,
+        mut frame: ParseFrame,  // Take ownership
         results: &mut HashMap<usize, (Node, usize, Option<u64>)>,
     ) -> Result<NextStep, ParseError> {
         log::debug!(
@@ -130,8 +119,9 @@ impl Parser<'_> {
             frame.pos
         );
         log::debug!("Nothing grammar encountered, returning Empty");
-        results.insert(frame.frame_id, (Node::Empty, frame.pos, None));
-        Ok(NextStep::Fallthrough)
+        frame.state = FrameState::Complete(Node::Empty);
+        frame.end_pos = Some(frame.pos);
+        Ok(NextStep::ContinueWith(frame))
     }
 
     /// Handle Ref grammar Initial state in iterative parser
@@ -235,6 +225,8 @@ impl Parser<'_> {
                     accumulated: vec![],
                     context: FrameContext::None,
                     parent_max_idx: frame.parent_max_idx, // CRITICAL: Propagate parent's limit
+                    end_pos: None,
+                    transparent_positions: None,
                 };
 
                 // Update current frame to wait for child and store Ref metadata

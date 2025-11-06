@@ -158,7 +158,15 @@ impl crate::parser::Parser<'_> {
             Err(value) => {
                 if let Node::Empty = value {
                     log::debug!("AnyNumberOf: No available options at start, returning Empty");
-                    return self.handle_empty_initial(frame, &mut stack.results);
+                    // Need to take ownership of frame for handle_empty_initial
+                    let frame_owned = std::mem::replace(frame, crate::parser::ParseFrame::new_child(
+                        0, // dummy
+                        frame.grammar.clone(),
+                        0,
+                        vec![],
+                        None,
+                    ));
+                    return self.handle_empty_initial(frame_owned, &mut stack.results);
                 } else {
                     unreachable!()
                 }
@@ -213,6 +221,8 @@ impl crate::parser::Parser<'_> {
                 accumulated: vec![],
                 context: FrameContext::None,
                 parent_max_idx: Some(max_idx),
+                end_pos: None,
+                transparent_positions: None,
             };
 
             let next_child_id = stack.frame_id_counter;
@@ -765,6 +775,8 @@ impl crate::parser::Parser<'_> {
             accumulated: Vec::new(),
             context: FrameContext::None,
             parent_max_idx: Some(max_idx),
+            end_pos: None,
+            transparent_positions: None,
         };
 
         frame.state = crate::parser::FrameState::WaitingForChild {

@@ -131,11 +131,7 @@ impl Dialect {
     }
 
     pub fn get_lexers(&self) -> &'static Vec<LexMatcher> {
-        Self::get_dialect_lexers(self)
-    }
-
-    pub fn get_dialect_lexers(dialect: &Dialect) -> &'static Vec<LexMatcher> {
-        match dialect {
+        match self {
             Dialect::Ansi => &ANSI_LEXERS,
             Dialect::Athena => &ATHENA_LEXERS,
             Dialect::Bigquery => &BIGQUERY_LEXERS,

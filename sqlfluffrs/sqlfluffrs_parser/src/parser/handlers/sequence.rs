@@ -282,6 +282,8 @@ impl<'a> Parser<'_> {
                         accumulated: vec![],
                         context: FrameContext::None,
                         parent_max_idx: current_max_idx, // Pass Sequence's max_idx to child!
+                        end_pos: None,
+                        transparent_positions: None,
                     };
 
                     // Update parent (already on stack) and push child
@@ -1404,6 +1406,8 @@ impl<'a> Parser<'_> {
                             bracket_max_idx,
                         },
                         parent_max_idx: bracket_max_idx,
+                        end_pos: None,
+                        transparent_positions: None,
                     };
                     *last_child_frame_id = Some(stack.frame_id_counter);
                     stack.frame_id_counter += 1;
@@ -1543,6 +1547,8 @@ impl<'a> Parser<'_> {
                         accumulated: vec![],
                         context: FrameContext::None,
                         parent_max_idx: parent_limit,
+                        end_pos: None,
+                        transparent_positions: None,
                     };
                     *last_child_frame_id = Some(stack.frame_id_counter);
                     stack.frame_id_counter += 1;
@@ -1669,6 +1675,8 @@ fn create_child_frame(
         accumulated: vec![],
         context: FrameContext::None,
         parent_max_idx: stack.last_mut().unwrap().parent_max_idx, // Propagate parent's limit!
+        end_pos: None,
+        transparent_positions: None,
     }
 }
 fn update_parent_last_child_frame(stack: &mut ParseFrameStack) {

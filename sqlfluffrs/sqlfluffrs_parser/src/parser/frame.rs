@@ -36,6 +36,10 @@ pub struct ParseFrame {
     /// Parent's max_idx limit (simulates Python's segments[:max_idx] slicing)
     /// If Some(n), this frame cannot match beyond position n
     pub parent_max_idx: Option<usize>,
+    /// End position for this parse (used when transitioning to Complete state)
+    pub end_pos: Option<usize>,
+    /// Transparent token positions collected during this parse
+    pub transparent_positions: Option<Vec<usize>>,
 }
 
 impl ParseFrame {
@@ -56,6 +60,8 @@ impl ParseFrame {
             accumulated: vec![],
             context: FrameContext::None,
             parent_max_idx,
+            end_pos: None,
+            transparent_positions: None,
         }
     }
 

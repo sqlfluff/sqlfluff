@@ -1,7 +1,7 @@
 use std::sync::Arc;
 
 use crate::parser::iterative::NextStep;
-use crate::parser::{Node, ParseError, ParseFrame};
+use crate::parser::{FrameState, Node, ParseError, ParseFrame};
 use hashbrown::HashMap;
 use sqlfluffrs_types::Grammar;
 
@@ -12,7 +12,7 @@ impl<'a> Parser<'_> {
     pub(crate) fn handle_token_initial(
         &mut self,
         grammar: Arc<Grammar>,
-        frame: &ParseFrame,
+        mut frame: ParseFrame,  // Take ownership instead of &
         results: &mut HashMap<usize, (Node, usize, Option<u64>)>,
     ) -> Result<NextStep, ParseError> {
         let token_type = match grammar.as_ref() {
@@ -48,8 +48,12 @@ impl<'a> Parser<'_> {
                     raw: tok.raw(),
                     token_idx: token_pos,
                 };
-                results.insert(frame.frame_id, (node, self.pos, None));
-                Ok(NextStep::Fallthrough)
+                
+                // Transition to Complete state instead of direct insertion
+                frame.state = FrameState::Complete(node);
+                frame.end_pos = Some(self.pos);
+                log::debug!("🎯 Token handler set Complete state for frame {}", frame.frame_id);
+                Ok(NextStep::ContinueWith(frame))
             } else {
                 log::debug!(
                     "DEBUG: Token grammar frame_id={} failed with error",
