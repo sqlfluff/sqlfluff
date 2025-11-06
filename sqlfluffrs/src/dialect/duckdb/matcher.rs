@@ -1317,7 +1317,7 @@ pub static DUCKDB_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
     LexMatcher::regex_lexer(
         Dialect::Duckdb,
         "word",
-        r#"[a-zA-Z_][0-9a-zA-Z_$]*"#,
+        r#"[\p{L}_][\p{L}\p{N}_$]*"#,
         |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
          quoted_value, escape_replacement, casefold| {
             Token::word_token(raw, pos_marker, TokenConfig {
