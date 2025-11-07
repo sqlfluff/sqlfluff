@@ -15364,7 +15364,7 @@ Arc::new(Grammar::RegexParser {
     token_type: "data_type_identifier",
     raw_class: "CodeSegment",
     optional: false,
-    anti_template: Some(regex::RegexMode::new(r#"^(NOT)$"#),
+    anti_template: Some(RegexMode::new(r#"^(NOT)$"#)),
 })
 ,
 Arc::new(Grammar::Ref {
@@ -15776,20 +15776,6 @@ Arc::new(Grammar::Sequence {
 Arc::new(Grammar::OneOf {
     elements: vec![
 Arc::new(Grammar::Ref {
-    name: "Last_n_weeksKeywordSegment",
-    optional: false,
-    allow_gaps: true,
-    exclude: None,
-    terminators: vec![
-    ],
-    reset_terminators: false,
-    simple_hint: Some(SimpleHint {
-            raw_values: hashbrown::HashSet::from_iter(["LAST_N_WEEKS".to_string()]),
-            token_types: hashbrown::HashSet::from_iter([]),
-        }),
-})
-,
-Arc::new(Grammar::Ref {
     name: "Last_n_yearsKeywordSegment",
     optional: false,
     allow_gaps: true,
@@ -15804,7 +15790,7 @@ Arc::new(Grammar::Ref {
 })
 ,
 Arc::new(Grammar::Ref {
-    name: "Next_n_monthsKeywordSegment",
+    name: "Next_n_fiscal_yearsKeywordSegment",
     optional: false,
     allow_gaps: true,
     exclude: None,
@@ -15812,13 +15798,13 @@ Arc::new(Grammar::Ref {
     ],
     reset_terminators: false,
     simple_hint: Some(SimpleHint {
-            raw_values: hashbrown::HashSet::from_iter(["NEXT_N_MONTHS".to_string()]),
+            raw_values: hashbrown::HashSet::from_iter(["NEXT_N_FISCAL_YEARS".to_string()]),
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
 ,
 Arc::new(Grammar::Ref {
-    name: "Last_n_fiscal_quartersKeywordSegment",
+    name: "Last_n_quartersKeywordSegment",
     optional: false,
     allow_gaps: true,
     exclude: None,
@@ -15826,7 +15812,35 @@ Arc::new(Grammar::Ref {
     ],
     reset_terminators: false,
     simple_hint: Some(SimpleHint {
-            raw_values: hashbrown::HashSet::from_iter(["LAST_N_FISCAL_QUARTERS".to_string()]),
+            raw_values: hashbrown::HashSet::from_iter(["LAST_N_QUARTERS".to_string()]),
+            token_types: hashbrown::HashSet::from_iter([]),
+        }),
+})
+,
+Arc::new(Grammar::Ref {
+    name: "Last_n_fiscal_yearsKeywordSegment",
+    optional: false,
+    allow_gaps: true,
+    exclude: None,
+    terminators: vec![
+    ],
+    reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+            raw_values: hashbrown::HashSet::from_iter(["LAST_N_FISCAL_YEARS".to_string()]),
+            token_types: hashbrown::HashSet::from_iter([]),
+        }),
+})
+,
+Arc::new(Grammar::Ref {
+    name: "Last_n_monthsKeywordSegment",
+    optional: false,
+    allow_gaps: true,
+    exclude: None,
+    terminators: vec![
+    ],
+    reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+            raw_values: hashbrown::HashSet::from_iter(["LAST_N_MONTHS".to_string()]),
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
@@ -15860,6 +15874,62 @@ Arc::new(Grammar::Ref {
 })
 ,
 Arc::new(Grammar::Ref {
+    name: "Last_n_fiscal_quartersKeywordSegment",
+    optional: false,
+    allow_gaps: true,
+    exclude: None,
+    terminators: vec![
+    ],
+    reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+            raw_values: hashbrown::HashSet::from_iter(["LAST_N_FISCAL_QUARTERS".to_string()]),
+            token_types: hashbrown::HashSet::from_iter([]),
+        }),
+})
+,
+Arc::new(Grammar::Ref {
+    name: "Next_n_fiscal_quartersKeywordSegment",
+    optional: false,
+    allow_gaps: true,
+    exclude: None,
+    terminators: vec![
+    ],
+    reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+            raw_values: hashbrown::HashSet::from_iter(["NEXT_N_FISCAL_QUARTERS".to_string()]),
+            token_types: hashbrown::HashSet::from_iter([]),
+        }),
+})
+,
+Arc::new(Grammar::Ref {
+    name: "Last_n_weeksKeywordSegment",
+    optional: false,
+    allow_gaps: true,
+    exclude: None,
+    terminators: vec![
+    ],
+    reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+            raw_values: hashbrown::HashSet::from_iter(["LAST_N_WEEKS".to_string()]),
+            token_types: hashbrown::HashSet::from_iter([]),
+        }),
+})
+,
+Arc::new(Grammar::Ref {
+    name: "Next_n_monthsKeywordSegment",
+    optional: false,
+    allow_gaps: true,
+    exclude: None,
+    terminators: vec![
+    ],
+    reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+            raw_values: hashbrown::HashSet::from_iter(["NEXT_N_MONTHS".to_string()]),
+            token_types: hashbrown::HashSet::from_iter([]),
+        }),
+})
+,
+Arc::new(Grammar::Ref {
     name: "Next_n_weeksKeywordSegment",
     optional: false,
     allow_gaps: true,
@@ -15869,62 +15939,6 @@ Arc::new(Grammar::Ref {
     reset_terminators: false,
     simple_hint: Some(SimpleHint {
             raw_values: hashbrown::HashSet::from_iter(["NEXT_N_WEEKS".to_string()]),
-            token_types: hashbrown::HashSet::from_iter([]),
-        }),
-})
-,
-Arc::new(Grammar::Ref {
-    name: "Next_n_fiscal_yearsKeywordSegment",
-    optional: false,
-    allow_gaps: true,
-    exclude: None,
-    terminators: vec![
-    ],
-    reset_terminators: false,
-    simple_hint: Some(SimpleHint {
-            raw_values: hashbrown::HashSet::from_iter(["NEXT_N_FISCAL_YEARS".to_string()]),
-            token_types: hashbrown::HashSet::from_iter([]),
-        }),
-})
-,
-Arc::new(Grammar::Ref {
-    name: "Next_n_quartersKeywordSegment",
-    optional: false,
-    allow_gaps: true,
-    exclude: None,
-    terminators: vec![
-    ],
-    reset_terminators: false,
-    simple_hint: Some(SimpleHint {
-            raw_values: hashbrown::HashSet::from_iter(["NEXT_N_QUARTERS".to_string()]),
-            token_types: hashbrown::HashSet::from_iter([]),
-        }),
-})
-,
-Arc::new(Grammar::Ref {
-    name: "Last_n_fiscal_yearsKeywordSegment",
-    optional: false,
-    allow_gaps: true,
-    exclude: None,
-    terminators: vec![
-    ],
-    reset_terminators: false,
-    simple_hint: Some(SimpleHint {
-            raw_values: hashbrown::HashSet::from_iter(["LAST_N_FISCAL_YEARS".to_string()]),
-            token_types: hashbrown::HashSet::from_iter([]),
-        }),
-})
-,
-Arc::new(Grammar::Ref {
-    name: "Last_n_quartersKeywordSegment",
-    optional: false,
-    allow_gaps: true,
-    exclude: None,
-    terminators: vec![
-    ],
-    reset_terminators: false,
-    simple_hint: Some(SimpleHint {
-            raw_values: hashbrown::HashSet::from_iter(["LAST_N_QUARTERS".to_string()]),
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
@@ -15944,7 +15958,7 @@ Arc::new(Grammar::Ref {
 })
 ,
 Arc::new(Grammar::Ref {
-    name: "Last_n_monthsKeywordSegment",
+    name: "Next_n_quartersKeywordSegment",
     optional: false,
     allow_gaps: true,
     exclude: None,
@@ -15952,21 +15966,7 @@ Arc::new(Grammar::Ref {
     ],
     reset_terminators: false,
     simple_hint: Some(SimpleHint {
-            raw_values: hashbrown::HashSet::from_iter(["LAST_N_MONTHS".to_string()]),
-            token_types: hashbrown::HashSet::from_iter([]),
-        }),
-})
-,
-Arc::new(Grammar::Ref {
-    name: "Next_n_fiscal_quartersKeywordSegment",
-    optional: false,
-    allow_gaps: true,
-    exclude: None,
-    terminators: vec![
-    ],
-    reset_terminators: false,
-    simple_hint: Some(SimpleHint {
-            raw_values: hashbrown::HashSet::from_iter(["NEXT_N_FISCAL_QUARTERS".to_string()]),
+            raw_values: hashbrown::HashSet::from_iter(["NEXT_N_QUARTERS".to_string()]),
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
@@ -31059,7 +31059,7 @@ Arc::new(Grammar::RegexParser {
     token_type: "naked_identifier",
     raw_class: "IdentifierSegment",
     optional: false,
-    anti_template: Some(regex::RegexMode::new(r#"^(NEXT_N_YEARS|TOMORROW|THIS_YEAR|THIS_MONTH|THIS_FISCAL_QUARTER|NEXT_N_QUARTERS|OUTER|NEXT_N_DAYS|THIS_QUARTER|NEXT_FISCAL_QUARTER|LAST_FISCAL_QUARTER|LAST_N_WEEKS|LAST_N_YEARS|THIS_WEEK|RIGHT|NEXT_FISCAL_YEAR|SET|LAST_YEAR|LAST_FISCAL_YEAR|ON|NEXT_N_FISCAL_YEARS|SELECT|NEXT_WEEK|LAST_90_DAYS|INNER|INTERVAL|RESPECT|LAST_WEEK|ROWS|LEFT|NEXT_N_FISCAL_QUARTERS|CASE|USING|THIS_FISCAL_YEAR|YESTERDAY|LAST_QUARTER|NEXT_N_WEEKS|LAST_MONTH|CROSS|PARTITION|UNION|ORDER|LAST_N_QUARTERS|NATURAL|LAST_N_MONTHS|NEXT_90_DAYS|NULL|LAST_N_FISCAL_QUARTERS|NOT|NEXT_YEAR|TODAY|NEXT_QUARTER|LAST_N_DAYS|JOIN|FULL|LAST_N_FISCAL_YEARS|IGNORE|NEXT_MONTH|NEXT_N_MONTHS)$"#),
+    anti_template: Some(RegexMode::new(r#"^(NEXT_MONTH|NATURAL|NEXT_YEAR|LAST_N_FISCAL_YEARS|LAST_N_MONTHS|SELECT|LAST_N_DAYS|LAST_MONTH|CASE|THIS_FISCAL_YEAR|PARTITION|LAST_WEEK|NEXT_N_FISCAL_QUARTERS|NULL|NEXT_WEEK|NEXT_N_WEEKS|LAST_QUARTER|LAST_90_DAYS|NEXT_FISCAL_QUARTER|YESTERDAY|ORDER|LEFT|LAST_FISCAL_YEAR|NOT|INTERVAL|LAST_YEAR|NEXT_N_DAYS|TOMORROW|LAST_N_WEEKS|LAST_N_YEARS|THIS_QUARTER|ON|ROWS|TODAY|SET|LAST_FISCAL_QUARTER|NEXT_QUARTER|UNION|THIS_MONTH|NEXT_90_DAYS|RIGHT|NEXT_N_FISCAL_YEARS|JOIN|LAST_N_QUARTERS|RESPECT|INNER|NEXT_FISCAL_YEAR|THIS_YEAR|USING|IGNORE|NEXT_N_YEARS|THIS_FISCAL_QUARTER|OUTER|FULL|THIS_WEEK|LAST_N_FISCAL_QUARTERS|NEXT_N_MONTHS|CROSS|NEXT_N_QUARTERS)$"#)),
 })
 );
 

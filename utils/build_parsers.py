@@ -476,7 +476,7 @@ def _to_rust_parser_grammar(match_grammar, parse_context):
 def as_rust_option(value, is_regex: bool = False):
     """Converts an optional value to a Rust Option."""
     if isinstance(value, str) and is_regex:
-        return f'Some(regex::RegexMode::new(r#"{value}"#)' if value else "None"
+        return f'Some(RegexMode::new(r#"{value}"#))' if value else "None"
     if isinstance(value, str):
         return f'Some("{value}")' if value else "None"
     elif isinstance(value, bool):

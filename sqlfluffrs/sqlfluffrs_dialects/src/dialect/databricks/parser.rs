@@ -25210,7 +25210,7 @@ Arc::new(Grammar::RegexParser {
     token_type: "data_type_identifier",
     raw_class: "CodeSegment",
     optional: false,
-    anti_template: Some(regex::RegexMode::new(r#"^(NOT)$"#),
+    anti_template: Some(RegexMode::new(r#"^(NOT)$"#)),
 })
 ,
 Arc::new(Grammar::Ref {
@@ -47299,7 +47299,7 @@ Arc::new(Grammar::RegexParser {
     token_type: "naked_identifier",
     raw_class: "IdentifierSegment",
     optional: false,
-    anti_template: Some(regex::RegexMode::new(r#"^(USING|CROSS|UNION|NATURAL|SEMI|EXCEPT|INTERSECT|RIGHT|ON|ANTI|JOIN|FULL|LATERAL|MINUS|INNER|LEFT)$"#),
+    anti_template: Some(RegexMode::new(r#"^(NATURAL|ON|MINUS|SEMI|ANTI|UNION|RIGHT|JOIN|INTERSECT|INNER|LEFT|EXCEPT|USING|FULL|LATERAL|CROSS)$"#)),
 })
 );
 

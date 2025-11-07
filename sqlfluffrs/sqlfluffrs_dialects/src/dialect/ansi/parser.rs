@@ -15364,7 +15364,7 @@ Arc::new(Grammar::RegexParser {
     token_type: "data_type_identifier",
     raw_class: "CodeSegment",
     optional: false,
-    anti_template: Some(regex::RegexMode::new(r#"^(NOT)$"#),
+    anti_template: Some(RegexMode::new(r#"^(NOT)$"#)),
 })
 ,
 Arc::new(Grammar::Ref {
@@ -30616,7 +30616,7 @@ Arc::new(Grammar::RegexParser {
     token_type: "naked_identifier",
     raw_class: "IdentifierSegment",
     optional: false,
-    anti_template: Some(regex::RegexMode::new(r#"^(CASE|USING|CROSS|PARTITION|UNION|ORDER|OUTER|NATURAL|NULL|RIGHT|SET|NOT|ON|SELECT|JOIN|FULL|INNER|INTERVAL|IGNORE|RESPECT|ROWS|LEFT)$"#),
+    anti_template: Some(RegexMode::new(r#"^(NATURAL|ON|ROWS|SELECT|SET|CASE|PARTITION|NULL|UNION|ORDER|RIGHT|JOIN|RESPECT|LEFT|INNER|USING|IGNORE|NOT|OUTER|FULL|INTERVAL|CROSS)$"#)),
 })
 );
 
