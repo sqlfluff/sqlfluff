@@ -572,12 +572,6 @@ impl Parser<'_> {
             stack.results.len(),
             initial_frame_id
         );
-        // Sort frame IDs for deterministic debug output
-        let mut sorted_frame_ids: Vec<_> = stack.results.keys().copied().collect();
-        sorted_frame_ids.sort_unstable();
-        for fid in sorted_frame_ids {
-            log::debug!("  Result frame_id={}", fid);
-        }
         if let Some((node, end_pos, _element_key)) = stack.results.get(&initial_frame_id) {
             log::debug!(
                 "DEBUG: Found result for frame_id={}, end_pos={}",
