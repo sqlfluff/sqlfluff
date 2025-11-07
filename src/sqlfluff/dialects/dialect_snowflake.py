@@ -1806,7 +1806,12 @@ class FromPivotExpressionSegment(BaseSegment):
             "IN",
             Bracketed(
                 OneOf(
-                    Delimited(Ref("LiteralGrammar")),
+                    Delimited(
+                        Sequence(
+                            Ref("LiteralGrammar"),
+                            Ref("AliasExpressionSegment", optional=True),
+                        )
+                    ),
                     Sequence("ANY", Ref("OrderByClauseSegment", optional=True)),
                     Ref("SelectStatementSegment"),
                 )
