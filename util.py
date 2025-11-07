@@ -11,6 +11,7 @@ NB: This is not part of the core sqlfluff code.
 import os
 import re
 import shutil
+import subprocess
 import time
 
 import click
@@ -72,6 +73,24 @@ def convert_pep440_to_semver(version: str) -> str:
 
     semver_pre_type = pre_type_map.get(pre_type, pre_type)
     return f"{base_version}-{semver_pre_type}.{pre_num}"
+
+
+def check_cargo_installed():
+    """Check if cargo is installed and available.
+
+    Returns:
+        bool: True if cargo is installed, False otherwise.
+    """
+    try:
+        result = subprocess.run(
+            ["cargo", "--version"],
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        return result.returncode == 0
+    except FileNotFoundError:
+        return False
 
 
 @cli.command()
@@ -260,6 +279,27 @@ def release(new_version_num):
             line = f'version = "{rust_version}"\n'
         write_file.write(line)
     write_file.close()
+
+    # Update Cargo.lock via `cargo check`
+    if check_cargo_installed():
+        click.echo("Running cargo check to update Cargo.lock...")
+        result = subprocess.run(
+            ["cargo", "check"],
+            cwd="sqlfluffrs",
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        if result.returncode == 0:
+            click.echo("✓ Rust cargo check complete")
+        else:
+            click.echo("✗ Rust cargo check failed:")
+            if result.stdout:
+                click.echo(result.stdout)
+            if result.stderr:
+                click.echo(result.stderr)
+    else:
+        click.echo("Error: cargo not installed, unable to update Cargo.lock")
 
     keys = ["version"]
     if not is_pre_release:
