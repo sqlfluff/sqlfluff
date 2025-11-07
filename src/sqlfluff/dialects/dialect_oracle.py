@@ -1387,7 +1387,7 @@ class ColumnDefinitionSegment(BaseSegment):
             AnyNumberOf(
                 Sequence(
                     Ref("ColumnConstraintSegment"),
-                    Ref.keyword("ENABLE", optional=True),
+                    OneOf("ENABLE", "DISABLE", optional=True),
                 )
             ),
             Sequence(
@@ -1406,6 +1406,7 @@ class ColumnDefinitionSegment(BaseSegment):
                 ),
                 AnyNumberOf(
                     Ref("ColumnConstraintSegment", optional=True),
+                    OneOf("ENABLE", "DISABLE", optional=True),
                 ),
                 Ref("IdentityClauseGrammar", optional=True),
             ),
