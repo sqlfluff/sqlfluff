@@ -2,7 +2,7 @@ use std::sync::Arc;
 
 use crate::parser::cache::CacheKey;
 
-use crate::parser::iterative::{ParseFrameStack, FrameResult};
+use crate::parser::iterative::{FrameResult, ParseFrameStack};
 use crate::parser::FrameContext;
 use crate::parser::FrameState;
 use crate::parser::Parser;
@@ -71,7 +71,7 @@ impl Parser<'_> {
     /// Handle Anything grammar in iterative parser
     pub fn handle_anything_initial(
         &mut self,
-        mut frame: ParseFrame,  // Take ownership
+        mut frame: ParseFrame, // Take ownership
         parent_terminators: &[Arc<Grammar>],
     ) -> Result<FrameResult, ParseError> {
         log::debug!(
@@ -428,7 +428,11 @@ impl Parser<'_> {
 
         self.parse_cache.put(
             cache_key,
-            Ok((final_node.clone(), result_pos, transparent_positions.clone())),
+            Ok((
+                final_node.clone(),
+                result_pos,
+                transparent_positions.clone(),
+            )),
         );
 
         log::debug!(
@@ -457,16 +461,18 @@ impl Parser<'_> {
         mut frame: ParseFrame,
     ) -> Result<FrameResult, ParseError> {
         let FrameContext::Ref {
-            grammar,
-            saved_pos,
-            ..
+            grammar, saved_pos, ..
         } = &frame.context
         else {
-            return Err(ParseError::new("Expected FrameContext::Ref in handle_ref_combining".to_string()));
+            return Err(ParseError::new(
+                "Expected FrameContext::Ref in handle_ref_combining".to_string(),
+            ));
         };
 
         let Grammar::Ref { name, .. } = grammar.as_ref() else {
-            return Err(ParseError::new("Expected Grammar::Ref in FrameContext::Ref".to_string()));
+            return Err(ParseError::new(
+                "Expected Grammar::Ref in FrameContext::Ref".to_string(),
+            ));
         };
 
         // Get the final node from accumulated (should be exactly one)

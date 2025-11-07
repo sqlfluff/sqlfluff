@@ -2,7 +2,6 @@
 ///
 /// This benchmark compares parse times for queries with varying lengths of delimited lists
 /// to quantify the actual performance impact of Rust's post-check terminator approach.
-
 use criterion::{criterion_group, criterion_main, BenchmarkId, Criterion};
 use sqlfluffrs_dialects::dialect::ansi::matcher::ANSI_LEXERS;
 use sqlfluffrs_dialects::Dialect;

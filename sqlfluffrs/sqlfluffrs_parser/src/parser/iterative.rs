@@ -152,9 +152,7 @@ impl Parser<'_> {
 
             Grammar::Missing => self.handle_missing_initial(),
 
-            Grammar::Anything => {
-                self.handle_anything_initial(frame, &terminators)
-            }
+            Grammar::Anything => self.handle_anything_initial(frame, &terminators),
 
             // Complex grammars - need special handling
             Grammar::Sequence { .. } => {
@@ -396,14 +394,12 @@ impl Parser<'_> {
 
                     // Delegate to specific handler based on grammar type
                     match &frame.context {
-                        FrameContext::Ref { .. } => {
-                            match self.handle_ref_combining(frame)? {
-                                FrameResult::Done => continue 'main_loop,
-                                FrameResult::Push(mut updated_frame) => {
-                                    stack.push(&mut updated_frame);
-                                }
+                        FrameContext::Ref { .. } => match self.handle_ref_combining(frame)? {
+                            FrameResult::Done => continue 'main_loop,
+                            FrameResult::Push(mut updated_frame) => {
+                                stack.push(&mut updated_frame);
                             }
-                        }
+                        },
                         FrameContext::Sequence { .. } => {
                             match self.handle_sequence_combining(frame, &mut stack)? {
                                 FrameResult::Done => continue 'main_loop,
@@ -936,7 +932,12 @@ impl Parser<'_> {
 
             match &mut frame.context {
                 FrameContext::Ref { .. } => {
-                    match self.handle_ref_waiting_for_child(frame, child_node, child_end_pos, stack)? {
+                    match self.handle_ref_waiting_for_child(
+                        frame,
+                        child_node,
+                        child_end_pos,
+                        stack,
+                    )? {
                         FrameResult::Done => {}
                         FrameResult::Push(mut updated_frame) => {
                             stack.push(&mut updated_frame);

@@ -1182,7 +1182,9 @@ impl<'a> Parser<'_> {
             ..
         } = &frame.context
         else {
-            return Err(ParseError::new("Expected Sequence context in handle_sequence_combining".to_string()));
+            return Err(ParseError::new(
+                "Expected Sequence context in handle_sequence_combining".to_string(),
+            ));
         };
 
         // Build the final result node from accumulated children

@@ -1,6 +1,5 @@
 use std::sync::Arc;
 
-
 use crate::parser::{FrameState, Node, ParseError, ParseFrame};
 use hashbrown::HashMap;
 use sqlfluffrs_types::Grammar;
@@ -12,7 +11,7 @@ impl Parser<'_> {
     pub fn handle_string_parser_initial(
         &mut self,
         grammar: Arc<Grammar>,
-        mut frame: ParseFrame,  // Take ownership
+        mut frame: ParseFrame, // Take ownership
         iteration_count: usize,
         results: &mut HashMap<usize, (Node, usize, Option<u64>)>,
     ) -> Result<crate::parser::iterative::FrameResult, ParseError> {
@@ -64,7 +63,10 @@ impl Parser<'_> {
                 // Transition to Complete state
                 frame.state = FrameState::Complete(node);
                 frame.end_pos = Some(self.pos);
-                log::debug!("🎯 StringParser set Complete state for frame {}", frame.frame_id);
+                log::debug!(
+                    "🎯 StringParser set Complete state for frame {}",
+                    frame.frame_id
+                );
                 Ok(crate::parser::iterative::FrameResult::Push(frame))
             }
             _ => {
@@ -83,7 +85,10 @@ impl Parser<'_> {
                 // Transition to Complete state with Empty
                 frame.state = FrameState::Complete(Node::Empty);
                 frame.end_pos = Some(self.pos);
-                log::debug!("🎯 StringParser set Complete(Empty) for frame {}", frame.frame_id);
+                log::debug!(
+                    "🎯 StringParser set Complete(Empty) for frame {}",
+                    frame.frame_id
+                );
                 Ok(crate::parser::iterative::FrameResult::Push(frame))
             }
         }
@@ -93,7 +98,7 @@ impl Parser<'_> {
     pub fn handle_multi_string_parser_initial(
         &mut self,
         grammar: Arc<Grammar>,
-        mut frame: ParseFrame,  // Take ownership
+        mut frame: ParseFrame, // Take ownership
         results: &mut HashMap<usize, (Node, usize, Option<u64>)>,
     ) -> Result<crate::parser::iterative::FrameResult, ParseError> {
         log::debug!(
@@ -150,7 +155,7 @@ impl Parser<'_> {
     pub fn handle_typed_parser_initial(
         &mut self,
         grammar: Arc<Grammar>,
-        mut frame: ParseFrame,  // Take ownership
+        mut frame: ParseFrame, // Take ownership
         results: &mut HashMap<usize, (Node, usize, Option<u64>)>,
     ) -> Result<crate::parser::iterative::FrameResult, ParseError> {
         log::debug!(
@@ -252,7 +257,7 @@ impl Parser<'_> {
     pub fn handle_regex_parser_initial(
         &mut self,
         grammar: Arc<Grammar>,
-        mut frame: ParseFrame,  // Take ownership
+        mut frame: ParseFrame, // Take ownership
         results: &mut HashMap<usize, (Node, usize, Option<u64>)>,
     ) -> Result<crate::parser::iterative::FrameResult, ParseError> {
         log::debug!(

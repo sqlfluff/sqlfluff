@@ -758,7 +758,10 @@ impl crate::parser::Parser<'_> {
         );
 
         // Extract delimiter_count from context to determine if we should return Empty or DelimitedList
-        let delimiter_count = if let FrameContext::Delimited { delimiter_count, .. } = &frame.context {
+        let delimiter_count = if let FrameContext::Delimited {
+            delimiter_count, ..
+        } = &frame.context
+        {
             *delimiter_count
         } else {
             0
