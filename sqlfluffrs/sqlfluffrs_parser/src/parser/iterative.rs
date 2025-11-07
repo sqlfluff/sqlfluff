@@ -774,13 +774,13 @@ impl Parser<'_> {
     fn build_grammar_path(frame: &ParseFrame, stack: &ParseFrameStack) -> String {
         let mut path_parts = Vec::new();
 
-        // Add the current frame's grammar
+        // Add the current frame's grammar first (most specific)
         path_parts.push(Self::grammar_name(frame.grammar.as_ref()));
 
-        // Walk up the stack to build the full path
+        // Walk up the stack to build the full path, adding ancestors in order
         // Stack is in reverse order (top of stack is most recent), so we iterate in reverse
         for ancestor_frame in stack.iter().rev() {
-            path_parts.insert(0, Self::grammar_name(ancestor_frame.grammar.as_ref()));
+            path_parts.push(Self::grammar_name(ancestor_frame.grammar.as_ref()));
         }
 
         path_parts.join(" -> ")
