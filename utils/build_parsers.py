@@ -14,7 +14,7 @@ from sqlfluff.core.parser.grammar.anyof import (
 )
 from sqlfluff.core.parser.grammar.base import Anything, BaseGrammar, Nothing, Ref
 from sqlfluff.core.parser.grammar.conditional import Conditional
-from sqlfluff.core.parser.grammar.delimited import Delimited
+from sqlfluff.core.parser.grammar.delimited import Delimited, OptionallyDelimited
 from sqlfluff.core.parser.grammar.sequence import Bracketed, Sequence
 from sqlfluff.core.parser.parsers import (
     MultiStringParser,
@@ -58,9 +58,9 @@ def generate_parser(dialect: str):
     segment_types = []
 
     # TODO: remove this if
-    if dialect in ("ansi", "bigquery"):
-        # if dialect not in ("snowflake", "tsql"):
-        # if True:
+    # if dialect in ("ansi", "bigquery"):
+    # if dialect not in ("snowflake", "tsql"):
+    if True:
         for name, match_grammar in sorted(loaded_dialect._library.items()):
             name = name.replace(" ", "_")
             segment_grammars.append(
@@ -194,7 +194,9 @@ def _to_rust_parser_grammar(match_grammar, parse_context):
     elif match_grammar.__class__ is Nothing:
         print("Arc::new(Grammar::Nothing())")
 
-    elif match_grammar.__class__ is Delimited and isinstance(match_grammar, Delimited):
+    elif match_grammar.__class__ in (Delimited, OptionallyDelimited) and isinstance(
+        match_grammar, Delimited
+    ):
         print("Arc::new(Grammar::Delimited {")
         print("    elements: vec![")
         for subgrammar in match_grammar._elements:
@@ -206,6 +208,9 @@ def _to_rust_parser_grammar(match_grammar, parse_context):
         print("    ),")
         print(f"    allow_trailing: {str(match_grammar.allow_trailing).lower()},")
         print(f"    optional: {str(match_grammar.is_optional()).lower()},")
+        print(
+            f"    optional_delimiter: {str(match_grammar.optional_delimiter).lower()},"
+        )
         print("    terminators: vec![")
         for term_grammar in match_grammar.terminators:
             _to_rust_parser_grammar(term_grammar, parse_context)

@@ -179,6 +179,7 @@ pub enum Grammar {
         delimiter: Box<Arc<Grammar>>,
         allow_trailing: bool,
         optional: bool,
+        optional_delimiter: bool, // If true, delimiters are optional (OptionallyDelimited)
         terminators: Vec<Arc<Grammar>>,
         reset_terminators: bool,
         allow_gaps: bool,

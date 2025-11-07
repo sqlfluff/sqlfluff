@@ -1351,6 +1351,7 @@ Arc::new(Grammar::Ref {
     ),
     allow_trailing: false,
     optional: false,
+    optional_delimiter: false,
     terminators: vec![
 Arc::new(Grammar::Ref {
     name: "OnKeywordSegment",
@@ -2630,6 +2631,7 @@ Arc::new(Grammar::Ref {
     ),
     allow_trailing: false,
     optional: false,
+    optional_delimiter: false,
     terminators: vec![
 Arc::new(Grammar::Ref {
     name: "ToKeywordSegment",
@@ -3043,6 +3045,7 @@ Arc::new(Grammar::Ref {
     ),
     allow_trailing: false,
     optional: false,
+    optional_delimiter: false,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -4706,6 +4709,7 @@ Arc::new(Grammar::Ref {
     ),
     allow_trailing: false,
     optional: false,
+    optional_delimiter: false,
     terminators: vec![
 Arc::new(Grammar::Ref {
     name: "OnKeywordSegment",
@@ -5985,6 +5989,7 @@ Arc::new(Grammar::Ref {
     ),
     allow_trailing: false,
     optional: false,
+    optional_delimiter: false,
     terminators: vec![
 Arc::new(Grammar::Ref {
     name: "ToKeywordSegment",
@@ -6360,6 +6365,7 @@ Arc::new(Grammar::Ref {
     ),
     allow_trailing: false,
     optional: false,
+    optional_delimiter: false,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -7603,6 +7609,7 @@ Arc::new(Grammar::Ref {
     ),
     allow_trailing: false,
     optional: false,
+    optional_delimiter: false,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -7938,6 +7945,7 @@ Arc::new(Grammar::Ref {
     ),
     allow_trailing: false,
     optional: false,
+    optional_delimiter: false,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -8031,6 +8039,7 @@ Arc::new(Grammar::Ref {
     ),
     allow_trailing: false,
     optional: true,
+    optional_delimiter: false,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -8982,6 +8991,7 @@ Arc::new(Grammar::Ref {
     ),
     allow_trailing: false,
     optional: true,
+    optional_delimiter: false,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -9058,6 +9068,7 @@ Arc::new(Grammar::Ref {
     ),
     allow_trailing: false,
     optional: false,
+    optional_delimiter: false,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -10150,6 +10161,7 @@ Arc::new(Grammar::Ref {
     ),
     allow_trailing: false,
     optional: false,
+    optional_delimiter: false,
     terminators: vec![
 Arc::new(Grammar::Ref {
     name: "ObjectReferenceTerminatorGrammar",
@@ -10862,6 +10874,7 @@ Arc::new(Grammar::Ref {
     ),
     allow_trailing: false,
     optional: false,
+    optional_delimiter: false,
     terminators: vec![
 Arc::new(Grammar::Ref {
     name: "ObjectReferenceTerminatorGrammar",
@@ -12356,6 +12369,7 @@ Arc::new(Grammar::Ref {
     ),
     allow_trailing: false,
     optional: false,
+    optional_delimiter: false,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -12601,6 +12615,7 @@ Arc::new(Grammar::Ref {
     ),
     allow_trailing: false,
     optional: false,
+    optional_delimiter: false,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -12683,6 +12698,7 @@ Arc::new(Grammar::Ref {
     ),
     allow_trailing: false,
     optional: false,
+    optional_delimiter: false,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -13456,6 +13472,7 @@ Arc::new(Grammar::Ref {
     ),
     allow_trailing: false,
     optional: false,
+    optional_delimiter: false,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -13930,6 +13947,7 @@ Arc::new(Grammar::Ref {
     ),
     allow_trailing: false,
     optional: false,
+    optional_delimiter: false,
     terminators: vec![
 Arc::new(Grammar::Ref {
     name: "OrKeywordSegment",
@@ -13998,6 +14016,7 @@ Arc::new(Grammar::Ref {
     ),
     allow_trailing: false,
     optional: false,
+    optional_delimiter: false,
     terminators: vec![
 Arc::new(Grammar::Ref {
     name: "OnKeywordSegment",
@@ -15303,6 +15322,7 @@ Arc::new(Grammar::Ref {
     ),
     allow_trailing: false,
     optional: false,
+    optional_delimiter: false,
     terminators: vec![
 Arc::new(Grammar::Ref {
     name: "ObjectReferenceTerminatorGrammar",
@@ -15830,6 +15850,7 @@ Arc::new(Grammar::Ref {
     ),
     allow_trailing: false,
     optional: false,
+    optional_delimiter: false,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -17536,6 +17557,7 @@ Arc::new(Grammar::Ref {
     ),
     allow_trailing: false,
     optional: false,
+    optional_delimiter: false,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -19506,6 +19528,7 @@ Arc::new(Grammar::Ref {
     ),
     allow_trailing: false,
     optional: false,
+    optional_delimiter: false,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -19689,6 +19712,7 @@ Arc::new(Grammar::Ref {
     ),
     allow_trailing: false,
     optional: false,
+    optional_delimiter: false,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -20071,6 +20095,7 @@ Arc::new(Grammar::Ref {
     ),
     allow_trailing: false,
     optional: false,
+    optional_delimiter: false,
     terminators: vec![
 Arc::new(Grammar::Ref {
     name: "ObjectReferenceTerminatorGrammar",
@@ -20499,6 +20524,7 @@ Arc::new(Grammar::Ref {
     ),
     allow_trailing: true,
     optional: false,
+    optional_delimiter: false,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -21639,6 +21665,7 @@ Arc::new(Grammar::Ref {
     ),
     allow_trailing: false,
     optional: false,
+    optional_delimiter: false,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -23554,6 +23581,7 @@ Arc::new(Grammar::Ref {
     ),
     allow_trailing: false,
     optional: false,
+    optional_delimiter: false,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -24333,6 +24361,7 @@ Arc::new(Grammar::Ref {
     ),
     allow_trailing: false,
     optional: true,
+    optional_delimiter: false,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -24922,6 +24951,7 @@ Arc::new(Grammar::Ref {
     ),
     allow_trailing: false,
     optional: false,
+    optional_delimiter: false,
     terminators: vec![
 Arc::new(Grammar::Ref {
     name: "GroupByClauseTerminatorGrammar",
@@ -25231,6 +25261,7 @@ Arc::new(Grammar::Ref {
     ),
     allow_trailing: false,
     optional: false,
+    optional_delimiter: false,
     terminators: vec![
 Arc::new(Grammar::Ref {
     name: "GroupByClauseTerminatorGrammar",
@@ -25355,6 +25386,7 @@ Arc::new(Grammar::Ref {
     ),
     allow_trailing: false,
     optional: false,
+    optional_delimiter: false,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -26171,6 +26203,7 @@ Arc::new(Grammar::Ref {
     ),
     allow_trailing: false,
     optional: false,
+    optional_delimiter: false,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -26422,6 +26455,7 @@ Arc::new(Grammar::Ref {
     ),
     allow_trailing: false,
     optional: false,
+    optional_delimiter: false,
     terminators: vec![
 Arc::new(Grammar::Ref {
     name: "ObjectReferenceTerminatorGrammar",
@@ -27923,6 +27957,7 @@ Arc::new(Grammar::Ref {
     ),
     allow_trailing: false,
     optional: false,
+    optional_delimiter: false,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -30586,7 +30621,7 @@ Arc::new(Grammar::RegexParser {
     token_type: "naked_identifier",
     raw_class: "IdentifierSegment",
     optional: false,
-    anti_template: Some(regex::RegexBuilder::new(r#"^(NULL|USING|SELECT|RIGHT|RESPECT|ROWS|OUTER|IGNORE|INTERVAL|CASE|NOT|LEFT|FULL|CROSS|NATURAL|ON|SET|INNER|JOIN|ORDER|UNION|PARTITION)$"#)         .case_insensitive(true)         .build()         .unwrap()     ),
+    anti_template: Some(regex::RegexBuilder::new(r#"^(USING|PARTITION|CROSS|ORDER|SELECT|RESPECT|RIGHT|NATURAL|ON|OUTER|NULL|IGNORE|NOT|SET|CASE|FULL|JOIN|INTERVAL|ROWS|INNER|UNION|LEFT)$"#)         .case_insensitive(true)         .build()         .unwrap()     ),
 })
 );
 
@@ -30761,6 +30796,7 @@ Arc::new(Grammar::Ref {
     ),
     allow_trailing: false,
     optional: false,
+    optional_delimiter: false,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -31909,6 +31945,7 @@ Arc::new(Grammar::Ref {
     ),
     allow_trailing: false,
     optional: true,
+    optional_delimiter: false,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -32063,6 +32100,7 @@ Arc::new(Grammar::Ref {
     ),
     allow_trailing: false,
     optional: false,
+    optional_delimiter: false,
     terminators: vec![
 Arc::new(Grammar::Ref {
     name: "ObjectReferenceTerminatorGrammar",
@@ -32945,6 +32983,7 @@ Arc::new(Grammar::Ref {
     ),
     allow_trailing: false,
     optional: false,
+    optional_delimiter: false,
     terminators: vec![
 Arc::new(Grammar::Ref {
     name: "LimitClauseSegment",
@@ -33779,6 +33818,7 @@ Arc::new(Grammar::Ref {
     ),
     allow_trailing: false,
     optional: false,
+    optional_delimiter: false,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -33850,6 +33890,7 @@ Arc::new(Grammar::Ref {
     ),
     allow_trailing: false,
     optional: false,
+    optional_delimiter: false,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -33974,6 +34015,7 @@ Arc::new(Grammar::Ref {
     ),
     allow_trailing: false,
     optional: false,
+    optional_delimiter: false,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -36120,6 +36162,7 @@ Arc::new(Grammar::Ref {
     ),
     allow_trailing: false,
     optional: false,
+    optional_delimiter: false,
     terminators: vec![
 Arc::new(Grammar::Ref {
     name: "ObjectReferenceTerminatorGrammar",
@@ -36437,6 +36480,7 @@ Arc::new(Grammar::Ref {
     ),
     allow_trailing: true,
     optional: false,
+    optional_delimiter: false,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -37389,6 +37433,7 @@ Arc::new(Grammar::Ref {
     ),
     allow_trailing: false,
     optional: false,
+    optional_delimiter: false,
     terminators: vec![
 Arc::new(Grammar::Ref {
     name: "ObjectReferenceTerminatorGrammar",
@@ -37522,6 +37567,7 @@ Arc::new(Grammar::Ref {
     ),
     allow_trailing: false,
     optional: false,
+    optional_delimiter: false,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -38454,6 +38500,7 @@ Arc::new(Grammar::Ref {
     ),
     allow_trailing: false,
     optional: false,
+    optional_delimiter: false,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -39737,6 +39784,7 @@ Arc::new(Grammar::Ref {
     ),
     allow_trailing: false,
     optional: false,
+    optional_delimiter: false,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -40371,6 +40419,7 @@ Arc::new(Grammar::Ref {
     ),
     allow_trailing: false,
     optional: false,
+    optional_delimiter: false,
     terminators: vec![
 Arc::new(Grammar::Ref {
     name: "ObjectReferenceTerminatorGrammar",
@@ -40466,6 +40515,7 @@ Arc::new(Grammar::Ref {
     ),
     allow_trailing: false,
     optional: false,
+    optional_delimiter: false,
     terminators: vec![
 Arc::new(Grammar::Ref {
     name: "ObjectReferenceTerminatorGrammar",
@@ -40521,6 +40571,7 @@ Arc::new(Grammar::Ref {
     ),
     allow_trailing: false,
     optional: false,
+    optional_delimiter: false,
     terminators: vec![
 Arc::new(Grammar::Ref {
     name: "ObjectReferenceTerminatorGrammar",
@@ -41688,6 +41739,7 @@ Arc::new(Grammar::Ref {
     ),
     allow_trailing: false,
     optional: false,
+    optional_delimiter: false,
     terminators: vec![
 Arc::new(Grammar::Ref {
     name: "ObjectReferenceTerminatorGrammar",
@@ -41954,6 +42006,7 @@ Arc::new(Grammar::Ref {
     ),
     allow_trailing: false,
     optional: false,
+    optional_delimiter: false,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -43193,6 +43246,7 @@ Arc::new(Grammar::Ref {
     ),
     allow_trailing: false,
     optional: false,
+    optional_delimiter: false,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -43264,6 +43318,7 @@ Arc::new(Grammar::Ref {
     ),
     allow_trailing: false,
     optional: false,
+    optional_delimiter: false,
     terminators: vec![
     ],
     reset_terminators: false,
@@ -44290,6 +44345,7 @@ Arc::new(Grammar::Ref {
     ),
     allow_trailing: true,
     optional: false,
+    optional_delimiter: false,
     terminators: vec![
 Arc::new(Grammar::Ref {
     name: "SelectKeywordSegment",
@@ -44409,6 +44465,7 @@ Arc::new(Grammar::Ref {
     ),
     allow_trailing: true,
     optional: false,
+    optional_delimiter: false,
     terminators: vec![
 Arc::new(Grammar::Ref {
     name: "SelectKeywordSegment",

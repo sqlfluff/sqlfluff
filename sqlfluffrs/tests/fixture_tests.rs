@@ -624,6 +624,1540 @@ fn test_bigquery_fixtures() {
 }
 
 #[test]
+fn test_athena_fixtures() {
+    env_logger::try_init().ok();
+
+    let fixtures_root = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+        .parent()
+        .unwrap()
+        .join("test/fixtures");
+
+    let tests = FixtureTest::discover("athena", &fixtures_root);
+    println!("\nFound {} athena fixture tests", tests.len());
+
+    if tests.is_empty() {
+        println!("No athena fixtures found - skipping test");
+        return;
+    }
+
+    let mut passed = 0;
+    let mut failed = 0;
+    let mut failed_tests = Vec::new();
+
+    for test in &tests {
+        println!("Running test: {}", test.name);
+        match test.run() {
+            Ok(_ast) => {
+                passed += 1;
+                println!("✓ {}", test.name);
+            }
+            Err(e) => {
+                failed += 1;
+                let error = e.to_string();
+                let error_short = if error.len() > 100 {
+                    format!("{}...", &error[..100])
+                } else {
+                    error
+                };
+                failed_tests.push((&test.name, error_short));
+                println!("✗ {} - {}", test.name, failed_tests.last().unwrap().1);
+            }
+        }
+    }
+
+    println!("\n========================================");
+    println!("Results: {} passed, {} failed", passed, failed);
+    println!(
+        "Pass rate: {:.1}%",
+        (passed as f64 / tests.len() as f64) * 100.0
+    );
+    println!("========================================\n");
+
+    if !failed_tests.is_empty() {
+        println!("Failed tests:");
+        for (name, error) in &failed_tests {
+            println!("  {} - {}", name, error);
+        }
+        panic!("Some athena fixture tests failed");
+    }
+}
+
+#[test]
+fn test_clickhouse_fixtures() {
+    env_logger::try_init().ok();
+
+    let fixtures_root = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+        .parent()
+        .unwrap()
+        .join("test/fixtures");
+
+    let tests = FixtureTest::discover("clickhouse", &fixtures_root);
+    println!("\nFound {} clickhouse fixture tests", tests.len());
+
+    if tests.is_empty() {
+        println!("No clickhouse fixtures found - skipping test");
+        return;
+    }
+
+    let mut passed = 0;
+    let mut failed = 0;
+    let mut failed_tests = Vec::new();
+
+    for test in &tests {
+        println!("Running test: {}", test.name);
+        match test.run() {
+            Ok(_ast) => {
+                passed += 1;
+                println!("✓ {}", test.name);
+            }
+            Err(e) => {
+                failed += 1;
+                let error = e.to_string();
+                let error_short = if error.len() > 100 {
+                    format!("{}...", &error[..100])
+                } else {
+                    error
+                };
+                failed_tests.push((&test.name, error_short));
+                println!("✗ {} - {}", test.name, failed_tests.last().unwrap().1);
+            }
+        }
+    }
+
+    println!("\n========================================");
+    println!("Results: {} passed, {} failed", passed, failed);
+    println!(
+        "Pass rate: {:.1}%",
+        (passed as f64 / tests.len() as f64) * 100.0
+    );
+    println!("========================================\n");
+
+    if !failed_tests.is_empty() {
+        println!("Failed tests:");
+        for (name, error) in &failed_tests {
+            println!("  {} - {}", name, error);
+        }
+        panic!("Some clickhouse fixture tests failed");
+    }
+}
+
+#[test]
+fn test_databricks_fixtures() {
+    env_logger::try_init().ok();
+
+    let fixtures_root = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+        .parent()
+        .unwrap()
+        .join("test/fixtures");
+
+    let tests = FixtureTest::discover("databricks", &fixtures_root);
+    println!("\nFound {} databricks fixture tests", tests.len());
+
+    if tests.is_empty() {
+        println!("No databricks fixtures found - skipping test");
+        return;
+    }
+
+    let mut passed = 0;
+    let mut failed = 0;
+    let mut failed_tests = Vec::new();
+
+    for test in &tests {
+        println!("Running test: {}", test.name);
+        match test.run() {
+            Ok(_ast) => {
+                passed += 1;
+                println!("✓ {}", test.name);
+            }
+            Err(e) => {
+                failed += 1;
+                let error = e.to_string();
+                let error_short = if error.len() > 100 {
+                    format!("{}...", &error[..100])
+                } else {
+                    error
+                };
+                failed_tests.push((&test.name, error_short));
+                println!("✗ {} - {}", test.name, failed_tests.last().unwrap().1);
+            }
+        }
+    }
+
+    println!("\n========================================");
+    println!("Results: {} passed, {} failed", passed, failed);
+    println!(
+        "Pass rate: {:.1}%",
+        (passed as f64 / tests.len() as f64) * 100.0
+    );
+    println!("========================================\n");
+
+    if !failed_tests.is_empty() {
+        println!("Failed tests:");
+        for (name, error) in &failed_tests {
+            println!("  {} - {}", name, error);
+        }
+        panic!("Some databricks fixture tests failed");
+    }
+}
+
+#[test]
+fn test_db2_fixtures() {
+    env_logger::try_init().ok();
+
+    let fixtures_root = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+        .parent()
+        .unwrap()
+        .join("test/fixtures");
+
+    let tests = FixtureTest::discover("db2", &fixtures_root);
+    println!("\nFound {} db2 fixture tests", tests.len());
+
+    if tests.is_empty() {
+        println!("No db2 fixtures found - skipping test");
+        return;
+    }
+
+    let mut passed = 0;
+    let mut failed = 0;
+    let mut failed_tests = Vec::new();
+
+    for test in &tests {
+        println!("Running test: {}", test.name);
+        match test.run() {
+            Ok(_ast) => {
+                passed += 1;
+                println!("✓ {}", test.name);
+            }
+            Err(e) => {
+                failed += 1;
+                let error = e.to_string();
+                let error_short = if error.len() > 100 {
+                    format!("{}...", &error[..100])
+                } else {
+                    error
+                };
+                failed_tests.push((&test.name, error_short));
+                println!("✗ {} - {}", test.name, failed_tests.last().unwrap().1);
+            }
+        }
+    }
+
+    println!("\n========================================");
+    println!("Results: {} passed, {} failed", passed, failed);
+    println!(
+        "Pass rate: {:.1}%",
+        (passed as f64 / tests.len() as f64) * 100.0
+    );
+    println!("========================================\n");
+
+    if !failed_tests.is_empty() {
+        println!("Failed tests:");
+        for (name, error) in &failed_tests {
+            println!("  {} - {}", name, error);
+        }
+        panic!("Some db2 fixture tests failed");
+    }
+}
+
+#[test]
+fn test_doris_fixtures() {
+    env_logger::try_init().ok();
+
+    let fixtures_root = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+        .parent()
+        .unwrap()
+        .join("test/fixtures");
+
+    let tests = FixtureTest::discover("doris", &fixtures_root);
+    println!("\nFound {} doris fixture tests", tests.len());
+
+    if tests.is_empty() {
+        println!("No doris fixtures found - skipping test");
+        return;
+    }
+
+    let mut passed = 0;
+    let mut failed = 0;
+    let mut failed_tests = Vec::new();
+
+    for test in &tests {
+        println!("Running test: {}", test.name);
+        match test.run() {
+            Ok(_ast) => {
+                passed += 1;
+                println!("✓ {}", test.name);
+            }
+            Err(e) => {
+                failed += 1;
+                let error = e.to_string();
+                let error_short = if error.len() > 100 {
+                    format!("{}...", &error[..100])
+                } else {
+                    error
+                };
+                failed_tests.push((&test.name, error_short));
+                println!("✗ {} - {}", test.name, failed_tests.last().unwrap().1);
+            }
+        }
+    }
+
+    println!("\n========================================");
+    println!("Results: {} passed, {} failed", passed, failed);
+    println!(
+        "Pass rate: {:.1}%",
+        (passed as f64 / tests.len() as f64) * 100.0
+    );
+    println!("========================================\n");
+
+    if !failed_tests.is_empty() {
+        println!("Failed tests:");
+        for (name, error) in &failed_tests {
+            println!("  {} - {}", name, error);
+        }
+        panic!("Some doris fixture tests failed");
+    }
+}
+
+#[test]
+fn test_duckdb_fixtures() {
+    env_logger::try_init().ok();
+
+    let fixtures_root = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+        .parent()
+        .unwrap()
+        .join("test/fixtures");
+
+    let tests = FixtureTest::discover("duckdb", &fixtures_root);
+    println!("\nFound {} duckdb fixture tests", tests.len());
+
+    if tests.is_empty() {
+        println!("No duckdb fixtures found - skipping test");
+        return;
+    }
+
+    let mut passed = 0;
+    let mut failed = 0;
+    let mut failed_tests = Vec::new();
+
+    for test in &tests {
+        println!("Running test: {}", test.name);
+        match test.run() {
+            Ok(_ast) => {
+                passed += 1;
+                println!("✓ {}", test.name);
+            }
+            Err(e) => {
+                failed += 1;
+                let error = e.to_string();
+                let error_short = if error.len() > 100 {
+                    format!("{}...", &error[..100])
+                } else {
+                    error
+                };
+                failed_tests.push((&test.name, error_short));
+                println!("✗ {} - {}", test.name, failed_tests.last().unwrap().1);
+            }
+        }
+    }
+
+    println!("\n========================================");
+    println!("Results: {} passed, {} failed", passed, failed);
+    println!(
+        "Pass rate: {:.1}%",
+        (passed as f64 / tests.len() as f64) * 100.0
+    );
+    println!("========================================\n");
+
+    if !failed_tests.is_empty() {
+        println!("Failed tests:");
+        for (name, error) in &failed_tests {
+            println!("  {} - {}", name, error);
+        }
+        panic!("Some duckdb fixture tests failed");
+    }
+}
+
+#[test]
+fn test_exasol_fixtures() {
+    env_logger::try_init().ok();
+
+    let fixtures_root = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+        .parent()
+        .unwrap()
+        .join("test/fixtures");
+
+    let tests = FixtureTest::discover("exasol", &fixtures_root);
+    println!("\nFound {} exasol fixture tests", tests.len());
+
+    if tests.is_empty() {
+        println!("No exasol fixtures found - skipping test");
+        return;
+    }
+
+    let mut passed = 0;
+    let mut failed = 0;
+    let mut failed_tests = Vec::new();
+
+    for test in &tests {
+        println!("Running test: {}", test.name);
+        match test.run() {
+            Ok(_ast) => {
+                passed += 1;
+                println!("✓ {}", test.name);
+            }
+            Err(e) => {
+                failed += 1;
+                let error = e.to_string();
+                let error_short = if error.len() > 100 {
+                    format!("{}...", &error[..100])
+                } else {
+                    error
+                };
+                failed_tests.push((&test.name, error_short));
+                println!("✗ {} - {}", test.name, failed_tests.last().unwrap().1);
+            }
+        }
+    }
+
+    println!("\n========================================");
+    println!("Results: {} passed, {} failed", passed, failed);
+    println!(
+        "Pass rate: {:.1}%",
+        (passed as f64 / tests.len() as f64) * 100.0
+    );
+    println!("========================================\n");
+
+    if !failed_tests.is_empty() {
+        println!("Failed tests:");
+        for (name, error) in &failed_tests {
+            println!("  {} - {}", name, error);
+        }
+        panic!("Some exasol fixture tests failed");
+    }
+}
+
+#[test]
+fn test_flink_fixtures() {
+    env_logger::try_init().ok();
+
+    let fixtures_root = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+        .parent()
+        .unwrap()
+        .join("test/fixtures");
+
+    let tests = FixtureTest::discover("flink", &fixtures_root);
+    println!("\nFound {} flink fixture tests", tests.len());
+
+    if tests.is_empty() {
+        println!("No flink fixtures found - skipping test");
+        return;
+    }
+
+    let mut passed = 0;
+    let mut failed = 0;
+    let mut failed_tests = Vec::new();
+
+    for test in &tests {
+        println!("Running test: {}", test.name);
+        match test.run() {
+            Ok(_ast) => {
+                passed += 1;
+                println!("✓ {}", test.name);
+            }
+            Err(e) => {
+                failed += 1;
+                let error = e.to_string();
+                let error_short = if error.len() > 100 {
+                    format!("{}...", &error[..100])
+                } else {
+                    error
+                };
+                failed_tests.push((&test.name, error_short));
+                println!("✗ {} - {}", test.name, failed_tests.last().unwrap().1);
+            }
+        }
+    }
+
+    println!("\n========================================");
+    println!("Results: {} passed, {} failed", passed, failed);
+    println!(
+        "Pass rate: {:.1}%",
+        (passed as f64 / tests.len() as f64) * 100.0
+    );
+    println!("========================================\n");
+
+    if !failed_tests.is_empty() {
+        println!("Failed tests:");
+        for (name, error) in &failed_tests {
+            println!("  {} - {}", name, error);
+        }
+        panic!("Some flink fixture tests failed");
+    }
+}
+
+#[test]
+fn test_greenplum_fixtures() {
+    env_logger::try_init().ok();
+
+    let fixtures_root = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+        .parent()
+        .unwrap()
+        .join("test/fixtures");
+
+    let tests = FixtureTest::discover("greenplum", &fixtures_root);
+    println!("\nFound {} greenplum fixture tests", tests.len());
+
+    if tests.is_empty() {
+        println!("No greenplum fixtures found - skipping test");
+        return;
+    }
+
+    let mut passed = 0;
+    let mut failed = 0;
+    let mut failed_tests = Vec::new();
+
+    for test in &tests {
+        println!("Running test: {}", test.name);
+        match test.run() {
+            Ok(_ast) => {
+                passed += 1;
+                println!("✓ {}", test.name);
+            }
+            Err(e) => {
+                failed += 1;
+                let error = e.to_string();
+                let error_short = if error.len() > 100 {
+                    format!("{}...", &error[..100])
+                } else {
+                    error
+                };
+                failed_tests.push((&test.name, error_short));
+                println!("✗ {} - {}", test.name, failed_tests.last().unwrap().1);
+            }
+        }
+    }
+
+    println!("\n========================================");
+    println!("Results: {} passed, {} failed", passed, failed);
+    println!(
+        "Pass rate: {:.1}%",
+        (passed as f64 / tests.len() as f64) * 100.0
+    );
+    println!("========================================\n");
+
+    if !failed_tests.is_empty() {
+        println!("Failed tests:");
+        for (name, error) in &failed_tests {
+            println!("  {} - {}", name, error);
+        }
+        panic!("Some greenplum fixture tests failed");
+    }
+}
+
+#[test]
+fn test_hive_fixtures() {
+    env_logger::try_init().ok();
+
+    let fixtures_root = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+        .parent()
+        .unwrap()
+        .join("test/fixtures");
+
+    let tests = FixtureTest::discover("hive", &fixtures_root);
+    println!("\nFound {} hive fixture tests", tests.len());
+
+    if tests.is_empty() {
+        println!("No hive fixtures found - skipping test");
+        return;
+    }
+
+    let mut passed = 0;
+    let mut failed = 0;
+    let mut failed_tests = Vec::new();
+
+    for test in &tests {
+        println!("Running test: {}", test.name);
+        match test.run() {
+            Ok(_ast) => {
+                passed += 1;
+                println!("✓ {}", test.name);
+            }
+            Err(e) => {
+                failed += 1;
+                let error = e.to_string();
+                let error_short = if error.len() > 100 {
+                    format!("{}...", &error[..100])
+                } else {
+                    error
+                };
+                failed_tests.push((&test.name, error_short));
+                println!("✗ {} - {}", test.name, failed_tests.last().unwrap().1);
+            }
+        }
+    }
+
+    println!("\n========================================");
+    println!("Results: {} passed, {} failed", passed, failed);
+    println!(
+        "Pass rate: {:.1}%",
+        (passed as f64 / tests.len() as f64) * 100.0
+    );
+    println!("========================================\n");
+
+    if !failed_tests.is_empty() {
+        println!("Failed tests:");
+        for (name, error) in &failed_tests {
+            println!("  {} - {}", name, error);
+        }
+        panic!("Some hive fixture tests failed");
+    }
+}
+
+#[test]
+fn test_impala_fixtures() {
+    env_logger::try_init().ok();
+
+    let fixtures_root = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+        .parent()
+        .unwrap()
+        .join("test/fixtures");
+
+    let tests = FixtureTest::discover("impala", &fixtures_root);
+    println!("\nFound {} impala fixture tests", tests.len());
+
+    if tests.is_empty() {
+        println!("No impala fixtures found - skipping test");
+        return;
+    }
+
+    let mut passed = 0;
+    let mut failed = 0;
+    let mut failed_tests = Vec::new();
+
+    for test in &tests {
+        println!("Running test: {}", test.name);
+        match test.run() {
+            Ok(_ast) => {
+                passed += 1;
+                println!("✓ {}", test.name);
+            }
+            Err(e) => {
+                failed += 1;
+                let error = e.to_string();
+                let error_short = if error.len() > 100 {
+                    format!("{}...", &error[..100])
+                } else {
+                    error
+                };
+                failed_tests.push((&test.name, error_short));
+                println!("✗ {} - {}", test.name, failed_tests.last().unwrap().1);
+            }
+        }
+    }
+
+    println!("\n========================================");
+    println!("Results: {} passed, {} failed", passed, failed);
+    println!(
+        "Pass rate: {:.1}%",
+        (passed as f64 / tests.len() as f64) * 100.0
+    );
+    println!("========================================\n");
+
+    if !failed_tests.is_empty() {
+        println!("Failed tests:");
+        for (name, error) in &failed_tests {
+            println!("  {} - {}", name, error);
+        }
+        panic!("Some impala fixture tests failed");
+    }
+}
+
+#[test]
+fn test_mariadb_fixtures() {
+    env_logger::try_init().ok();
+
+    let fixtures_root = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+        .parent()
+        .unwrap()
+        .join("test/fixtures");
+
+    let tests = FixtureTest::discover("mariadb", &fixtures_root);
+    println!("\nFound {} mariadb fixture tests", tests.len());
+
+    if tests.is_empty() {
+        println!("No mariadb fixtures found - skipping test");
+        return;
+    }
+
+    let mut passed = 0;
+    let mut failed = 0;
+    let mut failed_tests = Vec::new();
+
+    for test in &tests {
+        println!("Running test: {}", test.name);
+        match test.run() {
+            Ok(_ast) => {
+                passed += 1;
+                println!("✓ {}", test.name);
+            }
+            Err(e) => {
+                failed += 1;
+                let error = e.to_string();
+                let error_short = if error.len() > 100 {
+                    format!("{}...", &error[..100])
+                } else {
+                    error
+                };
+                failed_tests.push((&test.name, error_short));
+                println!("✗ {} - {}", test.name, failed_tests.last().unwrap().1);
+            }
+        }
+    }
+
+    println!("\n========================================");
+    println!("Results: {} passed, {} failed", passed, failed);
+    println!(
+        "Pass rate: {:.1}%",
+        (passed as f64 / tests.len() as f64) * 100.0
+    );
+    println!("========================================\n");
+
+    if !failed_tests.is_empty() {
+        println!("Failed tests:");
+        for (name, error) in &failed_tests {
+            println!("  {} - {}", name, error);
+        }
+        panic!("Some mariadb fixture tests failed");
+    }
+}
+
+#[test]
+fn test_materialize_fixtures() {
+    env_logger::try_init().ok();
+
+    let fixtures_root = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+        .parent()
+        .unwrap()
+        .join("test/fixtures");
+
+    let tests = FixtureTest::discover("materialize", &fixtures_root);
+    println!("\nFound {} materialize fixture tests", tests.len());
+
+    if tests.is_empty() {
+        println!("No materialize fixtures found - skipping test");
+        return;
+    }
+
+    let mut passed = 0;
+    let mut failed = 0;
+    let mut failed_tests = Vec::new();
+
+    for test in &tests {
+        println!("Running test: {}", test.name);
+        match test.run() {
+            Ok(_ast) => {
+                passed += 1;
+                println!("✓ {}", test.name);
+            }
+            Err(e) => {
+                failed += 1;
+                let error = e.to_string();
+                let error_short = if error.len() > 100 {
+                    format!("{}...", &error[..100])
+                } else {
+                    error
+                };
+                failed_tests.push((&test.name, error_short));
+                println!("✗ {} - {}", test.name, failed_tests.last().unwrap().1);
+            }
+        }
+    }
+
+    println!("\n========================================");
+    println!("Results: {} passed, {} failed", passed, failed);
+    println!(
+        "Pass rate: {:.1}%",
+        (passed as f64 / tests.len() as f64) * 100.0
+    );
+    println!("========================================\n");
+
+    if !failed_tests.is_empty() {
+        println!("Failed tests:");
+        for (name, error) in &failed_tests {
+            println!("  {} - {}", name, error);
+        }
+        panic!("Some materialize fixture tests failed");
+    }
+}
+
+#[test]
+fn test_mysql_fixtures() {
+    env_logger::try_init().ok();
+
+    let fixtures_root = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+        .parent()
+        .unwrap()
+        .join("test/fixtures");
+
+    let tests = FixtureTest::discover("mysql", &fixtures_root);
+    println!("\nFound {} mysql fixture tests", tests.len());
+
+    if tests.is_empty() {
+        println!("No mysql fixtures found - skipping test");
+        return;
+    }
+
+    let mut passed = 0;
+    let mut failed = 0;
+    let mut failed_tests = Vec::new();
+
+    for test in &tests {
+        println!("Running test: {}", test.name);
+        match test.run() {
+            Ok(_ast) => {
+                passed += 1;
+                println!("✓ {}", test.name);
+            }
+            Err(e) => {
+                failed += 1;
+                let error = e.to_string();
+                let error_short = if error.len() > 100 {
+                    format!("{}...", &error[..100])
+                } else {
+                    error
+                };
+                failed_tests.push((&test.name, error_short));
+                println!("✗ {} - {}", test.name, failed_tests.last().unwrap().1);
+            }
+        }
+    }
+
+    println!("\n========================================");
+    println!("Results: {} passed, {} failed", passed, failed);
+    println!(
+        "Pass rate: {:.1}%",
+        (passed as f64 / tests.len() as f64) * 100.0
+    );
+    println!("========================================\n");
+
+    if !failed_tests.is_empty() {
+        println!("Failed tests:");
+        for (name, error) in &failed_tests {
+            println!("  {} - {}", name, error);
+        }
+        panic!("Some mysql fixture tests failed");
+    }
+}
+
+#[test]
+fn test_oracle_fixtures() {
+    env_logger::try_init().ok();
+
+    let fixtures_root = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+        .parent()
+        .unwrap()
+        .join("test/fixtures");
+
+    let tests = FixtureTest::discover("oracle", &fixtures_root);
+    println!("\nFound {} oracle fixture tests", tests.len());
+
+    if tests.is_empty() {
+        println!("No oracle fixtures found - skipping test");
+        return;
+    }
+
+    let mut passed = 0;
+    let mut failed = 0;
+    let mut failed_tests = Vec::new();
+
+    for test in &tests {
+        println!("Running test: {}", test.name);
+        match test.run() {
+            Ok(_ast) => {
+                passed += 1;
+                println!("✓ {}", test.name);
+            }
+            Err(e) => {
+                failed += 1;
+                let error = e.to_string();
+                let error_short = if error.len() > 100 {
+                    format!("{}...", &error[..100])
+                } else {
+                    error
+                };
+                failed_tests.push((&test.name, error_short));
+                println!("✗ {} - {}", test.name, failed_tests.last().unwrap().1);
+            }
+        }
+    }
+
+    println!("\n========================================");
+    println!("Results: {} passed, {} failed", passed, failed);
+    println!(
+        "Pass rate: {:.1}%",
+        (passed as f64 / tests.len() as f64) * 100.0
+    );
+    println!("========================================\n");
+
+    if !failed_tests.is_empty() {
+        println!("Failed tests:");
+        for (name, error) in &failed_tests {
+            println!("  {} - {}", name, error);
+        }
+        panic!("Some oracle fixture tests failed");
+    }
+}
+
+#[test]
+fn test_postgres_fixtures() {
+    env_logger::try_init().ok();
+
+    let fixtures_root = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+        .parent()
+        .unwrap()
+        .join("test/fixtures");
+
+    let tests = FixtureTest::discover("postgres", &fixtures_root);
+    println!("\nFound {} postgres fixture tests", tests.len());
+
+    if tests.is_empty() {
+        println!("No postgres fixtures found - skipping test");
+        return;
+    }
+
+    let mut passed = 0;
+    let mut failed = 0;
+    let mut failed_tests = Vec::new();
+
+    for test in &tests {
+        println!("Running test: {}", test.name);
+        match test.run() {
+            Ok(_ast) => {
+                passed += 1;
+                println!("✓ {}", test.name);
+            }
+            Err(e) => {
+                failed += 1;
+                let error = e.to_string();
+                let error_short = if error.len() > 100 {
+                    format!("{}...", &error[..100])
+                } else {
+                    error
+                };
+                failed_tests.push((&test.name, error_short));
+                println!("✗ {} - {}", test.name, failed_tests.last().unwrap().1);
+            }
+        }
+    }
+
+    println!("\n========================================");
+    println!("Results: {} passed, {} failed", passed, failed);
+    println!(
+        "Pass rate: {:.1}%",
+        (passed as f64 / tests.len() as f64) * 100.0
+    );
+    println!("========================================\n");
+
+    if !failed_tests.is_empty() {
+        println!("Failed tests:");
+        for (name, error) in &failed_tests {
+            println!("  {} - {}", name, error);
+        }
+        panic!("Some postgres fixture tests failed");
+    }
+}
+
+#[test]
+fn test_redshift_fixtures() {
+    env_logger::try_init().ok();
+
+    let fixtures_root = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+        .parent()
+        .unwrap()
+        .join("test/fixtures");
+
+    let tests = FixtureTest::discover("redshift", &fixtures_root);
+    println!("\nFound {} redshift fixture tests", tests.len());
+
+    if tests.is_empty() {
+        println!("No redshift fixtures found - skipping test");
+        return;
+    }
+
+    let mut passed = 0;
+    let mut failed = 0;
+    let mut failed_tests = Vec::new();
+
+    for test in &tests {
+        println!("Running test: {}", test.name);
+        match test.run() {
+            Ok(_ast) => {
+                passed += 1;
+                println!("✓ {}", test.name);
+            }
+            Err(e) => {
+                failed += 1;
+                let error = e.to_string();
+                let error_short = if error.len() > 100 {
+                    format!("{}...", &error[..100])
+                } else {
+                    error
+                };
+                failed_tests.push((&test.name, error_short));
+                println!("✗ {} - {}", test.name, failed_tests.last().unwrap().1);
+            }
+        }
+    }
+
+    println!("\n========================================");
+    println!("Results: {} passed, {} failed", passed, failed);
+    println!(
+        "Pass rate: {:.1}%",
+        (passed as f64 / tests.len() as f64) * 100.0
+    );
+    println!("========================================\n");
+
+    if !failed_tests.is_empty() {
+        println!("Failed tests:");
+        for (name, error) in &failed_tests {
+            println!("  {} - {}", name, error);
+        }
+        panic!("Some redshift fixture tests failed");
+    }
+}
+
+#[test]
+fn test_snowflake_fixtures() {
+    env_logger::try_init().ok();
+
+    let fixtures_root = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+        .parent()
+        .unwrap()
+        .join("test/fixtures");
+
+    let tests = FixtureTest::discover("snowflake", &fixtures_root);
+    println!("\nFound {} snowflake fixture tests", tests.len());
+
+    if tests.is_empty() {
+        println!("No snowflake fixtures found - skipping test");
+        return;
+    }
+
+    let mut passed = 0;
+    let mut failed = 0;
+    let mut failed_tests = Vec::new();
+
+    for test in &tests {
+        println!("Running test: {}", test.name);
+        match test.run() {
+            Ok(_ast) => {
+                passed += 1;
+                println!("✓ {}", test.name);
+            }
+            Err(e) => {
+                failed += 1;
+                let error = e.to_string();
+                let error_short = if error.len() > 100 {
+                    format!("{}...", &error[..100])
+                } else {
+                    error
+                };
+                failed_tests.push((&test.name, error_short));
+                println!("✗ {} - {}", test.name, failed_tests.last().unwrap().1);
+            }
+        }
+    }
+
+    println!("\n========================================");
+    println!("Results: {} passed, {} failed", passed, failed);
+    println!(
+        "Pass rate: {:.1}%",
+        (passed as f64 / tests.len() as f64) * 100.0
+    );
+    println!("========================================\n");
+
+    if !failed_tests.is_empty() {
+        println!("Failed tests:");
+        for (name, error) in &failed_tests {
+            println!("  {} - {}", name, error);
+        }
+        panic!("Some snowflake fixture tests failed");
+    }
+}
+
+#[test]
+fn test_soql_fixtures() {
+    env_logger::try_init().ok();
+
+    let fixtures_root = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+        .parent()
+        .unwrap()
+        .join("test/fixtures");
+
+    let tests = FixtureTest::discover("soql", &fixtures_root);
+    println!("\nFound {} soql fixture tests", tests.len());
+
+    if tests.is_empty() {
+        println!("No soql fixtures found - skipping test");
+        return;
+    }
+
+    let mut passed = 0;
+    let mut failed = 0;
+    let mut failed_tests = Vec::new();
+
+    for test in &tests {
+        println!("Running test: {}", test.name);
+        match test.run() {
+            Ok(_ast) => {
+                passed += 1;
+                println!("✓ {}", test.name);
+            }
+            Err(e) => {
+                failed += 1;
+                let error = e.to_string();
+                let error_short = if error.len() > 100 {
+                    format!("{}...", &error[..100])
+                } else {
+                    error
+                };
+                failed_tests.push((&test.name, error_short));
+                println!("✗ {} - {}", test.name, failed_tests.last().unwrap().1);
+            }
+        }
+    }
+
+    println!("\n========================================");
+    println!("Results: {} passed, {} failed", passed, failed);
+    println!(
+        "Pass rate: {:.1}%",
+        (passed as f64 / tests.len() as f64) * 100.0
+    );
+    println!("========================================\n");
+
+    if !failed_tests.is_empty() {
+        println!("Failed tests:");
+        for (name, error) in &failed_tests {
+            println!("  {} - {}", name, error);
+        }
+        panic!("Some soql fixture tests failed");
+    }
+}
+
+#[test]
+fn test_sparksql_fixtures() {
+    env_logger::try_init().ok();
+
+    let fixtures_root = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+        .parent()
+        .unwrap()
+        .join("test/fixtures");
+
+    let tests = FixtureTest::discover("sparksql", &fixtures_root);
+    println!("\nFound {} sparksql fixture tests", tests.len());
+
+    if tests.is_empty() {
+        println!("No sparksql fixtures found - skipping test");
+        return;
+    }
+
+    let mut passed = 0;
+    let mut failed = 0;
+    let mut failed_tests = Vec::new();
+
+    for test in &tests {
+        println!("Running test: {}", test.name);
+        match test.run() {
+            Ok(_ast) => {
+                passed += 1;
+                println!("✓ {}", test.name);
+            }
+            Err(e) => {
+                failed += 1;
+                let error = e.to_string();
+                let error_short = if error.len() > 100 {
+                    format!("{}...", &error[..100])
+                } else {
+                    error
+                };
+                failed_tests.push((&test.name, error_short));
+                println!("✗ {} - {}", test.name, failed_tests.last().unwrap().1);
+            }
+        }
+    }
+
+    println!("\n========================================");
+    println!("Results: {} passed, {} failed", passed, failed);
+    println!(
+        "Pass rate: {:.1}%",
+        (passed as f64 / tests.len() as f64) * 100.0
+    );
+    println!("========================================\n");
+
+    if !failed_tests.is_empty() {
+        println!("Failed tests:");
+        for (name, error) in &failed_tests {
+            println!("  {} - {}", name, error);
+        }
+        panic!("Some sparksql fixture tests failed");
+    }
+}
+
+#[test]
+fn test_sqlite_fixtures() {
+    env_logger::try_init().ok();
+
+    let fixtures_root = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+        .parent()
+        .unwrap()
+        .join("test/fixtures");
+
+    let tests = FixtureTest::discover("sqlite", &fixtures_root);
+    println!("\nFound {} sqlite fixture tests", tests.len());
+
+    if tests.is_empty() {
+        println!("No sqlite fixtures found - skipping test");
+        return;
+    }
+
+    let mut passed = 0;
+    let mut failed = 0;
+    let mut failed_tests = Vec::new();
+
+    for test in &tests {
+        println!("Running test: {}", test.name);
+        match test.run() {
+            Ok(_ast) => {
+                passed += 1;
+                println!("✓ {}", test.name);
+            }
+            Err(e) => {
+                failed += 1;
+                let error = e.to_string();
+                let error_short = if error.len() > 100 {
+                    format!("{}...", &error[..100])
+                } else {
+                    error
+                };
+                failed_tests.push((&test.name, error_short));
+                println!("✗ {} - {}", test.name, failed_tests.last().unwrap().1);
+            }
+        }
+    }
+
+    println!("\n========================================");
+    println!("Results: {} passed, {} failed", passed, failed);
+    println!(
+        "Pass rate: {:.1}%",
+        (passed as f64 / tests.len() as f64) * 100.0
+    );
+    println!("========================================\n");
+
+    if !failed_tests.is_empty() {
+        println!("Failed tests:");
+        for (name, error) in &failed_tests {
+            println!("  {} - {}", name, error);
+        }
+        panic!("Some sqlite fixture tests failed");
+    }
+}
+
+#[test]
+fn test_starrocks_fixtures() {
+    env_logger::try_init().ok();
+
+    let fixtures_root = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+        .parent()
+        .unwrap()
+        .join("test/fixtures");
+
+    let tests = FixtureTest::discover("starrocks", &fixtures_root);
+    println!("\nFound {} starrocks fixture tests", tests.len());
+
+    if tests.is_empty() {
+        println!("No starrocks fixtures found - skipping test");
+        return;
+    }
+
+    let mut passed = 0;
+    let mut failed = 0;
+    let mut failed_tests = Vec::new();
+
+    for test in &tests {
+        println!("Running test: {}", test.name);
+        match test.run() {
+            Ok(_ast) => {
+                passed += 1;
+                println!("✓ {}", test.name);
+            }
+            Err(e) => {
+                failed += 1;
+                let error = e.to_string();
+                let error_short = if error.len() > 100 {
+                    format!("{}...", &error[..100])
+                } else {
+                    error
+                };
+                failed_tests.push((&test.name, error_short));
+                println!("✗ {} - {}", test.name, failed_tests.last().unwrap().1);
+            }
+        }
+    }
+
+    println!("\n========================================");
+    println!("Results: {} passed, {} failed", passed, failed);
+    println!(
+        "Pass rate: {:.1}%",
+        (passed as f64 / tests.len() as f64) * 100.0
+    );
+    println!("========================================\n");
+
+    if !failed_tests.is_empty() {
+        println!("Failed tests:");
+        for (name, error) in &failed_tests {
+            println!("  {} - {}", name, error);
+        }
+        panic!("Some starrocks fixture tests failed");
+    }
+}
+
+#[test]
+fn test_teradata_fixtures() {
+    env_logger::try_init().ok();
+
+    let fixtures_root = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+        .parent()
+        .unwrap()
+        .join("test/fixtures");
+
+    let tests = FixtureTest::discover("teradata", &fixtures_root);
+    println!("\nFound {} teradata fixture tests", tests.len());
+
+    if tests.is_empty() {
+        println!("No teradata fixtures found - skipping test");
+        return;
+    }
+
+    let mut passed = 0;
+    let mut failed = 0;
+    let mut failed_tests = Vec::new();
+
+    for test in &tests {
+        println!("Running test: {}", test.name);
+        match test.run() {
+            Ok(_ast) => {
+                passed += 1;
+                println!("✓ {}", test.name);
+            }
+            Err(e) => {
+                failed += 1;
+                let error = e.to_string();
+                let error_short = if error.len() > 100 {
+                    format!("{}...", &error[..100])
+                } else {
+                    error
+                };
+                failed_tests.push((&test.name, error_short));
+                println!("✗ {} - {}", test.name, failed_tests.last().unwrap().1);
+            }
+        }
+    }
+
+    println!("\n========================================");
+    println!("Results: {} passed, {} failed", passed, failed);
+    println!(
+        "Pass rate: {:.1}%",
+        (passed as f64 / tests.len() as f64) * 100.0
+    );
+    println!("========================================\n");
+
+    if !failed_tests.is_empty() {
+        println!("Failed tests:");
+        for (name, error) in &failed_tests {
+            println!("  {} - {}", name, error);
+        }
+        panic!("Some teradata fixture tests failed");
+    }
+}
+
+#[test]
+fn test_trino_fixtures() {
+    env_logger::try_init().ok();
+
+    let fixtures_root = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+        .parent()
+        .unwrap()
+        .join("test/fixtures");
+
+    let tests = FixtureTest::discover("trino", &fixtures_root);
+    println!("\nFound {} trino fixture tests", tests.len());
+
+    if tests.is_empty() {
+        println!("No trino fixtures found - skipping test");
+        return;
+    }
+
+    let mut passed = 0;
+    let mut failed = 0;
+    let mut failed_tests = Vec::new();
+
+    for test in &tests {
+        println!("Running test: {}", test.name);
+        match test.run() {
+            Ok(_ast) => {
+                passed += 1;
+                println!("✓ {}", test.name);
+            }
+            Err(e) => {
+                failed += 1;
+                let error = e.to_string();
+                let error_short = if error.len() > 100 {
+                    format!("{}...", &error[..100])
+                } else {
+                    error
+                };
+                failed_tests.push((&test.name, error_short));
+                println!("✗ {} - {}", test.name, failed_tests.last().unwrap().1);
+            }
+        }
+    }
+
+    println!("\n========================================");
+    println!("Results: {} passed, {} failed", passed, failed);
+    println!(
+        "Pass rate: {:.1}%",
+        (passed as f64 / tests.len() as f64) * 100.0
+    );
+    println!("========================================\n");
+
+    if !failed_tests.is_empty() {
+        println!("Failed tests:");
+        for (name, error) in &failed_tests {
+            println!("  {} - {}", name, error);
+        }
+        panic!("Some trino fixture tests failed");
+    }
+}
+
+#[test]
+fn test_tsql_fixtures() {
+    env_logger::try_init().ok();
+
+    let fixtures_root = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+        .parent()
+        .unwrap()
+        .join("test/fixtures");
+
+    let tests = FixtureTest::discover("tsql", &fixtures_root);
+    println!("\nFound {} tsql fixture tests", tests.len());
+
+    if tests.is_empty() {
+        println!("No tsql fixtures found - skipping test");
+        return;
+    }
+
+    let mut passed = 0;
+    let mut failed = 0;
+    let mut failed_tests = Vec::new();
+
+    for test in &tests {
+        println!("Running test: {}", test.name);
+        match test.run() {
+            Ok(_ast) => {
+                passed += 1;
+                println!("✓ {}", test.name);
+            }
+            Err(e) => {
+                failed += 1;
+                let error = e.to_string();
+                let error_short = if error.len() > 100 {
+                    format!("{}...", &error[..100])
+                } else {
+                    error
+                };
+                failed_tests.push((&test.name, error_short));
+                println!("✗ {} - {}", test.name, failed_tests.last().unwrap().1);
+            }
+        }
+    }
+
+    println!("\n========================================");
+    println!("Results: {} passed, {} failed", passed, failed);
+    println!(
+        "Pass rate: {:.1}%",
+        (passed as f64 / tests.len() as f64) * 100.0
+    );
+    println!("========================================\n");
+
+    if !failed_tests.is_empty() {
+        println!("Failed tests:");
+        for (name, error) in &failed_tests {
+            println!("  {} - {}", name, error);
+        }
+        panic!("Some tsql fixture tests failed");
+    }
+}
+
+#[test]
+fn test_vertica_fixtures() {
+    env_logger::try_init().ok();
+
+    let fixtures_root = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+        .parent()
+        .unwrap()
+        .join("test/fixtures");
+
+    let tests = FixtureTest::discover("vertica", &fixtures_root);
+    println!("\nFound {} vertica fixture tests", tests.len());
+
+    if tests.is_empty() {
+        println!("No vertica fixtures found - skipping test");
+        return;
+    }
+
+    let mut passed = 0;
+    let mut failed = 0;
+    let mut failed_tests = Vec::new();
+
+    for test in &tests {
+        println!("Running test: {}", test.name);
+        match test.run() {
+            Ok(_ast) => {
+                passed += 1;
+                println!("✓ {}", test.name);
+            }
+            Err(e) => {
+                failed += 1;
+                let error = e.to_string();
+                let error_short = if error.len() > 100 {
+                    format!("{}...", &error[..100])
+                } else {
+                    error
+                };
+                failed_tests.push((&test.name, error_short));
+                println!("✗ {} - {}", test.name, failed_tests.last().unwrap().1);
+            }
+        }
+    }
+
+    println!("\n========================================");
+    println!("Results: {} passed, {} failed", passed, failed);
+    println!(
+        "Pass rate: {:.1}%",
+        (passed as f64 / tests.len() as f64) * 100.0
+    );
+    println!("========================================\n");
+
+    if !failed_tests.is_empty() {
+        println!("Failed tests:");
+        for (name, error) in &failed_tests {
+            println!("  {} - {}", name, error);
+        }
+        panic!("Some vertica fixture tests failed");
+    }
+}
+
+#[test]
 fn test_select_simple_a() {
     env_logger::try_init().ok();
 

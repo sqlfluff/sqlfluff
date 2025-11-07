@@ -62,6 +62,7 @@ impl crate::parser::Parser<'_> {
             delimiter,
             allow_trailing,
             optional,
+            optional_delimiter,
             local_terminators,
             reset_terminators,
             allow_gaps,
@@ -73,6 +74,7 @@ impl crate::parser::Parser<'_> {
                 delimiter,
                 allow_trailing,
                 optional,
+                optional_delimiter,
                 terminators,
                 reset_terminators,
                 allow_gaps,
@@ -84,6 +86,7 @@ impl crate::parser::Parser<'_> {
                 delimiter,
                 *allow_trailing,
                 *optional,
+                *optional_delimiter,
                 terminators,
                 *reset_terminators,
                 *allow_gaps,
@@ -292,6 +295,7 @@ impl crate::parser::Parser<'_> {
             allow_trailing,
             allow_gaps,
             optional,
+            optional_delimiter,
             parse_mode,
             ..
         } = grammar.as_ref()
@@ -521,6 +525,50 @@ impl crate::parser::Parser<'_> {
             }
             DelimitedState::MatchingDelimiter => {
                 if child_node.is_empty() {
+                    // Failed to match a delimiter
+                    if *optional_delimiter {
+                        // Python lines 157-162: If delimiter is optional and failed to match,
+                        // loop again to try matching another element without requiring delimiter
+                        log::debug!(
+                            "[ITERATIVE] Delimited: no delimiter found, but optional_delimiter=true, continuing to match elements at position {}",
+                            matched_idx
+                        );
+                        *state = DelimitedState::MatchingElement;
+                        // Don't change working_idx or matched_idx - continue from where we are
+                        // Push child to try matching another element
+                        if *allow_gaps {
+                            *working_idx =
+                                self.skip_start_index_forward_to_code(*working_idx, *max_idx);
+                        }
+                        self.pos = *working_idx;
+                        let child_max_idx = *max_idx;
+                        let child_grammar = Grammar::OneOf {
+                            elements: elements.clone(),
+                            exclude: None,
+                            optional: true,
+                            terminators: vec![],
+                            reset_terminators: false,
+                            allow_gaps: *allow_gaps,
+                            parse_mode: *parse_mode,
+                            simple_hint: None,
+                        };
+                        let child_frame = ParseFrame::new_child(
+                            stack.frame_id_counter,
+                            child_grammar.into(),
+                            *working_idx,
+                            frame_terminators.clone(),
+                            Some(child_max_idx),
+                        );
+                        ParseFrame::push_child_and_update_parent(
+                            stack,
+                            &mut frame,
+                            child_frame,
+                            "Delimited",
+                        );
+                        return Ok(FrameResult::Done);
+                    }
+
+                    // Not optional_delimiter, so complete the delimited list
                     log::debug!(
                         "[ITERATIVE] Delimited: no delimiter found, completing at position {}",
                         matched_idx

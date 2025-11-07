@@ -231,6 +231,7 @@ fn test_delimited_trailing_delimiter() -> Result<(), ParseError> {
         delimiter: Box::new(delimiter),
         allow_trailing: true, // Allow trailing delimiter
         optional: false,
+        optional_delimiter: false,
         terminators: vec![],
         reset_terminators: false,
         allow_gaps: true,
