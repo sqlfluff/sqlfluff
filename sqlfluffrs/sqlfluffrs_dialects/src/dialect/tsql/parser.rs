@@ -1,4 +1,5 @@
 /* This is a generated file! */
+#![cfg_attr(rustfmt, rustfmt_skip)]
 use std::sync::Arc;
 use once_cell::sync::Lazy;
 use sqlfluffrs_types::{Grammar, ParseMode, SimpleHint};

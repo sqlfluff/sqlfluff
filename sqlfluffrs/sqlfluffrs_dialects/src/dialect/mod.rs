@@ -1,4 +1,5 @@
 /* This is a generated file! */
+#![cfg_attr(rustfmt, rustfmt_skip)]
 
 use std::sync::Arc;
 

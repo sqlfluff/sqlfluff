@@ -1,4 +1,5 @@
 /* This is a generated file! */
+#![cfg_attr(rustfmt, rustfmt_skip)]
 use std::sync::Arc;
 use once_cell::sync::Lazy;
 use sqlfluffrs_types::{Grammar, ParseMode, SimpleHint};
@@ -30585,7 +30586,7 @@ Arc::new(Grammar::RegexParser {
     token_type: "naked_identifier",
     raw_class: "IdentifierSegment",
     optional: false,
-    anti_template: Some(regex::RegexBuilder::new(r#"^(ROWS|UNION|NULL|SELECT|INNER|ORDER|RESPECT|CROSS|NATURAL|SET|CASE|NOT|OUTER|ON|FULL|LEFT|RIGHT|JOIN|USING|INTERVAL|PARTITION|IGNORE)$"#)         .case_insensitive(true)         .build()         .unwrap()     ),
+    anti_template: Some(regex::RegexBuilder::new(r#"^(NULL|USING|SELECT|RIGHT|RESPECT|ROWS|OUTER|IGNORE|INTERVAL|CASE|NOT|LEFT|FULL|CROSS|NATURAL|ON|SET|INNER|JOIN|ORDER|UNION|PARTITION)$"#)         .case_insensitive(true)         .build()         .unwrap()     ),
 })
 );
 

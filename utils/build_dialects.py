@@ -124,6 +124,7 @@ impl FromStr for Dialect {{
 
 if __name__ == "__main__":
     print("/* This is a generated file! */")
+    print("#![cfg_attr(rustfmt, rustfmt_skip)]")
     print()
     generate_use()
     generate_dialect_enum()

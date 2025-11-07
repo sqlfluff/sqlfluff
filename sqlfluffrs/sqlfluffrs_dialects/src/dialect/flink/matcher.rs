@@ -1,4 +1,5 @@
 /* This is a generated file! */
+#![cfg_attr(rustfmt, rustfmt_skip)]
 use once_cell::sync::Lazy;
 use sqlfluffrs_types::LexMatcher;
 use sqlfluffrs_types::{Token, TokenConfig, RegexModeGroup};
