@@ -48,7 +48,7 @@ impl<'a> Parser<'_> {
             let tok = token.clone();
             log::debug!("Current token: {:?}", tok.get_type());
 
-            if tok.get_type().as_str() == *token_type {
+            if tok.is_type(&[token_type]) {
                 let token_pos = self.pos;
                 self.bump();
                 log::debug!("MATCHED Token matched: {:?}", tok);
