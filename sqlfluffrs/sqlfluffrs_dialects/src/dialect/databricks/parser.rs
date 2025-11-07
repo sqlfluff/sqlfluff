@@ -3,6 +3,7 @@
 use std::sync::Arc;
 use once_cell::sync::Lazy;
 use sqlfluffrs_types::{Grammar, ParseMode, SimpleHint};
+use sqlfluffrs_types::regex::RegexMode;
 
 // name='AbortKeywordSegment'
 pub static ABORT_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
@@ -25205,14 +25206,11 @@ pub static DATATYPE_IDENTIFIER_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
 Arc::new(Grammar::OneOf {
     elements: vec![
 Arc::new(Grammar::RegexParser {
-    template: regex::RegexBuilder::new(r#"[A-Z_][A-Z0-9_]*"#)
-         .case_insensitive(true)
-         .build()
-         .unwrap(),
+    template: RegexMode::new(r#"[A-Z_][A-Z0-9_]*"#),
     token_type: "data_type_identifier",
     raw_class: "CodeSegment",
     optional: false,
-    anti_template: Some(regex::RegexBuilder::new(r#"^(NOT)$"#)         .case_insensitive(true)         .build()         .unwrap()     ),
+    anti_template: Some(regex::RegexMode::new(r#"^(NOT)$"#),
 })
 ,
 Arc::new(Grammar::Ref {
@@ -47297,24 +47295,18 @@ Arc::new(Grammar::StringParser {
 // name='NakedIdentifierSegment'
 pub static NAKED_IDENTIFIER_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
 Arc::new(Grammar::RegexParser {
-    template: regex::RegexBuilder::new(r#"[A-Z0-9_]*[A-Z][A-Z0-9_]*"#)
-         .case_insensitive(true)
-         .build()
-         .unwrap(),
+    template: RegexMode::new(r#"[A-Z0-9_]*[A-Z][A-Z0-9_]*"#),
     token_type: "naked_identifier",
     raw_class: "IdentifierSegment",
     optional: false,
-    anti_template: Some(regex::RegexBuilder::new(r#"^(USING|CROSS|LATERAL|SEMI|INTERSECT|RIGHT|NATURAL|ON|ANTI|MINUS|FULL|JOIN|EXCEPT|INNER|UNION|LEFT)$"#)         .case_insensitive(true)         .build()         .unwrap()     ),
+    anti_template: Some(regex::RegexMode::new(r#"^(USING|CROSS|UNION|NATURAL|SEMI|EXCEPT|INTERSECT|RIGHT|ON|ANTI|JOIN|FULL|LATERAL|MINUS|INNER|LEFT)$"#),
 })
 );
 
 // name='NakedSemiStructuredElementSegment'
 pub static NAKED_SEMI_STRUCTURED_ELEMENT_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
 Arc::new(Grammar::RegexParser {
-    template: regex::RegexBuilder::new(r#"[A-Z0-9_]*"#)
-         .case_insensitive(true)
-         .build()
-         .unwrap(),
+    template: RegexMode::new(r#"[A-Z0-9_]*"#),
     token_type: "semi_structured_element",
     raw_class: "CodeSegment",
     optional: false,
@@ -50870,10 +50862,7 @@ Arc::new(Grammar::StringParser {
 // name='ParameterNameSegment'
 pub static PARAMETER_NAME_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
 Arc::new(Grammar::RegexParser {
-    template: regex::RegexBuilder::new(r#"\"?[A-Z][A-Z0-9_]*\"?"#)
-         .case_insensitive(true)
-         .build()
-         .unwrap(),
+    template: RegexMode::new(r#"\"?[A-Z][A-Z0-9_]*\"?"#),
     token_type: "parameter",
     raw_class: "CodeSegment",
     optional: false,
@@ -53570,10 +53559,7 @@ Arc::new(Grammar::StringParser {
 // name='PropertiesBackTickedIdentifierSegment'
 pub static PROPERTIES_BACK_TICKED_IDENTIFIER_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
 Arc::new(Grammar::RegexParser {
-    template: regex::RegexBuilder::new(r#"`.+`"#)
-         .case_insensitive(true)
-         .build()
-         .unwrap(),
+    template: RegexMode::new(r#"`.+`"#),
     token_type: "properties_naked_identifier",
     raw_class: "IdentifierSegment",
     optional: false,
@@ -53594,10 +53580,7 @@ Arc::new(Grammar::StringParser {
 // name='PropertiesNakedIdentifierSegment'
 pub static PROPERTIES_NAKED_IDENTIFIER_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
 Arc::new(Grammar::RegexParser {
-    template: regex::RegexBuilder::new(r#"[A-Z_][A-Z0-9_]*"#)
-         .case_insensitive(true)
-         .build()
-         .unwrap(),
+    template: RegexMode::new(r#"[A-Z_][A-Z0-9_]*"#),
     token_type: "properties_naked_identifier",
     raw_class: "IdentifierSegment",
     optional: false,
@@ -74772,10 +74755,7 @@ Arc::new(Grammar::StringParser {
 // name='WidgetNameIdentifierSegment'
 pub static WIDGET_NAME_IDENTIFIER_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
 Arc::new(Grammar::RegexParser {
-    template: regex::RegexBuilder::new(r#"[A-Z][A-Z0-9_]*"#)
-         .case_insensitive(true)
-         .build()
-         .unwrap(),
+    template: RegexMode::new(r#"[A-Z][A-Z0-9_]*"#),
     token_type: "widget_name_identifier",
     raw_class: "CodeSegment",
     optional: false,

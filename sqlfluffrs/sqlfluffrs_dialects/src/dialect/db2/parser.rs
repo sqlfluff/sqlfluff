@@ -3,6 +3,7 @@
 use std::sync::Arc;
 use once_cell::sync::Lazy;
 use sqlfluffrs_types::{Grammar, ParseMode, SimpleHint};
+use sqlfluffrs_types::regex::RegexMode;
 
 // name='AbortKeywordSegment'
 pub static ABORT_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
@@ -17124,14 +17125,11 @@ pub static DATATYPE_IDENTIFIER_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
 Arc::new(Grammar::OneOf {
     elements: vec![
 Arc::new(Grammar::RegexParser {
-    template: regex::RegexBuilder::new(r#"[A-Z_][A-Z0-9_]*"#)
-         .case_insensitive(true)
-         .build()
-         .unwrap(),
+    template: RegexMode::new(r#"[A-Z_][A-Z0-9_]*"#),
     token_type: "data_type_identifier",
     raw_class: "CodeSegment",
     optional: false,
-    anti_template: Some(regex::RegexBuilder::new(r#"^(NOT)$"#)         .case_insensitive(true)         .build()         .unwrap()     ),
+    anti_template: Some(regex::RegexMode::new(r#"^(NOT)$"#),
 })
 ,
 Arc::new(Grammar::Ref {
@@ -34525,14 +34523,11 @@ Arc::new(Grammar::StringParser {
 // name='NakedIdentifierSegment'
 pub static NAKED_IDENTIFIER_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
 Arc::new(Grammar::RegexParser {
-    template: regex::RegexBuilder::new(r#"[A-Z0-9_#]*[A-Z#][A-Z0-9_#]*"#)
-         .case_insensitive(true)
-         .build()
-         .unwrap(),
+    template: RegexMode::new(r#"[A-Z0-9_#]*[A-Z#][A-Z0-9_#]*"#),
     token_type: "naked_identifier",
     raw_class: "IdentifierSegment",
     optional: false,
-    anti_template: Some(regex::RegexBuilder::new(r#"^(USING|UNION|PARTITION|CROSS|LEFT|ORDER|RESPECT|RIGHT|ON|NULL|IGNORE|NOT|SET|CASE|FULL|JOIN|INTERVAL|ROWS|INNER|SELECT|OUTER)$"#)         .case_insensitive(true)         .build()         .unwrap()     ),
+    anti_template: Some(regex::RegexMode::new(r#"^(CASE|USING|CROSS|PARTITION|UNION|ORDER|OUTER|NULL|RIGHT|SET|NOT|ON|SELECT|JOIN|FULL|INNER|INTERVAL|IGNORE|RESPECT|ROWS|LEFT)$"#),
 })
 );
 
@@ -37709,10 +37704,7 @@ Arc::new(Grammar::StringParser {
 // name='ParameterNameSegment'
 pub static PARAMETER_NAME_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
 Arc::new(Grammar::RegexParser {
-    template: regex::RegexBuilder::new(r#"\"?[A-Z][A-Z0-9_]*\"?"#)
-         .case_insensitive(true)
-         .build()
-         .unwrap(),
+    template: RegexMode::new(r#"\"?[A-Z][A-Z0-9_]*\"?"#),
     token_type: "parameter",
     raw_class: "CodeSegment",
     optional: false,

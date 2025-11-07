@@ -81,10 +81,7 @@ fn test_oneof_first_match_equal_length() -> Result<(), ParseError> {
     let mut parser = Parser::new(&tokens, dialect);
 
     let option1 = Arc::new(Grammar::RegexParser {
-        template: regex::RegexBuilder::new("bar")
-            .case_insensitive(true)
-            .build()
-            .unwrap(),
+        template: sqlfluffrs_types::regex::RegexMode::new("bar"),
         raw_class: "Option1Segment",
         token_type: "option1",
         anti_template: None,
@@ -92,10 +89,7 @@ fn test_oneof_first_match_equal_length() -> Result<(), ParseError> {
     });
 
     let option2 = Arc::new(Grammar::RegexParser {
-        template: regex::RegexBuilder::new("bar")
-            .case_insensitive(true)
-            .build()
-            .unwrap(),
+        template: sqlfluffrs_types::regex::RegexMode::new("bar"),
         raw_class: "Option2Segment",
         token_type: "option2",
         anti_template: None,

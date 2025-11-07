@@ -39,6 +39,7 @@ def generate_use():
     print("use std::sync::Arc;")
     print("use once_cell::sync::Lazy;")
     print("use sqlfluffrs_types::{Grammar, ParseMode, SimpleHint};")
+    print("use sqlfluffrs_types::regex::RegexMode;")
 
 
 def matchable_to_const_name(s: str):
@@ -179,10 +180,7 @@ def _to_rust_parser_grammar(match_grammar, parse_context):
         match_grammar, RegexParser
     ):
         print("Arc::new(Grammar::RegexParser {")
-        print(f'    template: regex::RegexBuilder::new(r#"{match_grammar.template}"#)')
-        print("         .case_insensitive(true)")
-        print("         .build()")
-        print("         .unwrap(),")
+        print(f'    template: RegexMode::new(r#"{match_grammar.template}"#),')
         print(f'    token_type: "{match_grammar._instance_types[0]}",')
         print(f'    raw_class: "{match_grammar.raw_class.__name__}",')
         print(f"    optional: {str(match_grammar.is_optional()).lower()},")
@@ -478,15 +476,7 @@ def _to_rust_parser_grammar(match_grammar, parse_context):
 def as_rust_option(value, is_regex: bool = False):
     """Converts an optional value to a Rust Option."""
     if isinstance(value, str) and is_regex:
-        return (
-            f'Some(regex::RegexBuilder::new(r#"{value}"#)'
-            "         .case_insensitive(true)"
-            "         .build()"
-            "         .unwrap()"
-            "     )"
-            if value
-            else "None"
-        )
+        return f'Some(regex::RegexMode::new(r#"{value}"#)' if value else "None"
     if isinstance(value, str):
         return f'Some("{value}")' if value else "None"
     elif isinstance(value, bool):

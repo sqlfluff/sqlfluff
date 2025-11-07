@@ -225,11 +225,11 @@ pub enum Grammar {
         optional: bool,
     },
     RegexParser {
-        template: regex::Regex,
+        template: crate::regex::RegexMode,
         token_type: &'static str,
         raw_class: &'static str,
         optional: bool,
-        anti_template: Option<regex::Regex>,
+        anti_template: Option<crate::regex::RegexMode>,
     },
     Meta(&'static str),
     NonCodeMatcher,
@@ -737,7 +737,9 @@ impl Display for Grammar {
                 write!(f, "MultiStringParser({:?})", templates)
             }
             Grammar::TypedParser { template, .. } => write!(f, "TypedParser({})", template),
-            Grammar::RegexParser { template, .. } => write!(f, "RegexParser({})", template),
+            Grammar::RegexParser { template, .. } => {
+                write!(f, "RegexParser({})", template.as_str())
+            }
             Grammar::Meta(s) => write!(f, "Meta({})", s),
             Grammar::NonCodeMatcher => write!(f, "NonCodeMatcher"),
             Grammar::Nothing() => write!(f, "Nothing"),

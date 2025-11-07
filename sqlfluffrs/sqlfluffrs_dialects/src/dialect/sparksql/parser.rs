@@ -3,6 +3,7 @@
 use std::sync::Arc;
 use once_cell::sync::Lazy;
 use sqlfluffrs_types::{Grammar, ParseMode, SimpleHint};
+use sqlfluffrs_types::regex::RegexMode;
 
 // name='AbortKeywordSegment'
 pub static ABORT_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
@@ -22439,14 +22440,11 @@ pub static DATATYPE_IDENTIFIER_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
 Arc::new(Grammar::OneOf {
     elements: vec![
 Arc::new(Grammar::RegexParser {
-    template: regex::RegexBuilder::new(r#"[A-Z_][A-Z0-9_]*"#)
-         .case_insensitive(true)
-         .build()
-         .unwrap(),
+    template: RegexMode::new(r#"[A-Z_][A-Z0-9_]*"#),
     token_type: "data_type_identifier",
     raw_class: "CodeSegment",
     optional: false,
-    anti_template: Some(regex::RegexBuilder::new(r#"^(NOT)$"#)         .case_insensitive(true)         .build()         .unwrap()     ),
+    anti_template: Some(regex::RegexMode::new(r#"^(NOT)$"#),
 })
 ,
 Arc::new(Grammar::Ref {
@@ -42443,24 +42441,18 @@ Arc::new(Grammar::StringParser {
 // name='NakedIdentifierSegment'
 pub static NAKED_IDENTIFIER_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
 Arc::new(Grammar::RegexParser {
-    template: regex::RegexBuilder::new(r#"[A-Z0-9_]*[A-Z][A-Z0-9_]*"#)
-         .case_insensitive(true)
-         .build()
-         .unwrap(),
+    template: RegexMode::new(r#"[A-Z0-9_]*[A-Z][A-Z0-9_]*"#),
     token_type: "naked_identifier",
     raw_class: "IdentifierSegment",
     optional: false,
-    anti_template: Some(regex::RegexBuilder::new(r#"^(OR|HAVING|IS|ELSE|ANY|INTERSECT|RIGHT|CHECK|FOR|IGNORE|GROUP|ESCAPE|TABLE|EXCEPT|REFERENCES|AS|UNION|FETCH|CROSS|COLUMN|USER|RESPECT|ON|NOT|CREATE|SET|CASE|FULL|UNIQUE|SOME|FROM|FOREIGN|OUTER|LEFT|ONLY|THEN|UNKNOWN|USING|OVERLAPS|CURRENT_TIME|TRAILING|PARTITION|WITH|PRIMARY|CURRENT_TIMESTAMP|FILTER|SESSION_USER|NATURAL|ALL|CONSTRAINT|NULL|FALSE|IN|BOTH|END|JOIN|ROWS|COLLATE|INNER|LEADING|SELECT|AND|CAST|ORDER|CURRENT_DATE|WHEN|WHERE|TO|AUTHORIZATION|GRANT|INTERVAL|CURRENT_USER|INTO)$"#)         .case_insensitive(true)         .build()         .unwrap()     ),
+    anti_template: Some(regex::RegexMode::new(r#"^(FALSE|TRAILING|WHERE|OUTER|INTO|ANY|FROM|HAVING|RIGHT|OVERLAPS|SET|COLLATE|ALL|ON|SELECT|AUTHORIZATION|USER|INNER|INTERVAL|TO|WITH|PRIMARY|CASE|REFERENCES|USING|THEN|UNIQUE|OR|UNION|AS|ESCAPE|NATURAL|GRANT|EXCEPT|CREATE|SESSION_USER|FULL|CURRENT_USER|WHEN|CAST|CURRENT_TIME|GROUP|ONLY|TABLE|UNKNOWN|SOME|COLUMN|IN|INTERSECT|CURRENT_TIMESTAMP|FETCH|CURRENT_DATE|RESPECT|ROWS|LEFT|FOREIGN|CONSTRAINT|CROSS|PARTITION|ORDER|IS|AND|CHECK|NULL|FOR|NOT|END|LEADING|JOIN|FILTER|BOTH|IGNORE|ELSE)$"#),
 })
 );
 
 // name='NakedSemiStructuredElementSegment'
 pub static NAKED_SEMI_STRUCTURED_ELEMENT_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
 Arc::new(Grammar::RegexParser {
-    template: regex::RegexBuilder::new(r#"[A-Z0-9_]*"#)
-         .case_insensitive(true)
-         .build()
-         .unwrap(),
+    template: RegexMode::new(r#"[A-Z0-9_]*"#),
     token_type: "semi_structured_element",
     raw_class: "CodeSegment",
     optional: false,
@@ -45665,10 +45657,7 @@ Arc::new(Grammar::StringParser {
 // name='ParameterNameSegment'
 pub static PARAMETER_NAME_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
 Arc::new(Grammar::RegexParser {
-    template: regex::RegexBuilder::new(r#"\"?[A-Z][A-Z0-9_]*\"?"#)
-         .case_insensitive(true)
-         .build()
-         .unwrap(),
+    template: RegexMode::new(r#"\"?[A-Z][A-Z0-9_]*\"?"#),
     token_type: "parameter",
     raw_class: "CodeSegment",
     optional: false,
@@ -48182,10 +48171,7 @@ Arc::new(Grammar::StringParser {
 // name='PropertiesNakedIdentifierSegment'
 pub static PROPERTIES_NAKED_IDENTIFIER_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
 Arc::new(Grammar::RegexParser {
-    template: regex::RegexBuilder::new(r#"[A-Z0-9]*[A-Z][A-Z0-9]*"#)
-         .case_insensitive(true)
-         .build()
-         .unwrap(),
+    template: RegexMode::new(r#"[A-Z0-9]*[A-Z][A-Z0-9]*"#),
     token_type: "properties_naked_identifier",
     raw_class: "IdentifierSegment",
     optional: false,
@@ -66426,10 +66412,7 @@ Arc::new(Grammar::StringParser {
 // name='WidgetNameIdentifierSegment'
 pub static WIDGET_NAME_IDENTIFIER_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
 Arc::new(Grammar::RegexParser {
-    template: regex::RegexBuilder::new(r#"[A-Z][A-Z0-9_]*"#)
-         .case_insensitive(true)
-         .build()
-         .unwrap(),
+    template: RegexMode::new(r#"[A-Z][A-Z0-9_]*"#),
     token_type: "widget_name_identifier",
     raw_class: "CodeSegment",
     optional: false,

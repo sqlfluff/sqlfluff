@@ -3,6 +3,7 @@
 use std::sync::Arc;
 use once_cell::sync::Lazy;
 use sqlfluffrs_types::{Grammar, ParseMode, SimpleHint};
+use sqlfluffrs_types::regex::RegexMode;
 
 // name='AbortKeywordSegment'
 pub static ABORT_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
@@ -16048,14 +16049,11 @@ pub static DATATYPE_IDENTIFIER_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
 Arc::new(Grammar::OneOf {
     elements: vec![
 Arc::new(Grammar::RegexParser {
-    template: regex::RegexBuilder::new(r#"[A-Z_][A-Z0-9_]*"#)
-         .case_insensitive(true)
-         .build()
-         .unwrap(),
+    template: RegexMode::new(r#"[A-Z_][A-Z0-9_]*"#),
     token_type: "data_type_identifier",
     raw_class: "CodeSegment",
     optional: false,
-    anti_template: Some(regex::RegexBuilder::new(r#"^(NOT)$"#)         .case_insensitive(true)         .build()         .unwrap()     ),
+    anti_template: Some(regex::RegexMode::new(r#"^(NOT)$"#),
 })
 ,
 Arc::new(Grammar::Ref {
@@ -32830,14 +32828,11 @@ Arc::new(Grammar::StringParser {
 // name='NakedIdentifierSegment'
 pub static NAKED_IDENTIFIER_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
 Arc::new(Grammar::RegexParser {
-    template: regex::RegexBuilder::new(r#"[A-Z0-9_]*[A-Z][A-Z0-9_]*"#)
-         .case_insensitive(true)
-         .build()
-         .unwrap(),
+    template: RegexMode::new(r#"[A-Z0-9_]*[A-Z][A-Z0-9_]*"#),
     token_type: "naked_identifier",
     raw_class: "IdentifierSegment",
     optional: false,
-    anti_template: Some(regex::RegexBuilder::new(r#"^(OR|HAVING|IS|YEAR|NUMERIC|INT|INTEGER|ROW|ELSE|ANY|EXTRACT|INTERSECT|RIGHT|CHECK|DECLARE|FOR|OF|IGNORE|FUNCTION|GROUP|MINUTE|ESCAPE|TABLE|EXCEPT|DOUBLE|REFERENCES|AS|UNION|REAL|BOOLEAN|FETCH|CROSS|COLUMN|LIKE|SUBSTRING|USER|RESPECT|ON|DESC|DELETE|NOT|CREATE|SET|MONTH|CASE|FULL|BIGINT|VARCHAR|UNIQUE|SOME|FROM|DATE|FOREIGN|TIME|OUTER|LEFT|ONLY|OVERLAY|THEN|UNKNOWN|USING|DAY|CURRENT_TIME|OVERLAPS|TRAILING|CHARACTER|PARTITION|IF|CURSOR|WITH|PRIMARY|CURRENT_TIMESTAMP|BY|FILTER|SESSION_USER|TINYINT|BETWEEN|NATURAL|VALUES|ALL|CONSTRAINT|NULL|DISTINCT|FALSE|IN|BOTH|END|JOIN|ROWS|SMALLINT|COLLATE|INNER|LEADING|SELECT|UPDATE|AND|CAST|ORDER|INSERT|CURRENT_DATE|WHEN|CHAR|POSITION|BINARY|DROP|TRUE|WHERE|LIMIT|TO|TIMESTAMP|AUTHORIZATION|LOCAL|SECOND|GRANT|INTERVAL|CURRENT_USER|DECIMAL|INTO|HOUR|FLOAT|EXISTS)$"#)         .case_insensitive(true)         .build()         .unwrap()     ),
+    anti_template: Some(regex::RegexMode::new(r#"^(DOUBLE|BIGINT|FALSE|EXTRACT|TIME|TRAILING|WHERE|BETWEEN|DESC|HOUR|OUTER|INTO|OVERLAY|LIMIT|TRUE|ANY|DELETE|TIMESTAMP|FROM|HAVING|DECLARE|RIGHT|OVERLAPS|SET|COLLATE|TINYINT|ALL|INSERT|ON|FLOAT|SELECT|AUTHORIZATION|USER|INNER|INTERVAL|TO|WITH|PRIMARY|CASE|REFERENCES|USING|ROW|DECIMAL|THEN|UNIQUE|OR|VALUES|UNION|AS|CHARACTER|ESCAPE|OF|NATURAL|GRANT|VARCHAR|LOCAL|POSITION|EXCEPT|DATE|CREATE|DROP|SESSION_USER|FULL|CURRENT_USER|WHEN|CURSOR|BY|CAST|CURRENT_TIME|FUNCTION|GROUP|ONLY|UPDATE|DISTINCT|SECOND|MINUTE|TABLE|UNKNOWN|MONTH|SOME|CHAR|SMALLINT|EXISTS|COLUMN|IN|INTERSECT|INTEGER|CURRENT_TIMESTAMP|NUMERIC|DAY|FETCH|RESPECT|CURRENT_DATE|ROWS|LEFT|FOREIGN|CONSTRAINT|REAL|BINARY|YEAR|LIKE|CROSS|PARTITION|IF|ORDER|BOOLEAN|IS|SUBSTRING|AND|CHECK|NULL|FOR|NOT|INT|END|LEADING|JOIN|FILTER|BOTH|IGNORE|ELSE)$"#),
 })
 );
 
@@ -35893,10 +35888,7 @@ Arc::new(Grammar::StringParser {
 // name='ParameterNameSegment'
 pub static PARAMETER_NAME_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
 Arc::new(Grammar::RegexParser {
-    template: regex::RegexBuilder::new(r#"\"?[A-Z][A-Z0-9_]*\"?"#)
-         .case_insensitive(true)
-         .build()
-         .unwrap(),
+    template: RegexMode::new(r#"\"?[A-Z][A-Z0-9_]*\"?"#),
     token_type: "parameter",
     raw_class: "CodeSegment",
     optional: false,

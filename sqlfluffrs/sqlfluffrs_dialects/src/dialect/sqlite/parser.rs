@@ -3,6 +3,7 @@
 use std::sync::Arc;
 use once_cell::sync::Lazy;
 use sqlfluffrs_types::{Grammar, ParseMode, SimpleHint};
+use sqlfluffrs_types::regex::RegexMode;
 
 // name='AbortKeywordSegment'
 pub static ABORT_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
@@ -13549,14 +13550,11 @@ pub static DATATYPE_IDENTIFIER_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
 Arc::new(Grammar::OneOf {
     elements: vec![
 Arc::new(Grammar::RegexParser {
-    template: regex::RegexBuilder::new(r#"[A-Z_][A-Z0-9_]*"#)
-         .case_insensitive(true)
-         .build()
-         .unwrap(),
+    template: RegexMode::new(r#"[A-Z_][A-Z0-9_]*"#),
     token_type: "data_type_identifier",
     raw_class: "CodeSegment",
     optional: false,
-    anti_template: Some(regex::RegexBuilder::new(r#"^(NOT)$"#)         .case_insensitive(true)         .build()         .unwrap()     ),
+    anti_template: Some(regex::RegexMode::new(r#"^(NOT)$"#),
 })
 ,
 Arc::new(Grammar::Ref {
@@ -25958,14 +25956,11 @@ Arc::new(Grammar::StringParser {
 // name='NakedIdentifierSegment'
 pub static NAKED_IDENTIFIER_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
 Arc::new(Grammar::RegexParser {
-    template: regex::RegexBuilder::new(r#"[A-Z0-9_]*[A-Z][A-Z0-9_]*"#)
-         .case_insensitive(true)
-         .build()
-         .unwrap(),
+    template: RegexMode::new(r#"[A-Z0-9_]*[A-Z][A-Z0-9_]*"#),
     token_type: "naked_identifier",
     raw_class: "IdentifierSegment",
     optional: false,
-    anti_template: Some(regex::RegexBuilder::new(r#"^(BEGIN|OR|HAVING|IS|WINDOW|BEFORE|DO|ROW|IMMEDIATE|ELSE|INTERSECT|CHECK|RIGHT|FOR|OF|IGNORE|MATERIALIZED|NO|FAIL|OFFSET|ESCAPE|AUTOINCREMENT|ALTER|RETURNING|UNION|QUERY|FIRST|CROSS|COLUMN|REPLACE|DATABASE|DESC|NOT|CREATE|GLOB|LEFT|OUTER|THEN|TEMP|IF|PARTITION|RAISE|TRANSACTION|WITH|FILTER|BY|BETWEEN|NATURAL|ANALYZE|VALUES|CONSTRAINT|DISTINCT|AFTER|END|ASC|IN|RECURSIVE|OTHERS|ROWS|VACUUM|INNER|UPDATE|ABORT|AND|INITIALLY|ATTACH|INSERT|CONFLICT|WHEN|TRIGGER|NOTHING|OVER|WHERE|LAST|TO|GENERATED|WITHOUT|RANGE|FOLLOWING|DEFERRED|MATCH|REINDEX|GROUP|COMMIT|TABLE|EXCEPT|CURRENT|NULLS|REFERENCES|AS|ISNULL|ALWAYS|DETACH|LIKE|RESTRICT|UNBOUNDED|EXCLUDE|ON|DEFAULT|DELETE|SET|CASE|FULL|ADD|INDEX|UNIQUE|FROM|FOREIGN|PRECEDING|ROLLBACK|USING|CURRENT_TIME|PRAGMA|PRIMARY|CURRENT_TIMESTAMP|SAVEPOINT|VIEW|VIRTUAL|ALL|NOTNULL|NULL|EXCLUSIVE|JOIN|COLLATE|DEFERRABLE|INSTEAD|SELECT|CASCADE|EXPLAIN|CAST|RELEASE|ORDER|GROUPS|CURRENT_DATE|EACH|RENAME|REGEXP|DROP|LIMIT|TEMPORARY|INTO|EXISTS|PLAN|INDEXED)$"#)         .case_insensitive(true)         .build()         .unwrap()     ),
+    anti_template: Some(regex::RegexMode::new(r#"^(ALWAYS|WHERE|MATCH|BETWEEN|LIMIT|DELETE|FROM|EXCLUSIVE|SET|COLLATE|ALL|SELECT|DEFERRED|INNER|WITH|CASE|THEN|INSTEAD|VALUES|INITIALLY|FAIL|UNION|OF|RECURSIVE|ADD|ATTACH|DROP|SAVEPOINT|FULL|TEMP|DATABASE|BY|CURRENT_TIME|REPLACE|UPDATE|GROUPS|NOTHING|VIEW|EXPLAIN|LAST|TEMPORARY|ABORT|NO|WITHOUT|VIRTUAL|DETACH|RESTRICT|OTHERS|PRAGMA|CURRENT_DATE|DEFAULT|LEFT|FOREIGN|AFTER|CASCADE|ORDER|CURRENT|IS|NULLS|AND|CHECK|NULL|FOR|GLOB|NOT|END|CONFLICT|RELEASE|FILTER|ELSE|FIRST|BEGIN|RETURNING|DESC|INTO|OFFSET|OUTER|ISNULL|BEFORE|HAVING|RIGHT|INSERT|ON|TO|ASC|PRECEDING|PRIMARY|DEFERRABLE|REFERENCES|ROW|UNIQUE|GENERATED|USING|REGEXP|OR|AS|ESCAPE|IMMEDIATE|NATURAL|MATERIALIZED|UNBOUNDED|EXCEPT|TRANSACTION|CREATE|FOLLOWING|WHEN|COMMIT|RENAME|INDEX|CAST|GROUP|DISTINCT|RANGE|TABLE|REINDEX|WINDOW|DO|EXISTS|COLUMN|EXCLUDE|IN|INTERSECT|PLAN|CURRENT_TIMESTAMP|ALTER|EACH|AUTOINCREMENT|QUERY|OVER|TRIGGER|INDEXED|ROWS|CONSTRAINT|RAISE|LIKE|NOTNULL|CROSS|IF|PARTITION|VACUUM|ROLLBACK|ANALYZE|JOIN|IGNORE)$"#),
 })
 );
 
@@ -28193,10 +28188,7 @@ Arc::new(Grammar::Nothing())
 // name='ParameterNameSegment'
 pub static PARAMETER_NAME_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
 Arc::new(Grammar::RegexParser {
-    template: regex::RegexBuilder::new(r#"\"?[A-Z][A-Z0-9_]*\"?"#)
-         .case_insensitive(true)
-         .build()
-         .unwrap(),
+    template: RegexMode::new(r#"\"?[A-Z][A-Z0-9_]*\"?"#),
     token_type: "parameter",
     raw_class: "CodeSegment",
     optional: false,

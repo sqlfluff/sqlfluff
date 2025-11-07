@@ -3,6 +3,7 @@
 use std::sync::Arc;
 use once_cell::sync::Lazy;
 use sqlfluffrs_types::{Grammar, ParseMode, SimpleHint};
+use sqlfluffrs_types::regex::RegexMode;
 
 // name='AbsentKeywordSegment'
 pub static ABSENT_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
@@ -15340,14 +15341,11 @@ pub static DATATYPE_IDENTIFIER_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
 Arc::new(Grammar::OneOf {
     elements: vec![
 Arc::new(Grammar::RegexParser {
-    template: regex::RegexBuilder::new(r#"[A-Z_][A-Z0-9_]*"#)
-         .case_insensitive(true)
-         .build()
-         .unwrap(),
+    template: RegexMode::new(r#"[A-Z_][A-Z0-9_]*"#),
     token_type: "data_type_identifier",
     raw_class: "CodeSegment",
     optional: false,
-    anti_template: Some(regex::RegexBuilder::new(r#"^(NOT)$"#)         .case_insensitive(true)         .build()         .unwrap()     ),
+    anti_template: Some(regex::RegexMode::new(r#"^(NOT)$"#),
 })
 ,
 Arc::new(Grammar::Ref {
@@ -28973,14 +28971,11 @@ Arc::new(Grammar::StringParser {
 // name='NakedIdentifierSegment'
 pub static NAKED_IDENTIFIER_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
 Arc::new(Grammar::RegexParser {
-    template: regex::RegexBuilder::new(r#"[A-Z0-9_]*[A-Z][A-Z0-9_]*"#)
-         .case_insensitive(true)
-         .build()
-         .unwrap(),
+    template: RegexMode::new(r#"[A-Z0-9_]*[A-Z][A-Z0-9_]*"#),
     token_type: "naked_identifier",
     raw_class: "IdentifierSegment",
     optional: false,
-    anti_template: Some(regex::RegexBuilder::new(r#"^(OR|HAVING|IS|CURRENT_ROLE|EXECUTE|GROUPING|ELSE|EXTRACT|INTERSECT|RIGHT|LISTAGG|FOR|FUNCTION|GROUP|CUBE|LOCALTIME|ESCAPE|TABLE|EXCEPT|ALTER|AS|UNION|JSON_OBJECT|NORMALIZE|CROSS|LIKE|ON|CURRENT_PATH|DELETE|NOT|CREATE|CASE|CURRENT_SCHEMA|TRIM|FULL|JSON_VALUE|FROM|JSON_QUERY|OUTER|LEFT|THEN|CURRENT_CATALOG|USING|CURRENT_TIME|WITH|CURRENT_TIMESTAMP|BY|BETWEEN|JSON_ARRAY|DEALLOCATE|NATURAL|LOCALTIMESTAMP|VALUES|CONSTRAINT|DISTINCT|FALSE|NULL|DESCRIBE|JSON_TABLE|IN|END|RECURSIVE|SKIP|JOIN|INNER|ROLLUP|SELECT|AND|CAST|ORDER|INSERT|CURRENT_DATE|UNNEST|WHEN|TRUE|DROP|WHERE|UESCAPE|JSON_EXISTS|CURRENT_USER|INTO|EXISTS|PREPARE)$"#)         .case_insensitive(true)         .build()         .unwrap()     ),
+    anti_template: Some(regex::RegexMode::new(r#"^(FALSE|EXTRACT|JSON_OBJECT|WHERE|BETWEEN|PREPARE|INTO|OUTER|TRUE|JSON_ARRAY|JSON_TABLE|SKIP|DELETE|FROM|HAVING|CUBE|RIGHT|INSERT|ON|SELECT|UESCAPE|INNER|WITH|UNNEST|CASE|THEN|USING|VALUES|OR|UNION|AS|ESCAPE|NATURAL|RECURSIVE|EXCEPT|CURRENT_ROLE|CREATE|DROP|LOCALTIME|FULL|WHEN|CURRENT_USER|DEALLOCATE|BY|CURRENT_TIME|CAST|FUNCTION|GROUP|CURRENT_SCHEMA|NORMALIZE|DISTINCT|ROLLUP|TABLE|CURRENT_PATH|LISTAGG|EXISTS|IN|INTERSECT|CURRENT_TIMESTAMP|GROUPING|ALTER|CURRENT_DATE|LEFT|JSON_QUERY|CONSTRAINT|DESCRIBE|LIKE|CROSS|CURRENT_CATALOG|ORDER|IS|LOCALTIMESTAMP|AND|JSON_VALUE|NULL|FOR|NOT|JSON_EXISTS|TRIM|END|JOIN|ELSE|EXECUTE)$"#),
 })
 );
 
@@ -31281,10 +31276,7 @@ Arc::new(Grammar::Nothing())
 // name='ParameterNameSegment'
 pub static PARAMETER_NAME_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
 Arc::new(Grammar::RegexParser {
-    template: regex::RegexBuilder::new(r#"\"?[A-Z][A-Z0-9_]*\"?"#)
-         .case_insensitive(true)
-         .build()
-         .unwrap(),
+    template: RegexMode::new(r#"\"?[A-Z][A-Z0-9_]*\"?"#),
     token_type: "parameter",
     raw_class: "CodeSegment",
     optional: false,

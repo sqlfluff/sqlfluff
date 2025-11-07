@@ -3,6 +3,7 @@
 use std::sync::Arc;
 use once_cell::sync::Lazy;
 use sqlfluffrs_types::{Grammar, ParseMode, SimpleHint};
+use sqlfluffrs_types::regex::RegexMode;
 
 // name='AbortKeywordSegment'
 pub static ABORT_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
@@ -27044,14 +27045,11 @@ pub static DATATYPE_IDENTIFIER_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
 Arc::new(Grammar::OneOf {
     elements: vec![
 Arc::new(Grammar::RegexParser {
-    template: regex::RegexBuilder::new(r#"[A-Z_][A-Z0-9_]*"#)
-         .case_insensitive(true)
-         .build()
-         .unwrap(),
+    template: RegexMode::new(r#"[A-Z_][A-Z0-9_]*"#),
     token_type: "data_type_identifier",
     raw_class: "CodeSegment",
     optional: false,
-    anti_template: Some(regex::RegexBuilder::new(r#"^(NOT)$"#)         .case_insensitive(true)         .build()         .unwrap()     ),
+    anti_template: Some(regex::RegexMode::new(r#"^(NOT)$"#),
 })
 ,
 Arc::new(Grammar::Ref {
@@ -49542,10 +49540,7 @@ Arc::new(Grammar::StringParser {
 // name='LocalVariableNameSegment'
 pub static LOCAL_VARIABLE_NAME_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
 Arc::new(Grammar::RegexParser {
-    template: regex::RegexBuilder::new(r#"`?[a-zA-Z0-9_$]*`?"#)
-         .case_insensitive(true)
-         .build()
-         .unwrap(),
+    template: RegexMode::new(r#"`?[a-zA-Z0-9_$]*`?"#),
     token_type: "variable",
     raw_class: "CodeSegment",
     optional: false,
@@ -51863,14 +51858,11 @@ Arc::new(Grammar::StringParser {
 // name='NakedIdentifierSegment'
 pub static NAKED_IDENTIFIER_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
 Arc::new(Grammar::RegexParser {
-    template: regex::RegexBuilder::new(r#"([A-Z0-9_]*[A-Z][A-Z0-9_]*)|_"#)
-         .case_insensitive(true)
-         .build()
-         .unwrap(),
+    template: RegexMode::new(r#"([A-Z0-9_]*[A-Z][A-Z0-9_]*)|_"#),
     token_type: "naked_identifier",
     raw_class: "IdentifierSegment",
     optional: false,
-    anti_template: Some(regex::RegexBuilder::new(r#"^(REPLICA|OR|HAVING|IS|DISTRIBUTED|SCHEMAS|TERMINATED|MAXVALUE|WHITELIST|INTEGER|ROW|ELSE|NO_USE_MV|SETS|EXTRACT|INTERSECT|RIGHT|UNINSTALL|FOR|LIST|INFILE|CUBE|REBALANCE|ALTER|AUTO|BINLOG|DOUBLE|UNION|DISTRIBUTION|UNSIGNED|APPEND|DUMP|KILL|EXTENDED|REPAIR|CROSS|COLUMN|DATABASE|DESC|NOT|CREATE|INTERMEDIATE|SYNC|BIGINT|LEFT|OUTER|THEN|USE_MV|LOW_PRIORITY|OBSERVER|IF|PARTITION|WITH|TINYINT|BY|BETWEEN|ENTER|NATURAL|ANALYZE|VALUES|CONSTRAINT|DISTINCT|PROCEDURE|IN|ASC|INSTALL|ROWS|LOAD|INNER|SQL_BLOCK_RULE|ANALYZER|UPDATE|AND|ACCOUNT_UNLOCK|TOKEN_FILTER|LAYOUT|BACKEND|INSERT|WHEN|SIGNED|HLL|BINARY|TRUE|DECOMMISSION|DATABASES|OVER|WHERE|GRANTS|TO|FLOAT|PREPARE|RANGE|FOLLOWING|MATCH|DISK|EXECUTE|OUTFILE|TABLET|INT|OVERWRITE|DROPP|SEMI|GROUP|MINUS|KEY|TABLETS|TABLE|DUPLICATE|EXCEPT|CURRENT|REFERENCES|AS|REAL|SHOW|KEYS|FORCE|LIKE|UNBOUNDED|ON|DEFAULT|DELETE|DIV|SET|TRASH|USE|CASE|TRIM|FULL|ADD|INDEX|UNIQUE|FROM|PLACEHOLDER|FOREIGN|LARGEINT|CLEAN|PRECEDING|READ|SUPERUSER|TABLESAMPLE|USING|CANCEL|PLAY|REVOKE|ROLES|PRIMARY|SYSTEM|ANTI|ALL|FALSE|ADMIN|NULL|DESCRIBE|SWITCH|ACCOUNT_LOCK|JOIN|TOKENIZER|SMALLINT|COLLATE|ROLE|SELECT|EXPORT|WORKLOAD|EXPLAIN|CAST|RELEASE|LATERAL|ORDER|WRITE|FRONTEND|RENAME|REGEXP|DROP|XOR|LIMIT|FUNCTIONS|GRANT|INTERVAL|TYPECAST|INTO|FOLLOWER|EXISTS)$"#)         .case_insensitive(true)         .build()         .unwrap()     ),
+    anti_template: Some(regex::RegexMode::new(r#"^(LARGEINT|FALSE|EXTRACT|INSTALL|WHERE|DECOMMISSION|NO_USE_MV|MATCH|BETWEEN|PLACEHOLDER|LIMIT|OUTFILE|SEMI|TRUE|DELETE|KILL|FROM|CUBE|SET|COLLATE|TINYINT|ALL|FLOAT|REVOKE|SELECT|TRASH|INNER|WITH|REBALANCE|CASE|DROPP|THEN|INTERMEDIATE|AUTO|VALUES|WHITELIST|OBSERVER|UNION|GRANT|BINLOG|ADD|DROP|FULL|DATABASE|TABLET|BY|WORKLOAD|UPDATE|LIST|EXPLAIN|FORCE|EXTENDED|INFILE|FOLLOWER|INTEGER|ANTI|SUPERUSER|DEFAULT|LEFT|FOREIGN|SWITCH|ACCOUNT_UNLOCK|LAYOUT|BINARY|SETS|SYSTEM|ACCOUNT_LOCK|DIV|ORDER|CURRENT|IS|AND|WRITE|NULL|FOR|DATABASES|NOT|UNINSTALL|INT|TRIM|XOR|ROLE|RELEASE|SIGNED|EXECUTE|ELSE|DOUBLE|BIGINT|REPLICA|TERMINATED|USE_MV|DESC|PREPARE|INTO|OUTER|FRONTEND|HAVING|RIGHT|HLL|SQL_BLOCK_RULE|INSERT|ON|BACKEND|DUMP|ANALYZER|MINUS|INTERVAL|ASC|TO|PRECEDING|DISK|UNSIGNED|ADMIN|PRIMARY|CANCEL|REFERENCES|ROW|UNIQUE|USING|DUPLICATE|REGEXP|OR|AS|PROCEDURE|REPAIR|NATURAL|TOKENIZER|UNBOUNDED|TABLETS|EXCEPT|CLEAN|CREATE|DISTRIBUTION|FOLLOWING|GRANTS|MAXVALUE|READ|WHEN|TOKEN_FILTER|DISTRIBUTED|FUNCTIONS|INDEX|RENAME|CAST|GROUP|KEYS|LOW_PRIORITY|DISTINCT|RANGE|TABLE|KEY|ROLES|SMALLINT|TYPECAST|EXISTS|COLUMN|IN|INTERSECT|SHOW|ALTER|LATERAL|USE|OVER|LOAD|ROWS|APPEND|CONSTRAINT|PLAY|REAL|DESCRIBE|SYNC|LIKE|CROSS|ENTER|EXPORT|IF|PARTITION|TABLESAMPLE|ANALYZE|JOIN|SCHEMAS|OVERWRITE)$"#),
 })
 );
 
@@ -55382,10 +55374,7 @@ Arc::new(Grammar::StringParser {
 // name='ParameterNameSegment'
 pub static PARAMETER_NAME_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
 Arc::new(Grammar::RegexParser {
-    template: regex::RegexBuilder::new(r#"`?[A-Za-z0-9_]*`?"#)
-         .case_insensitive(true)
-         .build()
-         .unwrap(),
+    template: RegexMode::new(r#"`?[A-Za-z0-9_]*`?"#),
     token_type: "parameter",
     raw_class: "CodeSegment",
     optional: false,
@@ -64528,10 +64517,7 @@ Arc::new(Grammar::StringParser {
 // name='SessionVariableNameSegment'
 pub static SESSION_VARIABLE_NAME_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
 Arc::new(Grammar::RegexParser {
-    template: regex::RegexBuilder::new(r#"[@][a-zA-Z0-9_$]*"#)
-         .case_insensitive(true)
-         .build()
-         .unwrap(),
+    template: RegexMode::new(r#"[@][a-zA-Z0-9_$]*"#),
     token_type: "variable",
     raw_class: "CodeSegment",
     optional: false,
@@ -69337,10 +69323,7 @@ Arc::new(Grammar::StringParser {
 // name='SystemVariableSegment'
 pub static SYSTEM_VARIABLE_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
 Arc::new(Grammar::RegexParser {
-    template: regex::RegexBuilder::new(r#"@@((session|global|local|persist|persist_only)\.)?[A-Za-z0-9_]+"#)
-         .case_insensitive(true)
-         .build()
-         .unwrap(),
+    template: RegexMode::new(r#"@@((session|global|local|persist|persist_only)\.)?[A-Za-z0-9_]+"#),
     token_type: "system_variable",
     raw_class: "CodeSegment",
     optional: false,

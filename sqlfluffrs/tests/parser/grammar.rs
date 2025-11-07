@@ -380,10 +380,7 @@ fn test_delimited_basic() -> Result<(), ParseError> {
     });
     // Element: word (A, B, C)
     let element = Arc::new(Grammar::RegexParser {
-        template: regex::RegexBuilder::new("[A-Z]+")
-            .case_insensitive(true)
-            .build()
-            .unwrap(),
+        template: sqlfluffrs_types::regex::RegexMode::new("[A-Z]+"),
         raw_class: "WordSegment",
         token_type: "word",
         anti_template: None,
@@ -444,10 +441,7 @@ fn test_delimited_optional_and_trailing() -> Result<(), ParseError> {
     }));
     // Element: word (A, B, C)
     let element = Arc::new(Grammar::RegexParser {
-        template: regex::RegexBuilder::new("[A-Z]+")
-            .case_insensitive(true)
-            .build()
-            .unwrap(),
+        template: sqlfluffrs_types::regex::RegexMode::new("[A-Z]+"),
         raw_class: "WordSegment",
         token_type: "word",
         anti_template: None,
@@ -821,7 +815,7 @@ fn test_nothing_grammar_matches_nothing() -> Result<(), ParseError> {
     let mut parser = Parser::new(&tokens, dialect);
     // If Grammar::Nothing exists, use it; else, use a regex that matches nothing
     let grammar = Arc::new(Grammar::RegexParser {
-        template: regex::RegexBuilder::new("^$").build().unwrap(),
+        template: sqlfluffrs_types::regex::RegexMode::new("^$"),
         raw_class: "NothingSegment",
         token_type: "nothing",
         anti_template: None,

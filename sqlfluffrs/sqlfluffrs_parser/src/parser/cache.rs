@@ -1083,16 +1083,15 @@ mod tests {
     fn test_cache_key_equivalence_for_identical_regexparsers() {
         use sqlfluffrs_types::Grammar;
         use std::sync::Arc;
-        let regex = regex::Regex::new("^[a-z]+$").unwrap();
         let g1 = Arc::new(Grammar::RegexParser {
-            template: regex.clone(),
+            template: sqlfluffrs_types::regex::RegexMode::new("^[a-z]+$"),
             token_type: "word",
             raw_class: "WordSegment",
             optional: false,
             anti_template: None,
         });
         let g2 = Arc::new(Grammar::RegexParser {
-            template: regex.clone(),
+            template: sqlfluffrs_types::regex::RegexMode::new("^[a-z]+$"),
             token_type: "word",
             raw_class: "WordSegment",
             optional: false,

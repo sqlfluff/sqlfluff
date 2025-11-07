@@ -3,6 +3,7 @@
 use std::sync::Arc;
 use once_cell::sync::Lazy;
 use sqlfluffrs_types::{Grammar, ParseMode, SimpleHint};
+use sqlfluffrs_types::regex::RegexMode;
 
 // name='AbortKeywordSegment'
 pub static ABORT_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
@@ -52252,10 +52253,7 @@ Arc::new(Grammar::Ref {
 Arc::new(Grammar::AnyNumberOf {
     elements: vec![
 Arc::new(Grammar::RegexParser {
-    template: regex::RegexBuilder::new(r#"^[+\-*/<>=~!@#%^&|`?]+$"#)
-         .case_insensitive(true)
-         .build()
-         .unwrap(),
+    template: RegexMode::new(r#"^[+\-*/<>=~!@#%^&|`?]+$"#),
     token_type: "commutator",
     raw_class: "SymbolSegment",
     optional: false,
@@ -52385,10 +52383,7 @@ Arc::new(Grammar::Ref {
 Arc::new(Grammar::AnyNumberOf {
     elements: vec![
 Arc::new(Grammar::RegexParser {
-    template: regex::RegexBuilder::new(r#"^[+\-*/<>=~!@#%^&|`?]+$"#)
-         .case_insensitive(true)
-         .build()
-         .unwrap(),
+    template: RegexMode::new(r#"^[+\-*/<>=~!@#%^&|`?]+$"#),
     token_type: "commutator",
     raw_class: "SymbolSegment",
     optional: false,
@@ -52449,10 +52444,7 @@ Arc::new(Grammar::Ref {
 Arc::new(Grammar::AnyNumberOf {
     elements: vec![
 Arc::new(Grammar::RegexParser {
-    template: regex::RegexBuilder::new(r#"^[+\-*/<>=~!@#%^&|`?]+$"#)
-         .case_insensitive(true)
-         .build()
-         .unwrap(),
+    template: RegexMode::new(r#"^[+\-*/<>=~!@#%^&|`?]+$"#),
     token_type: "negator",
     raw_class: "SymbolSegment",
     optional: false,
@@ -64092,14 +64084,11 @@ pub static DATATYPE_IDENTIFIER_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
 Arc::new(Grammar::OneOf {
     elements: vec![
 Arc::new(Grammar::RegexParser {
-    template: regex::RegexBuilder::new(r#"[A-Z_][A-Z0-9_]*"#)
-         .case_insensitive(true)
-         .build()
-         .unwrap(),
+    template: RegexMode::new(r#"[A-Z_][A-Z0-9_]*"#),
     token_type: "data_type_identifier",
     raw_class: "CodeSegment",
     optional: false,
-    anti_template: Some(regex::RegexBuilder::new(r#"^(NOT)$"#)         .case_insensitive(true)         .build()         .unwrap()     ),
+    anti_template: Some(regex::RegexMode::new(r#"^(NOT)$"#),
 })
 ,
 Arc::new(Grammar::Ref {
@@ -81713,10 +81702,7 @@ Arc::new(Grammar::StringParser {
 // name='FunctionNameIdentifierSegment'
 pub static FUNCTION_NAME_IDENTIFIER_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
 Arc::new(Grammar::RegexParser {
-    template: regex::RegexBuilder::new(r#"[A-Z_][A-Z0-9_$]*"#)
-         .case_insensitive(true)
-         .build()
-         .unwrap(),
+    template: RegexMode::new(r#"[A-Z_][A-Z0-9_$]*"#),
     token_type: "function_name_identifier",
     raw_class: "CodeSegment",
     optional: false,
@@ -93182,14 +93168,11 @@ Arc::new(Grammar::TypedParser {
 // name='NakedIdentifierSegment'
 pub static NAKED_IDENTIFIER_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
 Arc::new(Grammar::RegexParser {
-    template: regex::RegexBuilder::new(r#"[A-Z_][A-Z0-9_$]*"#)
-         .case_insensitive(true)
-         .build()
-         .unwrap(),
+    template: RegexMode::new(r#"[A-Z_][A-Z0-9_$]*"#),
     token_type: "naked_identifier",
     raw_class: "IdentifierSegment",
     optional: false,
-    anti_template: Some(regex::RegexBuilder::new(r#"^(FOLLOWING|OR|IS|SINKS|USING|WITH|SINK|BY|ILIKE|ROW|ELSE|ANY|INTERSECT|CHECK|NATURAL|FOR|OF|VALUES|ALL|CONSTRAINT|DISTINCT|NULL|GROUP|IN|JOIN|CURRENT|ALTER|ROWS|INNER|AS|RETURNING|SELECT|UNION|UPDATE|AND|CONNECTIONS|CAST|CROSS|LATERAL|CLUSTER|INSERT|LIKE|ORDER|WHEN|CONNECTION|CLUSTERS|ON|DELETE|DROP|NOT|CREATE|SET|TO|WHERE|FULL|NULLIF|UNIQUE|INTO|FROM|EXISTS|LEFT)$"#)         .case_insensitive(true)         .build()         .unwrap()     ),
+    anti_template: Some(regex::RegexMode::new(r#"^(BY|CAST|GROUP|UPDATE|RETURNING|DISTINCT|WHERE|NULLIF|CONNECTIONS|INTO|SINK|DELETE|ANY|EXISTS|FROM|CLUSTERS|IN|INTERSECT|SET|ALL|INSERT|ON|ALTER|SELECT|LATERAL|INNER|TO|WITH|ROWS|LEFT|ILIKE|ROW|CONSTRAINT|UNIQUE|USING|LIKE|CROSS|OR|VALUES|UNION|AS|ORDER|CURRENT|IS|NATURAL|AND|OF|CHECK|NULL|FOR|CREATE|CLUSTER|DROP|CONNECTION|FOLLOWING|NOT|SINKS|JOIN|FULL|WHEN|ELSE)$"#),
 })
 );
 
@@ -97249,10 +97232,7 @@ Arc::new(Grammar::StringParser {
 // name='ParameterNameSegment'
 pub static PARAMETER_NAME_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
 Arc::new(Grammar::RegexParser {
-    template: regex::RegexBuilder::new(r#"[A-Z_][A-Z0-9_$]*|"[^"]*""#)
-         .case_insensitive(true)
-         .build()
-         .unwrap(),
+    template: RegexMode::new(r#"[A-Z_][A-Z0-9_$]*|"[^"]*""#),
     token_type: "parameter",
     raw_class: "CodeSegment",
     optional: false,
@@ -100008,10 +99988,7 @@ Arc::new(Grammar::Ref {
 Arc::new(Grammar::AnyNumberOf {
     elements: vec![
 Arc::new(Grammar::RegexParser {
-    template: regex::RegexBuilder::new(r#"[!<>=~@#%^&|`?+\-*/]+"#)
-         .case_insensitive(true)
-         .build()
-         .unwrap(),
+    template: RegexMode::new(r#"[!<>=~@#%^&|`?+\-*/]+"#),
     token_type: "operator",
     raw_class: "SymbolSegment",
     optional: false,
@@ -100275,10 +100252,7 @@ Arc::new(Grammar::Ref {
 })
 ,
 Arc::new(Grammar::RegexParser {
-    template: regex::RegexBuilder::new(r#"(?i)'[0-9a-f]*'"#)
-         .case_insensitive(true)
-         .build()
-         .unwrap(),
+    template: RegexMode::new(r#"(?i)'[0-9a-f]*'"#),
     token_type: "quoted_literal",
     raw_class: "LiteralSegment",
     optional: false,
@@ -100338,10 +100312,7 @@ Arc::new(Grammar::Ref {
 })
 ,
 Arc::new(Grammar::RegexParser {
-    template: regex::RegexBuilder::new(r#"'([^']|'')*'"#)
-         .case_insensitive(true)
-         .build()
-         .unwrap(),
+    template: RegexMode::new(r#"'([^']|'')*'"#),
     token_type: "quoted_literal",
     raw_class: "LiteralSegment",
     optional: false,
@@ -100379,10 +100350,7 @@ Arc::new(Grammar::Ref {
 })
 ,
 Arc::new(Grammar::RegexParser {
-    template: regex::RegexBuilder::new(r#"'[^0-9A-Fa-f'+\-\s)]'"#)
-         .case_insensitive(true)
-         .build()
-         .unwrap(),
+    template: RegexMode::new(r#"'[^0-9A-Fa-f'+\-\s)]'"#),
     token_type: "unicode_escape_value",
     raw_class: "CodeSegment",
     optional: false,
