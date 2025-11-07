@@ -1,11 +1,9 @@
 use std::sync::Arc;
 
-use crate::parser::iterative::{NextStep, ParseFrameStack};
-use crate::parser::utils::{apply_parse_mode_to_result, skip_start_index_forward_to_code};
+use crate::parser::iterative::{FrameResult, ParseFrameStack};
+use crate::parser::utils::apply_parse_mode_to_result;
 use crate::parser::{FrameContext, FrameState, Node, ParseError, ParseFrame};
-use sqlfluffrs_types::{Grammar, ParseMode};
-
-type ResultType = (Node, usize, Option<u64>);
+use sqlfluffrs_types::Grammar;
 
 impl crate::parser::Parser<'_> {
     /// Handle AnyNumberOf grammar Initial state in iterative parser.
@@ -32,11 +30,11 @@ impl crate::parser::Parser<'_> {
     pub fn handle_anynumberof_initial(
         &mut self,
         grammar: Arc<Grammar>,
-        frame: &mut ParseFrame,
+        mut frame: ParseFrame,
         parent_terminators: &[Arc<Grammar>],
         stack: &mut ParseFrameStack,
         iteration_count: usize,
-    ) -> Result<NextStep, ParseError> {
+    ) -> Result<FrameResult, ParseError> {
         log::debug!(
             "START AnyNumberOf: frame_id={}, pos={}, grammar={:?}",
             frame.frame_id,
@@ -109,14 +107,13 @@ impl crate::parser::Parser<'_> {
                 stack
                     .results
                     .insert(frame.frame_id, (Node::Empty, start_idx, None));
-                return Ok(NextStep::Continue);
+                return Ok(FrameResult::Done);
             }
             log::debug!("AnyNumberOf: exclude grammar did not match, continuing");
         }
 
         let option_counter: hashbrown::HashMap<u64, usize> =
             elements.iter().map(|elem| (elem.cache_key(), 0)).collect();
-        let matched: ResultType = (Node::Empty, start_idx, None);
 
         // Combine parent and local terminators
         let all_terminators =
@@ -129,7 +126,7 @@ impl crate::parser::Parser<'_> {
             stack
                 .results
                 .insert(frame.frame_id, (Node::Empty, start_idx, None));
-            return Ok(NextStep::Fallthrough);
+            return Ok(FrameResult::Done);
         }
 
         // Calculate max_idx with terminator and parent constraints
@@ -158,15 +155,8 @@ impl crate::parser::Parser<'_> {
             Err(value) => {
                 if let Node::Empty = value {
                     log::debug!("AnyNumberOf: No available options at start, returning Empty");
-                    // Need to take ownership of frame for handle_empty_initial
-                    let frame_owned = std::mem::replace(frame, crate::parser::ParseFrame::new_child(
-                        0, // dummy
-                        frame.grammar.clone(),
-                        0,
-                        vec![],
-                        None,
-                    ));
-                    return self.handle_empty_initial(frame_owned, &mut stack.results);
+                    // Frame is already owned, so we can use it directly
+                    return self.handle_empty_initial(frame);
                 } else {
                     unreachable!()
                 }
@@ -194,7 +184,7 @@ impl crate::parser::Parser<'_> {
         };
         frame.terminators = all_terminators.clone();
 
-        stack.push(frame);
+        stack.push(&mut frame);
 
         if !elements_for_oneof.is_empty() {
             log::debug!(
@@ -245,20 +235,20 @@ impl crate::parser::Parser<'_> {
                 iteration_count
             );
         }
-        Ok(NextStep::Continue)
+        Ok(FrameResult::Done)
     }
 
     /// Handle AnyNumberOf grammar WaitingForChild state in iterative parser
     pub(crate) fn handle_anynumberof_waiting_for_child(
         &mut self,
-        frame: &mut crate::parser::ParseFrame,
+        mut frame: &mut crate::parser::ParseFrame,
         child_node: &crate::parser::Node,
         child_end_pos: &usize,
         child_element_key: &Option<u64>,
         stack: &mut crate::parser::iterative::ParseFrameStack,
         iteration_count: usize,
         frame_terminators: Vec<std::sync::Arc<crate::parser::Grammar>>,
-    ) {
+    ) -> Result<crate::parser::iterative::FrameResult, crate::parser::ParseError> {
         // Extract the context from the frame
         let FrameContext::AnyNumberOf {
             grammar,
@@ -303,25 +293,14 @@ impl crate::parser::Parser<'_> {
                     working_idx
                 );
                 // Treat zero-width match as Empty to prevent infinite recursion
-                // Complete with what we've matched so far
-                self.pos = *matched_idx;
-                let result_node = if frame.accumulated.is_empty() {
-                    Node::Empty
-                } else {
-                    Node::DelimitedList {
-                        children: frame.accumulated.clone(),
-                    }
-                };
+                // Transition to Combining state to finalize
                 log::debug!(
-                    "AnyNumberOf COMPLETE (zero-width match): {} matches, storing result at frame_id={}, matched_idx={}",
-                    count,
-                    frame.frame_id,
-                    matched_idx
+                    "AnyNumberOf: zero-width match, transitioning to Combining state, frame_id={}",
+                    frame.frame_id
                 );
-                stack
-                    .results
-                    .insert(frame.frame_id, (result_node, *matched_idx, None));
-                return;
+                frame.state = FrameState::Combining;
+                stack.push(frame);
+                return Ok(crate::parser::iterative::FrameResult::Done);
             }
 
             if *allow_gaps && *matched_idx < *working_idx {
@@ -378,28 +357,20 @@ impl crate::parser::Parser<'_> {
 
                         // Check if we met min_times without the excess element
                         if *count >= *min_times {
-                            self.pos = *matched_idx;
-                            let result_node = Node::DelimitedList {
-                                children: frame.accumulated.clone(),
-                            };
                             log::debug!(
-                                "AnyNumberOf COMPLETE (max_times_per_element): {} matches",
-                                count
+                                "AnyNumberOf: max_times_per_element exceeded but min_times met, transitioning to Combining"
                             );
-                            stack
-                                .results
-                                .insert(frame.frame_id, (result_node, *matched_idx, None));
-                            return;
+                            frame.state = FrameState::Combining;
+                            stack.push(frame);
+                            return Ok(crate::parser::iterative::FrameResult::Done);
                         } else {
-                            // Didn't meet min_times, return Empty
-                            self.pos = frame.pos;
+                            // Didn't meet min_times, transition to Combining (will return Empty)
                             log::debug!(
-                                "AnyNumberOf Empty (max_times_per_element exceeded, min_times not met)"
+                                "AnyNumberOf: max_times_per_element exceeded, min_times not met, transitioning to Combining"
                             );
-                            stack
-                                .results
-                                .insert(frame.frame_id, (Node::Empty, frame.pos, None));
-                            return;
+                            frame.state = FrameState::Combining;
+                            stack.push(frame);
+                            return Ok(crate::parser::iterative::FrameResult::Done);
                         }
                     }
                 }
@@ -433,18 +404,13 @@ impl crate::parser::Parser<'_> {
                 // After skipping gaps, check if we've reached max_idx
                 if *working_idx >= *max_idx {
                     log::debug!(
-                        "AnyNumberOf: working_idx ({}) >= max_idx ({}) after skipping gaps, completing",
+                        "AnyNumberOf: working_idx ({}) >= max_idx ({}) after skipping gaps, transitioning to Combining",
                         working_idx,
                         max_idx
                     );
-                    self.pos = *matched_idx;
-                    let result_node = Node::DelimitedList {
-                        children: frame.accumulated.clone(),
-                    };
-                    stack
-                        .results
-                        .insert(frame.frame_id, (result_node, *matched_idx, None));
-                    return;
+                    frame.state = FrameState::Combining;
+                    stack.push(frame);
+                    return Ok(crate::parser::iterative::FrameResult::Done);
                 }
                 if !elements.is_empty() {
                     let child_grammar = if elements.len() == 1 {
@@ -479,70 +445,105 @@ impl crate::parser::Parser<'_> {
                         iteration_count,
                         stack.len()
                     );
-                    return;
+                    return Ok(crate::parser::iterative::FrameResult::Done);
                 } else {
                     // elements.is_empty() but should_continue - this shouldn't happen normally
                     // but we need to handle it to avoid infinite loop
                     log::debug!(
-                        "AnyNumberOf: elements empty but should_continue=true, completing with {} matches",
-                        count
+                        "AnyNumberOf: elements empty but should_continue=true, transitioning to Combining"
                     );
-                    self.pos = *matched_idx;
-                    let result_node = Node::DelimitedList {
-                        children: frame.accumulated.clone(),
-                    };
-                    stack
-                        .results
-                        .insert(frame.frame_id, (result_node, *matched_idx, None));
-                    return;
+                    frame.state = FrameState::Combining;
+                    stack.push(frame);
                 }
             } else {
-                self.pos = *matched_idx;
-                let result_node = Node::DelimitedList {
-                    children: frame.accumulated.clone(),
-                };
                 log::debug!(
-                    "AnyNumberOf COMPLETE: {} matches, storing result at frame_id={}, matched_idx={}",
-                    count,
-                    frame.frame_id,
-                    matched_idx
+                    "AnyNumberOf: Done iterating (count={}, should_continue=false), transitioning to Combining",
+                    count
                 );
-                stack
-                    .results
-                    .insert(frame.frame_id, (result_node, *matched_idx, None));
-                return;
+                frame.state = FrameState::Combining;
+                stack.push(frame);
             }
         } else {
             log::debug!(
                 "AnyNumberOf: child failed to match at position {}",
                 working_idx
             );
-            if *count < *min_times {
-                self.pos = frame.pos;
-                log::debug!(
-                    "AnyNumberOf returning Empty (didn't meet min_times {} < {})",
-                    count,
-                    min_times
-                );
-                stack
-                    .results
-                    .insert(frame.frame_id, (Node::Empty, frame.pos, None));
-                return;
-            } else {
-                self.pos = *matched_idx;
-                let result_node = Node::DelimitedList {
-                    children: frame.accumulated.clone(),
-                };
-                log::debug!(
-                    "AnyNumberOf COMPLETE (child failed): {} matches, storing result at frame_id={}",
-                    count, frame.frame_id
-                );
-                stack
-                    .results
-                    .insert(frame.frame_id, (result_node, *matched_idx, None));
-                return;
-            }
+            // Child failed - transition to Combining to check min_times and finalize
+            log::debug!(
+                "AnyNumberOf: child failed, transitioning to Combining (count={}, min_times={})",
+                count,
+                min_times
+            );
+            frame.state = FrameState::Combining;
+            stack.push(frame);
         }
+        Ok(crate::parser::iterative::FrameResult::Done)
+    }
+
+    /// Handle AnyNumberOf grammar Combining state - build final node from accumulated children.
+    ///
+    /// Called after all children have been collected in waiting_for_child state.
+    /// Builds the final DelimitedList node and transitions to Complete state.
+    pub(crate) fn handle_anynumberof_combining(
+        &mut self,
+        mut frame: ParseFrame,
+        stack: &mut ParseFrameStack,
+    ) -> Result<crate::parser::iterative::FrameResult, ParseError> {
+        log::debug!("🔨 AnyNumberOf combining frame_id={}", frame.frame_id);
+
+        // Extract context data
+        let FrameContext::AnyNumberOf {
+            grammar,
+            count,
+            matched_idx,
+            ..
+        } = &frame.context
+        else {
+            return Err(ParseError::new(
+                "Expected AnyNumberOf context in handle_anynumberof_combining".to_string(),
+            ));
+        };
+
+        let Grammar::AnyNumberOf { min_times, .. } = grammar.as_ref() else {
+            return Err(ParseError::new(
+                "Expected Grammar::AnyNumberOf in FrameContext::AnyNumberOf".to_string(),
+            ));
+        };
+
+        // Build the final result based on count and min_times
+        let (result_node, final_pos) = if *count < *min_times {
+            // Didn't meet min_times - return Empty
+            self.pos = frame.pos;
+            log::debug!(
+                "AnyNumberOf returning Empty (didn't meet min_times {} < {})",
+                count,
+                min_times
+            );
+            (Node::Empty, frame.pos)
+        } else {
+            // Met min_times - return DelimitedList with accumulated children
+            self.pos = *matched_idx;
+            let result = if frame.accumulated.is_empty() {
+                Node::Empty
+            } else {
+                Node::DelimitedList {
+                    children: frame.accumulated.clone(),
+                }
+            };
+            log::debug!(
+                "AnyNumberOf COMPLETE: {} matches, frame_id={}, matched_idx={}",
+                count,
+                frame.frame_id,
+                matched_idx
+            );
+            (result, *matched_idx)
+        };
+
+        // Store result info in frame and transition to Complete
+        frame.end_pos = Some(final_pos);
+        frame.state = FrameState::Complete(result_node);
+
+        Ok(crate::parser::iterative::FrameResult::Push(frame))
     }
 
     /// Handle OneOf grammar Initial state in iterative parser.
@@ -570,10 +571,10 @@ impl crate::parser::Parser<'_> {
     pub fn handle_oneof_initial(
         &mut self,
         grammar: Arc<Grammar>,
-        frame: &mut ParseFrame,
+        mut frame: ParseFrame,
         parent_terminators: &[Arc<Grammar>],
         stack: &mut ParseFrameStack,
-    ) -> Result<NextStep, ParseError> {
+    ) -> Result<FrameResult, ParseError> {
         log::debug!(
             "START OneOf: frame_id={}, pos={}, grammar={:?}",
             frame.frame_id,
@@ -619,7 +620,7 @@ impl crate::parser::Parser<'_> {
             stack
                 .results
                 .insert(frame.frame_id, (Node::Empty, pos, None));
-            return Ok(NextStep::Fallthrough);
+            return Ok(FrameResult::Done);
         }
 
         if let Some(exclude_grammar) = exclude {
@@ -629,7 +630,7 @@ impl crate::parser::Parser<'_> {
                 stack
                     .results
                     .insert(frame.frame_id, (Node::Empty, pos, None));
-                return Ok(NextStep::Fallthrough);
+                return Ok(FrameResult::Done);
             }
             log::debug!("exclude grammar missed!")
         }
@@ -679,7 +680,7 @@ impl crate::parser::Parser<'_> {
             stack
                 .results
                 .insert(frame.frame_id, (result, final_pos, None));
-            return Ok(NextStep::Fallthrough);
+            return Ok(FrameResult::Done);
         }
 
         // Use the already-pruned options (don't prune again)
@@ -710,7 +711,7 @@ impl crate::parser::Parser<'_> {
             stack
                 .results
                 .insert(frame.frame_id, (result, final_pos, None));
-            return Ok(NextStep::Fallthrough);
+            return Ok(FrameResult::Done);
         }
 
         let first_element = available_options[0].clone();
@@ -762,7 +763,7 @@ impl crate::parser::Parser<'_> {
                 stack,
                 all_terminators,
             );
-            return Ok(NextStep::Continue);
+            return Ok(FrameResult::Done);
         }
         log::debug!("OneOf: Trying first element (cache_key: {})", element_key);
 
@@ -785,20 +786,20 @@ impl crate::parser::Parser<'_> {
         };
 
         stack.increment_frame_id_counter();
-        stack.push(frame);
+        stack.push(&mut frame);
         stack.push(&mut child_frame);
-        Ok(NextStep::Continue)
+        Ok(FrameResult::Done)
     }
 
     pub(crate) fn handle_oneof_waiting_for_child(
         &mut self,
-        frame: &mut ParseFrame,
+        mut frame: ParseFrame,
         child_node: &Node,
         child_end_pos: &usize,
         child_element_key: &Option<u64>,
         stack: &mut ParseFrameStack,
         frame_terminators: Vec<Arc<Grammar>>,
-    ) {
+    ) -> Result<FrameResult, ParseError> {
         let FrameContext::OneOf {
             grammar,
             pruned_elements,
@@ -975,49 +976,99 @@ impl crate::parser::Parser<'_> {
                 child_index: 0,
                 total_children: 1,
             };
-            ParseFrame::push_child_and_update_parent(stack, frame, child_frame, "OneOf");
-            return;
+            ParseFrame::push_child_and_update_parent(stack, &mut frame, child_frame, "OneOf");
+            return Ok(FrameResult::Done);
         } else {
-            if let Some((best_node, best_consumed, best_element_key)) = longest_match {
-                self.pos = *post_skip_pos + *best_consumed;
-                log::debug!("[ONEOF RESULT] Returning match: frame_id={}, element_key={}, consumed={}, final_pos={}",
-                    frame.frame_id, best_element_key, best_consumed, self.pos);
-                log::debug!(
-                    "OneOf returning match with element_key={}, consumed={}",
-                    best_element_key,
-                    best_consumed
-                );
-                let result = if !leading_ws.is_empty() {
-                    let mut children = leading_ws.clone();
-                    children.push(best_node.clone());
-                    Node::Sequence { children }
-                } else {
-                    best_node.clone()
-                };
-                stack
-                    .results
-                    .insert(frame.frame_id, (result, self.pos, Some(*best_element_key)));
-                return;
-            } else {
-                let result_node = apply_parse_mode_to_result(
-                    self.tokens,
-                    Node::Empty,
-                    frame.pos,
-                    *max_idx,
-                    *parse_mode,
-                );
-                let final_pos = if matches!(result_node, Node::Empty) {
-                    frame.pos
-                } else {
-                    *max_idx
-                };
-                self.pos = final_pos;
-                stack
-                    .results
-                    .insert(frame.frame_id, (result_node, final_pos, None));
-                return;
-            }
+            // All elements tried - transition to Combining state to finalize result
+            log::debug!(
+                "[ONEOF DONE] All {} elements tried, transitioning to Combining state, frame_id={}",
+                elements.len(),
+                frame.frame_id
+            );
+            frame.state = FrameState::Combining;
+            // Push frame back onto stack so Combining handler can process it
+            stack.push(&mut frame);
+            return Ok(FrameResult::Done);
         }
+    }
+
+    /// Handle OneOf grammar Combining state - build final node from accumulated children.
+    ///
+    /// Called after all children have been collected in waiting_for_child state.
+    /// Builds the final node (typically wrapping the matched child) and transitions to Complete state.
+    pub(crate) fn handle_oneof_combining(
+        &mut self,
+        mut frame: ParseFrame,
+        stack: &mut ParseFrameStack,
+    ) -> Result<crate::parser::iterative::FrameResult, ParseError> {
+        log::debug!("🔨 OneOf combining frame_id={}", frame.frame_id);
+
+        // Extract context data
+        let FrameContext::OneOf {
+            grammar,
+            leading_ws,
+            post_skip_pos,
+            longest_match,
+            max_idx,
+            ..
+        } = &frame.context
+        else {
+            return Err(ParseError::new(
+                "Expected OneOf context in handle_oneof_combining".to_string(),
+            ));
+        };
+
+        let Grammar::OneOf { parse_mode, .. } = grammar.as_ref() else {
+            return Err(ParseError::new(
+                "Expected Grammar::OneOf in FrameContext::OneOf".to_string(),
+            ));
+        };
+
+        // Build the final result based on longest_match
+        let (result_node, final_pos) = if let Some((best_node, best_consumed, best_element_key)) =
+            longest_match
+        {
+            let final_pos = *post_skip_pos + *best_consumed;
+            self.pos = final_pos;
+
+            log::debug!(
+                "[ONEOF RESULT] Returning match: frame_id={}, element_key={}, consumed={}, final_pos={}",
+                frame.frame_id, best_element_key, best_consumed, final_pos
+            );
+
+            let result = if !leading_ws.is_empty() {
+                let mut children = leading_ws.clone();
+                children.push(best_node.clone());
+                Node::Sequence { children }
+            } else {
+                best_node.clone()
+            };
+
+            (result, final_pos)
+        } else {
+            // No match found - apply parse_mode
+            let result_node = apply_parse_mode_to_result(
+                self.tokens,
+                Node::Empty,
+                frame.pos,
+                *max_idx,
+                *parse_mode,
+            );
+            let final_pos = if matches!(result_node, Node::Empty) {
+                frame.pos
+            } else {
+                *max_idx
+            };
+            self.pos = final_pos;
+
+            (result_node, final_pos)
+        };
+
+        // Store result info in frame and transition to Complete
+        frame.end_pos = Some(final_pos);
+        frame.state = FrameState::Complete(result_node);
+
+        Ok(crate::parser::iterative::FrameResult::Push(frame))
     }
 
     // Helper methods

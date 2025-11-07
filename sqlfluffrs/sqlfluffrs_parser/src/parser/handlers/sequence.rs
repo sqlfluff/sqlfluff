@@ -1,7 +1,7 @@
 use std::sync::Arc;
 
 use crate::parser::{
-    iterative::{NextStep, ParseFrameStack},
+    iterative::{FrameResult, ParseFrameStack},
     BracketedState, FrameContext, FrameState, Node, ParseError, ParseFrame, Parser,
 };
 use sqlfluffrs_types::{Grammar, ParseMode};
@@ -35,10 +35,10 @@ impl<'a> Parser<'_> {
     pub(crate) fn handle_sequence_initial(
         &mut self,
         grammar: Arc<Grammar>,
-        frame: &mut ParseFrame,
+        mut frame: ParseFrame,
         parent_terminators: &[Arc<Grammar>],
         stack: &mut ParseFrameStack,
-    ) -> Result<NextStep, ParseError> {
+    ) -> Result<FrameResult, ParseError> {
         // Destructure Grammar::Sequence fields
         let (elements, optional, seq_terminators, reset_terminators, allow_gaps, parse_mode) =
             match grammar.as_ref() {
@@ -105,7 +105,7 @@ impl<'a> Parser<'_> {
         };
         frame.terminators = all_terminators;
         let current_frame_id = frame.frame_id; // Save before moving frame
-        stack.push(frame);
+        stack.push(&mut frame);
 
         // DON'T skip whitespace here! Python's Sequence.match skips whitespace IN THE LOOP
         // before each element match attempt (see sequence.py lines 190-196).
@@ -120,12 +120,11 @@ impl<'a> Parser<'_> {
         if elements.is_empty() {
             // Pop the frame we just pushed
             stack.pop();
-            // Return empty sequence
-            stack.results.insert(
-                current_frame_id,
-                (Node::Sequence { children: vec![] }, start_idx, None),
-            );
-            return Ok(NextStep::Fallthrough);
+            // Transition to Combining to finalize empty Sequence result
+            frame.end_pos = Some(start_idx);
+            frame.state = FrameState::Combining;
+            stack.push(&mut frame);
+            return Ok(crate::parser::iterative::FrameResult::Done);
         }
 
         // Push first child to parse
@@ -144,7 +143,7 @@ impl<'a> Parser<'_> {
                     stack
                         .results
                         .insert(current_frame_id, (Node::Empty, start_idx, None));
-                    return Ok(NextStep::Fallthrough); // Don't continue, we stored a result
+                    return Ok(FrameResult::Done); // Don't continue, we stored a result
                 }
                 // In greedy modes, check if first element is optional
                 if elements[0].is_optional() {
@@ -152,13 +151,13 @@ impl<'a> Parser<'_> {
                     stack
                         .results
                         .insert(current_frame_id, (Node::Empty, start_idx, None));
-                    return Ok(NextStep::Fallthrough);
+                    return Ok(FrameResult::Done);
                 } else {
                     // Required element, no segments - this is unparsable in greedy mode
                     stack
                         .results
                         .insert(current_frame_id, (Node::Empty, start_idx, None));
-                    return Ok(NextStep::Fallthrough);
+                    return Ok(FrameResult::Done);
                 }
             }
 
@@ -266,7 +265,7 @@ impl<'a> Parser<'_> {
                                     .results
                                     .insert(current_frame_id, (seq_node, first_child_pos, None));
                             }
-                            return Ok(NextStep::Fallthrough);
+                            return Ok(FrameResult::Done);
                         }
                     }
 
@@ -292,24 +291,24 @@ impl<'a> Parser<'_> {
                         child_frame,
                         child_idx,
                     );
-                    return Ok(NextStep::Continue); // Continue to process the child we just pushed
+                    return Ok(FrameResult::Done); // Child pushed, continue main loop
                 }
             }
         }
 
-        Ok(NextStep::Fallthrough) // No child pushed, don't continue
+        Ok(FrameResult::Done) // No child pushed, don't continue
     }
 
     /// Handle Sequence grammar WaitingForChild state in iterative parser
     pub(crate) fn handle_sequence_waiting_for_child(
         &mut self,
-        frame: &mut ParseFrame,
+        mut frame: ParseFrame,
         child_node: &Node,
         child_end_pos: &usize,
         stack: &mut ParseFrameStack,
         iteration_count: usize,
         frame_terminators: Vec<Arc<Grammar>>,
-    ) {
+    ) -> Result<FrameResult, ParseError> {
         log::debug!(
             "[SEQUENCE CHILD] frame_id={}, child_end_pos={}, child_empty={}",
             frame.frame_id,
@@ -427,7 +426,7 @@ impl<'a> Parser<'_> {
                     stack
                         .results
                         .insert(frame.frame_id, (result_node, *matched_idx, None));
-                    return;
+                    return Ok(FrameResult::Done);
                 }
 
                 // Create next child frame for the next element
@@ -467,7 +466,7 @@ impl<'a> Parser<'_> {
                         stack
                             .results
                             .insert(frame.frame_id, (result_node, *matched_idx, None));
-                        return;
+                        return Ok(FrameResult::Done);
                     } else if *parse_mode == ParseMode::Strict {
                         log::debug!("[SEQUENCE BOUNDARY + STRICT] frame_id={}, has required elements, failing", frame.frame_id);
                         // Strict mode and required elements remaining: fail
@@ -475,7 +474,7 @@ impl<'a> Parser<'_> {
                         stack
                             .results
                             .insert(frame.frame_id, (Node::Empty, frame.pos, None));
-                        return;
+                        return Ok(FrameResult::Done);
                     } else {
                         log::debug!("[SEQUENCE BOUNDARY + GREEDY] frame_id={}, has required elements but GREEDY mode, attempting to continue", frame.frame_id);
                         // GREEDY mode: try to continue even at boundary
@@ -492,11 +491,11 @@ impl<'a> Parser<'_> {
                 );
                 ParseFrame::push_sequence_child_and_update_parent(
                     stack,
-                    frame,
+                    &mut frame,
                     child_frame,
                     next_elem_idx,
                 );
-                return;
+                return Ok(FrameResult::Done);
             } else {
                 log::debug!(
                     "[SEQUENCE EMPTY REQ] frame_id={}, required element {} returned Empty!",
@@ -541,7 +540,7 @@ impl<'a> Parser<'_> {
                     stack
                         .results
                         .insert(frame.frame_id, (Node::Empty, frame.pos, None));
-                    return;
+                    return Ok(FrameResult::Done);
                 }
 
                 // GREEDY or GREEDY_ONCE_STARTED mode
@@ -559,7 +558,7 @@ impl<'a> Parser<'_> {
                         stack
                             .results
                             .insert(frame.frame_id, (Node::Empty, frame.pos, None));
-                        return;
+                        return Ok(FrameResult::Done);
                     }
 
                     // GREEDY mode with no matches: wrap all content as unparsable
@@ -591,7 +590,7 @@ impl<'a> Parser<'_> {
                     stack
                         .results
                         .insert(frame.frame_id, (unparsable_node, *max_idx, None));
-                    return;
+                    return Ok(FrameResult::Done);
                 }
 
                 // We've already matched some elements - wrap remaining content as unparsable
@@ -656,7 +655,7 @@ impl<'a> Parser<'_> {
                 stack
                     .results
                     .insert(frame.frame_id, (result_node, *max_idx, None));
-                return;
+                return Ok(FrameResult::Done);
             }
         } else {
             // Child returned a non-empty result
@@ -911,10 +910,18 @@ impl<'a> Parser<'_> {
             };
             log::debug!("[SEQUENCE COMPLETE] frame_id={}, current_matched_idx={}, current_max_idx={}, parse_mode={:?}, end_pos={}",
                 frame.frame_id, current_matched_idx, current_max_idx, current_parse_mode, end_pos);
-            stack
-                .results
-                .insert(frame.frame_id, (result_node, end_pos, None));
-            return;
+
+            // Store end_pos in frame for Combining handler
+            frame.end_pos = Some(end_pos);
+
+            // Transition to Combining state
+            log::debug!(
+                "Sequence: All elements processed, transitioning to Combining state, frame_id={}",
+                frame.frame_id
+            );
+            frame.state = FrameState::Combining;
+            stack.push(&mut frame);
+            return Ok(FrameResult::Done);
         } else {
             let mut next_pos = current_matched_idx;
             log::debug!(
@@ -1026,7 +1033,7 @@ impl<'a> Parser<'_> {
                         stack
                             .results
                             .insert(frame.frame_id, (Node::Empty, element_start, None));
-                        return;
+                        return Ok(FrameResult::Done);
                     } else {
                         // Store transparent positions for when this result is used
                         stack
@@ -1041,7 +1048,7 @@ impl<'a> Parser<'_> {
                         stack
                             .results
                             .insert(frame.frame_id, (result_node, current_matched_idx, None));
-                        return;
+                        return Ok(FrameResult::Done);
                     }
                 }
                 // If next_element_optional is true, we DON'T return early.
@@ -1110,7 +1117,7 @@ impl<'a> Parser<'_> {
                     );
                     ParseFrame::push_sequence_child_and_update_parent(
                         stack,
-                        frame,
+                        &mut frame,
                         child_frame,
                         next_elem_idx,
                     );
@@ -1119,7 +1126,7 @@ impl<'a> Parser<'_> {
                 }
             }
             if created_child {
-                return;
+                return Ok(FrameResult::Done);
             }
 
             // Store transparent positions for when this result is used
@@ -1148,17 +1155,119 @@ impl<'a> Parser<'_> {
             log::debug!("Sequence completing: has position 15 in final_accumulated = {}, final_accumulated.len() = {}", has_pos_15, final_accumulated.len());
 
             self.pos = current_matched_idx;
-            let result_node = if final_accumulated.is_empty() {
-                Node::Empty
-            } else {
-                Node::Sequence {
-                    children: final_accumulated,
-                }
-            };
-            stack
-                .results
-                .insert(frame_id_for_debug, (result_node, current_matched_idx, None));
+            // Store result for Combining handler
+            frame.accumulated = final_accumulated;
+            // Transition to Combining state
+            frame.end_pos = Some(current_matched_idx);
+            frame.state = FrameState::Combining;
+            stack.push(&mut frame);
         }
+        Ok(FrameResult::Done)
+    }
+
+    /// Handle Sequence grammar Combining state - build final node from accumulated children.
+    ///
+    /// Called after all children have been collected in waiting_for_child state.
+    /// Builds the final Sequence node and transitions to Complete state.
+    pub(crate) fn handle_sequence_combining(
+        &mut self,
+        mut frame: ParseFrame,
+        stack: &mut ParseFrameStack,
+    ) -> Result<crate::parser::iterative::FrameResult, ParseError> {
+        log::debug!("🔨 Sequence combining frame_id={}", frame.frame_id);
+
+        // Extract context to get tentatively_collected for transparent_positions
+        let FrameContext::Sequence {
+            tentatively_collected,
+            ..
+        } = &frame.context
+        else {
+            return Err(ParseError::new("Expected Sequence context in handle_sequence_combining".to_string()));
+        };
+
+        // Build the final result node from accumulated children
+        let result_node = if frame.accumulated.is_empty() {
+            log::debug!(
+                "WARNING: Sequence completing with EMPTY accumulated! frame_id={}",
+                frame.frame_id
+            );
+            Node::Empty
+        } else {
+            Node::Sequence {
+                children: frame.accumulated.clone(),
+            }
+        };
+
+        // Store transparent positions for parent to use
+        stack
+            .transparent_positions
+            .insert(frame.frame_id, tentatively_collected.clone());
+
+        // Rollback the collection checkpoint
+        self.rollback_collection_checkpoint(frame.frame_id);
+
+        // Get the end position that was stored in the frame
+        let final_pos = frame.end_pos.unwrap_or(self.pos);
+
+        // Store transparent positions in frame for Complete handler
+        frame.transparent_positions = Some(tentatively_collected.clone());
+
+        log::debug!(
+            "Sequence COMPLETE: Storing result at frame_id={}, end_pos={}",
+            frame.frame_id,
+            final_pos
+        );
+
+        // Transition to Complete state
+        frame.state = FrameState::Complete(result_node);
+        frame.end_pos = Some(final_pos);
+
+        Ok(crate::parser::iterative::FrameResult::Push(frame))
+    }
+
+    /// Handle Bracketed grammar Combining state - build final node from accumulated children.
+    ///
+    /// Called after all children have been collected in waiting_for_child state.
+    /// Builds the final Bracketed node and transitions to Complete state.
+    pub(crate) fn handle_bracketed_combining(
+        &mut self,
+        mut frame: ParseFrame,
+        stack: &mut ParseFrameStack,
+    ) -> Result<crate::parser::iterative::FrameResult, ParseError> {
+        log::debug!(
+            "🔨 Bracketed combining at pos {} - frame_id={}, accumulated={}",
+            frame.pos,
+            frame.frame_id,
+            frame.accumulated.len()
+        );
+
+        // The result is determined by what was accumulated during matching:
+        // - If accumulated is empty, the match failed (opening bracket not found, or other failure)
+        // - If accumulated has children, we successfully matched open + content + close brackets
+
+        let result_node = if frame.accumulated.is_empty() {
+            log::debug!(
+                "Bracketed combining with EMPTY accumulated → returning Node::Empty, frame_id={}",
+                frame.frame_id
+            );
+            Node::Empty
+        } else {
+            log::debug!(
+                "Bracketed combining with {} children → building Node::Bracketed, frame_id={}",
+                frame.accumulated.len(),
+                frame.frame_id
+            );
+            Node::Bracketed {
+                children: frame.accumulated.clone(),
+            }
+        };
+
+        // Transition to Complete state with the final result
+        let end_pos = frame.end_pos.unwrap_or(frame.pos);
+        frame.state = FrameState::Complete(result_node);
+        frame.end_pos = Some(end_pos);
+
+        Ok(crate::parser::iterative::FrameResult::Push(frame))
     }
 
     /// Handle Bracketed grammar Initial state in iterative parser.
@@ -1201,10 +1310,10 @@ impl<'a> Parser<'_> {
     pub(crate) fn handle_bracketed_initial(
         &mut self,
         grammar: Arc<Grammar>,
-        frame: &mut ParseFrame,
+        mut frame: ParseFrame,
         parent_terminators: &[Arc<Grammar>],
         stack: &mut ParseFrameStack,
-    ) -> Result<NextStep, ParseError> {
+    ) -> Result<FrameResult, ParseError> {
         let (
             bracket_pairs,
             elements,
@@ -1256,17 +1365,17 @@ impl<'a> Parser<'_> {
         update_parent_last_child_frame(stack);
         stack.increment_frame_id_counter();
         stack.push(&mut child_frame);
-        Ok(NextStep::Continue)
+        Ok(FrameResult::Done) // Child pushed, continue main loop
     }
 
     /// Handle Bracketed grammar WaitingForChild state in iterative parser
     pub(crate) fn handle_bracketed_waiting_for_child(
         &mut self,
-        frame: &mut crate::parser::ParseFrame,
+        mut frame: crate::parser::ParseFrame,
         child_node: &crate::parser::Node,
         child_end_pos: &usize,
         stack: &mut crate::parser::iterative::ParseFrameStack,
-    ) {
+    ) -> Result<crate::parser::iterative::FrameResult, crate::parser::ParseError> {
         // Extract the context from the frame
         let FrameContext::Bracketed {
             grammar,
@@ -1302,10 +1411,11 @@ impl<'a> Parser<'_> {
                         "Bracketed returning Empty (no opening bracket, optional={})",
                         optional
                     );
-                    stack
-                        .results
-                        .insert(frame.frame_id, (Node::Empty, frame.pos, None));
-                    return;
+                    // Transition to Combining to finalize Empty result
+                    frame.end_pos = Some(frame.pos);
+                    frame.state = FrameState::Combining;
+                    stack.push(&mut frame);
+                    return Ok(crate::parser::iterative::FrameResult::Done);
                 } else {
                     frame.accumulated.push(child_node.clone());
                     let content_start_idx = *child_end_pos;
@@ -1349,10 +1459,11 @@ impl<'a> Parser<'_> {
                                         check_pos
                                     );
                                     self.pos = frame.pos;
-                                    stack
-                                        .results
-                                        .insert(frame.frame_id, (Node::Empty, frame.pos, None));
-                                    return;
+                                    // Transition to Combining to finalize Empty result
+                                    frame.end_pos = Some(frame.pos);
+                                    frame.state = FrameState::Combining;
+                                    stack.push(&mut frame);
+                                    return Ok(crate::parser::iterative::FrameResult::Done);
                                 }
                             }
                             check_pos += 1;
@@ -1411,9 +1522,9 @@ impl<'a> Parser<'_> {
                     };
                     *last_child_frame_id = Some(stack.frame_id_counter);
                     stack.frame_id_counter += 1;
-                    stack.push(frame);
+                    stack.push(&mut frame);
                     stack.push(&mut child_frame);
-                    return;
+                    return Ok(FrameResult::Done);
                 }
             }
             BracketedState::MatchingContent => {
@@ -1453,10 +1564,11 @@ impl<'a> Parser<'_> {
                         if *parse_mode == ParseMode::Strict {
                             log::debug!("[BRACKET-DEBUG] STRICT mode: Bracketed content did not end at closing bracket, returning Node::Empty for retry. frame_id={}, frame.pos={}", frame.frame_id, frame.pos);
                             self.pos = frame.pos;
-                            stack
-                                .results
-                                .insert(frame.frame_id, (Node::Empty, frame.pos, None));
-                            return;
+                            // Transition to Combining to finalize Empty result
+                            frame.end_pos = Some(frame.pos);
+                            frame.state = FrameState::Combining;
+                            stack.push(&mut frame);
+                            return Ok(crate::parser::iterative::FrameResult::Done);
                         } else {
                             log::debug!("[BRACKET-DEBUG] GREEDY mode: Content didn't end at bracket, but continuing (may contain unparsable). check_pos={}, expected_close_pos={}", check_pos, expected_close_pos);
                         }
@@ -1522,10 +1634,11 @@ impl<'a> Parser<'_> {
                     log::debug!("DEBUG: No closing bracket found!");
                     if *parse_mode == ParseMode::Strict {
                         self.pos = frame.pos;
-                        stack
-                            .results
-                            .insert(frame.frame_id, (Node::Empty, frame.pos, None));
-                        return;
+                        // Transition to Combining to finalize Empty result
+                        frame.end_pos = Some(frame.pos);
+                        frame.state = FrameState::Combining;
+                        stack.push(&mut frame);
+                        return Ok(FrameResult::Done);
                     } else {
                         panic!("Couldn't find closing bracket for opening bracket");
                     }
@@ -1552,9 +1665,9 @@ impl<'a> Parser<'_> {
                     };
                     *last_child_frame_id = Some(stack.frame_id_counter);
                     stack.frame_id_counter += 1;
-                    stack.push(frame);
+                    stack.push(&mut frame);
                     stack.push(&mut child_frame);
-                    return;
+                    return Ok(FrameResult::Done);
                 }
             }
             BracketedState::MatchingClose => {
@@ -1600,10 +1713,11 @@ impl<'a> Parser<'_> {
                 if child_node.is_empty() {
                     if *parse_mode == ParseMode::Strict {
                         self.pos = frame.pos;
-                        stack
-                            .results
-                            .insert(frame.frame_id, (Node::Empty, frame.pos, None));
-                        return;
+                        // Transition to Combining to finalize Empty result
+                        frame.end_pos = Some(frame.pos);
+                        frame.state = FrameState::Combining;
+                        stack.push(&mut frame);
+                        return Ok(FrameResult::Done);
                     } else {
                         // In GREEDY mode, not finding a closing bracket is an error
                         // But we still need to store SOME result so the parent doesn't wait forever
@@ -1613,26 +1727,25 @@ impl<'a> Parser<'_> {
                             frame.frame_id
                         );
                         self.pos = frame.pos;
-                        stack
-                            .results
-                            .insert(frame.frame_id, (Node::Empty, frame.pos, None));
-                        return;
+                        // Transition to Combining to finalize Empty result
+                        frame.end_pos = Some(frame.pos);
+                        frame.state = FrameState::Combining;
+                        stack.push(&mut frame);
+                        return Ok(FrameResult::Done);
                     }
                 } else {
                     frame.accumulated.push(child_node.clone());
                     self.pos = *child_end_pos;
-                    let result_node = Node::Bracketed {
-                        children: frame.accumulated.clone(),
-                    };
                     log::debug!(
-                        "Bracketed COMPLETE: {} children, storing result at frame_id={}",
+                        "Bracketed SUCCESS: {} children, transitioning to Combining at frame_id={}",
                         frame.accumulated.len(),
                         frame.frame_id
                     );
-                    stack
-                        .results
-                        .insert(frame.frame_id, (result_node, *child_end_pos, None));
-                    return;
+                    // Transition to Combining to build final Bracketed node
+                    frame.end_pos = Some(*child_end_pos);
+                    frame.state = FrameState::Combining;
+                    stack.push(&mut frame);
+                    return Ok(FrameResult::Done);
                 }
             }
         }
@@ -1641,7 +1754,7 @@ impl<'a> Parser<'_> {
 
 fn initialize_bracketed_frame(
     grammar: &Arc<Grammar>,
-    frame: &mut ParseFrame,
+    mut frame: ParseFrame,
     stack: &mut ParseFrameStack,
     all_terminators: Vec<Arc<Grammar>>,
 ) {
@@ -1657,7 +1770,7 @@ fn initialize_bracketed_frame(
         bracket_max_idx: None,
     };
     frame.terminators = all_terminators;
-    stack.push(frame);
+    stack.push(&mut frame);
 }
 
 fn create_child_frame(
@@ -1670,7 +1783,7 @@ fn create_child_frame(
         frame_id: stack.frame_id_counter,
         grammar: grammar.clone(),
         pos: start_idx,
-        terminators: terminators,
+        terminators,
         state: FrameState::Initial,
         accumulated: vec![],
         context: FrameContext::None,

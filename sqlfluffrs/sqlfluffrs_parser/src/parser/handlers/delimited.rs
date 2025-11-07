@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-use crate::parser::iterative::{NextStep, ParseFrameStack};
+use crate::parser::iterative::{FrameResult, ParseFrameStack};
 use crate::parser::utils::skip_start_index_forward_to_code;
 use crate::parser::DelimitedState;
 use crate::parser::{FrameContext, FrameState};
@@ -49,10 +49,10 @@ impl crate::parser::Parser<'_> {
     pub fn handle_delimited_initial(
         &mut self,
         grammar: Arc<Grammar>,
-        frame: &mut ParseFrame,
+        mut frame: ParseFrame,
         parent_terminators: &[Arc<Grammar>],
         stack: &mut ParseFrameStack,
-    ) -> Result<NextStep, ParseError> {
+    ) -> Result<FrameResult, ParseError> {
         let mut working_pos = frame.pos;
         log::debug!("[ITERATIVE] Delimited Initial state at pos {}", working_pos);
 
@@ -106,7 +106,7 @@ impl crate::parser::Parser<'_> {
         //     stack
         //         .results
         //         .insert(frame.frame_id, (Node::Empty, pos, None));
-        //     return Ok(NextStep::Fallthrough);
+        //     return Ok(FrameResult::Done);
         // }
 
         // Remove fast NonCodeMatcher: now handled as a real grammar in terminators
@@ -184,7 +184,7 @@ impl crate::parser::Parser<'_> {
                     frame.frame_id,
                     (Node::DelimitedList { children: vec![] }, working_pos, None),
                 );
-                return Ok(NextStep::Fallthrough);
+                return Ok(FrameResult::Done);
             } else {
                 return Err(ParseError::with_context(
                     "Delimited: expected at least one element, but none found".to_string(),
@@ -228,7 +228,7 @@ impl crate::parser::Parser<'_> {
             max_idx,
             child_max_idx
         );
-        stack.push(frame);
+        stack.push(&mut frame);
 
         // Create first child to match element (try all elements via OneOf)
         let child_grammar = Grammar::OneOf {
@@ -259,18 +259,18 @@ impl crate::parser::Parser<'_> {
         ParseFrame::update_parent_last_child_id(stack, "Delimited", stack.frame_id_counter);
         stack.increment_frame_id_counter();
         stack.push(&mut child_frame);
-        Ok(NextStep::Continue) // Continue to process the child frame we just pushed
+        Ok(FrameResult::Done) // Continue to process the child frame we just pushed
     }
 
     pub(crate) fn handle_delimited_waiting_for_child(
         &mut self,
-        frame: &mut ParseFrame,
+        mut frame: ParseFrame,
         child_node: &Node,
         child_end_pos: &usize,
         child_element_key: &Option<u64>,
         stack: &mut ParseFrameStack,
         frame_terminators: Vec<Arc<Grammar>>,
-    ) -> Result<(), ParseError> {
+    ) -> Result<FrameResult, ParseError> {
         let FrameContext::Delimited {
             grammar,
             delimiter_count,
@@ -363,23 +363,17 @@ impl crate::parser::Parser<'_> {
                     }
                     // Check min_delimiters at completion
                     if *delimiter_count < *min_delimiters {
-                        stack.results.insert(
-                            frame.frame_id,
-                            (Node::DelimitedList { children: vec![] }, frame.pos, None),
-                        );
-                        return Ok(());
+                        // Transition to Combining to finalize Empty result
+                        frame.end_pos = Some(frame.pos);
+                        frame.state = FrameState::Combining;
+                        stack.push(&mut frame);
+                        return Ok(FrameResult::Done);
                     }
-                    stack.results.insert(
-                        frame.frame_id,
-                        (
-                            Node::DelimitedList {
-                                children: frame.accumulated.clone(),
-                            },
-                            final_pos,
-                            None,
-                        ),
-                    );
-                    return Ok(());
+                    // Transition to Combining to finalize DelimitedList result
+                    frame.end_pos = Some(final_pos);
+                    frame.state = FrameState::Combining;
+                    stack.push(&mut frame);
+                    return Ok(FrameResult::Done);
                 }
 
                 if child_node.is_empty() {
@@ -417,23 +411,17 @@ impl crate::parser::Parser<'_> {
                     }
                     // Check min_delimiters at completion
                     if *delimiter_count < *min_delimiters {
-                        stack.results.insert(
-                            frame.frame_id,
-                            (Node::DelimitedList { children: vec![] }, frame.pos, None),
-                        );
-                        return Ok(());
+                        // Transition to Combining to finalize Empty result
+                        frame.end_pos = Some(frame.pos);
+                        frame.state = FrameState::Combining;
+                        stack.push(&mut frame);
+                        return Ok(FrameResult::Done);
                     }
-                    stack.results.insert(
-                        frame.frame_id,
-                        (
-                            Node::DelimitedList {
-                                children: frame.accumulated.clone(),
-                            },
-                            final_pos,
-                            None,
-                        ),
-                    );
-                    return Ok(());
+                    // Transition to Combining to finalize DelimitedList result
+                    frame.end_pos = Some(final_pos);
+                    frame.state = FrameState::Combining;
+                    stack.push(&mut frame);
+                    return Ok(FrameResult::Done);
                 } else {
                     log::debug!(
                         "[ITERATIVE] Delimited element matched: pos {} -> {}",
@@ -500,24 +488,18 @@ impl crate::parser::Parser<'_> {
                             );
                             // Check min_delimiters at completion
                             if *delimiter_count < *min_delimiters {
-                                stack.results.insert(
-                                    frame.frame_id,
-                                    (Node::DelimitedList { children: vec![] }, frame.pos, None),
-                                );
-                                return Ok(());
+                                // Transition to Combining to finalize Empty result
+                                frame.end_pos = Some(frame.pos);
+                                frame.state = FrameState::Combining;
+                                stack.push(&mut frame);
+                                return Ok(FrameResult::Done);
                             }
                             self.pos = *matched_idx;
-                            stack.results.insert(
-                                frame.frame_id,
-                                (
-                                    Node::DelimitedList {
-                                        children: frame.accumulated.clone(),
-                                    },
-                                    *matched_idx,
-                                    None,
-                                ),
-                            );
-                            return Ok(());
+                            // Transition to Combining to finalize DelimitedList result
+                            frame.end_pos = Some(*matched_idx);
+                            frame.state = FrameState::Combining;
+                            stack.push(&mut frame);
+                            return Ok(FrameResult::Done);
                         }
                     }
                     let child_max_idx = *max_idx;
@@ -530,11 +512,11 @@ impl crate::parser::Parser<'_> {
                     );
                     ParseFrame::push_child_and_update_parent(
                         stack,
-                        frame,
+                        &mut frame,
                         child_frame,
                         "Delimited",
                     );
-                    return Ok(());
+                    return Ok(FrameResult::Done);
                 }
             }
             DelimitedState::MatchingDelimiter => {
@@ -547,10 +529,10 @@ impl crate::parser::Parser<'_> {
                     if *delimiter_count < *min_delimiters {
                         // If not enough delimiters, return empty match
                         self.pos = frame.pos;
-                        stack.results.insert(
-                            frame.frame_id,
-                            (Node::DelimitedList { children: vec![] }, frame.pos, None),
-                        );
+                        // Transition to Combining to finalize Empty result
+                        frame.end_pos = Some(frame.pos);
+                        frame.state = FrameState::Combining;
+                        stack.push(&mut frame);
                     } else {
                         // Handle trailing delimiter if allowed and present
                         if *allow_trailing && delimiter_match.is_some() {
@@ -558,18 +540,12 @@ impl crate::parser::Parser<'_> {
                             *delimiter_count += 1;
                         }
                         self.pos = *matched_idx;
-                        stack.results.insert(
-                            frame.frame_id,
-                            (
-                                Node::DelimitedList {
-                                    children: frame.accumulated.clone(),
-                                },
-                                *matched_idx,
-                                None,
-                            ),
-                        );
+                        // Transition to Combining to finalize DelimitedList result
+                        frame.end_pos = Some(*matched_idx);
+                        frame.state = FrameState::Combining;
+                        stack.push(&mut frame);
                     }
-                    return Ok(());
+                    return Ok(FrameResult::Done);
                 } else {
                     log::debug!(
                         "[ITERATIVE] Delimited delimiter matched: pos {} -> {}",
@@ -637,23 +613,17 @@ impl crate::parser::Parser<'_> {
                                 frame.accumulated.truncate(accumulated_len_before_gaps);
                                 // Check min_delimiters at completion
                                 if *delimiter_count < *min_delimiters {
-                                    stack.results.insert(
-                                        frame.frame_id,
-                                        (Node::DelimitedList { children: vec![] }, frame.pos, None),
-                                    );
-                                    return Ok(());
+                                    // Transition to Combining to finalize Empty result
+                                    frame.end_pos = Some(frame.pos);
+                                    frame.state = FrameState::Combining;
+                                    stack.push(&mut frame);
+                                    return Ok(FrameResult::Done);
                                 }
-                                stack.results.insert(
-                                    frame.frame_id,
-                                    (
-                                        Node::DelimitedList {
-                                            children: frame.accumulated.clone(),
-                                        },
-                                        backtrack_pos,
-                                        None,
-                                    ),
-                                );
-                                return Ok(());
+                                // Transition to Combining to finalize DelimitedList result
+                                frame.end_pos = Some(backtrack_pos);
+                                frame.state = FrameState::Combining;
+                                stack.push(&mut frame);
+                                return Ok(FrameResult::Done);
                             } else {
                                 // We've already matched delimiters, so return error
                                 log::debug!("[ITERATIVE] Delimited: trailing delimiter not allowed after matching delimiters");
@@ -669,23 +639,17 @@ impl crate::parser::Parser<'_> {
                         }
                         // Check min_delimiters at completion
                         if *delimiter_count < *min_delimiters {
-                            stack.results.insert(
-                                frame.frame_id,
-                                (Node::DelimitedList { children: vec![] }, frame.pos, None),
-                            );
-                            return Ok(());
+                            // Transition to Combining to finalize Empty result
+                            frame.end_pos = Some(frame.pos);
+                            frame.state = FrameState::Combining;
+                            stack.push(&mut frame);
+                            return Ok(FrameResult::Done);
                         }
-                        stack.results.insert(
-                            frame.frame_id,
-                            (
-                                Node::DelimitedList {
-                                    children: frame.accumulated.clone(),
-                                },
-                                *matched_idx,
-                                None,
-                            ),
-                        );
-                        return Ok(());
+                        // Transition to Combining to finalize DelimitedList result
+                        frame.end_pos = Some(*matched_idx);
+                        frame.state = FrameState::Combining;
+                        stack.push(&mut frame);
+                        return Ok(FrameResult::Done);
                     } else {
                         *state = DelimitedState::MatchingElement;
                         if *allow_gaps {
@@ -707,24 +671,18 @@ impl crate::parser::Parser<'_> {
                             }
                             // Check min_delimiters at completion
                             if *delimiter_count < *min_delimiters {
-                                stack.results.insert(
-                                    frame.frame_id,
-                                    (Node::DelimitedList { children: vec![] }, frame.pos, None),
-                                );
-                                return Ok(());
+                                // Transition to Combining to finalize Empty result
+                                frame.end_pos = Some(frame.pos);
+                                frame.state = FrameState::Combining;
+                                stack.push(&mut frame);
+                                return Ok(FrameResult::Done);
                             }
                             self.pos = *matched_idx;
-                            stack.results.insert(
-                                frame.frame_id,
-                                (
-                                    Node::DelimitedList {
-                                        children: frame.accumulated.clone(),
-                                    },
-                                    *matched_idx,
-                                    None,
-                                ),
-                            );
-                            return Ok(());
+                            // Transition to Combining to finalize DelimitedList result
+                            frame.end_pos = Some(*matched_idx);
+                            frame.state = FrameState::Combining;
+                            stack.push(&mut frame);
+                            return Ok(FrameResult::Done);
                         }
                         log::debug!(
                             "[ITERATIVE] Delimited: about to push child element at working_pos={}",
@@ -772,14 +730,82 @@ impl crate::parser::Parser<'_> {
                         log::debug!("[ITERATIVE] Delimited: pushing child #2 at working_idx={}, frame_id={}", working_idx, stack.frame_id_counter);
                         ParseFrame::push_child_and_update_parent(
                             stack,
-                            frame,
+                            &mut frame,
                             child_frame,
                             "Delimited",
                         );
-                        return Ok(());
+                        return Ok(FrameResult::Done);
                     }
                 }
             }
         }
+    }
+
+    /// Handle Delimited grammar Combining state - build final node from accumulated children.
+    ///
+    /// Called after all children have been collected in waiting_for_child state.
+    /// Builds the final DelimitedList node and transitions to Complete state.
+    pub(crate) fn handle_delimited_combining(
+        &mut self,
+        mut frame: ParseFrame,
+        stack: &mut ParseFrameStack,
+    ) -> Result<crate::parser::iterative::FrameResult, ParseError> {
+        log::debug!(
+            "🔨 Delimited combining at pos {} - frame_id={}, accumulated={}",
+            frame.pos,
+            frame.frame_id,
+            frame.accumulated.len()
+        );
+
+        // Extract delimiter_count from context to determine if we should return Empty or DelimitedList
+        let delimiter_count = if let FrameContext::Delimited { delimiter_count, .. } = &frame.context {
+            *delimiter_count
+        } else {
+            0
+        };
+
+        // Extract min_delimiters from grammar
+        let min_delimiters = if let FrameContext::Delimited { grammar, .. } = &frame.context {
+            if let Grammar::Delimited { min_delimiters, .. } = grammar.as_ref() {
+                *min_delimiters
+            } else {
+                0
+            }
+        } else {
+            0
+        };
+
+        // The result is determined by delimiter_count vs min_delimiters:
+        // - If delimiter_count < min_delimiters, return Empty (failed to meet requirement)
+        // - Otherwise, return DelimitedList with accumulated children
+
+        let result_node = if delimiter_count < min_delimiters {
+            log::debug!(
+                "Delimited combining with delimiter_count={} < min_delimiters={} → returning Node::Empty (not enough delimiters), frame_id={}",
+                delimiter_count,
+                min_delimiters,
+                frame.frame_id
+            );
+            // Return empty list to indicate failure
+            Node::DelimitedList { children: vec![] }
+        } else {
+            log::debug!(
+                "Delimited combining with {} children, delimiter_count={} >= min_delimiters={} → building Node::DelimitedList, frame_id={}",
+                frame.accumulated.len(),
+                delimiter_count,
+                min_delimiters,
+                frame.frame_id
+            );
+            Node::DelimitedList {
+                children: frame.accumulated.clone(),
+            }
+        };
+
+        // Transition to Complete state with the final result
+        let end_pos = frame.end_pos.unwrap_or(frame.pos);
+        frame.state = FrameState::Complete(result_node);
+        frame.end_pos = Some(end_pos);
+
+        Ok(crate::parser::iterative::FrameResult::Push(frame))
     }
 }

@@ -1,8 +1,8 @@
 use std::sync::Arc;
 
 use crate::parser::cache::CacheKey;
-use crate::parser::iterative::NextStep;
-use crate::parser::iterative::ParseFrameStack;
+
+use crate::parser::iterative::{ParseFrameStack, FrameResult};
 use crate::parser::FrameContext;
 use crate::parser::FrameState;
 use crate::parser::Parser;
@@ -14,9 +14,8 @@ impl Parser<'_> {
     /// Handle Empty grammar in iterative parser
     pub fn handle_empty_initial(
         &mut self,
-        mut frame: ParseFrame,  // Take ownership
-        results: &mut HashMap<usize, (Node, usize, Option<u64>)>,
-    ) -> Result<NextStep, ParseError> {
+        mut frame: ParseFrame,
+    ) -> Result<FrameResult, ParseError> {
         log::debug!(
             "START Empty: frame_id={}, pos={}",
             frame.frame_id,
@@ -24,11 +23,11 @@ impl Parser<'_> {
         );
         frame.state = FrameState::Complete(Node::Empty);
         frame.end_pos = Some(frame.pos);
-        Ok(NextStep::ContinueWith(frame))
+        Ok(FrameResult::Push(frame))
     }
 
     /// Handle Missing grammar in iterative parser
-    pub fn handle_missing_initial(&mut self) -> Result<NextStep, ParseError> {
+    pub fn handle_missing_initial(&mut self) -> Result<FrameResult, ParseError> {
         log::debug!("START Missing");
         log::debug!("Trying missing grammar");
         Err(ParseError::with_context(
@@ -42,9 +41,8 @@ impl Parser<'_> {
     pub(crate) fn handle_meta_initial(
         &mut self,
         grammar: Arc<Grammar>,
-        mut frame: ParseFrame,  // Take ownership
-        results: &mut HashMap<usize, (Node, usize, Option<u64>)>,
-    ) -> Result<NextStep, ParseError> {
+        mut frame: ParseFrame,
+    ) -> Result<FrameResult, ParseError> {
         log::debug!(
             "START Meta: frame_id={}, pos={}, grammar={:?}",
             frame.frame_id,
@@ -67,7 +65,7 @@ impl Parser<'_> {
             token_idx: None,
         });
         frame.end_pos = Some(frame.pos);
-        Ok(NextStep::ContinueWith(frame))
+        Ok(FrameResult::Push(frame))
     }
 
     /// Handle Anything grammar in iterative parser
@@ -75,8 +73,7 @@ impl Parser<'_> {
         &mut self,
         mut frame: ParseFrame,  // Take ownership
         parent_terminators: &[Arc<Grammar>],
-        results: &mut HashMap<usize, (Node, usize, Option<u64>)>,
-    ) -> Result<NextStep, ParseError> {
+    ) -> Result<FrameResult, ParseError> {
         log::debug!(
             "START Anything: frame_id={}, pos={}",
             frame.frame_id,
@@ -104,15 +101,14 @@ impl Parser<'_> {
             children: anything_tokens,
         });
         frame.end_pos = Some(self.pos);
-        Ok(NextStep::ContinueWith(frame))
+        Ok(FrameResult::Push(frame))
     }
 
     /// Handle Nothing grammar in iterative parser
     pub fn handle_nothing_initial(
         &mut self,
-        mut frame: ParseFrame,  // Take ownership
-        results: &mut HashMap<usize, (Node, usize, Option<u64>)>,
-    ) -> Result<NextStep, ParseError> {
+        mut frame: ParseFrame,
+    ) -> Result<FrameResult, ParseError> {
         log::debug!(
             "START Nothing: frame_id={}, pos={}",
             frame.frame_id,
@@ -121,18 +117,18 @@ impl Parser<'_> {
         log::debug!("Nothing grammar encountered, returning Empty");
         frame.state = FrameState::Complete(Node::Empty);
         frame.end_pos = Some(frame.pos);
-        Ok(NextStep::ContinueWith(frame))
+        Ok(FrameResult::Push(frame))
     }
 
     /// Handle Ref grammar Initial state in iterative parser
     pub(crate) fn handle_ref_initial(
         &mut self,
         grammar: Arc<Grammar>,
-        frame: &mut ParseFrame,
+        mut frame: ParseFrame,
         parent_terminators: &[Arc<Grammar>],
         stack: &mut ParseFrameStack,
         iteration_count: usize,
-    ) -> Result<NextStep, ParseError> {
+    ) -> Result<FrameResult, ParseError> {
         log::debug!(
             "START Ref: frame_id={}, pos={}, parent_max_idx={:?}, grammar={:?}",
             frame.frame_id,
@@ -170,7 +166,7 @@ impl Parser<'_> {
                     .results
                     .insert(frame.frame_id, (Node::Empty, frame.pos, None));
                 log::debug!("exclude grammar hit: {:?}!", exclude_match);
-                return Ok(NextStep::Fallthrough);
+                return Ok(FrameResult::Done);
             }
             log::debug!("exclude grammar missed!");
         }
@@ -248,7 +244,7 @@ impl Parser<'_> {
                     frame.frame_id,
                     name
                 );
-                stack.push(frame);
+                stack.push(&mut frame);
 
                 log::debug!("DEBUG [iter {}]: Ref({}) frame_id={} creating child frame_id={}, child grammar type: {}",
                     iteration_count,
@@ -271,7 +267,7 @@ impl Parser<'_> {
                     "DEBUG [iter {}]: ==> CONTINUING 'MAIN_LOOP NOW! <==",
                     iteration_count
                 );
-                Ok(NextStep::Continue) // Signal caller to continue main loop
+                Ok(FrameResult::Done) // Signal caller to continue main loop
             }
             None => {
                 self.pos = saved;
@@ -280,7 +276,7 @@ impl Parser<'_> {
                     stack
                         .results
                         .insert(frame.frame_id, (Node::Empty, saved, None));
-                    Ok(NextStep::Fallthrough) // Don't continue, we stored a result
+                    Ok(FrameResult::Done) // Don't continue, we stored a result
                 } else {
                     log::debug!("Iterative Ref failed (grammar not found), returning error");
                     Err(ParseError::unknown_segment(
@@ -295,11 +291,11 @@ impl Parser<'_> {
     /// Handle Ref grammar WaitingForChild state in iterative parser
     pub(crate) fn handle_ref_waiting_for_child(
         &mut self,
-        frame: &mut ParseFrame,
+        mut frame: ParseFrame,
         child_node: &Node,
         child_end_pos: &usize,
         stack: &mut ParseFrameStack,
-    ) {
+    ) -> Result<FrameResult, ParseError> {
         log::debug!(
             "[REF WAITING] frame_id={}, child_end_pos={}, child_empty={}",
             frame.frame_id,
@@ -432,18 +428,100 @@ impl Parser<'_> {
 
         self.parse_cache.put(
             cache_key,
-            Ok((final_node.clone(), result_pos, transparent_positions)),
+            Ok((final_node.clone(), result_pos, transparent_positions.clone())),
         );
 
         log::debug!(
-            "[REF RESULT] frame_id={}, name={}, storing result with pos={}",
+            "[REF RESULT] frame_id={}, name={}, storing accumulated result, transitioning to Combining",
+            frame.frame_id,
+            name
+        );
+
+        // Store the final node and result position in frame for Combining state
+        frame.accumulated = vec![final_node];
+        frame.end_pos = Some(result_pos);
+
+        // Store transparent positions in frame for Combining to use
+        frame.transparent_positions = Some(transparent_positions);
+
+        // Transition to Combining state
+        frame.state = FrameState::Combining;
+
+        // Return frame to be pushed back onto stack so Combining handler can process it
+        Ok(FrameResult::Push(frame))
+    }
+
+    /// Handle Ref combining - build final result after child completes
+    pub(crate) fn handle_ref_combining(
+        &mut self,
+        mut frame: ParseFrame,
+    ) -> Result<FrameResult, ParseError> {
+        let FrameContext::Ref {
+            grammar,
+            saved_pos,
+            ..
+        } = &frame.context
+        else {
+            return Err(ParseError::new("Expected FrameContext::Ref in handle_ref_combining".to_string()));
+        };
+
+        let Grammar::Ref { name, .. } = grammar.as_ref() else {
+            return Err(ParseError::new("Expected Grammar::Ref in FrameContext::Ref".to_string()));
+        };
+
+        // Get the final node from accumulated (should be exactly one)
+        if frame.accumulated.len() != 1 {
+            return Err(ParseError::new(format!(
+                "Ref combining expected 1 accumulated node, got {}",
+                frame.accumulated.len()
+            )));
+        }
+
+        let final_node = frame.accumulated[0].clone();
+        let result_pos = frame.end_pos.unwrap_or(*saved_pos);
+
+        log::debug!(
+            "[REF COMBINING] frame_id={}, name={}, result_pos={}, empty={}",
             frame.frame_id,
             name,
-            result_pos
+            result_pos,
+            final_node.is_empty()
         );
-        stack
-            .results
-            .insert(frame.frame_id, (final_node, result_pos, None));
+
+        // Store result in cache
+        let max_idx = frame.parent_max_idx.unwrap_or(self.tokens.len());
+        let cache_key = CacheKey::new(
+            *saved_pos,
+            frame.grammar.clone(),
+            self.tokens,
+            max_idx,
+            &frame.terminators,
+            &mut self.grammar_hash_cache,
+        );
+
+        let transparent_positions = frame.transparent_positions.clone().unwrap_or_default();
+
+        log::debug!(
+            "Storing Ref({}) result in cache: pos {} -> {}, {} transparent positions",
+            name,
+            *saved_pos,
+            result_pos,
+            transparent_positions.len()
+        );
+
+        self.parse_cache.put(
+            cache_key,
+            Ok((final_node.clone(), result_pos, transparent_positions)),
+        );
+
+        // Update parser position
+        self.pos = result_pos;
+
+        // Transition to Complete state
+        frame.state = FrameState::Complete(final_node);
+        frame.end_pos = Some(result_pos);
+
+        Ok(FrameResult::Push(frame))
     }
 
     /// Handle NonCodeMatcher grammar in iterative parser
@@ -451,7 +529,7 @@ impl Parser<'_> {
         &mut self,
         frame: &ParseFrame,
         results: &mut HashMap<usize, (Node, usize, Option<u64>)>,
-    ) -> Result<NextStep, ParseError> {
+    ) -> Result<FrameResult, ParseError> {
         log::debug!(
             "START NonCodeMatcher: frame_id={}, pos={}",
             frame.frame_id,
@@ -474,11 +552,11 @@ impl Parser<'_> {
                     ),
                 );
                 self.bump();
-                return Ok(NextStep::Fallthrough);
+                return Ok(FrameResult::Done);
             }
         }
         // No match
         results.insert(frame.frame_id, (Node::Empty, frame.pos, None));
-        Ok(NextStep::Fallthrough)
+        Ok(FrameResult::Done)
     }
 }

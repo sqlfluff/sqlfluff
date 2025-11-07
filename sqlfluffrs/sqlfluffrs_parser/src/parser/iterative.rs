@@ -7,13 +7,14 @@
 //! each representing a parsing state. This approach prevents stack overflow on
 //! deeply nested or complex SQL grammars.
 
-pub enum NextStep {
-    Continue,
-    Break,
-    Fallthrough,
-    /// Return a frame to the main loop (typically for transitioning to Complete state)
-    ContinueWith(ParseFrame),
+/// Result of frame processing - either finished or needs to push frame back
+pub enum FrameResult {
+    /// Frame processing is complete, don't push back
+    Done,
+    /// Frame needs to be pushed back with updated state
+    Push(ParseFrame),
 }
+
 /// Stack structure for managing ParseFrames and related state
 pub struct ParseFrameStack {
     stack: Vec<ParseFrame>,
@@ -88,100 +89,71 @@ impl Parser<'_> {
     // Iterative Parser Helper Functions
     // ========================================================================
     //
-    // These helper functions handle each grammar type in the iterative parser.
-    // Each function processes Initial state for a specific grammar type,
-    // inserting results or pushing new frames as needed.
+    // Handler architecture:
+    //
+    // 1. INITIAL handlers (return FrameResult):
+    //    - Leaf grammars: Parse directly, return Push(frame) with Complete state
+    //    - Complex grammars: Push children, push parent, return Done
+    //
+    // 2. WAITINGFORCHILD handlers (return void):
+    //    - Always push frame back (either with next child or to Combining)
+    //    - Don't return FrameResult because they never skip the push
+    //
+    // 3. COMBINING handlers (return FrameResult):
+    //    - Combine accumulated children into final result
+    //    - Cache result, set Complete state, return Push(frame)
+    //
+    // The main loop coordinates these handlers and stores results uniformly.
 
     // Handler for FrameState::Initial
     fn handle_frame_initial(
         &mut self,
-        frame: &mut ParseFrame,
+        frame: ParseFrame,
         stack: &mut ParseFrameStack,
         iteration_count: usize,
-    ) -> Result<NextStep, ParseError> {
+    ) -> Result<FrameResult, ParseError> {
         let grammar = frame.grammar.clone();
         let terminators = frame.terminators.clone();
 
         match grammar.as_ref() {
             // Simple leaf grammars - parse directly without recursion
             Grammar::Token { .. } => {
-                // Token handler now returns ContinueWith to transition to Complete state
-                let frame_owned = std::mem::replace(frame, ParseFrame::new_child(
-                    0, // dummy values since this frame will be dropped
-                    grammar.clone(),
-                    0,
-                    vec![],
-                    None,
-                ));
-                self.handle_token_initial(grammar, frame_owned, &mut stack.results)
+                // Token handler now returns Push to transition to Complete state
+                self.handle_token_initial(grammar, frame, &mut stack.results)
             }
 
             Grammar::StringParser { .. } => {
-                // StringParser handler now returns ContinueWith to transition to Complete state
-                let frame_owned = std::mem::replace(frame, ParseFrame::new_child(
-                    0, // dummy values
-                    grammar.clone(),
-                    0,
-                    vec![],
-                    None,
-                ));
+                // StringParser handler now returns Push to transition to Complete state
                 self.handle_string_parser_initial(
                     grammar,
-                    frame_owned,
+                    frame,
                     iteration_count,
                     &mut stack.results,
                 )
             }
 
             Grammar::MultiStringParser { .. } => {
-                let frame_owned = std::mem::replace(frame, ParseFrame::new_child(
-                    0, grammar.clone(), 0, vec![], None,
-                ));
-                self.handle_multi_string_parser_initial(grammar, frame_owned, &mut stack.results)
+                self.handle_multi_string_parser_initial(grammar, frame, &mut stack.results)
             }
 
             Grammar::TypedParser { .. } => {
-                let frame_owned = std::mem::replace(frame, ParseFrame::new_child(
-                    0, grammar.clone(), 0, vec![], None,
-                ));
-                self.handle_typed_parser_initial(grammar, frame_owned, &mut stack.results)
+                self.handle_typed_parser_initial(grammar, frame, &mut stack.results)
             }
 
             Grammar::RegexParser { .. } => {
-                let frame_owned = std::mem::replace(frame, ParseFrame::new_child(
-                    0, grammar.clone(), 0, vec![], None,
-                ));
-                self.handle_regex_parser_initial(grammar, frame_owned, &mut stack.results)
+                self.handle_regex_parser_initial(grammar, frame, &mut stack.results)
             }
 
-            Grammar::Meta(_) => {
-                let frame_owned = std::mem::replace(frame, ParseFrame::new_child(
-                    0, grammar.clone(), 0, vec![], None,
-                ));
-                self.handle_meta_initial(grammar, frame_owned, &mut stack.results)
-            }
+            Grammar::Meta(_) => self.handle_meta_initial(grammar, frame),
 
-            Grammar::Nothing() => {
-                let frame_owned = std::mem::replace(frame, ParseFrame::new_child(
-                    0, grammar.clone(), 0, vec![], None,
-                ));
-                self.handle_nothing_initial(frame_owned, &mut stack.results)
-            }
+            Grammar::Nothing() => self.handle_nothing_initial(frame),
 
-            Grammar::Empty => {
-                let frame_owned = std::mem::replace(frame, ParseFrame::new_child(
-                    0, grammar.clone(), 0, vec![], None,
-                ));
-                self.handle_empty_initial(frame_owned, &mut stack.results)
-            }
+            Grammar::Empty => self.handle_empty_initial(frame),
 
             Grammar::Missing => self.handle_missing_initial(),
 
             Grammar::Anything => {
-                let frame_owned = std::mem::replace(frame, ParseFrame::new_child(
-                    0, grammar.clone(), 0, vec![], None,
-                ));
-                self.handle_anything_initial(frame_owned, &terminators, &mut stack.results)
+                self.handle_anything_initial(frame, &terminators)
             }
 
             // Complex grammars - need special handling
@@ -254,7 +226,7 @@ impl Parser<'_> {
             }
 
             Grammar::NonCodeMatcher => {
-                self.handle_noncode_matcher_initial(frame, &mut stack.results)
+                self.handle_noncode_matcher_initial(&frame, &mut stack.results)
             }
         }
     }
@@ -346,18 +318,19 @@ impl Parser<'_> {
         let mut iteration_count = 0_usize;
         let max_iterations = 1500000_usize; // Higher limit for complex grammars
 
-        'main_loop: while let Some(mut frame) = stack.pop() {
+        'main_loop: while let Some(frame_from_stack) = stack.pop() {
             iteration_count += 1;
 
             // Re-check the cache ONLY for Initial frames
             // WaitingForChild frames have already started processing and have a child computing the result
-            if matches!(frame.state, FrameState::Initial) {
-                if let NextStep::Continue =
-                    self.check_and_handle_frame_cache(&mut frame, &mut stack)?
-                {
-                    continue 'main_loop;
+            let mut frame = if matches!(frame_from_stack.state, FrameState::Initial) {
+                match self.check_and_handle_frame_cache(frame_from_stack, &mut stack)? {
+                    FrameResult::Done => continue 'main_loop,
+                    FrameResult::Push(frame) => frame, // Cache miss - process this frame
                 }
-            }
+            } else {
+                frame_from_stack
+            };
 
             if iteration_count > max_iterations {
                 self.handle_max_iterations_exceeded(&mut stack, max_iterations, &mut frame);
@@ -387,38 +360,106 @@ impl Parser<'_> {
                         frame.pos,
                         Self::build_grammar_path(&frame, &stack)
                     );
-                    
-                    match self.handle_frame_initial(&mut frame, &mut stack, iteration_count)? {
-                        NextStep::Continue => continue 'main_loop,
-                        NextStep::Break => break 'main_loop,
-                        NextStep::ContinueWith(mut updated_frame) => {
+
+                    match self.handle_frame_initial(frame, &mut stack, iteration_count)? {
+                        FrameResult::Done => continue 'main_loop,
+                        FrameResult::Push(mut updated_frame) => {
                             stack.push(&mut updated_frame);
-                            continue 'main_loop;
                         }
-                        _ => (),
                     }
                 }
                 FrameState::WaitingForChild {
                     child_index,
                     total_children,
                 } => {
-                    if let NextStep::Continue = self.handle_waiting_for_child(
-                        &mut frame,
+                    match self.handle_waiting_for_child(
+                        frame,
                         &mut stack,
                         iteration_count,
                         child_index,
                         total_children,
                     )? {
-                        continue 'main_loop;
+                        FrameResult::Done => continue 'main_loop,
+                        FrameResult::Push(mut updated_frame) => {
+                            stack.push(&mut updated_frame);
+                        }
                     }
                 }
 
                 FrameState::Combining => {
-                    // TODO: Handle combining stack.results
-                    unimplemented!("Combining state not yet implemented");
+                    // Log that we're combining child results
+                    log::debug!(
+                        "🔨 Combining at pos {}: {}",
+                        frame.pos,
+                        Self::build_grammar_path(&frame, &stack)
+                    );
+
+                    // Delegate to specific handler based on grammar type
+                    match &frame.context {
+                        FrameContext::Ref { .. } => {
+                            match self.handle_ref_combining(frame)? {
+                                FrameResult::Done => continue 'main_loop,
+                                FrameResult::Push(mut updated_frame) => {
+                                    stack.push(&mut updated_frame);
+                                }
+                            }
+                        }
+                        FrameContext::Sequence { .. } => {
+                            match self.handle_sequence_combining(frame, &mut stack)? {
+                                FrameResult::Done => continue 'main_loop,
+                                FrameResult::Push(mut updated_frame) => {
+                                    stack.push(&mut updated_frame);
+                                }
+                            }
+                        }
+                        FrameContext::OneOf { .. } => {
+                            match self.handle_oneof_combining(frame, &mut stack)? {
+                                FrameResult::Done => continue 'main_loop,
+                                FrameResult::Push(mut updated_frame) => {
+                                    stack.push(&mut updated_frame);
+                                }
+                            }
+                        }
+                        FrameContext::AnyNumberOf { .. } => {
+                            match self.handle_anynumberof_combining(frame, &mut stack)? {
+                                FrameResult::Done => continue 'main_loop,
+                                FrameResult::Push(mut updated_frame) => {
+                                    stack.push(&mut updated_frame);
+                                }
+                            }
+                        }
+                        FrameContext::Bracketed { .. } => {
+                            match self.handle_bracketed_combining(frame, &mut stack)? {
+                                FrameResult::Done => continue 'main_loop,
+                                FrameResult::Push(mut updated_frame) => {
+                                    stack.push(&mut updated_frame);
+                                }
+                            }
+                        }
+                        FrameContext::Delimited { .. } => {
+                            match self.handle_delimited_combining(frame, &mut stack)? {
+                                FrameResult::Done => continue 'main_loop,
+                                FrameResult::Push(mut updated_frame) => {
+                                    stack.push(&mut updated_frame);
+                                }
+                            }
+                        }
+                        _ => {
+                            return Err(ParseError::new(format!(
+                                "Combining state not implemented for context: {:?}",
+                                frame.context
+                            )));
+                        }
+                    }
                 }
 
                 FrameState::Complete(ref node) => {
+                    // This state is reached when a handler has finished producing a result.
+                    // The handler transitions the frame to Complete(node) and returns Push(frame).
+                    // The main loop then stores the result in stack.results for parent frames to access.
+                    // This separation keeps handlers focused on producing results, while the main
+                    // loop coordinates result storage.
+
                     // Log grammar path - different indicator for Empty vs matched nodes
                     match node {
                         Node::Empty => {
@@ -436,18 +477,24 @@ impl Parser<'_> {
                             );
                         }
                     }
-                    
+
                     // Use the end_pos stored in the frame (or fall back to self.pos)
                     let end_pos = frame.end_pos.unwrap_or(self.pos);
-                    
+
                     // Get transparent positions if any
+                    // Note: bitset limited to positions < 64 due to u64 size
                     let transparent = frame.transparent_positions.clone().map(|v| {
-                        let bitset = v.iter().fold(0u64, |acc, &pos| acc | (1u64 << pos));
+                        let bitset = v
+                            .iter()
+                            .filter(|&&pos| pos < 64)
+                            .fold(0u64, |acc, &pos| acc | (1u64 << pos));
                         bitset
                     });
-                    
+
                     // This frame is done - insert result
-                    stack.results.insert(frame.frame_id, (node.clone(), end_pos, transparent));
+                    stack
+                        .results
+                        .insert(frame.frame_id, (node.clone(), end_pos, transparent));
                 }
             }
         }
@@ -603,12 +650,19 @@ impl Parser<'_> {
         }
     }
 
-    /// Checks the cache for a frame and handles cache hits. Returns true if handled.
+    /// Checks the cache for a frame and handles cache hits. Returns FrameResult indicating what to do next.
+    ///
+    /// Cache hits are special: they bypass the normal state machine and insert results directly
+    /// into stack.results. This is an optimization that avoids the overhead of pushing the frame
+    /// back through the Complete state when we already have the result.
+    ///
+    /// - FrameResult::Done: Cache hit, result stored directly in stack.results, skip this frame
+    /// - FrameResult::Push(frame): Cache miss, push frame back to process normally
     fn check_and_handle_frame_cache(
         &mut self,
-        frame: &mut ParseFrame,
+        frame: ParseFrame,
         stack: &mut ParseFrameStack,
-    ) -> Result<NextStep, ParseError> {
+    ) -> Result<FrameResult, ParseError> {
         use super::cache::CacheKey;
         if self.cache_enabled {
             // Use frame's parent_max_idx if available, otherwise tokens.len()
@@ -638,7 +692,7 @@ impl Parser<'_> {
                             self.collected_transparent_positions.insert(pos);
                         }
                         stack.results.insert(frame.frame_id, (node, end_pos, None));
-                        return Ok(NextStep::Continue);
+                        return Ok(FrameResult::Done);
                     }
                     Err(_e) => {
                         log::debug!(
@@ -652,12 +706,13 @@ impl Parser<'_> {
                         stack
                             .results
                             .insert(frame.frame_id, (Node::Empty, frame.pos, None));
-                        return Ok(NextStep::Continue);
+                        return Ok(FrameResult::Done);
                     }
                 }
             }
         }
-        Ok(NextStep::Fallthrough)
+        // Cache miss or cache disabled - push frame back to process normally
+        Ok(FrameResult::Push(frame))
     }
 
     fn handle_max_iterations_exceeded(
@@ -722,19 +777,19 @@ impl Parser<'_> {
     /// Format: "file -> statement -> select_statement -> ..."
     fn build_grammar_path(frame: &ParseFrame, stack: &ParseFrameStack) -> String {
         let mut path_parts = Vec::new();
-        
+
         // Add the current frame's grammar
         path_parts.push(Self::grammar_name(frame.grammar.as_ref()));
-        
+
         // Walk up the stack to build the full path
         // Stack is in reverse order (top of stack is most recent), so we iterate in reverse
         for ancestor_frame in stack.iter().rev() {
             path_parts.insert(0, Self::grammar_name(ancestor_frame.grammar.as_ref()));
         }
-        
+
         path_parts.join(" -> ")
     }
-    
+
     /// Get a short name for a grammar element
     fn grammar_name(grammar: &Grammar) -> String {
         match grammar {
@@ -791,12 +846,12 @@ impl Parser<'_> {
     /// Dispatch handler for WaitingForChild state.
     fn handle_waiting_for_child(
         &mut self,
-        frame: &mut ParseFrame,
+        mut frame: ParseFrame,
         stack: &mut ParseFrameStack,
         iteration_count: usize,
         child_index: usize,
         total_children: usize,
-    ) -> Result<NextStep, ParseError> {
+    ) -> Result<FrameResult, ParseError> {
         // A child parse just completed - get its result
         let child_frame_id = match &frame.context {
             FrameContext::Ref {
@@ -829,7 +884,7 @@ impl Parser<'_> {
             } => last_child_frame_id.expect("WaitingForChild should have last_child_frame_id set"),
             _ => {
                 log::error!("WaitingForChild state without child frame ID tracking");
-                return Ok(NextStep::Continue);
+                return Ok(FrameResult::Done);
             }
         };
 
@@ -881,40 +936,55 @@ impl Parser<'_> {
 
             match &mut frame.context {
                 FrameContext::Ref { .. } => {
-                    self.handle_ref_waiting_for_child(frame, child_node, child_end_pos, stack);
-                    Ok(NextStep::Continue)
+                    match self.handle_ref_waiting_for_child(frame, child_node, child_end_pos, stack)? {
+                        FrameResult::Done => {}
+                        FrameResult::Push(mut updated_frame) => {
+                            stack.push(&mut updated_frame);
+                        }
+                    }
+                    Ok(FrameResult::Done)
                 }
                 FrameContext::Sequence { .. } => {
-                    self.handle_sequence_waiting_for_child(
+                    match self.handle_sequence_waiting_for_child(
                         frame,
                         child_node,
                         child_end_pos,
                         stack,
                         iteration_count,
                         frame_terminators,
-                    );
-                    Ok(NextStep::Continue)
+                    )? {
+                        FrameResult::Done => {}
+                        FrameResult::Push(mut updated_frame) => {
+                            stack.push(&mut updated_frame);
+                        }
+                    }
+                    Ok(FrameResult::Done)
                 }
                 FrameContext::AnyNumberOf { .. } => {
                     self.handle_anynumberof_waiting_for_child(
-                        frame,
+                        &mut frame,
                         child_node,
                         child_end_pos,
                         child_element_key,
                         stack,
                         iteration_count,
                         frame_terminators,
-                    );
-                    Ok(NextStep::Continue)
+                    )?;
+                    Ok(FrameResult::Done)
                 }
                 FrameContext::Bracketed { .. } => {
-                    self.handle_bracketed_waiting_for_child(
+                    match self.handle_bracketed_waiting_for_child(
                         frame,
                         child_node,
                         child_end_pos,
                         stack,
-                    );
-                    Ok(NextStep::Continue)
+                    )? {
+                        FrameResult::Done => {}
+                        FrameResult::Push(mut updated_frame) => {
+                            stack.push(&mut updated_frame);
+                        }
+                    }
+                    Ok(FrameResult::Done)
                 }
                 FrameContext::AnySetOf { .. } => {
                     // AnySetOf now delegates to AnyNumberOf, so this context should never be created
@@ -931,8 +1001,8 @@ impl Parser<'_> {
                         child_element_key,
                         stack,
                         frame_terminators,
-                    );
-                    Ok(NextStep::Continue)
+                    )?;
+                    Ok(FrameResult::Done)
                 }
                 FrameContext::Delimited { .. } => {
                     self.handle_delimited_waiting_for_child(
@@ -943,7 +1013,7 @@ impl Parser<'_> {
                         stack,
                         frame_terminators,
                     )?;
-                    Ok(NextStep::Continue)
+                    Ok(FrameResult::Done)
                 }
                 _ => {
                     // TODO: Handle other grammar types
@@ -980,7 +1050,7 @@ impl Parser<'_> {
                 | FrameContext::Delimited {
                     last_child_frame_id,
                     ..
-                } => last_child_frame_id.clone(),
+                } => *last_child_frame_id,
                 _ => None,
             };
             log::debug!(
@@ -1013,8 +1083,7 @@ impl Parser<'_> {
             }
 
             // Push frame back onto stack so it can be re-checked after child completes
-            stack.push(frame);
-            Ok(NextStep::Continue)
+            Ok(FrameResult::Push(frame))
         }
     }
 }
