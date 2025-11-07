@@ -1137,30 +1137,38 @@ class AlterDatabaseStatementSegment(BaseSegment):
         ),
     )
 
+    _recovery_options = Sequence(
+        "RECOVERY",
+        OneOf("FULL", "SIMPLE", "BULK_LOGGED"),
+    )
+
     _set_option = Sequence(
         "SET",
-        OptionallyBracketed(
-            Delimited(
-                OneOf(
-                    Ref("CompatibilityLevelSegment"),
-                    Ref("AutoOptionSegment"),
-                    _accelerated_database_recovery,
-                    # catch-all for all ON | OFF
-                    # if needed, more specific grammar can be added
-                    Sequence(
-                        Ref("NakedIdentifierSegment"),
-                        Ref("EqualsSegment"),
-                        OneOf("ON", "OFF"),
-                    ),
-                    # catch all for size settings
-                    Sequence(
-                        Ref("NakedIdentifierSegment"),
-                        Ref("EqualsSegment"),
-                        Ref("NumericLiteralSegment"),
-                        OneOf("KB", "MB", "GB", "TB", optional=True),
+        OneOf(
+            OptionallyBracketed(
+                Delimited(
+                    OneOf(
+                        Ref("CompatibilityLevelSegment"),
+                        Ref("AutoOptionSegment"),
+                        _accelerated_database_recovery,
+                        # catch-all for all ON | OFF
+                        # if needed, more specific grammar can be added
+                        Sequence(
+                            Ref("NakedIdentifierSegment"),
+                            Ref("EqualsSegment"),
+                            OneOf("ON", "OFF"),
+                        ),
+                        # catch all for size settings
+                        Sequence(
+                            Ref("NakedIdentifierSegment"),
+                            Ref("EqualsSegment"),
+                            Ref("NumericLiteralSegment"),
+                            OneOf("KB", "MB", "GB", "TB", optional=True),
+                        ),
                     ),
                 ),
             ),
+            _recovery_options,
         ),
     )
 
