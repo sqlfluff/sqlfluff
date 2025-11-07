@@ -1142,7 +1142,6 @@ class AlterDatabaseStatementSegment(BaseSegment):
         OneOf("FULL", "SIMPLE", "BULK_LOGGED"),
     )
 
-
     _set_option = Sequence(
         "SET",
         OneOf(
