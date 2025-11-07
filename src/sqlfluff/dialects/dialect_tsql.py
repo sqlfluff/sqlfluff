@@ -1551,17 +1551,33 @@ class CursorDefinitionSegment(BaseSegment):
 # Originals
 
 
+class SelectVariableAssignmentSegment(BaseSegment):
+    """A variable assignment in a SELECT statement.
+
+    https://learn.microsoft.com/en-us/sql/t-sql/language-elements/select-local-variable-transact-sql
+    """
+
+    type = "select_variable_assignment"
+    match_grammar = Sequence(
+        Ref("ParameterNameSegment"),
+        Ref("AssignmentOperatorSegment"),
+        Ref("ExpressionSegment"),
+    )
+
+
 class SelectClauseElementSegment(ansi.SelectClauseElementSegment):
     """An element in the targets of a select statement.
 
     Overriding ANSI to remove greedy logic which assumes statements have been
-    delimited
+    delimited and to support SELECT @variable = expression syntax.
     """
 
     # Important to split elements before parsing, otherwise debugging is really hard.
     match_grammar = OneOf(
         # *, blah.*, blah.blah.*, etc.
         Ref("WildcardExpressionSegment"),
+        # SELECT @variable = expression (variable assignment)
+        Ref("SelectVariableAssignmentSegment"),
         Sequence(
             Ref("AltAliasExpressionSegment"),
             Ref("BaseExpressionElementGrammar"),
