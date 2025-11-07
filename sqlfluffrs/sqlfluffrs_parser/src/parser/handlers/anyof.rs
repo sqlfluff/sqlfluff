@@ -3,7 +3,7 @@ use std::sync::Arc;
 use crate::parser::iterative::{FrameResult, ParseFrameStack};
 use crate::parser::utils::apply_parse_mode_to_result;
 use crate::parser::{FrameContext, FrameState, Node, ParseError, ParseFrame};
-use sqlfluffrs_types::Grammar;
+use sqlfluffrs_types::{Grammar, ParseMode};
 
 impl crate::parser::Parser<'_> {
     /// Handle AnyNumberOf grammar Initial state in iterative parser.
@@ -663,9 +663,15 @@ impl crate::parser::Parser<'_> {
             frame.parent_max_idx,
         );
 
-        // Check termination using ORIGINAL elements, not pruned
-        // Pruning is for optimization only and shouldn't affect termination logic
-        if self.is_terminated_with_elements(&all_terminators, elements) {
+        // Python parity: Only check termination BEFORE matching in GREEDY mode.
+        // In STRICT mode, Python calls longest_match() first and only returns early
+        // if the match fails. Checking terminators before matching in STRICT mode
+        // causes false positives when a token could match both a terminator AND
+        // an element (e.g., "+" can be both a binary operator terminator and start
+        // of a signed number like "+5").
+        if parse_mode == ParseMode::Greedy
+            && self.is_terminated_with_elements(&all_terminators, elements)
+        {
             self.pos = pos;
 
             let result = if optional {

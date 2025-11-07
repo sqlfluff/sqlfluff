@@ -930,13 +930,10 @@ impl<'a> Parser<'a> {
             if let Some(simple) = simple_opt {
                 // Use fast simple matching for simple terminators
                 if simple.can_match_token(&current_token_raw_upper, &current_token_types) {
-                    // NOTE: We used to check if elements could also match, but that's flawed because:
-                    // 1. simple_hint is for pruning (quick rejection), not acceptance
-                    // 2. Meta grammars and others with no hint return true for all tokens
-                    // 3. This prevented terminators from working in GreedyOnceStarted mode
-                    //
-                    // Instead, we just check if the terminator matches, and if it does, terminate.
-                    // The elements will get their chance to match when parsing continues normally.
+                    // NOTE: Python's trim_to_terminator does NOT check if elements could match.
+                    // It simply finds the next terminator, skipping over brackets.
+                    // The elements parameter exists for future use but is not currently used
+                    // for filtering terminators in Python's implementation.
 
                     // For complex grammars like Sequence("GROUP", "BY"), do full parse
                     // ALSO for Ref grammars - simple hints are for quick rejection only,
