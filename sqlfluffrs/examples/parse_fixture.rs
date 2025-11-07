@@ -23,7 +23,10 @@ fn main() {
     let args: Vec<String> = env::args().collect();
 
     if args.len() < 2 {
-        log::debug!("Usage: {} <sql_file> [--compare] [--dialect <dialect>] [--out <file>] [--code-only]", args[0]);
+        log::debug!(
+            "Usage: {} <sql_file> [--compare] [--dialect <dialect>] [--out <file>] [--code-only]",
+            args[0]
+        );
         log::debug!("");
         log::debug!("Examples:");
         log::debug!(
@@ -34,10 +37,7 @@ fn main() {
             "  {} test/fixtures/dialects/ansi/create_table.sql --compare",
             args[0]
         );
-        log::debug!(
-            "  {} test.sql --dialect bigquery",
-            args[0]
-        );
+        log::debug!("  {} test.sql --dialect bigquery", args[0]);
         process::exit(1);
     }
 
@@ -97,7 +97,10 @@ fn main() {
         match Dialect::from_str(dialect_name) {
             Ok(d) => d,
             Err(_) => {
-                eprintln!("Error: Invalid dialect '{}'. Using ANSI instead.", dialect_name);
+                eprintln!(
+                    "Error: Invalid dialect '{}'. Using ANSI instead.",
+                    dialect_name
+                );
                 Dialect::Ansi
             }
         }

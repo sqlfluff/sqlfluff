@@ -148,7 +148,9 @@ impl Parser<'_> {
                     frame.pos,
                     parent_max
                 );
-                stack.results.insert(frame.frame_id, (Node::Empty, frame.pos, None));
+                stack
+                    .results
+                    .insert(frame.frame_id, (Node::Empty, frame.pos, None));
                 return Ok(FrameResult::Done);
             }
         }

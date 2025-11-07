@@ -494,8 +494,13 @@ impl crate::parser::Parser<'_> {
         mut frame: ParseFrame,
         stack: &mut ParseFrameStack,
     ) -> Result<crate::parser::iterative::FrameResult, ParseError> {
-    let combine_end = frame.end_pos.unwrap_or(self.pos);
-    log::debug!("🔨 AnyNumberOf combining frame_id={}, range={}-{}", frame.frame_id, frame.pos, combine_end.saturating_sub(1));
+        let combine_end = frame.end_pos.unwrap_or(self.pos);
+        log::debug!(
+            "🔨 AnyNumberOf combining frame_id={}, range={}-{}",
+            frame.frame_id,
+            frame.pos,
+            combine_end.saturating_sub(1)
+        );
 
         // Extract context data
         let FrameContext::AnyNumberOf {
@@ -631,11 +636,8 @@ impl crate::parser::Parser<'_> {
 
         // Use early-exit matching for excludes - stop on first match
         if let Some(exclude_grammar) = exclude {
-            let test_result = self.try_match_exclude_grammar(
-                *exclude_grammar.clone(),
-                pos,
-                parent_terminators,
-            );
+            let test_result =
+                self.try_match_exclude_grammar(*exclude_grammar.clone(), pos, parent_terminators);
             if test_result.is_ok() {
                 stack
                     .results
@@ -1018,8 +1020,13 @@ impl crate::parser::Parser<'_> {
         mut frame: ParseFrame,
         stack: &mut ParseFrameStack,
     ) -> Result<crate::parser::iterative::FrameResult, ParseError> {
-    let combine_end = frame.end_pos.unwrap_or(self.pos);
-    log::debug!("🔨 OneOf combining frame_id={}, range={}-{}", frame.frame_id, frame.pos, combine_end.saturating_sub(1));
+        let combine_end = frame.end_pos.unwrap_or(self.pos);
+        log::debug!(
+            "🔨 OneOf combining frame_id={}, range={}-{}",
+            frame.frame_id,
+            frame.pos,
+            combine_end.saturating_sub(1)
+        );
 
         // Extract context data
         let FrameContext::OneOf {
@@ -1043,8 +1050,11 @@ impl crate::parser::Parser<'_> {
         };
 
         // Build the final result based on longest_match
-        let (result_node, final_pos, element_key) = if let Some((best_node, best_consumed, best_element_key)) =
-            longest_match
+        let (result_node, final_pos, element_key) = if let Some((
+            best_node,
+            best_consumed,
+            best_element_key,
+        )) = longest_match
         {
             let final_pos = *post_skip_pos + *best_consumed;
             self.pos = final_pos;
