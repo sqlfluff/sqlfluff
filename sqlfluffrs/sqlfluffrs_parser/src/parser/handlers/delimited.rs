@@ -750,9 +750,11 @@ impl crate::parser::Parser<'_> {
         mut frame: ParseFrame,
         stack: &mut ParseFrameStack,
     ) -> Result<crate::parser::iterative::FrameResult, ParseError> {
+        let combine_end = frame.end_pos.unwrap_or(self.pos);
         log::debug!(
-            "🔨 Delimited combining at pos {} - frame_id={}, accumulated={}",
+            "🔨 Delimited combining at pos {}-{} - frame_id={}, accumulated={}",
             frame.pos,
+            combine_end,
             frame.frame_id,
             frame.accumulated.len()
         );

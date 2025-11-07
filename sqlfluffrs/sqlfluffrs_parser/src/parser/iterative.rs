@@ -385,10 +385,12 @@ impl Parser<'_> {
                 }
 
                 FrameState::Combining => {
-                    // Log that we're combining child results
+                    // Log that we're combining child results, include range
+                    let combine_end = frame.end_pos.unwrap_or(self.pos);
                     log::debug!(
-                        "🔨 Combining at pos {}: {}",
+                        "🔨 Combining at pos {}-{}: {}",
                         frame.pos,
+                        combine_end,
                         Self::build_grammar_path(&frame, &stack)
                     );
 
@@ -457,6 +459,7 @@ impl Parser<'_> {
                     // loop coordinates result storage.
 
                     // Log grammar path - different indicator for Empty vs matched nodes
+                    let end_pos = frame.end_pos.unwrap_or(self.pos);
                     match node {
                         Node::Empty => {
                             log::debug!(
@@ -467,8 +470,9 @@ impl Parser<'_> {
                         }
                         _ => {
                             log::debug!(
-                                "✅ Match at pos {}: {}",
+                                "✅ Match at pos {}-{}: {}",
                                 frame.pos,
+                                end_pos,
                                 Self::build_grammar_path(&frame, &stack)
                             );
                         }

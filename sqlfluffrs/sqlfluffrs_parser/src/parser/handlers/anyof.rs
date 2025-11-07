@@ -493,7 +493,8 @@ impl crate::parser::Parser<'_> {
         mut frame: ParseFrame,
         stack: &mut ParseFrameStack,
     ) -> Result<crate::parser::iterative::FrameResult, ParseError> {
-        log::debug!("🔨 AnyNumberOf combining frame_id={}", frame.frame_id);
+    let combine_end = frame.end_pos.unwrap_or(self.pos);
+    log::debug!("🔨 AnyNumberOf combining frame_id={}, range={}-{}", frame.frame_id, frame.pos, combine_end);
 
         // Extract context data
         let FrameContext::AnyNumberOf {
@@ -1009,7 +1010,8 @@ impl crate::parser::Parser<'_> {
         mut frame: ParseFrame,
         stack: &mut ParseFrameStack,
     ) -> Result<crate::parser::iterative::FrameResult, ParseError> {
-        log::debug!("🔨 OneOf combining frame_id={}", frame.frame_id);
+    let combine_end = frame.end_pos.unwrap_or(self.pos);
+    log::debug!("🔨 OneOf combining frame_id={}, range={}-{}", frame.frame_id, frame.pos, combine_end);
 
         // Extract context data
         let FrameContext::OneOf {

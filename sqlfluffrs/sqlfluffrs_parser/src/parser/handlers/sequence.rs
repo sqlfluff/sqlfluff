@@ -1174,7 +1174,8 @@ impl<'a> Parser<'_> {
         mut frame: ParseFrame,
         stack: &mut ParseFrameStack,
     ) -> Result<crate::parser::iterative::FrameResult, ParseError> {
-        log::debug!("🔨 Sequence combining frame_id={}", frame.frame_id);
+    let combine_end = frame.end_pos.unwrap_or(self.pos);
+    log::debug!("🔨 Sequence combining frame_id={}, range={}-{}", frame.frame_id, frame.pos, combine_end);
 
         // Extract context to get tentatively_collected for transparent_positions
         let FrameContext::Sequence {
@@ -1236,9 +1237,11 @@ impl<'a> Parser<'_> {
         mut frame: ParseFrame,
         stack: &mut ParseFrameStack,
     ) -> Result<crate::parser::iterative::FrameResult, ParseError> {
+        let combine_end = frame.end_pos.unwrap_or(self.pos);
         log::debug!(
-            "🔨 Bracketed combining at pos {} - frame_id={}, accumulated={}",
+            "🔨 Bracketed combining at pos {}-{} - frame_id={}, accumulated={}",
             frame.pos,
+            combine_end,
             frame.frame_id,
             frame.accumulated.len()
         );
