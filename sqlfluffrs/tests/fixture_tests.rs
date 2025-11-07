@@ -1,3 +1,15 @@
+/// Normalize YAML by round-tripping through serde_yaml_ng
+fn normalize_yaml_through_serde(yaml_str: &str) -> Result<String, String> {
+    // Parse YAML 1.1 and re-serialize with serde_yaml_ng
+    let value: serde_yaml_ng::Value =
+        serde_yaml_ng::from_str(yaml_str).map_err(|e| format!("Failed to parse YAML: {}", e))?;
+
+    let normalized =
+        serde_yaml_ng::to_string(&value).map_err(|e| format!("Failed to serialize YAML: {}", e))?;
+
+    Ok(normalized)
+}
+
 /// Compare Rust YAML output to Python YAML for all fixtures in a given dialect.
 fn check_yaml_output_matches_python_for_dialect(dialect: &str) {
     env_logger::try_init().ok();
@@ -33,11 +45,18 @@ fn check_yaml_output_matches_python_for_dialect(dialect: &str) {
         let generated_yaml = node_to_yaml(&ast, &tokens).expect("YAML conversion error");
 
         total += 1;
-        // Parse YAML to Value for key/row comparison
+
+        // Normalize both YAMLs through serde_yaml_ng round-trip
+        let normalized_expected = normalize_yaml_through_serde(&expected_yaml)
+            .expect("Failed to normalize expected YAML");
+        let normalized_generated = normalize_yaml_through_serde(&generated_yaml)
+            .expect("Failed to normalize generated YAML");
+
+        // Parse normalized YAML to Value for key/row comparison
         let gen_val: serde_yaml_ng::Value =
-            serde_yaml_ng::from_str(&generated_yaml).expect("Generated YAML not valid");
+            serde_yaml_ng::from_str(&normalized_generated).expect("Generated YAML not valid");
         let exp_val: serde_yaml_ng::Value =
-            serde_yaml_ng::from_str(&expected_yaml).expect("Expected YAML not valid");
+            serde_yaml_ng::from_str(&normalized_expected).expect("Expected YAML not valid");
 
         // Helper to extract keys and row count from the main node
         fn keys_and_row_count(val: &serde_yaml_ng::Value) -> (Vec<String>, usize) {
@@ -95,12 +114,13 @@ fn check_yaml_output_matches_python_for_dialect(dialect: &str) {
                     "  Row count differs:\n    Generated: {}\n    Expected:  {}",
                     gen_rows, exp_rows
                 );
-                if test.name == "table_expression" {
-                    println!("\n=== GENERATED YAML ===\n{}", generated_yaml);
-                    println!("\n=== EXPECTED YAML (first 100 lines) ===");
-                    for (i, line) in expected_yaml.lines().take(100).enumerate() {
-                        println!("{}: {}", i + 1, line);
-                    }
+                println!(
+                    "\n=== NORMALIZED GENERATED YAML ===\n{}",
+                    normalized_generated
+                );
+                println!("\n=== NORMALIZED EXPECTED YAML (first 100 lines) ===");
+                for (i, line) in normalized_expected.lines().take(100).enumerate() {
+                    println!("{}: {}", i + 1, line);
                 }
             }
         }
