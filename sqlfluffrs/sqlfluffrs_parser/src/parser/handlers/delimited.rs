@@ -649,7 +649,7 @@ impl crate::parser::Parser<'_> {
                         frame.end_pos = Some(*matched_idx);
                         frame.state = FrameState::Combining;
                         stack.push(&mut frame);
-                        return Ok(FrameResult::Done);
+                        Ok(FrameResult::Done)
                     } else {
                         *state = DelimitedState::MatchingElement;
                         if *allow_gaps {
@@ -734,7 +734,7 @@ impl crate::parser::Parser<'_> {
                             child_frame,
                             "Delimited",
                         );
-                        return Ok(FrameResult::Done);
+                        Ok(FrameResult::Done)
                     }
                 }
             }
@@ -748,13 +748,12 @@ impl crate::parser::Parser<'_> {
     pub(crate) fn handle_delimited_combining(
         &mut self,
         mut frame: ParseFrame,
-        stack: &mut ParseFrameStack,
     ) -> Result<crate::parser::iterative::FrameResult, ParseError> {
         let combine_end = frame.end_pos.unwrap_or(self.pos);
         log::debug!(
             "🔨 Delimited combining at pos {}-{} - frame_id={}, accumulated={}",
             frame.pos,
-            combine_end,
+            combine_end.saturating_sub(1),
             frame.frame_id,
             frame.accumulated.len()
         );

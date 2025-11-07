@@ -390,7 +390,7 @@ impl Parser<'_> {
                     log::debug!(
                         "🔨 Combining at pos {}-{}: {}",
                         frame.pos,
-                        combine_end,
+                        combine_end.saturating_sub(1),
                         Self::build_grammar_path(&frame, &stack)
                     );
 
@@ -435,7 +435,7 @@ impl Parser<'_> {
                             }
                         }
                         FrameContext::Delimited { .. } => {
-                            match self.handle_delimited_combining(frame, &mut stack)? {
+                            match self.handle_delimited_combining(frame)? {
                                 FrameResult::Done => continue 'main_loop,
                                 FrameResult::Push(mut updated_frame) => {
                                     stack.push(&mut updated_frame);
@@ -472,7 +472,7 @@ impl Parser<'_> {
                             log::debug!(
                                 "✅ Match at pos {}-{}: {}",
                                 frame.pos,
-                                end_pos,
+                                end_pos.saturating_sub(1),
                                 Self::build_grammar_path(&frame, &stack)
                             );
                         }

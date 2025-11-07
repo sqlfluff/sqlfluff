@@ -728,18 +728,22 @@ impl<'a> Parser<'_> {
                     }
                 }
             }
+            log::debug!(
+                "[TRIM CHECK] frame_id={}, first_match={}, parse_mode={:?}, about to check trimming",
+                frame.frame_id, *first_match, *parse_mode
+            );
             if *first_match && *parse_mode == crate::parser::ParseMode::GreedyOnceStarted {
                 log::debug!(
                     "GREEDY_ONCE_STARTED: Trimming max_idx after first match from {} to terminator",
                     *max_idx
                 );
                 log::debug!(
-                    "GREEDY_ONCE_STARTED: Using {} sequence terminators: {:?}",
-                    sequence_terminators.len(),
-                    sequence_terminators
+                    "GREEDY_ONCE_STARTED: Using {} combined terminators (sequence + parent): {:?}",
+                    frame.terminators.len(),
+                    frame.terminators
                 );
-                // Use the Sequence's own terminators, not accumulated frame terminators
-                // This prevents child element terminators from incorrectly limiting the Sequence
+                // Use the combined terminators (sequence + parent) to respect parent boundaries
+                // For example, a StatementSegment's ';' terminator should stop the Sequence
                 //
                 // Also pass the remaining elements to be parsed - this prevents terminators
                 // that are also the start of upcoming elements from incorrectly trimming
@@ -755,7 +759,7 @@ impl<'a> Parser<'_> {
                 );
                 let new_max_idx = self.trim_to_terminator_with_elements(
                     *matched_idx,
-                    sequence_terminators,
+                    &frame.terminators,
                     &remaining_elements,
                 );
                 // Respect the original parent max_idx constraint
@@ -859,13 +863,6 @@ impl<'a> Parser<'_> {
                 log::debug!("WARNING: Sequence completing with EMPTY accumulated! frame_id={}, current_elem_idx={}, elements.len={}", frame.frame_id, current_elem_idx, elements_clone.len());
                 Node::Empty
             } else {
-                //Debug: check if position 15 is in accumulated
-                let has_pos_15 = frame.accumulated.iter().any(|node| match node {
-                    Node::Whitespace { token_idx, .. } | Node::Newline { token_idx, .. } => {
-                        *token_idx == 15
-                    }
-                    _ => false,
-                });
                 let grammar_desc = match grammar.as_ref() {
                     Grammar::Sequence { elements, .. } if !elements.is_empty() => {
                         match elements[0].as_ref() {
@@ -875,8 +872,8 @@ impl<'a> Parser<'_> {
                     }
                     _ => "Seq".to_string(),
                 };
-                log::debug!("Sequence result ({}): has position 15 = {}, accumulated.len = {}, tentatively_collected = {:?}",
-                    grammar_desc, has_pos_15, frame.accumulated.len(), tentatively_collected);
+                log::debug!("Sequence result ({}): accumulated.len = {}, tentatively_collected = {:?}",
+                    grammar_desc, frame.accumulated.len(), tentatively_collected);
 
                 Node::Sequence {
                     children: frame.accumulated.clone(),
@@ -931,7 +928,7 @@ impl<'a> Parser<'_> {
             // Collect transparent tokens between this child and the next element
             // We should do this whenever allow_gaps is true and there are more elements to process
             if current_allow_gaps
-                && child_node.is_empty() == false
+                && !child_node.is_empty()
                 && current_elem_idx < elements_clone.len()
             {
                 let _idx =
@@ -1175,7 +1172,7 @@ impl<'a> Parser<'_> {
         stack: &mut ParseFrameStack,
     ) -> Result<crate::parser::iterative::FrameResult, ParseError> {
     let combine_end = frame.end_pos.unwrap_or(self.pos);
-    log::debug!("🔨 Sequence combining frame_id={}, range={}-{}", frame.frame_id, frame.pos, combine_end);
+    log::debug!("🔨 Sequence combining frame_id={}, range={}-{}", frame.frame_id, frame.pos, combine_end.saturating_sub(1));
 
         // Extract context to get tentatively_collected for transparent_positions
         let FrameContext::Sequence {
@@ -1241,7 +1238,7 @@ impl<'a> Parser<'_> {
         log::debug!(
             "🔨 Bracketed combining at pos {}-{} - frame_id={}, accumulated={}",
             frame.pos,
-            combine_end,
+            combine_end.saturating_sub(1),
             frame.frame_id,
             frame.accumulated.len()
         );

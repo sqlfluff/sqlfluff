@@ -930,22 +930,13 @@ impl<'a> Parser<'a> {
             if let Some(simple) = simple_opt {
                 // Use fast simple matching for simple terminators
                 if simple.can_match_token(&current_token_raw_upper, &current_token_types) {
-                    // Before terminating, check if any element could also match this token
-                    // If so, we should try the element first (don't terminate yet)
-                    if !elements.is_empty() {
-                        for element in elements {
-                            let element_hint_opt = element.simple_hint(&mut self.simple_hint_cache);
-                            if let Some(element_hint) = element_hint_opt {
-                                if element_hint
-                                    .can_match_token(&current_token_raw_upper, &current_token_types)
-                                {
-                                    log::debug!("  NOTERM Token matches both terminator {} and element {} - trying element first", term, element);
-                                    self.pos = init_pos;
-                                    return false;
-                                }
-                            }
-                        }
-                    }
+                    // NOTE: We used to check if elements could also match, but that's flawed because:
+                    // 1. simple_hint is for pruning (quick rejection), not acceptance
+                    // 2. Meta grammars and others with no hint return true for all tokens
+                    // 3. This prevented terminators from working in GreedyOnceStarted mode
+                    //
+                    // Instead, we just check if the terminator matches, and if it does, terminate.
+                    // The elements will get their chance to match when parsing continues normally.
 
                     // For complex grammars like Sequence("GROUP", "BY"), do full parse
                     // ALSO for Ref grammars - simple hints are for quick rejection only,
