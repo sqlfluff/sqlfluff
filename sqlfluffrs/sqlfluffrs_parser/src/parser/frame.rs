@@ -329,6 +329,7 @@ pub enum BracketedState {
     MatchingOpen,
     MatchingContent,
     MatchingClose,
+    Complete, // Successfully matched all parts: open + content + close
 }
 
 /// State for Delimited parsing

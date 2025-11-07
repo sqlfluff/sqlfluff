@@ -873,8 +873,12 @@ impl<'a> Parser<'_> {
                     }
                     _ => "Seq".to_string(),
                 };
-                log::debug!("Sequence result ({}): accumulated.len = {}, tentatively_collected = {:?}",
-                    grammar_desc, frame.accumulated.len(), tentatively_collected);
+                log::debug!(
+                    "Sequence result ({}): accumulated.len = {}, tentatively_collected = {:?}",
+                    grammar_desc,
+                    frame.accumulated.len(),
+                    tentatively_collected
+                );
 
                 Node::Sequence {
                     children: frame.accumulated.clone(),
@@ -1117,7 +1121,7 @@ impl<'a> Parser<'_> {
                         elements_clone[next_elem_idx].clone(),
                         next_pos,
                         frame_terminators.clone(),
-                        Some(current_max_idx),  // Use trimmed max_idx, not original_max_idx
+                        Some(current_max_idx), // Use trimmed max_idx, not original_max_idx
                     );
                     ParseFrame::push_sequence_child_and_update_parent(
                         stack,
@@ -1178,8 +1182,13 @@ impl<'a> Parser<'_> {
         mut frame: ParseFrame,
         stack: &mut ParseFrameStack,
     ) -> Result<crate::parser::iterative::FrameResult, ParseError> {
-    let combine_end = frame.end_pos.unwrap_or(self.pos);
-    log::debug!("🔨 Sequence combining frame_id={}, range={}-{}", frame.frame_id, frame.pos, combine_end.saturating_sub(1));
+        let combine_end = frame.end_pos.unwrap_or(self.pos);
+        log::debug!(
+            "🔨 Sequence combining frame_id={}, range={}-{}",
+            frame.frame_id,
+            frame.pos,
+            combine_end.saturating_sub(1)
+        );
 
         // Extract context to get tentatively_collected for transparent_positions
         let FrameContext::Sequence {
@@ -1239,7 +1248,6 @@ impl<'a> Parser<'_> {
     pub(crate) fn handle_bracketed_combining(
         &mut self,
         mut frame: ParseFrame,
-        stack: &mut ParseFrameStack,
     ) -> Result<crate::parser::iterative::FrameResult, ParseError> {
         let combine_end = frame.end_pos.unwrap_or(self.pos);
         log::debug!(
@@ -1250,25 +1258,31 @@ impl<'a> Parser<'_> {
             frame.accumulated.len()
         );
 
-        // The result is determined by what was accumulated during matching:
-        // - If accumulated is empty, the match failed (opening bracket not found, or other failure)
-        // - If accumulated has children, we successfully matched open + content + close brackets
-
-        let result_node = if frame.accumulated.is_empty() {
-            log::debug!(
-                "Bracketed combining with EMPTY accumulated → returning Node::Empty, frame_id={}",
-                frame.frame_id
-            );
-            Node::Empty
+        // Extract the bracketed state from the frame context
+        let is_complete = if let FrameContext::Bracketed { state, .. } = &frame.context {
+            matches!(state, BracketedState::Complete)
         } else {
+            false
+        };
+
+        // The result is determined by the bracketed state:
+        // - If state is Complete, we successfully matched all parts (open + content + close)
+        // - Otherwise, the match failed at some point and we return Empty
+
+        let result_node = if is_complete {
             log::debug!(
-                "Bracketed combining with {} children → building Node::Bracketed, frame_id={}",
-                frame.accumulated.len(),
+                "Bracketed combining with COMPLETE state → building Node::Bracketed, frame_id={}",
                 frame.frame_id
             );
             Node::Bracketed {
                 children: frame.accumulated.clone(),
             }
+        } else {
+            log::debug!(
+                "Bracketed combining with INCOMPLETE state → returning Node::Empty, frame_id={}",
+                frame.frame_id
+            );
+            Node::Empty
         };
 
         // Transition to Complete state with the final result
@@ -1752,12 +1766,21 @@ impl<'a> Parser<'_> {
                         frame.accumulated.len(),
                         frame.frame_id
                     );
+                    // Mark as Complete so the combining handler knows this is a successful match
+                    *state = BracketedState::Complete;
                     // Transition to Combining to build final Bracketed node
                     frame.end_pos = Some(*child_end_pos);
                     frame.state = FrameState::Combining;
                     stack.push(&mut frame);
                     return Ok(FrameResult::Done);
                 }
+            }
+            BracketedState::Complete => {
+                // This state should never be reached in WaitingForChild handler
+                // because we only transition to Complete right before Combining.
+                unreachable!(
+                    "BracketedState::Complete should not occur in WaitingForChild handler"
+                );
             }
         }
     }
