@@ -138,18 +138,18 @@ impl Parser<'_> {
         );
 
         // Python parity: In Python, segments are sliced to max_idx before matching.
-        // If we're at or past parent_max_idx, we should fail immediately without trying to match.
+        // segments[:max_idx] means positions 0..max_idx-1 are accessible, position max_idx is NOT.
+        // So if pos >= parent_max_idx, we're beyond the slice boundary.
+        // Return Empty node rather than Err so parent (e.g. OneOf) can try other options.
         if let Some(parent_max) = frame.parent_max_idx {
-            if frame.pos > parent_max {
+            if frame.pos >= parent_max {
                 log::debug!(
-                    "Ref: pos {} > parent_max_idx {}, returning error",
+                    "Ref: pos {} >= parent_max_idx {}, returning Empty",
                     frame.pos,
                     parent_max
                 );
-                return Err(ParseError::new(format!(
-                    "Ref at position {} is beyond parent_max_idx {}",
-                    frame.pos, parent_max
-                )));
+                stack.results.insert(frame.frame_id, (Node::Empty, frame.pos, None));
+                return Ok(FrameResult::Done);
             }
         }
 
