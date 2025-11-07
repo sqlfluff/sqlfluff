@@ -217,6 +217,7 @@ impl crate::parser::Parser<'_> {
                 parent_max_idx: Some(max_idx),
                 end_pos: None,
                 transparent_positions: None,
+                element_key: None,
             };
 
             let next_child_id = stack.frame_id_counter;
@@ -793,6 +794,7 @@ impl crate::parser::Parser<'_> {
             parent_max_idx: Some(max_idx),
             end_pos: None,
             transparent_positions: None,
+            element_key: None,
         };
 
         frame.state = crate::parser::FrameState::WaitingForChild {
@@ -1041,7 +1043,7 @@ impl crate::parser::Parser<'_> {
         };
 
         // Build the final result based on longest_match
-        let (result_node, final_pos) = if let Some((best_node, best_consumed, best_element_key)) =
+        let (result_node, final_pos, element_key) = if let Some((best_node, best_consumed, best_element_key)) =
             longest_match
         {
             let final_pos = *post_skip_pos + *best_consumed;
@@ -1060,7 +1062,7 @@ impl crate::parser::Parser<'_> {
                 best_node.clone()
             };
 
-            (result, final_pos)
+            (result, final_pos, Some(*best_element_key))
         } else {
             // No match found - apply parse_mode
             let result_node = apply_parse_mode_to_result(
@@ -1077,11 +1079,12 @@ impl crate::parser::Parser<'_> {
             };
             self.pos = final_pos;
 
-            (result_node, final_pos)
+            (result_node, final_pos, None)
         };
 
         // Store result info in frame and transition to Complete
         frame.end_pos = Some(final_pos);
+        frame.element_key = element_key;
         frame.state = FrameState::Complete(result_node);
 
         Ok(crate::parser::iterative::FrameResult::Push(frame))

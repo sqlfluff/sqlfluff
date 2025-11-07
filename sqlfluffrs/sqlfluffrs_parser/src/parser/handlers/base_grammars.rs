@@ -244,6 +244,7 @@ impl Parser<'_> {
                     parent_max_idx: frame.parent_max_idx, // CRITICAL: Propagate parent's limit
                     end_pos: None,
                     transparent_positions: None,
+                    element_key: None,
                 };
 
                 // Update current frame to wait for child and store Ref metadata

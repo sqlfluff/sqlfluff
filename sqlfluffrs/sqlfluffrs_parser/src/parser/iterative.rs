@@ -311,6 +311,7 @@ impl Parser<'_> {
             parent_max_idx: None, // Top-level frame has no parent limit
             end_pos: None,
             transparent_positions: None,
+            element_key: None,
         });
 
         let mut iteration_count = 0_usize;
@@ -481,20 +482,13 @@ impl Parser<'_> {
                     // Use the end_pos stored in the frame (or fall back to self.pos)
                     let end_pos = frame.end_pos.unwrap_or(self.pos);
 
-                    // Get transparent positions if any
-                    // Note: bitset limited to positions < 64 due to u64 size
-                    let transparent = frame.transparent_positions.clone().map(|v| {
-                        let bitset = v
-                            .iter()
-                            .filter(|&&pos| pos < 64)
-                            .fold(0u64, |acc, &pos| acc | (1u64 << pos));
-                        bitset
-                    });
+                    // Get element_key if any (set by OneOf for AnyNumberOf tracking)
+                    let element_key = frame.element_key;
 
                     // This frame is done - insert result
                     stack
                         .results
-                        .insert(frame.frame_id, (node.clone(), end_pos, transparent));
+                        .insert(frame.frame_id, (node.clone(), end_pos, element_key));
                 }
             }
         }

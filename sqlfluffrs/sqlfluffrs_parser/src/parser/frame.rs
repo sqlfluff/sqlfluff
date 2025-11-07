@@ -40,6 +40,9 @@ pub struct ParseFrame {
     pub end_pos: Option<usize>,
     /// Transparent token positions collected during this parse
     pub transparent_positions: Option<Vec<usize>>,
+    /// Element key for this match (used by AnyNumberOf to track per-element counts)
+    /// Set by OneOf when storing its result, propagated to parent via results map
+    pub element_key: Option<u64>,
 }
 
 impl ParseFrame {
@@ -62,6 +65,7 @@ impl ParseFrame {
             parent_max_idx,
             end_pos: None,
             transparent_positions: None,
+            element_key: None,
         }
     }
 
