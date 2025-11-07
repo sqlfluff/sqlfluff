@@ -180,11 +180,140 @@ fn test_yaml_output_matches_python_ansi() {
 }
 
 #[test]
+fn test_yaml_output_matches_python_athena() {
+    check_yaml_output_matches_python_for_dialect("athena");
+}
+
+#[test]
 fn test_yaml_output_matches_python_bigquery() {
     check_yaml_output_matches_python_for_dialect("bigquery");
 }
 
-// Add more dialects as needed, or use a macro to generate tests for all dialects.
+#[test]
+fn test_yaml_output_matches_python_clickhouse() {
+    check_yaml_output_matches_python_for_dialect("clickhouse");
+}
+
+#[test]
+fn test_yaml_output_matches_python_databricks() {
+    check_yaml_output_matches_python_for_dialect("databricks");
+}
+
+#[test]
+fn test_yaml_output_matches_python_db2() {
+    check_yaml_output_matches_python_for_dialect("db2");
+}
+
+#[test]
+fn test_yaml_output_matches_python_doris() {
+    check_yaml_output_matches_python_for_dialect("doris");
+}
+
+#[test]
+fn test_yaml_output_matches_python_duckdb() {
+    check_yaml_output_matches_python_for_dialect("duckdb");
+}
+
+#[test]
+fn test_yaml_output_matches_python_exasol() {
+    check_yaml_output_matches_python_for_dialect("exasol");
+}
+
+#[test]
+fn test_yaml_output_matches_python_flink() {
+    check_yaml_output_matches_python_for_dialect("flink");
+}
+
+#[test]
+fn test_yaml_output_matches_python_greenplum() {
+    check_yaml_output_matches_python_for_dialect("greenplum");
+}
+
+#[test]
+fn test_yaml_output_matches_python_hive() {
+    check_yaml_output_matches_python_for_dialect("hive");
+}
+
+#[test]
+fn test_yaml_output_matches_python_impala() {
+    check_yaml_output_matches_python_for_dialect("impala");
+}
+
+#[test]
+fn test_yaml_output_matches_python_mariadb() {
+    check_yaml_output_matches_python_for_dialect("mariadb");
+}
+
+#[test]
+fn test_yaml_output_matches_python_materialize() {
+    check_yaml_output_matches_python_for_dialect("materialize");
+}
+
+#[test]
+fn test_yaml_output_matches_python_mysql() {
+    check_yaml_output_matches_python_for_dialect("mysql");
+}
+
+#[test]
+fn test_yaml_output_matches_python_oracle() {
+    check_yaml_output_matches_python_for_dialect("oracle");
+}
+
+#[test]
+fn test_yaml_output_matches_python_postgres() {
+    check_yaml_output_matches_python_for_dialect("postgres");
+}
+
+#[test]
+fn test_yaml_output_matches_python_redshift() {
+    check_yaml_output_matches_python_for_dialect("redshift");
+}
+
+#[test]
+fn test_yaml_output_matches_python_snowflake() {
+    check_yaml_output_matches_python_for_dialect("snowflake");
+}
+
+#[test]
+fn test_yaml_output_matches_python_soql() {
+    check_yaml_output_matches_python_for_dialect("soql");
+}
+
+#[test]
+fn test_yaml_output_matches_python_sparksql() {
+    check_yaml_output_matches_python_for_dialect("sparksql");
+}
+
+#[test]
+fn test_yaml_output_matches_python_sqlite() {
+    check_yaml_output_matches_python_for_dialect("sqlite");
+}
+
+#[test]
+fn test_yaml_output_matches_python_starrocks() {
+    check_yaml_output_matches_python_for_dialect("starrocks");
+}
+
+#[test]
+fn test_yaml_output_matches_python_teradata() {
+    check_yaml_output_matches_python_for_dialect("teradata");
+}
+
+#[test]
+fn test_yaml_output_matches_python_trino() {
+    check_yaml_output_matches_python_for_dialect("trino");
+}
+
+#[test]
+fn test_yaml_output_matches_python_tsql() {
+    check_yaml_output_matches_python_for_dialect("tsql");
+}
+
+#[test]
+fn test_yaml_output_matches_python_vertica() {
+    check_yaml_output_matches_python_for_dialect("vertica");
+}
+
 // (Imports above are already present in this file; do not re-import.)
 use serde_yaml_ng::Value;
 use sqlfluffrs_dialects::Dialect;
