@@ -23,7 +23,7 @@ fn main() {
     let args: Vec<String> = env::args().collect();
 
     if args.len() < 2 {
-        log::debug!("Usage: {} <sql_file> [--compare]", args[0]);
+        log::debug!("Usage: {} <sql_file> [--compare] [--dialect <dialect>] [--out <file>] [--code-only]", args[0]);
         log::debug!("");
         log::debug!("Examples:");
         log::debug!(
@@ -34,6 +34,10 @@ fn main() {
             "  {} test/fixtures/dialects/ansi/create_table.sql --compare",
             args[0]
         );
+        log::debug!(
+            "  {} test.sql --dialect bigquery",
+            args[0]
+        );
         process::exit(1);
     }
 
@@ -41,10 +45,20 @@ fn main() {
     let mut compare_mode = false;
     let mut out_path: Option<PathBuf> = None;
     let mut code_only = false;
+    let mut dialect_override: Option<String> = None;
     let mut i = 2;
     while i < args.len() {
         match args[i].as_str() {
             "--compare" => compare_mode = true,
+            "--dialect" => {
+                if i + 1 < args.len() {
+                    dialect_override = Some(args[i + 1].clone());
+                    i += 1;
+                } else {
+                    eprintln!("Missing dialect name after --dialect");
+                    process::exit(1);
+                }
+            }
             "--out" => {
                 if i + 1 < args.len() {
                     out_path = Some(PathBuf::from(&args[i + 1]));
@@ -78,15 +92,24 @@ fn main() {
     println!("{}", sql_content);
     println!();
 
-    // Infer dialect from path (default to ANSI)
-    let dialect = infer_dialect(&sql_path);
+    // Determine dialect: use override if provided, otherwise infer from path
+    let dialect = if let Some(ref dialect_name) = dialect_override {
+        match Dialect::from_str(dialect_name) {
+            Ok(d) => d,
+            Err(_) => {
+                eprintln!("Error: Invalid dialect '{}'. Using ANSI instead.", dialect_name);
+                Dialect::Ansi
+            }
+        }
+    } else {
+        infer_dialect(&sql_path)
+    };
     println!("=== DIALECT: {:?} ===", dialect);
     println!();
 
     // Lex
     let input = LexInput::String(sql_content);
-    use sqlfluffrs_dialects::dialect::ansi::matcher::ANSI_LEXERS;
-    let lexer = Lexer::new(None, ANSI_LEXERS.to_vec());
+    let lexer = Lexer::new(None, dialect.get_lexers().to_vec());
     let (tokens, lex_errors) = lexer.lex(input, false);
 
     if !lex_errors.is_empty() {
