@@ -25,6 +25,22 @@ impl<'a> Parser<'_> {
         log::debug!("DEBUG: Token grammar frame_id={}, pos={}, parent_max_idx={:?}, token_type={:?}, available_tokens={}",
             frame.frame_id, frame.pos, frame.parent_max_idx, token_type, self.tokens.len());
 
+        // Python parity: In Python, segments are sliced to max_idx before matching.
+        // If we're at or past parent_max_idx, we should fail immediately without trying to match.
+        if let Some(parent_max) = frame.parent_max_idx {
+            if frame.pos > parent_max {
+                log::debug!(
+                    "Token: pos {} > parent_max_idx {}, returning error",
+                    frame.pos,
+                    parent_max
+                );
+                return Err(ParseError::new(format!(
+                    "Token at position {} is beyond parent_max_idx {}",
+                    frame.pos, parent_max
+                )));
+            }
+        }
+
         self.pos = frame.pos;
         log::debug!("Trying token grammar, {}", token_type);
 

@@ -1105,12 +1105,18 @@ impl<'a> Parser<'_> {
                     }
                     next_elem_idx += 1;
                 } else {
+                    // Python parity: Pass the TRIMMED max_idx to child frames, not the original.
+                    // In GREEDY_ONCE_STARTED mode, after the first match the Sequence trims max_idx
+                    // to the next terminator (line 759). This trimmed max_idx should constrain all
+                    // subsequent children. Using original_max_idx would allow children to match
+                    // beyond terminators, causing issues like FROM being parsed as an identifier
+                    // instead of recognized as a terminator for the SELECT clause.
                     let child_frame = ParseFrame::new_child(
                         stack.frame_id_counter,
                         elements_clone[next_elem_idx].clone(),
                         next_pos,
                         frame_terminators.clone(),
-                        Some(current_original_max_idx),
+                        Some(current_max_idx),  // Use trimmed max_idx, not original_max_idx
                     );
                     ParseFrame::push_sequence_child_and_update_parent(
                         stack,

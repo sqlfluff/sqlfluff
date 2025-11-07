@@ -136,6 +136,23 @@ impl Parser<'_> {
             frame.parent_max_idx,
             grammar
         );
+
+        // Python parity: In Python, segments are sliced to max_idx before matching.
+        // If we're at or past parent_max_idx, we should fail immediately without trying to match.
+        if let Some(parent_max) = frame.parent_max_idx {
+            if frame.pos > parent_max {
+                log::debug!(
+                    "Ref: pos {} > parent_max_idx {}, returning error",
+                    frame.pos,
+                    parent_max
+                );
+                return Err(ParseError::new(format!(
+                    "Ref at position {} is beyond parent_max_idx {}",
+                    frame.pos, parent_max
+                )));
+            }
+        }
+
         // Destructure Grammar::Ref fields
         let (name, optional, allow_gaps, ref_terminators, reset_terminators, exclude) =
             match grammar.as_ref() {
