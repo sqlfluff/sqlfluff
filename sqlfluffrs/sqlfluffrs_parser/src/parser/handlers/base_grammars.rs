@@ -158,9 +158,13 @@ impl Parser<'_> {
                 _ => panic!("handle_ref_initial called with non-Ref grammar"),
             };
         // Add exclude logic: if exclude grammar matches, return empty result
+        // For exclude, we use early-exit matching - stop as soon as ANY alternative matches
         if let Some(exclude_grammar) = exclude {
-            let exclude_match =
-                self.try_match_grammar((**exclude_grammar).clone(), frame.pos, parent_terminators);
+            let exclude_match = self.try_match_exclude_grammar(
+                (**exclude_grammar).clone(),
+                frame.pos,
+                parent_terminators,
+            );
             if exclude_match.is_ok() {
                 stack
                     .results

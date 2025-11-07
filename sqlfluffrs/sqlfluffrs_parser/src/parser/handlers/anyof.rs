@@ -96,9 +96,13 @@ impl crate::parser::Parser<'_> {
         );
 
         // Python parity: Check exclude grammar first, before any other logic
+        // Use early-exit matching for excludes - stop on first match
         if let Some(exclude_grammar) = exclude {
-            let test_result =
-                self.try_match_grammar(*exclude_grammar.clone(), start_idx, parent_terminators);
+            let test_result = self.try_match_exclude_grammar(
+                *exclude_grammar.clone(),
+                start_idx,
+                parent_terminators,
+            );
             if test_result.is_ok() {
                 log::debug!(
                     "AnyNumberOf: exclude grammar matched at pos {}, returning Empty",
@@ -623,9 +627,13 @@ impl crate::parser::Parser<'_> {
             return Ok(FrameResult::Done);
         }
 
+        // Use early-exit matching for excludes - stop on first match
         if let Some(exclude_grammar) = exclude {
-            let test_result =
-                self.try_match_grammar(*exclude_grammar.clone(), pos, parent_terminators);
+            let test_result = self.try_match_exclude_grammar(
+                *exclude_grammar.clone(),
+                pos,
+                parent_terminators,
+            );
             if test_result.is_ok() {
                 stack
                     .results
@@ -1126,5 +1134,36 @@ impl crate::parser::Parser<'_> {
             }
             Err(s) => Err(s),
         }
+    }
+
+    /// Try to match a grammar for exclusion checking with early exit.
+    /// This is optimized for exclude grammars - it stops as soon as ANY alternative matches.
+    /// For OneOf grammars, this will return success on the FIRST matching alternative
+    /// rather than trying all alternatives to find the longest match.
+    pub(crate) fn try_match_exclude_grammar(
+        &mut self,
+        grammar: Arc<Grammar>,
+        pos: usize,
+        terminators: &[Arc<Grammar>],
+    ) -> Result<usize, ParseError> {
+        // Special handling for OneOf: try alternatives and return on first success
+        if let Grammar::OneOf { elements, .. } = grammar.as_ref() {
+            for element in elements {
+                let result = self.try_match_grammar(element.clone(), pos, terminators);
+                if result.is_ok() {
+                    // Early exit on first match - this is the key optimization for excludes
+                    return result;
+                }
+            }
+            // No alternatives matched
+            return Err(ParseError::with_context(
+                "No alternatives matched in exclude OneOf".to_string(),
+                Some(pos),
+                Some(grammar),
+            ));
+        }
+
+        // For non-OneOf grammars, use the standard try_match_grammar
+        self.try_match_grammar(grammar, pos, terminators)
     }
 }
