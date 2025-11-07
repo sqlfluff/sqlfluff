@@ -428,7 +428,7 @@ impl Parser<'_> {
                             }
                         }
                         FrameContext::Bracketed { .. } => {
-                            match self.handle_bracketed_combining(frame, &mut stack)? {
+                            match self.handle_bracketed_combining(frame)? {
                                 FrameResult::Done => continue 'main_loop,
                                 FrameResult::Push(mut updated_frame) => {
                                     stack.push(&mut updated_frame);
