@@ -218,45 +218,16 @@ def _generate_token_closure(
 
 
 def generate_extract_nested_block_comments(dialect: str):
-    """This function handles nested block comments."""
+    """This function handles nested block comments.
+
+    Since this function is now shared across all dialects, we just need
+    to generate a wrapper that passes the dialect name to the shared implementation.
+    """
     print(
         f"""
+// Wrapper function that passes the dialect name to the shared implementation
 fn extract_nested_block_comment(input: &str) -> Option<&str> {{
-    let mut chars = input.chars().peekable();
-    let mut comment = String::new();
-    let dialect = "{dialect}";
-
-    // Ensure the input starts with "/*"
-    if chars.next() != Some('/') || chars.next() != Some('*') {{
-        return None;
-    }}
-
-    comment.push_str("/*"); // Add the opening delimiter
-    let mut depth = 1; // Track nesting level
-
-    while let Some(c) = chars.next() {{
-        comment.push(c);
-
-        if c == '/' && chars.peek() == Some(&'*') {{
-            chars.next(); // Consume '*'
-            comment.push('*');
-            depth += 1;
-        }} else if c == '*' && chars.peek() == Some(&'/') {{
-            chars.next(); // Consume '/'
-            comment.push('/');
-            depth -= 1;
-
-            if depth == 0 {{
-                return Some(&input[..comment.len()]);
-            }}
-        }}
-    }}
-
-    // If we reach here, the comment wasn't properly closed
-    match dialect {{
-        "sqlite" => Some(&input[..comment.len()]),
-        _ => None,
-    }}
+    crate::extract_nested_block_comment(input, "{dialect}")
 }}"""
     )
 
