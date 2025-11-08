@@ -925,7 +925,12 @@ impl crate::parser::Parser<'_> {
                     *tried_elements = elements.len();
                 }
                 // 3. Check if a terminator matches after this match
-                else if !frame_terminators.is_empty() {
+                // CRITICAL: Only do early termination in GREEDY mode!
+                // In STRICT mode, we must try ALL elements to find the longest match.
+                // Example: "IDENTIFIER" could match as SingleIdentifierGrammar (shorter)
+                // OR as IdentifierClauseSegment "IDENTIFIER(...)" (longer).
+                // If "(" is a terminator, we'd stop early and miss the longer match.
+                else if *parse_mode == ParseMode::Greedy && !frame_terminators.is_empty() {
                     let next_code_idx =
                         self.skip_start_index_forward_to_code(*child_end_pos, *max_idx);
                     log::debug!("[ONEOF DEBUG] Checking terminators: child_end_pos={}, next_code_idx={}, max_idx={}, frame_terminators.len()={}",
