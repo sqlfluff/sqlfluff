@@ -242,8 +242,12 @@ fn grammar_hash(grammar: Arc<Grammar>, _cache: &mut HashMap<*const Grammar, u64>
             template.as_str().hash(&mut hasher);
             token_type.hash(&mut hasher);
         }
-        Grammar::Ref { name, .. } => {
+        Grammar::Ref { name, exclude, .. } => {
             name.hash(&mut hasher);
+            // CRITICAL: Hash exclude to ensure different exclusions get different cache entries
+            if let Some(exc) = exclude {
+                grammar_hash((**exc).clone(), _cache).hash(&mut hasher);
+            }
         }
         Grammar::Token { token_type } => {
             token_type.hash(&mut hasher);
@@ -257,9 +261,16 @@ fn grammar_hash(grammar: Arc<Grammar>, _cache: &mut HashMap<*const Grammar, u64>
                 grammar_hash(elem.clone(), _cache).hash(&mut hasher);
             }
         }
-        Grammar::OneOf { elements, .. } => {
+        Grammar::OneOf {
+            elements, exclude, ..
+        } => {
             for elem in elements {
                 grammar_hash(elem.clone(), _cache).hash(&mut hasher);
+            }
+            // CRITICAL: Hash exclude to ensure different exclusions get different cache entries
+            // Without this, OneOf with same elements but different exclude would share cache
+            if let Some(exc) = exclude {
+                grammar_hash((**exc).clone(), _cache).hash(&mut hasher);
             }
         }
         Grammar::AnyNumberOf {
@@ -267,6 +278,7 @@ fn grammar_hash(grammar: Arc<Grammar>, _cache: &mut HashMap<*const Grammar, u64>
             min_times,
             max_times,
             max_times_per_element,
+            exclude,
             ..
         } => {
             for elem in elements {
@@ -275,6 +287,10 @@ fn grammar_hash(grammar: Arc<Grammar>, _cache: &mut HashMap<*const Grammar, u64>
             min_times.hash(&mut hasher);
             max_times.hash(&mut hasher);
             max_times_per_element.hash(&mut hasher);
+            // CRITICAL: Hash exclude to ensure different exclusions get different cache entries
+            if let Some(exc) = exclude {
+                grammar_hash((**exc).clone(), _cache).hash(&mut hasher);
+            }
         }
         Grammar::Delimited {
             elements,
@@ -296,6 +312,23 @@ fn grammar_hash(grammar: Arc<Grammar>, _cache: &mut HashMap<*const Grammar, u64>
             }
             grammar_hash((*bracket_pairs.0).clone(), _cache).hash(&mut hasher);
             grammar_hash((*bracket_pairs.1).clone(), _cache).hash(&mut hasher);
+        }
+        Grammar::AnySetOf {
+            elements,
+            min_times,
+            max_times,
+            exclude,
+            ..
+        } => {
+            for elem in elements {
+                grammar_hash(elem.clone(), _cache).hash(&mut hasher);
+            }
+            min_times.hash(&mut hasher);
+            max_times.hash(&mut hasher);
+            // CRITICAL: Hash exclude to ensure different exclusions get different cache entries
+            if let Some(exc) = exclude {
+                grammar_hash((**exc).clone(), _cache).hash(&mut hasher);
+            }
         }
         _ => {}
     }
