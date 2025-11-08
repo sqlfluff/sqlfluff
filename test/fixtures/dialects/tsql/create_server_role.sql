@@ -1,0 +1,3 @@
+CREATE SERVER ROLE server_role AUTHORIZATION sa;
+
+CREATE SERVER ROLE server_role2;
