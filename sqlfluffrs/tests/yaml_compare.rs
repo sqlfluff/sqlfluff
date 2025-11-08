@@ -42,11 +42,11 @@ fn calculate_hash<T: Hash>(t: &T) -> u64 {
 
 fn normalize_yaml_through_serde(yaml_str: &str) -> Result<String, String> {
     // Parse YAML 1.1 and re-serialize with serde_yaml_ng
-    let value: serde_yaml_ng::Value = serde_yaml_ng::from_str(yaml_str)
-        .map_err(|e| format!("Failed to parse YAML: {}", e))?;
+    let value: serde_yaml_ng::Value =
+        serde_yaml_ng::from_str(yaml_str).map_err(|e| format!("Failed to parse YAML: {}", e))?;
 
-    let normalized = serde_yaml_ng::to_string(&value)
-        .map_err(|e| format!("Failed to serialize YAML: {}", e))?;
+    let normalized =
+        serde_yaml_ng::to_string(&value).map_err(|e| format!("Failed to serialize YAML: {}", e))?;
 
     Ok(normalized)
 }
@@ -88,7 +88,8 @@ fn compare_yaml_files(expected_path: &PathBuf, generated_yaml: &str) -> Result<(
 
             if exp_line != gen_line {
                 diff_count += 1;
-                if diff_count <= 50 { // Show first 50 differences
+                if diff_count <= 50 {
+                    // Show first 50 differences
                     println!("\nLine {}:", i + 1);
                     println!("  Expected:  {}", exp_line);
                     println!("  Generated: {}", gen_line);
@@ -146,8 +147,7 @@ fn test_yaml_comparison_ansi_arithmetic_a() {
     let ast = parser.call_rule_as_root().expect("Parse error");
 
     // Generate YAML
-    let generated_yaml = node_to_yaml(&ast, &tokens)
-        .expect("YAML conversion error");
+    let generated_yaml = node_to_yaml(&ast, &tokens).expect("YAML conversion error");
 
     // Compare
     compare_yaml_files(&yml_path, &generated_yaml).expect("YAML comparison failed");
@@ -179,8 +179,7 @@ fn test_yaml_comparison_tsql_sqlcmd_command() {
     let ast = parser.call_rule_as_root().expect("Parse error");
 
     // Generate YAML
-    let generated_yaml = node_to_yaml(&ast, &tokens)
-        .expect("YAML conversion error");
+    let generated_yaml = node_to_yaml(&ast, &tokens).expect("YAML conversion error");
 
     // Compare
     compare_yaml_files(&yml_path, &generated_yaml).expect("YAML comparison failed");
