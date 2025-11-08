@@ -46,7 +46,7 @@ class StatementSegment(hive.StatementSegment):
             Ref("ComputeStatsStatementSegment"),
             Ref("InsertStatementSegment"),
             Ref("InvalidateMetadataStatementSegment"),
-            Ref("RefreshSegmentSegment"),
+            Ref("RefreshStatementSegment"),
         ]
     )
 
@@ -276,11 +276,11 @@ class InvalidateMetadataStatementSegment(BaseSegment):
     match_grammar = Sequence(
         "INVALIDATE",
         "METADATA",
-        Ref("TableReferenceSegment"),
+        Ref("TableReferenceSegment", optional=True),
     )
 
 
-class RefreshSegmentSegment(BaseSegment):
+class RefreshStatementSegment(BaseSegment):
     """A `REFRESH` statement.
 
     Full Apache Impala `REFRESH` reference here:

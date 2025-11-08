@@ -3,9 +3,14 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 19621094a551cfb92c35bbbf51898b61ac5f749f23423071311562f98826eb87
+_hash: f23eca96c9515daa8116a7ba6c63534c104053ad165c1903c0f3c505e477c601
 file:
-  statement:
+- statement:
+    invalidate_metadata_statement:
+    - keyword: INVALIDATE
+    - keyword: METADATA
+- statement_terminator: ;
+- statement:
     invalidate_metadata_statement:
     - keyword: INVALIDATE
     - keyword: METADATA
@@ -13,4 +18,4 @@ file:
       - naked_identifier: db
       - dot: .
       - naked_identifier: foo
-  statement_terminator: ;
+- statement_terminator: ;
