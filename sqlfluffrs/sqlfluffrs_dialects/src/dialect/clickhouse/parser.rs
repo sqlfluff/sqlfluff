@@ -40647,7 +40647,7 @@ Arc::new(Grammar::RegexParser {
     token_type: "naked_identifier",
     raw_class: "IdentifierSegment",
     optional: false,
-    anti_template: Some(RegexMode::new(r#"^(NATURAL|ON|ROWS|SELECT|SET|CASE|PARTITION|NULL|UNION|ORDER|RIGHT|JOIN|RESPECT|LEFT|INNER|USING|IGNORE|NOT|OUTER|FULL|INTERVAL|CROSS)$"#)),
+    anti_template: Some(RegexMode::new(r#"^(ROWS|CROSS|RESPECT|SET|ON|LEFT|CASE|NULL|IGNORE|PARTITION|ORDER|JOIN|INTERVAL|USING|NOT|UNION|OUTER|RIGHT|FULL|NATURAL|INNER|SELECT)$"#)),
 })
 );
 

@@ -47299,7 +47299,7 @@ Arc::new(Grammar::RegexParser {
     token_type: "naked_identifier",
     raw_class: "IdentifierSegment",
     optional: false,
-    anti_template: Some(RegexMode::new(r#"^(NATURAL|ON|MINUS|SEMI|ANTI|UNION|RIGHT|JOIN|INTERSECT|INNER|LEFT|EXCEPT|USING|FULL|LATERAL|CROSS)$"#)),
+    anti_template: Some(RegexMode::new(r#"^(LATERAL|CROSS|ON|INTERSECT|LEFT|EXCEPT|MINUS|SEMI|JOIN|UNION|USING|RIGHT|FULL|NATURAL|ANTI|INNER)$"#)),
 })
 );
 

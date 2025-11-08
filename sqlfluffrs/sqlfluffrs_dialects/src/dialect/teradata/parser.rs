@@ -32113,7 +32113,7 @@ Arc::new(Grammar::RegexParser {
     token_type: "naked_identifier",
     raw_class: "IdentifierSegment",
     optional: false,
-    anti_template: Some(RegexMode::new(r#"^(NATURAL|ON|ROWS|SELECT|SET|CASE|PARTITION|NULL|UNION|REPLACE|ORDER|RIGHT|JOIN|RESPECT|LEFT|INNER|LOCKING|USING|IGNORE|NOT|OUTER|FULL|TIMESTAMP|INTERVAL|CROSS)$"#)),
+    anti_template: Some(RegexMode::new(r#"^(REPLACE|ROWS|CROSS|RESPECT|SET|ON|LEFT|CASE|NULL|IGNORE|PARTITION|ORDER|JOIN|TIMESTAMP|INTERVAL|USING|NOT|UNION|OUTER|RIGHT|FULL|NATURAL|LOCKING|INNER|SELECT)$"#)),
 })
 );
 

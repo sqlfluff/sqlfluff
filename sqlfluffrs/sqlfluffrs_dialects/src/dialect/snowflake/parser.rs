@@ -93391,6 +93391,8 @@ Arc::new(Grammar::OneOf {
     elements: vec![
 Arc::new(Grammar::Delimited {
     elements: vec![
+Arc::new(Grammar::Sequence {
+    elements: vec![
 Arc::new(Grammar::Ref {
     name: "LiteralGrammar",
     optional: false,
@@ -93399,6 +93401,27 @@ Arc::new(Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
+    simple_hint: None,
+})
+,
+Arc::new(Grammar::Ref {
+    name: "AliasExpressionSegment",
+    optional: true,
+    allow_gaps: true,
+    exclude: None,
+    terminators: vec![
+    ],
+    reset_terminators: false,
+    simple_hint: None,
+})
+,
+    ],
+    optional: false,
+    terminators: vec![
+    ],
+    reset_terminators: false,
+    allow_gaps: true,
+    parse_mode: ParseMode::Strict,
     simple_hint: None,
 })
 ,
@@ -106462,7 +106485,7 @@ Arc::new(Grammar::RegexParser {
     token_type: "naked_identifier",
     raw_class: "IdentifierSegment",
     optional: false,
-    anti_template: Some(RegexMode::new(r#"^(NATURAL|WHERE|LOCALTIME|SELECT|DISTINCT|RLIKE|CURRENT_TIMESTAMP|HAVING|ELSE|UNPIVOT|IN|NULL|SAMPLE|FROM|TABLESAMPLE|ORDER|CAST|UNIQUE|CONNECTION|FOR|CURRENT_TIME|IS|CURRENT|AS|GROUP|GSCLUSTER|LATERAL|INSERT_ONLY|MATCH_RECOGNIZE|ELSEIF|MATCH_CONDITION|DROP|ON|SOME|MINUS|DELETE|ROWS|SET|ASOF|REVOKE|WITH|ROW|RIGHT|GRANT|JOIN|INTERSECT|THEN|BEARER_TOKEN|INCREMENT|ALTER|FULL|OF|NULL_IF|OR|TRY_CAST|WHENEVER|TABLE|WHEN|CHECK|START|BETWEEN|TO|DECLARE|LEFT|UPDATE|ILIKE|QUALIFY|NOT|AND|REGEXP|BEARER|HYBRID|ANY|INSERT|LIKE|CURRENT_DATE|CONNECT|ALL|FOLLOWING|CREATE|TRIGGER|INTO|UNION|RAISE|BY|INNER|STRICT|USING|VALUES|EXISTS|CONSTRAINT|LOCALTIMESTAMP)$"#)),
+    anti_template: Some(RegexMode::new(r#"^(CURRENT_DATE|IS|ROWS|INCREMENT|TRY_CAST|CONSTRAINT|ALL|WHEN|OR|DECLARE|CURRENT_TIMESTAMP|BEARER_TOKEN|JOIN|LOCALTIMESTAMP|TABLESAMPLE|TO|FULL|NATURAL|RLIKE|INNER|ELSE|ASOF|SET|EXISTS|GSCLUSTER|MATCH_CONDITION|NULL|CURRENT|ALTER|LIKE|QUALIFY|REGEXP|ROW|TRIGGER|CONNECT|UNION|USING|CURRENT_TIME|FOLLOWING|INSERT|BETWEEN|FOR|CREATE|OF|DISTINCT|ILIKE|CHECK|GRANT|SOME|LATERAL|ON|LEFT|INTO|UNPIVOT|ORDER|CAST|NOT|START|WHENEVER|GROUP|VALUES|DELETE|MATCH_RECOGNIZE|THEN|UPDATE|ANY|HYBRID|BY|INSERT_ONLY|UNIQUE|SELECT|FROM|ELSEIF|RAISE|INTERSECT|REVOKE|DROP|SAMPLE|BEARER|MINUS|WHERE|LOCALTIME|AS|IN|TABLE|RIGHT|HAVING|NULL_IF|WITH|STRICT|CONNECTION|AND)$"#)),
 })
 );
 

@@ -1192,7 +1192,7 @@ pub static MATERIALIZE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
 
     LexMatcher::regex_lexer(
         "word",
-        r#"[a-zA-Z_][0-9a-zA-Z_$]*"#,
+        r#"[\p{L}_][\p{L}\p{N}_$]*"#,
         |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
          quoted_value, escape_replacement, casefold| {
             Token::word_token(raw, pos_marker, TokenConfig {
@@ -1214,40 +1214,7 @@ pub static MATERIALIZE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
 ]});
 
 
+// Wrapper function that passes the dialect name to the shared implementation
 fn extract_nested_block_comment(input: &str) -> Option<&str> {
-    let mut chars = input.chars().peekable();
-    let mut comment = String::new();
-    let dialect = "materialize";
-
-    // Ensure the input starts with "/*"
-    if chars.next() != Some('/') || chars.next() != Some('*') {
-        return None;
-    }
-
-    comment.push_str("/*"); // Add the opening delimiter
-    let mut depth = 1; // Track nesting level
-
-    while let Some(c) = chars.next() {
-        comment.push(c);
-
-        if c == '/' && chars.peek() == Some(&'*') {
-            chars.next(); // Consume '*'
-            comment.push('*');
-            depth += 1;
-        } else if c == '*' && chars.peek() == Some(&'/') {
-            chars.next(); // Consume '/'
-            comment.push('/');
-            depth -= 1;
-
-            if depth == 0 {
-                return Some(&input[..comment.len()]);
-            }
-        }
-    }
-
-    // If we reach here, the comment wasn't properly closed
-    match dialect {
-        "sqlite" => Some(&input[..comment.len()]),
-        _ => None,
-    }
+    crate::extract_nested_block_comment(input, "materialize")
 }

@@ -801,6 +801,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("DropSecurityPolicySegment"),
             Ref("CreateSynonymStatementSegment"),
             Ref("DropSynonymStatementSegment"),
+            Ref("CreateServerRoleStatementSegment"),
             # DML Data Manipulation Language
             # https://learn.microsoft.com/en-us/sql/t-sql/queries/queries
             Ref("BulkInsertStatementSegment"),
@@ -1136,30 +1137,38 @@ class AlterDatabaseStatementSegment(BaseSegment):
         ),
     )
 
+    _recovery_options = Sequence(
+        "RECOVERY",
+        OneOf("FULL", "SIMPLE", "BULK_LOGGED"),
+    )
+
     _set_option = Sequence(
         "SET",
-        OptionallyBracketed(
-            Delimited(
-                OneOf(
-                    Ref("CompatibilityLevelSegment"),
-                    Ref("AutoOptionSegment"),
-                    _accelerated_database_recovery,
-                    # catch-all for all ON | OFF
-                    # if needed, more specific grammar can be added
-                    Sequence(
-                        Ref("NakedIdentifierSegment"),
-                        Ref("EqualsSegment"),
-                        OneOf("ON", "OFF"),
-                    ),
-                    # catch all for size settings
-                    Sequence(
-                        Ref("NakedIdentifierSegment"),
-                        Ref("EqualsSegment"),
-                        Ref("NumericLiteralSegment"),
-                        OneOf("KB", "MB", "GB", "TB", optional=True),
+        OneOf(
+            OptionallyBracketed(
+                Delimited(
+                    OneOf(
+                        Ref("CompatibilityLevelSegment"),
+                        Ref("AutoOptionSegment"),
+                        _accelerated_database_recovery,
+                        # catch-all for all ON | OFF
+                        # if needed, more specific grammar can be added
+                        Sequence(
+                            Ref("NakedIdentifierSegment"),
+                            Ref("EqualsSegment"),
+                            OneOf("ON", "OFF"),
+                        ),
+                        # catch all for size settings
+                        Sequence(
+                            Ref("NakedIdentifierSegment"),
+                            Ref("EqualsSegment"),
+                            Ref("NumericLiteralSegment"),
+                            OneOf("KB", "MB", "GB", "TB", optional=True),
+                        ),
                     ),
                 ),
             ),
+            _recovery_options,
         ),
     )
 
@@ -1550,17 +1559,33 @@ class CursorDefinitionSegment(BaseSegment):
 # Originals
 
 
+class SelectVariableAssignmentSegment(BaseSegment):
+    """A variable assignment in a SELECT statement.
+
+    https://learn.microsoft.com/en-us/sql/t-sql/language-elements/select-local-variable-transact-sql
+    """
+
+    type = "select_variable_assignment"
+    match_grammar = Sequence(
+        Ref("ParameterNameSegment"),
+        Ref("AssignmentOperatorSegment"),
+        Ref("ExpressionSegment"),
+    )
+
+
 class SelectClauseElementSegment(ansi.SelectClauseElementSegment):
     """An element in the targets of a select statement.
 
     Overriding ANSI to remove greedy logic which assumes statements have been
-    delimited
+    delimited and to support SELECT @variable = expression syntax.
     """
 
     # Important to split elements before parsing, otherwise debugging is really hard.
     match_grammar = OneOf(
         # *, blah.*, blah.blah.*, etc.
         Ref("WildcardExpressionSegment"),
+        # SELECT @variable = expression (variable assignment)
+        Ref("SelectVariableAssignmentSegment"),
         Sequence(
             Ref("AltAliasExpressionSegment"),
             Ref("BaseExpressionElementGrammar"),
@@ -7385,6 +7410,27 @@ class CreateRoleStatementSegment(ansi.CreateRoleStatementSegment):
 
     match_grammar = Sequence(
         "CREATE",
+        "ROLE",
+        Ref("RoleReferenceSegment"),
+        Sequence(
+            "AUTHORIZATION",
+            Ref("RoleReferenceSegment"),
+            optional=True,
+        ),
+    )
+
+
+class CreateServerRoleStatementSegment(ansi.CreateRoleStatementSegment):
+    """A `CREATE SERVER ROLE` statement.
+
+    https://learn.microsoft.com/en-us/sql/t-sql/statements/create-server-role-transact-sql?view=sql-server-ver17
+    """
+
+    type = "create_server_role_statement"
+
+    match_grammar = Sequence(
+        "CREATE",
+        "SERVER",
         "ROLE",
         Ref("RoleReferenceSegment"),
         Sequence(

@@ -6325,6 +6325,8 @@ Arc::new(Grammar::Ref {
 ,
 Arc::new(Grammar::OneOf {
     elements: vec![
+Arc::new(Grammar::OneOf {
+    elements: vec![
 Arc::new(Grammar::Bracketed {
     elements: vec![
 Arc::new(Grammar::Delimited {
@@ -7196,6 +7198,104 @@ Arc::new(Grammar::Ref {
     min_delimiters: 0,
     parse_mode: ParseMode::Strict,
     simple_hint: None,
+})
+,
+    ],
+    exclude: None,
+    optional: false,
+    terminators: vec![
+    ],
+    reset_terminators: false,
+    allow_gaps: true,
+    parse_mode: ParseMode::Strict,
+    simple_hint: None,
+})
+,
+Arc::new(Grammar::Sequence {
+    elements: vec![
+Arc::new(Grammar::Ref {
+    name: "RecoveryKeywordSegment",
+    optional: false,
+    allow_gaps: true,
+    exclude: None,
+    terminators: vec![
+    ],
+    reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+            raw_values: hashbrown::HashSet::from_iter(["RECOVERY".to_string()]),
+            token_types: hashbrown::HashSet::from_iter([]),
+        }),
+})
+,
+Arc::new(Grammar::OneOf {
+    elements: vec![
+Arc::new(Grammar::Ref {
+    name: "FullKeywordSegment",
+    optional: false,
+    allow_gaps: true,
+    exclude: None,
+    terminators: vec![
+    ],
+    reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+            raw_values: hashbrown::HashSet::from_iter(["FULL".to_string()]),
+            token_types: hashbrown::HashSet::from_iter([]),
+        }),
+})
+,
+Arc::new(Grammar::Ref {
+    name: "SimpleKeywordSegment",
+    optional: false,
+    allow_gaps: true,
+    exclude: None,
+    terminators: vec![
+    ],
+    reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+            raw_values: hashbrown::HashSet::from_iter(["SIMPLE".to_string()]),
+            token_types: hashbrown::HashSet::from_iter([]),
+        }),
+})
+,
+Arc::new(Grammar::Ref {
+    name: "Bulk_loggedKeywordSegment",
+    optional: false,
+    allow_gaps: true,
+    exclude: None,
+    terminators: vec![
+    ],
+    reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+            raw_values: hashbrown::HashSet::from_iter(["BULK_LOGGED".to_string()]),
+            token_types: hashbrown::HashSet::from_iter([]),
+        }),
+})
+,
+    ],
+    exclude: None,
+    optional: false,
+    terminators: vec![
+    ],
+    reset_terminators: false,
+    allow_gaps: true,
+    parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+            raw_values: hashbrown::HashSet::from_iter(["BULK_LOGGED".to_string(), "FULL".to_string(), "SIMPLE".to_string()]),
+            token_types: hashbrown::HashSet::from_iter([]),
+        }),
+})
+,
+    ],
+    optional: false,
+    terminators: vec![
+    ],
+    reset_terminators: false,
+    allow_gaps: true,
+    parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+            raw_values: hashbrown::HashSet::from_iter(["RECOVERY".to_string()]),
+            token_types: hashbrown::HashSet::from_iter([]),
+        }),
 })
 ,
     ],
@@ -20092,6 +20192,16 @@ Arc::new(Grammar::StringParser {
 pub static BULK_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
 Arc::new(Grammar::StringParser {
     template: "BULK",
+    token_type: "keyword",
+    raw_class: "KeywordSegment",
+    optional: false,
+})
+);
+
+// name='Bulk_loggedKeywordSegment'
+pub static BULK_LOGGED_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+Arc::new(Grammar::StringParser {
+    template: "BULK_LOGGED",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
@@ -36387,6 +36497,118 @@ Arc::new(Grammar::Ref {
 })
 );
 
+// name='CreateServerRoleStatementSegment'
+pub static CREATE_SERVER_ROLE_STATEMENT_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+// CreateServerRoleStatementSegment
+Arc::new(Grammar::Sequence {
+    elements: vec![
+Arc::new(Grammar::Ref {
+    name: "CreateKeywordSegment",
+    optional: false,
+    allow_gaps: true,
+    exclude: None,
+    terminators: vec![
+    ],
+    reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+            raw_values: hashbrown::HashSet::from_iter(["CREATE".to_string()]),
+            token_types: hashbrown::HashSet::from_iter([]),
+        }),
+})
+,
+Arc::new(Grammar::Ref {
+    name: "ServerKeywordSegment",
+    optional: false,
+    allow_gaps: true,
+    exclude: None,
+    terminators: vec![
+    ],
+    reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+            raw_values: hashbrown::HashSet::from_iter(["SERVER".to_string()]),
+            token_types: hashbrown::HashSet::from_iter([]),
+        }),
+})
+,
+Arc::new(Grammar::Ref {
+    name: "RoleKeywordSegment",
+    optional: false,
+    allow_gaps: true,
+    exclude: None,
+    terminators: vec![
+    ],
+    reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+            raw_values: hashbrown::HashSet::from_iter(["ROLE".to_string()]),
+            token_types: hashbrown::HashSet::from_iter([]),
+        }),
+})
+,
+Arc::new(Grammar::Ref {
+    name: "RoleReferenceSegment",
+    optional: false,
+    allow_gaps: true,
+    exclude: None,
+    terminators: vec![
+    ],
+    reset_terminators: false,
+    simple_hint: None,
+})
+,
+Arc::new(Grammar::Sequence {
+    elements: vec![
+Arc::new(Grammar::Ref {
+    name: "AuthorizationKeywordSegment",
+    optional: false,
+    allow_gaps: true,
+    exclude: None,
+    terminators: vec![
+    ],
+    reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+            raw_values: hashbrown::HashSet::from_iter(["AUTHORIZATION".to_string()]),
+            token_types: hashbrown::HashSet::from_iter([]),
+        }),
+})
+,
+Arc::new(Grammar::Ref {
+    name: "RoleReferenceSegment",
+    optional: false,
+    allow_gaps: true,
+    exclude: None,
+    terminators: vec![
+    ],
+    reset_terminators: false,
+    simple_hint: None,
+})
+,
+    ],
+    optional: true,
+    terminators: vec![
+    ],
+    reset_terminators: false,
+    allow_gaps: true,
+    parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+            raw_values: hashbrown::HashSet::from_iter(["AUTHORIZATION".to_string()]),
+            token_types: hashbrown::HashSet::from_iter([]),
+        }),
+})
+,
+    ],
+    optional: false,
+    terminators: vec![
+    ],
+    reset_terminators: false,
+    allow_gaps: true,
+    parse_mode: ParseMode::Strict,
+    simple_hint: Some(SimpleHint {
+            raw_values: hashbrown::HashSet::from_iter(["CREATE".to_string()]),
+            token_types: hashbrown::HashSet::from_iter([]),
+        }),
+})
+);
+
 // name='CreateSynonymStatementSegment'
 pub static CREATE_SYNONYM_STATEMENT_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
 // CreateSynonymStatementSegment
@@ -41123,7 +41345,7 @@ Arc::new(Grammar::RegexParser {
     token_type: "data_type_identifier",
     raw_class: "CodeSegment",
     optional: false,
-    anti_template: Some(RegexMode::new(r#"^(CLOSE|SEMANTICSIMILARITYDETAILSTABLE|TRANSACTION|SELECT|CURRENT_TIMESTAMP|HAVING|DISTRIBUTED|DISK|NULL|OFFSETS|SETUSER|TABLESAMPLE|USE|UNIQUE|LINENO|OPTION|CHECKPOINT|OPENDATASOURCE|ROLLBACK|DROP|PERCENT|SET|IDENTITY|FILE|REVOKE|FOREIGN|PRIMARY|ROWGUIDCOL|REVERT|SHUTDOWN|THEN|COLLATE|FULL|OF|ADD|OPENROWSET|IF|TRY_CONVERT|DENY|KEY|OPEN|NULLIF|NATIONAL|TRUNCATE|GO|NOCHECK|PLAN|TO|LEFT|PIVOT|WRITETEXT|EXIT|DEALLOCATE|INSERT|ANY|DBCC|DESC|CURRENT_DATE|CASCADE|KILL|WHILE|FREETEXTTABLE|IDENTITYCOL|INTO|CONTAINSTABLE|SEMANTICKEYPHRASETABLE|COMPUTE|RESTORE|PROCEDURE|RAISERROR|CURRENT_USER|BACKUP|RESTRICT|REPLICATION|EXISTS|USER|SAVE|COLUMN|EXTERNAL|WHERE|DUMP|DISTINCT|TOP|ELSE|UNPIVOT|CASE|OVER|IN|OPENXML|CONTAINS|READTEXT|HOLDLOCK|WAITFOR|FROM|ESCAPE|ORDER|AUTHORIZATION|VARYING|FUNCTION|CONTINUE|FOR|CURRENT_TIME|IS|AS|CURRENT|GROUP|FREETEXT|BEGIN|PRECISION|SESSION_USER|ON|SOME|CLUSTERED|DELETE|DEFAULT|SECURITYAUDIT|ROWCOUNT|WITH|DATABASE|EXECUTE|SEMANTICSIMILARITYTABLE|OPENQUERY|WITHIN GROUP|RIGHT|GRANT|JOIN|INTERSECT|PROC|LOAD|ERRLVL|UPDATETEXT|NONCLUSTERED|ALTER|OR|SCHEMA|TABLE|END|TEXTSIZE|WHEN|CHECK|FILLFACTOR|COALESCE|VIEW|READ|CONVERT|BETWEEN|DECLARE|GOTO|EXCEPT|UPDATE|AND|NOT|TRAN|MERGE|LIKE|STATISTICS|BULK|DOUBLE|INDEX|RECONFIGURE|SYSTEM_USER|RETURN|ALL|RULE|BROWSE|IDENTITY_INSERT|CREATE|REFERENCES|TSEQUAL|COMMIT|TRIGGER|OFF|UNION|PUBLIC|BY|EXEC|BREAK|CURSOR|INNER|VALUES|ASC|CONSTRAINT|FETCH|OUTER|PRINT|CROSS)$"#)),
+    anti_template: Some(RegexMode::new(r#"^(CURRENT_DATE|CHECKPOINT|DUMP|EXTERNAL|CASE|OR|TOP|CURRENT_TIMESTAMP|JOIN|CONTINUE|PUBLIC|TRUNCATE|FUNCTION|VIEW|RULE|CONTAINSTABLE|PRECISION|OVER|CURSOR|ELSE|BACKUP|FREETEXT|NATIONAL|EXISTS|OFF|PLAN|EXCEPT|NULL|ALTER|TRY_CONVERT|TRIGGER|UNION|WHILE|IDENTITY|CURRENT_TIME|OPENDATASOURCE|KEY|CLUSTERED|RESTORE|USE|ROWCOUNT|OF|EXIT|WRITETEXT|CHECK|GRANT|SOME|CROSS|OPTION|SYSTEM_USER|TEXTSIZE|LEFT|ROLLBACK|IDENTITY_INSERT|TSEQUAL|ORDER|DOUBLE|OUTER|TRAN|ESCAPE|DELETE|SEMANTICSIMILARITYDETAILSTABLE|DBCC|OPENXML|THEN|BY|STATISTICS|SELECT|COMPUTE|RAISERROR|COALESCE|ROWGUIDCOL|OFFSETS|NULLIF|UPDATETEXT|FILLFACTOR|REVOKE|BEGIN|DEALLOCATE|DISTRIBUTED|AS|BREAK|IN|REFERENCES|HAVING|PROC|SECURITYAUDIT|WITH|DENY|CONTAINS|AND|IS|CLOSE|DEFAULT|NOCHECK|REVERT|GOTO|CONSTRAINT|ALL|WHEN|PROCEDURE|BROWSE|DECLARE|IDENTITYCOL|INDEX|SCHEMA|TABLESAMPLE|TO|OPEN|FULL|CONVERT|FREETEXTTABLE|SEMANTICKEYPHRASETABLE|INNER|NONCLUSTERED|ASC|SET|REPLICATION|COLLATE|CURRENT|LIKE|MERGE|PRINT|FETCH|COLUMN|CURRENT_USER|INSERT|BETWEEN|ADD|DISK|USER|FOR|EXEC|CREATE|SHUTDOWN|SESSION_USER|RETURN|CASCADE|DISTINCT|READTEXT|LINENO|KILL|ON|INTO|ERRLVL|UNPIVOT|DATABASE|SAVE|SEMANTICSIMILARITYTABLE|NOT|FOREIGN|OPENQUERY|GO|GROUP|VALUES|SETUSER|UPDATE|VARYING|ANY|RECONFIGURE|TRANSACTION|WITHIN GROUP|UNIQUE|DESC|FROM|READ|OPENROWSET|END|PIVOT|INTERSECT|EXECUTE|DROP|BULK|IF|WHERE|COMMIT|RESTRICT|LOAD|PRIMARY|TABLE|RIGHT|PERCENT|HOLDLOCK|FILE|AUTHORIZATION|WAITFOR)$"#)),
 })
 ,
 Arc::new(Grammar::Ref {
@@ -58984,7 +59206,7 @@ Arc::new(Grammar::RegexParser {
     token_type: "function_name_identifier",
     raw_class: "CodeSegment",
     optional: false,
-    anti_template: Some(RegexMode::new(r#"^(CLOSE|SEMANTICSIMILARITYDETAILSTABLE|TRANSACTION|SELECT|CURRENT_TIMESTAMP|HAVING|DISTRIBUTED|DISK|NULL|OFFSETS|SETUSER|TABLESAMPLE|USE|UNIQUE|LINENO|OPTION|CHECKPOINT|OPENDATASOURCE|ROLLBACK|DROP|PERCENT|SET|IDENTITY|FILE|REVOKE|FOREIGN|PRIMARY|ROWGUIDCOL|REVERT|SHUTDOWN|THEN|COLLATE|FULL|OF|ADD|OPENROWSET|IF|TRY_CONVERT|DENY|KEY|OPEN|NULLIF|NATIONAL|TRUNCATE|GO|NOCHECK|PLAN|TO|LEFT|PIVOT|WRITETEXT|EXIT|DEALLOCATE|INSERT|ANY|DBCC|DESC|CURRENT_DATE|CASCADE|KILL|WHILE|FREETEXTTABLE|IDENTITYCOL|INTO|CONTAINSTABLE|SEMANTICKEYPHRASETABLE|COMPUTE|RESTORE|PROCEDURE|RAISERROR|CURRENT_USER|BACKUP|RESTRICT|REPLICATION|EXISTS|USER|SAVE|COLUMN|EXTERNAL|WHERE|DUMP|DISTINCT|TOP|ELSE|UNPIVOT|CASE|OVER|IN|OPENXML|CONTAINS|READTEXT|HOLDLOCK|WAITFOR|FROM|ESCAPE|ORDER|AUTHORIZATION|VARYING|FUNCTION|CONTINUE|FOR|CURRENT_TIME|IS|AS|CURRENT|GROUP|FREETEXT|BEGIN|PRECISION|SESSION_USER|ON|SOME|CLUSTERED|DELETE|DEFAULT|SECURITYAUDIT|ROWCOUNT|WITH|DATABASE|EXECUTE|SEMANTICSIMILARITYTABLE|OPENQUERY|WITHIN GROUP|RIGHT|GRANT|JOIN|INTERSECT|PROC|LOAD|ERRLVL|UPDATETEXT|NONCLUSTERED|ALTER|OR|SCHEMA|TABLE|END|TEXTSIZE|WHEN|CHECK|FILLFACTOR|COALESCE|VIEW|READ|CONVERT|BETWEEN|DECLARE|GOTO|EXCEPT|AND|NOT|TRAN|MERGE|LIKE|STATISTICS|BULK|DOUBLE|INDEX|RECONFIGURE|SYSTEM_USER|RETURN|ALL|RULE|BROWSE|IDENTITY_INSERT|CREATE|REFERENCES|TSEQUAL|COMMIT|TRIGGER|OFF|UNION|PUBLIC|BY|EXEC|BREAK|CURSOR|INNER|VALUES|ASC|CONSTRAINT|FETCH|OUTER|PRINT|CROSS)$"#)),
+    anti_template: Some(RegexMode::new(r#"^(CURRENT_DATE|CHECKPOINT|DUMP|EXTERNAL|CASE|OR|TOP|CURRENT_TIMESTAMP|JOIN|CONTINUE|PUBLIC|TRUNCATE|FUNCTION|VIEW|RULE|CONTAINSTABLE|PRECISION|OVER|CURSOR|ELSE|BACKUP|FREETEXT|NATIONAL|EXISTS|OFF|PLAN|EXCEPT|NULL|ALTER|TRY_CONVERT|TRIGGER|UNION|WHILE|IDENTITY|CURRENT_TIME|OPENDATASOURCE|KEY|CLUSTERED|RESTORE|USE|ROWCOUNT|OF|EXIT|WRITETEXT|CHECK|GRANT|SOME|CROSS|OPTION|SYSTEM_USER|TEXTSIZE|LEFT|ROLLBACK|IDENTITY_INSERT|TSEQUAL|ORDER|DOUBLE|OUTER|TRAN|ESCAPE|DELETE|SEMANTICSIMILARITYDETAILSTABLE|DBCC|OPENXML|THEN|BY|STATISTICS|SELECT|COMPUTE|RAISERROR|COALESCE|ROWGUIDCOL|OFFSETS|NULLIF|UPDATETEXT|FILLFACTOR|REVOKE|BEGIN|DEALLOCATE|DISTRIBUTED|AS|BREAK|IN|REFERENCES|HAVING|PROC|SECURITYAUDIT|WITH|DENY|CONTAINS|AND|IS|CLOSE|DEFAULT|NOCHECK|REVERT|GOTO|CONSTRAINT|ALL|WHEN|PROCEDURE|BROWSE|DECLARE|IDENTITYCOL|INDEX|SCHEMA|TABLESAMPLE|TO|OPEN|FULL|CONVERT|FREETEXTTABLE|SEMANTICKEYPHRASETABLE|INNER|NONCLUSTERED|ASC|SET|REPLICATION|COLLATE|CURRENT|LIKE|MERGE|PRINT|FETCH|COLUMN|CURRENT_USER|INSERT|BETWEEN|ADD|DISK|USER|FOR|EXEC|CREATE|SHUTDOWN|SESSION_USER|RETURN|CASCADE|DISTINCT|READTEXT|LINENO|KILL|ON|INTO|ERRLVL|UNPIVOT|DATABASE|SAVE|SEMANTICSIMILARITYTABLE|NOT|FOREIGN|OPENQUERY|GO|GROUP|VALUES|SETUSER|VARYING|ANY|RECONFIGURE|TRANSACTION|WITHIN GROUP|UNIQUE|DESC|FROM|READ|OPENROWSET|END|PIVOT|INTERSECT|EXECUTE|DROP|BULK|IF|WHERE|COMMIT|RESTRICT|LOAD|PRIMARY|TABLE|RIGHT|PERCENT|HOLDLOCK|FILE|AUTHORIZATION|WAITFOR)$"#)),
 })
 );
 
@@ -68906,7 +69128,7 @@ Arc::new(Grammar::RegexParser {
     token_type: "naked_identifier",
     raw_class: "IdentifierSegment",
     optional: false,
-    anti_template: Some(RegexMode::new(r#"^(CLOSE|SEMANTICSIMILARITYDETAILSTABLE|TRANSACTION|SELECT|CURRENT_TIMESTAMP|HAVING|DISTRIBUTED|DISK|NULL|OFFSETS|SETUSER|TABLESAMPLE|USE|UNIQUE|LINENO|OPTION|CHECKPOINT|OPENDATASOURCE|ROLLBACK|DROP|PERCENT|SET|IDENTITY|FILE|REVOKE|FOREIGN|PRIMARY|ROWGUIDCOL|REVERT|SHUTDOWN|THEN|COLLATE|FULL|OF|ADD|OPENROWSET|IF|TRY_CONVERT|DENY|KEY|OPEN|NULLIF|NATIONAL|TRUNCATE|GO|NOCHECK|PLAN|TO|LEFT|PIVOT|WRITETEXT|EXIT|DEALLOCATE|INSERT|ANY|DBCC|DESC|CURRENT_DATE|CASCADE|KILL|WHILE|FREETEXTTABLE|IDENTITYCOL|INTO|CONTAINSTABLE|SEMANTICKEYPHRASETABLE|COMPUTE|RESTORE|PROCEDURE|RAISERROR|CURRENT_USER|BACKUP|RESTRICT|REPLICATION|EXISTS|USER|SAVE|COLUMN|EXTERNAL|WHERE|DUMP|DISTINCT|TOP|ELSE|UNPIVOT|CASE|OVER|IN|OPENXML|CONTAINS|READTEXT|HOLDLOCK|WAITFOR|FROM|ESCAPE|ORDER|AUTHORIZATION|VARYING|FUNCTION|CONTINUE|FOR|CURRENT_TIME|IS|AS|CURRENT|GROUP|FREETEXT|BEGIN|PRECISION|SESSION_USER|ON|SOME|CLUSTERED|DELETE|DEFAULT|SECURITYAUDIT|ROWCOUNT|WITH|DATABASE|EXECUTE|SEMANTICSIMILARITYTABLE|OPENQUERY|WITHIN GROUP|RIGHT|GRANT|JOIN|INTERSECT|PROC|LOAD|ERRLVL|UPDATETEXT|NONCLUSTERED|ALTER|OR|SCHEMA|TABLE|END|TEXTSIZE|WHEN|CHECK|FILLFACTOR|COALESCE|VIEW|READ|CONVERT|BETWEEN|DECLARE|GOTO|EXCEPT|UPDATE|AND|NOT|TRAN|MERGE|LIKE|STATISTICS|BULK|DOUBLE|INDEX|RECONFIGURE|SYSTEM_USER|RETURN|ALL|RULE|BROWSE|IDENTITY_INSERT|CREATE|REFERENCES|TSEQUAL|COMMIT|TRIGGER|OFF|UNION|PUBLIC|BY|EXEC|BREAK|CURSOR|INNER|VALUES|ASC|CONSTRAINT|FETCH|OUTER|PRINT|CROSS)$"#)),
+    anti_template: Some(RegexMode::new(r#"^(CURRENT_DATE|CHECKPOINT|DUMP|EXTERNAL|CASE|OR|TOP|CURRENT_TIMESTAMP|JOIN|CONTINUE|PUBLIC|TRUNCATE|FUNCTION|VIEW|RULE|CONTAINSTABLE|PRECISION|OVER|CURSOR|ELSE|BACKUP|FREETEXT|NATIONAL|EXISTS|OFF|PLAN|EXCEPT|NULL|ALTER|TRY_CONVERT|TRIGGER|UNION|WHILE|IDENTITY|CURRENT_TIME|OPENDATASOURCE|KEY|CLUSTERED|RESTORE|USE|ROWCOUNT|OF|EXIT|WRITETEXT|CHECK|GRANT|SOME|CROSS|OPTION|SYSTEM_USER|TEXTSIZE|LEFT|ROLLBACK|IDENTITY_INSERT|TSEQUAL|ORDER|DOUBLE|OUTER|TRAN|ESCAPE|DELETE|SEMANTICSIMILARITYDETAILSTABLE|DBCC|OPENXML|THEN|BY|STATISTICS|SELECT|COMPUTE|RAISERROR|COALESCE|ROWGUIDCOL|OFFSETS|NULLIF|UPDATETEXT|FILLFACTOR|REVOKE|BEGIN|DEALLOCATE|DISTRIBUTED|AS|BREAK|IN|REFERENCES|HAVING|PROC|SECURITYAUDIT|WITH|DENY|CONTAINS|AND|IS|CLOSE|DEFAULT|NOCHECK|REVERT|GOTO|CONSTRAINT|ALL|WHEN|PROCEDURE|BROWSE|DECLARE|IDENTITYCOL|INDEX|SCHEMA|TABLESAMPLE|TO|OPEN|FULL|CONVERT|FREETEXTTABLE|SEMANTICKEYPHRASETABLE|INNER|NONCLUSTERED|ASC|SET|REPLICATION|COLLATE|CURRENT|LIKE|MERGE|PRINT|FETCH|COLUMN|CURRENT_USER|INSERT|BETWEEN|ADD|DISK|USER|FOR|EXEC|CREATE|SHUTDOWN|SESSION_USER|RETURN|CASCADE|DISTINCT|READTEXT|LINENO|KILL|ON|INTO|ERRLVL|UNPIVOT|DATABASE|SAVE|SEMANTICSIMILARITYTABLE|NOT|FOREIGN|OPENQUERY|GO|GROUP|VALUES|SETUSER|UPDATE|VARYING|ANY|RECONFIGURE|TRANSACTION|WITHIN GROUP|UNIQUE|DESC|FROM|READ|OPENROWSET|END|PIVOT|INTERSECT|EXECUTE|DROP|BULK|IF|WHERE|COMMIT|RESTRICT|LOAD|PRIMARY|TABLE|RIGHT|PERCENT|HOLDLOCK|FILE|AUTHORIZATION|WAITFOR)$"#)),
 })
 );
 
@@ -79362,7 +79584,10 @@ Arc::new(Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
-    simple_hint: None,
+    simple_hint: Some(SimpleHint {
+            raw_values: hashbrown::HashSet::from_iter(["SIMPLE".to_string()]),
+            token_types: hashbrown::HashSet::from_iter([]),
+        }),
 })
 ,
 Arc::new(Grammar::Ref {
@@ -79387,7 +79612,10 @@ Arc::new(Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
-    simple_hint: None,
+    simple_hint: Some(SimpleHint {
+            raw_values: hashbrown::HashSet::from_iter(["FORCED".to_string(), "SIMPLE".to_string()]),
+            token_types: hashbrown::HashSet::from_iter([]),
+        }),
 })
 ,
     ],
@@ -80698,6 +80926,16 @@ Arc::new(Grammar::Ref {
 })
 );
 
+// name='RecoveryKeywordSegment'
+pub static RECOVERY_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+Arc::new(Grammar::StringParser {
+    template: "RECOVERY",
+    token_type: "keyword",
+    raw_class: "KeywordSegment",
+    optional: false,
+})
+);
+
 // name='RecursiveKeywordSegment'
 pub static RECURSIVE_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
 Arc::new(Grammar::StringParser {
@@ -80977,7 +81215,10 @@ Arc::new(Grammar::Ref {
     terminators: vec![
     ],
     reset_terminators: false,
-    simple_hint: None,
+    simple_hint: Some(SimpleHint {
+            raw_values: hashbrown::HashSet::from_iter(["SIMPLE".to_string()]),
+            token_types: hashbrown::HashSet::from_iter([]),
+        }),
 })
 ,
     ],
@@ -80988,7 +81229,10 @@ Arc::new(Grammar::Ref {
     reset_terminators: false,
     allow_gaps: true,
     parse_mode: ParseMode::Strict,
-    simple_hint: None,
+    simple_hint: Some(SimpleHint {
+            raw_values: hashbrown::HashSet::from_iter(["FULL".to_string(), "PARTIAL".to_string(), "SIMPLE".to_string()]),
+            token_types: hashbrown::HashSet::from_iter([]),
+        }),
 })
 ,
     ],
@@ -84960,6 +85204,17 @@ Arc::new(Grammar::Ref {
     simple_hint: None,
 })
 ,
+Arc::new(Grammar::Ref {
+    name: "SelectVariableAssignmentSegment",
+    optional: false,
+    allow_gaps: true,
+    exclude: None,
+    terminators: vec![
+    ],
+    reset_terminators: false,
+    simple_hint: None,
+})
+,
 Arc::new(Grammar::Sequence {
     elements: vec![
 Arc::new(Grammar::Ref {
@@ -85672,6 +85927,58 @@ Arc::new(Grammar::Ref {
             raw_values: hashbrown::HashSet::from_iter(["SELECT".to_string()]),
             token_types: hashbrown::HashSet::from_iter([]),
         }),
+})
+);
+
+// name='SelectVariableAssignmentSegment'
+pub static SELECT_VARIABLE_ASSIGNMENT_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+// SelectVariableAssignmentSegment
+Arc::new(Grammar::Sequence {
+    elements: vec![
+Arc::new(Grammar::Ref {
+    name: "ParameterNameSegment",
+    optional: false,
+    allow_gaps: true,
+    exclude: None,
+    terminators: vec![
+    ],
+    reset_terminators: false,
+    simple_hint: None,
+})
+,
+Arc::new(Grammar::Ref {
+    name: "AssignmentOperatorSegment",
+    optional: false,
+    allow_gaps: true,
+    exclude: None,
+    terminators: vec![
+    ],
+    reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+            raw_values: hashbrown::HashSet::from_iter(["%".to_string(), "&".to_string(), "*".to_string(), "+".to_string(), "-".to_string(), "/".to_string(), "=".to_string(), "^".to_string(), "|".to_string()]),
+            token_types: hashbrown::HashSet::from_iter([]),
+        }),
+})
+,
+Arc::new(Grammar::Ref {
+    name: "ExpressionSegment",
+    optional: false,
+    allow_gaps: true,
+    exclude: None,
+    terminators: vec![
+    ],
+    reset_terminators: false,
+    simple_hint: None,
+})
+,
+    ],
+    optional: false,
+    terminators: vec![
+    ],
+    reset_terminators: false,
+    allow_gaps: true,
+    parse_mode: ParseMode::Strict,
+    simple_hint: None,
 })
 );
 
@@ -88888,6 +89195,16 @@ Arc::new(Grammar::StringParser {
 })
 );
 
+// name='SimpleKeywordSegment'
+pub static SIMPLE_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+Arc::new(Grammar::StringParser {
+    template: "SIMPLE",
+    token_type: "keyword",
+    raw_class: "KeywordSegment",
+    optional: false,
+})
+);
+
 // name='SingleIdentifierGrammar'
 pub static SINGLE_IDENTIFIER_GRAMMAR: Lazy<Arc<Grammar>> = Lazy::new(||
 Arc::new(Grammar::OneOf {
@@ -90373,6 +90690,20 @@ Arc::new(Grammar::Ref {
     reset_terminators: false,
     simple_hint: Some(SimpleHint {
             raw_values: hashbrown::HashSet::from_iter(["DROP".to_string()]),
+            token_types: hashbrown::HashSet::from_iter([]),
+        }),
+})
+,
+Arc::new(Grammar::Ref {
+    name: "CreateServerRoleStatementSegment",
+    optional: false,
+    allow_gaps: true,
+    exclude: None,
+    terminators: vec![
+    ],
+    reset_terminators: false,
+    simple_hint: Some(SimpleHint {
+            raw_values: hashbrown::HashSet::from_iter(["CREATE".to_string()]),
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
@@ -103613,6 +103944,7 @@ pub fn get_tsql_segment_grammar(name: &str) -> Option<Arc<Grammar>> {
             "BulkInsertStatementSegment" => Some(BULK_INSERT_STATEMENT_SEGMENT.clone()),
             "BulkInsertStatementWithSegment" => Some(BULK_INSERT_STATEMENT_WITH_SEGMENT.clone()),
             "BulkKeywordSegment" => Some(BULK_KEYWORD_SEGMENT.clone()),
+            "Bulk_loggedKeywordSegment" => Some(BULK_LOGGED_KEYWORD_SEGMENT.clone()),
             "ByKeywordSegment" => Some(BY_KEYWORD_SEGMENT.clone()),
             "CTEColumnList" => Some(C_T_E_COLUMN_LIST.clone()),
             "CTEDefinitionSegment" => Some(C_T_E_DEFINITION_SEGMENT.clone()),
@@ -103741,6 +104073,7 @@ pub fn get_tsql_segment_grammar(name: &str) -> Option<Arc<Grammar>> {
             "CreateSecurityPolicySegment" => Some(CREATE_SECURITY_POLICY_SEGMENT.clone()),
             "CreateSequenceOptionsSegment" => Some(CREATE_SEQUENCE_OPTIONS_SEGMENT.clone()),
             "CreateSequenceStatementSegment" => Some(CREATE_SEQUENCE_STATEMENT_SEGMENT.clone()),
+            "CreateServerRoleStatementSegment" => Some(CREATE_SERVER_ROLE_STATEMENT_SEGMENT.clone()),
             "CreateSynonymStatementSegment" => Some(CREATE_SYNONYM_STATEMENT_SEGMENT.clone()),
             "CreateTableAsSelectStatementSegment" => Some(CREATE_TABLE_AS_SELECT_STATEMENT_SEGMENT.clone()),
             "CreateTableGraphStatementSegment" => Some(CREATE_TABLE_GRAPH_STATEMENT_SEGMENT.clone()),
@@ -104494,6 +104827,7 @@ pub fn get_tsql_segment_grammar(name: &str) -> Option<Arc<Grammar>> {
             "RecompileKeywordSegment" => Some(RECOMPILE_KEYWORD_SEGMENT.clone()),
             "ReconfigureKeywordSegment" => Some(RECONFIGURE_KEYWORD_SEGMENT.clone()),
             "ReconfigureStatementSegment" => Some(RECONFIGURE_STATEMENT_SEGMENT.clone()),
+            "RecoveryKeywordSegment" => Some(RECOVERY_KEYWORD_SEGMENT.clone()),
             "RecursiveKeywordSegment" => Some(RECURSIVE_KEYWORD_SEGMENT.clone()),
             "RefKeywordSegment" => Some(REF_KEYWORD_SEGMENT.clone()),
             "ReferenceDefinitionGrammar" => Some(REFERENCE_DEFINITION_GRAMMAR.clone()),
@@ -104597,6 +104931,7 @@ pub fn get_tsql_segment_grammar(name: &str) -> Option<Arc<Grammar>> {
             "SelectClauseTerminatorGrammar" => Some(SELECT_CLAUSE_TERMINATOR_GRAMMAR.clone()),
             "SelectKeywordSegment" => Some(SELECT_KEYWORD_SEGMENT.clone()),
             "SelectStatementSegment" => Some(SELECT_STATEMENT_SEGMENT.clone()),
+            "SelectVariableAssignmentSegment" => Some(SELECT_VARIABLE_ASSIGNMENT_SEGMENT.clone()),
             "SelectableGrammar" => Some(SELECTABLE_GRAMMAR.clone()),
             "SelfKeywordSegment" => Some(SELF_KEYWORD_SEGMENT.clone()),
             "SemantickeyphrasetableKeywordSegment" => Some(SEMANTICKEYPHRASETABLE_KEYWORD_SEGMENT.clone()),
@@ -104641,6 +104976,7 @@ pub fn get_tsql_segment_grammar(name: &str) -> Option<Arc<Grammar>> {
             "SidKeywordSegment" => Some(SID_KEYWORD_SEGMENT.clone()),
             "SignedSegmentGrammar" => Some(SIGNED_SEGMENT_GRAMMAR.clone()),
             "SimilarKeywordSegment" => Some(SIMILAR_KEYWORD_SEGMENT.clone()),
+            "SimpleKeywordSegment" => Some(SIMPLE_KEYWORD_SEGMENT.clone()),
             "SingleIdentifierGrammar" => Some(SINGLE_IDENTIFIER_GRAMMAR.clone()),
             "SingleIdentifierListSegment" => Some(SINGLE_IDENTIFIER_LIST_SEGMENT.clone()),
             "SingleQuotedIdentifierSegment" => Some(SINGLE_QUOTED_IDENTIFIER_SEGMENT.clone()),
@@ -104994,6 +105330,7 @@ pub fn get_tsql_segment_type(name: &str) -> Option<&'static str> {
             "CreateSecurityPolicySegment" => Some("create_security_policy_statement"),
             "CreateSequenceOptionsSegment" => Some("create_sequence_options_segment"),
             "CreateSequenceStatementSegment" => Some("create_sequence_statement"),
+            "CreateServerRoleStatementSegment" => Some("create_server_role_statement"),
             "CreateSynonymStatementSegment" => Some("create_synonym_statement"),
             "CreateTableAsSelectStatementSegment" => Some("create_table_as_select_statement"),
             "CreateTableGraphStatementSegment" => Some("create_table_graph_statement"),
@@ -105186,6 +105523,7 @@ pub fn get_tsql_segment_type(name: &str) -> Option<&'static str> {
             "SelectClauseModifierSegment" => Some("select_clause_modifier"),
             "SelectClauseSegment" => Some("select_clause"),
             "SelectStatementSegment" => Some("select_statement"),
+            "SelectVariableAssignmentSegment" => Some("select_variable_assignment"),
             "SequenceReferenceSegment" => Some("sequence_reference"),
             "ServiceObjectiveSegment" => Some("service_objective"),
             "SetClauseListSegment" => Some("set_clause_list"),
