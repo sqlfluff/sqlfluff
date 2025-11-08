@@ -1,0 +1,1 @@
+INVALIDATE METADATA db.foo;
