@@ -586,6 +586,10 @@ impl crate::parser::Parser<'_> {
         parent_terminators: &[Arc<Grammar>],
         stack: &mut ParseFrameStack,
     ) -> Result<FrameResult, ParseError> {
+        // CRITICAL: Restore parser position from frame before doing anything else
+        // The global self.pos may have been advanced by other frames
+        self.pos = frame.pos;
+
         log::debug!(
             "START OneOf: frame_id={}, pos={}, grammar={:?}",
             frame.frame_id,

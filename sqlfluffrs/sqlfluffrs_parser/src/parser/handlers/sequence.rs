@@ -39,6 +39,10 @@ impl<'a> Parser<'_> {
         parent_terminators: &[Arc<Grammar>],
         stack: &mut ParseFrameStack,
     ) -> Result<FrameResult, ParseError> {
+        // CRITICAL: Restore parser position from frame before doing anything else
+        // The global self.pos may have been advanced by other frames
+        self.pos = frame.pos;
+
         // Destructure Grammar::Sequence fields
         let (elements, optional, seq_terminators, reset_terminators, allow_gaps, parse_mode) =
             match grammar.as_ref() {
