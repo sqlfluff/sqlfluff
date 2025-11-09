@@ -245,16 +245,25 @@ impl crate::parser::Parser<'_> {
             simple_hint: None,
         };
 
+        // Python parity: When matching elements (not seeking delimiter),
+        // the delimiter should be added as a terminator so child grammars
+        // (especially Anything) stop at the delimiter.
+        // See Python's delimited.py line 146-148:
+        //   _push_terminators = delimiter_matchers if not seeking_delimiter else []
+        let mut element_terminators = all_terminators.clone();
+        element_terminators.push((**delimiter).clone());
+
         log::debug!(
-            "[ITERATIVE] Delimited: pushing child element at working_pos={}, child_max_idx={:?}",
+            "[ITERATIVE] Delimited: pushing child element at working_pos={}, child_max_idx={:?}, element_terminators count={}",
             working_pos,
-            Some(child_max_idx)
+            Some(child_max_idx),
+            element_terminators.len()
         );
         let mut child_frame = ParseFrame::new_child(
             stack.frame_id_counter,
             child_grammar.into(),
             working_pos,
-            all_terminators,
+            element_terminators, // Include delimiter as terminator for elements!
             Some(child_max_idx), // Use Delimited's max_idx trimmed to next delimiter!
         );
 
@@ -782,11 +791,15 @@ impl crate::parser::Parser<'_> {
                             parse_mode: *parse_mode,
                             simple_hint: None,
                         };
+                        // Python parity: Add delimiter as terminator for elements
+                        // (same as in handle_delimited_initial)
+                        let mut element_terminators = frame_terminators.clone();
+                        element_terminators.push((**delimiter).clone());
                         let child_frame = ParseFrame::new_child(
                             stack.frame_id_counter,
                             child_grammar.into(),
                             *working_idx,
-                            frame_terminators.clone(),
+                            element_terminators, // Include delimiter as terminator!
                             Some(child_max_idx),
                         );
                         log::debug!("[ITERATIVE] Delimited: pushing child #2 at working_idx={}, frame_id={}", working_idx, stack.frame_id_counter);

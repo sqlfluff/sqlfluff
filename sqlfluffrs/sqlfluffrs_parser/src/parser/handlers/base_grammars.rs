@@ -69,6 +69,9 @@ impl Parser<'_> {
     }
 
     /// Handle Anything grammar in iterative parser
+    ///
+    /// Python parity: Implements greedy_match with nested_match=True
+    /// This means we preserve bracket structure while matching greedily.
     pub fn handle_anything_initial(
         &mut self,
         mut frame: ParseFrame, // Take ownership
@@ -87,16 +90,81 @@ impl Parser<'_> {
                 break;
             }
             if let Some(tok) = self.peek() {
-                anything_tokens.push(Node::Token {
-                    token_type: "anything".to_string(),
-                    raw: tok.raw().to_string(),
-                    token_idx: self.pos,
-                });
-                self.bump();
+                let tok_type = tok.get_type();
+                let tok_raw = tok.raw();
+
+                // Python parity: nested_match=True in greedy_match
+                // If we hit a bracket opener, match the entire bracketed section
+                if tok_raw == "(" || tok_raw == "[" || tok_raw == "{" {
+                    let close_bracket = match tok_raw.as_str() {
+                        "(" => ")",
+                        "[" => "]",
+                        "{" => "}",
+                        _ => unreachable!(),
+                    };
+
+                    // Collect all tokens in the bracketed section
+                    let start_idx = self.pos;
+                    let mut bracket_depth = 0;
+                    let mut bracket_tokens = vec![];
+
+                    // Add start bracket
+                    bracket_tokens.push(Node::Token {
+                        token_type: "start_bracket".to_string(),
+                        raw: tok_raw.to_string(),
+                        token_idx: self.pos,
+                    });
+                    bracket_depth += 1;
+                    self.bump();
+
+                    // Match everything until we find the matching close bracket
+                    while bracket_depth > 0 && !self.is_at_end() {
+                        if let Some(inner_tok) = self.peek() {
+                            let inner_raw = inner_tok.raw();
+
+                            if inner_raw == tok_raw {
+                                bracket_depth += 1;
+                            } else if inner_raw == close_bracket {
+                                bracket_depth -= 1;
+                            }
+
+                            // Python parity: Preserve token types as-is
+                            // Just like outer tokens, bracketed tokens keep their original types
+                            let node_type = if bracket_depth == 0 {
+                                "end_bracket".to_string()
+                            } else {
+                                inner_tok.get_type().to_string()
+                            };
+
+                            bracket_tokens.push(Node::Token {
+                                token_type: node_type,
+                                raw: inner_raw.to_string(),
+                                token_idx: self.pos,
+                            });
+                            self.bump();
+                        } else {
+                            break;
+                        }
+                    }
+
+                    // Create a bracketed node
+                    anything_tokens.push(Node::Bracketed {
+                        children: bracket_tokens,
+                    });
+                } else {
+                    // Regular token - preserve the token type as-is
+                    // Python's Anything just returns a slice of segments with their original types
+                    anything_tokens.push(Node::Token {
+                        token_type: tok_type.to_string(),
+                        raw: tok_raw.to_string(),
+                        token_idx: self.pos,
+                    });
+                    self.bump();
+                }
             }
         }
 
-        log::debug!("Anything matched tokens: {:?}", anything_tokens);
+        log::debug!("Anything matched {} nodes", anything_tokens.len());
         frame.state = FrameState::Complete(Node::DelimitedList {
             children: anything_tokens,
         });
