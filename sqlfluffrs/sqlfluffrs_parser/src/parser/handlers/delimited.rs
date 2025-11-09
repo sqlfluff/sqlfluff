@@ -329,7 +329,21 @@ impl crate::parser::Parser<'_> {
                 // This is critical - terminators are checked at the START of each iteration,
                 // not after matching an element. This ensures that a delimiter can be matched
                 // even if it's also a terminator in an outer scope.
-                if self.is_at_end() || self.is_terminated(&frame_terminators) {
+                //
+                // CRITICAL FIX: If we have a pending delimiter, check terminators from BEFORE
+                // the delimiter, not after it. This is needed for terminators like
+                // Sequence(CommaSegment, "TABLE") which need to match the delimiter itself.
+                let check_pos = if delimiter_match.is_some() && pos_before_delimiter.is_some() {
+                    pos_before_delimiter.unwrap()
+                } else {
+                    self.pos
+                };
+                let saved_pos = self.pos;
+                self.pos = check_pos;
+                let is_terminated = self.is_terminated(&frame_terminators);
+                self.pos = saved_pos;
+
+                if self.is_at_end() || is_terminated {
                     log::debug!(
                         "[ITERATIVE] Delimited: terminator found at position {}, matched_idx={}, delimiter_match present={}",
                         self.pos,
