@@ -630,7 +630,7 @@ pub mod python {
                 .map(|rs| {
                     let mut slice = rs.0.clone();
                     slice.source_idx = idx;
-                    idx += slice.raw.len();
+                    idx += slice.raw.chars().count();
                     slice
                 })
                 .collect()
