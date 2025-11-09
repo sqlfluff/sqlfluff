@@ -6978,7 +6978,11 @@ Arc::new(Grammar::Ref {
         }),
 })
 ,
-Arc::new(Grammar::Anything)
+Arc::new(Grammar::Anything {
+    terminators: vec![
+    ],
+    reset_terminators: false,
+})
 ,
 Arc::new(Grammar::Ref {
     name: "StarSegment",
@@ -11295,7 +11299,11 @@ Arc::new(Grammar::Bracketed {
     elements: vec![
 Arc::new(Grammar::Sequence {
     elements: vec![
-Arc::new(Grammar::Anything)
+Arc::new(Grammar::Anything {
+    terminators: vec![
+    ],
+    reset_terminators: false,
+})
 ,
     ],
     optional: true,
@@ -23336,7 +23344,11 @@ Arc::new(Grammar::Ref {
         }),
 })
 ,
-Arc::new(Grammar::Anything)
+Arc::new(Grammar::Anything {
+    terminators: vec![
+    ],
+    reset_terminators: false,
+})
 ,
     ],
     optional: false,
@@ -40739,7 +40751,11 @@ Arc::new(Grammar::Bracketed {
     elements: vec![
 Arc::new(Grammar::Sequence {
     elements: vec![
-Arc::new(Grammar::Anything)
+Arc::new(Grammar::Anything {
+    terminators: vec![
+    ],
+    reset_terminators: false,
+})
 ,
     ],
     optional: true,
@@ -42618,7 +42634,11 @@ Arc::new(Grammar::Ref {
 ,
 Arc::new(Grammar::Bracketed {
     elements: vec![
-Arc::new(Grammar::Anything)
+Arc::new(Grammar::Anything {
+    terminators: vec![
+    ],
+    reset_terminators: false,
+})
 ,
     ],
     bracket_pairs: (
@@ -42712,7 +42732,11 @@ Arc::new(Grammar::Ref {
 ,
 Arc::new(Grammar::Bracketed {
     elements: vec![
-Arc::new(Grammar::Anything)
+Arc::new(Grammar::Anything {
+    terminators: vec![
+    ],
+    reset_terminators: false,
+})
 ,
     ],
     bracket_pairs: (
@@ -46486,7 +46510,11 @@ Arc::new(Grammar::Ref {
 ,
 Arc::new(Grammar::Delimited {
     elements: vec![
-Arc::new(Grammar::Anything)
+Arc::new(Grammar::Anything {
+    terminators: vec![
+    ],
+    reset_terminators: false,
+})
 ,
     ],
     delimiter: Box::new(
@@ -46620,7 +46648,11 @@ Arc::new(Grammar::Ref {
 ,
 Arc::new(Grammar::Bracketed {
     elements: vec![
-Arc::new(Grammar::Anything)
+Arc::new(Grammar::Anything {
+    terminators: vec![
+    ],
+    reset_terminators: false,
+})
 ,
     ],
     bracket_pairs: (
@@ -46780,7 +46812,11 @@ Arc::new(Grammar::Ref {
 ,
 Arc::new(Grammar::Bracketed {
     elements: vec![
-Arc::new(Grammar::Anything)
+Arc::new(Grammar::Anything {
+    terminators: vec![
+    ],
+    reset_terminators: false,
+})
 ,
     ],
     bracket_pairs: (
@@ -47289,7 +47325,11 @@ Arc::new(Grammar::Ref {
 ,
 Arc::new(Grammar::Sequence {
     elements: vec![
-Arc::new(Grammar::Anything)
+Arc::new(Grammar::Anything {
+    terminators: vec![
+    ],
+    reset_terminators: false,
+})
 ,
     ],
     optional: true,
@@ -47381,7 +47421,11 @@ Arc::new(Grammar::Bracketed {
     elements: vec![
 Arc::new(Grammar::Delimited {
     elements: vec![
-Arc::new(Grammar::Anything)
+Arc::new(Grammar::Anything {
+    terminators: vec![
+    ],
+    reset_terminators: false,
+})
 ,
     ],
     delimiter: Box::new(
@@ -47457,7 +47501,11 @@ Arc::new(Grammar::StringParser {
 ,
 Arc::new(Grammar::Sequence {
     elements: vec![
-Arc::new(Grammar::Anything)
+Arc::new(Grammar::Anything {
+    terminators: vec![
+    ],
+    reset_terminators: false,
+})
 ,
     ],
     optional: true,
@@ -48321,7 +48369,11 @@ Arc::new(Grammar::Ref {
 ,
 Arc::new(Grammar::Bracketed {
     elements: vec![
-Arc::new(Grammar::Anything)
+Arc::new(Grammar::Anything {
+    terminators: vec![
+    ],
+    reset_terminators: false,
+})
 ,
     ],
     bracket_pairs: (
@@ -51227,7 +51279,11 @@ Arc::new(Grammar::Ref {
         }),
 })
 ,
-Arc::new(Grammar::Anything)
+Arc::new(Grammar::Anything {
+    terminators: vec![
+    ],
+    reset_terminators: false,
+})
 ,
     ],
     optional: true,
@@ -51246,7 +51302,11 @@ Arc::new(Grammar::Bracketed {
     elements: vec![
 Arc::new(Grammar::Delimited {
     elements: vec![
-Arc::new(Grammar::Anything)
+Arc::new(Grammar::Anything {
+    terminators: vec![
+    ],
+    reset_terminators: false,
+})
 ,
     ],
     delimiter: Box::new(
@@ -51405,7 +51465,11 @@ Arc::new(Grammar::Ref {
         }),
 })
 ,
-Arc::new(Grammar::Anything)
+Arc::new(Grammar::Anything {
+    terminators: vec![
+    ],
+    reset_terminators: false,
+})
 ,
     ],
     optional: true,
@@ -51649,7 +51713,11 @@ Arc::new(Grammar::Ref {
         }),
 })
 ,
-Arc::new(Grammar::Anything)
+Arc::new(Grammar::Anything {
+    terminators: vec![
+    ],
+    reset_terminators: false,
+})
 ,
     ],
     optional: false,
@@ -51821,7 +51889,11 @@ Arc::new(Grammar::Ref {
         }),
 })
 ,
-Arc::new(Grammar::Anything)
+Arc::new(Grammar::Anything {
+    terminators: vec![
+    ],
+    reset_terminators: false,
+})
 ,
     ],
     optional: false,
@@ -54738,7 +54810,11 @@ Arc::new(Grammar::Ref {
         }),
 })
 ,
-Arc::new(Grammar::Anything)
+Arc::new(Grammar::Anything {
+    terminators: vec![
+    ],
+    reset_terminators: false,
+})
 ,
     ],
     optional: false,
@@ -55809,7 +55885,11 @@ Arc::new(Grammar::Ref {
         }),
 })
 ,
-Arc::new(Grammar::Anything)
+Arc::new(Grammar::Anything {
+    terminators: vec![
+    ],
+    reset_terminators: false,
+})
 ,
 Arc::new(Grammar::Sequence {
     elements: vec![
@@ -55930,7 +56010,11 @@ Arc::new(Grammar::Ref {
         }),
 })
 ,
-Arc::new(Grammar::Anything)
+Arc::new(Grammar::Anything {
+    terminators: vec![
+    ],
+    reset_terminators: false,
+})
 ,
     ],
     optional: true,
@@ -56038,7 +56122,11 @@ Arc::new(Grammar::Bracketed {
     elements: vec![
 Arc::new(Grammar::Delimited {
     elements: vec![
-Arc::new(Grammar::Anything)
+Arc::new(Grammar::Anything {
+    terminators: vec![
+    ],
+    reset_terminators: false,
+})
 ,
     ],
     delimiter: Box::new(
@@ -56329,7 +56417,11 @@ Arc::new(Grammar::Bracketed {
     elements: vec![
 Arc::new(Grammar::Delimited {
     elements: vec![
-Arc::new(Grammar::Anything)
+Arc::new(Grammar::Anything {
+    terminators: vec![
+    ],
+    reset_terminators: false,
+})
 ,
     ],
     delimiter: Box::new(
@@ -56420,7 +56512,11 @@ Arc::new(Grammar::Ref {
         }),
 })
 ,
-Arc::new(Grammar::Anything)
+Arc::new(Grammar::Anything {
+    terminators: vec![
+    ],
+    reset_terminators: false,
+})
 ,
 Arc::new(Grammar::Ref {
     name: "ValueKeywordSegment",
@@ -56450,7 +56546,11 @@ Arc::new(Grammar::Ref {
         }),
 })
 ,
-Arc::new(Grammar::Anything)
+Arc::new(Grammar::Anything {
+    terminators: vec![
+    ],
+    reset_terminators: false,
+})
 ,
     ],
     optional: true,
@@ -56481,7 +56581,11 @@ Arc::new(Grammar::Ref {
         }),
 })
 ,
-Arc::new(Grammar::Anything)
+Arc::new(Grammar::Anything {
+    terminators: vec![
+    ],
+    reset_terminators: false,
+})
 ,
     ],
     optional: true,
@@ -56514,7 +56618,11 @@ Arc::new(Grammar::Ref {
 ,
 Arc::new(Grammar::Delimited {
     elements: vec![
-Arc::new(Grammar::Anything)
+Arc::new(Grammar::Anything {
+    terminators: vec![
+    ],
+    reset_terminators: false,
+})
 ,
     ],
     delimiter: Box::new(
@@ -56664,7 +56772,11 @@ Arc::new(Grammar::Bracketed {
     elements: vec![
 Arc::new(Grammar::Delimited {
     elements: vec![
-Arc::new(Grammar::Anything)
+Arc::new(Grammar::Anything {
+    terminators: vec![
+    ],
+    reset_terminators: false,
+})
 ,
     ],
     delimiter: Box::new(
@@ -56957,7 +57069,11 @@ Arc::new(Grammar::Bracketed {
     elements: vec![
 Arc::new(Grammar::Delimited {
     elements: vec![
-Arc::new(Grammar::Anything)
+Arc::new(Grammar::Anything {
+    terminators: vec![
+    ],
+    reset_terminators: false,
+})
 ,
     ],
     delimiter: Box::new(
@@ -57095,7 +57211,11 @@ Arc::new(Grammar::Bracketed {
     elements: vec![
 Arc::new(Grammar::Delimited {
     elements: vec![
-Arc::new(Grammar::Anything)
+Arc::new(Grammar::Anything {
+    terminators: vec![
+    ],
+    reset_terminators: false,
+})
 ,
     ],
     delimiter: Box::new(
@@ -57314,7 +57434,11 @@ Arc::new(Grammar::Bracketed {
     elements: vec![
 Arc::new(Grammar::Delimited {
     elements: vec![
-Arc::new(Grammar::Anything)
+Arc::new(Grammar::Anything {
+    terminators: vec![
+    ],
+    reset_terminators: false,
+})
 ,
     ],
     delimiter: Box::new(
@@ -57481,7 +57605,11 @@ Arc::new(Grammar::Bracketed {
     elements: vec![
 Arc::new(Grammar::Delimited {
     elements: vec![
-Arc::new(Grammar::Anything)
+Arc::new(Grammar::Anything {
+    terminators: vec![
+    ],
+    reset_terminators: false,
+})
 ,
     ],
     delimiter: Box::new(
@@ -57589,7 +57717,11 @@ Arc::new(Grammar::Bracketed {
     elements: vec![
 Arc::new(Grammar::Delimited {
     elements: vec![
-Arc::new(Grammar::Anything)
+Arc::new(Grammar::Anything {
+    terminators: vec![
+    ],
+    reset_terminators: false,
+})
 ,
     ],
     delimiter: Box::new(
@@ -57912,7 +58044,11 @@ Arc::new(Grammar::Ref {
 ,
 Arc::new(Grammar::Sequence {
     elements: vec![
-Arc::new(Grammar::Anything)
+Arc::new(Grammar::Anything {
+    terminators: vec![
+    ],
+    reset_terminators: false,
+})
 ,
     ],
     optional: true,
@@ -57971,7 +58107,11 @@ Arc::new(Grammar::Bracketed {
     elements: vec![
 Arc::new(Grammar::Delimited {
     elements: vec![
-Arc::new(Grammar::Anything)
+Arc::new(Grammar::Anything {
+    terminators: vec![
+    ],
+    reset_terminators: false,
+})
 ,
     ],
     delimiter: Box::new(
@@ -58095,7 +58235,11 @@ Arc::new(Grammar::Bracketed {
     elements: vec![
 Arc::new(Grammar::Delimited {
     elements: vec![
-Arc::new(Grammar::Anything)
+Arc::new(Grammar::Anything {
+    terminators: vec![
+    ],
+    reset_terminators: false,
+})
 ,
     ],
     delimiter: Box::new(
@@ -58202,7 +58346,11 @@ Arc::new(Grammar::StringParser {
 ,
 Arc::new(Grammar::Sequence {
     elements: vec![
-Arc::new(Grammar::Anything)
+Arc::new(Grammar::Anything {
+    terminators: vec![
+    ],
+    reset_terminators: false,
+})
 ,
     ],
     optional: true,
@@ -63115,7 +63263,11 @@ Arc::new(Grammar::Ref {
         }),
 })
 ,
-Arc::new(Grammar::Anything)
+Arc::new(Grammar::Anything {
+    terminators: vec![
+    ],
+    reset_terminators: false,
+})
 ,
     ],
     optional: false,
@@ -66462,7 +66614,11 @@ Arc::new(Grammar::Ref {
 ,
 Arc::new(Grammar::Sequence {
     elements: vec![
-Arc::new(Grammar::Anything)
+Arc::new(Grammar::Anything {
+    terminators: vec![
+    ],
+    reset_terminators: false,
+})
 ,
     ],
     optional: false,
@@ -67998,7 +68154,11 @@ Arc::new(Grammar::Ref {
         }),
 })
 ,
-Arc::new(Grammar::Anything)
+Arc::new(Grammar::Anything {
+    terminators: vec![
+    ],
+    reset_terminators: false,
+})
 ,
 Arc::new(Grammar::Ref {
     name: "StarSegment",
@@ -75067,7 +75227,11 @@ Arc::new(Grammar::Bracketed {
     elements: vec![
 Arc::new(Grammar::Delimited {
     elements: vec![
-Arc::new(Grammar::Anything)
+Arc::new(Grammar::Anything {
+    terminators: vec![
+    ],
+    reset_terminators: false,
+})
 ,
     ],
     delimiter: Box::new(
@@ -91400,7 +91564,11 @@ Arc::new(Grammar::Bracketed {
     elements: vec![
 Arc::new(Grammar::Delimited {
     elements: vec![
-Arc::new(Grammar::Anything)
+Arc::new(Grammar::Anything {
+    terminators: vec![
+    ],
+    reset_terminators: false,
+})
 ,
     ],
     delimiter: Box::new(
@@ -91688,7 +91856,11 @@ Arc::new(Grammar::Ref {
 ,
 Arc::new(Grammar::Sequence {
     elements: vec![
-Arc::new(Grammar::Anything)
+Arc::new(Grammar::Anything {
+    terminators: vec![
+    ],
+    reset_terminators: false,
+})
 ,
     ],
     optional: false,
@@ -93172,7 +93344,7 @@ Arc::new(Grammar::RegexParser {
     token_type: "naked_identifier",
     raw_class: "IdentifierSegment",
     optional: false,
-    anti_template: Some(RegexMode::new(r#"^(DISTINCT|ILIKE|IS|CHECK|LATERAL|CROSS|CLUSTER|ROWS|ON|CONSTRAINT|ALL|INTO|LEFT|OR|WHEN|JOIN|ORDER|CAST|NOT|TO|SINK|FULL|GROUP|VALUES|DELETE|NATURAL|UPDATE|ANY|BY|UNIQUE|INNER|SELECT|ELSE|FROM|SET|NULLIF|INTERSECT|CLUSTERS|EXISTS|SINKS|CURRENT|LIKE|DROP|ALTER|NULL|WHERE|ROW|UNION|AS|IN|FOLLOWING|USING|CONNECTIONS|INSERT|RETURNING|FOR|WITH|CREATE|OF|CONNECTION|AND)$"#)),
+    anti_template: Some(RegexMode::new(r#"^(DELETE|ALL|FROM|CURRENT|SELECT|UPDATE|NULL|ELSE|SINK|CONSTRAINT|CROSS|EXISTS|OR|JOIN|SET|FOLLOWING|NULLIF|WITH|CHECK|CREATE|CONNECTIONS|RETURNING|CLUSTERS|LIKE|ROW|SINKS|OF|ROWS|DROP|INNER|VALUES|CLUSTER|LATERAL|WHERE|ALTER|GROUP|IN|INSERT|IS|CONNECTION|UNIQUE|INTO|ANY|FULL|ON|UNION|AND|TO|AS|CAST|INTERSECT|LEFT|NATURAL|USING|DISTINCT|WHEN|ORDER|NOT|FOR|BY|ILIKE)$"#)),
 })
 );
 
@@ -107751,7 +107923,11 @@ Arc::new(Grammar::Ref {
 ,
 Arc::new(Grammar::Bracketed {
     elements: vec![
-Arc::new(Grammar::Anything)
+Arc::new(Grammar::Anything {
+    terminators: vec![
+    ],
+    reset_terminators: false,
+})
 ,
     ],
     bracket_pairs: (

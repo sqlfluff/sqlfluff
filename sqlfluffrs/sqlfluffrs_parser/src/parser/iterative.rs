@@ -152,7 +152,24 @@ impl Parser<'_> {
 
             Grammar::Missing => self.handle_missing_initial(),
 
-            Grammar::Anything => self.handle_anything_initial(frame, &terminators),
+            Grammar::Anything {
+                terminators: anything_terminators,
+                reset_terminators,
+            } => {
+                // Combine terminators based on reset_terminators flag
+                let all_terminators = if *reset_terminators {
+                    // If reset_terminators is true, only use the grammar's own terminators
+                    anything_terminators.clone()
+                } else {
+                    // Otherwise, combine grammar terminators with parent terminators
+                    anything_terminators
+                        .iter()
+                        .cloned()
+                        .chain(terminators.iter().cloned())
+                        .collect()
+                };
+                self.handle_anything_initial(frame, &all_terminators)
+            }
 
             // Complex grammars - need special handling
             Grammar::Sequence { .. } => {
@@ -804,7 +821,7 @@ impl Parser<'_> {
             Grammar::NonCodeMatcher => "noncode".to_string(),
             Grammar::Meta(name) => format!("meta[{}]", name),
             Grammar::Nothing() => "nothing".to_string(),
-            Grammar::Anything => "anything".to_string(),
+            Grammar::Anything { .. } => "anything".to_string(),
             Grammar::Empty => "empty".to_string(),
             Grammar::Missing => "missing".to_string(),
         }

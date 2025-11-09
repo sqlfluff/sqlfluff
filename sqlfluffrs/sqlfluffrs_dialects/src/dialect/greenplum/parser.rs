@@ -6978,7 +6978,11 @@ Arc::new(Grammar::Ref {
         }),
 })
 ,
-Arc::new(Grammar::Anything)
+Arc::new(Grammar::Anything {
+    terminators: vec![
+    ],
+    reset_terminators: false,
+})
 ,
 Arc::new(Grammar::Ref {
     name: "StarSegment",
@@ -11087,7 +11091,11 @@ Arc::new(Grammar::Bracketed {
     elements: vec![
 Arc::new(Grammar::Sequence {
     elements: vec![
-Arc::new(Grammar::Anything)
+Arc::new(Grammar::Anything {
+    terminators: vec![
+    ],
+    reset_terminators: false,
+})
 ,
     ],
     optional: true,
@@ -40417,7 +40425,11 @@ Arc::new(Grammar::Bracketed {
     elements: vec![
 Arc::new(Grammar::Sequence {
     elements: vec![
-Arc::new(Grammar::Anything)
+Arc::new(Grammar::Anything {
+    terminators: vec![
+    ],
+    reset_terminators: false,
+})
 ,
     ],
     optional: true,
@@ -49461,7 +49473,11 @@ Arc::new(Grammar::Ref {
 ,
 Arc::new(Grammar::Bracketed {
     elements: vec![
-Arc::new(Grammar::Anything)
+Arc::new(Grammar::Anything {
+    terminators: vec![
+    ],
+    reset_terminators: false,
+})
 ,
     ],
     bracket_pairs: (
@@ -61218,7 +61234,11 @@ Arc::new(Grammar::Ref {
 ,
 Arc::new(Grammar::Bracketed {
     elements: vec![
-Arc::new(Grammar::Anything)
+Arc::new(Grammar::Anything {
+    terminators: vec![
+    ],
+    reset_terminators: false,
+})
 ,
     ],
     bracket_pairs: (
@@ -61296,7 +61316,11 @@ Arc::new(Grammar::StringParser {
 ,
 Arc::new(Grammar::Bracketed {
     elements: vec![
-Arc::new(Grammar::Anything)
+Arc::new(Grammar::Anything {
+    terminators: vec![
+    ],
+    reset_terminators: false,
+})
 ,
     ],
     bracket_pairs: (
@@ -63289,7 +63313,11 @@ Arc::new(Grammar::Bracketed {
     elements: vec![
 Arc::new(Grammar::Delimited {
     elements: vec![
-Arc::new(Grammar::Anything)
+Arc::new(Grammar::Anything {
+    terminators: vec![
+    ],
+    reset_terminators: false,
+})
 ,
     ],
     delimiter: Box::new(
@@ -68427,7 +68455,11 @@ Arc::new(Grammar::Ref {
         }),
 })
 ,
-Arc::new(Grammar::Anything)
+Arc::new(Grammar::Anything {
+    terminators: vec![
+    ],
+    reset_terminators: false,
+})
 ,
 Arc::new(Grammar::Ref {
     name: "StarSegment",
@@ -91570,7 +91602,7 @@ Arc::new(Grammar::RegexParser {
     token_type: "naked_identifier",
     raw_class: "IdentifierSegment",
     optional: false,
-    anti_template: Some(RegexMode::new(r#"^(CURRENT_DATE|IS|DEFAULT|TRAILING|CONSTRAINT|CASE|ALL|WHEN|OR|SCATTER|HASHES|CURRENT_TIMESTAMP|ANALYZE|JOIN|NEGATOR|BOTH|CURRENT_SCHEMA|LOCALTIMESTAMP|TABLESAMPLE|TO|SYMMETRIC|FULL|NATURAL|ASYMMETRIC|CURRENT_CATALOG|LEADING|SIMILAR|DECODE|INNER|ASC|FREEZE|ELSE|COLLATE|EXCEPT|NULL|LIKE|PLACING|FETCH|CONNECT|UNION|COLUMN|USING|CURRENT_TIME|CURRENT_ROLE|ARRAY|LOG|RETURNING|FOR|CREATE|SESSION_USER|DISTINCT|ILIKE|CHECK|GRANT|SOME|ONLY|CROSS|COMMUTATOR|LATERAL|MERGES|ON|LEFT|RIGHTARG|INTO|WINDOW|VARIADIC|CONCURRENTLY|ISNULL|ORDER|LIMIT|CAST|FOREIGN|NOT|OUTER|GROUP|OFFSET|THEN|VERBOSE|ANY|UNIQUE|INITIALLY|SELECT|DESC|DEFERRABLE|FROM|OVERLAPS|DO|END|INTERSECT|WHERE|FALSE|LOCALTIME|DISTRIBUTED|AS|IN|PRIMARY|REFERENCES|BINARY|RIGHT|HAVING|TRUE|ANALYSE|NOTNULL|WITH|AUTHORIZATION|AND)$"#)),
+    anti_template: Some(RegexMode::new(r#"^(CURRENT_CATALOG|ALL|SELECT|FROM|DEFERRABLE|NULL|ELSE|ISNULL|CONSTRAINT|PLACING|TABLESAMPLE|DESC|OR|JOIN|WITH|CHECK|LEADING|RETURNING|TRUE|DECODE|END|PRIMARY|INNER|SESSION_USER|EXCEPT|LATERAL|WHERE|ANALYZE|VARIADIC|LOG|UNIQUE|FALSE|BINARY|REFERENCES|INTO|ANY|FULL|AUTHORIZATION|UNION|OVERLAPS|TO|OFFSET|AS|INTERSECT|HAVING|MERGES|SYMMETRIC|CURRENT_TIMESTAMP|FOREIGN|SIMILAR|ORDER|NOT|NOTNULL|FREEZE|FOR|ILIKE|INITIALLY|BOTH|CURRENT_TIME|CONNECT|CURRENT_DATE|CROSS|CASE|CURRENT_SCHEMA|CREATE|LOCALTIMESTAMP|SCATTER|COLLATE|CONCURRENTLY|LIMIT|LIKE|OUTER|VERBOSE|RIGHT|FETCH|TRAILING|RIGHTARG|THEN|DO|GROUP|IN|ASC|COMMUTATOR|HASHES|DISTRIBUTED|ANALYSE|GRANT|LOCALTIME|COLUMN|CURRENT_ROLE|ON|DEFAULT|AND|CAST|ONLY|LEFT|NATURAL|USING|WINDOW|DISTINCT|ARRAY|ASYMMETRIC|WHEN|NEGATOR|SOME|IS)$"#)),
 })
 );
 
@@ -105845,7 +105877,11 @@ Arc::new(Grammar::Ref {
 ,
 Arc::new(Grammar::Bracketed {
     elements: vec![
-Arc::new(Grammar::Anything)
+Arc::new(Grammar::Anything {
+    terminators: vec![
+    ],
+    reset_terminators: false,
+})
 ,
     ],
     bracket_pairs: (

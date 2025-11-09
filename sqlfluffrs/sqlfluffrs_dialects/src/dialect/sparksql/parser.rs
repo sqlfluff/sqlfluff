@@ -16251,7 +16251,11 @@ Arc::new(Grammar::Ref {
 ,
 Arc::new(Grammar::Bracketed {
     elements: vec![
-Arc::new(Grammar::Anything)
+Arc::new(Grammar::Anything {
+    terminators: vec![
+    ],
+    reset_terminators: false,
+})
 ,
     ],
     bracket_pairs: (
@@ -16360,7 +16364,11 @@ Arc::new(Grammar::Ref {
 ,
 Arc::new(Grammar::Bracketed {
     elements: vec![
-Arc::new(Grammar::Anything)
+Arc::new(Grammar::Anything {
+    terminators: vec![
+    ],
+    reset_terminators: false,
+})
 ,
     ],
     bracket_pairs: (
@@ -42445,7 +42453,7 @@ Arc::new(Grammar::RegexParser {
     token_type: "naked_identifier",
     raw_class: "IdentifierSegment",
     optional: false,
-    anti_template: Some(RegexMode::new(r#"^(CURRENT_DATE|IS|ROWS|TRAILING|CONSTRAINT|CASE|ALL|WHEN|OR|CURRENT_TIMESTAMP|IGNORE|JOIN|BOTH|TO|FULL|NATURAL|LEADING|INNER|ELSE|FILTER|SET|COLLATE|NULL|EXCEPT|PARTITION|FETCH|INTERVAL|USING|CURRENT_USER|UNION|COLUMN|CURRENT_TIME|USER|FOR|CREATE|SESSION_USER|CHECK|GRANT|ONLY|SOME|CROSS|ON|LEFT|INTO|ORDER|NOT|CAST|FOREIGN|OUTER|ESCAPE|GROUP|THEN|ANY|UNIQUE|SELECT|FROM|OVERLAPS|UNKNOWN|RESPECT|END|INTERSECT|WHERE|FALSE|AS|IN|PRIMARY|REFERENCES|RIGHT|TABLE|HAVING|WITH|AUTHORIZATION|AND)$"#)),
+    anti_template: Some(RegexMode::new(r#"^(SELECT|ALL|FROM|NULL|ELSE|CONSTRAINT|OR|JOIN|LEADING|CHECK|WITH|IGNORE|END|PRIMARY|UNKNOWN|INNER|SESSION_USER|EXCEPT|WHERE|TABLE|UNIQUE|FALSE|USER|REFERENCES|INTO|ANY|UNION|FULL|AUTHORIZATION|OVERLAPS|TO|AS|INTERSECT|HAVING|CURRENT_TIMESTAMP|FOREIGN|ORDER|NOT|FOR|BOTH|CURRENT_TIME|CURRENT_DATE|CROSS|CASE|SET|PARTITION|CREATE|COLLATE|OUTER|RIGHT|ROWS|FETCH|TRAILING|THEN|INTERVAL|GROUP|IN|GRANT|ESCAPE|COLUMN|ON|AND|CAST|LEFT|ONLY|FILTER|NATURAL|USING|CURRENT_USER|WHEN|SOME|RESPECT|IS)$"#)),
 })
 );
 
@@ -54291,7 +54299,11 @@ Arc::new(Grammar::Ref {
 ,
 Arc::new(Grammar::Bracketed {
     elements: vec![
-Arc::new(Grammar::Anything)
+Arc::new(Grammar::Anything {
+    terminators: vec![
+    ],
+    reset_terminators: false,
+})
 ,
     ],
     bracket_pairs: (

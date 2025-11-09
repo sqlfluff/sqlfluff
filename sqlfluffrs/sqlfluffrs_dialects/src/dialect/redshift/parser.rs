@@ -7090,7 +7090,11 @@ Arc::new(Grammar::Ref {
         }),
 })
 ,
-Arc::new(Grammar::Anything)
+Arc::new(Grammar::Anything {
+    terminators: vec![
+    ],
+    reset_terminators: false,
+})
 ,
 Arc::new(Grammar::Ref {
     name: "StarSegment",
@@ -11207,7 +11211,11 @@ Arc::new(Grammar::Bracketed {
     elements: vec![
 Arc::new(Grammar::Sequence {
     elements: vec![
-Arc::new(Grammar::Anything)
+Arc::new(Grammar::Anything {
+    terminators: vec![
+    ],
+    reset_terminators: false,
+})
 ,
     ],
     optional: true,
@@ -41046,7 +41054,11 @@ Arc::new(Grammar::Bracketed {
     elements: vec![
 Arc::new(Grammar::Sequence {
     elements: vec![
-Arc::new(Grammar::Anything)
+Arc::new(Grammar::Anything {
+    terminators: vec![
+    ],
+    reset_terminators: false,
+})
 ,
     ],
     optional: true,
@@ -44825,7 +44837,11 @@ Arc::new(Grammar::Ref {
 ,
 Arc::new(Grammar::Bracketed {
     elements: vec![
-Arc::new(Grammar::Anything)
+Arc::new(Grammar::Anything {
+    terminators: vec![
+    ],
+    reset_terminators: false,
+})
 ,
     ],
     bracket_pairs: (
@@ -53387,7 +53403,11 @@ Arc::new(Grammar::Bracketed {
     elements: vec![
 Arc::new(Grammar::Delimited {
     elements: vec![
-Arc::new(Grammar::Anything)
+Arc::new(Grammar::Anything {
+    terminators: vec![
+    ],
+    reset_terminators: false,
+})
 ,
     ],
     delimiter: Box::new(
@@ -60311,7 +60331,11 @@ Arc::new(Grammar::Bracketed {
     elements: vec![
 Arc::new(Grammar::Delimited {
     elements: vec![
-Arc::new(Grammar::Anything)
+Arc::new(Grammar::Anything {
+    terminators: vec![
+    ],
+    reset_terminators: false,
+})
 ,
     ],
     delimiter: Box::new(
@@ -65433,7 +65457,11 @@ Arc::new(Grammar::Ref {
         }),
 })
 ,
-Arc::new(Grammar::Anything)
+Arc::new(Grammar::Anything {
+    terminators: vec![
+    ],
+    reset_terminators: false,
+})
 ,
 Arc::new(Grammar::Ref {
     name: "StarSegment",
@@ -90902,7 +90930,7 @@ Arc::new(Grammar::RegexParser {
     token_type: "naked_identifier",
     raw_class: "IdentifierSegment",
     optional: false,
-    anti_template: Some(RegexMode::new(r#"^(CURRENT_DATE|TEXT32K|TRAILING|CASE|REJECTLOG|DELIMITERS|OR|MOSTLY8|TAG|FILLRECORD|TOP|CURRENT_TIMESTAMP|IGNORE|ANALYZE|CREDENTIALS|JOIN|SYSDATE|TIMESTAMP|TDES|EMPTYASNULL|GLOBALDICT64K|NATURAL|LUNS|RAW|LEADING|BLANKSASNULL|ALLOWOVERWRITE|ELSE|OFF|EXCEPT|APPEND|NULL|DISABLE|PARTITION|PLACING|UNION|IDENTITY|CURRENT_TIME|RESTORE|CHECK|GRANT|SOME|CROSS|SYSTEM|LEFT|AES256|ORDER|CURRENT_USER_ID|LIMIT|UNNEST|OUTER|OFFSET|THEN|TEXT255|INITIALLY|SELECT|DEFERRABLE|OVERLAPS|TRUNCATECOLUMNS|FALSE|LOCALTIME|AS|IN|REFERENCES|RUNLENGTH|HAVING|TRUE|WITHOUT|PERMISSIONS|NOTNULL|WITH|AND|NULLS|IS|DEFAULT|RECOVER|READRATIO|AZ64|NEW|CONSTRAINT|ALL|WHEN|BOTH|DELTA32K|MOSTLY16|LOCALTIMESTAMP|TO|OPEN|ENCRYPT|FULL|BYTEDICT|GLOBALDICT256|SIMILAR|IGNOREBLANKLINES|INNER|MOSTLY32|ASC|FREEZE|RESORT|COLLATE|LIKE|AES128|COLUMN|CURRENT_USER|USING|ARRAY|BETWEEN|PARALLEL|USER|FOR|CREATE|IGNOREHEADER|SESSION_USER|COMPROWS|ENABLE|WITHIN|DISTINCT|ILIKE|ONLY|ON|INTO|UNPIVOT|ISNULL|OLD|CAST|FOREIGN|NOT|GROUP|DATETIME|SNAPSHOT|EXPLICIT_IDS|VERBOSE|ANY|UNIQUE|DESC|COMPUPDATE|FROM|LUN|DO|END|RESPECT|PIVOT|INTERSECT|ENCRYPTION|MINUS|WHERE|DELTA|PRIMARY|TABLE|BINARY|RIGHT|PERCENT|ANALYSE|DEFRAG|OID|AUTHORIZATION|LZO)$"#)),
+    anti_template: Some(RegexMode::new(r#"^(ALL|SELECT|REJECTLOG|ISNULL|PIVOT|DESC|LUNS|WITH|CHECK|IGNORE|UNPIVOT|DISABLE|END|PRIMARY|MOSTLY8|READRATIO|SESSION_USER|EXCEPT|WHERE|MOSTLY32|USER|BINARY|REFERENCES|INTO|DATETIME|ANY|AUTHORIZATION|FULL|TIMESTAMP|TO|OFFSET|WITHIN|AS|TEXT255|INTERSECT|RESTORE|HAVING|CURRENT_TIMESTAMP|FOREIGN|NOT|ILIKE|INITIALLY|LUN|BOTH|CURRENT_DATE|TEXT32K|LOCALTIMESTAMP|COMPROWS|LIMIT|LIKE|IGNOREHEADER|OUTER|TOP|RIGHT|VERBOSE|WITHOUT|ENCRYPT|UNNEST|ENABLE|DO|RUNLENGTH|ANALYSE|DEFRAG|DEFAULT|AND|FILLRECORD|MINUS|OLD|CAST|ONLY|NATURAL|USING|LZO|SYSDATE|DISTINCT|OID|PARALLEL|CURRENT_USER|WHEN|IS|BYTEDICT|DELIMITERS|FROM|DEFERRABLE|NULL|ELSE|EMPTYASNULL|CREDENTIALS|CONSTRAINT|GLOBALDICT64K|PLACING|RESORT|OR|JOIN|LEADING|TRUE|NULLS|INNER|IGNOREBLANKLINES|AES256|ANALYZE|TABLE|AZ64|FALSE|UNIQUE|UNION|OVERLAPS|SNAPSHOT|SIMILAR|IDENTITY|APPEND|BLANKSASNULL|ORDER|FREEZE|FOR|DELTA32K|NOTNULL|PERMISSIONS|TDES|TRUNCATECOLUMNS|CURRENT_TIME|CURRENT_USER_ID|SYSTEM|ENCRYPTION|EXPLICIT_IDS|CROSS|CASE|RECOVER|CREATE|PARTITION|COLLATE|NEW|MOSTLY16|TRAILING|RAW|OPEN|ALLOWOVERWRITE|THEN|GROUP|IN|ASC|TAG|GRANT|LOCALTIME|AES128|COLUMN|ON|COMPUPDATE|BETWEEN|DELTA|LEFT|PERCENT|ARRAY|OFF|SOME|GLOBALDICT256|RESPECT)$"#)),
 })
 );
 

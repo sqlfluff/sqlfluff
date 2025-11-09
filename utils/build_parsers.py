@@ -427,7 +427,15 @@ def _to_rust_parser_grammar(match_grammar, parse_context):
         print("})")
 
     elif isinstance(match_grammar, Anything):
-        print("Arc::new(Grammar::Anything)")
+        print("Arc::new(Grammar::Anything {")
+        print("    terminators: vec![")
+        for term in match_grammar.terminators:
+            print("        ", end="")
+            _to_rust_parser_grammar(term, parse_context)
+            print(",")
+        print("    ],")
+        print(f"    reset_terminators: {str(match_grammar.reset_terminators).lower()},")
+        print("})")
 
     elif match_grammar.__class__ is Conditional:
         print('Arc::new(Grammar::Meta("conditional"))')

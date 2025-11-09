@@ -356,7 +356,7 @@ fn grammar_discriminant(grammar: Arc<Grammar>) -> usize {
         Grammar::RegexParser { .. } => 11,
         Grammar::Meta(_) => 12,
         Grammar::Nothing() => 13,
-        Grammar::Anything => 14,
+        Grammar::Anything { .. } => 14,
         Grammar::Empty => 15,
         Grammar::Missing => 16,
         Grammar::Token { .. } => 17,
@@ -682,8 +682,14 @@ mod tests {
 
         let g1 = Arc::new(Grammar::Nothing());
         let g2 = Arc::new(Grammar::Nothing());
-        let g3 = Arc::new(Grammar::Anything);
-        let g4 = Arc::new(Grammar::Anything);
+        let g3 = Arc::new(Grammar::Anything {
+            terminators: vec![],
+            reset_terminators: false,
+        });
+        let g4 = Arc::new(Grammar::Anything {
+            terminators: vec![],
+            reset_terminators: false,
+        });
         let g5 = Arc::new(Grammar::Empty);
         let g6 = Arc::new(Grammar::Empty);
         let g7 = Arc::new(Grammar::Missing);

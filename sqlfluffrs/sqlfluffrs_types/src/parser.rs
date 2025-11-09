@@ -234,7 +234,10 @@ pub enum Grammar {
     Meta(&'static str),
     NonCodeMatcher,
     Nothing(),
-    Anything,
+    Anything {
+        terminators: Vec<Arc<Grammar>>,
+        reset_terminators: bool,
+    },
     Empty,
     Missing,
     Token {
@@ -470,7 +473,13 @@ impl Hash for Grammar {
             }
             Grammar::Meta(s) => s.hash(state),
             Grammar::Nothing() => {}
-            Grammar::Anything => {}
+            Grammar::Anything {
+                terminators,
+                reset_terminators,
+            } => {
+                terminators.hash(state);
+                reset_terminators.hash(state);
+            }
             Grammar::Empty => {}
             Grammar::Missing => {}
             Grammar::Token { token_type } => token_type.hash(state),
@@ -676,7 +685,16 @@ impl PartialEq for Grammar {
             }
             (Grammar::Meta(s1), Grammar::Meta(s2)) => s1 == s2,
             (Grammar::Nothing(), Grammar::Nothing()) => true,
-            (Grammar::Anything, Grammar::Anything) => true,
+            (
+                Grammar::Anything {
+                    terminators: t1,
+                    reset_terminators: rt1,
+                },
+                Grammar::Anything {
+                    terminators: t2,
+                    reset_terminators: rt2,
+                },
+            ) => t1 == t2 && rt1 == rt2,
             (Grammar::Empty, Grammar::Empty) => true,
             (Grammar::Missing, Grammar::Missing) => true,
             (Grammar::Token { token_type: tt1 }, Grammar::Token { token_type: tt2 }) => tt1 == tt2,
@@ -743,7 +761,7 @@ impl Display for Grammar {
             Grammar::Meta(s) => write!(f, "Meta({})", s),
             Grammar::NonCodeMatcher => write!(f, "NonCodeMatcher"),
             Grammar::Nothing() => write!(f, "Nothing"),
-            Grammar::Anything => write!(f, "Anything"),
+            Grammar::Anything { .. } => write!(f, "Anything"),
             Grammar::Empty => write!(f, "Empty"),
             Grammar::Missing => write!(f, "Missing"),
             Grammar::Token { token_type } => write!(f, "Token({})", token_type),

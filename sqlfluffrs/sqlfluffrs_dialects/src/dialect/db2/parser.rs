@@ -11021,7 +11021,11 @@ Arc::new(Grammar::Ref {
 ,
 Arc::new(Grammar::Bracketed {
     elements: vec![
-Arc::new(Grammar::Anything)
+Arc::new(Grammar::Anything {
+    terminators: vec![
+    ],
+    reset_terminators: false,
+})
 ,
     ],
     bracket_pairs: (
@@ -34527,7 +34531,7 @@ Arc::new(Grammar::RegexParser {
     token_type: "naked_identifier",
     raw_class: "IdentifierSegment",
     optional: false,
-    anti_template: Some(RegexMode::new(r#"^(ROWS|CROSS|RESPECT|SET|ON|LEFT|CASE|NULL|IGNORE|PARTITION|ORDER|JOIN|INTERVAL|USING|NOT|UNION|OUTER|RIGHT|FULL|INNER|SELECT)$"#)),
+    anti_template: Some(RegexMode::new(r#"^(SELECT|INTERVAL|NULL|INNER|ON|UNION|CROSS|CASE|FULL|JOIN|SET|LEFT|PARTITION|IGNORE|USING|OUTER|RIGHT|ROWS|ORDER|NOT|RESPECT)$"#)),
 })
 );
 
@@ -42458,7 +42462,11 @@ Arc::new(Grammar::Ref {
 ,
 Arc::new(Grammar::Bracketed {
     elements: vec![
-Arc::new(Grammar::Anything)
+Arc::new(Grammar::Anything {
+    terminators: vec![
+    ],
+    reset_terminators: false,
+})
 ,
     ],
     bracket_pairs: (
