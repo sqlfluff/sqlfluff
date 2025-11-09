@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 36db034aa3ee0a4f100c9ef2ba3418380bac2ab968464264443f561de569a458
+_hash: ca0b5057e6b467ce4e49f533ac5c050b72ecd9a8094d0c708d4c804f286bb22b
 file:
   batch:
     statement:
@@ -26,7 +26,7 @@ file:
                 - keyword: AS
                 - data_type:
                     keyword: DATE
-                - statement_terminator: ;
+            - statement_terminator: ;
             - statement:
                 declare_segment:
                   keyword: DECLARE
@@ -43,7 +43,7 @@ file:
                         bracketed:
                           start_bracket: (
                           end_bracket: )
-                  statement_terminator: ;
+            - statement_terminator: ;
             - statement:
                 declare_segment:
                 - keyword: DECLARE
@@ -98,7 +98,7 @@ file:
                     raw_comparison_operator: '='
                   expression:
                     bare_function: SYSTEM_USER
-                  statement_terminator: ;
+            - statement_terminator: ;
             - statement:
                 declare_segment:
                   keyword: DECLARE
@@ -109,7 +109,7 @@ file:
                     raw_comparison_operator: '='
                   expression:
                     bare_function: CURRENT_TIMESTAMP
-                  statement_terminator: ;
+            - statement_terminator: ;
             - statement:
                 set_local_variable_segment:
                   keyword: SET
@@ -158,5 +158,5 @@ file:
                     - keyword: TABLE
                     - table_reference:
                         hash_identifier: '#UP'
-                    - statement_terminator: ;
+                  statement_terminator: ;
             - keyword: END
