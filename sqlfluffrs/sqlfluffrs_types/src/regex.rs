@@ -42,13 +42,14 @@ impl RegexMode {
     }
 
     pub fn new_with_flags(pattern: &str, case_insensitive: bool) -> Self {
+        let pattern = format!("^(?:{})$", pattern);
         // Try to compile with the standard regex first
-        if let Ok(re) = RegexBuilder::new(pattern)
+        if let Ok(re) = RegexBuilder::new(&pattern)
             .case_insensitive(case_insensitive)
             .build()
         {
             RegexMode::Regex(re, pattern.to_string())
-        } else if let Ok(re) = FancyRegexBuilder::new(pattern)
+        } else if let Ok(re) = FancyRegexBuilder::new(&pattern)
             .case_insensitive(case_insensitive)
             .build()
         {
