@@ -51,7 +51,12 @@ pub enum Node {
     DelimitedList { children: Vec<Node> },
 
     /// A bracketed section (content between brackets)
-    Bracketed { children: Vec<Node> },
+    /// bracket_persists: if true, output as "bracketed:" wrapper in YAML
+    ///                   if false, output children inline (for square/curly brackets)
+    Bracketed {
+        children: Vec<Node>,
+        bracket_persists: bool,
+    },
 
     /// A reference to another segment (wraps its AST)
     Ref {
@@ -174,13 +179,6 @@ impl Node {
                         NodeTupleValue::Tuple(t, v) if t == "sequence" => {
                             NodeTupleValue::Tuple(ref_type.clone(), v.to_vec())
                         }
-                        // Also flatten "bracketed" nodes when ref_type is not "bracketed"
-                        // This handles cases like ArrayLiteralSegment where bracket_persists=False
-                        NodeTupleValue::Tuple(t, v)
-                            if t == "bracketed" && ref_type != "bracketed" =>
-                        {
-                            NodeTupleValue::Tuple(ref_type.clone(), v.to_vec())
-                        }
                         _ => NodeTupleValue::Tuple(ref_type.clone(), vec![child_node]),
                     }
                 } else {
@@ -198,7 +196,10 @@ impl Node {
                 }
                 NodeTupleValue::Tuple("sequence".to_string(), tupled)
             }
-            Node::Bracketed { children } => {
+            Node::Bracketed {
+                children,
+                bracket_persists,
+            } => {
                 // Use the same flatten_sequence logic as in Ref
                 fn flatten_sequence(node: NodeTupleValue) -> Vec<NodeTupleValue> {
                     match node {
@@ -230,7 +231,16 @@ impl Node {
                     let val = flatten_sequence(child.to_tuple(code_only, show_raw, include_meta));
                     tupled.extend(val);
                 }
-                NodeTupleValue::Tuple("bracketed".to_string(), tupled)
+
+                // Python parity: If bracket_persists is false (square/curly brackets),
+                // output as "sequence" instead of "bracketed" so children are inlined
+                let tuple_type = if *bracket_persists {
+                    "bracketed".to_string()
+                } else {
+                    log::debug!("Bracketed with bracket_persists=false, returning as sequence");
+                    "sequence".to_string()
+                };
+                NodeTupleValue::Tuple(tuple_type, tupled)
             }
             Node::Unparsable {
                 expected_message: _,
@@ -337,7 +347,9 @@ impl Node {
                         .iter()
                         .all(|n| matches!(n, Node::Empty | Node::Meta { .. }))
             }
-            Node::Bracketed { children: items } => {
+            Node::Bracketed {
+                children: items, ..
+            } => {
                 items.is_empty()
                     || items
                         .iter()
@@ -386,7 +398,7 @@ impl Node {
             // Container nodes - find last token in children
             Node::Sequence { children }
             | Node::DelimitedList { children }
-            | Node::Bracketed { children }
+            | Node::Bracketed { children, .. }
             | Node::Unparsable { children, .. } => children
                 .iter()
                 .rev()
@@ -559,7 +571,7 @@ impl Node {
 
             Node::Sequence { children }
             | Node::DelimitedList { children }
-            | Node::Bracketed { children } => {
+            | Node::Bracketed { children, .. } => {
                 let mut current_idx = token_idx;
                 let mut eof_indices = Vec::new();
 
@@ -613,7 +625,7 @@ impl Node {
 
             Node::Sequence { children }
             | Node::DelimitedList { children }
-            | Node::Bracketed { children }
+            | Node::Bracketed { children, .. }
             | Node::Unparsable {
                 expected_message: _,
                 children,
@@ -646,7 +658,7 @@ impl Node {
             // Container nodes: check if they contain any code
             Node::Sequence { children }
             | Node::DelimitedList { children }
-            | Node::Bracketed { children } => children.iter().any(|child| child.is_code()),
+            | Node::Bracketed { children, .. } => children.iter().any(|child| child.is_code()),
 
             // Ref nodes: delegate to child
             Node::Ref { child, .. } => child.is_code(),
@@ -714,7 +726,7 @@ impl Node {
             Node::Ref { segment_type, .. } => segment_type.clone(),
             Node::Sequence { children: _ } => Some("sequence".to_string()),
             Node::DelimitedList { children: _ } => Some("delimited_list".to_string()),
-            Node::Bracketed { children: _ } => Some("bracketed".to_string()),
+            Node::Bracketed { .. } => Some("bracketed".to_string()),
             Node::Meta {
                 token_type: name, ..
             } => Some(name.to_string()),
@@ -803,7 +815,10 @@ impl Node {
                     .collect();
                 Node::DelimitedList { children: deduped }
             }
-            Node::Bracketed { children } => {
+            Node::Bracketed {
+                children,
+                bracket_persists,
+            } => {
                 let deduped = children
                     .into_iter()
                     .filter_map(|child| match &child {
@@ -818,7 +833,10 @@ impl Node {
                         _ => Some(child.deduplicate_impl(seen)),
                     })
                     .collect();
-                Node::Bracketed { children: deduped }
+                Node::Bracketed {
+                    children: deduped,
+                    bracket_persists,
+                }
             }
             Node::Ref {
                 name,

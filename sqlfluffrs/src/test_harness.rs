@@ -297,7 +297,7 @@ fn node_to_yaml_value(
             Ok(Value::Mapping(map))
         }
 
-        Node::Bracketed { children } => {
+        Node::Bracketed { children, .. } => {
             // Bracketed nodes are already properly structured, just convert to YAML
             let mut bracketed_children = Vec::new();
 

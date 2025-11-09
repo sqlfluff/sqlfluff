@@ -1262,11 +1262,72 @@ impl<'a> Parser<'_> {
             frame.accumulated.len()
         );
 
-        // Extract the bracketed state from the frame context
-        let is_complete = if let FrameContext::Bracketed { state, .. } = &frame.context {
-            matches!(state, BracketedState::Complete)
+        // Extract the bracketed state and grammar from the frame context
+        let (is_complete, bracket_persists) = if let FrameContext::Bracketed {
+            state,
+            grammar,
+            ..
+        } = &frame.context
+        {
+            let complete = matches!(state, BracketedState::Complete);
+
+            // Determine bracket_persists from the grammar's bracket_pairs
+            // Python parity: round brackets persist=True, square/curly persist=False
+            let persists = if let Grammar::Bracketed { bracket_pairs, .. } = grammar.as_ref() {
+                // bracket_pairs is (Box<Arc<Grammar>>, Box<Arc<Grammar>>)
+                // So bracket_pairs.0 is Box<Arc<Grammar>>
+                let start_bracket_grammar: &Grammar = &**bracket_pairs.0;
+
+                // Check the bracket type - could be Ref or StringParser
+                match start_bracket_grammar {
+                    Grammar::Ref { name, .. } => {
+                        let is_round = *name == "StartBracketSegment";
+                        log::debug!(
+                            "Bracketed: start bracket Ref name={}, bracket_persists={}",
+                            name,
+                            is_round
+                        );
+                        // Round brackets: "StartBracketSegment" -> persist=True
+                        // Square brackets: "StartSquareBracketSegment" -> persist=False
+                        // Curly brackets: "StartCurlyBracketSegment" -> persist=False
+                        is_round
+                    }
+                    Grammar::StringParser { template, .. } => {
+                        let is_round = *template == "(";
+                        log::debug!(
+                            "Bracketed: start bracket StringParser template={}, bracket_persists={}",
+                            template,
+                            is_round
+                        );
+                        // Round: "(" -> persist=True
+                        // Square: "[" -> persist=False
+                        // Curly: "{" -> persist=False
+                        is_round
+                    }
+                    Grammar::MultiStringParser { templates, .. } => {
+                        let bracket_char = templates.first().copied().unwrap_or("(");
+                        let is_round = bracket_char == "(";
+                        log::debug!(
+                            "Bracketed: start bracket MultiStringParser template={}, bracket_persists={}",
+                            bracket_char,
+                            is_round
+                        );
+                        is_round
+                    }
+                    _ => {
+                        log::debug!("Bracketed: start bracket is neither Ref nor StringParser, defaulting to persist=true");
+                        // Default to true if we can't determine
+                        true
+                    }
+                }
+            } else {
+                log::debug!("Bracketed: grammar is not Bracketed, defaulting to persist=true");
+                true
+            };
+
+            (complete, persists)
         } else {
-            false
+            (false, true)
         };
 
         // The result is determined by the bracketed state:
@@ -1275,11 +1336,13 @@ impl<'a> Parser<'_> {
 
         let result_node = if is_complete {
             log::debug!(
-                "Bracketed combining with COMPLETE state → building Node::Bracketed, frame_id={}",
-                frame.frame_id
+                "Bracketed combining with COMPLETE state → building Node::Bracketed, frame_id={}, bracket_persists={}",
+                frame.frame_id,
+                bracket_persists
             );
             Node::Bracketed {
                 children: frame.accumulated.clone(),
+                bracket_persists,
             }
         } else {
             log::debug!(

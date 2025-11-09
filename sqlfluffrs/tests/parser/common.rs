@@ -105,7 +105,7 @@ pub fn collect_token_positions(node: &Node, positions: &mut HashSet<usize>) {
             expected_message: _,
             children,
         }
-        | Node::Bracketed { children } => {
+        | Node::Bracketed { children, .. } => {
             for child in children {
                 collect_token_positions(child, positions);
             }

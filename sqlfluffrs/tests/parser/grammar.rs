@@ -333,7 +333,7 @@ fn test_no_duplicate_whitespace_tokens() -> Result<(), ParseError> {
                 expected_message: _,
                 children,
             }
-            | Node::Bracketed { children } => {
+            | Node::Bracketed { children, .. } => {
                 for child in children {
                     collect_positions(child, positions);
                 }

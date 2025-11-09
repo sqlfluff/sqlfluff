@@ -44,7 +44,7 @@ fn main() {
                     sqlfluffrs_parser::parser::Node::DelimitedList { children } => {
                         children.iter().map(count_statements).sum()
                     }
-                    sqlfluffrs_parser::parser::Node::Bracketed { children } => {
+                    sqlfluffrs_parser::parser::Node::Bracketed { children, .. } => {
                         children.iter().map(count_statements).sum()
                     }
                     _ => 0,

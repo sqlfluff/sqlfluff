@@ -88,7 +88,7 @@ fn collect_positions(node: &sqlfluffrs_parser::parser::Node, positions: &mut Has
             positions.insert(*pos);
         }
         Node::Sequence { children }
-        | Node::Bracketed { children }
+        | Node::Bracketed { children, .. }
         | Node::DelimitedList { children }
         | Node::Unparsable {
             expected_message: _,

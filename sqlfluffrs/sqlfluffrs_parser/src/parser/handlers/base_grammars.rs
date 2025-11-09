@@ -148,8 +148,12 @@ impl Parser<'_> {
                     }
 
                     // Create a bracketed node
+                    // Python parity: round brackets persist=True, square/curly persist=False
+                    let bracket_persists = tok_raw == "(";
+
                     anything_tokens.push(Node::Bracketed {
                         children: bracket_tokens,
+                        bracket_persists,
                     });
                 } else {
                     // Regular token - preserve the token type as-is

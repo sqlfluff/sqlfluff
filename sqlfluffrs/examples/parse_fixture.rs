@@ -321,7 +321,7 @@ fn print_match_tree(node: &sqlfluffrs_parser::parser::Node, depth: usize) {
                 print_match_tree(child, depth);
             }
         }
-        Node::Bracketed { children } => {
+        Node::Bracketed { children, .. } => {
             let (start, end) = get_node_slice(node);
             println!(
                 "{}{}Match <bracketed>: slice({}, {}, None)",
@@ -381,7 +381,7 @@ fn get_node_slice(node: &sqlfluffrs_parser::parser::Node) -> (usize, usize) {
         Node::Ref { child, .. } => get_node_slice(child),
         Node::Sequence { children }
         | Node::DelimitedList { children }
-        | Node::Bracketed { children }
+        | Node::Bracketed { children, .. }
         | Node::Unparsable {
             expected_message: _,
             children,
@@ -577,7 +577,7 @@ fn process_yaml_11(yaml_str: String) -> String {
 //             }
 //             Ok(Value::Sequence(items))
 //         }
-//         Node::Bracketed { children } => {
+//         Node::Bracketed { children, .. } => {
 //             // Bracketed node - create a mapping with "bracketed" key
 //             let mut items = Vec::new();
 //             for child in children {

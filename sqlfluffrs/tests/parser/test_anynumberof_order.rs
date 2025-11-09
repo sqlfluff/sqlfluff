@@ -51,7 +51,7 @@ fn contains_trim_parameters_grammar(node: &Node) -> bool {
         Node::Ref { name, .. } if name == "TrimParametersGrammar" => true,
         Node::Sequence { children }
         | Node::DelimitedList { children }
-        | Node::Bracketed { children }
+        | Node::Bracketed { children, .. }
         | Node::Unparsable { children, .. } => {
             children.iter().any(contains_trim_parameters_grammar)
         }
