@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: f3266e41e8dacc5d84b566ee81c0e683605919d1859f74ae5088a46d7b13aadd
+_hash: 8b70dcfbd7428cddf7edd66501fd1afd5395cca55d7d07e022be2a274e77da0f
 file:
   batch:
   - statement:
@@ -52,7 +52,7 @@ file:
                   - naked_identifier: productTypes
                   - dot: .
                   - naked_identifier: value
-          statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       select_statement:
         select_clause:
@@ -103,7 +103,7 @@ file:
                 alias_operator:
                   keyword: as
                 naked_identifier: months
-          statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       select_statement:
         select_clause:
@@ -176,7 +176,7 @@ file:
                     - keyword: AS
                     - keyword: JSON
                     - end_bracket: )
-          statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       select_statement:
         select_clause:
@@ -233,7 +233,7 @@ file:
                               end_bracket: )
                         quoted_literal: "'$'"
                         end_bracket: )
-          statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       select_statement:
         select_clause:
@@ -327,7 +327,7 @@ file:
                   alias_operator:
                     keyword: AS
                   naked_identifier: location
-          statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       insert_statement:
       - keyword: INSERT
@@ -410,7 +410,7 @@ file:
                                 integer_literal: '50'
                               end_bracket: )
                       - end_bracket: )
-            statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       select_statement:
         select_clause:
@@ -475,4 +475,4 @@ file:
                   alias_operator:
                     keyword: AS
                   naked_identifier: TheValues
-          statement_terminator: ;
+  - statement_terminator: ;

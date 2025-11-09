@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: db808376d7efd1bf72e7b96c0298bbe8eeb9aa300cd8c28110aa0eb02758ebe2
+_hash: 9350261594642ae2cc7c6567b143664c656ed8d6ae52099a89ad083072be0396
 file:
   batch:
   - statement:
@@ -61,7 +61,7 @@ file:
             comparison_operator:
               raw_comparison_operator: '='
             integer_literal: '1'
-        statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       delete_statement:
       - keyword: DELETE
@@ -89,7 +89,7 @@ file:
       - keyword: FROM
       - table_reference:
           naked_identifier: Table1
-      - statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       delete_statement:
       - keyword: DELETE
@@ -104,7 +104,7 @@ file:
             comparison_operator:
               raw_comparison_operator: '>'
             numeric_literal: '1000.00'
-      - statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       delete_statement:
       - keyword: DELETE
@@ -121,7 +121,7 @@ file:
                 raw_comparison_operator: '='
               quoted_literal: "N'label1'"
             end_bracket: )
-      - statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       delete_statement:
       - keyword: DELETE
@@ -205,7 +205,7 @@ file:
             - keyword: HASH
             - keyword: JOIN
           - end_bracket: )
-      - statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       delete_statement:
         keyword: DELETE
@@ -304,4 +304,4 @@ file:
             comparison_operator:
               raw_comparison_operator: '='
             integer_literal: '1'
-        statement_terminator: ;
+  - statement_terminator: ;

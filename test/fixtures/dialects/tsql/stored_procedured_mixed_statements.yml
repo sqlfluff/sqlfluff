@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 11f14b55556eb2d5226529ce7d671f6f775785510e73a10d0921426144f92a71
+_hash: 0a08fa8ee3636a3364e6cbd7a691f4ea1f1625e13e8d50e8c040979372648bfc
 file:
   batch:
     statement:
@@ -40,7 +40,7 @@ file:
               - quoted_identifier: '[Reporting]'
               - dot: .
               - quoted_identifier: '[PowerPlan_BASE]'
-            - statement_terminator: ;
+        - statement_terminator: ;
         - statement:
             declare_segment:
               keyword: DECLARE
@@ -53,7 +53,7 @@ file:
                     expression:
                       integer_literal: '3'
                     end_bracket: )
-              statement_terminator: ;
+        - statement_terminator: ;
         - statement:
             set_local_variable_segment:
               keyword: SET

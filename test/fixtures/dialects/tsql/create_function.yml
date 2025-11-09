@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 44d0b7ba576287bb1f5308bd00f7df7ee3cca8068698ac88f50752aac1828bf1
+_hash: c863677d1351916a63dadc7977a312e82b7aeaf4d1b6e536f9eb6318d723a4e9
 file:
 - batch:
     statement:
@@ -41,7 +41,7 @@ file:
                   parameter: '@ISOweek'
                   data_type:
                     keyword: int
-                  statement_terminator: ;
+            - statement_terminator: ;
             - statement:
                 set_local_variable_segment:
                   keyword: SET
@@ -281,7 +281,7 @@ file:
                       expression:
                         parameter: '@ISOweek'
                       end_bracket: )
-                  statement_terminator: ;
+            - statement_terminator: ;
             - keyword: END
           statement_terminator: ;
     go_statement:
@@ -323,11 +323,11 @@ file:
                       keyword: SELECT
                       select_clause_element:
                         integer_literal: '1'
-                    statement_terminator: ;
+            - statement_terminator: ;
             - statement:
                 return_segment:
                   keyword: RETURN
-                  statement_terminator: ;
+            - statement_terminator: ;
             - keyword: END
           statement_terminator: ;
     go_statement:
