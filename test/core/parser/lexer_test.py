@@ -9,7 +9,12 @@ from sqlfluff.core import FluffConfig, SQLLexError
 from sqlfluff.core.parser import CodeSegment, Lexer, NewlineSegment, PyLexer
 from sqlfluff.core.parser.lexer import LexMatch, RegexLexer, StringLexer
 from sqlfluff.core.parser.segments.meta import TemplateSegment
-from sqlfluff.core.templaters import JinjaTemplater, RawFileSlice, TemplatedFile
+from sqlfluff.core.templaters import (
+    JinjaTemplater,
+    PlaceholderTemplater,
+    RawFileSlice,
+    TemplatedFile,
+)
 from sqlfluff.core.templaters.base import TemplatedFileSlice
 
 try:
@@ -305,9 +310,9 @@ def test__parser__lexer_slicing_calls(case: _LexerSlicingCase):
         in_str=case.in_str, fname="test.sql", config=config, formatter=None
     )
 
-    assert (
-        not templater_violations
-    ), f"Found templater violations: {templater_violations}"
+    assert not templater_violations, (
+        f"Found templater violations: {templater_violations}"
+    )
 
     lexer = Lexer(config=config)
     lexing_segments, lexing_violations = lexer.lex(templated_file)
@@ -568,3 +573,143 @@ def test__parser__pyrs_lexer_integration():
     # Should have SELECT, whitespace, 1, and EOF
     assert any(seg.raw == "SELECT" for seg in segments)
     assert any(seg.raw == "1" for seg in segments)
+
+
+@pytest.mark.skipif(not HAS_RUST_LEXER, reason="Rust lexer not available")
+def test__parser__pyrs_lexer_unicode_templated_file():
+    """Test that PyRsLexer preserves unicode characters in TemplatedFile round-trip.
+
+    This test ensures that when a TemplatedFile with multi-byte UTF-8 characters
+    (like Chinese, Japanese, emoji, etc.) is passed to Rust and back, the strings
+    remain intact and are not corrupted.
+
+    Regression test for a bug where byte-based indexing was used instead of
+    character-based indexing, causing unicode characters to be corrupted
+    (e.g., "法" appearing as "æ³•").
+    """
+    # Test case with multi-byte UTF-8 characters (Chinese character "法")
+    # and a templated section (:c placeholder)
+    source_str = "SELECT\n    d, -- 法\n    ':c' AS f"
+
+    # Create config with placeholder templater using colon style
+    config = FluffConfig(
+        overrides={
+            "dialect": "ansi",
+            "templater": "placeholder",
+        },
+        configs={
+            "core": {},
+            "templater": {
+                "placeholder": {
+                    "param_style": "colon",
+                    "c": "'replaced_value'",
+                }
+            },
+        },
+    )
+
+    # Process through templater to get a TemplatedFile with sliced sections
+    templater = PlaceholderTemplater(
+        override_context={"param_style": "colon", "c": "'replaced_value'"}
+    )
+    templated_file, templater_violations = templater.process(
+        in_str=source_str, fname="test.sql", config=config, formatter=None
+    )
+
+    assert not templater_violations, (
+        f"Unexpected templater violations: {templater_violations}"
+    )
+
+    # Verify the templated file has the expected structure
+    # The :c should be replaced with 'replaced_value'
+    assert "'replaced_value'" in templated_file.templated_str
+
+    # Lex with PyRsLexer (which passes TemplatedFile to Rust and back)
+    lexer = PyRsLexer(config=config)
+    segments, errors = lexer.lex(templated_file)
+
+    assert not errors, f"Unexpected lexing errors: {errors}"
+
+    # The critical test: verify that the unicode character is preserved
+    # Find the comment segment that should contain "法"
+    comment_segments = [seg for seg in segments if seg.type == "comment"]
+    assert len(comment_segments) == 1, "Should have exactly one comment segment"
+
+    # The comment should still contain the original Chinese character
+    assert "法" in comment_segments[0].raw, (
+        f"Unicode character '法' was corrupted in round-trip. "
+        f"Got: {comment_segments[0].raw!r}"
+    )
+
+    # Also verify the entire source_str is preserved correctly
+    # by reconstructing it from the segments
+    reconstructed_source = "".join(
+        seg.source_str
+        if isinstance(seg, TemplateSegment) and seg.source_str
+        else seg.raw
+        for seg in segments
+        if seg.type != "end_of_file"
+    )
+
+    # The source should contain the original Chinese character
+    assert "法" in reconstructed_source, (
+        f"Unicode character '法' was lost in reconstruction. "
+        f"Got: {reconstructed_source!r}"
+    )
+
+
+@pytest.mark.skipif(not HAS_RUST_LEXER, reason="Rust lexer not available")
+@pytest.mark.parametrize(
+    "unicode_char,description",
+    [
+        ("法", "Chinese character (3-byte UTF-8)"),
+        ("🔥", "Emoji (4-byte UTF-8)"),
+        ("é", "Latin with accent (2-byte UTF-8)"),
+        ("العربية", "Arabic text (multi-byte UTF-8)"),
+        ("日本語", "Japanese text (multi-byte UTF-8)"),
+    ],
+)
+def test__parser__pyrs_lexer_unicode_preservation(unicode_char, description):
+    """Test PyRsLexer preserves various unicode characters.
+
+    Tests multiple unicode characters with different UTF-8 byte lengths
+    to ensure the fix for byte vs. character indexing is robust.
+    """
+    # Create SQL with unicode character in a comment and a template placeholder
+    source_str = f"SELECT d, -- {unicode_char}\n':x' AS col"
+
+    config = FluffConfig(
+        overrides={
+            "dialect": "ansi",
+            "templater": "placeholder",
+        },
+        configs={
+            "core": {},
+            "templater": {
+                "placeholder": {
+                    "param_style": "colon",
+                    "x": "'val'",
+                }
+            },
+        },
+    )
+
+    templater = PlaceholderTemplater(
+        override_context={"param_style": "colon", "x": "'val'"}
+    )
+    templated_file, _ = templater.process(
+        in_str=source_str, fname="test.sql", config=config, formatter=None
+    )
+
+    lexer = PyRsLexer(config=config)
+    segments, errors = lexer.lex(templated_file)
+
+    assert not errors, f"Lexing errors with {description}: {errors}"
+
+    # Find comment and verify unicode is preserved
+    comment_segments = [seg for seg in segments if seg.type == "comment"]
+    assert len(comment_segments) == 1
+    assert unicode_char in comment_segments[0].raw, (
+        f"{description} was corrupted. Expected '{unicode_char}', "
+        f"got: {comment_segments[0].raw!r}"
+    )
