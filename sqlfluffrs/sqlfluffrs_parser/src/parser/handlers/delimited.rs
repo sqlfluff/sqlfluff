@@ -413,15 +413,22 @@ impl crate::parser::Parser<'_> {
                         frame.accumulated.len()
                     );
 
-                    // CRITICAL FIX: If we have a pending delimiter match that hasn't been added yet,
-                    // we need to return the position BEFORE that delimiter, not after it.
-                    // Python's Delimited: when element fails after delimiter, the delimiter is NOT
-                    // included in working_match, so the return position should be before the delimiter.
-                    let final_pos = if delimiter_match.is_some() && pos_before_delimiter.is_some() {
-                        // We have a pending delimiter - return position before it
+                    // Determine the final position based on whether we include trailing delimiter
+                    let final_pos = if *allow_trailing && delimiter_match.is_some() {
+                        // When allow_trailing=true and we have a delimiter after the last element,
+                        // we INCLUDE it in the result and advance past it
+                        frame.accumulated.push(delimiter_match.take().unwrap());
+                        *delimiter_count += 1;
+                        log::debug!(
+                            "[ITERATIVE] Delimited: including trailing delimiter, final_pos={}",
+                            *matched_idx
+                        );
+                        *matched_idx // Position AFTER the delimiter
+                    } else if delimiter_match.is_some() && pos_before_delimiter.is_some() {
+                        // When allow_trailing=false, delimiter is not included
                         let before_delim = pos_before_delimiter.unwrap();
                         log::debug!(
-                            "[ITERATIVE] Delimited: element failed after delimiter, returning pos_before_delimiter={}",
+                            "[ITERATIVE] Delimited: element failed after delimiter (allow_trailing=false), returning pos_before_delimiter={}",
                             before_delim
                         );
                         before_delim
@@ -431,11 +438,6 @@ impl crate::parser::Parser<'_> {
                     };
 
                     self.pos = final_pos;
-                    // Handle trailing delimiter if allowed and present
-                    if *allow_trailing && delimiter_match.is_some() {
-                        frame.accumulated.push(delimiter_match.take().unwrap());
-                        *delimiter_count += 1;
-                    }
                     // Check min_delimiters at completion
                     if *delimiter_count < *min_delimiters {
                         // Transition to Combining to finalize Empty result
