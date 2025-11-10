@@ -310,9 +310,9 @@ def test__parser__lexer_slicing_calls(case: _LexerSlicingCase):
         in_str=case.in_str, fname="test.sql", config=config, formatter=None
     )
 
-    assert not templater_violations, (
-        f"Found templater violations: {templater_violations}"
-    )
+    assert (
+        not templater_violations
+    ), f"Found templater violations: {templater_violations}"
 
     lexer = Lexer(config=config)
     lexing_segments, lexing_violations = lexer.lex(templated_file)
@@ -616,9 +616,9 @@ def test__parser__pyrs_lexer_unicode_templated_file():
         in_str=source_str, fname="test.sql", config=config, formatter=None
     )
 
-    assert not templater_violations, (
-        f"Unexpected templater violations: {templater_violations}"
-    )
+    assert (
+        not templater_violations
+    ), f"Unexpected templater violations: {templater_violations}"
 
     # Verify the templated file has the expected structure
     # The :c should be replaced with 'replaced_value'
@@ -644,9 +644,11 @@ def test__parser__pyrs_lexer_unicode_templated_file():
     # Also verify the entire source_str is preserved correctly
     # by reconstructing it from the segments
     reconstructed_source = "".join(
-        seg.source_str
-        if isinstance(seg, TemplateSegment) and seg.source_str
-        else seg.raw
+        (
+            seg.source_str
+            if isinstance(seg, TemplateSegment) and seg.source_str
+            else seg.raw
+        )
         for seg in segments
         if seg.type != "end_of_file"
     )
