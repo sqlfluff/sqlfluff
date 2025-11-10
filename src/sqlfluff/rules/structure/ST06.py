@@ -50,6 +50,33 @@ class Rule_ST06(BaseRule):
     crawl_behaviour = SegmentSeekerCrawler({"select_clause"})
     is_fix_compatible = True
 
+    def _is_view_with_explicit_columns(self, context: RuleContext) -> bool:
+        """Check if SELECT is in a CREATE VIEW with explicit column list.
+
+        Args:
+            context: The rule context containing parent stack
+
+        Returns:
+            True if this SELECT is in a CREATE VIEW with explicit columns
+        """
+        # Traverse parent stack looking for create_view_statement
+        for parent in context.parent_stack:
+            if parent.is_type("create_view_statement"):
+                # Check if the view has an explicit column list
+                # Look for a bracketed segment containing column references
+                for child in parent.segments:
+                    if child.is_type("bracketed"):
+                        # Check if this bracketed segment contains column references
+                        # This would be the explicit column list
+                        if any(
+                            seg.is_type("column_reference")
+                            for seg in child.recursive_crawl("column_reference")
+                        ):
+                            return True
+                # Found a CREATE VIEW but no explicit column list
+                return False
+        return False
+
     def _validate(self, i: int, segment: BaseSegment) -> None:
         # Check if we've seen a more complex select target element already
         if self.seen_band_elements[i + 1 : :] != [[]] * len(
@@ -128,6 +155,10 @@ class Rule_ST06(BaseRule):
                                 for select_statement in select_statements
                             ):
                                 return None
+
+        # Skip reordering for CREATE VIEW with explicit column list
+        if self._is_view_with_explicit_columns(context):
+            return None
 
         select_clause_segment = context.segment
         select_target_elements = context.segment.get_children("select_clause_element")
