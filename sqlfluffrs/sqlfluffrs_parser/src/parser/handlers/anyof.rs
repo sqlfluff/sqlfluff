@@ -632,6 +632,7 @@ impl crate::parser::Parser<'_> {
         let pruned_options = self.prune_options(elements);
         // If no options remain after pruning, treat as no match
         if pruned_options.is_empty() {
+            log::debug!("OneOf: No viable options after pruning, returning Empty");
             stack
                 .results
                 .insert(frame.frame_id, (Node::Empty, pos, None));

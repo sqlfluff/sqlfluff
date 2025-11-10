@@ -225,13 +225,13 @@ impl<'a> Parser<'a> {
         let first_raw = first_token.raw_upper();
         let first_types: HashSet<String> = first_token.get_all_types();
 
-        // log::debug!(
-        //     "Pruning {} options at pos {} (token: '{}', types: {:?})",
-        //     options.len(),
-        //     self.pos,
-        //     first_raw,
-        //     first_types
-        // );
+        log::debug!(
+            "Pruning {} options at pos {} (token: '{}', types: {:?})",
+            options.len(),
+            self.pos,
+            first_raw,
+            first_types
+        );
 
         let mut available_options = Vec::new();
 
@@ -249,10 +249,15 @@ impl<'a> Parser<'a> {
                     self.pruning_hinted.set(self.pruning_hinted.get() + 1);
                     // Check if hint matches current token (using ALL types for intersection)
                     if hint.can_match_token(&first_raw, &first_types) {
-                        // log::debug!("  Keeping matched grammar: {}", opt);
+                        log::debug!("  Keeping matched grammar: {} (hint: raw_values={:?}, token_types={:?})", opt, hint.raw_values, hint.token_types);
                         available_options.push(opt.clone());
                     } else {
-                        // log::debug!("  PRUNED grammar: {}", opt);
+                        log::debug!(
+                            "  PRUNED grammar: {} (hint: raw_values={:?}, token_types={:?})",
+                            opt,
+                            hint.raw_values,
+                            hint.token_types
+                        );
                         // pruned_count += 1;
                     }
                 }

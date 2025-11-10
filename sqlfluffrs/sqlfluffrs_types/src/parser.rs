@@ -461,12 +461,15 @@ impl Hash for Grammar {
             }
             Grammar::Bracketed {
                 elements,
+                bracket_pairs,
                 optional,
                 allow_gaps,
                 parse_mode,
                 ..
             } => {
                 elements.hash(state);
+                bracket_pairs.0.hash(state);
+                bracket_pairs.1.hash(state);
                 optional.hash(state);
                 allow_gaps.hash(state);
                 parse_mode.hash(state);
@@ -592,6 +595,7 @@ impl PartialEq for Grammar {
             (
                 Grammar::Bracketed {
                     elements: e1,
+                    bracket_pairs: bp1,
                     optional: o1,
                     allow_gaps: g1,
                     parse_mode: pm1,
@@ -599,12 +603,13 @@ impl PartialEq for Grammar {
                 },
                 Grammar::Bracketed {
                     elements: e2,
+                    bracket_pairs: bp2,
                     optional: o2,
                     allow_gaps: g2,
                     parse_mode: pm2,
                     ..
                 },
-            ) => e1 == e2 && o1 == o2 && g1 == g2 && pm1 == pm2,
+            ) => e1 == e2 && bp1.0 == bp2.0 && bp1.1 == bp2.1 && o1 == o2 && g1 == g2 && pm1 == pm2,
             (
                 Grammar::Ref {
                     name: n1,

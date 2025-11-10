@@ -486,6 +486,19 @@ impl<'a> Parser<'_> {
                     }
                 }
 
+                // Update frame state to increment child_index before pushing next child
+                // This ensures the parent frame tracks how many children have been processed
+                frame.state = FrameState::WaitingForChild {
+                    child_index: match frame.state {
+                        FrameState::WaitingForChild { child_index, .. } => child_index + 1,
+                        _ => unreachable!(),
+                    },
+                    total_children: match frame.state {
+                        FrameState::WaitingForChild { total_children, .. } => total_children,
+                        _ => unreachable!(),
+                    },
+                };
+
                 // Push next child frame
                 let child_frame = ParseFrame::new_child(
                     stack.frame_id_counter,
@@ -1345,9 +1358,17 @@ impl<'a> Parser<'_> {
                 bracket_persists,
             }
         } else {
+            // Log the actual state for debugging
+            let state_str = if let FrameContext::Bracketed { state, .. } = &frame.context {
+                format!("{:?}", state)
+            } else {
+                "Unknown".to_string()
+            };
             log::debug!(
-                "Bracketed combining with INCOMPLETE state → returning Node::Empty, frame_id={}",
-                frame.frame_id
+                "Bracketed combining with INCOMPLETE state ({}) → returning Node::Empty, frame_id={}, accumulated={}",
+                state_str,
+                frame.frame_id,
+                frame.accumulated.len()
             );
             Node::Empty
         };
