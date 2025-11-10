@@ -599,3 +599,123 @@ test_pass_oracle_slash_with_extra_spacing:
   configs:
     core:
       dialect: oracle
+
+# T-SQL specific tests for batch segment handling
+test_pass_tsql_single_statement_with_semicolon:
+  pass_str: |
+    CREATE SCHEMA staging;
+  configs:
+    core:
+      dialect: tsql
+
+test_fail_tsql_single_statement_no_semicolon:
+  fail_str: |
+    CREATE SCHEMA staging
+  fix_str: |
+    CREATE SCHEMA staging;
+  configs:
+    core:
+      dialect: tsql
+    rules:
+      convention.terminator:
+        require_final_semicolon: true
+
+test_pass_tsql_multiple_statements_with_semicolons:
+  pass_str: |
+    CREATE SCHEMA staging;
+    CREATE TABLE test (id INT);
+  configs:
+    core:
+      dialect: tsql
+    rules:
+      convention.terminator:
+        require_final_semicolon: true
+
+test_fail_tsql_multiple_statements_last_missing_semicolon:
+  fail_str: |
+    CREATE SCHEMA staging;
+    CREATE TABLE test (id INT)
+  fix_str: |
+    CREATE SCHEMA staging;
+    CREATE TABLE test (id INT);
+  configs:
+    core:
+      dialect: tsql
+    rules:
+      convention.terminator:
+        require_final_semicolon: true
+
+test_pass_tsql_with_go_statement:
+  pass_str: |
+    CREATE SCHEMA staging;
+    GO
+    CREATE TABLE test (id INT);
+  configs:
+    core:
+      dialect: tsql
+    rules:
+      convention.terminator:
+        require_final_semicolon: true
+
+test_fail_tsql_with_go_statement_missing_final_semicolon:
+  fail_str: |
+    CREATE SCHEMA staging;
+    GO
+    CREATE TABLE test (id INT)
+  fix_str: |
+    CREATE SCHEMA staging;
+    GO
+    CREATE TABLE test (id INT);
+  configs:
+    core:
+      dialect: tsql
+    rules:
+      convention.terminator:
+        require_final_semicolon: true
+
+test_pass_tsql_multiline_statement_with_newline_semicolon:
+  pass_str: |
+    CREATE TABLE test (
+        id INT,
+        name VARCHAR(50)
+    )
+    ;
+  configs:
+    core:
+      dialect: tsql
+    rules:
+      convention.terminator:
+        multiline_newline: true
+
+test_fail_tsql_multiline_statement_wrong_semicolon_position:
+  fail_str: |
+    CREATE TABLE test (
+        id INT,
+        name VARCHAR(50)
+    );
+  fix_str: |
+    CREATE TABLE test (
+        id INT,
+        name VARCHAR(50)
+    )
+    ;
+  configs:
+    core:
+      dialect: tsql
+    rules:
+      convention.terminator:
+        multiline_newline: true
+
+test_pass_tsql_batch_already_has_semicolon:
+  # Test that when a semicolon already exists after the last statement in a batch,
+  # no changes are made (covers line 389: semi_colon_exist_flag = True)
+  pass_str: |
+    CREATE SCHEMA staging;
+    GO
+    CREATE TABLE test (id INT);
+  configs:
+    core:
+      dialect: tsql
+    rules:
+      convention.terminator:
+        require_final_semicolon: true

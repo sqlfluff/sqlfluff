@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 9cb962abf0332e2d2d7efb792068885a82816c63e620703e3114bd8e283e7263
+_hash: 7cd57536784a7e25f797c84f119bad4adfa89bc17286dd69fb4f44dc67d6841e
 file:
 - batch:
     statement:
@@ -21,7 +21,7 @@ file:
             data_type:
               keyword: INT
           end_bracket: )
-      - statement_terminator: ;
+    statement_terminator: ;
     go_statement:
       keyword: GO
 - batch:
@@ -65,7 +65,7 @@ file:
             data_type:
               keyword: INT
           end_bracket: )
-      - statement_terminator: ;
+    statement_terminator: ;
     go_statement:
       keyword: GO
 - batch:
@@ -119,7 +119,7 @@ file:
         expression:
           column_reference:
             naked_identifier: doc_exc
-        statement_terminator: ;
+    statement_terminator: ;
     go_statement:
       keyword: GO
 - batch:
@@ -131,7 +131,7 @@ file:
         - naked_identifier: dbo
         - dot: .
         - naked_identifier: doc_exc
-      - statement_terminator: ;
+    statement_terminator: ;
     go_statement:
       keyword: GO
 - batch:
@@ -155,7 +155,7 @@ file:
             data_type:
               keyword: INT
         - end_bracket: )
-      - statement_terminator: ;
+    statement_terminator: ;
     go_statement:
       keyword: GO
 - batch:
@@ -244,7 +244,7 @@ file:
                 - naked_identifier: dbo
                 - dot: .
                 - naked_identifier: doc_exz
-          statement_terminator: ;
+    statement_terminator: ;
     go_statement:
       keyword: GO
 - batch:
@@ -256,7 +256,7 @@ file:
         - naked_identifier: dbo
         - dot: .
         - naked_identifier: doc_exz
-      - statement_terminator: ;
+    statement_terminator: ;
     go_statement:
       keyword: GO
 - batch:
@@ -1055,7 +1055,7 @@ file:
                   keyword: ASC
                 end_bracket: )
         - end_bracket: )
-      - statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       alter_table_statement:
       - keyword: ALTER
