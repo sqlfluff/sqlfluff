@@ -407,7 +407,7 @@ class WildcardExcludeExpressionSegment(BaseSegment):
         "EXCLUDE",
         OneOf(
             Ref("ColumnReferenceSegment"),
-            Bracketed(Delimited(Ref("ColumnReferenceSegment"))),
+            Bracketed(Delimited(Ref("ColumnReferenceSegment"), allow_trailing=True)),
         ),
     )
 
@@ -425,6 +425,7 @@ class WildcardReplaceExpressionSegment(BaseSegment):
                         Ref("BaseExpressionElementGrammar"),
                         Ref("AliasExpressionSegment", optional=True),
                     ),
+                    allow_trailing=True,
                 )
             ),
             Sequence(
@@ -448,6 +449,7 @@ class WildcardRenameExpressionSegment(BaseSegment):
                         Ref("BaseExpressionElementGrammar"),
                         Ref("AliasExpressionSegment", optional=True),
                     ),
+                    allow_trailing=True,
                 )
             ),
             Sequence(

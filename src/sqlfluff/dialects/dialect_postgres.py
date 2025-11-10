@@ -293,7 +293,7 @@ postgres_dialect.patch_lexer_matchers(
                 WhitespaceSegment,
             ),
         ),
-        RegexLexer("word", r"[a-zA-Z_][0-9a-zA-Z_$]*", WordSegment),
+        RegexLexer("word", r"[\p{L}_][\p{L}\p{N}_$]*", WordSegment),
     ]
 )
 
@@ -493,8 +493,8 @@ postgres_dialect.replace(
         # Generate the anti template from the set of reserved keywords
         lambda dialect: RegexParser(
             # Can’t begin with $ or digits,
-            # must only contain digits, letters, underscore or $
-            r"[A-Z_][A-Z0-9_$]*",
+            # must only contain digits, letters (including Unicode), underscore or $
+            r"[\p{L}_][\p{L}\p{N}_$]*",
             IdentifierSegment,
             type="naked_identifier",
             anti_template=r"^(" + r"|".join(dialect.sets("reserved_keywords")) + r")$",
