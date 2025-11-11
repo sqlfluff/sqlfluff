@@ -10,6 +10,8 @@ of each individual release, see the detailed changelog_.
 
 .. _changelog: https://github.com/sqlfluff/sqlfluff/blob/main/CHANGELOG.md
 
+.. _upgrading_4_0:
+
 Upgrading to 4.x
 ----------------
 
@@ -18,7 +20,13 @@ For most users, no difference will be visible, as currently the rust libraries
 are *opt-in*, and must be explicitly installed with :code:`pip install sqlfluff[rs]`.
 
 Rust libraries are built for most major platforms, and we believe are ready for
-public beta testing, but they should be considered experimental until the 5.x release.
+public beta testing, but they should be considered experimental until the 5.x
+release. Performance gains on initial release are not expected to be significant,
+but we do expect they will be significant once the routines are mature.
+
+Additionally:
+
+* We drop support for dbt 1.4 and older, and include support for dbt1.10.
 
 .. _upgrading_3_0:
 
