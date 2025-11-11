@@ -67,5 +67,9 @@ harness = false
 name = "delimited_performance"
 harness = false
 
+[[bench]]
+name = "baseline_phase1"
+harness = false
+
 [profile.bench]
 debug = true

@@ -1,52 +1,60 @@
 /* This is a generated file! */
 #![cfg_attr(rustfmt, rustfmt_skip)]
 use std::sync::Arc;
-use once_cell::sync::Lazy;
+use std::sync::OnceLock;
 use sqlfluffrs_types::{Grammar, ParseMode, SimpleHint};
 use sqlfluffrs_types::regex::RegexMode;
 
 // name='AbortKeywordSegment'
-pub static ABORT_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_abort_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "ABORT",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static ABORT_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='AbsKeywordSegment'
-pub static ABS_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_abs_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "ABS",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static ABS_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='AbsoluteKeywordSegment'
-pub static ABSOLUTE_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_absolute_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "ABSOLUTE",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static ABSOLUTE_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='AccessKeywordSegment'
-pub static ACCESS_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_access_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "ACCESS",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static ACCESS_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='AccessStatementSegment'
-pub static ACCESS_STATEMENT_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_access_statement_segment() -> Arc<Grammar> {
 // AccessStatementSegment
 Arc::new(Grammar::OneOf {
     elements: vec![
@@ -6416,10 +6424,12 @@ Arc::new(Grammar::Ref {
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
-);
+}
+
+pub static ACCESS_STATEMENT_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='AccessorGrammar'
-pub static ACCESSOR_GRAMMAR: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_accessor_grammar() -> Arc<Grammar> {
 Arc::new(Grammar::AnyNumberOf {
     elements: vec![
 Arc::new(Grammar::Ref {
@@ -6452,90 +6462,108 @@ Arc::new(Grammar::Ref {
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
-);
+}
+
+pub static ACCESSOR_GRAMMAR: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='AccountKeywordSegment'
-pub static ACCOUNT_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_account_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "ACCOUNT",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static ACCOUNT_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='AccountsKeywordSegment'
-pub static ACCOUNTS_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_accounts_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "ACCOUNTS",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static ACCOUNTS_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='ActionKeywordSegment'
-pub static ACTION_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_action_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "ACTION",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static ACTION_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='AdaKeywordSegment'
-pub static ADA_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_ada_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "ADA",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static ADA_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='AddKeywordSegment'
-pub static ADD_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_add_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "ADD",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static ADD_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='AdminKeywordSegment'
-pub static ADMIN_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_admin_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "ADMIN",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static ADMIN_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='AfterKeywordSegment'
-pub static AFTER_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_after_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "AFTER",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static AFTER_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='AggregateKeywordSegment'
-pub static AGGREGATE_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_aggregate_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "AGGREGATE",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static AGGREGATE_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='AggregateOrderByClause'
-pub static AGGREGATE_ORDER_BY_CLAUSE: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_aggregate_order_by_clause() -> Arc<Grammar> {
 // AggregateOrderByClause
 Arc::new(Grammar::Ref {
     name: "OrderByClauseSegment",
@@ -6550,10 +6578,12 @@ Arc::new(Grammar::Ref {
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
-);
+}
+
+pub static AGGREGATE_ORDER_BY_CLAUSE: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='AliasExpressionSegment'
-pub static ALIAS_EXPRESSION_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_alias_expression_segment() -> Arc<Grammar> {
 // AliasExpressionSegment
 Arc::new(Grammar::Sequence {
     elements: vec![
@@ -6678,20 +6708,24 @@ Arc::new(Grammar::Meta("dedent"))
     parse_mode: ParseMode::Strict,
     simple_hint: None,
 })
-);
+}
+
+pub static ALIAS_EXPRESSION_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='AliasKeywordSegment'
-pub static ALIAS_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_alias_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "ALIAS",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static ALIAS_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='AliasedTableReferenceGrammar'
-pub static ALIASED_TABLE_REFERENCE_GRAMMAR: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_aliased_table_reference_grammar() -> Arc<Grammar> {
 Arc::new(Grammar::Sequence {
     elements: vec![
 Arc::new(Grammar::Ref {
@@ -6725,50 +6759,60 @@ Arc::new(Grammar::Ref {
     parse_mode: ParseMode::Strict,
     simple_hint: None,
 })
-);
+}
+
+pub static ALIASED_TABLE_REFERENCE_GRAMMAR: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='AllKeywordSegment'
-pub static ALL_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_all_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "ALL",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static ALL_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='AllocateKeywordSegment'
-pub static ALLOCATE_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_allocate_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "ALLOCATE",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static ALLOCATE_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='AlsoKeywordSegment'
-pub static ALSO_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_also_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "ALSO",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static ALSO_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='AlterKeywordSegment'
-pub static ALTER_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_alter_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "ALTER",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static ALTER_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='AlterSequenceOptionsSegment'
-pub static ALTER_SEQUENCE_OPTIONS_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_alter_sequence_options_segment() -> Arc<Grammar> {
 // AlterSequenceOptionsSegment
 Arc::new(Grammar::OneOf {
     elements: vec![
@@ -7001,10 +7045,12 @@ Arc::new(Grammar::Ref {
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
-);
+}
+
+pub static ALTER_SEQUENCE_OPTIONS_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='AlterSequenceStatementSegment'
-pub static ALTER_SEQUENCE_STATEMENT_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_alter_sequence_statement_segment() -> Arc<Grammar> {
 // AlterSequenceStatementSegment
 Arc::new(Grammar::Sequence {
     elements: vec![
@@ -7092,10 +7138,12 @@ Arc::new(Grammar::Ref {
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
-);
+}
+
+pub static ALTER_SEQUENCE_STATEMENT_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='AlterTableDropColumnGrammar'
-pub static ALTER_TABLE_DROP_COLUMN_GRAMMAR: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_alter_table_drop_column_grammar() -> Arc<Grammar> {
 Arc::new(Grammar::Sequence {
     elements: vec![
 Arc::new(Grammar::Ref {
@@ -7163,10 +7211,12 @@ Arc::new(Grammar::Ref {
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
-);
+}
+
+pub static ALTER_TABLE_DROP_COLUMN_GRAMMAR: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='AlterTableOptionsGrammar'
-pub static ALTER_TABLE_OPTIONS_GRAMMAR: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_alter_table_options_grammar() -> Arc<Grammar> {
 Arc::new(Grammar::OneOf {
     elements: vec![
 Arc::new(Grammar::Sequence {
@@ -7533,10 +7583,12 @@ Arc::new(Grammar::Ref {
     parse_mode: ParseMode::Strict,
     simple_hint: None,
 })
-);
+}
+
+pub static ALTER_TABLE_OPTIONS_GRAMMAR: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='AlterTableStatementSegment'
-pub static ALTER_TABLE_STATEMENT_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_alter_table_statement_segment() -> Arc<Grammar> {
 // AlterTableStatementSegment
 Arc::new(Grammar::Sequence {
     elements: vec![
@@ -7632,100 +7684,120 @@ Arc::new(Grammar::Ref {
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
-);
+}
+
+pub static ALTER_TABLE_STATEMENT_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='AlwaysKeywordSegment'
-pub static ALWAYS_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_always_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "ALWAYS",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static ALWAYS_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='AmpersandSegment'
-pub static AMPERSAND_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_ampersand_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "&",
     token_type: "ampersand",
     raw_class: "SymbolSegment",
     optional: false,
 })
-);
+}
+
+pub static AMPERSAND_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='AnalyseKeywordSegment'
-pub static ANALYSE_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_analyse_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "ANALYSE",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static ANALYSE_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='AnalyzeKeywordSegment'
-pub static ANALYZE_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_analyze_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "ANALYZE",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static ANALYZE_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='AndKeywordSegment'
-pub static AND_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_and_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "AND",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static AND_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='AndOperatorGrammar'
-pub static AND_OPERATOR_GRAMMAR: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_and_operator_grammar() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "AND",
     token_type: "binary_operator",
     raw_class: "BinaryOperatorSegment",
     optional: false,
 })
-);
+}
+
+pub static AND_OPERATOR_GRAMMAR: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='AnyKeywordSegment'
-pub static ANY_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_any_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "ANY",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static ANY_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='ApplyKeywordSegment'
-pub static APPLY_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_apply_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "APPLY",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static APPLY_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='AreKeywordSegment'
-pub static ARE_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_are_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "ARE",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static ARE_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='ArithmeticBinaryOperatorGrammar'
-pub static ARITHMETIC_BINARY_OPERATOR_GRAMMAR: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_arithmetic_binary_operator_grammar() -> Arc<Grammar> {
 Arc::new(Grammar::OneOf {
     elements: vec![
 Arc::new(Grammar::Ref {
@@ -7881,10 +7953,12 @@ Arc::new(Grammar::Ref {
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
-);
+}
+
+pub static ARITHMETIC_BINARY_OPERATOR_GRAMMAR: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='ArrayAccessorSegment'
-pub static ARRAY_ACCESSOR_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_array_accessor_segment() -> Arc<Grammar> {
 // ArrayAccessorSegment
 Arc::new(Grammar::Bracketed {
     elements: vec![
@@ -7986,26 +8060,32 @@ Arc::new(Grammar::StringParser {
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
-);
+}
+
+pub static ARRAY_ACCESSOR_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='ArrayExpressionSegment'
-pub static ARRAY_EXPRESSION_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_array_expression_segment() -> Arc<Grammar> {
 // ArrayExpressionSegment
 Arc::new(Grammar::Nothing())
-);
+}
+
+pub static ARRAY_EXPRESSION_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='ArrayKeywordSegment'
-pub static ARRAY_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_array_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "ARRAY",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static ARRAY_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='ArrayLiteralSegment'
-pub static ARRAY_LITERAL_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_array_literal_segment() -> Arc<Grammar> {
 // ArrayLiteralSegment
 Arc::new(Grammar::Bracketed {
     elements: vec![
@@ -8080,16 +8160,20 @@ Arc::new(Grammar::StringParser {
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
-);
+}
+
+pub static ARRAY_LITERAL_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='ArrayTypeSegment'
-pub static ARRAY_TYPE_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_array_type_segment() -> Arc<Grammar> {
 // ArrayTypeSegment
 Arc::new(Grammar::Nothing())
-);
+}
+
+pub static ARRAY_TYPE_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='AsAliasOperatorSegment'
-pub static AS_ALIAS_OPERATOR_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_as_alias_operator_segment() -> Arc<Grammar> {
 // AsAliasOperatorSegment
 Arc::new(Grammar::Sequence {
     elements: vec![
@@ -8119,130 +8203,156 @@ Arc::new(Grammar::Ref {
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
-);
+}
+
+pub static AS_ALIAS_OPERATOR_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='AsKeywordSegment'
-pub static AS_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_as_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "AS",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static AS_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='AscKeywordSegment'
-pub static ASC_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_asc_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "ASC",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static ASC_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='AsensitiveKeywordSegment'
-pub static ASENSITIVE_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_asensitive_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "ASENSITIVE",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static ASENSITIVE_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='AssertionKeywordSegment'
-pub static ASSERTION_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_assertion_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "ASSERTION",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static ASSERTION_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='AssignmentKeywordSegment'
-pub static ASSIGNMENT_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_assignment_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "ASSIGNMENT",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static ASSIGNMENT_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='AsymmetricKeywordSegment'
-pub static ASYMMETRIC_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_asymmetric_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "ASYMMETRIC",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static ASYMMETRIC_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='AtKeywordSegment'
-pub static AT_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_at_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "AT",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static AT_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='AtomicKeywordSegment'
-pub static ATOMIC_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_atomic_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "ATOMIC",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static ATOMIC_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='AttributeKeywordSegment'
-pub static ATTRIBUTE_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_attribute_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "ATTRIBUTE",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static ATTRIBUTE_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='AttributesKeywordSegment'
-pub static ATTRIBUTES_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_attributes_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "ATTRIBUTES",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static ATTRIBUTES_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='AuditKeywordSegment'
-pub static AUDIT_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_audit_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "AUDIT",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static AUDIT_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='AuthorizationKeywordSegment'
-pub static AUTHORIZATION_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_authorization_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "AUTHORIZATION",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static AUTHORIZATION_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='AutoIncrementGrammar'
-pub static AUTO_INCREMENT_GRAMMAR: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_auto_increment_grammar() -> Arc<Grammar> {
 Arc::new(Grammar::Sequence {
     elements: vec![
 Arc::new(Grammar::Ref {
@@ -8271,70 +8381,84 @@ Arc::new(Grammar::Ref {
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
-);
+}
+
+pub static AUTO_INCREMENT_GRAMMAR: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='Auto_incrementKeywordSegment'
-pub static AUTO_INCREMENT_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_auto_increment_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "AUTO_INCREMENT",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static AUTO_INCREMENT_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='AvgKeywordSegment'
-pub static AVG_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_avg_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "AVG",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static AVG_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='Avg_row_lengthKeywordSegment'
-pub static AVG_ROW_LENGTH_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_avg_row_length_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "AVG_ROW_LENGTH",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static AVG_ROW_LENGTH_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='BackupKeywordSegment'
-pub static BACKUP_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_backup_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "BACKUP",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static BACKUP_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='BackwardKeywordSegment'
-pub static BACKWARD_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_backward_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "BACKWARD",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static BACKWARD_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='BareFunctionSegment'
-pub static BARE_FUNCTION_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_bare_function_segment() -> Arc<Grammar> {
 Arc::new(Grammar::MultiStringParser {
     templates: vec!["CURRENT_DATE", "CURRENT_TIME", "CURRENT_TIMESTAMP"],
     token_type: "bare_function",
     raw_class: "CodeSegment",
     optional: false,
 })
-);
+}
+
+pub static BARE_FUNCTION_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='BaseExpressionElementGrammar'
-pub static BASE_EXPRESSION_ELEMENT_GRAMMAR: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_base_expression_element_grammar() -> Arc<Grammar> {
 Arc::new(Grammar::OneOf {
     elements: vec![
 Arc::new(Grammar::Ref {
@@ -8481,86 +8605,104 @@ Arc::new(Grammar::Ref {
     parse_mode: ParseMode::Strict,
     simple_hint: None,
 })
-);
+}
+
+pub static BASE_EXPRESSION_ELEMENT_GRAMMAR: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='BaseFileSegment'
-pub static BASE_FILE_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_base_file_segment() -> Arc<Grammar> {
 Arc::new(Grammar::Token{
     token_type: "file",
 //    token_type: "BaseFileSegment",
 })
-);
+}
+
+pub static BASE_FILE_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='BaseSegment'
-pub static BASE_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_base_segment() -> Arc<Grammar> {
 Arc::new(Grammar::Token{
     token_type: "base",
 //    token_type: "BaseSegment",
 })
-);
+}
+
+pub static BASE_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='BeforeKeywordSegment'
-pub static BEFORE_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_before_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "BEFORE",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static BEFORE_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='BeginKeywordSegment'
-pub static BEGIN_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_begin_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "BEGIN",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static BEGIN_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='BernoulliKeywordSegment'
-pub static BERNOULLI_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_bernoulli_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "BERNOULLI",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static BERNOULLI_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='BetweenKeywordSegment'
-pub static BETWEEN_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_between_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "BETWEEN",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static BETWEEN_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='BigintKeywordSegment'
-pub static BIGINT_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_bigint_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "BIGINT",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static BIGINT_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='BinaryKeywordSegment'
-pub static BINARY_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_binary_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "BINARY",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static BINARY_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='BinaryOperatorGrammar'
-pub static BINARY_OPERATOR_GRAMMAR: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_binary_operator_grammar() -> Arc<Grammar> {
 Arc::new(Grammar::OneOf {
     elements: vec![
 Arc::new(Grammar::Ref {
@@ -8632,58 +8774,70 @@ Arc::new(Grammar::Ref {
             token_types: hashbrown::HashSet::from_iter(["like_operator".to_string()]),
         }),
 })
-);
+}
+
+pub static BINARY_OPERATOR_GRAMMAR: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='BinaryOperatorSegment'
-pub static BINARY_OPERATOR_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_binary_operator_segment() -> Arc<Grammar> {
 Arc::new(Grammar::Token{
     token_type: "binary_operator",
 //    token_type: "BinaryOperatorSegment",
 })
-);
+}
+
+pub static BINARY_OPERATOR_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='BindingKeywordSegment'
-pub static BINDING_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_binding_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "BINDING",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static BINDING_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='BitKeywordSegment'
-pub static BIT_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_bit_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "BIT",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static BIT_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='Bit_lengthKeywordSegment'
-pub static BIT_LENGTH_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_bit_length_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "BIT_LENGTH",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static BIT_LENGTH_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='BitvarKeywordSegment'
-pub static BITVAR_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_bitvar_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "BITVAR",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static BITVAR_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='BitwiseAndSegment'
-pub static BITWISE_AND_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_bitwise_and_segment() -> Arc<Grammar> {
 // BitwiseAndSegment
 Arc::new(Grammar::Ref {
     name: "AmpersandSegment",
@@ -8698,10 +8852,12 @@ Arc::new(Grammar::Ref {
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
-);
+}
+
+pub static BITWISE_AND_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='BitwiseLShiftSegment'
-pub static BITWISE_L_SHIFT_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_bitwise_l_shift_segment() -> Arc<Grammar> {
 // BitwiseLShiftSegment
 Arc::new(Grammar::Sequence {
     elements: vec![
@@ -8745,10 +8901,12 @@ Arc::new(Grammar::Ref {
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
-);
+}
+
+pub static BITWISE_L_SHIFT_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='BitwiseOrSegment'
-pub static BITWISE_OR_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_bitwise_or_segment() -> Arc<Grammar> {
 // BitwiseOrSegment
 Arc::new(Grammar::Ref {
     name: "PipeSegment",
@@ -8763,10 +8921,12 @@ Arc::new(Grammar::Ref {
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
-);
+}
+
+pub static BITWISE_OR_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='BitwiseRShiftSegment'
-pub static BITWISE_R_SHIFT_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_bitwise_r_shift_segment() -> Arc<Grammar> {
 // BitwiseRShiftSegment
 Arc::new(Grammar::Sequence {
     elements: vec![
@@ -8810,40 +8970,48 @@ Arc::new(Grammar::Ref {
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
-);
+}
+
+pub static BITWISE_R_SHIFT_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='BitwiseXorSegment'
-pub static BITWISE_XOR_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_bitwise_xor_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "^",
     token_type: "binary_operator",
     raw_class: "SymbolSegment",
     optional: false,
 })
-);
+}
+
+pub static BITWISE_XOR_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='BlobKeywordSegment'
-pub static BLOB_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_blob_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "BLOB",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static BLOB_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='BoolKeywordSegment'
-pub static BOOL_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_bool_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "BOOL",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static BOOL_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='BooleanBinaryOperatorGrammar'
-pub static BOOLEAN_BINARY_OPERATOR_GRAMMAR: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_boolean_binary_operator_grammar() -> Arc<Grammar> {
 Arc::new(Grammar::OneOf {
     elements: vec![
 Arc::new(Grammar::Ref {
@@ -8887,20 +9055,24 @@ Arc::new(Grammar::Ref {
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
-);
+}
+
+pub static BOOLEAN_BINARY_OPERATOR_GRAMMAR: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='BooleanKeywordSegment'
-pub static BOOLEAN_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_boolean_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "BOOLEAN",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static BOOLEAN_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='BooleanLiteralGrammar'
-pub static BOOLEAN_LITERAL_GRAMMAR: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_boolean_literal_grammar() -> Arc<Grammar> {
 Arc::new(Grammar::OneOf {
     elements: vec![
 Arc::new(Grammar::Ref {
@@ -8944,20 +9116,24 @@ Arc::new(Grammar::Ref {
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
-);
+}
+
+pub static BOOLEAN_LITERAL_GRAMMAR: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='BothKeywordSegment'
-pub static BOTH_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_both_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "BOTH",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static BOTH_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='BracketedArguments'
-pub static BRACKETED_ARGUMENTS: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_bracketed_arguments() -> Arc<Grammar> {
 // BracketedArguments
 Arc::new(Grammar::Bracketed {
     elements: vec![
@@ -9032,10 +9208,12 @@ Arc::new(Grammar::StringParser {
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
-);
+}
+
+pub static BRACKETED_ARGUMENTS: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='BracketedColumnReferenceListGrammar'
-pub static BRACKETED_COLUMN_REFERENCE_LIST_GRAMMAR: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_bracketed_column_reference_list_grammar() -> Arc<Grammar> {
 Arc::new(Grammar::Bracketed {
     elements: vec![
 Arc::new(Grammar::Delimited {
@@ -9109,18 +9287,22 @@ Arc::new(Grammar::StringParser {
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
-);
+}
+
+pub static BRACKETED_COLUMN_REFERENCE_LIST_GRAMMAR: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='BracketedSegment'
-pub static BRACKETED_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_bracketed_segment() -> Arc<Grammar> {
 Arc::new(Grammar::Token{
     token_type: "bracketed",
 //    token_type: "BracketedSegment",
 })
-);
+}
+
+pub static BRACKETED_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='BracketedSetExpressionGrammar'
-pub static BRACKETED_SET_EXPRESSION_GRAMMAR: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_bracketed_set_expression_grammar() -> Arc<Grammar> {
 Arc::new(Grammar::Bracketed {
     elements: vec![
 Arc::new(Grammar::Ref {
@@ -9167,60 +9349,72 @@ Arc::new(Grammar::StringParser {
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
-);
+}
+
+pub static BRACKETED_SET_EXPRESSION_GRAMMAR: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='BreadthKeywordSegment'
-pub static BREADTH_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_breadth_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "BREADTH",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static BREADTH_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='BreakKeywordSegment'
-pub static BREAK_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_break_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "BREAK",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static BREAK_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='BrowseKeywordSegment'
-pub static BROWSE_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_browse_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "BROWSE",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static BROWSE_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='BulkKeywordSegment'
-pub static BULK_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_bulk_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "BULK",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static BULK_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='ByKeywordSegment'
-pub static BY_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_by_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "BY",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static BY_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='CTEColumnList'
-pub static C_T_E_COLUMN_LIST: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_c_t_e_column_list() -> Arc<Grammar> {
 // CTEColumnList
 Arc::new(Grammar::Bracketed {
     elements: vec![
@@ -9265,10 +9459,12 @@ Arc::new(Grammar::StringParser {
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
-);
+}
+
+pub static C_T_E_COLUMN_LIST: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='CTEDefinitionSegment'
-pub static C_T_E_DEFINITION_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_c_t_e_definition_segment() -> Arc<Grammar> {
 // CTEDefinitionSegment
 Arc::new(Grammar::Sequence {
     elements: vec![
@@ -9367,70 +9563,84 @@ Arc::new(Grammar::StringParser {
     parse_mode: ParseMode::Strict,
     simple_hint: None,
 })
-);
+}
+
+pub static C_T_E_DEFINITION_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='CacheKeywordSegment'
-pub static CACHE_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_cache_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "CACHE",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static CACHE_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='CallKeywordSegment'
-pub static CALL_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_call_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "CALL",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static CALL_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='CalledKeywordSegment'
-pub static CALLED_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_called_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "CALLED",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static CALLED_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='CardinalityKeywordSegment'
-pub static CARDINALITY_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_cardinality_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "CARDINALITY",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static CARDINALITY_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='CascadeKeywordSegment'
-pub static CASCADE_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_cascade_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "CASCADE",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static CASCADE_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='CascadedKeywordSegment'
-pub static CASCADED_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_cascaded_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "CASCADED",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static CASCADED_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='CaseExpressionSegment'
-pub static CASE_EXPRESSION_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_case_expression_segment() -> Arc<Grammar> {
 // CaseExpressionSegment
 Arc::new(Grammar::OneOf {
     elements: vec![
@@ -9772,348 +9982,420 @@ Arc::new(Grammar::Ref {
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
-);
+}
+
+pub static CASE_EXPRESSION_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='CaseKeywordSegment'
-pub static CASE_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_case_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "CASE",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static CASE_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='CastKeywordSegment'
-pub static CAST_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_cast_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "CAST",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static CAST_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='CastOperatorSegment'
-pub static CAST_OPERATOR_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_cast_operator_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "::",
     token_type: "casting_operator",
     raw_class: "SymbolSegment",
     optional: false,
 })
-);
+}
+
+pub static CAST_OPERATOR_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='CatalogKeywordSegment'
-pub static CATALOG_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_catalog_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "CATALOG",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static CATALOG_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='Catalog_nameKeywordSegment'
-pub static CATALOG_NAME_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_catalog_name_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "CATALOG_NAME",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static CATALOG_NAME_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='CeilKeywordSegment'
-pub static CEIL_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_ceil_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "CEIL",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static CEIL_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='CeilingKeywordSegment'
-pub static CEILING_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_ceiling_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "CEILING",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static CEILING_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='ChainKeywordSegment'
-pub static CHAIN_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_chain_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "CHAIN",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static CHAIN_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='ChangeKeywordSegment'
-pub static CHANGE_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_change_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "CHANGE",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static CHANGE_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='CharCharacterSetGrammar'
-pub static CHAR_CHARACTER_SET_GRAMMAR: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_char_character_set_grammar() -> Arc<Grammar> {
 Arc::new(Grammar::Nothing())
-);
+}
+
+pub static CHAR_CHARACTER_SET_GRAMMAR: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='CharKeywordSegment'
-pub static CHAR_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_char_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "CHAR",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static CHAR_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='Char_lengthKeywordSegment'
-pub static CHAR_LENGTH_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_char_length_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "CHAR_LENGTH",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static CHAR_LENGTH_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='CharacterKeywordSegment'
-pub static CHARACTER_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_character_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "CHARACTER",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static CHARACTER_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='Character_lengthKeywordSegment'
-pub static CHARACTER_LENGTH_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_character_length_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "CHARACTER_LENGTH",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static CHARACTER_LENGTH_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='Character_set_catalogKeywordSegment'
-pub static CHARACTER_SET_CATALOG_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_character_set_catalog_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "CHARACTER_SET_CATALOG",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static CHARACTER_SET_CATALOG_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='Character_set_nameKeywordSegment'
-pub static CHARACTER_SET_NAME_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_character_set_name_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "CHARACTER_SET_NAME",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static CHARACTER_SET_NAME_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='Character_set_schemaKeywordSegment'
-pub static CHARACTER_SET_SCHEMA_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_character_set_schema_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "CHARACTER_SET_SCHEMA",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static CHARACTER_SET_SCHEMA_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='CharacteristicsKeywordSegment'
-pub static CHARACTERISTICS_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_characteristics_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "CHARACTERISTICS",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static CHARACTERISTICS_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='CharactersKeywordSegment'
-pub static CHARACTERS_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_characters_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "CHARACTERS",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static CHARACTERS_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='CheckKeywordSegment'
-pub static CHECK_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_check_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "CHECK",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static CHECK_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='CheckedKeywordSegment'
-pub static CHECKED_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_checked_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "CHECKED",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static CHECKED_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='CheckpointKeywordSegment'
-pub static CHECKPOINT_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_checkpoint_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "CHECKPOINT",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static CHECKPOINT_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='ChecksumKeywordSegment'
-pub static CHECKSUM_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_checksum_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "CHECKSUM",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static CHECKSUM_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='ClassKeywordSegment'
-pub static CLASS_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_class_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "CLASS",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static CLASS_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='Class_originKeywordSegment'
-pub static CLASS_ORIGIN_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_class_origin_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "CLASS_ORIGIN",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static CLASS_ORIGIN_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='ClobKeywordSegment'
-pub static CLOB_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_clob_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "CLOB",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static CLOB_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='CloseKeywordSegment'
-pub static CLOSE_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_close_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "CLOSE",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static CLOSE_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='ClusterKeywordSegment'
-pub static CLUSTER_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_cluster_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "CLUSTER",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static CLUSTER_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='ClusteredKeywordSegment'
-pub static CLUSTERED_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_clustered_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "CLUSTERED",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static CLUSTERED_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='CoalesceKeywordSegment'
-pub static COALESCE_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_coalesce_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "COALESCE",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static COALESCE_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='CobolKeywordSegment'
-pub static COBOL_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_cobol_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "COBOL",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static COBOL_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='CodeSegment'
-pub static CODE_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_code_segment() -> Arc<Grammar> {
 Arc::new(Grammar::Token{
     token_type: "raw",
 //    token_type: "CodeSegment",
 })
-);
+}
+
+pub static CODE_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='CollateGrammar'
-pub static COLLATE_GRAMMAR: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_collate_grammar() -> Arc<Grammar> {
 Arc::new(Grammar::Nothing())
-);
+}
+
+pub static COLLATE_GRAMMAR: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='CollateKeywordSegment'
-pub static COLLATE_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_collate_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "COLLATE",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static COLLATE_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='CollationKeywordSegment'
-pub static COLLATION_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_collation_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "COLLATION",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static COLLATION_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='CollationReferenceSegment'
-pub static COLLATION_REFERENCE_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_collation_reference_segment() -> Arc<Grammar> {
 // CollationReferenceSegment
 Arc::new(Grammar::OneOf {
     elements: vec![
@@ -10193,80 +10475,96 @@ Arc::new(Grammar::Ref {
     parse_mode: ParseMode::Strict,
     simple_hint: None,
 })
-);
+}
+
+pub static COLLATION_REFERENCE_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='Collation_catalogKeywordSegment'
-pub static COLLATION_CATALOG_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_collation_catalog_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "COLLATION_CATALOG",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static COLLATION_CATALOG_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='Collation_nameKeywordSegment'
-pub static COLLATION_NAME_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_collation_name_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "COLLATION_NAME",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static COLLATION_NAME_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='Collation_schemaKeywordSegment'
-pub static COLLATION_SCHEMA_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_collation_schema_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "COLLATION_SCHEMA",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static COLLATION_SCHEMA_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='CollectKeywordSegment'
-pub static COLLECT_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_collect_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "COLLECT",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static COLLECT_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='ColonDelimiterSegment'
-pub static COLON_DELIMITER_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_colon_delimiter_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: ":",
     token_type: "colon_delimiter",
     raw_class: "SymbolSegment",
     optional: false,
 })
-);
+}
+
+pub static COLON_DELIMITER_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='ColonPrefixSegment'
-pub static COLON_PREFIX_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_colon_prefix_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: ":",
     token_type: "colon_prefix",
     raw_class: "SymbolSegment",
     optional: false,
 })
-);
+}
+
+pub static COLON_PREFIX_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='ColonSegment'
-pub static COLON_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_colon_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: ":",
     token_type: "colon",
     raw_class: "SymbolSegment",
     optional: false,
 })
-);
+}
+
+pub static COLON_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='ColumnConstraintDefaultGrammar'
-pub static COLUMN_CONSTRAINT_DEFAULT_GRAMMAR: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_column_constraint_default_grammar() -> Arc<Grammar> {
 Arc::new(Grammar::OneOf {
     elements: vec![
 Arc::new(Grammar::Ref {
@@ -10326,10 +10624,12 @@ Arc::new(Grammar::Ref {
     parse_mode: ParseMode::Strict,
     simple_hint: None,
 })
-);
+}
+
+pub static COLUMN_CONSTRAINT_DEFAULT_GRAMMAR: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='ColumnConstraintSegment'
-pub static COLUMN_CONSTRAINT_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_column_constraint_segment() -> Arc<Grammar> {
 // ColumnConstraintSegment
 Arc::new(Grammar::Sequence {
     elements: vec![
@@ -10724,10 +11024,12 @@ Arc::new(Grammar::Ref {
     parse_mode: ParseMode::Strict,
     simple_hint: None,
 })
-);
+}
+
+pub static COLUMN_CONSTRAINT_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='ColumnDefinitionSegment'
-pub static COLUMN_DEFINITION_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_column_definition_segment() -> Arc<Grammar> {
 // ColumnDefinitionSegment
 Arc::new(Grammar::Sequence {
     elements: vec![
@@ -10828,25 +11130,31 @@ Arc::new(Grammar::Ref {
     parse_mode: ParseMode::Strict,
     simple_hint: None,
 })
-);
+}
+
+pub static COLUMN_DEFINITION_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='ColumnGeneratedGrammar'
-pub static COLUMN_GENERATED_GRAMMAR: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_column_generated_grammar() -> Arc<Grammar> {
 Arc::new(Grammar::Nothing())
-);
+}
+
+pub static COLUMN_GENERATED_GRAMMAR: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='ColumnKeywordSegment'
-pub static COLUMN_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_column_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "COLUMN",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static COLUMN_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='ColumnReferenceSegment'
-pub static COLUMN_REFERENCE_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_column_reference_segment() -> Arc<Grammar> {
 // ColumnReferenceSegment
 Arc::new(Grammar::Delimited {
     elements: vec![
@@ -10899,26 +11207,32 @@ Arc::new(Grammar::Ref {
     parse_mode: ParseMode::Strict,
     simple_hint: None,
 })
-);
+}
+
+pub static COLUMN_REFERENCE_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='Column_nameKeywordSegment'
-pub static COLUMN_NAME_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_column_name_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "COLUMN_NAME",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static COLUMN_NAME_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='ColumnsExpressionFunctionContentsSegment'
-pub static COLUMNS_EXPRESSION_FUNCTION_CONTENTS_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_columns_expression_function_contents_segment() -> Arc<Grammar> {
 // ColumnsExpressionFunctionContentsSegment
 Arc::new(Grammar::Nothing())
-);
+}
+
+pub static COLUMNS_EXPRESSION_FUNCTION_CONTENTS_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='ColumnsExpressionFunctionNameSegment'
-pub static COLUMNS_EXPRESSION_FUNCTION_NAME_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_columns_expression_function_name_segment() -> Arc<Grammar> {
 // ColumnsExpressionFunctionNameSegment
 Arc::new(Grammar::Ref {
     name: "ColumnsExpressionNameGrammar",
@@ -10930,60 +11244,74 @@ Arc::new(Grammar::Ref {
     reset_terminators: false,
     simple_hint: None,
 })
-);
+}
+
+pub static COLUMNS_EXPRESSION_FUNCTION_NAME_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='ColumnsExpressionGrammar'
-pub static COLUMNS_EXPRESSION_GRAMMAR: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_columns_expression_grammar() -> Arc<Grammar> {
 Arc::new(Grammar::Nothing())
-);
+}
+
+pub static COLUMNS_EXPRESSION_GRAMMAR: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='ColumnsExpressionNameGrammar'
-pub static COLUMNS_EXPRESSION_NAME_GRAMMAR: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_columns_expression_name_grammar() -> Arc<Grammar> {
 Arc::new(Grammar::Nothing())
-);
+}
+
+pub static COLUMNS_EXPRESSION_NAME_GRAMMAR: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='ColumnsKeywordSegment'
-pub static COLUMNS_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_columns_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "COLUMNS",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static COLUMNS_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='CommaSegment'
-pub static COMMA_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_comma_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: ",",
     token_type: "comma",
     raw_class: "SymbolSegment",
     optional: false,
 })
-);
+}
+
+pub static COMMA_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='Command_functionKeywordSegment'
-pub static COMMAND_FUNCTION_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_command_function_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "COMMAND_FUNCTION",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static COMMAND_FUNCTION_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='Command_function_codeKeywordSegment'
-pub static COMMAND_FUNCTION_CODE_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_command_function_code_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "COMMAND_FUNCTION_CODE",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static COMMAND_FUNCTION_CODE_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='CommentClauseSegment'
-pub static COMMENT_CLAUSE_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_comment_clause_segment() -> Arc<Grammar> {
 // CommentClauseSegment
 Arc::new(Grammar::Sequence {
     elements: vec![
@@ -11027,48 +11355,58 @@ Arc::new(Grammar::Ref {
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
-);
+}
+
+pub static COMMENT_CLAUSE_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='CommentKeywordSegment'
-pub static COMMENT_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_comment_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "COMMENT",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static COMMENT_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='CommentSegment'
-pub static COMMENT_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_comment_segment() -> Arc<Grammar> {
 Arc::new(Grammar::Token{
     token_type: "comment",
 //    token_type: "CommentSegment",
 })
-);
+}
+
+pub static COMMENT_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='CommitKeywordSegment'
-pub static COMMIT_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_commit_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "COMMIT",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static COMMIT_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='CommittedKeywordSegment'
-pub static COMMITTED_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_committed_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "COMMITTED",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static COMMITTED_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='ComparisonOperatorGrammar'
-pub static COMPARISON_OPERATOR_GRAMMAR: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_comparison_operator_grammar() -> Arc<Grammar> {
 Arc::new(Grammar::OneOf {
     elements: vec![
 Arc::new(Grammar::Ref {
@@ -11196,64 +11534,78 @@ Arc::new(Grammar::Ref {
             token_types: hashbrown::HashSet::from_iter(["like_operator".to_string()]),
         }),
 })
-);
+}
+
+pub static COMPARISON_OPERATOR_GRAMMAR: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='ComparisonOperatorSegment'
-pub static COMPARISON_OPERATOR_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_comparison_operator_segment() -> Arc<Grammar> {
 Arc::new(Grammar::Token{
     token_type: "comparison_operator",
 //    token_type: "ComparisonOperatorSegment",
 })
-);
+}
+
+pub static COMPARISON_OPERATOR_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='CompletionKeywordSegment'
-pub static COMPLETION_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_completion_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "COMPLETION",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static COMPLETION_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='CompositeBinaryOperatorSegment'
-pub static COMPOSITE_BINARY_OPERATOR_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_composite_binary_operator_segment() -> Arc<Grammar> {
 Arc::new(Grammar::Token{
     token_type: "binary_operator",
 //    token_type: "CompositeBinaryOperatorSegment",
 })
-);
+}
+
+pub static COMPOSITE_BINARY_OPERATOR_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='CompositeComparisonOperatorSegment'
-pub static COMPOSITE_COMPARISON_OPERATOR_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_composite_comparison_operator_segment() -> Arc<Grammar> {
 Arc::new(Grammar::Token{
     token_type: "comparison_operator",
 //    token_type: "CompositeComparisonOperatorSegment",
 })
-);
+}
+
+pub static COMPOSITE_COMPARISON_OPERATOR_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='CompressKeywordSegment'
-pub static COMPRESS_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_compress_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "COMPRESS",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static COMPRESS_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='ComputeKeywordSegment'
-pub static COMPUTE_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_compute_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "COMPUTE",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static COMPUTE_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='ConcatSegment'
-pub static CONCAT_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_concat_segment() -> Arc<Grammar> {
 // ConcatSegment
 Arc::new(Grammar::Sequence {
     elements: vec![
@@ -11297,30 +11649,36 @@ Arc::new(Grammar::Ref {
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
-);
+}
+
+pub static CONCAT_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='ConditionKeywordSegment'
-pub static CONDITION_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_condition_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "CONDITION",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static CONDITION_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='Condition_numberKeywordSegment'
-pub static CONDITION_NUMBER_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_condition_number_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "CONDITION_NUMBER",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static CONDITION_NUMBER_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='ConditionalCrossJoinKeywordsGrammar'
-pub static CONDITIONAL_CROSS_JOIN_KEYWORDS_GRAMMAR: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_conditional_cross_join_keywords_grammar() -> Arc<Grammar> {
 Arc::new(Grammar::Ref {
     name: "CrossKeywordSegment",
     optional: false,
@@ -11334,10 +11692,12 @@ Arc::new(Grammar::Ref {
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
-);
+}
+
+pub static CONDITIONAL_CROSS_JOIN_KEYWORDS_GRAMMAR: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='ConditionalJoinKeywordsGrammar'
-pub static CONDITIONAL_JOIN_KEYWORDS_GRAMMAR: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_conditional_join_keywords_grammar() -> Arc<Grammar> {
 Arc::new(Grammar::OneOf {
     elements: vec![
 Arc::new(Grammar::Ref {
@@ -11389,210 +11749,252 @@ Arc::new(Grammar::Ref {
     parse_mode: ParseMode::Strict,
     simple_hint: None,
 })
-);
+}
+
+pub static CONDITIONAL_JOIN_KEYWORDS_GRAMMAR: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='ConnectKeywordSegment'
-pub static CONNECT_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_connect_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "CONNECT",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static CONNECT_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='ConnectionKeywordSegment'
-pub static CONNECTION_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_connection_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "CONNECTION",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static CONNECTION_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='Connection_nameKeywordSegment'
-pub static CONNECTION_NAME_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_connection_name_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "CONNECTION_NAME",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static CONNECTION_NAME_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='ConstraintKeywordSegment'
-pub static CONSTRAINT_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_constraint_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "CONSTRAINT",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static CONSTRAINT_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='Constraint_catalogKeywordSegment'
-pub static CONSTRAINT_CATALOG_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_constraint_catalog_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "CONSTRAINT_CATALOG",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static CONSTRAINT_CATALOG_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='Constraint_nameKeywordSegment'
-pub static CONSTRAINT_NAME_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_constraint_name_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "CONSTRAINT_NAME",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static CONSTRAINT_NAME_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='Constraint_schemaKeywordSegment'
-pub static CONSTRAINT_SCHEMA_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_constraint_schema_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "CONSTRAINT_SCHEMA",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static CONSTRAINT_SCHEMA_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='ConstraintsKeywordSegment'
-pub static CONSTRAINTS_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_constraints_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "CONSTRAINTS",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static CONSTRAINTS_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='ConstructorKeywordSegment'
-pub static CONSTRUCTOR_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_constructor_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "CONSTRUCTOR",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static CONSTRUCTOR_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='ContainsKeywordSegment'
-pub static CONTAINS_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_contains_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "CONTAINS",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static CONTAINS_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='ContainstableKeywordSegment'
-pub static CONTAINSTABLE_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_containstable_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "CONTAINSTABLE",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static CONTAINSTABLE_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='ContinueKeywordSegment'
-pub static CONTINUE_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_continue_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "CONTINUE",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static CONTINUE_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='ConversionKeywordSegment'
-pub static CONVERSION_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_conversion_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "CONVERSION",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static CONVERSION_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='ConvertKeywordSegment'
-pub static CONVERT_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_convert_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "CONVERT",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static CONVERT_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='CopyKeywordSegment'
-pub static COPY_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_copy_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "COPY",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static COPY_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='CorrKeywordSegment'
-pub static CORR_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_corr_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "CORR",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static CORR_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='CorrespondingKeywordSegment'
-pub static CORRESPONDING_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_corresponding_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "CORRESPONDING",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static CORRESPONDING_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='CountKeywordSegment'
-pub static COUNT_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_count_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "COUNT",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static COUNT_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='Covar_popKeywordSegment'
-pub static COVAR_POP_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_covar_pop_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "COVAR_POP",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static COVAR_POP_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='Covar_sampKeywordSegment'
-pub static COVAR_SAMP_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_covar_samp_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "COVAR_SAMP",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static COVAR_SAMP_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='CreateCastStatementSegment'
-pub static CREATE_CAST_STATEMENT_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_create_cast_statement_segment() -> Arc<Grammar> {
 // CreateCastStatementSegment
 Arc::new(Grammar::Sequence {
     elements: vec![
@@ -11986,10 +12388,12 @@ Arc::new(Grammar::Ref {
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
-);
+}
+
+pub static CREATE_CAST_STATEMENT_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='CreateDatabaseStatementSegment'
-pub static CREATE_DATABASE_STATEMENT_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_create_database_statement_segment() -> Arc<Grammar> {
 // CreateDatabaseStatementSegment
 Arc::new(Grammar::Sequence {
     elements: vec![
@@ -12058,10 +12462,12 @@ Arc::new(Grammar::Ref {
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
-);
+}
+
+pub static CREATE_DATABASE_STATEMENT_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='CreateFunctionStatementSegment'
-pub static CREATE_FUNCTION_STATEMENT_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_create_function_statement_segment() -> Arc<Grammar> {
 // CreateFunctionStatementSegment
 Arc::new(Grammar::Sequence {
     elements: vec![
@@ -12226,10 +12632,12 @@ Arc::new(Grammar::Ref {
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
-);
+}
+
+pub static CREATE_FUNCTION_STATEMENT_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='CreateIndexStatementSegment'
-pub static CREATE_INDEX_STATEMENT_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_create_index_statement_segment() -> Arc<Grammar> {
 // CreateIndexStatementSegment
 Arc::new(Grammar::Sequence {
     elements: vec![
@@ -12440,20 +12848,24 @@ Arc::new(Grammar::StringParser {
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
-);
+}
+
+pub static CREATE_INDEX_STATEMENT_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='CreateKeywordSegment'
-pub static CREATE_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_create_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "CREATE",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static CREATE_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='CreateModelStatementSegment'
-pub static CREATE_MODEL_STATEMENT_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_create_model_statement_segment() -> Arc<Grammar> {
 // CreateModelStatementSegment
 Arc::new(Grammar::Sequence {
     elements: vec![
@@ -12797,10 +13209,12 @@ Arc::new(Grammar::Ref {
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
-);
+}
+
+pub static CREATE_MODEL_STATEMENT_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='CreateRoleStatementSegment'
-pub static CREATE_ROLE_STATEMENT_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_create_role_statement_segment() -> Arc<Grammar> {
 // CreateRoleStatementSegment
 Arc::new(Grammar::Sequence {
     elements: vec![
@@ -12869,10 +13283,12 @@ Arc::new(Grammar::Ref {
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
-);
+}
+
+pub static CREATE_ROLE_STATEMENT_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='CreateSchemaStatementSegment'
-pub static CREATE_SCHEMA_STATEMENT_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_create_schema_statement_segment() -> Arc<Grammar> {
 // CreateSchemaStatementSegment
 Arc::new(Grammar::Sequence {
     elements: vec![
@@ -12941,10 +13357,12 @@ Arc::new(Grammar::Ref {
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
-);
+}
+
+pub static CREATE_SCHEMA_STATEMENT_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='CreateSequenceOptionsSegment'
-pub static CREATE_SEQUENCE_OPTIONS_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_create_sequence_options_segment() -> Arc<Grammar> {
 // CreateSequenceOptionsSegment
 Arc::new(Grammar::OneOf {
     elements: vec![
@@ -13234,10 +13652,12 @@ Arc::new(Grammar::Ref {
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
-);
+}
+
+pub static CREATE_SEQUENCE_OPTIONS_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='CreateSequenceStatementSegment'
-pub static CREATE_SEQUENCE_STATEMENT_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_create_sequence_statement_segment() -> Arc<Grammar> {
 // CreateSequenceStatementSegment
 Arc::new(Grammar::Sequence {
     elements: vec![
@@ -13325,10 +13745,12 @@ Arc::new(Grammar::Ref {
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
-);
+}
+
+pub static CREATE_SEQUENCE_STATEMENT_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='CreateTableStatementSegment'
-pub static CREATE_TABLE_STATEMENT_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_create_table_statement_segment() -> Arc<Grammar> {
 // CreateTableStatementSegment
 Arc::new(Grammar::Sequence {
     elements: vec![
@@ -13728,10 +14150,12 @@ Arc::new(Grammar::Ref {
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
-);
+}
+
+pub static CREATE_TABLE_STATEMENT_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='CreateTriggerStatementSegment'
-pub static CREATE_TRIGGER_STATEMENT_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_create_trigger_statement_segment() -> Arc<Grammar> {
 // CreateTriggerStatementSegment
 Arc::new(Grammar::Sequence {
     elements: vec![
@@ -14700,10 +15124,12 @@ Arc::new(Grammar::Ref {
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
-);
+}
+
+pub static CREATE_TRIGGER_STATEMENT_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='CreateUserStatementSegment'
-pub static CREATE_USER_STATEMENT_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_create_user_statement_segment() -> Arc<Grammar> {
 // CreateUserStatementSegment
 Arc::new(Grammar::Sequence {
     elements: vec![
@@ -14758,10 +15184,12 @@ Arc::new(Grammar::Ref {
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
-);
+}
+
+pub static CREATE_USER_STATEMENT_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='CreateViewStatementSegment'
-pub static CREATE_VIEW_STATEMENT_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_create_view_statement_segment() -> Arc<Grammar> {
 // CreateViewStatementSegment
 Arc::new(Grammar::Sequence {
     elements: vec![
@@ -14963,60 +15391,72 @@ Arc::new(Grammar::Ref {
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
-);
+}
+
+pub static CREATE_VIEW_STATEMENT_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='CreatedbKeywordSegment'
-pub static CREATEDB_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_createdb_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "CREATEDB",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static CREATEDB_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='CreateroleKeywordSegment'
-pub static CREATEROLE_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_createrole_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "CREATEROLE",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static CREATEROLE_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='CreateuserKeywordSegment'
-pub static CREATEUSER_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_createuser_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "CREATEUSER",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static CREATEUSER_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='CrossKeywordSegment'
-pub static CROSS_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_cross_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "CROSS",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static CROSS_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='CsvKeywordSegment'
-pub static CSV_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_csv_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "CSV",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static CSV_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='CubeFunctionNameSegment'
-pub static CUBE_FUNCTION_NAME_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_cube_function_name_segment() -> Arc<Grammar> {
 // CubeFunctionNameSegment
 Arc::new(Grammar::StringParser {
     template: "CUBE",
@@ -15024,20 +15464,24 @@ Arc::new(Grammar::StringParser {
     raw_class: "CodeSegment",
     optional: false,
 })
-);
+}
+
+pub static CUBE_FUNCTION_NAME_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='CubeKeywordSegment'
-pub static CUBE_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_cube_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "CUBE",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static CUBE_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='CubeRollupClauseSegment'
-pub static CUBE_ROLLUP_CLAUSE_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_cube_rollup_clause_segment() -> Arc<Grammar> {
 // CubeRollupClauseSegment
 Arc::new(Grammar::Sequence {
     elements: vec![
@@ -15141,160 +15585,192 @@ Arc::new(Grammar::StringParser {
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
-);
+}
+
+pub static CUBE_ROLLUP_CLAUSE_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='Cume_distKeywordSegment'
-pub static CUME_DIST_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_cume_dist_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "CUME_DIST",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static CUME_DIST_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='CurrentKeywordSegment'
-pub static CURRENT_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_current_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "CURRENT",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static CURRENT_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='Current_dateKeywordSegment'
-pub static CURRENT_DATE_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_current_date_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "CURRENT_DATE",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static CURRENT_DATE_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='Current_default_transform_groupKeywordSegment'
-pub static CURRENT_DEFAULT_TRANSFORM_GROUP_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_current_default_transform_group_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "CURRENT_DEFAULT_TRANSFORM_GROUP",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static CURRENT_DEFAULT_TRANSFORM_GROUP_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='Current_pathKeywordSegment'
-pub static CURRENT_PATH_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_current_path_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "CURRENT_PATH",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static CURRENT_PATH_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='Current_roleKeywordSegment'
-pub static CURRENT_ROLE_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_current_role_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "CURRENT_ROLE",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static CURRENT_ROLE_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='Current_timeKeywordSegment'
-pub static CURRENT_TIME_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_current_time_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "CURRENT_TIME",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static CURRENT_TIME_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='Current_timestampKeywordSegment'
-pub static CURRENT_TIMESTAMP_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_current_timestamp_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "CURRENT_TIMESTAMP",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static CURRENT_TIMESTAMP_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='Current_transform_group_for_typeKeywordSegment'
-pub static CURRENT_TRANSFORM_GROUP_FOR_TYPE_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_current_transform_group_for_type_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "CURRENT_TRANSFORM_GROUP_FOR_TYPE",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static CURRENT_TRANSFORM_GROUP_FOR_TYPE_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='Current_userKeywordSegment'
-pub static CURRENT_USER_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_current_user_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "CURRENT_USER",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static CURRENT_USER_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='CursorKeywordSegment'
-pub static CURSOR_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_cursor_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "CURSOR",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static CURSOR_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='Cursor_nameKeywordSegment'
-pub static CURSOR_NAME_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_cursor_name_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "CURSOR_NAME",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static CURSOR_NAME_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='CycleKeywordSegment'
-pub static CYCLE_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_cycle_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "CYCLE",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static CYCLE_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='DataKeywordSegment'
-pub static DATA_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_data_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "DATA",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static DATA_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='DatabaseKeywordSegment'
-pub static DATABASE_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_database_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "DATABASE",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static DATABASE_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='DatabaseReferenceSegment'
-pub static DATABASE_REFERENCE_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_database_reference_segment() -> Arc<Grammar> {
 // DatabaseReferenceSegment
 Arc::new(Grammar::Delimited {
     elements: vec![
@@ -15347,20 +15823,24 @@ Arc::new(Grammar::Ref {
     parse_mode: ParseMode::Strict,
     simple_hint: None,
 })
-);
+}
+
+pub static DATABASE_REFERENCE_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='DatabasesKeywordSegment'
-pub static DATABASES_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_databases_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "DATABASES",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static DATABASES_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='DatatypeIdentifierSegment'
-pub static DATATYPE_IDENTIFIER_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_datatype_identifier_segment() -> Arc<Grammar> {
 Arc::new(Grammar::OneOf {
     elements: vec![
 Arc::new(Grammar::RegexParser {
@@ -15403,10 +15883,12 @@ Arc::new(Grammar::Ref {
     parse_mode: ParseMode::Strict,
     simple_hint: None,
 })
-);
+}
+
+pub static DATATYPE_IDENTIFIER_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='DatatypeSegment'
-pub static DATATYPE_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_datatype_segment() -> Arc<Grammar> {
 // DatatypeSegment
 Arc::new(Grammar::OneOf {
     elements: vec![
@@ -15760,30 +16242,36 @@ Arc::new(Grammar::Ref {
     parse_mode: ParseMode::Strict,
     simple_hint: None,
 })
-);
+}
+
+pub static DATATYPE_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='DateKeywordSegment'
-pub static DATE_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_date_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "DATE",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static DATE_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='DatePartFunctionName'
-pub static DATE_PART_FUNCTION_NAME: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_date_part_function_name() -> Arc<Grammar> {
 Arc::new(Grammar::MultiStringParser {
     templates: vec!["DATEADD"],
     token_type: "function_name_identifier",
     raw_class: "CodeSegment",
     optional: false,
 })
-);
+}
+
+pub static DATE_PART_FUNCTION_NAME: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='DatePartFunctionNameSegment'
-pub static DATE_PART_FUNCTION_NAME_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_date_part_function_name_segment() -> Arc<Grammar> {
 // DatePartFunctionNameSegment
 Arc::new(Grammar::Ref {
     name: "DatePartFunctionName",
@@ -15798,10 +16286,12 @@ Arc::new(Grammar::Ref {
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
-);
+}
+
+pub static DATE_PART_FUNCTION_NAME_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='DateTimeFunctionContentsSegment'
-pub static DATE_TIME_FUNCTION_CONTENTS_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_date_time_function_contents_segment() -> Arc<Grammar> {
 // DateTimeFunctionContentsSegment
 Arc::new(Grammar::Sequence {
     elements: vec![
@@ -15905,10 +16395,12 @@ Arc::new(Grammar::StringParser {
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
-);
+}
+
+pub static DATE_TIME_FUNCTION_CONTENTS_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='DateTimeLiteralGrammar'
-pub static DATE_TIME_LITERAL_GRAMMAR: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_date_time_literal_grammar() -> Arc<Grammar> {
 Arc::new(Grammar::Sequence {
     elements: vec![
 Arc::new(Grammar::OneOf {
@@ -16002,205 +16494,247 @@ Arc::new(Grammar::TypedParser {
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
-);
+}
+
+pub static DATE_TIME_LITERAL_GRAMMAR: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='DatetimeKeywordSegment'
-pub static DATETIME_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_datetime_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "DATETIME",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static DATETIME_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='DatetimeUnitSegment'
-pub static DATETIME_UNIT_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_datetime_unit_segment() -> Arc<Grammar> {
 Arc::new(Grammar::MultiStringParser {
     templates: vec!["DAY", "DAYOFYEAR", "HOUR", "MILLISECOND", "MINUTE", "MONTH", "QUARTER", "SECOND", "WEEK", "WEEKDAY", "YEAR"],
     token_type: "date_part",
     raw_class: "CodeSegment",
     optional: false,
 })
-);
+}
+
+pub static DATETIME_UNIT_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='Datetime_interval_codeKeywordSegment'
-pub static DATETIME_INTERVAL_CODE_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_datetime_interval_code_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "DATETIME_INTERVAL_CODE",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static DATETIME_INTERVAL_CODE_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='Datetime_interval_precisionKeywordSegment'
-pub static DATETIME_INTERVAL_PRECISION_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_datetime_interval_precision_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "DATETIME_INTERVAL_PRECISION",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static DATETIME_INTERVAL_PRECISION_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='DayKeywordSegment'
-pub static DAY_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_day_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "DAY",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static DAY_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='Day_hourKeywordSegment'
-pub static DAY_HOUR_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_day_hour_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "DAY_HOUR",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static DAY_HOUR_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='Day_microsecondKeywordSegment'
-pub static DAY_MICROSECOND_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_day_microsecond_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "DAY_MICROSECOND",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static DAY_MICROSECOND_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='Day_minuteKeywordSegment'
-pub static DAY_MINUTE_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_day_minute_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "DAY_MINUTE",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static DAY_MINUTE_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='Day_secondKeywordSegment'
-pub static DAY_SECOND_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_day_second_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "DAY_SECOND",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static DAY_SECOND_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='DayofmonthKeywordSegment'
-pub static DAYOFMONTH_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_dayofmonth_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "DAYOFMONTH",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static DAYOFMONTH_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='DayofweekKeywordSegment'
-pub static DAYOFWEEK_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_dayofweek_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "DAYOFWEEK",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static DAYOFWEEK_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='DayofyearKeywordSegment'
-pub static DAYOFYEAR_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_dayofyear_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "DAYOFYEAR",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static DAYOFYEAR_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='DaysKeywordSegment'
-pub static DAYS_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_days_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "DAYS",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static DAYS_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='DbccKeywordSegment'
-pub static DBCC_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_dbcc_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "DBCC",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static DBCC_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='DeallocateKeywordSegment'
-pub static DEALLOCATE_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_deallocate_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "DEALLOCATE",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static DEALLOCATE_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='DecKeywordSegment'
-pub static DEC_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_dec_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "DEC",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static DEC_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='DecimalKeywordSegment'
-pub static DECIMAL_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_decimal_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "DECIMAL",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static DECIMAL_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='DeclareKeywordSegment'
-pub static DECLARE_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_declare_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "DECLARE",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static DECLARE_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='Dedent'
-pub static DEDENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_dedent() -> Arc<Grammar> {
 Arc::new(Grammar::Meta("dedent"))
-);
+}
+
+pub static DEDENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='DefaultKeywordSegment'
-pub static DEFAULT_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_default_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "DEFAULT",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static DEFAULT_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='DefaultValuesGrammar'
-pub static DEFAULT_VALUES_GRAMMAR: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_default_values_grammar() -> Arc<Grammar> {
 Arc::new(Grammar::Sequence {
     elements: vec![
 Arc::new(Grammar::Ref {
@@ -16243,100 +16777,120 @@ Arc::new(Grammar::Ref {
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
-);
+}
+
+pub static DEFAULT_VALUES_GRAMMAR: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='DefaultsKeywordSegment'
-pub static DEFAULTS_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_defaults_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "DEFAULTS",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static DEFAULTS_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='DeferrableKeywordSegment'
-pub static DEFERRABLE_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_deferrable_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "DEFERRABLE",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static DEFERRABLE_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='DeferredKeywordSegment'
-pub static DEFERRED_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_deferred_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "DEFERRED",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static DEFERRED_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='DefinedKeywordSegment'
-pub static DEFINED_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_defined_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "DEFINED",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static DEFINED_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='DefinerKeywordSegment'
-pub static DEFINER_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_definer_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "DEFINER",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static DEFINER_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='DegreeKeywordSegment'
-pub static DEGREE_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_degree_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "DEGREE",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static DEGREE_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='Delay_key_writeKeywordSegment'
-pub static DELAY_KEY_WRITE_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_delay_key_write_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "DELAY_KEY_WRITE",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static DELAY_KEY_WRITE_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='DelayedKeywordSegment'
-pub static DELAYED_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_delayed_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "DELAYED",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static DELAYED_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='DeleteKeywordSegment'
-pub static DELETE_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_delete_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "DELETE",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static DELETE_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='DeleteStatementSegment'
-pub static DELETE_STATEMENT_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_delete_statement_segment() -> Arc<Grammar> {
 // DeleteStatementSegment
 Arc::new(Grammar::Sequence {
     elements: vec![
@@ -16394,10 +16948,12 @@ Arc::new(Grammar::Ref {
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
-);
+}
+
+pub static DELETE_STATEMENT_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='DelimiterGrammar'
-pub static DELIMITER_GRAMMAR: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_delimiter_grammar() -> Arc<Grammar> {
 Arc::new(Grammar::Ref {
     name: "SemicolonSegment",
     optional: false,
@@ -16411,100 +16967,120 @@ Arc::new(Grammar::Ref {
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
-);
+}
+
+pub static DELIMITER_GRAMMAR: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='DelimiterKeywordSegment'
-pub static DELIMITER_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_delimiter_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "DELIMITER",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static DELIMITER_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='DelimitersKeywordSegment'
-pub static DELIMITERS_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_delimiters_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "DELIMITERS",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static DELIMITERS_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='Dense_rankKeywordSegment'
-pub static DENSE_RANK_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_dense_rank_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "DENSE_RANK",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static DENSE_RANK_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='DenyKeywordSegment'
-pub static DENY_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_deny_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "DENY",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static DENY_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='DepthKeywordSegment'
-pub static DEPTH_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_depth_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "DEPTH",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static DEPTH_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='DerefKeywordSegment'
-pub static DEREF_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_deref_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "DEREF",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static DEREF_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='DerivedKeywordSegment'
-pub static DERIVED_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_derived_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "DERIVED",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static DERIVED_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='DescKeywordSegment'
-pub static DESC_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_desc_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "DESC",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static DESC_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='DescribeKeywordSegment'
-pub static DESCRIBE_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_describe_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "DESCRIBE",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static DESCRIBE_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='DescribeStatementSegment'
-pub static DESCRIBE_STATEMENT_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_describe_statement_segment() -> Arc<Grammar> {
 // DescribeStatementSegment
 Arc::new(Grammar::Sequence {
     elements: vec![
@@ -16556,200 +17132,240 @@ Arc::new(Grammar::Ref {
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
-);
+}
+
+pub static DESCRIBE_STATEMENT_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='DescriptorKeywordSegment'
-pub static DESCRIPTOR_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_descriptor_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "DESCRIPTOR",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static DESCRIPTOR_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='DestroyKeywordSegment'
-pub static DESTROY_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_destroy_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "DESTROY",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static DESTROY_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='DestructorKeywordSegment'
-pub static DESTRUCTOR_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_destructor_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "DESTRUCTOR",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static DESTRUCTOR_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='DeterministicKeywordSegment'
-pub static DETERMINISTIC_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_deterministic_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "DETERMINISTIC",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static DETERMINISTIC_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='DiagnosticsKeywordSegment'
-pub static DIAGNOSTICS_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_diagnostics_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "DIAGNOSTICS",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static DIAGNOSTICS_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='DictionaryKeywordSegment'
-pub static DICTIONARY_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_dictionary_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "DICTIONARY",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static DICTIONARY_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='DisableKeywordSegment'
-pub static DISABLE_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_disable_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "DISABLE",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static DISABLE_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='DisconnectKeywordSegment'
-pub static DISCONNECT_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_disconnect_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "DISCONNECT",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static DISCONNECT_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='DiskKeywordSegment'
-pub static DISK_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_disk_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "DISK",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static DISK_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='DispatchKeywordSegment'
-pub static DISPATCH_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_dispatch_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "DISPATCH",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static DISPATCH_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='DistinctKeywordSegment'
-pub static DISTINCT_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_distinct_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "DISTINCT",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static DISTINCT_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='DistinctrowKeywordSegment'
-pub static DISTINCTROW_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_distinctrow_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "DISTINCTROW",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static DISTINCTROW_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='DistributedKeywordSegment'
-pub static DISTRIBUTED_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_distributed_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "DISTRIBUTED",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static DISTRIBUTED_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='DivKeywordSegment'
-pub static DIV_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_div_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "DIV",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static DIV_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='DivideSegment'
-pub static DIVIDE_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_divide_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "/",
     token_type: "binary_operator",
     raw_class: "SymbolSegment",
     optional: false,
 })
-);
+}
+
+pub static DIVIDE_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='DoKeywordSegment'
-pub static DO_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_do_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "DO",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static DO_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='DomainKeywordSegment'
-pub static DOMAIN_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_domain_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "DOMAIN",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static DOMAIN_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='DotSegment'
-pub static DOT_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_dot_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: ".",
     token_type: "dot",
     raw_class: "SymbolSegment",
     optional: false,
 })
-);
+}
+
+pub static DOT_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='DoubleKeywordSegment'
-pub static DOUBLE_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_double_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "DOUBLE",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static DOUBLE_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='DropBehaviorGrammar'
-pub static DROP_BEHAVIOR_GRAMMAR: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_drop_behavior_grammar() -> Arc<Grammar> {
 Arc::new(Grammar::OneOf {
     elements: vec![
 Arc::new(Grammar::Ref {
@@ -16793,10 +17409,12 @@ Arc::new(Grammar::Ref {
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
-);
+}
+
+pub static DROP_BEHAVIOR_GRAMMAR: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='DropCastStatementSegment'
-pub static DROP_CAST_STATEMENT_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_drop_cast_statement_segment() -> Arc<Grammar> {
 // DropCastStatementSegment
 Arc::new(Grammar::Sequence {
     elements: vec![
@@ -16923,10 +17541,12 @@ Arc::new(Grammar::Ref {
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
-);
+}
+
+pub static DROP_CAST_STATEMENT_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='DropDatabaseStatementSegment'
-pub static DROP_DATABASE_STATEMENT_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_drop_database_statement_segment() -> Arc<Grammar> {
 // DropDatabaseStatementSegment
 Arc::new(Grammar::Sequence {
     elements: vec![
@@ -17009,10 +17629,12 @@ Arc::new(Grammar::Ref {
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
-);
+}
+
+pub static DROP_DATABASE_STATEMENT_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='DropFunctionStatementSegment'
-pub static DROP_FUNCTION_STATEMENT_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_drop_function_statement_segment() -> Arc<Grammar> {
 // DropFunctionStatementSegment
 Arc::new(Grammar::Sequence {
     elements: vec![
@@ -17081,10 +17703,12 @@ Arc::new(Grammar::Ref {
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
-);
+}
+
+pub static DROP_FUNCTION_STATEMENT_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='DropIndexStatementSegment'
-pub static DROP_INDEX_STATEMENT_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_drop_index_statement_segment() -> Arc<Grammar> {
 // DropIndexStatementSegment
 Arc::new(Grammar::Sequence {
     elements: vec![
@@ -17167,20 +17791,24 @@ Arc::new(Grammar::Ref {
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
-);
+}
+
+pub static DROP_INDEX_STATEMENT_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='DropKeywordSegment'
-pub static DROP_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_drop_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "DROP",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static DROP_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='DropModelStatementSegment'
-pub static DROP_MODEL_STATEMENT_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_drop_model_statement_segment() -> Arc<Grammar> {
 // DropModelStatementSegment
 Arc::new(Grammar::Sequence {
     elements: vec![
@@ -17249,10 +17877,12 @@ Arc::new(Grammar::Ref {
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
-);
+}
+
+pub static DROP_MODEL_STATEMENT_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='DropRoleStatementSegment'
-pub static DROP_ROLE_STATEMENT_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_drop_role_statement_segment() -> Arc<Grammar> {
 // DropRoleStatementSegment
 Arc::new(Grammar::Sequence {
     elements: vec![
@@ -17321,10 +17951,12 @@ Arc::new(Grammar::Ref {
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
-);
+}
+
+pub static DROP_ROLE_STATEMENT_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='DropSchemaStatementSegment'
-pub static DROP_SCHEMA_STATEMENT_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_drop_schema_statement_segment() -> Arc<Grammar> {
 // DropSchemaStatementSegment
 Arc::new(Grammar::Sequence {
     elements: vec![
@@ -17407,10 +18039,12 @@ Arc::new(Grammar::Ref {
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
-);
+}
+
+pub static DROP_SCHEMA_STATEMENT_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='DropSequenceStatementSegment'
-pub static DROP_SEQUENCE_STATEMENT_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_drop_sequence_statement_segment() -> Arc<Grammar> {
 // DropSequenceStatementSegment
 Arc::new(Grammar::Sequence {
     elements: vec![
@@ -17465,10 +18099,12 @@ Arc::new(Grammar::Ref {
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
-);
+}
+
+pub static DROP_SEQUENCE_STATEMENT_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='DropTableStatementSegment'
-pub static DROP_TABLE_STATEMENT_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_drop_table_statement_segment() -> Arc<Grammar> {
 // DropTableStatementSegment
 Arc::new(Grammar::Sequence {
     elements: vec![
@@ -17595,10 +18231,12 @@ Arc::new(Grammar::Ref {
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
-);
+}
+
+pub static DROP_TABLE_STATEMENT_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='DropTriggerStatementSegment'
-pub static DROP_TRIGGER_STATEMENT_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_drop_trigger_statement_segment() -> Arc<Grammar> {
 // DropTriggerStatementSegment
 Arc::new(Grammar::Sequence {
     elements: vec![
@@ -17667,10 +18305,12 @@ Arc::new(Grammar::Ref {
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
-);
+}
+
+pub static DROP_TRIGGER_STATEMENT_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='DropTypeStatementSegment'
-pub static DROP_TYPE_STATEMENT_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_drop_type_statement_segment() -> Arc<Grammar> {
 // DropTypeStatementSegment
 Arc::new(Grammar::Sequence {
     elements: vec![
@@ -17753,10 +18393,12 @@ Arc::new(Grammar::Ref {
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
-);
+}
+
+pub static DROP_TYPE_STATEMENT_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='DropUserStatementSegment'
-pub static DROP_USER_STATEMENT_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_drop_user_statement_segment() -> Arc<Grammar> {
 // DropUserStatementSegment
 Arc::new(Grammar::Sequence {
     elements: vec![
@@ -17825,10 +18467,12 @@ Arc::new(Grammar::Ref {
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
-);
+}
+
+pub static DROP_USER_STATEMENT_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='DropViewStatementSegment'
-pub static DROP_VIEW_STATEMENT_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_drop_view_statement_segment() -> Arc<Grammar> {
 // DropViewStatementSegment
 Arc::new(Grammar::Sequence {
     elements: vec![
@@ -17911,80 +18555,96 @@ Arc::new(Grammar::Ref {
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
-);
+}
+
+pub static DROP_VIEW_STATEMENT_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='DummyKeywordSegment'
-pub static DUMMY_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_dummy_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "DUMMY",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static DUMMY_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='DumpKeywordSegment'
-pub static DUMP_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_dump_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "DUMP",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static DUMP_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='DynamicKeywordSegment'
-pub static DYNAMIC_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_dynamic_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "DYNAMIC",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static DYNAMIC_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='Dynamic_functionKeywordSegment'
-pub static DYNAMIC_FUNCTION_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_dynamic_function_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "DYNAMIC_FUNCTION",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static DYNAMIC_FUNCTION_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='Dynamic_function_codeKeywordSegment'
-pub static DYNAMIC_FUNCTION_CODE_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_dynamic_function_code_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "DYNAMIC_FUNCTION_CODE",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static DYNAMIC_FUNCTION_CODE_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='EachKeywordSegment'
-pub static EACH_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_each_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "EACH",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static EACH_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='ElementKeywordSegment'
-pub static ELEMENT_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_element_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "ELEMENT",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static ELEMENT_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='ElseClauseSegment'
-pub static ELSE_CLAUSE_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_else_clause_segment() -> Arc<Grammar> {
 // ElseClauseSegment
 Arc::new(Grammar::Sequence {
     elements: vec![
@@ -18029,30 +18689,36 @@ Arc::new(Grammar::Meta("dedent"))
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
-);
+}
+
+pub static ELSE_CLAUSE_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='ElseKeywordSegment'
-pub static ELSE_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_else_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "ELSE",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static ELSE_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='ElseifKeywordSegment'
-pub static ELSEIF_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_elseif_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "ELSEIF",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static ELSEIF_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='EmptyStructLiteralBracketsSegment'
-pub static EMPTY_STRUCT_LITERAL_BRACKETS_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_empty_struct_literal_brackets_segment() -> Arc<Grammar> {
 // EmptyStructLiteralBracketsSegment
 Arc::new(Grammar::Bracketed {
     elements: vec![
@@ -18086,10 +18752,12 @@ Arc::new(Grammar::StringParser {
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
-);
+}
+
+pub static EMPTY_STRUCT_LITERAL_BRACKETS_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='EmptyStructLiteralSegment'
-pub static EMPTY_STRUCT_LITERAL_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_empty_struct_literal_segment() -> Arc<Grammar> {
 // EmptyStructLiteralSegment
 Arc::new(Grammar::Sequence {
     elements: vec![
@@ -18127,120 +18795,144 @@ Arc::new(Grammar::Ref {
     parse_mode: ParseMode::Strict,
     simple_hint: None,
 })
-);
+}
+
+pub static EMPTY_STRUCT_LITERAL_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='EnableKeywordSegment'
-pub static ENABLE_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_enable_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "ENABLE",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static ENABLE_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='EnclosedKeywordSegment'
-pub static ENCLOSED_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_enclosed_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "ENCLOSED",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static ENCLOSED_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='EncodingKeywordSegment'
-pub static ENCODING_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_encoding_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "ENCODING",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static ENCODING_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='EncryptedKeywordSegment'
-pub static ENCRYPTED_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_encrypted_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "ENCRYPTED",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static ENCRYPTED_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='End-execKeywordSegment'
-pub static END_EXEC_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_end_exec_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "END-EXEC",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static END_EXEC_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='EndBracketSegment'
-pub static END_BRACKET_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_end_bracket_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: ")",
     token_type: "end_bracket",
     raw_class: "SymbolSegment",
     optional: false,
 })
-);
+}
+
+pub static END_BRACKET_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='EndCurlyBracketSegment'
-pub static END_CURLY_BRACKET_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_end_curly_bracket_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "}",
     token_type: "end_curly_bracket",
     raw_class: "SymbolSegment",
     optional: false,
 })
-);
+}
+
+pub static END_CURLY_BRACKET_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='EndKeywordSegment'
-pub static END_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_end_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "END",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static END_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='EndSquareBracketSegment'
-pub static END_SQUARE_BRACKET_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_end_square_bracket_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "]",
     token_type: "end_square_bracket",
     raw_class: "SymbolSegment",
     optional: false,
 })
-);
+}
+
+pub static END_SQUARE_BRACKET_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='EnumKeywordSegment'
-pub static ENUM_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_enum_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "ENUM",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static ENUM_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='EqualsKeywordSegment'
-pub static EQUALS_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_equals_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "EQUALS",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static EQUALS_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='EqualsSegment'
-pub static EQUALS_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_equals_segment() -> Arc<Grammar> {
 // EqualsSegment
 Arc::new(Grammar::Ref {
     name: "RawEqualsSegment",
@@ -18255,180 +18947,216 @@ Arc::new(Grammar::Ref {
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
-);
+}
+
+pub static EQUALS_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='ErrlvlKeywordSegment'
-pub static ERRLVL_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_errlvl_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "ERRLVL",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static ERRLVL_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='EscapeKeywordSegment'
-pub static ESCAPE_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_escape_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "ESCAPE",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static ESCAPE_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='EscapedKeywordSegment'
-pub static ESCAPED_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_escaped_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "ESCAPED",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static ESCAPED_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='EveryKeywordSegment'
-pub static EVERY_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_every_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "EVERY",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static EVERY_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='ExceptKeywordSegment'
-pub static EXCEPT_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_except_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "EXCEPT",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static EXCEPT_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='ExceptionKeywordSegment'
-pub static EXCEPTION_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_exception_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "EXCEPTION",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static EXCEPTION_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='ExcludeKeywordSegment'
-pub static EXCLUDE_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_exclude_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "EXCLUDE",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static EXCLUDE_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='ExcludingKeywordSegment'
-pub static EXCLUDING_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_excluding_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "EXCLUDING",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static EXCLUDING_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='ExclusiveKeywordSegment'
-pub static EXCLUSIVE_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_exclusive_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "EXCLUSIVE",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static EXCLUSIVE_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='ExecKeywordSegment'
-pub static EXEC_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_exec_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "EXEC",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static EXEC_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='ExecuteKeywordSegment'
-pub static EXECUTE_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_execute_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "EXECUTE",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static EXECUTE_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='ExecutionKeywordSegment'
-pub static EXECUTION_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_execution_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "EXECUTION",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static EXECUTION_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='ExistingKeywordSegment'
-pub static EXISTING_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_existing_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "EXISTING",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static EXISTING_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='ExistsKeywordSegment'
-pub static EXISTS_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_exists_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "EXISTS",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static EXISTS_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='ExitKeywordSegment'
-pub static EXIT_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_exit_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "EXIT",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static EXIT_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='ExpKeywordSegment'
-pub static EXP_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_exp_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "EXP",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static EXP_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='ExplainKeywordSegment'
-pub static EXPLAIN_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_explain_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "EXPLAIN",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static EXPLAIN_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='ExplainStatementSegment'
-pub static EXPLAIN_STATEMENT_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_explain_statement_segment() -> Arc<Grammar> {
 // ExplainStatementSegment
 Arc::new(Grammar::Sequence {
     elements: vec![
@@ -18530,10 +19258,12 @@ Arc::new(Grammar::Ref {
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
-);
+}
+
+pub static EXPLAIN_STATEMENT_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='ExpressionSegment'
-pub static EXPRESSION_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_expression_segment() -> Arc<Grammar> {
 // ExpressionSegment
 Arc::new(Grammar::Ref {
     name: "Expression_A_Grammar",
@@ -18545,10 +19275,12 @@ Arc::new(Grammar::Ref {
     reset_terminators: false,
     simple_hint: None,
 })
-);
+}
+
+pub static EXPRESSION_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='Expression_A_Grammar'
-pub static EXPRESSION_A_GRAMMAR: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_expression_a_grammar() -> Arc<Grammar> {
 Arc::new(Grammar::Sequence {
     elements: vec![
 Arc::new(Grammar::Ref {
@@ -18868,10 +19600,12 @@ Arc::new(Grammar::Ref {
     parse_mode: ParseMode::Strict,
     simple_hint: None,
 })
-);
+}
+
+pub static EXPRESSION_A_GRAMMAR: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='Expression_A_Unary_Operator_Grammar'
-pub static EXPRESSION_A_UNARY_OPERATOR_GRAMMAR: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_expression_a_unary_operator_grammar() -> Arc<Grammar> {
 Arc::new(Grammar::OneOf {
     elements: vec![
 Arc::new(Grammar::Ref {
@@ -18972,10 +19706,12 @@ Arc::new(Grammar::Ref {
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
-);
+}
+
+pub static EXPRESSION_A_UNARY_OPERATOR_GRAMMAR: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='Expression_B_Grammar'
-pub static EXPRESSION_B_GRAMMAR: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_expression_b_grammar() -> Arc<Grammar> {
 Arc::new(Grammar::Sequence {
     elements: vec![
 Arc::new(Grammar::Ref {
@@ -19117,10 +19853,12 @@ Arc::new(Grammar::Ref {
     parse_mode: ParseMode::Strict,
     simple_hint: None,
 })
-);
+}
+
+pub static EXPRESSION_B_GRAMMAR: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='Expression_B_Unary_Operator_Grammar'
-pub static EXPRESSION_B_UNARY_OPERATOR_GRAMMAR: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_expression_b_unary_operator_grammar() -> Arc<Grammar> {
 Arc::new(Grammar::OneOf {
     elements: vec![
 Arc::new(Grammar::Ref {
@@ -19193,10 +19931,12 @@ Arc::new(Grammar::Ref {
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
-);
+}
+
+pub static EXPRESSION_B_UNARY_OPERATOR_GRAMMAR: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='Expression_C_Grammar'
-pub static EXPRESSION_C_GRAMMAR: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_expression_c_grammar() -> Arc<Grammar> {
 Arc::new(Grammar::OneOf {
     elements: vec![
 Arc::new(Grammar::Sequence {
@@ -19393,10 +20133,12 @@ Arc::new(Grammar::Ref {
     parse_mode: ParseMode::Strict,
     simple_hint: None,
 })
-);
+}
+
+pub static EXPRESSION_C_GRAMMAR: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='Expression_D_Grammar'
-pub static EXPRESSION_D_GRAMMAR: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_expression_d_grammar() -> Arc<Grammar> {
 Arc::new(Grammar::Sequence {
     elements: vec![
 Arc::new(Grammar::OneOf {
@@ -19944,10 +20686,12 @@ Arc::new(Grammar::Ref {
     parse_mode: ParseMode::Strict,
     simple_hint: None,
 })
-);
+}
+
+pub static EXPRESSION_D_GRAMMAR: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='Expression_D_Potential_Select_Statement_Without_Brackets'
-pub static EXPRESSION_D_POTENTIAL_SELECT_STATEMENT_WITHOUT_BRACKETS: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_expression_d_potential_select_statement_without_brackets() -> Arc<Grammar> {
 Arc::new(Grammar::OneOf {
     elements: vec![
 Arc::new(Grammar::Ref {
@@ -20046,25 +20790,31 @@ Arc::new(Grammar::Ref {
     parse_mode: ParseMode::Strict,
     simple_hint: None,
 })
-);
+}
+
+pub static EXPRESSION_D_POTENTIAL_SELECT_STATEMENT_WITHOUT_BRACKETS: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='ExtendedNaturalJoinKeywordsGrammar'
-pub static EXTENDED_NATURAL_JOIN_KEYWORDS_GRAMMAR: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_extended_natural_join_keywords_grammar() -> Arc<Grammar> {
 Arc::new(Grammar::Nothing())
-);
+}
+
+pub static EXTENDED_NATURAL_JOIN_KEYWORDS_GRAMMAR: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='ExtensionKeywordSegment'
-pub static EXTENSION_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_extension_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "EXTENSION",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static EXTENSION_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='ExtensionReferenceSegment'
-pub static EXTENSION_REFERENCE_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_extension_reference_segment() -> Arc<Grammar> {
 // ExtensionReferenceSegment
 Arc::new(Grammar::Delimited {
     elements: vec![
@@ -20117,50 +20867,60 @@ Arc::new(Grammar::Ref {
     parse_mode: ParseMode::Strict,
     simple_hint: None,
 })
-);
+}
+
+pub static EXTENSION_REFERENCE_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='ExternalKeywordSegment'
-pub static EXTERNAL_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_external_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "EXTERNAL",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static EXTERNAL_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='ExtractKeywordSegment'
-pub static EXTRACT_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_extract_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "EXTRACT",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static EXTRACT_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='FalseKeywordSegment'
-pub static FALSE_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_false_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "FALSE",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static FALSE_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='FalseSegment'
-pub static FALSE_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_false_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "FALSE",
     token_type: "boolean_literal",
     raw_class: "LiteralKeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static FALSE_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='FetchClauseSegment'
-pub static FETCH_CLAUSE_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_fetch_clause_segment() -> Arc<Grammar> {
 // FetchClauseSegment
 Arc::new(Grammar::Sequence {
     elements: vec![
@@ -20403,40 +21163,48 @@ Arc::new(Grammar::Ref {
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
-);
+}
+
+pub static FETCH_CLAUSE_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='FetchKeywordSegment'
-pub static FETCH_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_fetch_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "FETCH",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static FETCH_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='FieldsKeywordSegment'
-pub static FIELDS_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_fields_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "FIELDS",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static FIELDS_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='FileKeywordSegment'
-pub static FILE_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_file_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "FILE",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static FILE_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='FileSegment'
-pub static FILE_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_file_segment() -> Arc<Grammar> {
 // FileSegment
 Arc::new(Grammar::Sequence {
     elements: vec![
@@ -20584,20 +21352,24 @@ Arc::new(Grammar::Ref {
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
-);
+}
+
+pub static FILE_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='FillfactorKeywordSegment'
-pub static FILLFACTOR_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_fillfactor_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "FILLFACTOR",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static FILLFACTOR_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='FilterClauseGrammar'
-pub static FILTER_CLAUSE_GRAMMAR: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_filter_clause_grammar() -> Arc<Grammar> {
 Arc::new(Grammar::Sequence {
     elements: vec![
 Arc::new(Grammar::Ref {
@@ -20699,120 +21471,144 @@ Arc::new(Grammar::StringParser {
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
-);
+}
+
+pub static FILTER_CLAUSE_GRAMMAR: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='FilterKeywordSegment'
-pub static FILTER_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_filter_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "FILTER",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static FILTER_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='FinalKeywordSegment'
-pub static FINAL_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_final_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "FINAL",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static FINAL_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='FirstKeywordSegment'
-pub static FIRST_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_first_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "FIRST",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static FIRST_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='Float4KeywordSegment'
-pub static FLOAT4_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_float4_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "FLOAT4",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static FLOAT4_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='Float8KeywordSegment'
-pub static FLOAT8_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_float8_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "FLOAT8",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static FLOAT8_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='FloatKeywordSegment'
-pub static FLOAT_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_float_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "FLOAT",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static FLOAT_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='FloorKeywordSegment'
-pub static FLOOR_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_floor_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "FLOOR",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static FLOOR_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='FlushKeywordSegment'
-pub static FLUSH_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_flush_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "FLUSH",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static FLUSH_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='FollowingKeywordSegment'
-pub static FOLLOWING_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_following_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "FOLLOWING",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static FOLLOWING_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='ForKeywordSegment'
-pub static FOR_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_for_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "FOR",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static FOR_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='ForceKeywordSegment'
-pub static FORCE_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_force_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "FORCE",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static FORCE_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='ForeignKeyGrammar'
-pub static FOREIGN_KEY_GRAMMAR: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_foreign_key_grammar() -> Arc<Grammar> {
 Arc::new(Grammar::Sequence {
     elements: vec![
 Arc::new(Grammar::Ref {
@@ -20855,60 +21651,72 @@ Arc::new(Grammar::Ref {
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
-);
+}
+
+pub static FOREIGN_KEY_GRAMMAR: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='ForeignKeywordSegment'
-pub static FOREIGN_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_foreign_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "FOREIGN",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static FOREIGN_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='FormatKeywordSegment'
-pub static FORMAT_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_format_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "FORMAT",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static FORMAT_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='FortranKeywordSegment'
-pub static FORTRAN_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_fortran_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "FORTRAN",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static FORTRAN_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='ForwardKeywordSegment'
-pub static FORWARD_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_forward_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "FORWARD",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static FORWARD_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='FoundKeywordSegment'
-pub static FOUND_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_found_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "FOUND",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static FOUND_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='FrameClauseSegment'
-pub static FRAME_CLAUSE_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_frame_clause_segment() -> Arc<Grammar> {
 // FrameClauseSegment
 Arc::new(Grammar::Sequence {
     elements: vec![
@@ -21528,10 +22336,12 @@ Arc::new(Grammar::Ref {
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
-);
+}
+
+pub static FRAME_CLAUSE_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='FrameClauseUnitGrammar'
-pub static FRAME_CLAUSE_UNIT_GRAMMAR: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_frame_clause_unit_grammar() -> Arc<Grammar> {
 Arc::new(Grammar::OneOf {
     elements: vec![
 Arc::new(Grammar::Ref {
@@ -21575,50 +22385,60 @@ Arc::new(Grammar::Ref {
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
-);
+}
+
+pub static FRAME_CLAUSE_UNIT_GRAMMAR: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='FreeKeywordSegment'
-pub static FREE_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_free_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "FREE",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static FREE_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='FreetextKeywordSegment'
-pub static FREETEXT_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_freetext_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "FREETEXT",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static FREETEXT_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='FreetexttableKeywordSegment'
-pub static FREETEXTTABLE_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_freetexttable_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "FREETEXTTABLE",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static FREETEXTTABLE_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='FreezeKeywordSegment'
-pub static FREEZE_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_freeze_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "FREEZE",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static FREEZE_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='FromClauseSegment'
-pub static FROM_CLAUSE_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_from_clause_segment() -> Arc<Grammar> {
 // FromClauseSegment
 Arc::new(Grammar::Sequence {
     elements: vec![
@@ -21689,10 +22509,12 @@ Arc::new(Grammar::Ref {
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
-);
+}
+
+pub static FROM_CLAUSE_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='FromClauseTerminatorGrammar'
-pub static FROM_CLAUSE_TERMINATOR_GRAMMAR: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_from_clause_terminator_grammar() -> Arc<Grammar> {
 Arc::new(Grammar::OneOf {
     elements: vec![
 Arc::new(Grammar::Ref {
@@ -21934,10 +22756,12 @@ Arc::new(Grammar::Ref {
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
-);
+}
+
+pub static FROM_CLAUSE_TERMINATOR_GRAMMAR: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='FromExpressionElementSegment'
-pub static FROM_EXPRESSION_ELEMENT_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_from_expression_element_segment() -> Arc<Grammar> {
 // FromExpressionElementSegment
 Arc::new(Grammar::OneOf {
     elements: vec![
@@ -22533,10 +23357,12 @@ Arc::new(Grammar::StringParser {
     parse_mode: ParseMode::Strict,
     simple_hint: None,
 })
-);
+}
+
+pub static FROM_EXPRESSION_ELEMENT_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='FromExpressionSegment'
-pub static FROM_EXPRESSION_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_from_expression_segment() -> Arc<Grammar> {
 // FromExpressionSegment
 Arc::new(Grammar::OneOf {
     elements: vec![
@@ -23257,40 +24083,48 @@ Arc::new(Grammar::Meta("conditional"))
     parse_mode: ParseMode::Strict,
     simple_hint: None,
 })
-);
+}
+
+pub static FROM_EXPRESSION_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='FromKeywordSegment'
-pub static FROM_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_from_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "FROM",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static FROM_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='FullKeywordSegment'
-pub static FULL_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_full_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "FULL",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static FULL_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='FulltextKeywordSegment'
-pub static FULLTEXT_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_fulltext_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "FULLTEXT",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static FULLTEXT_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='FunctionContentsExpressionGrammar'
-pub static FUNCTION_CONTENTS_EXPRESSION_GRAMMAR: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_function_contents_expression_grammar() -> Arc<Grammar> {
 Arc::new(Grammar::Ref {
     name: "ExpressionSegment",
     optional: false,
@@ -23301,10 +24135,12 @@ Arc::new(Grammar::Ref {
     reset_terminators: false,
     simple_hint: None,
 })
-);
+}
+
+pub static FUNCTION_CONTENTS_EXPRESSION_GRAMMAR: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='FunctionContentsGrammar'
-pub static FUNCTION_CONTENTS_GRAMMAR: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_function_contents_grammar() -> Arc<Grammar> {
 Arc::new(Grammar::AnyNumberOf {
     elements: vec![
 Arc::new(Grammar::Ref {
@@ -23841,10 +24677,12 @@ Arc::new(Grammar::Ref {
     parse_mode: ParseMode::Strict,
     simple_hint: None,
 })
-);
+}
+
+pub static FUNCTION_CONTENTS_GRAMMAR: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='FunctionContentsSegment'
-pub static FUNCTION_CONTENTS_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_function_contents_segment() -> Arc<Grammar> {
 // FunctionContentsSegment
 Arc::new(Grammar::Sequence {
     elements: vec![
@@ -23904,10 +24742,12 @@ Arc::new(Grammar::StringParser {
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
-);
+}
+
+pub static FUNCTION_CONTENTS_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='FunctionDefinitionGrammar'
-pub static FUNCTION_DEFINITION_GRAMMAR: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_function_definition_grammar() -> Arc<Grammar> {
 // FunctionDefinitionGrammar
 Arc::new(Grammar::Sequence {
     elements: vec![
@@ -23991,30 +24831,36 @@ Arc::new(Grammar::Ref {
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
-);
+}
+
+pub static FUNCTION_DEFINITION_GRAMMAR: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='FunctionKeywordSegment'
-pub static FUNCTION_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_function_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "FUNCTION",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static FUNCTION_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='FunctionNameIdentifierSegment'
-pub static FUNCTION_NAME_IDENTIFIER_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_function_name_identifier_segment() -> Arc<Grammar> {
 Arc::new(Grammar::TypedParser {
     template: "word",
     token_type: "function_name_identifier",
     raw_class: "WordSegment",
     optional: false,
 })
-);
+}
+
+pub static FUNCTION_NAME_IDENTIFIER_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='FunctionNameSegment'
-pub static FUNCTION_NAME_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_function_name_segment() -> Arc<Grammar> {
 // FunctionNameSegment
 Arc::new(Grammar::Sequence {
     elements: vec![
@@ -24152,10 +24998,12 @@ Arc::new(Grammar::Ref {
     parse_mode: ParseMode::Strict,
     simple_hint: None,
 })
-);
+}
+
+pub static FUNCTION_NAME_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='FunctionParameterGrammar'
-pub static FUNCTION_PARAMETER_GRAMMAR: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_function_parameter_grammar() -> Arc<Grammar> {
 Arc::new(Grammar::OneOf {
     elements: vec![
 Arc::new(Grammar::Sequence {
@@ -24325,10 +25173,12 @@ Arc::new(Grammar::Ref {
     parse_mode: ParseMode::Strict,
     simple_hint: None,
 })
-);
+}
+
+pub static FUNCTION_PARAMETER_GRAMMAR: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='FunctionParameterListGrammar'
-pub static FUNCTION_PARAMETER_LIST_GRAMMAR: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_function_parameter_list_grammar() -> Arc<Grammar> {
 // FunctionParameterListGrammar
 Arc::new(Grammar::Bracketed {
     elements: vec![
@@ -24403,10 +25253,12 @@ Arc::new(Grammar::StringParser {
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
-);
+}
+
+pub static FUNCTION_PARAMETER_LIST_GRAMMAR: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='FunctionSegment'
-pub static FUNCTION_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_function_segment() -> Arc<Grammar> {
 // FunctionSegment
 Arc::new(Grammar::OneOf {
     elements: vec![
@@ -24586,150 +25438,180 @@ Arc::new(Grammar::Ref {
     parse_mode: ParseMode::Strict,
     simple_hint: None,
 })
-);
+}
+
+pub static FUNCTION_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='FunctionsKeywordSegment'
-pub static FUNCTIONS_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_functions_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "FUNCTIONS",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static FUNCTIONS_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='FusionKeywordSegment'
-pub static FUSION_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_fusion_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "FUSION",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static FUSION_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='FutureKeywordSegment'
-pub static FUTURE_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_future_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "FUTURE",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static FUTURE_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='GKeywordSegment'
-pub static G_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_g_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "G",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static G_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='GeneralKeywordSegment'
-pub static GENERAL_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_general_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "GENERAL",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static GENERAL_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='GeneratedKeywordSegment'
-pub static GENERATED_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_generated_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "GENERATED",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static GENERATED_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='GetKeywordSegment'
-pub static GET_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_get_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "GET",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static GET_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='GlobOperatorSegment'
-pub static GLOB_OPERATOR_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_glob_operator_segment() -> Arc<Grammar> {
 Arc::new(Grammar::TypedParser {
     template: "glob_operator",
     token_type: "glob_operator",
     raw_class: "ComparisonOperatorSegment",
     optional: false,
 })
-);
+}
+
+pub static GLOB_OPERATOR_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='GlobalKeywordSegment'
-pub static GLOBAL_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_global_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "GLOBAL",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static GLOBAL_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='GoKeywordSegment'
-pub static GO_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_go_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "GO",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static GO_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='GotoKeywordSegment'
-pub static GOTO_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_goto_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "GOTO",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static GOTO_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='GrantKeywordSegment'
-pub static GRANT_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_grant_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "GRANT",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static GRANT_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='GrantedKeywordSegment'
-pub static GRANTED_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_granted_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "GRANTED",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static GRANTED_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='GrantsKeywordSegment'
-pub static GRANTS_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_grants_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "GRANTS",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static GRANTS_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='GreaterThanOrEqualToSegment'
-pub static GREATER_THAN_OR_EQUAL_TO_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_greater_than_or_equal_to_segment() -> Arc<Grammar> {
 // GreaterThanOrEqualToSegment
 Arc::new(Grammar::Sequence {
     elements: vec![
@@ -24773,10 +25655,12 @@ Arc::new(Grammar::Ref {
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
-);
+}
+
+pub static GREATER_THAN_OR_EQUAL_TO_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='GreaterThanSegment'
-pub static GREATER_THAN_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_greater_than_segment() -> Arc<Grammar> {
 // GreaterThanSegment
 Arc::new(Grammar::Ref {
     name: "RawGreaterThanSegment",
@@ -24791,20 +25675,24 @@ Arc::new(Grammar::Ref {
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
-);
+}
+
+pub static GREATER_THAN_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='GreatestKeywordSegment'
-pub static GREATEST_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_greatest_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "GREATEST",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static GREATEST_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='GroupByClauseSegment'
-pub static GROUP_BY_CLAUSE_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_group_by_clause_segment() -> Arc<Grammar> {
 // GroupByClauseSegment
 Arc::new(Grammar::Sequence {
     elements: vec![
@@ -25012,10 +25900,12 @@ Arc::new(Grammar::Meta("dedent"))
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
-);
+}
+
+pub static GROUP_BY_CLAUSE_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='GroupByClauseTerminatorGrammar'
-pub static GROUP_BY_CLAUSE_TERMINATOR_GRAMMAR: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_group_by_clause_terminator_grammar() -> Arc<Grammar> {
 Arc::new(Grammar::OneOf {
     elements: vec![
 Arc::new(Grammar::Sequence {
@@ -25144,20 +26034,24 @@ Arc::new(Grammar::Ref {
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
-);
+}
+
+pub static GROUP_BY_CLAUSE_TERMINATOR_GRAMMAR: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='GroupKeywordSegment'
-pub static GROUP_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_group_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "GROUP",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static GROUP_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='GroupingExpressionList'
-pub static GROUPING_EXPRESSION_LIST: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_grouping_expression_list() -> Arc<Grammar> {
 // GroupingExpressionList
 Arc::new(Grammar::Sequence {
     elements: vec![
@@ -25296,20 +26190,24 @@ Arc::new(Grammar::Ref {
     parse_mode: ParseMode::Strict,
     simple_hint: None,
 })
-);
+}
+
+pub static GROUPING_EXPRESSION_LIST: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='GroupingKeywordSegment'
-pub static GROUPING_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_grouping_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "GROUPING",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static GROUPING_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='GroupingSetsClauseSegment'
-pub static GROUPING_SETS_CLAUSE_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_grouping_sets_clause_segment() -> Arc<Grammar> {
 // GroupingSetsClauseSegment
 Arc::new(Grammar::Sequence {
     elements: vec![
@@ -25441,20 +26339,24 @@ Arc::new(Grammar::StringParser {
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
-);
+}
+
+pub static GROUPING_SETS_CLAUSE_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='HandlerKeywordSegment'
-pub static HANDLER_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_handler_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "HANDLER",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static HANDLER_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='HavingClauseSegment'
-pub static HAVING_CLAUSE_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_having_clause_segment() -> Arc<Grammar> {
 // HavingClauseSegment
 Arc::new(Grammar::Sequence {
     elements: vec![
@@ -25556,10 +26458,12 @@ Arc::new(Grammar::Meta("dedent"))
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
-);
+}
+
+pub static HAVING_CLAUSE_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='HavingClauseTerminatorGrammar'
-pub static HAVING_CLAUSE_TERMINATOR_GRAMMAR: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_having_clause_terminator_grammar() -> Arc<Grammar> {
 Arc::new(Grammar::OneOf {
     elements: vec![
 Arc::new(Grammar::Sequence {
@@ -25674,193 +26578,233 @@ Arc::new(Grammar::Ref {
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
-);
+}
+
+pub static HAVING_CLAUSE_TERMINATOR_GRAMMAR: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='HavingKeywordSegment'
-pub static HAVING_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_having_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "HAVING",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static HAVING_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='HeaderKeywordSegment'
-pub static HEADER_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_header_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "HEADER",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static HEADER_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='HeapKeywordSegment'
-pub static HEAP_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_heap_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "HEAP",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static HEAP_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='HierarchyKeywordSegment'
-pub static HIERARCHY_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_hierarchy_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "HIERARCHY",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static HIERARCHY_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='High_priorityKeywordSegment'
-pub static HIGH_PRIORITY_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_high_priority_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "HIGH_PRIORITY",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static HIGH_PRIORITY_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='HoldKeywordSegment'
-pub static HOLD_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_hold_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "HOLD",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static HOLD_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='HoldlockKeywordSegment'
-pub static HOLDLOCK_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_holdlock_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "HOLDLOCK",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static HOLDLOCK_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='HorizontalJoinKeywordsGrammar'
-pub static HORIZONTAL_JOIN_KEYWORDS_GRAMMAR: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_horizontal_join_keywords_grammar() -> Arc<Grammar> {
 Arc::new(Grammar::Nothing())
-);
+}
+
+pub static HORIZONTAL_JOIN_KEYWORDS_GRAMMAR: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='HostKeywordSegment'
-pub static HOST_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_host_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "HOST",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static HOST_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='HostsKeywordSegment'
-pub static HOSTS_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_hosts_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "HOSTS",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static HOSTS_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='HourKeywordSegment'
-pub static HOUR_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_hour_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "HOUR",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static HOUR_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='Hour_microsecondKeywordSegment'
-pub static HOUR_MICROSECOND_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_hour_microsecond_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "HOUR_MICROSECOND",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static HOUR_MICROSECOND_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='Hour_minuteKeywordSegment'
-pub static HOUR_MINUTE_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_hour_minute_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "HOUR_MINUTE",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static HOUR_MINUTE_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='Hour_secondKeywordSegment'
-pub static HOUR_SECOND_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_hour_second_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "HOUR_SECOND",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static HOUR_SECOND_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='IdentifiedKeywordSegment'
-pub static IDENTIFIED_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_identified_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "IDENTIFIED",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static IDENTIFIED_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='IdentifierSegment'
-pub static IDENTIFIER_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_identifier_segment() -> Arc<Grammar> {
 Arc::new(Grammar::Token{
     token_type: "identifier",
 //    token_type: "IdentifierSegment",
 })
-);
+}
+
+pub static IDENTIFIER_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='IdentityKeywordSegment'
-pub static IDENTITY_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_identity_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "IDENTITY",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static IDENTITY_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='Identity_insertKeywordSegment'
-pub static IDENTITY_INSERT_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_identity_insert_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "IDENTITY_INSERT",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static IDENTITY_INSERT_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='IdentitycolKeywordSegment'
-pub static IDENTITYCOL_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_identitycol_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "IDENTITYCOL",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static IDENTITYCOL_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='IfExistsGrammar'
-pub static IF_EXISTS_GRAMMAR: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_if_exists_grammar() -> Arc<Grammar> {
 Arc::new(Grammar::Sequence {
     elements: vec![
 Arc::new(Grammar::Ref {
@@ -25903,20 +26847,24 @@ Arc::new(Grammar::Ref {
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
-);
+}
+
+pub static IF_EXISTS_GRAMMAR: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='IfKeywordSegment'
-pub static IF_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_if_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "IF",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static IF_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='IfNotExistsGrammar'
-pub static IF_NOT_EXISTS_GRAMMAR: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_if_not_exists_grammar() -> Arc<Grammar> {
 Arc::new(Grammar::Sequence {
     elements: vec![
 Arc::new(Grammar::Ref {
@@ -25973,20 +26921,24 @@ Arc::new(Grammar::Ref {
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
-);
+}
+
+pub static IF_NOT_EXISTS_GRAMMAR: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='IgnoreKeywordSegment'
-pub static IGNORE_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_ignore_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "IGNORE",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static IGNORE_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='IgnoreRespectNullsGrammar'
-pub static IGNORE_RESPECT_NULLS_GRAMMAR: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_ignore_respect_nulls_grammar() -> Arc<Grammar> {
 Arc::new(Grammar::Sequence {
     elements: vec![
 Arc::new(Grammar::OneOf {
@@ -26059,85 +27011,103 @@ Arc::new(Grammar::Ref {
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
-);
+}
+
+pub static IGNORE_RESPECT_NULLS_GRAMMAR: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='IlikeKeywordSegment'
-pub static ILIKE_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_ilike_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "ILIKE",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static ILIKE_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='ImmediateKeywordSegment'
-pub static IMMEDIATE_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_immediate_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "IMMEDIATE",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static IMMEDIATE_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='ImmutableKeywordSegment'
-pub static IMMUTABLE_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_immutable_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "IMMUTABLE",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static IMMUTABLE_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='ImplementationKeywordSegment'
-pub static IMPLEMENTATION_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_implementation_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "IMPLEMENTATION",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static IMPLEMENTATION_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='ImplicitIndent'
-pub static IMPLICIT_INDENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_implicit_indent() -> Arc<Grammar> {
 Arc::new(Grammar::Meta("indent"))
-);
+}
+
+pub static IMPLICIT_INDENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='ImplicitKeywordSegment'
-pub static IMPLICIT_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_implicit_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "IMPLICIT",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static IMPLICIT_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='ImportedKeywordSegment'
-pub static IMPORTED_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_imported_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "IMPORTED",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static IMPORTED_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='InKeywordSegment'
-pub static IN_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_in_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "IN",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static IN_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='InOperatorGrammar'
-pub static IN_OPERATOR_GRAMMAR: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_in_operator_grammar() -> Arc<Grammar> {
 Arc::new(Grammar::Sequence {
     elements: vec![
 Arc::new(Grammar::Ref {
@@ -26305,45 +27275,55 @@ Arc::new(Grammar::Ref {
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
-);
+}
+
+pub static IN_OPERATOR_GRAMMAR: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='IncludeKeywordSegment'
-pub static INCLUDE_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_include_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "INCLUDE",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static INCLUDE_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='IncludingKeywordSegment'
-pub static INCLUDING_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_including_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "INCLUDING",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static INCLUDING_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='IncrementKeywordSegment'
-pub static INCREMENT_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_increment_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "INCREMENT",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static INCREMENT_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='Indent'
-pub static INDENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_indent() -> Arc<Grammar> {
 Arc::new(Grammar::Meta("indent"))
-);
+}
+
+pub static INDENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='IndexColumnDefinitionSegment'
-pub static INDEX_COLUMN_DEFINITION_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_index_column_definition_segment() -> Arc<Grammar> {
 // IndexColumnDefinitionSegment
 Arc::new(Grammar::Sequence {
     elements: vec![
@@ -26411,20 +27391,24 @@ Arc::new(Grammar::Ref {
     parse_mode: ParseMode::Strict,
     simple_hint: None,
 })
-);
+}
+
+pub static INDEX_COLUMN_DEFINITION_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='IndexKeywordSegment'
-pub static INDEX_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_index_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "INDEX",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static INDEX_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='IndexReferenceSegment'
-pub static INDEX_REFERENCE_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_index_reference_segment() -> Arc<Grammar> {
 // IndexReferenceSegment
 Arc::new(Grammar::Delimited {
     elements: vec![
@@ -26477,140 +27461,168 @@ Arc::new(Grammar::Ref {
     parse_mode: ParseMode::Strict,
     simple_hint: None,
 })
-);
+}
+
+pub static INDEX_REFERENCE_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='IndicatorKeywordSegment'
-pub static INDICATOR_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_indicator_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "INDICATOR",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static INDICATOR_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='InfileKeywordSegment'
-pub static INFILE_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_infile_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "INFILE",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static INFILE_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='InfixKeywordSegment'
-pub static INFIX_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_infix_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "INFIX",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static INFIX_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='InheritKeywordSegment'
-pub static INHERIT_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_inherit_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "INHERIT",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static INHERIT_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='InheritsKeywordSegment'
-pub static INHERITS_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_inherits_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "INHERITS",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static INHERITS_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='InitialKeywordSegment'
-pub static INITIAL_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_initial_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "INITIAL",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static INITIAL_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='InitializeKeywordSegment'
-pub static INITIALIZE_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_initialize_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "INITIALIZE",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static INITIALIZE_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='InitiallyKeywordSegment'
-pub static INITIALLY_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_initially_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "INITIALLY",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static INITIALLY_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='InnerKeywordSegment'
-pub static INNER_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_inner_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "INNER",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static INNER_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='InoutKeywordSegment'
-pub static INOUT_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_inout_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "INOUT",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static INOUT_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='InputKeywordSegment'
-pub static INPUT_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_input_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "INPUT",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static INPUT_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='InsensitiveKeywordSegment'
-pub static INSENSITIVE_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_insensitive_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "INSENSITIVE",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static INSENSITIVE_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='InsertKeywordSegment'
-pub static INSERT_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_insert_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "INSERT",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static INSERT_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='InsertStatementSegment'
-pub static INSERT_STATEMENT_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_insert_statement_segment() -> Arc<Grammar> {
 // InsertStatementSegment
 Arc::new(Grammar::Sequence {
     elements: vec![
@@ -26766,160 +27778,192 @@ Arc::new(Grammar::Ref {
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
-);
+}
+
+pub static INSERT_STATEMENT_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='Insert_idKeywordSegment'
-pub static INSERT_ID_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_insert_id_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "INSERT_ID",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static INSERT_ID_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='InstanceKeywordSegment'
-pub static INSTANCE_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_instance_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "INSTANCE",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static INSTANCE_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='InstantiableKeywordSegment'
-pub static INSTANTIABLE_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_instantiable_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "INSTANTIABLE",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static INSTANTIABLE_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='InsteadKeywordSegment'
-pub static INSTEAD_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_instead_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "INSTEAD",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static INSTEAD_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='Int1KeywordSegment'
-pub static INT1_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_int1_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "INT1",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static INT1_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='Int2KeywordSegment'
-pub static INT2_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_int2_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "INT2",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static INT2_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='Int3KeywordSegment'
-pub static INT3_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_int3_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "INT3",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static INT3_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='Int4KeywordSegment'
-pub static INT4_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_int4_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "INT4",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static INT4_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='Int8KeywordSegment'
-pub static INT8_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_int8_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "INT8",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static INT8_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='IntKeywordSegment'
-pub static INT_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_int_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "INT",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static INT_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='IntegerKeywordSegment'
-pub static INTEGER_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_integer_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "INTEGER",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static INTEGER_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='IntegrationKeywordSegment'
-pub static INTEGRATION_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_integration_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "INTEGRATION",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static INTEGRATION_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='IntegrationsKeywordSegment'
-pub static INTEGRATIONS_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_integrations_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "INTEGRATIONS",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static INTEGRATIONS_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='IntersectKeywordSegment'
-pub static INTERSECT_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_intersect_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "INTERSECT",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static INTERSECT_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='IntersectionKeywordSegment'
-pub static INTERSECTION_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_intersection_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "INTERSECTION",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static INTERSECTION_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='IntervalExpressionSegment'
-pub static INTERVAL_EXPRESSION_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_interval_expression_segment() -> Arc<Grammar> {
 // IntervalExpressionSegment
 Arc::new(Grammar::Sequence {
     elements: vec![
@@ -27125,40 +28169,48 @@ Arc::new(Grammar::Ref {
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
-);
+}
+
+pub static INTERVAL_EXPRESSION_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='IntervalKeywordSegment'
-pub static INTERVAL_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_interval_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "INTERVAL",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static INTERVAL_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='IntoKeywordSegment'
-pub static INTO_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_into_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "INTO",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static INTO_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='InvokerKeywordSegment'
-pub static INVOKER_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_invoker_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "INVOKER",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static INVOKER_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='IsClauseGrammar'
-pub static IS_CLAUSE_GRAMMAR: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_is_clause_grammar() -> Arc<Grammar> {
 Arc::new(Grammar::OneOf {
     elements: vec![
 Arc::new(Grammar::Ref {
@@ -27235,10 +28287,12 @@ Arc::new(Grammar::Ref {
     parse_mode: ParseMode::Strict,
     simple_hint: None,
 })
-);
+}
+
+pub static IS_CLAUSE_GRAMMAR: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='IsDistinctFromGrammar'
-pub static IS_DISTINCT_FROM_GRAMMAR: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_is_distinct_from_grammar() -> Arc<Grammar> {
 Arc::new(Grammar::Sequence {
     elements: vec![
 Arc::new(Grammar::Ref {
@@ -27309,65 +28363,79 @@ Arc::new(Grammar::Ref {
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
-);
+}
+
+pub static IS_DISTINCT_FROM_GRAMMAR: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='IsKeywordSegment'
-pub static IS_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_is_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "IS",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static IS_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='IsNullGrammar'
-pub static IS_NULL_GRAMMAR: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_is_null_grammar() -> Arc<Grammar> {
 Arc::new(Grammar::Nothing())
-);
+}
+
+pub static IS_NULL_GRAMMAR: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='IsamKeywordSegment'
-pub static ISAM_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_isam_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "ISAM",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static ISAM_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='IsnullKeywordSegment'
-pub static ISNULL_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_isnull_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "ISNULL",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static ISNULL_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='IsolationKeywordSegment'
-pub static ISOLATION_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_isolation_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "ISOLATION",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static ISOLATION_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='IterateKeywordSegment'
-pub static ITERATE_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_iterate_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "ITERATE",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static ITERATE_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='JoinClauseSegment'
-pub static JOIN_CLAUSE_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_join_clause_segment() -> Arc<Grammar> {
 // JoinClauseSegment
 Arc::new(Grammar::OneOf {
     elements: vec![
@@ -27632,20 +28700,24 @@ Arc::new(Grammar::Meta("dedent"))
     parse_mode: ParseMode::Strict,
     simple_hint: None,
 })
-);
+}
+
+pub static JOIN_CLAUSE_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='JoinKeywordSegment'
-pub static JOIN_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_join_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "JOIN",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static JOIN_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='JoinKeywordsGrammar'
-pub static JOIN_KEYWORDS_GRAMMAR: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_join_keywords_grammar() -> Arc<Grammar> {
 Arc::new(Grammar::Sequence {
     elements: vec![
 Arc::new(Grammar::Ref {
@@ -27674,15 +28746,19 @@ Arc::new(Grammar::Ref {
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
-);
+}
+
+pub static JOIN_KEYWORDS_GRAMMAR: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='JoinLikeClauseGrammar'
-pub static JOIN_LIKE_CLAUSE_GRAMMAR: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_join_like_clause_grammar() -> Arc<Grammar> {
 Arc::new(Grammar::Nothing())
-);
+}
+
+pub static JOIN_LIKE_CLAUSE_GRAMMAR: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='JoinOnConditionSegment'
-pub static JOIN_ON_CONDITION_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_join_on_condition_segment() -> Arc<Grammar> {
 // JoinOnConditionSegment
 Arc::new(Grammar::Sequence {
     elements: vec![
@@ -27784,10 +28860,12 @@ Arc::new(Grammar::Meta("conditional"))
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
-);
+}
+
+pub static JOIN_ON_CONDITION_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='JoinTypeKeywordsGrammar'
-pub static JOIN_TYPE_KEYWORDS_GRAMMAR: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_join_type_keywords_grammar() -> Arc<Grammar> {
 Arc::new(Grammar::OneOf {
     elements: vec![
 Arc::new(Grammar::Ref {
@@ -27904,10 +28982,12 @@ Arc::new(Grammar::Ref {
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
-);
+}
+
+pub static JOIN_TYPE_KEYWORDS_GRAMMAR: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='JoinUsingConditionGrammar'
-pub static JOIN_USING_CONDITION_GRAMMAR: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_join_using_condition_grammar() -> Arc<Grammar> {
 Arc::new(Grammar::Sequence {
     elements: vec![
 Arc::new(Grammar::Ref {
@@ -28014,208 +29094,250 @@ Arc::new(Grammar::Meta("dedent"))
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
-);
+}
+
+pub static JOIN_USING_CONDITION_GRAMMAR: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='JsonKeywordSegment'
-pub static JSON_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_json_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "JSON",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static JSON_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='KKeywordSegment'
-pub static K_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_k_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "K",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static K_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='KeyKeywordSegment'
-pub static KEY_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_key_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "KEY",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static KEY_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='Key_memberKeywordSegment'
-pub static KEY_MEMBER_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_key_member_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "KEY_MEMBER",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static KEY_MEMBER_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='Key_typeKeywordSegment'
-pub static KEY_TYPE_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_key_type_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "KEY_TYPE",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static KEY_TYPE_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='KeysKeywordSegment'
-pub static KEYS_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_keys_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "KEYS",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static KEYS_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='KeywordSegment'
-pub static KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::Token{
     token_type: "keyword",
 //    token_type: "KeywordSegment",
 })
-);
+}
+
+pub static KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='KillKeywordSegment'
-pub static KILL_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_kill_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "KILL",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static KILL_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='LancompilerKeywordSegment'
-pub static LANCOMPILER_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_lancompiler_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "LANCOMPILER",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static LANCOMPILER_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='LanguageKeywordSegment'
-pub static LANGUAGE_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_language_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "LANGUAGE",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static LANGUAGE_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='LargeKeywordSegment'
-pub static LARGE_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_large_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "LARGE",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static LARGE_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='LastKeywordSegment'
-pub static LAST_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_last_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "LAST",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static LAST_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='Last_insert_idKeywordSegment'
-pub static LAST_INSERT_ID_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_last_insert_id_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "LAST_INSERT_ID",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static LAST_INSERT_ID_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='LateralKeywordSegment'
-pub static LATERAL_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_lateral_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "LATERAL",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static LATERAL_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='LeadingKeywordSegment'
-pub static LEADING_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_leading_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "LEADING",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static LEADING_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='LeastKeywordSegment'
-pub static LEAST_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_least_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "LEAST",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static LEAST_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='LeaveKeywordSegment'
-pub static LEAVE_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_leave_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "LEAVE",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static LEAVE_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='LeftKeywordSegment'
-pub static LEFT_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_left_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "LEFT",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static LEFT_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='LengthKeywordSegment'
-pub static LENGTH_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_length_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "LENGTH",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static LENGTH_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='LessKeywordSegment'
-pub static LESS_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_less_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "LESS",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static LESS_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='LessThanOrEqualToSegment'
-pub static LESS_THAN_OR_EQUAL_TO_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_less_than_or_equal_to_segment() -> Arc<Grammar> {
 // LessThanOrEqualToSegment
 Arc::new(Grammar::Sequence {
     elements: vec![
@@ -28259,10 +29381,12 @@ Arc::new(Grammar::Ref {
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
-);
+}
+
+pub static LESS_THAN_OR_EQUAL_TO_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='LessThanSegment'
-pub static LESS_THAN_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_less_than_segment() -> Arc<Grammar> {
 // LessThanSegment
 Arc::new(Grammar::Ref {
     name: "RawLessThanSegment",
@@ -28277,20 +29401,24 @@ Arc::new(Grammar::Ref {
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
-);
+}
+
+pub static LESS_THAN_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='LevelKeywordSegment'
-pub static LEVEL_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_level_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "LEVEL",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static LEVEL_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='LikeExpressionGrammar'
-pub static LIKE_EXPRESSION_GRAMMAR: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_like_expression_grammar() -> Arc<Grammar> {
 Arc::new(Grammar::Sequence {
     elements: vec![
 Arc::new(Grammar::Sequence {
@@ -28399,10 +29527,12 @@ Arc::new(Grammar::Ref {
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
-);
+}
+
+pub static LIKE_EXPRESSION_GRAMMAR: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='LikeGrammar'
-pub static LIKE_GRAMMAR: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_like_grammar() -> Arc<Grammar> {
 Arc::new(Grammar::OneOf {
     elements: vec![
 Arc::new(Grammar::Ref {
@@ -28460,30 +29590,36 @@ Arc::new(Grammar::Ref {
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
-);
+}
+
+pub static LIKE_GRAMMAR: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='LikeKeywordSegment'
-pub static LIKE_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_like_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "LIKE",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static LIKE_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='LikeOperatorSegment'
-pub static LIKE_OPERATOR_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_like_operator_segment() -> Arc<Grammar> {
 Arc::new(Grammar::TypedParser {
     template: "like_operator",
     token_type: "like_operator",
     raw_class: "ComparisonOperatorSegment",
     optional: false,
 })
-);
+}
+
+pub static LIKE_OPERATOR_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='LimitClauseSegment'
-pub static LIMIT_CLAUSE_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_limit_clause_segment() -> Arc<Grammar> {
 // LimitClauseSegment
 Arc::new(Grammar::Sequence {
     elements: vec![
@@ -28793,55 +29929,67 @@ Arc::new(Grammar::Meta("dedent"))
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
-);
+}
+
+pub static LIMIT_CLAUSE_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='LimitKeywordSegment'
-pub static LIMIT_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_limit_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "LIMIT",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static LIMIT_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='LinenoKeywordSegment'
-pub static LINENO_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_lineno_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "LINENO",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static LINENO_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='LinesKeywordSegment'
-pub static LINES_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_lines_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "LINES",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static LINES_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='ListComprehensionGrammar'
-pub static LIST_COMPREHENSION_GRAMMAR: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_list_comprehension_grammar() -> Arc<Grammar> {
 Arc::new(Grammar::Nothing())
-);
+}
+
+pub static LIST_COMPREHENSION_GRAMMAR: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='ListenKeywordSegment'
-pub static LISTEN_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_listen_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "LISTEN",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static LISTEN_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='LiteralGrammar'
-pub static LITERAL_GRAMMAR: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_literal_grammar() -> Arc<Grammar> {
 Arc::new(Grammar::OneOf {
     elements: vec![
 Arc::new(Grammar::Ref {
@@ -28977,212 +30125,256 @@ Arc::new(Grammar::Ref {
     parse_mode: ParseMode::Strict,
     simple_hint: None,
 })
-);
+}
+
+pub static LITERAL_GRAMMAR: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='LiteralKeywordSegment'
-pub static LITERAL_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_literal_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::Token{
     token_type: "literal",
 //    token_type: "LiteralKeywordSegment",
 })
-);
+}
+
+pub static LITERAL_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='LiteralSegment'
-pub static LITERAL_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_literal_segment() -> Arc<Grammar> {
 Arc::new(Grammar::Token{
     token_type: "literal",
 //    token_type: "LiteralSegment",
 })
-);
+}
+
+pub static LITERAL_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='LnKeywordSegment'
-pub static LN_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_ln_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "LN",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static LN_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='LoadKeywordSegment'
-pub static LOAD_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_load_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "LOAD",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static LOAD_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='LocalAliasSegment'
-pub static LOCAL_ALIAS_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_local_alias_segment() -> Arc<Grammar> {
 // LocalAliasSegment
 Arc::new(Grammar::Nothing())
-);
+}
+
+pub static LOCAL_ALIAS_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='LocalKeywordSegment'
-pub static LOCAL_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_local_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "LOCAL",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static LOCAL_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='LocaltimeKeywordSegment'
-pub static LOCALTIME_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_localtime_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "LOCALTIME",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static LOCALTIME_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='LocaltimestampKeywordSegment'
-pub static LOCALTIMESTAMP_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_localtimestamp_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "LOCALTIMESTAMP",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static LOCALTIMESTAMP_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='LocationKeywordSegment'
-pub static LOCATION_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_location_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "LOCATION",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static LOCATION_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='LocatorKeywordSegment'
-pub static LOCATOR_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_locator_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "LOCATOR",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static LOCATOR_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='LockKeywordSegment'
-pub static LOCK_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_lock_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "LOCK",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static LOCK_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='LocksKeywordSegment'
-pub static LOCKS_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_locks_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "LOCKS",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static LOCKS_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='LoginKeywordSegment'
-pub static LOGIN_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_login_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "LOGIN",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static LOGIN_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='LogsKeywordSegment'
-pub static LOGS_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_logs_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "LOGS",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static LOGS_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='LongKeywordSegment'
-pub static LONG_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_long_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "LONG",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static LONG_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='LongblobKeywordSegment'
-pub static LONGBLOB_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_longblob_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "LONGBLOB",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static LONGBLOB_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='LongtextKeywordSegment'
-pub static LONGTEXT_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_longtext_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "LONGTEXT",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static LONGTEXT_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='LoopKeywordSegment'
-pub static LOOP_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_loop_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "LOOP",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static LOOP_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='Low_priorityKeywordSegment'
-pub static LOW_PRIORITY_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_low_priority_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "LOW_PRIORITY",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static LOW_PRIORITY_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='LowerKeywordSegment'
-pub static LOWER_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_lower_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "LOWER",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static LOWER_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='MKeywordSegment'
-pub static M_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_m_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "M",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static M_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='MLTableExpressionSegment'
-pub static M_L_TABLE_EXPRESSION_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_m_l_table_expression_segment() -> Arc<Grammar> {
 // MLTableExpressionSegment
 Arc::new(Grammar::Sequence {
     elements: vec![
@@ -29386,162 +30578,196 @@ Arc::new(Grammar::StringParser {
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
-);
+}
+
+pub static M_L_TABLE_EXPRESSION_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='ManageKeywordSegment'
-pub static MANAGE_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_manage_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "MANAGE",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static MANAGE_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='MapKeywordSegment'
-pub static MAP_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_map_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "MAP",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static MAP_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='MapTypeSegment'
-pub static MAP_TYPE_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_map_type_segment() -> Arc<Grammar> {
 // MapTypeSegment
 Arc::new(Grammar::Nothing())
-);
+}
+
+pub static MAP_TYPE_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='MaskingKeywordSegment'
-pub static MASKING_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_masking_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "MASKING",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static MASKING_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='MatchConditionSegment'
-pub static MATCH_CONDITION_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_match_condition_segment() -> Arc<Grammar> {
 // MatchConditionSegment
 Arc::new(Grammar::Nothing())
-);
+}
+
+pub static MATCH_CONDITION_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='MatchKeywordSegment'
-pub static MATCH_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_match_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "MATCH",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static MATCH_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='MatchedKeywordSegment'
-pub static MATCHED_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_matched_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "MATCHED",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static MATCHED_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='MaterializedKeywordSegment'
-pub static MATERIALIZED_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_materialized_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "MATERIALIZED",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static MATERIALIZED_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='MaxKeywordSegment'
-pub static MAX_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_max_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "MAX",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static MAX_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='Max_rowsKeywordSegment'
-pub static MAX_ROWS_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_max_rows_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "MAX_ROWS",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static MAX_ROWS_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='MaxextentsKeywordSegment'
-pub static MAXEXTENTS_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_maxextents_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "MAXEXTENTS",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static MAXEXTENTS_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='MaxvalueKeywordSegment'
-pub static MAXVALUE_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_maxvalue_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "MAXVALUE",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static MAXVALUE_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='MediumblobKeywordSegment'
-pub static MEDIUMBLOB_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_mediumblob_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "MEDIUMBLOB",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static MEDIUMBLOB_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='MediumintKeywordSegment'
-pub static MEDIUMINT_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_mediumint_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "MEDIUMINT",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static MEDIUMINT_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='MediumtextKeywordSegment'
-pub static MEDIUMTEXT_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_mediumtext_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "MEDIUMTEXT",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static MEDIUMTEXT_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='MemberKeywordSegment'
-pub static MEMBER_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_member_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "MEMBER",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static MEMBER_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='MergeDeleteClauseSegment'
-pub static MERGE_DELETE_CLAUSE_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_merge_delete_clause_segment() -> Arc<Grammar> {
 // MergeDeleteClauseSegment
 Arc::new(Grammar::Ref {
     name: "DeleteKeywordSegment",
@@ -29556,10 +30782,12 @@ Arc::new(Grammar::Ref {
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
-);
+}
+
+pub static MERGE_DELETE_CLAUSE_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='MergeInsertClauseSegment'
-pub static MERGE_INSERT_CLAUSE_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_merge_insert_clause_segment() -> Arc<Grammar> {
 // MergeInsertClauseSegment
 Arc::new(Grammar::Sequence {
     elements: vec![
@@ -29621,10 +30849,12 @@ Arc::new(Grammar::Ref {
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
-);
+}
+
+pub static MERGE_INSERT_CLAUSE_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='MergeIntoLiteralGrammar'
-pub static MERGE_INTO_LITERAL_GRAMMAR: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_merge_into_literal_grammar() -> Arc<Grammar> {
 Arc::new(Grammar::Sequence {
     elements: vec![
 Arc::new(Grammar::Ref {
@@ -29667,20 +30897,24 @@ Arc::new(Grammar::Ref {
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
-);
+}
+
+pub static MERGE_INTO_LITERAL_GRAMMAR: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='MergeKeywordSegment'
-pub static MERGE_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_merge_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "MERGE",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static MERGE_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='MergeMatchSegment'
-pub static MERGE_MATCH_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_merge_match_segment() -> Arc<Grammar> {
 // MergeMatchSegment
 Arc::new(Grammar::AnyNumberOf {
     elements: vec![
@@ -29728,10 +30962,12 @@ Arc::new(Grammar::Ref {
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
-);
+}
+
+pub static MERGE_MATCH_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='MergeMatchedClauseSegment'
-pub static MERGE_MATCHED_CLAUSE_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_merge_matched_clause_segment() -> Arc<Grammar> {
 // MergeMatchedClauseSegment
 Arc::new(Grammar::Sequence {
     elements: vec![
@@ -29877,10 +31113,12 @@ Arc::new(Grammar::Meta("dedent"))
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
-);
+}
+
+pub static MERGE_MATCHED_CLAUSE_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='MergeNotMatchedClauseSegment'
-pub static MERGE_NOT_MATCHED_CLAUSE_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_merge_not_matched_clause_segment() -> Arc<Grammar> {
 // MergeNotMatchedClauseSegment
 Arc::new(Grammar::Sequence {
     elements: vec![
@@ -30010,10 +31248,12 @@ Arc::new(Grammar::Meta("dedent"))
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
-);
+}
+
+pub static MERGE_NOT_MATCHED_CLAUSE_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='MergeStatementSegment'
-pub static MERGE_STATEMENT_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_merge_statement_segment() -> Arc<Grammar> {
 // MergeStatementSegment
 Arc::new(Grammar::Sequence {
     elements: vec![
@@ -30240,10 +31480,12 @@ Arc::new(Grammar::Ref {
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
-);
+}
+
+pub static MERGE_STATEMENT_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='MergeUpdateClauseSegment'
-pub static MERGE_UPDATE_CLAUSE_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_merge_update_clause_segment() -> Arc<Grammar> {
 // MergeUpdateClauseSegment
 Arc::new(Grammar::Sequence {
     elements: vec![
@@ -30291,351 +31533,421 @@ Arc::new(Grammar::Meta("dedent"))
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
-);
+}
+
+pub static MERGE_UPDATE_CLAUSE_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='Message_lengthKeywordSegment'
-pub static MESSAGE_LENGTH_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_message_length_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "MESSAGE_LENGTH",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static MESSAGE_LENGTH_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='Message_octet_lengthKeywordSegment'
-pub static MESSAGE_OCTET_LENGTH_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_message_octet_length_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "MESSAGE_OCTET_LENGTH",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static MESSAGE_OCTET_LENGTH_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='Message_textKeywordSegment'
-pub static MESSAGE_TEXT_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_message_text_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "MESSAGE_TEXT",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static MESSAGE_TEXT_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='MethodKeywordSegment'
-pub static METHOD_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_method_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "METHOD",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static METHOD_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='MiddleintKeywordSegment'
-pub static MIDDLEINT_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_middleint_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "MIDDLEINT",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static MIDDLEINT_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='MillisecondKeywordSegment'
-pub static MILLISECOND_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_millisecond_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "MILLISECOND",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static MILLISECOND_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='MinKeywordSegment'
-pub static MIN_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_min_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "MIN",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static MIN_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='Min_rowsKeywordSegment'
-pub static MIN_ROWS_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_min_rows_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "MIN_ROWS",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static MIN_ROWS_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='MinusKeywordSegment'
-pub static MINUS_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_minus_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "MINUS",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static MINUS_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='MinusSegment'
-pub static MINUS_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_minus_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "-",
     token_type: "binary_operator",
     raw_class: "SymbolSegment",
     optional: false,
 })
-);
+}
+
+pub static MINUS_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='MinuteKeywordSegment'
-pub static MINUTE_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_minute_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "MINUTE",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static MINUTE_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='Minute_microsecondKeywordSegment'
-pub static MINUTE_MICROSECOND_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_minute_microsecond_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "MINUTE_MICROSECOND",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static MINUTE_MICROSECOND_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='Minute_secondKeywordSegment'
-pub static MINUTE_SECOND_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_minute_second_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "MINUTE_SECOND",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static MINUTE_SECOND_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='MinvalueKeywordSegment'
-pub static MINVALUE_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_minvalue_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "MINVALUE",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static MINVALUE_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='MlKeywordSegment'
-pub static ML_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_ml_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "ML",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static ML_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='MlslabelKeywordSegment'
-pub static MLSLABEL_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_mlslabel_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "MLSLABEL",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static MLSLABEL_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='ModKeywordSegment'
-pub static MOD_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_mod_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "MOD",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static MOD_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='ModeKeywordSegment'
-pub static MODE_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_mode_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "MODE",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static MODE_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='ModelKeywordSegment'
-pub static MODEL_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_model_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "MODEL",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static MODEL_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='ModifiesKeywordSegment'
-pub static MODIFIES_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_modifies_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "MODIFIES",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static MODIFIES_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='ModifyKeywordSegment'
-pub static MODIFY_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_modify_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "MODIFY",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static MODIFY_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='ModuleKeywordSegment'
-pub static MODULE_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_module_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "MODULE",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static MODULE_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='ModuloSegment'
-pub static MODULO_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_modulo_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "%",
     token_type: "binary_operator",
     raw_class: "SymbolSegment",
     optional: false,
 })
-);
+}
+
+pub static MODULO_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='MonitorKeywordSegment'
-pub static MONITOR_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_monitor_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "MONITOR",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static MONITOR_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='MonthKeywordSegment'
-pub static MONTH_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_month_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "MONTH",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static MONTH_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='MonthnameKeywordSegment'
-pub static MONTHNAME_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_monthname_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "MONTHNAME",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static MONTHNAME_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='MoreKeywordSegment'
-pub static MORE_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_more_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "MORE",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static MORE_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='MoveKeywordSegment'
-pub static MOVE_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_move_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "MOVE",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static MOVE_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='MultiplySegment'
-pub static MULTIPLY_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_multiply_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "*",
     token_type: "binary_operator",
     raw_class: "SymbolSegment",
     optional: false,
 })
-);
+}
+
+pub static MULTIPLY_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='MultisetKeywordSegment'
-pub static MULTISET_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_multiset_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "MULTISET",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static MULTISET_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='MumpsKeywordSegment'
-pub static MUMPS_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_mumps_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "MUMPS",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static MUMPS_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='MyisamKeywordSegment'
-pub static MYISAM_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_myisam_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "MYISAM",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static MYISAM_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='NakedIdentifierSegment'
-pub static NAKED_IDENTIFIER_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_naked_identifier_segment() -> Arc<Grammar> {
 Arc::new(Grammar::RegexParser {
     template: RegexMode::new(r#"[A-Z0-9_]*[A-Z][A-Z0-9_]*"#),
     token_type: "naked_identifier",
     raw_class: "IdentifierSegment",
     optional: false,
-    anti_template: Some(RegexMode::new(r#"^(SELECT|INTERVAL|NULL|RESPECT|ON|UNION|CROSS|CASE|FULL|JOIN|SET|LEFT|PARTITION|NATURAL|IGNORE|USING|OUTER|RIGHT|ROWS|ORDER|NOT|INNER)$"#)),
+    anti_template: Some(RegexMode::new(r#"^(USING|RIGHT|NATURAL|UNION|IGNORE|CASE|RESPECT|PARTITION|FULL|SET|ORDER|CROSS|INTERVAL|SELECT|NOT|JOIN|ON|INNER|LEFT|NULL|ROWS|OUTER)$"#)),
 })
-);
+}
+
+pub static NAKED_IDENTIFIER_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='NameKeywordSegment'
-pub static NAME_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_name_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "NAME",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static NAME_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='NamedWindowExpressionSegment'
-pub static NAMED_WINDOW_EXPRESSION_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_named_window_expression_segment() -> Arc<Grammar> {
 // NamedWindowExpressionSegment
 Arc::new(Grammar::Sequence {
     elements: vec![
@@ -30741,10 +32053,12 @@ Arc::new(Grammar::StringParser {
     parse_mode: ParseMode::Strict,
     simple_hint: None,
 })
-);
+}
+
+pub static NAMED_WINDOW_EXPRESSION_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='NamedWindowSegment'
-pub static NAMED_WINDOW_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_named_window_segment() -> Arc<Grammar> {
 // NamedWindowSegment
 Arc::new(Grammar::Sequence {
     elements: vec![
@@ -30819,50 +32133,60 @@ Arc::new(Grammar::Meta("dedent"))
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
-);
+}
+
+pub static NAMED_WINDOW_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='NamesKeywordSegment'
-pub static NAMES_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_names_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "NAMES",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static NAMES_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='NanKeywordSegment'
-pub static NAN_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_nan_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "NAN",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static NAN_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='NanLiteralSegment'
-pub static NAN_LITERAL_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_nan_literal_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "NAN",
     token_type: "null_literal",
     raw_class: "LiteralKeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static NAN_LITERAL_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='NationalKeywordSegment'
-pub static NATIONAL_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_national_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "NATIONAL",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static NATIONAL_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='NaturalJoinKeywordsGrammar'
-pub static NATURAL_JOIN_KEYWORDS_GRAMMAR: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_natural_join_keywords_grammar() -> Arc<Grammar> {
 Arc::new(Grammar::Sequence {
     elements: vec![
 Arc::new(Grammar::Ref {
@@ -30905,213 +32229,257 @@ Arc::new(Grammar::Ref {
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
-);
+}
+
+pub static NATURAL_JOIN_KEYWORDS_GRAMMAR: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='NaturalKeywordSegment'
-pub static NATURAL_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_natural_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "NATURAL",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static NATURAL_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='NcharKeywordSegment'
-pub static NCHAR_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_nchar_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "NCHAR",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static NCHAR_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='NclobKeywordSegment'
-pub static NCLOB_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_nclob_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "NCLOB",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static NCLOB_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='NegativeSegment'
-pub static NEGATIVE_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_negative_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "-",
     token_type: "sign_indicator",
     raw_class: "SymbolSegment",
     optional: false,
 })
-);
+}
+
+pub static NEGATIVE_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='NestedJoinGrammar'
-pub static NESTED_JOIN_GRAMMAR: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_nested_join_grammar() -> Arc<Grammar> {
 Arc::new(Grammar::Nothing())
-);
+}
+
+pub static NESTED_JOIN_GRAMMAR: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='NestingKeywordSegment'
-pub static NESTING_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_nesting_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "NESTING",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static NESTING_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='NewKeywordSegment'
-pub static NEW_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_new_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "NEW",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static NEW_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='NewlineSegment'
-pub static NEWLINE_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_newline_segment() -> Arc<Grammar> {
 Arc::new(Grammar::Token{
     token_type: "newline",
 //    token_type: "NewlineSegment",
 })
-);
+}
+
+pub static NEWLINE_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='NextKeywordSegment'
-pub static NEXT_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_next_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "NEXT",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static NEXT_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='NoKeywordSegment'
-pub static NO_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_no_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "NO",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static NO_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='No_write_to_binlogKeywordSegment'
-pub static NO_WRITE_TO_BINLOG_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_no_write_to_binlog_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "NO_WRITE_TO_BINLOG",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static NO_WRITE_TO_BINLOG_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='NoauditKeywordSegment'
-pub static NOAUDIT_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_noaudit_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "NOAUDIT",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static NOAUDIT_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='NocacheKeywordSegment'
-pub static NOCACHE_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_nocache_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "NOCACHE",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static NOCACHE_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='NocheckKeywordSegment'
-pub static NOCHECK_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_nocheck_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "NOCHECK",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static NOCHECK_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='NocompressKeywordSegment'
-pub static NOCOMPRESS_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_nocompress_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "NOCOMPRESS",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static NOCOMPRESS_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='NocreatedbKeywordSegment'
-pub static NOCREATEDB_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_nocreatedb_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "NOCREATEDB",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static NOCREATEDB_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='NocreateroleKeywordSegment'
-pub static NOCREATEROLE_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_nocreaterole_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "NOCREATEROLE",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static NOCREATEROLE_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='NocreateuserKeywordSegment'
-pub static NOCREATEUSER_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_nocreateuser_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "NOCREATEUSER",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static NOCREATEUSER_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='NocycleKeywordSegment'
-pub static NOCYCLE_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_nocycle_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "NOCYCLE",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static NOCYCLE_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='NoinheritKeywordSegment'
-pub static NOINHERIT_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_noinherit_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "NOINHERIT",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static NOINHERIT_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='NologinKeywordSegment'
-pub static NOLOGIN_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_nologin_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "NOLOGIN",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static NOLOGIN_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='NonSetSelectableGrammar'
-pub static NON_SET_SELECTABLE_GRAMMAR: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_non_set_selectable_grammar() -> Arc<Grammar> {
 Arc::new(Grammar::OneOf {
     elements: vec![
 Arc::new(Grammar::Ref {
@@ -31310,15 +32678,19 @@ Arc::new(Grammar::Ref {
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
-);
+}
+
+pub static NON_SET_SELECTABLE_GRAMMAR: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='NonStandardJoinTypeKeywordsGrammar'
-pub static NON_STANDARD_JOIN_TYPE_KEYWORDS_GRAMMAR: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_non_standard_join_type_keywords_grammar() -> Arc<Grammar> {
 Arc::new(Grammar::Nothing())
-);
+}
+
+pub static NON_STANDARD_JOIN_TYPE_KEYWORDS_GRAMMAR: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='NonWithNonSelectableGrammar'
-pub static NON_WITH_NON_SELECTABLE_GRAMMAR: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_non_with_non_selectable_grammar() -> Arc<Grammar> {
 Arc::new(Grammar::OneOf {
     elements: vec![
 Arc::new(Grammar::Ref {
@@ -31390,10 +32762,12 @@ Arc::new(Grammar::Ref {
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
-);
+}
+
+pub static NON_WITH_NON_SELECTABLE_GRAMMAR: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='NonWithSelectableGrammar'
-pub static NON_WITH_SELECTABLE_GRAMMAR: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_non_with_selectable_grammar() -> Arc<Grammar> {
 Arc::new(Grammar::OneOf {
     elements: vec![
 Arc::new(Grammar::Ref {
@@ -31514,80 +32888,98 @@ Arc::new(Grammar::Ref {
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
-);
+}
+
+pub static NON_WITH_SELECTABLE_GRAMMAR: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='NonclusteredKeywordSegment'
-pub static NONCLUSTERED_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_nonclustered_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "NONCLUSTERED",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static NONCLUSTERED_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='NoneKeywordSegment'
-pub static NONE_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_none_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "NONE",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static NONE_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='NoorderKeywordSegment'
-pub static NOORDER_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_noorder_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "NOORDER",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static NOORDER_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='NormalizeKeywordSegment'
-pub static NORMALIZE_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_normalize_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "NORMALIZE",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static NORMALIZE_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='NormalizedGrammar'
-pub static NORMALIZED_GRAMMAR: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_normalized_grammar() -> Arc<Grammar> {
 Arc::new(Grammar::Nothing())
-);
+}
+
+pub static NORMALIZED_GRAMMAR: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='NormalizedKeywordSegment'
-pub static NORMALIZED_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_normalized_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "NORMALIZED",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static NORMALIZED_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='NosuperuserKeywordSegment'
-pub static NOSUPERUSER_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_nosuperuser_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "NOSUPERUSER",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static NOSUPERUSER_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='NotEnforcedGrammar'
-pub static NOT_ENFORCED_GRAMMAR: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_not_enforced_grammar() -> Arc<Grammar> {
 Arc::new(Grammar::Nothing())
-);
+}
+
+pub static NOT_ENFORCED_GRAMMAR: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='NotEqualToSegment'
-pub static NOT_EQUAL_TO_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_not_equal_to_segment() -> Arc<Grammar> {
 // NotEqualToSegment
 Arc::new(Grammar::OneOf {
     elements: vec![
@@ -31690,165 +33082,199 @@ Arc::new(Grammar::Ref {
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
-);
+}
+
+pub static NOT_EQUAL_TO_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='NotKeywordSegment'
-pub static NOT_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_not_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "NOT",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static NOT_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='NotNullGrammar'
-pub static NOT_NULL_GRAMMAR: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_not_null_grammar() -> Arc<Grammar> {
 Arc::new(Grammar::Nothing())
-);
+}
+
+pub static NOT_NULL_GRAMMAR: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='NotOperatorGrammar'
-pub static NOT_OPERATOR_GRAMMAR: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_not_operator_grammar() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "NOT",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static NOT_OPERATOR_GRAMMAR: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='NothingKeywordSegment'
-pub static NOTHING_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_nothing_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "NOTHING",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static NOTHING_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='NotifyKeywordSegment'
-pub static NOTIFY_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_notify_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "NOTIFY",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static NOTIFY_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='NotnullKeywordSegment'
-pub static NOTNULL_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_notnull_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "NOTNULL",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static NOTNULL_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='NowaitKeywordSegment'
-pub static NOWAIT_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_nowait_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "NOWAIT",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static NOWAIT_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='NullKeywordSegment'
-pub static NULL_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_null_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "NULL",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static NULL_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='NullLiteralSegment'
-pub static NULL_LITERAL_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_null_literal_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "NULL",
     token_type: "null_literal",
     raw_class: "LiteralKeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static NULL_LITERAL_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='NullableKeywordSegment'
-pub static NULLABLE_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_nullable_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "NULLABLE",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static NULLABLE_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='NullifKeywordSegment'
-pub static NULLIF_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_nullif_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "NULLIF",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static NULLIF_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='NullsKeywordSegment'
-pub static NULLS_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_nulls_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "NULLS",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static NULLS_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='NumberKeywordSegment'
-pub static NUMBER_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_number_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "NUMBER",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static NUMBER_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='NumericKeywordSegment'
-pub static NUMERIC_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_numeric_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "NUMERIC",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static NUMERIC_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='NumericLiteralSegment'
-pub static NUMERIC_LITERAL_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_numeric_literal_segment() -> Arc<Grammar> {
 Arc::new(Grammar::TypedParser {
     template: "numeric_literal",
     token_type: "numeric_literal",
     raw_class: "LiteralSegment",
     optional: false,
 })
-);
+}
+
+pub static NUMERIC_LITERAL_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='ObjectKeywordSegment'
-pub static OBJECT_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_object_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "OBJECT",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static OBJECT_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='ObjectLiteralElementSegment'
-pub static OBJECT_LITERAL_ELEMENT_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_object_literal_element_segment() -> Arc<Grammar> {
 // ObjectLiteralElementSegment
 Arc::new(Grammar::Sequence {
     elements: vec![
@@ -31903,10 +33329,12 @@ Arc::new(Grammar::Ref {
             token_types: hashbrown::HashSet::from_iter(["single_quote".to_string()]),
         }),
 })
-);
+}
+
+pub static OBJECT_LITERAL_ELEMENT_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='ObjectLiteralSegment'
-pub static OBJECT_LITERAL_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_object_literal_segment() -> Arc<Grammar> {
 // ObjectLiteralSegment
 Arc::new(Grammar::Bracketed {
     elements: vec![
@@ -31987,10 +33415,12 @@ Arc::new(Grammar::StringParser {
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
-);
+}
+
+pub static OBJECT_LITERAL_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='ObjectReferenceDelimiterGrammar'
-pub static OBJECT_REFERENCE_DELIMITER_GRAMMAR: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_object_reference_delimiter_grammar() -> Arc<Grammar> {
 Arc::new(Grammar::OneOf {
     elements: vec![
 Arc::new(Grammar::Ref {
@@ -32063,10 +33493,12 @@ Arc::new(Grammar::Ref {
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
-);
+}
+
+pub static OBJECT_REFERENCE_DELIMITER_GRAMMAR: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='ObjectReferenceSegment'
-pub static OBJECT_REFERENCE_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_object_reference_segment() -> Arc<Grammar> {
 // ObjectReferenceSegment
 Arc::new(Grammar::Delimited {
     elements: vec![
@@ -32119,10 +33551,12 @@ Arc::new(Grammar::Ref {
     parse_mode: ParseMode::Strict,
     simple_hint: None,
 })
-);
+}
+
+pub static OBJECT_REFERENCE_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='ObjectReferenceTerminatorGrammar'
-pub static OBJECT_REFERENCE_TERMINATOR_GRAMMAR: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_object_reference_terminator_grammar() -> Arc<Grammar> {
 Arc::new(Grammar::OneOf {
     elements: vec![
 Arc::new(Grammar::Ref {
@@ -32291,70 +33725,84 @@ Arc::new(Grammar::Token{
     parse_mode: ParseMode::Strict,
     simple_hint: None,
 })
-);
+}
+
+pub static OBJECT_REFERENCE_TERMINATOR_GRAMMAR: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='ObjectsKeywordSegment'
-pub static OBJECTS_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_objects_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "OBJECTS",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static OBJECTS_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='Octet_lengthKeywordSegment'
-pub static OCTET_LENGTH_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_octet_length_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "OCTET_LENGTH",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static OCTET_LENGTH_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='OctetsKeywordSegment'
-pub static OCTETS_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_octets_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "OCTETS",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static OCTETS_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='OfKeywordSegment'
-pub static OF_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_of_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "OF",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static OF_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='OffKeywordSegment'
-pub static OFF_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_off_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "OFF",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static OFF_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='OfflineKeywordSegment'
-pub static OFFLINE_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_offline_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "OFFLINE",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static OFFLINE_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='OffsetClauseSegment'
-pub static OFFSET_CLAUSE_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_offset_clause_segment() -> Arc<Grammar> {
 // OffsetClauseSegment
 Arc::new(Grammar::Sequence {
     elements: vec![
@@ -32480,220 +33928,264 @@ Arc::new(Grammar::Ref {
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
-);
+}
+
+pub static OFFSET_CLAUSE_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='OffsetKeywordSegment'
-pub static OFFSET_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_offset_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "OFFSET",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static OFFSET_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='OffsetsKeywordSegment'
-pub static OFFSETS_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_offsets_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "OFFSETS",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static OFFSETS_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='OidsKeywordSegment'
-pub static OIDS_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_oids_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "OIDS",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static OIDS_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='OldKeywordSegment'
-pub static OLD_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_old_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "OLD",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static OLD_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='OnKeywordSegment'
-pub static ON_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_on_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "ON",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static ON_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='OnlineKeywordSegment'
-pub static ONLINE_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_online_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "ONLINE",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static ONLINE_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='OnlyKeywordSegment'
-pub static ONLY_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_only_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "ONLY",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static ONLY_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='OpenKeywordSegment'
-pub static OPEN_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_open_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "OPEN",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static OPEN_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='OpendatasourceKeywordSegment'
-pub static OPENDATASOURCE_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_opendatasource_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "OPENDATASOURCE",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static OPENDATASOURCE_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='OpenqueryKeywordSegment'
-pub static OPENQUERY_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_openquery_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "OPENQUERY",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static OPENQUERY_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='OpenrowsetKeywordSegment'
-pub static OPENROWSET_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_openrowset_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "OPENROWSET",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static OPENROWSET_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='OpenxmlKeywordSegment'
-pub static OPENXML_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_openxml_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "OPENXML",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static OPENXML_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='OperateKeywordSegment'
-pub static OPERATE_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_operate_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "OPERATE",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static OPERATE_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='OperationKeywordSegment'
-pub static OPERATION_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_operation_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "OPERATION",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static OPERATION_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='OperatorKeywordSegment'
-pub static OPERATOR_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_operator_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "OPERATOR",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static OPERATOR_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='OptimizeKeywordSegment'
-pub static OPTIMIZE_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_optimize_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "OPTIMIZE",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static OPTIMIZE_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='OptionKeywordSegment'
-pub static OPTION_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_option_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "OPTION",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static OPTION_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='OptionallyKeywordSegment'
-pub static OPTIONALLY_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_optionally_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "OPTIONALLY",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static OPTIONALLY_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='OptionsKeywordSegment'
-pub static OPTIONS_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_options_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "OPTIONS",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static OPTIONS_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='OrKeywordSegment'
-pub static OR_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_or_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "OR",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static OR_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='OrOperatorGrammar'
-pub static OR_OPERATOR_GRAMMAR: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_or_operator_grammar() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "OR",
     token_type: "binary_operator",
     raw_class: "BinaryOperatorSegment",
     optional: false,
 })
-);
+}
+
+pub static OR_OPERATOR_GRAMMAR: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='OrReplaceGrammar'
-pub static OR_REPLACE_GRAMMAR: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_or_replace_grammar() -> Arc<Grammar> {
 Arc::new(Grammar::Sequence {
     elements: vec![
 Arc::new(Grammar::Ref {
@@ -32736,10 +34228,12 @@ Arc::new(Grammar::Ref {
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
-);
+}
+
+pub static OR_REPLACE_GRAMMAR: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='OrderByClauseSegment'
-pub static ORDER_BY_CLAUSE_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_order_by_clause_segment() -> Arc<Grammar> {
 // OrderByClauseSegment
 Arc::new(Grammar::Sequence {
     elements: vec![
@@ -33034,10 +34528,12 @@ Arc::new(Grammar::Meta("dedent"))
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
-);
+}
+
+pub static ORDER_BY_CLAUSE_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='OrderByClauseTerminators'
-pub static ORDER_BY_CLAUSE_TERMINATORS: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_order_by_clause_terminators() -> Arc<Grammar> {
 Arc::new(Grammar::OneOf {
     elements: vec![
 Arc::new(Grammar::Ref {
@@ -33151,20 +34647,24 @@ Arc::new(Grammar::Ref {
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
-);
+}
+
+pub static ORDER_BY_CLAUSE_TERMINATORS: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='OrderKeywordSegment'
-pub static ORDER_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_order_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "ORDER",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static ORDER_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='OrderNoOrderGrammar'
-pub static ORDER_NO_ORDER_GRAMMAR: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_order_no_order_grammar() -> Arc<Grammar> {
 Arc::new(Grammar::OneOf {
     elements: vec![
 Arc::new(Grammar::Ref {
@@ -33208,80 +34708,96 @@ Arc::new(Grammar::Ref {
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
-);
+}
+
+pub static ORDER_NO_ORDER_GRAMMAR: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='OrderingKeywordSegment'
-pub static ORDERING_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_ordering_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "ORDERING",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static ORDERING_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='OrdinalityKeywordSegment'
-pub static ORDINALITY_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_ordinality_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "ORDINALITY",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static ORDINALITY_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='OthersKeywordSegment'
-pub static OTHERS_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_others_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "OTHERS",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static OTHERS_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='OutKeywordSegment'
-pub static OUT_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_out_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "OUT",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static OUT_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='OuterKeywordSegment'
-pub static OUTER_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_outer_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "OUTER",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static OUTER_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='OutfileKeywordSegment'
-pub static OUTFILE_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_outfile_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "OUTFILE",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static OUTFILE_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='OutputKeywordSegment'
-pub static OUTPUT_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_output_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "OUTPUT",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static OUTPUT_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='OverClauseSegment'
-pub static OVER_CLAUSE_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_over_clause_segment() -> Arc<Grammar> {
 // OverClauseSegment
 Arc::new(Grammar::Sequence {
     elements: vec![
@@ -33394,20 +34910,24 @@ Arc::new(Grammar::Meta("dedent"))
     parse_mode: ParseMode::Strict,
     simple_hint: None,
 })
-);
+}
+
+pub static OVER_CLAUSE_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='OverKeywordSegment'
-pub static OVER_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_over_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "OVER",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static OVER_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='OverlapsClauseSegment'
-pub static OVERLAPS_CLAUSE_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_overlaps_clause_segment() -> Arc<Grammar> {
 // OverlapsClauseSegment
 Arc::new(Grammar::Sequence {
     elements: vec![
@@ -33551,100 +35071,120 @@ Arc::new(Grammar::Ref {
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
-);
+}
+
+pub static OVERLAPS_CLAUSE_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='OverlapsKeywordSegment'
-pub static OVERLAPS_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_overlaps_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "OVERLAPS",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static OVERLAPS_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='OverlayKeywordSegment'
-pub static OVERLAY_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_overlay_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "OVERLAY",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static OVERLAY_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='OverridingKeywordSegment'
-pub static OVERRIDING_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_overriding_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "OVERRIDING",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static OVERRIDING_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='OverwriteKeywordSegment'
-pub static OVERWRITE_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_overwrite_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "OVERWRITE",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static OVERWRITE_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='OwnerKeywordSegment'
-pub static OWNER_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_owner_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "OWNER",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static OWNER_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='OwnershipKeywordSegment'
-pub static OWNERSHIP_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_ownership_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "OWNERSHIP",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static OWNERSHIP_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='Pack_keysKeywordSegment'
-pub static PACK_KEYS_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_pack_keys_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "PACK_KEYS",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static PACK_KEYS_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='PadKeywordSegment'
-pub static PAD_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_pad_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "PAD",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static PAD_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='ParameterKeywordSegment'
-pub static PARAMETER_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_parameter_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "PARAMETER",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static PARAMETER_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='ParameterNameSegment'
-pub static PARAMETER_NAME_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_parameter_name_segment() -> Arc<Grammar> {
 Arc::new(Grammar::RegexParser {
     template: RegexMode::new(r#"\"?[A-Z][A-Z0-9_]*\"?"#),
     token_type: "parameter",
@@ -33652,100 +35192,120 @@ Arc::new(Grammar::RegexParser {
     optional: false,
     anti_template: None,
 })
-);
+}
+
+pub static PARAMETER_NAME_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='ParameterSegment'
-pub static PARAMETER_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_parameter_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "?",
     token_type: "parameter",
     raw_class: "SymbolSegment",
     optional: false,
 })
-);
+}
+
+pub static PARAMETER_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='Parameter_modeKeywordSegment'
-pub static PARAMETER_MODE_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_parameter_mode_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "PARAMETER_MODE",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static PARAMETER_MODE_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='Parameter_nameKeywordSegment'
-pub static PARAMETER_NAME_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_parameter_name_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "PARAMETER_NAME",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static PARAMETER_NAME_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='Parameter_ordinal_positionKeywordSegment'
-pub static PARAMETER_ORDINAL_POSITION_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_parameter_ordinal_position_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "PARAMETER_ORDINAL_POSITION",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static PARAMETER_ORDINAL_POSITION_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='Parameter_specific_catalogKeywordSegment'
-pub static PARAMETER_SPECIFIC_CATALOG_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_parameter_specific_catalog_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "PARAMETER_SPECIFIC_CATALOG",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static PARAMETER_SPECIFIC_CATALOG_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='Parameter_specific_nameKeywordSegment'
-pub static PARAMETER_SPECIFIC_NAME_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_parameter_specific_name_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "PARAMETER_SPECIFIC_NAME",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static PARAMETER_SPECIFIC_NAME_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='Parameter_specific_schemaKeywordSegment'
-pub static PARAMETER_SPECIFIC_SCHEMA_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_parameter_specific_schema_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "PARAMETER_SPECIFIC_SCHEMA",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static PARAMETER_SPECIFIC_SCHEMA_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='ParametersKeywordSegment'
-pub static PARAMETERS_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_parameters_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "PARAMETERS",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static PARAMETERS_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='PartialKeywordSegment'
-pub static PARTIAL_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_partial_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "PARTIAL",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static PARTIAL_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='PartitionClauseSegment'
-pub static PARTITION_CLAUSE_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_partition_clause_segment() -> Arc<Grammar> {
 // PartitionClauseSegment
 Arc::new(Grammar::Sequence {
     elements: vec![
@@ -33921,50 +35481,60 @@ Arc::new(Grammar::Meta("dedent"))
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
-);
+}
+
+pub static PARTITION_CLAUSE_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='PartitionKeywordSegment'
-pub static PARTITION_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_partition_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "PARTITION",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static PARTITION_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='PascalKeywordSegment'
-pub static PASCAL_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_pascal_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "PASCAL",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static PASCAL_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='PasswordKeywordSegment'
-pub static PASSWORD_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_password_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "PASSWORD",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static PASSWORD_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='PathKeywordSegment'
-pub static PATH_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_path_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "PATH",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static PATH_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='PathSegment'
-pub static PATH_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_path_segment() -> Arc<Grammar> {
 // PathSegment
 Arc::new(Grammar::OneOf {
     elements: vec![
@@ -34064,155 +35634,187 @@ Arc::new(Grammar::Ref {
             token_types: hashbrown::HashSet::from_iter(["single_quote".to_string()]),
         }),
 })
-);
+}
+
+pub static PATH_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='PatternMatchingGrammar'
-pub static PATTERN_MATCHING_GRAMMAR: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_pattern_matching_grammar() -> Arc<Grammar> {
 Arc::new(Grammar::Nothing())
-);
+}
+
+pub static PATTERN_MATCHING_GRAMMAR: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='PctfreeKeywordSegment'
-pub static PCTFREE_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_pctfree_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "PCTFREE",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static PCTFREE_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='PercentKeywordSegment'
-pub static PERCENT_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_percent_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "PERCENT",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static PERCENT_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='Percent_rankKeywordSegment'
-pub static PERCENT_RANK_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_percent_rank_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "PERCENT_RANK",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static PERCENT_RANK_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='Percentile_contKeywordSegment'
-pub static PERCENTILE_CONT_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_percentile_cont_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "PERCENTILE_CONT",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static PERCENTILE_CONT_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='Percentile_discKeywordSegment'
-pub static PERCENTILE_DISC_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_percentile_disc_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "PERCENTILE_DISC",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static PERCENTILE_DISC_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='PipeKeywordSegment'
-pub static PIPE_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_pipe_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "PIPE",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static PIPE_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='PipeSegment'
-pub static PIPE_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_pipe_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "|",
     token_type: "pipe",
     raw_class: "SymbolSegment",
     optional: false,
 })
-);
+}
+
+pub static PIPE_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='PlacingKeywordSegment'
-pub static PLACING_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_placing_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "PLACING",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static PLACING_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='PlanKeywordSegment'
-pub static PLAN_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_plan_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "PLAN",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static PLAN_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='PliKeywordSegment'
-pub static PLI_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_pli_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "PLI",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static PLI_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='PlusSegment'
-pub static PLUS_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_plus_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "+",
     token_type: "binary_operator",
     raw_class: "SymbolSegment",
     optional: false,
 })
-);
+}
+
+pub static PLUS_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='PolicyKeywordSegment'
-pub static POLICY_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_policy_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "POLICY",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static POLICY_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='PositionKeywordSegment'
-pub static POSITION_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_position_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "POSITION",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static POSITION_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='PositiveSegment'
-pub static POSITIVE_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_positive_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "+",
     token_type: "sign_indicator",
     raw_class: "SymbolSegment",
     optional: false,
 })
-);
+}
+
+pub static POSITIVE_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='PostFunctionGrammar'
-pub static POST_FUNCTION_GRAMMAR: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_post_function_grammar() -> Arc<Grammar> {
 Arc::new(Grammar::OneOf {
     elements: vec![
 Arc::new(Grammar::Ref {
@@ -34250,110 +35852,134 @@ Arc::new(Grammar::Ref {
     parse_mode: ParseMode::Strict,
     simple_hint: None,
 })
-);
+}
+
+pub static POST_FUNCTION_GRAMMAR: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='PostTableExpressionGrammar'
-pub static POST_TABLE_EXPRESSION_GRAMMAR: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_post_table_expression_grammar() -> Arc<Grammar> {
 Arc::new(Grammar::Nothing())
-);
+}
+
+pub static POST_TABLE_EXPRESSION_GRAMMAR: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='PostfixKeywordSegment'
-pub static POSTFIX_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_postfix_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "POSTFIX",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static POSTFIX_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='PowerKeywordSegment'
-pub static POWER_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_power_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "POWER",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static POWER_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='PreTableFunctionKeywordsGrammar'
-pub static PRE_TABLE_FUNCTION_KEYWORDS_GRAMMAR: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_pre_table_function_keywords_grammar() -> Arc<Grammar> {
 Arc::new(Grammar::Nothing())
-);
+}
+
+pub static PRE_TABLE_FUNCTION_KEYWORDS_GRAMMAR: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='PrecedingKeywordSegment'
-pub static PRECEDING_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_preceding_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "PRECEDING",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static PRECEDING_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='PrecisionKeywordSegment'
-pub static PRECISION_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_precision_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "PRECISION",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static PRECISION_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='PrefixKeywordSegment'
-pub static PREFIX_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_prefix_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "PREFIX",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static PREFIX_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='PreorderKeywordSegment'
-pub static PREORDER_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_preorder_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "PREORDER",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static PREORDER_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='PrepareKeywordSegment'
-pub static PREPARE_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_prepare_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "PREPARE",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static PREPARE_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='PreparedKeywordSegment'
-pub static PREPARED_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_prepared_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "PREPARED",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static PREPARED_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='PreserveKeywordSegment'
-pub static PRESERVE_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_preserve_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "PRESERVE",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static PRESERVE_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='PrimaryKeyGrammar'
-pub static PRIMARY_KEY_GRAMMAR: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_primary_key_grammar() -> Arc<Grammar> {
 Arc::new(Grammar::Sequence {
     elements: vec![
 Arc::new(Grammar::Ref {
@@ -34396,130 +36022,156 @@ Arc::new(Grammar::Ref {
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
-);
+}
+
+pub static PRIMARY_KEY_GRAMMAR: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='PrimaryKeywordSegment'
-pub static PRIMARY_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_primary_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "PRIMARY",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static PRIMARY_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='PrintKeywordSegment'
-pub static PRINT_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_print_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "PRINT",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static PRINT_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='PriorKeywordSegment'
-pub static PRIOR_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_prior_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "PRIOR",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static PRIOR_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='PrivilegesKeywordSegment'
-pub static PRIVILEGES_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_privileges_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "PRIVILEGES",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static PRIVILEGES_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='ProcKeywordSegment'
-pub static PROC_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_proc_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "PROC",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static PROC_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='ProceduralKeywordSegment'
-pub static PROCEDURAL_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_procedural_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "PROCEDURAL",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static PROCEDURAL_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='ProcedureKeywordSegment'
-pub static PROCEDURE_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_procedure_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "PROCEDURE",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static PROCEDURE_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='ProceduresKeywordSegment'
-pub static PROCEDURES_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_procedures_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "PROCEDURES",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static PROCEDURES_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='ProcessKeywordSegment'
-pub static PROCESS_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_process_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "PROCESS",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static PROCESS_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='ProcesslistKeywordSegment'
-pub static PROCESSLIST_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_processlist_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "PROCESSLIST",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static PROCESSLIST_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='PublicKeywordSegment'
-pub static PUBLIC_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_public_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "PUBLIC",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static PUBLIC_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='PurgeKeywordSegment'
-pub static PURGE_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_purge_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "PURGE",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static PURGE_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='QualifiedNumericLiteralSegment'
-pub static QUALIFIED_NUMERIC_LITERAL_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_qualified_numeric_literal_segment() -> Arc<Grammar> {
 // QualifiedNumericLiteralSegment
 Arc::new(Grammar::Sequence {
     elements: vec![
@@ -34563,238 +36215,286 @@ Arc::new(Grammar::Ref {
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
-);
+}
+
+pub static QUALIFIED_NUMERIC_LITERAL_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='QualifyKeywordSegment'
-pub static QUALIFY_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_qualify_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "QUALIFY",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static QUALIFY_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='QuarterKeywordSegment'
-pub static QUARTER_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_quarter_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "QUARTER",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static QUARTER_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='QuoteKeywordSegment'
-pub static QUOTE_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_quote_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "QUOTE",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static QUOTE_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='QuotedIdentifierSegment'
-pub static QUOTED_IDENTIFIER_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_quoted_identifier_segment() -> Arc<Grammar> {
 Arc::new(Grammar::TypedParser {
     template: "double_quote",
     token_type: "quoted_identifier",
     raw_class: "IdentifierSegment",
     optional: false,
 })
-);
+}
+
+pub static QUOTED_IDENTIFIER_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='QuotedLiteralSegment'
-pub static QUOTED_LITERAL_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_quoted_literal_segment() -> Arc<Grammar> {
 Arc::new(Grammar::TypedParser {
     template: "single_quote",
     token_type: "quoted_literal",
     raw_class: "LiteralSegment",
     optional: false,
 })
-);
+}
+
+pub static QUOTED_LITERAL_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='Raid0KeywordSegment'
-pub static RAID0_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_raid0_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "RAID0",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static RAID0_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='RaiserrorKeywordSegment'
-pub static RAISERROR_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_raiserror_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "RAISERROR",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static RAISERROR_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='RangeKeywordSegment'
-pub static RANGE_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_range_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "RANGE",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static RANGE_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='RankKeywordSegment'
-pub static RANK_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_rank_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "RANK",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static RANK_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='RawEqualsSegment'
-pub static RAW_EQUALS_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_raw_equals_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "=",
     token_type: "raw_comparison_operator",
     raw_class: "SymbolSegment",
     optional: false,
 })
-);
+}
+
+pub static RAW_EQUALS_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='RawGreaterThanSegment'
-pub static RAW_GREATER_THAN_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_raw_greater_than_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: ">",
     token_type: "raw_comparison_operator",
     raw_class: "SymbolSegment",
     optional: false,
 })
-);
+}
+
+pub static RAW_GREATER_THAN_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='RawKeywordSegment'
-pub static RAW_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_raw_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "RAW",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static RAW_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='RawLessThanSegment'
-pub static RAW_LESS_THAN_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_raw_less_than_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "<",
     token_type: "raw_comparison_operator",
     raw_class: "SymbolSegment",
     optional: false,
 })
-);
+}
+
+pub static RAW_LESS_THAN_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='RawNotSegment'
-pub static RAW_NOT_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_raw_not_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "!",
     token_type: "raw_comparison_operator",
     raw_class: "SymbolSegment",
     optional: false,
 })
-);
+}
+
+pub static RAW_NOT_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='RawSegment'
-pub static RAW_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_raw_segment() -> Arc<Grammar> {
 Arc::new(Grammar::Token{
     token_type: "raw",
 //    token_type: "RawSegment",
 })
-);
+}
+
+pub static RAW_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='ReadKeywordSegment'
-pub static READ_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_read_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "READ",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static READ_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='ReadsKeywordSegment'
-pub static READS_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_reads_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "READS",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static READS_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='ReadtextKeywordSegment'
-pub static READTEXT_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_readtext_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "READTEXT",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static READTEXT_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='RealKeywordSegment'
-pub static REAL_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_real_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "REAL",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static REAL_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='RecheckKeywordSegment'
-pub static RECHECK_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_recheck_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "RECHECK",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static RECHECK_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='ReconfigureKeywordSegment'
-pub static RECONFIGURE_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_reconfigure_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "RECONFIGURE",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static RECONFIGURE_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='RecursiveKeywordSegment'
-pub static RECURSIVE_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_recursive_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "RECURSIVE",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static RECURSIVE_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='RefKeywordSegment'
-pub static REF_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_ref_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "REF",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static REF_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='ReferenceDefinitionGrammar'
-pub static REFERENCE_DEFINITION_GRAMMAR: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_reference_definition_grammar() -> Arc<Grammar> {
 Arc::new(Grammar::Sequence {
     elements: vec![
 Arc::new(Grammar::Ref {
@@ -34994,10 +36694,12 @@ Arc::new(Grammar::Ref {
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
-);
+}
+
+pub static REFERENCE_DEFINITION_GRAMMAR: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='ReferenceMatchGrammar'
-pub static REFERENCE_MATCH_GRAMMAR: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_reference_match_grammar() -> Arc<Grammar> {
 Arc::new(Grammar::Sequence {
     elements: vec![
 Arc::new(Grammar::Ref {
@@ -35084,40 +36786,48 @@ Arc::new(Grammar::Ref {
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
-);
+}
+
+pub static REFERENCE_MATCH_GRAMMAR: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='Reference_usageKeywordSegment'
-pub static REFERENCE_USAGE_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_reference_usage_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "REFERENCE_USAGE",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static REFERENCE_USAGE_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='ReferencesKeywordSegment'
-pub static REFERENCES_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_references_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "REFERENCES",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static REFERENCES_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='ReferencingKeywordSegment'
-pub static REFERENCING_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_referencing_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "REFERENCING",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static REFERENCING_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='ReferentialActionGrammar'
-pub static REFERENTIAL_ACTION_GRAMMAR: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_referential_action_grammar() -> Arc<Grammar> {
 Arc::new(Grammar::OneOf {
     elements: vec![
 Arc::new(Grammar::Ref {
@@ -35290,390 +37000,468 @@ Arc::new(Grammar::Ref {
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
-);
+}
+
+pub static REFERENTIAL_ACTION_GRAMMAR: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='RegexpKeywordSegment'
-pub static REGEXP_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_regexp_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "REGEXP",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static REGEXP_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='Regr_avgxKeywordSegment'
-pub static REGR_AVGX_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_regr_avgx_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "REGR_AVGX",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static REGR_AVGX_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='Regr_avgyKeywordSegment'
-pub static REGR_AVGY_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_regr_avgy_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "REGR_AVGY",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static REGR_AVGY_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='Regr_countKeywordSegment'
-pub static REGR_COUNT_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_regr_count_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "REGR_COUNT",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static REGR_COUNT_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='Regr_interceptKeywordSegment'
-pub static REGR_INTERCEPT_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_regr_intercept_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "REGR_INTERCEPT",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static REGR_INTERCEPT_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='Regr_r2KeywordSegment'
-pub static REGR_R2_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_regr_r2_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "REGR_R2",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static REGR_R2_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='Regr_slopeKeywordSegment'
-pub static REGR_SLOPE_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_regr_slope_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "REGR_SLOPE",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static REGR_SLOPE_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='Regr_sxxKeywordSegment'
-pub static REGR_SXX_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_regr_sxx_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "REGR_SXX",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static REGR_SXX_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='Regr_sxyKeywordSegment'
-pub static REGR_SXY_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_regr_sxy_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "REGR_SXY",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static REGR_SXY_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='Regr_syyKeywordSegment'
-pub static REGR_SYY_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_regr_syy_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "REGR_SYY",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static REGR_SYY_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='ReindexKeywordSegment'
-pub static REINDEX_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_reindex_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "REINDEX",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static REINDEX_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='RelativeKeywordSegment'
-pub static RELATIVE_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_relative_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "RELATIVE",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static RELATIVE_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='ReleaseKeywordSegment'
-pub static RELEASE_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_release_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "RELEASE",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static RELEASE_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='ReloadKeywordSegment'
-pub static RELOAD_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_reload_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "RELOAD",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static RELOAD_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='RenameKeywordSegment'
-pub static RENAME_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_rename_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "RENAME",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static RENAME_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='RepeatKeywordSegment'
-pub static REPEAT_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_repeat_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "REPEAT",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static REPEAT_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='RepeatableKeywordSegment'
-pub static REPEATABLE_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_repeatable_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "REPEATABLE",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static REPEATABLE_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='ReplaceKeywordSegment'
-pub static REPLACE_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_replace_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "REPLACE",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static REPLACE_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='ReplicationKeywordSegment'
-pub static REPLICATION_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_replication_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "REPLICATION",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static REPLICATION_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='RequireKeywordSegment'
-pub static REQUIRE_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_require_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "REQUIRE",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static REQUIRE_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='ResetKeywordSegment'
-pub static RESET_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_reset_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "RESET",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static RESET_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='ResignalKeywordSegment'
-pub static RESIGNAL_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_resignal_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "RESIGNAL",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static RESIGNAL_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='ResourceKeywordSegment'
-pub static RESOURCE_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_resource_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "RESOURCE",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static RESOURCE_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='RespectKeywordSegment'
-pub static RESPECT_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_respect_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "RESPECT",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static RESPECT_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='RestartKeywordSegment'
-pub static RESTART_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_restart_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "RESTART",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static RESTART_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='RestoreKeywordSegment'
-pub static RESTORE_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_restore_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "RESTORE",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static RESTORE_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='RestrictKeywordSegment'
-pub static RESTRICT_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_restrict_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "RESTRICT",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static RESTRICT_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='ResultKeywordSegment'
-pub static RESULT_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_result_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "RESULT",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static RESULT_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='ReturnKeywordSegment'
-pub static RETURN_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_return_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "RETURN",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static RETURN_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='Returned_cardinalityKeywordSegment'
-pub static RETURNED_CARDINALITY_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_returned_cardinality_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "RETURNED_CARDINALITY",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static RETURNED_CARDINALITY_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='Returned_lengthKeywordSegment'
-pub static RETURNED_LENGTH_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_returned_length_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "RETURNED_LENGTH",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static RETURNED_LENGTH_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='Returned_octet_lengthKeywordSegment'
-pub static RETURNED_OCTET_LENGTH_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_returned_octet_length_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "RETURNED_OCTET_LENGTH",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static RETURNED_OCTET_LENGTH_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='Returned_sqlstateKeywordSegment'
-pub static RETURNED_SQLSTATE_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_returned_sqlstate_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "RETURNED_SQLSTATE",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static RETURNED_SQLSTATE_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='ReturnsKeywordSegment'
-pub static RETURNS_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_returns_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "RETURNS",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static RETURNS_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='RevokeKeywordSegment'
-pub static REVOKE_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_revoke_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "REVOKE",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static REVOKE_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='RightKeywordSegment'
-pub static RIGHT_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_right_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "RIGHT",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static RIGHT_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='RlikeKeywordSegment'
-pub static RLIKE_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_rlike_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "RLIKE",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static RLIKE_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='RoleKeywordSegment'
-pub static ROLE_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_role_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "ROLE",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static ROLE_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='RoleReferenceSegment'
-pub static ROLE_REFERENCE_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_role_reference_segment() -> Arc<Grammar> {
 // RoleReferenceSegment
 Arc::new(Grammar::Ref {
     name: "SingleIdentifierGrammar",
@@ -35685,30 +37473,36 @@ Arc::new(Grammar::Ref {
     reset_terminators: false,
     simple_hint: None,
 })
-);
+}
+
+pub static ROLE_REFERENCE_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='RolesKeywordSegment'
-pub static ROLES_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_roles_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "ROLES",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static ROLES_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='RollbackKeywordSegment'
-pub static ROLLBACK_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_rollback_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "ROLLBACK",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static ROLLBACK_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='RollupFunctionNameSegment'
-pub static ROLLUP_FUNCTION_NAME_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_rollup_function_name_segment() -> Arc<Grammar> {
 // RollupFunctionNameSegment
 Arc::new(Grammar::StringParser {
     template: "ROLLUP",
@@ -35716,160 +37510,192 @@ Arc::new(Grammar::StringParser {
     raw_class: "CodeSegment",
     optional: false,
 })
-);
+}
+
+pub static ROLLUP_FUNCTION_NAME_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='RollupKeywordSegment'
-pub static ROLLUP_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_rollup_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "ROLLUP",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static ROLLUP_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='RoutineKeywordSegment'
-pub static ROUTINE_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_routine_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "ROUTINE",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static ROUTINE_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='Routine_catalogKeywordSegment'
-pub static ROUTINE_CATALOG_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_routine_catalog_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "ROUTINE_CATALOG",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static ROUTINE_CATALOG_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='Routine_nameKeywordSegment'
-pub static ROUTINE_NAME_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_routine_name_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "ROUTINE_NAME",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static ROUTINE_NAME_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='Routine_schemaKeywordSegment'
-pub static ROUTINE_SCHEMA_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_routine_schema_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "ROUTINE_SCHEMA",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static ROUTINE_SCHEMA_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='RoutinesKeywordSegment'
-pub static ROUTINES_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_routines_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "ROUTINES",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static ROUTINES_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='RowKeywordSegment'
-pub static ROW_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_row_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "ROW",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static ROW_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='Row_countKeywordSegment'
-pub static ROW_COUNT_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_row_count_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "ROW_COUNT",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static ROW_COUNT_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='Row_numberKeywordSegment'
-pub static ROW_NUMBER_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_row_number_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "ROW_NUMBER",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static ROW_NUMBER_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='RowcountKeywordSegment'
-pub static ROWCOUNT_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_rowcount_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "ROWCOUNT",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static ROWCOUNT_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='RowguidcolKeywordSegment'
-pub static ROWGUIDCOL_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_rowguidcol_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "ROWGUIDCOL",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static ROWGUIDCOL_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='RowidKeywordSegment'
-pub static ROWID_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_rowid_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "ROWID",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static ROWID_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='RownumKeywordSegment'
-pub static ROWNUM_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_rownum_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "ROWNUM",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static ROWNUM_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='RowsKeywordSegment'
-pub static ROWS_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_rows_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "ROWS",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static ROWS_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='RuleKeywordSegment'
-pub static RULE_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_rule_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "RULE",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static RULE_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='SamplingExpressionSegment'
-pub static SAMPLING_EXPRESSION_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_sampling_expression_segment() -> Arc<Grammar> {
 // SamplingExpressionSegment
 Arc::new(Grammar::Sequence {
     elements: vec![
@@ -36082,50 +37908,60 @@ Arc::new(Grammar::StringParser {
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
-);
+}
+
+pub static SAMPLING_EXPRESSION_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='SaveKeywordSegment'
-pub static SAVE_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_save_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "SAVE",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static SAVE_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='SavepointKeywordSegment'
-pub static SAVEPOINT_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_savepoint_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "SAVEPOINT",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static SAVEPOINT_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='ScaleKeywordSegment'
-pub static SCALE_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_scale_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "SCALE",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static SCALE_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='SchemaKeywordSegment'
-pub static SCHEMA_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_schema_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "SCHEMA",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static SCHEMA_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='SchemaReferenceSegment'
-pub static SCHEMA_REFERENCE_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_schema_reference_segment() -> Arc<Grammar> {
 // SchemaReferenceSegment
 Arc::new(Grammar::Delimited {
     elements: vec![
@@ -36178,130 +38014,156 @@ Arc::new(Grammar::Ref {
     parse_mode: ParseMode::Strict,
     simple_hint: None,
 })
-);
+}
+
+pub static SCHEMA_REFERENCE_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='Schema_nameKeywordSegment'
-pub static SCHEMA_NAME_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_schema_name_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "SCHEMA_NAME",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static SCHEMA_NAME_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='SchemasKeywordSegment'
-pub static SCHEMAS_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_schemas_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "SCHEMAS",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static SCHEMAS_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='ScopeKeywordSegment'
-pub static SCOPE_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_scope_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "SCOPE",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static SCOPE_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='Scope_catalogKeywordSegment'
-pub static SCOPE_CATALOG_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_scope_catalog_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "SCOPE_CATALOG",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static SCOPE_CATALOG_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='Scope_nameKeywordSegment'
-pub static SCOPE_NAME_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_scope_name_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "SCOPE_NAME",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static SCOPE_NAME_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='Scope_schemaKeywordSegment'
-pub static SCOPE_SCHEMA_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_scope_schema_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "SCOPE_SCHEMA",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static SCOPE_SCHEMA_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='ScrollKeywordSegment'
-pub static SCROLL_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_scroll_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "SCROLL",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static SCROLL_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='SearchKeywordSegment'
-pub static SEARCH_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_search_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "SEARCH",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static SEARCH_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='SecondKeywordSegment'
-pub static SECOND_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_second_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "SECOND",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static SECOND_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='Second_microsecondKeywordSegment'
-pub static SECOND_MICROSECOND_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_second_microsecond_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "SECOND_MICROSECOND",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static SECOND_MICROSECOND_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='SectionKeywordSegment'
-pub static SECTION_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_section_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "SECTION",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static SECTION_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='SecurityKeywordSegment'
-pub static SECURITY_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_security_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "SECURITY",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static SECURITY_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='SelectClauseElementSegment'
-pub static SELECT_CLAUSE_ELEMENT_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_select_clause_element_segment() -> Arc<Grammar> {
 // SelectClauseElementSegment
 Arc::new(Grammar::OneOf {
     elements: vec![
@@ -36360,10 +38222,12 @@ Arc::new(Grammar::Ref {
     parse_mode: ParseMode::Strict,
     simple_hint: None,
 })
-);
+}
+
+pub static SELECT_CLAUSE_ELEMENT_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='SelectClauseModifierSegment'
-pub static SELECT_CLAUSE_MODIFIER_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_select_clause_modifier_segment() -> Arc<Grammar> {
 // SelectClauseModifierSegment
 Arc::new(Grammar::OneOf {
     elements: vec![
@@ -36408,10 +38272,12 @@ Arc::new(Grammar::Ref {
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
-);
+}
+
+pub static SELECT_CLAUSE_MODIFIER_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='SelectClauseSegment'
-pub static SELECT_CLAUSE_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_select_clause_segment() -> Arc<Grammar> {
 // SelectClauseSegment
 Arc::new(Grammar::Sequence {
     elements: vec![
@@ -36514,10 +38380,12 @@ Arc::new(Grammar::Ref {
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
-);
+}
+
+pub static SELECT_CLAUSE_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='SelectClauseTerminatorGrammar'
-pub static SELECT_CLAUSE_TERMINATOR_GRAMMAR: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_select_clause_terminator_grammar() -> Arc<Grammar> {
 Arc::new(Grammar::OneOf {
     elements: vec![
 Arc::new(Grammar::Ref {
@@ -36660,20 +38528,24 @@ Arc::new(Grammar::Ref {
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
-);
+}
+
+pub static SELECT_CLAUSE_TERMINATOR_GRAMMAR: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='SelectKeywordSegment'
-pub static SELECT_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_select_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "SELECT",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static SELECT_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='SelectStatementSegment'
-pub static SELECT_STATEMENT_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_select_statement_segment() -> Arc<Grammar> {
 // SelectStatementSegment
 Arc::new(Grammar::Sequence {
     elements: vec![
@@ -36899,10 +38771,12 @@ Arc::new(Grammar::Ref {
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
-);
+}
+
+pub static SELECT_STATEMENT_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='SelectableGrammar'
-pub static SELECTABLE_GRAMMAR: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_selectable_grammar() -> Arc<Grammar> {
 Arc::new(Grammar::OneOf {
     elements: vec![
 Arc::new(Grammar::OneOf {
@@ -37133,60 +39007,72 @@ Arc::new(Grammar::StringParser {
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
-);
+}
+
+pub static SELECTABLE_GRAMMAR: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='SelfKeywordSegment'
-pub static SELF_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_self_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "SELF",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static SELF_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='SemicolonSegment'
-pub static SEMICOLON_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_semicolon_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: ";",
     token_type: "statement_terminator",
     raw_class: "SymbolSegment",
     optional: false,
 })
-);
+}
+
+pub static SEMICOLON_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='SensitiveKeywordSegment'
-pub static SENSITIVE_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_sensitive_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "SENSITIVE",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static SENSITIVE_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='SeparatorKeywordSegment'
-pub static SEPARATOR_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_separator_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "SEPARATOR",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static SEPARATOR_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='SequenceKeywordSegment'
-pub static SEQUENCE_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_sequence_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "SEQUENCE",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static SEQUENCE_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='SequenceMaxValueGrammar'
-pub static SEQUENCE_MAX_VALUE_GRAMMAR: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_sequence_max_value_grammar() -> Arc<Grammar> {
 Arc::new(Grammar::OneOf {
     elements: vec![
 Arc::new(Grammar::Sequence {
@@ -37288,10 +39174,12 @@ Arc::new(Grammar::Ref {
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
-);
+}
+
+pub static SEQUENCE_MAX_VALUE_GRAMMAR: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='SequenceMinValueGrammar'
-pub static SEQUENCE_MIN_VALUE_GRAMMAR: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_sequence_min_value_grammar() -> Arc<Grammar> {
 Arc::new(Grammar::OneOf {
     elements: vec![
 Arc::new(Grammar::Sequence {
@@ -37393,10 +39281,12 @@ Arc::new(Grammar::Ref {
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
-);
+}
+
+pub static SEQUENCE_MIN_VALUE_GRAMMAR: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='SequenceReferenceSegment'
-pub static SEQUENCE_REFERENCE_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_sequence_reference_segment() -> Arc<Grammar> {
 // SequenceReferenceSegment
 Arc::new(Grammar::Delimited {
     elements: vec![
@@ -37449,70 +39339,84 @@ Arc::new(Grammar::Ref {
     parse_mode: ParseMode::Strict,
     simple_hint: None,
 })
-);
+}
+
+pub static SEQUENCE_REFERENCE_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='SequencesKeywordSegment'
-pub static SEQUENCES_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_sequences_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "SEQUENCES",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static SEQUENCES_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='SerializableKeywordSegment'
-pub static SERIALIZABLE_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_serializable_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "SERIALIZABLE",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static SERIALIZABLE_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='ServerKeywordSegment'
-pub static SERVER_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_server_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "SERVER",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static SERVER_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='Server_nameKeywordSegment'
-pub static SERVER_NAME_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_server_name_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "SERVER_NAME",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static SERVER_NAME_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='SessionKeywordSegment'
-pub static SESSION_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_session_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "SESSION",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static SESSION_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='Session_userKeywordSegment'
-pub static SESSION_USER_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_session_user_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "SESSION_USER",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static SESSION_USER_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='SetClauseListSegment'
-pub static SET_CLAUSE_LIST_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_set_clause_list_segment() -> Arc<Grammar> {
 // SetClauseListSegment
 Arc::new(Grammar::Sequence {
     elements: vec![
@@ -37587,10 +39491,12 @@ Arc::new(Grammar::Meta("dedent"))
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
-);
+}
+
+pub static SET_CLAUSE_LIST_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='SetClauseSegment'
-pub static SET_CLAUSE_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_set_clause_segment() -> Arc<Grammar> {
 // SetClauseSegment
 Arc::new(Grammar::Sequence {
     elements: vec![
@@ -37727,10 +39633,12 @@ Arc::new(Grammar::Ref {
     parse_mode: ParseMode::Strict,
     simple_hint: None,
 })
-);
+}
+
+pub static SET_CLAUSE_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='SetExpressionSegment'
-pub static SET_EXPRESSION_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_set_expression_segment() -> Arc<Grammar> {
 // SetExpressionSegment
 Arc::new(Grammar::Sequence {
     elements: vec![
@@ -37864,20 +39772,24 @@ Arc::new(Grammar::Ref {
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
-);
+}
+
+pub static SET_EXPRESSION_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='SetKeywordSegment'
-pub static SET_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_set_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "SET",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static SET_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='SetOperatorSegment'
-pub static SET_OPERATOR_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_set_operator_segment() -> Arc<Grammar> {
 // SetOperatorSegment
 Arc::new(Grammar::OneOf {
     elements: vec![
@@ -38063,10 +39975,12 @@ Arc::new(Grammar::StringParser {
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
-);
+}
+
+pub static SET_OPERATOR_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='SetSchemaStatementSegment'
-pub static SET_SCHEMA_STATEMENT_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_set_schema_statement_segment() -> Arc<Grammar> {
 // SetSchemaStatementSegment
 Arc::new(Grammar::Sequence {
     elements: vec![
@@ -38135,60 +40049,72 @@ Arc::new(Grammar::Ref {
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
-);
+}
+
+pub static SET_SCHEMA_STATEMENT_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='SetofKeywordSegment'
-pub static SETOF_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_setof_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "SETOF",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static SETOF_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='SetsKeywordSegment'
-pub static SETS_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_sets_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "SETS",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static SETS_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='SetuserKeywordSegment'
-pub static SETUSER_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_setuser_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "SETUSER",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static SETUSER_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='ShareKeywordSegment'
-pub static SHARE_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_share_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "SHARE",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static SHARE_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='SharesKeywordSegment'
-pub static SHARES_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_shares_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "SHARES",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static SHARES_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='ShorthandCastSegment'
-pub static SHORTHAND_CAST_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_shorthand_cast_segment() -> Arc<Grammar> {
 // ShorthandCastSegment
 Arc::new(Grammar::Sequence {
     elements: vec![
@@ -38312,40 +40238,48 @@ Arc::new(Grammar::Ref {
     parse_mode: ParseMode::Strict,
     simple_hint: None,
 })
-);
+}
+
+pub static SHORTHAND_CAST_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='ShowKeywordSegment'
-pub static SHOW_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_show_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "SHOW",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static SHOW_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='ShutdownKeywordSegment'
-pub static SHUTDOWN_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_shutdown_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "SHUTDOWN",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static SHUTDOWN_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='SignalKeywordSegment'
-pub static SIGNAL_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_signal_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "SIGNAL",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static SIGNAL_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='SignedSegmentGrammar'
-pub static SIGNED_SEGMENT_GRAMMAR: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_signed_segment_grammar() -> Arc<Grammar> {
 Arc::new(Grammar::OneOf {
     elements: vec![
 Arc::new(Grammar::Ref {
@@ -38389,30 +40323,36 @@ Arc::new(Grammar::Ref {
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
-);
+}
+
+pub static SIGNED_SEGMENT_GRAMMAR: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='SimilarKeywordSegment'
-pub static SIMILAR_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_similar_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "SIMILAR",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static SIMILAR_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='SimpleKeywordSegment'
-pub static SIMPLE_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_simple_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "SIMPLE",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static SIMPLE_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='SingleIdentifierGrammar'
-pub static SINGLE_IDENTIFIER_GRAMMAR: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_single_identifier_grammar() -> Arc<Grammar> {
 Arc::new(Grammar::OneOf {
     elements: vec![
 Arc::new(Grammar::Ref {
@@ -38464,10 +40404,12 @@ Arc::new(Grammar::Ref {
     parse_mode: ParseMode::Strict,
     simple_hint: None,
 })
-);
+}
+
+pub static SINGLE_IDENTIFIER_GRAMMAR: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='SingleIdentifierListSegment'
-pub static SINGLE_IDENTIFIER_LIST_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_single_identifier_list_segment() -> Arc<Grammar> {
 // SingleIdentifierListSegment
 Arc::new(Grammar::Delimited {
     elements: vec![
@@ -38509,30 +40451,36 @@ Arc::new(Grammar::Ref {
     parse_mode: ParseMode::Strict,
     simple_hint: None,
 })
-);
+}
+
+pub static SINGLE_IDENTIFIER_LIST_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='SingleQuotedIdentifierSegment'
-pub static SINGLE_QUOTED_IDENTIFIER_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_single_quoted_identifier_segment() -> Arc<Grammar> {
 Arc::new(Grammar::TypedParser {
     template: "single_quote",
     token_type: "quoted_identifier",
     raw_class: "IdentifierSegment",
     optional: false,
 })
-);
+}
+
+pub static SINGLE_QUOTED_IDENTIFIER_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='SizeKeywordSegment'
-pub static SIZE_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_size_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "SIZE",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static SIZE_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='SizedArrayTypeSegment'
-pub static SIZED_ARRAY_TYPE_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_sized_array_type_segment() -> Arc<Grammar> {
 // SizedArrayTypeSegment
 Arc::new(Grammar::Sequence {
     elements: vec![
@@ -38570,430 +40518,516 @@ Arc::new(Grammar::Ref {
     parse_mode: ParseMode::Strict,
     simple_hint: None,
 })
-);
+}
+
+pub static SIZED_ARRAY_TYPE_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='SlashSegment'
-pub static SLASH_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_slash_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "/",
     token_type: "slash",
     raw_class: "SymbolSegment",
     optional: false,
 })
-);
+}
+
+pub static SLASH_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='SliceSegment'
-pub static SLICE_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_slice_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: ":",
     token_type: "slice",
     raw_class: "SymbolSegment",
     optional: false,
 })
-);
+}
+
+pub static SLICE_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='SmallintKeywordSegment'
-pub static SMALLINT_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_smallint_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "SMALLINT",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static SMALLINT_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='SomeKeywordSegment'
-pub static SOME_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_some_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "SOME",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static SOME_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='SonameKeywordSegment'
-pub static SONAME_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_soname_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "SONAME",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static SONAME_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='SourceKeywordSegment'
-pub static SOURCE_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_source_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "SOURCE",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static SOURCE_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='SpaceKeywordSegment'
-pub static SPACE_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_space_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "SPACE",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static SPACE_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='SpatialKeywordSegment'
-pub static SPATIAL_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_spatial_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "SPATIAL",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static SPATIAL_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='SpecificKeywordSegment'
-pub static SPECIFIC_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_specific_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "SPECIFIC",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static SPECIFIC_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='Specific_nameKeywordSegment'
-pub static SPECIFIC_NAME_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_specific_name_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "SPECIFIC_NAME",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static SPECIFIC_NAME_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='SpecifictypeKeywordSegment'
-pub static SPECIFICTYPE_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_specifictype_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "SPECIFICTYPE",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static SPECIFICTYPE_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='SqlKeywordSegment'
-pub static SQL_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_sql_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "SQL",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static SQL_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='Sql_big_resultKeywordSegment'
-pub static SQL_BIG_RESULT_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_sql_big_result_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "SQL_BIG_RESULT",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static SQL_BIG_RESULT_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='Sql_big_selectsKeywordSegment'
-pub static SQL_BIG_SELECTS_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_sql_big_selects_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "SQL_BIG_SELECTS",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static SQL_BIG_SELECTS_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='Sql_big_tablesKeywordSegment'
-pub static SQL_BIG_TABLES_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_sql_big_tables_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "SQL_BIG_TABLES",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static SQL_BIG_TABLES_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='Sql_calc_found_rowsKeywordSegment'
-pub static SQL_CALC_FOUND_ROWS_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_sql_calc_found_rows_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "SQL_CALC_FOUND_ROWS",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static SQL_CALC_FOUND_ROWS_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='Sql_log_offKeywordSegment'
-pub static SQL_LOG_OFF_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_sql_log_off_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "SQL_LOG_OFF",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static SQL_LOG_OFF_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='Sql_log_updateKeywordSegment'
-pub static SQL_LOG_UPDATE_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_sql_log_update_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "SQL_LOG_UPDATE",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static SQL_LOG_UPDATE_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='Sql_low_priority_updatesKeywordSegment'
-pub static SQL_LOW_PRIORITY_UPDATES_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_sql_low_priority_updates_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "SQL_LOW_PRIORITY_UPDATES",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static SQL_LOW_PRIORITY_UPDATES_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='Sql_select_limitKeywordSegment'
-pub static SQL_SELECT_LIMIT_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_sql_select_limit_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "SQL_SELECT_LIMIT",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static SQL_SELECT_LIMIT_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='Sql_small_resultKeywordSegment'
-pub static SQL_SMALL_RESULT_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_sql_small_result_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "SQL_SMALL_RESULT",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static SQL_SMALL_RESULT_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='Sql_warningsKeywordSegment'
-pub static SQL_WARNINGS_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_sql_warnings_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "SQL_WARNINGS",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static SQL_WARNINGS_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='SqlcaKeywordSegment'
-pub static SQLCA_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_sqlca_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "SQLCA",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static SQLCA_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='SqlcodeKeywordSegment'
-pub static SQLCODE_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_sqlcode_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "SQLCODE",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static SQLCODE_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='SqlerrorKeywordSegment'
-pub static SQLERROR_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_sqlerror_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "SQLERROR",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static SQLERROR_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='SqlexceptionKeywordSegment'
-pub static SQLEXCEPTION_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_sqlexception_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "SQLEXCEPTION",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static SQLEXCEPTION_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='SqlstateKeywordSegment'
-pub static SQLSTATE_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_sqlstate_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "SQLSTATE",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static SQLSTATE_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='SqlwarningKeywordSegment'
-pub static SQLWARNING_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_sqlwarning_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "SQLWARNING",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static SQLWARNING_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='SqrtKeywordSegment'
-pub static SQRT_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_sqrt_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "SQRT",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static SQRT_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='SslKeywordSegment'
-pub static SSL_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_ssl_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "SSL",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static SSL_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='StableKeywordSegment'
-pub static STABLE_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_stable_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "STABLE",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static STABLE_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='StageKeywordSegment'
-pub static STAGE_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_stage_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "STAGE",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static STAGE_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='StagesKeywordSegment'
-pub static STAGES_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_stages_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "STAGES",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static STAGES_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='StarSegment'
-pub static STAR_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_star_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "*",
     token_type: "star",
     raw_class: "SymbolSegment",
     optional: false,
 })
-);
+}
+
+pub static STAR_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='StartBracketSegment'
-pub static START_BRACKET_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_start_bracket_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "(",
     token_type: "start_bracket",
     raw_class: "SymbolSegment",
     optional: false,
 })
-);
+}
+
+pub static START_BRACKET_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='StartCurlyBracketSegment'
-pub static START_CURLY_BRACKET_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_start_curly_bracket_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "{",
     token_type: "start_curly_bracket",
     raw_class: "SymbolSegment",
     optional: false,
 })
-);
+}
+
+pub static START_CURLY_BRACKET_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='StartKeywordSegment'
-pub static START_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_start_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "START",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static START_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='StartSquareBracketSegment'
-pub static START_SQUARE_BRACKET_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_start_square_bracket_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "[",
     token_type: "start_square_bracket",
     raw_class: "SymbolSegment",
     optional: false,
 })
-);
+}
+
+pub static START_SQUARE_BRACKET_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='StartingKeywordSegment'
-pub static STARTING_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_starting_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "STARTING",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static STARTING_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='StartsKeywordSegment'
-pub static STARTS_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_starts_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "STARTS",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static STARTS_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='StateKeywordSegment'
-pub static STATE_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_state_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "STATE",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static STATE_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='StatementKeywordSegment'
-pub static STATEMENT_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_statement_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "STATEMENT",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static STATEMENT_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='StatementSegment'
-pub static STATEMENT_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_statement_segment() -> Arc<Grammar> {
 // StatementSegment
 Arc::new(Grammar::OneOf {
     elements: vec![
@@ -39570,120 +41604,144 @@ Arc::new(Grammar::Ref {
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
-);
+}
+
+pub static STATEMENT_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='StaticKeywordSegment'
-pub static STATIC_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_static_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "STATIC",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static STATIC_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='StatisticsKeywordSegment'
-pub static STATISTICS_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_statistics_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "STATISTICS",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static STATISTICS_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='Stddev_popKeywordSegment'
-pub static STDDEV_POP_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_stddev_pop_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "STDDEV_POP",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static STDDEV_POP_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='Stddev_sampKeywordSegment'
-pub static STDDEV_SAMP_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_stddev_samp_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "STDDEV_SAMP",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static STDDEV_SAMP_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='StdinKeywordSegment'
-pub static STDIN_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_stdin_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "STDIN",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static STDIN_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='StdoutKeywordSegment'
-pub static STDOUT_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_stdout_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "STDOUT",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static STDOUT_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='StorageKeywordSegment'
-pub static STORAGE_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_storage_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "STORAGE",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static STORAGE_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='Straight_joinKeywordSegment'
-pub static STRAIGHT_JOIN_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_straight_join_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "STRAIGHT_JOIN",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static STRAIGHT_JOIN_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='StreamKeywordSegment'
-pub static STREAM_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_stream_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "STREAM",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static STREAM_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='StreamsKeywordSegment'
-pub static STREAMS_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_streams_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "STREAMS",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static STREAMS_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='StrictKeywordSegment'
-pub static STRICT_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_strict_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "STRICT",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static STRICT_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='StringBinaryOperatorGrammar'
-pub static STRING_BINARY_OPERATOR_GRAMMAR: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_string_binary_operator_grammar() -> Arc<Grammar> {
 Arc::new(Grammar::OneOf {
     elements: vec![
 Arc::new(Grammar::Ref {
@@ -39713,20 +41771,24 @@ Arc::new(Grammar::Ref {
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
-);
+}
+
+pub static STRING_BINARY_OPERATOR_GRAMMAR: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='StringKeywordSegment'
-pub static STRING_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_string_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "STRING",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static STRING_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='StructLiteralSegment'
-pub static STRUCT_LITERAL_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_struct_literal_segment() -> Arc<Grammar> {
 // StructLiteralSegment
 Arc::new(Grammar::Bracketed {
     elements: vec![
@@ -39824,174 +41886,210 @@ Arc::new(Grammar::StringParser {
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
-);
+}
+
+pub static STRUCT_LITERAL_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='StructTypeSegment'
-pub static STRUCT_TYPE_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_struct_type_segment() -> Arc<Grammar> {
 // StructTypeSegment
 Arc::new(Grammar::Nothing())
-);
+}
+
+pub static STRUCT_TYPE_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='StructureKeywordSegment'
-pub static STRUCTURE_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_structure_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "STRUCTURE",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static STRUCTURE_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='StyleKeywordSegment'
-pub static STYLE_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_style_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "STYLE",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static STYLE_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='Subclass_originKeywordSegment'
-pub static SUBCLASS_ORIGIN_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_subclass_origin_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "SUBCLASS_ORIGIN",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static SUBCLASS_ORIGIN_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='SublistKeywordSegment'
-pub static SUBLIST_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_sublist_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "SUBLIST",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static SUBLIST_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='SubmultisetKeywordSegment'
-pub static SUBMULTISET_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_submultiset_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "SUBMULTISET",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static SUBMULTISET_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='SubstringKeywordSegment'
-pub static SUBSTRING_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_substring_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "SUBSTRING",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static SUBSTRING_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='SuccessfulKeywordSegment'
-pub static SUCCESSFUL_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_successful_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "SUCCESSFUL",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static SUCCESSFUL_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='SumKeywordSegment'
-pub static SUM_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_sum_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "SUM",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static SUM_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='SuperuserKeywordSegment'
-pub static SUPERUSER_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_superuser_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "SUPERUSER",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static SUPERUSER_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='SymbolSegment'
-pub static SYMBOL_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_symbol_segment() -> Arc<Grammar> {
 Arc::new(Grammar::Token{
     token_type: "symbol",
 //    token_type: "SymbolSegment",
 })
-);
+}
+
+pub static SYMBOL_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='SymmetricKeywordSegment'
-pub static SYMMETRIC_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_symmetric_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "SYMMETRIC",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static SYMMETRIC_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='SynonymKeywordSegment'
-pub static SYNONYM_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_synonym_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "SYNONYM",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static SYNONYM_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='SysdateKeywordSegment'
-pub static SYSDATE_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_sysdate_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "SYSDATE",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static SYSDATE_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='SysidKeywordSegment'
-pub static SYSID_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_sysid_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "SYSID",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static SYSID_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='SystemKeywordSegment'
-pub static SYSTEM_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_system_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "SYSTEM",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static SYSTEM_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='System_userKeywordSegment'
-pub static SYSTEM_USER_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_system_user_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "SYSTEM_USER",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static SYSTEM_USER_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='TableConstraintSegment'
-pub static TABLE_CONSTRAINT_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_table_constraint_segment() -> Arc<Grammar> {
 // TableConstraintSegment
 Arc::new(Grammar::Sequence {
     elements: vec![
@@ -40206,16 +42304,20 @@ Arc::new(Grammar::Ref {
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
-);
+}
+
+pub static TABLE_CONSTRAINT_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='TableEndClauseSegment'
-pub static TABLE_END_CLAUSE_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_table_end_clause_segment() -> Arc<Grammar> {
 // TableEndClauseSegment
 Arc::new(Grammar::Nothing())
-);
+}
+
+pub static TABLE_END_CLAUSE_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='TableExpressionSegment'
-pub static TABLE_EXPRESSION_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_table_expression_segment() -> Arc<Grammar> {
 // TableExpressionSegment
 Arc::new(Grammar::OneOf {
     elements: vec![
@@ -40373,20 +42475,24 @@ Arc::new(Grammar::StringParser {
     parse_mode: ParseMode::Strict,
     simple_hint: None,
 })
-);
+}
+
+pub static TABLE_EXPRESSION_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='TableKeywordSegment'
-pub static TABLE_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_table_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "TABLE",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static TABLE_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='TableReferenceSegment'
-pub static TABLE_REFERENCE_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_table_reference_segment() -> Arc<Grammar> {
 // TableReferenceSegment
 Arc::new(Grammar::Delimited {
     elements: vec![
@@ -40439,50 +42545,60 @@ Arc::new(Grammar::Ref {
     parse_mode: ParseMode::Strict,
     simple_hint: None,
 })
-);
+}
+
+pub static TABLE_REFERENCE_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='Table_nameKeywordSegment'
-pub static TABLE_NAME_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_table_name_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "TABLE_NAME",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static TABLE_NAME_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='TablesKeywordSegment'
-pub static TABLES_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_tables_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "TABLES",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static TABLES_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='TablesampleKeywordSegment'
-pub static TABLESAMPLE_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_tablesample_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "TABLESAMPLE",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static TABLESAMPLE_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='TablespaceKeywordSegment'
-pub static TABLESPACE_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_tablespace_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "TABLESPACE",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static TABLESPACE_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='TablespaceReferenceSegment'
-pub static TABLESPACE_REFERENCE_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_tablespace_reference_segment() -> Arc<Grammar> {
 // TablespaceReferenceSegment
 Arc::new(Grammar::Delimited {
     elements: vec![
@@ -40535,10 +42651,12 @@ Arc::new(Grammar::Ref {
     parse_mode: ParseMode::Strict,
     simple_hint: None,
 })
-);
+}
+
+pub static TABLESPACE_REFERENCE_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='TagReferenceSegment'
-pub static TAG_REFERENCE_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_tag_reference_segment() -> Arc<Grammar> {
 // TagReferenceSegment
 Arc::new(Grammar::Delimited {
     elements: vec![
@@ -40591,10 +42709,12 @@ Arc::new(Grammar::Ref {
     parse_mode: ParseMode::Strict,
     simple_hint: None,
 })
-);
+}
+
+pub static TAG_REFERENCE_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='Tail_Recurse_Expression_A_Grammar'
-pub static TAIL_RECURSE_EXPRESSION_A_GRAMMAR: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_tail_recurse_expression_a_grammar() -> Arc<Grammar> {
 Arc::new(Grammar::Sequence {
     elements: vec![
 Arc::new(Grammar::AnyNumberOf {
@@ -40664,10 +42784,12 @@ Arc::new(Grammar::Ref {
     parse_mode: ParseMode::Strict,
     simple_hint: None,
 })
-);
+}
+
+pub static TAIL_RECURSE_EXPRESSION_A_GRAMMAR: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='Tail_Recurse_Expression_B_Grammar'
-pub static TAIL_RECURSE_EXPRESSION_B_GRAMMAR: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_tail_recurse_expression_b_grammar() -> Arc<Grammar> {
 Arc::new(Grammar::Sequence {
     elements: vec![
 Arc::new(Grammar::AnyNumberOf {
@@ -40723,56 +42845,68 @@ Arc::new(Grammar::Ref {
     parse_mode: ParseMode::Strict,
     simple_hint: None,
 })
-);
+}
+
+pub static TAIL_RECURSE_EXPRESSION_B_GRAMMAR: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='TaskKeywordSegment'
-pub static TASK_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_task_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "TASK",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static TASK_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='TasksKeywordSegment'
-pub static TASKS_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_tasks_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "TASKS",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static TASKS_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='TempKeywordSegment'
-pub static TEMP_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_temp_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "TEMP",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static TEMP_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='TemplateKeywordSegment'
-pub static TEMPLATE_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_template_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "TEMPLATE",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static TEMPLATE_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='TemporalQuerySegment'
-pub static TEMPORAL_QUERY_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_temporal_query_segment() -> Arc<Grammar> {
 // TemporalQuerySegment
 Arc::new(Grammar::Nothing())
-);
+}
+
+pub static TEMPORAL_QUERY_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='TemporaryGrammar'
-pub static TEMPORARY_GRAMMAR: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_temporary_grammar() -> Arc<Grammar> {
 Arc::new(Grammar::OneOf {
     elements: vec![
 Arc::new(Grammar::Ref {
@@ -40816,20 +42950,24 @@ Arc::new(Grammar::Ref {
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
-);
+}
+
+pub static TEMPORARY_GRAMMAR: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='TemporaryKeywordSegment'
-pub static TEMPORARY_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_temporary_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "TEMPORARY",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static TEMPORARY_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='TemporaryTransientGrammar'
-pub static TEMPORARY_TRANSIENT_GRAMMAR: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_temporary_transient_grammar() -> Arc<Grammar> {
 Arc::new(Grammar::OneOf {
     elements: vec![
 Arc::new(Grammar::Ref {
@@ -40873,100 +43011,120 @@ Arc::new(Grammar::Ref {
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
-);
+}
+
+pub static TEMPORARY_TRANSIENT_GRAMMAR: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='TerminateKeywordSegment'
-pub static TERMINATE_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_terminate_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "TERMINATE",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static TERMINATE_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='TerminatedKeywordSegment'
-pub static TERMINATED_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_terminated_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "TERMINATED",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static TERMINATED_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='TextKeywordSegment'
-pub static TEXT_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_text_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "TEXT",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static TEXT_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='TextsizeKeywordSegment'
-pub static TEXTSIZE_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_textsize_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "TEXTSIZE",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static TEXTSIZE_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='ThanKeywordSegment'
-pub static THAN_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_than_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "THAN",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static THAN_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='ThenKeywordSegment'
-pub static THEN_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_then_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "THEN",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static THEN_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='TiesKeywordSegment'
-pub static TIES_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_ties_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "TIES",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static TIES_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='TildeSegment'
-pub static TILDE_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_tilde_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "~",
     token_type: "tilde",
     raw_class: "SymbolSegment",
     optional: false,
 })
-);
+}
+
+pub static TILDE_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='TimeKeywordSegment'
-pub static TIME_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_time_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "TIME",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static TIME_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='TimeWithTZGrammar'
-pub static TIME_WITH_T_Z_GRAMMAR: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_time_with_t_z_grammar() -> Arc<Grammar> {
 Arc::new(Grammar::Sequence {
     elements: vec![
 Arc::new(Grammar::OneOf {
@@ -41126,10 +43284,12 @@ Arc::new(Grammar::Ref {
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
-);
+}
+
+pub static TIME_WITH_T_Z_GRAMMAR: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='TimeZoneGrammar'
-pub static TIME_ZONE_GRAMMAR: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_time_zone_grammar() -> Arc<Grammar> {
 // TimeZoneGrammar
 Arc::new(Grammar::AnyNumberOf {
     elements: vec![
@@ -41217,140 +43377,168 @@ Arc::new(Grammar::Ref {
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
-);
+}
+
+pub static TIME_ZONE_GRAMMAR: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='TimestampKeywordSegment'
-pub static TIMESTAMP_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_timestamp_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "TIMESTAMP",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static TIMESTAMP_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='Timezone_hourKeywordSegment'
-pub static TIMEZONE_HOUR_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_timezone_hour_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "TIMEZONE_HOUR",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static TIMEZONE_HOUR_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='Timezone_minuteKeywordSegment'
-pub static TIMEZONE_MINUTE_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_timezone_minute_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "TIMEZONE_MINUTE",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static TIMEZONE_MINUTE_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='TinyblobKeywordSegment'
-pub static TINYBLOB_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_tinyblob_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "TINYBLOB",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static TINYBLOB_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='TinyintKeywordSegment'
-pub static TINYINT_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_tinyint_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "TINYINT",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static TINYINT_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='TinytextKeywordSegment'
-pub static TINYTEXT_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_tinytext_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "TINYTEXT",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static TINYTEXT_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='ToKeywordSegment'
-pub static TO_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_to_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "TO",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static TO_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='ToastKeywordSegment'
-pub static TOAST_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_toast_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "TOAST",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static TOAST_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='TopKeywordSegment'
-pub static TOP_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_top_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "TOP",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static TOP_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='Top_level_countKeywordSegment'
-pub static TOP_LEVEL_COUNT_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_top_level_count_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "TOP_LEVEL_COUNT",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static TOP_LEVEL_COUNT_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='TrailingKeywordSegment'
-pub static TRAILING_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_trailing_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "TRAILING",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static TRAILING_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='TranKeywordSegment'
-pub static TRAN_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_tran_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "TRAN",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static TRAN_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='TransactionKeywordSegment'
-pub static TRANSACTION_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_transaction_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "TRANSACTION",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static TRANSACTION_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='TransactionStatementSegment'
-pub static TRANSACTION_STATEMENT_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_transaction_statement_segment() -> Arc<Grammar> {
 // TransactionStatementSegment
 Arc::new(Grammar::Sequence {
     elements: vec![
@@ -41593,120 +43781,144 @@ Arc::new(Grammar::Ref {
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
-);
+}
+
+pub static TRANSACTION_STATEMENT_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='Transaction_activeKeywordSegment'
-pub static TRANSACTION_ACTIVE_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_transaction_active_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "TRANSACTION_ACTIVE",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static TRANSACTION_ACTIVE_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='TransactionsKeywordSegment'
-pub static TRANSACTIONS_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_transactions_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "TRANSACTIONS",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static TRANSACTIONS_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='Transactions_committedKeywordSegment'
-pub static TRANSACTIONS_COMMITTED_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_transactions_committed_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "TRANSACTIONS_COMMITTED",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static TRANSACTIONS_COMMITTED_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='Transactions_rolled_backKeywordSegment'
-pub static TRANSACTIONS_ROLLED_BACK_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_transactions_rolled_back_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "TRANSACTIONS_ROLLED_BACK",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static TRANSACTIONS_ROLLED_BACK_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='TransformKeywordSegment'
-pub static TRANSFORM_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_transform_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "TRANSFORM",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static TRANSFORM_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='TransformsKeywordSegment'
-pub static TRANSFORMS_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_transforms_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "TRANSFORMS",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static TRANSFORMS_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='TransientKeywordSegment'
-pub static TRANSIENT_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_transient_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "TRANSIENT",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static TRANSIENT_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='TranslateKeywordSegment'
-pub static TRANSLATE_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_translate_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "TRANSLATE",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static TRANSLATE_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='TranslationKeywordSegment'
-pub static TRANSLATION_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_translation_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "TRANSLATION",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static TRANSLATION_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='TreatKeywordSegment'
-pub static TREAT_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_treat_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "TREAT",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static TREAT_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='TriggerKeywordSegment'
-pub static TRIGGER_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_trigger_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "TRIGGER",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static TRIGGER_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='TriggerReferenceSegment'
-pub static TRIGGER_REFERENCE_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_trigger_reference_segment() -> Arc<Grammar> {
 // TriggerReferenceSegment
 Arc::new(Grammar::Delimited {
     elements: vec![
@@ -41759,50 +43971,60 @@ Arc::new(Grammar::Ref {
     parse_mode: ParseMode::Strict,
     simple_hint: None,
 })
-);
+}
+
+pub static TRIGGER_REFERENCE_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='Trigger_catalogKeywordSegment'
-pub static TRIGGER_CATALOG_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_trigger_catalog_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "TRIGGER_CATALOG",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static TRIGGER_CATALOG_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='Trigger_nameKeywordSegment'
-pub static TRIGGER_NAME_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_trigger_name_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "TRIGGER_NAME",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static TRIGGER_NAME_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='Trigger_schemaKeywordSegment'
-pub static TRIGGER_SCHEMA_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_trigger_schema_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "TRIGGER_SCHEMA",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static TRIGGER_SCHEMA_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='TrimKeywordSegment'
-pub static TRIM_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_trim_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "TRIM",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static TRIM_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='TrimParametersGrammar'
-pub static TRIM_PARAMETERS_GRAMMAR: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_trim_parameters_grammar() -> Arc<Grammar> {
 Arc::new(Grammar::OneOf {
     elements: vec![
 Arc::new(Grammar::Ref {
@@ -41860,40 +44082,48 @@ Arc::new(Grammar::Ref {
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
-);
+}
+
+pub static TRIM_PARAMETERS_GRAMMAR: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='TrueKeywordSegment'
-pub static TRUE_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_true_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "TRUE",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static TRUE_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='TrueSegment'
-pub static TRUE_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_true_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "TRUE",
     token_type: "boolean_literal",
     raw_class: "LiteralKeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static TRUE_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='TruncateKeywordSegment'
-pub static TRUNCATE_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_truncate_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "TRUNCATE",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static TRUNCATE_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='TruncateStatementSegment'
-pub static TRUNCATE_STATEMENT_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_truncate_statement_segment() -> Arc<Grammar> {
 // TruncateStatementSegment
 Arc::new(Grammar::Sequence {
     elements: vec![
@@ -41948,30 +44178,36 @@ Arc::new(Grammar::Ref {
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
-);
+}
+
+pub static TRUNCATE_STATEMENT_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='TrustedKeywordSegment'
-pub static TRUSTED_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_trusted_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "TRUSTED",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static TRUSTED_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='TsequalKeywordSegment'
-pub static TSEQUAL_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_tsequal_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "TSEQUAL",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static TSEQUAL_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='TupleSegment'
-pub static TUPLE_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_tuple_segment() -> Arc<Grammar> {
 // TupleSegment
 Arc::new(Grammar::Bracketed {
     elements: vec![
@@ -42046,20 +44282,24 @@ Arc::new(Grammar::StringParser {
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
-);
+}
+
+pub static TUPLE_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='TypeKeywordSegment'
-pub static TYPE_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_type_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "TYPE",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static TYPE_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='TypedArrayLiteralSegment'
-pub static TYPED_ARRAY_LITERAL_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_typed_array_literal_segment() -> Arc<Grammar> {
 // TypedArrayLiteralSegment
 Arc::new(Grammar::Sequence {
     elements: vec![
@@ -42097,10 +44337,12 @@ Arc::new(Grammar::Ref {
     parse_mode: ParseMode::Strict,
     simple_hint: None,
 })
-);
+}
+
+pub static TYPED_ARRAY_LITERAL_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='TypedStructLiteralSegment'
-pub static TYPED_STRUCT_LITERAL_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_typed_struct_literal_segment() -> Arc<Grammar> {
 // TypedStructLiteralSegment
 Arc::new(Grammar::Sequence {
     elements: vec![
@@ -42138,55 +44380,67 @@ Arc::new(Grammar::Ref {
     parse_mode: ParseMode::Strict,
     simple_hint: None,
 })
-);
+}
+
+pub static TYPED_STRUCT_LITERAL_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='UescapeKeywordSegment'
-pub static UESCAPE_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_uescape_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "UESCAPE",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static UESCAPE_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='UidKeywordSegment'
-pub static UID_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_uid_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "UID",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static UID_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='UnboundedKeywordSegment'
-pub static UNBOUNDED_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_unbounded_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "UNBOUNDED",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static UNBOUNDED_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='UncommittedKeywordSegment'
-pub static UNCOMMITTED_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_uncommitted_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "UNCOMMITTED",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static UNCOMMITTED_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='UnconditionalCrossJoinKeywordsGrammar'
-pub static UNCONDITIONAL_CROSS_JOIN_KEYWORDS_GRAMMAR: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_unconditional_cross_join_keywords_grammar() -> Arc<Grammar> {
 Arc::new(Grammar::Nothing())
-);
+}
+
+pub static UNCONDITIONAL_CROSS_JOIN_KEYWORDS_GRAMMAR: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='UnconditionalJoinKeywordsGrammar'
-pub static UNCONDITIONAL_JOIN_KEYWORDS_GRAMMAR: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_unconditional_join_keywords_grammar() -> Arc<Grammar> {
 Arc::new(Grammar::OneOf {
     elements: vec![
 Arc::new(Grammar::Ref {
@@ -42235,40 +44489,48 @@ Arc::new(Grammar::Ref {
     parse_mode: ParseMode::Strict,
     simple_hint: None,
 })
-);
+}
+
+pub static UNCONDITIONAL_JOIN_KEYWORDS_GRAMMAR: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='UnderKeywordSegment'
-pub static UNDER_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_under_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "UNDER",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static UNDER_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='UndoKeywordSegment'
-pub static UNDO_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_undo_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "UNDO",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static UNDO_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='UnencryptedKeywordSegment'
-pub static UNENCRYPTED_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_unencrypted_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "UNENCRYPTED",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static UNENCRYPTED_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='UnionGrammar'
-pub static UNION_GRAMMAR: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_union_grammar() -> Arc<Grammar> {
 Arc::new(Grammar::Sequence {
     elements: vec![
 Arc::new(Grammar::Ref {
@@ -42341,20 +44603,24 @@ Arc::new(Grammar::Ref {
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
-);
+}
+
+pub static UNION_GRAMMAR: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='UnionKeywordSegment'
-pub static UNION_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_union_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "UNION",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static UNION_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='UniqueKeyGrammar'
-pub static UNIQUE_KEY_GRAMMAR: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_unique_key_grammar() -> Arc<Grammar> {
 Arc::new(Grammar::Sequence {
     elements: vec![
 Arc::new(Grammar::Ref {
@@ -42383,75 +44649,91 @@ Arc::new(Grammar::Ref {
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
-);
+}
+
+pub static UNIQUE_KEY_GRAMMAR: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='UniqueKeywordSegment'
-pub static UNIQUE_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_unique_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "UNIQUE",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static UNIQUE_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='UnknownKeywordSegment'
-pub static UNKNOWN_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_unknown_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "UNKNOWN",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static UNKNOWN_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='UnknownLiteralSegment'
-pub static UNKNOWN_LITERAL_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_unknown_literal_segment() -> Arc<Grammar> {
 Arc::new(Grammar::Nothing())
-);
+}
+
+pub static UNKNOWN_LITERAL_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='UnlistenKeywordSegment'
-pub static UNLISTEN_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_unlisten_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "UNLISTEN",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static UNLISTEN_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='UnlockKeywordSegment'
-pub static UNLOCK_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_unlock_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "UNLOCK",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static UNLOCK_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='UnnamedKeywordSegment'
-pub static UNNAMED_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_unnamed_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "UNNAMED",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static UNNAMED_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='UnnestKeywordSegment'
-pub static UNNEST_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_unnest_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "UNNEST",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static UNNEST_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='UnorderedSelectStatementSegment'
-pub static UNORDERED_SELECT_STATEMENT_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_unordered_select_statement_segment() -> Arc<Grammar> {
 // UnorderedSelectStatementSegment
 Arc::new(Grammar::Sequence {
     elements: vec![
@@ -42635,10 +44917,12 @@ Arc::new(Grammar::Ref {
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
-);
+}
+
+pub static UNORDERED_SELECT_STATEMENT_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='UnorderedSetExpressionSegment'
-pub static UNORDERED_SET_EXPRESSION_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_unordered_set_expression_segment() -> Arc<Grammar> {
 // UnorderedSetExpressionSegment
 Arc::new(Grammar::Sequence {
     elements: vec![
@@ -42730,40 +45014,48 @@ Arc::new(Grammar::Ref {
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
-);
+}
+
+pub static UNORDERED_SET_EXPRESSION_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='UnsignedKeywordSegment'
-pub static UNSIGNED_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_unsigned_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "UNSIGNED",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static UNSIGNED_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='UntilKeywordSegment'
-pub static UNTIL_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_until_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "UNTIL",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static UNTIL_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='UpdateKeywordSegment'
-pub static UPDATE_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_update_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "UPDATE",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static UPDATE_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='UpdateStatementSegment'
-pub static UPDATE_STATEMENT_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_update_statement_segment() -> Arc<Grammar> {
 // UpdateStatementSegment
 Arc::new(Grammar::Sequence {
     elements: vec![
@@ -42875,50 +45167,60 @@ Arc::new(Grammar::Ref {
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
-);
+}
+
+pub static UPDATE_STATEMENT_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='UpdatetextKeywordSegment'
-pub static UPDATETEXT_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_updatetext_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "UPDATETEXT",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static UPDATETEXT_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='UpperKeywordSegment'
-pub static UPPER_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_upper_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "UPPER",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static UPPER_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='UsageKeywordSegment'
-pub static USAGE_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_usage_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "USAGE",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static USAGE_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='UseKeywordSegment'
-pub static USE_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_use_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "USE",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static USE_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='UseStatementSegment'
-pub static USE_STATEMENT_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_use_statement_segment() -> Arc<Grammar> {
 // UseStatementSegment
 Arc::new(Grammar::Sequence {
     elements: vec![
@@ -42959,170 +45261,204 @@ Arc::new(Grammar::Ref {
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
-);
+}
+
+pub static USE_STATEMENT_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='Use_any_roleKeywordSegment'
-pub static USE_ANY_ROLE_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_use_any_role_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "USE_ANY_ROLE",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static USE_ANY_ROLE_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='UserKeywordSegment'
-pub static USER_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_user_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "USER",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static USER_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='User_defined_type_catalogKeywordSegment'
-pub static USER_DEFINED_TYPE_CATALOG_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_user_defined_type_catalog_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "USER_DEFINED_TYPE_CATALOG",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static USER_DEFINED_TYPE_CATALOG_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='User_defined_type_codeKeywordSegment'
-pub static USER_DEFINED_TYPE_CODE_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_user_defined_type_code_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "USER_DEFINED_TYPE_CODE",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static USER_DEFINED_TYPE_CODE_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='User_defined_type_nameKeywordSegment'
-pub static USER_DEFINED_TYPE_NAME_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_user_defined_type_name_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "USER_DEFINED_TYPE_NAME",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static USER_DEFINED_TYPE_NAME_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='User_defined_type_schemaKeywordSegment'
-pub static USER_DEFINED_TYPE_SCHEMA_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_user_defined_type_schema_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "USER_DEFINED_TYPE_SCHEMA",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static USER_DEFINED_TYPE_SCHEMA_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='UsersKeywordSegment'
-pub static USERS_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_users_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "USERS",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static USERS_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='UsingKeywordSegment'
-pub static USING_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_using_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "USING",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static USING_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='Utc_dateKeywordSegment'
-pub static UTC_DATE_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_utc_date_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "UTC_DATE",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static UTC_DATE_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='Utc_timeKeywordSegment'
-pub static UTC_TIME_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_utc_time_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "UTC_TIME",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static UTC_TIME_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='Utc_timestampKeywordSegment'
-pub static UTC_TIMESTAMP_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_utc_timestamp_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "UTC_TIMESTAMP",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static UTC_TIMESTAMP_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='VacuumKeywordSegment'
-pub static VACUUM_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_vacuum_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "VACUUM",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static VACUUM_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='ValidKeywordSegment'
-pub static VALID_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_valid_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "VALID",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static VALID_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='ValidateKeywordSegment'
-pub static VALIDATE_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_validate_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "VALIDATE",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static VALIDATE_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='ValidatorKeywordSegment'
-pub static VALIDATOR_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_validator_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "VALIDATOR",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static VALIDATOR_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='ValueKeywordSegment'
-pub static VALUE_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_value_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "VALUE",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static VALUE_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='ValuesClauseSegment'
-pub static VALUES_CLAUSE_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_values_clause_segment() -> Arc<Grammar> {
 // ValuesClauseSegment
 Arc::new(Grammar::Sequence {
     elements: vec![
@@ -43343,210 +45679,252 @@ Arc::new(Grammar::Ref {
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
-);
+}
+
+pub static VALUES_CLAUSE_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='ValuesKeywordSegment'
-pub static VALUES_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_values_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "VALUES",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static VALUES_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='Var_popKeywordSegment'
-pub static VAR_POP_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_var_pop_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "VAR_POP",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static VAR_POP_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='Var_sampKeywordSegment'
-pub static VAR_SAMP_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_var_samp_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "VAR_SAMP",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static VAR_SAMP_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='VarbinaryKeywordSegment'
-pub static VARBINARY_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_varbinary_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "VARBINARY",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static VARBINARY_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='Varchar2KeywordSegment'
-pub static VARCHAR2_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_varchar2_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "VARCHAR2",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static VARCHAR2_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='VarcharKeywordSegment'
-pub static VARCHAR_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_varchar_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "VARCHAR",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static VARCHAR_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='VarcharacterKeywordSegment'
-pub static VARCHARACTER_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_varcharacter_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "VARCHARACTER",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static VARCHARACTER_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='VariableKeywordSegment'
-pub static VARIABLE_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_variable_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "VARIABLE",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static VARIABLE_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='VariablesKeywordSegment'
-pub static VARIABLES_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_variables_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "VARIABLES",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static VARIABLES_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='VaryingKeywordSegment'
-pub static VARYING_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_varying_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "VARYING",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static VARYING_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='VerboseKeywordSegment'
-pub static VERBOSE_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_verbose_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "VERBOSE",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static VERBOSE_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='VersionKeywordSegment'
-pub static VERSION_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_version_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "VERSION",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static VERSION_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='ViewKeywordSegment'
-pub static VIEW_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_view_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "VIEW",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static VIEW_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='ViewsKeywordSegment'
-pub static VIEWS_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_views_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "VIEWS",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static VIEWS_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='VolatileKeywordSegment'
-pub static VOLATILE_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_volatile_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "VOLATILE",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static VOLATILE_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='WaitforKeywordSegment'
-pub static WAITFOR_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_waitfor_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "WAITFOR",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static WAITFOR_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='WarehouseKeywordSegment'
-pub static WAREHOUSE_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_warehouse_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "WAREHOUSE",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static WAREHOUSE_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='WarehousesKeywordSegment'
-pub static WAREHOUSES_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_warehouses_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "WAREHOUSES",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static WAREHOUSES_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='WeekKeywordSegment'
-pub static WEEK_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_week_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "WEEK",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static WEEK_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='WeekdayKeywordSegment'
-pub static WEEKDAY_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_weekday_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "WEEKDAY",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static WEEKDAY_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='WhenClauseSegment'
-pub static WHEN_CLAUSE_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_when_clause_segment() -> Arc<Grammar> {
 // WhenClauseSegment
 Arc::new(Grammar::Sequence {
     elements: vec![
@@ -43636,30 +46014,36 @@ Arc::new(Grammar::Meta("conditional"))
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
-);
+}
+
+pub static WHEN_CLAUSE_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='WhenKeywordSegment'
-pub static WHEN_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_when_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "WHEN",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static WHEN_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='WheneverKeywordSegment'
-pub static WHENEVER_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_whenever_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "WHENEVER",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static WHENEVER_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='WhereClauseSegment'
-pub static WHERE_CLAUSE_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_where_clause_segment() -> Arc<Grammar> {
 // WhereClauseSegment
 Arc::new(Grammar::Sequence {
     elements: vec![
@@ -43761,10 +46145,12 @@ Arc::new(Grammar::Meta("dedent"))
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
-);
+}
+
+pub static WHERE_CLAUSE_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='WhereClauseTerminatorGrammar'
-pub static WHERE_CLAUSE_TERMINATOR_GRAMMAR: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_where_clause_terminator_grammar() -> Arc<Grammar> {
 Arc::new(Grammar::OneOf {
     elements: vec![
 Arc::new(Grammar::Ref {
@@ -43950,48 +46336,58 @@ Arc::new(Grammar::Ref {
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
-);
+}
+
+pub static WHERE_CLAUSE_TERMINATOR_GRAMMAR: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='WhereKeywordSegment'
-pub static WHERE_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_where_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "WHERE",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static WHERE_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='WhileKeywordSegment'
-pub static WHILE_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_while_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "WHILE",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static WHILE_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='WhitespaceSegment'
-pub static WHITESPACE_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_whitespace_segment() -> Arc<Grammar> {
 Arc::new(Grammar::Token{
     token_type: "whitespace",
 //    token_type: "WhitespaceSegment",
 })
-);
+}
+
+pub static WHITESPACE_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='Width_bucketKeywordSegment'
-pub static WIDTH_BUCKET_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_width_bucket_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "WIDTH_BUCKET",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static WIDTH_BUCKET_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='WildcardExpressionSegment'
-pub static WILDCARD_EXPRESSION_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_wildcard_expression_segment() -> Arc<Grammar> {
 // WildcardExpressionSegment
 Arc::new(Grammar::Sequence {
     elements: vec![
@@ -44015,10 +46411,12 @@ Arc::new(Grammar::Ref {
     parse_mode: ParseMode::Strict,
     simple_hint: None,
 })
-);
+}
+
+pub static WILDCARD_EXPRESSION_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='WildcardIdentifierSegment'
-pub static WILDCARD_IDENTIFIER_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_wildcard_identifier_segment() -> Arc<Grammar> {
 // WildcardIdentifierSegment
 Arc::new(Grammar::Sequence {
     elements: vec![
@@ -44154,20 +46552,24 @@ Arc::new(Grammar::Ref {
     parse_mode: ParseMode::Strict,
     simple_hint: None,
 })
-);
+}
+
+pub static WILDCARD_IDENTIFIER_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='WindowKeywordSegment'
-pub static WINDOW_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_window_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "WINDOW",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static WINDOW_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='WindowSpecificationSegment'
-pub static WINDOW_SPECIFICATION_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_window_specification_segment() -> Arc<Grammar> {
 // WindowSpecificationSegment
 Arc::new(Grammar::Sequence {
     elements: vec![
@@ -44277,10 +46679,12 @@ Arc::new(Grammar::Ref {
     parse_mode: ParseMode::Strict,
     simple_hint: None,
 })
-);
+}
+
+pub static WINDOW_SPECIFICATION_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='WithCompoundNonSelectStatementSegment'
-pub static WITH_COMPOUND_NON_SELECT_STATEMENT_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_with_compound_non_select_statement_segment() -> Arc<Grammar> {
 // WithCompoundNonSelectStatementSegment
 Arc::new(Grammar::Sequence {
     elements: vec![
@@ -44397,10 +46801,12 @@ Arc::new(Grammar::Ref {
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
-);
+}
+
+pub static WITH_COMPOUND_NON_SELECT_STATEMENT_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='WithCompoundStatementSegment'
-pub static WITH_COMPOUND_STATEMENT_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_with_compound_statement_segment() -> Arc<Grammar> {
 // WithCompoundStatementSegment
 Arc::new(Grammar::Sequence {
     elements: vec![
@@ -44517,10 +46923,12 @@ Arc::new(Grammar::Ref {
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
-);
+}
+
+pub static WITH_COMPOUND_STATEMENT_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='WithDataClauseSegment'
-pub static WITH_DATA_CLAUSE_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_with_data_clause_segment() -> Arc<Grammar> {
 // WithDataClauseSegment
 Arc::new(Grammar::Sequence {
     elements: vec![
@@ -44593,26 +47001,32 @@ Arc::new(Grammar::Ref {
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
-);
+}
+
+pub static WITH_DATA_CLAUSE_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='WithFillSegment'
-pub static WITH_FILL_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_with_fill_segment() -> Arc<Grammar> {
 // WithFillSegment
 Arc::new(Grammar::Nothing())
-);
+}
+
+pub static WITH_FILL_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='WithKeywordSegment'
-pub static WITH_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_with_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "WITH",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static WITH_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='WithNoSchemaBindingClauseSegment'
-pub static WITH_NO_SCHEMA_BINDING_CLAUSE_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_with_no_schema_binding_clause_segment() -> Arc<Grammar> {
 // WithNoSchemaBindingClauseSegment
 Arc::new(Grammar::Sequence {
     elements: vec![
@@ -44684,1381 +47098,1413 @@ Arc::new(Grammar::Ref {
             token_types: hashbrown::HashSet::from_iter([]),
         }),
 })
-);
+}
+
+pub static WITH_NO_SCHEMA_BINDING_CLAUSE_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='WithinKeywordSegment'
-pub static WITHIN_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_within_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "WITHIN",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static WITHIN_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='WithoutKeywordSegment'
-pub static WITHOUT_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_without_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "WITHOUT",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static WITHOUT_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='WordSegment'
-pub static WORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_word_segment() -> Arc<Grammar> {
 Arc::new(Grammar::Token{
     token_type: "word",
 //    token_type: "WordSegment",
 })
-);
+}
+
+pub static WORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='WorkKeywordSegment'
-pub static WORK_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_work_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "WORK",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static WORK_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='WrapperKeywordSegment'
-pub static WRAPPER_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_wrapper_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "WRAPPER",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static WRAPPER_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='WriteKeywordSegment'
-pub static WRITE_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_write_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "WRITE",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static WRITE_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='WritetextKeywordSegment'
-pub static WRITETEXT_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_writetext_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "WRITETEXT",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static WRITETEXT_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='X509KeywordSegment'
-pub static X509_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_x509_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "X509",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static X509_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='XmlKeywordSegment'
-pub static XML_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_xml_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "XML",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static XML_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='XorKeywordSegment'
-pub static XOR_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_xor_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "XOR",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static XOR_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='YamlKeywordSegment'
-pub static YAML_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_yaml_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "YAML",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static YAML_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='YearKeywordSegment'
-pub static YEAR_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_year_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "YEAR",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static YEAR_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='Year_monthKeywordSegment'
-pub static YEAR_MONTH_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_year_month_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "YEAR_MONTH",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static YEAR_MONTH_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='ZerofillKeywordSegment'
-pub static ZEROFILL_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_zerofill_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "ZEROFILL",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static ZEROFILL_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 // name='ZoneKeywordSegment'
-pub static ZONE_KEYWORD_SEGMENT: Lazy<Arc<Grammar>> = Lazy::new(||
+fn init_zone_keyword_segment() -> Arc<Grammar> {
 Arc::new(Grammar::StringParser {
     template: "ZONE",
     token_type: "keyword",
     raw_class: "KeywordSegment",
     optional: false,
 })
-);
+}
+
+pub static ZONE_KEYWORD_SEGMENT: OnceLock<Arc<Grammar>> = OnceLock::new();
 
 pub fn get_ansi_segment_grammar(name: &str) -> Option<Arc<Grammar>> {
     match name {
-            "AbortKeywordSegment" => Some(ABORT_KEYWORD_SEGMENT.clone()),
-            "AbsKeywordSegment" => Some(ABS_KEYWORD_SEGMENT.clone()),
-            "AbsoluteKeywordSegment" => Some(ABSOLUTE_KEYWORD_SEGMENT.clone()),
-            "AccessKeywordSegment" => Some(ACCESS_KEYWORD_SEGMENT.clone()),
-            "AccessStatementSegment" => Some(ACCESS_STATEMENT_SEGMENT.clone()),
-            "AccessorGrammar" => Some(ACCESSOR_GRAMMAR.clone()),
-            "AccountKeywordSegment" => Some(ACCOUNT_KEYWORD_SEGMENT.clone()),
-            "AccountsKeywordSegment" => Some(ACCOUNTS_KEYWORD_SEGMENT.clone()),
-            "ActionKeywordSegment" => Some(ACTION_KEYWORD_SEGMENT.clone()),
-            "AdaKeywordSegment" => Some(ADA_KEYWORD_SEGMENT.clone()),
-            "AddKeywordSegment" => Some(ADD_KEYWORD_SEGMENT.clone()),
-            "AdminKeywordSegment" => Some(ADMIN_KEYWORD_SEGMENT.clone()),
-            "AfterKeywordSegment" => Some(AFTER_KEYWORD_SEGMENT.clone()),
-            "AggregateKeywordSegment" => Some(AGGREGATE_KEYWORD_SEGMENT.clone()),
-            "AggregateOrderByClause" => Some(AGGREGATE_ORDER_BY_CLAUSE.clone()),
-            "AliasExpressionSegment" => Some(ALIAS_EXPRESSION_SEGMENT.clone()),
-            "AliasKeywordSegment" => Some(ALIAS_KEYWORD_SEGMENT.clone()),
-            "AliasedTableReferenceGrammar" => Some(ALIASED_TABLE_REFERENCE_GRAMMAR.clone()),
-            "AllKeywordSegment" => Some(ALL_KEYWORD_SEGMENT.clone()),
-            "AllocateKeywordSegment" => Some(ALLOCATE_KEYWORD_SEGMENT.clone()),
-            "AlsoKeywordSegment" => Some(ALSO_KEYWORD_SEGMENT.clone()),
-            "AlterKeywordSegment" => Some(ALTER_KEYWORD_SEGMENT.clone()),
-            "AlterSequenceOptionsSegment" => Some(ALTER_SEQUENCE_OPTIONS_SEGMENT.clone()),
-            "AlterSequenceStatementSegment" => Some(ALTER_SEQUENCE_STATEMENT_SEGMENT.clone()),
-            "AlterTableDropColumnGrammar" => Some(ALTER_TABLE_DROP_COLUMN_GRAMMAR.clone()),
-            "AlterTableOptionsGrammar" => Some(ALTER_TABLE_OPTIONS_GRAMMAR.clone()),
-            "AlterTableStatementSegment" => Some(ALTER_TABLE_STATEMENT_SEGMENT.clone()),
-            "AlwaysKeywordSegment" => Some(ALWAYS_KEYWORD_SEGMENT.clone()),
-            "AmpersandSegment" => Some(AMPERSAND_SEGMENT.clone()),
-            "AnalyseKeywordSegment" => Some(ANALYSE_KEYWORD_SEGMENT.clone()),
-            "AnalyzeKeywordSegment" => Some(ANALYZE_KEYWORD_SEGMENT.clone()),
-            "AndKeywordSegment" => Some(AND_KEYWORD_SEGMENT.clone()),
-            "AndOperatorGrammar" => Some(AND_OPERATOR_GRAMMAR.clone()),
-            "AnyKeywordSegment" => Some(ANY_KEYWORD_SEGMENT.clone()),
-            "ApplyKeywordSegment" => Some(APPLY_KEYWORD_SEGMENT.clone()),
-            "AreKeywordSegment" => Some(ARE_KEYWORD_SEGMENT.clone()),
-            "ArithmeticBinaryOperatorGrammar" => Some(ARITHMETIC_BINARY_OPERATOR_GRAMMAR.clone()),
-            "ArrayAccessorSegment" => Some(ARRAY_ACCESSOR_SEGMENT.clone()),
-            "ArrayExpressionSegment" => Some(ARRAY_EXPRESSION_SEGMENT.clone()),
-            "ArrayKeywordSegment" => Some(ARRAY_KEYWORD_SEGMENT.clone()),
-            "ArrayLiteralSegment" => Some(ARRAY_LITERAL_SEGMENT.clone()),
-            "ArrayTypeSegment" => Some(ARRAY_TYPE_SEGMENT.clone()),
-            "AsAliasOperatorSegment" => Some(AS_ALIAS_OPERATOR_SEGMENT.clone()),
-            "AsKeywordSegment" => Some(AS_KEYWORD_SEGMENT.clone()),
-            "AscKeywordSegment" => Some(ASC_KEYWORD_SEGMENT.clone()),
-            "AsensitiveKeywordSegment" => Some(ASENSITIVE_KEYWORD_SEGMENT.clone()),
-            "AssertionKeywordSegment" => Some(ASSERTION_KEYWORD_SEGMENT.clone()),
-            "AssignmentKeywordSegment" => Some(ASSIGNMENT_KEYWORD_SEGMENT.clone()),
-            "AsymmetricKeywordSegment" => Some(ASYMMETRIC_KEYWORD_SEGMENT.clone()),
-            "AtKeywordSegment" => Some(AT_KEYWORD_SEGMENT.clone()),
-            "AtomicKeywordSegment" => Some(ATOMIC_KEYWORD_SEGMENT.clone()),
-            "AttributeKeywordSegment" => Some(ATTRIBUTE_KEYWORD_SEGMENT.clone()),
-            "AttributesKeywordSegment" => Some(ATTRIBUTES_KEYWORD_SEGMENT.clone()),
-            "AuditKeywordSegment" => Some(AUDIT_KEYWORD_SEGMENT.clone()),
-            "AuthorizationKeywordSegment" => Some(AUTHORIZATION_KEYWORD_SEGMENT.clone()),
-            "AutoIncrementGrammar" => Some(AUTO_INCREMENT_GRAMMAR.clone()),
-            "Auto_incrementKeywordSegment" => Some(AUTO_INCREMENT_KEYWORD_SEGMENT.clone()),
-            "AvgKeywordSegment" => Some(AVG_KEYWORD_SEGMENT.clone()),
-            "Avg_row_lengthKeywordSegment" => Some(AVG_ROW_LENGTH_KEYWORD_SEGMENT.clone()),
-            "BackupKeywordSegment" => Some(BACKUP_KEYWORD_SEGMENT.clone()),
-            "BackwardKeywordSegment" => Some(BACKWARD_KEYWORD_SEGMENT.clone()),
-            "BareFunctionSegment" => Some(BARE_FUNCTION_SEGMENT.clone()),
-            "BaseExpressionElementGrammar" => Some(BASE_EXPRESSION_ELEMENT_GRAMMAR.clone()),
-            "BaseFileSegment" => Some(BASE_FILE_SEGMENT.clone()),
-            "BaseSegment" => Some(BASE_SEGMENT.clone()),
-            "BeforeKeywordSegment" => Some(BEFORE_KEYWORD_SEGMENT.clone()),
-            "BeginKeywordSegment" => Some(BEGIN_KEYWORD_SEGMENT.clone()),
-            "BernoulliKeywordSegment" => Some(BERNOULLI_KEYWORD_SEGMENT.clone()),
-            "BetweenKeywordSegment" => Some(BETWEEN_KEYWORD_SEGMENT.clone()),
-            "BigintKeywordSegment" => Some(BIGINT_KEYWORD_SEGMENT.clone()),
-            "BinaryKeywordSegment" => Some(BINARY_KEYWORD_SEGMENT.clone()),
-            "BinaryOperatorGrammar" => Some(BINARY_OPERATOR_GRAMMAR.clone()),
-            "BinaryOperatorSegment" => Some(BINARY_OPERATOR_SEGMENT.clone()),
-            "BindingKeywordSegment" => Some(BINDING_KEYWORD_SEGMENT.clone()),
-            "BitKeywordSegment" => Some(BIT_KEYWORD_SEGMENT.clone()),
-            "Bit_lengthKeywordSegment" => Some(BIT_LENGTH_KEYWORD_SEGMENT.clone()),
-            "BitvarKeywordSegment" => Some(BITVAR_KEYWORD_SEGMENT.clone()),
-            "BitwiseAndSegment" => Some(BITWISE_AND_SEGMENT.clone()),
-            "BitwiseLShiftSegment" => Some(BITWISE_L_SHIFT_SEGMENT.clone()),
-            "BitwiseOrSegment" => Some(BITWISE_OR_SEGMENT.clone()),
-            "BitwiseRShiftSegment" => Some(BITWISE_R_SHIFT_SEGMENT.clone()),
-            "BitwiseXorSegment" => Some(BITWISE_XOR_SEGMENT.clone()),
-            "BlobKeywordSegment" => Some(BLOB_KEYWORD_SEGMENT.clone()),
-            "BoolKeywordSegment" => Some(BOOL_KEYWORD_SEGMENT.clone()),
-            "BooleanBinaryOperatorGrammar" => Some(BOOLEAN_BINARY_OPERATOR_GRAMMAR.clone()),
-            "BooleanKeywordSegment" => Some(BOOLEAN_KEYWORD_SEGMENT.clone()),
-            "BooleanLiteralGrammar" => Some(BOOLEAN_LITERAL_GRAMMAR.clone()),
-            "BothKeywordSegment" => Some(BOTH_KEYWORD_SEGMENT.clone()),
-            "BracketedArguments" => Some(BRACKETED_ARGUMENTS.clone()),
-            "BracketedColumnReferenceListGrammar" => Some(BRACKETED_COLUMN_REFERENCE_LIST_GRAMMAR.clone()),
-            "BracketedSegment" => Some(BRACKETED_SEGMENT.clone()),
-            "BracketedSetExpressionGrammar" => Some(BRACKETED_SET_EXPRESSION_GRAMMAR.clone()),
-            "BreadthKeywordSegment" => Some(BREADTH_KEYWORD_SEGMENT.clone()),
-            "BreakKeywordSegment" => Some(BREAK_KEYWORD_SEGMENT.clone()),
-            "BrowseKeywordSegment" => Some(BROWSE_KEYWORD_SEGMENT.clone()),
-            "BulkKeywordSegment" => Some(BULK_KEYWORD_SEGMENT.clone()),
-            "ByKeywordSegment" => Some(BY_KEYWORD_SEGMENT.clone()),
-            "CTEColumnList" => Some(C_T_E_COLUMN_LIST.clone()),
-            "CTEDefinitionSegment" => Some(C_T_E_DEFINITION_SEGMENT.clone()),
-            "CacheKeywordSegment" => Some(CACHE_KEYWORD_SEGMENT.clone()),
-            "CallKeywordSegment" => Some(CALL_KEYWORD_SEGMENT.clone()),
-            "CalledKeywordSegment" => Some(CALLED_KEYWORD_SEGMENT.clone()),
-            "CardinalityKeywordSegment" => Some(CARDINALITY_KEYWORD_SEGMENT.clone()),
-            "CascadeKeywordSegment" => Some(CASCADE_KEYWORD_SEGMENT.clone()),
-            "CascadedKeywordSegment" => Some(CASCADED_KEYWORD_SEGMENT.clone()),
-            "CaseExpressionSegment" => Some(CASE_EXPRESSION_SEGMENT.clone()),
-            "CaseKeywordSegment" => Some(CASE_KEYWORD_SEGMENT.clone()),
-            "CastKeywordSegment" => Some(CAST_KEYWORD_SEGMENT.clone()),
-            "CastOperatorSegment" => Some(CAST_OPERATOR_SEGMENT.clone()),
-            "CatalogKeywordSegment" => Some(CATALOG_KEYWORD_SEGMENT.clone()),
-            "Catalog_nameKeywordSegment" => Some(CATALOG_NAME_KEYWORD_SEGMENT.clone()),
-            "CeilKeywordSegment" => Some(CEIL_KEYWORD_SEGMENT.clone()),
-            "CeilingKeywordSegment" => Some(CEILING_KEYWORD_SEGMENT.clone()),
-            "ChainKeywordSegment" => Some(CHAIN_KEYWORD_SEGMENT.clone()),
-            "ChangeKeywordSegment" => Some(CHANGE_KEYWORD_SEGMENT.clone()),
-            "CharCharacterSetGrammar" => Some(CHAR_CHARACTER_SET_GRAMMAR.clone()),
-            "CharKeywordSegment" => Some(CHAR_KEYWORD_SEGMENT.clone()),
-            "Char_lengthKeywordSegment" => Some(CHAR_LENGTH_KEYWORD_SEGMENT.clone()),
-            "CharacterKeywordSegment" => Some(CHARACTER_KEYWORD_SEGMENT.clone()),
-            "Character_lengthKeywordSegment" => Some(CHARACTER_LENGTH_KEYWORD_SEGMENT.clone()),
-            "Character_set_catalogKeywordSegment" => Some(CHARACTER_SET_CATALOG_KEYWORD_SEGMENT.clone()),
-            "Character_set_nameKeywordSegment" => Some(CHARACTER_SET_NAME_KEYWORD_SEGMENT.clone()),
-            "Character_set_schemaKeywordSegment" => Some(CHARACTER_SET_SCHEMA_KEYWORD_SEGMENT.clone()),
-            "CharacteristicsKeywordSegment" => Some(CHARACTERISTICS_KEYWORD_SEGMENT.clone()),
-            "CharactersKeywordSegment" => Some(CHARACTERS_KEYWORD_SEGMENT.clone()),
-            "CheckKeywordSegment" => Some(CHECK_KEYWORD_SEGMENT.clone()),
-            "CheckedKeywordSegment" => Some(CHECKED_KEYWORD_SEGMENT.clone()),
-            "CheckpointKeywordSegment" => Some(CHECKPOINT_KEYWORD_SEGMENT.clone()),
-            "ChecksumKeywordSegment" => Some(CHECKSUM_KEYWORD_SEGMENT.clone()),
-            "ClassKeywordSegment" => Some(CLASS_KEYWORD_SEGMENT.clone()),
-            "Class_originKeywordSegment" => Some(CLASS_ORIGIN_KEYWORD_SEGMENT.clone()),
-            "ClobKeywordSegment" => Some(CLOB_KEYWORD_SEGMENT.clone()),
-            "CloseKeywordSegment" => Some(CLOSE_KEYWORD_SEGMENT.clone()),
-            "ClusterKeywordSegment" => Some(CLUSTER_KEYWORD_SEGMENT.clone()),
-            "ClusteredKeywordSegment" => Some(CLUSTERED_KEYWORD_SEGMENT.clone()),
-            "CoalesceKeywordSegment" => Some(COALESCE_KEYWORD_SEGMENT.clone()),
-            "CobolKeywordSegment" => Some(COBOL_KEYWORD_SEGMENT.clone()),
-            "CodeSegment" => Some(CODE_SEGMENT.clone()),
-            "CollateGrammar" => Some(COLLATE_GRAMMAR.clone()),
-            "CollateKeywordSegment" => Some(COLLATE_KEYWORD_SEGMENT.clone()),
-            "CollationKeywordSegment" => Some(COLLATION_KEYWORD_SEGMENT.clone()),
-            "CollationReferenceSegment" => Some(COLLATION_REFERENCE_SEGMENT.clone()),
-            "Collation_catalogKeywordSegment" => Some(COLLATION_CATALOG_KEYWORD_SEGMENT.clone()),
-            "Collation_nameKeywordSegment" => Some(COLLATION_NAME_KEYWORD_SEGMENT.clone()),
-            "Collation_schemaKeywordSegment" => Some(COLLATION_SCHEMA_KEYWORD_SEGMENT.clone()),
-            "CollectKeywordSegment" => Some(COLLECT_KEYWORD_SEGMENT.clone()),
-            "ColonDelimiterSegment" => Some(COLON_DELIMITER_SEGMENT.clone()),
-            "ColonPrefixSegment" => Some(COLON_PREFIX_SEGMENT.clone()),
-            "ColonSegment" => Some(COLON_SEGMENT.clone()),
-            "ColumnConstraintDefaultGrammar" => Some(COLUMN_CONSTRAINT_DEFAULT_GRAMMAR.clone()),
-            "ColumnConstraintSegment" => Some(COLUMN_CONSTRAINT_SEGMENT.clone()),
-            "ColumnDefinitionSegment" => Some(COLUMN_DEFINITION_SEGMENT.clone()),
-            "ColumnGeneratedGrammar" => Some(COLUMN_GENERATED_GRAMMAR.clone()),
-            "ColumnKeywordSegment" => Some(COLUMN_KEYWORD_SEGMENT.clone()),
-            "ColumnReferenceSegment" => Some(COLUMN_REFERENCE_SEGMENT.clone()),
-            "Column_nameKeywordSegment" => Some(COLUMN_NAME_KEYWORD_SEGMENT.clone()),
-            "ColumnsExpressionFunctionContentsSegment" => Some(COLUMNS_EXPRESSION_FUNCTION_CONTENTS_SEGMENT.clone()),
-            "ColumnsExpressionFunctionNameSegment" => Some(COLUMNS_EXPRESSION_FUNCTION_NAME_SEGMENT.clone()),
-            "ColumnsExpressionGrammar" => Some(COLUMNS_EXPRESSION_GRAMMAR.clone()),
-            "ColumnsExpressionNameGrammar" => Some(COLUMNS_EXPRESSION_NAME_GRAMMAR.clone()),
-            "ColumnsKeywordSegment" => Some(COLUMNS_KEYWORD_SEGMENT.clone()),
-            "CommaSegment" => Some(COMMA_SEGMENT.clone()),
-            "Command_functionKeywordSegment" => Some(COMMAND_FUNCTION_KEYWORD_SEGMENT.clone()),
-            "Command_function_codeKeywordSegment" => Some(COMMAND_FUNCTION_CODE_KEYWORD_SEGMENT.clone()),
-            "CommentClauseSegment" => Some(COMMENT_CLAUSE_SEGMENT.clone()),
-            "CommentKeywordSegment" => Some(COMMENT_KEYWORD_SEGMENT.clone()),
-            "CommentSegment" => Some(COMMENT_SEGMENT.clone()),
-            "CommitKeywordSegment" => Some(COMMIT_KEYWORD_SEGMENT.clone()),
-            "CommittedKeywordSegment" => Some(COMMITTED_KEYWORD_SEGMENT.clone()),
-            "ComparisonOperatorGrammar" => Some(COMPARISON_OPERATOR_GRAMMAR.clone()),
-            "ComparisonOperatorSegment" => Some(COMPARISON_OPERATOR_SEGMENT.clone()),
-            "CompletionKeywordSegment" => Some(COMPLETION_KEYWORD_SEGMENT.clone()),
-            "CompositeBinaryOperatorSegment" => Some(COMPOSITE_BINARY_OPERATOR_SEGMENT.clone()),
-            "CompositeComparisonOperatorSegment" => Some(COMPOSITE_COMPARISON_OPERATOR_SEGMENT.clone()),
-            "CompressKeywordSegment" => Some(COMPRESS_KEYWORD_SEGMENT.clone()),
-            "ComputeKeywordSegment" => Some(COMPUTE_KEYWORD_SEGMENT.clone()),
-            "ConcatSegment" => Some(CONCAT_SEGMENT.clone()),
-            "ConditionKeywordSegment" => Some(CONDITION_KEYWORD_SEGMENT.clone()),
-            "Condition_numberKeywordSegment" => Some(CONDITION_NUMBER_KEYWORD_SEGMENT.clone()),
-            "ConditionalCrossJoinKeywordsGrammar" => Some(CONDITIONAL_CROSS_JOIN_KEYWORDS_GRAMMAR.clone()),
-            "ConditionalJoinKeywordsGrammar" => Some(CONDITIONAL_JOIN_KEYWORDS_GRAMMAR.clone()),
-            "ConnectKeywordSegment" => Some(CONNECT_KEYWORD_SEGMENT.clone()),
-            "ConnectionKeywordSegment" => Some(CONNECTION_KEYWORD_SEGMENT.clone()),
-            "Connection_nameKeywordSegment" => Some(CONNECTION_NAME_KEYWORD_SEGMENT.clone()),
-            "ConstraintKeywordSegment" => Some(CONSTRAINT_KEYWORD_SEGMENT.clone()),
-            "Constraint_catalogKeywordSegment" => Some(CONSTRAINT_CATALOG_KEYWORD_SEGMENT.clone()),
-            "Constraint_nameKeywordSegment" => Some(CONSTRAINT_NAME_KEYWORD_SEGMENT.clone()),
-            "Constraint_schemaKeywordSegment" => Some(CONSTRAINT_SCHEMA_KEYWORD_SEGMENT.clone()),
-            "ConstraintsKeywordSegment" => Some(CONSTRAINTS_KEYWORD_SEGMENT.clone()),
-            "ConstructorKeywordSegment" => Some(CONSTRUCTOR_KEYWORD_SEGMENT.clone()),
-            "ContainsKeywordSegment" => Some(CONTAINS_KEYWORD_SEGMENT.clone()),
-            "ContainstableKeywordSegment" => Some(CONTAINSTABLE_KEYWORD_SEGMENT.clone()),
-            "ContinueKeywordSegment" => Some(CONTINUE_KEYWORD_SEGMENT.clone()),
-            "ConversionKeywordSegment" => Some(CONVERSION_KEYWORD_SEGMENT.clone()),
-            "ConvertKeywordSegment" => Some(CONVERT_KEYWORD_SEGMENT.clone()),
-            "CopyKeywordSegment" => Some(COPY_KEYWORD_SEGMENT.clone()),
-            "CorrKeywordSegment" => Some(CORR_KEYWORD_SEGMENT.clone()),
-            "CorrespondingKeywordSegment" => Some(CORRESPONDING_KEYWORD_SEGMENT.clone()),
-            "CountKeywordSegment" => Some(COUNT_KEYWORD_SEGMENT.clone()),
-            "Covar_popKeywordSegment" => Some(COVAR_POP_KEYWORD_SEGMENT.clone()),
-            "Covar_sampKeywordSegment" => Some(COVAR_SAMP_KEYWORD_SEGMENT.clone()),
-            "CreateCastStatementSegment" => Some(CREATE_CAST_STATEMENT_SEGMENT.clone()),
-            "CreateDatabaseStatementSegment" => Some(CREATE_DATABASE_STATEMENT_SEGMENT.clone()),
-            "CreateFunctionStatementSegment" => Some(CREATE_FUNCTION_STATEMENT_SEGMENT.clone()),
-            "CreateIndexStatementSegment" => Some(CREATE_INDEX_STATEMENT_SEGMENT.clone()),
-            "CreateKeywordSegment" => Some(CREATE_KEYWORD_SEGMENT.clone()),
-            "CreateModelStatementSegment" => Some(CREATE_MODEL_STATEMENT_SEGMENT.clone()),
-            "CreateRoleStatementSegment" => Some(CREATE_ROLE_STATEMENT_SEGMENT.clone()),
-            "CreateSchemaStatementSegment" => Some(CREATE_SCHEMA_STATEMENT_SEGMENT.clone()),
-            "CreateSequenceOptionsSegment" => Some(CREATE_SEQUENCE_OPTIONS_SEGMENT.clone()),
-            "CreateSequenceStatementSegment" => Some(CREATE_SEQUENCE_STATEMENT_SEGMENT.clone()),
-            "CreateTableStatementSegment" => Some(CREATE_TABLE_STATEMENT_SEGMENT.clone()),
-            "CreateTriggerStatementSegment" => Some(CREATE_TRIGGER_STATEMENT_SEGMENT.clone()),
-            "CreateUserStatementSegment" => Some(CREATE_USER_STATEMENT_SEGMENT.clone()),
-            "CreateViewStatementSegment" => Some(CREATE_VIEW_STATEMENT_SEGMENT.clone()),
-            "CreatedbKeywordSegment" => Some(CREATEDB_KEYWORD_SEGMENT.clone()),
-            "CreateroleKeywordSegment" => Some(CREATEROLE_KEYWORD_SEGMENT.clone()),
-            "CreateuserKeywordSegment" => Some(CREATEUSER_KEYWORD_SEGMENT.clone()),
-            "CrossKeywordSegment" => Some(CROSS_KEYWORD_SEGMENT.clone()),
-            "CsvKeywordSegment" => Some(CSV_KEYWORD_SEGMENT.clone()),
-            "CubeFunctionNameSegment" => Some(CUBE_FUNCTION_NAME_SEGMENT.clone()),
-            "CubeKeywordSegment" => Some(CUBE_KEYWORD_SEGMENT.clone()),
-            "CubeRollupClauseSegment" => Some(CUBE_ROLLUP_CLAUSE_SEGMENT.clone()),
-            "Cume_distKeywordSegment" => Some(CUME_DIST_KEYWORD_SEGMENT.clone()),
-            "CurrentKeywordSegment" => Some(CURRENT_KEYWORD_SEGMENT.clone()),
-            "Current_dateKeywordSegment" => Some(CURRENT_DATE_KEYWORD_SEGMENT.clone()),
-            "Current_default_transform_groupKeywordSegment" => Some(CURRENT_DEFAULT_TRANSFORM_GROUP_KEYWORD_SEGMENT.clone()),
-            "Current_pathKeywordSegment" => Some(CURRENT_PATH_KEYWORD_SEGMENT.clone()),
-            "Current_roleKeywordSegment" => Some(CURRENT_ROLE_KEYWORD_SEGMENT.clone()),
-            "Current_timeKeywordSegment" => Some(CURRENT_TIME_KEYWORD_SEGMENT.clone()),
-            "Current_timestampKeywordSegment" => Some(CURRENT_TIMESTAMP_KEYWORD_SEGMENT.clone()),
-            "Current_transform_group_for_typeKeywordSegment" => Some(CURRENT_TRANSFORM_GROUP_FOR_TYPE_KEYWORD_SEGMENT.clone()),
-            "Current_userKeywordSegment" => Some(CURRENT_USER_KEYWORD_SEGMENT.clone()),
-            "CursorKeywordSegment" => Some(CURSOR_KEYWORD_SEGMENT.clone()),
-            "Cursor_nameKeywordSegment" => Some(CURSOR_NAME_KEYWORD_SEGMENT.clone()),
-            "CycleKeywordSegment" => Some(CYCLE_KEYWORD_SEGMENT.clone()),
-            "DataKeywordSegment" => Some(DATA_KEYWORD_SEGMENT.clone()),
-            "DatabaseKeywordSegment" => Some(DATABASE_KEYWORD_SEGMENT.clone()),
-            "DatabaseReferenceSegment" => Some(DATABASE_REFERENCE_SEGMENT.clone()),
-            "DatabasesKeywordSegment" => Some(DATABASES_KEYWORD_SEGMENT.clone()),
-            "DatatypeIdentifierSegment" => Some(DATATYPE_IDENTIFIER_SEGMENT.clone()),
-            "DatatypeSegment" => Some(DATATYPE_SEGMENT.clone()),
-            "DateKeywordSegment" => Some(DATE_KEYWORD_SEGMENT.clone()),
-            "DatePartFunctionName" => Some(DATE_PART_FUNCTION_NAME.clone()),
-            "DatePartFunctionNameSegment" => Some(DATE_PART_FUNCTION_NAME_SEGMENT.clone()),
-            "DateTimeFunctionContentsSegment" => Some(DATE_TIME_FUNCTION_CONTENTS_SEGMENT.clone()),
-            "DateTimeLiteralGrammar" => Some(DATE_TIME_LITERAL_GRAMMAR.clone()),
-            "DatetimeKeywordSegment" => Some(DATETIME_KEYWORD_SEGMENT.clone()),
-            "DatetimeUnitSegment" => Some(DATETIME_UNIT_SEGMENT.clone()),
-            "Datetime_interval_codeKeywordSegment" => Some(DATETIME_INTERVAL_CODE_KEYWORD_SEGMENT.clone()),
-            "Datetime_interval_precisionKeywordSegment" => Some(DATETIME_INTERVAL_PRECISION_KEYWORD_SEGMENT.clone()),
-            "DayKeywordSegment" => Some(DAY_KEYWORD_SEGMENT.clone()),
-            "Day_hourKeywordSegment" => Some(DAY_HOUR_KEYWORD_SEGMENT.clone()),
-            "Day_microsecondKeywordSegment" => Some(DAY_MICROSECOND_KEYWORD_SEGMENT.clone()),
-            "Day_minuteKeywordSegment" => Some(DAY_MINUTE_KEYWORD_SEGMENT.clone()),
-            "Day_secondKeywordSegment" => Some(DAY_SECOND_KEYWORD_SEGMENT.clone()),
-            "DayofmonthKeywordSegment" => Some(DAYOFMONTH_KEYWORD_SEGMENT.clone()),
-            "DayofweekKeywordSegment" => Some(DAYOFWEEK_KEYWORD_SEGMENT.clone()),
-            "DayofyearKeywordSegment" => Some(DAYOFYEAR_KEYWORD_SEGMENT.clone()),
-            "DaysKeywordSegment" => Some(DAYS_KEYWORD_SEGMENT.clone()),
-            "DbccKeywordSegment" => Some(DBCC_KEYWORD_SEGMENT.clone()),
-            "DeallocateKeywordSegment" => Some(DEALLOCATE_KEYWORD_SEGMENT.clone()),
-            "DecKeywordSegment" => Some(DEC_KEYWORD_SEGMENT.clone()),
-            "DecimalKeywordSegment" => Some(DECIMAL_KEYWORD_SEGMENT.clone()),
-            "DeclareKeywordSegment" => Some(DECLARE_KEYWORD_SEGMENT.clone()),
-            "Dedent" => Some(DEDENT.clone()),
-            "DefaultKeywordSegment" => Some(DEFAULT_KEYWORD_SEGMENT.clone()),
-            "DefaultValuesGrammar" => Some(DEFAULT_VALUES_GRAMMAR.clone()),
-            "DefaultsKeywordSegment" => Some(DEFAULTS_KEYWORD_SEGMENT.clone()),
-            "DeferrableKeywordSegment" => Some(DEFERRABLE_KEYWORD_SEGMENT.clone()),
-            "DeferredKeywordSegment" => Some(DEFERRED_KEYWORD_SEGMENT.clone()),
-            "DefinedKeywordSegment" => Some(DEFINED_KEYWORD_SEGMENT.clone()),
-            "DefinerKeywordSegment" => Some(DEFINER_KEYWORD_SEGMENT.clone()),
-            "DegreeKeywordSegment" => Some(DEGREE_KEYWORD_SEGMENT.clone()),
-            "Delay_key_writeKeywordSegment" => Some(DELAY_KEY_WRITE_KEYWORD_SEGMENT.clone()),
-            "DelayedKeywordSegment" => Some(DELAYED_KEYWORD_SEGMENT.clone()),
-            "DeleteKeywordSegment" => Some(DELETE_KEYWORD_SEGMENT.clone()),
-            "DeleteStatementSegment" => Some(DELETE_STATEMENT_SEGMENT.clone()),
-            "DelimiterGrammar" => Some(DELIMITER_GRAMMAR.clone()),
-            "DelimiterKeywordSegment" => Some(DELIMITER_KEYWORD_SEGMENT.clone()),
-            "DelimitersKeywordSegment" => Some(DELIMITERS_KEYWORD_SEGMENT.clone()),
-            "Dense_rankKeywordSegment" => Some(DENSE_RANK_KEYWORD_SEGMENT.clone()),
-            "DenyKeywordSegment" => Some(DENY_KEYWORD_SEGMENT.clone()),
-            "DepthKeywordSegment" => Some(DEPTH_KEYWORD_SEGMENT.clone()),
-            "DerefKeywordSegment" => Some(DEREF_KEYWORD_SEGMENT.clone()),
-            "DerivedKeywordSegment" => Some(DERIVED_KEYWORD_SEGMENT.clone()),
-            "DescKeywordSegment" => Some(DESC_KEYWORD_SEGMENT.clone()),
-            "DescribeKeywordSegment" => Some(DESCRIBE_KEYWORD_SEGMENT.clone()),
-            "DescribeStatementSegment" => Some(DESCRIBE_STATEMENT_SEGMENT.clone()),
-            "DescriptorKeywordSegment" => Some(DESCRIPTOR_KEYWORD_SEGMENT.clone()),
-            "DestroyKeywordSegment" => Some(DESTROY_KEYWORD_SEGMENT.clone()),
-            "DestructorKeywordSegment" => Some(DESTRUCTOR_KEYWORD_SEGMENT.clone()),
-            "DeterministicKeywordSegment" => Some(DETERMINISTIC_KEYWORD_SEGMENT.clone()),
-            "DiagnosticsKeywordSegment" => Some(DIAGNOSTICS_KEYWORD_SEGMENT.clone()),
-            "DictionaryKeywordSegment" => Some(DICTIONARY_KEYWORD_SEGMENT.clone()),
-            "DisableKeywordSegment" => Some(DISABLE_KEYWORD_SEGMENT.clone()),
-            "DisconnectKeywordSegment" => Some(DISCONNECT_KEYWORD_SEGMENT.clone()),
-            "DiskKeywordSegment" => Some(DISK_KEYWORD_SEGMENT.clone()),
-            "DispatchKeywordSegment" => Some(DISPATCH_KEYWORD_SEGMENT.clone()),
-            "DistinctKeywordSegment" => Some(DISTINCT_KEYWORD_SEGMENT.clone()),
-            "DistinctrowKeywordSegment" => Some(DISTINCTROW_KEYWORD_SEGMENT.clone()),
-            "DistributedKeywordSegment" => Some(DISTRIBUTED_KEYWORD_SEGMENT.clone()),
-            "DivKeywordSegment" => Some(DIV_KEYWORD_SEGMENT.clone()),
-            "DivideSegment" => Some(DIVIDE_SEGMENT.clone()),
-            "DoKeywordSegment" => Some(DO_KEYWORD_SEGMENT.clone()),
-            "DomainKeywordSegment" => Some(DOMAIN_KEYWORD_SEGMENT.clone()),
-            "DotSegment" => Some(DOT_SEGMENT.clone()),
-            "DoubleKeywordSegment" => Some(DOUBLE_KEYWORD_SEGMENT.clone()),
-            "DropBehaviorGrammar" => Some(DROP_BEHAVIOR_GRAMMAR.clone()),
-            "DropCastStatementSegment" => Some(DROP_CAST_STATEMENT_SEGMENT.clone()),
-            "DropDatabaseStatementSegment" => Some(DROP_DATABASE_STATEMENT_SEGMENT.clone()),
-            "DropFunctionStatementSegment" => Some(DROP_FUNCTION_STATEMENT_SEGMENT.clone()),
-            "DropIndexStatementSegment" => Some(DROP_INDEX_STATEMENT_SEGMENT.clone()),
-            "DropKeywordSegment" => Some(DROP_KEYWORD_SEGMENT.clone()),
-            "DropModelStatementSegment" => Some(DROP_MODEL_STATEMENT_SEGMENT.clone()),
-            "DropRoleStatementSegment" => Some(DROP_ROLE_STATEMENT_SEGMENT.clone()),
-            "DropSchemaStatementSegment" => Some(DROP_SCHEMA_STATEMENT_SEGMENT.clone()),
-            "DropSequenceStatementSegment" => Some(DROP_SEQUENCE_STATEMENT_SEGMENT.clone()),
-            "DropTableStatementSegment" => Some(DROP_TABLE_STATEMENT_SEGMENT.clone()),
-            "DropTriggerStatementSegment" => Some(DROP_TRIGGER_STATEMENT_SEGMENT.clone()),
-            "DropTypeStatementSegment" => Some(DROP_TYPE_STATEMENT_SEGMENT.clone()),
-            "DropUserStatementSegment" => Some(DROP_USER_STATEMENT_SEGMENT.clone()),
-            "DropViewStatementSegment" => Some(DROP_VIEW_STATEMENT_SEGMENT.clone()),
-            "DummyKeywordSegment" => Some(DUMMY_KEYWORD_SEGMENT.clone()),
-            "DumpKeywordSegment" => Some(DUMP_KEYWORD_SEGMENT.clone()),
-            "DynamicKeywordSegment" => Some(DYNAMIC_KEYWORD_SEGMENT.clone()),
-            "Dynamic_functionKeywordSegment" => Some(DYNAMIC_FUNCTION_KEYWORD_SEGMENT.clone()),
-            "Dynamic_function_codeKeywordSegment" => Some(DYNAMIC_FUNCTION_CODE_KEYWORD_SEGMENT.clone()),
-            "EachKeywordSegment" => Some(EACH_KEYWORD_SEGMENT.clone()),
-            "ElementKeywordSegment" => Some(ELEMENT_KEYWORD_SEGMENT.clone()),
-            "ElseClauseSegment" => Some(ELSE_CLAUSE_SEGMENT.clone()),
-            "ElseKeywordSegment" => Some(ELSE_KEYWORD_SEGMENT.clone()),
-            "ElseifKeywordSegment" => Some(ELSEIF_KEYWORD_SEGMENT.clone()),
-            "EmptyStructLiteralBracketsSegment" => Some(EMPTY_STRUCT_LITERAL_BRACKETS_SEGMENT.clone()),
-            "EmptyStructLiteralSegment" => Some(EMPTY_STRUCT_LITERAL_SEGMENT.clone()),
-            "EnableKeywordSegment" => Some(ENABLE_KEYWORD_SEGMENT.clone()),
-            "EnclosedKeywordSegment" => Some(ENCLOSED_KEYWORD_SEGMENT.clone()),
-            "EncodingKeywordSegment" => Some(ENCODING_KEYWORD_SEGMENT.clone()),
-            "EncryptedKeywordSegment" => Some(ENCRYPTED_KEYWORD_SEGMENT.clone()),
-            "End-execKeywordSegment" => Some(END_EXEC_KEYWORD_SEGMENT.clone()),
-            "EndBracketSegment" => Some(END_BRACKET_SEGMENT.clone()),
-            "EndCurlyBracketSegment" => Some(END_CURLY_BRACKET_SEGMENT.clone()),
-            "EndKeywordSegment" => Some(END_KEYWORD_SEGMENT.clone()),
-            "EndSquareBracketSegment" => Some(END_SQUARE_BRACKET_SEGMENT.clone()),
-            "EnumKeywordSegment" => Some(ENUM_KEYWORD_SEGMENT.clone()),
-            "EqualsKeywordSegment" => Some(EQUALS_KEYWORD_SEGMENT.clone()),
-            "EqualsSegment" => Some(EQUALS_SEGMENT.clone()),
-            "ErrlvlKeywordSegment" => Some(ERRLVL_KEYWORD_SEGMENT.clone()),
-            "EscapeKeywordSegment" => Some(ESCAPE_KEYWORD_SEGMENT.clone()),
-            "EscapedKeywordSegment" => Some(ESCAPED_KEYWORD_SEGMENT.clone()),
-            "EveryKeywordSegment" => Some(EVERY_KEYWORD_SEGMENT.clone()),
-            "ExceptKeywordSegment" => Some(EXCEPT_KEYWORD_SEGMENT.clone()),
-            "ExceptionKeywordSegment" => Some(EXCEPTION_KEYWORD_SEGMENT.clone()),
-            "ExcludeKeywordSegment" => Some(EXCLUDE_KEYWORD_SEGMENT.clone()),
-            "ExcludingKeywordSegment" => Some(EXCLUDING_KEYWORD_SEGMENT.clone()),
-            "ExclusiveKeywordSegment" => Some(EXCLUSIVE_KEYWORD_SEGMENT.clone()),
-            "ExecKeywordSegment" => Some(EXEC_KEYWORD_SEGMENT.clone()),
-            "ExecuteKeywordSegment" => Some(EXECUTE_KEYWORD_SEGMENT.clone()),
-            "ExecutionKeywordSegment" => Some(EXECUTION_KEYWORD_SEGMENT.clone()),
-            "ExistingKeywordSegment" => Some(EXISTING_KEYWORD_SEGMENT.clone()),
-            "ExistsKeywordSegment" => Some(EXISTS_KEYWORD_SEGMENT.clone()),
-            "ExitKeywordSegment" => Some(EXIT_KEYWORD_SEGMENT.clone()),
-            "ExpKeywordSegment" => Some(EXP_KEYWORD_SEGMENT.clone()),
-            "ExplainKeywordSegment" => Some(EXPLAIN_KEYWORD_SEGMENT.clone()),
-            "ExplainStatementSegment" => Some(EXPLAIN_STATEMENT_SEGMENT.clone()),
-            "ExpressionSegment" => Some(EXPRESSION_SEGMENT.clone()),
-            "Expression_A_Grammar" => Some(EXPRESSION_A_GRAMMAR.clone()),
-            "Expression_A_Unary_Operator_Grammar" => Some(EXPRESSION_A_UNARY_OPERATOR_GRAMMAR.clone()),
-            "Expression_B_Grammar" => Some(EXPRESSION_B_GRAMMAR.clone()),
-            "Expression_B_Unary_Operator_Grammar" => Some(EXPRESSION_B_UNARY_OPERATOR_GRAMMAR.clone()),
-            "Expression_C_Grammar" => Some(EXPRESSION_C_GRAMMAR.clone()),
-            "Expression_D_Grammar" => Some(EXPRESSION_D_GRAMMAR.clone()),
-            "Expression_D_Potential_Select_Statement_Without_Brackets" => Some(EXPRESSION_D_POTENTIAL_SELECT_STATEMENT_WITHOUT_BRACKETS.clone()),
-            "ExtendedNaturalJoinKeywordsGrammar" => Some(EXTENDED_NATURAL_JOIN_KEYWORDS_GRAMMAR.clone()),
-            "ExtensionKeywordSegment" => Some(EXTENSION_KEYWORD_SEGMENT.clone()),
-            "ExtensionReferenceSegment" => Some(EXTENSION_REFERENCE_SEGMENT.clone()),
-            "ExternalKeywordSegment" => Some(EXTERNAL_KEYWORD_SEGMENT.clone()),
-            "ExtractKeywordSegment" => Some(EXTRACT_KEYWORD_SEGMENT.clone()),
-            "FalseKeywordSegment" => Some(FALSE_KEYWORD_SEGMENT.clone()),
-            "FalseSegment" => Some(FALSE_SEGMENT.clone()),
-            "FetchClauseSegment" => Some(FETCH_CLAUSE_SEGMENT.clone()),
-            "FetchKeywordSegment" => Some(FETCH_KEYWORD_SEGMENT.clone()),
-            "FieldsKeywordSegment" => Some(FIELDS_KEYWORD_SEGMENT.clone()),
-            "FileKeywordSegment" => Some(FILE_KEYWORD_SEGMENT.clone()),
-            "FileSegment" => Some(FILE_SEGMENT.clone()),
-            "FillfactorKeywordSegment" => Some(FILLFACTOR_KEYWORD_SEGMENT.clone()),
-            "FilterClauseGrammar" => Some(FILTER_CLAUSE_GRAMMAR.clone()),
-            "FilterKeywordSegment" => Some(FILTER_KEYWORD_SEGMENT.clone()),
-            "FinalKeywordSegment" => Some(FINAL_KEYWORD_SEGMENT.clone()),
-            "FirstKeywordSegment" => Some(FIRST_KEYWORD_SEGMENT.clone()),
-            "Float4KeywordSegment" => Some(FLOAT4_KEYWORD_SEGMENT.clone()),
-            "Float8KeywordSegment" => Some(FLOAT8_KEYWORD_SEGMENT.clone()),
-            "FloatKeywordSegment" => Some(FLOAT_KEYWORD_SEGMENT.clone()),
-            "FloorKeywordSegment" => Some(FLOOR_KEYWORD_SEGMENT.clone()),
-            "FlushKeywordSegment" => Some(FLUSH_KEYWORD_SEGMENT.clone()),
-            "FollowingKeywordSegment" => Some(FOLLOWING_KEYWORD_SEGMENT.clone()),
-            "ForKeywordSegment" => Some(FOR_KEYWORD_SEGMENT.clone()),
-            "ForceKeywordSegment" => Some(FORCE_KEYWORD_SEGMENT.clone()),
-            "ForeignKeyGrammar" => Some(FOREIGN_KEY_GRAMMAR.clone()),
-            "ForeignKeywordSegment" => Some(FOREIGN_KEYWORD_SEGMENT.clone()),
-            "FormatKeywordSegment" => Some(FORMAT_KEYWORD_SEGMENT.clone()),
-            "FortranKeywordSegment" => Some(FORTRAN_KEYWORD_SEGMENT.clone()),
-            "ForwardKeywordSegment" => Some(FORWARD_KEYWORD_SEGMENT.clone()),
-            "FoundKeywordSegment" => Some(FOUND_KEYWORD_SEGMENT.clone()),
-            "FrameClauseSegment" => Some(FRAME_CLAUSE_SEGMENT.clone()),
-            "FrameClauseUnitGrammar" => Some(FRAME_CLAUSE_UNIT_GRAMMAR.clone()),
-            "FreeKeywordSegment" => Some(FREE_KEYWORD_SEGMENT.clone()),
-            "FreetextKeywordSegment" => Some(FREETEXT_KEYWORD_SEGMENT.clone()),
-            "FreetexttableKeywordSegment" => Some(FREETEXTTABLE_KEYWORD_SEGMENT.clone()),
-            "FreezeKeywordSegment" => Some(FREEZE_KEYWORD_SEGMENT.clone()),
-            "FromClauseSegment" => Some(FROM_CLAUSE_SEGMENT.clone()),
-            "FromClauseTerminatorGrammar" => Some(FROM_CLAUSE_TERMINATOR_GRAMMAR.clone()),
-            "FromExpressionElementSegment" => Some(FROM_EXPRESSION_ELEMENT_SEGMENT.clone()),
-            "FromExpressionSegment" => Some(FROM_EXPRESSION_SEGMENT.clone()),
-            "FromKeywordSegment" => Some(FROM_KEYWORD_SEGMENT.clone()),
-            "FullKeywordSegment" => Some(FULL_KEYWORD_SEGMENT.clone()),
-            "FulltextKeywordSegment" => Some(FULLTEXT_KEYWORD_SEGMENT.clone()),
-            "FunctionContentsExpressionGrammar" => Some(FUNCTION_CONTENTS_EXPRESSION_GRAMMAR.clone()),
-            "FunctionContentsGrammar" => Some(FUNCTION_CONTENTS_GRAMMAR.clone()),
-            "FunctionContentsSegment" => Some(FUNCTION_CONTENTS_SEGMENT.clone()),
-            "FunctionDefinitionGrammar" => Some(FUNCTION_DEFINITION_GRAMMAR.clone()),
-            "FunctionKeywordSegment" => Some(FUNCTION_KEYWORD_SEGMENT.clone()),
-            "FunctionNameIdentifierSegment" => Some(FUNCTION_NAME_IDENTIFIER_SEGMENT.clone()),
-            "FunctionNameSegment" => Some(FUNCTION_NAME_SEGMENT.clone()),
-            "FunctionParameterGrammar" => Some(FUNCTION_PARAMETER_GRAMMAR.clone()),
-            "FunctionParameterListGrammar" => Some(FUNCTION_PARAMETER_LIST_GRAMMAR.clone()),
-            "FunctionSegment" => Some(FUNCTION_SEGMENT.clone()),
-            "FunctionsKeywordSegment" => Some(FUNCTIONS_KEYWORD_SEGMENT.clone()),
-            "FusionKeywordSegment" => Some(FUSION_KEYWORD_SEGMENT.clone()),
-            "FutureKeywordSegment" => Some(FUTURE_KEYWORD_SEGMENT.clone()),
-            "GKeywordSegment" => Some(G_KEYWORD_SEGMENT.clone()),
-            "GeneralKeywordSegment" => Some(GENERAL_KEYWORD_SEGMENT.clone()),
-            "GeneratedKeywordSegment" => Some(GENERATED_KEYWORD_SEGMENT.clone()),
-            "GetKeywordSegment" => Some(GET_KEYWORD_SEGMENT.clone()),
-            "GlobOperatorSegment" => Some(GLOB_OPERATOR_SEGMENT.clone()),
-            "GlobalKeywordSegment" => Some(GLOBAL_KEYWORD_SEGMENT.clone()),
-            "GoKeywordSegment" => Some(GO_KEYWORD_SEGMENT.clone()),
-            "GotoKeywordSegment" => Some(GOTO_KEYWORD_SEGMENT.clone()),
-            "GrantKeywordSegment" => Some(GRANT_KEYWORD_SEGMENT.clone()),
-            "GrantedKeywordSegment" => Some(GRANTED_KEYWORD_SEGMENT.clone()),
-            "GrantsKeywordSegment" => Some(GRANTS_KEYWORD_SEGMENT.clone()),
-            "GreaterThanOrEqualToSegment" => Some(GREATER_THAN_OR_EQUAL_TO_SEGMENT.clone()),
-            "GreaterThanSegment" => Some(GREATER_THAN_SEGMENT.clone()),
-            "GreatestKeywordSegment" => Some(GREATEST_KEYWORD_SEGMENT.clone()),
-            "GroupByClauseSegment" => Some(GROUP_BY_CLAUSE_SEGMENT.clone()),
-            "GroupByClauseTerminatorGrammar" => Some(GROUP_BY_CLAUSE_TERMINATOR_GRAMMAR.clone()),
-            "GroupKeywordSegment" => Some(GROUP_KEYWORD_SEGMENT.clone()),
-            "GroupingExpressionList" => Some(GROUPING_EXPRESSION_LIST.clone()),
-            "GroupingKeywordSegment" => Some(GROUPING_KEYWORD_SEGMENT.clone()),
-            "GroupingSetsClauseSegment" => Some(GROUPING_SETS_CLAUSE_SEGMENT.clone()),
-            "HandlerKeywordSegment" => Some(HANDLER_KEYWORD_SEGMENT.clone()),
-            "HavingClauseSegment" => Some(HAVING_CLAUSE_SEGMENT.clone()),
-            "HavingClauseTerminatorGrammar" => Some(HAVING_CLAUSE_TERMINATOR_GRAMMAR.clone()),
-            "HavingKeywordSegment" => Some(HAVING_KEYWORD_SEGMENT.clone()),
-            "HeaderKeywordSegment" => Some(HEADER_KEYWORD_SEGMENT.clone()),
-            "HeapKeywordSegment" => Some(HEAP_KEYWORD_SEGMENT.clone()),
-            "HierarchyKeywordSegment" => Some(HIERARCHY_KEYWORD_SEGMENT.clone()),
-            "High_priorityKeywordSegment" => Some(HIGH_PRIORITY_KEYWORD_SEGMENT.clone()),
-            "HoldKeywordSegment" => Some(HOLD_KEYWORD_SEGMENT.clone()),
-            "HoldlockKeywordSegment" => Some(HOLDLOCK_KEYWORD_SEGMENT.clone()),
-            "HorizontalJoinKeywordsGrammar" => Some(HORIZONTAL_JOIN_KEYWORDS_GRAMMAR.clone()),
-            "HostKeywordSegment" => Some(HOST_KEYWORD_SEGMENT.clone()),
-            "HostsKeywordSegment" => Some(HOSTS_KEYWORD_SEGMENT.clone()),
-            "HourKeywordSegment" => Some(HOUR_KEYWORD_SEGMENT.clone()),
-            "Hour_microsecondKeywordSegment" => Some(HOUR_MICROSECOND_KEYWORD_SEGMENT.clone()),
-            "Hour_minuteKeywordSegment" => Some(HOUR_MINUTE_KEYWORD_SEGMENT.clone()),
-            "Hour_secondKeywordSegment" => Some(HOUR_SECOND_KEYWORD_SEGMENT.clone()),
-            "IdentifiedKeywordSegment" => Some(IDENTIFIED_KEYWORD_SEGMENT.clone()),
-            "IdentifierSegment" => Some(IDENTIFIER_SEGMENT.clone()),
-            "IdentityKeywordSegment" => Some(IDENTITY_KEYWORD_SEGMENT.clone()),
-            "Identity_insertKeywordSegment" => Some(IDENTITY_INSERT_KEYWORD_SEGMENT.clone()),
-            "IdentitycolKeywordSegment" => Some(IDENTITYCOL_KEYWORD_SEGMENT.clone()),
-            "IfExistsGrammar" => Some(IF_EXISTS_GRAMMAR.clone()),
-            "IfKeywordSegment" => Some(IF_KEYWORD_SEGMENT.clone()),
-            "IfNotExistsGrammar" => Some(IF_NOT_EXISTS_GRAMMAR.clone()),
-            "IgnoreKeywordSegment" => Some(IGNORE_KEYWORD_SEGMENT.clone()),
-            "IgnoreRespectNullsGrammar" => Some(IGNORE_RESPECT_NULLS_GRAMMAR.clone()),
-            "IlikeKeywordSegment" => Some(ILIKE_KEYWORD_SEGMENT.clone()),
-            "ImmediateKeywordSegment" => Some(IMMEDIATE_KEYWORD_SEGMENT.clone()),
-            "ImmutableKeywordSegment" => Some(IMMUTABLE_KEYWORD_SEGMENT.clone()),
-            "ImplementationKeywordSegment" => Some(IMPLEMENTATION_KEYWORD_SEGMENT.clone()),
-            "ImplicitIndent" => Some(IMPLICIT_INDENT.clone()),
-            "ImplicitKeywordSegment" => Some(IMPLICIT_KEYWORD_SEGMENT.clone()),
-            "ImportedKeywordSegment" => Some(IMPORTED_KEYWORD_SEGMENT.clone()),
-            "InKeywordSegment" => Some(IN_KEYWORD_SEGMENT.clone()),
-            "InOperatorGrammar" => Some(IN_OPERATOR_GRAMMAR.clone()),
-            "IncludeKeywordSegment" => Some(INCLUDE_KEYWORD_SEGMENT.clone()),
-            "IncludingKeywordSegment" => Some(INCLUDING_KEYWORD_SEGMENT.clone()),
-            "IncrementKeywordSegment" => Some(INCREMENT_KEYWORD_SEGMENT.clone()),
-            "Indent" => Some(INDENT.clone()),
-            "IndexColumnDefinitionSegment" => Some(INDEX_COLUMN_DEFINITION_SEGMENT.clone()),
-            "IndexKeywordSegment" => Some(INDEX_KEYWORD_SEGMENT.clone()),
-            "IndexReferenceSegment" => Some(INDEX_REFERENCE_SEGMENT.clone()),
-            "IndicatorKeywordSegment" => Some(INDICATOR_KEYWORD_SEGMENT.clone()),
-            "InfileKeywordSegment" => Some(INFILE_KEYWORD_SEGMENT.clone()),
-            "InfixKeywordSegment" => Some(INFIX_KEYWORD_SEGMENT.clone()),
-            "InheritKeywordSegment" => Some(INHERIT_KEYWORD_SEGMENT.clone()),
-            "InheritsKeywordSegment" => Some(INHERITS_KEYWORD_SEGMENT.clone()),
-            "InitialKeywordSegment" => Some(INITIAL_KEYWORD_SEGMENT.clone()),
-            "InitializeKeywordSegment" => Some(INITIALIZE_KEYWORD_SEGMENT.clone()),
-            "InitiallyKeywordSegment" => Some(INITIALLY_KEYWORD_SEGMENT.clone()),
-            "InnerKeywordSegment" => Some(INNER_KEYWORD_SEGMENT.clone()),
-            "InoutKeywordSegment" => Some(INOUT_KEYWORD_SEGMENT.clone()),
-            "InputKeywordSegment" => Some(INPUT_KEYWORD_SEGMENT.clone()),
-            "InsensitiveKeywordSegment" => Some(INSENSITIVE_KEYWORD_SEGMENT.clone()),
-            "InsertKeywordSegment" => Some(INSERT_KEYWORD_SEGMENT.clone()),
-            "InsertStatementSegment" => Some(INSERT_STATEMENT_SEGMENT.clone()),
-            "Insert_idKeywordSegment" => Some(INSERT_ID_KEYWORD_SEGMENT.clone()),
-            "InstanceKeywordSegment" => Some(INSTANCE_KEYWORD_SEGMENT.clone()),
-            "InstantiableKeywordSegment" => Some(INSTANTIABLE_KEYWORD_SEGMENT.clone()),
-            "InsteadKeywordSegment" => Some(INSTEAD_KEYWORD_SEGMENT.clone()),
-            "Int1KeywordSegment" => Some(INT1_KEYWORD_SEGMENT.clone()),
-            "Int2KeywordSegment" => Some(INT2_KEYWORD_SEGMENT.clone()),
-            "Int3KeywordSegment" => Some(INT3_KEYWORD_SEGMENT.clone()),
-            "Int4KeywordSegment" => Some(INT4_KEYWORD_SEGMENT.clone()),
-            "Int8KeywordSegment" => Some(INT8_KEYWORD_SEGMENT.clone()),
-            "IntKeywordSegment" => Some(INT_KEYWORD_SEGMENT.clone()),
-            "IntegerKeywordSegment" => Some(INTEGER_KEYWORD_SEGMENT.clone()),
-            "IntegrationKeywordSegment" => Some(INTEGRATION_KEYWORD_SEGMENT.clone()),
-            "IntegrationsKeywordSegment" => Some(INTEGRATIONS_KEYWORD_SEGMENT.clone()),
-            "IntersectKeywordSegment" => Some(INTERSECT_KEYWORD_SEGMENT.clone()),
-            "IntersectionKeywordSegment" => Some(INTERSECTION_KEYWORD_SEGMENT.clone()),
-            "IntervalExpressionSegment" => Some(INTERVAL_EXPRESSION_SEGMENT.clone()),
-            "IntervalKeywordSegment" => Some(INTERVAL_KEYWORD_SEGMENT.clone()),
-            "IntoKeywordSegment" => Some(INTO_KEYWORD_SEGMENT.clone()),
-            "InvokerKeywordSegment" => Some(INVOKER_KEYWORD_SEGMENT.clone()),
-            "IsClauseGrammar" => Some(IS_CLAUSE_GRAMMAR.clone()),
-            "IsDistinctFromGrammar" => Some(IS_DISTINCT_FROM_GRAMMAR.clone()),
-            "IsKeywordSegment" => Some(IS_KEYWORD_SEGMENT.clone()),
-            "IsNullGrammar" => Some(IS_NULL_GRAMMAR.clone()),
-            "IsamKeywordSegment" => Some(ISAM_KEYWORD_SEGMENT.clone()),
-            "IsnullKeywordSegment" => Some(ISNULL_KEYWORD_SEGMENT.clone()),
-            "IsolationKeywordSegment" => Some(ISOLATION_KEYWORD_SEGMENT.clone()),
-            "IterateKeywordSegment" => Some(ITERATE_KEYWORD_SEGMENT.clone()),
-            "JoinClauseSegment" => Some(JOIN_CLAUSE_SEGMENT.clone()),
-            "JoinKeywordSegment" => Some(JOIN_KEYWORD_SEGMENT.clone()),
-            "JoinKeywordsGrammar" => Some(JOIN_KEYWORDS_GRAMMAR.clone()),
-            "JoinLikeClauseGrammar" => Some(JOIN_LIKE_CLAUSE_GRAMMAR.clone()),
-            "JoinOnConditionSegment" => Some(JOIN_ON_CONDITION_SEGMENT.clone()),
-            "JoinTypeKeywordsGrammar" => Some(JOIN_TYPE_KEYWORDS_GRAMMAR.clone()),
-            "JoinUsingConditionGrammar" => Some(JOIN_USING_CONDITION_GRAMMAR.clone()),
-            "JsonKeywordSegment" => Some(JSON_KEYWORD_SEGMENT.clone()),
-            "KKeywordSegment" => Some(K_KEYWORD_SEGMENT.clone()),
-            "KeyKeywordSegment" => Some(KEY_KEYWORD_SEGMENT.clone()),
-            "Key_memberKeywordSegment" => Some(KEY_MEMBER_KEYWORD_SEGMENT.clone()),
-            "Key_typeKeywordSegment" => Some(KEY_TYPE_KEYWORD_SEGMENT.clone()),
-            "KeysKeywordSegment" => Some(KEYS_KEYWORD_SEGMENT.clone()),
-            "KeywordSegment" => Some(KEYWORD_SEGMENT.clone()),
-            "KillKeywordSegment" => Some(KILL_KEYWORD_SEGMENT.clone()),
-            "LancompilerKeywordSegment" => Some(LANCOMPILER_KEYWORD_SEGMENT.clone()),
-            "LanguageKeywordSegment" => Some(LANGUAGE_KEYWORD_SEGMENT.clone()),
-            "LargeKeywordSegment" => Some(LARGE_KEYWORD_SEGMENT.clone()),
-            "LastKeywordSegment" => Some(LAST_KEYWORD_SEGMENT.clone()),
-            "Last_insert_idKeywordSegment" => Some(LAST_INSERT_ID_KEYWORD_SEGMENT.clone()),
-            "LateralKeywordSegment" => Some(LATERAL_KEYWORD_SEGMENT.clone()),
-            "LeadingKeywordSegment" => Some(LEADING_KEYWORD_SEGMENT.clone()),
-            "LeastKeywordSegment" => Some(LEAST_KEYWORD_SEGMENT.clone()),
-            "LeaveKeywordSegment" => Some(LEAVE_KEYWORD_SEGMENT.clone()),
-            "LeftKeywordSegment" => Some(LEFT_KEYWORD_SEGMENT.clone()),
-            "LengthKeywordSegment" => Some(LENGTH_KEYWORD_SEGMENT.clone()),
-            "LessKeywordSegment" => Some(LESS_KEYWORD_SEGMENT.clone()),
-            "LessThanOrEqualToSegment" => Some(LESS_THAN_OR_EQUAL_TO_SEGMENT.clone()),
-            "LessThanSegment" => Some(LESS_THAN_SEGMENT.clone()),
-            "LevelKeywordSegment" => Some(LEVEL_KEYWORD_SEGMENT.clone()),
-            "LikeExpressionGrammar" => Some(LIKE_EXPRESSION_GRAMMAR.clone()),
-            "LikeGrammar" => Some(LIKE_GRAMMAR.clone()),
-            "LikeKeywordSegment" => Some(LIKE_KEYWORD_SEGMENT.clone()),
-            "LikeOperatorSegment" => Some(LIKE_OPERATOR_SEGMENT.clone()),
-            "LimitClauseSegment" => Some(LIMIT_CLAUSE_SEGMENT.clone()),
-            "LimitKeywordSegment" => Some(LIMIT_KEYWORD_SEGMENT.clone()),
-            "LinenoKeywordSegment" => Some(LINENO_KEYWORD_SEGMENT.clone()),
-            "LinesKeywordSegment" => Some(LINES_KEYWORD_SEGMENT.clone()),
-            "ListComprehensionGrammar" => Some(LIST_COMPREHENSION_GRAMMAR.clone()),
-            "ListenKeywordSegment" => Some(LISTEN_KEYWORD_SEGMENT.clone()),
-            "LiteralGrammar" => Some(LITERAL_GRAMMAR.clone()),
-            "LiteralKeywordSegment" => Some(LITERAL_KEYWORD_SEGMENT.clone()),
-            "LiteralSegment" => Some(LITERAL_SEGMENT.clone()),
-            "LnKeywordSegment" => Some(LN_KEYWORD_SEGMENT.clone()),
-            "LoadKeywordSegment" => Some(LOAD_KEYWORD_SEGMENT.clone()),
-            "LocalAliasSegment" => Some(LOCAL_ALIAS_SEGMENT.clone()),
-            "LocalKeywordSegment" => Some(LOCAL_KEYWORD_SEGMENT.clone()),
-            "LocaltimeKeywordSegment" => Some(LOCALTIME_KEYWORD_SEGMENT.clone()),
-            "LocaltimestampKeywordSegment" => Some(LOCALTIMESTAMP_KEYWORD_SEGMENT.clone()),
-            "LocationKeywordSegment" => Some(LOCATION_KEYWORD_SEGMENT.clone()),
-            "LocatorKeywordSegment" => Some(LOCATOR_KEYWORD_SEGMENT.clone()),
-            "LockKeywordSegment" => Some(LOCK_KEYWORD_SEGMENT.clone()),
-            "LocksKeywordSegment" => Some(LOCKS_KEYWORD_SEGMENT.clone()),
-            "LoginKeywordSegment" => Some(LOGIN_KEYWORD_SEGMENT.clone()),
-            "LogsKeywordSegment" => Some(LOGS_KEYWORD_SEGMENT.clone()),
-            "LongKeywordSegment" => Some(LONG_KEYWORD_SEGMENT.clone()),
-            "LongblobKeywordSegment" => Some(LONGBLOB_KEYWORD_SEGMENT.clone()),
-            "LongtextKeywordSegment" => Some(LONGTEXT_KEYWORD_SEGMENT.clone()),
-            "LoopKeywordSegment" => Some(LOOP_KEYWORD_SEGMENT.clone()),
-            "Low_priorityKeywordSegment" => Some(LOW_PRIORITY_KEYWORD_SEGMENT.clone()),
-            "LowerKeywordSegment" => Some(LOWER_KEYWORD_SEGMENT.clone()),
-            "MKeywordSegment" => Some(M_KEYWORD_SEGMENT.clone()),
-            "MLTableExpressionSegment" => Some(M_L_TABLE_EXPRESSION_SEGMENT.clone()),
-            "ManageKeywordSegment" => Some(MANAGE_KEYWORD_SEGMENT.clone()),
-            "MapKeywordSegment" => Some(MAP_KEYWORD_SEGMENT.clone()),
-            "MapTypeSegment" => Some(MAP_TYPE_SEGMENT.clone()),
-            "MaskingKeywordSegment" => Some(MASKING_KEYWORD_SEGMENT.clone()),
-            "MatchConditionSegment" => Some(MATCH_CONDITION_SEGMENT.clone()),
-            "MatchKeywordSegment" => Some(MATCH_KEYWORD_SEGMENT.clone()),
-            "MatchedKeywordSegment" => Some(MATCHED_KEYWORD_SEGMENT.clone()),
-            "MaterializedKeywordSegment" => Some(MATERIALIZED_KEYWORD_SEGMENT.clone()),
-            "MaxKeywordSegment" => Some(MAX_KEYWORD_SEGMENT.clone()),
-            "Max_rowsKeywordSegment" => Some(MAX_ROWS_KEYWORD_SEGMENT.clone()),
-            "MaxextentsKeywordSegment" => Some(MAXEXTENTS_KEYWORD_SEGMENT.clone()),
-            "MaxvalueKeywordSegment" => Some(MAXVALUE_KEYWORD_SEGMENT.clone()),
-            "MediumblobKeywordSegment" => Some(MEDIUMBLOB_KEYWORD_SEGMENT.clone()),
-            "MediumintKeywordSegment" => Some(MEDIUMINT_KEYWORD_SEGMENT.clone()),
-            "MediumtextKeywordSegment" => Some(MEDIUMTEXT_KEYWORD_SEGMENT.clone()),
-            "MemberKeywordSegment" => Some(MEMBER_KEYWORD_SEGMENT.clone()),
-            "MergeDeleteClauseSegment" => Some(MERGE_DELETE_CLAUSE_SEGMENT.clone()),
-            "MergeInsertClauseSegment" => Some(MERGE_INSERT_CLAUSE_SEGMENT.clone()),
-            "MergeIntoLiteralGrammar" => Some(MERGE_INTO_LITERAL_GRAMMAR.clone()),
-            "MergeKeywordSegment" => Some(MERGE_KEYWORD_SEGMENT.clone()),
-            "MergeMatchSegment" => Some(MERGE_MATCH_SEGMENT.clone()),
-            "MergeMatchedClauseSegment" => Some(MERGE_MATCHED_CLAUSE_SEGMENT.clone()),
-            "MergeNotMatchedClauseSegment" => Some(MERGE_NOT_MATCHED_CLAUSE_SEGMENT.clone()),
-            "MergeStatementSegment" => Some(MERGE_STATEMENT_SEGMENT.clone()),
-            "MergeUpdateClauseSegment" => Some(MERGE_UPDATE_CLAUSE_SEGMENT.clone()),
-            "Message_lengthKeywordSegment" => Some(MESSAGE_LENGTH_KEYWORD_SEGMENT.clone()),
-            "Message_octet_lengthKeywordSegment" => Some(MESSAGE_OCTET_LENGTH_KEYWORD_SEGMENT.clone()),
-            "Message_textKeywordSegment" => Some(MESSAGE_TEXT_KEYWORD_SEGMENT.clone()),
-            "MethodKeywordSegment" => Some(METHOD_KEYWORD_SEGMENT.clone()),
-            "MiddleintKeywordSegment" => Some(MIDDLEINT_KEYWORD_SEGMENT.clone()),
-            "MillisecondKeywordSegment" => Some(MILLISECOND_KEYWORD_SEGMENT.clone()),
-            "MinKeywordSegment" => Some(MIN_KEYWORD_SEGMENT.clone()),
-            "Min_rowsKeywordSegment" => Some(MIN_ROWS_KEYWORD_SEGMENT.clone()),
-            "MinusKeywordSegment" => Some(MINUS_KEYWORD_SEGMENT.clone()),
-            "MinusSegment" => Some(MINUS_SEGMENT.clone()),
-            "MinuteKeywordSegment" => Some(MINUTE_KEYWORD_SEGMENT.clone()),
-            "Minute_microsecondKeywordSegment" => Some(MINUTE_MICROSECOND_KEYWORD_SEGMENT.clone()),
-            "Minute_secondKeywordSegment" => Some(MINUTE_SECOND_KEYWORD_SEGMENT.clone()),
-            "MinvalueKeywordSegment" => Some(MINVALUE_KEYWORD_SEGMENT.clone()),
-            "MlKeywordSegment" => Some(ML_KEYWORD_SEGMENT.clone()),
-            "MlslabelKeywordSegment" => Some(MLSLABEL_KEYWORD_SEGMENT.clone()),
-            "ModKeywordSegment" => Some(MOD_KEYWORD_SEGMENT.clone()),
-            "ModeKeywordSegment" => Some(MODE_KEYWORD_SEGMENT.clone()),
-            "ModelKeywordSegment" => Some(MODEL_KEYWORD_SEGMENT.clone()),
-            "ModifiesKeywordSegment" => Some(MODIFIES_KEYWORD_SEGMENT.clone()),
-            "ModifyKeywordSegment" => Some(MODIFY_KEYWORD_SEGMENT.clone()),
-            "ModuleKeywordSegment" => Some(MODULE_KEYWORD_SEGMENT.clone()),
-            "ModuloSegment" => Some(MODULO_SEGMENT.clone()),
-            "MonitorKeywordSegment" => Some(MONITOR_KEYWORD_SEGMENT.clone()),
-            "MonthKeywordSegment" => Some(MONTH_KEYWORD_SEGMENT.clone()),
-            "MonthnameKeywordSegment" => Some(MONTHNAME_KEYWORD_SEGMENT.clone()),
-            "MoreKeywordSegment" => Some(MORE_KEYWORD_SEGMENT.clone()),
-            "MoveKeywordSegment" => Some(MOVE_KEYWORD_SEGMENT.clone()),
-            "MultiplySegment" => Some(MULTIPLY_SEGMENT.clone()),
-            "MultisetKeywordSegment" => Some(MULTISET_KEYWORD_SEGMENT.clone()),
-            "MumpsKeywordSegment" => Some(MUMPS_KEYWORD_SEGMENT.clone()),
-            "MyisamKeywordSegment" => Some(MYISAM_KEYWORD_SEGMENT.clone()),
-            "NakedIdentifierSegment" => Some(NAKED_IDENTIFIER_SEGMENT.clone()),
-            "NameKeywordSegment" => Some(NAME_KEYWORD_SEGMENT.clone()),
-            "NamedWindowExpressionSegment" => Some(NAMED_WINDOW_EXPRESSION_SEGMENT.clone()),
-            "NamedWindowSegment" => Some(NAMED_WINDOW_SEGMENT.clone()),
-            "NamesKeywordSegment" => Some(NAMES_KEYWORD_SEGMENT.clone()),
-            "NanKeywordSegment" => Some(NAN_KEYWORD_SEGMENT.clone()),
-            "NanLiteralSegment" => Some(NAN_LITERAL_SEGMENT.clone()),
-            "NationalKeywordSegment" => Some(NATIONAL_KEYWORD_SEGMENT.clone()),
-            "NaturalJoinKeywordsGrammar" => Some(NATURAL_JOIN_KEYWORDS_GRAMMAR.clone()),
-            "NaturalKeywordSegment" => Some(NATURAL_KEYWORD_SEGMENT.clone()),
-            "NcharKeywordSegment" => Some(NCHAR_KEYWORD_SEGMENT.clone()),
-            "NclobKeywordSegment" => Some(NCLOB_KEYWORD_SEGMENT.clone()),
-            "NegativeSegment" => Some(NEGATIVE_SEGMENT.clone()),
-            "NestedJoinGrammar" => Some(NESTED_JOIN_GRAMMAR.clone()),
-            "NestingKeywordSegment" => Some(NESTING_KEYWORD_SEGMENT.clone()),
-            "NewKeywordSegment" => Some(NEW_KEYWORD_SEGMENT.clone()),
-            "NewlineSegment" => Some(NEWLINE_SEGMENT.clone()),
-            "NextKeywordSegment" => Some(NEXT_KEYWORD_SEGMENT.clone()),
-            "NoKeywordSegment" => Some(NO_KEYWORD_SEGMENT.clone()),
-            "No_write_to_binlogKeywordSegment" => Some(NO_WRITE_TO_BINLOG_KEYWORD_SEGMENT.clone()),
-            "NoauditKeywordSegment" => Some(NOAUDIT_KEYWORD_SEGMENT.clone()),
-            "NocacheKeywordSegment" => Some(NOCACHE_KEYWORD_SEGMENT.clone()),
-            "NocheckKeywordSegment" => Some(NOCHECK_KEYWORD_SEGMENT.clone()),
-            "NocompressKeywordSegment" => Some(NOCOMPRESS_KEYWORD_SEGMENT.clone()),
-            "NocreatedbKeywordSegment" => Some(NOCREATEDB_KEYWORD_SEGMENT.clone()),
-            "NocreateroleKeywordSegment" => Some(NOCREATEROLE_KEYWORD_SEGMENT.clone()),
-            "NocreateuserKeywordSegment" => Some(NOCREATEUSER_KEYWORD_SEGMENT.clone()),
-            "NocycleKeywordSegment" => Some(NOCYCLE_KEYWORD_SEGMENT.clone()),
-            "NoinheritKeywordSegment" => Some(NOINHERIT_KEYWORD_SEGMENT.clone()),
-            "NologinKeywordSegment" => Some(NOLOGIN_KEYWORD_SEGMENT.clone()),
-            "NonSetSelectableGrammar" => Some(NON_SET_SELECTABLE_GRAMMAR.clone()),
-            "NonStandardJoinTypeKeywordsGrammar" => Some(NON_STANDARD_JOIN_TYPE_KEYWORDS_GRAMMAR.clone()),
-            "NonWithNonSelectableGrammar" => Some(NON_WITH_NON_SELECTABLE_GRAMMAR.clone()),
-            "NonWithSelectableGrammar" => Some(NON_WITH_SELECTABLE_GRAMMAR.clone()),
-            "NonclusteredKeywordSegment" => Some(NONCLUSTERED_KEYWORD_SEGMENT.clone()),
-            "NoneKeywordSegment" => Some(NONE_KEYWORD_SEGMENT.clone()),
-            "NoorderKeywordSegment" => Some(NOORDER_KEYWORD_SEGMENT.clone()),
-            "NormalizeKeywordSegment" => Some(NORMALIZE_KEYWORD_SEGMENT.clone()),
-            "NormalizedGrammar" => Some(NORMALIZED_GRAMMAR.clone()),
-            "NormalizedKeywordSegment" => Some(NORMALIZED_KEYWORD_SEGMENT.clone()),
-            "NosuperuserKeywordSegment" => Some(NOSUPERUSER_KEYWORD_SEGMENT.clone()),
-            "NotEnforcedGrammar" => Some(NOT_ENFORCED_GRAMMAR.clone()),
-            "NotEqualToSegment" => Some(NOT_EQUAL_TO_SEGMENT.clone()),
-            "NotKeywordSegment" => Some(NOT_KEYWORD_SEGMENT.clone()),
-            "NotNullGrammar" => Some(NOT_NULL_GRAMMAR.clone()),
-            "NotOperatorGrammar" => Some(NOT_OPERATOR_GRAMMAR.clone()),
-            "NothingKeywordSegment" => Some(NOTHING_KEYWORD_SEGMENT.clone()),
-            "NotifyKeywordSegment" => Some(NOTIFY_KEYWORD_SEGMENT.clone()),
-            "NotnullKeywordSegment" => Some(NOTNULL_KEYWORD_SEGMENT.clone()),
-            "NowaitKeywordSegment" => Some(NOWAIT_KEYWORD_SEGMENT.clone()),
-            "NullKeywordSegment" => Some(NULL_KEYWORD_SEGMENT.clone()),
-            "NullLiteralSegment" => Some(NULL_LITERAL_SEGMENT.clone()),
-            "NullableKeywordSegment" => Some(NULLABLE_KEYWORD_SEGMENT.clone()),
-            "NullifKeywordSegment" => Some(NULLIF_KEYWORD_SEGMENT.clone()),
-            "NullsKeywordSegment" => Some(NULLS_KEYWORD_SEGMENT.clone()),
-            "NumberKeywordSegment" => Some(NUMBER_KEYWORD_SEGMENT.clone()),
-            "NumericKeywordSegment" => Some(NUMERIC_KEYWORD_SEGMENT.clone()),
-            "NumericLiteralSegment" => Some(NUMERIC_LITERAL_SEGMENT.clone()),
-            "ObjectKeywordSegment" => Some(OBJECT_KEYWORD_SEGMENT.clone()),
-            "ObjectLiteralElementSegment" => Some(OBJECT_LITERAL_ELEMENT_SEGMENT.clone()),
-            "ObjectLiteralSegment" => Some(OBJECT_LITERAL_SEGMENT.clone()),
-            "ObjectReferenceDelimiterGrammar" => Some(OBJECT_REFERENCE_DELIMITER_GRAMMAR.clone()),
-            "ObjectReferenceSegment" => Some(OBJECT_REFERENCE_SEGMENT.clone()),
-            "ObjectReferenceTerminatorGrammar" => Some(OBJECT_REFERENCE_TERMINATOR_GRAMMAR.clone()),
-            "ObjectsKeywordSegment" => Some(OBJECTS_KEYWORD_SEGMENT.clone()),
-            "Octet_lengthKeywordSegment" => Some(OCTET_LENGTH_KEYWORD_SEGMENT.clone()),
-            "OctetsKeywordSegment" => Some(OCTETS_KEYWORD_SEGMENT.clone()),
-            "OfKeywordSegment" => Some(OF_KEYWORD_SEGMENT.clone()),
-            "OffKeywordSegment" => Some(OFF_KEYWORD_SEGMENT.clone()),
-            "OfflineKeywordSegment" => Some(OFFLINE_KEYWORD_SEGMENT.clone()),
-            "OffsetClauseSegment" => Some(OFFSET_CLAUSE_SEGMENT.clone()),
-            "OffsetKeywordSegment" => Some(OFFSET_KEYWORD_SEGMENT.clone()),
-            "OffsetsKeywordSegment" => Some(OFFSETS_KEYWORD_SEGMENT.clone()),
-            "OidsKeywordSegment" => Some(OIDS_KEYWORD_SEGMENT.clone()),
-            "OldKeywordSegment" => Some(OLD_KEYWORD_SEGMENT.clone()),
-            "OnKeywordSegment" => Some(ON_KEYWORD_SEGMENT.clone()),
-            "OnlineKeywordSegment" => Some(ONLINE_KEYWORD_SEGMENT.clone()),
-            "OnlyKeywordSegment" => Some(ONLY_KEYWORD_SEGMENT.clone()),
-            "OpenKeywordSegment" => Some(OPEN_KEYWORD_SEGMENT.clone()),
-            "OpendatasourceKeywordSegment" => Some(OPENDATASOURCE_KEYWORD_SEGMENT.clone()),
-            "OpenqueryKeywordSegment" => Some(OPENQUERY_KEYWORD_SEGMENT.clone()),
-            "OpenrowsetKeywordSegment" => Some(OPENROWSET_KEYWORD_SEGMENT.clone()),
-            "OpenxmlKeywordSegment" => Some(OPENXML_KEYWORD_SEGMENT.clone()),
-            "OperateKeywordSegment" => Some(OPERATE_KEYWORD_SEGMENT.clone()),
-            "OperationKeywordSegment" => Some(OPERATION_KEYWORD_SEGMENT.clone()),
-            "OperatorKeywordSegment" => Some(OPERATOR_KEYWORD_SEGMENT.clone()),
-            "OptimizeKeywordSegment" => Some(OPTIMIZE_KEYWORD_SEGMENT.clone()),
-            "OptionKeywordSegment" => Some(OPTION_KEYWORD_SEGMENT.clone()),
-            "OptionallyKeywordSegment" => Some(OPTIONALLY_KEYWORD_SEGMENT.clone()),
-            "OptionsKeywordSegment" => Some(OPTIONS_KEYWORD_SEGMENT.clone()),
-            "OrKeywordSegment" => Some(OR_KEYWORD_SEGMENT.clone()),
-            "OrOperatorGrammar" => Some(OR_OPERATOR_GRAMMAR.clone()),
-            "OrReplaceGrammar" => Some(OR_REPLACE_GRAMMAR.clone()),
-            "OrderByClauseSegment" => Some(ORDER_BY_CLAUSE_SEGMENT.clone()),
-            "OrderByClauseTerminators" => Some(ORDER_BY_CLAUSE_TERMINATORS.clone()),
-            "OrderKeywordSegment" => Some(ORDER_KEYWORD_SEGMENT.clone()),
-            "OrderNoOrderGrammar" => Some(ORDER_NO_ORDER_GRAMMAR.clone()),
-            "OrderingKeywordSegment" => Some(ORDERING_KEYWORD_SEGMENT.clone()),
-            "OrdinalityKeywordSegment" => Some(ORDINALITY_KEYWORD_SEGMENT.clone()),
-            "OthersKeywordSegment" => Some(OTHERS_KEYWORD_SEGMENT.clone()),
-            "OutKeywordSegment" => Some(OUT_KEYWORD_SEGMENT.clone()),
-            "OuterKeywordSegment" => Some(OUTER_KEYWORD_SEGMENT.clone()),
-            "OutfileKeywordSegment" => Some(OUTFILE_KEYWORD_SEGMENT.clone()),
-            "OutputKeywordSegment" => Some(OUTPUT_KEYWORD_SEGMENT.clone()),
-            "OverClauseSegment" => Some(OVER_CLAUSE_SEGMENT.clone()),
-            "OverKeywordSegment" => Some(OVER_KEYWORD_SEGMENT.clone()),
-            "OverlapsClauseSegment" => Some(OVERLAPS_CLAUSE_SEGMENT.clone()),
-            "OverlapsKeywordSegment" => Some(OVERLAPS_KEYWORD_SEGMENT.clone()),
-            "OverlayKeywordSegment" => Some(OVERLAY_KEYWORD_SEGMENT.clone()),
-            "OverridingKeywordSegment" => Some(OVERRIDING_KEYWORD_SEGMENT.clone()),
-            "OverwriteKeywordSegment" => Some(OVERWRITE_KEYWORD_SEGMENT.clone()),
-            "OwnerKeywordSegment" => Some(OWNER_KEYWORD_SEGMENT.clone()),
-            "OwnershipKeywordSegment" => Some(OWNERSHIP_KEYWORD_SEGMENT.clone()),
-            "Pack_keysKeywordSegment" => Some(PACK_KEYS_KEYWORD_SEGMENT.clone()),
-            "PadKeywordSegment" => Some(PAD_KEYWORD_SEGMENT.clone()),
-            "ParameterKeywordSegment" => Some(PARAMETER_KEYWORD_SEGMENT.clone()),
-            "ParameterNameSegment" => Some(PARAMETER_NAME_SEGMENT.clone()),
-            "ParameterSegment" => Some(PARAMETER_SEGMENT.clone()),
-            "Parameter_modeKeywordSegment" => Some(PARAMETER_MODE_KEYWORD_SEGMENT.clone()),
-            "Parameter_nameKeywordSegment" => Some(PARAMETER_NAME_KEYWORD_SEGMENT.clone()),
-            "Parameter_ordinal_positionKeywordSegment" => Some(PARAMETER_ORDINAL_POSITION_KEYWORD_SEGMENT.clone()),
-            "Parameter_specific_catalogKeywordSegment" => Some(PARAMETER_SPECIFIC_CATALOG_KEYWORD_SEGMENT.clone()),
-            "Parameter_specific_nameKeywordSegment" => Some(PARAMETER_SPECIFIC_NAME_KEYWORD_SEGMENT.clone()),
-            "Parameter_specific_schemaKeywordSegment" => Some(PARAMETER_SPECIFIC_SCHEMA_KEYWORD_SEGMENT.clone()),
-            "ParametersKeywordSegment" => Some(PARAMETERS_KEYWORD_SEGMENT.clone()),
-            "PartialKeywordSegment" => Some(PARTIAL_KEYWORD_SEGMENT.clone()),
-            "PartitionClauseSegment" => Some(PARTITION_CLAUSE_SEGMENT.clone()),
-            "PartitionKeywordSegment" => Some(PARTITION_KEYWORD_SEGMENT.clone()),
-            "PascalKeywordSegment" => Some(PASCAL_KEYWORD_SEGMENT.clone()),
-            "PasswordKeywordSegment" => Some(PASSWORD_KEYWORD_SEGMENT.clone()),
-            "PathKeywordSegment" => Some(PATH_KEYWORD_SEGMENT.clone()),
-            "PathSegment" => Some(PATH_SEGMENT.clone()),
-            "PatternMatchingGrammar" => Some(PATTERN_MATCHING_GRAMMAR.clone()),
-            "PctfreeKeywordSegment" => Some(PCTFREE_KEYWORD_SEGMENT.clone()),
-            "PercentKeywordSegment" => Some(PERCENT_KEYWORD_SEGMENT.clone()),
-            "Percent_rankKeywordSegment" => Some(PERCENT_RANK_KEYWORD_SEGMENT.clone()),
-            "Percentile_contKeywordSegment" => Some(PERCENTILE_CONT_KEYWORD_SEGMENT.clone()),
-            "Percentile_discKeywordSegment" => Some(PERCENTILE_DISC_KEYWORD_SEGMENT.clone()),
-            "PipeKeywordSegment" => Some(PIPE_KEYWORD_SEGMENT.clone()),
-            "PipeSegment" => Some(PIPE_SEGMENT.clone()),
-            "PlacingKeywordSegment" => Some(PLACING_KEYWORD_SEGMENT.clone()),
-            "PlanKeywordSegment" => Some(PLAN_KEYWORD_SEGMENT.clone()),
-            "PliKeywordSegment" => Some(PLI_KEYWORD_SEGMENT.clone()),
-            "PlusSegment" => Some(PLUS_SEGMENT.clone()),
-            "PolicyKeywordSegment" => Some(POLICY_KEYWORD_SEGMENT.clone()),
-            "PositionKeywordSegment" => Some(POSITION_KEYWORD_SEGMENT.clone()),
-            "PositiveSegment" => Some(POSITIVE_SEGMENT.clone()),
-            "PostFunctionGrammar" => Some(POST_FUNCTION_GRAMMAR.clone()),
-            "PostTableExpressionGrammar" => Some(POST_TABLE_EXPRESSION_GRAMMAR.clone()),
-            "PostfixKeywordSegment" => Some(POSTFIX_KEYWORD_SEGMENT.clone()),
-            "PowerKeywordSegment" => Some(POWER_KEYWORD_SEGMENT.clone()),
-            "PreTableFunctionKeywordsGrammar" => Some(PRE_TABLE_FUNCTION_KEYWORDS_GRAMMAR.clone()),
-            "PrecedingKeywordSegment" => Some(PRECEDING_KEYWORD_SEGMENT.clone()),
-            "PrecisionKeywordSegment" => Some(PRECISION_KEYWORD_SEGMENT.clone()),
-            "PrefixKeywordSegment" => Some(PREFIX_KEYWORD_SEGMENT.clone()),
-            "PreorderKeywordSegment" => Some(PREORDER_KEYWORD_SEGMENT.clone()),
-            "PrepareKeywordSegment" => Some(PREPARE_KEYWORD_SEGMENT.clone()),
-            "PreparedKeywordSegment" => Some(PREPARED_KEYWORD_SEGMENT.clone()),
-            "PreserveKeywordSegment" => Some(PRESERVE_KEYWORD_SEGMENT.clone()),
-            "PrimaryKeyGrammar" => Some(PRIMARY_KEY_GRAMMAR.clone()),
-            "PrimaryKeywordSegment" => Some(PRIMARY_KEYWORD_SEGMENT.clone()),
-            "PrintKeywordSegment" => Some(PRINT_KEYWORD_SEGMENT.clone()),
-            "PriorKeywordSegment" => Some(PRIOR_KEYWORD_SEGMENT.clone()),
-            "PrivilegesKeywordSegment" => Some(PRIVILEGES_KEYWORD_SEGMENT.clone()),
-            "ProcKeywordSegment" => Some(PROC_KEYWORD_SEGMENT.clone()),
-            "ProceduralKeywordSegment" => Some(PROCEDURAL_KEYWORD_SEGMENT.clone()),
-            "ProcedureKeywordSegment" => Some(PROCEDURE_KEYWORD_SEGMENT.clone()),
-            "ProceduresKeywordSegment" => Some(PROCEDURES_KEYWORD_SEGMENT.clone()),
-            "ProcessKeywordSegment" => Some(PROCESS_KEYWORD_SEGMENT.clone()),
-            "ProcesslistKeywordSegment" => Some(PROCESSLIST_KEYWORD_SEGMENT.clone()),
-            "PublicKeywordSegment" => Some(PUBLIC_KEYWORD_SEGMENT.clone()),
-            "PurgeKeywordSegment" => Some(PURGE_KEYWORD_SEGMENT.clone()),
-            "QualifiedNumericLiteralSegment" => Some(QUALIFIED_NUMERIC_LITERAL_SEGMENT.clone()),
-            "QualifyKeywordSegment" => Some(QUALIFY_KEYWORD_SEGMENT.clone()),
-            "QuarterKeywordSegment" => Some(QUARTER_KEYWORD_SEGMENT.clone()),
-            "QuoteKeywordSegment" => Some(QUOTE_KEYWORD_SEGMENT.clone()),
-            "QuotedIdentifierSegment" => Some(QUOTED_IDENTIFIER_SEGMENT.clone()),
-            "QuotedLiteralSegment" => Some(QUOTED_LITERAL_SEGMENT.clone()),
-            "Raid0KeywordSegment" => Some(RAID0_KEYWORD_SEGMENT.clone()),
-            "RaiserrorKeywordSegment" => Some(RAISERROR_KEYWORD_SEGMENT.clone()),
-            "RangeKeywordSegment" => Some(RANGE_KEYWORD_SEGMENT.clone()),
-            "RankKeywordSegment" => Some(RANK_KEYWORD_SEGMENT.clone()),
-            "RawEqualsSegment" => Some(RAW_EQUALS_SEGMENT.clone()),
-            "RawGreaterThanSegment" => Some(RAW_GREATER_THAN_SEGMENT.clone()),
-            "RawKeywordSegment" => Some(RAW_KEYWORD_SEGMENT.clone()),
-            "RawLessThanSegment" => Some(RAW_LESS_THAN_SEGMENT.clone()),
-            "RawNotSegment" => Some(RAW_NOT_SEGMENT.clone()),
-            "RawSegment" => Some(RAW_SEGMENT.clone()),
-            "ReadKeywordSegment" => Some(READ_KEYWORD_SEGMENT.clone()),
-            "ReadsKeywordSegment" => Some(READS_KEYWORD_SEGMENT.clone()),
-            "ReadtextKeywordSegment" => Some(READTEXT_KEYWORD_SEGMENT.clone()),
-            "RealKeywordSegment" => Some(REAL_KEYWORD_SEGMENT.clone()),
-            "RecheckKeywordSegment" => Some(RECHECK_KEYWORD_SEGMENT.clone()),
-            "ReconfigureKeywordSegment" => Some(RECONFIGURE_KEYWORD_SEGMENT.clone()),
-            "RecursiveKeywordSegment" => Some(RECURSIVE_KEYWORD_SEGMENT.clone()),
-            "RefKeywordSegment" => Some(REF_KEYWORD_SEGMENT.clone()),
-            "ReferenceDefinitionGrammar" => Some(REFERENCE_DEFINITION_GRAMMAR.clone()),
-            "ReferenceMatchGrammar" => Some(REFERENCE_MATCH_GRAMMAR.clone()),
-            "Reference_usageKeywordSegment" => Some(REFERENCE_USAGE_KEYWORD_SEGMENT.clone()),
-            "ReferencesKeywordSegment" => Some(REFERENCES_KEYWORD_SEGMENT.clone()),
-            "ReferencingKeywordSegment" => Some(REFERENCING_KEYWORD_SEGMENT.clone()),
-            "ReferentialActionGrammar" => Some(REFERENTIAL_ACTION_GRAMMAR.clone()),
-            "RegexpKeywordSegment" => Some(REGEXP_KEYWORD_SEGMENT.clone()),
-            "Regr_avgxKeywordSegment" => Some(REGR_AVGX_KEYWORD_SEGMENT.clone()),
-            "Regr_avgyKeywordSegment" => Some(REGR_AVGY_KEYWORD_SEGMENT.clone()),
-            "Regr_countKeywordSegment" => Some(REGR_COUNT_KEYWORD_SEGMENT.clone()),
-            "Regr_interceptKeywordSegment" => Some(REGR_INTERCEPT_KEYWORD_SEGMENT.clone()),
-            "Regr_r2KeywordSegment" => Some(REGR_R2_KEYWORD_SEGMENT.clone()),
-            "Regr_slopeKeywordSegment" => Some(REGR_SLOPE_KEYWORD_SEGMENT.clone()),
-            "Regr_sxxKeywordSegment" => Some(REGR_SXX_KEYWORD_SEGMENT.clone()),
-            "Regr_sxyKeywordSegment" => Some(REGR_SXY_KEYWORD_SEGMENT.clone()),
-            "Regr_syyKeywordSegment" => Some(REGR_SYY_KEYWORD_SEGMENT.clone()),
-            "ReindexKeywordSegment" => Some(REINDEX_KEYWORD_SEGMENT.clone()),
-            "RelativeKeywordSegment" => Some(RELATIVE_KEYWORD_SEGMENT.clone()),
-            "ReleaseKeywordSegment" => Some(RELEASE_KEYWORD_SEGMENT.clone()),
-            "ReloadKeywordSegment" => Some(RELOAD_KEYWORD_SEGMENT.clone()),
-            "RenameKeywordSegment" => Some(RENAME_KEYWORD_SEGMENT.clone()),
-            "RepeatKeywordSegment" => Some(REPEAT_KEYWORD_SEGMENT.clone()),
-            "RepeatableKeywordSegment" => Some(REPEATABLE_KEYWORD_SEGMENT.clone()),
-            "ReplaceKeywordSegment" => Some(REPLACE_KEYWORD_SEGMENT.clone()),
-            "ReplicationKeywordSegment" => Some(REPLICATION_KEYWORD_SEGMENT.clone()),
-            "RequireKeywordSegment" => Some(REQUIRE_KEYWORD_SEGMENT.clone()),
-            "ResetKeywordSegment" => Some(RESET_KEYWORD_SEGMENT.clone()),
-            "ResignalKeywordSegment" => Some(RESIGNAL_KEYWORD_SEGMENT.clone()),
-            "ResourceKeywordSegment" => Some(RESOURCE_KEYWORD_SEGMENT.clone()),
-            "RespectKeywordSegment" => Some(RESPECT_KEYWORD_SEGMENT.clone()),
-            "RestartKeywordSegment" => Some(RESTART_KEYWORD_SEGMENT.clone()),
-            "RestoreKeywordSegment" => Some(RESTORE_KEYWORD_SEGMENT.clone()),
-            "RestrictKeywordSegment" => Some(RESTRICT_KEYWORD_SEGMENT.clone()),
-            "ResultKeywordSegment" => Some(RESULT_KEYWORD_SEGMENT.clone()),
-            "ReturnKeywordSegment" => Some(RETURN_KEYWORD_SEGMENT.clone()),
-            "Returned_cardinalityKeywordSegment" => Some(RETURNED_CARDINALITY_KEYWORD_SEGMENT.clone()),
-            "Returned_lengthKeywordSegment" => Some(RETURNED_LENGTH_KEYWORD_SEGMENT.clone()),
-            "Returned_octet_lengthKeywordSegment" => Some(RETURNED_OCTET_LENGTH_KEYWORD_SEGMENT.clone()),
-            "Returned_sqlstateKeywordSegment" => Some(RETURNED_SQLSTATE_KEYWORD_SEGMENT.clone()),
-            "ReturnsKeywordSegment" => Some(RETURNS_KEYWORD_SEGMENT.clone()),
-            "RevokeKeywordSegment" => Some(REVOKE_KEYWORD_SEGMENT.clone()),
-            "RightKeywordSegment" => Some(RIGHT_KEYWORD_SEGMENT.clone()),
-            "RlikeKeywordSegment" => Some(RLIKE_KEYWORD_SEGMENT.clone()),
-            "RoleKeywordSegment" => Some(ROLE_KEYWORD_SEGMENT.clone()),
-            "RoleReferenceSegment" => Some(ROLE_REFERENCE_SEGMENT.clone()),
-            "RolesKeywordSegment" => Some(ROLES_KEYWORD_SEGMENT.clone()),
-            "RollbackKeywordSegment" => Some(ROLLBACK_KEYWORD_SEGMENT.clone()),
-            "RollupFunctionNameSegment" => Some(ROLLUP_FUNCTION_NAME_SEGMENT.clone()),
-            "RollupKeywordSegment" => Some(ROLLUP_KEYWORD_SEGMENT.clone()),
-            "RoutineKeywordSegment" => Some(ROUTINE_KEYWORD_SEGMENT.clone()),
-            "Routine_catalogKeywordSegment" => Some(ROUTINE_CATALOG_KEYWORD_SEGMENT.clone()),
-            "Routine_nameKeywordSegment" => Some(ROUTINE_NAME_KEYWORD_SEGMENT.clone()),
-            "Routine_schemaKeywordSegment" => Some(ROUTINE_SCHEMA_KEYWORD_SEGMENT.clone()),
-            "RoutinesKeywordSegment" => Some(ROUTINES_KEYWORD_SEGMENT.clone()),
-            "RowKeywordSegment" => Some(ROW_KEYWORD_SEGMENT.clone()),
-            "Row_countKeywordSegment" => Some(ROW_COUNT_KEYWORD_SEGMENT.clone()),
-            "Row_numberKeywordSegment" => Some(ROW_NUMBER_KEYWORD_SEGMENT.clone()),
-            "RowcountKeywordSegment" => Some(ROWCOUNT_KEYWORD_SEGMENT.clone()),
-            "RowguidcolKeywordSegment" => Some(ROWGUIDCOL_KEYWORD_SEGMENT.clone()),
-            "RowidKeywordSegment" => Some(ROWID_KEYWORD_SEGMENT.clone()),
-            "RownumKeywordSegment" => Some(ROWNUM_KEYWORD_SEGMENT.clone()),
-            "RowsKeywordSegment" => Some(ROWS_KEYWORD_SEGMENT.clone()),
-            "RuleKeywordSegment" => Some(RULE_KEYWORD_SEGMENT.clone()),
-            "SamplingExpressionSegment" => Some(SAMPLING_EXPRESSION_SEGMENT.clone()),
-            "SaveKeywordSegment" => Some(SAVE_KEYWORD_SEGMENT.clone()),
-            "SavepointKeywordSegment" => Some(SAVEPOINT_KEYWORD_SEGMENT.clone()),
-            "ScaleKeywordSegment" => Some(SCALE_KEYWORD_SEGMENT.clone()),
-            "SchemaKeywordSegment" => Some(SCHEMA_KEYWORD_SEGMENT.clone()),
-            "SchemaReferenceSegment" => Some(SCHEMA_REFERENCE_SEGMENT.clone()),
-            "Schema_nameKeywordSegment" => Some(SCHEMA_NAME_KEYWORD_SEGMENT.clone()),
-            "SchemasKeywordSegment" => Some(SCHEMAS_KEYWORD_SEGMENT.clone()),
-            "ScopeKeywordSegment" => Some(SCOPE_KEYWORD_SEGMENT.clone()),
-            "Scope_catalogKeywordSegment" => Some(SCOPE_CATALOG_KEYWORD_SEGMENT.clone()),
-            "Scope_nameKeywordSegment" => Some(SCOPE_NAME_KEYWORD_SEGMENT.clone()),
-            "Scope_schemaKeywordSegment" => Some(SCOPE_SCHEMA_KEYWORD_SEGMENT.clone()),
-            "ScrollKeywordSegment" => Some(SCROLL_KEYWORD_SEGMENT.clone()),
-            "SearchKeywordSegment" => Some(SEARCH_KEYWORD_SEGMENT.clone()),
-            "SecondKeywordSegment" => Some(SECOND_KEYWORD_SEGMENT.clone()),
-            "Second_microsecondKeywordSegment" => Some(SECOND_MICROSECOND_KEYWORD_SEGMENT.clone()),
-            "SectionKeywordSegment" => Some(SECTION_KEYWORD_SEGMENT.clone()),
-            "SecurityKeywordSegment" => Some(SECURITY_KEYWORD_SEGMENT.clone()),
-            "SelectClauseElementSegment" => Some(SELECT_CLAUSE_ELEMENT_SEGMENT.clone()),
-            "SelectClauseModifierSegment" => Some(SELECT_CLAUSE_MODIFIER_SEGMENT.clone()),
-            "SelectClauseSegment" => Some(SELECT_CLAUSE_SEGMENT.clone()),
-            "SelectClauseTerminatorGrammar" => Some(SELECT_CLAUSE_TERMINATOR_GRAMMAR.clone()),
-            "SelectKeywordSegment" => Some(SELECT_KEYWORD_SEGMENT.clone()),
-            "SelectStatementSegment" => Some(SELECT_STATEMENT_SEGMENT.clone()),
-            "SelectableGrammar" => Some(SELECTABLE_GRAMMAR.clone()),
-            "SelfKeywordSegment" => Some(SELF_KEYWORD_SEGMENT.clone()),
-            "SemicolonSegment" => Some(SEMICOLON_SEGMENT.clone()),
-            "SensitiveKeywordSegment" => Some(SENSITIVE_KEYWORD_SEGMENT.clone()),
-            "SeparatorKeywordSegment" => Some(SEPARATOR_KEYWORD_SEGMENT.clone()),
-            "SequenceKeywordSegment" => Some(SEQUENCE_KEYWORD_SEGMENT.clone()),
-            "SequenceMaxValueGrammar" => Some(SEQUENCE_MAX_VALUE_GRAMMAR.clone()),
-            "SequenceMinValueGrammar" => Some(SEQUENCE_MIN_VALUE_GRAMMAR.clone()),
-            "SequenceReferenceSegment" => Some(SEQUENCE_REFERENCE_SEGMENT.clone()),
-            "SequencesKeywordSegment" => Some(SEQUENCES_KEYWORD_SEGMENT.clone()),
-            "SerializableKeywordSegment" => Some(SERIALIZABLE_KEYWORD_SEGMENT.clone()),
-            "ServerKeywordSegment" => Some(SERVER_KEYWORD_SEGMENT.clone()),
-            "Server_nameKeywordSegment" => Some(SERVER_NAME_KEYWORD_SEGMENT.clone()),
-            "SessionKeywordSegment" => Some(SESSION_KEYWORD_SEGMENT.clone()),
-            "Session_userKeywordSegment" => Some(SESSION_USER_KEYWORD_SEGMENT.clone()),
-            "SetClauseListSegment" => Some(SET_CLAUSE_LIST_SEGMENT.clone()),
-            "SetClauseSegment" => Some(SET_CLAUSE_SEGMENT.clone()),
-            "SetExpressionSegment" => Some(SET_EXPRESSION_SEGMENT.clone()),
-            "SetKeywordSegment" => Some(SET_KEYWORD_SEGMENT.clone()),
-            "SetOperatorSegment" => Some(SET_OPERATOR_SEGMENT.clone()),
-            "SetSchemaStatementSegment" => Some(SET_SCHEMA_STATEMENT_SEGMENT.clone()),
-            "SetofKeywordSegment" => Some(SETOF_KEYWORD_SEGMENT.clone()),
-            "SetsKeywordSegment" => Some(SETS_KEYWORD_SEGMENT.clone()),
-            "SetuserKeywordSegment" => Some(SETUSER_KEYWORD_SEGMENT.clone()),
-            "ShareKeywordSegment" => Some(SHARE_KEYWORD_SEGMENT.clone()),
-            "SharesKeywordSegment" => Some(SHARES_KEYWORD_SEGMENT.clone()),
-            "ShorthandCastSegment" => Some(SHORTHAND_CAST_SEGMENT.clone()),
-            "ShowKeywordSegment" => Some(SHOW_KEYWORD_SEGMENT.clone()),
-            "ShutdownKeywordSegment" => Some(SHUTDOWN_KEYWORD_SEGMENT.clone()),
-            "SignalKeywordSegment" => Some(SIGNAL_KEYWORD_SEGMENT.clone()),
-            "SignedSegmentGrammar" => Some(SIGNED_SEGMENT_GRAMMAR.clone()),
-            "SimilarKeywordSegment" => Some(SIMILAR_KEYWORD_SEGMENT.clone()),
-            "SimpleKeywordSegment" => Some(SIMPLE_KEYWORD_SEGMENT.clone()),
-            "SingleIdentifierGrammar" => Some(SINGLE_IDENTIFIER_GRAMMAR.clone()),
-            "SingleIdentifierListSegment" => Some(SINGLE_IDENTIFIER_LIST_SEGMENT.clone()),
-            "SingleQuotedIdentifierSegment" => Some(SINGLE_QUOTED_IDENTIFIER_SEGMENT.clone()),
-            "SizeKeywordSegment" => Some(SIZE_KEYWORD_SEGMENT.clone()),
-            "SizedArrayTypeSegment" => Some(SIZED_ARRAY_TYPE_SEGMENT.clone()),
-            "SlashSegment" => Some(SLASH_SEGMENT.clone()),
-            "SliceSegment" => Some(SLICE_SEGMENT.clone()),
-            "SmallintKeywordSegment" => Some(SMALLINT_KEYWORD_SEGMENT.clone()),
-            "SomeKeywordSegment" => Some(SOME_KEYWORD_SEGMENT.clone()),
-            "SonameKeywordSegment" => Some(SONAME_KEYWORD_SEGMENT.clone()),
-            "SourceKeywordSegment" => Some(SOURCE_KEYWORD_SEGMENT.clone()),
-            "SpaceKeywordSegment" => Some(SPACE_KEYWORD_SEGMENT.clone()),
-            "SpatialKeywordSegment" => Some(SPATIAL_KEYWORD_SEGMENT.clone()),
-            "SpecificKeywordSegment" => Some(SPECIFIC_KEYWORD_SEGMENT.clone()),
-            "Specific_nameKeywordSegment" => Some(SPECIFIC_NAME_KEYWORD_SEGMENT.clone()),
-            "SpecifictypeKeywordSegment" => Some(SPECIFICTYPE_KEYWORD_SEGMENT.clone()),
-            "SqlKeywordSegment" => Some(SQL_KEYWORD_SEGMENT.clone()),
-            "Sql_big_resultKeywordSegment" => Some(SQL_BIG_RESULT_KEYWORD_SEGMENT.clone()),
-            "Sql_big_selectsKeywordSegment" => Some(SQL_BIG_SELECTS_KEYWORD_SEGMENT.clone()),
-            "Sql_big_tablesKeywordSegment" => Some(SQL_BIG_TABLES_KEYWORD_SEGMENT.clone()),
-            "Sql_calc_found_rowsKeywordSegment" => Some(SQL_CALC_FOUND_ROWS_KEYWORD_SEGMENT.clone()),
-            "Sql_log_offKeywordSegment" => Some(SQL_LOG_OFF_KEYWORD_SEGMENT.clone()),
-            "Sql_log_updateKeywordSegment" => Some(SQL_LOG_UPDATE_KEYWORD_SEGMENT.clone()),
-            "Sql_low_priority_updatesKeywordSegment" => Some(SQL_LOW_PRIORITY_UPDATES_KEYWORD_SEGMENT.clone()),
-            "Sql_select_limitKeywordSegment" => Some(SQL_SELECT_LIMIT_KEYWORD_SEGMENT.clone()),
-            "Sql_small_resultKeywordSegment" => Some(SQL_SMALL_RESULT_KEYWORD_SEGMENT.clone()),
-            "Sql_warningsKeywordSegment" => Some(SQL_WARNINGS_KEYWORD_SEGMENT.clone()),
-            "SqlcaKeywordSegment" => Some(SQLCA_KEYWORD_SEGMENT.clone()),
-            "SqlcodeKeywordSegment" => Some(SQLCODE_KEYWORD_SEGMENT.clone()),
-            "SqlerrorKeywordSegment" => Some(SQLERROR_KEYWORD_SEGMENT.clone()),
-            "SqlexceptionKeywordSegment" => Some(SQLEXCEPTION_KEYWORD_SEGMENT.clone()),
-            "SqlstateKeywordSegment" => Some(SQLSTATE_KEYWORD_SEGMENT.clone()),
-            "SqlwarningKeywordSegment" => Some(SQLWARNING_KEYWORD_SEGMENT.clone()),
-            "SqrtKeywordSegment" => Some(SQRT_KEYWORD_SEGMENT.clone()),
-            "SslKeywordSegment" => Some(SSL_KEYWORD_SEGMENT.clone()),
-            "StableKeywordSegment" => Some(STABLE_KEYWORD_SEGMENT.clone()),
-            "StageKeywordSegment" => Some(STAGE_KEYWORD_SEGMENT.clone()),
-            "StagesKeywordSegment" => Some(STAGES_KEYWORD_SEGMENT.clone()),
-            "StarSegment" => Some(STAR_SEGMENT.clone()),
-            "StartBracketSegment" => Some(START_BRACKET_SEGMENT.clone()),
-            "StartCurlyBracketSegment" => Some(START_CURLY_BRACKET_SEGMENT.clone()),
-            "StartKeywordSegment" => Some(START_KEYWORD_SEGMENT.clone()),
-            "StartSquareBracketSegment" => Some(START_SQUARE_BRACKET_SEGMENT.clone()),
-            "StartingKeywordSegment" => Some(STARTING_KEYWORD_SEGMENT.clone()),
-            "StartsKeywordSegment" => Some(STARTS_KEYWORD_SEGMENT.clone()),
-            "StateKeywordSegment" => Some(STATE_KEYWORD_SEGMENT.clone()),
-            "StatementKeywordSegment" => Some(STATEMENT_KEYWORD_SEGMENT.clone()),
-            "StatementSegment" => Some(STATEMENT_SEGMENT.clone()),
-            "StaticKeywordSegment" => Some(STATIC_KEYWORD_SEGMENT.clone()),
-            "StatisticsKeywordSegment" => Some(STATISTICS_KEYWORD_SEGMENT.clone()),
-            "Stddev_popKeywordSegment" => Some(STDDEV_POP_KEYWORD_SEGMENT.clone()),
-            "Stddev_sampKeywordSegment" => Some(STDDEV_SAMP_KEYWORD_SEGMENT.clone()),
-            "StdinKeywordSegment" => Some(STDIN_KEYWORD_SEGMENT.clone()),
-            "StdoutKeywordSegment" => Some(STDOUT_KEYWORD_SEGMENT.clone()),
-            "StorageKeywordSegment" => Some(STORAGE_KEYWORD_SEGMENT.clone()),
-            "Straight_joinKeywordSegment" => Some(STRAIGHT_JOIN_KEYWORD_SEGMENT.clone()),
-            "StreamKeywordSegment" => Some(STREAM_KEYWORD_SEGMENT.clone()),
-            "StreamsKeywordSegment" => Some(STREAMS_KEYWORD_SEGMENT.clone()),
-            "StrictKeywordSegment" => Some(STRICT_KEYWORD_SEGMENT.clone()),
-            "StringBinaryOperatorGrammar" => Some(STRING_BINARY_OPERATOR_GRAMMAR.clone()),
-            "StringKeywordSegment" => Some(STRING_KEYWORD_SEGMENT.clone()),
-            "StructLiteralSegment" => Some(STRUCT_LITERAL_SEGMENT.clone()),
-            "StructTypeSegment" => Some(STRUCT_TYPE_SEGMENT.clone()),
-            "StructureKeywordSegment" => Some(STRUCTURE_KEYWORD_SEGMENT.clone()),
-            "StyleKeywordSegment" => Some(STYLE_KEYWORD_SEGMENT.clone()),
-            "Subclass_originKeywordSegment" => Some(SUBCLASS_ORIGIN_KEYWORD_SEGMENT.clone()),
-            "SublistKeywordSegment" => Some(SUBLIST_KEYWORD_SEGMENT.clone()),
-            "SubmultisetKeywordSegment" => Some(SUBMULTISET_KEYWORD_SEGMENT.clone()),
-            "SubstringKeywordSegment" => Some(SUBSTRING_KEYWORD_SEGMENT.clone()),
-            "SuccessfulKeywordSegment" => Some(SUCCESSFUL_KEYWORD_SEGMENT.clone()),
-            "SumKeywordSegment" => Some(SUM_KEYWORD_SEGMENT.clone()),
-            "SuperuserKeywordSegment" => Some(SUPERUSER_KEYWORD_SEGMENT.clone()),
-            "SymbolSegment" => Some(SYMBOL_SEGMENT.clone()),
-            "SymmetricKeywordSegment" => Some(SYMMETRIC_KEYWORD_SEGMENT.clone()),
-            "SynonymKeywordSegment" => Some(SYNONYM_KEYWORD_SEGMENT.clone()),
-            "SysdateKeywordSegment" => Some(SYSDATE_KEYWORD_SEGMENT.clone()),
-            "SysidKeywordSegment" => Some(SYSID_KEYWORD_SEGMENT.clone()),
-            "SystemKeywordSegment" => Some(SYSTEM_KEYWORD_SEGMENT.clone()),
-            "System_userKeywordSegment" => Some(SYSTEM_USER_KEYWORD_SEGMENT.clone()),
-            "TableConstraintSegment" => Some(TABLE_CONSTRAINT_SEGMENT.clone()),
-            "TableEndClauseSegment" => Some(TABLE_END_CLAUSE_SEGMENT.clone()),
-            "TableExpressionSegment" => Some(TABLE_EXPRESSION_SEGMENT.clone()),
-            "TableKeywordSegment" => Some(TABLE_KEYWORD_SEGMENT.clone()),
-            "TableReferenceSegment" => Some(TABLE_REFERENCE_SEGMENT.clone()),
-            "Table_nameKeywordSegment" => Some(TABLE_NAME_KEYWORD_SEGMENT.clone()),
-            "TablesKeywordSegment" => Some(TABLES_KEYWORD_SEGMENT.clone()),
-            "TablesampleKeywordSegment" => Some(TABLESAMPLE_KEYWORD_SEGMENT.clone()),
-            "TablespaceKeywordSegment" => Some(TABLESPACE_KEYWORD_SEGMENT.clone()),
-            "TablespaceReferenceSegment" => Some(TABLESPACE_REFERENCE_SEGMENT.clone()),
-            "TagReferenceSegment" => Some(TAG_REFERENCE_SEGMENT.clone()),
-            "Tail_Recurse_Expression_A_Grammar" => Some(TAIL_RECURSE_EXPRESSION_A_GRAMMAR.clone()),
-            "Tail_Recurse_Expression_B_Grammar" => Some(TAIL_RECURSE_EXPRESSION_B_GRAMMAR.clone()),
-            "TaskKeywordSegment" => Some(TASK_KEYWORD_SEGMENT.clone()),
-            "TasksKeywordSegment" => Some(TASKS_KEYWORD_SEGMENT.clone()),
-            "TempKeywordSegment" => Some(TEMP_KEYWORD_SEGMENT.clone()),
-            "TemplateKeywordSegment" => Some(TEMPLATE_KEYWORD_SEGMENT.clone()),
-            "TemporalQuerySegment" => Some(TEMPORAL_QUERY_SEGMENT.clone()),
-            "TemporaryGrammar" => Some(TEMPORARY_GRAMMAR.clone()),
-            "TemporaryKeywordSegment" => Some(TEMPORARY_KEYWORD_SEGMENT.clone()),
-            "TemporaryTransientGrammar" => Some(TEMPORARY_TRANSIENT_GRAMMAR.clone()),
-            "TerminateKeywordSegment" => Some(TERMINATE_KEYWORD_SEGMENT.clone()),
-            "TerminatedKeywordSegment" => Some(TERMINATED_KEYWORD_SEGMENT.clone()),
-            "TextKeywordSegment" => Some(TEXT_KEYWORD_SEGMENT.clone()),
-            "TextsizeKeywordSegment" => Some(TEXTSIZE_KEYWORD_SEGMENT.clone()),
-            "ThanKeywordSegment" => Some(THAN_KEYWORD_SEGMENT.clone()),
-            "ThenKeywordSegment" => Some(THEN_KEYWORD_SEGMENT.clone()),
-            "TiesKeywordSegment" => Some(TIES_KEYWORD_SEGMENT.clone()),
-            "TildeSegment" => Some(TILDE_SEGMENT.clone()),
-            "TimeKeywordSegment" => Some(TIME_KEYWORD_SEGMENT.clone()),
-            "TimeWithTZGrammar" => Some(TIME_WITH_T_Z_GRAMMAR.clone()),
-            "TimeZoneGrammar" => Some(TIME_ZONE_GRAMMAR.clone()),
-            "TimestampKeywordSegment" => Some(TIMESTAMP_KEYWORD_SEGMENT.clone()),
-            "Timezone_hourKeywordSegment" => Some(TIMEZONE_HOUR_KEYWORD_SEGMENT.clone()),
-            "Timezone_minuteKeywordSegment" => Some(TIMEZONE_MINUTE_KEYWORD_SEGMENT.clone()),
-            "TinyblobKeywordSegment" => Some(TINYBLOB_KEYWORD_SEGMENT.clone()),
-            "TinyintKeywordSegment" => Some(TINYINT_KEYWORD_SEGMENT.clone()),
-            "TinytextKeywordSegment" => Some(TINYTEXT_KEYWORD_SEGMENT.clone()),
-            "ToKeywordSegment" => Some(TO_KEYWORD_SEGMENT.clone()),
-            "ToastKeywordSegment" => Some(TOAST_KEYWORD_SEGMENT.clone()),
-            "TopKeywordSegment" => Some(TOP_KEYWORD_SEGMENT.clone()),
-            "Top_level_countKeywordSegment" => Some(TOP_LEVEL_COUNT_KEYWORD_SEGMENT.clone()),
-            "TrailingKeywordSegment" => Some(TRAILING_KEYWORD_SEGMENT.clone()),
-            "TranKeywordSegment" => Some(TRAN_KEYWORD_SEGMENT.clone()),
-            "TransactionKeywordSegment" => Some(TRANSACTION_KEYWORD_SEGMENT.clone()),
-            "TransactionStatementSegment" => Some(TRANSACTION_STATEMENT_SEGMENT.clone()),
-            "Transaction_activeKeywordSegment" => Some(TRANSACTION_ACTIVE_KEYWORD_SEGMENT.clone()),
-            "TransactionsKeywordSegment" => Some(TRANSACTIONS_KEYWORD_SEGMENT.clone()),
-            "Transactions_committedKeywordSegment" => Some(TRANSACTIONS_COMMITTED_KEYWORD_SEGMENT.clone()),
-            "Transactions_rolled_backKeywordSegment" => Some(TRANSACTIONS_ROLLED_BACK_KEYWORD_SEGMENT.clone()),
-            "TransformKeywordSegment" => Some(TRANSFORM_KEYWORD_SEGMENT.clone()),
-            "TransformsKeywordSegment" => Some(TRANSFORMS_KEYWORD_SEGMENT.clone()),
-            "TransientKeywordSegment" => Some(TRANSIENT_KEYWORD_SEGMENT.clone()),
-            "TranslateKeywordSegment" => Some(TRANSLATE_KEYWORD_SEGMENT.clone()),
-            "TranslationKeywordSegment" => Some(TRANSLATION_KEYWORD_SEGMENT.clone()),
-            "TreatKeywordSegment" => Some(TREAT_KEYWORD_SEGMENT.clone()),
-            "TriggerKeywordSegment" => Some(TRIGGER_KEYWORD_SEGMENT.clone()),
-            "TriggerReferenceSegment" => Some(TRIGGER_REFERENCE_SEGMENT.clone()),
-            "Trigger_catalogKeywordSegment" => Some(TRIGGER_CATALOG_KEYWORD_SEGMENT.clone()),
-            "Trigger_nameKeywordSegment" => Some(TRIGGER_NAME_KEYWORD_SEGMENT.clone()),
-            "Trigger_schemaKeywordSegment" => Some(TRIGGER_SCHEMA_KEYWORD_SEGMENT.clone()),
-            "TrimKeywordSegment" => Some(TRIM_KEYWORD_SEGMENT.clone()),
-            "TrimParametersGrammar" => Some(TRIM_PARAMETERS_GRAMMAR.clone()),
-            "TrueKeywordSegment" => Some(TRUE_KEYWORD_SEGMENT.clone()),
-            "TrueSegment" => Some(TRUE_SEGMENT.clone()),
-            "TruncateKeywordSegment" => Some(TRUNCATE_KEYWORD_SEGMENT.clone()),
-            "TruncateStatementSegment" => Some(TRUNCATE_STATEMENT_SEGMENT.clone()),
-            "TrustedKeywordSegment" => Some(TRUSTED_KEYWORD_SEGMENT.clone()),
-            "TsequalKeywordSegment" => Some(TSEQUAL_KEYWORD_SEGMENT.clone()),
-            "TupleSegment" => Some(TUPLE_SEGMENT.clone()),
-            "TypeKeywordSegment" => Some(TYPE_KEYWORD_SEGMENT.clone()),
-            "TypedArrayLiteralSegment" => Some(TYPED_ARRAY_LITERAL_SEGMENT.clone()),
-            "TypedStructLiteralSegment" => Some(TYPED_STRUCT_LITERAL_SEGMENT.clone()),
-            "UescapeKeywordSegment" => Some(UESCAPE_KEYWORD_SEGMENT.clone()),
-            "UidKeywordSegment" => Some(UID_KEYWORD_SEGMENT.clone()),
-            "UnboundedKeywordSegment" => Some(UNBOUNDED_KEYWORD_SEGMENT.clone()),
-            "UncommittedKeywordSegment" => Some(UNCOMMITTED_KEYWORD_SEGMENT.clone()),
-            "UnconditionalCrossJoinKeywordsGrammar" => Some(UNCONDITIONAL_CROSS_JOIN_KEYWORDS_GRAMMAR.clone()),
-            "UnconditionalJoinKeywordsGrammar" => Some(UNCONDITIONAL_JOIN_KEYWORDS_GRAMMAR.clone()),
-            "UnderKeywordSegment" => Some(UNDER_KEYWORD_SEGMENT.clone()),
-            "UndoKeywordSegment" => Some(UNDO_KEYWORD_SEGMENT.clone()),
-            "UnencryptedKeywordSegment" => Some(UNENCRYPTED_KEYWORD_SEGMENT.clone()),
-            "UnionGrammar" => Some(UNION_GRAMMAR.clone()),
-            "UnionKeywordSegment" => Some(UNION_KEYWORD_SEGMENT.clone()),
-            "UniqueKeyGrammar" => Some(UNIQUE_KEY_GRAMMAR.clone()),
-            "UniqueKeywordSegment" => Some(UNIQUE_KEYWORD_SEGMENT.clone()),
-            "UnknownKeywordSegment" => Some(UNKNOWN_KEYWORD_SEGMENT.clone()),
-            "UnknownLiteralSegment" => Some(UNKNOWN_LITERAL_SEGMENT.clone()),
-            "UnlistenKeywordSegment" => Some(UNLISTEN_KEYWORD_SEGMENT.clone()),
-            "UnlockKeywordSegment" => Some(UNLOCK_KEYWORD_SEGMENT.clone()),
-            "UnnamedKeywordSegment" => Some(UNNAMED_KEYWORD_SEGMENT.clone()),
-            "UnnestKeywordSegment" => Some(UNNEST_KEYWORD_SEGMENT.clone()),
-            "UnorderedSelectStatementSegment" => Some(UNORDERED_SELECT_STATEMENT_SEGMENT.clone()),
-            "UnorderedSetExpressionSegment" => Some(UNORDERED_SET_EXPRESSION_SEGMENT.clone()),
-            "UnsignedKeywordSegment" => Some(UNSIGNED_KEYWORD_SEGMENT.clone()),
-            "UntilKeywordSegment" => Some(UNTIL_KEYWORD_SEGMENT.clone()),
-            "UpdateKeywordSegment" => Some(UPDATE_KEYWORD_SEGMENT.clone()),
-            "UpdateStatementSegment" => Some(UPDATE_STATEMENT_SEGMENT.clone()),
-            "UpdatetextKeywordSegment" => Some(UPDATETEXT_KEYWORD_SEGMENT.clone()),
-            "UpperKeywordSegment" => Some(UPPER_KEYWORD_SEGMENT.clone()),
-            "UsageKeywordSegment" => Some(USAGE_KEYWORD_SEGMENT.clone()),
-            "UseKeywordSegment" => Some(USE_KEYWORD_SEGMENT.clone()),
-            "UseStatementSegment" => Some(USE_STATEMENT_SEGMENT.clone()),
-            "Use_any_roleKeywordSegment" => Some(USE_ANY_ROLE_KEYWORD_SEGMENT.clone()),
-            "UserKeywordSegment" => Some(USER_KEYWORD_SEGMENT.clone()),
-            "User_defined_type_catalogKeywordSegment" => Some(USER_DEFINED_TYPE_CATALOG_KEYWORD_SEGMENT.clone()),
-            "User_defined_type_codeKeywordSegment" => Some(USER_DEFINED_TYPE_CODE_KEYWORD_SEGMENT.clone()),
-            "User_defined_type_nameKeywordSegment" => Some(USER_DEFINED_TYPE_NAME_KEYWORD_SEGMENT.clone()),
-            "User_defined_type_schemaKeywordSegment" => Some(USER_DEFINED_TYPE_SCHEMA_KEYWORD_SEGMENT.clone()),
-            "UsersKeywordSegment" => Some(USERS_KEYWORD_SEGMENT.clone()),
-            "UsingKeywordSegment" => Some(USING_KEYWORD_SEGMENT.clone()),
-            "Utc_dateKeywordSegment" => Some(UTC_DATE_KEYWORD_SEGMENT.clone()),
-            "Utc_timeKeywordSegment" => Some(UTC_TIME_KEYWORD_SEGMENT.clone()),
-            "Utc_timestampKeywordSegment" => Some(UTC_TIMESTAMP_KEYWORD_SEGMENT.clone()),
-            "VacuumKeywordSegment" => Some(VACUUM_KEYWORD_SEGMENT.clone()),
-            "ValidKeywordSegment" => Some(VALID_KEYWORD_SEGMENT.clone()),
-            "ValidateKeywordSegment" => Some(VALIDATE_KEYWORD_SEGMENT.clone()),
-            "ValidatorKeywordSegment" => Some(VALIDATOR_KEYWORD_SEGMENT.clone()),
-            "ValueKeywordSegment" => Some(VALUE_KEYWORD_SEGMENT.clone()),
-            "ValuesClauseSegment" => Some(VALUES_CLAUSE_SEGMENT.clone()),
-            "ValuesKeywordSegment" => Some(VALUES_KEYWORD_SEGMENT.clone()),
-            "Var_popKeywordSegment" => Some(VAR_POP_KEYWORD_SEGMENT.clone()),
-            "Var_sampKeywordSegment" => Some(VAR_SAMP_KEYWORD_SEGMENT.clone()),
-            "VarbinaryKeywordSegment" => Some(VARBINARY_KEYWORD_SEGMENT.clone()),
-            "Varchar2KeywordSegment" => Some(VARCHAR2_KEYWORD_SEGMENT.clone()),
-            "VarcharKeywordSegment" => Some(VARCHAR_KEYWORD_SEGMENT.clone()),
-            "VarcharacterKeywordSegment" => Some(VARCHARACTER_KEYWORD_SEGMENT.clone()),
-            "VariableKeywordSegment" => Some(VARIABLE_KEYWORD_SEGMENT.clone()),
-            "VariablesKeywordSegment" => Some(VARIABLES_KEYWORD_SEGMENT.clone()),
-            "VaryingKeywordSegment" => Some(VARYING_KEYWORD_SEGMENT.clone()),
-            "VerboseKeywordSegment" => Some(VERBOSE_KEYWORD_SEGMENT.clone()),
-            "VersionKeywordSegment" => Some(VERSION_KEYWORD_SEGMENT.clone()),
-            "ViewKeywordSegment" => Some(VIEW_KEYWORD_SEGMENT.clone()),
-            "ViewsKeywordSegment" => Some(VIEWS_KEYWORD_SEGMENT.clone()),
-            "VolatileKeywordSegment" => Some(VOLATILE_KEYWORD_SEGMENT.clone()),
-            "WaitforKeywordSegment" => Some(WAITFOR_KEYWORD_SEGMENT.clone()),
-            "WarehouseKeywordSegment" => Some(WAREHOUSE_KEYWORD_SEGMENT.clone()),
-            "WarehousesKeywordSegment" => Some(WAREHOUSES_KEYWORD_SEGMENT.clone()),
-            "WeekKeywordSegment" => Some(WEEK_KEYWORD_SEGMENT.clone()),
-            "WeekdayKeywordSegment" => Some(WEEKDAY_KEYWORD_SEGMENT.clone()),
-            "WhenClauseSegment" => Some(WHEN_CLAUSE_SEGMENT.clone()),
-            "WhenKeywordSegment" => Some(WHEN_KEYWORD_SEGMENT.clone()),
-            "WheneverKeywordSegment" => Some(WHENEVER_KEYWORD_SEGMENT.clone()),
-            "WhereClauseSegment" => Some(WHERE_CLAUSE_SEGMENT.clone()),
-            "WhereClauseTerminatorGrammar" => Some(WHERE_CLAUSE_TERMINATOR_GRAMMAR.clone()),
-            "WhereKeywordSegment" => Some(WHERE_KEYWORD_SEGMENT.clone()),
-            "WhileKeywordSegment" => Some(WHILE_KEYWORD_SEGMENT.clone()),
-            "WhitespaceSegment" => Some(WHITESPACE_SEGMENT.clone()),
-            "Width_bucketKeywordSegment" => Some(WIDTH_BUCKET_KEYWORD_SEGMENT.clone()),
-            "WildcardExpressionSegment" => Some(WILDCARD_EXPRESSION_SEGMENT.clone()),
-            "WildcardIdentifierSegment" => Some(WILDCARD_IDENTIFIER_SEGMENT.clone()),
-            "WindowKeywordSegment" => Some(WINDOW_KEYWORD_SEGMENT.clone()),
-            "WindowSpecificationSegment" => Some(WINDOW_SPECIFICATION_SEGMENT.clone()),
-            "WithCompoundNonSelectStatementSegment" => Some(WITH_COMPOUND_NON_SELECT_STATEMENT_SEGMENT.clone()),
-            "WithCompoundStatementSegment" => Some(WITH_COMPOUND_STATEMENT_SEGMENT.clone()),
-            "WithDataClauseSegment" => Some(WITH_DATA_CLAUSE_SEGMENT.clone()),
-            "WithFillSegment" => Some(WITH_FILL_SEGMENT.clone()),
-            "WithKeywordSegment" => Some(WITH_KEYWORD_SEGMENT.clone()),
-            "WithNoSchemaBindingClauseSegment" => Some(WITH_NO_SCHEMA_BINDING_CLAUSE_SEGMENT.clone()),
-            "WithinKeywordSegment" => Some(WITHIN_KEYWORD_SEGMENT.clone()),
-            "WithoutKeywordSegment" => Some(WITHOUT_KEYWORD_SEGMENT.clone()),
-            "WordSegment" => Some(WORD_SEGMENT.clone()),
-            "WorkKeywordSegment" => Some(WORK_KEYWORD_SEGMENT.clone()),
-            "WrapperKeywordSegment" => Some(WRAPPER_KEYWORD_SEGMENT.clone()),
-            "WriteKeywordSegment" => Some(WRITE_KEYWORD_SEGMENT.clone()),
-            "WritetextKeywordSegment" => Some(WRITETEXT_KEYWORD_SEGMENT.clone()),
-            "X509KeywordSegment" => Some(X509_KEYWORD_SEGMENT.clone()),
-            "XmlKeywordSegment" => Some(XML_KEYWORD_SEGMENT.clone()),
-            "XorKeywordSegment" => Some(XOR_KEYWORD_SEGMENT.clone()),
-            "YamlKeywordSegment" => Some(YAML_KEYWORD_SEGMENT.clone()),
-            "YearKeywordSegment" => Some(YEAR_KEYWORD_SEGMENT.clone()),
-            "Year_monthKeywordSegment" => Some(YEAR_MONTH_KEYWORD_SEGMENT.clone()),
-            "ZerofillKeywordSegment" => Some(ZEROFILL_KEYWORD_SEGMENT.clone()),
-            "ZoneKeywordSegment" => Some(ZONE_KEYWORD_SEGMENT.clone()),
+            "AbortKeywordSegment" => Some(ABORT_KEYWORD_SEGMENT.get_or_init(|| init_abort_keyword_segment()).clone()),
+            "AbsKeywordSegment" => Some(ABS_KEYWORD_SEGMENT.get_or_init(|| init_abs_keyword_segment()).clone()),
+            "AbsoluteKeywordSegment" => Some(ABSOLUTE_KEYWORD_SEGMENT.get_or_init(|| init_absolute_keyword_segment()).clone()),
+            "AccessKeywordSegment" => Some(ACCESS_KEYWORD_SEGMENT.get_or_init(|| init_access_keyword_segment()).clone()),
+            "AccessStatementSegment" => Some(ACCESS_STATEMENT_SEGMENT.get_or_init(|| init_access_statement_segment()).clone()),
+            "AccessorGrammar" => Some(ACCESSOR_GRAMMAR.get_or_init(|| init_accessor_grammar()).clone()),
+            "AccountKeywordSegment" => Some(ACCOUNT_KEYWORD_SEGMENT.get_or_init(|| init_account_keyword_segment()).clone()),
+            "AccountsKeywordSegment" => Some(ACCOUNTS_KEYWORD_SEGMENT.get_or_init(|| init_accounts_keyword_segment()).clone()),
+            "ActionKeywordSegment" => Some(ACTION_KEYWORD_SEGMENT.get_or_init(|| init_action_keyword_segment()).clone()),
+            "AdaKeywordSegment" => Some(ADA_KEYWORD_SEGMENT.get_or_init(|| init_ada_keyword_segment()).clone()),
+            "AddKeywordSegment" => Some(ADD_KEYWORD_SEGMENT.get_or_init(|| init_add_keyword_segment()).clone()),
+            "AdminKeywordSegment" => Some(ADMIN_KEYWORD_SEGMENT.get_or_init(|| init_admin_keyword_segment()).clone()),
+            "AfterKeywordSegment" => Some(AFTER_KEYWORD_SEGMENT.get_or_init(|| init_after_keyword_segment()).clone()),
+            "AggregateKeywordSegment" => Some(AGGREGATE_KEYWORD_SEGMENT.get_or_init(|| init_aggregate_keyword_segment()).clone()),
+            "AggregateOrderByClause" => Some(AGGREGATE_ORDER_BY_CLAUSE.get_or_init(|| init_aggregate_order_by_clause()).clone()),
+            "AliasExpressionSegment" => Some(ALIAS_EXPRESSION_SEGMENT.get_or_init(|| init_alias_expression_segment()).clone()),
+            "AliasKeywordSegment" => Some(ALIAS_KEYWORD_SEGMENT.get_or_init(|| init_alias_keyword_segment()).clone()),
+            "AliasedTableReferenceGrammar" => Some(ALIASED_TABLE_REFERENCE_GRAMMAR.get_or_init(|| init_aliased_table_reference_grammar()).clone()),
+            "AllKeywordSegment" => Some(ALL_KEYWORD_SEGMENT.get_or_init(|| init_all_keyword_segment()).clone()),
+            "AllocateKeywordSegment" => Some(ALLOCATE_KEYWORD_SEGMENT.get_or_init(|| init_allocate_keyword_segment()).clone()),
+            "AlsoKeywordSegment" => Some(ALSO_KEYWORD_SEGMENT.get_or_init(|| init_also_keyword_segment()).clone()),
+            "AlterKeywordSegment" => Some(ALTER_KEYWORD_SEGMENT.get_or_init(|| init_alter_keyword_segment()).clone()),
+            "AlterSequenceOptionsSegment" => Some(ALTER_SEQUENCE_OPTIONS_SEGMENT.get_or_init(|| init_alter_sequence_options_segment()).clone()),
+            "AlterSequenceStatementSegment" => Some(ALTER_SEQUENCE_STATEMENT_SEGMENT.get_or_init(|| init_alter_sequence_statement_segment()).clone()),
+            "AlterTableDropColumnGrammar" => Some(ALTER_TABLE_DROP_COLUMN_GRAMMAR.get_or_init(|| init_alter_table_drop_column_grammar()).clone()),
+            "AlterTableOptionsGrammar" => Some(ALTER_TABLE_OPTIONS_GRAMMAR.get_or_init(|| init_alter_table_options_grammar()).clone()),
+            "AlterTableStatementSegment" => Some(ALTER_TABLE_STATEMENT_SEGMENT.get_or_init(|| init_alter_table_statement_segment()).clone()),
+            "AlwaysKeywordSegment" => Some(ALWAYS_KEYWORD_SEGMENT.get_or_init(|| init_always_keyword_segment()).clone()),
+            "AmpersandSegment" => Some(AMPERSAND_SEGMENT.get_or_init(|| init_ampersand_segment()).clone()),
+            "AnalyseKeywordSegment" => Some(ANALYSE_KEYWORD_SEGMENT.get_or_init(|| init_analyse_keyword_segment()).clone()),
+            "AnalyzeKeywordSegment" => Some(ANALYZE_KEYWORD_SEGMENT.get_or_init(|| init_analyze_keyword_segment()).clone()),
+            "AndKeywordSegment" => Some(AND_KEYWORD_SEGMENT.get_or_init(|| init_and_keyword_segment()).clone()),
+            "AndOperatorGrammar" => Some(AND_OPERATOR_GRAMMAR.get_or_init(|| init_and_operator_grammar()).clone()),
+            "AnyKeywordSegment" => Some(ANY_KEYWORD_SEGMENT.get_or_init(|| init_any_keyword_segment()).clone()),
+            "ApplyKeywordSegment" => Some(APPLY_KEYWORD_SEGMENT.get_or_init(|| init_apply_keyword_segment()).clone()),
+            "AreKeywordSegment" => Some(ARE_KEYWORD_SEGMENT.get_or_init(|| init_are_keyword_segment()).clone()),
+            "ArithmeticBinaryOperatorGrammar" => Some(ARITHMETIC_BINARY_OPERATOR_GRAMMAR.get_or_init(|| init_arithmetic_binary_operator_grammar()).clone()),
+            "ArrayAccessorSegment" => Some(ARRAY_ACCESSOR_SEGMENT.get_or_init(|| init_array_accessor_segment()).clone()),
+            "ArrayExpressionSegment" => Some(ARRAY_EXPRESSION_SEGMENT.get_or_init(|| init_array_expression_segment()).clone()),
+            "ArrayKeywordSegment" => Some(ARRAY_KEYWORD_SEGMENT.get_or_init(|| init_array_keyword_segment()).clone()),
+            "ArrayLiteralSegment" => Some(ARRAY_LITERAL_SEGMENT.get_or_init(|| init_array_literal_segment()).clone()),
+            "ArrayTypeSegment" => Some(ARRAY_TYPE_SEGMENT.get_or_init(|| init_array_type_segment()).clone()),
+            "AsAliasOperatorSegment" => Some(AS_ALIAS_OPERATOR_SEGMENT.get_or_init(|| init_as_alias_operator_segment()).clone()),
+            "AsKeywordSegment" => Some(AS_KEYWORD_SEGMENT.get_or_init(|| init_as_keyword_segment()).clone()),
+            "AscKeywordSegment" => Some(ASC_KEYWORD_SEGMENT.get_or_init(|| init_asc_keyword_segment()).clone()),
+            "AsensitiveKeywordSegment" => Some(ASENSITIVE_KEYWORD_SEGMENT.get_or_init(|| init_asensitive_keyword_segment()).clone()),
+            "AssertionKeywordSegment" => Some(ASSERTION_KEYWORD_SEGMENT.get_or_init(|| init_assertion_keyword_segment()).clone()),
+            "AssignmentKeywordSegment" => Some(ASSIGNMENT_KEYWORD_SEGMENT.get_or_init(|| init_assignment_keyword_segment()).clone()),
+            "AsymmetricKeywordSegment" => Some(ASYMMETRIC_KEYWORD_SEGMENT.get_or_init(|| init_asymmetric_keyword_segment()).clone()),
+            "AtKeywordSegment" => Some(AT_KEYWORD_SEGMENT.get_or_init(|| init_at_keyword_segment()).clone()),
+            "AtomicKeywordSegment" => Some(ATOMIC_KEYWORD_SEGMENT.get_or_init(|| init_atomic_keyword_segment()).clone()),
+            "AttributeKeywordSegment" => Some(ATTRIBUTE_KEYWORD_SEGMENT.get_or_init(|| init_attribute_keyword_segment()).clone()),
+            "AttributesKeywordSegment" => Some(ATTRIBUTES_KEYWORD_SEGMENT.get_or_init(|| init_attributes_keyword_segment()).clone()),
+            "AuditKeywordSegment" => Some(AUDIT_KEYWORD_SEGMENT.get_or_init(|| init_audit_keyword_segment()).clone()),
+            "AuthorizationKeywordSegment" => Some(AUTHORIZATION_KEYWORD_SEGMENT.get_or_init(|| init_authorization_keyword_segment()).clone()),
+            "AutoIncrementGrammar" => Some(AUTO_INCREMENT_GRAMMAR.get_or_init(|| init_auto_increment_grammar()).clone()),
+            "Auto_incrementKeywordSegment" => Some(AUTO_INCREMENT_KEYWORD_SEGMENT.get_or_init(|| init_auto_increment_keyword_segment()).clone()),
+            "AvgKeywordSegment" => Some(AVG_KEYWORD_SEGMENT.get_or_init(|| init_avg_keyword_segment()).clone()),
+            "Avg_row_lengthKeywordSegment" => Some(AVG_ROW_LENGTH_KEYWORD_SEGMENT.get_or_init(|| init_avg_row_length_keyword_segment()).clone()),
+            "BackupKeywordSegment" => Some(BACKUP_KEYWORD_SEGMENT.get_or_init(|| init_backup_keyword_segment()).clone()),
+            "BackwardKeywordSegment" => Some(BACKWARD_KEYWORD_SEGMENT.get_or_init(|| init_backward_keyword_segment()).clone()),
+            "BareFunctionSegment" => Some(BARE_FUNCTION_SEGMENT.get_or_init(|| init_bare_function_segment()).clone()),
+            "BaseExpressionElementGrammar" => Some(BASE_EXPRESSION_ELEMENT_GRAMMAR.get_or_init(|| init_base_expression_element_grammar()).clone()),
+            "BaseFileSegment" => Some(BASE_FILE_SEGMENT.get_or_init(|| init_base_file_segment()).clone()),
+            "BaseSegment" => Some(BASE_SEGMENT.get_or_init(|| init_base_segment()).clone()),
+            "BeforeKeywordSegment" => Some(BEFORE_KEYWORD_SEGMENT.get_or_init(|| init_before_keyword_segment()).clone()),
+            "BeginKeywordSegment" => Some(BEGIN_KEYWORD_SEGMENT.get_or_init(|| init_begin_keyword_segment()).clone()),
+            "BernoulliKeywordSegment" => Some(BERNOULLI_KEYWORD_SEGMENT.get_or_init(|| init_bernoulli_keyword_segment()).clone()),
+            "BetweenKeywordSegment" => Some(BETWEEN_KEYWORD_SEGMENT.get_or_init(|| init_between_keyword_segment()).clone()),
+            "BigintKeywordSegment" => Some(BIGINT_KEYWORD_SEGMENT.get_or_init(|| init_bigint_keyword_segment()).clone()),
+            "BinaryKeywordSegment" => Some(BINARY_KEYWORD_SEGMENT.get_or_init(|| init_binary_keyword_segment()).clone()),
+            "BinaryOperatorGrammar" => Some(BINARY_OPERATOR_GRAMMAR.get_or_init(|| init_binary_operator_grammar()).clone()),
+            "BinaryOperatorSegment" => Some(BINARY_OPERATOR_SEGMENT.get_or_init(|| init_binary_operator_segment()).clone()),
+            "BindingKeywordSegment" => Some(BINDING_KEYWORD_SEGMENT.get_or_init(|| init_binding_keyword_segment()).clone()),
+            "BitKeywordSegment" => Some(BIT_KEYWORD_SEGMENT.get_or_init(|| init_bit_keyword_segment()).clone()),
+            "Bit_lengthKeywordSegment" => Some(BIT_LENGTH_KEYWORD_SEGMENT.get_or_init(|| init_bit_length_keyword_segment()).clone()),
+            "BitvarKeywordSegment" => Some(BITVAR_KEYWORD_SEGMENT.get_or_init(|| init_bitvar_keyword_segment()).clone()),
+            "BitwiseAndSegment" => Some(BITWISE_AND_SEGMENT.get_or_init(|| init_bitwise_and_segment()).clone()),
+            "BitwiseLShiftSegment" => Some(BITWISE_L_SHIFT_SEGMENT.get_or_init(|| init_bitwise_l_shift_segment()).clone()),
+            "BitwiseOrSegment" => Some(BITWISE_OR_SEGMENT.get_or_init(|| init_bitwise_or_segment()).clone()),
+            "BitwiseRShiftSegment" => Some(BITWISE_R_SHIFT_SEGMENT.get_or_init(|| init_bitwise_r_shift_segment()).clone()),
+            "BitwiseXorSegment" => Some(BITWISE_XOR_SEGMENT.get_or_init(|| init_bitwise_xor_segment()).clone()),
+            "BlobKeywordSegment" => Some(BLOB_KEYWORD_SEGMENT.get_or_init(|| init_blob_keyword_segment()).clone()),
+            "BoolKeywordSegment" => Some(BOOL_KEYWORD_SEGMENT.get_or_init(|| init_bool_keyword_segment()).clone()),
+            "BooleanBinaryOperatorGrammar" => Some(BOOLEAN_BINARY_OPERATOR_GRAMMAR.get_or_init(|| init_boolean_binary_operator_grammar()).clone()),
+            "BooleanKeywordSegment" => Some(BOOLEAN_KEYWORD_SEGMENT.get_or_init(|| init_boolean_keyword_segment()).clone()),
+            "BooleanLiteralGrammar" => Some(BOOLEAN_LITERAL_GRAMMAR.get_or_init(|| init_boolean_literal_grammar()).clone()),
+            "BothKeywordSegment" => Some(BOTH_KEYWORD_SEGMENT.get_or_init(|| init_both_keyword_segment()).clone()),
+            "BracketedArguments" => Some(BRACKETED_ARGUMENTS.get_or_init(|| init_bracketed_arguments()).clone()),
+            "BracketedColumnReferenceListGrammar" => Some(BRACKETED_COLUMN_REFERENCE_LIST_GRAMMAR.get_or_init(|| init_bracketed_column_reference_list_grammar()).clone()),
+            "BracketedSegment" => Some(BRACKETED_SEGMENT.get_or_init(|| init_bracketed_segment()).clone()),
+            "BracketedSetExpressionGrammar" => Some(BRACKETED_SET_EXPRESSION_GRAMMAR.get_or_init(|| init_bracketed_set_expression_grammar()).clone()),
+            "BreadthKeywordSegment" => Some(BREADTH_KEYWORD_SEGMENT.get_or_init(|| init_breadth_keyword_segment()).clone()),
+            "BreakKeywordSegment" => Some(BREAK_KEYWORD_SEGMENT.get_or_init(|| init_break_keyword_segment()).clone()),
+            "BrowseKeywordSegment" => Some(BROWSE_KEYWORD_SEGMENT.get_or_init(|| init_browse_keyword_segment()).clone()),
+            "BulkKeywordSegment" => Some(BULK_KEYWORD_SEGMENT.get_or_init(|| init_bulk_keyword_segment()).clone()),
+            "ByKeywordSegment" => Some(BY_KEYWORD_SEGMENT.get_or_init(|| init_by_keyword_segment()).clone()),
+            "CTEColumnList" => Some(C_T_E_COLUMN_LIST.get_or_init(|| init_c_t_e_column_list()).clone()),
+            "CTEDefinitionSegment" => Some(C_T_E_DEFINITION_SEGMENT.get_or_init(|| init_c_t_e_definition_segment()).clone()),
+            "CacheKeywordSegment" => Some(CACHE_KEYWORD_SEGMENT.get_or_init(|| init_cache_keyword_segment()).clone()),
+            "CallKeywordSegment" => Some(CALL_KEYWORD_SEGMENT.get_or_init(|| init_call_keyword_segment()).clone()),
+            "CalledKeywordSegment" => Some(CALLED_KEYWORD_SEGMENT.get_or_init(|| init_called_keyword_segment()).clone()),
+            "CardinalityKeywordSegment" => Some(CARDINALITY_KEYWORD_SEGMENT.get_or_init(|| init_cardinality_keyword_segment()).clone()),
+            "CascadeKeywordSegment" => Some(CASCADE_KEYWORD_SEGMENT.get_or_init(|| init_cascade_keyword_segment()).clone()),
+            "CascadedKeywordSegment" => Some(CASCADED_KEYWORD_SEGMENT.get_or_init(|| init_cascaded_keyword_segment()).clone()),
+            "CaseExpressionSegment" => Some(CASE_EXPRESSION_SEGMENT.get_or_init(|| init_case_expression_segment()).clone()),
+            "CaseKeywordSegment" => Some(CASE_KEYWORD_SEGMENT.get_or_init(|| init_case_keyword_segment()).clone()),
+            "CastKeywordSegment" => Some(CAST_KEYWORD_SEGMENT.get_or_init(|| init_cast_keyword_segment()).clone()),
+            "CastOperatorSegment" => Some(CAST_OPERATOR_SEGMENT.get_or_init(|| init_cast_operator_segment()).clone()),
+            "CatalogKeywordSegment" => Some(CATALOG_KEYWORD_SEGMENT.get_or_init(|| init_catalog_keyword_segment()).clone()),
+            "Catalog_nameKeywordSegment" => Some(CATALOG_NAME_KEYWORD_SEGMENT.get_or_init(|| init_catalog_name_keyword_segment()).clone()),
+            "CeilKeywordSegment" => Some(CEIL_KEYWORD_SEGMENT.get_or_init(|| init_ceil_keyword_segment()).clone()),
+            "CeilingKeywordSegment" => Some(CEILING_KEYWORD_SEGMENT.get_or_init(|| init_ceiling_keyword_segment()).clone()),
+            "ChainKeywordSegment" => Some(CHAIN_KEYWORD_SEGMENT.get_or_init(|| init_chain_keyword_segment()).clone()),
+            "ChangeKeywordSegment" => Some(CHANGE_KEYWORD_SEGMENT.get_or_init(|| init_change_keyword_segment()).clone()),
+            "CharCharacterSetGrammar" => Some(CHAR_CHARACTER_SET_GRAMMAR.get_or_init(|| init_char_character_set_grammar()).clone()),
+            "CharKeywordSegment" => Some(CHAR_KEYWORD_SEGMENT.get_or_init(|| init_char_keyword_segment()).clone()),
+            "Char_lengthKeywordSegment" => Some(CHAR_LENGTH_KEYWORD_SEGMENT.get_or_init(|| init_char_length_keyword_segment()).clone()),
+            "CharacterKeywordSegment" => Some(CHARACTER_KEYWORD_SEGMENT.get_or_init(|| init_character_keyword_segment()).clone()),
+            "Character_lengthKeywordSegment" => Some(CHARACTER_LENGTH_KEYWORD_SEGMENT.get_or_init(|| init_character_length_keyword_segment()).clone()),
+            "Character_set_catalogKeywordSegment" => Some(CHARACTER_SET_CATALOG_KEYWORD_SEGMENT.get_or_init(|| init_character_set_catalog_keyword_segment()).clone()),
+            "Character_set_nameKeywordSegment" => Some(CHARACTER_SET_NAME_KEYWORD_SEGMENT.get_or_init(|| init_character_set_name_keyword_segment()).clone()),
+            "Character_set_schemaKeywordSegment" => Some(CHARACTER_SET_SCHEMA_KEYWORD_SEGMENT.get_or_init(|| init_character_set_schema_keyword_segment()).clone()),
+            "CharacteristicsKeywordSegment" => Some(CHARACTERISTICS_KEYWORD_SEGMENT.get_or_init(|| init_characteristics_keyword_segment()).clone()),
+            "CharactersKeywordSegment" => Some(CHARACTERS_KEYWORD_SEGMENT.get_or_init(|| init_characters_keyword_segment()).clone()),
+            "CheckKeywordSegment" => Some(CHECK_KEYWORD_SEGMENT.get_or_init(|| init_check_keyword_segment()).clone()),
+            "CheckedKeywordSegment" => Some(CHECKED_KEYWORD_SEGMENT.get_or_init(|| init_checked_keyword_segment()).clone()),
+            "CheckpointKeywordSegment" => Some(CHECKPOINT_KEYWORD_SEGMENT.get_or_init(|| init_checkpoint_keyword_segment()).clone()),
+            "ChecksumKeywordSegment" => Some(CHECKSUM_KEYWORD_SEGMENT.get_or_init(|| init_checksum_keyword_segment()).clone()),
+            "ClassKeywordSegment" => Some(CLASS_KEYWORD_SEGMENT.get_or_init(|| init_class_keyword_segment()).clone()),
+            "Class_originKeywordSegment" => Some(CLASS_ORIGIN_KEYWORD_SEGMENT.get_or_init(|| init_class_origin_keyword_segment()).clone()),
+            "ClobKeywordSegment" => Some(CLOB_KEYWORD_SEGMENT.get_or_init(|| init_clob_keyword_segment()).clone()),
+            "CloseKeywordSegment" => Some(CLOSE_KEYWORD_SEGMENT.get_or_init(|| init_close_keyword_segment()).clone()),
+            "ClusterKeywordSegment" => Some(CLUSTER_KEYWORD_SEGMENT.get_or_init(|| init_cluster_keyword_segment()).clone()),
+            "ClusteredKeywordSegment" => Some(CLUSTERED_KEYWORD_SEGMENT.get_or_init(|| init_clustered_keyword_segment()).clone()),
+            "CoalesceKeywordSegment" => Some(COALESCE_KEYWORD_SEGMENT.get_or_init(|| init_coalesce_keyword_segment()).clone()),
+            "CobolKeywordSegment" => Some(COBOL_KEYWORD_SEGMENT.get_or_init(|| init_cobol_keyword_segment()).clone()),
+            "CodeSegment" => Some(CODE_SEGMENT.get_or_init(|| init_code_segment()).clone()),
+            "CollateGrammar" => Some(COLLATE_GRAMMAR.get_or_init(|| init_collate_grammar()).clone()),
+            "CollateKeywordSegment" => Some(COLLATE_KEYWORD_SEGMENT.get_or_init(|| init_collate_keyword_segment()).clone()),
+            "CollationKeywordSegment" => Some(COLLATION_KEYWORD_SEGMENT.get_or_init(|| init_collation_keyword_segment()).clone()),
+            "CollationReferenceSegment" => Some(COLLATION_REFERENCE_SEGMENT.get_or_init(|| init_collation_reference_segment()).clone()),
+            "Collation_catalogKeywordSegment" => Some(COLLATION_CATALOG_KEYWORD_SEGMENT.get_or_init(|| init_collation_catalog_keyword_segment()).clone()),
+            "Collation_nameKeywordSegment" => Some(COLLATION_NAME_KEYWORD_SEGMENT.get_or_init(|| init_collation_name_keyword_segment()).clone()),
+            "Collation_schemaKeywordSegment" => Some(COLLATION_SCHEMA_KEYWORD_SEGMENT.get_or_init(|| init_collation_schema_keyword_segment()).clone()),
+            "CollectKeywordSegment" => Some(COLLECT_KEYWORD_SEGMENT.get_or_init(|| init_collect_keyword_segment()).clone()),
+            "ColonDelimiterSegment" => Some(COLON_DELIMITER_SEGMENT.get_or_init(|| init_colon_delimiter_segment()).clone()),
+            "ColonPrefixSegment" => Some(COLON_PREFIX_SEGMENT.get_or_init(|| init_colon_prefix_segment()).clone()),
+            "ColonSegment" => Some(COLON_SEGMENT.get_or_init(|| init_colon_segment()).clone()),
+            "ColumnConstraintDefaultGrammar" => Some(COLUMN_CONSTRAINT_DEFAULT_GRAMMAR.get_or_init(|| init_column_constraint_default_grammar()).clone()),
+            "ColumnConstraintSegment" => Some(COLUMN_CONSTRAINT_SEGMENT.get_or_init(|| init_column_constraint_segment()).clone()),
+            "ColumnDefinitionSegment" => Some(COLUMN_DEFINITION_SEGMENT.get_or_init(|| init_column_definition_segment()).clone()),
+            "ColumnGeneratedGrammar" => Some(COLUMN_GENERATED_GRAMMAR.get_or_init(|| init_column_generated_grammar()).clone()),
+            "ColumnKeywordSegment" => Some(COLUMN_KEYWORD_SEGMENT.get_or_init(|| init_column_keyword_segment()).clone()),
+            "ColumnReferenceSegment" => Some(COLUMN_REFERENCE_SEGMENT.get_or_init(|| init_column_reference_segment()).clone()),
+            "Column_nameKeywordSegment" => Some(COLUMN_NAME_KEYWORD_SEGMENT.get_or_init(|| init_column_name_keyword_segment()).clone()),
+            "ColumnsExpressionFunctionContentsSegment" => Some(COLUMNS_EXPRESSION_FUNCTION_CONTENTS_SEGMENT.get_or_init(|| init_columns_expression_function_contents_segment()).clone()),
+            "ColumnsExpressionFunctionNameSegment" => Some(COLUMNS_EXPRESSION_FUNCTION_NAME_SEGMENT.get_or_init(|| init_columns_expression_function_name_segment()).clone()),
+            "ColumnsExpressionGrammar" => Some(COLUMNS_EXPRESSION_GRAMMAR.get_or_init(|| init_columns_expression_grammar()).clone()),
+            "ColumnsExpressionNameGrammar" => Some(COLUMNS_EXPRESSION_NAME_GRAMMAR.get_or_init(|| init_columns_expression_name_grammar()).clone()),
+            "ColumnsKeywordSegment" => Some(COLUMNS_KEYWORD_SEGMENT.get_or_init(|| init_columns_keyword_segment()).clone()),
+            "CommaSegment" => Some(COMMA_SEGMENT.get_or_init(|| init_comma_segment()).clone()),
+            "Command_functionKeywordSegment" => Some(COMMAND_FUNCTION_KEYWORD_SEGMENT.get_or_init(|| init_command_function_keyword_segment()).clone()),
+            "Command_function_codeKeywordSegment" => Some(COMMAND_FUNCTION_CODE_KEYWORD_SEGMENT.get_or_init(|| init_command_function_code_keyword_segment()).clone()),
+            "CommentClauseSegment" => Some(COMMENT_CLAUSE_SEGMENT.get_or_init(|| init_comment_clause_segment()).clone()),
+            "CommentKeywordSegment" => Some(COMMENT_KEYWORD_SEGMENT.get_or_init(|| init_comment_keyword_segment()).clone()),
+            "CommentSegment" => Some(COMMENT_SEGMENT.get_or_init(|| init_comment_segment()).clone()),
+            "CommitKeywordSegment" => Some(COMMIT_KEYWORD_SEGMENT.get_or_init(|| init_commit_keyword_segment()).clone()),
+            "CommittedKeywordSegment" => Some(COMMITTED_KEYWORD_SEGMENT.get_or_init(|| init_committed_keyword_segment()).clone()),
+            "ComparisonOperatorGrammar" => Some(COMPARISON_OPERATOR_GRAMMAR.get_or_init(|| init_comparison_operator_grammar()).clone()),
+            "ComparisonOperatorSegment" => Some(COMPARISON_OPERATOR_SEGMENT.get_or_init(|| init_comparison_operator_segment()).clone()),
+            "CompletionKeywordSegment" => Some(COMPLETION_KEYWORD_SEGMENT.get_or_init(|| init_completion_keyword_segment()).clone()),
+            "CompositeBinaryOperatorSegment" => Some(COMPOSITE_BINARY_OPERATOR_SEGMENT.get_or_init(|| init_composite_binary_operator_segment()).clone()),
+            "CompositeComparisonOperatorSegment" => Some(COMPOSITE_COMPARISON_OPERATOR_SEGMENT.get_or_init(|| init_composite_comparison_operator_segment()).clone()),
+            "CompressKeywordSegment" => Some(COMPRESS_KEYWORD_SEGMENT.get_or_init(|| init_compress_keyword_segment()).clone()),
+            "ComputeKeywordSegment" => Some(COMPUTE_KEYWORD_SEGMENT.get_or_init(|| init_compute_keyword_segment()).clone()),
+            "ConcatSegment" => Some(CONCAT_SEGMENT.get_or_init(|| init_concat_segment()).clone()),
+            "ConditionKeywordSegment" => Some(CONDITION_KEYWORD_SEGMENT.get_or_init(|| init_condition_keyword_segment()).clone()),
+            "Condition_numberKeywordSegment" => Some(CONDITION_NUMBER_KEYWORD_SEGMENT.get_or_init(|| init_condition_number_keyword_segment()).clone()),
+            "ConditionalCrossJoinKeywordsGrammar" => Some(CONDITIONAL_CROSS_JOIN_KEYWORDS_GRAMMAR.get_or_init(|| init_conditional_cross_join_keywords_grammar()).clone()),
+            "ConditionalJoinKeywordsGrammar" => Some(CONDITIONAL_JOIN_KEYWORDS_GRAMMAR.get_or_init(|| init_conditional_join_keywords_grammar()).clone()),
+            "ConnectKeywordSegment" => Some(CONNECT_KEYWORD_SEGMENT.get_or_init(|| init_connect_keyword_segment()).clone()),
+            "ConnectionKeywordSegment" => Some(CONNECTION_KEYWORD_SEGMENT.get_or_init(|| init_connection_keyword_segment()).clone()),
+            "Connection_nameKeywordSegment" => Some(CONNECTION_NAME_KEYWORD_SEGMENT.get_or_init(|| init_connection_name_keyword_segment()).clone()),
+            "ConstraintKeywordSegment" => Some(CONSTRAINT_KEYWORD_SEGMENT.get_or_init(|| init_constraint_keyword_segment()).clone()),
+            "Constraint_catalogKeywordSegment" => Some(CONSTRAINT_CATALOG_KEYWORD_SEGMENT.get_or_init(|| init_constraint_catalog_keyword_segment()).clone()),
+            "Constraint_nameKeywordSegment" => Some(CONSTRAINT_NAME_KEYWORD_SEGMENT.get_or_init(|| init_constraint_name_keyword_segment()).clone()),
+            "Constraint_schemaKeywordSegment" => Some(CONSTRAINT_SCHEMA_KEYWORD_SEGMENT.get_or_init(|| init_constraint_schema_keyword_segment()).clone()),
+            "ConstraintsKeywordSegment" => Some(CONSTRAINTS_KEYWORD_SEGMENT.get_or_init(|| init_constraints_keyword_segment()).clone()),
+            "ConstructorKeywordSegment" => Some(CONSTRUCTOR_KEYWORD_SEGMENT.get_or_init(|| init_constructor_keyword_segment()).clone()),
+            "ContainsKeywordSegment" => Some(CONTAINS_KEYWORD_SEGMENT.get_or_init(|| init_contains_keyword_segment()).clone()),
+            "ContainstableKeywordSegment" => Some(CONTAINSTABLE_KEYWORD_SEGMENT.get_or_init(|| init_containstable_keyword_segment()).clone()),
+            "ContinueKeywordSegment" => Some(CONTINUE_KEYWORD_SEGMENT.get_or_init(|| init_continue_keyword_segment()).clone()),
+            "ConversionKeywordSegment" => Some(CONVERSION_KEYWORD_SEGMENT.get_or_init(|| init_conversion_keyword_segment()).clone()),
+            "ConvertKeywordSegment" => Some(CONVERT_KEYWORD_SEGMENT.get_or_init(|| init_convert_keyword_segment()).clone()),
+            "CopyKeywordSegment" => Some(COPY_KEYWORD_SEGMENT.get_or_init(|| init_copy_keyword_segment()).clone()),
+            "CorrKeywordSegment" => Some(CORR_KEYWORD_SEGMENT.get_or_init(|| init_corr_keyword_segment()).clone()),
+            "CorrespondingKeywordSegment" => Some(CORRESPONDING_KEYWORD_SEGMENT.get_or_init(|| init_corresponding_keyword_segment()).clone()),
+            "CountKeywordSegment" => Some(COUNT_KEYWORD_SEGMENT.get_or_init(|| init_count_keyword_segment()).clone()),
+            "Covar_popKeywordSegment" => Some(COVAR_POP_KEYWORD_SEGMENT.get_or_init(|| init_covar_pop_keyword_segment()).clone()),
+            "Covar_sampKeywordSegment" => Some(COVAR_SAMP_KEYWORD_SEGMENT.get_or_init(|| init_covar_samp_keyword_segment()).clone()),
+            "CreateCastStatementSegment" => Some(CREATE_CAST_STATEMENT_SEGMENT.get_or_init(|| init_create_cast_statement_segment()).clone()),
+            "CreateDatabaseStatementSegment" => Some(CREATE_DATABASE_STATEMENT_SEGMENT.get_or_init(|| init_create_database_statement_segment()).clone()),
+            "CreateFunctionStatementSegment" => Some(CREATE_FUNCTION_STATEMENT_SEGMENT.get_or_init(|| init_create_function_statement_segment()).clone()),
+            "CreateIndexStatementSegment" => Some(CREATE_INDEX_STATEMENT_SEGMENT.get_or_init(|| init_create_index_statement_segment()).clone()),
+            "CreateKeywordSegment" => Some(CREATE_KEYWORD_SEGMENT.get_or_init(|| init_create_keyword_segment()).clone()),
+            "CreateModelStatementSegment" => Some(CREATE_MODEL_STATEMENT_SEGMENT.get_or_init(|| init_create_model_statement_segment()).clone()),
+            "CreateRoleStatementSegment" => Some(CREATE_ROLE_STATEMENT_SEGMENT.get_or_init(|| init_create_role_statement_segment()).clone()),
+            "CreateSchemaStatementSegment" => Some(CREATE_SCHEMA_STATEMENT_SEGMENT.get_or_init(|| init_create_schema_statement_segment()).clone()),
+            "CreateSequenceOptionsSegment" => Some(CREATE_SEQUENCE_OPTIONS_SEGMENT.get_or_init(|| init_create_sequence_options_segment()).clone()),
+            "CreateSequenceStatementSegment" => Some(CREATE_SEQUENCE_STATEMENT_SEGMENT.get_or_init(|| init_create_sequence_statement_segment()).clone()),
+            "CreateTableStatementSegment" => Some(CREATE_TABLE_STATEMENT_SEGMENT.get_or_init(|| init_create_table_statement_segment()).clone()),
+            "CreateTriggerStatementSegment" => Some(CREATE_TRIGGER_STATEMENT_SEGMENT.get_or_init(|| init_create_trigger_statement_segment()).clone()),
+            "CreateUserStatementSegment" => Some(CREATE_USER_STATEMENT_SEGMENT.get_or_init(|| init_create_user_statement_segment()).clone()),
+            "CreateViewStatementSegment" => Some(CREATE_VIEW_STATEMENT_SEGMENT.get_or_init(|| init_create_view_statement_segment()).clone()),
+            "CreatedbKeywordSegment" => Some(CREATEDB_KEYWORD_SEGMENT.get_or_init(|| init_createdb_keyword_segment()).clone()),
+            "CreateroleKeywordSegment" => Some(CREATEROLE_KEYWORD_SEGMENT.get_or_init(|| init_createrole_keyword_segment()).clone()),
+            "CreateuserKeywordSegment" => Some(CREATEUSER_KEYWORD_SEGMENT.get_or_init(|| init_createuser_keyword_segment()).clone()),
+            "CrossKeywordSegment" => Some(CROSS_KEYWORD_SEGMENT.get_or_init(|| init_cross_keyword_segment()).clone()),
+            "CsvKeywordSegment" => Some(CSV_KEYWORD_SEGMENT.get_or_init(|| init_csv_keyword_segment()).clone()),
+            "CubeFunctionNameSegment" => Some(CUBE_FUNCTION_NAME_SEGMENT.get_or_init(|| init_cube_function_name_segment()).clone()),
+            "CubeKeywordSegment" => Some(CUBE_KEYWORD_SEGMENT.get_or_init(|| init_cube_keyword_segment()).clone()),
+            "CubeRollupClauseSegment" => Some(CUBE_ROLLUP_CLAUSE_SEGMENT.get_or_init(|| init_cube_rollup_clause_segment()).clone()),
+            "Cume_distKeywordSegment" => Some(CUME_DIST_KEYWORD_SEGMENT.get_or_init(|| init_cume_dist_keyword_segment()).clone()),
+            "CurrentKeywordSegment" => Some(CURRENT_KEYWORD_SEGMENT.get_or_init(|| init_current_keyword_segment()).clone()),
+            "Current_dateKeywordSegment" => Some(CURRENT_DATE_KEYWORD_SEGMENT.get_or_init(|| init_current_date_keyword_segment()).clone()),
+            "Current_default_transform_groupKeywordSegment" => Some(CURRENT_DEFAULT_TRANSFORM_GROUP_KEYWORD_SEGMENT.get_or_init(|| init_current_default_transform_group_keyword_segment()).clone()),
+            "Current_pathKeywordSegment" => Some(CURRENT_PATH_KEYWORD_SEGMENT.get_or_init(|| init_current_path_keyword_segment()).clone()),
+            "Current_roleKeywordSegment" => Some(CURRENT_ROLE_KEYWORD_SEGMENT.get_or_init(|| init_current_role_keyword_segment()).clone()),
+            "Current_timeKeywordSegment" => Some(CURRENT_TIME_KEYWORD_SEGMENT.get_or_init(|| init_current_time_keyword_segment()).clone()),
+            "Current_timestampKeywordSegment" => Some(CURRENT_TIMESTAMP_KEYWORD_SEGMENT.get_or_init(|| init_current_timestamp_keyword_segment()).clone()),
+            "Current_transform_group_for_typeKeywordSegment" => Some(CURRENT_TRANSFORM_GROUP_FOR_TYPE_KEYWORD_SEGMENT.get_or_init(|| init_current_transform_group_for_type_keyword_segment()).clone()),
+            "Current_userKeywordSegment" => Some(CURRENT_USER_KEYWORD_SEGMENT.get_or_init(|| init_current_user_keyword_segment()).clone()),
+            "CursorKeywordSegment" => Some(CURSOR_KEYWORD_SEGMENT.get_or_init(|| init_cursor_keyword_segment()).clone()),
+            "Cursor_nameKeywordSegment" => Some(CURSOR_NAME_KEYWORD_SEGMENT.get_or_init(|| init_cursor_name_keyword_segment()).clone()),
+            "CycleKeywordSegment" => Some(CYCLE_KEYWORD_SEGMENT.get_or_init(|| init_cycle_keyword_segment()).clone()),
+            "DataKeywordSegment" => Some(DATA_KEYWORD_SEGMENT.get_or_init(|| init_data_keyword_segment()).clone()),
+            "DatabaseKeywordSegment" => Some(DATABASE_KEYWORD_SEGMENT.get_or_init(|| init_database_keyword_segment()).clone()),
+            "DatabaseReferenceSegment" => Some(DATABASE_REFERENCE_SEGMENT.get_or_init(|| init_database_reference_segment()).clone()),
+            "DatabasesKeywordSegment" => Some(DATABASES_KEYWORD_SEGMENT.get_or_init(|| init_databases_keyword_segment()).clone()),
+            "DatatypeIdentifierSegment" => Some(DATATYPE_IDENTIFIER_SEGMENT.get_or_init(|| init_datatype_identifier_segment()).clone()),
+            "DatatypeSegment" => Some(DATATYPE_SEGMENT.get_or_init(|| init_datatype_segment()).clone()),
+            "DateKeywordSegment" => Some(DATE_KEYWORD_SEGMENT.get_or_init(|| init_date_keyword_segment()).clone()),
+            "DatePartFunctionName" => Some(DATE_PART_FUNCTION_NAME.get_or_init(|| init_date_part_function_name()).clone()),
+            "DatePartFunctionNameSegment" => Some(DATE_PART_FUNCTION_NAME_SEGMENT.get_or_init(|| init_date_part_function_name_segment()).clone()),
+            "DateTimeFunctionContentsSegment" => Some(DATE_TIME_FUNCTION_CONTENTS_SEGMENT.get_or_init(|| init_date_time_function_contents_segment()).clone()),
+            "DateTimeLiteralGrammar" => Some(DATE_TIME_LITERAL_GRAMMAR.get_or_init(|| init_date_time_literal_grammar()).clone()),
+            "DatetimeKeywordSegment" => Some(DATETIME_KEYWORD_SEGMENT.get_or_init(|| init_datetime_keyword_segment()).clone()),
+            "DatetimeUnitSegment" => Some(DATETIME_UNIT_SEGMENT.get_or_init(|| init_datetime_unit_segment()).clone()),
+            "Datetime_interval_codeKeywordSegment" => Some(DATETIME_INTERVAL_CODE_KEYWORD_SEGMENT.get_or_init(|| init_datetime_interval_code_keyword_segment()).clone()),
+            "Datetime_interval_precisionKeywordSegment" => Some(DATETIME_INTERVAL_PRECISION_KEYWORD_SEGMENT.get_or_init(|| init_datetime_interval_precision_keyword_segment()).clone()),
+            "DayKeywordSegment" => Some(DAY_KEYWORD_SEGMENT.get_or_init(|| init_day_keyword_segment()).clone()),
+            "Day_hourKeywordSegment" => Some(DAY_HOUR_KEYWORD_SEGMENT.get_or_init(|| init_day_hour_keyword_segment()).clone()),
+            "Day_microsecondKeywordSegment" => Some(DAY_MICROSECOND_KEYWORD_SEGMENT.get_or_init(|| init_day_microsecond_keyword_segment()).clone()),
+            "Day_minuteKeywordSegment" => Some(DAY_MINUTE_KEYWORD_SEGMENT.get_or_init(|| init_day_minute_keyword_segment()).clone()),
+            "Day_secondKeywordSegment" => Some(DAY_SECOND_KEYWORD_SEGMENT.get_or_init(|| init_day_second_keyword_segment()).clone()),
+            "DayofmonthKeywordSegment" => Some(DAYOFMONTH_KEYWORD_SEGMENT.get_or_init(|| init_dayofmonth_keyword_segment()).clone()),
+            "DayofweekKeywordSegment" => Some(DAYOFWEEK_KEYWORD_SEGMENT.get_or_init(|| init_dayofweek_keyword_segment()).clone()),
+            "DayofyearKeywordSegment" => Some(DAYOFYEAR_KEYWORD_SEGMENT.get_or_init(|| init_dayofyear_keyword_segment()).clone()),
+            "DaysKeywordSegment" => Some(DAYS_KEYWORD_SEGMENT.get_or_init(|| init_days_keyword_segment()).clone()),
+            "DbccKeywordSegment" => Some(DBCC_KEYWORD_SEGMENT.get_or_init(|| init_dbcc_keyword_segment()).clone()),
+            "DeallocateKeywordSegment" => Some(DEALLOCATE_KEYWORD_SEGMENT.get_or_init(|| init_deallocate_keyword_segment()).clone()),
+            "DecKeywordSegment" => Some(DEC_KEYWORD_SEGMENT.get_or_init(|| init_dec_keyword_segment()).clone()),
+            "DecimalKeywordSegment" => Some(DECIMAL_KEYWORD_SEGMENT.get_or_init(|| init_decimal_keyword_segment()).clone()),
+            "DeclareKeywordSegment" => Some(DECLARE_KEYWORD_SEGMENT.get_or_init(|| init_declare_keyword_segment()).clone()),
+            "Dedent" => Some(DEDENT.get_or_init(|| init_dedent()).clone()),
+            "DefaultKeywordSegment" => Some(DEFAULT_KEYWORD_SEGMENT.get_or_init(|| init_default_keyword_segment()).clone()),
+            "DefaultValuesGrammar" => Some(DEFAULT_VALUES_GRAMMAR.get_or_init(|| init_default_values_grammar()).clone()),
+            "DefaultsKeywordSegment" => Some(DEFAULTS_KEYWORD_SEGMENT.get_or_init(|| init_defaults_keyword_segment()).clone()),
+            "DeferrableKeywordSegment" => Some(DEFERRABLE_KEYWORD_SEGMENT.get_or_init(|| init_deferrable_keyword_segment()).clone()),
+            "DeferredKeywordSegment" => Some(DEFERRED_KEYWORD_SEGMENT.get_or_init(|| init_deferred_keyword_segment()).clone()),
+            "DefinedKeywordSegment" => Some(DEFINED_KEYWORD_SEGMENT.get_or_init(|| init_defined_keyword_segment()).clone()),
+            "DefinerKeywordSegment" => Some(DEFINER_KEYWORD_SEGMENT.get_or_init(|| init_definer_keyword_segment()).clone()),
+            "DegreeKeywordSegment" => Some(DEGREE_KEYWORD_SEGMENT.get_or_init(|| init_degree_keyword_segment()).clone()),
+            "Delay_key_writeKeywordSegment" => Some(DELAY_KEY_WRITE_KEYWORD_SEGMENT.get_or_init(|| init_delay_key_write_keyword_segment()).clone()),
+            "DelayedKeywordSegment" => Some(DELAYED_KEYWORD_SEGMENT.get_or_init(|| init_delayed_keyword_segment()).clone()),
+            "DeleteKeywordSegment" => Some(DELETE_KEYWORD_SEGMENT.get_or_init(|| init_delete_keyword_segment()).clone()),
+            "DeleteStatementSegment" => Some(DELETE_STATEMENT_SEGMENT.get_or_init(|| init_delete_statement_segment()).clone()),
+            "DelimiterGrammar" => Some(DELIMITER_GRAMMAR.get_or_init(|| init_delimiter_grammar()).clone()),
+            "DelimiterKeywordSegment" => Some(DELIMITER_KEYWORD_SEGMENT.get_or_init(|| init_delimiter_keyword_segment()).clone()),
+            "DelimitersKeywordSegment" => Some(DELIMITERS_KEYWORD_SEGMENT.get_or_init(|| init_delimiters_keyword_segment()).clone()),
+            "Dense_rankKeywordSegment" => Some(DENSE_RANK_KEYWORD_SEGMENT.get_or_init(|| init_dense_rank_keyword_segment()).clone()),
+            "DenyKeywordSegment" => Some(DENY_KEYWORD_SEGMENT.get_or_init(|| init_deny_keyword_segment()).clone()),
+            "DepthKeywordSegment" => Some(DEPTH_KEYWORD_SEGMENT.get_or_init(|| init_depth_keyword_segment()).clone()),
+            "DerefKeywordSegment" => Some(DEREF_KEYWORD_SEGMENT.get_or_init(|| init_deref_keyword_segment()).clone()),
+            "DerivedKeywordSegment" => Some(DERIVED_KEYWORD_SEGMENT.get_or_init(|| init_derived_keyword_segment()).clone()),
+            "DescKeywordSegment" => Some(DESC_KEYWORD_SEGMENT.get_or_init(|| init_desc_keyword_segment()).clone()),
+            "DescribeKeywordSegment" => Some(DESCRIBE_KEYWORD_SEGMENT.get_or_init(|| init_describe_keyword_segment()).clone()),
+            "DescribeStatementSegment" => Some(DESCRIBE_STATEMENT_SEGMENT.get_or_init(|| init_describe_statement_segment()).clone()),
+            "DescriptorKeywordSegment" => Some(DESCRIPTOR_KEYWORD_SEGMENT.get_or_init(|| init_descriptor_keyword_segment()).clone()),
+            "DestroyKeywordSegment" => Some(DESTROY_KEYWORD_SEGMENT.get_or_init(|| init_destroy_keyword_segment()).clone()),
+            "DestructorKeywordSegment" => Some(DESTRUCTOR_KEYWORD_SEGMENT.get_or_init(|| init_destructor_keyword_segment()).clone()),
+            "DeterministicKeywordSegment" => Some(DETERMINISTIC_KEYWORD_SEGMENT.get_or_init(|| init_deterministic_keyword_segment()).clone()),
+            "DiagnosticsKeywordSegment" => Some(DIAGNOSTICS_KEYWORD_SEGMENT.get_or_init(|| init_diagnostics_keyword_segment()).clone()),
+            "DictionaryKeywordSegment" => Some(DICTIONARY_KEYWORD_SEGMENT.get_or_init(|| init_dictionary_keyword_segment()).clone()),
+            "DisableKeywordSegment" => Some(DISABLE_KEYWORD_SEGMENT.get_or_init(|| init_disable_keyword_segment()).clone()),
+            "DisconnectKeywordSegment" => Some(DISCONNECT_KEYWORD_SEGMENT.get_or_init(|| init_disconnect_keyword_segment()).clone()),
+            "DiskKeywordSegment" => Some(DISK_KEYWORD_SEGMENT.get_or_init(|| init_disk_keyword_segment()).clone()),
+            "DispatchKeywordSegment" => Some(DISPATCH_KEYWORD_SEGMENT.get_or_init(|| init_dispatch_keyword_segment()).clone()),
+            "DistinctKeywordSegment" => Some(DISTINCT_KEYWORD_SEGMENT.get_or_init(|| init_distinct_keyword_segment()).clone()),
+            "DistinctrowKeywordSegment" => Some(DISTINCTROW_KEYWORD_SEGMENT.get_or_init(|| init_distinctrow_keyword_segment()).clone()),
+            "DistributedKeywordSegment" => Some(DISTRIBUTED_KEYWORD_SEGMENT.get_or_init(|| init_distributed_keyword_segment()).clone()),
+            "DivKeywordSegment" => Some(DIV_KEYWORD_SEGMENT.get_or_init(|| init_div_keyword_segment()).clone()),
+            "DivideSegment" => Some(DIVIDE_SEGMENT.get_or_init(|| init_divide_segment()).clone()),
+            "DoKeywordSegment" => Some(DO_KEYWORD_SEGMENT.get_or_init(|| init_do_keyword_segment()).clone()),
+            "DomainKeywordSegment" => Some(DOMAIN_KEYWORD_SEGMENT.get_or_init(|| init_domain_keyword_segment()).clone()),
+            "DotSegment" => Some(DOT_SEGMENT.get_or_init(|| init_dot_segment()).clone()),
+            "DoubleKeywordSegment" => Some(DOUBLE_KEYWORD_SEGMENT.get_or_init(|| init_double_keyword_segment()).clone()),
+            "DropBehaviorGrammar" => Some(DROP_BEHAVIOR_GRAMMAR.get_or_init(|| init_drop_behavior_grammar()).clone()),
+            "DropCastStatementSegment" => Some(DROP_CAST_STATEMENT_SEGMENT.get_or_init(|| init_drop_cast_statement_segment()).clone()),
+            "DropDatabaseStatementSegment" => Some(DROP_DATABASE_STATEMENT_SEGMENT.get_or_init(|| init_drop_database_statement_segment()).clone()),
+            "DropFunctionStatementSegment" => Some(DROP_FUNCTION_STATEMENT_SEGMENT.get_or_init(|| init_drop_function_statement_segment()).clone()),
+            "DropIndexStatementSegment" => Some(DROP_INDEX_STATEMENT_SEGMENT.get_or_init(|| init_drop_index_statement_segment()).clone()),
+            "DropKeywordSegment" => Some(DROP_KEYWORD_SEGMENT.get_or_init(|| init_drop_keyword_segment()).clone()),
+            "DropModelStatementSegment" => Some(DROP_MODEL_STATEMENT_SEGMENT.get_or_init(|| init_drop_model_statement_segment()).clone()),
+            "DropRoleStatementSegment" => Some(DROP_ROLE_STATEMENT_SEGMENT.get_or_init(|| init_drop_role_statement_segment()).clone()),
+            "DropSchemaStatementSegment" => Some(DROP_SCHEMA_STATEMENT_SEGMENT.get_or_init(|| init_drop_schema_statement_segment()).clone()),
+            "DropSequenceStatementSegment" => Some(DROP_SEQUENCE_STATEMENT_SEGMENT.get_or_init(|| init_drop_sequence_statement_segment()).clone()),
+            "DropTableStatementSegment" => Some(DROP_TABLE_STATEMENT_SEGMENT.get_or_init(|| init_drop_table_statement_segment()).clone()),
+            "DropTriggerStatementSegment" => Some(DROP_TRIGGER_STATEMENT_SEGMENT.get_or_init(|| init_drop_trigger_statement_segment()).clone()),
+            "DropTypeStatementSegment" => Some(DROP_TYPE_STATEMENT_SEGMENT.get_or_init(|| init_drop_type_statement_segment()).clone()),
+            "DropUserStatementSegment" => Some(DROP_USER_STATEMENT_SEGMENT.get_or_init(|| init_drop_user_statement_segment()).clone()),
+            "DropViewStatementSegment" => Some(DROP_VIEW_STATEMENT_SEGMENT.get_or_init(|| init_drop_view_statement_segment()).clone()),
+            "DummyKeywordSegment" => Some(DUMMY_KEYWORD_SEGMENT.get_or_init(|| init_dummy_keyword_segment()).clone()),
+            "DumpKeywordSegment" => Some(DUMP_KEYWORD_SEGMENT.get_or_init(|| init_dump_keyword_segment()).clone()),
+            "DynamicKeywordSegment" => Some(DYNAMIC_KEYWORD_SEGMENT.get_or_init(|| init_dynamic_keyword_segment()).clone()),
+            "Dynamic_functionKeywordSegment" => Some(DYNAMIC_FUNCTION_KEYWORD_SEGMENT.get_or_init(|| init_dynamic_function_keyword_segment()).clone()),
+            "Dynamic_function_codeKeywordSegment" => Some(DYNAMIC_FUNCTION_CODE_KEYWORD_SEGMENT.get_or_init(|| init_dynamic_function_code_keyword_segment()).clone()),
+            "EachKeywordSegment" => Some(EACH_KEYWORD_SEGMENT.get_or_init(|| init_each_keyword_segment()).clone()),
+            "ElementKeywordSegment" => Some(ELEMENT_KEYWORD_SEGMENT.get_or_init(|| init_element_keyword_segment()).clone()),
+            "ElseClauseSegment" => Some(ELSE_CLAUSE_SEGMENT.get_or_init(|| init_else_clause_segment()).clone()),
+            "ElseKeywordSegment" => Some(ELSE_KEYWORD_SEGMENT.get_or_init(|| init_else_keyword_segment()).clone()),
+            "ElseifKeywordSegment" => Some(ELSEIF_KEYWORD_SEGMENT.get_or_init(|| init_elseif_keyword_segment()).clone()),
+            "EmptyStructLiteralBracketsSegment" => Some(EMPTY_STRUCT_LITERAL_BRACKETS_SEGMENT.get_or_init(|| init_empty_struct_literal_brackets_segment()).clone()),
+            "EmptyStructLiteralSegment" => Some(EMPTY_STRUCT_LITERAL_SEGMENT.get_or_init(|| init_empty_struct_literal_segment()).clone()),
+            "EnableKeywordSegment" => Some(ENABLE_KEYWORD_SEGMENT.get_or_init(|| init_enable_keyword_segment()).clone()),
+            "EnclosedKeywordSegment" => Some(ENCLOSED_KEYWORD_SEGMENT.get_or_init(|| init_enclosed_keyword_segment()).clone()),
+            "EncodingKeywordSegment" => Some(ENCODING_KEYWORD_SEGMENT.get_or_init(|| init_encoding_keyword_segment()).clone()),
+            "EncryptedKeywordSegment" => Some(ENCRYPTED_KEYWORD_SEGMENT.get_or_init(|| init_encrypted_keyword_segment()).clone()),
+            "End-execKeywordSegment" => Some(END_EXEC_KEYWORD_SEGMENT.get_or_init(|| init_end_exec_keyword_segment()).clone()),
+            "EndBracketSegment" => Some(END_BRACKET_SEGMENT.get_or_init(|| init_end_bracket_segment()).clone()),
+            "EndCurlyBracketSegment" => Some(END_CURLY_BRACKET_SEGMENT.get_or_init(|| init_end_curly_bracket_segment()).clone()),
+            "EndKeywordSegment" => Some(END_KEYWORD_SEGMENT.get_or_init(|| init_end_keyword_segment()).clone()),
+            "EndSquareBracketSegment" => Some(END_SQUARE_BRACKET_SEGMENT.get_or_init(|| init_end_square_bracket_segment()).clone()),
+            "EnumKeywordSegment" => Some(ENUM_KEYWORD_SEGMENT.get_or_init(|| init_enum_keyword_segment()).clone()),
+            "EqualsKeywordSegment" => Some(EQUALS_KEYWORD_SEGMENT.get_or_init(|| init_equals_keyword_segment()).clone()),
+            "EqualsSegment" => Some(EQUALS_SEGMENT.get_or_init(|| init_equals_segment()).clone()),
+            "ErrlvlKeywordSegment" => Some(ERRLVL_KEYWORD_SEGMENT.get_or_init(|| init_errlvl_keyword_segment()).clone()),
+            "EscapeKeywordSegment" => Some(ESCAPE_KEYWORD_SEGMENT.get_or_init(|| init_escape_keyword_segment()).clone()),
+            "EscapedKeywordSegment" => Some(ESCAPED_KEYWORD_SEGMENT.get_or_init(|| init_escaped_keyword_segment()).clone()),
+            "EveryKeywordSegment" => Some(EVERY_KEYWORD_SEGMENT.get_or_init(|| init_every_keyword_segment()).clone()),
+            "ExceptKeywordSegment" => Some(EXCEPT_KEYWORD_SEGMENT.get_or_init(|| init_except_keyword_segment()).clone()),
+            "ExceptionKeywordSegment" => Some(EXCEPTION_KEYWORD_SEGMENT.get_or_init(|| init_exception_keyword_segment()).clone()),
+            "ExcludeKeywordSegment" => Some(EXCLUDE_KEYWORD_SEGMENT.get_or_init(|| init_exclude_keyword_segment()).clone()),
+            "ExcludingKeywordSegment" => Some(EXCLUDING_KEYWORD_SEGMENT.get_or_init(|| init_excluding_keyword_segment()).clone()),
+            "ExclusiveKeywordSegment" => Some(EXCLUSIVE_KEYWORD_SEGMENT.get_or_init(|| init_exclusive_keyword_segment()).clone()),
+            "ExecKeywordSegment" => Some(EXEC_KEYWORD_SEGMENT.get_or_init(|| init_exec_keyword_segment()).clone()),
+            "ExecuteKeywordSegment" => Some(EXECUTE_KEYWORD_SEGMENT.get_or_init(|| init_execute_keyword_segment()).clone()),
+            "ExecutionKeywordSegment" => Some(EXECUTION_KEYWORD_SEGMENT.get_or_init(|| init_execution_keyword_segment()).clone()),
+            "ExistingKeywordSegment" => Some(EXISTING_KEYWORD_SEGMENT.get_or_init(|| init_existing_keyword_segment()).clone()),
+            "ExistsKeywordSegment" => Some(EXISTS_KEYWORD_SEGMENT.get_or_init(|| init_exists_keyword_segment()).clone()),
+            "ExitKeywordSegment" => Some(EXIT_KEYWORD_SEGMENT.get_or_init(|| init_exit_keyword_segment()).clone()),
+            "ExpKeywordSegment" => Some(EXP_KEYWORD_SEGMENT.get_or_init(|| init_exp_keyword_segment()).clone()),
+            "ExplainKeywordSegment" => Some(EXPLAIN_KEYWORD_SEGMENT.get_or_init(|| init_explain_keyword_segment()).clone()),
+            "ExplainStatementSegment" => Some(EXPLAIN_STATEMENT_SEGMENT.get_or_init(|| init_explain_statement_segment()).clone()),
+            "ExpressionSegment" => Some(EXPRESSION_SEGMENT.get_or_init(|| init_expression_segment()).clone()),
+            "Expression_A_Grammar" => Some(EXPRESSION_A_GRAMMAR.get_or_init(|| init_expression_a_grammar()).clone()),
+            "Expression_A_Unary_Operator_Grammar" => Some(EXPRESSION_A_UNARY_OPERATOR_GRAMMAR.get_or_init(|| init_expression_a_unary_operator_grammar()).clone()),
+            "Expression_B_Grammar" => Some(EXPRESSION_B_GRAMMAR.get_or_init(|| init_expression_b_grammar()).clone()),
+            "Expression_B_Unary_Operator_Grammar" => Some(EXPRESSION_B_UNARY_OPERATOR_GRAMMAR.get_or_init(|| init_expression_b_unary_operator_grammar()).clone()),
+            "Expression_C_Grammar" => Some(EXPRESSION_C_GRAMMAR.get_or_init(|| init_expression_c_grammar()).clone()),
+            "Expression_D_Grammar" => Some(EXPRESSION_D_GRAMMAR.get_or_init(|| init_expression_d_grammar()).clone()),
+            "Expression_D_Potential_Select_Statement_Without_Brackets" => Some(EXPRESSION_D_POTENTIAL_SELECT_STATEMENT_WITHOUT_BRACKETS.get_or_init(|| init_expression_d_potential_select_statement_without_brackets()).clone()),
+            "ExtendedNaturalJoinKeywordsGrammar" => Some(EXTENDED_NATURAL_JOIN_KEYWORDS_GRAMMAR.get_or_init(|| init_extended_natural_join_keywords_grammar()).clone()),
+            "ExtensionKeywordSegment" => Some(EXTENSION_KEYWORD_SEGMENT.get_or_init(|| init_extension_keyword_segment()).clone()),
+            "ExtensionReferenceSegment" => Some(EXTENSION_REFERENCE_SEGMENT.get_or_init(|| init_extension_reference_segment()).clone()),
+            "ExternalKeywordSegment" => Some(EXTERNAL_KEYWORD_SEGMENT.get_or_init(|| init_external_keyword_segment()).clone()),
+            "ExtractKeywordSegment" => Some(EXTRACT_KEYWORD_SEGMENT.get_or_init(|| init_extract_keyword_segment()).clone()),
+            "FalseKeywordSegment" => Some(FALSE_KEYWORD_SEGMENT.get_or_init(|| init_false_keyword_segment()).clone()),
+            "FalseSegment" => Some(FALSE_SEGMENT.get_or_init(|| init_false_segment()).clone()),
+            "FetchClauseSegment" => Some(FETCH_CLAUSE_SEGMENT.get_or_init(|| init_fetch_clause_segment()).clone()),
+            "FetchKeywordSegment" => Some(FETCH_KEYWORD_SEGMENT.get_or_init(|| init_fetch_keyword_segment()).clone()),
+            "FieldsKeywordSegment" => Some(FIELDS_KEYWORD_SEGMENT.get_or_init(|| init_fields_keyword_segment()).clone()),
+            "FileKeywordSegment" => Some(FILE_KEYWORD_SEGMENT.get_or_init(|| init_file_keyword_segment()).clone()),
+            "FileSegment" => Some(FILE_SEGMENT.get_or_init(|| init_file_segment()).clone()),
+            "FillfactorKeywordSegment" => Some(FILLFACTOR_KEYWORD_SEGMENT.get_or_init(|| init_fillfactor_keyword_segment()).clone()),
+            "FilterClauseGrammar" => Some(FILTER_CLAUSE_GRAMMAR.get_or_init(|| init_filter_clause_grammar()).clone()),
+            "FilterKeywordSegment" => Some(FILTER_KEYWORD_SEGMENT.get_or_init(|| init_filter_keyword_segment()).clone()),
+            "FinalKeywordSegment" => Some(FINAL_KEYWORD_SEGMENT.get_or_init(|| init_final_keyword_segment()).clone()),
+            "FirstKeywordSegment" => Some(FIRST_KEYWORD_SEGMENT.get_or_init(|| init_first_keyword_segment()).clone()),
+            "Float4KeywordSegment" => Some(FLOAT4_KEYWORD_SEGMENT.get_or_init(|| init_float4_keyword_segment()).clone()),
+            "Float8KeywordSegment" => Some(FLOAT8_KEYWORD_SEGMENT.get_or_init(|| init_float8_keyword_segment()).clone()),
+            "FloatKeywordSegment" => Some(FLOAT_KEYWORD_SEGMENT.get_or_init(|| init_float_keyword_segment()).clone()),
+            "FloorKeywordSegment" => Some(FLOOR_KEYWORD_SEGMENT.get_or_init(|| init_floor_keyword_segment()).clone()),
+            "FlushKeywordSegment" => Some(FLUSH_KEYWORD_SEGMENT.get_or_init(|| init_flush_keyword_segment()).clone()),
+            "FollowingKeywordSegment" => Some(FOLLOWING_KEYWORD_SEGMENT.get_or_init(|| init_following_keyword_segment()).clone()),
+            "ForKeywordSegment" => Some(FOR_KEYWORD_SEGMENT.get_or_init(|| init_for_keyword_segment()).clone()),
+            "ForceKeywordSegment" => Some(FORCE_KEYWORD_SEGMENT.get_or_init(|| init_force_keyword_segment()).clone()),
+            "ForeignKeyGrammar" => Some(FOREIGN_KEY_GRAMMAR.get_or_init(|| init_foreign_key_grammar()).clone()),
+            "ForeignKeywordSegment" => Some(FOREIGN_KEYWORD_SEGMENT.get_or_init(|| init_foreign_keyword_segment()).clone()),
+            "FormatKeywordSegment" => Some(FORMAT_KEYWORD_SEGMENT.get_or_init(|| init_format_keyword_segment()).clone()),
+            "FortranKeywordSegment" => Some(FORTRAN_KEYWORD_SEGMENT.get_or_init(|| init_fortran_keyword_segment()).clone()),
+            "ForwardKeywordSegment" => Some(FORWARD_KEYWORD_SEGMENT.get_or_init(|| init_forward_keyword_segment()).clone()),
+            "FoundKeywordSegment" => Some(FOUND_KEYWORD_SEGMENT.get_or_init(|| init_found_keyword_segment()).clone()),
+            "FrameClauseSegment" => Some(FRAME_CLAUSE_SEGMENT.get_or_init(|| init_frame_clause_segment()).clone()),
+            "FrameClauseUnitGrammar" => Some(FRAME_CLAUSE_UNIT_GRAMMAR.get_or_init(|| init_frame_clause_unit_grammar()).clone()),
+            "FreeKeywordSegment" => Some(FREE_KEYWORD_SEGMENT.get_or_init(|| init_free_keyword_segment()).clone()),
+            "FreetextKeywordSegment" => Some(FREETEXT_KEYWORD_SEGMENT.get_or_init(|| init_freetext_keyword_segment()).clone()),
+            "FreetexttableKeywordSegment" => Some(FREETEXTTABLE_KEYWORD_SEGMENT.get_or_init(|| init_freetexttable_keyword_segment()).clone()),
+            "FreezeKeywordSegment" => Some(FREEZE_KEYWORD_SEGMENT.get_or_init(|| init_freeze_keyword_segment()).clone()),
+            "FromClauseSegment" => Some(FROM_CLAUSE_SEGMENT.get_or_init(|| init_from_clause_segment()).clone()),
+            "FromClauseTerminatorGrammar" => Some(FROM_CLAUSE_TERMINATOR_GRAMMAR.get_or_init(|| init_from_clause_terminator_grammar()).clone()),
+            "FromExpressionElementSegment" => Some(FROM_EXPRESSION_ELEMENT_SEGMENT.get_or_init(|| init_from_expression_element_segment()).clone()),
+            "FromExpressionSegment" => Some(FROM_EXPRESSION_SEGMENT.get_or_init(|| init_from_expression_segment()).clone()),
+            "FromKeywordSegment" => Some(FROM_KEYWORD_SEGMENT.get_or_init(|| init_from_keyword_segment()).clone()),
+            "FullKeywordSegment" => Some(FULL_KEYWORD_SEGMENT.get_or_init(|| init_full_keyword_segment()).clone()),
+            "FulltextKeywordSegment" => Some(FULLTEXT_KEYWORD_SEGMENT.get_or_init(|| init_fulltext_keyword_segment()).clone()),
+            "FunctionContentsExpressionGrammar" => Some(FUNCTION_CONTENTS_EXPRESSION_GRAMMAR.get_or_init(|| init_function_contents_expression_grammar()).clone()),
+            "FunctionContentsGrammar" => Some(FUNCTION_CONTENTS_GRAMMAR.get_or_init(|| init_function_contents_grammar()).clone()),
+            "FunctionContentsSegment" => Some(FUNCTION_CONTENTS_SEGMENT.get_or_init(|| init_function_contents_segment()).clone()),
+            "FunctionDefinitionGrammar" => Some(FUNCTION_DEFINITION_GRAMMAR.get_or_init(|| init_function_definition_grammar()).clone()),
+            "FunctionKeywordSegment" => Some(FUNCTION_KEYWORD_SEGMENT.get_or_init(|| init_function_keyword_segment()).clone()),
+            "FunctionNameIdentifierSegment" => Some(FUNCTION_NAME_IDENTIFIER_SEGMENT.get_or_init(|| init_function_name_identifier_segment()).clone()),
+            "FunctionNameSegment" => Some(FUNCTION_NAME_SEGMENT.get_or_init(|| init_function_name_segment()).clone()),
+            "FunctionParameterGrammar" => Some(FUNCTION_PARAMETER_GRAMMAR.get_or_init(|| init_function_parameter_grammar()).clone()),
+            "FunctionParameterListGrammar" => Some(FUNCTION_PARAMETER_LIST_GRAMMAR.get_or_init(|| init_function_parameter_list_grammar()).clone()),
+            "FunctionSegment" => Some(FUNCTION_SEGMENT.get_or_init(|| init_function_segment()).clone()),
+            "FunctionsKeywordSegment" => Some(FUNCTIONS_KEYWORD_SEGMENT.get_or_init(|| init_functions_keyword_segment()).clone()),
+            "FusionKeywordSegment" => Some(FUSION_KEYWORD_SEGMENT.get_or_init(|| init_fusion_keyword_segment()).clone()),
+            "FutureKeywordSegment" => Some(FUTURE_KEYWORD_SEGMENT.get_or_init(|| init_future_keyword_segment()).clone()),
+            "GKeywordSegment" => Some(G_KEYWORD_SEGMENT.get_or_init(|| init_g_keyword_segment()).clone()),
+            "GeneralKeywordSegment" => Some(GENERAL_KEYWORD_SEGMENT.get_or_init(|| init_general_keyword_segment()).clone()),
+            "GeneratedKeywordSegment" => Some(GENERATED_KEYWORD_SEGMENT.get_or_init(|| init_generated_keyword_segment()).clone()),
+            "GetKeywordSegment" => Some(GET_KEYWORD_SEGMENT.get_or_init(|| init_get_keyword_segment()).clone()),
+            "GlobOperatorSegment" => Some(GLOB_OPERATOR_SEGMENT.get_or_init(|| init_glob_operator_segment()).clone()),
+            "GlobalKeywordSegment" => Some(GLOBAL_KEYWORD_SEGMENT.get_or_init(|| init_global_keyword_segment()).clone()),
+            "GoKeywordSegment" => Some(GO_KEYWORD_SEGMENT.get_or_init(|| init_go_keyword_segment()).clone()),
+            "GotoKeywordSegment" => Some(GOTO_KEYWORD_SEGMENT.get_or_init(|| init_goto_keyword_segment()).clone()),
+            "GrantKeywordSegment" => Some(GRANT_KEYWORD_SEGMENT.get_or_init(|| init_grant_keyword_segment()).clone()),
+            "GrantedKeywordSegment" => Some(GRANTED_KEYWORD_SEGMENT.get_or_init(|| init_granted_keyword_segment()).clone()),
+            "GrantsKeywordSegment" => Some(GRANTS_KEYWORD_SEGMENT.get_or_init(|| init_grants_keyword_segment()).clone()),
+            "GreaterThanOrEqualToSegment" => Some(GREATER_THAN_OR_EQUAL_TO_SEGMENT.get_or_init(|| init_greater_than_or_equal_to_segment()).clone()),
+            "GreaterThanSegment" => Some(GREATER_THAN_SEGMENT.get_or_init(|| init_greater_than_segment()).clone()),
+            "GreatestKeywordSegment" => Some(GREATEST_KEYWORD_SEGMENT.get_or_init(|| init_greatest_keyword_segment()).clone()),
+            "GroupByClauseSegment" => Some(GROUP_BY_CLAUSE_SEGMENT.get_or_init(|| init_group_by_clause_segment()).clone()),
+            "GroupByClauseTerminatorGrammar" => Some(GROUP_BY_CLAUSE_TERMINATOR_GRAMMAR.get_or_init(|| init_group_by_clause_terminator_grammar()).clone()),
+            "GroupKeywordSegment" => Some(GROUP_KEYWORD_SEGMENT.get_or_init(|| init_group_keyword_segment()).clone()),
+            "GroupingExpressionList" => Some(GROUPING_EXPRESSION_LIST.get_or_init(|| init_grouping_expression_list()).clone()),
+            "GroupingKeywordSegment" => Some(GROUPING_KEYWORD_SEGMENT.get_or_init(|| init_grouping_keyword_segment()).clone()),
+            "GroupingSetsClauseSegment" => Some(GROUPING_SETS_CLAUSE_SEGMENT.get_or_init(|| init_grouping_sets_clause_segment()).clone()),
+            "HandlerKeywordSegment" => Some(HANDLER_KEYWORD_SEGMENT.get_or_init(|| init_handler_keyword_segment()).clone()),
+            "HavingClauseSegment" => Some(HAVING_CLAUSE_SEGMENT.get_or_init(|| init_having_clause_segment()).clone()),
+            "HavingClauseTerminatorGrammar" => Some(HAVING_CLAUSE_TERMINATOR_GRAMMAR.get_or_init(|| init_having_clause_terminator_grammar()).clone()),
+            "HavingKeywordSegment" => Some(HAVING_KEYWORD_SEGMENT.get_or_init(|| init_having_keyword_segment()).clone()),
+            "HeaderKeywordSegment" => Some(HEADER_KEYWORD_SEGMENT.get_or_init(|| init_header_keyword_segment()).clone()),
+            "HeapKeywordSegment" => Some(HEAP_KEYWORD_SEGMENT.get_or_init(|| init_heap_keyword_segment()).clone()),
+            "HierarchyKeywordSegment" => Some(HIERARCHY_KEYWORD_SEGMENT.get_or_init(|| init_hierarchy_keyword_segment()).clone()),
+            "High_priorityKeywordSegment" => Some(HIGH_PRIORITY_KEYWORD_SEGMENT.get_or_init(|| init_high_priority_keyword_segment()).clone()),
+            "HoldKeywordSegment" => Some(HOLD_KEYWORD_SEGMENT.get_or_init(|| init_hold_keyword_segment()).clone()),
+            "HoldlockKeywordSegment" => Some(HOLDLOCK_KEYWORD_SEGMENT.get_or_init(|| init_holdlock_keyword_segment()).clone()),
+            "HorizontalJoinKeywordsGrammar" => Some(HORIZONTAL_JOIN_KEYWORDS_GRAMMAR.get_or_init(|| init_horizontal_join_keywords_grammar()).clone()),
+            "HostKeywordSegment" => Some(HOST_KEYWORD_SEGMENT.get_or_init(|| init_host_keyword_segment()).clone()),
+            "HostsKeywordSegment" => Some(HOSTS_KEYWORD_SEGMENT.get_or_init(|| init_hosts_keyword_segment()).clone()),
+            "HourKeywordSegment" => Some(HOUR_KEYWORD_SEGMENT.get_or_init(|| init_hour_keyword_segment()).clone()),
+            "Hour_microsecondKeywordSegment" => Some(HOUR_MICROSECOND_KEYWORD_SEGMENT.get_or_init(|| init_hour_microsecond_keyword_segment()).clone()),
+            "Hour_minuteKeywordSegment" => Some(HOUR_MINUTE_KEYWORD_SEGMENT.get_or_init(|| init_hour_minute_keyword_segment()).clone()),
+            "Hour_secondKeywordSegment" => Some(HOUR_SECOND_KEYWORD_SEGMENT.get_or_init(|| init_hour_second_keyword_segment()).clone()),
+            "IdentifiedKeywordSegment" => Some(IDENTIFIED_KEYWORD_SEGMENT.get_or_init(|| init_identified_keyword_segment()).clone()),
+            "IdentifierSegment" => Some(IDENTIFIER_SEGMENT.get_or_init(|| init_identifier_segment()).clone()),
+            "IdentityKeywordSegment" => Some(IDENTITY_KEYWORD_SEGMENT.get_or_init(|| init_identity_keyword_segment()).clone()),
+            "Identity_insertKeywordSegment" => Some(IDENTITY_INSERT_KEYWORD_SEGMENT.get_or_init(|| init_identity_insert_keyword_segment()).clone()),
+            "IdentitycolKeywordSegment" => Some(IDENTITYCOL_KEYWORD_SEGMENT.get_or_init(|| init_identitycol_keyword_segment()).clone()),
+            "IfExistsGrammar" => Some(IF_EXISTS_GRAMMAR.get_or_init(|| init_if_exists_grammar()).clone()),
+            "IfKeywordSegment" => Some(IF_KEYWORD_SEGMENT.get_or_init(|| init_if_keyword_segment()).clone()),
+            "IfNotExistsGrammar" => Some(IF_NOT_EXISTS_GRAMMAR.get_or_init(|| init_if_not_exists_grammar()).clone()),
+            "IgnoreKeywordSegment" => Some(IGNORE_KEYWORD_SEGMENT.get_or_init(|| init_ignore_keyword_segment()).clone()),
+            "IgnoreRespectNullsGrammar" => Some(IGNORE_RESPECT_NULLS_GRAMMAR.get_or_init(|| init_ignore_respect_nulls_grammar()).clone()),
+            "IlikeKeywordSegment" => Some(ILIKE_KEYWORD_SEGMENT.get_or_init(|| init_ilike_keyword_segment()).clone()),
+            "ImmediateKeywordSegment" => Some(IMMEDIATE_KEYWORD_SEGMENT.get_or_init(|| init_immediate_keyword_segment()).clone()),
+            "ImmutableKeywordSegment" => Some(IMMUTABLE_KEYWORD_SEGMENT.get_or_init(|| init_immutable_keyword_segment()).clone()),
+            "ImplementationKeywordSegment" => Some(IMPLEMENTATION_KEYWORD_SEGMENT.get_or_init(|| init_implementation_keyword_segment()).clone()),
+            "ImplicitIndent" => Some(IMPLICIT_INDENT.get_or_init(|| init_implicit_indent()).clone()),
+            "ImplicitKeywordSegment" => Some(IMPLICIT_KEYWORD_SEGMENT.get_or_init(|| init_implicit_keyword_segment()).clone()),
+            "ImportedKeywordSegment" => Some(IMPORTED_KEYWORD_SEGMENT.get_or_init(|| init_imported_keyword_segment()).clone()),
+            "InKeywordSegment" => Some(IN_KEYWORD_SEGMENT.get_or_init(|| init_in_keyword_segment()).clone()),
+            "InOperatorGrammar" => Some(IN_OPERATOR_GRAMMAR.get_or_init(|| init_in_operator_grammar()).clone()),
+            "IncludeKeywordSegment" => Some(INCLUDE_KEYWORD_SEGMENT.get_or_init(|| init_include_keyword_segment()).clone()),
+            "IncludingKeywordSegment" => Some(INCLUDING_KEYWORD_SEGMENT.get_or_init(|| init_including_keyword_segment()).clone()),
+            "IncrementKeywordSegment" => Some(INCREMENT_KEYWORD_SEGMENT.get_or_init(|| init_increment_keyword_segment()).clone()),
+            "Indent" => Some(INDENT.get_or_init(|| init_indent()).clone()),
+            "IndexColumnDefinitionSegment" => Some(INDEX_COLUMN_DEFINITION_SEGMENT.get_or_init(|| init_index_column_definition_segment()).clone()),
+            "IndexKeywordSegment" => Some(INDEX_KEYWORD_SEGMENT.get_or_init(|| init_index_keyword_segment()).clone()),
+            "IndexReferenceSegment" => Some(INDEX_REFERENCE_SEGMENT.get_or_init(|| init_index_reference_segment()).clone()),
+            "IndicatorKeywordSegment" => Some(INDICATOR_KEYWORD_SEGMENT.get_or_init(|| init_indicator_keyword_segment()).clone()),
+            "InfileKeywordSegment" => Some(INFILE_KEYWORD_SEGMENT.get_or_init(|| init_infile_keyword_segment()).clone()),
+            "InfixKeywordSegment" => Some(INFIX_KEYWORD_SEGMENT.get_or_init(|| init_infix_keyword_segment()).clone()),
+            "InheritKeywordSegment" => Some(INHERIT_KEYWORD_SEGMENT.get_or_init(|| init_inherit_keyword_segment()).clone()),
+            "InheritsKeywordSegment" => Some(INHERITS_KEYWORD_SEGMENT.get_or_init(|| init_inherits_keyword_segment()).clone()),
+            "InitialKeywordSegment" => Some(INITIAL_KEYWORD_SEGMENT.get_or_init(|| init_initial_keyword_segment()).clone()),
+            "InitializeKeywordSegment" => Some(INITIALIZE_KEYWORD_SEGMENT.get_or_init(|| init_initialize_keyword_segment()).clone()),
+            "InitiallyKeywordSegment" => Some(INITIALLY_KEYWORD_SEGMENT.get_or_init(|| init_initially_keyword_segment()).clone()),
+            "InnerKeywordSegment" => Some(INNER_KEYWORD_SEGMENT.get_or_init(|| init_inner_keyword_segment()).clone()),
+            "InoutKeywordSegment" => Some(INOUT_KEYWORD_SEGMENT.get_or_init(|| init_inout_keyword_segment()).clone()),
+            "InputKeywordSegment" => Some(INPUT_KEYWORD_SEGMENT.get_or_init(|| init_input_keyword_segment()).clone()),
+            "InsensitiveKeywordSegment" => Some(INSENSITIVE_KEYWORD_SEGMENT.get_or_init(|| init_insensitive_keyword_segment()).clone()),
+            "InsertKeywordSegment" => Some(INSERT_KEYWORD_SEGMENT.get_or_init(|| init_insert_keyword_segment()).clone()),
+            "InsertStatementSegment" => Some(INSERT_STATEMENT_SEGMENT.get_or_init(|| init_insert_statement_segment()).clone()),
+            "Insert_idKeywordSegment" => Some(INSERT_ID_KEYWORD_SEGMENT.get_or_init(|| init_insert_id_keyword_segment()).clone()),
+            "InstanceKeywordSegment" => Some(INSTANCE_KEYWORD_SEGMENT.get_or_init(|| init_instance_keyword_segment()).clone()),
+            "InstantiableKeywordSegment" => Some(INSTANTIABLE_KEYWORD_SEGMENT.get_or_init(|| init_instantiable_keyword_segment()).clone()),
+            "InsteadKeywordSegment" => Some(INSTEAD_KEYWORD_SEGMENT.get_or_init(|| init_instead_keyword_segment()).clone()),
+            "Int1KeywordSegment" => Some(INT1_KEYWORD_SEGMENT.get_or_init(|| init_int1_keyword_segment()).clone()),
+            "Int2KeywordSegment" => Some(INT2_KEYWORD_SEGMENT.get_or_init(|| init_int2_keyword_segment()).clone()),
+            "Int3KeywordSegment" => Some(INT3_KEYWORD_SEGMENT.get_or_init(|| init_int3_keyword_segment()).clone()),
+            "Int4KeywordSegment" => Some(INT4_KEYWORD_SEGMENT.get_or_init(|| init_int4_keyword_segment()).clone()),
+            "Int8KeywordSegment" => Some(INT8_KEYWORD_SEGMENT.get_or_init(|| init_int8_keyword_segment()).clone()),
+            "IntKeywordSegment" => Some(INT_KEYWORD_SEGMENT.get_or_init(|| init_int_keyword_segment()).clone()),
+            "IntegerKeywordSegment" => Some(INTEGER_KEYWORD_SEGMENT.get_or_init(|| init_integer_keyword_segment()).clone()),
+            "IntegrationKeywordSegment" => Some(INTEGRATION_KEYWORD_SEGMENT.get_or_init(|| init_integration_keyword_segment()).clone()),
+            "IntegrationsKeywordSegment" => Some(INTEGRATIONS_KEYWORD_SEGMENT.get_or_init(|| init_integrations_keyword_segment()).clone()),
+            "IntersectKeywordSegment" => Some(INTERSECT_KEYWORD_SEGMENT.get_or_init(|| init_intersect_keyword_segment()).clone()),
+            "IntersectionKeywordSegment" => Some(INTERSECTION_KEYWORD_SEGMENT.get_or_init(|| init_intersection_keyword_segment()).clone()),
+            "IntervalExpressionSegment" => Some(INTERVAL_EXPRESSION_SEGMENT.get_or_init(|| init_interval_expression_segment()).clone()),
+            "IntervalKeywordSegment" => Some(INTERVAL_KEYWORD_SEGMENT.get_or_init(|| init_interval_keyword_segment()).clone()),
+            "IntoKeywordSegment" => Some(INTO_KEYWORD_SEGMENT.get_or_init(|| init_into_keyword_segment()).clone()),
+            "InvokerKeywordSegment" => Some(INVOKER_KEYWORD_SEGMENT.get_or_init(|| init_invoker_keyword_segment()).clone()),
+            "IsClauseGrammar" => Some(IS_CLAUSE_GRAMMAR.get_or_init(|| init_is_clause_grammar()).clone()),
+            "IsDistinctFromGrammar" => Some(IS_DISTINCT_FROM_GRAMMAR.get_or_init(|| init_is_distinct_from_grammar()).clone()),
+            "IsKeywordSegment" => Some(IS_KEYWORD_SEGMENT.get_or_init(|| init_is_keyword_segment()).clone()),
+            "IsNullGrammar" => Some(IS_NULL_GRAMMAR.get_or_init(|| init_is_null_grammar()).clone()),
+            "IsamKeywordSegment" => Some(ISAM_KEYWORD_SEGMENT.get_or_init(|| init_isam_keyword_segment()).clone()),
+            "IsnullKeywordSegment" => Some(ISNULL_KEYWORD_SEGMENT.get_or_init(|| init_isnull_keyword_segment()).clone()),
+            "IsolationKeywordSegment" => Some(ISOLATION_KEYWORD_SEGMENT.get_or_init(|| init_isolation_keyword_segment()).clone()),
+            "IterateKeywordSegment" => Some(ITERATE_KEYWORD_SEGMENT.get_or_init(|| init_iterate_keyword_segment()).clone()),
+            "JoinClauseSegment" => Some(JOIN_CLAUSE_SEGMENT.get_or_init(|| init_join_clause_segment()).clone()),
+            "JoinKeywordSegment" => Some(JOIN_KEYWORD_SEGMENT.get_or_init(|| init_join_keyword_segment()).clone()),
+            "JoinKeywordsGrammar" => Some(JOIN_KEYWORDS_GRAMMAR.get_or_init(|| init_join_keywords_grammar()).clone()),
+            "JoinLikeClauseGrammar" => Some(JOIN_LIKE_CLAUSE_GRAMMAR.get_or_init(|| init_join_like_clause_grammar()).clone()),
+            "JoinOnConditionSegment" => Some(JOIN_ON_CONDITION_SEGMENT.get_or_init(|| init_join_on_condition_segment()).clone()),
+            "JoinTypeKeywordsGrammar" => Some(JOIN_TYPE_KEYWORDS_GRAMMAR.get_or_init(|| init_join_type_keywords_grammar()).clone()),
+            "JoinUsingConditionGrammar" => Some(JOIN_USING_CONDITION_GRAMMAR.get_or_init(|| init_join_using_condition_grammar()).clone()),
+            "JsonKeywordSegment" => Some(JSON_KEYWORD_SEGMENT.get_or_init(|| init_json_keyword_segment()).clone()),
+            "KKeywordSegment" => Some(K_KEYWORD_SEGMENT.get_or_init(|| init_k_keyword_segment()).clone()),
+            "KeyKeywordSegment" => Some(KEY_KEYWORD_SEGMENT.get_or_init(|| init_key_keyword_segment()).clone()),
+            "Key_memberKeywordSegment" => Some(KEY_MEMBER_KEYWORD_SEGMENT.get_or_init(|| init_key_member_keyword_segment()).clone()),
+            "Key_typeKeywordSegment" => Some(KEY_TYPE_KEYWORD_SEGMENT.get_or_init(|| init_key_type_keyword_segment()).clone()),
+            "KeysKeywordSegment" => Some(KEYS_KEYWORD_SEGMENT.get_or_init(|| init_keys_keyword_segment()).clone()),
+            "KeywordSegment" => Some(KEYWORD_SEGMENT.get_or_init(|| init_keyword_segment()).clone()),
+            "KillKeywordSegment" => Some(KILL_KEYWORD_SEGMENT.get_or_init(|| init_kill_keyword_segment()).clone()),
+            "LancompilerKeywordSegment" => Some(LANCOMPILER_KEYWORD_SEGMENT.get_or_init(|| init_lancompiler_keyword_segment()).clone()),
+            "LanguageKeywordSegment" => Some(LANGUAGE_KEYWORD_SEGMENT.get_or_init(|| init_language_keyword_segment()).clone()),
+            "LargeKeywordSegment" => Some(LARGE_KEYWORD_SEGMENT.get_or_init(|| init_large_keyword_segment()).clone()),
+            "LastKeywordSegment" => Some(LAST_KEYWORD_SEGMENT.get_or_init(|| init_last_keyword_segment()).clone()),
+            "Last_insert_idKeywordSegment" => Some(LAST_INSERT_ID_KEYWORD_SEGMENT.get_or_init(|| init_last_insert_id_keyword_segment()).clone()),
+            "LateralKeywordSegment" => Some(LATERAL_KEYWORD_SEGMENT.get_or_init(|| init_lateral_keyword_segment()).clone()),
+            "LeadingKeywordSegment" => Some(LEADING_KEYWORD_SEGMENT.get_or_init(|| init_leading_keyword_segment()).clone()),
+            "LeastKeywordSegment" => Some(LEAST_KEYWORD_SEGMENT.get_or_init(|| init_least_keyword_segment()).clone()),
+            "LeaveKeywordSegment" => Some(LEAVE_KEYWORD_SEGMENT.get_or_init(|| init_leave_keyword_segment()).clone()),
+            "LeftKeywordSegment" => Some(LEFT_KEYWORD_SEGMENT.get_or_init(|| init_left_keyword_segment()).clone()),
+            "LengthKeywordSegment" => Some(LENGTH_KEYWORD_SEGMENT.get_or_init(|| init_length_keyword_segment()).clone()),
+            "LessKeywordSegment" => Some(LESS_KEYWORD_SEGMENT.get_or_init(|| init_less_keyword_segment()).clone()),
+            "LessThanOrEqualToSegment" => Some(LESS_THAN_OR_EQUAL_TO_SEGMENT.get_or_init(|| init_less_than_or_equal_to_segment()).clone()),
+            "LessThanSegment" => Some(LESS_THAN_SEGMENT.get_or_init(|| init_less_than_segment()).clone()),
+            "LevelKeywordSegment" => Some(LEVEL_KEYWORD_SEGMENT.get_or_init(|| init_level_keyword_segment()).clone()),
+            "LikeExpressionGrammar" => Some(LIKE_EXPRESSION_GRAMMAR.get_or_init(|| init_like_expression_grammar()).clone()),
+            "LikeGrammar" => Some(LIKE_GRAMMAR.get_or_init(|| init_like_grammar()).clone()),
+            "LikeKeywordSegment" => Some(LIKE_KEYWORD_SEGMENT.get_or_init(|| init_like_keyword_segment()).clone()),
+            "LikeOperatorSegment" => Some(LIKE_OPERATOR_SEGMENT.get_or_init(|| init_like_operator_segment()).clone()),
+            "LimitClauseSegment" => Some(LIMIT_CLAUSE_SEGMENT.get_or_init(|| init_limit_clause_segment()).clone()),
+            "LimitKeywordSegment" => Some(LIMIT_KEYWORD_SEGMENT.get_or_init(|| init_limit_keyword_segment()).clone()),
+            "LinenoKeywordSegment" => Some(LINENO_KEYWORD_SEGMENT.get_or_init(|| init_lineno_keyword_segment()).clone()),
+            "LinesKeywordSegment" => Some(LINES_KEYWORD_SEGMENT.get_or_init(|| init_lines_keyword_segment()).clone()),
+            "ListComprehensionGrammar" => Some(LIST_COMPREHENSION_GRAMMAR.get_or_init(|| init_list_comprehension_grammar()).clone()),
+            "ListenKeywordSegment" => Some(LISTEN_KEYWORD_SEGMENT.get_or_init(|| init_listen_keyword_segment()).clone()),
+            "LiteralGrammar" => Some(LITERAL_GRAMMAR.get_or_init(|| init_literal_grammar()).clone()),
+            "LiteralKeywordSegment" => Some(LITERAL_KEYWORD_SEGMENT.get_or_init(|| init_literal_keyword_segment()).clone()),
+            "LiteralSegment" => Some(LITERAL_SEGMENT.get_or_init(|| init_literal_segment()).clone()),
+            "LnKeywordSegment" => Some(LN_KEYWORD_SEGMENT.get_or_init(|| init_ln_keyword_segment()).clone()),
+            "LoadKeywordSegment" => Some(LOAD_KEYWORD_SEGMENT.get_or_init(|| init_load_keyword_segment()).clone()),
+            "LocalAliasSegment" => Some(LOCAL_ALIAS_SEGMENT.get_or_init(|| init_local_alias_segment()).clone()),
+            "LocalKeywordSegment" => Some(LOCAL_KEYWORD_SEGMENT.get_or_init(|| init_local_keyword_segment()).clone()),
+            "LocaltimeKeywordSegment" => Some(LOCALTIME_KEYWORD_SEGMENT.get_or_init(|| init_localtime_keyword_segment()).clone()),
+            "LocaltimestampKeywordSegment" => Some(LOCALTIMESTAMP_KEYWORD_SEGMENT.get_or_init(|| init_localtimestamp_keyword_segment()).clone()),
+            "LocationKeywordSegment" => Some(LOCATION_KEYWORD_SEGMENT.get_or_init(|| init_location_keyword_segment()).clone()),
+            "LocatorKeywordSegment" => Some(LOCATOR_KEYWORD_SEGMENT.get_or_init(|| init_locator_keyword_segment()).clone()),
+            "LockKeywordSegment" => Some(LOCK_KEYWORD_SEGMENT.get_or_init(|| init_lock_keyword_segment()).clone()),
+            "LocksKeywordSegment" => Some(LOCKS_KEYWORD_SEGMENT.get_or_init(|| init_locks_keyword_segment()).clone()),
+            "LoginKeywordSegment" => Some(LOGIN_KEYWORD_SEGMENT.get_or_init(|| init_login_keyword_segment()).clone()),
+            "LogsKeywordSegment" => Some(LOGS_KEYWORD_SEGMENT.get_or_init(|| init_logs_keyword_segment()).clone()),
+            "LongKeywordSegment" => Some(LONG_KEYWORD_SEGMENT.get_or_init(|| init_long_keyword_segment()).clone()),
+            "LongblobKeywordSegment" => Some(LONGBLOB_KEYWORD_SEGMENT.get_or_init(|| init_longblob_keyword_segment()).clone()),
+            "LongtextKeywordSegment" => Some(LONGTEXT_KEYWORD_SEGMENT.get_or_init(|| init_longtext_keyword_segment()).clone()),
+            "LoopKeywordSegment" => Some(LOOP_KEYWORD_SEGMENT.get_or_init(|| init_loop_keyword_segment()).clone()),
+            "Low_priorityKeywordSegment" => Some(LOW_PRIORITY_KEYWORD_SEGMENT.get_or_init(|| init_low_priority_keyword_segment()).clone()),
+            "LowerKeywordSegment" => Some(LOWER_KEYWORD_SEGMENT.get_or_init(|| init_lower_keyword_segment()).clone()),
+            "MKeywordSegment" => Some(M_KEYWORD_SEGMENT.get_or_init(|| init_m_keyword_segment()).clone()),
+            "MLTableExpressionSegment" => Some(M_L_TABLE_EXPRESSION_SEGMENT.get_or_init(|| init_m_l_table_expression_segment()).clone()),
+            "ManageKeywordSegment" => Some(MANAGE_KEYWORD_SEGMENT.get_or_init(|| init_manage_keyword_segment()).clone()),
+            "MapKeywordSegment" => Some(MAP_KEYWORD_SEGMENT.get_or_init(|| init_map_keyword_segment()).clone()),
+            "MapTypeSegment" => Some(MAP_TYPE_SEGMENT.get_or_init(|| init_map_type_segment()).clone()),
+            "MaskingKeywordSegment" => Some(MASKING_KEYWORD_SEGMENT.get_or_init(|| init_masking_keyword_segment()).clone()),
+            "MatchConditionSegment" => Some(MATCH_CONDITION_SEGMENT.get_or_init(|| init_match_condition_segment()).clone()),
+            "MatchKeywordSegment" => Some(MATCH_KEYWORD_SEGMENT.get_or_init(|| init_match_keyword_segment()).clone()),
+            "MatchedKeywordSegment" => Some(MATCHED_KEYWORD_SEGMENT.get_or_init(|| init_matched_keyword_segment()).clone()),
+            "MaterializedKeywordSegment" => Some(MATERIALIZED_KEYWORD_SEGMENT.get_or_init(|| init_materialized_keyword_segment()).clone()),
+            "MaxKeywordSegment" => Some(MAX_KEYWORD_SEGMENT.get_or_init(|| init_max_keyword_segment()).clone()),
+            "Max_rowsKeywordSegment" => Some(MAX_ROWS_KEYWORD_SEGMENT.get_or_init(|| init_max_rows_keyword_segment()).clone()),
+            "MaxextentsKeywordSegment" => Some(MAXEXTENTS_KEYWORD_SEGMENT.get_or_init(|| init_maxextents_keyword_segment()).clone()),
+            "MaxvalueKeywordSegment" => Some(MAXVALUE_KEYWORD_SEGMENT.get_or_init(|| init_maxvalue_keyword_segment()).clone()),
+            "MediumblobKeywordSegment" => Some(MEDIUMBLOB_KEYWORD_SEGMENT.get_or_init(|| init_mediumblob_keyword_segment()).clone()),
+            "MediumintKeywordSegment" => Some(MEDIUMINT_KEYWORD_SEGMENT.get_or_init(|| init_mediumint_keyword_segment()).clone()),
+            "MediumtextKeywordSegment" => Some(MEDIUMTEXT_KEYWORD_SEGMENT.get_or_init(|| init_mediumtext_keyword_segment()).clone()),
+            "MemberKeywordSegment" => Some(MEMBER_KEYWORD_SEGMENT.get_or_init(|| init_member_keyword_segment()).clone()),
+            "MergeDeleteClauseSegment" => Some(MERGE_DELETE_CLAUSE_SEGMENT.get_or_init(|| init_merge_delete_clause_segment()).clone()),
+            "MergeInsertClauseSegment" => Some(MERGE_INSERT_CLAUSE_SEGMENT.get_or_init(|| init_merge_insert_clause_segment()).clone()),
+            "MergeIntoLiteralGrammar" => Some(MERGE_INTO_LITERAL_GRAMMAR.get_or_init(|| init_merge_into_literal_grammar()).clone()),
+            "MergeKeywordSegment" => Some(MERGE_KEYWORD_SEGMENT.get_or_init(|| init_merge_keyword_segment()).clone()),
+            "MergeMatchSegment" => Some(MERGE_MATCH_SEGMENT.get_or_init(|| init_merge_match_segment()).clone()),
+            "MergeMatchedClauseSegment" => Some(MERGE_MATCHED_CLAUSE_SEGMENT.get_or_init(|| init_merge_matched_clause_segment()).clone()),
+            "MergeNotMatchedClauseSegment" => Some(MERGE_NOT_MATCHED_CLAUSE_SEGMENT.get_or_init(|| init_merge_not_matched_clause_segment()).clone()),
+            "MergeStatementSegment" => Some(MERGE_STATEMENT_SEGMENT.get_or_init(|| init_merge_statement_segment()).clone()),
+            "MergeUpdateClauseSegment" => Some(MERGE_UPDATE_CLAUSE_SEGMENT.get_or_init(|| init_merge_update_clause_segment()).clone()),
+            "Message_lengthKeywordSegment" => Some(MESSAGE_LENGTH_KEYWORD_SEGMENT.get_or_init(|| init_message_length_keyword_segment()).clone()),
+            "Message_octet_lengthKeywordSegment" => Some(MESSAGE_OCTET_LENGTH_KEYWORD_SEGMENT.get_or_init(|| init_message_octet_length_keyword_segment()).clone()),
+            "Message_textKeywordSegment" => Some(MESSAGE_TEXT_KEYWORD_SEGMENT.get_or_init(|| init_message_text_keyword_segment()).clone()),
+            "MethodKeywordSegment" => Some(METHOD_KEYWORD_SEGMENT.get_or_init(|| init_method_keyword_segment()).clone()),
+            "MiddleintKeywordSegment" => Some(MIDDLEINT_KEYWORD_SEGMENT.get_or_init(|| init_middleint_keyword_segment()).clone()),
+            "MillisecondKeywordSegment" => Some(MILLISECOND_KEYWORD_SEGMENT.get_or_init(|| init_millisecond_keyword_segment()).clone()),
+            "MinKeywordSegment" => Some(MIN_KEYWORD_SEGMENT.get_or_init(|| init_min_keyword_segment()).clone()),
+            "Min_rowsKeywordSegment" => Some(MIN_ROWS_KEYWORD_SEGMENT.get_or_init(|| init_min_rows_keyword_segment()).clone()),
+            "MinusKeywordSegment" => Some(MINUS_KEYWORD_SEGMENT.get_or_init(|| init_minus_keyword_segment()).clone()),
+            "MinusSegment" => Some(MINUS_SEGMENT.get_or_init(|| init_minus_segment()).clone()),
+            "MinuteKeywordSegment" => Some(MINUTE_KEYWORD_SEGMENT.get_or_init(|| init_minute_keyword_segment()).clone()),
+            "Minute_microsecondKeywordSegment" => Some(MINUTE_MICROSECOND_KEYWORD_SEGMENT.get_or_init(|| init_minute_microsecond_keyword_segment()).clone()),
+            "Minute_secondKeywordSegment" => Some(MINUTE_SECOND_KEYWORD_SEGMENT.get_or_init(|| init_minute_second_keyword_segment()).clone()),
+            "MinvalueKeywordSegment" => Some(MINVALUE_KEYWORD_SEGMENT.get_or_init(|| init_minvalue_keyword_segment()).clone()),
+            "MlKeywordSegment" => Some(ML_KEYWORD_SEGMENT.get_or_init(|| init_ml_keyword_segment()).clone()),
+            "MlslabelKeywordSegment" => Some(MLSLABEL_KEYWORD_SEGMENT.get_or_init(|| init_mlslabel_keyword_segment()).clone()),
+            "ModKeywordSegment" => Some(MOD_KEYWORD_SEGMENT.get_or_init(|| init_mod_keyword_segment()).clone()),
+            "ModeKeywordSegment" => Some(MODE_KEYWORD_SEGMENT.get_or_init(|| init_mode_keyword_segment()).clone()),
+            "ModelKeywordSegment" => Some(MODEL_KEYWORD_SEGMENT.get_or_init(|| init_model_keyword_segment()).clone()),
+            "ModifiesKeywordSegment" => Some(MODIFIES_KEYWORD_SEGMENT.get_or_init(|| init_modifies_keyword_segment()).clone()),
+            "ModifyKeywordSegment" => Some(MODIFY_KEYWORD_SEGMENT.get_or_init(|| init_modify_keyword_segment()).clone()),
+            "ModuleKeywordSegment" => Some(MODULE_KEYWORD_SEGMENT.get_or_init(|| init_module_keyword_segment()).clone()),
+            "ModuloSegment" => Some(MODULO_SEGMENT.get_or_init(|| init_modulo_segment()).clone()),
+            "MonitorKeywordSegment" => Some(MONITOR_KEYWORD_SEGMENT.get_or_init(|| init_monitor_keyword_segment()).clone()),
+            "MonthKeywordSegment" => Some(MONTH_KEYWORD_SEGMENT.get_or_init(|| init_month_keyword_segment()).clone()),
+            "MonthnameKeywordSegment" => Some(MONTHNAME_KEYWORD_SEGMENT.get_or_init(|| init_monthname_keyword_segment()).clone()),
+            "MoreKeywordSegment" => Some(MORE_KEYWORD_SEGMENT.get_or_init(|| init_more_keyword_segment()).clone()),
+            "MoveKeywordSegment" => Some(MOVE_KEYWORD_SEGMENT.get_or_init(|| init_move_keyword_segment()).clone()),
+            "MultiplySegment" => Some(MULTIPLY_SEGMENT.get_or_init(|| init_multiply_segment()).clone()),
+            "MultisetKeywordSegment" => Some(MULTISET_KEYWORD_SEGMENT.get_or_init(|| init_multiset_keyword_segment()).clone()),
+            "MumpsKeywordSegment" => Some(MUMPS_KEYWORD_SEGMENT.get_or_init(|| init_mumps_keyword_segment()).clone()),
+            "MyisamKeywordSegment" => Some(MYISAM_KEYWORD_SEGMENT.get_or_init(|| init_myisam_keyword_segment()).clone()),
+            "NakedIdentifierSegment" => Some(NAKED_IDENTIFIER_SEGMENT.get_or_init(|| init_naked_identifier_segment()).clone()),
+            "NameKeywordSegment" => Some(NAME_KEYWORD_SEGMENT.get_or_init(|| init_name_keyword_segment()).clone()),
+            "NamedWindowExpressionSegment" => Some(NAMED_WINDOW_EXPRESSION_SEGMENT.get_or_init(|| init_named_window_expression_segment()).clone()),
+            "NamedWindowSegment" => Some(NAMED_WINDOW_SEGMENT.get_or_init(|| init_named_window_segment()).clone()),
+            "NamesKeywordSegment" => Some(NAMES_KEYWORD_SEGMENT.get_or_init(|| init_names_keyword_segment()).clone()),
+            "NanKeywordSegment" => Some(NAN_KEYWORD_SEGMENT.get_or_init(|| init_nan_keyword_segment()).clone()),
+            "NanLiteralSegment" => Some(NAN_LITERAL_SEGMENT.get_or_init(|| init_nan_literal_segment()).clone()),
+            "NationalKeywordSegment" => Some(NATIONAL_KEYWORD_SEGMENT.get_or_init(|| init_national_keyword_segment()).clone()),
+            "NaturalJoinKeywordsGrammar" => Some(NATURAL_JOIN_KEYWORDS_GRAMMAR.get_or_init(|| init_natural_join_keywords_grammar()).clone()),
+            "NaturalKeywordSegment" => Some(NATURAL_KEYWORD_SEGMENT.get_or_init(|| init_natural_keyword_segment()).clone()),
+            "NcharKeywordSegment" => Some(NCHAR_KEYWORD_SEGMENT.get_or_init(|| init_nchar_keyword_segment()).clone()),
+            "NclobKeywordSegment" => Some(NCLOB_KEYWORD_SEGMENT.get_or_init(|| init_nclob_keyword_segment()).clone()),
+            "NegativeSegment" => Some(NEGATIVE_SEGMENT.get_or_init(|| init_negative_segment()).clone()),
+            "NestedJoinGrammar" => Some(NESTED_JOIN_GRAMMAR.get_or_init(|| init_nested_join_grammar()).clone()),
+            "NestingKeywordSegment" => Some(NESTING_KEYWORD_SEGMENT.get_or_init(|| init_nesting_keyword_segment()).clone()),
+            "NewKeywordSegment" => Some(NEW_KEYWORD_SEGMENT.get_or_init(|| init_new_keyword_segment()).clone()),
+            "NewlineSegment" => Some(NEWLINE_SEGMENT.get_or_init(|| init_newline_segment()).clone()),
+            "NextKeywordSegment" => Some(NEXT_KEYWORD_SEGMENT.get_or_init(|| init_next_keyword_segment()).clone()),
+            "NoKeywordSegment" => Some(NO_KEYWORD_SEGMENT.get_or_init(|| init_no_keyword_segment()).clone()),
+            "No_write_to_binlogKeywordSegment" => Some(NO_WRITE_TO_BINLOG_KEYWORD_SEGMENT.get_or_init(|| init_no_write_to_binlog_keyword_segment()).clone()),
+            "NoauditKeywordSegment" => Some(NOAUDIT_KEYWORD_SEGMENT.get_or_init(|| init_noaudit_keyword_segment()).clone()),
+            "NocacheKeywordSegment" => Some(NOCACHE_KEYWORD_SEGMENT.get_or_init(|| init_nocache_keyword_segment()).clone()),
+            "NocheckKeywordSegment" => Some(NOCHECK_KEYWORD_SEGMENT.get_or_init(|| init_nocheck_keyword_segment()).clone()),
+            "NocompressKeywordSegment" => Some(NOCOMPRESS_KEYWORD_SEGMENT.get_or_init(|| init_nocompress_keyword_segment()).clone()),
+            "NocreatedbKeywordSegment" => Some(NOCREATEDB_KEYWORD_SEGMENT.get_or_init(|| init_nocreatedb_keyword_segment()).clone()),
+            "NocreateroleKeywordSegment" => Some(NOCREATEROLE_KEYWORD_SEGMENT.get_or_init(|| init_nocreaterole_keyword_segment()).clone()),
+            "NocreateuserKeywordSegment" => Some(NOCREATEUSER_KEYWORD_SEGMENT.get_or_init(|| init_nocreateuser_keyword_segment()).clone()),
+            "NocycleKeywordSegment" => Some(NOCYCLE_KEYWORD_SEGMENT.get_or_init(|| init_nocycle_keyword_segment()).clone()),
+            "NoinheritKeywordSegment" => Some(NOINHERIT_KEYWORD_SEGMENT.get_or_init(|| init_noinherit_keyword_segment()).clone()),
+            "NologinKeywordSegment" => Some(NOLOGIN_KEYWORD_SEGMENT.get_or_init(|| init_nologin_keyword_segment()).clone()),
+            "NonSetSelectableGrammar" => Some(NON_SET_SELECTABLE_GRAMMAR.get_or_init(|| init_non_set_selectable_grammar()).clone()),
+            "NonStandardJoinTypeKeywordsGrammar" => Some(NON_STANDARD_JOIN_TYPE_KEYWORDS_GRAMMAR.get_or_init(|| init_non_standard_join_type_keywords_grammar()).clone()),
+            "NonWithNonSelectableGrammar" => Some(NON_WITH_NON_SELECTABLE_GRAMMAR.get_or_init(|| init_non_with_non_selectable_grammar()).clone()),
+            "NonWithSelectableGrammar" => Some(NON_WITH_SELECTABLE_GRAMMAR.get_or_init(|| init_non_with_selectable_grammar()).clone()),
+            "NonclusteredKeywordSegment" => Some(NONCLUSTERED_KEYWORD_SEGMENT.get_or_init(|| init_nonclustered_keyword_segment()).clone()),
+            "NoneKeywordSegment" => Some(NONE_KEYWORD_SEGMENT.get_or_init(|| init_none_keyword_segment()).clone()),
+            "NoorderKeywordSegment" => Some(NOORDER_KEYWORD_SEGMENT.get_or_init(|| init_noorder_keyword_segment()).clone()),
+            "NormalizeKeywordSegment" => Some(NORMALIZE_KEYWORD_SEGMENT.get_or_init(|| init_normalize_keyword_segment()).clone()),
+            "NormalizedGrammar" => Some(NORMALIZED_GRAMMAR.get_or_init(|| init_normalized_grammar()).clone()),
+            "NormalizedKeywordSegment" => Some(NORMALIZED_KEYWORD_SEGMENT.get_or_init(|| init_normalized_keyword_segment()).clone()),
+            "NosuperuserKeywordSegment" => Some(NOSUPERUSER_KEYWORD_SEGMENT.get_or_init(|| init_nosuperuser_keyword_segment()).clone()),
+            "NotEnforcedGrammar" => Some(NOT_ENFORCED_GRAMMAR.get_or_init(|| init_not_enforced_grammar()).clone()),
+            "NotEqualToSegment" => Some(NOT_EQUAL_TO_SEGMENT.get_or_init(|| init_not_equal_to_segment()).clone()),
+            "NotKeywordSegment" => Some(NOT_KEYWORD_SEGMENT.get_or_init(|| init_not_keyword_segment()).clone()),
+            "NotNullGrammar" => Some(NOT_NULL_GRAMMAR.get_or_init(|| init_not_null_grammar()).clone()),
+            "NotOperatorGrammar" => Some(NOT_OPERATOR_GRAMMAR.get_or_init(|| init_not_operator_grammar()).clone()),
+            "NothingKeywordSegment" => Some(NOTHING_KEYWORD_SEGMENT.get_or_init(|| init_nothing_keyword_segment()).clone()),
+            "NotifyKeywordSegment" => Some(NOTIFY_KEYWORD_SEGMENT.get_or_init(|| init_notify_keyword_segment()).clone()),
+            "NotnullKeywordSegment" => Some(NOTNULL_KEYWORD_SEGMENT.get_or_init(|| init_notnull_keyword_segment()).clone()),
+            "NowaitKeywordSegment" => Some(NOWAIT_KEYWORD_SEGMENT.get_or_init(|| init_nowait_keyword_segment()).clone()),
+            "NullKeywordSegment" => Some(NULL_KEYWORD_SEGMENT.get_or_init(|| init_null_keyword_segment()).clone()),
+            "NullLiteralSegment" => Some(NULL_LITERAL_SEGMENT.get_or_init(|| init_null_literal_segment()).clone()),
+            "NullableKeywordSegment" => Some(NULLABLE_KEYWORD_SEGMENT.get_or_init(|| init_nullable_keyword_segment()).clone()),
+            "NullifKeywordSegment" => Some(NULLIF_KEYWORD_SEGMENT.get_or_init(|| init_nullif_keyword_segment()).clone()),
+            "NullsKeywordSegment" => Some(NULLS_KEYWORD_SEGMENT.get_or_init(|| init_nulls_keyword_segment()).clone()),
+            "NumberKeywordSegment" => Some(NUMBER_KEYWORD_SEGMENT.get_or_init(|| init_number_keyword_segment()).clone()),
+            "NumericKeywordSegment" => Some(NUMERIC_KEYWORD_SEGMENT.get_or_init(|| init_numeric_keyword_segment()).clone()),
+            "NumericLiteralSegment" => Some(NUMERIC_LITERAL_SEGMENT.get_or_init(|| init_numeric_literal_segment()).clone()),
+            "ObjectKeywordSegment" => Some(OBJECT_KEYWORD_SEGMENT.get_or_init(|| init_object_keyword_segment()).clone()),
+            "ObjectLiteralElementSegment" => Some(OBJECT_LITERAL_ELEMENT_SEGMENT.get_or_init(|| init_object_literal_element_segment()).clone()),
+            "ObjectLiteralSegment" => Some(OBJECT_LITERAL_SEGMENT.get_or_init(|| init_object_literal_segment()).clone()),
+            "ObjectReferenceDelimiterGrammar" => Some(OBJECT_REFERENCE_DELIMITER_GRAMMAR.get_or_init(|| init_object_reference_delimiter_grammar()).clone()),
+            "ObjectReferenceSegment" => Some(OBJECT_REFERENCE_SEGMENT.get_or_init(|| init_object_reference_segment()).clone()),
+            "ObjectReferenceTerminatorGrammar" => Some(OBJECT_REFERENCE_TERMINATOR_GRAMMAR.get_or_init(|| init_object_reference_terminator_grammar()).clone()),
+            "ObjectsKeywordSegment" => Some(OBJECTS_KEYWORD_SEGMENT.get_or_init(|| init_objects_keyword_segment()).clone()),
+            "Octet_lengthKeywordSegment" => Some(OCTET_LENGTH_KEYWORD_SEGMENT.get_or_init(|| init_octet_length_keyword_segment()).clone()),
+            "OctetsKeywordSegment" => Some(OCTETS_KEYWORD_SEGMENT.get_or_init(|| init_octets_keyword_segment()).clone()),
+            "OfKeywordSegment" => Some(OF_KEYWORD_SEGMENT.get_or_init(|| init_of_keyword_segment()).clone()),
+            "OffKeywordSegment" => Some(OFF_KEYWORD_SEGMENT.get_or_init(|| init_off_keyword_segment()).clone()),
+            "OfflineKeywordSegment" => Some(OFFLINE_KEYWORD_SEGMENT.get_or_init(|| init_offline_keyword_segment()).clone()),
+            "OffsetClauseSegment" => Some(OFFSET_CLAUSE_SEGMENT.get_or_init(|| init_offset_clause_segment()).clone()),
+            "OffsetKeywordSegment" => Some(OFFSET_KEYWORD_SEGMENT.get_or_init(|| init_offset_keyword_segment()).clone()),
+            "OffsetsKeywordSegment" => Some(OFFSETS_KEYWORD_SEGMENT.get_or_init(|| init_offsets_keyword_segment()).clone()),
+            "OidsKeywordSegment" => Some(OIDS_KEYWORD_SEGMENT.get_or_init(|| init_oids_keyword_segment()).clone()),
+            "OldKeywordSegment" => Some(OLD_KEYWORD_SEGMENT.get_or_init(|| init_old_keyword_segment()).clone()),
+            "OnKeywordSegment" => Some(ON_KEYWORD_SEGMENT.get_or_init(|| init_on_keyword_segment()).clone()),
+            "OnlineKeywordSegment" => Some(ONLINE_KEYWORD_SEGMENT.get_or_init(|| init_online_keyword_segment()).clone()),
+            "OnlyKeywordSegment" => Some(ONLY_KEYWORD_SEGMENT.get_or_init(|| init_only_keyword_segment()).clone()),
+            "OpenKeywordSegment" => Some(OPEN_KEYWORD_SEGMENT.get_or_init(|| init_open_keyword_segment()).clone()),
+            "OpendatasourceKeywordSegment" => Some(OPENDATASOURCE_KEYWORD_SEGMENT.get_or_init(|| init_opendatasource_keyword_segment()).clone()),
+            "OpenqueryKeywordSegment" => Some(OPENQUERY_KEYWORD_SEGMENT.get_or_init(|| init_openquery_keyword_segment()).clone()),
+            "OpenrowsetKeywordSegment" => Some(OPENROWSET_KEYWORD_SEGMENT.get_or_init(|| init_openrowset_keyword_segment()).clone()),
+            "OpenxmlKeywordSegment" => Some(OPENXML_KEYWORD_SEGMENT.get_or_init(|| init_openxml_keyword_segment()).clone()),
+            "OperateKeywordSegment" => Some(OPERATE_KEYWORD_SEGMENT.get_or_init(|| init_operate_keyword_segment()).clone()),
+            "OperationKeywordSegment" => Some(OPERATION_KEYWORD_SEGMENT.get_or_init(|| init_operation_keyword_segment()).clone()),
+            "OperatorKeywordSegment" => Some(OPERATOR_KEYWORD_SEGMENT.get_or_init(|| init_operator_keyword_segment()).clone()),
+            "OptimizeKeywordSegment" => Some(OPTIMIZE_KEYWORD_SEGMENT.get_or_init(|| init_optimize_keyword_segment()).clone()),
+            "OptionKeywordSegment" => Some(OPTION_KEYWORD_SEGMENT.get_or_init(|| init_option_keyword_segment()).clone()),
+            "OptionallyKeywordSegment" => Some(OPTIONALLY_KEYWORD_SEGMENT.get_or_init(|| init_optionally_keyword_segment()).clone()),
+            "OptionsKeywordSegment" => Some(OPTIONS_KEYWORD_SEGMENT.get_or_init(|| init_options_keyword_segment()).clone()),
+            "OrKeywordSegment" => Some(OR_KEYWORD_SEGMENT.get_or_init(|| init_or_keyword_segment()).clone()),
+            "OrOperatorGrammar" => Some(OR_OPERATOR_GRAMMAR.get_or_init(|| init_or_operator_grammar()).clone()),
+            "OrReplaceGrammar" => Some(OR_REPLACE_GRAMMAR.get_or_init(|| init_or_replace_grammar()).clone()),
+            "OrderByClauseSegment" => Some(ORDER_BY_CLAUSE_SEGMENT.get_or_init(|| init_order_by_clause_segment()).clone()),
+            "OrderByClauseTerminators" => Some(ORDER_BY_CLAUSE_TERMINATORS.get_or_init(|| init_order_by_clause_terminators()).clone()),
+            "OrderKeywordSegment" => Some(ORDER_KEYWORD_SEGMENT.get_or_init(|| init_order_keyword_segment()).clone()),
+            "OrderNoOrderGrammar" => Some(ORDER_NO_ORDER_GRAMMAR.get_or_init(|| init_order_no_order_grammar()).clone()),
+            "OrderingKeywordSegment" => Some(ORDERING_KEYWORD_SEGMENT.get_or_init(|| init_ordering_keyword_segment()).clone()),
+            "OrdinalityKeywordSegment" => Some(ORDINALITY_KEYWORD_SEGMENT.get_or_init(|| init_ordinality_keyword_segment()).clone()),
+            "OthersKeywordSegment" => Some(OTHERS_KEYWORD_SEGMENT.get_or_init(|| init_others_keyword_segment()).clone()),
+            "OutKeywordSegment" => Some(OUT_KEYWORD_SEGMENT.get_or_init(|| init_out_keyword_segment()).clone()),
+            "OuterKeywordSegment" => Some(OUTER_KEYWORD_SEGMENT.get_or_init(|| init_outer_keyword_segment()).clone()),
+            "OutfileKeywordSegment" => Some(OUTFILE_KEYWORD_SEGMENT.get_or_init(|| init_outfile_keyword_segment()).clone()),
+            "OutputKeywordSegment" => Some(OUTPUT_KEYWORD_SEGMENT.get_or_init(|| init_output_keyword_segment()).clone()),
+            "OverClauseSegment" => Some(OVER_CLAUSE_SEGMENT.get_or_init(|| init_over_clause_segment()).clone()),
+            "OverKeywordSegment" => Some(OVER_KEYWORD_SEGMENT.get_or_init(|| init_over_keyword_segment()).clone()),
+            "OverlapsClauseSegment" => Some(OVERLAPS_CLAUSE_SEGMENT.get_or_init(|| init_overlaps_clause_segment()).clone()),
+            "OverlapsKeywordSegment" => Some(OVERLAPS_KEYWORD_SEGMENT.get_or_init(|| init_overlaps_keyword_segment()).clone()),
+            "OverlayKeywordSegment" => Some(OVERLAY_KEYWORD_SEGMENT.get_or_init(|| init_overlay_keyword_segment()).clone()),
+            "OverridingKeywordSegment" => Some(OVERRIDING_KEYWORD_SEGMENT.get_or_init(|| init_overriding_keyword_segment()).clone()),
+            "OverwriteKeywordSegment" => Some(OVERWRITE_KEYWORD_SEGMENT.get_or_init(|| init_overwrite_keyword_segment()).clone()),
+            "OwnerKeywordSegment" => Some(OWNER_KEYWORD_SEGMENT.get_or_init(|| init_owner_keyword_segment()).clone()),
+            "OwnershipKeywordSegment" => Some(OWNERSHIP_KEYWORD_SEGMENT.get_or_init(|| init_ownership_keyword_segment()).clone()),
+            "Pack_keysKeywordSegment" => Some(PACK_KEYS_KEYWORD_SEGMENT.get_or_init(|| init_pack_keys_keyword_segment()).clone()),
+            "PadKeywordSegment" => Some(PAD_KEYWORD_SEGMENT.get_or_init(|| init_pad_keyword_segment()).clone()),
+            "ParameterKeywordSegment" => Some(PARAMETER_KEYWORD_SEGMENT.get_or_init(|| init_parameter_keyword_segment()).clone()),
+            "ParameterNameSegment" => Some(PARAMETER_NAME_SEGMENT.get_or_init(|| init_parameter_name_segment()).clone()),
+            "ParameterSegment" => Some(PARAMETER_SEGMENT.get_or_init(|| init_parameter_segment()).clone()),
+            "Parameter_modeKeywordSegment" => Some(PARAMETER_MODE_KEYWORD_SEGMENT.get_or_init(|| init_parameter_mode_keyword_segment()).clone()),
+            "Parameter_nameKeywordSegment" => Some(PARAMETER_NAME_KEYWORD_SEGMENT.get_or_init(|| init_parameter_name_keyword_segment()).clone()),
+            "Parameter_ordinal_positionKeywordSegment" => Some(PARAMETER_ORDINAL_POSITION_KEYWORD_SEGMENT.get_or_init(|| init_parameter_ordinal_position_keyword_segment()).clone()),
+            "Parameter_specific_catalogKeywordSegment" => Some(PARAMETER_SPECIFIC_CATALOG_KEYWORD_SEGMENT.get_or_init(|| init_parameter_specific_catalog_keyword_segment()).clone()),
+            "Parameter_specific_nameKeywordSegment" => Some(PARAMETER_SPECIFIC_NAME_KEYWORD_SEGMENT.get_or_init(|| init_parameter_specific_name_keyword_segment()).clone()),
+            "Parameter_specific_schemaKeywordSegment" => Some(PARAMETER_SPECIFIC_SCHEMA_KEYWORD_SEGMENT.get_or_init(|| init_parameter_specific_schema_keyword_segment()).clone()),
+            "ParametersKeywordSegment" => Some(PARAMETERS_KEYWORD_SEGMENT.get_or_init(|| init_parameters_keyword_segment()).clone()),
+            "PartialKeywordSegment" => Some(PARTIAL_KEYWORD_SEGMENT.get_or_init(|| init_partial_keyword_segment()).clone()),
+            "PartitionClauseSegment" => Some(PARTITION_CLAUSE_SEGMENT.get_or_init(|| init_partition_clause_segment()).clone()),
+            "PartitionKeywordSegment" => Some(PARTITION_KEYWORD_SEGMENT.get_or_init(|| init_partition_keyword_segment()).clone()),
+            "PascalKeywordSegment" => Some(PASCAL_KEYWORD_SEGMENT.get_or_init(|| init_pascal_keyword_segment()).clone()),
+            "PasswordKeywordSegment" => Some(PASSWORD_KEYWORD_SEGMENT.get_or_init(|| init_password_keyword_segment()).clone()),
+            "PathKeywordSegment" => Some(PATH_KEYWORD_SEGMENT.get_or_init(|| init_path_keyword_segment()).clone()),
+            "PathSegment" => Some(PATH_SEGMENT.get_or_init(|| init_path_segment()).clone()),
+            "PatternMatchingGrammar" => Some(PATTERN_MATCHING_GRAMMAR.get_or_init(|| init_pattern_matching_grammar()).clone()),
+            "PctfreeKeywordSegment" => Some(PCTFREE_KEYWORD_SEGMENT.get_or_init(|| init_pctfree_keyword_segment()).clone()),
+            "PercentKeywordSegment" => Some(PERCENT_KEYWORD_SEGMENT.get_or_init(|| init_percent_keyword_segment()).clone()),
+            "Percent_rankKeywordSegment" => Some(PERCENT_RANK_KEYWORD_SEGMENT.get_or_init(|| init_percent_rank_keyword_segment()).clone()),
+            "Percentile_contKeywordSegment" => Some(PERCENTILE_CONT_KEYWORD_SEGMENT.get_or_init(|| init_percentile_cont_keyword_segment()).clone()),
+            "Percentile_discKeywordSegment" => Some(PERCENTILE_DISC_KEYWORD_SEGMENT.get_or_init(|| init_percentile_disc_keyword_segment()).clone()),
+            "PipeKeywordSegment" => Some(PIPE_KEYWORD_SEGMENT.get_or_init(|| init_pipe_keyword_segment()).clone()),
+            "PipeSegment" => Some(PIPE_SEGMENT.get_or_init(|| init_pipe_segment()).clone()),
+            "PlacingKeywordSegment" => Some(PLACING_KEYWORD_SEGMENT.get_or_init(|| init_placing_keyword_segment()).clone()),
+            "PlanKeywordSegment" => Some(PLAN_KEYWORD_SEGMENT.get_or_init(|| init_plan_keyword_segment()).clone()),
+            "PliKeywordSegment" => Some(PLI_KEYWORD_SEGMENT.get_or_init(|| init_pli_keyword_segment()).clone()),
+            "PlusSegment" => Some(PLUS_SEGMENT.get_or_init(|| init_plus_segment()).clone()),
+            "PolicyKeywordSegment" => Some(POLICY_KEYWORD_SEGMENT.get_or_init(|| init_policy_keyword_segment()).clone()),
+            "PositionKeywordSegment" => Some(POSITION_KEYWORD_SEGMENT.get_or_init(|| init_position_keyword_segment()).clone()),
+            "PositiveSegment" => Some(POSITIVE_SEGMENT.get_or_init(|| init_positive_segment()).clone()),
+            "PostFunctionGrammar" => Some(POST_FUNCTION_GRAMMAR.get_or_init(|| init_post_function_grammar()).clone()),
+            "PostTableExpressionGrammar" => Some(POST_TABLE_EXPRESSION_GRAMMAR.get_or_init(|| init_post_table_expression_grammar()).clone()),
+            "PostfixKeywordSegment" => Some(POSTFIX_KEYWORD_SEGMENT.get_or_init(|| init_postfix_keyword_segment()).clone()),
+            "PowerKeywordSegment" => Some(POWER_KEYWORD_SEGMENT.get_or_init(|| init_power_keyword_segment()).clone()),
+            "PreTableFunctionKeywordsGrammar" => Some(PRE_TABLE_FUNCTION_KEYWORDS_GRAMMAR.get_or_init(|| init_pre_table_function_keywords_grammar()).clone()),
+            "PrecedingKeywordSegment" => Some(PRECEDING_KEYWORD_SEGMENT.get_or_init(|| init_preceding_keyword_segment()).clone()),
+            "PrecisionKeywordSegment" => Some(PRECISION_KEYWORD_SEGMENT.get_or_init(|| init_precision_keyword_segment()).clone()),
+            "PrefixKeywordSegment" => Some(PREFIX_KEYWORD_SEGMENT.get_or_init(|| init_prefix_keyword_segment()).clone()),
+            "PreorderKeywordSegment" => Some(PREORDER_KEYWORD_SEGMENT.get_or_init(|| init_preorder_keyword_segment()).clone()),
+            "PrepareKeywordSegment" => Some(PREPARE_KEYWORD_SEGMENT.get_or_init(|| init_prepare_keyword_segment()).clone()),
+            "PreparedKeywordSegment" => Some(PREPARED_KEYWORD_SEGMENT.get_or_init(|| init_prepared_keyword_segment()).clone()),
+            "PreserveKeywordSegment" => Some(PRESERVE_KEYWORD_SEGMENT.get_or_init(|| init_preserve_keyword_segment()).clone()),
+            "PrimaryKeyGrammar" => Some(PRIMARY_KEY_GRAMMAR.get_or_init(|| init_primary_key_grammar()).clone()),
+            "PrimaryKeywordSegment" => Some(PRIMARY_KEYWORD_SEGMENT.get_or_init(|| init_primary_keyword_segment()).clone()),
+            "PrintKeywordSegment" => Some(PRINT_KEYWORD_SEGMENT.get_or_init(|| init_print_keyword_segment()).clone()),
+            "PriorKeywordSegment" => Some(PRIOR_KEYWORD_SEGMENT.get_or_init(|| init_prior_keyword_segment()).clone()),
+            "PrivilegesKeywordSegment" => Some(PRIVILEGES_KEYWORD_SEGMENT.get_or_init(|| init_privileges_keyword_segment()).clone()),
+            "ProcKeywordSegment" => Some(PROC_KEYWORD_SEGMENT.get_or_init(|| init_proc_keyword_segment()).clone()),
+            "ProceduralKeywordSegment" => Some(PROCEDURAL_KEYWORD_SEGMENT.get_or_init(|| init_procedural_keyword_segment()).clone()),
+            "ProcedureKeywordSegment" => Some(PROCEDURE_KEYWORD_SEGMENT.get_or_init(|| init_procedure_keyword_segment()).clone()),
+            "ProceduresKeywordSegment" => Some(PROCEDURES_KEYWORD_SEGMENT.get_or_init(|| init_procedures_keyword_segment()).clone()),
+            "ProcessKeywordSegment" => Some(PROCESS_KEYWORD_SEGMENT.get_or_init(|| init_process_keyword_segment()).clone()),
+            "ProcesslistKeywordSegment" => Some(PROCESSLIST_KEYWORD_SEGMENT.get_or_init(|| init_processlist_keyword_segment()).clone()),
+            "PublicKeywordSegment" => Some(PUBLIC_KEYWORD_SEGMENT.get_or_init(|| init_public_keyword_segment()).clone()),
+            "PurgeKeywordSegment" => Some(PURGE_KEYWORD_SEGMENT.get_or_init(|| init_purge_keyword_segment()).clone()),
+            "QualifiedNumericLiteralSegment" => Some(QUALIFIED_NUMERIC_LITERAL_SEGMENT.get_or_init(|| init_qualified_numeric_literal_segment()).clone()),
+            "QualifyKeywordSegment" => Some(QUALIFY_KEYWORD_SEGMENT.get_or_init(|| init_qualify_keyword_segment()).clone()),
+            "QuarterKeywordSegment" => Some(QUARTER_KEYWORD_SEGMENT.get_or_init(|| init_quarter_keyword_segment()).clone()),
+            "QuoteKeywordSegment" => Some(QUOTE_KEYWORD_SEGMENT.get_or_init(|| init_quote_keyword_segment()).clone()),
+            "QuotedIdentifierSegment" => Some(QUOTED_IDENTIFIER_SEGMENT.get_or_init(|| init_quoted_identifier_segment()).clone()),
+            "QuotedLiteralSegment" => Some(QUOTED_LITERAL_SEGMENT.get_or_init(|| init_quoted_literal_segment()).clone()),
+            "Raid0KeywordSegment" => Some(RAID0_KEYWORD_SEGMENT.get_or_init(|| init_raid0_keyword_segment()).clone()),
+            "RaiserrorKeywordSegment" => Some(RAISERROR_KEYWORD_SEGMENT.get_or_init(|| init_raiserror_keyword_segment()).clone()),
+            "RangeKeywordSegment" => Some(RANGE_KEYWORD_SEGMENT.get_or_init(|| init_range_keyword_segment()).clone()),
+            "RankKeywordSegment" => Some(RANK_KEYWORD_SEGMENT.get_or_init(|| init_rank_keyword_segment()).clone()),
+            "RawEqualsSegment" => Some(RAW_EQUALS_SEGMENT.get_or_init(|| init_raw_equals_segment()).clone()),
+            "RawGreaterThanSegment" => Some(RAW_GREATER_THAN_SEGMENT.get_or_init(|| init_raw_greater_than_segment()).clone()),
+            "RawKeywordSegment" => Some(RAW_KEYWORD_SEGMENT.get_or_init(|| init_raw_keyword_segment()).clone()),
+            "RawLessThanSegment" => Some(RAW_LESS_THAN_SEGMENT.get_or_init(|| init_raw_less_than_segment()).clone()),
+            "RawNotSegment" => Some(RAW_NOT_SEGMENT.get_or_init(|| init_raw_not_segment()).clone()),
+            "RawSegment" => Some(RAW_SEGMENT.get_or_init(|| init_raw_segment()).clone()),
+            "ReadKeywordSegment" => Some(READ_KEYWORD_SEGMENT.get_or_init(|| init_read_keyword_segment()).clone()),
+            "ReadsKeywordSegment" => Some(READS_KEYWORD_SEGMENT.get_or_init(|| init_reads_keyword_segment()).clone()),
+            "ReadtextKeywordSegment" => Some(READTEXT_KEYWORD_SEGMENT.get_or_init(|| init_readtext_keyword_segment()).clone()),
+            "RealKeywordSegment" => Some(REAL_KEYWORD_SEGMENT.get_or_init(|| init_real_keyword_segment()).clone()),
+            "RecheckKeywordSegment" => Some(RECHECK_KEYWORD_SEGMENT.get_or_init(|| init_recheck_keyword_segment()).clone()),
+            "ReconfigureKeywordSegment" => Some(RECONFIGURE_KEYWORD_SEGMENT.get_or_init(|| init_reconfigure_keyword_segment()).clone()),
+            "RecursiveKeywordSegment" => Some(RECURSIVE_KEYWORD_SEGMENT.get_or_init(|| init_recursive_keyword_segment()).clone()),
+            "RefKeywordSegment" => Some(REF_KEYWORD_SEGMENT.get_or_init(|| init_ref_keyword_segment()).clone()),
+            "ReferenceDefinitionGrammar" => Some(REFERENCE_DEFINITION_GRAMMAR.get_or_init(|| init_reference_definition_grammar()).clone()),
+            "ReferenceMatchGrammar" => Some(REFERENCE_MATCH_GRAMMAR.get_or_init(|| init_reference_match_grammar()).clone()),
+            "Reference_usageKeywordSegment" => Some(REFERENCE_USAGE_KEYWORD_SEGMENT.get_or_init(|| init_reference_usage_keyword_segment()).clone()),
+            "ReferencesKeywordSegment" => Some(REFERENCES_KEYWORD_SEGMENT.get_or_init(|| init_references_keyword_segment()).clone()),
+            "ReferencingKeywordSegment" => Some(REFERENCING_KEYWORD_SEGMENT.get_or_init(|| init_referencing_keyword_segment()).clone()),
+            "ReferentialActionGrammar" => Some(REFERENTIAL_ACTION_GRAMMAR.get_or_init(|| init_referential_action_grammar()).clone()),
+            "RegexpKeywordSegment" => Some(REGEXP_KEYWORD_SEGMENT.get_or_init(|| init_regexp_keyword_segment()).clone()),
+            "Regr_avgxKeywordSegment" => Some(REGR_AVGX_KEYWORD_SEGMENT.get_or_init(|| init_regr_avgx_keyword_segment()).clone()),
+            "Regr_avgyKeywordSegment" => Some(REGR_AVGY_KEYWORD_SEGMENT.get_or_init(|| init_regr_avgy_keyword_segment()).clone()),
+            "Regr_countKeywordSegment" => Some(REGR_COUNT_KEYWORD_SEGMENT.get_or_init(|| init_regr_count_keyword_segment()).clone()),
+            "Regr_interceptKeywordSegment" => Some(REGR_INTERCEPT_KEYWORD_SEGMENT.get_or_init(|| init_regr_intercept_keyword_segment()).clone()),
+            "Regr_r2KeywordSegment" => Some(REGR_R2_KEYWORD_SEGMENT.get_or_init(|| init_regr_r2_keyword_segment()).clone()),
+            "Regr_slopeKeywordSegment" => Some(REGR_SLOPE_KEYWORD_SEGMENT.get_or_init(|| init_regr_slope_keyword_segment()).clone()),
+            "Regr_sxxKeywordSegment" => Some(REGR_SXX_KEYWORD_SEGMENT.get_or_init(|| init_regr_sxx_keyword_segment()).clone()),
+            "Regr_sxyKeywordSegment" => Some(REGR_SXY_KEYWORD_SEGMENT.get_or_init(|| init_regr_sxy_keyword_segment()).clone()),
+            "Regr_syyKeywordSegment" => Some(REGR_SYY_KEYWORD_SEGMENT.get_or_init(|| init_regr_syy_keyword_segment()).clone()),
+            "ReindexKeywordSegment" => Some(REINDEX_KEYWORD_SEGMENT.get_or_init(|| init_reindex_keyword_segment()).clone()),
+            "RelativeKeywordSegment" => Some(RELATIVE_KEYWORD_SEGMENT.get_or_init(|| init_relative_keyword_segment()).clone()),
+            "ReleaseKeywordSegment" => Some(RELEASE_KEYWORD_SEGMENT.get_or_init(|| init_release_keyword_segment()).clone()),
+            "ReloadKeywordSegment" => Some(RELOAD_KEYWORD_SEGMENT.get_or_init(|| init_reload_keyword_segment()).clone()),
+            "RenameKeywordSegment" => Some(RENAME_KEYWORD_SEGMENT.get_or_init(|| init_rename_keyword_segment()).clone()),
+            "RepeatKeywordSegment" => Some(REPEAT_KEYWORD_SEGMENT.get_or_init(|| init_repeat_keyword_segment()).clone()),
+            "RepeatableKeywordSegment" => Some(REPEATABLE_KEYWORD_SEGMENT.get_or_init(|| init_repeatable_keyword_segment()).clone()),
+            "ReplaceKeywordSegment" => Some(REPLACE_KEYWORD_SEGMENT.get_or_init(|| init_replace_keyword_segment()).clone()),
+            "ReplicationKeywordSegment" => Some(REPLICATION_KEYWORD_SEGMENT.get_or_init(|| init_replication_keyword_segment()).clone()),
+            "RequireKeywordSegment" => Some(REQUIRE_KEYWORD_SEGMENT.get_or_init(|| init_require_keyword_segment()).clone()),
+            "ResetKeywordSegment" => Some(RESET_KEYWORD_SEGMENT.get_or_init(|| init_reset_keyword_segment()).clone()),
+            "ResignalKeywordSegment" => Some(RESIGNAL_KEYWORD_SEGMENT.get_or_init(|| init_resignal_keyword_segment()).clone()),
+            "ResourceKeywordSegment" => Some(RESOURCE_KEYWORD_SEGMENT.get_or_init(|| init_resource_keyword_segment()).clone()),
+            "RespectKeywordSegment" => Some(RESPECT_KEYWORD_SEGMENT.get_or_init(|| init_respect_keyword_segment()).clone()),
+            "RestartKeywordSegment" => Some(RESTART_KEYWORD_SEGMENT.get_or_init(|| init_restart_keyword_segment()).clone()),
+            "RestoreKeywordSegment" => Some(RESTORE_KEYWORD_SEGMENT.get_or_init(|| init_restore_keyword_segment()).clone()),
+            "RestrictKeywordSegment" => Some(RESTRICT_KEYWORD_SEGMENT.get_or_init(|| init_restrict_keyword_segment()).clone()),
+            "ResultKeywordSegment" => Some(RESULT_KEYWORD_SEGMENT.get_or_init(|| init_result_keyword_segment()).clone()),
+            "ReturnKeywordSegment" => Some(RETURN_KEYWORD_SEGMENT.get_or_init(|| init_return_keyword_segment()).clone()),
+            "Returned_cardinalityKeywordSegment" => Some(RETURNED_CARDINALITY_KEYWORD_SEGMENT.get_or_init(|| init_returned_cardinality_keyword_segment()).clone()),
+            "Returned_lengthKeywordSegment" => Some(RETURNED_LENGTH_KEYWORD_SEGMENT.get_or_init(|| init_returned_length_keyword_segment()).clone()),
+            "Returned_octet_lengthKeywordSegment" => Some(RETURNED_OCTET_LENGTH_KEYWORD_SEGMENT.get_or_init(|| init_returned_octet_length_keyword_segment()).clone()),
+            "Returned_sqlstateKeywordSegment" => Some(RETURNED_SQLSTATE_KEYWORD_SEGMENT.get_or_init(|| init_returned_sqlstate_keyword_segment()).clone()),
+            "ReturnsKeywordSegment" => Some(RETURNS_KEYWORD_SEGMENT.get_or_init(|| init_returns_keyword_segment()).clone()),
+            "RevokeKeywordSegment" => Some(REVOKE_KEYWORD_SEGMENT.get_or_init(|| init_revoke_keyword_segment()).clone()),
+            "RightKeywordSegment" => Some(RIGHT_KEYWORD_SEGMENT.get_or_init(|| init_right_keyword_segment()).clone()),
+            "RlikeKeywordSegment" => Some(RLIKE_KEYWORD_SEGMENT.get_or_init(|| init_rlike_keyword_segment()).clone()),
+            "RoleKeywordSegment" => Some(ROLE_KEYWORD_SEGMENT.get_or_init(|| init_role_keyword_segment()).clone()),
+            "RoleReferenceSegment" => Some(ROLE_REFERENCE_SEGMENT.get_or_init(|| init_role_reference_segment()).clone()),
+            "RolesKeywordSegment" => Some(ROLES_KEYWORD_SEGMENT.get_or_init(|| init_roles_keyword_segment()).clone()),
+            "RollbackKeywordSegment" => Some(ROLLBACK_KEYWORD_SEGMENT.get_or_init(|| init_rollback_keyword_segment()).clone()),
+            "RollupFunctionNameSegment" => Some(ROLLUP_FUNCTION_NAME_SEGMENT.get_or_init(|| init_rollup_function_name_segment()).clone()),
+            "RollupKeywordSegment" => Some(ROLLUP_KEYWORD_SEGMENT.get_or_init(|| init_rollup_keyword_segment()).clone()),
+            "RoutineKeywordSegment" => Some(ROUTINE_KEYWORD_SEGMENT.get_or_init(|| init_routine_keyword_segment()).clone()),
+            "Routine_catalogKeywordSegment" => Some(ROUTINE_CATALOG_KEYWORD_SEGMENT.get_or_init(|| init_routine_catalog_keyword_segment()).clone()),
+            "Routine_nameKeywordSegment" => Some(ROUTINE_NAME_KEYWORD_SEGMENT.get_or_init(|| init_routine_name_keyword_segment()).clone()),
+            "Routine_schemaKeywordSegment" => Some(ROUTINE_SCHEMA_KEYWORD_SEGMENT.get_or_init(|| init_routine_schema_keyword_segment()).clone()),
+            "RoutinesKeywordSegment" => Some(ROUTINES_KEYWORD_SEGMENT.get_or_init(|| init_routines_keyword_segment()).clone()),
+            "RowKeywordSegment" => Some(ROW_KEYWORD_SEGMENT.get_or_init(|| init_row_keyword_segment()).clone()),
+            "Row_countKeywordSegment" => Some(ROW_COUNT_KEYWORD_SEGMENT.get_or_init(|| init_row_count_keyword_segment()).clone()),
+            "Row_numberKeywordSegment" => Some(ROW_NUMBER_KEYWORD_SEGMENT.get_or_init(|| init_row_number_keyword_segment()).clone()),
+            "RowcountKeywordSegment" => Some(ROWCOUNT_KEYWORD_SEGMENT.get_or_init(|| init_rowcount_keyword_segment()).clone()),
+            "RowguidcolKeywordSegment" => Some(ROWGUIDCOL_KEYWORD_SEGMENT.get_or_init(|| init_rowguidcol_keyword_segment()).clone()),
+            "RowidKeywordSegment" => Some(ROWID_KEYWORD_SEGMENT.get_or_init(|| init_rowid_keyword_segment()).clone()),
+            "RownumKeywordSegment" => Some(ROWNUM_KEYWORD_SEGMENT.get_or_init(|| init_rownum_keyword_segment()).clone()),
+            "RowsKeywordSegment" => Some(ROWS_KEYWORD_SEGMENT.get_or_init(|| init_rows_keyword_segment()).clone()),
+            "RuleKeywordSegment" => Some(RULE_KEYWORD_SEGMENT.get_or_init(|| init_rule_keyword_segment()).clone()),
+            "SamplingExpressionSegment" => Some(SAMPLING_EXPRESSION_SEGMENT.get_or_init(|| init_sampling_expression_segment()).clone()),
+            "SaveKeywordSegment" => Some(SAVE_KEYWORD_SEGMENT.get_or_init(|| init_save_keyword_segment()).clone()),
+            "SavepointKeywordSegment" => Some(SAVEPOINT_KEYWORD_SEGMENT.get_or_init(|| init_savepoint_keyword_segment()).clone()),
+            "ScaleKeywordSegment" => Some(SCALE_KEYWORD_SEGMENT.get_or_init(|| init_scale_keyword_segment()).clone()),
+            "SchemaKeywordSegment" => Some(SCHEMA_KEYWORD_SEGMENT.get_or_init(|| init_schema_keyword_segment()).clone()),
+            "SchemaReferenceSegment" => Some(SCHEMA_REFERENCE_SEGMENT.get_or_init(|| init_schema_reference_segment()).clone()),
+            "Schema_nameKeywordSegment" => Some(SCHEMA_NAME_KEYWORD_SEGMENT.get_or_init(|| init_schema_name_keyword_segment()).clone()),
+            "SchemasKeywordSegment" => Some(SCHEMAS_KEYWORD_SEGMENT.get_or_init(|| init_schemas_keyword_segment()).clone()),
+            "ScopeKeywordSegment" => Some(SCOPE_KEYWORD_SEGMENT.get_or_init(|| init_scope_keyword_segment()).clone()),
+            "Scope_catalogKeywordSegment" => Some(SCOPE_CATALOG_KEYWORD_SEGMENT.get_or_init(|| init_scope_catalog_keyword_segment()).clone()),
+            "Scope_nameKeywordSegment" => Some(SCOPE_NAME_KEYWORD_SEGMENT.get_or_init(|| init_scope_name_keyword_segment()).clone()),
+            "Scope_schemaKeywordSegment" => Some(SCOPE_SCHEMA_KEYWORD_SEGMENT.get_or_init(|| init_scope_schema_keyword_segment()).clone()),
+            "ScrollKeywordSegment" => Some(SCROLL_KEYWORD_SEGMENT.get_or_init(|| init_scroll_keyword_segment()).clone()),
+            "SearchKeywordSegment" => Some(SEARCH_KEYWORD_SEGMENT.get_or_init(|| init_search_keyword_segment()).clone()),
+            "SecondKeywordSegment" => Some(SECOND_KEYWORD_SEGMENT.get_or_init(|| init_second_keyword_segment()).clone()),
+            "Second_microsecondKeywordSegment" => Some(SECOND_MICROSECOND_KEYWORD_SEGMENT.get_or_init(|| init_second_microsecond_keyword_segment()).clone()),
+            "SectionKeywordSegment" => Some(SECTION_KEYWORD_SEGMENT.get_or_init(|| init_section_keyword_segment()).clone()),
+            "SecurityKeywordSegment" => Some(SECURITY_KEYWORD_SEGMENT.get_or_init(|| init_security_keyword_segment()).clone()),
+            "SelectClauseElementSegment" => Some(SELECT_CLAUSE_ELEMENT_SEGMENT.get_or_init(|| init_select_clause_element_segment()).clone()),
+            "SelectClauseModifierSegment" => Some(SELECT_CLAUSE_MODIFIER_SEGMENT.get_or_init(|| init_select_clause_modifier_segment()).clone()),
+            "SelectClauseSegment" => Some(SELECT_CLAUSE_SEGMENT.get_or_init(|| init_select_clause_segment()).clone()),
+            "SelectClauseTerminatorGrammar" => Some(SELECT_CLAUSE_TERMINATOR_GRAMMAR.get_or_init(|| init_select_clause_terminator_grammar()).clone()),
+            "SelectKeywordSegment" => Some(SELECT_KEYWORD_SEGMENT.get_or_init(|| init_select_keyword_segment()).clone()),
+            "SelectStatementSegment" => Some(SELECT_STATEMENT_SEGMENT.get_or_init(|| init_select_statement_segment()).clone()),
+            "SelectableGrammar" => Some(SELECTABLE_GRAMMAR.get_or_init(|| init_selectable_grammar()).clone()),
+            "SelfKeywordSegment" => Some(SELF_KEYWORD_SEGMENT.get_or_init(|| init_self_keyword_segment()).clone()),
+            "SemicolonSegment" => Some(SEMICOLON_SEGMENT.get_or_init(|| init_semicolon_segment()).clone()),
+            "SensitiveKeywordSegment" => Some(SENSITIVE_KEYWORD_SEGMENT.get_or_init(|| init_sensitive_keyword_segment()).clone()),
+            "SeparatorKeywordSegment" => Some(SEPARATOR_KEYWORD_SEGMENT.get_or_init(|| init_separator_keyword_segment()).clone()),
+            "SequenceKeywordSegment" => Some(SEQUENCE_KEYWORD_SEGMENT.get_or_init(|| init_sequence_keyword_segment()).clone()),
+            "SequenceMaxValueGrammar" => Some(SEQUENCE_MAX_VALUE_GRAMMAR.get_or_init(|| init_sequence_max_value_grammar()).clone()),
+            "SequenceMinValueGrammar" => Some(SEQUENCE_MIN_VALUE_GRAMMAR.get_or_init(|| init_sequence_min_value_grammar()).clone()),
+            "SequenceReferenceSegment" => Some(SEQUENCE_REFERENCE_SEGMENT.get_or_init(|| init_sequence_reference_segment()).clone()),
+            "SequencesKeywordSegment" => Some(SEQUENCES_KEYWORD_SEGMENT.get_or_init(|| init_sequences_keyword_segment()).clone()),
+            "SerializableKeywordSegment" => Some(SERIALIZABLE_KEYWORD_SEGMENT.get_or_init(|| init_serializable_keyword_segment()).clone()),
+            "ServerKeywordSegment" => Some(SERVER_KEYWORD_SEGMENT.get_or_init(|| init_server_keyword_segment()).clone()),
+            "Server_nameKeywordSegment" => Some(SERVER_NAME_KEYWORD_SEGMENT.get_or_init(|| init_server_name_keyword_segment()).clone()),
+            "SessionKeywordSegment" => Some(SESSION_KEYWORD_SEGMENT.get_or_init(|| init_session_keyword_segment()).clone()),
+            "Session_userKeywordSegment" => Some(SESSION_USER_KEYWORD_SEGMENT.get_or_init(|| init_session_user_keyword_segment()).clone()),
+            "SetClauseListSegment" => Some(SET_CLAUSE_LIST_SEGMENT.get_or_init(|| init_set_clause_list_segment()).clone()),
+            "SetClauseSegment" => Some(SET_CLAUSE_SEGMENT.get_or_init(|| init_set_clause_segment()).clone()),
+            "SetExpressionSegment" => Some(SET_EXPRESSION_SEGMENT.get_or_init(|| init_set_expression_segment()).clone()),
+            "SetKeywordSegment" => Some(SET_KEYWORD_SEGMENT.get_or_init(|| init_set_keyword_segment()).clone()),
+            "SetOperatorSegment" => Some(SET_OPERATOR_SEGMENT.get_or_init(|| init_set_operator_segment()).clone()),
+            "SetSchemaStatementSegment" => Some(SET_SCHEMA_STATEMENT_SEGMENT.get_or_init(|| init_set_schema_statement_segment()).clone()),
+            "SetofKeywordSegment" => Some(SETOF_KEYWORD_SEGMENT.get_or_init(|| init_setof_keyword_segment()).clone()),
+            "SetsKeywordSegment" => Some(SETS_KEYWORD_SEGMENT.get_or_init(|| init_sets_keyword_segment()).clone()),
+            "SetuserKeywordSegment" => Some(SETUSER_KEYWORD_SEGMENT.get_or_init(|| init_setuser_keyword_segment()).clone()),
+            "ShareKeywordSegment" => Some(SHARE_KEYWORD_SEGMENT.get_or_init(|| init_share_keyword_segment()).clone()),
+            "SharesKeywordSegment" => Some(SHARES_KEYWORD_SEGMENT.get_or_init(|| init_shares_keyword_segment()).clone()),
+            "ShorthandCastSegment" => Some(SHORTHAND_CAST_SEGMENT.get_or_init(|| init_shorthand_cast_segment()).clone()),
+            "ShowKeywordSegment" => Some(SHOW_KEYWORD_SEGMENT.get_or_init(|| init_show_keyword_segment()).clone()),
+            "ShutdownKeywordSegment" => Some(SHUTDOWN_KEYWORD_SEGMENT.get_or_init(|| init_shutdown_keyword_segment()).clone()),
+            "SignalKeywordSegment" => Some(SIGNAL_KEYWORD_SEGMENT.get_or_init(|| init_signal_keyword_segment()).clone()),
+            "SignedSegmentGrammar" => Some(SIGNED_SEGMENT_GRAMMAR.get_or_init(|| init_signed_segment_grammar()).clone()),
+            "SimilarKeywordSegment" => Some(SIMILAR_KEYWORD_SEGMENT.get_or_init(|| init_similar_keyword_segment()).clone()),
+            "SimpleKeywordSegment" => Some(SIMPLE_KEYWORD_SEGMENT.get_or_init(|| init_simple_keyword_segment()).clone()),
+            "SingleIdentifierGrammar" => Some(SINGLE_IDENTIFIER_GRAMMAR.get_or_init(|| init_single_identifier_grammar()).clone()),
+            "SingleIdentifierListSegment" => Some(SINGLE_IDENTIFIER_LIST_SEGMENT.get_or_init(|| init_single_identifier_list_segment()).clone()),
+            "SingleQuotedIdentifierSegment" => Some(SINGLE_QUOTED_IDENTIFIER_SEGMENT.get_or_init(|| init_single_quoted_identifier_segment()).clone()),
+            "SizeKeywordSegment" => Some(SIZE_KEYWORD_SEGMENT.get_or_init(|| init_size_keyword_segment()).clone()),
+            "SizedArrayTypeSegment" => Some(SIZED_ARRAY_TYPE_SEGMENT.get_or_init(|| init_sized_array_type_segment()).clone()),
+            "SlashSegment" => Some(SLASH_SEGMENT.get_or_init(|| init_slash_segment()).clone()),
+            "SliceSegment" => Some(SLICE_SEGMENT.get_or_init(|| init_slice_segment()).clone()),
+            "SmallintKeywordSegment" => Some(SMALLINT_KEYWORD_SEGMENT.get_or_init(|| init_smallint_keyword_segment()).clone()),
+            "SomeKeywordSegment" => Some(SOME_KEYWORD_SEGMENT.get_or_init(|| init_some_keyword_segment()).clone()),
+            "SonameKeywordSegment" => Some(SONAME_KEYWORD_SEGMENT.get_or_init(|| init_soname_keyword_segment()).clone()),
+            "SourceKeywordSegment" => Some(SOURCE_KEYWORD_SEGMENT.get_or_init(|| init_source_keyword_segment()).clone()),
+            "SpaceKeywordSegment" => Some(SPACE_KEYWORD_SEGMENT.get_or_init(|| init_space_keyword_segment()).clone()),
+            "SpatialKeywordSegment" => Some(SPATIAL_KEYWORD_SEGMENT.get_or_init(|| init_spatial_keyword_segment()).clone()),
+            "SpecificKeywordSegment" => Some(SPECIFIC_KEYWORD_SEGMENT.get_or_init(|| init_specific_keyword_segment()).clone()),
+            "Specific_nameKeywordSegment" => Some(SPECIFIC_NAME_KEYWORD_SEGMENT.get_or_init(|| init_specific_name_keyword_segment()).clone()),
+            "SpecifictypeKeywordSegment" => Some(SPECIFICTYPE_KEYWORD_SEGMENT.get_or_init(|| init_specifictype_keyword_segment()).clone()),
+            "SqlKeywordSegment" => Some(SQL_KEYWORD_SEGMENT.get_or_init(|| init_sql_keyword_segment()).clone()),
+            "Sql_big_resultKeywordSegment" => Some(SQL_BIG_RESULT_KEYWORD_SEGMENT.get_or_init(|| init_sql_big_result_keyword_segment()).clone()),
+            "Sql_big_selectsKeywordSegment" => Some(SQL_BIG_SELECTS_KEYWORD_SEGMENT.get_or_init(|| init_sql_big_selects_keyword_segment()).clone()),
+            "Sql_big_tablesKeywordSegment" => Some(SQL_BIG_TABLES_KEYWORD_SEGMENT.get_or_init(|| init_sql_big_tables_keyword_segment()).clone()),
+            "Sql_calc_found_rowsKeywordSegment" => Some(SQL_CALC_FOUND_ROWS_KEYWORD_SEGMENT.get_or_init(|| init_sql_calc_found_rows_keyword_segment()).clone()),
+            "Sql_log_offKeywordSegment" => Some(SQL_LOG_OFF_KEYWORD_SEGMENT.get_or_init(|| init_sql_log_off_keyword_segment()).clone()),
+            "Sql_log_updateKeywordSegment" => Some(SQL_LOG_UPDATE_KEYWORD_SEGMENT.get_or_init(|| init_sql_log_update_keyword_segment()).clone()),
+            "Sql_low_priority_updatesKeywordSegment" => Some(SQL_LOW_PRIORITY_UPDATES_KEYWORD_SEGMENT.get_or_init(|| init_sql_low_priority_updates_keyword_segment()).clone()),
+            "Sql_select_limitKeywordSegment" => Some(SQL_SELECT_LIMIT_KEYWORD_SEGMENT.get_or_init(|| init_sql_select_limit_keyword_segment()).clone()),
+            "Sql_small_resultKeywordSegment" => Some(SQL_SMALL_RESULT_KEYWORD_SEGMENT.get_or_init(|| init_sql_small_result_keyword_segment()).clone()),
+            "Sql_warningsKeywordSegment" => Some(SQL_WARNINGS_KEYWORD_SEGMENT.get_or_init(|| init_sql_warnings_keyword_segment()).clone()),
+            "SqlcaKeywordSegment" => Some(SQLCA_KEYWORD_SEGMENT.get_or_init(|| init_sqlca_keyword_segment()).clone()),
+            "SqlcodeKeywordSegment" => Some(SQLCODE_KEYWORD_SEGMENT.get_or_init(|| init_sqlcode_keyword_segment()).clone()),
+            "SqlerrorKeywordSegment" => Some(SQLERROR_KEYWORD_SEGMENT.get_or_init(|| init_sqlerror_keyword_segment()).clone()),
+            "SqlexceptionKeywordSegment" => Some(SQLEXCEPTION_KEYWORD_SEGMENT.get_or_init(|| init_sqlexception_keyword_segment()).clone()),
+            "SqlstateKeywordSegment" => Some(SQLSTATE_KEYWORD_SEGMENT.get_or_init(|| init_sqlstate_keyword_segment()).clone()),
+            "SqlwarningKeywordSegment" => Some(SQLWARNING_KEYWORD_SEGMENT.get_or_init(|| init_sqlwarning_keyword_segment()).clone()),
+            "SqrtKeywordSegment" => Some(SQRT_KEYWORD_SEGMENT.get_or_init(|| init_sqrt_keyword_segment()).clone()),
+            "SslKeywordSegment" => Some(SSL_KEYWORD_SEGMENT.get_or_init(|| init_ssl_keyword_segment()).clone()),
+            "StableKeywordSegment" => Some(STABLE_KEYWORD_SEGMENT.get_or_init(|| init_stable_keyword_segment()).clone()),
+            "StageKeywordSegment" => Some(STAGE_KEYWORD_SEGMENT.get_or_init(|| init_stage_keyword_segment()).clone()),
+            "StagesKeywordSegment" => Some(STAGES_KEYWORD_SEGMENT.get_or_init(|| init_stages_keyword_segment()).clone()),
+            "StarSegment" => Some(STAR_SEGMENT.get_or_init(|| init_star_segment()).clone()),
+            "StartBracketSegment" => Some(START_BRACKET_SEGMENT.get_or_init(|| init_start_bracket_segment()).clone()),
+            "StartCurlyBracketSegment" => Some(START_CURLY_BRACKET_SEGMENT.get_or_init(|| init_start_curly_bracket_segment()).clone()),
+            "StartKeywordSegment" => Some(START_KEYWORD_SEGMENT.get_or_init(|| init_start_keyword_segment()).clone()),
+            "StartSquareBracketSegment" => Some(START_SQUARE_BRACKET_SEGMENT.get_or_init(|| init_start_square_bracket_segment()).clone()),
+            "StartingKeywordSegment" => Some(STARTING_KEYWORD_SEGMENT.get_or_init(|| init_starting_keyword_segment()).clone()),
+            "StartsKeywordSegment" => Some(STARTS_KEYWORD_SEGMENT.get_or_init(|| init_starts_keyword_segment()).clone()),
+            "StateKeywordSegment" => Some(STATE_KEYWORD_SEGMENT.get_or_init(|| init_state_keyword_segment()).clone()),
+            "StatementKeywordSegment" => Some(STATEMENT_KEYWORD_SEGMENT.get_or_init(|| init_statement_keyword_segment()).clone()),
+            "StatementSegment" => Some(STATEMENT_SEGMENT.get_or_init(|| init_statement_segment()).clone()),
+            "StaticKeywordSegment" => Some(STATIC_KEYWORD_SEGMENT.get_or_init(|| init_static_keyword_segment()).clone()),
+            "StatisticsKeywordSegment" => Some(STATISTICS_KEYWORD_SEGMENT.get_or_init(|| init_statistics_keyword_segment()).clone()),
+            "Stddev_popKeywordSegment" => Some(STDDEV_POP_KEYWORD_SEGMENT.get_or_init(|| init_stddev_pop_keyword_segment()).clone()),
+            "Stddev_sampKeywordSegment" => Some(STDDEV_SAMP_KEYWORD_SEGMENT.get_or_init(|| init_stddev_samp_keyword_segment()).clone()),
+            "StdinKeywordSegment" => Some(STDIN_KEYWORD_SEGMENT.get_or_init(|| init_stdin_keyword_segment()).clone()),
+            "StdoutKeywordSegment" => Some(STDOUT_KEYWORD_SEGMENT.get_or_init(|| init_stdout_keyword_segment()).clone()),
+            "StorageKeywordSegment" => Some(STORAGE_KEYWORD_SEGMENT.get_or_init(|| init_storage_keyword_segment()).clone()),
+            "Straight_joinKeywordSegment" => Some(STRAIGHT_JOIN_KEYWORD_SEGMENT.get_or_init(|| init_straight_join_keyword_segment()).clone()),
+            "StreamKeywordSegment" => Some(STREAM_KEYWORD_SEGMENT.get_or_init(|| init_stream_keyword_segment()).clone()),
+            "StreamsKeywordSegment" => Some(STREAMS_KEYWORD_SEGMENT.get_or_init(|| init_streams_keyword_segment()).clone()),
+            "StrictKeywordSegment" => Some(STRICT_KEYWORD_SEGMENT.get_or_init(|| init_strict_keyword_segment()).clone()),
+            "StringBinaryOperatorGrammar" => Some(STRING_BINARY_OPERATOR_GRAMMAR.get_or_init(|| init_string_binary_operator_grammar()).clone()),
+            "StringKeywordSegment" => Some(STRING_KEYWORD_SEGMENT.get_or_init(|| init_string_keyword_segment()).clone()),
+            "StructLiteralSegment" => Some(STRUCT_LITERAL_SEGMENT.get_or_init(|| init_struct_literal_segment()).clone()),
+            "StructTypeSegment" => Some(STRUCT_TYPE_SEGMENT.get_or_init(|| init_struct_type_segment()).clone()),
+            "StructureKeywordSegment" => Some(STRUCTURE_KEYWORD_SEGMENT.get_or_init(|| init_structure_keyword_segment()).clone()),
+            "StyleKeywordSegment" => Some(STYLE_KEYWORD_SEGMENT.get_or_init(|| init_style_keyword_segment()).clone()),
+            "Subclass_originKeywordSegment" => Some(SUBCLASS_ORIGIN_KEYWORD_SEGMENT.get_or_init(|| init_subclass_origin_keyword_segment()).clone()),
+            "SublistKeywordSegment" => Some(SUBLIST_KEYWORD_SEGMENT.get_or_init(|| init_sublist_keyword_segment()).clone()),
+            "SubmultisetKeywordSegment" => Some(SUBMULTISET_KEYWORD_SEGMENT.get_or_init(|| init_submultiset_keyword_segment()).clone()),
+            "SubstringKeywordSegment" => Some(SUBSTRING_KEYWORD_SEGMENT.get_or_init(|| init_substring_keyword_segment()).clone()),
+            "SuccessfulKeywordSegment" => Some(SUCCESSFUL_KEYWORD_SEGMENT.get_or_init(|| init_successful_keyword_segment()).clone()),
+            "SumKeywordSegment" => Some(SUM_KEYWORD_SEGMENT.get_or_init(|| init_sum_keyword_segment()).clone()),
+            "SuperuserKeywordSegment" => Some(SUPERUSER_KEYWORD_SEGMENT.get_or_init(|| init_superuser_keyword_segment()).clone()),
+            "SymbolSegment" => Some(SYMBOL_SEGMENT.get_or_init(|| init_symbol_segment()).clone()),
+            "SymmetricKeywordSegment" => Some(SYMMETRIC_KEYWORD_SEGMENT.get_or_init(|| init_symmetric_keyword_segment()).clone()),
+            "SynonymKeywordSegment" => Some(SYNONYM_KEYWORD_SEGMENT.get_or_init(|| init_synonym_keyword_segment()).clone()),
+            "SysdateKeywordSegment" => Some(SYSDATE_KEYWORD_SEGMENT.get_or_init(|| init_sysdate_keyword_segment()).clone()),
+            "SysidKeywordSegment" => Some(SYSID_KEYWORD_SEGMENT.get_or_init(|| init_sysid_keyword_segment()).clone()),
+            "SystemKeywordSegment" => Some(SYSTEM_KEYWORD_SEGMENT.get_or_init(|| init_system_keyword_segment()).clone()),
+            "System_userKeywordSegment" => Some(SYSTEM_USER_KEYWORD_SEGMENT.get_or_init(|| init_system_user_keyword_segment()).clone()),
+            "TableConstraintSegment" => Some(TABLE_CONSTRAINT_SEGMENT.get_or_init(|| init_table_constraint_segment()).clone()),
+            "TableEndClauseSegment" => Some(TABLE_END_CLAUSE_SEGMENT.get_or_init(|| init_table_end_clause_segment()).clone()),
+            "TableExpressionSegment" => Some(TABLE_EXPRESSION_SEGMENT.get_or_init(|| init_table_expression_segment()).clone()),
+            "TableKeywordSegment" => Some(TABLE_KEYWORD_SEGMENT.get_or_init(|| init_table_keyword_segment()).clone()),
+            "TableReferenceSegment" => Some(TABLE_REFERENCE_SEGMENT.get_or_init(|| init_table_reference_segment()).clone()),
+            "Table_nameKeywordSegment" => Some(TABLE_NAME_KEYWORD_SEGMENT.get_or_init(|| init_table_name_keyword_segment()).clone()),
+            "TablesKeywordSegment" => Some(TABLES_KEYWORD_SEGMENT.get_or_init(|| init_tables_keyword_segment()).clone()),
+            "TablesampleKeywordSegment" => Some(TABLESAMPLE_KEYWORD_SEGMENT.get_or_init(|| init_tablesample_keyword_segment()).clone()),
+            "TablespaceKeywordSegment" => Some(TABLESPACE_KEYWORD_SEGMENT.get_or_init(|| init_tablespace_keyword_segment()).clone()),
+            "TablespaceReferenceSegment" => Some(TABLESPACE_REFERENCE_SEGMENT.get_or_init(|| init_tablespace_reference_segment()).clone()),
+            "TagReferenceSegment" => Some(TAG_REFERENCE_SEGMENT.get_or_init(|| init_tag_reference_segment()).clone()),
+            "Tail_Recurse_Expression_A_Grammar" => Some(TAIL_RECURSE_EXPRESSION_A_GRAMMAR.get_or_init(|| init_tail_recurse_expression_a_grammar()).clone()),
+            "Tail_Recurse_Expression_B_Grammar" => Some(TAIL_RECURSE_EXPRESSION_B_GRAMMAR.get_or_init(|| init_tail_recurse_expression_b_grammar()).clone()),
+            "TaskKeywordSegment" => Some(TASK_KEYWORD_SEGMENT.get_or_init(|| init_task_keyword_segment()).clone()),
+            "TasksKeywordSegment" => Some(TASKS_KEYWORD_SEGMENT.get_or_init(|| init_tasks_keyword_segment()).clone()),
+            "TempKeywordSegment" => Some(TEMP_KEYWORD_SEGMENT.get_or_init(|| init_temp_keyword_segment()).clone()),
+            "TemplateKeywordSegment" => Some(TEMPLATE_KEYWORD_SEGMENT.get_or_init(|| init_template_keyword_segment()).clone()),
+            "TemporalQuerySegment" => Some(TEMPORAL_QUERY_SEGMENT.get_or_init(|| init_temporal_query_segment()).clone()),
+            "TemporaryGrammar" => Some(TEMPORARY_GRAMMAR.get_or_init(|| init_temporary_grammar()).clone()),
+            "TemporaryKeywordSegment" => Some(TEMPORARY_KEYWORD_SEGMENT.get_or_init(|| init_temporary_keyword_segment()).clone()),
+            "TemporaryTransientGrammar" => Some(TEMPORARY_TRANSIENT_GRAMMAR.get_or_init(|| init_temporary_transient_grammar()).clone()),
+            "TerminateKeywordSegment" => Some(TERMINATE_KEYWORD_SEGMENT.get_or_init(|| init_terminate_keyword_segment()).clone()),
+            "TerminatedKeywordSegment" => Some(TERMINATED_KEYWORD_SEGMENT.get_or_init(|| init_terminated_keyword_segment()).clone()),
+            "TextKeywordSegment" => Some(TEXT_KEYWORD_SEGMENT.get_or_init(|| init_text_keyword_segment()).clone()),
+            "TextsizeKeywordSegment" => Some(TEXTSIZE_KEYWORD_SEGMENT.get_or_init(|| init_textsize_keyword_segment()).clone()),
+            "ThanKeywordSegment" => Some(THAN_KEYWORD_SEGMENT.get_or_init(|| init_than_keyword_segment()).clone()),
+            "ThenKeywordSegment" => Some(THEN_KEYWORD_SEGMENT.get_or_init(|| init_then_keyword_segment()).clone()),
+            "TiesKeywordSegment" => Some(TIES_KEYWORD_SEGMENT.get_or_init(|| init_ties_keyword_segment()).clone()),
+            "TildeSegment" => Some(TILDE_SEGMENT.get_or_init(|| init_tilde_segment()).clone()),
+            "TimeKeywordSegment" => Some(TIME_KEYWORD_SEGMENT.get_or_init(|| init_time_keyword_segment()).clone()),
+            "TimeWithTZGrammar" => Some(TIME_WITH_T_Z_GRAMMAR.get_or_init(|| init_time_with_t_z_grammar()).clone()),
+            "TimeZoneGrammar" => Some(TIME_ZONE_GRAMMAR.get_or_init(|| init_time_zone_grammar()).clone()),
+            "TimestampKeywordSegment" => Some(TIMESTAMP_KEYWORD_SEGMENT.get_or_init(|| init_timestamp_keyword_segment()).clone()),
+            "Timezone_hourKeywordSegment" => Some(TIMEZONE_HOUR_KEYWORD_SEGMENT.get_or_init(|| init_timezone_hour_keyword_segment()).clone()),
+            "Timezone_minuteKeywordSegment" => Some(TIMEZONE_MINUTE_KEYWORD_SEGMENT.get_or_init(|| init_timezone_minute_keyword_segment()).clone()),
+            "TinyblobKeywordSegment" => Some(TINYBLOB_KEYWORD_SEGMENT.get_or_init(|| init_tinyblob_keyword_segment()).clone()),
+            "TinyintKeywordSegment" => Some(TINYINT_KEYWORD_SEGMENT.get_or_init(|| init_tinyint_keyword_segment()).clone()),
+            "TinytextKeywordSegment" => Some(TINYTEXT_KEYWORD_SEGMENT.get_or_init(|| init_tinytext_keyword_segment()).clone()),
+            "ToKeywordSegment" => Some(TO_KEYWORD_SEGMENT.get_or_init(|| init_to_keyword_segment()).clone()),
+            "ToastKeywordSegment" => Some(TOAST_KEYWORD_SEGMENT.get_or_init(|| init_toast_keyword_segment()).clone()),
+            "TopKeywordSegment" => Some(TOP_KEYWORD_SEGMENT.get_or_init(|| init_top_keyword_segment()).clone()),
+            "Top_level_countKeywordSegment" => Some(TOP_LEVEL_COUNT_KEYWORD_SEGMENT.get_or_init(|| init_top_level_count_keyword_segment()).clone()),
+            "TrailingKeywordSegment" => Some(TRAILING_KEYWORD_SEGMENT.get_or_init(|| init_trailing_keyword_segment()).clone()),
+            "TranKeywordSegment" => Some(TRAN_KEYWORD_SEGMENT.get_or_init(|| init_tran_keyword_segment()).clone()),
+            "TransactionKeywordSegment" => Some(TRANSACTION_KEYWORD_SEGMENT.get_or_init(|| init_transaction_keyword_segment()).clone()),
+            "TransactionStatementSegment" => Some(TRANSACTION_STATEMENT_SEGMENT.get_or_init(|| init_transaction_statement_segment()).clone()),
+            "Transaction_activeKeywordSegment" => Some(TRANSACTION_ACTIVE_KEYWORD_SEGMENT.get_or_init(|| init_transaction_active_keyword_segment()).clone()),
+            "TransactionsKeywordSegment" => Some(TRANSACTIONS_KEYWORD_SEGMENT.get_or_init(|| init_transactions_keyword_segment()).clone()),
+            "Transactions_committedKeywordSegment" => Some(TRANSACTIONS_COMMITTED_KEYWORD_SEGMENT.get_or_init(|| init_transactions_committed_keyword_segment()).clone()),
+            "Transactions_rolled_backKeywordSegment" => Some(TRANSACTIONS_ROLLED_BACK_KEYWORD_SEGMENT.get_or_init(|| init_transactions_rolled_back_keyword_segment()).clone()),
+            "TransformKeywordSegment" => Some(TRANSFORM_KEYWORD_SEGMENT.get_or_init(|| init_transform_keyword_segment()).clone()),
+            "TransformsKeywordSegment" => Some(TRANSFORMS_KEYWORD_SEGMENT.get_or_init(|| init_transforms_keyword_segment()).clone()),
+            "TransientKeywordSegment" => Some(TRANSIENT_KEYWORD_SEGMENT.get_or_init(|| init_transient_keyword_segment()).clone()),
+            "TranslateKeywordSegment" => Some(TRANSLATE_KEYWORD_SEGMENT.get_or_init(|| init_translate_keyword_segment()).clone()),
+            "TranslationKeywordSegment" => Some(TRANSLATION_KEYWORD_SEGMENT.get_or_init(|| init_translation_keyword_segment()).clone()),
+            "TreatKeywordSegment" => Some(TREAT_KEYWORD_SEGMENT.get_or_init(|| init_treat_keyword_segment()).clone()),
+            "TriggerKeywordSegment" => Some(TRIGGER_KEYWORD_SEGMENT.get_or_init(|| init_trigger_keyword_segment()).clone()),
+            "TriggerReferenceSegment" => Some(TRIGGER_REFERENCE_SEGMENT.get_or_init(|| init_trigger_reference_segment()).clone()),
+            "Trigger_catalogKeywordSegment" => Some(TRIGGER_CATALOG_KEYWORD_SEGMENT.get_or_init(|| init_trigger_catalog_keyword_segment()).clone()),
+            "Trigger_nameKeywordSegment" => Some(TRIGGER_NAME_KEYWORD_SEGMENT.get_or_init(|| init_trigger_name_keyword_segment()).clone()),
+            "Trigger_schemaKeywordSegment" => Some(TRIGGER_SCHEMA_KEYWORD_SEGMENT.get_or_init(|| init_trigger_schema_keyword_segment()).clone()),
+            "TrimKeywordSegment" => Some(TRIM_KEYWORD_SEGMENT.get_or_init(|| init_trim_keyword_segment()).clone()),
+            "TrimParametersGrammar" => Some(TRIM_PARAMETERS_GRAMMAR.get_or_init(|| init_trim_parameters_grammar()).clone()),
+            "TrueKeywordSegment" => Some(TRUE_KEYWORD_SEGMENT.get_or_init(|| init_true_keyword_segment()).clone()),
+            "TrueSegment" => Some(TRUE_SEGMENT.get_or_init(|| init_true_segment()).clone()),
+            "TruncateKeywordSegment" => Some(TRUNCATE_KEYWORD_SEGMENT.get_or_init(|| init_truncate_keyword_segment()).clone()),
+            "TruncateStatementSegment" => Some(TRUNCATE_STATEMENT_SEGMENT.get_or_init(|| init_truncate_statement_segment()).clone()),
+            "TrustedKeywordSegment" => Some(TRUSTED_KEYWORD_SEGMENT.get_or_init(|| init_trusted_keyword_segment()).clone()),
+            "TsequalKeywordSegment" => Some(TSEQUAL_KEYWORD_SEGMENT.get_or_init(|| init_tsequal_keyword_segment()).clone()),
+            "TupleSegment" => Some(TUPLE_SEGMENT.get_or_init(|| init_tuple_segment()).clone()),
+            "TypeKeywordSegment" => Some(TYPE_KEYWORD_SEGMENT.get_or_init(|| init_type_keyword_segment()).clone()),
+            "TypedArrayLiteralSegment" => Some(TYPED_ARRAY_LITERAL_SEGMENT.get_or_init(|| init_typed_array_literal_segment()).clone()),
+            "TypedStructLiteralSegment" => Some(TYPED_STRUCT_LITERAL_SEGMENT.get_or_init(|| init_typed_struct_literal_segment()).clone()),
+            "UescapeKeywordSegment" => Some(UESCAPE_KEYWORD_SEGMENT.get_or_init(|| init_uescape_keyword_segment()).clone()),
+            "UidKeywordSegment" => Some(UID_KEYWORD_SEGMENT.get_or_init(|| init_uid_keyword_segment()).clone()),
+            "UnboundedKeywordSegment" => Some(UNBOUNDED_KEYWORD_SEGMENT.get_or_init(|| init_unbounded_keyword_segment()).clone()),
+            "UncommittedKeywordSegment" => Some(UNCOMMITTED_KEYWORD_SEGMENT.get_or_init(|| init_uncommitted_keyword_segment()).clone()),
+            "UnconditionalCrossJoinKeywordsGrammar" => Some(UNCONDITIONAL_CROSS_JOIN_KEYWORDS_GRAMMAR.get_or_init(|| init_unconditional_cross_join_keywords_grammar()).clone()),
+            "UnconditionalJoinKeywordsGrammar" => Some(UNCONDITIONAL_JOIN_KEYWORDS_GRAMMAR.get_or_init(|| init_unconditional_join_keywords_grammar()).clone()),
+            "UnderKeywordSegment" => Some(UNDER_KEYWORD_SEGMENT.get_or_init(|| init_under_keyword_segment()).clone()),
+            "UndoKeywordSegment" => Some(UNDO_KEYWORD_SEGMENT.get_or_init(|| init_undo_keyword_segment()).clone()),
+            "UnencryptedKeywordSegment" => Some(UNENCRYPTED_KEYWORD_SEGMENT.get_or_init(|| init_unencrypted_keyword_segment()).clone()),
+            "UnionGrammar" => Some(UNION_GRAMMAR.get_or_init(|| init_union_grammar()).clone()),
+            "UnionKeywordSegment" => Some(UNION_KEYWORD_SEGMENT.get_or_init(|| init_union_keyword_segment()).clone()),
+            "UniqueKeyGrammar" => Some(UNIQUE_KEY_GRAMMAR.get_or_init(|| init_unique_key_grammar()).clone()),
+            "UniqueKeywordSegment" => Some(UNIQUE_KEYWORD_SEGMENT.get_or_init(|| init_unique_keyword_segment()).clone()),
+            "UnknownKeywordSegment" => Some(UNKNOWN_KEYWORD_SEGMENT.get_or_init(|| init_unknown_keyword_segment()).clone()),
+            "UnknownLiteralSegment" => Some(UNKNOWN_LITERAL_SEGMENT.get_or_init(|| init_unknown_literal_segment()).clone()),
+            "UnlistenKeywordSegment" => Some(UNLISTEN_KEYWORD_SEGMENT.get_or_init(|| init_unlisten_keyword_segment()).clone()),
+            "UnlockKeywordSegment" => Some(UNLOCK_KEYWORD_SEGMENT.get_or_init(|| init_unlock_keyword_segment()).clone()),
+            "UnnamedKeywordSegment" => Some(UNNAMED_KEYWORD_SEGMENT.get_or_init(|| init_unnamed_keyword_segment()).clone()),
+            "UnnestKeywordSegment" => Some(UNNEST_KEYWORD_SEGMENT.get_or_init(|| init_unnest_keyword_segment()).clone()),
+            "UnorderedSelectStatementSegment" => Some(UNORDERED_SELECT_STATEMENT_SEGMENT.get_or_init(|| init_unordered_select_statement_segment()).clone()),
+            "UnorderedSetExpressionSegment" => Some(UNORDERED_SET_EXPRESSION_SEGMENT.get_or_init(|| init_unordered_set_expression_segment()).clone()),
+            "UnsignedKeywordSegment" => Some(UNSIGNED_KEYWORD_SEGMENT.get_or_init(|| init_unsigned_keyword_segment()).clone()),
+            "UntilKeywordSegment" => Some(UNTIL_KEYWORD_SEGMENT.get_or_init(|| init_until_keyword_segment()).clone()),
+            "UpdateKeywordSegment" => Some(UPDATE_KEYWORD_SEGMENT.get_or_init(|| init_update_keyword_segment()).clone()),
+            "UpdateStatementSegment" => Some(UPDATE_STATEMENT_SEGMENT.get_or_init(|| init_update_statement_segment()).clone()),
+            "UpdatetextKeywordSegment" => Some(UPDATETEXT_KEYWORD_SEGMENT.get_or_init(|| init_updatetext_keyword_segment()).clone()),
+            "UpperKeywordSegment" => Some(UPPER_KEYWORD_SEGMENT.get_or_init(|| init_upper_keyword_segment()).clone()),
+            "UsageKeywordSegment" => Some(USAGE_KEYWORD_SEGMENT.get_or_init(|| init_usage_keyword_segment()).clone()),
+            "UseKeywordSegment" => Some(USE_KEYWORD_SEGMENT.get_or_init(|| init_use_keyword_segment()).clone()),
+            "UseStatementSegment" => Some(USE_STATEMENT_SEGMENT.get_or_init(|| init_use_statement_segment()).clone()),
+            "Use_any_roleKeywordSegment" => Some(USE_ANY_ROLE_KEYWORD_SEGMENT.get_or_init(|| init_use_any_role_keyword_segment()).clone()),
+            "UserKeywordSegment" => Some(USER_KEYWORD_SEGMENT.get_or_init(|| init_user_keyword_segment()).clone()),
+            "User_defined_type_catalogKeywordSegment" => Some(USER_DEFINED_TYPE_CATALOG_KEYWORD_SEGMENT.get_or_init(|| init_user_defined_type_catalog_keyword_segment()).clone()),
+            "User_defined_type_codeKeywordSegment" => Some(USER_DEFINED_TYPE_CODE_KEYWORD_SEGMENT.get_or_init(|| init_user_defined_type_code_keyword_segment()).clone()),
+            "User_defined_type_nameKeywordSegment" => Some(USER_DEFINED_TYPE_NAME_KEYWORD_SEGMENT.get_or_init(|| init_user_defined_type_name_keyword_segment()).clone()),
+            "User_defined_type_schemaKeywordSegment" => Some(USER_DEFINED_TYPE_SCHEMA_KEYWORD_SEGMENT.get_or_init(|| init_user_defined_type_schema_keyword_segment()).clone()),
+            "UsersKeywordSegment" => Some(USERS_KEYWORD_SEGMENT.get_or_init(|| init_users_keyword_segment()).clone()),
+            "UsingKeywordSegment" => Some(USING_KEYWORD_SEGMENT.get_or_init(|| init_using_keyword_segment()).clone()),
+            "Utc_dateKeywordSegment" => Some(UTC_DATE_KEYWORD_SEGMENT.get_or_init(|| init_utc_date_keyword_segment()).clone()),
+            "Utc_timeKeywordSegment" => Some(UTC_TIME_KEYWORD_SEGMENT.get_or_init(|| init_utc_time_keyword_segment()).clone()),
+            "Utc_timestampKeywordSegment" => Some(UTC_TIMESTAMP_KEYWORD_SEGMENT.get_or_init(|| init_utc_timestamp_keyword_segment()).clone()),
+            "VacuumKeywordSegment" => Some(VACUUM_KEYWORD_SEGMENT.get_or_init(|| init_vacuum_keyword_segment()).clone()),
+            "ValidKeywordSegment" => Some(VALID_KEYWORD_SEGMENT.get_or_init(|| init_valid_keyword_segment()).clone()),
+            "ValidateKeywordSegment" => Some(VALIDATE_KEYWORD_SEGMENT.get_or_init(|| init_validate_keyword_segment()).clone()),
+            "ValidatorKeywordSegment" => Some(VALIDATOR_KEYWORD_SEGMENT.get_or_init(|| init_validator_keyword_segment()).clone()),
+            "ValueKeywordSegment" => Some(VALUE_KEYWORD_SEGMENT.get_or_init(|| init_value_keyword_segment()).clone()),
+            "ValuesClauseSegment" => Some(VALUES_CLAUSE_SEGMENT.get_or_init(|| init_values_clause_segment()).clone()),
+            "ValuesKeywordSegment" => Some(VALUES_KEYWORD_SEGMENT.get_or_init(|| init_values_keyword_segment()).clone()),
+            "Var_popKeywordSegment" => Some(VAR_POP_KEYWORD_SEGMENT.get_or_init(|| init_var_pop_keyword_segment()).clone()),
+            "Var_sampKeywordSegment" => Some(VAR_SAMP_KEYWORD_SEGMENT.get_or_init(|| init_var_samp_keyword_segment()).clone()),
+            "VarbinaryKeywordSegment" => Some(VARBINARY_KEYWORD_SEGMENT.get_or_init(|| init_varbinary_keyword_segment()).clone()),
+            "Varchar2KeywordSegment" => Some(VARCHAR2_KEYWORD_SEGMENT.get_or_init(|| init_varchar2_keyword_segment()).clone()),
+            "VarcharKeywordSegment" => Some(VARCHAR_KEYWORD_SEGMENT.get_or_init(|| init_varchar_keyword_segment()).clone()),
+            "VarcharacterKeywordSegment" => Some(VARCHARACTER_KEYWORD_SEGMENT.get_or_init(|| init_varcharacter_keyword_segment()).clone()),
+            "VariableKeywordSegment" => Some(VARIABLE_KEYWORD_SEGMENT.get_or_init(|| init_variable_keyword_segment()).clone()),
+            "VariablesKeywordSegment" => Some(VARIABLES_KEYWORD_SEGMENT.get_or_init(|| init_variables_keyword_segment()).clone()),
+            "VaryingKeywordSegment" => Some(VARYING_KEYWORD_SEGMENT.get_or_init(|| init_varying_keyword_segment()).clone()),
+            "VerboseKeywordSegment" => Some(VERBOSE_KEYWORD_SEGMENT.get_or_init(|| init_verbose_keyword_segment()).clone()),
+            "VersionKeywordSegment" => Some(VERSION_KEYWORD_SEGMENT.get_or_init(|| init_version_keyword_segment()).clone()),
+            "ViewKeywordSegment" => Some(VIEW_KEYWORD_SEGMENT.get_or_init(|| init_view_keyword_segment()).clone()),
+            "ViewsKeywordSegment" => Some(VIEWS_KEYWORD_SEGMENT.get_or_init(|| init_views_keyword_segment()).clone()),
+            "VolatileKeywordSegment" => Some(VOLATILE_KEYWORD_SEGMENT.get_or_init(|| init_volatile_keyword_segment()).clone()),
+            "WaitforKeywordSegment" => Some(WAITFOR_KEYWORD_SEGMENT.get_or_init(|| init_waitfor_keyword_segment()).clone()),
+            "WarehouseKeywordSegment" => Some(WAREHOUSE_KEYWORD_SEGMENT.get_or_init(|| init_warehouse_keyword_segment()).clone()),
+            "WarehousesKeywordSegment" => Some(WAREHOUSES_KEYWORD_SEGMENT.get_or_init(|| init_warehouses_keyword_segment()).clone()),
+            "WeekKeywordSegment" => Some(WEEK_KEYWORD_SEGMENT.get_or_init(|| init_week_keyword_segment()).clone()),
+            "WeekdayKeywordSegment" => Some(WEEKDAY_KEYWORD_SEGMENT.get_or_init(|| init_weekday_keyword_segment()).clone()),
+            "WhenClauseSegment" => Some(WHEN_CLAUSE_SEGMENT.get_or_init(|| init_when_clause_segment()).clone()),
+            "WhenKeywordSegment" => Some(WHEN_KEYWORD_SEGMENT.get_or_init(|| init_when_keyword_segment()).clone()),
+            "WheneverKeywordSegment" => Some(WHENEVER_KEYWORD_SEGMENT.get_or_init(|| init_whenever_keyword_segment()).clone()),
+            "WhereClauseSegment" => Some(WHERE_CLAUSE_SEGMENT.get_or_init(|| init_where_clause_segment()).clone()),
+            "WhereClauseTerminatorGrammar" => Some(WHERE_CLAUSE_TERMINATOR_GRAMMAR.get_or_init(|| init_where_clause_terminator_grammar()).clone()),
+            "WhereKeywordSegment" => Some(WHERE_KEYWORD_SEGMENT.get_or_init(|| init_where_keyword_segment()).clone()),
+            "WhileKeywordSegment" => Some(WHILE_KEYWORD_SEGMENT.get_or_init(|| init_while_keyword_segment()).clone()),
+            "WhitespaceSegment" => Some(WHITESPACE_SEGMENT.get_or_init(|| init_whitespace_segment()).clone()),
+            "Width_bucketKeywordSegment" => Some(WIDTH_BUCKET_KEYWORD_SEGMENT.get_or_init(|| init_width_bucket_keyword_segment()).clone()),
+            "WildcardExpressionSegment" => Some(WILDCARD_EXPRESSION_SEGMENT.get_or_init(|| init_wildcard_expression_segment()).clone()),
+            "WildcardIdentifierSegment" => Some(WILDCARD_IDENTIFIER_SEGMENT.get_or_init(|| init_wildcard_identifier_segment()).clone()),
+            "WindowKeywordSegment" => Some(WINDOW_KEYWORD_SEGMENT.get_or_init(|| init_window_keyword_segment()).clone()),
+            "WindowSpecificationSegment" => Some(WINDOW_SPECIFICATION_SEGMENT.get_or_init(|| init_window_specification_segment()).clone()),
+            "WithCompoundNonSelectStatementSegment" => Some(WITH_COMPOUND_NON_SELECT_STATEMENT_SEGMENT.get_or_init(|| init_with_compound_non_select_statement_segment()).clone()),
+            "WithCompoundStatementSegment" => Some(WITH_COMPOUND_STATEMENT_SEGMENT.get_or_init(|| init_with_compound_statement_segment()).clone()),
+            "WithDataClauseSegment" => Some(WITH_DATA_CLAUSE_SEGMENT.get_or_init(|| init_with_data_clause_segment()).clone()),
+            "WithFillSegment" => Some(WITH_FILL_SEGMENT.get_or_init(|| init_with_fill_segment()).clone()),
+            "WithKeywordSegment" => Some(WITH_KEYWORD_SEGMENT.get_or_init(|| init_with_keyword_segment()).clone()),
+            "WithNoSchemaBindingClauseSegment" => Some(WITH_NO_SCHEMA_BINDING_CLAUSE_SEGMENT.get_or_init(|| init_with_no_schema_binding_clause_segment()).clone()),
+            "WithinKeywordSegment" => Some(WITHIN_KEYWORD_SEGMENT.get_or_init(|| init_within_keyword_segment()).clone()),
+            "WithoutKeywordSegment" => Some(WITHOUT_KEYWORD_SEGMENT.get_or_init(|| init_without_keyword_segment()).clone()),
+            "WordSegment" => Some(WORD_SEGMENT.get_or_init(|| init_word_segment()).clone()),
+            "WorkKeywordSegment" => Some(WORK_KEYWORD_SEGMENT.get_or_init(|| init_work_keyword_segment()).clone()),
+            "WrapperKeywordSegment" => Some(WRAPPER_KEYWORD_SEGMENT.get_or_init(|| init_wrapper_keyword_segment()).clone()),
+            "WriteKeywordSegment" => Some(WRITE_KEYWORD_SEGMENT.get_or_init(|| init_write_keyword_segment()).clone()),
+            "WritetextKeywordSegment" => Some(WRITETEXT_KEYWORD_SEGMENT.get_or_init(|| init_writetext_keyword_segment()).clone()),
+            "X509KeywordSegment" => Some(X509_KEYWORD_SEGMENT.get_or_init(|| init_x509_keyword_segment()).clone()),
+            "XmlKeywordSegment" => Some(XML_KEYWORD_SEGMENT.get_or_init(|| init_xml_keyword_segment()).clone()),
+            "XorKeywordSegment" => Some(XOR_KEYWORD_SEGMENT.get_or_init(|| init_xor_keyword_segment()).clone()),
+            "YamlKeywordSegment" => Some(YAML_KEYWORD_SEGMENT.get_or_init(|| init_yaml_keyword_segment()).clone()),
+            "YearKeywordSegment" => Some(YEAR_KEYWORD_SEGMENT.get_or_init(|| init_year_keyword_segment()).clone()),
+            "Year_monthKeywordSegment" => Some(YEAR_MONTH_KEYWORD_SEGMENT.get_or_init(|| init_year_month_keyword_segment()).clone()),
+            "ZerofillKeywordSegment" => Some(ZEROFILL_KEYWORD_SEGMENT.get_or_init(|| init_zerofill_keyword_segment()).clone()),
+            "ZoneKeywordSegment" => Some(ZONE_KEYWORD_SEGMENT.get_or_init(|| init_zone_keyword_segment()).clone()),
             _ => None,
     }
 }

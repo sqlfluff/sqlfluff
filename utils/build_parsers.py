@@ -37,7 +37,7 @@ class DummyParseContext:
 def generate_use():
     """Generates the `use` statements."""
     print("use std::sync::Arc;")
-    print("use once_cell::sync::Lazy;")
+    print("use std::sync::OnceLock;")
     print("use sqlfluffrs_types::{Grammar, ParseMode, SimpleHint};")
     print("use sqlfluffrs_types::regex::RegexMode;")
 
@@ -59,13 +59,18 @@ def generate_parser(dialect: str):
     segment_types = []
 
     # TODO: remove this if
-    # if dialect in ("ansi", "bigquery"):
-    # if dialect not in ("snowflake", "tsql"):
-    if True:
+    if dialect in ("ansi"):
+        # if dialect not in ("snowflake", "tsql"):
+        # if True:
+        # We'll emit an init function + OnceLock static for each grammar
         for name, match_grammar in sorted(loaded_dialect._library.items()):
             name = name.replace(" ", "_")
+            const_name = matchable_to_const_name(name)
+
+            # The match arm will lazily initialize via OnceLock::get_or_init
             segment_grammars.append(
-                f'"{name}" => Some({matchable_to_const_name(name)}.clone()),'
+                f'"{name}" => Some({const_name}.get_or_init(||'
+                f" init_{const_name.lower()}()).clone()),"
             )
 
             # Check if this is a Segment class (has a 'type' attribute)
@@ -76,13 +81,13 @@ def generate_parser(dialect: str):
                 if segment_type:
                     segment_types.append(f'"{name}" => Some("{segment_type}"),')
 
+            # Emit an initializer function and a OnceLock static
             print(f"// {name=}")
-            print(
-                f"pub static {matchable_to_const_name(name)}: "
-                "Lazy<Arc<Grammar>> = Lazy::new(||"
-            )
+            print(f"fn init_{const_name.lower()}() -> Arc<Grammar> {{")
             _to_rust_parser_grammar(match_grammar, parse_context)
-            print(");")
+            print("}")
+            print()
+            print(f"pub static {const_name}: OnceLock<Arc<Grammar>> = OnceLock::new();")
             print()
     segment_grammars.append("_ => None,")
     segment_types.append("_ => None,")

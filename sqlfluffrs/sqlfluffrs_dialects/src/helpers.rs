@@ -1,9 +1,9 @@
 // Common helper functions for grammar construction
 // These are used by all dialect parsers
 
-use std::sync::Arc;
 use hashbrown::HashSet;
 use sqlfluffrs_types::{Grammar, ParseMode, SimpleHint};
+use std::sync::Arc;
 
 /// Create a Ref grammar with default settings
 #[inline(always)]
