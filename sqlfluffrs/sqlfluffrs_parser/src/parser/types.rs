@@ -68,7 +68,7 @@ pub enum Node {
     /// Used when an optional part didn't match
     Empty,
     Meta {
-        token_type: &'static str,
+        token_type: String,
         token_idx: Option<usize>,
     },
 }
@@ -1070,7 +1070,7 @@ mod tests {
     #[test]
     fn test_meta_node_as_record() {
         let node = Node::Meta {
-            token_type: "indent",
+            token_type: "indent".to_string(),
             token_idx: None,
         };
         let record = node.as_record(false, true, false).unwrap();
@@ -1195,7 +1195,7 @@ mod tests {
     #[test]
     fn test_meta_node_to_tuple_include_meta() {
         let node = Node::Meta {
-            token_type: "indent",
+            token_type: "indent".to_string(),
             token_idx: None,
         };
         let val = node.to_tuple(false, false, true);
@@ -1208,7 +1208,7 @@ mod tests {
     #[test]
     fn test_meta_node_to_tuple_exclude_meta() {
         let node = Node::Meta {
-            token_type: "indent",
+            token_type: "indent".to_string(),
             token_idx: None,
         };
         let val = node.to_tuple(false, false, false);
@@ -1237,10 +1237,11 @@ mod tests {
             .simple_hint(&mut cache)
             .expect("Should return a hint");
         // Should match raw value ","
-        assert!(hint.raw_values.contains(&" ,".trim().to_uppercase()));
+        let trimmed_upper = " ,".trim().to_uppercase();
+        assert!(hint.raw_values.contains(trimmed_upper.as_str()));
         // Should match can_match_token for ","
         let mut token_types = HashSet::new();
         token_types.insert("comma".to_string());
-        assert!(hint.can_match_token(&" ,".trim().to_uppercase(), &token_types));
+        assert!(hint.can_match_token(&trimmed_upper, &token_types));
     }
 }

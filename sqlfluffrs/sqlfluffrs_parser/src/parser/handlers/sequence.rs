@@ -192,13 +192,13 @@ impl<'a> Parser<'_> {
                             parent_frame.accumulated.insert(
                                 insert_pos,
                                 Node::Meta {
-                                    token_type: meta_type,
+                                    token_type: meta_type.to_string(),
                                     token_idx: None,
                                 },
                             );
                         } else {
                             parent_frame.accumulated.push(Node::Meta {
-                                token_type: meta_type,
+                                token_type: meta_type.to_string(),
                                 token_idx: None,
                             });
                         }
@@ -1104,24 +1104,24 @@ impl<'a> Parser<'_> {
                         final_accumulated.insert(
                             insert_pos,
                             Node::Meta {
-                                token_type: meta_type,
+                                token_type: meta_type.to_string(),
                                 token_idx: None,
                             },
                         );
                         frame.accumulated.insert(
                             insert_pos,
                             Node::Meta {
-                                token_type: meta_type,
+                                token_type: meta_type.to_string(),
                                 token_idx: None,
                             },
                         );
                     } else {
                         final_accumulated.push(Node::Meta {
-                            token_type: meta_type,
+                            token_type: meta_type.to_string(),
                             token_idx: None,
                         });
                         frame.accumulated.push(Node::Meta {
-                            token_type: meta_type,
+                            token_type: meta_type.to_string(),
                             token_idx: None,
                         });
                     }
@@ -1318,7 +1318,7 @@ impl<'a> Parser<'_> {
                         is_round
                     }
                     Grammar::MultiStringParser { templates, .. } => {
-                        let bracket_char = templates.first().copied().unwrap_or("(");
+                        let bracket_char = templates.first().map(|s| *s).unwrap_or("(");
                         let is_round = bracket_char == "(";
                         log::debug!(
                             "Bracketed: start bracket MultiStringParser template={}, bracket_persists={}",

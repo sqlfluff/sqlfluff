@@ -469,16 +469,7 @@ def _to_rust_parser_grammar(match_grammar, parse_context):
         print(f"// Missing elements {match_grammar=}, {match_grammar.__class__=}")
         print(f"// {match_grammar.__name__=}")
         print(f"// {match_grammar.__qualname__=}")
-        # print(f"// {match_grammar.__mro__=}")
-        # print("todo!()")
         print("Arc::new(Grammar::Missing)")
-    # except RuntimeError:
-    #     print(f"// Missing elements {match_grammar=}, {match_grammar.__class__=}")
-    #     # print(f"// {match_grammar.__name__=}")
-    #     # print(f"// {match_grammar.__qualname__=}")
-    #     # print(f"// {match_grammar.__mro__=}")
-    #     # print("todo!()")
-    #     print("Arc::new(Grammar::Missing)")
 
 
 def as_rust_option(value, is_regex: bool = False):

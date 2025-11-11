@@ -127,7 +127,7 @@ impl Parser<'_> {
             Some(tok)
                 if templates
                     .iter()
-                    .any(|&temp| tok.raw().eq_ignore_ascii_case(temp)) =>
+                    .any(|temp| tok.raw().eq_ignore_ascii_case(temp)) =>
             {
                 let token_pos = self.pos;
                 self.bump();

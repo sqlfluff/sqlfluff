@@ -137,10 +137,7 @@ impl CacheKey {
         mut cache: &mut HashMap<*const Grammar, u64>,
     ) -> Self {
         let grammar_hash = grammar_hash(grammar, &mut cache);
-        let raw = tokens
-            .get(pos)
-            .map(|t| t.raw().to_string())
-            .unwrap_or_default();
+        let raw = tokens.get(pos).map(|t| t.raw()).unwrap_or_default();
 
         // Hash the terminators - critical for cache correctness!
         // Same grammar at same position with different terminators should be different cache entries

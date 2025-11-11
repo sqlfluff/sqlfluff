@@ -506,7 +506,7 @@ fn test_delimited_optional_and_trailing() -> Result<(), ParseError> {
     let mut parser = Parser::new(&tokens, dialect);
     let grammar = Arc::new(Grammar::Delimited {
         elements: vec![element],
-        delimiter: delimiter,
+        delimiter,
         allow_trailing: false,
         optional: false,
         optional_delimiter: false,
@@ -987,7 +987,6 @@ fn test_sequence_nested_match() -> Result<(), ParseError> {
     let dialect = Dialect::Ansi;
     let lexer = Lexer::new(None, ANSI_LEXERS.to_vec());
     let (tokens, _errors) = lexer.lex(input, false);
-    let mut parser = Parser::new(&tokens, dialect);
     let bar = Arc::new(Grammar::StringParser {
         template: "bar",
         raw_class: "WordSegment",
@@ -1169,7 +1168,7 @@ fn test_sequence_modes_various_cases() -> Result<(), ParseError> {
             .iter()
             .map(|s| {
                 Arc::new(Grammar::StringParser {
-                    template: s.to_string().leak(),
+                    template: s,
                     raw_class: "WordSegment",
                     token_type: "word",
                     optional: false,

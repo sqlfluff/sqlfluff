@@ -218,11 +218,11 @@ impl<'a> Parser<'a> {
             }
             let node = match token.get_type().as_str() {
                 "meta" => Node::Meta {
-                    token_type: "meta",
+                    token_type: "meta".to_string(),
                     token_idx: Some(start_idx + i),
                 },
                 "dedent" => Node::Meta {
-                    token_type: "dedent",
+                    token_type: "dedent".to_string(),
                     token_idx: Some(start_idx + i),
                 },
                 "whitespace" => Node::Whitespace {

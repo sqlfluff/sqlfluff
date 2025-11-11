@@ -61,7 +61,7 @@ impl Parser<'_> {
         };
         log::debug!("Doing nothing with meta {}", token_type);
         frame.state = FrameState::Complete(Node::Meta {
-            token_type,
+            token_type: token_type.to_string(),
             token_idx: None,
         });
         frame.end_pos = Some(frame.pos);
