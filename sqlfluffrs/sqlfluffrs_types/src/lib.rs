@@ -1,4 +1,7 @@
 pub mod config;
+pub mod grammar_api;
+pub mod grammar_inst;
+pub mod grammar_tables;
 pub mod marker;
 pub mod matcher;
 pub mod parser;
@@ -10,6 +13,13 @@ pub mod token;
 #[cfg(feature = "python")]
 pub use config::fluffconfig::python::PyFluffConfig;
 pub use config::fluffconfig::FluffConfig;
+pub use grammar_api::{patterns as grammar_patterns, GrammarContext};
+pub use grammar_inst::{
+    GrammarFlags, GrammarId, GrammarInst, GrammarVariant, ParseMode as GrammarInstParseMode,
+};
+pub use grammar_tables::{
+    ChildrenIter, GrammarInstExt, GrammarTables, SimpleHintData, TableMemoryStats, TerminatorsIter,
+};
 #[cfg(feature = "python")]
 pub use marker::python::PyPositionMarker;
 pub use marker::PositionMarker;
