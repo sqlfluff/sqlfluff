@@ -52,6 +52,7 @@ The dialect for `DuckDB <https://duckdb.org/>`_.
 
 duckdb_dialect.sets("reserved_keywords").update(
     [
+        "LAMBDA",
         "PIVOT",
         "PIVOT_LONGER",
         "PIVOT_WIDER",
@@ -536,18 +537,29 @@ class ColumnsExpressionFunctionContentsSegment(
 class LambdaExpressionSegment(BaseSegment):
     """Lambda function used in a function or columns expression.
 
-    https://duckdb.org/docs/sql/functions/lambda
+    https://duckdb.org/docs/stable/sql/functions/lambda
     https://duckdb.org/docs/sql/expressions/star#columns-lambda-function
     """
 
     type = "lambda_function"
-    match_grammar = Sequence(
-        OneOf(
-            Ref("ParameterNameSegment"),
-            Bracketed(Delimited(Ref("ParameterNameSegment"))),
+    match_grammar = OneOf(
+        Sequence(
+            OneOf(
+                Ref("ParameterNameSegment"),
+                Bracketed(Delimited(Ref("ParameterNameSegment"))),
+            ),
+            Ref("LambdaArrowSegment"),
+            Ref("ExpressionSegment"),
         ),
-        Ref("LambdaArrowSegment"),
-        Ref("ExpressionSegment"),
+        Sequence(
+            "LAMBDA",
+            OneOf(
+                Ref("ParameterNameSegment"),
+                Bracketed(Delimited(Ref("ParameterNameSegment"))),
+            ),
+            Ref("ColonSegment"),
+            Ref("ExpressionSegment"),
+        ),
     )
 
 
