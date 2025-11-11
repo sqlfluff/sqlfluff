@@ -26,7 +26,7 @@ but we do expect they will be significant once the routines are mature.
 
 Additionally:
 
-* We drop support for dbt 1.4 and older, and include support for dbt1.10.
+* We drop support for dbt 1.4 and older, and include support for dbt 1.10.
 
 .. _upgrading_3_0:
 
