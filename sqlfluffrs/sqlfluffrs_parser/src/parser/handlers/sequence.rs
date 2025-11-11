@@ -288,6 +288,8 @@ impl<'a> Parser<'_> {
                         end_pos: None,
                         transparent_positions: None,
                         element_key: None,
+                        grammar_id: None,
+                        table_terminators: vec![],
                     };
 
                     // Update parent (already on stack) and push child
@@ -1631,6 +1633,8 @@ impl<'a> Parser<'_> {
                         end_pos: None,
                         transparent_positions: None,
                         element_key: None,
+                        grammar_id: None,
+                        table_terminators: vec![],
                     };
                     *last_child_frame_id = Some(stack.frame_id_counter);
                     stack.frame_id_counter += 1;
@@ -1775,6 +1779,8 @@ impl<'a> Parser<'_> {
                         end_pos: None,
                         transparent_positions: None,
                         element_key: None,
+                        grammar_id: None,
+                        table_terminators: vec![],
                     };
                     *last_child_frame_id = Some(stack.frame_id_counter);
                     stack.frame_id_counter += 1;
@@ -1913,6 +1919,8 @@ fn create_child_frame(
         end_pos: None,
         transparent_positions: None,
         element_key: None,
+        grammar_id: None,
+        table_terminators: vec![],
     }
 }
 fn update_parent_last_child_frame(stack: &mut ParseFrameStack) {

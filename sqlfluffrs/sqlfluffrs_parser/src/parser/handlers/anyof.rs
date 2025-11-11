@@ -218,6 +218,8 @@ impl crate::parser::Parser<'_> {
                 end_pos: None,
                 transparent_positions: None,
                 element_key: None,
+                grammar_id: None,
+                table_terminators: vec![],
             };
 
             let next_child_id = stack.frame_id_counter;
@@ -802,6 +804,8 @@ impl crate::parser::Parser<'_> {
             end_pos: None,
             transparent_positions: None,
             element_key: None,
+            grammar_id: None,
+            table_terminators: vec![],
         };
 
         frame.state = crate::parser::FrameState::WaitingForChild {
@@ -1114,7 +1118,7 @@ impl crate::parser::Parser<'_> {
 
     /// Check if a node is "clean" (doesn't contain Unparsable segments).
     /// Python's longest_match prioritizes clean matches over unclean ones.
-    fn is_node_clean(node: &Node) -> bool {
+    pub(crate) fn is_node_clean(node: &Node) -> bool {
         match node {
             Node::Unparsable { .. } => false,
             Node::Sequence { children } => children.iter().all(Self::is_node_clean),

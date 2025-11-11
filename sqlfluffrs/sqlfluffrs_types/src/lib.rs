@@ -10,6 +10,9 @@ pub mod slice;
 pub mod templater;
 pub mod token;
 
+#[cfg(test)]
+mod grammar_tables_test;
+
 #[cfg(feature = "python")]
 pub use config::fluffconfig::python::PyFluffConfig;
 pub use config::fluffconfig::FluffConfig;

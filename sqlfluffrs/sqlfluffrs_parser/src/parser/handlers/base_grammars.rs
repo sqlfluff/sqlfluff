@@ -319,6 +319,8 @@ impl Parser<'_> {
                     end_pos: None,
                     transparent_positions: None,
                     element_key: None,
+                    grammar_id: None,
+                    table_terminators: vec![],
                 };
 
                 // Update current frame to wait for child and store Ref metadata
