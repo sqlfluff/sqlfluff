@@ -67,10 +67,16 @@ class Rule_ST06(BaseRule):
                 for child in parent.segments:
                     if child.is_type("bracketed"):
                         # Check if this bracketed segment contains column references
-                        # This would be the explicit column list
+                        # ANSI-based dialects (Snowflake, PostgreSQL, etc.) use column_reference
                         if any(
                             seg.is_type("column_reference")
                             for seg in child.recursive_crawl("column_reference")
+                        ):
+                            return True
+                        # T-SQL dialect uses index_column_definition instead
+                        if any(
+                            seg.is_type("index_column_definition")
+                            for seg in child.recursive_crawl("index_column_definition")
                         ):
                             return True
                 # Found a CREATE VIEW but no explicit column list

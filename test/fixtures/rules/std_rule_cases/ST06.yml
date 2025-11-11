@@ -319,7 +319,6 @@ test_pass_create_view_with_explicit_columns:
       f.state
     FROM FRANCONNECT_REPORTING.franchisee f
 
-
 test_fail_create_view_without_explicit_columns:
   fail_str: |
     CREATE OR REPLACE VIEW FRANCONNECT_REPORTING.GYM_ATTRIBUTES AS
@@ -343,3 +342,34 @@ test_fail_create_view_without_explicit_columns:
       TRY_TO_DOUBLE(f.franchiseename) AS franchiseid,
       CASE WHEN f.grandstoreopeningdate < dateadd(month, -18, current_date) THEN 'Same Gym' ELSE NULL END as same_gym
     FROM FRANCONNECT_REPORTING.franchisee f
+
+test_pass_create_view_with_explicit_columns_tsql:
+  pass_str: |
+    CREATE VIEW dbo.MyView (
+      EmployeeName,
+      EmployeeID,
+      Department
+    ) AS
+    SELECT
+      e.name,
+      TRY_CAST(e.id AS INT) AS employee_id,
+      e.department
+    FROM employees e
+
+test_fail_create_view_without_explicit_columns_tsql:
+  fail_str: |
+    CREATE VIEW dbo.MyView AS
+    SELECT
+      e.name,
+      TRY_CAST(e.id AS INT) AS employee_id,
+      e.department
+    FROM employees e
+  line_numbers: [1]
+
+  fix_str: |
+    CREATE VIEW dbo.MyView AS
+    SELECT
+      e.name,
+      e.department,
+      TRY_CAST(e.id AS INT) AS employee_id
+    FROM employees e
