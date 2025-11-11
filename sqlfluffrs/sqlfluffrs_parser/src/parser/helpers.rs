@@ -994,4 +994,311 @@ impl<'a> Parser<'a> {
         self.pos = init_pos;
         false
     }
+
+    // ============================================================================
+    // TABLE-DRIVEN UTILITY FUNCTIONS
+    // ============================================================================
+    //
+    // These are table-driven equivalents of the Arc<Grammar> utility functions above.
+    // They work with GrammarId instead of Arc<Grammar> and use GrammarContext for
+    // table access.
+
+    /// Combine parent and local terminators for table-driven parsing.
+    ///
+    /// If reset_terminators is true, only local_terminators are used.
+    /// Otherwise, both local and parent terminators are combined.
+    pub(crate) fn combine_terminators_table_driven(
+        local_terminators: &[sqlfluffrs_types::GrammarId],
+        parent_terminators: &[sqlfluffrs_types::GrammarId],
+        reset_terminators: bool,
+    ) -> Vec<sqlfluffrs_types::GrammarId> {
+        if reset_terminators {
+            local_terminators.to_vec()
+        } else {
+            local_terminators
+                .iter()
+                .copied()
+                .chain(parent_terminators.iter().copied())
+                .collect()
+        }
+    }
+
+    /// Calculate max_idx for table-driven parsing, considering terminators and parent constraints.
+    ///
+    /// This is the table-driven equivalent of calculate_max_idx().
+    pub(crate) fn calculate_max_idx_table_driven(
+        &mut self,
+        start_idx: usize,
+        terminators: &[sqlfluffrs_types::GrammarId],
+        parse_mode: ParseMode,
+        parent_max_idx: Option<usize>,
+    ) -> usize {
+        // Calculate initial max_idx based on parse_mode
+        let mut max_idx = if parse_mode == ParseMode::Greedy {
+            self.trim_to_terminator_table_driven(start_idx, terminators)
+        } else {
+            self.tokens.len()
+        };
+
+        // Trim backward to last code token
+        if max_idx > 0 {
+            max_idx = self.skip_stop_index_backward_to_code(max_idx, start_idx);
+        }
+
+        // Apply parent's constraint
+        if let Some(parent_limit) = parent_max_idx {
+            max_idx = max_idx.min(parent_limit);
+        }
+
+        log::debug!(
+            "calculate_max_idx_table_driven: start_idx={}, terminators.len()={}, parse_mode={:?}, parent_max_idx={:?}, final_max_idx={}",
+            start_idx, terminators.len(), parse_mode, parent_max_idx, max_idx
+        );
+
+        max_idx
+    }
+
+    /// Calculate max_idx for table-driven parsing with element awareness (for AnyNumberOf).
+    ///
+    /// This is the table-driven equivalent of calculate_max_idx_with_elements().
+    pub(crate) fn calculate_max_idx_with_elements_table_driven(
+        &mut self,
+        start_idx: usize,
+        terminators: &[sqlfluffrs_types::GrammarId],
+        elements: &[sqlfluffrs_types::GrammarId],
+        parse_mode: ParseMode,
+        parent_max_idx: Option<usize>,
+    ) -> usize {
+        // Calculate initial max_idx based on parse_mode
+        let mut max_idx = if parse_mode == ParseMode::Greedy {
+            self.trim_to_terminator_with_elements_table_driven(start_idx, terminators, elements)
+        } else {
+            self.tokens.len()
+        };
+
+        // Trim backward to last code token
+        if max_idx > 0 {
+            max_idx = self.skip_stop_index_backward_to_code(max_idx, start_idx);
+        }
+
+        // Apply parent's constraint
+        if let Some(parent_limit) = parent_max_idx {
+            max_idx = max_idx.min(parent_limit);
+        }
+
+        max_idx
+    }
+
+    /// Prune options for table-driven parsing based on simple hints.
+    ///
+    /// This is the table-driven equivalent of prune_options().
+    pub(crate) fn prune_options_table_driven(
+        &mut self,
+        options: &[sqlfluffrs_types::GrammarId],
+    ) -> Vec<sqlfluffrs_types::GrammarId> {
+        // Track stats
+        self.pruning_calls.set(self.pruning_calls.get() + 1);
+        self.pruning_total
+            .set(self.pruning_total.get() + options.len());
+
+        // Find first code token
+        let first_code_token = self.tokens.iter().skip(self.pos).find(|t| t.is_code());
+
+        // If no code token found, can't prune - return all options
+        let Some(first_token) = first_code_token else {
+            self.pruning_kept
+                .set(self.pruning_kept.get() + options.len());
+            return options.to_vec();
+        };
+
+        // Get token properties for matching
+        let first_raw = first_token.raw_upper();
+        let first_types: HashSet<String> = first_token.get_all_types();
+
+        log::debug!(
+            "Pruning {} options at pos {} (token: '{}', types: {:?})",
+            options.len(),
+            self.pos,
+            first_raw,
+            first_types
+        );
+
+        let mut available_options = Vec::new();
+
+        for &opt_id in options {
+            // Try to get simple hint for this grammar
+            // TODO: Implement simple_hint access from table
+            // For now, keep all options (conservative approach)
+            self.pruning_complex.set(self.pruning_complex.get() + 1);
+            available_options.push(opt_id);
+        }
+
+        self.pruning_kept
+            .set(self.pruning_kept.get() + available_options.len());
+        available_options
+    }
+
+    /// Check if we're at a terminator for table-driven parsing, considering elements.
+    ///
+    /// This is the table-driven equivalent of is_terminated_with_elements().
+    pub(crate) fn is_terminated_with_elements_table_driven(
+        &mut self,
+        terminators: &[sqlfluffrs_types::GrammarId],
+        elements: &[sqlfluffrs_types::GrammarId],
+    ) -> bool {
+        let init_pos = self.pos;
+        self.skip_transparent(true);
+        let saved_pos = self.pos;
+
+        // Check if we've reached end of file
+        if self.is_at_end() {
+            log::debug!("  TERMED Reached end of file");
+            self.pos = init_pos;
+            return true;
+        }
+
+        // Check if current token is end_of_file type
+        if let Some(tok) = self.peek() {
+            if tok.get_type() == "end_of_file" {
+                log::debug!("  TERMED Found end_of_file token");
+                self.pos = init_pos;
+                return true;
+            }
+        }
+
+        // Prune terminators before checking
+        let pruned_terminators = self.prune_terminators_table_driven(terminators);
+        log::debug!(
+            "  TERM Checking {} pruned terminators at pos {}",
+            pruned_terminators.len(),
+            self.pos
+        );
+
+        // Get current token for simple matching
+        let current_token = self.peek();
+        if current_token.is_none() {
+            log::debug!("  NOTERM No current token");
+            self.pos = init_pos;
+            return false;
+        }
+        // Note: In future, we can use simple_hint matching here like the Arc version
+
+        // Check all terminators - use full parse for multi-token terminators
+        for term_id in pruned_terminators.iter() {
+            // TODO: Implement simple_hint check from table
+            // TODO: Implement needs_full_parse check (Sequence with multiple elements)
+
+            // For now, do full parse for all terminators (conservative approach)
+            let check_pos = self.pos;
+            self.pos = saved_pos;
+
+            if let Ok(node) = self.parse_with_grammar_id(*term_id, &[]) {
+                let is_empty = node.is_empty();
+                self.pos = check_pos;
+
+                if !is_empty {
+                    log::debug!("  TERMED Terminator matched (table-driven): {:?}", term_id);
+                    self.pos = init_pos;
+                    return true;
+                }
+            } else {
+                self.pos = check_pos;
+            }
+            log::debug!("  Terminator did not match (table-driven): {:?}", term_id);
+        }
+
+        log::debug!("  NOTERM No terminators matched");
+        self.pos = init_pos;
+        false
+    }
+
+    /// Prune terminators for table-driven parsing based on simple matchers.
+    ///
+    /// This is the table-driven equivalent of prune_terminators().
+    fn prune_terminators_table_driven(
+        &mut self,
+        terminators: &[sqlfluffrs_types::GrammarId],
+    ) -> Vec<sqlfluffrs_types::GrammarId> {
+        let first_token = self.tokens.get(self.pos);
+        if let Some(tok) = first_token {
+            if !tok.is_code() {
+                // Next token is not code, so don't prune
+                return terminators.to_vec();
+            }
+        } else {
+            // No token at all (EOF), can't prune
+            return terminators.to_vec();
+        }
+
+        // TODO: Implement simple hint based pruning from table
+        // For now, return all terminators (conservative approach)
+        terminators.to_vec()
+    }
+
+    /// Trim to first terminator position for table-driven parsing.
+    ///
+    /// This is the table-driven equivalent of trim_to_terminator().
+    fn trim_to_terminator_table_driven(
+        &mut self,
+        start_idx: usize,
+        terminators: &[sqlfluffrs_types::GrammarId],
+    ) -> usize {
+        // If no terminators, return tokens length
+        if terminators.is_empty() {
+            return self.tokens.len();
+        }
+
+        // Scan forward looking for terminator match
+        let mut idx = start_idx;
+        while idx < self.tokens.len() {
+            let saved_pos = self.pos;
+            self.pos = idx;
+
+            // Skip transparent tokens
+            self.skip_transparent(true);
+
+            // Check if we're at a terminator
+            for term_id in terminators {
+                if let Ok(node) = self.parse_with_grammar_id(*term_id, &[]) {
+                    if !node.is_empty() {
+                        log::debug!("  Found terminator at idx {}: {:?}", idx, term_id);
+                        self.pos = saved_pos;
+                        return idx;
+                    }
+                }
+            }
+
+            self.pos = saved_pos;
+
+            // Skip brackets (important for SQL parsing)
+            if let Some(tok) = self.tokens.get(idx) {
+                let tok_type = tok.get_type();
+                if tok_type == "start_bracket" || tok_type == "start_square_bracket" {
+                    // Find matching end bracket
+                    if let Some(end_idx) = self.find_matching_bracket(idx) {
+                        idx = end_idx + 1;
+                        continue;
+                    }
+                }
+            }
+
+            idx += 1;
+        }
+
+        self.tokens.len()
+    }
+
+    /// Trim to first terminator position for table-driven parsing with element awareness.
+    ///
+    /// This is the table-driven equivalent of trim_to_terminator_with_elements().
+    fn trim_to_terminator_with_elements_table_driven(
+        &mut self,
+        start_idx: usize,
+        terminators: &[sqlfluffrs_types::GrammarId],
+        _elements: &[sqlfluffrs_types::GrammarId],
+    ) -> usize {
+        // Note: elements parameter exists for future use but is not currently used
+        // in Python's implementation. It's for filtering terminators that also match elements.
+        self.trim_to_terminator_table_driven(start_idx, terminators)
+    }
 }

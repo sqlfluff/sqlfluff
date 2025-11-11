@@ -132,42 +132,152 @@ impl<'a> GrammarContext<'a> {
         }
     }
 
-    /// Get delimiter ID (for Delimited variant)
+    /// Get delimiter ID for Delimited variant (returns last child)
     #[inline]
     pub fn delimiter(&self, id: GrammarId) -> GrammarId {
         let inst = self.inst(id);
         debug_assert_eq!(inst.variant, GrammarVariant::Delimited);
 
-        // Delimiter ID is stored in aux_data
-        let delimiter_id = self.tables.get_aux(inst.first_child_idx);
-        GrammarId::new(delimiter_id)
+        // Delimiter is the last child
+        let delimiter_idx = (inst.first_child_idx + inst.child_count as u32 - 1) as usize;
+        GrammarId::new(self.tables.child_ids[delimiter_idx])
     }
 
-    /// Get bracket pair (for Bracketed variant)
+    /// Get delimiter child index and min_delimiters from aux_data (for Delimited variant)
+    /// Returns: (delimiter_child_index, min_delimiters)
+    #[inline]
+    pub fn delimited_config(&self, id: GrammarId) -> (usize, usize) {
+        let inst = self.inst(id);
+        debug_assert_eq!(inst.variant, GrammarVariant::Delimited);
+
+        let aux_offset = self.tables.aux_data_offsets[id.get() as usize] as usize;
+        let delimiter_child_idx = self.tables.aux_data[aux_offset] as usize;
+        let min_delimiters = self.tables.aux_data[aux_offset + 1] as usize;
+
+        (delimiter_child_idx, min_delimiters)
+    }
+
+    /// Get bracket pair child indices from aux_data (for Bracketed variant)
+    /// Returns: (start_bracket_child_idx, end_bracket_child_idx)
+    #[inline]
+    pub fn bracketed_config(&self, id: GrammarId) -> (usize, usize) {
+        let inst = self.inst(id);
+        debug_assert_eq!(inst.variant, GrammarVariant::Bracketed);
+
+        let aux_offset = self.tables.aux_data_offsets[id.get() as usize] as usize;
+        let start_bracket_idx = self.tables.aux_data[aux_offset] as usize;
+        let end_bracket_idx = self.tables.aux_data[aux_offset + 1] as usize;
+
+        (start_bracket_idx, end_bracket_idx)
+    }
+
+    /// Get bracket pair GrammarIds (for Bracketed variant)
     #[inline]
     pub fn bracket_pair(&self, id: GrammarId) -> (GrammarId, GrammarId) {
         let inst = self.inst(id);
         debug_assert_eq!(inst.variant, GrammarVariant::Bracketed);
 
-        // Bracket pair IDs are stored in aux_data as two consecutive u32s
-        let start_idx = inst.first_child_idx as usize;
-        let open_id = self.tables.aux_data[start_idx];
-        let close_id = self.tables.aux_data[start_idx + 1];
+        let (start_idx, end_idx) = self.bracketed_config(id);
+        let start_id =
+            GrammarId::new(self.tables.child_ids[(inst.first_child_idx as usize) + start_idx]);
+        let end_id =
+            GrammarId::new(self.tables.child_ids[(inst.first_child_idx as usize) + end_idx]);
 
-        (GrammarId::new(open_id), GrammarId::new(close_id))
+        (start_id, end_id)
     }
 
-    /// Get exclude grammar ID (if HAS_EXCLUDE flag set)
+    /// Get exclude grammar ID (for variants with HAS_EXCLUDE flag)
+    /// The exclude grammar is always stored as the last child when present
     #[inline]
     pub fn exclude(&self, id: GrammarId) -> Option<GrammarId> {
         let inst = self.inst(id);
         if inst.flags.has_exclude() {
-            // Exclude ID is stored in aux_data
-            let exclude_id = self.tables.get_aux(inst.first_child_idx + 1);
-            Some(GrammarId::new(exclude_id))
+            // Exclude ID is the last child
+            let exclude_idx = (inst.first_child_idx + inst.child_count as u32 - 1) as usize;
+            Some(GrammarId::new(self.tables.child_ids[exclude_idx]))
         } else {
             None
         }
+    }
+
+    /// Get AnyNumberOf configuration from aux_data
+    /// Returns: (min_times, max_times, max_times_per_element, has_exclude)
+    /// Note: max_times and max_times_per_element return None if 0xFFFFFFFF (unlimited)
+    #[inline]
+    pub fn anynumberof_config(&self, id: GrammarId) -> (usize, Option<usize>, Option<usize>, bool) {
+        let inst = self.inst(id);
+        debug_assert_eq!(inst.variant, GrammarVariant::AnyNumberOf);
+
+        let aux_offset = self.tables.aux_data_offsets[id.get() as usize] as usize;
+        let min_times = self.tables.aux_data[aux_offset] as usize;
+        let max_times_raw = self.tables.aux_data[aux_offset + 1];
+        let max_per_element_raw = self.tables.aux_data[aux_offset + 2];
+        let has_exclude = self.tables.aux_data[aux_offset + 3] != 0;
+
+        let max_times = if max_times_raw == 0xFFFFFFFF {
+            None
+        } else {
+            Some(max_times_raw as usize)
+        };
+
+        let max_per_element = if max_per_element_raw == 0xFFFFFFFF {
+            None
+        } else {
+            Some(max_per_element_raw as usize)
+        };
+
+        (min_times, max_times, max_per_element, has_exclude)
+    }
+
+    /// Get AnySetOf configuration from aux_data
+    /// Returns: (min_times, max_times, has_exclude)
+    /// Note: AnySetOf has implicit max_times_per_element=1
+    #[inline]
+    pub fn anysetof_config(&self, id: GrammarId) -> (usize, Option<usize>, bool) {
+        let inst = self.inst(id);
+        debug_assert_eq!(inst.variant, GrammarVariant::AnySetOf);
+
+        let aux_offset = self.tables.aux_data_offsets[id.get() as usize] as usize;
+        let min_times = self.tables.aux_data[aux_offset] as usize;
+        let max_times_raw = self.tables.aux_data[aux_offset + 1];
+        let has_exclude = self.tables.aux_data[aux_offset + 2] != 0;
+
+        let max_times = if max_times_raw == 0xFFFFFFFF {
+            None
+        } else {
+            Some(max_times_raw as usize)
+        };
+
+        (min_times, max_times, has_exclude)
+    }
+
+    /// Get OneOf exclude marker from aux_data
+    /// Returns: true if has exclude grammar
+    #[inline]
+    pub fn oneof_has_exclude(&self, id: GrammarId) -> bool {
+        let inst = self.inst(id);
+        debug_assert_eq!(inst.variant, GrammarVariant::OneOf);
+
+        let aux_offset = self.tables.aux_data_offsets[id.get() as usize] as usize;
+        self.tables.aux_data[aux_offset] != 0
+    }
+
+    /// Get element children (excludes exclude grammar if present)
+    /// Returns iterator over element GrammarIds only
+    #[inline]
+    pub fn element_children(&self, id: GrammarId) -> impl Iterator<Item = GrammarId> + 'a {
+        let inst = self.inst(id);
+        let start = inst.first_child_idx as usize;
+        let count = if inst.flags.has_exclude() {
+            // Exclude is last child, so element count is child_count - 1
+            inst.child_count - 1
+        } else {
+            inst.child_count
+        } as usize;
+
+        self.tables.child_ids[start..start + count]
+            .iter()
+            .map(|&id| GrammarId::new(id))
     }
 
     /// Access underlying tables (for advanced use)
@@ -260,6 +370,7 @@ mod tests {
         static TERMINATORS: &[u32] = &[2];
         static STRINGS: &[&str] = &["SelectStatement", "keyword"];
         static AUX_DATA: &[u32] = &[];
+        static AUX_DATA_OFFSETS: &[u32] = &[0, 0, 0]; // One per instruction
         static REGEX_PATTERNS: &[&str] = &[];
         static SIMPLE_HINTS: &[SimpleHintData] = &[];
 
@@ -269,6 +380,7 @@ mod tests {
             TERMINATORS,
             STRINGS,
             AUX_DATA,
+            AUX_DATA_OFFSETS,
             REGEX_PATTERNS,
             SIMPLE_HINTS,
         );
@@ -299,6 +411,7 @@ mod tests {
         static TERMINATORS: &[u32] = &[];
         static STRINGS: &[&str] = &[];
         static AUX_DATA: &[u32] = &[];
+        static AUX_DATA_OFFSETS: &[u32] = &[0, 0, 0, 0]; // One per instruction
         static REGEX_PATTERNS: &[&str] = &[];
         static SIMPLE_HINTS: &[SimpleHintData] = &[];
 
@@ -308,6 +421,7 @@ mod tests {
             TERMINATORS,
             STRINGS,
             AUX_DATA,
+            AUX_DATA_OFFSETS,
             REGEX_PATTERNS,
             SIMPLE_HINTS,
         );

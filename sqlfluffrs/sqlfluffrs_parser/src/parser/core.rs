@@ -964,37 +964,117 @@ impl<'a> Parser<'a> {
             inst.child_count
         );
 
-        // TODO: Handle exclude grammar, pruning, allow_gaps
-        // For now, simple implementation without those features
+        // Check exclude grammar first (before any other logic)
+        if let Some(exclude_id) = ctx.exclude(grammar_id) {
+            // Try matching exclude grammar
+            if let Ok(exclude_result) = self.parse_with_grammar_id(exclude_id, parent_terminators) {
+                if !exclude_result.is_empty() {
+                    log::debug!(
+                        "OneOf[table]: exclude grammar matched at pos {}, returning Empty",
+                        start_pos
+                    );
+                    stack
+                        .results
+                        .insert(frame.frame_id, (Node::Empty, start_pos, None));
+                    return Ok(FrameResult::Done);
+                }
+            }
+            log::debug!("OneOf[table]: exclude grammar did not match, continuing");
+        }
 
-        // TODO: Calculate max_idx with terminators
-        let max_idx = self.tokens.len();
+        // Collect leading transparent tokens if allow_gaps
+        let leading_ws = if inst.flags.allow_gaps() {
+            self.collect_transparent(true)
+        } else {
+            Vec::new()
+        };
+        let post_skip_pos = self.pos;
 
-        // Get all children
-        let all_children: Vec<GrammarId> = ctx.children(grammar_id).collect();
+        // Combine terminators
+        let local_terminators: Vec<GrammarId> = ctx.terminators(grammar_id).collect();
+        let all_terminators = Self::combine_terminators_table_driven(
+            &local_terminators,
+            parent_terminators,
+            inst.flags.reset_terminators(),
+        );
 
-        if all_children.is_empty() {
-            log::debug!("OneOf[table]: No children, returning Empty");
-            stack
-                .results
-                .insert(frame.frame_id, (Node::Empty, start_pos, None));
+        // Calculate max_idx with terminators
+        let grammar_parse_mode = match inst.parse_mode {
+            sqlfluffrs_types::grammar_inst::ParseMode::Strict => {
+                sqlfluffrs_types::ParseMode::Strict
+            }
+            sqlfluffrs_types::grammar_inst::ParseMode::Greedy => {
+                sqlfluffrs_types::ParseMode::Greedy
+            }
+            sqlfluffrs_types::grammar_inst::ParseMode::GreedyOnceStarted => {
+                sqlfluffrs_types::ParseMode::GreedyOnceStarted
+            }
+        };
+        let max_idx = self.calculate_max_idx_table_driven(
+            post_skip_pos,
+            &all_terminators,
+            grammar_parse_mode,
+            frame.parent_max_idx,
+        );
+
+        log::debug!(
+            "OneOf[table]: post_skip_pos={}, max_idx={}, terminators={}",
+            post_skip_pos,
+            max_idx,
+            all_terminators.len()
+        );
+
+        // Early termination check for GREEDY mode
+        if grammar_parse_mode == sqlfluffrs_types::ParseMode::Greedy {
+            // Get element children (excluding exclude grammar)
+            let element_children: Vec<GrammarId> = ctx.element_children(grammar_id).collect();
+
+            if self.is_terminated_with_elements_table_driven(&all_terminators, &element_children) {
+                log::debug!("OneOf[table]: Early termination - at terminator position");
+                if inst.flags.optional() {
+                    stack
+                        .results
+                        .insert(frame.frame_id, (Node::Empty, post_skip_pos, None));
+                    return Ok(FrameResult::Done);
+                }
+            }
+        }
+
+        // Get element children (excluding exclude grammar if present)
+        let all_children: Vec<GrammarId> = ctx.element_children(grammar_id).collect();
+
+        // Prune options based on simple hints (conservative - keeps all for now)
+        let pruned_children = self.prune_options_table_driven(&all_children);
+
+        if pruned_children.is_empty() {
+            log::debug!("OneOf[table]: No children after pruning, returning Empty");
+            if inst.flags.optional() {
+                stack
+                    .results
+                    .insert(frame.frame_id, (Node::Empty, post_skip_pos, None));
+            } else {
+                stack
+                    .results
+                    .insert(frame.frame_id, (Node::Empty, post_skip_pos, None));
+            }
             return Ok(FrameResult::Done);
         }
 
         // Try first child
-        let first_child = all_children[0];
+        let first_child = pruned_children[0];
 
         log::debug!(
-            "OneOf[table]: Trying first child grammar_id={}",
+            "OneOf[table]: Trying first of {} pruned children, grammar_id={}",
+            pruned_children.len(),
             first_child.0
         );
 
         // Store context for WaitingForChild state
         frame.context = FrameContext::OneOfTableDriven {
             grammar_id,
-            pruned_children: all_children.clone(),
-            leading_ws: Vec::new(),
-            post_skip_pos: start_pos,
+            pruned_children: pruned_children.clone(),
+            leading_ws,
+            post_skip_pos,
             longest_match: None,
             tried_elements: 0,
             max_idx,
@@ -1007,13 +1087,12 @@ impl<'a> Parser<'a> {
             total_children: 1,
         };
 
-        // Create table-driven child frame
-        // TODO: Convert parent_terminators from Vec<GrammarId> to proper terminators
+        // Create table-driven child frame with filtered terminators
         let child_frame = crate::parser::ParseFrame::new_table_driven_child(
             stack.frame_id_counter,
             first_child,
-            start_pos,
-            parent_terminators.to_vec(),
+            post_skip_pos,
+            all_terminators.clone(),
             Some(max_idx),
         );
 
@@ -1241,8 +1320,34 @@ impl<'a> Parser<'a> {
             return Ok(FrameResult::Done);
         }
 
-        // TODO: Calculate max_idx with terminators, handle parse_mode
-        let max_idx = self.tokens.len();
+        // Combine terminators with parent_terminators
+        let local_terminators: Vec<GrammarId> = ctx.terminators(grammar_id).collect();
+        let all_terminators = Self::combine_terminators_table_driven(
+            &local_terminators,
+            parent_terminators,
+            inst.flags.reset_terminators(),
+        );
+
+        // Convert parse_mode for calculate_max_idx
+        let grammar_parse_mode = match inst.parse_mode {
+            sqlfluffrs_types::grammar_inst::ParseMode::Strict => {
+                sqlfluffrs_types::ParseMode::Strict
+            }
+            sqlfluffrs_types::grammar_inst::ParseMode::Greedy => {
+                sqlfluffrs_types::ParseMode::Greedy
+            }
+            sqlfluffrs_types::grammar_inst::ParseMode::GreedyOnceStarted => {
+                sqlfluffrs_types::ParseMode::GreedyOnceStarted
+            }
+        };
+
+        // Calculate max_idx with terminators
+        let max_idx = self.calculate_max_idx_table_driven(
+            start_pos,
+            &all_terminators,
+            grammar_parse_mode,
+            frame.parent_max_idx,
+        );
 
         // Push collection checkpoint for backtracking
         self.push_collection_checkpoint(frame.frame_id);
@@ -1264,13 +1369,13 @@ impl<'a> Parser<'a> {
             total_children: all_children.len(),
         };
 
-        // Create first child frame
+        // Create first child frame with combined terminators
         let first_child = all_children[0];
         let child_frame = crate::parser::ParseFrame::new_table_driven_child(
             stack.frame_id_counter,
             first_child,
             start_pos,
-            parent_terminators.to_vec(),
+            all_terminators.clone(),
             Some(max_idx),
         );
 
@@ -1305,9 +1410,9 @@ impl<'a> Parser<'a> {
             matched_idx,
             tentatively_collected: _,
             max_idx,
-            original_max_idx: _,
+            original_max_idx,
             current_element_idx,
-            first_match: _,
+            first_match,
             ..
         } = &mut frame.context
         else {
@@ -1318,12 +1423,13 @@ impl<'a> Parser<'a> {
         let all_children: Vec<GrammarId> = ctx.children(*grammar_id).collect();
 
         log::debug!(
-            "Sequence[table] WaitingForChild: frame_id={}, child_empty={}, child_end_pos={}, current_idx={}/{}",
+            "Sequence[table] WaitingForChild: frame_id={}, child_empty={}, child_end_pos={}, current_idx={}/{}, first_match={}",
             frame.frame_id,
             child_node.is_empty(),
             child_end_pos,
             current_element_idx,
-            all_children.len()
+            all_children.len(),
+            first_match
         );
 
         // Check if child matched
@@ -1333,22 +1439,69 @@ impl<'a> Parser<'a> {
             *matched_idx = *child_end_pos;
             *current_element_idx += 1;
 
+            // GREEDY_ONCE_STARTED: After first match, trim max_idx to terminators
+            if *first_match
+                && inst.parse_mode == sqlfluffrs_types::grammar_inst::ParseMode::GreedyOnceStarted
+            {
+                log::debug!(
+                    "Sequence[table]: First element matched in GREEDY_ONCE_STARTED, trimming max_idx"
+                );
+                *first_match = false;
+
+                // Recalculate max_idx with strict mode after first match
+                let all_terminators = frame.table_terminators.clone();
+                let new_max_idx = self.calculate_max_idx_table_driven(
+                    *matched_idx,
+                    &all_terminators,
+                    sqlfluffrs_types::ParseMode::Strict,
+                    frame.parent_max_idx,
+                );
+                *max_idx = new_max_idx;
+
+                log::debug!(
+                    "Sequence[table]: Trimmed max_idx from {} to {}",
+                    original_max_idx,
+                    new_max_idx
+                );
+            }
+
             // Check if we have more children to match
             if *current_element_idx < all_children.len() {
+                // Collect transparent tokens between elements if allow_gaps
+                self.pos = *matched_idx;
+                let leading_ws = if inst.flags.allow_gaps() {
+                    let ws = self.collect_transparent(true);
+                    if !ws.is_empty() {
+                        log::debug!(
+                            "Sequence[table]: Collected {} transparent tokens between elements",
+                            ws.len()
+                        );
+                        // Add to accumulated
+                        for w in &ws {
+                            frame.accumulated.push(w.clone());
+                        }
+                    }
+                    ws
+                } else {
+                    Vec::new()
+                };
+
+                let next_start_pos = self.pos;
+
                 // Try next child
                 let next_child = all_children[*current_element_idx];
 
                 log::debug!(
-                    "Sequence[table]: Trying next child grammar_id={}",
-                    next_child.0
+                    "Sequence[table]: Trying next child grammar_id={}, pos={}, max_idx={}",
+                    next_child.0,
+                    next_start_pos,
+                    max_idx
                 );
-
-                self.pos = *matched_idx;
 
                 let child_frame = crate::parser::ParseFrame::new_table_driven_child(
                     stack.frame_id_counter,
                     next_child,
-                    *matched_idx,
+                    next_start_pos,
                     frame.table_terminators.clone(),
                     Some(*max_idx),
                 );
@@ -1819,8 +1972,61 @@ impl<'a> Parser<'a> {
         let delimiter_id = *all_children.last().unwrap();
         let element_ids: Vec<GrammarId> = all_children[..all_children.len() - 1].to_vec();
 
-        // TODO: Calculate max_idx, handle min_delimiters, allow_trailing, etc.
-        let max_idx = self.tokens.len();
+        // Get configuration from aux_data
+        let (_delimiter_child_idx, min_delimiters) = ctx.delimited_config(grammar_id);
+
+        // CRITICAL: Filter delimiter from terminators to prevent infinite loops!
+        // This matches Python's behavior: `*(t for t in terminators if t not in delimiter_matchers)`
+        // The delimiter should NOT be able to terminate the delimited list itself.
+        log::debug!(
+            "Delimited[table]: Filtering delimiter from {} parent terminators",
+            parent_terminators.len()
+        );
+        let filtered_terminators: Vec<GrammarId> = parent_terminators
+            .iter()
+            .filter(|&term_id| *term_id != delimiter_id)
+            .copied()
+            .collect();
+
+        // Get local terminators and filter them too
+        let local_terminators: Vec<GrammarId> = ctx.terminators(grammar_id).collect();
+        let filtered_local: Vec<GrammarId> = local_terminators
+            .iter()
+            .filter(|&term_id| *term_id != delimiter_id)
+            .copied()
+            .collect();
+
+        // Delimited does NOT respect reset_terminators - always combines
+        let all_terminators: Vec<GrammarId> = filtered_local
+            .into_iter()
+            .chain(filtered_terminators)
+            .collect();
+
+        log::debug!(
+            "Delimited[table]: After filtering: {} terminators (min_delimiters={})",
+            all_terminators.len(),
+            min_delimiters
+        );
+
+        // Calculate max_idx with terminators
+        // Convert GrammarInst ParseMode to Grammar ParseMode
+        let grammar_parse_mode = match inst.parse_mode {
+            sqlfluffrs_types::grammar_inst::ParseMode::Strict => {
+                sqlfluffrs_types::ParseMode::Strict
+            }
+            sqlfluffrs_types::grammar_inst::ParseMode::Greedy => {
+                sqlfluffrs_types::ParseMode::Greedy
+            }
+            sqlfluffrs_types::grammar_inst::ParseMode::GreedyOnceStarted => {
+                sqlfluffrs_types::ParseMode::GreedyOnceStarted
+            }
+        };
+        let max_idx = self.calculate_max_idx_table_driven(
+            start_pos,
+            &all_terminators,
+            grammar_parse_mode,
+            frame.parent_max_idx,
+        );
 
         // Store context
         frame.context = FrameContext::DelimitedTableDriven {
@@ -1841,20 +2047,20 @@ impl<'a> Parser<'a> {
         };
 
         // Create OneOf child with all element options
-        // For simplicity, try first element for now
-        // TODO: Create proper OneOf with all elements
+        // TODO: Create proper OneOf with all elements (not just first)
         let first_element = element_ids[0];
         let child_frame = crate::parser::ParseFrame::new_table_driven_child(
             stack.frame_id_counter,
             first_element,
             start_pos,
-            parent_terminators.to_vec(),
+            all_terminators.clone(), // Use filtered terminators!
             Some(max_idx),
         );
 
         log::debug!(
-            "Delimited[table]: Trying first element grammar_id={}",
-            first_element.0
+            "Delimited[table]: Trying first element grammar_id={} with {} terminators",
+            first_element.0,
+            all_terminators.len()
         );
 
         stack.increment_frame_id_counter();
@@ -2016,17 +2222,31 @@ impl<'a> Parser<'a> {
             delimiter_count
         );
 
+        // Get min_delimiters from aux_data
+        let (_delimiter_child_idx, min_delimiters) = ctx.delimited_config(*grammar_id);
+
         // Build final result
         let (result_node, final_pos) = if frame.accumulated.is_empty() {
             // No matches
             if inst.flags.optional() {
                 (Node::Empty, frame.pos)
             } else {
-                // TODO: Check min_delimiters
+                (Node::Empty, frame.pos)
+            }
+        } else if *delimiter_count < min_delimiters {
+            // Not enough delimiters - fail
+            log::debug!(
+                "Delimited[table]: Failed - only {} delimiters, need {}",
+                delimiter_count,
+                min_delimiters
+            );
+            if inst.flags.optional() {
+                (Node::Empty, frame.pos)
+            } else {
                 (Node::Empty, frame.pos)
             }
         } else {
-            // Matches found
+            // Success - enough matches and delimiters
             (
                 Node::DelimitedList {
                     children: frame.accumulated.clone(),
@@ -2081,9 +2301,18 @@ impl<'a> Parser<'a> {
             return Ok(FrameResult::Done);
         }
 
-        // First two children are opening and closing brackets
-        let open_bracket_id = all_children[0];
-        let _close_bracket_id = all_children[1];
+        // Get bracket config from aux_data (indices into children array)
+        let (start_bracket_idx, end_bracket_idx) = ctx.bracketed_config(grammar_id);
+
+        log::debug!(
+            "Bracketed[table]: start_bracket_idx={}, end_bracket_idx={}",
+            start_bracket_idx,
+            end_bracket_idx
+        );
+
+        // Get bracket GrammarIds using indices
+        let open_bracket_id = all_children[start_bracket_idx];
+        let _close_bracket_id = all_children[end_bracket_idx];
 
         // Store context for bracket matching
         frame.context = FrameContext::BracketedTableDriven {
@@ -2380,10 +2609,41 @@ impl<'a> Parser<'a> {
             inst.child_count
         );
 
-        // Get all element children
-        let element_ids: Vec<GrammarId> = ctx.children(grammar_id).collect();
+        // Get config from aux_data
+        let (min_times, max_times, max_times_per_element, has_exclude) =
+            ctx.anynumberof_config(grammar_id);
+
+        log::debug!(
+            "AnyNumberOf[table]: min_times={}, max_times={:?}, max_times_per_element={:?}, has_exclude={}",
+            min_times,
+            max_times,
+            max_times_per_element,
+            has_exclude
+        );
+
+        // Check exclude grammar if present
+        if has_exclude {
+            if let Some(exclude_id) = ctx.exclude(grammar_id) {
+                self.pos = start_pos;
+                if let Ok(exclude_result) =
+                    self.parse_with_grammar_id(exclude_id, parent_terminators)
+                {
+                    if !exclude_result.is_empty() {
+                        log::debug!("AnyNumberOf[table]: Exclude grammar matched, returning Empty");
+                        stack
+                            .results
+                            .insert(frame.frame_id, (Node::Empty, start_pos, None));
+                        return Ok(FrameResult::Done);
+                    }
+                }
+                self.pos = start_pos; // Reset position
+            }
+        }
+
+        // Get all element children (excludes exclude grammar via element_children)
+        let element_ids: Vec<GrammarId> = ctx.element_children(grammar_id).collect();
         if element_ids.is_empty() {
-            log::debug!("AnyNumberOf[table]: No elements to match");
+            log::debug!("AnyNumberOf[table]: No elements to match after filtering");
             stack
                 .results
                 .insert(frame.frame_id, (Node::Empty, start_pos, None));
@@ -2394,10 +2654,37 @@ impl<'a> Parser<'a> {
         let option_counter: hashbrown::HashMap<u64, usize> =
             element_ids.iter().map(|id| (id.0 as u64, 0)).collect();
 
-        // TODO: Calculate max_idx with terminators
-        let max_idx = self.tokens.len();
+        // Combine terminators
+        let local_terminators: Vec<GrammarId> = ctx.terminators(grammar_id).collect();
+        let all_terminators = Self::combine_terminators_table_driven(
+            &local_terminators,
+            parent_terminators,
+            inst.flags.reset_terminators(),
+        );
 
-        // Store context
+        // Convert parse_mode
+        let grammar_parse_mode = match inst.parse_mode {
+            sqlfluffrs_types::grammar_inst::ParseMode::Strict => {
+                sqlfluffrs_types::ParseMode::Strict
+            }
+            sqlfluffrs_types::grammar_inst::ParseMode::Greedy => {
+                sqlfluffrs_types::ParseMode::Greedy
+            }
+            sqlfluffrs_types::grammar_inst::ParseMode::GreedyOnceStarted => {
+                sqlfluffrs_types::ParseMode::GreedyOnceStarted
+            }
+        };
+
+        // Calculate max_idx with terminators and element_ids
+        let max_idx = self.calculate_max_idx_with_elements_table_driven(
+            start_pos,
+            &all_terminators,
+            &element_ids,
+            grammar_parse_mode,
+            frame.parent_max_idx,
+        );
+
+        // Store context with max_times config
         frame.context = FrameContext::AnyNumberOfTableDriven {
             grammar_id,
             count: 0,
@@ -2413,20 +2700,31 @@ impl<'a> Parser<'a> {
             total_children: element_ids.len(),
         };
 
-        // Create OneOf child with all elements (optional=true for loop behavior)
-        // For simplicity, try first element
-        // TODO: Create proper OneOf with all elements
+        // Create OneOf grammar with ALL element children
+        // This matches Python behavior of trying all options, not just the first
+        log::debug!(
+            "AnyNumberOf[table]: Creating OneOf with {} elements",
+            element_ids.len()
+        );
+
+        // Build a OneOf grammar instruction dynamically
+        // For table-driven, we need to create a synthetic OneOf that references all elements
+        // Since we can't easily create new grammar_ids, we'll use a workaround:
+        // Try the first element, and in WaitingForChild we'll handle trying all
+        // This is a limitation of the current table-driven design
+        // TODO: Proper solution would be to create a synthetic OneOf in grammar tables
+
         let first_element = element_ids[0];
         let child_frame = crate::parser::ParseFrame::new_table_driven_child(
             stack.frame_id_counter,
             first_element,
             start_pos,
-            parent_terminators.to_vec(),
+            all_terminators.clone(),
             Some(max_idx),
         );
 
         log::debug!(
-            "AnyNumberOf[table]: Trying first element grammar_id={}",
+            "AnyNumberOf[table]: Trying first element grammar_id={} (limitation: not using full OneOf yet)",
             first_element.0
         );
 
@@ -2517,8 +2815,36 @@ impl<'a> Parser<'a> {
                 return Ok(FrameResult::Done);
             }
 
-            // TODO: Check max_times constraint (stored in auxiliary table)
-            // For now, assume unlimited
+            // Get max_times config from aux_data
+            let (_min_times, max_times, max_times_per_element, _has_exclude) =
+                ctx.anynumberof_config(*grammar_id);
+
+            // Check max_times constraint (total matches across all elements)
+            if let Some(max) = max_times {
+                if *count >= max as usize {
+                    log::debug!("AnyNumberOf[table]: Reached max_times={}, finalizing", max);
+                    frame.end_pos = Some(*matched_idx);
+                    frame.state = FrameState::Combining;
+                    stack.push(&mut frame);
+                    return Ok(FrameResult::Done);
+                }
+            }
+
+            // Check max_times_per_element constraint
+            if let Some(max_per) = max_times_per_element {
+                let element_count = option_counter.get(&element_key).copied().unwrap_or(0);
+                if element_count >= max_per as usize {
+                    log::debug!(
+                        "AnyNumberOf[table]: Element {} reached max_times_per_element={}, count={}",
+                        element_key,
+                        max_per,
+                        element_count
+                    );
+                    // This element can't be matched again, but continue with other elements
+                    // For now, since we only try first element, this ends the loop
+                    // TODO: When OneOf with ALL elements is implemented, filter this element out
+                }
+            }
 
             // Continue matching - push another child frame
             self.pos = *working_idx;

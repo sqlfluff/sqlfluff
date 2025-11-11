@@ -80,8 +80,15 @@ pub struct GrammarTables {
     /// - exclude grammar indices (for Ref/OneOf/AnyNumberOf/AnySetOf)
     /// - simple_hint indices (optional)
     ///
-    /// Indexed by instruction-specific logic (e.g., first_child_idx for Delimited delimiter).
+    /// Indexed via aux_data_offsets table.
     pub aux_data: &'static [u32],
+
+    /// Auxiliary data offsets (indexed by GrammarId)
+    ///
+    /// Maps each GrammarId to its starting offset in the aux_data table.
+    /// This allows variants to store variable-length aux data without
+    /// increasing GrammarInst size.
+    pub aux_data_offsets: &'static [u32],
 
     /// Regex pattern storage for RegexParser
     ///
@@ -104,6 +111,7 @@ impl GrammarTables {
         terminators: &'static [u32],
         strings: &'static [&'static str],
         aux_data: &'static [u32],
+        aux_data_offsets: &'static [u32],
         regex_patterns: &'static [&'static str],
         simple_hints: &'static [SimpleHintData],
     ) -> Self {
@@ -113,6 +121,7 @@ impl GrammarTables {
             terminators,
             strings,
             aux_data,
+            aux_data_offsets,
             regex_patterns,
             simple_hints,
         }
@@ -427,6 +436,7 @@ mod tests {
         static TERMINATORS: &[u32] = &[];
         static STRINGS: &[&str] = &["SELECT", "keyword"];
         static AUX_DATA: &[u32] = &[];
+        static AUX_DATA_OFFSETS: &[u32] = &[0, 0, 0]; // One per instruction
         static REGEX_PATTERNS: &[&str] = &[];
         static SIMPLE_HINTS: &[SimpleHintData] = &[];
 
@@ -436,6 +446,7 @@ mod tests {
             TERMINATORS,
             STRINGS,
             AUX_DATA,
+            AUX_DATA_OFFSETS,
             REGEX_PATTERNS,
             SIMPLE_HINTS,
         );
@@ -480,6 +491,7 @@ mod tests {
         static TERMINATORS: &[u32] = &[10];
         static STRINGS: &[&str] = &["SELECT", "FROM"];
         static AUX_DATA: &[u32] = &[];
+        static AUX_DATA_OFFSETS: &[u32] = &[0, 0]; // One per instruction
         static REGEX_PATTERNS: &[&str] = &[];
         static SIMPLE_HINTS: &[SimpleHintData] = &[];
 
@@ -489,6 +501,7 @@ mod tests {
             TERMINATORS,
             STRINGS,
             AUX_DATA,
+            AUX_DATA_OFFSETS,
             REGEX_PATTERNS,
             SIMPLE_HINTS,
         );
