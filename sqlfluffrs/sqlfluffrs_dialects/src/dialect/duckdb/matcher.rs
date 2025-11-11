@@ -61,6 +61,7 @@ pub static DUCKDB_KEYWORDS: Lazy<Vec<String>> = Lazy::new(|| { vec![
     "IS".to_string(),
     "ISNULL".to_string(),
     "JOIN".to_string(),
+    "LAMBDA".to_string(),
     "LATERAL".to_string(),
     "LEADING".to_string(),
     "LEFT".to_string(),
