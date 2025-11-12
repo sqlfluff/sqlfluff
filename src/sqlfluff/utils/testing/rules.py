@@ -4,10 +4,14 @@ from collections.abc import Collection
 from glob import glob
 from typing import NamedTuple, Optional, Union
 
-import pytest
 import yaml
 
 from sqlfluff.core import Linter
+
+try:
+    import pytest  # isort: skip
+except ImportError:
+    pytest = None  # type: ignore[assignment]
 from sqlfluff.core.config import FluffConfig
 from sqlfluff.core.errors import (
     SQLBaseError,
@@ -21,6 +25,15 @@ from sqlfluff.core.types import ConfigMappingType
 
 FixDictType = dict[str, Union[str, int]]
 ViolationDictType = dict[str, Union[str, int, bool, list[FixDictType]]]
+
+
+def _ensure_pytest():
+    """Ensure pytest is available for testing functions."""
+    if pytest is None:
+        raise ImportError(
+            "pytest is required for SQLFluff testing utilities. "
+            "Please install it with: pip install sqlfluff[testutils]"
+        )
 
 
 class RuleTestCase(NamedTuple):
@@ -44,6 +57,7 @@ class RuleTestCase(NamedTuple):
         will call methods such as `pytest.skip()` as part of it's execution.
         It may not be suitable for other testing contexts.
         """
+        _ensure_pytest()
         rules__test_helper(self)
 
 
@@ -122,6 +136,7 @@ def assert_rule_fail_in_sql(
             violations (list of SQLBaseError): the violations found during
                 linting.
     """
+    _ensure_pytest()
     print("# Asserting Rule Fail in SQL")
     # Set up the config to only use the rule we are testing.
     cfg = _setup_config(code, configs)
@@ -179,6 +194,7 @@ def assert_rule_pass_in_sql(
     msg: Optional[str] = None,
 ) -> None:
     """Assert that a given rule doesn't fail on the given sql."""
+    _ensure_pytest()
     # Configs allows overrides if we want to use them.
     print("# Asserting Rule Pass in SQL")
     cfg = _setup_config(code, configs)
@@ -296,6 +312,7 @@ def rules__test_helper(test_case: RuleTestCase) -> None:
 
     Optionally, also test the fixed string if provided in the test case.
     """
+    _ensure_pytest()
     if test_case.skip:
         pytest.skip(test_case.skip)
 
