@@ -66,6 +66,20 @@ databricks_dialect.insert_lexer_matchers(
 
 
 databricks_dialect.insert_lexer_matchers(
+    # Databricks Pipeline Parameters:
+    # https://docs.databricks.com/en/delta-live-tables/parameters.html
+    [
+        RegexLexer(
+            "pipeline_parameter",
+            r"\$\{[A-Za-z_][A-Za-z0-9_]*\}",
+            CodeSegment,
+        ),
+    ],
+    before="equals",
+)
+
+
+databricks_dialect.insert_lexer_matchers(
     # Notebook Cell Delimiter:
     # https://learn.microsoft.com/en-us/azure/databricks/notebooks/notebook-export-import#sql-1
     [
@@ -115,12 +129,29 @@ databricks_dialect.add(
         type="udf_body",
         trim_chars=("$",),
     ),
+    PipelineParameterSegment=TypedParser(
+        "pipeline_parameter",
+        CodeSegment,
+        type="pipeline_parameter",
+    ),
     RightArrowSegment=StringParser("=>", SymbolSegment, type="right_arrow"),
     # https://docs.databricks.com/en/sql/language-manual/sql-ref-principal.html
     PrincipalIdentifierSegment=OneOf(
         Ref("NakedIdentifierSegment"),
         Ref("BackQuotedIdentifierSegment"),
     ),
+)
+
+# Override SingleIdentifierGrammar to include parameterized segments
+databricks_dialect.replace(
+    SingleIdentifierGrammar=sparksql_dialect.get_grammar("SingleIdentifierGrammar").copy(
+        insert=[
+            Ref("ParameterizedSegment"),
+        ]
+    ),
+)
+
+databricks_dialect.add(
     PredictiveOptimizationGrammar=Sequence(
         OneOf("ENABLE", "DISABLE", "INHERIT"),
         "PREDICTIVE",
@@ -1745,14 +1776,21 @@ class MagicCellStatementSegment(BaseSegment):
 class ParameterizedSegment(BaseSegment):
     """Databricks named parameters to prevent SQL Injection.
 
-    https://docs.databricks.com/aws/en/jobs/parameter-use#use-named-parameters-in-a-sql-notebook
+    Supports both colon-based (:param) and pipeline (${param}) parameters:
+    - https://docs.databricks.com/aws/en/jobs/parameter-use#use-named-parameters-in-a-sql-notebook
+    - https://docs.databricks.com/en/delta-live-tables/parameters.html
     """
 
     type = "parameterized_expression"
-    match_grammar = Sequence(
-        Ref("ColonSegment"),
-        Ref("NakedIdentifierSegment"),
-        allow_gaps=False,
+    match_grammar = OneOf(
+        # Colon-based parameters: :param_name
+        Sequence(
+            Ref("ColonSegment"),
+            Ref("NakedIdentifierSegment"),
+            allow_gaps=False,
+        ),
+        # Pipeline parameters: ${param_name}
+        Ref("PipelineParameterSegment"),
     )
 
 
