@@ -10,6 +10,54 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 -->
 <!--Start Of Releases (DO NOT DELETE THIS LINE)-->
 
+## [4.0.0a2] - 2025-11-11
+
+## Highlights
+
+This is an alpha release of SQLFluff 4.0 to continue verification of the rust portions of the codebase.
+In particular to verify version locking of pypi packages works, and testing users can verify that Rust
+is working easily. Rust support is still in beta, but from this release, users can install `sqlfluff[rs]` to
+get some of the parser running in rust. Current implementation is not expected to yield significant gains
+but we do expect that once mature that it will.
+
+**We do not recommend that users install this release except for testing and evaluation**.
+
+Big thanks to [@keraion](https://github.com/keraion), who's been leading the way on this effort.
+
+Additionally in this release:
+
+* Several rust bugfixes.
+* Dialect improvements for Snowflake, DuckDB, TSQL, Impala & Postgres.
+
+These will be added to the changelog properly in the full 4.0.0 release.
+
+## What’s Changed
+
+* refactor: Move Rust parts into their own crates [#7229](https://github.com/sqlfluff/sqlfluff/pull/7229) [@keraion](https://github.com/keraion)
+* fix(duckdb): add support for trailing commas in select * rename/exclude/replace commands [#7254](https://github.com/sqlfluff/sqlfluff/pull/7254) [@stevenlw-porpoise](https://github.com/stevenlw-porpoise)
+* Resolve rust templating assertions [#7252](https://github.com/sqlfluff/sqlfluff/pull/7252) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* TSQL: Remove redundant optional DelimiterGrammar from individual statements [#7231](https://github.com/sqlfluff/sqlfluff/pull/7231) [@peterbud](https://github.com/peterbud)
+* Impala: Add INVALIDATE METADATA and REFRESH statements [#7251](https://github.com/sqlfluff/sqlfluff/pull/7251) [@mrebaker](https://github.com/mrebaker)
+* T-SQL: Enhance Alter Database with Set Recovery Options [#7241](https://github.com/sqlfluff/sqlfluff/pull/7241) [@CactusCollider](https://github.com/CactusCollider)
+* TSQL: Add support for variable assignments in SELECT statements [#7222](https://github.com/sqlfluff/sqlfluff/pull/7222) [@peterbud](https://github.com/peterbud)
+* Added alignment_coordinate_space to ALLOWABLE_LAYOUT_CONFIG_KEYS [#7237](https://github.com/sqlfluff/sqlfluff/pull/7237) [@tojnk](https://github.com/tojnk)
+* Support aliasing in Snowflake PIVOT clause [#7245](https://github.com/sqlfluff/sqlfluff/pull/7245) [@robert-norberg](https://github.com/robert-norberg)
+* Fix util script to update Cargo.lock [#7249](https://github.com/sqlfluff/sqlfluff/pull/7249) [@keraion](https://github.com/keraion)
+* Postgres: Implement UTF-8 identifier support [#7242](https://github.com/sqlfluff/sqlfluff/pull/7242) [@adnandaut](https://github.com/adnandaut)
+* TSQL: CreateServerRoleSegment [#7201](https://github.com/sqlfluff/sqlfluff/pull/7201) [@piers-williams](https://github.com/piers-williams)
+* TSQL: Rework DatatypeSegment [#7200](https://github.com/sqlfluff/sqlfluff/pull/7200) [@peterbud](https://github.com/peterbud)
+* Update Datacoves image source in README [#7227](https://github.com/sqlfluff/sqlfluff/pull/7227) [@keraion](https://github.com/keraion)
+* Slightly more obvious logging when rust extensions are used [#7226](https://github.com/sqlfluff/sqlfluff/pull/7226) [@alanmcruickshank](https://github.com/alanmcruickshank)
+
+## New Contributors
+
+* [@piers-williams](https://github.com/piers-williams) made their first contribution in [#7201](https://github.com/sqlfluff/sqlfluff/pull/7201)
+* [@adnandaut](https://github.com/adnandaut) made their first contribution in [#7242](https://github.com/sqlfluff/sqlfluff/pull/7242)
+* [@robert-norberg](https://github.com/robert-norberg) made their first contribution in [#7245](https://github.com/sqlfluff/sqlfluff/pull/7245)
+* [@tojnk](https://github.com/tojnk) made their first contribution in [#7237](https://github.com/sqlfluff/sqlfluff/pull/7237)
+* [@CactusCollider](https://github.com/CactusCollider) made their first contribution in [#7241](https://github.com/sqlfluff/sqlfluff/pull/7241)
+* [@stevenlw-porpoise](https://github.com/stevenlw-porpoise) made their first contribution in [#7254](https://github.com/sqlfluff/sqlfluff/pull/7254)
+
 ## [4.0.0a1] - 2025-10-28
 
 ## Highlights
