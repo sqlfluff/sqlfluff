@@ -29,6 +29,7 @@ from sqlfluff.core.parser import (
     SymbolSegment,
     TypedParser,
 )
+from sqlfluff.core.parser.types import ParseMode
 from sqlfluff.dialects import dialect_ansi as ansi
 from sqlfluff.dialects import dialect_postgres as postgres
 
@@ -160,6 +161,27 @@ duckdb_dialect.replace(
         "single_quote", IdentifierSegment, type="quoted_identifier", casefold=str.lower
     ),
     ListComprehensionGrammar=Ref("ListComprehensionExpressionSegment"),
+    # non-ANSI IN operator defined for string, list, and map
+    # https://duckdb.org/docs/stable/sql/expressions/in
+    InOperatorGrammar=Sequence(
+        Ref.keyword("NOT", optional=True),
+        "IN",
+        OneOf(
+            Bracketed(
+                OneOf(
+                    Delimited(
+                        Ref("Expression_A_Grammar"),
+                    ),
+                    Ref("SelectableGrammar"),
+                ),
+                parse_mode=ParseMode.GREEDY,
+            ),
+            Ref("FunctionSegment"),
+            Ref("ArrayLiteralSegment"),
+            Ref("QuotedLiteralSegment"),
+            Ref("ColumnReferenceSegment"),
+        ),
+    ),
     ComparisonOperatorGrammar=ansi_dialect.get_grammar(
         "ComparisonOperatorGrammar"
     ).copy(
