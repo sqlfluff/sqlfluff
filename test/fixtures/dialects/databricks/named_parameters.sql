@@ -59,3 +59,11 @@ FROM (
 
 SHOW SCHEMAS
 FROM IDENTIFIER (:target_catalog);
+
+-- Test colon accessor vs parameter: ensure data:field is not parsed as :field parameter
+SELECT
+    json_data:name,
+    json_data:address:city,
+    :param_value
+FROM table1
+WHERE json_data:id > :min_id;
