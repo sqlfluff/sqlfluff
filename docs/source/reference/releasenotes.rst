@@ -10,6 +10,16 @@ of each individual release, see the detailed changelog_.
 
 .. _changelog: https://github.com/sqlfluff/sqlfluff/blob/main/CHANGELOG.md
 
+Upgrading to 4.x
+----------------
+
+This release is the first where the optional Rust routines are available.
+For most users, no difference will be visible, as currently the rust libraries
+are *opt-in*, and must be explicitly installed with :code:`pip install sqlfluff[rs]`.
+
+Rust libraries are built for most major platforms, and we believe are ready for
+public beta testing, but they should be considered experimental until the 5.x release.
+
 .. _upgrading_3_0:
 
 Upgrading to 3.x

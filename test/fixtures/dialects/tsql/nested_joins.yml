@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 1b63dbe755608c063321279aaaf139de28ae6cb84a9efa7c9ef2d11556b61612
+_hash: a530620325dc05639c53d38db1b0cab45e5ece5cf5c83b1ff34bab2d1dcb11cd
 file:
 - batch:
     statement:
@@ -65,7 +65,7 @@ file:
                   - naked_identifier: I
                   - dot: .
                   - naked_identifier: Bcd
-          statement_terminator: ;
+    statement_terminator: ;
     go_statement:
       keyword: GO
 - batch:
@@ -149,7 +149,7 @@ file:
                             - naked_identifier: IDEID
                           keyword: AS
                           data_type:
-                            data_type_identifier: varchar
+                            keyword: varchar
                           end_bracket: )
             - join_clause:
               - keyword: LEFT
@@ -210,7 +210,7 @@ file:
                             - naked_identifier: IDEID
                           keyword: AS
                           data_type:
-                            data_type_identifier: varchar
+                            keyword: varchar
                           end_bracket: )
             - join_on_condition:
                 keyword: 'ON'
@@ -228,7 +228,7 @@ file:
                           - naked_identifier: IDEID
                         keyword: AS
                         data_type:
-                          data_type_identifier: varchar
+                          keyword: varchar
                         end_bracket: )
                   comparison_operator:
                     raw_comparison_operator: '='
@@ -297,7 +297,7 @@ file:
                   - naked_identifier: I
                   - dot: .
                   - naked_identifier: Bcd
-          statement_terminator: ;
+  - statement_terminator: ;
   - go_statement:
       keyword: GO
 - batch:
@@ -385,4 +385,4 @@ file:
                   - naked_identifier: tst2
                   - dot: .
                   - naked_identifier: id
-          statement_terminator: ;
+    statement_terminator: ;

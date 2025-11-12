@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "sqlfluff"
-version = "3.5.0"
+version = "4.0.0a1"
 description = "The SQL Linter for Humans"
 readme = { file = "README.md", content-type = "text/markdown" }
 requires-python = ">=3.9"
@@ -98,7 +98,7 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-rs = ["sqlfluffrs~=0.1.0"]
+rs = ["sqlfluffrs==4.0.0a1"]
 
 [project.urls]
 Homepage = "https://www.sqlfluff.com"

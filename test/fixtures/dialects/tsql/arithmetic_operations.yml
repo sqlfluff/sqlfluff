@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: ed19ed9216c31fdf3b8e35dacee92b2e7f5265e1497132501e17abc63a26376b
+_hash: 167d87982f8f58ff80f6fcd26aa75b2998f761b02e57a08a625b5d2fcab3bc63
 file:
   batch:
   - statement:
@@ -11,12 +11,12 @@ file:
         keyword: DECLARE
         parameter: '@I'
         data_type:
-          data_type_identifier: INT
+          keyword: INT
         comparison_operator:
           raw_comparison_operator: '='
         expression:
           integer_literal: '0'
-        statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       select_statement:
         select_clause:
@@ -26,19 +26,20 @@ file:
               parameter: '@I'
               binary_operator: +
               integer_literal: '1'
-        statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       select_statement:
         select_clause:
           keyword: SELECT
           select_clause_element:
-            expression:
+            select_variable_assignment:
               parameter: '@I'
-              binary_operator:
-              - raw_comparison_operator: +
-              - raw_comparison_operator: '='
-              integer_literal: '2'
-        statement_terminator: ;
+              assignment_operator:
+                binary_operator: +
+                raw_comparison_operator: '='
+              expression:
+                integer_literal: '2'
+  - statement_terminator: ;
   - statement:
       select_statement:
         select_clause:
@@ -48,19 +49,20 @@ file:
               parameter: '@I'
               binary_operator: '-'
               integer_literal: '3'
-        statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       select_statement:
         select_clause:
           keyword: SELECT
           select_clause_element:
-            expression:
+            select_variable_assignment:
               parameter: '@I'
-              binary_operator:
-              - raw_comparison_operator: '-'
-              - raw_comparison_operator: '='
-              integer_literal: '4'
-        statement_terminator: ;
+              assignment_operator:
+                binary_operator: '-'
+                raw_comparison_operator: '='
+              expression:
+                integer_literal: '4'
+  - statement_terminator: ;
   - statement:
       select_statement:
         select_clause:
@@ -70,19 +72,20 @@ file:
               parameter: '@I'
               binary_operator: '*'
               integer_literal: '5'
-        statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       select_statement:
         select_clause:
           keyword: SELECT
           select_clause_element:
-            expression:
+            select_variable_assignment:
               parameter: '@I'
-              binary_operator:
-              - raw_comparison_operator: '*'
-              - raw_comparison_operator: '='
-              integer_literal: '6'
-        statement_terminator: ;
+              assignment_operator:
+                binary_operator: '*'
+                raw_comparison_operator: '='
+              expression:
+                integer_literal: '6'
+  - statement_terminator: ;
   - statement:
       select_statement:
         select_clause:
@@ -92,19 +95,20 @@ file:
               parameter: '@I'
               binary_operator: /
               integer_literal: '7'
-        statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       select_statement:
         select_clause:
           keyword: SELECT
           select_clause_element:
-            expression:
+            select_variable_assignment:
               parameter: '@I'
-              binary_operator:
-              - raw_comparison_operator: /
-              - raw_comparison_operator: '='
-              integer_literal: '8'
-        statement_terminator: ;
+              assignment_operator:
+                binary_operator: /
+                raw_comparison_operator: '='
+              expression:
+                integer_literal: '8'
+  - statement_terminator: ;
   - statement:
       select_statement:
         select_clause:
@@ -114,16 +118,17 @@ file:
               parameter: '@I'
               binary_operator: '%'
               integer_literal: '9'
-        statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       select_statement:
         select_clause:
           keyword: SELECT
           select_clause_element:
-            expression:
+            select_variable_assignment:
               parameter: '@I'
-              binary_operator:
-              - raw_comparison_operator: '%'
-              - raw_comparison_operator: '='
-              integer_literal: '10'
-        statement_terminator: ;
+              assignment_operator:
+                binary_operator: '%'
+                raw_comparison_operator: '='
+              expression:
+                integer_literal: '10'
+  - statement_terminator: ;

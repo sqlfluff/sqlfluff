@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: d94814131b9204de4ffab1b073a1353f1ad8a05629d65dcc9af9d313fb35a190
+_hash: b2da1070318d3f630c41f07c1aa87186a3bfd001372e339885ea2298fd8ceb8c
 file:
 - batch:
     statement:
@@ -58,6 +58,45 @@ file:
           naked_identifier: French_CI_AI
   - statement_terminator: ;
   - go_statement:
+      keyword: GO
+- batch:
+    statement:
+      alter_database_statement:
+      - keyword: ALTER
+      - keyword: DATABASE
+      - database_reference:
+          naked_identifier: testDB
+      - keyword: SET
+      - keyword: RECOVERY
+      - keyword: FULL
+    statement_terminator: ;
+    go_statement:
+      keyword: GO
+- batch:
+    statement:
+      alter_database_statement:
+      - keyword: ALTER
+      - keyword: DATABASE
+      - database_reference:
+          naked_identifier: testDB
+      - keyword: SET
+      - keyword: RECOVERY
+      - keyword: SIMPLE
+    statement_terminator: ;
+    go_statement:
+      keyword: GO
+- batch:
+    statement:
+      alter_database_statement:
+      - keyword: ALTER
+      - keyword: DATABASE
+      - database_reference:
+          quoted_identifier: '[testDB]'
+      - keyword: SET
+      - keyword: RECOVERY
+      - keyword: BULK_LOGGED
+    statement_terminator: ;
+    go_statement:
       keyword: GO
 - batch:
   - statement:

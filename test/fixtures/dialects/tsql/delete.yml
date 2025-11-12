@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 743f4995ef2e3b9b65a96dbecb82cac5695ce1dba890a891962188d91de18961
+_hash: c63d6115908fa4bd74480b6128d074b108b4f12d261c89c837fe9030a1d77ab0
 file:
 - batch:
     statement:
@@ -14,7 +14,7 @@ file:
         - naked_identifier: Sales
         - dot: .
         - naked_identifier: SalesPersonQuotaHistory
-      - statement_terminator: ;
+    statement_terminator: ;
     go_statement:
       keyword: GO
 - batch:
@@ -34,7 +34,7 @@ file:
             comparison_operator:
               raw_comparison_operator: '>'
             numeric_literal: '1000.00'
-      - statement_terminator: ;
+    statement_terminator: ;
     go_statement:
       keyword: GO
 - batch:
@@ -59,7 +59,7 @@ file:
               naked_identifier: EndDate
           - keyword: IS
           - null_literal: 'NULL'
-        statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       print_statement:
         keyword: PRINT
@@ -76,7 +76,7 @@ file:
                   system_variable: '@@ROWCOUNT'
                 keyword: as
                 data_type:
-                  data_type_identifier: char
+                  keyword: char
                   bracketed_arguments:
                     bracketed:
                       start_bracket: (
@@ -84,7 +84,7 @@ file:
                         integer_literal: '3'
                       end_bracket: )
                 end_bracket: )
-        statement_terminator: ;
+  - statement_terminator: ;
   - go_statement:
       keyword: GO
 - batch:
@@ -168,7 +168,7 @@ file:
                           - dot: .
                           - naked_identifier: BusinessEntityID
                   end_bracket: )
-            statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       open_cursor_statement:
         keyword: OPEN
@@ -192,7 +192,7 @@ file:
       - keyword: CURRENT
       - keyword: OF
       - naked_identifier: complex_cursor
-      - statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       close_cursor_statement:
         keyword: CLOSE
@@ -246,7 +246,7 @@ file:
                       raw_comparison_operator: '>'
                     numeric_literal: '2500000.00'
               end_bracket: )
-      - statement_terminator: ;
+    statement_terminator: ;
     go_statement:
       keyword: GO
 - batch:
@@ -307,7 +307,7 @@ file:
             comparison_operator:
               raw_comparison_operator: '>'
             numeric_literal: '2500000.00'
-      - statement_terminator: ;
+    statement_terminator: ;
     go_statement:
       keyword: GO
 - batch:
@@ -365,7 +365,7 @@ file:
             comparison_operator:
               raw_comparison_operator: '>'
             numeric_literal: '2500000.00'
-        statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       delete_statement:
       - keyword: DELETE
@@ -388,7 +388,7 @@ file:
             comparison_operator:
               raw_comparison_operator: <
             quoted_literal: "'20020701'"
-      - statement_terminator: ;
+  - statement_terminator: ;
   - go_statement:
       keyword: GO
 - batch:
@@ -434,7 +434,7 @@ file:
                     naked_identifier: DueDate
                 - keyword: ASC
               end_bracket: )
-      - statement_terminator: ;
+    statement_terminator: ;
     go_statement:
       keyword: GO
 - batch:
@@ -457,7 +457,7 @@ file:
             comparison_operator:
               raw_comparison_operator: '>'
             integer_literal: '16'
-        statement_terminator: ;
+    statement_terminator: ;
     go_statement:
       keyword: GO
 - batch:
@@ -472,7 +472,7 @@ file:
           quoted_literal: "'SELECT Name, GroupName\nFROM AdventureWorks2012.HumanResources.Department\n\
             WHERE DepartmentID = 18'"
           end_bracket: )
-      - statement_terminator: ;
+    statement_terminator: ;
     go_statement:
       keyword: GO
 - batch:
@@ -519,7 +519,7 @@ file:
             comparison_operator:
               raw_comparison_operator: '='
             integer_literal: '17'
-      - statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       delete_statement:
         keyword: DELETE
@@ -541,7 +541,7 @@ file:
             comparison_operator:
               raw_comparison_operator: '='
             integer_literal: '20621'
-        statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       declare_segment:
       - keyword: DECLARE
@@ -552,7 +552,7 @@ file:
         - column_definition:
             naked_identifier: ProductID
             data_type:
-              data_type_identifier: int
+              keyword: int
             column_constraint_segment:
             - keyword: NOT
             - keyword: 'NULL'
@@ -560,7 +560,7 @@ file:
         - column_definition:
             naked_identifier: ProductName
             data_type:
-              data_type_identifier: nvarchar
+              keyword: nvarchar
               bracketed_arguments:
                 bracketed:
                   start_bracket: (
@@ -574,7 +574,7 @@ file:
         - column_definition:
             naked_identifier: ProductModelID
             data_type:
-              data_type_identifier: int
+              keyword: int
             column_constraint_segment:
             - keyword: NOT
             - keyword: 'NULL'
@@ -582,12 +582,12 @@ file:
         - column_definition:
             naked_identifier: PhotoID
             data_type:
-              data_type_identifier: int
+              keyword: int
             column_constraint_segment:
             - keyword: NOT
             - keyword: 'NULL'
         - end_bracket: )
-      - statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       delete_statement:
         keyword: DELETE
@@ -663,4 +663,4 @@ file:
           - integer_literal: '120'
           - keyword: and
           - integer_literal: '130'
-        statement_terminator: ;
+  - statement_terminator: ;

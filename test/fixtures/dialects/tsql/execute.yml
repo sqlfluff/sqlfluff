@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: b44bb276247dcbbab68f753a8a413e6eaf328f2abe27f4d12c600a01191b70a3
+_hash: 15b04386989a9df620cbc8c8996fb3fe4f11b2981a3869f5e82e81681cf6253a
 file:
 - batch:
   - statement:
@@ -25,7 +25,7 @@ file:
           raw_comparison_operator: '='
         expression:
           quoted_literal: "'A'"
-        statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       execute_script_statement:
       - keyword: EXECUTE
@@ -38,7 +38,7 @@ file:
       - comma: ','
       - expression:
           quoted_literal: "'B'"
-      - statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       execute_script_statement:
       - keyword: EXECUTE
@@ -54,7 +54,7 @@ file:
       - comma: ','
       - expression:
           quoted_literal: "'House'"
-      - statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       execute_script_statement:
       - keyword: EXECUTE
@@ -73,7 +73,7 @@ file:
           raw_comparison_operator: '='
       - expression:
           quoted_literal: "'D'"
-      - statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       execute_script_statement:
       - keyword: EXECUTE
@@ -95,7 +95,7 @@ file:
           raw_comparison_operator: '='
       - expression:
           quoted_literal: "'E'"
-      - statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       execute_script_statement:
       - keyword: EXECUTE
@@ -111,7 +111,7 @@ file:
       - comma: ','
       - expression:
           keyword: DEFAULT
-      - statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       execute_script_statement:
       - keyword: EXECUTE
@@ -130,7 +130,7 @@ file:
           raw_comparison_operator: '='
       - expression:
           keyword: DEFAULT
-      - statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       execute_script_statement:
       - keyword: EXECUTE
@@ -180,7 +180,7 @@ file:
         - naked_identifier: dbo
         - dot: .
         - naked_identifier: ProcTestDefaults
-        statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       execute_script_statement:
       - keyword: EXEC
@@ -195,7 +195,7 @@ file:
           raw_comparison_operator: '='
       - expression:
           keyword: DEFAULT
-      - statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       execute_script_statement:
         keyword: EXECUTE
@@ -205,7 +205,7 @@ file:
         - naked_identifier: dbo
         - dot: .
         - naked_identifier: ProcTestDefaults
-        statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       execute_script_statement:
       - keyword: EXECUTE
@@ -220,13 +220,13 @@ file:
           raw_comparison_operator: '='
       - expression:
           keyword: DEFAULT
-      - statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       declare_segment:
         keyword: DECLARE
         parameter: '@statement'
         data_type:
-          data_type_identifier: nvarchar
+          keyword: nvarchar
           bracketed_arguments:
             bracketed:
               start_bracket: (
@@ -243,7 +243,7 @@ file:
           start_bracket: (
           parameter: '@statement'
           end_bracket: )
-        statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       execute_script_statement:
         keyword: EXEC
@@ -251,14 +251,14 @@ file:
           start_bracket: (
           quoted_literal: "'DROP TABLE BoardInventory.BoardInventoryFact_Stage;'"
           end_bracket: )
-        statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       declare_segment:
       - keyword: DECLARE
       - parameter: '@s1'
       - keyword: AS
       - data_type:
-          data_type_identifier: varchar
+          keyword: varchar
           bracketed_arguments:
             bracketed:
               start_bracket: (
@@ -269,13 +269,13 @@ file:
           raw_comparison_operator: '='
       - expression:
           null_literal: 'NULL'
-      - statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       declare_segment:
         keyword: DECLARE
         parameter: '@s2'
         data_type:
-          data_type_identifier: varchar
+          keyword: varchar
           bracketed_arguments:
             bracketed:
               start_bracket: (
@@ -286,7 +286,7 @@ file:
           raw_comparison_operator: '='
         expression:
           null_literal: 'NULL'
-        statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       set_local_variable_segment:
         keyword: SET
@@ -314,7 +314,7 @@ file:
         - binary_operator: +
         - parameter: '@s2'
         - end_bracket: )
-        statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       execute_script_statement:
         keyword: EXEC
@@ -324,7 +324,7 @@ file:
         - binary_operator: +
         - quoted_literal: "'123'"
         - end_bracket: )
-        statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       execute_script_statement:
         keyword: EXECUTE
@@ -333,7 +333,7 @@ file:
           quoted_literal: "'USE AdventureWorks2022; SELECT BusinessEntityID, JobTitle\
             \ FROM HumanResources.Employee;'"
           end_bracket: )
-        statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       execute_script_statement:
         keyword: EXECUTE
@@ -343,7 +343,7 @@ file:
         - naked_identifier: uspGetEmployeeManagers
         expression:
           integer_literal: '6'
-        statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       execute_script_statement:
         keyword: EXECUTE
@@ -356,7 +356,7 @@ file:
           raw_comparison_operator: '='
         expression:
           integer_literal: '6'
-        statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       execute_script_statement:
       - keyword: EXECUTE
@@ -369,7 +369,7 @@ file:
       - comma: ','
       - parameter: '@ManagerID'
       - keyword: OUTPUT
-      - statement_terminator: ;
+  - statement_terminator: ;
   - go_statement:
       keyword: GO
 - batch:
@@ -384,7 +384,7 @@ file:
           raw_comparison_operator: '='
         expression:
           integer_literal: '6'
-        statement_terminator: ;
+    statement_terminator: ;
     go_statement:
       keyword: GO
 - batch:
@@ -394,7 +394,7 @@ file:
       - parameter: '@CheckDate'
       - keyword: AS
       - data_type:
-          data_type_identifier: DATETIME
+          keyword: DATETIME
       - comparison_operator:
           raw_comparison_operator: '='
       - expression:
@@ -405,7 +405,7 @@ file:
               bracketed:
                 start_bracket: (
                 end_bracket: )
-      - statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       execute_script_statement:
       - keyword: EXECUTE
@@ -418,7 +418,7 @@ file:
       - comma: ','
       - expression:
           parameter: '@CheckDate'
-      - statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       declare_segment:
       - keyword: DECLARE
@@ -426,7 +426,7 @@ file:
       - keyword: AS
       - data_type:
           data_type_identifier: sysname
-      - statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       declare_segment:
       - keyword: DECLARE
@@ -434,7 +434,7 @@ file:
       - keyword: AS
       - data_type:
           data_type_identifier: sysname
-      - statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       execute_script_statement:
         keyword: EXECUTE
@@ -450,15 +450,15 @@ file:
         - binary_operator: +
         - quoted_literal: "' REBUILD;'"
         - end_bracket: )
-        statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       declare_segment:
       - keyword: DECLARE
       - parameter: '@retstat'
       - keyword: AS
       - data_type:
-          data_type_identifier: INT
-      - statement_terminator: ;
+          keyword: INT
+  - statement_terminator: ;
   - statement:
       execute_script_statement:
       - keyword: EXECUTE
@@ -477,14 +477,14 @@ file:
           raw_comparison_operator: '='
       - expression:
           integer_literal: '6'
-      - statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       declare_segment:
       - keyword: DECLARE
       - parameter: '@proc_name'
       - keyword: AS
       - data_type:
-          data_type_identifier: VARCHAR
+          keyword: VARCHAR
           bracketed_arguments:
             bracketed:
               start_bracket: (
@@ -495,13 +495,13 @@ file:
           raw_comparison_operator: '='
       - expression:
           quoted_literal: "'sys.sp_who'"
-      - statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       execute_script_statement:
         keyword: EXECUTE
         object_reference:
           parameter: '@proc_name'
-        statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       execute_script_statement:
       - keyword: EXECUTE
@@ -520,7 +520,7 @@ file:
           raw_comparison_operator: '='
       - expression:
           quoted_literal: "'D'"
-      - statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       execute_script_statement:
       - keyword: EXECUTE
@@ -536,7 +536,7 @@ file:
       - comma: ','
       - expression:
           keyword: DEFAULT
-      - statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       execute_script_statement:
       - keyword: EXECUTE
@@ -555,7 +555,7 @@ file:
           raw_comparison_operator: '='
       - expression:
           keyword: DEFAULT
-      - statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       execute_script_statement:
       - keyword: EXECUTE
@@ -567,7 +567,7 @@ file:
       - keyword: AT
       - object_reference:
           naked_identifier: SeattleSales
-      - statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       execute_script_statement:
       - keyword: EXECUTE
@@ -581,7 +581,7 @@ file:
       - keyword: AT
       - object_reference:
           naked_identifier: ORACLE
-      - statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       execute_script_statement:
       - keyword: EXECUTE
@@ -597,21 +597,21 @@ file:
       - keyword: WITH
       - execute_option:
           keyword: RECOMPILE
-      - statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       declare_segment:
       - keyword: DECLARE
       - parameter: '@returnstatus'
       - keyword: AS
       - data_type:
-          data_type_identifier: NVARCHAR
+          keyword: NVARCHAR
           bracketed_arguments:
             bracketed:
               start_bracket: (
               expression:
                 integer_literal: '15'
               end_bracket: )
-      - statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       execute_script_statement:
       - keyword: EXECUTE
@@ -626,7 +626,7 @@ file:
           raw_comparison_operator: '='
       - expression:
           integer_literal: '2'
-      - statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       execute_script_statement:
         keyword: EXECUTE
@@ -640,7 +640,7 @@ file:
         - keyword: USER
         - raw_comparison_operator: '='
         - quoted_literal: "'User1'"
-        statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       execute_script_statement:
       - keyword: EXECUTE
@@ -659,21 +659,21 @@ file:
             - column_reference:
                 quoted_identifier: '[Reporting Level]'
             - data_type:
-                data_type_identifier: INT
+                keyword: INT
             - keyword: NOT
             - keyword: 'NULL'
             - comma: ','
             - column_reference:
                 quoted_identifier: '[ID of Employee]'
             - data_type:
-                data_type_identifier: INT
+                keyword: INT
             - keyword: NOT
             - keyword: 'NULL'
             - comma: ','
             - column_reference:
                 quoted_identifier: '[Employee First Name]'
             - data_type:
-                data_type_identifier: NVARCHAR
+                keyword: NVARCHAR
                 bracketed_arguments:
                   bracketed:
                     start_bracket: (
@@ -686,7 +686,7 @@ file:
             - column_reference:
                 quoted_identifier: '[Employee Last Name]'
             - data_type:
-                data_type_identifier: NVARCHAR
+                keyword: NVARCHAR
                 bracketed_arguments:
                   bracketed:
                     start_bracket: (
@@ -699,7 +699,7 @@ file:
             - column_reference:
                 quoted_identifier: '[Employee ID of Manager]'
             - data_type:
-                data_type_identifier: NVARCHAR
+                keyword: NVARCHAR
                 bracketed_arguments:
                   bracketed:
                     start_bracket: (
@@ -711,7 +711,7 @@ file:
             - column_reference:
                 quoted_identifier: '[Manager First Name]'
             - data_type:
-                data_type_identifier: NVARCHAR
+                keyword: NVARCHAR
                 bracketed_arguments:
                   bracketed:
                     start_bracket: (
@@ -724,7 +724,7 @@ file:
             - column_reference:
                 quoted_identifier: '[Manager Last Name]'
             - data_type:
-                data_type_identifier: NVARCHAR
+                keyword: NVARCHAR
                 bracketed_arguments:
                   bracketed:
                     start_bracket: (
@@ -735,7 +735,7 @@ file:
             - keyword: 'NULL'
             - end_bracket: )
             end_bracket: )
-      - statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       execute_script_statement:
       - keyword: EXECUTE
@@ -756,7 +756,7 @@ file:
             - column_reference:
                 naked_identifier: ProductID
             - data_type:
-                data_type_identifier: INT
+                keyword: INT
             - comma: ','
             - column_reference:
                 quoted_identifier: '[Name]'
@@ -766,7 +766,7 @@ file:
             - column_reference:
                 naked_identifier: ListPrice
             - data_type:
-                data_type_identifier: MONEY
+                keyword: MONEY
             - end_bracket: )
           - comma: ','
           - bracketed:
@@ -779,10 +779,10 @@ file:
             - column_reference:
                 naked_identifier: NumberOfOrders
             - data_type:
-                data_type_identifier: INT
+                keyword: INT
             - end_bracket: )
           - end_bracket: )
-      - statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       execute_script_statement:
       - keyword: EXECUTE
@@ -794,4 +794,4 @@ file:
       - keyword: DATA_SOURCE
       - object_reference:
           naked_identifier: my_sql_server
-      - statement_terminator: ;
+  - statement_terminator: ;
