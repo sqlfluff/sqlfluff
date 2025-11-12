@@ -121,6 +121,16 @@ impl ParseFrame {
                     true
                 }
                 (
+                    FrameContext::SequenceTableDriven {
+                        last_child_frame_id,
+                        ..
+                    },
+                    "Sequence",
+                ) => {
+                    *last_child_frame_id = Some(child_frame_id);
+                    true
+                }
+                (
                     FrameContext::AnyNumberOf {
                         last_child_frame_id,
                         ..
@@ -141,7 +151,27 @@ impl ParseFrame {
                     true
                 }
                 (
+                    FrameContext::OneOfTableDriven {
+                        last_child_frame_id,
+                        ..
+                    },
+                    "OneOf",
+                ) => {
+                    *last_child_frame_id = Some(child_frame_id);
+                    true
+                }
+                (
                     FrameContext::Bracketed {
+                        last_child_frame_id,
+                        ..
+                    },
+                    "Bracketed",
+                ) => {
+                    *last_child_frame_id = Some(child_frame_id);
+                    true
+                }
+                (
+                    FrameContext::BracketedTableDriven {
                         last_child_frame_id,
                         ..
                     },
@@ -171,7 +201,27 @@ impl ParseFrame {
                     true
                 }
                 (
+                    FrameContext::DelimitedTableDriven {
+                        last_child_frame_id,
+                        ..
+                    },
+                    "Delimited",
+                ) => {
+                    *last_child_frame_id = Some(child_frame_id);
+                    true
+                }
+                (
                     FrameContext::Ref {
+                        last_child_frame_id,
+                        ..
+                    },
+                    "Ref",
+                ) => {
+                    *last_child_frame_id = Some(child_frame_id);
+                    true
+                }
+                (
+                    FrameContext::RefTableDriven {
                         last_child_frame_id,
                         ..
                     },
@@ -224,16 +274,28 @@ impl ParseFrame {
 
         // Update parent's last_child_frame_id AND current_element_idx
         if let Some(parent_frame) = stack.last_mut() {
-            if let FrameContext::Sequence {
-                last_child_frame_id,
-                current_element_idx,
-                ..
-            } = &mut parent_frame.context
-            {
-                log::debug!("DEBUG: push_sequence_child_and_update_parent - parent {}, child {}, setting last_child_frame_id to {}",
-                    parent_id, child_id, child_id);
-                *last_child_frame_id = Some(child_id);
-                *current_element_idx = next_element_idx;
+            match &mut parent_frame.context {
+                FrameContext::Sequence {
+                    last_child_frame_id,
+                    current_element_idx,
+                    ..
+                } => {
+                    log::debug!("DEBUG: push_sequence_child_and_update_parent - parent {}, child {}, setting last_child_frame_id to {}",
+                        parent_id, child_id, child_id);
+                    *last_child_frame_id = Some(child_id);
+                    *current_element_idx = next_element_idx;
+                }
+                FrameContext::SequenceTableDriven {
+                    last_child_frame_id,
+                    current_element_idx,
+                    ..
+                } => {
+                    log::debug!("DEBUG: push_sequence_child_and_update_parent (table) - parent {}, child {}, setting last_child_frame_id to {}",
+                        parent_id, child_id, child_id);
+                    *last_child_frame_id = Some(child_id);
+                    *current_element_idx = next_element_idx;
+                }
+                _ => {}
             }
         }
 
@@ -253,14 +315,24 @@ impl ParseFrame {
 
         // Update parent's last_child_frame_id AND current_element_idx
         if let Some(parent_frame) = stack.last_mut() {
-            if let FrameContext::Sequence {
-                last_child_frame_id,
-                current_element_idx,
-                ..
-            } = &mut parent_frame.context
-            {
-                *last_child_frame_id = Some(child_id);
-                *current_element_idx = element_idx;
+            match &mut parent_frame.context {
+                FrameContext::Sequence {
+                    last_child_frame_id,
+                    current_element_idx,
+                    ..
+                } => {
+                    *last_child_frame_id = Some(child_id);
+                    *current_element_idx = element_idx;
+                }
+                FrameContext::SequenceTableDriven {
+                    last_child_frame_id,
+                    current_element_idx,
+                    ..
+                } => {
+                    *last_child_frame_id = Some(child_id);
+                    *current_element_idx = element_idx;
+                }
+                _ => {}
             }
         }
 

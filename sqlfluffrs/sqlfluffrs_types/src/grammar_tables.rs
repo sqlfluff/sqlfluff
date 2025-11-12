@@ -407,6 +407,17 @@ pub trait GrammarInstExt {
 
     /// Iterate over terminators
     fn terminators_iter<'a>(&self, terminators: &'a [u32]) -> TerminatorsIter<'a>;
+
+    /// Get the aux_data start offset for this instruction using the
+    /// grammar tables' aux_data_offsets mapping. The returned value is an
+    /// index into `tables.aux_data` (usize).
+    fn aux_offset_for(&self, tables: &GrammarTables, id: GrammarId) -> usize;
+
+    /// Get an aux_data value for this instruction by relative index.
+    /// `relative_idx` is an offset (0-based) from the instruction's
+    /// aux_offset. Returns the u32 stored in `tables.aux_data` at that
+    /// location.
+    fn aux_at(&self, tables: &GrammarTables, id: GrammarId, relative_idx: usize) -> u32;
 }
 
 impl GrammarInstExt for GrammarInst {
@@ -417,12 +428,22 @@ impl GrammarInstExt for GrammarInst {
     fn terminators_iter<'a>(&self, terminators: &'a [u32]) -> TerminatorsIter<'a> {
         TerminatorsIter::new(self, terminators)
     }
+
+    fn aux_offset_for(&self, tables: &GrammarTables, id: GrammarId) -> usize {
+        let idx = id.get() as usize;
+        tables.aux_data_offsets[idx] as usize
+    }
+
+    fn aux_at(&self, tables: &GrammarTables, id: GrammarId, relative_idx: usize) -> u32 {
+        let start = self.aux_offset_for(tables, id);
+        tables.aux_data[start + relative_idx]
+    }
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::grammar_inst::{GrammarFlags, GrammarVariant, ParseMode};
+    use crate::grammar_inst::GrammarVariant;
 
     #[test]
     fn test_grammar_tables_basic() {

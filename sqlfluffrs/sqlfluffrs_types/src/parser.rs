@@ -773,3 +773,61 @@ impl Display for Grammar {
         }
     }
 }
+
+/// Root grammar reference that can be either Arc<Grammar> or GrammarId
+/// This allows gradual migration from Arc-based to table-driven parsing
+#[derive(Debug, Clone)]
+pub enum RootGrammar {
+    /// Arc-based grammar (legacy, still used by most dialects)
+    Arc(Arc<Grammar>),
+    /// Table-driven grammar (new, more efficient)
+    TableDriven {
+        grammar_id: crate::GrammarId,
+        tables: &'static crate::GrammarTables,
+    },
+}
+
+impl RootGrammar {
+    /// Create from Arc<Grammar>
+    pub fn from_arc(grammar: Arc<Grammar>) -> Self {
+        RootGrammar::Arc(grammar)
+    }
+
+    /// Create from GrammarId and GrammarTables
+    pub fn from_table_driven(
+        grammar_id: crate::GrammarId,
+        tables: &'static crate::GrammarTables,
+    ) -> Self {
+        RootGrammar::TableDriven { grammar_id, tables }
+    }
+
+    /// Check if this is table-driven
+    pub fn is_table_driven(&self) -> bool {
+        matches!(self, RootGrammar::TableDriven { .. })
+    }
+
+    /// Check if this is Arc-based
+    pub fn is_arc(&self) -> bool {
+        matches!(self, RootGrammar::Arc(_))
+    }
+
+    /// Get the Arc<Grammar> if this is Arc-based, panics otherwise
+    pub fn as_arc(&self) -> &Arc<Grammar> {
+        match self {
+            RootGrammar::Arc(grammar) => grammar,
+            RootGrammar::TableDriven { .. } => {
+                panic!("Cannot get Arc<Grammar> from table-driven RootGrammar")
+            }
+        }
+    }
+
+    /// Get the GrammarId and tables if this is table-driven, panics otherwise
+    pub fn as_table_driven(&self) -> (crate::GrammarId, &'static crate::GrammarTables) {
+        match self {
+            RootGrammar::TableDriven { grammar_id, tables } => (*grammar_id, tables),
+            RootGrammar::Arc(_) => {
+                panic!("Cannot get GrammarId from Arc-based RootGrammar")
+            }
+        }
+    }
+}

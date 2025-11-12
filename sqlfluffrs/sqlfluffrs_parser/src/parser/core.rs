@@ -10,9 +10,9 @@ use hashbrown::HashSet;
 use super::{cache::ParseCache, Node, ParseError};
 use sqlfluffrs_dialects::Dialect;
 use sqlfluffrs_types::regex::RegexMode;
-use sqlfluffrs_types::{Grammar, SimpleHint, Token};
+use sqlfluffrs_types::{Grammar, GrammarInstExt, SimpleHint, Token};
 // NEW: Table-driven grammar support
-use sqlfluffrs_types::{GrammarContext, GrammarId, GrammarVariant};
+use sqlfluffrs_types::{GrammarContext, GrammarId, GrammarVariant, RootGrammar};
 
 /// A checkpoint in the collection history that tracks which tokens were collected
 /// at a specific point. Used for backtracking.
@@ -44,6 +44,10 @@ pub struct Parser<'a> {
     pub pruning_complex: std::cell::Cell<usize>, // Options that returned None (complex)
     // NEW: Table-driven grammar support (optional, for gradual migration)
     pub grammar_ctx: Option<&'a GrammarContext<'a>>,
+    /// Optional owned RootGrammar (Arc or TableDriven). When present callers
+    /// can use `parse_root` to parse starting from this root without having
+    /// to pass grammar ids or contexts manually.
+    pub root: Option<RootGrammar>,
     // Regex cache for table-driven RegexParser (pattern_string -> compiled RegexMode)
     regex_cache: std::cell::RefCell<hashbrown::HashMap<String, RegexMode>>,
 }
@@ -67,6 +71,7 @@ impl<'a> Parser<'a> {
             grammar_hash_cache: hashbrown::HashMap::new(),
             cache_enabled: true,
             grammar_ctx: None, // NEW: No table-driven grammar initially
+            root: None,
             regex_cache: std::cell::RefCell::new(hashbrown::HashMap::new()),
         }
     }
@@ -93,7 +98,48 @@ impl<'a> Parser<'a> {
             grammar_hash_cache: hashbrown::HashMap::new(),
             cache_enabled: true,
             grammar_ctx: Some(grammar_ctx), // NEW: Table-driven grammar enabled
+            root: None,
             regex_cache: std::cell::RefCell::new(hashbrown::HashMap::new()),
+        }
+    }
+
+    /// Create a new Parser instance with an explicit RootGrammar.
+    /// This configures either Arc-based or table-driven parsing automatically.
+    pub fn new_with_root(tokens: &'a [Token], dialect: Dialect, root: RootGrammar) -> Parser<'a> {
+        let mut p = Parser::new(tokens, dialect);
+        // If table-driven, set grammar_ctx to the provided tables
+        if root.is_table_driven() {
+            let (gid, tables) = root.as_table_driven();
+            // Create a static GrammarContext from the static tables by leaking a Box.
+            // The tables are generated as `&'static GrammarTables`, so this leak
+            // is acceptable for the lifetime of the program.
+            let boxed = Box::new(GrammarContext::new(tables));
+            let static_ctx: &'static GrammarContext<'static> = Box::leak(boxed);
+            p.grammar_ctx = Some(static_ctx);
+        }
+        p.root = Some(root);
+        p
+    }
+
+    /// Parse using the configured root if present.
+    pub fn parse_root(&mut self) -> Result<Node, ParseError> {
+        // Clone the RootGrammar out of self to avoid holding an immutable borrow
+        // across a call that needs &mut self.
+        let root = self
+            .root
+            .clone()
+            .ok_or_else(|| ParseError::new("RootGrammar not set".to_string()))?;
+        match root {
+            RootGrammar::TableDriven { grammar_id, tables } => {
+                // Ensure grammar context is set for table-driven parsing.
+                // Create a leaked static GrammarContext so it can live for the
+                // lifetime of the parser. This mirrors the constructor approach.
+                let boxed = Box::new(GrammarContext::new(tables));
+                let static_ctx: &'static GrammarContext<'static> = Box::leak(boxed);
+                self.grammar_ctx = Some(static_ctx);
+                self.parse_table_driven_iterative(grammar_id, &[])
+            }
+            RootGrammar::Arc(arc) => self.parse_with_grammar_cached(&arc, &[]),
         }
     }
 
@@ -153,14 +199,123 @@ impl<'a> Parser<'a> {
                 self.handle_sequence_table_driven(grammar_id, ctx, parent_terminators)
             }
             GrammarVariant::OneOf => {
-                // Table-driven OneOf not yet integrated with iterative parser
-                // For now, return an error
-                Err(ParseError::new(
-                    "OneOf table-driven handler requires iterative parser integration".to_string(),
-                ))
+                // Synchronous table-driven OneOf implementation (falls back to iterative logic)
+                // Use GrammarContext helpers to enumerate children, prune options and try each child
+                let inst = ctx.inst(grammar_id);
+
+                // Collect leading transparent tokens if allow_gaps
+                let leading_ws = if inst.flags.allow_gaps() {
+                    self.collect_transparent(true)
+                } else {
+                    Vec::new()
+                };
+                let post_skip_pos = self.pos;
+
+                // Combine terminators
+                let local_terminators: Vec<GrammarId> = ctx.terminators(grammar_id).collect();
+                let all_terminators = Self::combine_terminators_table_driven(
+                    &local_terminators,
+                    parent_terminators,
+                    inst.flags.reset_terminators(),
+                );
+
+                // Parse mode conversion
+                let grammar_parse_mode = match inst.parse_mode {
+                    sqlfluffrs_types::grammar_inst::ParseMode::Strict => {
+                        sqlfluffrs_types::ParseMode::Strict
+                    }
+                    sqlfluffrs_types::grammar_inst::ParseMode::Greedy => {
+                        sqlfluffrs_types::ParseMode::Greedy
+                    }
+                    sqlfluffrs_types::grammar_inst::ParseMode::GreedyOnceStarted => {
+                        sqlfluffrs_types::ParseMode::GreedyOnceStarted
+                    }
+                };
+
+                let max_idx = self.calculate_max_idx_table_driven(
+                    post_skip_pos,
+                    &all_terminators,
+                    grammar_parse_mode,
+                    None,
+                );
+
+                // Early termination check for GREEDY mode
+                if grammar_parse_mode == sqlfluffrs_types::ParseMode::Greedy {
+                    let element_children: Vec<GrammarId> =
+                        ctx.element_children(grammar_id).collect();
+                    if self.is_terminated_with_elements_table_driven(
+                        &all_terminators,
+                        &element_children,
+                    ) {
+                        if inst.flags.optional() {
+                            return Ok(Node::Empty);
+                        }
+                    }
+                }
+
+                let all_children: Vec<GrammarId> = ctx.element_children(grammar_id).collect();
+                let pruned_children = self.prune_options_table_driven(&all_children);
+
+                if pruned_children.is_empty() {
+                    return Ok(Node::Empty);
+                }
+
+                // Try each child and pick the longest (prefer "clean" nodes)
+                let mut best: Option<(Node, usize, GrammarId)> = None;
+                for &child_id in &pruned_children {
+                    self.pos = post_skip_pos;
+                    match self.parse_with_grammar_id(child_id, &all_terminators) {
+                        Ok(node) if !node.is_empty() => {
+                            let end_pos = self.pos;
+                            let consumed = end_pos - post_skip_pos;
+                            let child_is_clean = Self::is_node_clean(&node);
+
+                            let is_better =
+                                if let Some((ref current_best, current_consumed, _)) = &best {
+                                    let current_is_clean = Self::is_node_clean(current_best);
+                                    if child_is_clean && !current_is_clean {
+                                        true
+                                    } else if !child_is_clean && current_is_clean {
+                                        false
+                                    } else {
+                                        consumed > *current_consumed
+                                    }
+                                } else {
+                                    true
+                                };
+
+                            if is_better {
+                                best = Some((node, consumed, child_id));
+                            }
+                        }
+                        Ok(_) => {}
+                        Err(_) => {}
+                    }
+                }
+
+                if let Some((best_node, best_consumed, _best_child)) = best {
+                    let final_pos = post_skip_pos + best_consumed;
+                    self.pos = final_pos;
+                    let result = if !leading_ws.is_empty() {
+                        let mut children = leading_ws.clone();
+                        children.push(best_node);
+                        Node::Sequence { children }
+                    } else {
+                        best_node
+                    };
+                    Ok(result)
+                } else {
+                    // No match
+                    Ok(Node::Empty)
+                }
             }
             GrammarVariant::Delimited => {
-                unimplemented!("Delimited handler not yet migrated")
+                // NOTE: synchronous delimited table-driven fallback removed. Table-driven
+                // composite grammars are handled by the iterative engine via
+                // parse_table_driven_iterative in iterative.rs.
+                return Err(ParseError::new(
+                    "Delimited grammar handling removed".to_string(),
+                ));
             }
             GrammarVariant::Bracketed => {
                 unimplemented!("Bracketed handler not yet migrated")
@@ -172,7 +327,7 @@ impl<'a> Parser<'a> {
                 unimplemented!("AnySetOf handler not yet migrated")
             }
             GrammarVariant::Ref => {
-                unimplemented!("Ref handler not yet migrated")
+                self.handle_ref_table_driven(grammar_id, ctx, parent_terminators)
             }
             GrammarVariant::Anything => {
                 self.handle_anything_table_driven(grammar_id, ctx, parent_terminators)
@@ -256,7 +411,9 @@ impl<'a> Parser<'a> {
     }
 
     pub fn call_rule_as_root(&mut self) -> Result<Node, ParseError> {
-        let root_grammar = self.dialect.get_root_grammar();
+        // Obtain the root grammar for this dialect and dispatch based on its
+        // variant (table-driven vs Arc-based). Clone to avoid holding borrows.
+        let root_grammar = self.dialect.get_root_grammar().clone();
         let mut last_non_code_pos = self.tokens.len();
         for (i, token) in self.tokens.iter().enumerate().rev() {
             if !token.is_code() {
@@ -281,7 +438,17 @@ impl<'a> Parser<'a> {
         }
 
         self.tokens = token_slice;
-        let nodes = self.parse_with_grammar_cached(&root_grammar, &[]);
+        // Dispatch parse using the root grammar variant.
+        let nodes = match root_grammar {
+            RootGrammar::Arc(arc) => self.parse_with_grammar_cached(&arc, &[]),
+            RootGrammar::TableDriven { grammar_id, tables } => {
+                // Set grammar context and use iterative table-driven entry
+                let boxed = Box::new(GrammarContext::new(tables));
+                let static_ctx: &'static GrammarContext<'static> = Box::leak(boxed);
+                self.grammar_ctx = Some(static_ctx);
+                self.parse_table_driven_iterative(grammar_id, &[])
+            }
+        };
         self.tokens = token_slice_orig;
         match nodes {
             Ok(mut n) => {
@@ -345,7 +512,16 @@ impl<'a> Parser<'a> {
 
     /// Lookup SegmentDef by name
     pub fn get_segment_grammar(&self, name: &str) -> Option<Arc<Grammar>> {
-        self.dialect.get_segment_grammar(name)
+        // The dialect layer currently returns Option<RootGrammar>. Convert
+        // Arc-based variants into Arc<Grammar> for legacy consumers. Table-driven
+        // grammars cannot be represented as Arc<Grammar> here, so return None
+        // in that case (callers that expect table-driven grammars should use
+        // other APIs).
+        match self.dialect.get_segment_grammar(name) {
+            Some(RootGrammar::Arc(a)) => Some(a.clone()),
+            Some(RootGrammar::TableDriven { .. }) => None,
+            None => None,
+        }
     }
 
     /// Push a checkpoint onto the collection stack when starting to process a grammar.
@@ -430,7 +606,7 @@ impl<'a> Parser<'a> {
     // ============================================================================
 
     /// Handle StringParser using table-driven approach
-    fn handle_string_parser_table_driven(
+    pub(crate) fn handle_string_parser_table_driven(
         &mut self,
         grammar_id: GrammarId,
         ctx: &GrammarContext,
@@ -440,8 +616,8 @@ impl<'a> Parser<'a> {
         let tables = ctx.tables();
 
         // StringParser stores: [template_id, token_type_id, raw_class_id] in aux_data
-        // first_child_idx holds the aux_data offset
-        let aux_start = inst.first_child_idx as usize;
+        // aux_data_offsets maps instruction -> aux_data start for variable-length aux
+        let aux_start = tables.aux_data_offsets[grammar_id.get() as usize] as usize;
         let template_id = tables.aux_data[aux_start];
         let token_type_id = tables.aux_data[aux_start + 1];
 
@@ -485,7 +661,7 @@ impl<'a> Parser<'a> {
     }
 
     /// Handle TypedParser using table-driven approach
-    fn handle_typed_parser_table_driven(
+    pub(crate) fn handle_typed_parser_table_driven(
         &mut self,
         grammar_id: GrammarId,
         ctx: &GrammarContext,
@@ -495,8 +671,8 @@ impl<'a> Parser<'a> {
         let tables = ctx.tables();
 
         // TypedParser stores: [template_id, token_type_id, raw_class_id] in aux_data
-        // first_child_idx holds the aux_data offset
-        let aux_start = inst.first_child_idx as usize;
+        // aux_data_offsets maps instruction -> aux_data start for variable-length aux
+        let aux_start = tables.aux_data_offsets[grammar_id.get() as usize] as usize;
         let template_id = tables.aux_data[aux_start];
         let token_type_id = tables.aux_data[aux_start + 1];
 
@@ -531,14 +707,22 @@ impl<'a> Parser<'a> {
                 })
             }
             Some(tok) => {
+                // Include instance and class type diagnostics to help debug why a
+                // typed parser didn't match (e.g. instance_types contains the
+                // expected seg type but token_type differs).
+                let inst_types = tok.instance_types.clone();
+                let class_types = tok.class_types();
                 log::debug!(
-                    "TypedParser[table] NOMATCH: expected type '{}', found type '{}', raw '{}'",
+                    "TypedParser[table] NOMATCH: expected type='{}', token_type='{}', raw='{}', instance_types={:?}, class_types={:?}",
                     template,
-                    tok.token_type,
-                    tok.raw()
+                    tok.get_type(),
+                    tok.raw(),
+                    inst_types,
+                    class_types
                 );
                 Ok(Node::Empty)
             }
+
             None => {
                 log::debug!("TypedParser[table] NOMATCH: EOF at pos={}", self.pos);
                 Ok(Node::Empty)
@@ -547,7 +731,7 @@ impl<'a> Parser<'a> {
     }
 
     /// Handle MultiStringParser using table-driven approach
-    fn handle_multi_string_parser_table_driven(
+    pub(crate) fn handle_multi_string_parser_table_driven(
         &mut self,
         grammar_id: GrammarId,
         ctx: &GrammarContext,
@@ -563,14 +747,26 @@ impl<'a> Parser<'a> {
         let templates_count = tables.aux_data[aux_start + 1] as usize;
         let token_type_id = tables.aux_data[aux_start + 2];
 
+        // Guard against sentinel value 0xFFFFFFFF in aux data entries which
+        // indicates "no value" in the tables. Skip sentinel entries and
+        // collect only valid templates. Also guard token_type_id.
         let templates: Vec<String> = (0..templates_count)
-            .map(|i| {
+            .filter_map(|i| {
                 let template_id = tables.aux_data[templates_start + i];
-                tables.get_string(template_id).to_string()
+                if template_id == 0xFFFFFFFF {
+                    None
+                } else {
+                    Some(tables.get_string(template_id).to_string())
+                }
             })
             .collect();
 
-        let token_type = tables.get_string(token_type_id).to_string();
+        let token_type = if token_type_id == 0xFFFFFFFF {
+            // No token type specified; use empty string so matching will fail.
+            "".to_string()
+        } else {
+            tables.get_string(token_type_id).to_string()
+        };
 
         log::debug!(
             "MultiStringParser[table]: pos={}, templates={:?}, token_type='{}'",
@@ -609,7 +805,7 @@ impl<'a> Parser<'a> {
     }
 
     /// Handle RegexParser using table-driven approach
-    fn handle_regex_parser_table_driven(
+    pub(crate) fn handle_regex_parser_table_driven(
         &mut self,
         grammar_id: GrammarId,
         ctx: &GrammarContext,
@@ -621,17 +817,48 @@ impl<'a> Parser<'a> {
         // RegexParser stores: [regex_id, anti_regex_id, token_type_id, raw_class_id] in aux_data
         // first_child_idx holds the aux_data offset
         let aux_start = inst.first_child_idx as usize;
-        let regex_id = tables.aux_data[aux_start] as usize;
-        let anti_regex_id = tables.aux_data[aux_start + 1];
-        let token_type_id = tables.aux_data[aux_start + 2];
+        // Read raw aux ids (u32 sentinel of 0xFFFFFFFF is used to indicate absence)
+        let regex_id_raw = tables.aux_data[aux_start];
+        let anti_regex_id_raw = tables.aux_data[aux_start + 1];
+        let token_type_id_raw = tables.aux_data[aux_start + 2];
 
-        let pattern_str = tables.regex_patterns[regex_id];
-        let anti_pattern_str = if anti_regex_id != 0xFFFFFFFF {
-            Some(tables.regex_patterns[anti_regex_id as usize])
+        // Validate regex id before indexing into patterns table. If invalid, treat as no-match.
+        if regex_id_raw == 0xFFFFFFFF || (regex_id_raw as usize) >= tables.regex_patterns.len() {
+            log::warn!(
+                "RegexParser[table]: invalid regex_id for grammar_id={} aux_start={} regex_id_raw={}",
+                grammar_id,
+                aux_start,
+                regex_id_raw
+            );
+            return Ok(Node::Empty);
+        }
+        let regex_id = regex_id_raw as usize;
+
+        // Validate anti-regex id and map to Option<&str>
+        let anti_pattern_str = if anti_regex_id_raw != 0xFFFFFFFF {
+            let idx = anti_regex_id_raw as usize;
+            if idx < tables.regex_patterns.len() {
+                Some(tables.regex_patterns[idx])
+            } else {
+                log::warn!(
+                    "RegexParser[table]: invalid anti_regex_id for grammar_id={} anti_regex_id_raw={}",
+                    grammar_id,
+                    anti_regex_id_raw
+                );
+                None
+            }
         } else {
             None
         };
-        let token_type = tables.get_string(token_type_id).to_string();
+
+        // Resolve token_type safely; if missing use empty string
+        let token_type = if token_type_id_raw != 0xFFFFFFFF {
+            tables.get_string(token_type_id_raw).to_string()
+        } else {
+            String::new()
+        };
+
+        let pattern_str = tables.regex_patterns[regex_id];
 
         // Compile regex patterns (with caching)
         let pattern = {
@@ -711,19 +938,19 @@ impl<'a> Parser<'a> {
     // ============================================================================
 
     /// Handle Nothing using table-driven approach
-    fn handle_nothing_table_driven(&mut self) -> Result<Node, ParseError> {
+    pub(crate) fn handle_nothing_table_driven(&mut self) -> Result<Node, ParseError> {
         log::debug!("Nothing[table]: pos={}, returning Empty", self.pos);
         Ok(Node::Empty)
     }
 
     /// Handle Empty using table-driven approach
-    fn handle_empty_table_driven(&mut self) -> Result<Node, ParseError> {
+    pub(crate) fn handle_empty_table_driven(&mut self) -> Result<Node, ParseError> {
         log::debug!("Empty[table]: pos={}, returning Empty", self.pos);
         Ok(Node::Empty)
     }
 
     /// Handle Missing using table-driven approach
-    fn handle_missing_table_driven(&mut self) -> Result<Node, ParseError> {
+    pub(crate) fn handle_missing_table_driven(&mut self) -> Result<Node, ParseError> {
         log::debug!("Missing[table]: encountered at pos={}", self.pos);
         Err(ParseError::with_context(
             "Encountered Missing grammar".into(),
@@ -733,7 +960,7 @@ impl<'a> Parser<'a> {
     }
 
     /// Handle Token using table-driven approach
-    fn handle_token_table_driven(
+    pub(crate) fn handle_token_table_driven(
         &mut self,
         grammar_id: GrammarId,
         ctx: &GrammarContext,
@@ -742,8 +969,10 @@ impl<'a> Parser<'a> {
         let inst = ctx.inst(grammar_id);
         let tables = ctx.tables();
 
-        // Token stores token_type string id in first_child_idx
-        let token_type_id = inst.first_child_idx;
+        // Token stores token_type string id in aux_data at the instruction's
+        // aux_data_offsets index (the generator emits the type id there).
+        let aux_start = tables.aux_data_offsets[grammar_id.get() as usize] as usize;
+        let token_type_id = tables.aux_data[aux_start];
         let token_type = tables.get_string(token_type_id).to_string();
 
         log::debug!(
@@ -772,26 +1001,86 @@ impl<'a> Parser<'a> {
                 })
             }
             Some(tok) => {
+                // Don't return an Err here; return Empty so the table-driven
+                // engine can try other branches instead of aborting the
+                // sequence. Include instance/class types for diagnostics.
+                let inst_types = tok.instance_types.clone();
+                let class_types = tok.class_types();
                 log::debug!(
-                    "Token[table] NOMATCH: expected type '{}', found type '{}'",
+                    "Token[table] NOMATCH: expected='{}', token_type='{}', raw='{}', instance_types={:?}, class_types={:?}'",
                     token_type,
-                    tok.get_type()
+                    tok.get_type(),
+                    tok.raw(),
+                    inst_types,
+                    class_types
                 );
-                Err(ParseError::new(format!(
-                    "Expected token type {}, found {}",
-                    token_type,
-                    tok.get_type()
-                )))
+                Ok(Node::Empty)
             }
             None => {
                 log::debug!("Token[table] NOMATCH: EOF at pos={}", self.pos);
-                Err(ParseError::new("Expected token, found EOF".into()))
+                Ok(Node::Empty)
             }
         }
     }
 
+    /// Handle Ref using table-driven approach
+    fn handle_ref_table_driven(
+        &mut self,
+        grammar_id: GrammarId,
+        ctx: &GrammarContext,
+        parent_terminators: &[GrammarId],
+    ) -> Result<Node, ParseError> {
+        // Resolve the referenced rule name from tables
+        let name = ctx.ref_name(grammar_id);
+
+        log::debug!(
+            "Ref[table]: pos={}, resolving ref name='{}'",
+            self.pos,
+            name
+        );
+
+        // Ask dialect for the segment grammar. The dialect returns Option<RootGrammar>.
+        match self.dialect.get_segment_grammar(name) {
+            Some(RootGrammar::Arc(arc)) => {
+                // Found an Arc-based grammar; delegate to existing Arc-based path
+                // Note: parse_with_grammar_cached expects Arc<Grammar>
+                let node = self.parse_with_grammar_cached(&arc, &[])?;
+                // Wrap in Ref crate node as call_rule would
+                if node.is_empty() {
+                    return Ok(node);
+                }
+                let result = Node::Ref {
+                    name: name.to_string(),
+                    segment_type: None,
+                    child: Box::new(node),
+                };
+                Ok(result.deduplicate())
+            }
+            Some(RootGrammar::TableDriven {
+                grammar_id: target_gid,
+                ..
+            }) => {
+                // Found a table-driven grammar id; dispatch to table-driven parser
+                let node = self.parse_with_grammar_id(target_gid, parent_terminators)?;
+                if node.is_empty() {
+                    return Ok(node);
+                }
+                let result = Node::Ref {
+                    name: name.to_string(),
+                    segment_type: None,
+                    child: Box::new(node),
+                };
+                Ok(result.deduplicate())
+            }
+            None => Err(ParseError::unknown_segment(
+                name.to_string(),
+                Some(self.pos),
+            )),
+        }
+    }
+
     /// Handle Meta using table-driven approach
-    fn handle_meta_table_driven(
+    pub(crate) fn handle_meta_table_driven(
         &mut self,
         grammar_id: GrammarId,
         ctx: &GrammarContext,
@@ -800,9 +1089,10 @@ impl<'a> Parser<'a> {
         let inst = ctx.inst(grammar_id);
         let tables = ctx.tables();
 
-        // Meta stores token_type string id in first_child_idx
-        let token_type_id = inst.first_child_idx;
-        let token_type = tables.get_string(token_type_id).to_string();
+        // Meta stores token_type string id in aux_data at the instruction's aux offset
+        // (generator encodes it there). Read via aux_data_offsets to get the string id.
+        let token_type_id = tables.aux_data_offsets[grammar_id.get() as usize] as usize;
+        let token_type = tables.get_string(token_type_id as u32).to_string();
 
         log::debug!("Meta[table]: pos={}, token_type='{}'", self.pos, token_type);
 
@@ -813,7 +1103,7 @@ impl<'a> Parser<'a> {
     }
 
     /// Handle NonCodeMatcher using table-driven approach
-    fn handle_noncode_matcher_table_driven(&mut self) -> Result<Node, ParseError> {
+    pub(crate) fn handle_noncode_matcher_table_driven(&mut self) -> Result<Node, ParseError> {
         log::debug!("NonCodeMatcher[table]: pos={}", self.pos);
 
         match self.peek() {
@@ -1096,9 +1386,13 @@ impl<'a> Parser<'a> {
             Some(max_idx),
         );
 
-        stack.increment_frame_id_counter();
-        stack.push(&mut frame);
-        stack.push(&mut child_frame.clone());
+        // Use helper to push parent and child and update parent's last_child_frame_id
+        crate::parser::ParseFrame::push_child_and_update_parent(
+            stack,
+            &mut frame,
+            child_frame,
+            "Delimited",
+        );
 
         Ok(FrameResult::Done)
     }
@@ -1119,12 +1413,12 @@ impl<'a> Parser<'a> {
         let _ctx = self.grammar_ctx.expect("GrammarContext required");
 
         let FrameContext::OneOfTableDriven {
-            grammar_id: _,
+            grammar_id,
             pruned_children,
             post_skip_pos,
             longest_match,
             tried_elements,
-            max_idx: _,
+            max_idx,
             current_child_id,
             ..
         } = &mut frame.context
@@ -1194,8 +1488,19 @@ impl<'a> Parser<'a> {
                 total_children: 1,
             };
 
-            // TODO: Push next child frame
+            // Build child frame using same table_terminators as parent
+            let child_frame = crate::parser::ParseFrame::new_table_driven_child(
+                stack.frame_id_counter,
+                next_child,
+                *post_skip_pos,
+                frame.table_terminators.clone(),
+                Some(*max_idx),
+            );
+
+            // Push parent and child onto stack (increment frame id counter)
+            stack.increment_frame_id_counter();
             stack.push(&mut frame);
+            stack.push(&mut child_frame.clone());
             return Ok(FrameResult::Done);
         } else {
             // All children tried - transition to Combining
@@ -1312,6 +1617,40 @@ impl<'a> Parser<'a> {
         // Get all children
         let all_children: Vec<GrammarId> = ctx.children(grammar_id).collect();
 
+        // Debug: log child ids and their variants/names to help diagnose mismatches
+        let mut child_descrs: Vec<String> = Vec::new();
+        for gid in &all_children {
+            let var = ctx.variant(*gid);
+            let descr = match var {
+                sqlfluffrs_types::GrammarVariant::Ref => {
+                    let name = ctx.ref_name(*gid);
+                    format!("{}::Ref({})", gid.0, name)
+                }
+                sqlfluffrs_types::GrammarVariant::StringParser => {
+                    let tpl = ctx.template(*gid);
+                    format!("{}::String('{}')", gid.0, tpl)
+                }
+                sqlfluffrs_types::GrammarVariant::TypedParser => {
+                    let tpl = ctx.template(*gid);
+                    format!("{}::Typed('{}')", gid.0, tpl)
+                }
+                sqlfluffrs_types::GrammarVariant::Meta => {
+                    // Read aux_data for meta token_type id
+                    let aux = ctx.tables().aux_data_offsets[gid.get() as usize] as usize;
+                    let sidx = ctx.tables().aux_data[aux];
+                    let name = ctx.tables().get_string(sidx);
+                    format!("{}::Meta('{}')", gid.0, name)
+                }
+                other => format!("{}::{:?}", gid.0, other),
+            };
+            child_descrs.push(descr);
+        }
+        log::debug!(
+            "Sequence[table]: grammar_id={} children_list={:?}",
+            grammar_id.0,
+            child_descrs
+        );
+
         if all_children.is_empty() {
             log::debug!("Sequence[table]: No children, returning Empty");
             frame.end_pos = Some(start_pos);
@@ -1380,13 +1719,19 @@ impl<'a> Parser<'a> {
         );
 
         log::debug!(
-            "Sequence[table]: Trying first child grammar_id={}",
-            first_child.0
+            "Sequence[table]: Trying first child grammar_id={} (frame_id={}, start_pos={})",
+            first_child.0,
+            frame.frame_id,
+            start_pos
         );
 
-        stack.increment_frame_id_counter();
-        stack.push(&mut frame);
-        stack.push(&mut child_frame.clone());
+        // Use helper to push parent and child, and set parent's last_child_frame_id
+        crate::parser::ParseFrame::push_sequence_child_and_update_parent(
+            stack,
+            &mut frame,
+            child_frame,
+            0,
+        );
 
         Ok(FrameResult::Done)
     }
@@ -1405,70 +1750,102 @@ impl<'a> Parser<'a> {
 
         let ctx = self.grammar_ctx.expect("GrammarContext required");
 
-        let FrameContext::SequenceTableDriven {
-            grammar_id,
-            matched_idx,
-            tentatively_collected: _,
-            max_idx,
-            original_max_idx,
-            current_element_idx,
-            first_match,
-            ..
-        } = &mut frame.context
-        else {
-            unreachable!("Expected SequenceTableDriven context");
+        // Avoid holding a long-lived mutable borrow of frame.context here.
+        // Extract only the grammar_id for table lookups and read-only info for logging.
+        let grammar_id = match &frame.context {
+            FrameContext::SequenceTableDriven { grammar_id, .. } => *grammar_id,
+            _ => unreachable!("Expected SequenceTableDriven context"),
         };
 
-        let inst = ctx.inst(*grammar_id);
-        let all_children: Vec<GrammarId> = ctx.children(*grammar_id).collect();
+        let inst = ctx.inst(grammar_id);
+        let all_children: Vec<GrammarId> = ctx.children(grammar_id).collect();
+
+        // Read current index and first_match for logging (immutable borrow)
+        let (current_element_idx_val, first_match_val) = match &frame.context {
+            FrameContext::SequenceTableDriven {
+                current_element_idx,
+                first_match,
+                ..
+            } => (*current_element_idx, *first_match),
+            _ => unreachable!("Expected SequenceTableDriven context"),
+        };
 
         log::debug!(
             "Sequence[table] WaitingForChild: frame_id={}, child_empty={}, child_end_pos={}, current_idx={}/{}, first_match={}",
             frame.frame_id,
             child_node.is_empty(),
             child_end_pos,
-            current_element_idx,
+            current_element_idx_val,
             all_children.len(),
-            first_match
+            first_match_val
         );
 
         // Check if child matched
         if !child_node.is_empty() {
-            // Child matched - add to accumulated results
-            frame.accumulated.push(child_node.clone());
-            *matched_idx = *child_end_pos;
-            *current_element_idx += 1;
-
-            // GREEDY_ONCE_STARTED: After first match, trim max_idx to terminators
-            if *first_match
-                && inst.parse_mode == sqlfluffrs_types::grammar_inst::ParseMode::GreedyOnceStarted
+            // Child matched - update context in a short mutable scope to avoid borrow conflicts
             {
                 log::debug!(
-                    "Sequence[table]: First element matched in GREEDY_ONCE_STARTED, trimming max_idx"
+                    "Sequence[table]: frame_id={} child matched at pos {} (child_end_pos={}), pushing to accumulated. accumulated_before={}",
+                    frame.frame_id,
+                    self.pos,
+                    child_end_pos,
+                    frame.accumulated.len()
                 );
-                *first_match = false;
+                frame.accumulated.push(child_node.clone());
 
-                // Recalculate max_idx with strict mode after first match
-                let all_terminators = frame.table_terminators.clone();
-                let new_max_idx = self.calculate_max_idx_table_driven(
-                    *matched_idx,
-                    &all_terminators,
-                    sqlfluffrs_types::ParseMode::Strict,
-                    frame.parent_max_idx,
-                );
-                *max_idx = new_max_idx;
+                // Mutably update context fields briefly and drop the borrow
+                if let FrameContext::SequenceTableDriven {
+                    matched_idx,
+                    max_idx,
+                    current_element_idx,
+                    first_match,
+                    original_max_idx: _,
+                    ..
+                } = &mut frame.context
+                {
+                    *matched_idx = *child_end_pos;
+                    *current_element_idx += 1;
 
-                log::debug!(
-                    "Sequence[table]: Trimmed max_idx from {} to {}",
-                    original_max_idx,
-                    new_max_idx
-                );
+                    // GREEDY_ONCE_STARTED: After first match, trim max_idx to terminators
+                    if *first_match
+                        && inst.parse_mode
+                            == sqlfluffrs_types::grammar_inst::ParseMode::GreedyOnceStarted
+                    {
+                        log::debug!(
+                            "Sequence[table]: First element matched in GREEDY_ONCE_STARTED, trimming max_idx"
+                        );
+                        *first_match = false;
+
+                        // Recalculate max_idx with strict mode after first match
+                        let all_terminators = frame.table_terminators.clone();
+                        let new_max_idx = self.calculate_max_idx_table_driven(
+                            *matched_idx,
+                            &all_terminators,
+                            sqlfluffrs_types::ParseMode::Strict,
+                            frame.parent_max_idx,
+                        );
+                        *max_idx = new_max_idx;
+
+                        log::debug!("Sequence[table]: Trimmed max_idx to {}", new_max_idx);
+                    }
+                }
             }
+            // After the brief mutable update, re-read the relevant context fields into
+            // local variables so we can use them without holding a mutable borrow.
+            let (matched_idx_val, max_idx_val, current_element_idx_val) = match &frame.context {
+                FrameContext::SequenceTableDriven {
+                    matched_idx,
+                    max_idx,
+                    current_element_idx,
+                    ..
+                } => (*matched_idx, *max_idx, *current_element_idx),
+                _ => unreachable!("Expected SequenceTableDriven context"),
+            };
 
             // Check if we have more children to match
-            if *current_element_idx < all_children.len() {
+            if current_element_idx_val < all_children.len() {
                 // Collect transparent tokens between elements if allow_gaps
-                self.pos = *matched_idx;
+                self.pos = matched_idx_val;
                 let leading_ws = if inst.flags.allow_gaps() {
                     let ws = self.collect_transparent(true);
                     if !ws.is_empty() {
@@ -1489,31 +1866,37 @@ impl<'a> Parser<'a> {
                 let next_start_pos = self.pos;
 
                 // Try next child
-                let next_child = all_children[*current_element_idx];
+
+                let next_child = all_children[current_element_idx_val];
 
                 log::debug!(
                     "Sequence[table]: Trying next child grammar_id={}, pos={}, max_idx={}",
                     next_child.0,
                     next_start_pos,
-                    max_idx
+                    max_idx_val
                 );
 
+                // Create child_frame first to avoid holding a mutable borrow on frame.context
                 let child_frame = crate::parser::ParseFrame::new_table_driven_child(
                     stack.frame_id_counter,
                     next_child,
                     next_start_pos,
                     frame.table_terminators.clone(),
-                    Some(*max_idx),
+                    Some(max_idx_val),
                 );
 
                 frame.state = FrameState::WaitingForChild {
-                    child_index: *current_element_idx,
+                    child_index: current_element_idx_val,
                     total_children: all_children.len(),
                 };
 
-                stack.increment_frame_id_counter();
-                stack.push(&mut frame);
-                stack.push(&mut child_frame.clone());
+                // Use helper to push parent and child and also update current element idx
+                crate::parser::ParseFrame::push_sequence_child_and_update_parent(
+                    stack,
+                    &mut frame,
+                    child_frame,
+                    current_element_idx_val,
+                );
                 return Ok(FrameResult::Done);
             } else {
                 // All children matched - transition to Combining
@@ -1521,29 +1904,81 @@ impl<'a> Parser<'a> {
                     "Sequence[table]: All {} children matched, transitioning to Combining",
                     all_children.len()
                 );
-                self.pos = *matched_idx;
-                frame.end_pos = Some(*matched_idx);
+                self.pos = matched_idx_val;
+                frame.end_pos = Some(matched_idx_val);
                 frame.state = FrameState::Combining;
                 stack.push(&mut frame);
                 return Ok(FrameResult::Done);
             }
         } else {
             // Child failed (returned Empty)
-            // TODO: Check if element is optional vs required
-            // TODO: Handle parse_mode (Strict vs Greedy)
-            // For now, treat as failure
-            log::debug!(
-                "Sequence[table]: Child {} returned Empty, sequence failed",
-                current_element_idx
-            );
+            // Child failed (returned Empty)
+            // If the element is optional, advance to the next child instead of failing.
+            // Otherwise treat as failure.
+            let failed_idx = current_element_idx_val;
+            let failed_child = all_children[failed_idx];
+            let failed_inst = ctx.inst(failed_child);
 
-            // Rollback collection checkpoint
-            self.rollback_collection_checkpoint(frame.frame_id);
+            if failed_inst.flags.optional() {
+                log::debug!(
+                    "Sequence[table]: Child {} returned Empty but is optional, advancing",
+                    failed_idx
+                );
 
-            frame.end_pos = Some(frame.pos);
-            frame.state = FrameState::Combining;
-            stack.push(&mut frame);
-            return Ok(FrameResult::Done);
+                let next_index = failed_idx + 1;
+                if next_index < all_children.len() {
+                    // Prepare next child and push using helper. Create child_frame before any mutable borrows.
+                    let next_child = all_children[next_index];
+                    let child_frame = crate::parser::ParseFrame::new_table_driven_child(
+                        stack.frame_id_counter,
+                        next_child,
+                        frame.pos,
+                        frame.table_terminators.clone(),
+                        // Use parent's max_idx from context
+                        match &frame.context {
+                            FrameContext::SequenceTableDriven { max_idx, .. } => Some(*max_idx),
+                            _ => None,
+                        },
+                    );
+
+                    frame.state = FrameState::WaitingForChild {
+                        child_index: next_index,
+                        total_children: all_children.len(),
+                    };
+
+                    crate::parser::ParseFrame::push_sequence_child_and_update_parent(
+                        stack,
+                        &mut frame,
+                        child_frame,
+                        next_index,
+                    );
+
+                    return Ok(FrameResult::Done);
+                } else {
+                    // No more children; transition to Combining
+                    log::debug!(
+                        "Sequence[table]: Optional child was the last element, transitioning to Combining"
+                    );
+                    self.rollback_collection_checkpoint(frame.frame_id);
+                    frame.end_pos = Some(frame.pos);
+                    frame.state = FrameState::Combining;
+                    stack.push(&mut frame);
+                    return Ok(FrameResult::Done);
+                }
+            } else {
+                log::debug!(
+                    "Sequence[table]: Child {} returned Empty, sequence failed",
+                    failed_idx
+                );
+
+                // Rollback collection checkpoint
+                self.rollback_collection_checkpoint(frame.frame_id);
+
+                frame.end_pos = Some(frame.pos);
+                frame.state = FrameState::Combining;
+                stack.push(&mut frame);
+                return Ok(FrameResult::Done);
+            }
         }
     }
 
@@ -1633,17 +2068,9 @@ impl<'a> Parser<'a> {
         let start_pos = frame.pos;
         let tables = ctx.tables();
 
-        // Get rule name from strings table (stored in first_child_idx for Ref)
-        let rule_name = if inst.first_child_idx > 0 {
-            let name_idx = inst.first_child_idx as usize;
-            if name_idx < tables.strings.len() {
-                tables.strings[name_idx].to_string()
-            } else {
-                "UnknownRule".to_string()
-            }
-        } else {
-            "UnknownRule".to_string()
-        };
+        // Get rule name via GrammarContext helper which knows how names are
+        // stored in aux_data (generator packs ref names into aux_data).
+        let rule_name = ctx.ref_name(grammar_id).to_string();
 
         log::debug!(
             "Ref[table] Initial: frame_id={}, pos={}, grammar_id={}, rule={}",
@@ -1661,9 +2088,127 @@ impl<'a> Parser<'a> {
         // For now, just create a placeholder child
 
         let saved_pos = start_pos;
-        let leading_transparent = Vec::new(); // TODO: collect if allow_gaps
+        let children: Vec<GrammarId> = ctx.children(grammar_id).collect();
+        if children.is_empty() {
+            // No explicit child grammar encoded in tables. Try resolving by name
+            // via the dialect mapping (generator emits per-dialect name->grammar
+            // accessors). If we find an Arc-based grammar, parse it synchronously
+            // and return the result. If we find a table-driven grammar id, push
+            // a child frame for that id. Otherwise return Empty / error.
+            log::debug!(
+                "Ref[table]: no explicit children, resolving via dialect mapping for '{}'",
+                rule_name
+            );
 
-        // Store context
+            match self.dialect.get_segment_grammar(&rule_name) {
+                Some(RootGrammar::Arc(arc)) => {
+                    // Synchronous parse using Arc-based grammar
+                    let node = self.parse_with_grammar_cached(&arc, &[])?;
+                    if node.is_empty() {
+                        stack
+                            .results
+                            .insert(frame.frame_id, (Node::Empty, start_pos, None));
+                    } else {
+                        let result = Node::Ref {
+                            name: rule_name.clone(),
+                            segment_type: None,
+                            child: Box::new(node),
+                        }
+                        .deduplicate();
+                        stack
+                            .results
+                            .insert(frame.frame_id, (result, self.pos, None));
+                    }
+                    return Ok(FrameResult::Done);
+                }
+                Some(RootGrammar::TableDriven {
+                    grammar_id: target_gid,
+                    ..
+                }) => {
+                    // Decide whether to collect leading transparent tokens based on
+                    // the target grammar's allow_gaps flag. This ensures we skip
+                    // whitespace if the referenced grammar allows gaps between
+                    // tokens.
+                    let mut leading_transparent: Vec<Node> = Vec::new();
+                    let target_inst = ctx.inst(target_gid);
+                    if target_inst.flags.allow_gaps() {
+                        let ws = self.collect_transparent(true);
+                        if !ws.is_empty() {
+                            log::debug!(
+                                "Ref[table]: Collected {} leading transparent tokens for target grammar",
+                                ws.len()
+                            );
+                            leading_transparent = ws;
+                        }
+                    }
+
+                    // Store context now that we have leading_transparent
+                    frame.context = FrameContext::RefTableDriven {
+                        grammar_id,
+                        segment_type: Some(rule_name.clone()),
+                        saved_pos,
+                        last_child_frame_id: Some(stack.frame_id_counter),
+                        leading_transparent,
+                    };
+
+                    // CRITICAL: Set parent frame state to WaitingForChild so it will
+                    // retrieve the child result on the next iteration
+                    frame.state = FrameState::WaitingForChild {
+                        child_index: 0,
+                        total_children: 1,
+                    };
+
+                    let child_frame = crate::parser::ParseFrame::new_table_driven_child(
+                        stack.frame_id_counter,
+                        target_gid,
+                        self.pos,
+                        parent_terminators.to_vec(),
+                        frame.parent_max_idx,
+                    );
+
+                    log::debug!(
+                        "Ref[table]: Resolved name '{}' -> table-driven grammar_id={}, child_frame_id={}",
+                        rule_name,
+                        target_gid.0,
+                        stack.frame_id_counter
+                    );
+
+                    stack.increment_frame_id_counter();
+                    stack.push(&mut frame);
+                    stack.push(&mut child_frame.clone());
+                    return Ok(FrameResult::Done);
+                }
+                None => {
+                    log::debug!(
+                        "Ref[table]: No child grammar and no dialect mapping for '{}', returning Empty",
+                        rule_name
+                    );
+                    stack
+                        .results
+                        .insert(frame.frame_id, (Node::Empty, start_pos, None));
+                    return Ok(FrameResult::Done);
+                }
+            }
+        }
+
+        let child_grammar_id = children[0];
+
+        // If the explicit child grammar allows gaps, collect leading transparent
+        // tokens so child parsing starts at the next non-transparent token.
+        let mut leading_transparent: Vec<Node> = Vec::new();
+        let child_inst = ctx.inst(child_grammar_id);
+        if child_inst.flags.allow_gaps() {
+            let ws = self.collect_transparent(true);
+            if !ws.is_empty() {
+                log::debug!(
+                    "Ref[table]: Collected {} leading transparent tokens for explicit child",
+                    ws.len()
+                );
+                leading_transparent = ws;
+            }
+        }
+
+        // Store context with collected leading transparent tokens
         frame.context = FrameContext::RefTableDriven {
             grammar_id,
             segment_type: Some(rule_name.clone()),
@@ -1672,34 +2217,27 @@ impl<'a> Parser<'a> {
             leading_transparent,
         };
 
+        // CRITICAL: Set parent frame state to WaitingForChild so it will
+        // retrieve the child result on the next iteration
         frame.state = FrameState::WaitingForChild {
             child_index: 0,
             total_children: 1,
         };
 
-        // Create child frame - get the first child (should be the referenced grammar)
-        let children: Vec<GrammarId> = ctx.children(grammar_id).collect();
-        if children.is_empty() {
-            // No child grammar - return Empty
-            log::debug!("Ref[table]: No child grammar, returning Empty");
-            stack
-                .results
-                .insert(frame.frame_id, (Node::Empty, start_pos, None));
-            return Ok(FrameResult::Done);
-        }
-
-        let child_grammar_id = children[0];
         let child_frame = crate::parser::ParseFrame::new_table_driven_child(
             stack.frame_id_counter,
             child_grammar_id,
-            start_pos,
+            self.pos,
             parent_terminators.to_vec(),
             frame.parent_max_idx,
         );
 
         log::debug!(
-            "Ref[table]: Parsing child grammar_id={}",
-            child_grammar_id.0
+            "Ref[table]: Parsing explicit child grammar_id={} (parent_frame_id={}, child_frame_id={}, start_pos={})",
+            child_grammar_id.0,
+            frame.frame_id,
+            stack.frame_id_counter,
+            self.pos
         );
 
         stack.increment_frame_id_counter();
@@ -1738,10 +2276,21 @@ impl<'a> Parser<'a> {
 
         // Store child result and transition to Combining
         if !child_node.is_empty() {
+            log::debug!(
+                "Ref[table]: frame_id={} child matched, accumulated_before={}, setting pos to {}",
+                frame.frame_id,
+                frame.accumulated.len(),
+                child_end_pos
+            );
             frame.accumulated.push(child_node.clone());
             self.pos = *child_end_pos;
             frame.end_pos = Some(*child_end_pos);
         } else {
+            log::debug!(
+                "Ref[table]: frame_id={} child was Empty, end_pos set to current pos {}",
+                frame.frame_id,
+                frame.pos
+            );
             frame.end_pos = Some(frame.pos);
         }
 
@@ -1927,6 +2476,153 @@ impl<'a> Parser<'a> {
         Ok(Node::DelimitedList {
             children: anything_tokens,
         })
+    }
+
+    /// Synchronous Delimited handler for table-driven parsing (conservative)
+    /// This is used by the non-iterative entry path (parse_with_grammar_id)
+    /// until the full iterative frames are exercised for delimited lists.
+    fn handle_delimited_table_driven(
+        &mut self,
+        grammar_id: GrammarId,
+        ctx: &GrammarContext,
+        parent_terminators: &[GrammarId],
+    ) -> Result<Node, ParseError> {
+        let inst = ctx.inst(grammar_id);
+        let start_pos = self.pos;
+
+        log::debug!(
+            "Delimited[table] (sync): pos={}, grammar_id={}, children={}",
+            start_pos,
+            grammar_id.0,
+            inst.child_count
+        );
+
+        // Get children: elements + delimiter
+        let all_children: Vec<GrammarId> = ctx.children(grammar_id).collect();
+        if all_children.len() < 2 {
+            log::debug!("Delimited[table]: not enough children, returning Empty");
+            return Ok(Node::Empty);
+        }
+
+        let delimiter_id = *all_children.last().unwrap();
+        let element_ids: Vec<GrammarId> = all_children[..all_children.len() - 1].to_vec();
+
+        // Get configuration from aux_data (delimiter child idx, min_delimiters)
+        let (_delim_child_idx, min_delimiters) = ctx.delimited_config(grammar_id);
+
+        // Filter delimiter out of terminators (prevent delimiter from terminating the list)
+        let filtered_parent_terminators: Vec<GrammarId> = parent_terminators
+            .iter()
+            .filter(|&t| *t != delimiter_id)
+            .copied()
+            .collect();
+
+        let local_terminators: Vec<GrammarId> = ctx.terminators(grammar_id).collect();
+        let filtered_local: Vec<GrammarId> = local_terminators
+            .iter()
+            .filter(|&t| *t != delimiter_id)
+            .copied()
+            .collect();
+
+        let all_terminators: Vec<GrammarId> = filtered_local
+            .into_iter()
+            .chain(filtered_parent_terminators)
+            .collect();
+
+        // Conservative synchronous implementation: try to parse a first element,
+        // then loop: try delimiter then element until delimiter/element fail or we hit terminator.
+        let mut children_nodes: Vec<Node> = Vec::new();
+        let mut delim_count: usize = 0;
+
+        // Try first element by attempting each element option (OneOf semantics)
+        let mut matched_first = false;
+        for &elem in &element_ids {
+            self.pos = start_pos;
+            match self.parse_with_grammar_id(elem, &all_terminators) {
+                Ok(node) if !node.is_empty() => {
+                    children_nodes.push(node);
+                    matched_first = true;
+                    break;
+                }
+                _ => {}
+            }
+        }
+
+        if !matched_first {
+            // Nothing matched
+            if inst.flags.optional() {
+                self.pos = start_pos;
+                return Ok(Node::Empty);
+            } else {
+                self.pos = start_pos;
+                return Ok(Node::Empty);
+            }
+        }
+
+        // Now try to consume (delimiter + element) pairs
+        loop {
+            let before_delim_pos = self.pos;
+
+            // Try delimiter
+            match self.parse_with_grammar_id(delimiter_id, &all_terminators) {
+                Ok(delim_node) if !delim_node.is_empty() => {
+                    // delimiter matched; now try element
+                    let after_delim_pos = self.pos;
+                    let mut matched_element = false;
+                    for &elem in &element_ids {
+                        self.pos = after_delim_pos;
+                        match self.parse_with_grammar_id(elem, &all_terminators) {
+                            Ok(el_node) if !el_node.is_empty() => {
+                                // element matched
+                                children_nodes.push(delim_node);
+                                children_nodes.push(el_node);
+                                delim_count += 1;
+                                matched_element = true;
+                                break;
+                            }
+                            _ => {}
+                        }
+                    }
+
+                    if !matched_element {
+                        // Rollback to before delimiter (treat as no more delimiters)
+                        self.pos = before_delim_pos;
+                        break;
+                    }
+                }
+                _ => {
+                    // delimiter didn't match - we're done
+                    self.pos = before_delim_pos;
+                    break;
+                }
+            }
+        }
+
+        // Validate min_delimiters
+        if delim_count < min_delimiters as usize {
+            log::debug!(
+                "Delimited[table]: only {} delimiters (< min {}), failing",
+                delim_count,
+                min_delimiters
+            );
+            self.pos = start_pos;
+            if inst.flags.optional() {
+                return Ok(Node::Empty);
+            } else {
+                return Ok(Node::Empty);
+            }
+        }
+
+        let final_pos = self.pos;
+        if children_nodes.is_empty() {
+            self.pos = start_pos;
+            Ok(Node::Empty)
+        } else {
+            self.pos = final_pos;
+            Ok(Node::DelimitedList {
+                children: children_nodes,
+            })
+        }
     }
 
     // ========================================================================
@@ -2132,9 +2828,13 @@ impl<'a> Parser<'a> {
                         total_children: 1,
                     };
 
-                    stack.increment_frame_id_counter();
-                    stack.push(&mut frame);
-                    stack.push(&mut delimiter_frame.clone());
+                    // Push parent and delimiter child while updating parent's last_child_frame_id
+                    crate::parser::ParseFrame::push_child_and_update_parent(
+                        stack,
+                        &mut frame,
+                        delimiter_frame,
+                        "Delimited",
+                    );
                     return Ok(FrameResult::Done);
                 } else {
                     // Element failed - finalize
@@ -2173,9 +2873,13 @@ impl<'a> Parser<'a> {
                         total_children: 1,
                     };
 
-                    stack.increment_frame_id_counter();
-                    stack.push(&mut frame);
-                    stack.push(&mut element_frame.clone());
+                    // Push parent and element child while updating parent's last_child_frame_id
+                    crate::parser::ParseFrame::push_child_and_update_parent(
+                        stack,
+                        &mut frame,
+                        element_frame,
+                        "Delimited",
+                    );
                     return Ok(FrameResult::Done);
                 } else {
                     // Delimiter failed - finalize (successful if we have min_delimiters)
@@ -2341,9 +3045,13 @@ impl<'a> Parser<'a> {
             open_bracket_id.0
         );
 
-        stack.increment_frame_id_counter();
-        stack.push(&mut frame);
-        stack.push(&mut open_frame.clone());
+        // Push parent and opening-bracket child while updating parent's last_child_frame_id
+        crate::parser::ParseFrame::push_child_and_update_parent(
+            stack,
+            &mut frame,
+            open_frame,
+            "Bracketed",
+        );
 
         Ok(FrameResult::Done)
     }
@@ -2490,9 +3198,13 @@ impl<'a> Parser<'a> {
                     total_children: 1,
                 };
 
-                stack.increment_frame_id_counter();
-                stack.push(&mut frame);
-                stack.push(&mut close_frame.clone());
+                // Push parent and close child while updating parent's last_child_frame_id
+                crate::parser::ParseFrame::push_child_and_update_parent(
+                    stack,
+                    &mut frame,
+                    close_frame,
+                    "Bracketed",
+                );
                 return Ok(FrameResult::Done);
             }
             BracketedState::MatchingClose => {

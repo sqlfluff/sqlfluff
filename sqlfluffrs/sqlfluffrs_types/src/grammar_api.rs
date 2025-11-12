@@ -84,14 +84,35 @@ impl<'a> GrammarContext<'a> {
     pub fn ref_name(&self, id: GrammarId) -> &'static str {
         let inst = self.inst(id);
         debug_assert_eq!(inst.variant, GrammarVariant::Ref);
-        self.tables.get_string(inst.first_child_idx)
+        // For Ref variant the generator stores the string index (name_id)
+        // directly in the AUX_DATA_OFFSETS table (aux_data_offset). Other
+        // variants store a pointer into AUX_DATA at that offset. Use the
+        // instruction variant to disambiguate.
+        let aux_off = self.tables.aux_data_offsets[id.get() as usize] as usize;
+        log::debug!(
+            "GrammarContext.ref_name: id={} aux_offset={}",
+            id.get(),
+            aux_off
+        );
+        // Interpret aux_off as the direct string index for Ref.
+        let name_idx = aux_off as u32;
+        log::debug!(
+            "GrammarContext.ref_name: id={} name_idx={} string='{}'",
+            id.get(),
+            name_idx,
+            self.tables.get_string(name_idx)
+        );
+        self.tables.get_string(name_idx)
     }
 
     /// Get string template (for StringParser/TypedParser/Token variants)
     #[inline]
     pub fn template(&self, id: GrammarId) -> &'static str {
         let inst = self.inst(id);
-        self.tables.get_string(inst.first_child_idx)
+        // Template index is stored in aux_data at the aux_data_offsets entry.
+        let aux_offset = self.tables.aux_data_offsets[id.get() as usize] as usize;
+        let template_idx = self.tables.aux_data[aux_offset];
+        self.tables.get_string(template_idx)
     }
 
     /// Get multiple string templates (for MultiStringParser)
@@ -100,13 +121,16 @@ impl<'a> GrammarContext<'a> {
         let inst = self.inst(id);
         debug_assert_eq!(inst.variant, GrammarVariant::MultiStringParser);
 
-        let start = inst.first_child_idx as usize;
-        let count = inst.child_count as usize;
+        // The generator stores metadata in aux_data at the instruction's
+        // aux_data_offsets entry. The metadata layout is:
+        // [templates_start, templates_count, token_type_id, raw_class_id]
+        let aux_offset = self.tables.aux_data_offsets[id.get() as usize] as usize;
+        let templates_start = self.tables.aux_data[aux_offset] as usize;
+        let templates_count = self.tables.aux_data[aux_offset + 1] as usize;
 
-        // Templates are stored as sequential string indices in aux_data
-        (0..count)
+        (0..templates_count)
             .map(|i| {
-                let str_idx = self.tables.aux_data[start + i];
+                let str_idx = self.tables.aux_data[templates_start + i];
                 self.tables.get_string(str_idx)
             })
             .collect()

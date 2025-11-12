@@ -736,6 +736,144 @@ impl Parser<'_> {
         }
     }
 
+    /// Iterative parser entry for table-driven grammars (by GrammarId).
+    /// Builds an initial table-driven ParseFrame and runs the same frame loop
+    /// as parse_iterative, but without Arc<Grammar>-based caching.
+    pub fn parse_table_driven_iterative(
+        &mut self,
+        grammar_id: sqlfluffrs_types::GrammarId,
+        parent_terminators: &[sqlfluffrs_types::GrammarId],
+    ) -> Result<Node, ParseError> {
+        // Create initial stack with a single table-driven frame
+        let mut stack = ParseFrameStack::new();
+        let initial_frame_id = stack.frame_id_counter;
+        stack.frame_id_counter += 1;
+
+        let initial_frame = ParseFrame::new_table_driven_child(
+            initial_frame_id,
+            grammar_id,
+            self.pos,
+            parent_terminators.to_vec(),
+            None,
+        );
+
+        stack.push(&mut initial_frame.clone());
+
+        let mut iteration_count = 0_usize;
+        let max_iterations = 1500000_usize;
+
+        'main_loop: while let Some(frame_from_stack) = stack.pop() {
+            iteration_count += 1;
+
+            if iteration_count > max_iterations {
+                // Try to recover by panicking with debug info
+                self.handle_max_iterations_exceeded(
+                    &mut stack,
+                    max_iterations,
+                    &mut frame_from_stack.clone(),
+                );
+            }
+
+            let mut frame = frame_from_stack;
+
+            // Log periodically
+            if iteration_count.is_multiple_of(5000) {
+                Self::log_frame_debug_info(&frame, &stack, iteration_count);
+            }
+
+            match frame.state {
+                FrameState::Initial => {
+                    match self.handle_frame_initial(frame, &mut stack, iteration_count)? {
+                        FrameResult::Done => continue 'main_loop,
+                        FrameResult::Push(mut updated_frame) => {
+                            stack.push(&mut updated_frame);
+                        }
+                    }
+                }
+                FrameState::WaitingForChild {
+                    child_index,
+                    total_children,
+                } => {
+                    match self.handle_waiting_for_child(
+                        frame,
+                        &mut stack,
+                        iteration_count,
+                        child_index,
+                        total_children,
+                    )? {
+                        FrameResult::Done => continue 'main_loop,
+                        FrameResult::Push(mut updated_frame) => {
+                            stack.push(&mut updated_frame);
+                        }
+                    }
+                }
+                FrameState::Combining => {
+                    // Delegate to combining handlers based on context
+                    match self.handle_combining(frame, &mut stack)? {
+                        FrameResult::Done => continue 'main_loop,
+                        FrameResult::Push(mut updated_frame) => {
+                            stack.push(&mut updated_frame);
+                        }
+                    }
+                }
+                FrameState::Complete(node) => {
+                    // If this is the top-level frame (frame_id==initial_frame_id), return result
+                    if frame.frame_id == initial_frame_id {
+                        log::debug!(
+                            "Top-level frame {} complete, returning result",
+                            frame.frame_id
+                        );
+                        self.pos = frame.end_pos.unwrap_or(self.pos);
+                        return Ok(node);
+                    }
+
+                    // Otherwise, this is a child frame - store result for parent to retrieve
+                    log::debug!(
+                        "Child frame {} complete, storing result in stack.results",
+                        frame.frame_id
+                    );
+                    let end_pos = frame.end_pos.unwrap_or(frame.pos);
+                    stack.results.insert(frame.frame_id, (node, end_pos, None));
+                    continue 'main_loop;
+                }
+            }
+        }
+
+        // No result found - return Empty
+        Ok(Node::Empty)
+    }
+
+    /// Helper that delegates combining state to the proper handler based on frame.context.
+    fn handle_combining(
+        &mut self,
+        frame: ParseFrame,
+        stack: &mut ParseFrameStack,
+    ) -> Result<FrameResult, ParseError> {
+        match &frame.context {
+            FrameContext::OneOfTableDriven { .. } => {
+                self.handle_oneof_table_driven_combining(frame, stack)
+            }
+            FrameContext::SequenceTableDriven { .. } => {
+                self.handle_sequence_table_driven_combining(frame, stack)
+            }
+            FrameContext::RefTableDriven { .. } => {
+                self.handle_ref_table_driven_combining(frame, stack)
+            }
+            FrameContext::DelimitedTableDriven { .. } => {
+                self.handle_delimited_table_driven_combining(frame, stack)
+            }
+            FrameContext::BracketedTableDriven { .. } => {
+                self.handle_bracketed_table_driven_combining(frame, stack)
+            }
+            FrameContext::AnyNumberOfTableDriven { .. } => {
+                self.handle_anynumberof_table_driven_combining(frame, stack)
+            }
+            _ => Err(ParseError::new(
+                "Unhandled combining context in table-driven loop".to_string(),
+            )),
+        }
+    }
+
     /// Checks the cache for a frame and handles cache hits. Returns FrameResult indicating what to do next.
     ///
     /// Cache hits are special: they bypass the normal state machine and insert results directly
@@ -964,8 +1102,132 @@ impl Parser<'_> {
                 &table_terminators,
                 stack,
             ),
+            GrammarVariant::Delimited => self.handle_delimited_table_driven_initial(
+                grammar_id,
+                frame,
+                &table_terminators,
+                stack,
+            ),
+            GrammarVariant::Bracketed => self.handle_bracketed_table_driven_initial(
+                grammar_id,
+                frame,
+                &table_terminators,
+                stack,
+            ),
+            GrammarVariant::AnyNumberOf | GrammarVariant::AnySetOf => {
+                // AnySetOf currently delegates to AnyNumberOf semantics in table-driven handlers
+                self.handle_anynumberof_table_driven_initial(
+                    grammar_id,
+                    frame,
+                    &table_terminators,
+                    stack,
+                )
+            }
             GrammarVariant::Ref => {
                 self.handle_ref_table_driven_initial(grammar_id, frame, &table_terminators, stack)
+            }
+            // Terminal/simple variants should be handled synchronously here
+            GrammarVariant::StringParser => {
+                // Synchronous match: call the table-driven string parser and store result for parent
+                let res = self.handle_string_parser_table_driven(grammar_id, ctx);
+                match res {
+                    Ok(node) => {
+                        // Insert result directly so parent frames can pick it up
+                        stack.results.insert(frame.frame_id, (node, self.pos, None));
+                        return Ok(FrameResult::Done);
+                    }
+                    Err(e) => return Err(e),
+                }
+            }
+            GrammarVariant::TypedParser => {
+                let res = self.handle_typed_parser_table_driven(grammar_id, ctx);
+                match res {
+                    Ok(node) => {
+                        stack.results.insert(frame.frame_id, (node, self.pos, None));
+                        return Ok(FrameResult::Done);
+                    }
+                    Err(e) => return Err(e),
+                }
+            }
+            GrammarVariant::MultiStringParser => {
+                let res = self.handle_multi_string_parser_table_driven(grammar_id, ctx);
+                match res {
+                    Ok(node) => {
+                        stack.results.insert(frame.frame_id, (node, self.pos, None));
+                        return Ok(FrameResult::Done);
+                    }
+                    Err(e) => return Err(e),
+                }
+            }
+            GrammarVariant::RegexParser => {
+                let res = self.handle_regex_parser_table_driven(grammar_id, ctx);
+                match res {
+                    Ok(node) => {
+                        stack.results.insert(frame.frame_id, (node, self.pos, None));
+                        return Ok(FrameResult::Done);
+                    }
+                    Err(e) => return Err(e),
+                }
+            }
+            GrammarVariant::Nothing => {
+                let res = self.handle_nothing_table_driven();
+                match res {
+                    Ok(node) => {
+                        stack.results.insert(frame.frame_id, (node, self.pos, None));
+                        return Ok(FrameResult::Done);
+                    }
+                    Err(e) => return Err(e),
+                }
+            }
+            GrammarVariant::Empty => {
+                let res = self.handle_empty_table_driven();
+                match res {
+                    Ok(node) => {
+                        stack.results.insert(frame.frame_id, (node, self.pos, None));
+                        return Ok(FrameResult::Done);
+                    }
+                    Err(e) => return Err(e),
+                }
+            }
+            GrammarVariant::Missing => {
+                let res = self.handle_missing_table_driven();
+                match res {
+                    Ok(node) => {
+                        stack.results.insert(frame.frame_id, (node, self.pos, None));
+                        return Ok(FrameResult::Done);
+                    }
+                    Err(e) => return Err(e),
+                }
+            }
+            GrammarVariant::Token => {
+                let res = self.handle_token_table_driven(grammar_id, ctx);
+                match res {
+                    Ok(node) => {
+                        stack.results.insert(frame.frame_id, (node, self.pos, None));
+                        return Ok(FrameResult::Done);
+                    }
+                    Err(e) => return Err(e),
+                }
+            }
+            GrammarVariant::Meta => {
+                let res = self.handle_meta_table_driven(grammar_id, ctx);
+                match res {
+                    Ok(node) => {
+                        stack.results.insert(frame.frame_id, (node, self.pos, None));
+                        return Ok(FrameResult::Done);
+                    }
+                    Err(e) => return Err(e),
+                }
+            }
+            GrammarVariant::NonCodeMatcher => {
+                let res = self.handle_noncode_matcher_table_driven();
+                match res {
+                    Ok(node) => {
+                        stack.results.insert(frame.frame_id, (node, self.pos, None));
+                        return Ok(FrameResult::Done);
+                    }
+                    Err(e) => return Err(e),
+                }
             }
             _ => {
                 // For now, other variants not implemented
@@ -1025,6 +1287,22 @@ impl Parser<'_> {
                 ..
             }
             | FrameContext::Delimited {
+                last_child_frame_id,
+                ..
+            }
+            | FrameContext::BracketedTableDriven {
+                last_child_frame_id,
+                ..
+            }
+            | FrameContext::DelimitedTableDriven {
+                last_child_frame_id,
+                ..
+            }
+            | FrameContext::AnySetOf {
+                last_child_frame_id,
+                ..
+            }
+            | FrameContext::AnyNumberOfTableDriven {
                 last_child_frame_id,
                 ..
             } => last_child_frame_id.expect("WaitingForChild should have last_child_frame_id set"),
