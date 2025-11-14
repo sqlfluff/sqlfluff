@@ -162,6 +162,10 @@ class FluffConfig:
             self._configs["core"]["dialect_obj"] = dialect_selector(dialect)
         elif require_dialect:
             self.verify_dialect_specified()
+        else:
+            # Default to ANSI dialect when none is specified
+            self._configs["core"]["dialect"] = "ansi"
+            self._configs["core"]["dialect_obj"] = dialect_selector("ansi")
 
     def verify_dialect_specified(self) -> None:
         """Check if the config specifies a dialect, raising an error if not.

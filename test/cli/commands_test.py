@@ -135,18 +135,21 @@ def test__cli__command_dialect():
     ],
 )
 def test__cli__command_no_dialect(command):
-    """Check the script raises the right exception no dialect."""
-    # The dialect is unknown should be a non-zero exit code
+    """Check the script defaults to ANSI dialect when no dialect is specified."""
+    # With no dialect specified, should default to ANSI and succeed
+    # Note: For lint command, we use --nofail to ignore lint violations
+    # which may occur due to formatting issues in the test input
+    args = [command, ["-"]]
+    if command == lint:
+        args = [command, ["--nofail", "-"]]
     result = invoke_assert_code(
-        ret_code=2,
-        args=[
-            command,
-            ["-"],
-        ],
-        cli_input="SELECT 1",
+        ret_code=0,
+        args=args,
+        cli_input="SELECT 1\n",
     )
-    assert "User Error" in result.stderr
-    assert "No dialect was specified" in result.stderr
+    assert "User Error" not in result.stderr
+    # No dialect specification error should occur anymore since we default to ANSI
+    assert "No dialect was specified" not in result.stderr
     # No traceback should be in the output
     assert "Traceback (most recent call last)" not in result.stderr
 
