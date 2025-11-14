@@ -1,0 +1,110 @@
+---
+# yamllint disable rule:empty-lines
+rule: TQ03
+
+# TQ03 now only handles empty batches (batches with only GO statements).
+# Newline handling is now done by LT15 with maximum_empty_lines_between_batches config.
+
+# Test cases for empty batches
+test_fail_empty_batch_1:
+  fail_str: |
+    CREATE TABLE dbo.test (
+        testcol1 INT NOT NULL,
+        testcol2 INT NOT NULL
+    );
+    GO
+    GO
+  fix_str: |
+    CREATE TABLE dbo.test (
+        testcol1 INT NOT NULL,
+        testcol2 INT NOT NULL
+    );
+    GO
+  configs:
+    core:
+      dialect: tsql
+
+test_fail_empty_batch_2:
+  fail_str: |
+    SELECT 1;
+    GO
+    GO
+  fix_str: |
+    SELECT 1;
+    GO
+  configs:
+    core:
+      dialect: tsql
+
+test_fail_empty_batch_3:
+  fail_str: |
+    SELECT 1;
+    GO
+    GO
+    SELECT 2;
+    GO
+  fix_str: |
+    SELECT 1;
+    GO
+    SELECT 2;
+    GO
+  configs:
+    core:
+      dialect: tsql
+
+test_fail_multiple_empty_batches:
+  fail_str: |
+    SELECT 1;
+    GO
+    GO
+    GO
+    SELECT 2;
+    GO
+  fix_str: |
+    SELECT 1;
+    GO
+    SELECT 2;
+    GO
+  configs:
+    core:
+      dialect: tsql
+
+# Test cases that should pass
+
+test_pass_no_empty_batches:
+  pass_str: |
+    SELECT 1;
+    SELECT 2;
+  configs:
+    core:
+      dialect: tsql
+
+test_pass_batch_with_content:
+  pass_str: |
+    CREATE TABLE dbo.test (
+        testcol1 INT NOT NULL,
+        testcol2 INT NOT NULL
+    );
+    GO
+    SELECT * FROM dbo.test;
+  configs:
+    core:
+      dialect: tsql
+
+test_pass_single_go:
+  pass_str: |
+    SELECT 1;
+    GO
+  configs:
+    core:
+      dialect: tsql
+
+test_pass_multiple_statements_with_go:
+  pass_str: |
+    SELECT 1;
+    GO
+    SELECT 2;
+    GO
+  configs:
+    core:
+      dialect: tsql

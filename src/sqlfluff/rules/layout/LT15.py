@@ -44,6 +44,7 @@ class Rule_LT15(BaseRule):
     config_keywords = [
         "maximum_empty_lines_between_statements",
         "maximum_empty_lines_inside_statements",
+        "maximum_empty_lines_between_batches",
     ]
     crawl_behaviour = SegmentSeekerCrawler(types={"newline"}, provide_raw_stack=True)
     is_fix_compatible = True
@@ -52,15 +53,26 @@ class Rule_LT15(BaseRule):
         """There should be a maximum number of empty lines."""
         self.maximum_empty_lines_between_statements: int
         self.maximum_empty_lines_inside_statements: int
+        self.maximum_empty_lines_between_batches: int
         context_seg = context.segment
 
-        maximum_empty_lines = (
-            self.maximum_empty_lines_inside_statements
-            if any(seg.is_type("statement") for seg in context.parent_stack)
-            else self.maximum_empty_lines_between_statements
-        )
+        # Determine the appropriate maximum based on context
+        # Check if we're inside a statement first (highest priority)
+        if any(seg.is_type("statement") for seg in context.parent_stack):
+            maximum_empty_lines = self.maximum_empty_lines_inside_statements
+        # Check if we're inside a batch but not in a statement
+        elif any(seg.is_type("batch") for seg in context.parent_stack):
+            # Inside a batch (between statements in a batch)
+            maximum_empty_lines = self.maximum_empty_lines_between_statements
+        # At file level - check dialect to determine if between batches or statements
+        elif context.dialect.name == "tsql":
+            # In T-SQL at file level, we're between batches
+            maximum_empty_lines = self.maximum_empty_lines_between_batches
+        else:
+            # Default: between statements
+            maximum_empty_lines = self.maximum_empty_lines_between_statements
 
-        if len(context.raw_stack) < maximum_empty_lines:
+        if len(context.raw_stack) < maximum_empty_lines:  # pragma: no cover
             return None
 
         for raw_seg in context.raw_stack[-maximum_empty_lines - 1 :]:
