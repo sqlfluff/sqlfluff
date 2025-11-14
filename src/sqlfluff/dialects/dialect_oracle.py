@@ -3091,11 +3091,8 @@ class DatabaseLinkReferenceSegment(ansi.ObjectReferenceSegment):
     """A reference to a database link."""
 
     type = "database_link_reference"
-    match_grammar: Matchable = AnyNumberOf(
-        Sequence(
-            Ref("SingleIdentifierGrammar"),
-            Ref("DotSegment", optional=True),
-        )
+    match_grammar: Matchable = Delimited(
+        Ref("SingleIdentifierGrammar"), delimiter=Ref("DotSegment")
     )
 
 
