@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 3dea0ed0320789e1e32f39116489553f21b5f9bdd65386036c72ea39db7b7aed
+_hash: 2b1294385e03e2a64a3a50db825f1eec286badbaaf5c79f08243ff7b4f9fa1c2
 file:
 - statement:
     delete_statement:
@@ -115,13 +115,13 @@ file:
             table_expression:
               table_reference:
                 naked_identifier: a
-      partition_clause:
-        keyword: PARTITION
-        bracketed:
-          start_bracket: (
-          object_reference:
-            naked_identifier: p
-          end_bracket: )
+            partition_clause:
+              keyword: PARTITION
+              bracketed:
+                start_bracket: (
+                object_reference:
+                  naked_identifier: p
+                end_bracket: )
       where_clause:
         keyword: WHERE
         expression:

@@ -1,7 +1,7 @@
 """Indent and Dedent classes."""
 
 from collections.abc import Sequence
-from typing import Optional
+from typing import TYPE_CHECKING, Optional
 from uuid import UUID
 
 from sqlfluff.core.parser.context import ParseContext
@@ -10,6 +10,9 @@ from sqlfluff.core.parser.match_result import MatchResult
 from sqlfluff.core.parser.segments.base import BaseSegment
 from sqlfluff.core.parser.segments.raw import RawSegment, SourceFix
 from sqlfluff.core.templaters.base import TemplatedFile
+
+if TYPE_CHECKING:  # pragma: no cover
+    from sqlfluffrs import RsToken
 
 
 class MetaSegment(RawSegment):
@@ -80,6 +83,19 @@ class MetaSegment(RawSegment):
         """
         return None
 
+    @classmethod
+    def from_rstoken(
+        cls,
+        token: "RsToken",
+        tf: "TemplatedFile",
+    ) -> "MetaSegment":
+        """Create a RawSegment from an RSQL token."""
+        segment = cls(
+            pos_marker=PositionMarker.from_rs_position_marker(token.pos_marker, tf),
+            block_uuid=token.block_uuid,
+        )
+        return segment
+
 
 class EndOfFile(MetaSegment):
     """A meta segment to indicate the end of the file."""
@@ -114,6 +130,7 @@ class Indent(MetaSegment):
 
     type = "indent"
     indent_val = 1
+    is_implicit = False
 
     def _suffix(self) -> str:
         """If present, output the block uuid."""
@@ -269,3 +286,14 @@ class TemplateSegment(MetaSegment):
             source_fixes=sf,
             block_uuid=self.block_uuid,
         )
+
+    @classmethod
+    def from_rstoken(cls, token: "RsToken", tf: TemplatedFile) -> "TemplateSegment":
+        """Create a TemplateSegment from a token."""
+        segment = cls(
+            pos_marker=PositionMarker.from_rs_position_marker(token.pos_marker, tf),
+            source_str=token.source_str,
+            block_type=token.block_type,
+            block_uuid=token.block_uuid,
+        )
+        return segment

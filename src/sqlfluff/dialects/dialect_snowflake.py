@@ -198,6 +198,22 @@ snowflake_dialect.sets("warehouse_sizes").update(
     ],
 )
 
+snowflake_dialect.sets("resource_constraints").clear()
+snowflake_dialect.sets("resource_constraints").update(
+    [
+        "STANDARD_GEN_1",
+        "STANDARD_GEN_2",
+        "MEMORY_1X",
+        "MEMORY_1X_x86",
+        "MEMORY_16X",
+        "MEMORY_16X_x86",
+        "MEMORY_64X",
+        "MEMORY_64X_x86",
+        "MEMORY_256X",
+        "MEMORY_256X_x86",
+    ],
+)
+
 snowflake_dialect.sets("warehouse_scaling_policies").clear()
 snowflake_dialect.sets("warehouse_scaling_policies").update(
     [
@@ -304,6 +320,22 @@ snowflake_dialect.add(
             [f"'{size}'" for size in snowflake_dialect.sets("warehouse_sizes")],
             CodeSegment,
             type="warehouse_size",
+        ),
+    ),
+    ResourceConstraint=OneOf(
+        MultiStringParser(
+            [
+                size
+                for size in snowflake_dialect.sets("resource_constraints")
+                if "-" not in size
+            ],
+            CodeSegment,
+            type="resource_constraint",
+        ),
+        MultiStringParser(
+            [f"'{size}'" for size in snowflake_dialect.sets("resource_constraints")],
+            CodeSegment,
+            type="resource_constraint",
         ),
     ),
     RefreshModeType=OneOf(
@@ -620,6 +652,22 @@ snowflake_dialect.add(
         ),
     ),
     AlterOrReplaceGrammar=OneOf(Sequence("OR", "ALTER"), Ref("OrReplaceGrammar")),
+    SearchMethodGrammar=OneOf("GEO", "SUBSTRING", "EQUALITY"),
+    SearchMethodWithTargetGrammar=Sequence(
+        Ref("SearchMethodGrammar"),
+        Bracketed(
+            OneOf(
+                Delimited(
+                    Sequence(
+                        Ref("ColumnReferenceSegment"),
+                        AnyNumberOf(Ref("AccessorGrammar")),
+                    )
+                ),
+                Ref("StarSegment"),
+            )
+        ),
+    ),
+    PurposeGrammar=OneOf("STEWARD", "SUPPORT", "ACCESS_APPROVAL"),
 )
 
 snowflake_dialect.replace(
@@ -1421,6 +1469,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("AlterRowAccessPolicyStatmentSegment"),
             Ref("AlterTagStatementSegment"),
             Ref("ExceptionBlockStatementSegment"),
+            Ref("AlterDynamicTableStatementSegment"),
             Ref("DropDynamicTableSegment"),
             Ref("DropIcebergTableStatementSegment"),
             Ref("CreateAuthenticationPolicySegment"),
@@ -1757,7 +1806,12 @@ class FromPivotExpressionSegment(BaseSegment):
             "IN",
             Bracketed(
                 OneOf(
-                    Delimited(Ref("LiteralGrammar")),
+                    Delimited(
+                        Sequence(
+                            Ref("LiteralGrammar"),
+                            Ref("AliasExpressionSegment", optional=True),
+                        )
+                    ),
                     Sequence("ANY", Ref("OrderByClauseSegment", optional=True)),
                     Ref("SelectStatementSegment"),
                 )
@@ -2101,10 +2155,7 @@ class DataGovernancePolicyTagActionSegment(BaseSegment):
             "SET",
             Ref("TagEqualsSegment"),
         ),
-        Sequence(
-            "UNSET",
-            Ref("TagEqualsSegment"),
-        ),
+        Sequence("UNSET", "TAG", Delimited(Ref("TagReferenceSegment"))),
         Sequence(
             "ADD",
             "ROW",
@@ -2470,6 +2521,161 @@ class AlterTableConstraintActionSegment(BaseSegment):
             Ref("NakedIdentifierSegment"),
             "TO",
             Ref("NakedIdentifierSegment"),
+        ),
+    )
+
+
+class SearchOptimizationActionSegment(BaseSegment):
+    """A search optimization action segment."""
+
+    type = "search_optimization_action"
+    match_grammar = Sequence(
+        OneOf(
+            Sequence(
+                "ADD",
+                "SEARCH",
+                "OPTIMIZATION",
+                Sequence(
+                    "ON",
+                    Delimited(Ref("SearchMethodWithTargetGrammar")),
+                    Ref.keyword("EQUALITY", optional=True),
+                    optional=True,
+                ),
+            ),
+            Sequence(
+                OneOf("DROP", "SUSPEND", "RESUME"),
+                "SEARCH",
+                "OPTIMIZATION",
+                Sequence(
+                    "ON",
+                    Delimited(
+                        Sequence(
+                            OneOf(
+                                Ref("SearchMethodWithTargetGrammar"),
+                                Ref("NumericLiteralSegment"),
+                                Ref("ColumnReferenceSegment"),
+                            ),
+                            Ref.keyword("EQUALITY", optional=True),
+                        )
+                    ),
+                ),
+                optional=True,
+            ),
+        ),
+    )
+
+
+class TableColumnCommentActionSegment(BaseSegment):
+    """A table column comment action segment."""
+
+    type = "table_column_comment_action"
+    match_grammar = Sequence(
+        OneOf("ALTER", "MODIFY"),
+        OptionallyBracketed(
+            Delimited(
+                Sequence(
+                    Ref.keyword("COLUMN", optional=True),
+                    Ref("ColumnReferenceSegment"),
+                    OneOf(
+                        Ref("CommentClauseSegment"),
+                        Sequence(
+                            "UNSET",
+                            "COMMENT",
+                        ),
+                    ),
+                )
+            )
+        ),
+    )
+
+
+class AlterDynamicTableStatementSegment(BaseSegment):
+    """An `ALTER DYNAMIC TABLE` Statement.
+
+    https://docs.snowflake.com/en/sql-reference/sql/alter-dynamic-table
+    """
+
+    type = "alter_dynamic_table_statement"
+    match_grammar = Sequence(
+        "ALTER",
+        "DYNAMIC",
+        "TABLE",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("TableReferenceSegment"),
+        OneOf(
+            "SUSPEND",
+            "RESUME",
+            Sequence("RENAME", "TO", Ref("TableReferenceSegment")),
+            Sequence("SWAP", "WITH", Ref("TableReferenceSegment")),
+            Sequence("REFRESH", Sequence("COPY", "SESSION", optional=True)),
+            Ref("AlterTableClusteringActionSegment"),
+            Ref("TableColumnCommentActionSegment"),
+            # TODO: Masking policy:
+            # This might go under the DataGovernancePolicyTagActionSegment
+            Ref("DataGovernancePolicyTagActionSegment"),
+            Ref("SearchOptimizationActionSegment"),
+            Sequence(
+                "SET",
+                AnySetOf(
+                    Ref("CommentEqualsClauseSegment"),
+                    Sequence(
+                        "TARGET_LAG",
+                        Ref("EqualsSegment"),
+                        OneOf(Ref("QuotedLiteralSegment"), "DOWNSTREAM"),
+                    ),
+                    Sequence(
+                        "WAREHOUSE",
+                        Ref("EqualsSegment"),
+                        OneOf(
+                            Ref("ObjectReferenceSegment"),
+                            Ref("QuotedLiteralSegment"),
+                        ),
+                    ),
+                    Sequence(
+                        "DATA_RETENTION_TIME_IN_DAYS",
+                        Ref("EqualsSegment"),
+                        Ref("NumericLiteralSegment"),
+                    ),
+                    Sequence(
+                        "MAX_DATA_EXTENSION_TIME_IN_DAYS",
+                        Ref("EqualsSegment"),
+                        Ref("NumericLiteralSegment"),
+                    ),
+                    Sequence(
+                        "DEFAULT_DDL_COLLATION",
+                        Ref("EqualsSegment"),
+                        Ref("QuotedLiteralSegment"),
+                    ),
+                    Ref("LogLevelEqualsSegment"),
+                    Sequence(
+                        "CONTACT",
+                        Bracketed(
+                            Delimited(
+                                Sequence(
+                                    Ref("PurposeGrammar"),
+                                    Ref("EqualsSegment"),
+                                    Ref("ObjectReferenceSegment"),
+                                )
+                            )
+                        ),
+                    ),
+                    Sequence("IMMUTABLE", "WHERE", Bracketed(Ref("ExpressionSegment"))),
+                    min_times=1,
+                ),
+            ),
+            Sequence(
+                "UNSET",
+                AnySetOf(
+                    "COMMENT",
+                    "DATA_RETENTION_TIME_IN_DAYS",
+                    "MAX_DATA_EXTENSION_TIME_IN_DAYS",
+                    "DEFAULT_DDL_COLLATION",
+                    "LOG_LEVEL",
+                    Sequence("CONTACT", Ref("PurposeGrammar")),
+                    "IMMUTABLE",
+                    min_times=1,
+                ),
+            ),
         ),
     )
 
@@ -3997,6 +4203,11 @@ class WarehouseObjectPropertiesSegment(BaseSegment):
             "WAREHOUSE_SIZE",
             Ref("EqualsSegment"),
             Ref("WarehouseSize"),
+        ),
+        Sequence(
+            "RESOURCE_CONSTRAINT",
+            Ref("EqualsSegment"),
+            Ref("ResourceConstraint"),
         ),
         Sequence(
             "WAIT_FOR_COMPLETION",
@@ -5901,6 +6112,11 @@ class CsvFileFormatTypeParameters(BaseSegment):
             "COMPRESSION",
             Ref("EqualsSegment"),
             Ref("CompressionType"),
+        ),
+        Sequence(
+            "MULTI_LINE",
+            Ref("EqualsSegment"),
+            Ref("BooleanLiteralGrammar"),
         ),
         Sequence("FILE_EXTENSION", Ref("EqualsSegment"), Ref("QuotedLiteralSegment")),
         Sequence(

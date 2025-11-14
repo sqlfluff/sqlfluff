@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 7a1735a4a357946077c4f0899da92e7c31142c471811f180afe87c51e1d3dc10
+_hash: c863677d1351916a63dadc7977a312e82b7aeaf4d1b6e536f9eb6318d723a4e9
 file:
 - batch:
     statement:
@@ -19,11 +19,11 @@ file:
             start_bracket: (
             parameter: '@DATE'
             data_type:
-              data_type_identifier: datetime
+              keyword: datetime
             end_bracket: )
       - keyword: RETURNS
       - data_type:
-          data_type_identifier: int
+          keyword: int
       - function_option_segment:
           keyword: WITH
           execute_as_clause:
@@ -40,10 +40,10 @@ file:
                   keyword: DECLARE
                   parameter: '@ISOweek'
                   data_type:
-                    data_type_identifier: int
-                  statement_terminator: ;
+                    keyword: int
+            - statement_terminator: ;
             - statement:
-                set_segment:
+                set_local_variable_segment:
                   keyword: SET
                   parameter: '@ISOweek'
                   assignment_operator:
@@ -61,7 +61,7 @@ file:
                             parameter: '@DATE'
                           end_bracket: )
                   - binary_operator: +
-                  - numeric_literal: '1'
+                  - integer_literal: '1'
                   - binary_operator: '-'
                   - function:
                       function_name:
@@ -92,18 +92,18 @@ file:
                                           end_bracket: )
                                   keyword: as
                                   data_type:
-                                    data_type_identifier: CHAR
+                                    keyword: CHAR
                                     bracketed_arguments:
                                       bracketed:
                                         start_bracket: (
                                         expression:
-                                          numeric_literal: '4'
+                                          integer_literal: '4'
                                         end_bracket: )
                                   end_bracket: )
                             binary_operator: +
                             quoted_literal: "'0104'"
                           end_bracket: )
-                  statement_terminator: ;
+            - statement_terminator: ;
             - statement:
                 if_then_statement:
                   if_clause:
@@ -115,10 +115,10 @@ file:
                           parameter: '@ISOweek'
                           comparison_operator:
                             raw_comparison_operator: '='
-                          numeric_literal: '0'
+                          integer_literal: '0'
                         end_bracket: )
                   statement:
-                    set_segment:
+                    set_local_variable_segment:
                       keyword: SET
                       parameter: '@ISOweek'
                       assignment_operator:
@@ -152,15 +152,15 @@ file:
                                                 parameter: '@DATE'
                                               end_bracket: )
                                         binary_operator: '-'
-                                        numeric_literal: '1'
+                                        integer_literal: '1'
                                       keyword: AS
                                       data_type:
-                                        data_type_identifier: CHAR
+                                        keyword: CHAR
                                         bracketed_arguments:
                                           bracketed:
                                             start_bracket: (
                                             expression:
-                                              numeric_literal: '4'
+                                              integer_literal: '4'
                                             end_bracket: )
                                       end_bracket: )
                               - binary_operator: +
@@ -173,7 +173,7 @@ file:
                                     bracketed:
                                       start_bracket: (
                                       expression:
-                                        numeric_literal: '24'
+                                        integer_literal: '24'
                                         binary_operator: +
                                         function:
                                           function_name:
@@ -188,18 +188,18 @@ file:
                                               end_bracket: )
                                       keyword: AS
                                       data_type:
-                                        data_type_identifier: CHAR
+                                        keyword: CHAR
                                         bracketed_arguments:
                                           bracketed:
                                             start_bracket: (
                                             expression:
-                                              numeric_literal: '2'
+                                              integer_literal: '2'
                                             end_bracket: )
                                       end_bracket: )
                               end_bracket: )
                         binary_operator: +
-                        numeric_literal: '1'
-                      statement_terminator: ;
+                        integer_literal: '1'
+                  statement_terminator: ;
             - statement:
                 if_then_statement:
                   if_clause:
@@ -224,7 +224,7 @@ file:
                                     end_bracket: )
                               comparison_operator:
                                 raw_comparison_operator: '='
-                              numeric_literal: '12'
+                              integer_literal: '12'
                             end_bracket: )
                         - binary_operator: AND
                         - bracketed:
@@ -260,18 +260,18 @@ file:
                               comparison_operator:
                               - raw_comparison_operator: '>'
                               - raw_comparison_operator: '='
-                              numeric_literal: '28'
+                              integer_literal: '28'
                             end_bracket: )
                         end_bracket: )
                   statement:
-                    set_segment:
+                    set_local_variable_segment:
                       keyword: SET
                       parameter: '@ISOweek'
                       assignment_operator:
                         raw_comparison_operator: '='
                       expression:
-                        numeric_literal: '1'
-                      statement_terminator: ;
+                        integer_literal: '1'
+                  statement_terminator: ;
             - statement:
                 return_segment:
                   keyword: RETURN
@@ -281,11 +281,11 @@ file:
                       expression:
                         parameter: '@ISOweek'
                       end_bracket: )
-                  statement_terminator: ;
+            - statement_terminator: ;
             - keyword: END
           statement_terminator: ;
-- go_statement:
-    keyword: GO
+    go_statement:
+      keyword: GO
 - batch:
     statement:
       create_function_statement:
@@ -305,7 +305,7 @@ file:
           column_definition:
             naked_identifier: i
             data_type:
-              data_type_identifier: int
+              keyword: int
           end_bracket: )
       - keyword: AS
       - procedure_statement:
@@ -322,16 +322,16 @@ file:
                     select_clause:
                       keyword: SELECT
                       select_clause_element:
-                        numeric_literal: '1'
-                    statement_terminator: ;
+                        integer_literal: '1'
+            - statement_terminator: ;
             - statement:
                 return_segment:
                   keyword: RETURN
-                  statement_terminator: ;
+            - statement_terminator: ;
             - keyword: END
           statement_terminator: ;
-- go_statement:
-    keyword: GO
+    go_statement:
+      keyword: GO
 - batch:
     statement:
       create_function_statement:
@@ -347,11 +347,11 @@ file:
             parameter: '@DATE'
             keyword: as
             data_type:
-              data_type_identifier: datetime
+              keyword: datetime
             end_bracket: )
       - keyword: RETURNS
       - data_type:
-          data_type_identifier: INT
+          keyword: INT
       - keyword: AS
       - procedure_statement:
           statement:
@@ -361,11 +361,11 @@ file:
                 return_segment:
                   keyword: RETURN
                   expression:
-                    numeric_literal: '1'
+                    integer_literal: '1'
             - keyword: END
           statement_terminator: ;
-- go_statement:
-    keyword: GO
+    go_statement:
+      keyword: GO
 - batch:
     statement:
       create_function_statement:
@@ -379,11 +379,11 @@ file:
             parameter: '@DATE'
             keyword: as
             data_type:
-              data_type_identifier: datetime
+              keyword: datetime
             end_bracket: )
       - keyword: RETURNS
       - data_type:
-          data_type_identifier: INT
+          keyword: INT
       - keyword: AS
       - procedure_statement:
           statement:
@@ -393,11 +393,11 @@ file:
                 return_segment:
                   keyword: RETURN
                   expression:
-                    numeric_literal: '0'
+                    integer_literal: '0'
             - keyword: END
           statement_terminator: ;
-- go_statement:
-    keyword: GO
+    go_statement:
+      keyword: GO
 - batch:
     statement:
       create_function_statement:
@@ -417,7 +417,7 @@ file:
             end_bracket: )
       - keyword: RETURNS
       - data_type:
-          data_type_identifier: nvarchar
+          keyword: nvarchar
           bracketed_arguments:
             bracketed:
               start_bracket: (
@@ -433,7 +433,7 @@ file:
                   keyword: DECLARE
                   parameter: '@str'
                   data_type:
-                    data_type_identifier: nvarchar
+                    keyword: nvarchar
                     bracketed_arguments:
                       bracketed:
                         start_bracket: (
@@ -448,14 +448,15 @@ file:
                   select_clause:
                     keyword: SELECT
                     select_clause_element:
-                      expression:
-                      - parameter: '@str'
-                      - comparison_operator:
+                      select_variable_assignment:
+                        parameter: '@str'
+                        assignment_operator:
                           raw_comparison_operator: '='
-                      - parameter: '@str'
-                      - binary_operator: +
-                      - column_reference:
-                          quoted_identifier: '[item]'
+                        expression:
+                          parameter: '@str'
+                          binary_operator: +
+                          column_reference:
+                            quoted_identifier: '[item]'
                   from_clause:
                     keyword: FROM
                     from_expression:
@@ -471,7 +472,7 @@ file:
                                   bracketed:
                                     start_bracket: (
                                     expression:
-                                      numeric_literal: '9999'
+                                      integer_literal: '9999'
                                     end_bracket: )
                                 select_clause_element:
                                   column_reference:
@@ -498,8 +499,8 @@ file:
                     parameter: '@str'
             - keyword: END
           statement_terminator: ;
-- go_statement:
-    keyword: GO
+    go_statement:
+      keyword: GO
 - batch:
     statement:
       create_function_statement:
@@ -512,11 +513,11 @@ file:
             start_bracket: (
             parameter: '@my_parameter'
             data_type:
-              data_type_identifier: int
+              keyword: int
             end_bracket: )
       - keyword: returns
       - data_type:
-          data_type_identifier: int
+          keyword: int
       - function_option_segment:
         - keyword: with
         - keyword: schemabinding
@@ -536,5 +537,5 @@ file:
                   expression:
                     parameter: '@my_parameter'
             - keyword: end
-- go_statement:
-    keyword: go
+    go_statement:
+      keyword: go

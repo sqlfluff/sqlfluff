@@ -103,6 +103,8 @@ class Rule_RF04(BaseRule):
                 in context.dialect.sets("unreserved_keywords")
                 or context.segment.raw.upper()[1:-1]
                 in context.dialect.sets("reserved_keywords")
+                or context.segment.raw.upper()[1:-1]
+                in context.dialect.sets("future_reserved_keywords")
             )
         ):
             return LintResult(anchor=context.segment)

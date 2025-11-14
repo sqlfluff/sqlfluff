@@ -15,7 +15,9 @@ from sqlfluff.core.parser.segments import (
     BaseSegment,
     Dedent,
     EndOfFile,
+    ImplicitIndent,
     Indent,
+    LiteralKeywordSegment,
     MetaSegment,
     RawSegment,
     TemplateLoop,
@@ -723,7 +725,7 @@ def _iter_segments(
         )
 
 
-class Lexer:
+class PyLexer:
     """The Lexer class actually does the lexing step."""
 
     def __init__(
@@ -756,6 +758,7 @@ class Lexer:
         found something that we cannot lex. If that happens we should
         package it up as unlexable and keep track of the exceptions.
         """
+        lexer_logger.info("Lexing file using PyLexer.")
         # Make sure we've got a string buffer and a template
         # regardless of what was passed in.
         if isinstance(raw, str):
@@ -825,7 +828,9 @@ class Lexer:
         return tuple(segment_buffer)
 
     @staticmethod
-    def violations_from_segments(segments: tuple[RawSegment, ...]) -> list[SQLLexError]:
+    def violations_from_segments(
+        segments: tuple[RawSegment, ...],
+    ) -> list[SQLLexError]:
         """Generate any lexing errors for any unlexables."""
         violations = []
         for segment in segments:
@@ -887,3 +892,88 @@ class Lexer:
                     f"{template.templated_str[template_slice]!r}"
                 )
         return templated_buff
+
+
+try:
+    from sqlfluffrs import RsLexer, RsToken
+
+    def get_segment_type_map(base_class: type) -> dict[str, type[RawSegment]]:
+        """Dynamically create a map of segment types to their subclasses."""
+        segment_map = {}
+        for subclass in base_class.__subclasses__():
+            if subclass is LiteralKeywordSegment or subclass is ImplicitIndent:
+                continue
+            if (
+                hasattr(subclass, "type") and subclass.type
+            ):  # Ensure the subclass has a type
+                segment_map[subclass.type] = subclass
+            # Recursively add subclasses of subclasses
+            segment_map.update(get_segment_type_map(subclass))
+        return segment_map
+
+    # Dynamically generate the segment_types map
+    segment_types = get_segment_type_map(RawSegment)
+
+    class PyRsLexer(RsLexer):
+        """A wrapper around the sqlfluffrs lexer."""
+
+        @staticmethod
+        def _tokens_to_segments(
+            tokens: list["RsToken"], py_template: TemplatedFile
+        ) -> tuple[BaseSegment, ...]:
+            """Convert tokens to segments."""
+            return tuple(
+                segment_types.get(token.type, RawSegment).from_rstoken(
+                    token, py_template
+                )
+                for token in tokens
+            )
+
+        def lex(
+            self, raw: Union[str, TemplatedFile]
+        ) -> tuple[tuple[BaseSegment, ...], list[SQLLexError]]:
+            """Take a string or TemplatedFile and return segments."""
+            lexer_logger.info("Lexing file using RsLexer.")
+            tokens, errors = self._lex(raw)
+            first_token = tokens[0]
+            assert first_token
+            template = first_token.pos_marker.templated_file
+            py_template = TemplatedFile(
+                template.source_str,
+                template.fname,
+                template.templated_str,
+                template.sliced_file,  # type: ignore
+                template.raw_sliced,  # type: ignore
+            )
+
+            return (
+                self._tokens_to_segments(tokens, py_template),
+                [SQLLexError.from_rs_error(error) for error in errors],
+            )
+
+    _HAS_RUST_LEXER = True
+except ImportError:
+    PyRsLexer = None  # type: ignore[assignment, misc]
+    _HAS_RUST_LEXER = False
+
+
+def get_lexer_class() -> type[Union[PyLexer, "PyRsLexer"]]:
+    """Get the appropriate lexer class based on availability.
+
+    Returns PyRsLexer if the Rust extension is available,
+    otherwise returns PyLexer.
+
+    This function provides a single point of lexer selection,
+    making it easy to instantiate the correct lexer:
+
+        Lexer = get_lexer_class()
+        lexer = Lexer(config=config)
+
+    Returns:
+        The lexer class to use (PyRsLexer or PyLexer).
+    """
+    if _HAS_RUST_LEXER:
+        lexer_logger.info("Rust extensions are available. Using PyRsLexer.")
+        return PyRsLexer
+    lexer_logger.info("Rust extensions are not available. Using PyLexer.")
+    return PyLexer
