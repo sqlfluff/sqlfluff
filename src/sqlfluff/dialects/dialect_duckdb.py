@@ -171,6 +171,12 @@ duckdb_dialect.replace(
     LikeGrammar=postgres_dialect.get_grammar("LikeGrammar").copy(
         insert=[Ref.keyword("GLOB")],
     ),
+    FilterClauseGrammar=Sequence(
+        "FILTER",
+        Bracketed(
+            Sequence(Ref.keyword("WHERE", optional=True), Ref("ExpressionSegment"))
+        ),
+    ),
 )
 
 duckdb_dialect.insert_lexer_matchers(
