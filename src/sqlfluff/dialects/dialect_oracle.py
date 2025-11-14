@@ -1405,8 +1405,10 @@ class ColumnDefinitionSegment(BaseSegment):
                     optional=True,
                 ),
                 AnyNumberOf(
-                    Ref("ColumnConstraintSegment", optional=True),
-                    OneOf("ENABLE", "DISABLE", optional=True),
+                    Sequence(
+                        Ref("ColumnConstraintSegment"),
+                        OneOf("ENABLE", "DISABLE", optional=True),
+                    )
                 ),
                 Ref("IdentityClauseGrammar", optional=True),
             ),
