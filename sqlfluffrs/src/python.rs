@@ -1,11 +1,11 @@
-use crate::lexer::python::{PyLexer, PySQLLexError};
-use crate::marker::python::PyPositionMarker;
-use crate::templater::{
+use pyo3::prelude::*;
+use sqlfluffrs_lexer::{PyLexer, PySQLLexError};
+use sqlfluffrs_types::templater::{
     fileslice::python::{PyRawFileSlice, PyTemplatedFileSlice},
     templatefile::python::PyTemplatedFile,
 };
-use crate::token::python::PyToken;
-use pyo3::prelude::*;
+use sqlfluffrs_types::PyPositionMarker;
+use sqlfluffrs_types::PyToken;
 
 /// A Python module implemented in Rust.
 #[pymodule(name = "sqlfluffrs", module = "sqlfluffrs")]

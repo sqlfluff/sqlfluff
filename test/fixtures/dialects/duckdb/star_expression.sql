@@ -35,3 +35,8 @@ SELECT COLUMNS(['id', 'num']) FROM numbers;
 
 SELECT COALESCE(*COLUMNS([upper(x) for x in ['a', 'b', 'c']])) AS result
 FROM (SELECT NULL AS a, 42 AS b, true AS c);
+
+-- test trailing commas
+SELECT * EXCLUDE (a, b, c,) FROM tbl;
+SELECT * REPLACE (a + 1 as a, b || 'c' as b,) FROM TBL;
+SELECT * RENAME (a as apple, b as berry,) FROM TBL;

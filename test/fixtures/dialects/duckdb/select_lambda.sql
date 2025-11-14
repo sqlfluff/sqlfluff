@@ -11,3 +11,6 @@ SELECT list_transform(
 
 -- lambda with index
 SELECT list_filter([1, 3, 1, 5], (x, i) -> x > i);
+
+-- new lambda syntax, introduced in v1.3
+SELECT list_transform([4, 5, 6], lambda x: x + 1);

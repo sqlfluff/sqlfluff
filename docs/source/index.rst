@@ -18,6 +18,8 @@ Notable releases:
   and the `--force` option was removed. Richer information returned by the
   :code:`sqlfluff lint` command (although in a different structure to previous
   versions). See :ref:`upgrading_3_0`.
+* **4.0.x**: First release with optional rust routines. An install with
+  :code:`sqlfluff[rs]` will now include the rust routines. See :ref:`upgrading_4_0`.
 
 For more detail on other releases, see our :ref:`releasenotes`.
 
