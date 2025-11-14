@@ -1,0 +1,515 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 89c7f2329af84ad261f2535ffb85fcfdf73ecb75819e2ef2c041b6f5e5791aa0
+file:
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+              - parameterized_expression:
+                  pipeline_parameter: ${source_catalog}
+              - dot: .
+              - naked_identifier: silver
+              - dot: .
+              - naked_identifier: payments
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+              - parameterized_expression:
+                  pipeline_parameter: ${source_catalog_main}
+              - dot: .
+              - naked_identifier: silver
+              - dot: .
+              - naked_identifier: payments
+      where_clause:
+        keyword: WHERE
+        expression:
+          column_reference:
+            naked_identifier: amount
+          comparison_operator:
+            raw_comparison_operator: '>'
+          numeric_literal: '100'
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+              - parameterized_expression:
+                  pipeline_parameter: ${source_catalog}
+              - dot: .
+              - parameterized_expression:
+                  pipeline_parameter: ${source_schema}
+              - dot: .
+              - parameterized_expression:
+                  pipeline_parameter: ${source_table}
+      where_clause:
+        keyword: WHERE
+        expression:
+          column_reference:
+            naked_identifier: date
+          comparison_operator:
+            raw_comparison_operator: '>'
+          quoted_literal: "'2023-01-01'"
+- statement_terminator: ;
+- statement:
+    use_catalog_statement:
+    - keyword: USE
+    - keyword: CATALOG
+    - catalog_reference:
+        parameterized_expression:
+          pipeline_parameter: ${target_catalog}
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REFRESH
+    - keyword: STREAMING
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: processed_data
+    - keyword: AS
+    - select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+              naked_identifier: transaction_id
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: amount
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: customer_id
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                - parameterized_expression:
+                    pipeline_parameter: ${source_catalog}
+                - dot: .
+                - naked_identifier: raw
+                - dot: .
+                - naked_identifier: transactions
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+          - naked_identifier: a
+          - dot: .
+          - naked_identifier: id
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+          - naked_identifier: b
+          - dot: .
+          - naked_identifier: name
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+              - parameterized_expression:
+                  pipeline_parameter: ${source_catalog}
+              - dot: .
+              - naked_identifier: schema1
+              - dot: .
+              - naked_identifier: table1
+            alias_expression:
+              alias_operator:
+                keyword: AS
+              naked_identifier: a
+          join_clause:
+          - keyword: INNER
+          - keyword: JOIN
+          - from_expression_element:
+              table_expression:
+                table_reference:
+                - parameterized_expression:
+                    pipeline_parameter: ${target_catalog}
+                - dot: .
+                - naked_identifier: schema2
+                - dot: .
+                - naked_identifier: table2
+              alias_expression:
+                alias_operator:
+                  keyword: AS
+                naked_identifier: b
+          - join_on_condition:
+              keyword: 'ON'
+              expression:
+              - column_reference:
+                - naked_identifier: a
+                - dot: .
+                - naked_identifier: id
+              - comparison_operator:
+                  raw_comparison_operator: '='
+              - column_reference:
+                - naked_identifier: b
+                - dot: .
+                - naked_identifier: id
+- statement_terminator: ;
+- statement:
+    create_view_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REFRESH
+    - keyword: MATERIALIZED
+    - keyword: VIEW
+    - table_reference:
+        naked_identifier: aggregated_data
+    - keyword: AS
+    - select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+              naked_identifier: customer_id
+        - comma: ','
+        - select_clause_element:
+            function:
+              function_name:
+                function_name_identifier: SUM
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                      naked_identifier: amount
+                  end_bracket: )
+            alias_expression:
+              alias_operator:
+                keyword: AS
+              naked_identifier: total_amount
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                - parameterized_expression:
+                    pipeline_parameter: ${source_catalog}
+                - dot: .
+                - naked_identifier: silver
+                - dot: .
+                - naked_identifier: payments
+        groupby_clause:
+        - keyword: GROUP
+        - keyword: BY
+        - column_reference:
+            naked_identifier: customer_id
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+              - parameterized_expression:
+                  pipeline_parameter: ${source_catalog}
+              - dot: .
+              - naked_identifier: silver
+              - dot: .
+              - naked_identifier: payments
+      where_clause:
+        keyword: WHERE
+        expression:
+        - column_reference:
+            naked_identifier: customer_id
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - parameterized_expression:
+            colon: ':'
+            naked_identifier: customer_id
+        - binary_operator: AND
+        - column_reference:
+            naked_identifier: amount
+        - comparison_operator:
+            raw_comparison_operator: '>'
+        - parameterized_expression:
+            colon: ':'
+            naked_identifier: min_amount
+- statement_terminator: ;
+- statement:
+    insert_statement:
+    - keyword: INSERT
+    - keyword: INTO
+    - table_reference:
+      - parameterized_expression:
+          pipeline_parameter: ${target_catalog}
+      - dot: .
+      - naked_identifier: gold
+      - dot: .
+      - naked_identifier: summary
+    - select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+              naked_identifier: date
+        - comma: ','
+        - select_clause_element:
+            function:
+              function_name:
+                function_name_identifier: COUNT
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  star: '*'
+                  end_bracket: )
+            alias_expression:
+              alias_operator:
+                keyword: AS
+              naked_identifier: transaction_count
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                - parameterized_expression:
+                    pipeline_parameter: ${source_catalog}
+                - dot: .
+                - naked_identifier: silver
+                - dot: .
+                - naked_identifier: payments
+        groupby_clause:
+        - keyword: GROUP
+        - keyword: BY
+        - column_reference:
+            naked_identifier: date
+- statement_terminator: ;
+- statement:
+    update_statement:
+      keyword: UPDATE
+      table_reference:
+      - parameterized_expression:
+          pipeline_parameter: ${target_catalog}
+      - dot: .
+      - naked_identifier: gold
+      - dot: .
+      - naked_identifier: customer_stats
+      set_clause_list:
+        keyword: SET
+        set_clause:
+          column_reference:
+            naked_identifier: last_updated
+          comparison_operator:
+            raw_comparison_operator: '='
+          function:
+            function_name:
+              function_name_identifier: CURRENT_TIMESTAMP
+            function_contents:
+              bracketed:
+                start_bracket: (
+                end_bracket: )
+      where_clause:
+        keyword: WHERE
+        expression:
+          column_reference:
+            naked_identifier: customer_id
+          comparison_operator:
+            raw_comparison_operator: '='
+          parameterized_expression:
+            colon: ':'
+            naked_identifier: customer_id
+- statement_terminator: ;
+- statement:
+    delete_statement:
+      keyword: DELETE
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+              - parameterized_expression:
+                  pipeline_parameter: ${target_catalog}
+              - dot: .
+              - naked_identifier: staging
+              - dot: .
+              - naked_identifier: temp_data
+      where_clause:
+        keyword: WHERE
+        expression:
+          column_reference:
+            naked_identifier: process_date
+          comparison_operator:
+            raw_comparison_operator: <
+          function:
+            function_name:
+              function_name_identifier: CURRENT_DATE
+            function_contents:
+              bracketed:
+                start_bracket: (
+                end_bracket: )
+          binary_operator: '-'
+          interval_expression:
+            keyword: INTERVAL
+            interval_literal:
+              numeric_literal: '7'
+              date_part: DAYS
+- statement_terminator: ;
+- statement:
+    use_database_statement:
+    - keyword: USE
+    - keyword: SCHEMA
+    - database_reference:
+        identifier_clause_segment:
+          keyword: IDENTIFIER
+          bracketed:
+            start_bracket: (
+            expression:
+              parameterized_expression:
+                pipeline_parameter: ${schema_name}
+            end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_catalog_statement:
+    - keyword: CREATE
+    - keyword: CATALOG
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - catalog_reference:
+        parameterized_expression:
+          pipeline_parameter: ${new_catalog}
+- statement_terminator: ;
+- statement:
+    alter_catalog_statement:
+    - keyword: ALTER
+    - keyword: CATALOG
+    - catalog_reference:
+        parameterized_expression:
+          pipeline_parameter: ${source_catalog}
+    - keyword: SET
+    - keyword: OWNER
+    - keyword: TO
+    - quoted_identifier: '`data_team`'
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REFRESH
+    - keyword: STREAMING
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: customer_silver
+    - keyword: AS
+    - select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                naked_identifier: c
+                dot: .
+                star: '*'
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+            - naked_identifier: p
+            - dot: .
+            - naked_identifier: total_purchases
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              keyword: STREAM
+              bracketed:
+                start_bracket: (
+                table_expression:
+                  table_reference:
+                  - parameterized_expression:
+                      pipeline_parameter: ${bronze_catalog}
+                  - dot: .
+                  - naked_identifier: customers
+                  - dot: .
+                  - naked_identifier: raw_customers
+                end_bracket: )
+              alias_expression:
+                alias_operator:
+                  keyword: AS
+                naked_identifier: c
+            join_clause:
+            - keyword: LEFT
+            - keyword: JOIN
+            - from_expression_element:
+                table_expression:
+                  table_reference:
+                  - parameterized_expression:
+                      pipeline_parameter: ${gold_catalog}
+                  - dot: .
+                  - naked_identifier: analytics
+                  - dot: .
+                  - naked_identifier: customer_purchases
+                alias_expression:
+                  alias_operator:
+                    keyword: AS
+                  naked_identifier: p
+            - join_on_condition:
+                keyword: 'ON'
+                expression:
+                - column_reference:
+                  - naked_identifier: c
+                  - dot: .
+                  - naked_identifier: customer_id
+                - comparison_operator:
+                    raw_comparison_operator: '='
+                - column_reference:
+                  - naked_identifier: p
+                  - dot: .
+                  - naked_identifier: customer_id
+- statement_terminator: ;
