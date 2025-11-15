@@ -1,0 +1,125 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 14c9d5a8984490d56c4834a0901474fbc6c7025b2487609be236b162fbda88bb
+file:
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+            quoted_literal: "'Math'"
+            keyword: IN
+            bracketed:
+            - start_bracket: (
+            - quoted_literal: "'CS'"
+            - comma: ','
+            - quoted_literal: "'Math'"
+            - end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+            numeric_literal: '42'
+            keyword: IN
+            bracketed:
+              start_bracket: (
+              select_statement:
+                select_clause:
+                  keyword: SELECT
+                  select_clause_element:
+                    function:
+                      function_name:
+                        function_name_identifier: unnest
+                      function_contents:
+                        bracketed:
+                          start_bracket: (
+                          expression:
+                            array_literal:
+                            - start_square_bracket: '['
+                            - numeric_literal: '32'
+                            - comma: ','
+                            - numeric_literal: '42'
+                            - comma: ','
+                            - numeric_literal: '52'
+                            - end_square_bracket: ']'
+                          end_bracket: )
+                    alias_expression:
+                      alias_operator:
+                        keyword: AS
+                      naked_identifier: x
+              end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+          - quoted_literal: "'Hello'"
+          - keyword: IN
+          - quoted_literal: "'Hello World'"
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+            numeric_literal: '1'
+            keyword: IN
+            array_literal:
+            - start_square_bracket: '['
+            - numeric_literal: '1'
+            - comma: ','
+            - numeric_literal: '2'
+            - comma: ','
+            - numeric_literal: '3'
+            - end_square_bracket: ']'
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+            numeric_literal: '17'
+            keyword: in
+            array_literal:
+            - start_square_bracket: '['
+            - column_reference:
+                naked_identifier: x
+            - comma: ','
+            - column_reference:
+                naked_identifier: y
+            - comma: ','
+            - column_reference:
+                naked_identifier: z
+            - end_square_bracket: ']'
+      from_clause:
+        keyword: from
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: t
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+          - column_reference:
+              naked_identifier: x
+          - keyword: NOT
+          - keyword: IN
+          - column_reference:
+              naked_identifier: y
+- statement_terminator: ;
