@@ -475,45 +475,54 @@ def rebreak_sequence(
                 # to negotiate around. In this case, we _move the target_
                 # rather than just adjusting the whitespace.
 
-                # Delete the existing position of the target, and
-                # the _preceding_ point.
-                fixes.append(LintFix.delete(loc.target))
-                for seg in elem_buff[loc.prev.adj_pt_idx].segments:
-                    if not seg.is_type("dedent"):
-                        fixes.append(LintFix.delete(seg))
+                try:
+                    # Delete the existing position of the target, and
+                    # the _preceding_ point.
+                    fixes.append(LintFix.delete(loc.target))
+                    for seg in elem_buff[loc.prev.adj_pt_idx].segments:
+                        if not seg.is_type("dedent"):
+                            fixes.append(LintFix.delete(seg))
 
-                # We always reinsert after the first point, but respace
-                # the inserted point to ensure it's the right size given
-                # configs.
-                new_results, new_point = ReflowPoint(()).respace_point(
-                    cast(ReflowBlock, elem_buff[loc.next.adj_pt_idx - 1]),
-                    cast(ReflowBlock, elem_buff[loc.next.pre_code_pt_idx + 1]),
-                    root_segment=root_segment,
-                    lint_results=[],
-                    anchor_on="after",
-                )
-
-                create_anchor = first_create_anchor(
-                    elem_buff,
-                    range(loc.next.pre_code_pt_idx, loc.next.adj_pt_idx - 1, -1),
-                )[-1]
-
-                fixes.append(
-                    LintFix.create_after(
-                        create_anchor,
-                        [loc.target],
+                    # We always reinsert after the first point, but respace
+                    # the inserted point to ensure it's the right size given
+                    # configs.
+                    new_results, new_point = ReflowPoint(()).respace_point(
+                        cast(ReflowBlock, elem_buff[loc.next.adj_pt_idx - 1]),
+                        cast(ReflowBlock, elem_buff[loc.next.pre_code_pt_idx + 1]),
+                        root_segment=root_segment,
+                        lint_results=[],
+                        anchor_on="after",
                     )
-                )
 
-                elem_buff = (
-                    elem_buff[: loc.prev.adj_pt_idx]
-                    + elem_buff[loc.next.adj_pt_idx : loc.next.pre_code_pt_idx + 1]
-                    + elem_buff[
-                        loc.prev.adj_pt_idx + 1 : loc.next.adj_pt_idx
-                    ]  # the target
-                    + [new_point]
-                    + elem_buff[loc.next.pre_code_pt_idx + 1 :]
-                )
+                    create_anchor = first_create_anchor(
+                        elem_buff,
+                        range(loc.next.pre_code_pt_idx, loc.next.adj_pt_idx - 1, -1),
+                    )[-1]
+
+                    fixes.append(
+                        LintFix.create_after(
+                            create_anchor,
+                            [loc.target],
+                        )
+                    )
+
+                    elem_buff = (
+                        elem_buff[: loc.prev.adj_pt_idx]
+                        + elem_buff[loc.next.adj_pt_idx : loc.next.pre_code_pt_idx + 1]
+                        + elem_buff[
+                            loc.prev.adj_pt_idx + 1 : loc.next.adj_pt_idx
+                        ]  # the target
+                        + [new_point]
+                        + elem_buff[loc.next.pre_code_pt_idx + 1 :]
+                    )
+                except NotImplementedError:
+                    # If we can't find an anchor for creation, skip this location.
+                    # This can happen in edge cases where the element buffer doesn't
+                    # contain suitable segments to anchor against.
+                    reflow_logger.debug(
+                        "    ! Skipping trailing tricky case - cannot find anchor."
+                    )
+                    continue
 
         elif loc.line_position == "trailing":
             if elem_buff[loc.next.newline_pt_idx].num_newlines():
@@ -563,64 +572,75 @@ def rebreak_sequence(
                 # to negotiate around. In this case, we _move the target_
                 # rather than just adjusting the whitespace.
 
-                # Delete the existing position of the target, and
-                # the _following_ point.
-                fixes.append(LintFix.delete(loc.target))
-                for seg in elem_buff[loc.next.adj_pt_idx].segments:
-                    fixes.append(LintFix.delete(seg))
+                try:
+                    # Delete the existing position of the target, and
+                    # the _following_ point.
+                    fixes.append(LintFix.delete(loc.target))
+                    for seg in elem_buff[loc.next.adj_pt_idx].segments:
+                        fixes.append(LintFix.delete(seg))
 
-                # We always reinsert before the first point, but respace
-                # the inserted point to ensure it's the right size given
-                # configs.
-                new_results, new_point = ReflowPoint(()).respace_point(
-                    cast(ReflowBlock, elem_buff[loc.prev.pre_code_pt_idx - 1]),
-                    cast(ReflowBlock, elem_buff[loc.prev.adj_pt_idx + 1]),
-                    root_segment=root_segment,
-                    lint_results=[],
-                    anchor_on="before",
-                )
-
-                lead_create_anchor = first_create_anchor(
-                    elem_buff, range(loc.prev.pre_code_pt_idx, loc.prev.adj_pt_idx + 1)
-                )
-
-                # Attempt to skip dedent elements on reinsertion. These are typically
-                # found at the end of segments, but we don't want to include the
-                # reinserted segment as part of prior code segment's parent segment.
-                prev_code_anchor = next(
-                    (
-                        prev_code_segment
-                        for prev_code_segment in lead_create_anchor
-                        if not prev_code_segment.is_type("dedent")
-                    ),
-                    None,
-                )
-
-                if prev_code_anchor:
-                    fixes.append(
-                        LintFix.create_before(
-                            prev_code_anchor,
-                            [loc.target],
-                        )
-                    )
-                else:
-                    # All segments were dedents, append to the end instead.
-                    fixes.append(
-                        LintFix.create_after(
-                            lead_create_anchor[-1],
-                            [loc.target],
-                        )
+                    # We always reinsert before the first point, but respace
+                    # the inserted point to ensure it's the right size given
+                    # configs.
+                    new_results, new_point = ReflowPoint(()).respace_point(
+                        cast(ReflowBlock, elem_buff[loc.prev.pre_code_pt_idx - 1]),
+                        cast(ReflowBlock, elem_buff[loc.prev.adj_pt_idx + 1]),
+                        root_segment=root_segment,
+                        lint_results=[],
+                        anchor_on="before",
                     )
 
-                elem_buff = (
-                    elem_buff[: loc.prev.pre_code_pt_idx]
-                    + [new_point]
-                    + elem_buff[
-                        loc.prev.adj_pt_idx + 1 : loc.next.adj_pt_idx
-                    ]  # the target
-                    + elem_buff[loc.prev.pre_code_pt_idx : loc.prev.adj_pt_idx + 1]
-                    + elem_buff[loc.next.adj_pt_idx + 1 :]
-                )
+                    lead_create_anchor = first_create_anchor(
+                        elem_buff,
+                        range(loc.prev.pre_code_pt_idx, loc.prev.adj_pt_idx + 1),
+                    )
+
+                    # Attempt to skip dedent elements on reinsertion.
+                    # These are typically found at the end of segments, but we
+                    # don't want to include the reinserted segment as part of
+                    # prior code segment's parent segment.
+                    prev_code_anchor = next(
+                        (
+                            prev_code_segment
+                            for prev_code_segment in lead_create_anchor
+                            if not prev_code_segment.is_type("dedent")
+                        ),
+                        None,
+                    )
+
+                    if prev_code_anchor:
+                        fixes.append(
+                            LintFix.create_before(
+                                prev_code_anchor,
+                                [loc.target],
+                            )
+                        )
+                    else:
+                        # All segments were dedents, append to the end instead.
+                        fixes.append(
+                            LintFix.create_after(
+                                lead_create_anchor[-1],
+                                [loc.target],
+                            )
+                        )
+
+                    elem_buff = (
+                        elem_buff[: loc.prev.pre_code_pt_idx]
+                        + [new_point]
+                        + elem_buff[
+                            loc.prev.adj_pt_idx + 1 : loc.next.adj_pt_idx
+                        ]  # the target
+                        + elem_buff[loc.prev.pre_code_pt_idx : loc.prev.adj_pt_idx + 1]
+                        + elem_buff[loc.next.adj_pt_idx + 1 :]
+                    )
+                except NotImplementedError:
+                    # If we can't find an anchor for creation, skip this location.
+                    # This can happen in edge cases where the element buffer doesn't
+                    # contain suitable segments to anchor against.
+                    reflow_logger.debug(
+                        "    ! Skipping leading tricky case - cannot find anchor."
+                    )
+                    continue
 
         elif loc.line_position == "alone":
             # If we get here we can assume that the element is currently
