@@ -2617,69 +2617,65 @@ class AlterDynamicTableStatementSegment(BaseSegment):
             Sequence(
                 "SET",
                 Delimited(
-                    OneOf(
-                        Ref("CommentEqualsClauseSegment"),
-                        Sequence(
-                            "TARGET_LAG",
-                            Ref("EqualsSegment"),
-                            OneOf(Ref("QuotedLiteralSegment"), "DOWNSTREAM"),
-                        ),
-                        Sequence(
-                            "WAREHOUSE",
-                            Ref("EqualsSegment"),
-                            OneOf(
-                                Ref("ObjectReferenceSegment"),
-                                Ref("QuotedLiteralSegment"),
-                            ),
-                        ),
-                        Sequence(
-                            "DATA_RETENTION_TIME_IN_DAYS",
-                            Ref("EqualsSegment"),
-                            Ref("NumericLiteralSegment"),
-                        ),
-                        Sequence(
-                            "MAX_DATA_EXTENSION_TIME_IN_DAYS",
-                            Ref("EqualsSegment"),
-                            Ref("NumericLiteralSegment"),
-                        ),
-                        Sequence(
-                            "DEFAULT_DDL_COLLATION",
-                            Ref("EqualsSegment"),
+                    Ref("CommentEqualsClauseSegment"),
+                    Sequence(
+                        "TARGET_LAG",
+                        Ref("EqualsSegment"),
+                        OneOf(Ref("QuotedLiteralSegment"), "DOWNSTREAM"),
+                    ),
+                    Sequence(
+                        "WAREHOUSE",
+                        Ref("EqualsSegment"),
+                        OneOf(
+                            Ref("ObjectReferenceSegment"),
                             Ref("QuotedLiteralSegment"),
                         ),
-                        Ref("LogLevelEqualsSegment"),
-                        Sequence(
-                            "CONTACT",
-                            Bracketed(
-                                Delimited(
-                                    Sequence(
-                                        Ref("PurposeGrammar"),
-                                        Ref("EqualsSegment"),
-                                        Ref("ObjectReferenceSegment"),
-                                    )
+                    ),
+                    Sequence(
+                        "DATA_RETENTION_TIME_IN_DAYS",
+                        Ref("EqualsSegment"),
+                        Ref("NumericLiteralSegment"),
+                    ),
+                    Sequence(
+                        "MAX_DATA_EXTENSION_TIME_IN_DAYS",
+                        Ref("EqualsSegment"),
+                        Ref("NumericLiteralSegment"),
+                    ),
+                    Sequence(
+                        "DEFAULT_DDL_COLLATION",
+                        Ref("EqualsSegment"),
+                        Ref("QuotedLiteralSegment"),
+                    ),
+                    Ref("LogLevelEqualsSegment"),
+                    Sequence(
+                        "CONTACT",
+                        Bracketed(
+                            Delimited(
+                                Sequence(
+                                    Ref("PurposeGrammar"),
+                                    Ref("EqualsSegment"),
+                                    Ref("ObjectReferenceSegment"),
                                 )
-                            ),
+                            )
                         ),
-                        Sequence(
-                            "IMMUTABLE",
-                            "WHERE",
-                            Bracketed(Ref("ExpressionSegment")),
-                        ),
+                    ),
+                    Sequence(
+                        "IMMUTABLE",
+                        "WHERE",
+                        Bracketed(Ref("ExpressionSegment")),
                     ),
                 ),
             ),
             Sequence(
                 "UNSET",
                 Delimited(
-                    OneOf(
-                        "COMMENT",
-                        "DATA_RETENTION_TIME_IN_DAYS",
-                        "MAX_DATA_EXTENSION_TIME_IN_DAYS",
-                        "DEFAULT_DDL_COLLATION",
-                        "LOG_LEVEL",
-                        Sequence("CONTACT", Ref("PurposeGrammar")),
-                        "IMMUTABLE",
-                    ),
+                    "COMMENT",
+                    "DATA_RETENTION_TIME_IN_DAYS",
+                    "MAX_DATA_EXTENSION_TIME_IN_DAYS",
+                    "DEFAULT_DDL_COLLATION",
+                    "LOG_LEVEL",
+                    Sequence("CONTACT", Ref("PurposeGrammar")),
+                    "IMMUTABLE",
                 ),
             ),
         ),
