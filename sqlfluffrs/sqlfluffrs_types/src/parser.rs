@@ -110,6 +110,7 @@ impl SimpleHint {
 
 /// Parse mode defines how greedy a grammar is in claiming unmatched segments.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Default)]
+#[repr(u8)]
 pub enum ParseMode {
     /// Strict only returns a match if the full content matches.
     /// If it's not a successful match, don't return any match and never raise unparsable sections.

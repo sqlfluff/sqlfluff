@@ -25,6 +25,8 @@
 
 use std::fmt;
 
+use crate::ParseMode;
+
 /// Grammar instruction variant discriminant (1 byte)
 ///
 /// Maps to Grammar enum variants. Using u8 instead of Rust enum
@@ -52,14 +54,14 @@ pub enum GrammarVariant {
     Token = 17,
 }
 
-/// Parse mode for grammar matching (1 byte)
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-#[repr(u8)]
-pub enum ParseMode {
-    Strict = 0,
-    Greedy = 1,
-    GreedyOnceStarted = 2,
-}
+// /// Parse mode for grammar matching (1 byte)
+// #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+// #[repr(u8)]
+// pub enum ParseMode {
+//     Strict = 0,
+//     Greedy = 1,
+//     GreedyOnceStarted = 2,
+// }
 
 /// Grammar flags packed into 16 bits
 ///
@@ -362,6 +364,8 @@ impl fmt::Display for GrammarInst {
 pub struct GrammarId(pub u32);
 
 impl GrammarId {
+    pub const NONCODE: GrammarId = GrammarId(u32::MAX - 1); // Use a reserved value for NONCODE
+
     /// Create a new GrammarId
     #[inline]
     pub const fn new(id: u32) -> Self {

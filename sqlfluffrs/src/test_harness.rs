@@ -488,7 +488,7 @@ mod tests {
         let lexer = Lexer::new(None, Dialect::get_lexers(&dialect).clone());
         let (tokens, _errors) = lexer.lex(input, false);
 
-        let mut parser = Parser::new(&tokens, dialect);
-        let _ast = parser.call_rule("FileSegment", &[]).expect("Parse failed");
+        let mut parser = Parser::new_with_tables(&tokens, dialect);
+        let _ast = parser.call_rule_as_root().expect("Parse failed");
     }
 }

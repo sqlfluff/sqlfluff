@@ -1145,7 +1145,7 @@ impl crate::parser::Parser<'_> {
         // This will temporarily move the parser position but we'll restore it
         self.pos = pos;
 
-        let result = self.parse_with_grammar_cached(&grammar, terminators);
+        let result = self.parse_iterative(&grammar, terminators);
 
         // Get the end position before restoring
         let end_pos = self.pos;

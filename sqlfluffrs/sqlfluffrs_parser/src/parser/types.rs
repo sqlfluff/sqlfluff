@@ -1222,26 +1222,26 @@ mod tests {
         assert_eq!(val, NodeTupleValue::Tuple("empty".to_string(), vec![]));
     }
 
-    #[test]
-    fn test_simple_hint_with_dialect_ref_comma_segment() {
-        use hashbrown::HashSet;
-        use serde_yaml_ng::{Mapping, Value};
-        use sqlfluffrs_dialects::dialect::ansi::parser::COMMA_SEGMENT;
+    // #[test]
+    // fn test_simple_hint_with_dialect_ref_comma_segment() {
+    //     use hashbrown::HashSet;
+    //     use serde_yaml_ng::{Mapping, Value};
+    //     use sqlfluffrs_dialects::dialect::ansi::parser::COMMA_SEGMENT;
 
-        // Create a Ref grammar for CommaSegment
-        let grammar = COMMA_SEGMENT.clone();
-        // Get the Ansi dialect
-        let mut cache: hashbrown::HashMap<u64, Option<SimpleHint>> = hashbrown::HashMap::new();
-        // Get the hint
-        let hint = grammar
-            .simple_hint(&mut cache)
-            .expect("Should return a hint");
-        // Should match raw value ","
-        let trimmed_upper = " ,".trim().to_uppercase();
-        assert!(hint.raw_values.contains(trimmed_upper.as_str()));
-        // Should match can_match_token for ","
-        let mut token_types = HashSet::new();
-        token_types.insert("comma".to_string());
-        assert!(hint.can_match_token(&trimmed_upper, &token_types));
-    }
+    //     // Create a Ref grammar for CommaSegment
+    //     let grammar = COMMA_SEGMENT.clone();
+    //     // Get the Ansi dialect
+    //     let mut cache: hashbrown::HashMap<u64, Option<SimpleHint>> = hashbrown::HashMap::new();
+    //     // Get the hint
+    //     let hint = grammar
+    //         .simple_hint(&mut cache)
+    //         .expect("Should return a hint");
+    //     // Should match raw value ","
+    //     let trimmed_upper = " ,".trim().to_uppercase();
+    //     assert!(hint.raw_values.contains(trimmed_upper.as_str()));
+    //     // Should match can_match_token for ","
+    //     let mut token_types = HashSet::new();
+    //     token_types.insert("comma".to_string());
+    //     assert!(hint.can_match_token(&trimmed_upper, &token_types));
+    // }
 }

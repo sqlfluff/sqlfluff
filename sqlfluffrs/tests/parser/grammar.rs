@@ -62,7 +62,7 @@ fn test_anysetof_basic() -> Result<(), ParseError> {
     });
 
     // Use the internal parse method directly
-    let result = parser.parse_with_grammar_cached(&grammar, &[])?;
+    let result = parser.parse_iterative(&grammar, &[])?;
 
     println!("\nParsed successfully!");
     println!("Result: {:#?}", result);
@@ -116,7 +116,7 @@ fn test_anysetof_order_independent() -> Result<(), ParseError> {
             simple_hint: None,
         });
 
-        let result = parser.parse_with_grammar_cached(&grammar, &[])?;
+        let result = parser.parse_iterative(&grammar, &[])?;
 
         println!("Result: {:#?}", result);
 
@@ -400,7 +400,7 @@ fn test_delimited_basic() -> Result<(), ParseError> {
         simple_hint: None,
     });
 
-    let result = parser.parse_with_grammar_cached(&grammar, &[])?;
+    let result = parser.parse_iterative(&grammar, &[])?;
     println!("\nDelimited parse result: {:#?}", result);
 
     // Should produce a DelimitedList with 5 children: A, comma, B, comma, C
@@ -465,7 +465,7 @@ fn test_delimited_optional_and_trailing() -> Result<(), ParseError> {
         parse_mode: ParseMode::Strict,
         simple_hint: None,
     });
-    let result = parser.parse_with_grammar_cached(&grammar.clone(), &[])?;
+    let result = parser.parse_iterative(&grammar.clone(), &[])?;
     match result {
         Node::DelimitedList { ref children } => {
             assert_eq!(children.len(), 6, "Should include trailing delimiter");
@@ -493,7 +493,7 @@ fn test_delimited_optional_and_trailing() -> Result<(), ParseError> {
         parse_mode: ParseMode::Strict,
         simple_hint: None,
     });
-    let result = parser.parse_with_grammar_cached(&grammar, &[]);
+    let result = parser.parse_iterative(&grammar, &[]);
     println!("{:#?}", result);
     assert!(
         result.is_err(),
@@ -517,7 +517,7 @@ fn test_delimited_optional_and_trailing() -> Result<(), ParseError> {
         parse_mode: ParseMode::Strict,
         simple_hint: None,
     });
-    let result = parser.parse_with_grammar_cached(&grammar, &[])?;
+    let result = parser.parse_iterative(&grammar, &[])?;
     assert!(result.is_empty(), "Should error if not enough delimiters");
     Ok(())
 }
@@ -559,7 +559,7 @@ fn test_oneof_longest_vs_first_match() -> Result<(), ParseError> {
         simple_hint: None,
     });
 
-    let result = parser.parse_with_grammar_cached(&grammar, &[])?;
+    let result = parser.parse_iterative(&grammar, &[])?;
     // Should match "foobar" (the longest)
     let node_str = format!("{:?}", result);
     assert!(
@@ -606,7 +606,7 @@ fn test_oneof_first_match_when_equal_length() -> Result<(), ParseError> {
         simple_hint: None,
     });
 
-    let result = parser.parse_with_grammar_cached(&grammar, &[])?;
+    let result = parser.parse_iterative(&grammar, &[])?;
     let node_str = format!("{:?}", result);
     assert!(
         node_str.contains("foo"),
@@ -654,7 +654,7 @@ fn test_anynumberof_min_max() -> Result<(), ParseError> {
         simple_hint: None,
     });
 
-    let result = parser.parse_with_grammar_cached(&grammar, &[])?;
+    let result = parser.parse_iterative(&grammar, &[])?;
     let node_str = format!("{:?}", result);
     assert!(
         node_str.contains("A") && node_str.contains("B"),
@@ -694,7 +694,7 @@ fn test_anynumberof_optional_and_empty() -> Result<(), ParseError> {
         simple_hint: None,
     });
 
-    let result = parser.parse_with_grammar_cached(&grammar, &[])?;
+    let result = parser.parse_iterative(&grammar, &[])?;
     let node_str = format!("{:?}", result);
     assert!(
         node_str.contains("Empty"),
@@ -784,7 +784,7 @@ fn test_delimited_various_cases() -> Result<(), ParseError> {
             simple_hint: None,
         });
         let start_pos = parser.pos;
-        let result = parser.parse_with_grammar_cached(&grammar, &[]);
+        let result = parser.parse_iterative(&grammar, &[]);
         // Python tests check len(match_result) which is the number of input tokens consumed
         // In Rust, we check parser.pos - start_pos to get the same metric
         let tokens_consumed = if result.is_ok() && !matches!(result, Ok(Node::Empty)) {
@@ -821,7 +821,7 @@ fn test_nothing_grammar_matches_nothing() -> Result<(), ParseError> {
         anti_template: None,
         optional: true,
     });
-    let result = parser.parse_with_grammar_cached(&grammar, &[])?;
+    let result = parser.parse_iterative(&grammar, &[])?;
     assert!(
         matches!(result, Node::Empty),
         "Nothing grammar should match as empty"
@@ -889,7 +889,7 @@ fn test_ref_match_basic() -> Result<(), ParseError> {
         optional: false,
     });
     // Parse from position 0 where "foo" is
-    let result = parser.parse_with_grammar_cached(&foo_grammar, &[])?;
+    let result = parser.parse_iterative(&foo_grammar, &[])?;
     let node_str = format!("{:?}", result);
     assert!(
         node_str.contains("foo"),
@@ -923,7 +923,7 @@ fn test_ref_exclude_match() -> Result<(), ParseError> {
         optional: false,
     });
     // Try to match "ABS" at position 0, but exclude it
-    let exclude_match = parser.parse_with_grammar_cached(&abs_exclude, &[])?;
+    let exclude_match = parser.parse_iterative(&abs_exclude, &[])?;
     let node_str = format!("{:?}", exclude_match);
     // Simulate exclusion: if matched, treat as excluded
     assert!(node_str.contains("ABS"));
@@ -938,7 +938,7 @@ fn test_ref_exclude_match() -> Result<(), ParseError> {
         token_type: "word",
         optional: false,
     });
-    let result = parser.parse_with_grammar_cached(&abs_absolute_grammar, &[]);
+    let result = parser.parse_iterative(&abs_absolute_grammar, &[]);
 
     // The match should fail or return Empty because parser is at whitespace
     assert!(
@@ -1026,7 +1026,7 @@ fn test_sequence_nested_match() -> Result<(), ParseError> {
     // Matching just the start of the list shouldn't work
     let partial_tokens = &tokens[0..3];
     let mut partial_parser = Parser::new(partial_tokens, dialect);
-    let partial_result = partial_parser.parse_with_grammar_cached(&outer_seq, &[]);
+    let partial_result = partial_parser.parse_iterative(&outer_seq, &[]);
     assert!(
         partial_result.is_err()
             || partial_result
@@ -1036,7 +1036,7 @@ fn test_sequence_nested_match() -> Result<(), ParseError> {
     );
     // Matching the whole list should work
     let mut parser = Parser::new(&tokens, dialect);
-    let result = parser.parse_with_grammar_cached(&outer_seq, &[])?;
+    let result = parser.parse_iterative(&outer_seq, &[])?;
     let node_str = format!("{:?}", result);
     assert!(node_str.contains("bar") && node_str.contains("foo") && node_str.contains("baar"));
     Ok(())
@@ -1195,7 +1195,7 @@ fn test_sequence_modes_various_cases() -> Result<(), ParseError> {
             parse_mode: mode,
             simple_hint: None,
         });
-        let result = parser.parse_with_grammar_cached(&grammar, &[]);
+        let result = parser.parse_iterative(&grammar, &[]);
         if expect_match {
             let node = result.expect("Should parse");
             if let Some(tok) = expect_token {
@@ -1261,7 +1261,7 @@ fn bracketed_case(
         parse_mode: mode,
         simple_hint: None,
     });
-    let result = parser.parse_with_grammar_cached(&grammar, &[]);
+    let result = parser.parse_iterative(&grammar, &[]);
     if expect_match {
         let node = result.expect("Should parse");
         if let Some(tok) = expect_token {

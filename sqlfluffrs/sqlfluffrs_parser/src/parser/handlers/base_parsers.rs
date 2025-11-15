@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-use crate::parser::{FrameState, Node, ParseError, ParseFrame};
+use crate::parser::{FrameState, Node, ParseError, ParseFrame, iterative::FrameResult};
 use hashbrown::HashMap;
 use sqlfluffrs_types::Grammar;
 
@@ -14,7 +14,7 @@ impl Parser<'_> {
         mut frame: ParseFrame, // Take ownership
         iteration_count: usize,
         results: &mut HashMap<usize, (Node, usize, Option<u64>)>,
-    ) -> Result<crate::parser::iterative::FrameResult, ParseError> {
+    ) -> Result<FrameResult, ParseError> {
         log::debug!(
             "START StringParser: frame_id={}, pos={}, grammar={:?}",
             frame.frame_id,
@@ -67,7 +67,7 @@ impl Parser<'_> {
                     "🎯 StringParser set Complete state for frame {}",
                     frame.frame_id
                 );
-                Ok(crate::parser::iterative::FrameResult::Push(frame))
+                Ok(FrameResult::Push(frame))
             }
             _ => {
                 log::debug!(
@@ -89,7 +89,7 @@ impl Parser<'_> {
                     "🎯 StringParser set Complete(Empty) for frame {}",
                     frame.frame_id
                 );
-                Ok(crate::parser::iterative::FrameResult::Push(frame))
+                Ok(FrameResult::Push(frame))
             }
         }
     }
@@ -100,7 +100,7 @@ impl Parser<'_> {
         grammar: Arc<Grammar>,
         mut frame: ParseFrame, // Take ownership
         results: &mut HashMap<usize, (Node, usize, Option<u64>)>,
-    ) -> Result<crate::parser::iterative::FrameResult, ParseError> {
+    ) -> Result<FrameResult, ParseError> {
         log::debug!(
             "START MultiStringParser: frame_id={}, pos={}, grammar={:?}",
             frame.frame_id,
@@ -140,13 +140,13 @@ impl Parser<'_> {
                 };
                 frame.state = FrameState::Complete(node);
                 frame.end_pos = Some(self.pos);
-                Ok(crate::parser::iterative::FrameResult::Push(frame))
+                Ok(FrameResult::Push(frame))
             }
             _ => {
                 log::debug!("MultiString parser didn't match, returning Empty");
                 frame.state = FrameState::Complete(Node::Empty);
                 frame.end_pos = Some(self.pos);
-                Ok(crate::parser::iterative::FrameResult::Push(frame))
+                Ok(FrameResult::Push(frame))
             }
         }
     }
@@ -157,7 +157,7 @@ impl Parser<'_> {
         grammar: Arc<Grammar>,
         mut frame: ParseFrame, // Take ownership
         results: &mut HashMap<usize, (Node, usize, Option<u64>)>,
-    ) -> Result<crate::parser::iterative::FrameResult, ParseError> {
+    ) -> Result<FrameResult, ParseError> {
         log::debug!(
             "START TypedParser: frame_id={}, pos={}, grammar={:?}",
             frame.frame_id,
@@ -219,7 +219,7 @@ impl Parser<'_> {
                 };
                 frame.state = FrameState::Complete(node);
                 frame.end_pos = Some(self.pos);
-                return Ok(crate::parser::iterative::FrameResult::Push(frame));
+                Ok(FrameResult::Push(frame))
             } else {
                 log::debug!(
                     "NOMATCH TypedParser: frame_id={}, expected type '{}', found type '{}', raw '{}'",
@@ -236,7 +236,7 @@ impl Parser<'_> {
                 );
                 frame.state = FrameState::Complete(Node::Empty);
                 frame.end_pos = Some(frame.pos);
-                return Ok(crate::parser::iterative::FrameResult::Push(frame));
+                Ok(FrameResult::Push(frame))
             }
         } else {
             log::debug!(
@@ -247,9 +247,8 @@ impl Parser<'_> {
             log::debug!("Typed parser at EOF");
             frame.state = FrameState::Complete(Node::Empty);
             frame.end_pos = Some(frame.pos);
-            return Ok(crate::parser::iterative::FrameResult::Push(frame));
+            Ok(FrameResult::Push(frame))
         }
-        unreachable!("All paths should return above")
     }
 
     /// Handle RegexParser grammar in iterative parser
@@ -259,7 +258,7 @@ impl Parser<'_> {
         grammar: Arc<Grammar>,
         mut frame: ParseFrame, // Take ownership
         results: &mut HashMap<usize, (Node, usize, Option<u64>)>,
-    ) -> Result<crate::parser::iterative::FrameResult, ParseError> {
+    ) -> Result<FrameResult, ParseError> {
         log::debug!(
             "START RegexParser: frame_id={}, pos={}, grammar={:?}",
             frame.frame_id,
@@ -293,7 +292,7 @@ impl Parser<'_> {
                         log::debug!("RegexParser anti-match, returning Empty");
                         frame.state = FrameState::Complete(Node::Empty);
                         frame.end_pos = Some(self.pos);
-                        return Ok(crate::parser::iterative::FrameResult::Push(frame));
+                        return Ok(FrameResult::Push(frame));
                     }
                 }
 
@@ -307,13 +306,13 @@ impl Parser<'_> {
                 };
                 frame.state = FrameState::Complete(node);
                 frame.end_pos = Some(self.pos);
-                Ok(crate::parser::iterative::FrameResult::Push(frame))
+                Ok(FrameResult::Push(frame))
             }
             _ => {
                 log::debug!("RegexParser didn't match '{}', returning Empty", template);
                 frame.state = FrameState::Complete(Node::Empty);
                 frame.end_pos = Some(self.pos);
-                Ok(crate::parser::iterative::FrameResult::Push(frame))
+                Ok(FrameResult::Push(frame))
             }
         }
     }

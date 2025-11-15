@@ -8,7 +8,7 @@ use crate::parser::FrameState;
 use crate::parser::Parser;
 use crate::parser::{Node, ParseError, ParseFrame};
 use hashbrown::HashMap;
-use sqlfluffrs_types::Grammar;
+use sqlfluffrs_types::{Grammar, GrammarContext, GrammarFlags, GrammarId};
 
 impl Parser<'_> {
     /// Handle Empty grammar in iterative parser
@@ -174,6 +174,158 @@ impl Parser<'_> {
         });
         frame.end_pos = Some(self.pos);
         Ok(FrameResult::Push(frame))
+    }
+
+    // ========================================================================
+    // Table-Driven Anything Handler
+    // ========================================================================
+
+    /// Handle Anything using table-driven approach
+    /// Consumes all tokens until terminator or EOF, preserving bracket structure
+    pub(crate) fn handle_anything_table_initial(
+        &mut self,
+        mut frame: ParseFrame,
+        grammar_id: GrammarId,
+        ctx: &GrammarContext,
+        parent_terminators: &[GrammarId],
+    ) -> Result<FrameResult, ParseError> {
+        let start_pos = self.pos;
+        let mut anything_tokens = vec![];
+        log::debug!(
+            "Anything[table]: pos={}, parent_terminators={}",
+            start_pos,
+            parent_terminators.len()
+        );
+
+        let mut terminators_vec: Vec<GrammarId> = ctx.terminators(grammar_id).collect();
+        if !ctx.inst(grammar_id).flags.reset_terminators() {
+            terminators_vec.extend(parent_terminators.iter().cloned());
+        }
+
+        // TODO: Check terminators properly (need to convert GrammarId to Arc<Grammar> for is_terminated)
+        // For now, just consume until EOF
+
+        loop {
+            if self.is_terminated_with_elements_table_driven(&terminators_vec, &[])
+                || self.is_at_end()
+            {
+                break;
+            }
+
+            if let Some(tok) = self.peek() {
+                let tok_type = tok.get_type();
+                let tok_raw = tok.raw();
+
+                // Handle bracket openers - match entire bracketed section
+                if tok_raw == "(" || tok_raw == "[" || tok_raw == "{" {
+                    let close_bracket = match tok_raw.as_str() {
+                        "(" => ")",
+                        "[" => "]",
+                        "{" => "}",
+                        _ => unreachable!(),
+                    };
+
+                    let mut bracket_depth = 0;
+                    let mut bracket_tokens = vec![];
+
+                    // Add start bracket
+                    bracket_tokens.push(Node::Token {
+                        token_type: "start_bracket".to_string(),
+                        raw: tok_raw.to_string(),
+                        token_idx: self.pos,
+                    });
+                    bracket_depth += 1;
+                    self.bump();
+
+                    // Match everything until matching close bracket
+                    while bracket_depth > 0 && !self.is_at_end() {
+                        if let Some(inner_tok) = self.peek() {
+                            let inner_raw = inner_tok.raw();
+
+                            if inner_raw == tok_raw {
+                                bracket_depth += 1;
+                            } else if inner_raw == close_bracket {
+                                bracket_depth -= 1;
+                            }
+
+                            let node_type = if bracket_depth == 0 {
+                                "end_bracket".to_string()
+                            } else {
+                                inner_tok.get_type().to_string()
+                            };
+
+                            bracket_tokens.push(Node::Token {
+                                token_type: node_type,
+                                raw: inner_raw.to_string(),
+                                token_idx: self.pos,
+                            });
+                            self.bump();
+                        } else {
+                            break;
+                        }
+                    }
+
+                    // Round brackets persist, square/curly don't
+                    let bracket_persists = tok_raw == "(";
+
+                    anything_tokens.push(Node::Bracketed {
+                        children: bracket_tokens,
+                        bracket_persists,
+                    });
+                } else {
+                    // Regular token - preserve type as-is
+                    anything_tokens.push(Node::Token {
+                        token_type: tok_type.to_string(),
+                        raw: tok_raw.to_string(),
+                        token_idx: self.pos,
+                    });
+                    self.bump();
+                }
+            }
+        }
+
+        log::debug!(
+            "Anything[table]: matched {} nodes, pos {} -> {}",
+            anything_tokens.len(),
+            start_pos,
+            self.pos
+        );
+
+        frame.state = FrameState::Complete(Node::Sequence {
+            children: anything_tokens,
+        });
+        frame.end_pos = Some(self.pos);
+
+        Ok(FrameResult::Push(frame))
+    }
+
+    /// Compatibility wrapper expected by `core.rs`.
+    /// `core.rs` calls `handle_anything_table_driven`; implement a thin wrapper
+    /// that forwards to `handle_anything_table_initial` with a dummy frame.
+    pub(crate) fn handle_anything_table_driven(
+        &mut self,
+        grammar_id: GrammarId,
+        ctx: &GrammarContext,
+        parent_terminators: &[GrammarId],
+    ) -> Result<Node, ParseError> {
+        // Create a temporary table-driven frame to use the initial handler and then extract the Node
+        let frame = ParseFrame::new_table_driven_child(
+            0,
+            grammar_id,
+            self.pos,
+            parent_terminators.to_vec(),
+            None,
+        );
+
+        match self.handle_anything_table_initial(frame, grammar_id, ctx, parent_terminators)? {
+            FrameResult::Push(f) => {
+                if let FrameState::Complete(node) = f.state {
+                    return Ok(node);
+                }
+                Ok(Node::Empty)
+            }
+            FrameResult::Done => Ok(Node::Empty),
+        }
     }
 
     /// Handle Nothing grammar in iterative parser
@@ -662,5 +814,114 @@ impl Parser<'_> {
         // No match
         results.insert(frame.frame_id, (Node::Empty, frame.pos, None));
         Ok(FrameResult::Done)
+    }
+}
+
+#[cfg(test)]
+mod table_driven_anything_tests {
+    use super::*;
+    use crate::parser::Parser;
+    use env_logger;
+    use sqlfluffrs_dialects::dialect::ansi::parser::get_ansi_segment_grammar;
+    use sqlfluffrs_dialects::Dialect;
+    use sqlfluffrs_lexer::Lexer;
+
+    // Smoke test: ensure bracketed tokens are preserved properly by table-driven Anything
+    #[test]
+    fn table_driven_anything_bracket_persistence() {
+        let _ = env_logger::builder().is_test(true).try_init();
+
+        // SQL with different bracket types
+        let sql = "FOO VARCHAR(100)";
+        let dialect = Dialect::Ansi;
+
+        // Choose a root grammar that will exercise expression/bracket parsing
+        let root = get_ansi_segment_grammar("ColumnDefinitionSegment")
+            .expect("ColumnDefinitionSegment not found in ANSI tables");
+
+        let lexer = Lexer::new(None, dialect.get_lexers().to_vec());
+        let (tokens, _violations) =
+            lexer.lex(sqlfluffrs_lexer::LexInput::String(sql.to_string()), true);
+
+        // Create parser using the RootGrammar (table-driven)
+        let mut parser = Parser::new_with_root(&tokens, dialect, root);
+        let node = parser.call_rule_as_root().expect("parse_root should not error");
+
+        // Basic assertions: parse should be non-empty and contain bracketed nodes
+        assert!(!node.is_empty(), "Expected non-empty parse");
+
+        // Walk tree and ensure we find at least one Bracketed node with expected persistence
+        fn find_bracketed(n: &crate::parser::Node) -> Option<(bool, Vec<String>)> {
+            use crate::parser::Node;
+            match n {
+                Node::Bracketed {
+                    children: _,
+                    bracket_persists,
+                } => {
+                    // We don't check contents here, just the persistence flag
+                    return Some((*bracket_persists, vec![]));
+                }
+                Node::Sequence { children } | Node::DelimitedList { children } => {
+                    for c in children {
+                        if let Some(found) = find_bracketed(c) {
+                            return Some(found);
+                        }
+                    }
+                    None
+                }
+                Node::Ref { child, .. } => find_bracketed(child),
+                _ => None,
+            }
+        }
+
+        let found = find_bracketed(&node);
+        assert!(
+            found.is_some(),
+            "Expected to find a Bracketed node in parse tree"
+        );
+    }
+
+    // Test: parent terminator stops Anything from consuming beyond terminator
+    #[test]
+    fn table_driven_anything_parent_terminator() {
+        let _ = env_logger::builder().is_test(true).try_init();
+
+        // SQL where the keyword END should act as a terminator
+        let sql = "foo bar baz END trailing";
+        let dialect = Dialect::Ansi;
+
+        // Use SelectClauseSegment as a root that will have terminators including keywords
+        let root = get_ansi_segment_grammar("SelectClauseSegment")
+            .expect("SelectClauseSegment not found in ANSI tables");
+
+        let lexer = Lexer::new(None, dialect.get_lexers().to_vec());
+        let (tokens, _violations) =
+            lexer.lex(sqlfluffrs_lexer::LexInput::String(sql.to_string()), true);
+
+        let mut parser = Parser::new_with_root(&tokens, dialect, root);
+        let node = parser.call_rule_as_root().expect("parse_root should not error");
+
+        // Ensure parse consumed only up to END (i.e., trailing token remains unconsumed)
+        // We check that at least one Token node with raw == "trailing" still exists in tokens
+        // but not inside the parsed node.
+        let trailing_in_parse = format!("trailing");
+
+        fn contains_raw(n: &crate::parser::Node, raw: &str) -> bool {
+            use crate::parser::Node;
+            match n {
+                Node::Token { raw: r, .. } => r == raw,
+                Node::Sequence { children } | Node::DelimitedList { children } => {
+                    children.iter().any(|c| contains_raw(c, raw))
+                }
+                Node::Bracketed { children, .. } => children.iter().any(|c| contains_raw(c, raw)),
+                Node::Ref { child, .. } => contains_raw(child, raw),
+                _ => false,
+            }
+        }
+
+        assert!(
+            !contains_raw(&node, &trailing_in_parse),
+            "Expected trailing token not to be consumed by root parse"
+        );
     }
 }

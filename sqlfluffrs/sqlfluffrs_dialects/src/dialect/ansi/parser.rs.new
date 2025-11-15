@@ -1,2 +1,0 @@
-usage: build_parsers.py [-h] [--table-driven] dialect
-build_parsers.py: error: unrecognized arguments: --dialect

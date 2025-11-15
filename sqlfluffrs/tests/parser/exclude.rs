@@ -60,7 +60,7 @@ fn test_oneof_with_exclude() -> Result<(), ParseError> {
     });
 
     // This should match since we only have "A", not "AB"
-    let result = parser.parse_with_grammar_cached(&grammar, &[])?;
+    let result = parser.parse_iterative(&grammar, &[])?;
 
     println!("\nParsed successfully: {:#?}", result);
 
@@ -125,7 +125,7 @@ fn test_oneof_exclude_blocks_match() -> Result<(), ParseError> {
     });
 
     // This should return Empty because "AB" matches the exclude pattern
-    let result = parser.parse_with_grammar_cached(&grammar, &[])?;
+    let result = parser.parse_iterative(&grammar, &[])?;
 
     println!("\nExclude triggered, got: {:#?}", result);
 
@@ -176,7 +176,7 @@ fn test_anynumberof_with_exclude() -> Result<(), ParseError> {
     });
 
     // This should match all three "A"s since there's no "B"
-    let result = parser.parse_with_grammar_cached(&grammar, &[])?;
+    let result = parser.parse_iterative(&grammar, &[])?;
 
     println!("\nParsed successfully: {:#?}", result);
 

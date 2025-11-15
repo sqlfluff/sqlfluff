@@ -10,7 +10,7 @@ use hashbrown::{HashMap, HashSet};
 use crate::parser::iterative::ParseFrameStack;
 
 use super::types::Node;
-use sqlfluffrs_types::Grammar;
+use sqlfluffrs_types::{Grammar, GrammarId};
 
 /// A parse frame represents a single parsing task in the iterative parser.
 ///
@@ -45,9 +45,9 @@ pub struct ParseFrame {
     pub element_key: Option<u64>,
     /// Table-driven grammar ID (for gradual migration to table-based parsing)
     /// When Some, this frame uses table-driven parsing instead of Arc<Grammar>
-    pub grammar_id: Option<sqlfluffrs_types::GrammarId>,
+    pub grammar_id: Option<GrammarId>,
     /// Table-driven terminators (parallel to terminators field)
-    pub table_terminators: Vec<sqlfluffrs_types::GrammarId>,
+    pub table_terminators: Vec<GrammarId>,
 }
 
 impl ParseFrame {
@@ -79,9 +79,9 @@ impl ParseFrame {
     /// Create a new table-driven child frame
     pub fn new_table_driven_child(
         frame_id: usize,
-        grammar_id: sqlfluffrs_types::GrammarId,
+        grammar_id: GrammarId,
         pos: usize,
-        table_terminators: Vec<sqlfluffrs_types::GrammarId>,
+        table_terminators: Vec<GrammarId>,
         parent_max_idx: Option<usize>,
     ) -> Self {
         ParseFrame {
@@ -427,18 +427,18 @@ pub enum FrameContext {
     },
     // Table-driven variants (for gradual migration)
     OneOfTableDriven {
-        grammar_id: sqlfluffrs_types::GrammarId,
-        pruned_children: Vec<sqlfluffrs_types::GrammarId>, // Children after simple_hint pruning
+        grammar_id: GrammarId,
+        pruned_children: Vec<GrammarId>, // Children after simple_hint pruning
         leading_ws: Vec<Node>,
         post_skip_pos: usize,
-        longest_match: Option<(Node, usize, sqlfluffrs_types::GrammarId)>, // (node, consumed, child_grammar_id)
+        longest_match: Option<(Node, usize, GrammarId)>, // (node, consumed, child_grammar_id)
         tried_elements: usize,
         max_idx: usize,
         last_child_frame_id: Option<usize>,
-        current_child_id: Option<sqlfluffrs_types::GrammarId>, // Child currently being tried
+        current_child_id: Option<GrammarId>, // Child currently being tried
     },
     SequenceTableDriven {
-        grammar_id: sqlfluffrs_types::GrammarId,
+        grammar_id: GrammarId,
         matched_idx: usize,
         tentatively_collected: Vec<usize>,
         max_idx: usize,
@@ -448,14 +448,14 @@ pub enum FrameContext {
         first_match: bool,          // For GREEDY_ONCE_STARTED: trim max_idx after first match
     },
     RefTableDriven {
-        grammar_id: sqlfluffrs_types::GrammarId,
+        grammar_id: GrammarId,
         segment_type: Option<String>,
         saved_pos: usize, // Position before skipping transparent tokens
         last_child_frame_id: Option<usize>,
         leading_transparent: Vec<Node>,
     },
     DelimitedTableDriven {
-        grammar_id: sqlfluffrs_types::GrammarId,
+        grammar_id: GrammarId,
         delimiter_count: usize,
         matched_idx: usize,
         working_idx: usize,
@@ -466,13 +466,13 @@ pub enum FrameContext {
         pos_before_delimiter: Option<usize>,
     },
     BracketedTableDriven {
-        grammar_id: sqlfluffrs_types::GrammarId,
+        grammar_id: GrammarId,
         state: BracketedState,
         last_child_frame_id: Option<usize>,
         bracket_max_idx: Option<usize>,
     },
     AnyNumberOfTableDriven {
-        grammar_id: sqlfluffrs_types::GrammarId,
+        grammar_id: GrammarId,
         count: usize,
         matched_idx: usize,
         working_idx: usize,

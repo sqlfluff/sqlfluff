@@ -52,7 +52,7 @@ fn test_oneof_longest_match() -> Result<(), ParseError> {
         simple_hint: None,
     });
 
-    let result = parser.parse_with_grammar_cached(&grammar, &[])?;
+    let result = parser.parse_iterative(&grammar, &[])?;
 
     // Should match "foo", not just "f"
     match result {
@@ -107,7 +107,7 @@ fn test_oneof_first_match_equal_length() -> Result<(), ParseError> {
         simple_hint: None,
     });
 
-    let result = parser.parse_with_grammar_cached(&grammar, &[])?;
+    let result = parser.parse_iterative(&grammar, &[])?;
 
     // Should use option1 (first match)
     match result {
@@ -159,7 +159,7 @@ fn test_anynumberof_min_max_constraints() -> Result<(), ParseError> {
         simple_hint: None,
     });
 
-    let result = parser.parse_with_grammar_cached(&grammar, &[])?;
+    let result = parser.parse_iterative(&grammar, &[])?;
 
     // AnyNumberOf returns a DelimitedList in Rust, not a Sequence
     // Count how many 'A' tokens were matched
@@ -217,7 +217,7 @@ fn test_anynumberof_min_times_not_met() -> Result<(), ParseError> {
         simple_hint: None,
     });
 
-    let result = parser.parse_with_grammar_cached(&grammar, &[]);
+    let result = parser.parse_iterative(&grammar, &[]);
 
     // KNOWN ISSUE: AnyNumberOf currently doesn't enforce min_times properly
     // It returns a match even when min_times is not met
@@ -303,7 +303,7 @@ fn test_sequence_with_gaps() -> Result<(), ParseError> {
         simple_hint: None,
     });
 
-    let result = parser.parse_with_grammar_cached(&grammar, &[])?;
+    let result = parser.parse_iterative(&grammar, &[])?;
 
     // Should successfully match both keywords despite gaps
     match &result {
@@ -368,7 +368,7 @@ fn test_sequence_without_gaps() -> Result<(), ParseError> {
         simple_hint: None,
     });
 
-    let result = parser.parse_with_grammar_cached(&grammar, &[]);
+    let result = parser.parse_iterative(&grammar, &[]);
 
     // In Rust, with allow_gaps=false and whitespace present:
     // The current implementation still matches because Sequence doesn't strictly enforce
@@ -449,7 +449,7 @@ fn test_oneof_with_exclude() -> Result<(), ParseError> {
         simple_hint: None,
     });
 
-    let result = parser.parse_with_grammar_cached(&grammar, &[])?;
+    let result = parser.parse_iterative(&grammar, &[])?;
 
     // Should match "bar"
     match result {

@@ -13,18 +13,38 @@ fn main() {
 
     // Get a grammar that has a parse_mode
     if let Some(grammar) = dialect.get_segment_grammar("SelectStatementSegment") {
-        println!(
-            "SelectStatementSegment parse_mode: {:?}",
-            grammar.parse_mode()
-        );
+        match &grammar {
+            sqlfluffrs_types::RootGrammar::TableDriven { grammar_id, tables } => {
+                println!(
+                    "SelectStatementSegment is TableDriven with parse_mode: {:?}",
+                    tables.get_inst(*grammar_id).parse_mode
+                );
+            }
+            sqlfluffrs_types::RootGrammar::Arc(grammar) => {
+                println!(
+                    "SelectStatementSegment is Arc with parse_mode: {:?}",
+                    grammar.parse_mode()
+                );
+            }
+        }
     }
 
     // Get another grammar
     if let Some(grammar) = dialect.get_segment_grammar("BracketedColumnReferenceListGrammar") {
-        println!(
-            "BracketedColumnReferenceListGrammar parse_mode: {:?}",
-            grammar.parse_mode()
-        );
+        match &grammar {
+            sqlfluffrs_types::RootGrammar::TableDriven { grammar_id, tables } => {
+                println!(
+                    "BracketedColumnReferenceListGrammar is TableDriven with parse_mode: {:?}",
+                    tables.get_inst(*grammar_id).parse_mode
+                );
+            }
+            sqlfluffrs_types::RootGrammar::Arc(grammar) => {
+                println!(
+                    "BracketedColumnReferenceListGrammar is Arc with parse_mode: {:?}",
+                    grammar.parse_mode()
+                );
+            }
+        }
     }
 
     println!("\nParseMode variants:");

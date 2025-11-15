@@ -45,7 +45,7 @@ fn test_oneof_takes_longest_match() -> Result<(), ParseError> {
         simple_hint: None,
     });
 
-    let result = parser.parse_with_grammar_cached(&grammar, &[])?;
+    let result = parser.parse_iterative(&grammar, &[])?;
     let result_str = format!("{:?}", result);
 
     // Should match "foobar", not just "foo"
@@ -92,7 +92,7 @@ fn test_anynumberof_min_max_constraints() -> Result<(), ParseError> {
     });
 
     let mut parser = Parser::new(&tokens, dialect.clone());
-    let result = parser.parse_with_grammar_cached(&grammar_min, &[]);
+    let result = parser.parse_iterative(&grammar_min, &[]);
     assert!(
         result.is_ok(),
         "Should match with min_times=2 when we have 3 'a's"
@@ -114,7 +114,7 @@ fn test_anynumberof_min_max_constraints() -> Result<(), ParseError> {
     });
 
     let mut parser2 = Parser::new(&tokens, dialect);
-    let _result2 = parser2.parse_with_grammar_cached(&grammar_max, &[])?;
+    let _result2 = parser2.parse_iterative(&grammar_max, &[])?;
 
     // Should stop after 2 matches
     assert!(
@@ -169,7 +169,7 @@ fn test_sequence_with_optional_elements() -> Result<(), ParseError> {
         simple_hint: None,
     });
 
-    let result = parser.parse_with_grammar_cached(&grammar, &[])?;
+    let result = parser.parse_iterative(&grammar, &[])?;
     let result_str = format!("{:?}", result);
 
     // Should match "a" and "c", skipping optional "b"
@@ -240,7 +240,7 @@ fn test_delimited_trailing_delimiter() -> Result<(), ParseError> {
         simple_hint: None,
     });
 
-    let result = parser.parse_with_grammar_cached(&grammar, &[])?;
+    let result = parser.parse_iterative(&grammar, &[])?;
     let result_str = format!("{:?}", result);
 
     // Should successfully match with trailing comma
@@ -307,7 +307,7 @@ fn test_nested_sequences() -> Result<(), ParseError> {
         simple_hint: None,
     });
 
-    let result = parser.parse_with_grammar_cached(&outer_sequence, &[])?;
+    let result = parser.parse_iterative(&outer_sequence, &[])?;
     let result_str = format!("{:?}", result);
 
     // Should match all three elements
@@ -358,7 +358,7 @@ fn test_greedy_mode_with_terminators() -> Result<(), ParseError> {
         simple_hint: None,
     });
 
-    let result = parser.parse_with_grammar_cached(&grammar, &[])?;
+    let result = parser.parse_iterative(&grammar, &[])?;
     let result_str = format!("{:?}", result);
 
     // Should match "a" and may include "b" as unparsable, but not "c"
@@ -418,7 +418,7 @@ fn test_anynumberof_matches_in_order() -> Result<(), ParseError> {
         simple_hint: None,
     });
 
-    let result = parser.parse_with_grammar_cached(&grammar, &[])?;
+    let result = parser.parse_iterative(&grammar, &[])?;
     let result_str = format!("{:?}", result);
 
     // Should match all four elements
@@ -469,7 +469,7 @@ fn test_empty_brackets() -> Result<(), ParseError> {
         simple_hint: None,
     });
 
-    let result = parser.parse_with_grammar_cached(&grammar, &[])?;
+    let result = parser.parse_iterative(&grammar, &[])?;
 
     // Should successfully match empty brackets
     assert!(!result.is_empty(), "Should match empty brackets '()'");

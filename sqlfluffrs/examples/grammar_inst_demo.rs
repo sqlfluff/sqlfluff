@@ -5,7 +5,7 @@
 ///! 2. Memory layout and field packing
 ///! 3. Basic usage patterns
 use sqlfluffrs_types::{
-    GrammarFlags, GrammarId, GrammarInst, GrammarInstParseMode, GrammarVariant, ParseMode,
+    GrammarFlags, GrammarId, GrammarInst, ParseMode, GrammarVariant,
 };
 
 fn main() {
@@ -86,7 +86,7 @@ fn main() {
 
     // Example 1: Create a Sequence instruction
     let sequence = GrammarInst::new(GrammarVariant::Sequence)
-        .with_parse_mode(GrammarInstParseMode::Greedy)
+        .with_parse_mode(ParseMode::Greedy)
         .with_flags(GrammarFlags::empty().with(GrammarFlags::ALLOW_GAPS))
         .with_children(0, 3)
         .with_terminators(10, 2);

@@ -11,16 +11,9 @@ fn table_driven_select_parses() {
     let sql = "SELECT 1";
     let dialect = Dialect::Ansi;
 
-    // Instead of using SelectStatementSegment (which currently maps to a Ref that
-    // only matches the keyword), let's use a simpler approach: try to get the
-    // underlying Sequence grammar that should contain both the keyword and the
-    // numeric clause. If that's not available, we'll construct a test manually.
-    //
-    // For now, let's try SelectClauseSegment which should be the sequence that
-    // includes both SELECT keyword and the column list.
-    let root =
-        sqlfluffrs_dialects::dialect::ansi::parser::get_ansi_segment_grammar("SelectClauseSegment")
-            .expect("SelectClauseSegment not found in ANSI tables");
+    // Use the table-driven root grammar so parsing is started from the top-level
+    // table-driven grammar (this exercises the table-driven parser path).
+    let root = dialect.get_root_grammar();
 
     // Build a lexer for the dialect
     let lexer = Lexer::new(None, dialect.get_lexers().to_vec());
@@ -36,7 +29,7 @@ fn table_driven_select_parses() {
     let mut parser = Parser::new_with_root(&tokens, dialect, root);
 
     // Parse starting from the root
-    let node = parser.parse_root().expect("parse_root should not error");
+    let node = parser.call_rule_as_root().expect("parse_root should not error");
     eprintln!("PARSE_RESULT: {:?}", node);
 
     assert!(!node.is_empty(), "Expected non-empty parse for 'SELECT 1'");

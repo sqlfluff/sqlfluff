@@ -1,10 +1,95 @@
+//! Iterative parser handlers — concise summary
+//!
+//! This module implements iterative, frame-based handlers for Sequence and Bracketed grammars.
+//! It mirrors the Python parser behavior while applying targeted fixes and optimizations.
+//!
+//! Key responsibilities
+//! - Restore and manage parser position from frames so concurrent frames don't interfere.
+//! - Compute and propagate max_idx (stop bound) using combined terminators and parent constraints.
+//! - Use collection checkpoints to tentatively collect "transparent" tokens (whitespace/newline)
+//!   and commit/rollback those collections when sequences/bracketed constructs succeed/fail.
+//! - Preserve Python parity for Empty results: Empty must never consume tokens. If a child
+//!   inadvertently advanced the parser and returned Empty, its end position is corrected to the
+//!   element start to maintain the Empty contract.
+//! - Treat Meta and Nothing grammars inline to avoid unnecessary child frames:
+//!   - Meta: injected directly into the parent's accumulated nodes (special-cased "indent").
+//!   - Nothing/Empty: handled as immediate, successful Empty matches that advance element index.
+//!
+//! Sequence handler summary
+//! - Initial:
+//!   - Restore position, compute max_idx from sequence + parent terminators, push collection checkpoint,
+//!     initialize Sequence context and push the first non-meta child frame (or complete immediately for empty sequences).
+//!   - Do NOT pre-skip whitespace before the first element; whitespace skipping occurs between successfully matched elements.
+//! - WaitingForChild:
+//!   - When a child returns Empty:
+//!     - If element is optional: skip it and continue.
+//!     - If element is required:
+//!       - STRICT: treat as failure (return Empty).
+//!       - GREEDY_ONCE_STARTED: if nothing matched yet → Empty; otherwise wrap remaining content as Unparsable.
+//!       - GREEDY: wrap remaining content as Unparsable, possibly after collecting intervening whitespace.
+//!   - When a child returns non-empty:
+//!     - Update matched index, push child's node to accumulated children.
+//!     - Retroactively collect any non-code tokens between last code token and end of the child when allow_gaps==false.
+//!     - If allow_gaps==true, tentatively collect transparent tokens between elements; store their positions in the frame context
+//!       and only commit them if this sequence ultimately succeeds (or when parent consumes the result).
+//!     - GREEDY_ONCE_STARTED trimming: after the first successful child match, trim max_idx to the next terminator
+//!       (respecting parent terminators and preventing terminator/start-of-next-element ambiguity). Pass the trimmed max_idx to subsequent children.
+//!     - Handle boundary checks: if next element is required but next_pos >= max_idx, either fail (STRICT or no partial matches yet)
+//!       or succeed partially (GREEDY) and return accumulated result (committing tentative collections).
+//!   - When all elements processed:
+//!     - In STRICT: end at the exact matched index.
+//!     - In GREEDY modes: may wrap remaining content as Unparsable and end at max_idx.
+//!     - Store tentatively collected transparent positions in stack.transparent_positions and rollback the local checkpoint
+//!       (actual global marking is deferred until a parent uses this result).
+//!     - Transition to Combining to build final node.
+//! - Combining:
+//!   - Build Node::Sequence or Node::Empty from accumulated children, attach the tentatively collected transparent positions
+//!     to the frame (so parents can commit them) and transition to Complete.
+//!
+//! Bracketed handler summary
+//! - Initial:
+//!   - Combine terminators, push opening-bracket child frame, initialize Bracketed context.
+//! - WaitingForChild (three-phase flow):
+//!   - MatchingOpen:
+//!     - If opener fails → produce Empty (Combining) so upper layers may retry.
+//!     - On opener success → optionally collect whitespace/newlines after opener (if allow_gaps), and push a Sequence
+//!       for the bracket content with the closing bracket grammar used as a terminator (parent_max_idx set appropriately).
+//!   - MatchingContent:
+//!     - Flatten Sequence/DelimitedList children into the bracketed accumulated list to avoid double nesting.
+//!     - Respect precomputed closing bracket positions (optimization) but preserve GREEDY semantics:
+//!       - STRICT requires content to end exactly at the closing bracket position; otherwise fail/return Empty for retry.
+//!       - GREEDY allows unparsable content inside; continue and attempt to match closer afterward.
+//!     - Collect whitespace/newlines before the closer if allow_gaps, then push the closing-bracket child frame.
+//!   - MatchingClose:
+//!     - If closer matches → push it to accumulated, mark state Complete and transition to Combining.
+//!     - If closer fails → STRICT returns Empty (retry), GREEDY may log/error but still complete to avoid stalling the parent.
+//! - Combining:
+//!   - Build Node::Bracketed on success (BracketedState::Complete) or Node::Empty on failure.
+//!   - Determine bracket_persists (round brackets persist=True, square/curly persist=False) by inspecting opening bracket grammar.
+//!   - Transition to Complete with appropriate end position.
+//!
+//! Cross-cutting principles & important fixes
+//! - Transparent token handling: always collect tentatively per-frame and only commit to global state when a frame's result is actually used.
+//! - Empty contract fix: correct child_end_pos to element_start when a child returned Empty but left the parser advanced.
+//! - Trimming and propagation of max_idx: after initial match in GreedyOnceStarted, trim using combined terminators and pass trimmed max_idx to children.
+//! - Retroactive whitespace collection for non-allow_gaps sequences ensures intervening whitespace between code tokens is included in the accumulated children.
+//!
+//! Implementation notes
+//! - The handlers use ParseFrame and FrameContext to store per-sequence/bracketed state (matched index, tentative collections, max_idx, etc.).
+//! - FrameResult::Done/Push are used to control the iterative parsing loop; results and transparent positions are stored in the stack for parent consumption.
+//! - Table-driven variants follow the same semantics but operate on GrammarId and use context lookups; the core behaviors (Empty handling, checkpoints, trimming,
+//!   allow_gaps handling, and parse_mode differences) remain consistent.
+//!
+//! This summary documents the intended behavior and key invariants to preserve Python parity, support backtracking, and allow Greedy/Strict semantics while
+//! avoiding duplicate nodes and unnecessary frame push/pop operations.
 use std::sync::Arc;
 
 use crate::parser::{
     iterative::{FrameResult, ParseFrameStack},
     BracketedState, FrameContext, FrameState, Node, ParseError, ParseFrame, Parser,
 };
-use sqlfluffrs_types::{Grammar, ParseMode};
+use sqlfluffrs_types::{Grammar, GrammarId, ParseMode};
+use uuid::timestamp::context;
 
 impl<'a> Parser<'_> {
     /// Handle Sequence grammar Initial state in iterative parser.
@@ -128,7 +213,7 @@ impl<'a> Parser<'_> {
             frame.end_pos = Some(start_idx);
             frame.state = FrameState::Combining;
             stack.push(&mut frame);
-            return Ok(crate::parser::iterative::FrameResult::Done);
+            return Ok(FrameResult::Done);
         }
 
         // Push first child to parse
@@ -1200,7 +1285,7 @@ impl<'a> Parser<'_> {
         &mut self,
         mut frame: ParseFrame,
         stack: &mut ParseFrameStack,
-    ) -> Result<crate::parser::iterative::FrameResult, ParseError> {
+    ) -> Result<FrameResult, ParseError> {
         let combine_end = frame.end_pos.unwrap_or(self.pos);
         log::debug!(
             "🔨 Sequence combining frame_id={}, range={}-{}",
@@ -1257,7 +1342,7 @@ impl<'a> Parser<'_> {
         frame.state = FrameState::Complete(result_node);
         frame.end_pos = Some(final_pos);
 
-        Ok(crate::parser::iterative::FrameResult::Push(frame))
+        Ok(FrameResult::Push(frame))
     }
 
     /// Handle Bracketed grammar Combining state - build final node from accumulated children.
@@ -1267,7 +1352,7 @@ impl<'a> Parser<'_> {
     pub(crate) fn handle_bracketed_combining(
         &mut self,
         mut frame: ParseFrame,
-    ) -> Result<crate::parser::iterative::FrameResult, ParseError> {
+    ) -> Result<FrameResult, ParseError> {
         let combine_end = frame.end_pos.unwrap_or(self.pos);
         log::debug!(
             "🔨 Bracketed combining at pos {}-{} - frame_id={}, accumulated={}",
@@ -1380,7 +1465,7 @@ impl<'a> Parser<'_> {
         frame.state = FrameState::Complete(result_node);
         frame.end_pos = Some(end_pos);
 
-        Ok(crate::parser::iterative::FrameResult::Push(frame))
+        Ok(FrameResult::Push(frame))
     }
 
     /// Handle Bracketed grammar Initial state in iterative parser.
@@ -1481,14 +1566,48 @@ impl<'a> Parser<'_> {
         Ok(FrameResult::Done) // Child pushed, continue main loop
     }
 
-    /// Handle Bracketed grammar WaitingForChild state in iterative parser
+    /// Handle Bracketed grammar WaitingForChild state in iterative parser.
+    ///
+    /// ## State Machine:
+    /// ```text
+    /// MatchingOpen
+    ///   ↓ (opening bracket matched)
+    ///   ├─→ Collect whitespace after opener if allow_gaps
+    ///   ├─→ Push Sequence(elements) as child with closing bracket as terminator
+    ///   └─→ MatchingContent
+    ///   ↓ (opening bracket failed)
+    ///   └─→ Terminal (fail with Empty)
+    /// MatchingContent
+    ///   ↓ (content matched)
+    ///   ├─→ Flatten Sequence/DelimitedList children into accumulated
+    ///   ├─→ Collect whitespace before closer if allow_gaps
+    ///   ├─→ Push closing bracket grammar as child
+    ///   └─→ MatchingClose
+    ///   ↓ (content failed - STRICT mode)
+    ///   └─→ Terminal (fail with Empty for retry)
+    ///   ↓ (content failed - GREEDY mode)
+    ///   └─→ Continue (may contain unparsable, which is allowed)
+    /// MatchingClose
+    ///   ↓ (closing bracket matched)
+    ///   └─→ Terminal (success with Bracketed node)
+    ///   ↓ (closing bracket failed)
+    ///   └─→ Terminal (fail with Empty in STRICT, error in GREEDY)
+    /// ```
+    ///
+    /// ## Key Behavior:
+    /// - Handles three main states: MatchingOpen, MatchingContent, MatchingClose.
+    /// - MatchingOpen: Attempts to match the opening bracket, transitions to MatchingContent on success, or fails if not found.
+    /// - MatchingContent: Parses the content inside brackets, flattens nested sequences, and checks for correct bracket closure.
+    /// - MatchingClose: Matches the closing bracket, finalizes the Bracketed node on success, or fails appropriately based on parse mode.
+    /// - Error handling: In STRICT mode, any mismatch or missing bracket results in Empty for retry; in GREEDY mode, allows unparsable content but logs errors.
+    /// - Maintains Python parity in state transitions and error handling, with optimizations for bracket position lookup.
     pub(crate) fn handle_bracketed_waiting_for_child(
         &mut self,
         mut frame: crate::parser::ParseFrame,
         child_node: &crate::parser::Node,
         child_end_pos: &usize,
         stack: &mut crate::parser::iterative::ParseFrameStack,
-    ) -> Result<crate::parser::iterative::FrameResult, crate::parser::ParseError> {
+    ) -> Result<FrameResult, crate::parser::ParseError> {
         // Extract the context from the frame
         let FrameContext::Bracketed {
             grammar,
@@ -1528,7 +1647,7 @@ impl<'a> Parser<'_> {
                     frame.end_pos = Some(frame.pos);
                     frame.state = FrameState::Combining;
                     stack.push(&mut frame);
-                    return Ok(crate::parser::iterative::FrameResult::Done);
+                    Ok(FrameResult::Done)
                 } else {
                     frame.accumulated.push(child_node.clone());
                     let content_start_idx = *child_end_pos;
@@ -1536,7 +1655,11 @@ impl<'a> Parser<'_> {
                         let idx = self.get_matching_bracket_idx(open_idx);
                         if let Some(close_idx) = idx {
                             let close_tok = self.tokens.get(close_idx);
-                            let before_tok = if close_idx > 0 { self.tokens.get(close_idx - 1) } else { None };
+                            let before_tok = if close_idx > 0 {
+                             self.tokens.get(close_idx - 1)
+                            } else {
+                                None
+                            };
                             let after_tok = self.tokens.get(close_idx + 1);
                             log::debug!(
                                 "[BRACKET-DEBUG] open_idx={}, close_idx={}, close_tok={:?}, before_tok={:?}, after_tok={:?}",
@@ -1546,7 +1669,10 @@ impl<'a> Parser<'_> {
                                 after_tok.map(|t| t.raw()),
                             );
                         } else {
-                            log::debug!("[BRACKET-DEBUG] open_idx={}, no matching close_idx", open_idx);
+                            log::debug!(
+                                "[BRACKET-DEBUG] open_idx={}, no matching close_idx",
+                                open_idx
+                            );
                         }
                         idx
                     });
@@ -1576,7 +1702,7 @@ impl<'a> Parser<'_> {
                                     frame.end_pos = Some(frame.pos);
                                     frame.state = FrameState::Combining;
                                     stack.push(&mut frame);
-                                    return Ok(crate::parser::iterative::FrameResult::Done);
+                                    return Ok(FrameResult::Done);
                                 }
                             }
                             check_pos += 1;
@@ -1684,7 +1810,7 @@ impl<'a> Parser<'_> {
                             frame.end_pos = Some(frame.pos);
                             frame.state = FrameState::Combining;
                             stack.push(&mut frame);
-                            return Ok(crate::parser::iterative::FrameResult::Done);
+                            return Ok(FrameResult::Done);
                         } else {
                             log::debug!("[BRACKET-DEBUG] GREEDY mode: Content didn't end at bracket, but continuing (may contain unparsable). check_pos={}, expected_close_pos={}", check_pos, expected_close_pos);
                         }
@@ -1796,11 +1922,7 @@ impl<'a> Parser<'_> {
                     child_end_pos
                 );
                 let window = 5;
-                let start = if self.pos >= window {
-                    self.pos - window
-                } else {
-                    0
-                };
+                let start = self.pos.saturating_sub(window);
                 let end = (self.pos + window + 1).min(self.tokens.len());
                 for idx in start..end {
                     let t = &self.tokens[idx];
@@ -1878,6 +2000,388 @@ impl<'a> Parser<'_> {
             }
         }
     }
+
+    pub(crate) fn handle_bracketed_table_driven_initial(
+        &mut self,
+        grammar_id: GrammarId,
+        mut frame: ParseFrame,
+        parent_terminators: &[GrammarId],
+        stack: &mut ParseFrameStack,
+    ) -> Result<FrameResult, ParseError> {
+        let ctx = self.grammar_ctx.expect("GrammarContext required");
+        let start_idx = frame.pos;
+        let local_terminators = ctx.terminators(grammar_id).collect::<Vec<GrammarId>>();
+        let reset_terminators = ctx.inst(grammar_id).flags.reset_terminators();
+        let all_terminators = self.combine_table_terminators(
+            &local_terminators,
+            parent_terminators,
+            reset_terminators,
+        );
+        let all_children: Vec<GrammarId> = ctx.children(grammar_id).collect();
+        if all_children.len() < 2 {
+            log::debug!("Bracketed[table]: Not enough children (need bracket_pairs + elements)");
+            stack
+                .results
+                .insert(frame.frame_id, (Node::Empty, start_idx, None));
+            return Ok(FrameResult::Done);
+        }
+        let (start_bracket_idx, _end_bracket_idx) = ctx.bracketed_config(grammar_id);
+        let open_bracket_id = all_children[start_bracket_idx];
+        initialize_table_driven_bracketed_frame(grammar_id, frame, stack, &all_terminators);
+        let parent_max_idx = stack.last_mut().unwrap().parent_max_idx;
+        let mut child_frame = create_table_driven_child_frame(
+            stack.frame_id_counter,
+            open_bracket_id,
+            start_idx,
+            &all_terminators,
+            FrameContext::None,
+            parent_max_idx,
+        );
+        update_parent_last_child_frame(stack);
+        stack.increment_frame_id_counter();
+        stack.push(&mut child_frame);
+        Ok(FrameResult::Done) // Child pushed, continue main loop
+    }
+
+    /// Handle Bracketed WaitingForChild state using table-driven approach
+    pub(crate) fn handle_bracketed_table_driven_waiting_for_child(
+        &mut self,
+        mut frame: ParseFrame,
+        child_node: &Node,
+        child_end_pos: &usize,
+        stack: &mut ParseFrameStack,
+    ) -> Result<FrameResult, ParseError> {
+        let ctx = self.grammar_ctx.expect("GrammarContext required");
+        // Extract needed fields from frame.context
+        let FrameContext::BracketedTableDriven {
+            grammar_id,
+            state: bracket_state,
+            bracket_max_idx,
+            last_child_frame_id,
+        } = &mut frame.context
+        else {
+            unreachable!("Expected BracketedTableDriven context");
+        };
+
+        let all_children: Vec<GrammarId> = ctx.children(*grammar_id).collect();
+        let (start_bracket_idx, end_bracket_idx) = ctx.bracketed_config(*grammar_id);
+        let close_bracket_id = all_children[end_bracket_idx];
+        let content_ids = all_children
+            .iter()
+            .cloned()
+            .enumerate()
+            .filter(|(idx, _id)| *idx != start_bracket_idx && *idx != end_bracket_idx)
+            .map(|(_, id)| id)
+            .collect::<Vec<_>>();
+
+        log::debug!(
+            "Bracketed[table] WaitingForChild: frame_id={}, child_empty={}, state={:?}",
+            frame.frame_id,
+            child_node.is_empty(),
+            bracket_state
+        );
+
+        match bracket_state {
+            BracketedState::MatchingOpen => {
+                if child_node.is_empty() {
+                    self.pos = frame.pos;
+                    log::debug!("Bracketed[table] returning Empty (no opening bracket)",);
+                    // Transition to Combining to finalize Empty result
+                    frame.end_pos = Some(frame.pos);
+                    frame.state = FrameState::Combining;
+                    stack.push(&mut frame);
+                    return Ok(FrameResult::Done);
+                }
+
+                let ctx = self.grammar_ctx.expect("GrammarContext required");
+                let grammar_inst = ctx.inst(frame.grammar_id.expect("grammar_id required"));
+                let allow_gaps = grammar_inst.flags.allow_gaps();
+                let parse_mode = grammar_inst.parse_mode;
+
+                frame.accumulated.push(child_node.clone());
+                let content_start_idx = *child_end_pos;
+                // TODO: do we need to recompute bracket_max_idx here, does the context not provide this?
+                let bracket_max_idx = child_node
+                    .get_token_idx()
+                    .and_then(|i| self.get_matching_bracket_idx(i));
+                if let Some(close_idx) = bracket_max_idx {
+                    log::debug!(
+                        "Bracketed: Using pre-computed closing bracket at idx={} as max_idx",
+                        close_idx
+                    );
+                }
+
+                // If allow_gaps is false and there's whitespace after opening bracket, fail in STRICT mode
+                if !allow_gaps && parse_mode == ParseMode::Strict {
+                    if let Some(ws_pos) = (content_start_idx..self.tokens.len())
+                        .find(|&pos| !self.tokens[pos].is_code())
+                    {
+                        log::debug!("Bracketed: allow_gaps=false, found whitespace/newline at {}, failing in STRICT mode", ws_pos);
+                        self.pos = frame.pos;
+
+                        // Transition to Combining to finalize Empty result
+                        frame.end_pos = Some(frame.pos);
+                        frame.state = FrameState::Combining;
+                        stack.push(&mut frame);
+                        return Ok(FrameResult::Done);
+                    }
+                }
+
+                // Collect whitespace/newlines after opening bracket if allow_gaps
+                if allow_gaps {
+                    let code_idx =
+                        self.skip_start_index_forward_to_code(content_start_idx, self.tokens.len());
+                    for pos in content_start_idx..code_idx {
+                        if let Some(tok) = self.tokens.get(pos) {
+                            match &*tok.get_type() {
+                                "whitespace" => frame.accumulated.push(Node::Whitespace {
+                                    raw: tok.raw().to_string(),
+                                    token_idx: pos,
+                                }),
+                                "newline" => frame.accumulated.push(Node::Newline {
+                                    raw: tok.raw().to_string(),
+                                    token_idx: pos,
+                                }),
+                                _ => {}
+                            }
+                        }
+                    }
+                    self.pos = code_idx;
+                } else {
+                    self.pos = content_start_idx;
+                }
+
+                // Transition to MatchingContent state
+                *bracket_state = BracketedState::MatchingContent;
+
+                let content_grammar_id = if !content_ids.is_empty() {
+                    content_ids[0]
+                } else {
+                    // No elements - skip to closing bracket
+                    // update the state in the frame context to MatchingClose
+                    *bracket_state = BracketedState::MatchingClose;
+                    let mut close_frame = ParseFrame::new_table_driven_child(
+                        stack.frame_id_counter,
+                        close_bracket_id,
+                        self.pos,
+                        frame.table_terminators.clone(),
+                        bracket_max_idx,
+                    );
+
+                    frame.state = FrameState::WaitingForChild {
+                        child_index: 0,
+                        total_children: 1,
+                    };
+
+                    stack.increment_frame_id_counter();
+                    stack.push(&mut frame);
+                    stack.push(&mut close_frame);
+                    return Ok(FrameResult::Done);
+                };
+
+                // Push content frame
+                let context = FrameContext::BracketedTableDriven {
+                    grammar_id: *grammar_id,
+                    state: BracketedState::MatchingContent,
+                    last_child_frame_id: *last_child_frame_id,
+                    bracket_max_idx,
+                };
+                let mut child_frame = create_table_driven_child_frame(
+                    stack.frame_id_counter,
+                    content_grammar_id,
+                    self.pos,
+                    &[close_bracket_id],
+                    context,
+                    bracket_max_idx,
+                );
+                *last_child_frame_id = Some(stack.frame_id_counter);
+                stack.increment_frame_id_counter();
+                stack.push(&mut frame);
+                stack.push(&mut child_frame);
+                Ok(FrameResult::Done)
+            }
+            BracketedState::MatchingContent => {
+                let mut check_pos = *child_end_pos;
+                check_pos = self.skip_start_index_forward_to_code(check_pos, self.tokens.len());
+
+                // Python reference: sequence.py Bracketed.match() lines ~530-570
+                // In Python, Bracketed doesn't pre-compute the closing bracket position.
+                // Instead, it lets Sequence.match() handle the content (which may return
+                // unparsable segments in GREEDY mode), then matches the closing bracket.
+                // This Rust logic optimizes by pre-computing the bracket position, but
+                // must still respect GREEDY mode semantics.
+                let ctx = self.grammar_ctx.expect("GrammarContext required");
+                let grammar_inst = ctx.inst(frame.grammar_id.expect("grammar_id required"));
+                let parse_mode = grammar_inst.parse_mode;
+                let allow_gaps = grammar_inst.flags.allow_gaps();
+                let (_start_bracket_idx, end_bracket_idx) = ctx.bracketed_config(*grammar_id);
+                let close_bracket_id = all_children[end_bracket_idx];
+
+                if let Some(expected_close_pos) = *bracket_max_idx {
+                    if check_pos != expected_close_pos {
+                        if parse_mode == ParseMode::Strict {
+                            log::debug!("Bracketed[table] STRICT mode: content did not end at closing bracket, returning Empty for retry. frame_id={}, frame.pos={}", frame.frame_id, frame.pos);
+                            self.pos = frame.pos;
+                            // Transition to Combining to finalize Empty result
+                            frame.end_pos = Some(frame.pos);
+                            frame.state = FrameState::Combining;
+                            stack.push(&mut frame);
+                            return Ok(FrameResult::Done);
+                        } else {
+                            log::debug!("Bracketed[table] GREEDY mode: content did not end at closing bracket, but continuing (may contain unparsable). check_pos={}, expected_close_pos={}", check_pos, expected_close_pos);
+                        }
+                    } else {
+                        log::debug!("[BRACKET-DEBUG] Bracketed content ends at expected closing bracket (check_pos == expected_close_pos)");
+                    }
+                }
+
+                // Replace deep-clone traversal with a reference-based flattening.
+                // Only clone the nodes that actually get pushed into `frame.accumulated`.
+                if !child_node.is_empty() {
+                    let mut to_process: Vec<&Node> = vec![child_node];
+                    while let Some(node) = to_process.pop() {
+                        match node {
+                            Node::Sequence { children } | Node::DelimitedList { children } => {
+                                // push children as references (reverse order to preserve original order)
+                                for child in children.iter().rev() {
+                                    to_process.push(child);
+                                }
+                            }
+                            _ => {
+                                // clone only the leaf node we actually keep
+                                frame.accumulated.push(node.clone());
+                            }
+                        }
+                    }
+                }
+
+                let gap_start = *child_end_pos;
+                self.pos = gap_start;
+                log::debug!(
+                    "DEBUG: After content, gap_start={}, current_pos={}",
+                    gap_start,
+                    self.pos
+                );
+
+                if allow_gaps {
+                    let code_idx =
+                        self.skip_start_index_forward_to_code(gap_start, self.tokens.len());
+                    log::debug!(
+                        "[BRACKET-DEBUG] After content, gap_start={}, code_idx={}, token at gap_start={:?}, token at code_idx={:?}",
+                        gap_start, code_idx,
+                        self.tokens.get(gap_start).map(|t| t.raw()),
+                        self.tokens.get(code_idx).map(|t| t.raw()),
+                    );
+                    for pos in self.pos..code_idx {
+                        if let Some(tok) = self.tokens.get(pos) {
+                            let tok_type = tok.get_type();
+                            if tok_type == "whitespace" {
+                                frame.accumulated.push(Node::Whitespace {
+                                    raw: tok.raw().to_string(),
+                                    token_idx: pos,
+                                });
+                            } else if tok_type == "newline" {
+                                frame.accumulated.push(Node::Newline {
+                                    raw: tok.raw().to_string(),
+                                    token_idx: pos,
+                                });
+                            }
+                        }
+                    }
+                    self.pos = code_idx;
+                }
+                log::debug!(
+                    "DEBUG: Checking for closing bracket - self.pos={}, tokens.len={}",
+                    self.pos,
+                    self.tokens.len()
+                );
+                if self.pos >= self.tokens.len()
+                    || self.peek().is_some_and(|t| t.get_type() == "end_of_file")
+                {
+                    log::debug!("DEBUG: No closing bracket found!");
+                    if parse_mode == ParseMode::Strict {
+                        self.pos = frame.pos;
+                        // Transition to Combining to finalize Empty result
+                        frame.end_pos = Some(frame.pos);
+                        frame.state = FrameState::Combining;
+                        stack.push(&mut frame);
+                        Ok(FrameResult::Done)
+                    } else {
+                        panic!("Couldn't find closing bracket for opening bracket");
+                    }
+                } else {
+                    log::debug!("DEBUG: Transitioning to MatchingClose!");
+                    *bracket_state = BracketedState::MatchingClose;
+                    let parent_limit = frame.parent_max_idx;
+                    log::debug!(
+                        "DEBUG: Creating closing bracket child at pos={}, parent_limit={:?}",
+                        self.pos,
+                        parent_limit
+                    );
+                    let mut child_frame = create_table_driven_child_frame(
+                        stack.frame_id_counter,
+                        close_bracket_id,
+                        self.pos,
+                        &[close_bracket_id],
+                        FrameContext::None,
+                        parent_limit,
+                    );
+                    *last_child_frame_id = Some(stack.frame_id_counter);
+                    stack.increment_frame_id_counter();
+                    stack.push(&mut frame);
+                    stack.push(&mut child_frame);
+                    Ok(FrameResult::Done)
+                }
+            }
+            BracketedState::MatchingClose => {
+                log::debug!(
+                    "DEBUG: Bracketed[table] MatchingClose - child_node.is_empty={}, child_end_pos={}",
+                    child_node.is_empty(),
+                    child_end_pos
+                );
+                let ctx = self.grammar_ctx.expect("GrammarContext required");
+                let grammar_inst = ctx.inst(frame.grammar_id.expect("grammar_id required"));
+                let parse_mode = grammar_inst.parse_mode;
+
+                if child_node.is_empty() {
+                    if parse_mode == ParseMode::Strict {
+                        self.pos = frame.pos;
+                        frame.end_pos = Some(frame.pos);
+                    } else {
+                        // In GREEDY mode, not finding a closing bracket is an error
+                        // But we still need to store SOME result so the parent doesn't wait forever
+                        log::error!(
+                            "Bracketed[table] GREEDY mode: Couldn't find closing bracket for opening bracket at pos {}, frame_id={}",
+                            frame.pos,
+                            frame.frame_id
+                        );
+                        self.pos = frame.pos;
+                        frame.end_pos = Some(frame.pos);
+                    }
+                } else {
+                    frame.accumulated.push(child_node.clone());
+                    self.pos = *child_end_pos;
+                    log::debug!(
+                        "Bracketed[table] SUCCESS: {} children, transitioning to Combining at frame_id={}",
+                        frame.accumulated.len(),
+                        frame.frame_id
+                    );
+                    // Mark as Complete so the combining handler knows this is a successful match
+                    *bracket_state = BracketedState::Complete;
+                    frame.end_pos = Some(*child_end_pos);
+                }
+                // Transition to Combining to finalize result
+                frame.state = FrameState::Combining;
+                stack.push(&mut frame);
+                Ok(FrameResult::Done)
+            }
+            BracketedState::Complete => {
+                unreachable!(
+                    "BracketedState::Complete should not occur in WaitingForChild handler"
+                );
+            }
+        }
+    }
 }
 
 fn initialize_bracketed_frame(
@@ -1898,6 +2402,27 @@ fn initialize_bracketed_frame(
         bracket_max_idx: None,
     };
     frame.terminators = all_terminators;
+    stack.push(&mut frame);
+}
+
+fn initialize_table_driven_bracketed_frame(
+    grammar_id: GrammarId,
+    mut frame: ParseFrame,
+    stack: &mut ParseFrameStack,
+    all_terminators: &[GrammarId],
+) {
+    // Update frame with Bracketed context
+    frame.state = FrameState::WaitingForChild {
+        child_index: 0,
+        total_children: 3, // open, content, close
+    };
+    frame.context = FrameContext::BracketedTableDriven {
+        grammar_id,
+        state: BracketedState::MatchingOpen,
+        last_child_frame_id: None,
+        bracket_max_idx: None,
+    };
+    frame.table_terminators = all_terminators.to_vec();
     stack.push(&mut frame);
 }
 
@@ -1923,11 +2448,41 @@ fn create_child_frame(
         table_terminators: vec![],
     }
 }
+
+fn create_table_driven_child_frame(
+    frame_id: usize,
+    grammar_id: GrammarId,
+    start_idx: usize,
+    terminators: &[GrammarId],
+    context: FrameContext,
+    parent_max_idx: Option<usize>,
+) -> ParseFrame {
+    ParseFrame {
+        frame_id,
+        grammar: Arc::new(sqlfluffrs_types::Grammar::Nothing()), // Placeholder,
+        pos: start_idx,
+        terminators: vec![],
+        state: FrameState::Initial,
+        accumulated: vec![],
+        context,
+        parent_max_idx, // Propagate parent's limit!
+        end_pos: None,
+        transparent_positions: None,
+        element_key: None,
+        grammar_id: Some(grammar_id),
+        table_terminators: terminators.to_vec(),
+    }
+}
+
 fn update_parent_last_child_frame(stack: &mut ParseFrameStack) {
     let next_child_id = stack.frame_id_counter;
     if let Some(parent_frame) = stack.last_mut() {
         match &mut parent_frame.context {
             FrameContext::Bracketed {
+                last_child_frame_id,
+                ..
+            } => *last_child_frame_id = Some(next_child_id),
+            FrameContext::BracketedTableDriven {
                 last_child_frame_id,
                 ..
             } => *last_child_frame_id = Some(next_child_id),

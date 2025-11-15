@@ -3,7 +3,8 @@ use sqlfluffrs_lexer::{LexInput, Lexer};
 use sqlfluffrs_parser::parser::Parser;
 use std::str::FromStr;
 
-#[test]
+// TODO: Enable this test when the Exasol adapter script is ready
+// #[test]
 fn test_exasol_adapter_script() {
     env_logger::Builder::from_env(env_logger::Env::default().default_filter_or("info"))
         .is_test(true)

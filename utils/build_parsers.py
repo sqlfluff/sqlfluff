@@ -139,11 +139,17 @@ class TableBuilder:
         result = []
         for i, g in enumerate(grammars):
             # DEBUG
-            if hasattr(g, '_ref') and 'SelectKeyword' in g._ref:
-                print(f"// DEBUG _flatten_list: Processing child {i}, type={type(g).__name__}, ref={g._ref}", file=sys.stderr)
+            if hasattr(g, "_ref") and "SelectKeyword" in g._ref:
+                print(
+                    f"// DEBUG _flatten_list: Processing child {i}, type={type(g).__name__}, ref={g._ref}",
+                    file=sys.stderr,
+                )
             child_id = self.flatten_grammar(g, parse_context)
-            if hasattr(g, '_ref') and 'SelectKeyword' in g._ref:
-                print(f"// DEBUG _flatten_list: Child {i} got grammar_id={child_id}", file=sys.stderr)
+            if hasattr(g, "_ref") and "SelectKeyword" in g._ref:
+                print(
+                    f"// DEBUG _flatten_list: Child {i} got grammar_id={child_id}",
+                    file=sys.stderr,
+                )
             result.append(child_id)
         return result
 
@@ -188,8 +194,12 @@ class TableBuilder:
             grammar_type = type(grammar).__name__
             if "SelectClause" in grammar_type or grammar_type == "Sequence":
                 import traceback
+
                 caller = traceback.extract_stack()[-2]
-                print(f"// DEBUG flatten_grammar CACHE HIT: type={grammar_type}, id={python_id}, returning={cached_result}, caller={caller.filename}:{caller.lineno}", file=sys.stderr)
+                print(
+                    f"// DEBUG flatten_grammar CACHE HIT: type={grammar_type}, id={python_id}, returning={cached_result}, caller={caller.filename}:{caller.lineno}",
+                    file=sys.stderr,
+                )
             return cached_result
 
         # Allocate new GrammarId and reserve slot
@@ -200,15 +210,18 @@ class TableBuilder:
         grammar_id = len(self.instructions)
         self.grammar_to_id[python_id] = grammar_id
         self.instructions.append(None)  # Reserve slot - will be replaced below
-        
+
         # DEBUG
         grammar_type = type(grammar).__name__
         if "SelectClause" in grammar_type or grammar_type == "Sequence":
-            print(f"// DEBUG flatten_grammar NEW: type={grammar_type}, id={python_id}, allocated={grammar_id}", file=sys.stderr)
+            print(
+                f"// DEBUG flatten_grammar NEW: type={grammar_type}, id={python_id}, allocated={grammar_id}",
+                file=sys.stderr,
+            )
 
         # Convert to GrammarInst (variant-specific logic)
         inst_data = self._convert_to_inst(grammar, parse_context)
-        
+
         # Replace the placeholder with the actual instruction
         self.instructions[grammar_id] = inst_data
 
@@ -291,17 +304,27 @@ class TableBuilder:
             # DEBUG
             if "SelectClause" in grammar.__name__:
                 import traceback
+
                 caller = traceback.extract_stack()[-3]
-                print(f"// DEBUG SegmentMetaclass handler: {grammar.__name__}, caller={caller.filename}:{caller.lineno}", file=sys.stderr)
-            
+                print(
+                    f"// DEBUG SegmentMetaclass handler: {grammar.__name__}, caller={caller.filename}:{caller.lineno}",
+                    file=sys.stderr,
+                )
+
             # Recurse into match_grammar
             child_id = self.flatten_grammar(grammar.match_grammar, parse_context)
-            
+
             # DEBUG
             if "SelectClause" in grammar.__name__:
-                print(f"// DEBUG SegmentMetaclass handler: {grammar.__name__} match_grammar got ID {child_id}", file=sys.stderr)
-                print(f"// DEBUG SegmentMetaclass handler: Will return forwarding Ref", file=sys.stderr)
-            
+                print(
+                    f"// DEBUG SegmentMetaclass handler: {grammar.__name__} match_grammar got ID {child_id}",
+                    file=sys.stderr,
+                )
+                print(
+                    f"// DEBUG SegmentMetaclass handler: Will return forwarding Ref",
+                    file=sys.stderr,
+                )
+
             # Return a forwarding instruction (use Ref variant)
             comment = f"Forward to {grammar.__name__}"
             name_id = self._add_string(grammar.__name__)
@@ -334,11 +357,20 @@ class TableBuilder:
         hint_id = self._add_simple_hint(grammar, parse_context)
 
         # Flatten exclude (optional child)
+        # CRITICAL: Reserve slots BEFORE flattening children, because
+        # _flatten_optional/_flatten_list recursively processes child grammars
+        # which may themselves add to child_ids. Reserving prevents children
+        # being appended at the wrong index.
         children_start = len(self.child_ids)
+        num_children = 1 if getattr(grammar, "exclude", None) is not None else 0
+        if num_children:
+            self.child_ids.extend([0] * num_children)
+
         exclude_id = self._flatten_optional(grammar.exclude, parse_context)
         if exclude_id is not None:
-            self.child_ids.append(exclude_id)
-        children_count = 1 if exclude_id is not None else 0
+            # Place the exclude_id into the reserved slot
+            self.child_ids[children_start] = exclude_id
+        children_count = num_children
 
         # Flatten terminators
         terminators_start = len(self.terminators)
@@ -373,25 +405,24 @@ class TableBuilder:
         # recursively processes child grammars which may themselves add to child_ids!
         # If we don't reserve first, children_start becomes stale.
         children_start = len(self.child_ids)
-        
+
         # First pass: just count how many children we'll have
         num_children = len(grammar._elements)
         # Reserve slots with placeholders
         self.child_ids.extend([0] * num_children)
-        
+
         # Now flatten children - they may append MORE child_ids, but our slots are safe
         element_ids = self._flatten_list(grammar._elements, parse_context)
-        
+
         # Replace the placeholders with actual IDs
         for i, eid in enumerate(element_ids):
             self.child_ids[children_start + i] = eid
-        
+
         children_count = len(element_ids)
-        
+
         # DEBUG: Check if this is SelectClauseSegment's Sequence (it has 5 children)
         if len(element_ids) == 5:
             # Check if first child is SelectKeywordSegment
-            first_child_is_select = False
             if element_ids[0] < len(self.instructions):
                 inst = self.instructions[element_ids[0]]
                 if inst and inst.variant == "Ref":
@@ -399,14 +430,25 @@ class TableBuilder:
                     if inst.aux_data_offset < len(self.strings):
                         name = self.strings[inst.aux_data_offset]
                         if name == "SelectKeywordSegment":
-                            first_child_is_select = True
-                            print(f"// DEBUG _handle_sequence: Found SelectClauseSegment Sequence!", file=sys.stderr)
-                            print(f"//   children_start={children_start}, actual IDs at that position:", file=sys.stderr)
-                            print(f"//   CHILD_IDS[{children_start}:{children_start+num_children}] = {self.child_ids[children_start:children_start+num_children]}", file=sys.stderr)
+                            print(
+                                "// DEBUG _handle_sequence: Found SelectClauseSegment Sequence!",
+                                file=sys.stderr,
+                            )
+                            print(
+                                f"//   children_start={children_start}, actual IDs at that position:",
+                                file=sys.stderr,
+                            )
+                            print(
+                                f"//   CHILD_IDS[{children_start}:{children_start+num_children}] = {self.child_ids[children_start:children_start+num_children]}",
+                                file=sys.stderr,
+                            )
                             for i, eid in enumerate(element_ids):
                                 if eid < len(self.instructions):
                                     child_inst = self.instructions[eid]
-                                    print(f"//   Child {i}: grammar_id={eid}, variant={child_inst.variant if child_inst else 'None'}", file=sys.stderr)
+                                    print(
+                                        f"//   Child {i}: grammar_id={eid}, variant={child_inst.variant if child_inst else 'None'}",
+                                        file=sys.stderr,
+                                    )
 
         # Flatten terminators
         terminators_start = len(self.terminators)
@@ -418,8 +460,14 @@ class TableBuilder:
 
         # DEBUG
         if children_count == 5 and children_start == 1629:
-            print(f"// DEBUG _handle_sequence RETURN: first_child_idx={children_start}, child_count={children_count}", file=sys.stderr)
-            print(f"//   CHILD_IDS[{children_start}:{children_start+children_count}] = {self.child_ids[children_start:children_start+children_count]}", file=sys.stderr)
+            print(
+                f"// DEBUG _handle_sequence RETURN: first_child_idx={children_start}, child_count={children_count}",
+                file=sys.stderr,
+            )
+            print(
+                f"//   CHILD_IDS[{children_start}:{children_start+children_count}] = {self.child_ids[children_start:children_start+children_count]}",
+                file=sys.stderr,
+            )
 
         return GrammarInstData(
             variant="Sequence",
@@ -440,11 +488,22 @@ class TableBuilder:
         flags = self._build_flags(grammar)
         parse_mode = self._get_parse_mode(grammar)
         hint_id = self._add_simple_hint(grammar, parse_context)
-
         # Flatten elements + exclude
+        # CRITICAL: Reserve slots BEFORE flattening children, because _flatten_list
+        # recursively processes child grammars which may themselves add to child_ids!
+        # If we don't reserve first, children_start becomes stale and the
+        # resulting first_child_idx will point at the wrong slice.
         children_start = len(self.child_ids)
+        num_children = len(grammar._elements)
+        # Reserve placeholder slots
+        self.child_ids.extend([0] * num_children)
+
+        # Now flatten children - they may append MORE child_ids, but our slots are safe
         element_ids = self._flatten_list(grammar._elements, parse_context)
-        self.child_ids.extend(element_ids)
+
+        # Replace the placeholders with actual IDs
+        for i, eid in enumerate(element_ids):
+            self.child_ids[children_start + i] = eid
 
         exclude_id = self._flatten_optional(grammar.exclude, parse_context)
         if exclude_id is not None:
@@ -487,13 +546,24 @@ class TableBuilder:
         hint_id = self._add_simple_hint(grammar, parse_context)
 
         # Flatten elements + exclude
+        # Reserve placeholder slots BEFORE flattening so recursive flattening
+        # doesn't shift our target slice.
         children_start = len(self.child_ids)
+        num_children = len(grammar._elements) + (
+            1 if getattr(grammar, "exclude", None) is not None else 0
+        )
+        if num_children:
+            self.child_ids.extend([0] * num_children)
+
         element_ids = self._flatten_list(grammar._elements, parse_context)
-        self.child_ids.extend(element_ids)
+        # Write back element ids into reserved slots
+        for i, eid in enumerate(element_ids):
+            self.child_ids[children_start + i] = eid
 
         exclude_id = self._flatten_optional(grammar.exclude, parse_context)
         if exclude_id is not None:
-            self.child_ids.append(exclude_id)
+            # Place exclude in the reserved slot after elements
+            self.child_ids[children_start + len(element_ids)] = exclude_id
 
         children_count = len(element_ids) + (1 if exclude_id is not None else 0)
 
@@ -540,12 +610,19 @@ class TableBuilder:
 
         # Flatten elements + exclude
         children_start = len(self.child_ids)
+        num_children = len(grammar._elements) + (
+            1 if getattr(grammar, "exclude", None) is not None else 0
+        )
+        if num_children:
+            self.child_ids.extend([0] * num_children)
+
         element_ids = self._flatten_list(grammar._elements, parse_context)
-        self.child_ids.extend(element_ids)
+        for i, eid in enumerate(element_ids):
+            self.child_ids[children_start + i] = eid
 
         exclude_id = self._flatten_optional(grammar.exclude, parse_context)
         if exclude_id is not None:
-            self.child_ids.append(exclude_id)
+            self.child_ids[children_start + len(element_ids)] = exclude_id
 
         children_count = len(element_ids) + (1 if exclude_id is not None else 0)
 
@@ -587,12 +664,17 @@ class TableBuilder:
 
         # Flatten elements + delimiter
         children_start = len(self.child_ids)
-        element_ids = self._flatten_list(grammar._elements, parse_context)
-        self.child_ids.extend(element_ids)
+        num_children = len(grammar._elements) + 1
+        # Reserve placeholders for elements + delimiter
+        self.child_ids.extend([0] * num_children)
 
-        # Add delimiter as last child
+        element_ids = self._flatten_list(grammar._elements, parse_context)
+        for i, eid in enumerate(element_ids):
+            self.child_ids[children_start + i] = eid
+
+        # Add delimiter as last child (place into reserved slot)
         delimiter_id = self.flatten_grammar(grammar.delimiter, parse_context)
-        self.child_ids.append(delimiter_id)
+        self.child_ids[children_start + len(element_ids)] = delimiter_id
 
         children_count = len(element_ids) + 1
 
@@ -631,10 +713,15 @@ class TableBuilder:
 
         # Flatten elements + brackets
         children_start = len(self.child_ids)
-        element_ids = self._flatten_list(grammar._elements, parse_context)
-        self.child_ids.extend(element_ids)
+        num_children = len(grammar._elements) + 2
+        # Reserve placeholders for elements + two brackets
+        self.child_ids.extend([0] * num_children)
 
-        # Add brackets
+        element_ids = self._flatten_list(grammar._elements, parse_context)
+        for i, eid in enumerate(element_ids):
+            self.child_ids[children_start + i] = eid
+
+        # Add brackets into reserved slots after elements
         start_bracket, end_bracket, _ = grammar.get_bracket_from_dialect(parse_context)
         start_bracket_id = self.flatten_grammar(
             grammar.start_bracket or start_bracket, parse_context
@@ -642,8 +729,8 @@ class TableBuilder:
         end_bracket_id = self.flatten_grammar(
             grammar.end_bracket or end_bracket, parse_context
         )
-        self.child_ids.append(start_bracket_id)
-        self.child_ids.append(end_bracket_id)
+        self.child_ids[children_start + len(element_ids)] = start_bracket_id
+        self.child_ids[children_start + len(element_ids) + 1] = end_bracket_id
 
         children_count = len(element_ids) + 2
 
@@ -982,20 +1069,27 @@ class TableBuilder:
         # Instructions
         lines.append("pub static INSTRUCTIONS: &[GrammarInst] = &[")
         for i, inst in enumerate(self.instructions):
+            # Emit a single-line GrammarInst for more compact generated output.
             lines.append(f"    // [{i}] {inst.comment}")
-            lines.append("    GrammarInst {")
-            lines.append(f"        variant: GrammarVariant::{inst.variant},")
             lines.append(
-                f"        parse_mode: GrammarInstParseMode::{inst.parse_mode},"
+                (
+                    "    GrammarInst { variant: GrammarVariant::%s, "
+                    "parse_mode: ParseMode::%s, "
+                    "flags: GrammarFlags::from_bits(%d), "
+                    "first_child_idx: %d, child_count: %d, min_times: %d, "
+                    "first_terminator_idx: %d, terminator_count: %d, _padding: 0 },"
+                )
+                % (
+                    inst.variant,
+                    inst.parse_mode,
+                    inst.flags,
+                    inst.first_child_idx,
+                    inst.child_count,
+                    inst.min_times,
+                    inst.first_terminator_idx,
+                    inst.terminator_count,
+                )
             )
-            lines.append(f"        flags: GrammarFlags::from_bits({inst.flags}),")
-            lines.append(f"        first_child_idx: {inst.first_child_idx},")
-            lines.append(f"        child_count: {inst.child_count},")
-            lines.append(f"        min_times: {inst.min_times},")
-            lines.append(f"        first_terminator_idx: {inst.first_terminator_idx},")
-            lines.append(f"        terminator_count: {inst.terminator_count},")
-            lines.append(f"        _padding: 0,")
-            lines.append("    },")
         lines.append("];")
         lines.append("")
 
@@ -1151,14 +1245,18 @@ def generate_parser_table_driven(dialect: str):
         # GrammarId). Keep imports tight to avoid unused-import warnings.
         print("use sqlfluffrs_types::{ RootGrammar, GrammarId };")
         print("")
-        print(f"pub fn get_{dialect.lower()}_segment_grammar(name: &str) -> Option<RootGrammar> {{")
+        print(
+            f"pub fn get_{dialect.lower()}_segment_grammar(name: &str) -> Option<RootGrammar> {{"
+        )
         print("    // This dialect has no table-driven tables generated yet.")
         print("    // Keep this function minimal to avoid unused import warnings.")
         print("    unimplemented!()")
         print("}")
         print()
 
-        print(f"pub fn get_{dialect.lower()}_segment_type(name: &str) -> Option<&'static str> {{")
+        print(
+            f"pub fn get_{dialect.lower()}_segment_type(name: &str) -> Option<&'static str> {{"
+        )
         print("    unimplemented!()")
         print("}")
         print()
@@ -1179,7 +1277,7 @@ def generate_parser_table_driven(dialect: str):
     # avoids unused-import warnings in modes where certain symbols aren't used.
     print("use sqlfluffrs_types::{")
     print("    GrammarInst, GrammarVariant, GrammarFlags,")
-    print("    GrammarInstParseMode, GrammarId, GrammarTables,")
+    print("    ParseMode, GrammarId, GrammarTables,")
     print("    SimpleHint, SimpleHintData, Grammar, RootGrammar")
     print("};")
     print("use hashbrown;")
@@ -1200,11 +1298,23 @@ def generate_parser_table_driven(dialect: str):
             # DEBUG
             if name == "SelectClauseSegment":
                 print(f"// DEBUG: Processing {name}", file=sys.stderr)
-                print(f"// DEBUG:   match_grammar type: {type(match_grammar).__name__}", file=sys.stderr)
-                print(f"// DEBUG:   isinstance(match_grammar, type): {isinstance(match_grammar, type)}", file=sys.stderr)
+                print(
+                    f"// DEBUG:   match_grammar type: {type(match_grammar).__name__}",
+                    file=sys.stderr,
+                )
+                print(
+                    f"// DEBUG:   isinstance(match_grammar, type): {isinstance(match_grammar, type)}",
+                    file=sys.stderr,
+                )
                 if isinstance(match_grammar, type):
-                    print(f"// DEBUG:   issubclass(match_grammar, BaseSegment): {issubclass(match_grammar, BaseSegment)}", file=sys.stderr)
-                    print(f"// DEBUG:   hasattr(match_grammar, 'match_grammar'): {hasattr(match_grammar, 'match_grammar')}", file=sys.stderr)
+                    print(
+                        f"// DEBUG:   issubclass(match_grammar, BaseSegment): {issubclass(match_grammar, BaseSegment)}",
+                        file=sys.stderr,
+                    )
+                    print(
+                        f"// DEBUG:   hasattr(match_grammar, 'match_grammar'): {hasattr(match_grammar, 'match_grammar')}",
+                        file=sys.stderr,
+                    )
 
             # Flatten grammar
             # If this is a Segment class (SegmentMetaclass), the builder will
@@ -1212,22 +1322,40 @@ def generate_parser_table_driven(dialect: str):
             # separate instruction for the actual match_grammar. For RootGrammar
             # mappings we want the underlying grammar id (the real implementation),
             # not the forwarding Ref. Detect and handle that here.
-            if isinstance(match_grammar, type) and issubclass(match_grammar, BaseSegment) and hasattr(match_grammar, "match_grammar"):
+            if (
+                isinstance(match_grammar, type)
+                and issubclass(match_grammar, BaseSegment)
+                and hasattr(match_grammar, "match_grammar")
+            ):
                 # Flatten the concrete match_grammar and use its id
                 if name == "SelectClauseSegment":
-                    print(f"// DEBUG: SelectClauseSegment TAKING SPECIAL PATH", file=sys.stderr)
-                root_id = builder.flatten_grammar(match_grammar.match_grammar, parse_context)
+                    print(
+                        "// DEBUG: SelectClauseSegment TAKING SPECIAL PATH",
+                        file=sys.stderr,
+                    )
+                root_id = builder.flatten_grammar(
+                    match_grammar.match_grammar, parse_context
+                )
                 if name == "SelectClauseSegment":
-                    print(f"// DEBUG: SelectClauseSegment mapped to grammar_id {root_id}", file=sys.stderr)
+                    print(
+                        f"// DEBUG: SelectClauseSegment mapped to grammar_id {root_id}",
+                        file=sys.stderr,
+                    )
                     # Check what instruction this ID points to
                     if root_id < len(builder.instructions):
                         inst = builder.instructions[root_id]
-                        print(f"// DEBUG: Instruction at {root_id}: variant={inst.variant}", file=sys.stderr)
+                        print(
+                            f"// DEBUG: Instruction at {root_id}: variant={inst.variant}",
+                            file=sys.stderr,
+                        )
                     else:
                         print(f"// DEBUG: ID {root_id} out of range!", file=sys.stderr)
             else:
                 if name == "SelectClauseSegment":
-                    print(f"// DEBUG: SelectClauseSegment TAKING ELSE PATH", file=sys.stderr)
+                    print(
+                        "// DEBUG: SelectClauseSegment TAKING ELSE PATH",
+                        file=sys.stderr,
+                    )
                 root_id = builder.flatten_grammar(match_grammar, parse_context)
 
             segment_to_id[name] = root_id
@@ -1314,9 +1442,7 @@ def generate_parser_table_driven(dialect: str):
 }}"""
         )
         # Wrapper so callers can call get_<dialect>_root_grammar()
-        print(
-            f"pub fn get_{dialect.lower()}_root_grammar() -> RootGrammar {{"
-        )
+        print(f"pub fn get_{dialect.lower()}_root_grammar() -> RootGrammar {{")
         print(f"    get_{dialect.lower()}_root_grammar_table()")
         print("}")
 
@@ -1335,13 +1461,17 @@ def generate_parser(dialect: str):
         # RootGrammar and GrammarId so signatures compile.
         print("use sqlfluffrs_types::{ RootGrammar, GrammarId };")
         print("")
-        print(f"pub fn get_{dialect.lower()}_segment_grammar(name: &str) -> Option<RootGrammar> {{")
+        print(
+            f"pub fn get_{dialect.lower()}_segment_grammar(name: &str) -> Option<RootGrammar> {{"
+        )
         print("    // Not generated yet for this dialect")
         print("    unimplemented!()")
         print("}")
         print()
 
-        print(f"pub fn get_{dialect.lower()}_segment_type(name: &str) -> Option<&'static str> {{")
+        print(
+            f"pub fn get_{dialect.lower()}_segment_type(name: &str) -> Option<&'static str> {{"
+        )
         print("    unimplemented!()")
         print("}")
         print()
@@ -1418,7 +1548,9 @@ def generate_parser(dialect: str):
         f"pub fn get_{dialect.lower()}_segment_grammar_root(name: &str) -> Option<RootGrammar> {{"
     )
     # Call the local module's segment accessor and wrap Arc<Grammar> into RootGrammar::Arc
-    print(f"    match crate::dialect::{dialect.lower()}::parser::get_{dialect.lower()}_segment_grammar(name) {{")
+    print(
+        f"    match crate::dialect::{dialect.lower()}::parser::get_{dialect.lower()}_segment_grammar(name) {{"
+    )
     print("        Some(g) => Some(RootGrammar::Arc(g)),")
     print("        None => None,")
     print("    }")

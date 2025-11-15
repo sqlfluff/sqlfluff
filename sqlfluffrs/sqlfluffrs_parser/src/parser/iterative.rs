@@ -77,6 +77,8 @@ impl ParseFrameStack {
 use std::hash::Hash;
 use std::sync::Arc;
 
+use crate::parser::cache::CacheKey;
+
 use super::{FrameContext, FrameState, Node, ParseError, ParseFrame};
 
 // Import Parser from core module
@@ -381,7 +383,7 @@ impl Parser<'_> {
                     log::debug!(
                         "🔍 Trying match at pos {}: {}",
                         frame.pos,
-                        Self::build_grammar_path(&frame, &stack)
+                        self.build_grammar_path(&frame, &stack)
                     );
 
                     match self.handle_frame_initial(frame, &mut stack, iteration_count)? {
@@ -416,7 +418,7 @@ impl Parser<'_> {
                         "🔨 Combining at pos {}-{}: {}",
                         frame.pos,
                         combine_end.saturating_sub(1),
-                        Self::build_grammar_path(&frame, &stack)
+                        self.build_grammar_path(&frame, &stack)
                     );
 
                     // Delegate to specific handler based on grammar type
@@ -460,7 +462,7 @@ impl Parser<'_> {
                             }
                         }
                         FrameContext::RefTableDriven { .. } => {
-                            match self.handle_ref_table_driven_combining(frame, &mut stack)? {
+                            match self.handle_ref_table_driven_combining(frame)? {
                                 FrameResult::Done => continue 'main_loop,
                                 FrameResult::Push(mut updated_frame) => {
                                     stack.push(&mut updated_frame);
@@ -532,37 +534,7 @@ impl Parser<'_> {
                     // The main loop then stores the result in stack.results for parent frames to access.
                     // This separation keeps handlers focused on producing results, while the main
                     // loop coordinates result storage.
-
-                    // Log grammar path - different indicator for Empty vs matched nodes
-                    let end_pos = frame.end_pos.unwrap_or(self.pos);
-                    match node {
-                        Node::Empty => {
-                            log::debug!(
-                                "❌ No match at pos {}: {}",
-                                frame.pos,
-                                Self::build_grammar_path(&frame, &stack)
-                            );
-                        }
-                        _ => {
-                            log::debug!(
-                                "✅ Match at pos {}-{}: {}",
-                                frame.pos,
-                                end_pos.saturating_sub(1),
-                                Self::build_grammar_path(&frame, &stack)
-                            );
-                        }
-                    }
-
-                    // Use the end_pos stored in the frame (or fall back to self.pos)
-                    let end_pos = frame.end_pos.unwrap_or(self.pos);
-
-                    // Get element_key if any (set by OneOf for AnyNumberOf tracking)
-                    let element_key = frame.element_key;
-
-                    // This frame is done - insert result
-                    stack
-                        .results
-                        .insert(frame.frame_id, (node.clone(), end_pos, element_key));
+                    self.commit_frame_result(&mut stack, &frame, node);
                 }
             }
         }
@@ -744,6 +716,17 @@ impl Parser<'_> {
         grammar_id: sqlfluffrs_types::GrammarId,
         parent_terminators: &[sqlfluffrs_types::GrammarId],
     ) -> Result<Node, ParseError> {
+        // Check cache first, unless disabled
+        let start_pos = self.pos;
+        // let cache_key = CacheKey::new(
+        //     start_pos,
+        //     grammar_for_cache,
+        //     self.tokens,
+        //     max_idx,
+        //     parent_terminators,
+        //     &mut self.grammar_hash_cache,
+        // );
+
         // Create initial stack with a single table-driven frame
         let mut stack = ParseFrameStack::new();
         let initial_frame_id = stack.frame_id_counter;
@@ -774,7 +757,7 @@ impl Parser<'_> {
                 );
             }
 
-            let mut frame = frame_from_stack;
+            let frame = frame_from_stack;
 
             // Log periodically
             if iteration_count.is_multiple_of(5000) {
@@ -816,31 +799,120 @@ impl Parser<'_> {
                         }
                     }
                 }
-                FrameState::Complete(node) => {
-                    // If this is the top-level frame (frame_id==initial_frame_id), return result
-                    if frame.frame_id == initial_frame_id {
-                        log::debug!(
-                            "Top-level frame {} complete, returning result",
-                            frame.frame_id
-                        );
-                        self.pos = frame.end_pos.unwrap_or(self.pos);
-                        return Ok(node);
-                    }
-
-                    // Otherwise, this is a child frame - store result for parent to retrieve
-                    log::debug!(
-                        "Child frame {} complete, storing result in stack.results",
-                        frame.frame_id
-                    );
-                    let end_pos = frame.end_pos.unwrap_or(frame.pos);
-                    stack.results.insert(frame.frame_id, (node, end_pos, None));
-                    continue 'main_loop;
+                FrameState::Complete(ref node) => {
+                    // This state is reached when a handler has finished producing a result.
+                    // The handler transitions the frame to Complete(node) and returns Push(frame).
+                    // The main loop then stores the result in stack.results for parent frames to access.
+                    // This separation keeps handlers focused on producing results, while the main
+                    // loop coordinates result storage.
+                    self.commit_frame_result(&mut stack, &frame, node);
                 }
             }
         }
 
-        // No result found - return Empty
-        Ok(Node::Empty)
+        if let Some((node, end_pos, _element_key)) = stack.results.get(&initial_frame_id) {
+            self.pos = *end_pos;
+
+            // // Mark transparent tokens as globally collected now that we're using this result
+            // if let Some(transparent_positions) = stack.transparent_positions.get(&initial_frame_id)
+            // {
+            //     for &pos in transparent_positions {
+            //         if !self.collected_transparent_positions.insert(pos) {
+            //             log::warn!("WARNING (initial): Position {} was already collected! Duplicate marking.", pos);
+            //         }
+            //     }
+            // }
+
+            // If the parse failed (returned Empty), provide diagnostic information
+            if node.is_empty() {
+                log::debug!("\n=== PARSE FAILED ===");
+                log::debug!("Parser stopped at position: {}", end_pos);
+                log::debug!("Total tokens: {}", self.tokens.len());
+
+                if *end_pos < self.tokens.len() {
+                    log::debug!("\nTokens around failure point:");
+                    let start = end_pos.saturating_sub(3);
+                    let end = (*end_pos + 4).min(self.tokens.len());
+                    for i in start..end {
+                        let marker = if i == *end_pos { " <<< HERE" } else { "" };
+                        if let Some(tok) = self.tokens.get(i) {
+                            log::debug!(
+                                "  [{}]: '{}' (type: {}){}",
+                                i,
+                                tok.raw(),
+                                tok.get_type(),
+                                marker
+                            );
+                        }
+                    }
+                }
+
+                // log::debug!("\nGrammar that failed to match:");
+                // log::debug!("  {}", grammar_for_log);
+                // log::debug!("===================\n");
+            }
+
+            // Collect transparent positions that were touched during this parse
+            // let transparent_positions: Vec<usize> = self
+            //     .collected_transparent_positions
+            //     .iter()
+            //     .filter(|&&pos| pos >= start_pos && pos < *end_pos)
+            //     .copied()
+            //     .collect();
+
+            // Store successful parse in cache
+            // let cache_value = Ok((node.clone(), *end_pos, transparent_positions));
+            // self.parse_cache.put(cache_key, cache_value);
+
+            Ok(node.clone())
+        } else {
+            // Store parse error in cache
+            let error = ParseError::new(format!(
+                "Iterative parse produced no result (initial_frame_id={}, stack.results has {} entries)",
+                initial_frame_id,
+                stack.results.len()
+            ));
+            // self.parse_cache.put(cache_key, Err(error.clone()));
+            Err(error)
+        }
+    }
+
+    fn commit_frame_result(
+        &mut self,
+        stack: &mut ParseFrameStack,
+        frame: &ParseFrame,
+        node: &Node,
+    ) {
+        // Log grammar path - different indicator for Empty vs matched nodes
+        let end_pos = frame.end_pos.unwrap_or(self.pos);
+        match node {
+            Node::Empty => {
+                log::debug!(
+                    "❌ No match at pos {}: {}",
+                    frame.pos,
+                    self.build_grammar_path(frame, stack)
+                );
+            }
+            _ => {
+                log::debug!(
+                    "✅ Match at pos {}-{}: {}",
+                    frame.pos,
+                    end_pos.saturating_sub(1),
+                    self.build_grammar_path(frame, stack)
+                );
+            }
+        }
+
+        // Use the end_pos stored in the frame (or fall back to self.pos)
+        let end_pos = frame.end_pos.unwrap_or(self.pos);
+
+        // Get element_key if any (set by OneOf for AnyNumberOf tracking)
+        let element_key = frame.element_key;
+
+        // This frame is done - insert result
+        stack
+            .results
+            .insert(frame.frame_id, (node.clone(), end_pos, element_key));
     }
 
     /// Helper that delegates combining state to the proper handler based on frame.context.
@@ -856,9 +928,7 @@ impl Parser<'_> {
             FrameContext::SequenceTableDriven { .. } => {
                 self.handle_sequence_table_driven_combining(frame, stack)
             }
-            FrameContext::RefTableDriven { .. } => {
-                self.handle_ref_table_driven_combining(frame, stack)
-            }
+            FrameContext::RefTableDriven { .. } => self.handle_ref_table_driven_combining(frame),
             FrameContext::DelimitedTableDriven { .. } => {
                 self.handle_delimited_table_driven_combining(frame, stack)
             }
@@ -997,18 +1067,42 @@ impl Parser<'_> {
     }
 
     /// Logs debug information about the current frame and stack.
-    /// Build a grammar path string showing the hierarchy of grammars being parsed
+    /// Build a grammar path string showing the hierarchy of grammars being parsed.
+    /// Supports both Arc<Grammar> and table-driven (GrammarId) frames.
     /// Format: "file -> statement -> select_statement -> ..."
-    fn build_grammar_path(frame: &ParseFrame, stack: &ParseFrameStack) -> String {
+    fn build_grammar_path(&self, frame: &ParseFrame, stack: &ParseFrameStack) -> String {
         let mut path_parts = Vec::new();
 
+        // Helper to get a name for either Grammar or GrammarId
+        fn grammar_id_name(parser: &Parser, frame: &ParseFrame) -> String {
+            if let Some(grammar_id) = frame.grammar_id {
+                // Table-driven: show grammar_id and its name if available
+                if let Some(ctx) = parser.grammar_ctx.as_ref() {
+                    let name = match ctx.variant(grammar_id) {
+                        sqlfluffrs_types::GrammarVariant::Ref => ctx.ref_name(grammar_id),
+                        sqlfluffrs_types::GrammarVariant::StringParser
+                        | sqlfluffrs_types::GrammarVariant::TypedParser
+                        | sqlfluffrs_types::GrammarVariant::MultiStringParser
+                        | sqlfluffrs_types::GrammarVariant::RegexParser => ctx.template(grammar_id),
+                        _ => &format!("{:?}", ctx.variant(grammar_id)),
+                    };
+                    format!("id[{}:{:?}]", grammar_id.0, name)
+                } else {
+                    format!("id[{}]", grammar_id.0)
+                }
+            } else {
+                // Arc<Grammar>
+                Parser::grammar_name(frame.grammar.as_ref())
+            }
+        }
+
         // Add the current frame's grammar first (most specific)
-        path_parts.push(Self::grammar_name(frame.grammar.as_ref()));
+        path_parts.push(grammar_id_name(self, frame));
 
         // Walk up the stack to build the full path, adding ancestors in order
         // Stack is in reverse order (top of stack is most recent), so we iterate in reverse
         for ancestor_frame in stack.iter().rev() {
-            path_parts.push(Self::grammar_name(ancestor_frame.grammar.as_ref()));
+            path_parts.push(grammar_id_name(self, ancestor_frame));
         }
 
         path_parts.join(" -> ")
@@ -1133,6 +1227,12 @@ impl Parser<'_> {
                 match res {
                     Ok(node) => {
                         // Insert result directly so parent frames can pick it up
+                        log::debug!(
+                            "[SYNC INSERT] frame_id={} StringParser result at pos {} -> node={:?}",
+                            frame.frame_id,
+                            self.pos,
+                            node
+                        );
                         stack.results.insert(frame.frame_id, (node, self.pos, None));
                         return Ok(FrameResult::Done);
                     }
@@ -1140,19 +1240,18 @@ impl Parser<'_> {
                 }
             }
             GrammarVariant::TypedParser => {
-                let res = self.handle_typed_parser_table_driven(grammar_id, ctx);
-                match res {
-                    Ok(node) => {
-                        stack.results.insert(frame.frame_id, (node, self.pos, None));
-                        return Ok(FrameResult::Done);
-                    }
-                    Err(e) => return Err(e),
-                }
+                self.handle_typed_parser_table_driven(frame, grammar_id, ctx)
             }
             GrammarVariant::MultiStringParser => {
                 let res = self.handle_multi_string_parser_table_driven(grammar_id, ctx);
                 match res {
                     Ok(node) => {
+                        log::debug!(
+                            "[SYNC INSERT] frame_id={} MultiStringParser result at pos {} -> node={:?}",
+                            frame.frame_id,
+                            self.pos,
+                            node
+                        );
                         stack.results.insert(frame.frame_id, (node, self.pos, None));
                         return Ok(FrameResult::Done);
                     }
@@ -1163,6 +1262,12 @@ impl Parser<'_> {
                 let res = self.handle_regex_parser_table_driven(grammar_id, ctx);
                 match res {
                     Ok(node) => {
+                        log::debug!(
+                            "[SYNC INSERT] frame_id={} RegexParser result at pos {} -> node={:?}",
+                            frame.frame_id,
+                            self.pos,
+                            node
+                        );
                         stack.results.insert(frame.frame_id, (node, self.pos, None));
                         return Ok(FrameResult::Done);
                     }
@@ -1173,6 +1278,12 @@ impl Parser<'_> {
                 let res = self.handle_nothing_table_driven();
                 match res {
                     Ok(node) => {
+                        log::debug!(
+                            "[SYNC INSERT] frame_id={} Nothing result at pos {} -> node={:?}",
+                            frame.frame_id,
+                            self.pos,
+                            node
+                        );
                         stack.results.insert(frame.frame_id, (node, self.pos, None));
                         return Ok(FrameResult::Done);
                     }
@@ -1183,6 +1294,12 @@ impl Parser<'_> {
                 let res = self.handle_empty_table_driven();
                 match res {
                     Ok(node) => {
+                        log::debug!(
+                            "[SYNC INSERT] frame_id={} Empty result at pos {} -> node={:?}",
+                            frame.frame_id,
+                            self.pos,
+                            node
+                        );
                         stack.results.insert(frame.frame_id, (node, self.pos, None));
                         return Ok(FrameResult::Done);
                     }
@@ -1193,6 +1310,12 @@ impl Parser<'_> {
                 let res = self.handle_missing_table_driven();
                 match res {
                     Ok(node) => {
+                        log::debug!(
+                            "[SYNC INSERT] frame_id={} Missing result at pos {} -> node={:?}",
+                            frame.frame_id,
+                            self.pos,
+                            node
+                        );
                         stack.results.insert(frame.frame_id, (node, self.pos, None));
                         return Ok(FrameResult::Done);
                     }
@@ -1203,6 +1326,12 @@ impl Parser<'_> {
                 let res = self.handle_token_table_driven(grammar_id, ctx);
                 match res {
                     Ok(node) => {
+                        log::debug!(
+                            "[SYNC INSERT] frame_id={} Token result at pos {} -> node={:?}",
+                            frame.frame_id,
+                            self.pos,
+                            node
+                        );
                         stack.results.insert(frame.frame_id, (node, self.pos, None));
                         return Ok(FrameResult::Done);
                     }
@@ -1213,6 +1342,12 @@ impl Parser<'_> {
                 let res = self.handle_meta_table_driven(grammar_id, ctx);
                 match res {
                     Ok(node) => {
+                        log::debug!(
+                            "[SYNC INSERT] frame_id={} Meta result at pos {} -> node={:?}",
+                            frame.frame_id,
+                            self.pos,
+                            node
+                        );
                         stack.results.insert(frame.frame_id, (node, self.pos, None));
                         return Ok(FrameResult::Done);
                     }
@@ -1223,6 +1358,12 @@ impl Parser<'_> {
                 let res = self.handle_noncode_matcher_table_driven();
                 match res {
                     Ok(node) => {
+                        log::debug!(
+                            "[SYNC INSERT] frame_id={} NonCodeMatcher result at pos {} -> node={:?}",
+                            frame.frame_id,
+                            self.pos,
+                            node
+                        );
                         stack.results.insert(frame.frame_id, (node, self.pos, None));
                         return Ok(FrameResult::Done);
                     }

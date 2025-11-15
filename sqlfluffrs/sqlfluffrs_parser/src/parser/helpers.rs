@@ -10,7 +10,7 @@ use hashbrown::HashSet;
 use super::core::Parser;
 use super::Node;
 use crate::parser::utils::skip_start_index_forward_to_code;
-use sqlfluffrs_types::{Grammar, ParseMode, Token};
+use sqlfluffrs_types::{Grammar, GrammarId, ParseMode, Token};
 
 impl<'a> Parser<'a> {
     /// Combine parent and local terminators based on reset_terminators flag.
@@ -26,6 +26,30 @@ impl<'a> Parser<'a> {
         parent_terminators: &[Arc<Grammar>],
         reset_terminators: bool,
     ) -> Vec<Arc<Grammar>> {
+        if reset_terminators {
+            local_terminators.to_vec()
+        } else {
+            local_terminators
+                .iter()
+                .cloned()
+                .chain(parent_terminators.iter().cloned())
+                .collect()
+        }
+    }
+
+    /// Combine parent and local terminators based on reset_terminators flag.
+    ///
+    /// This is a common pattern used by all handlers (AnySetOf, AnyNumberOf, OneOf, Sequence, etc.)
+    /// to determine which terminators to use for child parsing.
+    ///
+    /// If reset_terminators is true, only local_terminators are used.
+    /// If reset_terminators is false, both local and parent terminators are combined.
+    pub(crate) fn combine_table_terminators(
+        &self,
+        local_terminators: &[GrammarId],
+        parent_terminators: &[GrammarId],
+        reset_terminators: bool,
+    ) -> Vec<GrammarId> {
         if reset_terminators {
             local_terminators.to_vec()
         } else {
@@ -226,7 +250,7 @@ impl<'a> Parser<'a> {
         let first_types: HashSet<String> = first_token.get_all_types();
 
         log::debug!(
-            "Pruning {} options at pos {} (token: '{}', types: {:?})",
+            "Pruned: {} options at pos {} (token: '{}', types: {:?})",
             options.len(),
             self.pos,
             first_raw,
@@ -299,7 +323,7 @@ impl<'a> Parser<'a> {
 
         for (match_idx, opt) in available_options.iter().enumerate() {
             let saved_pos = self.pos;
-            match self.parse_with_grammar_cached(&opt, terminators) {
+            match self.parse_iterative(&opt, terminators) {
                 Ok(node) => {
                     let length = self.pos - saved_pos;
                     log::debug!("Option {} matched with length {}: {:#?}", opt, length, node);
@@ -814,7 +838,7 @@ impl<'a> Parser<'a> {
                         let check_pos = self.pos;
                         self.pos = saved_pos;
 
-                        if let Ok(node) = self.parse_with_grammar_cached(&term, &[]) {
+                        if let Ok(node) = self.parse_iterative(&term, &[]) {
                             let is_empty = node.is_empty();
                             self.pos = check_pos;
 
@@ -841,7 +865,7 @@ impl<'a> Parser<'a> {
                 let check_pos = self.pos;
                 self.pos = saved_pos;
 
-                if let Ok(node) = self.parse_with_grammar_cached(&term, &[]) {
+                if let Ok(node) = self.parse_iterative(&term, &[]) {
                     // Check if the node is "empty" in various ways
                     let is_empty = node.is_empty();
 
@@ -948,7 +972,7 @@ impl<'a> Parser<'a> {
                         let check_pos = self.pos;
                         self.pos = saved_pos;
 
-                        if let Ok(node) = self.parse_with_grammar_cached(&term, &[]) {
+                        if let Ok(node) = self.parse_iterative(&term, &[]) {
                             let is_empty = node.is_empty();
                             self.pos = check_pos;
 
@@ -974,7 +998,7 @@ impl<'a> Parser<'a> {
                 let check_pos = self.pos;
                 self.pos = saved_pos;
 
-                if let Ok(node) = self.parse_with_grammar_cached(&term, &[]) {
+                if let Ok(node) = self.parse_iterative(&term, &[]) {
                     let is_empty = node.is_empty();
                     self.pos = check_pos;
 
@@ -1133,8 +1157,47 @@ impl<'a> Parser<'a> {
             available_options.push(opt_id);
         }
 
+        // Compute human-readable names for kept and dropped options for debugging
+        if let Some(ctx) = self.grammar_ctx {
+            let mut kept_names: Vec<String> = Vec::new();
+            let mut dropped_names: Vec<String> = Vec::new();
+            for &opt_id in options {
+                let var = ctx.variant(opt_id);
+                let name = match var {
+                    sqlfluffrs_types::GrammarVariant::Ref => ctx.ref_name(opt_id).to_string(),
+                    sqlfluffrs_types::GrammarVariant::StringParser
+                    | sqlfluffrs_types::GrammarVariant::TypedParser
+                    | sqlfluffrs_types::GrammarVariant::RegexParser => ctx.template(opt_id).to_string(),
+                    sqlfluffrs_types::GrammarVariant::Meta => {
+                        let aux = ctx.tables().aux_data_offsets[opt_id.get() as usize];
+                        ctx.tables().get_string(aux).to_string()
+                    }
+                    other => format!("{:?}", other),
+                };
+                if available_options.contains(&opt_id) {
+                    kept_names.push(name);
+                } else {
+                    dropped_names.push(name);
+                }
+            }
+            log::debug!(
+                "Prune result: kept={} dropped={} kept_names={:?} dropped_names={:?}",
+                available_options.len(),
+                options.len() - available_options.len(),
+                kept_names,
+                dropped_names
+            );
+        } else {
+            log::debug!(
+                "Prune result: kept={} dropped={} (grammar context not available for names)",
+                available_options.len(),
+                options.len() - available_options.len()
+            );
+        }
+
         self.pruning_kept
             .set(self.pruning_kept.get() + available_options.len());
+
         available_options
     }
 
@@ -1192,7 +1255,7 @@ impl<'a> Parser<'a> {
             let check_pos = self.pos;
             self.pos = saved_pos;
 
-            if let Ok(node) = self.parse_with_grammar_id(*term_id, &[]) {
+            if let Ok(node) = self.parse_table_driven_iterative(*term_id, &[]) {
                 let is_empty = node.is_empty();
                 self.pos = check_pos;
 
@@ -1259,7 +1322,7 @@ impl<'a> Parser<'a> {
 
             // Check if we're at a terminator
             for term_id in terminators {
-                if let Ok(node) = self.parse_with_grammar_id(*term_id, &[]) {
+                if let Ok(node) = self.parse_table_driven_iterative(*term_id, &[]) {
                     if !node.is_empty() {
                         log::debug!("  Found terminator at idx {}: {:?}", idx, term_id);
                         self.pos = saved_pos;

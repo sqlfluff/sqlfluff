@@ -185,8 +185,7 @@ fn main() {
     compare_architectures();
 
     println!("═══════════════════════════════════════════════════════════");
-    println!("\nBaseline memory profiling complete!");
-    println!("See documentation in agent_output/TABLE_DRIVEN_GRAMMAR_*.md");
+    println!("\nBaseline memory profiling complete!");;
     println!("\nNext steps:");
     println!("  1. Review these baseline metrics");
     println!("  2. Proceed to Phase 2: Design table structures");

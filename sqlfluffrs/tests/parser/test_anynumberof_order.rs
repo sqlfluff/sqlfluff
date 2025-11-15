@@ -8,12 +8,27 @@ fn test_anynumberof_trim_function() {
     let (tokens, _errors) = lexer.lex(input, false);
 
     // Load the FunctionSegment from the ANSI dialect
-    let grammar =
+    let grammar_root =
         get_ansi_segment_grammar("FunctionSegment").expect("FunctionContentsGrammar not found");
 
-    let mut parser = Parser::new(&tokens, sqlfluffrs_dialects::Dialect::Ansi);
     let _ = env_logger::builder().is_test(true).try_init();
-    let node = parser.parse_with_grammar_cached(&grammar, &[]).unwrap();
+    let node = match grammar_root {
+        RootGrammar::Arc(g) => {
+            let mut parser = Parser::new(&tokens, Dialect::Ansi);
+            parser.parse_iterative(&g, &[]).unwrap()
+        }
+        RootGrammar::TableDriven { grammar_id, tables } => {
+            // Construct a parser configured for table-driven parsing with the provided root
+            let mut parser = Parser::new_with_root(
+                &tokens,
+                Dialect::Ansi,
+                RootGrammar::TableDriven { grammar_id, tables },
+            );
+            parser
+                .parse_table_driven_iterative(grammar_id, &[])
+                .unwrap()
+        }
+    };
     println!("{:#?}", node);
     // The result should match the TRIM grammar, not the EXTRACT/SUBSTRING grammar
     assert!(
@@ -31,12 +46,26 @@ fn test_anynumberof_trim_function_with_expression() {
     let (tokens, _errors) = lexer.lex(input, false);
 
     // Load the FunctionSegment from the ANSI dialect
-    let grammar =
+    let grammar_root =
         get_ansi_segment_grammar("FunctionSegment").expect("FunctionContentsGrammar not found");
 
-    let mut parser = Parser::new(&tokens, sqlfluffrs_dialects::Dialect::Ansi);
     let _ = env_logger::builder().is_test(true).try_init();
-    let node = parser.parse_with_grammar_cached(&grammar, &[]).unwrap();
+    let node = match grammar_root {
+        RootGrammar::Arc(g) => {
+            let mut parser = Parser::new(&tokens, Dialect::Ansi);
+            parser.parse_iterative(&g, &[]).unwrap()
+        }
+        RootGrammar::TableDriven { grammar_id, tables } => {
+            let mut parser = Parser::new_with_root(
+                &tokens,
+                Dialect::Ansi,
+                RootGrammar::TableDriven { grammar_id, tables },
+            );
+            parser
+                .parse_table_driven_iterative(grammar_id, &[])
+                .unwrap()
+        }
+    };
     println!("{:#?}", node);
     // The result should match the TRIM grammar, not the EXTRACT/SUBSTRING grammar
     assert!(
@@ -46,6 +75,7 @@ fn test_anynumberof_trim_function_with_expression() {
 }
 
 use sqlfluffrs_parser::parser::{Node, Parser};
+use sqlfluffrs_types::RootGrammar;
 fn contains_trim_parameters_grammar(node: &Node) -> bool {
     match node {
         Node::Ref { name, .. } if name == "TrimParametersGrammar" => true,
@@ -59,8 +89,8 @@ fn contains_trim_parameters_grammar(node: &Node) -> bool {
         _ => false,
     }
 }
-use sqlfluffrs_dialects::dialect::ansi::matcher::ANSI_LEXERS;
 use sqlfluffrs_dialects::dialect::ansi::parser::get_ansi_segment_grammar;
+use sqlfluffrs_dialects::{dialect::ansi::matcher::ANSI_LEXERS, Dialect};
 use sqlfluffrs_lexer::{LexInput, Lexer};
 
 #[test]
@@ -72,12 +102,25 @@ fn test_anynumberof_order_and_earliest_match() {
     let (tokens, _errors) = lexer.lex(input, false);
 
     // Load grammars from the ANSI dialect
-    let grammar = get_ansi_segment_grammar("FunctionContentsGrammar")
+    let grammar_root = get_ansi_segment_grammar("FunctionContentsGrammar")
         .expect("FunctionContentsGrammar not found");
 
-    let mut parser = Parser::new(&tokens, sqlfluffrs_dialects::Dialect::Ansi);
     let _ = env_logger::builder().is_test(true).try_init();
-    let node = parser.parse_with_grammar_cached(&grammar, &[]).unwrap();
+    let node = match grammar_root {
+        RootGrammar::Arc(g) => {
+            let mut parser = Parser::new(&tokens, Dialect::Ansi);
+            parser.parse_iterative(&g, &[]).unwrap()
+        }
+        RootGrammar::TableDriven {
+            grammar_id,
+            tables: _,
+        } => {
+            let mut parser = Parser::new_with_tables(&tokens, Dialect::Ansi);
+            parser
+                .parse_table_driven_iterative(grammar_id, &[])
+                .unwrap()
+        }
+    };
     // The result should match the TRIM grammar, not the EXTRACT/SUBSTRING grammar
     println!("{:#?}", node);
     assert!(
@@ -110,11 +153,25 @@ fn test_anynumberof_order_and_earliest_match_with_expression() {
     let (tokens, _errors) = lexer.lex(input, false);
 
     // Load grammars from the ANSI dialect
-    let grammar = get_ansi_segment_grammar("FunctionContentsGrammar")
+    let grammar_root = get_ansi_segment_grammar("FunctionContentsGrammar")
         .expect("FunctionContentsGrammar not found");
 
-    let mut parser = Parser::new(&tokens, sqlfluffrs_dialects::Dialect::Ansi);
-    let node = parser.parse_with_grammar_cached(&grammar, &[]).unwrap();
+    let node = match grammar_root {
+        RootGrammar::Arc(g) => {
+            let mut parser = Parser::new(&tokens, Dialect::Ansi);
+            parser.parse_iterative(&g, &[]).unwrap()
+        }
+        RootGrammar::TableDriven { grammar_id, tables } => {
+            let mut parser = Parser::new_with_root(
+                &tokens,
+                Dialect::Ansi,
+                RootGrammar::TableDriven { grammar_id, tables },
+            );
+            parser
+                .parse_table_driven_iterative(grammar_id, &[])
+                .unwrap()
+        }
+    };
     // The result should match the TRIM grammar, not the EXTRACT/SUBSTRING grammar
     println!("{:#?}", node);
     assert!(

@@ -378,7 +378,6 @@ pub mod patterns {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::grammar_inst::{GrammarFlags, ParseMode};
     use crate::grammar_tables::SimpleHintData;
 
     #[test]

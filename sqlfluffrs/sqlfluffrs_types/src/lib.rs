@@ -18,7 +18,7 @@ pub use config::fluffconfig::python::PyFluffConfig;
 pub use config::fluffconfig::FluffConfig;
 pub use grammar_api::{patterns as grammar_patterns, GrammarContext};
 pub use grammar_inst::{
-    GrammarFlags, GrammarId, GrammarInst, GrammarVariant, ParseMode as GrammarInstParseMode,
+    GrammarFlags, GrammarId, GrammarInst, GrammarVariant,
 };
 pub use grammar_tables::{
     ChildrenIter, GrammarInstExt, GrammarTables, SimpleHintData, TableMemoryStats, TerminatorsIter,

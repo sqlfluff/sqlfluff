@@ -42,7 +42,7 @@ fn test_optionally_delimited_basic() -> Result<(), ParseError> {
     let lexer1 = Lexer::new(None, ANSI_LEXERS.to_vec());
     let (tokens1, _errors1) = lexer1.lex(input1, false);
     let mut parser1 = Parser::new(&tokens1, Dialect::Ansi);
-    let result1 = parser1.parse_with_grammar_cached(&grammar, &[])?;
+    let result1 = parser1.parse_iterative(&grammar, &[])?;
 
     println!("\nTest 1 result: {:#?}", result1);
     match result1 {
@@ -68,7 +68,7 @@ fn test_optionally_delimited_basic() -> Result<(), ParseError> {
     let lexer2 = Lexer::new(None, ANSI_LEXERS.to_vec());
     let (tokens2, _errors2) = lexer2.lex(input2, false);
     let mut parser2 = Parser::new(&tokens2, Dialect::Ansi);
-    let result2 = parser2.parse_with_grammar_cached(&grammar, &[])?;
+    let result2 = parser2.parse_iterative(&grammar, &[])?;
 
     println!("\nTest 2 result: {:#?}", result2);
     match result2 {
@@ -93,7 +93,7 @@ fn test_optionally_delimited_basic() -> Result<(), ParseError> {
     let lexer3 = Lexer::new(None, ANSI_LEXERS.to_vec());
     let (tokens3, _errors3) = lexer3.lex(input3, false);
     let mut parser3 = Parser::new(&tokens3, Dialect::Ansi);
-    let result3 = parser3.parse_with_grammar_cached(&grammar, &[])?;
+    let result3 = parser3.parse_iterative(&grammar, &[])?;
 
     println!("\nTest 3 result: {:#?}", result3);
     match result3 {
@@ -152,7 +152,7 @@ fn test_regular_delimited_requires_delimiters() -> Result<(), ParseError> {
     let lexer1 = Lexer::new(None, ANSI_LEXERS.to_vec());
     let (tokens1, _errors1) = lexer1.lex(input1, false);
     let mut parser1 = Parser::new(&tokens1, Dialect::Ansi);
-    let result1 = parser1.parse_with_grammar_cached(&grammar, &[])?;
+    let result1 = parser1.parse_iterative(&grammar, &[])?;
 
     println!("\nTest regular delimited 1 result: {:#?}", result1);
     match result1 {
@@ -173,7 +173,7 @@ fn test_regular_delimited_requires_delimiters() -> Result<(), ParseError> {
     let lexer2 = Lexer::new(None, ANSI_LEXERS.to_vec());
     let (tokens2, _errors2) = lexer2.lex(input2, false);
     let mut parser2 = Parser::new(&tokens2, Dialect::Ansi);
-    let result2 = parser2.parse_with_grammar_cached(&grammar, &[])?;
+    let result2 = parser2.parse_iterative(&grammar, &[])?;
 
     println!("\nTest regular delimited 2 result: {:#?}", result2);
     match result2 {
