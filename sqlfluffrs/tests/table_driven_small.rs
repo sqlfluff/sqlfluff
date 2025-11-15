@@ -146,6 +146,14 @@ fn bracketed_delimited_parses() {
 }
 
 #[test]
+fn empty_bracketed_parses() {
+    assert!(
+        parse_and_find("()", "EmptyStructLiteralBracketsSegment", "end_bracket"),
+        "Expected end_bracket in parse tree for EmptyStructLiteralBracketsSegment"
+    );
+}
+
+#[test]
 fn anynumberof_parses() {
     assert!(
         parse_and_find("[1][2]", "AccessorGrammar", "NumericLiteralSegment"),

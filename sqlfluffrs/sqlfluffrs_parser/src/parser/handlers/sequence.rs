@@ -2159,20 +2159,24 @@ impl<'a> Parser<'_> {
                 } else {
                     // No elements - skip to closing bracket
                     // update the state in the frame context to MatchingClose
+                    log::debug!("DEBUG: Transitioning to MatchingClose!");
                     *bracket_state = BracketedState::MatchingClose;
-                    let mut close_frame = ParseFrame::new_table_driven_child(
+                    let parent_limit = frame.parent_max_idx;
+                    log::debug!(
+                        "DEBUG: Creating closing bracket child at pos={}, parent_limit={:?}",
+                        self.pos,
+                        parent_limit
+                    );
+                    let mut close_frame = create_table_driven_child_frame(
                         stack.frame_id_counter,
                         close_bracket_id,
                         self.pos,
-                        frame.table_terminators.clone(),
-                        bracket_max_idx,
+                        &[close_bracket_id],
+                        FrameContext::None,
+                        parent_limit,
                     );
 
-                    frame.state = FrameState::WaitingForChild {
-                        child_index: 0,
-                        total_children: 1,
-                    };
-
+                    *last_child_frame_id = Some(stack.frame_id_counter);
                     stack.increment_frame_id_counter();
                     stack.push(&mut frame);
                     stack.push(&mut close_frame);
