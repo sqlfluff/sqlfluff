@@ -2616,7 +2616,7 @@ class AlterDynamicTableStatementSegment(BaseSegment):
             Ref("SearchOptimizationActionSegment"),
             Sequence(
                 "SET",
-                AnySetOf(
+                Delimited(
                     Ref("CommentEqualsClauseSegment"),
                     Sequence(
                         "TARGET_LAG",
@@ -2659,13 +2659,16 @@ class AlterDynamicTableStatementSegment(BaseSegment):
                             )
                         ),
                     ),
-                    Sequence("IMMUTABLE", "WHERE", Bracketed(Ref("ExpressionSegment"))),
-                    min_times=1,
+                    Sequence(
+                        "IMMUTABLE",
+                        "WHERE",
+                        Bracketed(Ref("ExpressionSegment")),
+                    ),
                 ),
             ),
             Sequence(
                 "UNSET",
-                AnySetOf(
+                Delimited(
                     "COMMENT",
                     "DATA_RETENTION_TIME_IN_DAYS",
                     "MAX_DATA_EXTENSION_TIME_IN_DAYS",
@@ -2673,7 +2676,6 @@ class AlterDynamicTableStatementSegment(BaseSegment):
                     "LOG_LEVEL",
                     Sequence("CONTACT", Ref("PurposeGrammar")),
                     "IMMUTABLE",
-                    min_times=1,
                 ),
             ),
         ),
