@@ -387,3 +387,21 @@ trailing_comma_strict_tsql_exec:
       type:
         comma:
           line_position: trailing:strict
+
+leading_comma_strict_tsql_exec:
+  # Regression test for NotImplementedError with leading:strict
+  # on T-SQL EXEC statements with parameters
+  # This test verifies that the exception handler at lines 518-525
+  # in rebreak.py properly catches and skips problematic cases
+  # when the comma needs to be moved from trailing to leading position
+  pass_str: |
+    EXEC admin.usp_update_default_dimension_member
+        @schema = 'dbo'
+        , @table = 'dim_territory';
+  configs:
+    core:
+      dialect: tsql
+    layout:
+      type:
+        comma:
+          line_position: leading:strict

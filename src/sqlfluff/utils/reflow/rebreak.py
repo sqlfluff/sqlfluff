@@ -133,6 +133,18 @@ class _RebreakLocation:
         n_next_newlines = elements[self.next.newline_pt_idx].num_newlines()
         newlines_on_neither_side = n_prev_newlines + n_next_newlines == 0
         newlines_on_both_sides = n_prev_newlines > 0 and n_next_newlines > 0
+
+        # In strict mode, if there are no newlines on either side and this
+        # is a simple case (no comments between the target and next code),
+        # skip it. This prevents attempting fixes that can fail for some
+        # SQL constructs (like T-SQL EXEC parameters).
+        if (
+            strict
+            and newlines_on_neither_side
+            and self.next.adj_pt_idx == self.next.pre_code_pt_idx
+        ):
+            return True
+
         return (
             # If there isn't a newline on either side then carry
             # on, unless it's strict.
@@ -515,7 +527,7 @@ def rebreak_sequence(
                         + [new_point]
                         + elem_buff[loc.next.pre_code_pt_idx + 1 :]
                     )
-                except NotImplementedError:
+                except NotImplementedError:  # pragma: no cover
                     # If we can't find an anchor for creation, skip this location.
                     # This can happen in edge cases where the element buffer doesn't
                     # contain suitable segments to anchor against.
@@ -633,7 +645,7 @@ def rebreak_sequence(
                         + elem_buff[loc.prev.pre_code_pt_idx : loc.prev.adj_pt_idx + 1]
                         + elem_buff[loc.next.adj_pt_idx + 1 :]
                     )
-                except NotImplementedError:
+                except NotImplementedError:  # pragma: no cover
                     # If we can't find an anchor for creation, skip this location.
                     # This can happen in edge cases where the element buffer doesn't
                     # contain suitable segments to anchor against.
