@@ -29,6 +29,23 @@ reflow_logger = logging.getLogger("sqlfluff.rules.reflow")
 # ---------------------------
 
 
+def _construct_alignment_whitespace(width: int, indent_unit: str) -> str:
+    """Construct alignment whitespace using tabs or spaces.
+
+    Args:
+        width: Number of whitespace characters needed.
+        indent_unit: Either 'tab' or 'space'.
+
+    Returns:
+        A string of whitespace (tabs or spaces) of the specified width.
+    """
+    if indent_unit == "tab":
+        return "\t" * width
+    else:
+        # For 'space' or any space string value
+        return " " * width
+
+
 def _pos_line(pm: PositionMarker, use_source: bool) -> int:
     """Return the line number in the chosen coordinate space."""
     return pm.line_no if use_source else pm.working_line_no
@@ -253,6 +270,8 @@ def _determine_aligned_inline_spacing(
     align_within: Optional[str],
     align_scope: Optional[str],
     align_space: Optional[str],
+    indent_unit: str = "space",
+    tab_space_size: int = 4,
 ) -> str:
     """Work out spacing for instance of an `align` constraint.
 
@@ -265,9 +284,11 @@ def _determine_aligned_inline_spacing(
         align_within: Parent segment type to limit alignment scope.
         align_scope: Further scope limitation (e.g., 'bracketed').
         align_space: Coordinate space override ('source', 'templated', or None).
+        indent_unit: The indent unit to use ('tab', 'space', or a space string).
+        tab_space_size: The number of spaces per tab (used when indent_unit='tab').
 
     Returns:
-        A string of spaces to achieve proper alignment.
+        A string of whitespace (tabs or spaces) to achieve proper alignment.
 
     Note:
         When align_space is None, automatically chooses 'source' coordinates if
@@ -413,7 +434,16 @@ def _determine_aligned_inline_spacing(
     # whitespace when the current position already exceeds the target.
     current_ws_pos = _pos_col(whitespace_seg.pos_marker, use_source_positions)
     pad_width = max(1, 1 + max_desired_line_pos - current_ws_pos)
-    desired_space = " " * pad_width
+
+    # When using tabs, convert character width to tab count
+    if indent_unit == "tab":
+        # Calculate how many tabs are needed based on tab_space_size
+        # Using ceiling division to ensure we have enough tabs
+        tab_count = (pad_width + tab_space_size - 1) // tab_space_size
+        desired_space = _construct_alignment_whitespace(tab_count, "tab")
+    else:
+        desired_space = _construct_alignment_whitespace(pad_width, "space")
+
     reflow_logger.debug(
         "    desired_space: %r (based on max line pos of %s)",
         desired_space,
@@ -470,6 +500,8 @@ def handle_respace__inline_with_space(
     root_segment: BaseSegment,
     segment_buffer: list[RawSegment],
     last_whitespace: RawSegment,
+    indent_unit: str = "space",
+    tab_space_size: int = 4,
 ) -> tuple[list[RawSegment], list[LintResult]]:
     """Check inline spacing is the right size.
 
@@ -552,6 +584,8 @@ def handle_respace__inline_with_space(
                     align_within,
                     align_scope,
                     align_space,
+                    indent_unit,
+                    tab_space_size,
                 )
 
                 desc = (

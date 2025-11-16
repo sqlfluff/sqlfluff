@@ -364,6 +364,8 @@ def identify_keyword_rebreak_spans(
 def rebreak_sequence(
     elements: ReflowSequenceType,
     root_segment: BaseSegment,
+    indent_unit: str = "space",
+    tab_space_size: int = 4,
 ) -> tuple[ReflowSequenceType, list[LintResult]]:
     """Reflow line breaks within a sequence.
 
@@ -465,6 +467,8 @@ def rebreak_sequence(
                     root_segment=root_segment,
                     lint_results=new_results,
                     strip_newlines=True,
+                    indent_unit=indent_unit,
+                    tab_space_size=tab_space_size,
                 )
 
                 # Update the points in the buffer
@@ -484,16 +488,18 @@ def rebreak_sequence(
                         if not seg.is_type("dedent"):
                             fixes.append(LintFix.delete(seg))
 
-                    # We always reinsert after the first point, but respace
-                    # the inserted point to ensure it's the right size given
-                    # configs.
-                    new_results, new_point = ReflowPoint(()).respace_point(
-                        cast(ReflowBlock, elem_buff[loc.next.adj_pt_idx - 1]),
-                        cast(ReflowBlock, elem_buff[loc.next.pre_code_pt_idx + 1]),
-                        root_segment=root_segment,
-                        lint_results=[],
-                        anchor_on="after",
-                    )
+                # We always reinsert after the first point, but respace
+                # the inserted point to ensure it's the right size given
+                # configs.
+                new_results, new_point = ReflowPoint(()).respace_point(
+                    cast(ReflowBlock, elem_buff[loc.next.adj_pt_idx - 1]),
+                    cast(ReflowBlock, elem_buff[loc.next.pre_code_pt_idx + 1]),
+                    root_segment=root_segment,
+                    lint_results=[],
+                    anchor_on="after",
+                    indent_unit=indent_unit,
+                    tab_space_size=tab_space_size,
+                )
 
                     create_anchor = first_create_anchor(
                         elem_buff,
@@ -562,6 +568,8 @@ def rebreak_sequence(
                     root_segment=root_segment,
                     lint_results=new_results,
                     strip_newlines=True,
+                    indent_unit=indent_unit,
+                    tab_space_size=tab_space_size,
                 )
 
                 # Update the points in the buffer
@@ -580,16 +588,18 @@ def rebreak_sequence(
                     for seg in elem_buff[loc.next.adj_pt_idx].segments:
                         fixes.append(LintFix.delete(seg))
 
-                    # We always reinsert before the first point, but respace
-                    # the inserted point to ensure it's the right size given
-                    # configs.
-                    new_results, new_point = ReflowPoint(()).respace_point(
-                        cast(ReflowBlock, elem_buff[loc.prev.pre_code_pt_idx - 1]),
-                        cast(ReflowBlock, elem_buff[loc.prev.adj_pt_idx + 1]),
-                        root_segment=root_segment,
-                        lint_results=[],
-                        anchor_on="before",
-                    )
+                # We always reinsert before the first point, but respace
+                # the inserted point to ensure it's the right size given
+                # configs.
+                new_results, new_point = ReflowPoint(()).respace_point(
+                    cast(ReflowBlock, elem_buff[loc.prev.pre_code_pt_idx - 1]),
+                    cast(ReflowBlock, elem_buff[loc.prev.adj_pt_idx + 1]),
+                    root_segment=root_segment,
+                    lint_results=[],
+                    anchor_on="before",
+                    indent_unit=indent_unit,
+                    tab_space_size=tab_space_size,
+                )
 
                     lead_create_anchor = first_create_anchor(
                         elem_buff,
@@ -701,6 +711,8 @@ def rebreak_sequence(
 def rebreak_keywords_sequence(
     elements: ReflowSequenceType,
     root_segment: BaseSegment,
+    indent_unit: str = "space",
+    tab_space_size: int = 4,
 ) -> tuple[ReflowSequenceType, list[LintResult]]:
     """Reflow line breaks within a sequence.
 
@@ -793,6 +805,8 @@ def rebreak_keywords_sequence(
                 root_segment=root_segment,
                 lint_results=new_results,
                 strip_newlines=True,
+                indent_unit=indent_unit,
+                tab_space_size=tab_space_size,
             )
 
             # Update the points in the buffer
@@ -824,6 +838,8 @@ def rebreak_keywords_sequence(
                 root_segment=root_segment,
                 lint_results=new_results,
                 strip_newlines=True,
+                indent_unit=indent_unit,
+                tab_space_size=tab_space_size,
             )
 
             # Update the points in the buffer
