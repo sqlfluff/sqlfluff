@@ -52,7 +52,7 @@ JOIN (PIVOT Cities ON Name USING sum(Population) GROUP BY Country) name_pivot
 USING (Country);
 
 -- Test trailing comma
--- PIVOT Cities ON Year IN (2000, 2010,) USING sum(Population) GROUP BY Country;
+PIVOT Cities ON Year IN (2000, 2010,) USING sum(Population) GROUP BY Country;
 
 PIVOT cities
 ON country, name,

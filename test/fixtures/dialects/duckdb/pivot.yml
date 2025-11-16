@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: a97f724e12bdbc51e105360c944eb07dcf1f5bc998179cfa399af253499d6da7
+_hash: 9087d64edef5cc3690f43f3cab949f191ca844d571da06764b03a8d031605406
 file:
 - statement:
     simplified_pivot:
@@ -573,6 +573,41 @@ file:
               start_bracket: (
               naked_identifier: Country
               end_bracket: )
+- statement_terminator: ;
+- statement:
+    simplified_pivot:
+    - keyword: PIVOT
+    - table_expression:
+        table_reference:
+          naked_identifier: Cities
+    - keyword: 'ON'
+    - expression:
+        column_reference:
+          naked_identifier: Year
+        keyword: IN
+        bracketed:
+        - start_bracket: (
+        - numeric_literal: '2000'
+        - comma: ','
+        - numeric_literal: '2010'
+        - comma: ','
+        - end_bracket: )
+    - keyword: USING
+    - function:
+        function_name:
+          function_name_identifier: sum
+        function_contents:
+          bracketed:
+            start_bracket: (
+            expression:
+              column_reference:
+                naked_identifier: Population
+            end_bracket: )
+    - groupby_clause:
+      - keyword: GROUP
+      - keyword: BY
+      - column_reference:
+          naked_identifier: Country
 - statement_terminator: ;
 - statement:
     simplified_pivot:
