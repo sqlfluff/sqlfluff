@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 14c9d5a8984490d56c4834a0901474fbc6c7025b2487609be236b162fbda88bb
+_hash: 232822f190ac2e734f377b636826e08b4ccbe26c49d5070aac98e9e2b2519768
 file:
 - statement:
     select_statement:
@@ -18,6 +18,7 @@ file:
             - quoted_literal: "'CS'"
             - comma: ','
             - quoted_literal: "'Math'"
+            - comma: ','
             - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -101,6 +102,7 @@ file:
             - comma: ','
             - column_reference:
                 naked_identifier: z
+            - comma: ','
             - end_square_bracket: ']'
       from_clause:
         keyword: from
@@ -122,4 +124,32 @@ file:
           - keyword: IN
           - column_reference:
               naked_identifier: y
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_clause_element:
+          expression:
+            numeric_literal: '17'
+            keyword: in
+            bracketed:
+            - start_bracket: (
+            - column_reference:
+                naked_identifier: x
+            - comma: ','
+            - column_reference:
+                naked_identifier: y
+            - comma: ','
+            - column_reference:
+                naked_identifier: z
+            - comma: ','
+            - end_bracket: )
+      from_clause:
+        keyword: from
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: t
 - statement_terminator: ;

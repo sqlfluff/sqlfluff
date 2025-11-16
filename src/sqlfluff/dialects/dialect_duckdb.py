@@ -169,9 +169,7 @@ duckdb_dialect.replace(
         OneOf(
             Bracketed(
                 OneOf(
-                    Delimited(
-                        Ref("Expression_A_Grammar"),
-                    ),
+                    Delimited(Ref("Expression_A_Grammar"), allow_trailing=True),
                     Ref("SelectableGrammar"),
                 ),
                 parse_mode=ParseMode.GREEDY,
@@ -1073,4 +1071,23 @@ class CopyStatementSegment(postgres.CopyStatementSegment):
                 _copy_from_option,
             ),
         ),
+    )
+
+
+class ArrayLiteralSegment(BaseSegment):
+    """An array literal segment.
+
+    An unqualified array literal:
+    e.g. [1, 2, 3]
+
+    DuckDB allows for trailing commas:
+    e.g. [1, 2, 3,]
+    """
+
+    type = "array_literal"
+    match_grammar: Matchable = Bracketed(
+        Delimited(
+            Ref("BaseExpressionElementGrammar"), optional=True, allow_trailing=True
+        ),
+        bracket_type="square",
     )
