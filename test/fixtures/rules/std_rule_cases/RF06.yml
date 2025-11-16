@@ -648,3 +648,108 @@ test_pass_exasol_password_literals:
         prefer_quoted_identifiers: false
     core:
       dialect: exasol
+
+test_pass_alias_case_change_tsql_case_insensitive:
+  # When case_sensitive=False, quoted aliases that change the case
+  # of the column reference should NOT have quotes removed because
+  # the quotes are necessary to preserve the case change.
+  # Citycode -> "CityCode" changes case, so quotes are needed.
+  pass_str: |
+    SELECT
+        Citycode AS "CityCode"
+    FROM Foo
+  configs:
+    core:
+      dialect: tsql
+    rules:
+      references.quoting:
+        case_sensitive: false
+
+test_fail_alias_no_case_change_tsql_case_insensitive:
+  # When case_sensitive=False, quoted aliases that do NOT change
+  # the case should have quotes removed.
+  # City (naked -> CITY) and "City" (quoted -> City) are different,
+  # but when unquoted both become CITY, so the alias is redundant.
+  fail_str: |
+    SELECT
+        City AS "City"
+    FROM Foo
+  fix_str: |
+    SELECT
+        City AS City
+    FROM Foo
+  configs:
+    core:
+      dialect: tsql
+    rules:
+      references.quoting:
+        case_sensitive: false
+
+test_fail_alias_uppercase_match_tsql_case_insensitive:
+  # Similar test but with uppercase column reference.
+  # CITY (naked -> CITY) and "CITY" (quoted -> CITY) both resolve
+  # to CITY when unquoted, so quotes can be removed.
+  fail_str: |
+    SELECT
+        CITY AS "CITY"
+    FROM Foo
+  fix_str: |
+    SELECT
+        CITY AS CITY
+    FROM Foo
+  configs:
+    core:
+      dialect: tsql
+    rules:
+      references.quoting:
+        case_sensitive: false
+
+test_pass_alias_mixed_case_tsql_case_insensitive:
+  # MixedCase (naked -> MIXEDCASE) and "MixedCase" (quoted -> MixedCase)
+  # are different when resolved, so quotes should stay.
+  pass_str: |
+    SELECT
+        col AS "MixedCase"
+    FROM Foo
+  configs:
+    core:
+      dialect: tsql
+    rules:
+      references.quoting:
+        case_sensitive: false
+
+test_pass_alias_case_change_tsql_case_sensitive:
+  # When case_sensitive=True (default), quoted aliases that preserve
+  # non-default casing should NOT have quotes removed.
+  # In TSQL (uppercase dialect), "CityCode" preserves mixed case.
+  pass_str: |
+    SELECT
+        Citycode AS "CityCode",
+        City AS "City"
+    FROM Foo
+  configs:
+    core:
+      dialect: tsql
+    rules:
+      references.quoting:
+        case_sensitive: true
+
+test_fail_alias_default_case_tsql_case_sensitive:
+  # When case_sensitive=True, quoted aliases in the default casing
+  # (UPPERCASE for TSQL) can have quotes removed.
+  fail_str: |
+    SELECT
+        CITY AS "CITY",
+        Foo AS "FOO"
+    FROM Bar
+  fix_str: |
+    SELECT
+        CITY AS CITY,
+        Foo AS FOO
+    FROM Bar
+  configs:
+    core:
+      dialect: tsql
+    rules:
+      references.quoting:
+        case_sensitive: true
