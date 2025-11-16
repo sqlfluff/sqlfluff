@@ -4,9 +4,7 @@
 ///! 1. Size comparison: Grammar (376 bytes) vs GrammarInst (20 bytes)
 ///! 2. Memory layout and field packing
 ///! 3. Basic usage patterns
-use sqlfluffrs_types::{
-    GrammarFlags, GrammarId, GrammarInst, ParseMode, GrammarVariant,
-};
+use sqlfluffrs_types::{GrammarFlags, GrammarId, GrammarInst, GrammarVariant, ParseMode};
 
 fn main() {
     println!("╔══════════════════════════════════════════════════════════╗");

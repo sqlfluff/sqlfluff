@@ -29,7 +29,9 @@ fn table_driven_select_parses() {
     let mut parser = Parser::new_with_root(&tokens, dialect, root);
 
     // Parse starting from the root
-    let node = parser.call_rule_as_root().expect("parse_root should not error");
+    let node = parser
+        .call_rule_as_root()
+        .expect("parse_root should not error");
     eprintln!("PARSE_RESULT: {:?}", node);
 
     assert!(!node.is_empty(), "Expected non-empty parse for 'SELECT 1'");

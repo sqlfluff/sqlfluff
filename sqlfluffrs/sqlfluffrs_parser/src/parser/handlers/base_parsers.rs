@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-use crate::parser::{FrameState, Node, ParseError, ParseFrame, iterative::FrameResult};
+use crate::parser::{iterative::FrameResult, FrameState, Node, ParseError, ParseFrame};
 use hashbrown::HashMap;
 use sqlfluffrs_types::Grammar;
 

@@ -101,6 +101,8 @@ pub struct GrammarTables {
     /// Contains pre-computed simple hints for fast pruning of OneOf alternatives.
     /// Indexed via aux_data when HAS_SIMPLE_HINT flag is set.
     pub simple_hints: &'static [SimpleHintData],
+    /// Per-instruction segment type offsets into the strings table (or 0xFFFFFFFF)
+    pub segment_type_offsets: &'static [u32],
 }
 
 impl GrammarTables {
@@ -114,6 +116,7 @@ impl GrammarTables {
         aux_data_offsets: &'static [u32],
         regex_patterns: &'static [&'static str],
         simple_hints: &'static [SimpleHintData],
+        segment_type_offsets: &'static [u32],
     ) -> Self {
         Self {
             instructions,
@@ -124,6 +127,7 @@ impl GrammarTables {
             aux_data_offsets,
             regex_patterns,
             simple_hints,
+            segment_type_offsets,
         }
     }
 
@@ -167,6 +171,20 @@ impl GrammarTables {
     #[inline]
     pub fn get_regex(&self, idx: u32) -> &'static str {
         self.regex_patterns[idx as usize]
+    }
+
+    /// Get segment type string by instruction id, if present
+    #[inline]
+    pub fn get_segment_type(&self, id: u32) -> Option<&'static str> {
+        if id as usize >= self.segment_type_offsets.len() {
+            return None;
+        }
+        let off = self.segment_type_offsets[id as usize];
+        if off == 0xFFFFFFFF {
+            None
+        } else {
+            Some(self.strings[off as usize])
+        }
     }
 
     /// Get simple hint by index
@@ -470,6 +488,7 @@ mod tests {
             AUX_DATA_OFFSETS,
             REGEX_PATTERNS,
             SIMPLE_HINTS,
+            &[],
         );
 
         assert_eq!(tables.instructions.len(), 3);
@@ -525,6 +544,7 @@ mod tests {
             AUX_DATA_OFFSETS,
             REGEX_PATTERNS,
             SIMPLE_HINTS,
+            &[],
         );
 
         let stats = tables.memory_stats();

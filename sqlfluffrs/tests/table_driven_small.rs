@@ -47,15 +47,9 @@ fn parse_and_find(sql: &str, grammar_name: &str, expected: &str) -> bool {
     // Recursive search for a Ref with matching segment_type
     fn find(node: &Node, expected: &str) -> bool {
         match node {
-            Node::Ref {
-                segment_type,
-                child,
-                ..
-            } => {
-                if let Some(st) = segment_type {
-                    if st == expected {
-                        return true;
-                    }
+            Node::Ref { name, child, .. } => {
+                if name == expected {
+                    return true;
                 }
                 find(child, expected)
             }
@@ -140,7 +134,11 @@ fn oneof_second_seq_parses() {
 #[test]
 fn bracketed_delimited_parses() {
     assert!(
-        parse_and_find("(a)", "BracketedColumnReferenceListGrammar", "ColumnReferenceSegment"),
+        parse_and_find(
+            "(a)",
+            "BracketedColumnReferenceListGrammar",
+            "ColumnReferenceSegment"
+        ),
         "Expected ColumnReferenceSegment in parse tree for BracketedColumnReferenceListGrammar"
     );
 }

@@ -315,78 +315,78 @@ impl<'a> Parser<'a> {
     //     }
     // }
 
-    /// Get the grammar for a rule by name.
-    /// This is used by the iterative parser to expand Ref nodes into their grammars.
-    pub fn get_rule_grammar(&self, name: &str) -> Result<Arc<Grammar>, ParseError> {
-        // Look up the grammar for the segment
-        match self.get_segment_grammar(name) {
-            Some(g) => Ok(g.clone()),
-            None => Err(ParseError::unknown_segment(
-                name.to_string(),
-                Some(self.pos),
-            )),
-        }
-    }
+    // /// Get the grammar for a rule by name.
+    // /// This is used by the iterative parser to expand Ref nodes into their grammars.
+    // pub fn get_rule_grammar(&self, name: &str) -> Result<Arc<Grammar>, ParseError> {
+    //     // Look up the grammar for the segment
+    //     match self.get_segment_grammar(name) {
+    //         Some(g) => Ok(g.clone()),
+    //         None => Err(ParseError::unknown_segment(
+    //             name.to_string(),
+    //             Some(self.pos),
+    //         )),
+    //     }
+    // }
 
-    /// Call a grammar rule by name, producing a Node.
-    pub fn call_rule(
-        &mut self,
-        name: &str,
-        parent_terminators: &[Arc<Grammar>],
-    ) -> Result<Node, ParseError> {
-        self.call_rule_with_type(name, parent_terminators, None)
-    }
+    // /// Call a grammar rule by name, producing a Node.
+    // pub fn call_rule(
+    //     &mut self,
+    //     name: &str,
+    //     parent_terminators: &[Arc<Grammar>],
+    // ) -> Result<Node, ParseError> {
+    //     self.call_rule_with_type(name, parent_terminators, None)
+    // }
 
-    pub fn call_rule_with_type(
-        &mut self,
-        name: &str,
-        parent_terminators: &[Arc<Grammar>],
-        segment_type: Option<&str>,
-    ) -> Result<Node, ParseError> {
-        // Look up the grammar for the segment
-        let grammar = match self.get_segment_grammar(name) {
-            Some(g) => g,
-            None => {
-                return Err(ParseError::unknown_segment(
-                    name.to_string(),
-                    Some(self.pos),
-                ))
-            }
-        };
+    // pub fn call_rule_with_type(
+    //     &mut self,
+    //     name: &str,
+    //     parent_terminators: &[Arc<Grammar>],
+    //     segment_type: Option<&str>,
+    // ) -> Result<Node, ParseError> {
+    //     // Look up the grammar for the segment
+    //     let grammar = match self.get_segment_grammar(name) {
+    //         Some(g) => g,
+    //         None => {
+    //             return Err(ParseError::unknown_segment(
+    //                 name.to_string(),
+    //                 Some(self.pos),
+    //             ))
+    //         }
+    //     };
 
-        // Parse using the grammar
-        let node = self.parse_iterative(&grammar, parent_terminators)?;
+    //     // Parse using the grammar
+    //     let node = self.parse_iterative(&grammar, parent_terminators)?;
 
-        // If the node is empty, return it as-is without wrapping
-        // This prevents infinite loops when optional segments match nothing
-        if node.is_empty() {
-            return Ok(node);
-        }
+    //     // If the node is empty, return it as-is without wrapping
+    //     // This prevents infinite loops when optional segments match nothing
+    //     if node.is_empty() {
+    //         return Ok(node);
+    //     }
 
-        // Use provided segment_type, or infer from Token nodes
-        let final_segment_type = match segment_type {
-            Some(st) => Some(st.to_string()),
-            None => match &node {
-                Node::Token {
-                    token_type: t,
-                    raw: _,
-                    token_idx: _,
-                } => Some(t.clone()),
-                _ => None,
-            },
-        };
+    //     // Use provided segment_type, or infer from Token nodes
+    //     let final_segment_type = match segment_type {
+    //         Some(st) => Some(st.to_string()),
+    //         None => match &node {
+    //             Node::Token {
+    //                 token_type: t,
+    //                 raw: _,
+    //                 token_idx: _,
+    //             } => Some(t.clone()),
+    //             _ => None,
+    //         },
+    //     };
 
-        // Wrap in a Ref node for type clarity
-        let result = Node::Ref {
-            name: name.to_string(),
-            segment_type: final_segment_type,
-            child: Box::new(node),
-        };
+    //     // Wrap in a Ref node for type clarity
+    //     let result = Node::Ref {
+    //         name: name.to_string(),
+    //         segment_type: final_segment_type,
+    //         child: Box::new(node),
+    //     };
 
-        // Deduplicate whitespace/newline nodes to handle cases where both
-        // parent and child grammars collected the same tokens
-        Ok(result.deduplicate())
-    }
+    //     // Deduplicate whitespace/newline nodes to handle cases where both
+    //     // parent and child grammars collected the same tokens
+    //     Ok(result.deduplicate())
+    // }
 
     pub fn call_rule_as_root(&mut self) -> Result<Node, ParseError> {
         // Obtain the root grammar for this dialect and dispatch based on its
@@ -488,19 +488,19 @@ impl<'a> Parser<'a> {
         children
     }
 
-    /// Lookup SegmentDef by name
-    pub fn get_segment_grammar(&self, name: &str) -> Option<Arc<Grammar>> {
-        // The dialect layer currently returns Option<RootGrammar>. Convert
-        // Arc-based variants into Arc<Grammar> for legacy consumers. Table-driven
-        // grammars cannot be represented as Arc<Grammar> here, so return None
-        // in that case (callers that expect table-driven grammars should use
-        // other APIs).
-        match self.dialect.get_segment_grammar(name) {
-            Some(RootGrammar::Arc(a)) => Some(a.clone()),
-            Some(RootGrammar::TableDriven { .. }) => None,
-            None => None,
-        }
-    }
+    // /// Lookup SegmentDef by name
+    // pub fn get_segment_grammar(&self, name: &str) -> Option<Arc<Grammar>> {
+    //     // The dialect layer currently returns Option<RootGrammar>. Convert
+    //     // Arc-based variants into Arc<Grammar> for legacy consumers. Table-driven
+    //     // grammars cannot be represented as Arc<Grammar> here, so return None
+    //     // in that case (callers that expect table-driven grammars should use
+    //     // other APIs).
+    //     match self.dialect.get_segment_grammar(name) {
+    //         Some(RootGrammar::Arc(a)) => Some(a.clone()),
+    //         Some(RootGrammar::TableDriven { .. }) => None,
+    //         None => None,
+    //     }
+    // }
 
     /// Push a checkpoint onto the collection stack when starting to process a grammar.
     /// This records the current state so we can backtrack if needed.
@@ -1796,7 +1796,7 @@ impl<'a> Parser<'a> {
     // ========================================================================
 
     /// Handle Sequence Initial state using table-driven approach
-    pub(crate) fn handle_sequence_table_driven_initial(
+    pub(crate) fn handle_sequence_table_driven_initial_old(
         &mut self,
         grammar_id: GrammarId,
         mut frame: parser::ParseFrame,
@@ -2346,10 +2346,15 @@ impl<'a> Parser<'a> {
             }
         }
 
+        // Determine the segment_type from tables if available, otherwise use rule_name
+        // let table_segment_type = self.dialect.get_segment_type(&rule_name).map(|s| s.to_string());
+        let table_segment_type = ctx.segment_type(grammar_id).map(|s| s.to_string());
+
         // Store context with collected leading transparent tokens
         frame.context = FrameContext::RefTableDriven {
             grammar_id,
-            segment_type: Some(rule_name.clone()),
+            name: rule_name,
+            segment_type: table_segment_type,
             saved_pos,
             last_child_frame_id: Some(stack.frame_id_counter),
             leading_transparent,
@@ -2407,10 +2412,7 @@ impl<'a> Parser<'a> {
 
         let _ctx = self.grammar_ctx.expect("GrammarContext required");
 
-        let FrameContext::RefTableDriven {
-            segment_type: _, ..
-        } = &frame.context
-        else {
+        let FrameContext::RefTableDriven { .. } = &frame.context else {
             unreachable!("Expected RefTableDriven context");
         };
 
@@ -2457,6 +2459,7 @@ impl<'a> Parser<'a> {
 
         let FrameContext::RefTableDriven {
             grammar_id,
+            name,
             segment_type,
             leading_transparent,
             ..
@@ -2487,14 +2490,12 @@ impl<'a> Parser<'a> {
             // Child didn't match
             Node::Empty
         } else {
-            // Wrap child in Ref node with segment type
+            // Wrap child in Ref node with segment type/name from the tables
             let mut children = leading_transparent.clone();
             children.extend(frame.accumulated.clone());
 
             Node::Ref {
-                name: segment_type
-                    .clone()
-                    .unwrap_or_else(|| "UnknownRef".to_string()),
+                name: name.clone(),
                 segment_type: segment_type.clone(),
                 child: Box::new(if children.len() == 1 {
                     children[0].clone()

@@ -80,6 +80,8 @@ class TableBuilder:
         self.aux_data: List[int] = []
         self.regex_patterns: List[str] = []
         self.simple_hints: List[SimpleHintData] = []
+        # Per-instruction segment type index (into strings) or 0xFFFFFFFF if none
+        self.segment_type_offsets: List[int] = []
 
         # Deduplication maps
         self.string_to_id: Dict[str, int] = {}
@@ -141,7 +143,8 @@ class TableBuilder:
             # DEBUG
             if hasattr(g, "_ref") and "SelectKeyword" in g._ref:
                 print(
-                    f"// DEBUG _flatten_list: Processing child {i}, type={type(g).__name__}, ref={g._ref}",
+                    f"// DEBUG _flatten_list: Processing child {i}, "
+                    f"type={type(g).__name__}, ref={g._ref}",
                     file=sys.stderr,
                 )
             child_id = self.flatten_grammar(g, parse_context)
@@ -190,16 +193,6 @@ class TableBuilder:
         python_id = id(grammar)
         if python_id in self.grammar_to_id:
             cached_result = self.grammar_to_id[python_id]
-            # DEBUG
-            grammar_type = type(grammar).__name__
-            if "SelectClause" in grammar_type or grammar_type == "Sequence":
-                import traceback
-
-                caller = traceback.extract_stack()[-2]
-                print(
-                    f"// DEBUG flatten_grammar CACHE HIT: type={grammar_type}, id={python_id}, returning={cached_result}, caller={caller.filename}:{caller.lineno}",
-                    file=sys.stderr,
-                )
             return cached_result
 
         # Allocate new GrammarId and reserve slot
@@ -210,20 +203,52 @@ class TableBuilder:
         grammar_id = len(self.instructions)
         self.grammar_to_id[python_id] = grammar_id
         self.instructions.append(None)  # Reserve slot - will be replaced below
-
-        # DEBUG
-        grammar_type = type(grammar).__name__
-        if "SelectClause" in grammar_type or grammar_type == "Sequence":
-            print(
-                f"// DEBUG flatten_grammar NEW: type={grammar_type}, id={python_id}, allocated={grammar_id}",
-                file=sys.stderr,
-            )
+        # Reserve a slot for the segment_type offset (default: no type)
+        self.segment_type_offsets.append(0xFFFFFFFF)
 
         # Convert to GrammarInst (variant-specific logic)
         inst_data = self._convert_to_inst(grammar, parse_context)
 
         # Replace the placeholder with the actual instruction
         self.instructions[grammar_id] = inst_data
+
+        # If this grammar is a Segment class, record its `type` string index
+        # into the per-instruction segment_type_offsets table. We store the
+        # index into the existing strings table so runtime can map back to
+        # the textual type (e.g., "keyword", "file", etc.). Use 0xFFFFFFFF
+        # to indicate "no type".
+        try:
+            # If this grammar is a Segment class itself, use its `type` attr
+            if isinstance(grammar, type) and issubclass(grammar, BaseSegment):
+                seg_type = getattr(grammar, "type", None)
+                if seg_type:
+                    type_id = self._add_string(seg_type)
+                    self.segment_type_offsets[grammar_id] = type_id
+            # If this grammar is a Ref to a named segment, attempt to resolve
+            # the referenced name to a Segment class in the dialect library
+            # and use that class's `type` attribute. This covers the case
+            # where the generator special-circuits Segment classes by
+            # flattening their `match_grammar` instead of emitting a
+            # forwarding Ref instruction for the class itself.
+            elif grammar.__class__ is Ref and isinstance(grammar, Ref):
+                try:
+                    ref_name = grammar._ref.replace(" ", "_")
+                    # parse_context.dialect._library maps segment class names
+                    # (with underscores) to class/type objects or grammars.
+                    lib_entry = getattr(parse_context, "dialect", None)
+                    if lib_entry is not None:
+                        target = parse_context.dialect._library.get(ref_name)
+                        if isinstance(target, type) and issubclass(target, BaseSegment):
+                            seg_type = getattr(target, "type", None)
+                            if seg_type:
+                                type_id = self._add_string(seg_type)
+                                self.segment_type_offsets[grammar_id] = type_id
+                except Exception:
+                    # Be conservative: if lookup fails, leave as NONE
+                    pass
+        except Exception:
+            # Be conservative: if any introspection fails, leave as NONE
+            pass
 
         return grammar_id
 
@@ -307,7 +332,8 @@ class TableBuilder:
 
                 caller = traceback.extract_stack()[-3]
                 print(
-                    f"// DEBUG SegmentMetaclass handler: {grammar.__name__}, caller={caller.filename}:{caller.lineno}",
+                    "// DEBUG SegmentMetaclass handler: "
+                    f"{grammar.__name__}, caller={caller.filename}:{caller.lineno}",
                     file=sys.stderr,
                 )
 
@@ -317,11 +343,12 @@ class TableBuilder:
             # DEBUG
             if "SelectClause" in grammar.__name__:
                 print(
-                    f"// DEBUG SegmentMetaclass handler: {grammar.__name__} match_grammar got ID {child_id}",
+                    "// DEBUG SegmentMetaclass handler: "
+                    f"{grammar.__name__} match_grammar got ID {child_id}",
                     file=sys.stderr,
                 )
                 print(
-                    f"// DEBUG SegmentMetaclass handler: Will return forwarding Ref",
+                    "// DEBUG SegmentMetaclass handler: Will return forwarding Ref",
                     file=sys.stderr,
                 )
 
@@ -420,36 +447,6 @@ class TableBuilder:
 
         children_count = len(element_ids)
 
-        # DEBUG: Check if this is SelectClauseSegment's Sequence (it has 5 children)
-        if len(element_ids) == 5:
-            # Check if first child is SelectKeywordSegment
-            if element_ids[0] < len(self.instructions):
-                inst = self.instructions[element_ids[0]]
-                if inst and inst.variant == "Ref":
-                    # Check if it references SelectKeywordSegment
-                    if inst.aux_data_offset < len(self.strings):
-                        name = self.strings[inst.aux_data_offset]
-                        if name == "SelectKeywordSegment":
-                            print(
-                                "// DEBUG _handle_sequence: Found SelectClauseSegment Sequence!",
-                                file=sys.stderr,
-                            )
-                            print(
-                                f"//   children_start={children_start}, actual IDs at that position:",
-                                file=sys.stderr,
-                            )
-                            print(
-                                f"//   CHILD_IDS[{children_start}:{children_start+num_children}] = {self.child_ids[children_start:children_start+num_children]}",
-                                file=sys.stderr,
-                            )
-                            for i, eid in enumerate(element_ids):
-                                if eid < len(self.instructions):
-                                    child_inst = self.instructions[eid]
-                                    print(
-                                        f"//   Child {i}: grammar_id={eid}, variant={child_inst.variant if child_inst else 'None'}",
-                                        file=sys.stderr,
-                                    )
-
         # Flatten terminators
         terminators_start = len(self.terminators)
         terminator_ids = self._flatten_list(grammar.terminators, parse_context)
@@ -461,11 +458,13 @@ class TableBuilder:
         # DEBUG
         if children_count == 5 and children_start == 1629:
             print(
-                f"// DEBUG _handle_sequence RETURN: first_child_idx={children_start}, child_count={children_count}",
+                "// DEBUG _handle_sequence RETURN: "
+                f"first_child_idx={children_start}, child_count={children_count}",
                 file=sys.stderr,
             )
             print(
-                f"//   CHILD_IDS[{children_start}:{children_start+children_count}] = {self.child_ids[children_start:children_start+children_count]}",
+                f"//   CHILD_IDS[{children_start}:{children_start + children_count}] "
+                f"= {self.child_ids[children_start : children_start + children_count]}",
                 file=sys.stderr,
             )
 
@@ -603,7 +602,10 @@ class TableBuilder:
         )
 
     def _handle_anysetof(self, grammar: AnySetOf, parse_context) -> GrammarInstData:
-        """Convert AnySetOf to GrammarInst (same as AnyNumberOf but max_times_per_element=1)."""
+        """Convert AnySetOf to GrammarInst.
+
+        - Same as AnyNumberOf but max_times_per_element=1
+        """
         flags = self._build_flags(grammar)
         parse_mode = self._get_parse_mode(grammar)
         hint_id = self._add_simple_hint(grammar, parse_context)
@@ -1031,7 +1033,8 @@ class TableBuilder:
                     child_id = self.child_ids[j]
                     if child_id >= len(self.instructions):
                         errors.append(
-                            f"Inst {i}: invalid child_id {child_id} >= {len(self.instructions)}"
+                            f"Inst {i}: invalid child_id {child_id}"
+                            f" >= {len(self.instructions)}"
                         )
 
             # Check terminators bounds
@@ -1053,7 +1056,8 @@ class TableBuilder:
                     term_id = self.terminators[j]
                     if term_id >= len(self.instructions):
                         errors.append(
-                            f"Inst {i}: invalid terminator_id {term_id} >= {len(self.instructions)}"
+                            f"Inst {i}: invalid terminator_id {term_id}"
+                            f" >= {len(self.instructions)}"
                         )
 
         if errors:
@@ -1137,6 +1141,15 @@ class TableBuilder:
         lines.append("];")
         lines.append("")
 
+        # Segment type offsets (indexed by GrammarId) - index into STRINGS or 0xFFFFFFFF
+        lines.append("pub static SEGMENT_TYPE_OFFSETS: &[u32] = &[")
+        for i in range(0, len(self.segment_type_offsets), 16):
+            chunk = self.segment_type_offsets[i : i + 16]
+            line = "    " + ", ".join(str(x) for x in chunk) + ","
+            lines.append(line)
+        lines.append("];")
+        lines.append("")
+
         # Regex patterns
         lines.append("pub static REGEX_PATTERNS: &[&str] = &[")
         for i, pattern in enumerate(self.regex_patterns):
@@ -1152,7 +1165,8 @@ class TableBuilder:
             # For now, generate empty hints - we'll implement proper hint storage later
             # TODO: Store hint strings in a separate table and reference by index
             lines.append(
-                f"    SimpleHintData::empty(), // [{i + 1}] TODO: implement hint strings"
+                "    SimpleHintData::empty(), // "
+                f"[{i + 1}] TODO: implement hint strings"
             )
         lines.append("];")
         lines.append("")
@@ -1163,30 +1177,37 @@ class TableBuilder:
         """Print table statistics."""
         print("// Table Statistics:")
         print(
-            f"//   Instructions:    {len(self.instructions):6} × 20 bytes = {len(self.instructions) * 20:8} bytes"
+            f"//   Instructions:    {len(self.instructions):6} × 20 bytes "
+            f"= {len(self.instructions) * 20:8} bytes"
         )
         print(
-            f"//   Child IDs:       {len(self.child_ids):6} ×  4 bytes = {len(self.child_ids) * 4:8} bytes"
+            f"//   Child IDs:       {len(self.child_ids):6} ×  4 bytes "
+            f"= {len(self.child_ids) * 4:8} bytes"
         )
         print(
-            f"//   Terminators:     {len(self.terminators):6} ×  4 bytes = {len(self.terminators) * 4:8} bytes"
+            f"//   Terminators:     {len(self.terminators):6} ×  4 bytes "
+            f"= {len(self.terminators) * 4:8} bytes"
         )
 
         string_bytes = sum(len(s.encode("utf-8")) for s in self.strings)
         print(
-            f"//   Strings:         {len(self.strings):6} strings      = {string_bytes:8} bytes"
+            f"//   Strings:         {len(self.strings):6} strings      "
+            f"= {string_bytes:8} bytes"
         )
 
         print(
-            f"//   Aux Data:        {len(self.aux_data):6} ×  4 bytes = {len(self.aux_data) * 4:8} bytes"
+            f"//   Aux Data:        {len(self.aux_data):6} ×  4 bytes "
+            f"= {len(self.aux_data) * 4:8} bytes"
         )
         print(
-            f"//   Aux Offsets:     {len(self.instructions):6} ×  4 bytes = {len(self.instructions) * 4:8} bytes"
+            f"//   Aux Offsets:     {len(self.instructions):6} ×  4 bytes "
+            f"= {len(self.instructions) * 4:8} bytes"
         )
 
         regex_bytes = sum(len(r.encode("utf-8")) for r in self.regex_patterns)
         print(
-            f"//   Regex Patterns:  {len(self.regex_patterns):6} patterns     = {regex_bytes:8} bytes"
+            f"//   Regex Patterns:  {len(self.regex_patterns):6} patterns     "
+            f"= {regex_bytes:8} bytes"
         )
 
         hint_bytes = (
@@ -1194,7 +1215,8 @@ class TableBuilder:
             * 16
         )  # rough estimate
         print(
-            f"//   Simple Hints:    {len(self.simple_hints):6} hints        ≈ {hint_bytes:8} bytes"
+            f"//   Simple Hints:    {len(self.simple_hints):6} hints        "
+            f"≈ {hint_bytes:8} bytes"
         )
 
         total = (
@@ -1246,7 +1268,8 @@ def generate_parser_table_driven(dialect: str):
         print("use sqlfluffrs_types::{ RootGrammar, GrammarId };")
         print("")
         print(
-            f"pub fn get_{dialect.lower()}_segment_grammar(name: &str) -> Option<RootGrammar> {{"
+            f"pub fn get_{dialect.lower()}_segment_grammar(name: &str) ->"
+            " Option<RootGrammar> {"
         )
         print("    // This dialect has no table-driven tables generated yet.")
         print("    // Keep this function minimal to avoid unused import warnings.")
@@ -1255,7 +1278,8 @@ def generate_parser_table_driven(dialect: str):
         print()
 
         print(
-            f"pub fn get_{dialect.lower()}_segment_type(name: &str) -> Option<&'static str> {{"
+            f"pub fn get_{dialect.lower()}_segment_type(name: &str) ->"
+            " Option<&'static str> {"
         )
         print("    unimplemented!()")
         print("}")
@@ -1303,16 +1327,19 @@ def generate_parser_table_driven(dialect: str):
                     file=sys.stderr,
                 )
                 print(
-                    f"// DEBUG:   isinstance(match_grammar, type): {isinstance(match_grammar, type)}",
+                    "// DEBUG:   isinstance(match_grammar, type): "
+                    f"{isinstance(match_grammar, type)}",
                     file=sys.stderr,
                 )
                 if isinstance(match_grammar, type):
                     print(
-                        f"// DEBUG:   issubclass(match_grammar, BaseSegment): {issubclass(match_grammar, BaseSegment)}",
+                        "// DEBUG:   issubclass(match_grammar, BaseSegment): "
+                        f"{issubclass(match_grammar, BaseSegment)}",
                         file=sys.stderr,
                     )
                     print(
-                        f"// DEBUG:   hasattr(match_grammar, 'match_grammar'): {hasattr(match_grammar, 'match_grammar')}",
+                        "// DEBUG:   hasattr(match_grammar, 'match_grammar'): "
+                        f"{hasattr(match_grammar, 'match_grammar')}",
                         file=sys.stderr,
                     )
 
@@ -1345,7 +1372,8 @@ def generate_parser_table_driven(dialect: str):
                     if root_id < len(builder.instructions):
                         inst = builder.instructions[root_id]
                         print(
-                            f"// DEBUG: Instruction at {root_id}: variant={inst.variant}",
+                            f"// DEBUG: Instruction at {root_id}: "
+                            f"variant={inst.variant}",
                             file=sys.stderr,
                         )
                     else:
@@ -1388,7 +1416,9 @@ def generate_parser_table_driven(dialect: str):
         print("    match name {")
         for name, grammar_id in sorted(segment_to_id.items()):
             print(
-                f'        "{name}" => Some(RootGrammar::TableDriven {{ grammar_id: GrammarId({grammar_id}), tables: &{dialect.upper()}_TABLES }}),'
+                f'        "{name}" => Some(RootGrammar::TableDriven {{ '
+                f"grammar_id: GrammarId({grammar_id}), "
+                f"tables: &{dialect.upper()}_TABLES }}),"
             )
         print("        _ => None,")
         print("    }")
@@ -1419,6 +1449,7 @@ def generate_parser_table_driven(dialect: str):
     aux_data_offsets: AUX_DATA_OFFSETS,
     regex_patterns: REGEX_PATTERNS,
     simple_hints: SIMPLE_HINTS,
+    segment_type_offsets: SEGMENT_TYPE_OFFSETS,
 }};
 """
         )
@@ -1462,7 +1493,8 @@ def generate_parser(dialect: str):
         print("use sqlfluffrs_types::{ RootGrammar, GrammarId };")
         print("")
         print(
-            f"pub fn get_{dialect.lower()}_segment_grammar(name: &str) -> Option<RootGrammar> {{"
+            f"pub fn get_{dialect.lower()}_segment_grammar(name: &str) ->"
+            " Option<RootGrammar> {"
         )
         print("    // Not generated yet for this dialect")
         print("    unimplemented!()")
@@ -1470,7 +1502,8 @@ def generate_parser(dialect: str):
         print()
 
         print(
-            f"pub fn get_{dialect.lower()}_segment_type(name: &str) -> Option<&'static str> {{"
+            f"pub fn get_{dialect.lower()}_segment_type(name: &str) ->"
+            " Option<&'static str> {"
         )
         print("    unimplemented!()")
         print("}")
@@ -1545,11 +1578,13 @@ def generate_parser(dialect: str):
     # Option<RootGrammar> can call this function. This wraps the Arc<Grammar>
     # returned above into RootGrammar::Arc.
     print(
-        f"pub fn get_{dialect.lower()}_segment_grammar_root(name: &str) -> Option<RootGrammar> {{"
+        f"pub fn get_{dialect.lower()}_segment_grammar_root(name: &str) "
+        "-> Option<RootGrammar> {"
     )
-    # Call the local module's segment accessor and wrap Arc<Grammar> into RootGrammar::Arc
+    # Call local module's segment accessor and wrap Arc<Grammar> into RootGrammar::Arc
     print(
-        f"    match crate::dialect::{dialect.lower()}::parser::get_{dialect.lower()}_segment_grammar(name) {{"
+        f"    match crate::dialect::{dialect.lower()}::"
+        f"parser::get_{dialect.lower()}_segment_grammar(name) {{"
     )
     print("        Some(g) => Some(RootGrammar::Arc(g)),")
     print("        None => None,")

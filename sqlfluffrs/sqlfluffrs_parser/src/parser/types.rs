@@ -725,7 +725,7 @@ impl Node {
             } => Some("unparsable".to_string()),
             Node::Ref { segment_type, .. } => segment_type.clone(),
             Node::Sequence { children: _ } => Some("sequence".to_string()),
-            Node::DelimitedList { children: _ } => Some("delimited_list".to_string()),
+            Node::DelimitedList { children: _ } => Some("delimited".to_string()),
             Node::Bracketed { .. } => Some("bracketed".to_string()),
             Node::Meta {
                 token_type: name, ..

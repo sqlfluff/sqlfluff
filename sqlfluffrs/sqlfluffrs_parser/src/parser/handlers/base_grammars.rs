@@ -438,12 +438,14 @@ impl Parser<'_> {
         };
 
         // Look up the grammar for this segment
-        let grammar_opt = self.get_segment_grammar(name);
+        // let grammar_opt = self.get_segment_grammar(name);
+        let grammar_opt: Option<Arc<Grammar>> = None;
 
         match grammar_opt {
             Some(child_grammar) => {
                 // Get segment type for later wrapping
-                let segment_type = self.dialect.get_segment_type(name).map(|s| s.to_string());
+                // let segment_type = self.dialect.get_segment_type(name).map(|s| s.to_string());
+                let segment_type = None;
 
                 // Create child frame to parse the target grammar
                 let child_frame_id = stack.frame_id_counter;
@@ -845,7 +847,9 @@ mod table_driven_anything_tests {
 
         // Create parser using the RootGrammar (table-driven)
         let mut parser = Parser::new_with_root(&tokens, dialect, root);
-        let node = parser.call_rule_as_root().expect("parse_root should not error");
+        let node = parser
+            .call_rule_as_root()
+            .expect("parse_root should not error");
 
         // Basic assertions: parse should be non-empty and contain bracketed nodes
         assert!(!node.is_empty(), "Expected non-empty parse");
@@ -899,7 +903,9 @@ mod table_driven_anything_tests {
             lexer.lex(sqlfluffrs_lexer::LexInput::String(sql.to_string()), true);
 
         let mut parser = Parser::new_with_root(&tokens, dialect, root);
-        let node = parser.call_rule_as_root().expect("parse_root should not error");
+        let node = parser
+            .call_rule_as_root()
+            .expect("parse_root should not error");
 
         // Ensure parse consumed only up to END (i.e., trailing token remains unconsumed)
         // We check that at least one Token node with raw == "trailing" still exists in tokens

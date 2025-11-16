@@ -89,7 +89,6 @@ use crate::parser::{
     BracketedState, FrameContext, FrameState, Node, ParseError, ParseFrame, Parser,
 };
 use sqlfluffrs_types::{Grammar, GrammarId, ParseMode};
-use uuid::timestamp::context;
 
 impl<'a> Parser<'_> {
     /// Handle Sequence grammar Initial state in iterative parser.
@@ -389,6 +388,225 @@ impl<'a> Parser<'_> {
         }
 
         Ok(FrameResult::Done) // No child pushed, don't continue
+    }
+
+    // ========================================================================
+    // Table-Driven Sequence Handlers
+    // ========================================================================
+
+    /// Handle Sequence Initial state using table-driven approach
+    pub(crate) fn handle_sequence_table_driven_initial(
+        &mut self,
+        grammar_id: GrammarId,
+        mut frame: ParseFrame,
+        parent_terminators: &[GrammarId],
+        stack: &mut ParseFrameStack,
+    ) -> Result<FrameResult, ParseError> {
+        self.pos = frame.pos;
+        let start_idx = self.pos;
+        let ctx = self.grammar_ctx.expect("Grammar Context");
+        let grammar_inst = ctx.inst(grammar_id);
+        let local_terminators = ctx.terminators(grammar_id).collect::<Vec<_>>();
+        let reset_terminators = grammar_inst.flags.reset_terminators();
+        let parse_mode = grammar_inst.parse_mode;
+        let elements = ctx.children(grammar_id).collect::<Vec<_>>();
+
+        // combine parent and local terminators
+        let all_terminators = self.combine_table_terminators(
+            &local_terminators,
+            parent_terminators,
+            reset_terminators,
+        );
+
+        // calculate max_idx with terminator and parent constraints
+        let max_idx = self.calculate_max_idx_table_driven(
+            start_idx,
+            &all_terminators,
+            parse_mode,
+            frame.parent_max_idx,
+        );
+
+        // Push a collection checkpoint for this sequence
+        // This allows us to rollback transparent token collections if we backtrack
+        // TODO: Do we still need this?
+        self.push_collection_checkpoint(frame.frame_id);
+
+        // Update frame with Sequence context
+        frame.state = FrameState::WaitingForChild {
+            child_index: 0,
+            total_children: elements.len(),
+        };
+        frame.context = FrameContext::SequenceTableDriven {
+            grammar_id,
+            matched_idx: start_idx,
+            tentatively_collected: vec![],
+            max_idx,
+            original_max_idx: max_idx, // Store original before any GREEDY_ONCE_STARTED trimming
+            last_child_frame_id: None,
+            current_element_idx: 0, // Start at first element
+            first_match: true,      // For GREEDY_ONCE_STARTED trimming
+        };
+        frame.table_terminators = all_terminators;
+        let current_frame_id = frame.frame_id; // Save before moving frame
+        stack.push(&mut frame);
+
+        // Don't skip whitespace here! Python's Sequence.match skips whitespace IN THE LOOP
+        let first_child_pos = start_idx; // Start at the original position
+
+        // Handle empty elements case - sequence with no elements should succeed immediately
+        if elements.is_empty() {
+            // Pop the frame we just pushed
+            stack.pop();
+            // Transition to Combining to finalize empty Sequence result
+            frame.end_pos = Some(start_idx);
+            frame.state = FrameState::Combining;
+            stack.push(&mut frame);
+            return Ok(FrameResult::Done);
+        }
+
+        if first_child_pos >= max_idx {
+            stack.pop();
+            self.rollback_collection_checkpoint(current_frame_id);
+
+            if parse_mode == ParseMode::Strict {
+                stack
+                    .results
+                    .insert(current_frame_id, (Node::Empty, start_idx, None));
+                return Ok(FrameResult::Done);
+            }
+
+            // In greedy modes, check if first element is optional
+            if ctx.is_optional(elements[0]) {
+                stack
+                    .results
+                    .insert(current_frame_id, (Node::Empty, start_idx, None));
+                return Ok(FrameResult::Done);
+            } else {
+                // Wrap remaining content as an Unparsable node (table-driven variant)
+                let element_desc = format!("GrammarId({})", elements[0]);
+                let unparsable_children: Vec<Node> = (start_idx..max_idx)
+                    .filter_map(|pos| {
+                        if pos < self.tokens.len() {
+                            let tok = &self.tokens[pos];
+                            Some(Node::Token {
+                                token_type: tok.get_type(),
+                                raw: tok.raw().to_string(),
+                                token_idx: pos,
+                            })
+                        } else {
+                            None
+                        }
+                    })
+                    .collect();
+
+                let unparsable_node = Node::Unparsable {
+                    children: unparsable_children,
+                    expected_message: element_desc,
+                };
+
+                stack
+                    .results
+                    .insert(current_frame_id, (unparsable_node, max_idx, None));
+                return Ok(FrameResult::Done);
+            }
+        }
+
+        let mut child_idx = 0;
+        while child_idx < elements.len() {
+            if ctx.variant(elements[child_idx]) == sqlfluffrs_types::GrammarVariant::Meta {
+                // Meta doesn't need parsing - just add to accumulated
+                if let Some(ref mut parent_frame) = stack.last_mut() {
+                    if ctx.segment_type(elements[child_idx]).expect("meta type") == "indent" {
+                        // Indent goes before whitespace
+                        let mut insert_pos = parent_frame.accumulated.len();
+                        while insert_pos > 0 {
+                            match &parent_frame.accumulated[insert_pos - 1] {
+                                Node::Whitespace {
+                                    raw: _,
+                                    token_idx: _,
+                                }
+                                | Node::Newline {
+                                    raw: _,
+                                    token_idx: _,
+                                } => {
+                                    insert_pos -= 1;
+                                }
+                                _ => break,
+                            }
+                        }
+                        parent_frame.accumulated.insert(
+                            insert_pos,
+                            Node::Meta {
+                                token_type: "indent".to_string(),
+                                token_idx: None,
+                            },
+                        );
+                    } else {
+                        parent_frame.accumulated.push(Node::Meta {
+                            token_type: ctx
+                                .segment_type(elements[child_idx])
+                                .expect("meta type")
+                                .to_string(),
+                            token_idx: None,
+                        });
+                    }
+
+                    // Update state to next child
+                    if let FrameState::WaitingForChild {
+                        child_index,
+                        total_children: _,
+                    } = &mut parent_frame.state
+                    {
+                        *child_index = child_idx + 1;
+                    }
+                }
+                child_idx += 1;
+            } else {
+                // Get max_idx from parent Sequence to pass to child
+                let current_max_idx = if let Some(parent_frame) = stack.last_mut() {
+                    if let FrameContext::SequenceTableDriven { max_idx, .. } = &parent_frame.context
+                    {
+                        Some(*max_idx)
+                    } else {
+                        None
+                    }
+                } else {
+                    None
+                };
+
+                // Non-meta element - needs actual parsing
+                log::debug!(
+                    "DEBUG: Creating FIRST child at pos={}, max_idx={}",
+                    first_child_pos,
+                    max_idx
+                );
+
+                let child_frame = ParseFrame {
+                    frame_id: stack.frame_id_counter,
+                    grammar: Arc::new(sqlfluffrs_types::Grammar::Nothing()),
+                    pos: first_child_pos, // Use position after skipping to code!
+                    terminators: vec![],
+                    state: FrameState::Initial,
+                    accumulated: vec![],
+                    context: FrameContext::None,
+                    parent_max_idx: current_max_idx, // Pass Sequence's max_idx to child!
+                    end_pos: None,
+                    transparent_positions: None,
+                    element_key: None,
+                    grammar_id: Some(elements[child_idx]),
+                    table_terminators: stack
+                        .last_mut()
+                        .map(|f| f.table_terminators.clone())
+                        .unwrap_or_default(),
+                };
+
+                // Update parent (already on stack) and push child
+                ParseFrame::update_sequence_parent_and_push_child(stack, child_frame, child_idx);
+                return Ok(FrameResult::Done);
+            }
+        }
+
+        Ok(FrameResult::Done)
     }
 
     /// Handle Sequence grammar WaitingForChild state in iterative parser

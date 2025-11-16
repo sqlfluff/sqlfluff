@@ -1167,7 +1167,9 @@ impl<'a> Parser<'a> {
                     sqlfluffrs_types::GrammarVariant::Ref => ctx.ref_name(opt_id).to_string(),
                     sqlfluffrs_types::GrammarVariant::StringParser
                     | sqlfluffrs_types::GrammarVariant::TypedParser
-                    | sqlfluffrs_types::GrammarVariant::RegexParser => ctx.template(opt_id).to_string(),
+                    | sqlfluffrs_types::GrammarVariant::RegexParser => {
+                        ctx.template(opt_id).to_string()
+                    }
                     sqlfluffrs_types::GrammarVariant::Meta => {
                         let aux = ctx.tables().aux_data_offsets[opt_id.get() as usize];
                         ctx.tables().get_string(aux).to_string()

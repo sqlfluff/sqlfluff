@@ -105,6 +105,21 @@ impl<'a> GrammarContext<'a> {
         self.tables.get_string(name_idx)
     }
 
+    /// Get segment type for an instruction, if present
+    #[inline]
+    pub fn segment_type(&self, id: GrammarId) -> Option<&'static str> {
+        let idx = id.get() as usize;
+        if idx >= self.tables.segment_type_offsets.len() {
+            return None;
+        }
+        let off = self.tables.segment_type_offsets[idx];
+        if off == 0xFFFFFFFF {
+            None
+        } else {
+            Some(self.tables.get_string(off))
+        }
+    }
+
     /// Get string template (for StringParser/TypedParser/Token variants)
     #[inline]
     pub fn template(&self, id: GrammarId) -> &'static str {
@@ -406,6 +421,7 @@ mod tests {
             AUX_DATA_OFFSETS,
             REGEX_PATTERNS,
             SIMPLE_HINTS,
+            &[],
         );
 
         let ctx = GrammarContext::new(&tables);
@@ -447,6 +463,7 @@ mod tests {
             AUX_DATA_OFFSETS,
             REGEX_PATTERNS,
             SIMPLE_HINTS,
+            &[],
         );
 
         let ctx = GrammarContext::new(&tables);

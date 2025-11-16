@@ -449,6 +449,7 @@ pub enum FrameContext {
     },
     RefTableDriven {
         grammar_id: GrammarId,
+        name: String,
         segment_type: Option<String>,
         saved_pos: usize, // Position before skipping transparent tokens
         last_child_frame_id: Option<usize>,

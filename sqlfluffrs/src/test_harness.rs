@@ -99,7 +99,7 @@ impl FixtureTest {
 
         // Try to parse as a file (top-level rule)
         // FileSegment always has segment_type "file"
-        let ast = match parser.call_rule_with_type("FileSegment", &[], Some("file")) {
+        let ast = match parser.call_rule_as_root() {
             Ok(node) => node,
             Err(e) => {
                 return TestResult {
