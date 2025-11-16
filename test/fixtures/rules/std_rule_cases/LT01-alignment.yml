@@ -506,12 +506,36 @@ test_align_alias_with_tabs_different_lengths:
     FROM table1
   fix_str: |
     SELECT
-    	short_col		AS a,
+    	short_col			AS a,
     	very_long_column	AS b
     FROM table1
   configs:
     indentation:
       indent_unit: tab
+    layout:
+      type:
+        alias_expression:
+          spacing_before: align
+          align_within: select_clause
+          align_scope: bracketed
+
+test_align_alias_with_tabs_custom_tab_size:
+  # Test tab alignment with custom tab_space_size (3 instead of default 4)
+  # With tab_space_size=3, positions are: tab=3, short_col ends at 12, needs 3 tabs to reach 15, then 3 more to 24
+  fail_str: |
+    SELECT
+    	short_col AS a,
+    	very_long_column AS b
+    FROM table1
+  fix_str: |
+    SELECT
+    	short_col					AS a,
+    	very_long_column	AS b
+    FROM table1
+  configs:
+    indentation:
+      indent_unit: tab
+      tab_space_size: 2
     layout:
       type:
         alias_expression:
