@@ -759,14 +759,15 @@ class FromPivotExpressionSegment(BaseSegment):
                 Sequence(
                     Ref("FunctionSegment"),
                     Ref("AliasExpressionSegment", optional=True),
-                )
+                ),
+                allow_trailing=True,
             ),
             "FOR",
             AnyNumberOf(
                 Sequence(
                     Ref("SingleIdentifierGrammar"),
                     "IN",
-                    Bracketed(Delimited(Ref("LiteralGrammar"))),
+                    Bracketed(Delimited(Ref("LiteralGrammar"), allow_trailing=True)),
                 ),
             ),
             Ref("GroupByClauseSegment", optional=True),
@@ -780,7 +781,7 @@ class FromPivotExpressionSegment(BaseSegment):
 class SimplifiedPivotExpressionSegment(BaseSegment):
     """The DuckDB simplified PIVOT syntax.
 
-    https://duckdb.org/docs/sql/statements/pivot#simplified-pivot-full-syntax-diagram
+    https://duckdb.org/docs/stable/sql/statements/pivot#simplified-pivot-full-syntax-diagram
     """
 
     type = "simplified_pivot"
@@ -790,15 +791,20 @@ class SimplifiedPivotExpressionSegment(BaseSegment):
         Sequence(
             "ON",
             Delimited(
-                OneOf(
-                    Ref("ColumnReferenceSegment"),
-                    Ref("ExpressionSegment"),
-                ),
                 Sequence(
-                    "IN",
-                    Bracketed(Delimited(Ref("LiteralGrammar"))),
-                    optional=True,
+                    OneOf(
+                        Ref("ColumnReferenceSegment"),
+                        Ref("ExpressionSegment"),
+                    ),
+                    Sequence(
+                        "IN",
+                        Bracketed(
+                            Delimited(Ref("LiteralGrammar"), allow_trailing=True)
+                        ),
+                        optional=True,
+                    ),
                 ),
+                allow_trailing=True,
             ),
             optional=True,
         ),
@@ -809,6 +815,7 @@ class SimplifiedPivotExpressionSegment(BaseSegment):
                     Ref("FunctionSegment"),
                     Ref("AliasExpressionSegment", optional=True),
                 ),
+                allow_trailing=True,
             ),
             optional=True,
         ),
@@ -828,7 +835,9 @@ class FromUnpivotExpressionSegment(BaseSegment):
         Bracketed(
             OneOf(
                 Ref("SingleIdentifierGrammar"),
-                Bracketed(Delimited(Ref("SingleIdentifierGrammar"))),
+                Bracketed(
+                    Delimited(Ref("SingleIdentifierGrammar"), allow_trailing=True)
+                ),
             ),
             "FOR",
             AnyNumberOf(
@@ -844,6 +853,7 @@ class FromUnpivotExpressionSegment(BaseSegment):
                                 Ref("AliasExpressionSegment", optional=True),
                             ),
                             Ref("ColumnsExpressionGrammar"),
+                            allow_trailing=True,
                         ),
                     ),
                 ),
@@ -856,7 +866,7 @@ class FromUnpivotExpressionSegment(BaseSegment):
 class SimplifiedUnpivotExpressionSegment(BaseSegment):
     """The DuckDB simplified UNPIVOT syntax.
 
-    https://duckdb.org/docs/sql/statements/unpivot#simplified-unpivot-full-syntax-diagram
+    https://duckdb.org/docs/stable/sql/statements/unpivot#simplified-unpivot-full-syntax-diagram
     """
 
     type = "simplified_unpivot"
@@ -868,23 +878,20 @@ class SimplifiedUnpivotExpressionSegment(BaseSegment):
             Sequence(
                 OneOf(
                     Bracketed(
-                        Delimited(
-                            Ref("ColumnReferenceSegment"),
-                        ),
+                        Delimited(Ref("ColumnReferenceSegment"), allow_trailing=True),
                     ),
                     Ref("ColumnReferenceSegment"),
                 ),
                 Ref("AliasExpressionSegment", optional=True),
             ),
             Ref("ColumnsExpressionGrammar"),
+            allow_trailing=True,
         ),
         "INTO",
         "NAME",
         Ref("SingleIdentifierGrammar"),
         "VALUE",
-        Delimited(
-            Ref("SingleIdentifierGrammar"),
-        ),
+        Delimited(Ref("SingleIdentifierGrammar"), allow_trailing=True),
         Ref("OrderByClauseSegment", optional=True),
         Ref("LimitClauseSegment", optional=True),
     )
