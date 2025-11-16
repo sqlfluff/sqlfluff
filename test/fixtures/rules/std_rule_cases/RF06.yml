@@ -753,3 +753,21 @@ test_fail_alias_default_case_tsql_case_sensitive:
     rules:
       references.quoting:
         case_sensitive: true
+
+test_pass_alias_quoted_column_case_change_tsql_case_insensitive:
+  # When case_sensitive=False and the column reference is quoted,
+  # this test covers line 294 where we strip quotes from the column
+  # identifier to compare with the alias.
+  # Column: "lowercase" (quoted, ignored via ignore_words so not flagged)
+  # Alias: "Mixedcase" (quoted)
+  pass_str: |
+    SELECT
+        "lowercase" AS "Mixedcase"
+    FROM Foo
+  configs:
+    core:
+      dialect: tsql
+    rules:
+      references.quoting:
+        case_sensitive: false
+        ignore_words: lowercase
