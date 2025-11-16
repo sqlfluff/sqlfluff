@@ -1,6 +1,6 @@
 -- Simplified UNPIVOT
 UNPIVOT monthly_sales
-ON jan, feb, mar, apr, may, jun
+ON jan, feb, mar, apr, may, jun,
 INTO
 NAME month
 VALUE sales;
@@ -15,11 +15,11 @@ UNPIVOT monthly_sales
 ON (jan, feb, mar) AS q1, (apr, may, jun) AS q2
 INTO
 NAME quarter
-VALUE month_1_sales, month_2_sales, month_3_sales;
+VALUE month_1_sales, month_2_sales, month_3_sales,;
 
 WITH unpivot_alias AS (
     UNPIVOT monthly_sales
-    ON COLUMNS (* EXCLUDE (empid, dept))
+    ON COLUMNS (* EXCLUDE (empid, dept,))
     INTO
     NAME month
     VALUE sales
@@ -45,4 +45,9 @@ UNPIVOT (
         (jan, feb, mar) AS q1,
         (apr, may, jun) AS q2
     )
+);
+
+SELECT * FROM monthly_sales
+UNPIVOT INCLUDE NULLS (
+    (sales, tax,) FOR month IN (jan, feb, mar,)
 );

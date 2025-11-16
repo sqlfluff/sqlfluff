@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 4fd86cf86d5fb835b936a1b395a37aa7f8dc1eb247d1791af3b8ff65613b54db
+_hash: 656c81f1f811d92646dee0e976aede9a2849d530089a261f1f8345d3699add50
 file:
 - statement:
     simplified_unpivot:
@@ -297,3 +297,37 @@ file:
               - end_bracket: )
             - end_bracket: )
 - statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: tbl
+          from_unpivot_expression:
+          - keyword: UNPIVOT
+          - keyword: INCLUDE
+          - keyword: NULLS
+          - bracketed:
+            - start_bracket: (
+            - naked_identifier: value
+            - keyword: FOR
+            - naked_identifier: col
+            - keyword: IN
+            - bracketed:
+              - start_bracket: (
+              - naked_identifier: x1
+              - comma: ','
+              - naked_identifier: x2
+              - comma: ','
+              - naked_identifier: x3
+              - end_bracket: )
+            - end_bracket: )
