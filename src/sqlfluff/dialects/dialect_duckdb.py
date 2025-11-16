@@ -29,6 +29,7 @@ from sqlfluff.core.parser import (
     SymbolSegment,
     TypedParser,
 )
+from sqlfluff.core.parser.types import ParseMode
 from sqlfluff.dialects import dialect_ansi as ansi
 from sqlfluff.dialects import dialect_postgres as postgres
 
@@ -160,6 +161,25 @@ duckdb_dialect.replace(
         "single_quote", IdentifierSegment, type="quoted_identifier", casefold=str.lower
     ),
     ListComprehensionGrammar=Ref("ListComprehensionExpressionSegment"),
+    # non-ANSI IN operator defined for string, list, and map
+    # https://duckdb.org/docs/stable/sql/expressions/in
+    InOperatorGrammar=Sequence(
+        Ref.keyword("NOT", optional=True),
+        "IN",
+        OneOf(
+            Bracketed(
+                OneOf(
+                    Delimited(Ref("Expression_A_Grammar"), allow_trailing=True),
+                    Ref("SelectableGrammar"),
+                ),
+                parse_mode=ParseMode.GREEDY,
+            ),
+            Ref("FunctionSegment"),
+            Ref("ArrayLiteralSegment"),
+            Ref("QuotedLiteralSegment"),
+            Ref("ColumnReferenceSegment"),
+        ),
+    ),
     ComparisonOperatorGrammar=ansi_dialect.get_grammar(
         "ComparisonOperatorGrammar"
     ).copy(
@@ -1051,4 +1071,23 @@ class CopyStatementSegment(postgres.CopyStatementSegment):
                 _copy_from_option,
             ),
         ),
+    )
+
+
+class ArrayLiteralSegment(BaseSegment):
+    """An array literal segment.
+
+    An unqualified array literal:
+    e.g. [1, 2, 3]
+
+    DuckDB allows for trailing commas:
+    e.g. [1, 2, 3,]
+    """
+
+    type = "array_literal"
+    match_grammar: Matchable = Bracketed(
+        Delimited(
+            Ref("BaseExpressionElementGrammar"), optional=True, allow_trailing=True
+        ),
+        bracket_type="square",
     )
