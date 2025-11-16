@@ -520,8 +520,8 @@ test_align_alias_with_tabs_different_lengths:
           align_scope: bracketed
 
 test_align_alias_with_tabs_custom_tab_size:
-  # Test tab alignment with custom tab_space_size (3 instead of default 4)
-  # With tab_space_size=3, positions are: tab=3, short_col ends at 12, needs 3 tabs to reach 15, then 3 more to 24
+  # Test tab alignment with custom tab_space_size (2 instead of default 4)
+  # With tab_space_size=2, positions are: tab=2, short_col ends at 11, needs 5 tabs to reach 20
   fail_str: |
     SELECT
     	short_col AS a,
