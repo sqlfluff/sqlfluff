@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 636462068822a538f191632cf1f95bf3d085ed54e9750eae03e4496515e0ea0b
+_hash: a97f724e12bdbc51e105360c944eb07dcf1f5bc998179cfa399af253499d6da7
 file:
 - statement:
     simplified_pivot:
@@ -575,6 +575,77 @@ file:
               end_bracket: )
 - statement_terminator: ;
 - statement:
+    simplified_pivot:
+    - keyword: PIVOT
+    - table_expression:
+        table_reference:
+          naked_identifier: cities
+    - keyword: 'ON'
+    - column_reference:
+        naked_identifier: country
+    - comma: ','
+    - column_reference:
+        naked_identifier: name
+    - comma: ','
+    - keyword: USING
+    - function:
+        function_name:
+          function_name_identifier: sum
+        function_contents:
+          bracketed:
+            start_bracket: (
+            expression:
+              column_reference:
+                naked_identifier: population
+            end_bracket: )
+- statement_terminator: ;
+- statement:
+    simplified_pivot:
+    - keyword: PIVOT
+    - table_expression:
+        table_reference:
+          naked_identifier: cities
+    - keyword: 'ON'
+    - column_reference:
+        naked_identifier: year
+    - keyword: USING
+    - function:
+        function_name:
+          function_name_identifier: sum
+        function_contents:
+          bracketed:
+            start_bracket: (
+            expression:
+              column_reference:
+                naked_identifier: population
+            end_bracket: )
+    - alias_expression:
+        alias_operator:
+          keyword: AS
+        naked_identifier: total
+    - comma: ','
+    - function:
+        function_name:
+          function_name_identifier: max
+        function_contents:
+          bracketed:
+            start_bracket: (
+            expression:
+              column_reference:
+                naked_identifier: population
+            end_bracket: )
+    - alias_expression:
+        alias_operator:
+          keyword: AS
+        naked_identifier: max
+    - comma: ','
+    - groupby_clause:
+      - keyword: GROUP
+      - keyword: BY
+      - column_reference:
+          naked_identifier: country
+- statement_terminator: ;
+- statement:
     select_statement:
       from_clause:
         keyword: FROM
@@ -673,6 +744,70 @@ file:
               - quoted_literal: "'NL'"
               - comma: ','
               - quoted_literal: "'US'"
+              - end_bracket: )
+            - end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: Cities
+          from_pivot_expression:
+            keyword: PIVOT
+            bracketed:
+            - start_bracket: (
+            - function:
+                function_name:
+                  function_name_identifier: sum
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      column_reference:
+                        naked_identifier: Population
+                    end_bracket: )
+            - alias_expression:
+                alias_operator:
+                  keyword: AS
+                naked_identifier: total
+            - comma: ','
+            - function:
+                function_name:
+                  function_name_identifier: count
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      column_reference:
+                        naked_identifier: Population
+                    end_bracket: )
+            - alias_expression:
+                alias_operator:
+                  keyword: AS
+                naked_identifier: count
+            - comma: ','
+            - keyword: FOR
+            - naked_identifier: Year
+            - keyword: IN
+            - bracketed:
+              - start_bracket: (
+              - numeric_literal: '2000'
+              - comma: ','
+              - numeric_literal: '2010'
+              - comma: ','
+              - end_bracket: )
+            - naked_identifier: Country
+            - keyword: in
+            - bracketed:
+              - start_bracket: (
+              - quoted_literal: "'NL'"
+              - comma: ','
+              - quoted_literal: "'US'"
+              - comma: ','
               - end_bracket: )
             - end_bracket: )
 - statement_terminator: ;

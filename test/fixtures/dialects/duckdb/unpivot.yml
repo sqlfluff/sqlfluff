@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 656c81f1f811d92646dee0e976aede9a2849d530089a261f1f8345d3699add50
+_hash: b50be97c8181d7e2a1b81275a6459cbb5e4972c438f0b777730c9c1472420c98
 file:
 - statement:
     simplified_unpivot:
@@ -29,6 +29,7 @@ file:
     - comma: ','
     - column_reference:
         naked_identifier: jun
+    - comma: ','
     - keyword: INTO
     - keyword: NAME
     - naked_identifier: month
@@ -114,6 +115,7 @@ file:
     - naked_identifier: month_2_sales
     - comma: ','
     - naked_identifier: month_3_sales
+    - comma: ','
 - statement_terminator: ;
 - statement:
     with_compound_statement:
@@ -146,6 +148,7 @@ file:
                     - comma: ','
                     - column_reference:
                         naked_identifier: dept
+                    - comma: ','
                     - end_bracket: )
                 end_bracket: )
           - keyword: INTO
@@ -311,23 +314,31 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                naked_identifier: tbl
+                naked_identifier: monthly_sales
           from_unpivot_expression:
           - keyword: UNPIVOT
           - keyword: INCLUDE
           - keyword: NULLS
           - bracketed:
             - start_bracket: (
-            - naked_identifier: value
+            - bracketed:
+              - start_bracket: (
+              - naked_identifier: sales
+              - comma: ','
+              - naked_identifier: tax
+              - comma: ','
+              - end_bracket: )
             - keyword: FOR
-            - naked_identifier: col
+            - naked_identifier: month
             - keyword: IN
             - bracketed:
               - start_bracket: (
-              - naked_identifier: x1
+              - naked_identifier: jan
               - comma: ','
-              - naked_identifier: x2
+              - naked_identifier: feb
               - comma: ','
-              - naked_identifier: x3
+              - naked_identifier: mar
+              - comma: ','
               - end_bracket: )
             - end_bracket: )
+- statement_terminator: ;
