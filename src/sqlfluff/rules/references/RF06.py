@@ -257,6 +257,64 @@ class Rule_RF06(BaseRule):
             != naked_identifier_parser.casefold(identifier_contents)
         ):
             return None
+
+        # When case_sensitive=False, we still need to check if this quoted identifier
+        # is in an alias expression and is changing the case of the column it aliases.
+        # If so, the quotes are necessary to preserve the case change and should not
+        # be removed.
+        if (
+            not self.case_sensitive
+            and naked_identifier_parser.casefold
+            and FunctionalContext(context).parent_stack.any(
+                sp.is_type("alias_expression")
+            )
+        ):
+            # Find the select_clause_element parent
+            select_clause_element = None
+            for segment in context.parent_stack:
+                if segment.is_type("select_clause_element"):
+                    select_clause_element = segment
+                    break
+
+            if select_clause_element:
+                # Get the column reference (if any) that this alias refers to
+                column_ref = select_clause_element.get_child("column_reference")
+                if column_ref:
+                    # Get the last identifier from the column reference
+                    # (handles cases like table.column)
+                    column_identifiers = column_ref.get_children(
+                        "naked_identifier", "quoted_identifier"
+                    )
+                    if column_identifiers:
+                        column_identifier = column_identifiers[-1]
+
+                        # Get the raw column identifier content
+                        column_contents = column_identifier.raw
+                        if column_identifier.is_type("quoted_identifier"):
+                            column_contents = column_contents[1:-1]
+
+                        # When case_sensitive=False, we want to remove quotes UNLESS
+                        # the alias is explicitly changing the case of the column.
+                        #
+                        # Example in TSQL:
+                        #   City AS "City"
+                        #   - Column: City, Alias: "City" (same case)
+                        #   - Not changing case, quotes unnecessary
+                        #
+                        #   Citycode AS "CityCode"
+                        #   - Column: Citycode, Alias: "CityCode" (different case)
+                        #   - Changing case, quotes necessary
+                        #
+                        # The check: do the column and alias have the same case?
+                        # (ignoring the fact that one might be quoted)
+
+                        # Compare the actual characters (case-sensitive comparison)
+                        # of the column and alias identifiers
+                        if column_contents != identifier_contents:
+                            # The alias has different case from the column.
+                            # Quotes are necessary to preserve this case change.
+                            return None
+
         if not regex.fullmatch(
             naked_identifier_parser.template,
             identifier_contents,
