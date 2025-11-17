@@ -1932,7 +1932,7 @@ impl<'a> Parser<'a> {
     }
 
     /// Handle Sequence WaitingForChild state using table-driven approach
-    pub(crate) fn handle_sequence_table_driven_waiting_for_child(
+    pub(crate) fn handle_sequence_table_driven_waiting_for_child_old(
         &mut self,
         mut frame: parser::ParseFrame,
         child_node: &Node,

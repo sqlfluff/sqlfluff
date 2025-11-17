@@ -82,13 +82,13 @@
 //!
 //! This summary documents the intended behavior and key invariants to preserve Python parity, support backtracking, and allow Greedy/Strict semantics while
 //! avoiding duplicate nodes and unnecessary frame push/pop operations.
-use std::sync::Arc;
+use std::{result, sync::Arc};
 
 use crate::parser::{
     iterative::{FrameResult, ParseFrameStack},
     BracketedState, FrameContext, FrameState, Node, ParseError, ParseFrame, Parser,
 };
-use sqlfluffrs_types::{Grammar, GrammarId, ParseMode};
+use sqlfluffrs_types::{Grammar, GrammarId, GrammarVariant, ParseMode};
 
 impl<'a> Parser<'_> {
     /// Handle Sequence grammar Initial state in iterative parser.
@@ -1001,51 +1001,48 @@ impl<'a> Parser<'_> {
 
             frame.accumulated.push(child_node.clone());
             if !*allow_gaps {
-                let mut last_code_consumed = element_start;
-                for check_pos in element_start..*matched_idx {
-                    if check_pos < self.tokens.len() && self.tokens[check_pos].is_code() {
-                        last_code_consumed = check_pos;
-                    }
-                }
-                let mut collect_end = *matched_idx;
-                while collect_end < self.tokens.len() && !self.tokens[collect_end].is_code() {
-                    collect_end += 1;
-                }
-                log::debug!("Retroactive collection for frame_id={}: element_start={}, last_code_consumed={}, matched_idx={}, collect_end={}", frame.frame_id, element_start, last_code_consumed, *matched_idx, collect_end);
+                // Find last code token consumed in [element_start, *matched_idx)
+                let last_code_consumed = (element_start..*matched_idx)
+                    .rev()
+                    .find(|&pos| pos < self.tokens.len() && self.tokens[pos].is_code())
+                    .unwrap_or(element_start);
+
+                // Find end of retroactive collection (first code token after matched_idx)
+                let collect_end = (*matched_idx..self.tokens.len())
+                    .find(|&pos| self.tokens[pos].is_code())
+                    .unwrap_or(self.tokens.len());
+
+                log::debug!(
+                    "Retroactive collection for frame_id={}: element_start={}, last_code_consumed={}, matched_idx={}, collect_end={}",
+                    frame.frame_id, element_start, last_code_consumed, *matched_idx, collect_end
+                );
+
                 for check_pos in (last_code_consumed + 1)..collect_end {
                     if check_pos < self.tokens.len() && !self.tokens[check_pos].is_code() {
-                        let already_in_accumulated = tentatively_collected.contains(&check_pos);
-                        // Also check frame's accumulated nodes to prevent duplicates
-                        let already_in_frame = frame.accumulated.iter().any(|node| match node {
-                            Node::Whitespace { token_idx: idx, .. }
-                            | Node::Newline { token_idx: idx, .. } => *idx == check_pos,
-                            _ => false,
-                        });
-                        if !already_in_accumulated && !already_in_frame {
+                        if !tentatively_collected.contains(&check_pos)
+                            && !frame.accumulated.iter().any(|node| match node {
+                                Node::Whitespace { token_idx, .. }
+                                | Node::Newline { token_idx, .. } => *token_idx == check_pos,
+                                _ => false,
+                            })
+                        {
                             let tok = &self.tokens[check_pos];
-                            let tok_type = tok.get_type();
-                            if tok_type == "whitespace" {
-                                log::debug!(
-                                    "RETROACTIVELY collecting whitespace at {}: {:?}",
-                                    check_pos,
-                                    tok.raw()
-                                );
-                                frame.accumulated.push(Node::Whitespace {
-                                    raw: tok.raw().to_string(),
-                                    token_idx: check_pos,
-                                });
-                                tentatively_collected.push(check_pos);
-                            } else if tok_type == "newline" {
-                                log::debug!(
-                                    "RETROACTIVELY collecting newline at {}: {:?}",
-                                    check_pos,
-                                    tok.raw()
-                                );
-                                frame.accumulated.push(Node::Newline {
-                                    raw: tok.raw().to_string(),
-                                    token_idx: check_pos,
-                                });
-                                tentatively_collected.push(check_pos);
+                            match &*tok.get_type() {
+                                "whitespace" => {
+                                    frame.accumulated.push(Node::Whitespace {
+                                        raw: tok.raw().to_string(),
+                                        token_idx: check_pos,
+                                    });
+                                    tentatively_collected.push(check_pos);
+                                }
+                                "newline" => {
+                                    frame.accumulated.push(Node::Newline {
+                                        raw: tok.raw().to_string(),
+                                        token_idx: check_pos,
+                                    });
+                                    tentatively_collected.push(check_pos);
+                                }
+                                _ => {}
                             }
                         }
                     }
@@ -1493,6 +1490,357 @@ impl<'a> Parser<'_> {
             stack.push(&mut frame);
         }
         Ok(FrameResult::Done)
+    }
+
+    /// Handle Sequence grammar Waiting for child state
+    /// child_node,
+                        // child_end_pos,
+                        // child_element_key,
+                        // stack,
+    pub(crate) fn handle_sequence_table_driven_waiting_for_child(
+        &mut self,
+        mut frame: ParseFrame,
+        child_node: &Node,
+        child_end_pos: &usize,
+        child_element_key: &Option<u64>,
+        stack: &mut ParseFrameStack,
+    ) -> Result<FrameResult, ParseError> {
+        let FrameContext::SequenceTableDriven {
+            grammar_id,
+            matched_idx,
+            tentatively_collected,
+            max_idx,
+            original_max_idx,
+            last_child_frame_id,
+            current_element_idx,
+            first_match,
+        } = &mut frame.context
+        else {
+            unimplemented!("Expected FrameContext::SequenceTablelDriven in handle_sequence_table_driven_initial")
+        };
+        let ctx = self.grammar_ctx.expect("Grammar Context");
+        let seq_grammar = ctx.inst(*grammar_id);
+        let elements = ctx.element_children(*grammar_id).collect::<Vec<_>>();
+        let allow_gaps = seq_grammar.flags.allow_gaps();
+        let parse_mode = seq_grammar.parse_mode;
+        let element_start = matched_idx;
+        let current_element = elements[*current_element_idx];
+
+        if child_node.is_empty() {
+            let child_end_pos = *matched_idx;
+
+            if ctx.is_optional(current_element) {
+                log::debug!(
+                    "SequenceTableDriven: Child returned EMPTY result but is OPTIONAL, continuing. frame_id={}, child_index={}",
+                    frame.frame_id,
+                    current_element_idx
+                );
+                // Child is optional, continue to next element
+                *current_element_idx += 1;
+
+                if *current_element_idx >= elements.len() {
+                    log::debug!(
+                        "SequenceTableDriven: All elements processed after optional EMPTY child, completing sequence. frame_id={}",
+                        frame.frame_id
+                    );
+                    // All elements processed, complete the sequence
+                    let result_node = if frame.accumulated.is_empty() {
+                        log::debug!(
+                            "WARNING: SequenceTableDriven completing with EMPTY accumulated! frame_id={}",
+                            frame.frame_id
+                        );
+                        Node::Empty
+                    } else {
+                        Node::Sequence {
+                            children: frame.accumulated.clone(),
+                        }
+                    };
+
+                    // Store transparent positions for parent to use
+                    stack
+                        .transparent_positions
+                        .insert(frame.frame_id, tentatively_collected.clone());
+
+                    // Commit the collection checkpoint
+                    self.commit_collection_checkpoint(frame.frame_id);
+
+                    log::debug!(
+                        "SequenceTableDriven COMPLETE: Storing result at frame_id={}",
+                        frame.frame_id
+                    );
+
+                    stack
+                        .results
+                        .insert(frame.frame_id, (result_node, *matched_idx, None));
+                    return Ok(FrameResult::Done);
+                }
+
+                // Create next child frame for the next element
+                let next_elem_idx = *current_element_idx;
+                let next_pos = if allow_gaps {
+                    self.skip_start_index_forward_to_code(*matched_idx, *max_idx)
+                } else {
+                    *matched_idx
+                };
+
+                // Check if we've run out of segments
+                if next_pos >= *max_idx {
+                    log::debug!(
+                        "SequenceTableDriven: Reached max_idx after optional EMPTY child, completing sequence. frame_id={}",
+                        frame.frame_id
+                    );
+
+                    let remaining_all_optional = elements[next_elem_idx..]
+                        .iter()
+                        .all(|el| ctx.is_optional(*el) || ctx.variant(*el) == GrammarVariant::Meta);
+
+                    if !remaining_all_optional {
+                        log::debug!(
+                            "SequenceTableDriven: Remaining elements are NOT all optional, failing sequence. frame_id={}",
+                            frame.frame_id
+                        );
+                        let result_node = if frame.accumulated.is_empty() {
+                            log::debug!(
+                                "WARNING: SequenceTableDriven completing with EMPTY accumulated! frame_id={}",
+                                frame.frame_id
+                            );
+                            Node::Empty
+                        } else {
+                            Node::Sequence {
+                                children: frame.accumulated.clone(),
+                            }
+                        };
+
+                        stack
+                            .transparent_positions
+                            .insert(frame.frame_id, tentatively_collected.clone());
+                        self.commit_collection_checkpoint(frame.frame_id);
+
+                        stack
+                            .results
+                            .insert(frame.frame_id, (result_node, *matched_idx, None));
+                        return Ok(FrameResult::Done);
+                    } else if parse_mode == ParseMode::Strict {
+                        log::debug!(
+                            "SequenceTableDriven: Remaining elements are NOT all optional, and in STRICT mode, failing sequence. frame_id={}",
+                            frame.frame_id
+                        );
+                        self.rollback_collection_checkpoint(frame.frame_id);
+                        stack
+                            .results
+                            .insert(frame.frame_id, (Node::Empty, *element_start, None));
+                        return Ok(FrameResult::Done);
+                    } else {
+                        log::debug!(
+                            "SequenceTableDriven: Required elements remain but in GREEDY mode, completing sequence. frame_id={}",
+                            frame.frame_id
+                        )
+                    }
+
+                    // Increment child_index in WaitingForChild state, preserving total_children
+                    if let FrameState::WaitingForChild {
+                        child_index,
+                        total_children,
+                    } = frame.state
+                    {
+                        frame.state = FrameState::WaitingForChild {
+                            child_index: child_index + 1,
+                            total_children,
+                        };
+                    } else {
+                        unreachable!();
+                    }
+
+                    let child_frame = ParseFrame::new_table_driven_child(
+                        stack.frame_id_counter,
+                        elements[next_elem_idx],
+                        next_pos,
+                        frame.table_terminators,
+                        Some(*original_max_idx),
+                    );
+                    ParseFrame::push_sequence_child_and_update_parent(
+                        stack,
+                        &mut frame,
+                        child_frame,
+                        next_elem_idx,
+                    );
+                    return Ok(FrameResult::Done);
+                } else {
+                    if parse_mode != ParseMode::Strict {
+                        self.pos = frame.pos;
+                        self.rollback_collection_checkpoint(frame.frame_id);
+                        stack
+                            .results
+                            .insert(frame.frame_id, (Node::Empty, frame.pos, None));
+                        return Ok(FrameResult::Done);
+                    }
+
+                    if *element_start == frame.pos {
+                        if parse_mode == ParseMode::GreedyOnceStarted {
+                            self.pos = frame.pos;
+                            self.rollback_collection_checkpoint(frame.frame_id);
+                            stack
+                                .results
+                                .insert(frame.frame_id, (Node::Empty, frame.pos, None));
+                            return Ok(FrameResult::Done);
+                        }
+
+                        let unparsable_children: Vec<Node> = (*element_start..next_pos)
+                            .filter_map(|pos| {
+                                if pos < self.tokens.len() {
+                                    let tok = &self.tokens[pos];
+                                    Some(Node::Token {
+                                        token_type: tok.get_type(),
+                                        raw: tok.raw().to_string(),
+                                        token_idx: pos,
+                                    })
+                                } else {
+                                    None
+                                }
+                            })
+                            .collect();
+
+                        let unparsable_node = Node::Unparsable {
+                            children: unparsable_children,
+                            expected_message: format!("expected something",),
+                        };
+
+                        stack
+                            .results
+                            .insert(frame.frame_id, (unparsable_node, next_pos, None));
+                        return Ok(FrameResult::Done);
+                    }
+
+                    let unparsable_start = if allow_gaps {
+                        self.skip_start_index_forward_to_code(*element_start, *max_idx)
+                    } else {
+                        *element_start
+                    };
+
+                    if allow_gaps && unparsable_start > *element_start {
+                        for pos in *element_start..unparsable_start {
+                            if pos < self.tokens.len() {
+                                let tok = &self.tokens[pos];
+                                let tok_type = tok.get_type();
+                                if tok_type == "whitespace" {
+                                    frame.accumulated.push(Node::Whitespace {
+                                        raw: tok.raw().to_string(),
+                                        token_idx: pos,
+                                    });
+                                } else if tok_type == "newline" {
+                                    frame.accumulated.push(Node::Newline {
+                                        raw: tok.raw().to_string(),
+                                        token_idx: pos,
+                                    });
+                                }
+                            }
+                        }
+                    }
+
+                    let unparsable_children: Vec<Node> = (unparsable_start..*max_idx)
+                        .filter_map(|pos| {
+                            if pos < self.tokens.len() {
+                                let tok = &self.tokens[pos];
+                                Some(Node::Token {
+                                    token_type: tok.get_type(),
+                                    raw: tok.raw().to_string(),
+                                    token_idx: pos,
+                                })
+                            } else {
+                                None
+                            }
+                        })
+                        .collect();
+
+                    let unparsable_node = Node::Unparsable {
+                        children: unparsable_children,
+                        expected_message: format!("expected something",),
+                    };
+
+                    frame.accumulated.push(unparsable_node);
+
+                    let result_node = Node::Sequence {
+                        children: frame.accumulated.clone(),
+                    };
+                    stack
+                        .transparent_positions
+                        .insert(frame.frame_id, tentatively_collected.clone());
+                    return Ok(FrameResult::Done);
+                }
+            } else {
+                // Child returned a non-empty result
+                *matched_idx = child_end_pos;
+                if child_end_pos > *max_idx {
+                    *max_idx = child_end_pos;
+                }
+
+                frame.accumulated.push(child_node.clone());
+                if !allow_gaps {
+                    // When not allowing gaps, we only collect from child nodes
+                    // so update tentatively_collected with child's transparent positions
+                    // Find the last code token consumed between element_start and matched_idx
+                    let last_code_consumed = (*element_start..*matched_idx)
+                        .rev()
+                        .find(|&pos| pos < self.tokens.len() && self.tokens[pos].is_code())
+                        .unwrap_or(*element_start);
+
+                    // Find the end position for retroactive collection (first code token after matched_idx)
+                    let collect_end = (*matched_idx..self.tokens.len())
+                        .find(|&pos| self.tokens[pos].is_code())
+                        .unwrap_or(self.tokens.len());
+
+                    // Retroactive collection for frame
+                    for check_pos in (last_code_consumed + 1)..collect_end {
+                        if check_pos < self.tokens.len() && !self.tokens[check_pos].is_code() {
+                            if !tentatively_collected.contains(&check_pos)
+                                && !frame.accumulated.iter().any(|node| match node {
+                                    Node::Whitespace { token_idx, .. }
+                                    | Node::Newline { token_idx, .. } => *token_idx == check_pos,
+                                    _ => false,
+                                })
+                            {
+                                let tok = &self.tokens[check_pos];
+                                match &*tok.get_type() {
+                                    "whitespace" => {
+                                        frame.accumulated.push(Node::Whitespace {
+                                            raw: tok.raw().to_string(),
+                                            token_idx: check_pos,
+                                        });
+                                        tentatively_collected.push(check_pos);
+                                    }
+                                    "newline" => {
+                                        frame.accumulated.push(Node::Newline {
+                                            raw: tok.raw().to_string(),
+                                            token_idx: check_pos,
+                                        });
+                                        tentatively_collected.push(check_pos);
+                                    }
+                                    _ => {}
+                                }
+                            }
+                        }
+                    }
+
+                    if *first_match && parse_mode == ParseMode::GreedyOnceStarted {
+                        // In GREEDY_ONCE_STARTED mode, after the first successful match,
+                        // we trim max_idx to the next terminator
+                        let next_terminator_pos = self.trim_to_terminator_table_driven(
+                            *matched_idx,
+                            &frame.table_terminators,
+                        );
+                        log::debug!(
+                            "SequenceTableDriven: GREEDY_ONCE_STARTED - Trimming max_idx from {} to next terminator at {}. frame_id={}",
+                            *max_idx,
+                            next_terminator_pos,
+                            frame.frame_id
+                        );
+                        *max_idx = next_terminator_pos;
+                        *first_match = false;
+                    }
+                }
+            }
+        }
+        todo!()
     }
 
     /// Handle Sequence grammar Combining state - build final node from accumulated children.

@@ -1303,7 +1303,7 @@ impl<'a> Parser<'a> {
     /// Trim to first terminator position for table-driven parsing.
     ///
     /// This is the table-driven equivalent of trim_to_terminator().
-    fn trim_to_terminator_table_driven(
+    pub(crate) fn trim_to_terminator_table_driven(
         &mut self,
         start_idx: usize,
         terminators: &[sqlfluffrs_types::GrammarId],

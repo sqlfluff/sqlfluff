@@ -12,17 +12,17 @@
 # Note: The linker flags below only affect main binaries, not test binaries.
 # Always use RUST_MIN_STACK for reliable stack size control.
 
-[build]
-rustflags = ["-C", "link-args=-Wl,-z,stack-size=16777216"]
+# [build]
+# rustflags = ["-C", "link-args=-Wl,-z,stack-size=16777216"]
 
-[target.x86_64-unknown-linux-gnu]
-rustflags = ["-C", "link-args=-Wl,-z,stack-size=16777216"]
+# [target.x86_64-unknown-linux-gnu]
+# rustflags = ["-C", "link-args=-Wl,-z,stack-size=16777216"]
 
-[target.aarch64-unknown-linux-gnu]
-rustflags = ["-C", "link-args=-Wl,-z,stack-size=16777216"]
+# [target.aarch64-unknown-linux-gnu]
+# rustflags = ["-C", "link-args=-Wl,-z,stack-size=16777216"]
 
-[target.x86_64-apple-darwin]
-rustflags = ["-C", "link-args=-Wl,-stack_size,0x1000000"]
+# [target.x86_64-apple-darwin]
+# rustflags = ["-C", "link-args=-Wl,-stack_size,0x1000000"]
 
-[target.aarch64-apple-darwin]
-rustflags = ["-C", "link-args=-Wl,-stack_size,0x1000000"]
+# [target.aarch64-apple-darwin]
+# rustflags = ["-C", "link-args=-Wl,-stack_size,0x1000000"]
