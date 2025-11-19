@@ -1,0 +1,1 @@
+DROP PUBLIC SYNONYM customers;
