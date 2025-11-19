@@ -11,7 +11,7 @@ const GUIDES: DefaultTheme.NavItemWithLink[] = [
 ]
 
 const REFERENCES: DefaultTheme.NavItemWithLink[] = [
-    { text: 'Dialect', link: '/reference/dialect' },
+    { text: 'Dialects', link: '/reference/dialects' },
     { text: 'Rules', link: '/reference/rules' },
     { text: 'CLI', link: '/reference/cli' },
 ]

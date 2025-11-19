@@ -3,8 +3,9 @@
 
 This script orchestrates the entire documentation generation process:
 1. Rule documentation (generate-rules-docs.py)
-2. API documentation (pydoc-markdown)
-3. Redirect extraction (extract-redirects.py)
+2. Dialect documentation (generate-dialects-docs.py)
+3. API documentation (pydoc-markdown)
+4. Redirect extraction (extract-redirects.py)
 """
 
 import subprocess
@@ -58,7 +59,16 @@ def main():
         print("\n❌ Build failed at rule documentation generation")
         return exit_code
 
-    # Step 2: Generate API documentation with pydoc-markdown
+    # Step 2: Generate dialect documentation
+    dialects_script = script_dir / "generate-dialects-docs.py"
+    exit_code = run_command(
+        [sys.executable, str(dialects_script)], "Generating dialect documentation"
+    )
+    if exit_code != 0:
+        print("\n❌ Build failed at dialect documentation generation")
+        return exit_code
+
+    # Step 3: Generate API documentation with pydoc-markdown
     pydoc_config = docs_dir / "pydoc-markdown.yml"
     api_output_dir = docs_dir / "reference" / "api"
 
@@ -86,7 +96,7 @@ def main():
         print("   Install with: pip install pydoc-markdown")
         print("   Continuing with other steps...\n")
 
-    # Step 3: Extract redirects from Sphinx conf.py
+    # Step 4: Extract redirects from Sphinx conf.py
     redirects_script = script_dir / "extract-redirects.py"
     exit_code = run_command(
         [sys.executable, str(redirects_script)],
@@ -103,9 +113,15 @@ def main():
     print("\n✅ Documentation generation complete!")
     print("\nGenerated files:")
     print(f"  - Rule documentation: {docs_dir / 'reference' / 'rules'}")
+    print(f"  - Dialect documentation: {docs_dir / 'reference' / 'dialects'}")
     print(f"  - API documentation: {docs_dir / 'reference' / 'api'}")
     print(f"  - Redirects config: {docs_dir / '.vitepress' / 'redirects.json'}")
-    print(f"  - Sidebar config: {docs_dir / '.vitepress' / 'sidebar-rules.json'}")
+    print(
+        f"  - Sidebar config (rules): {docs_dir / '.vitepress' / 'sidebar-rules.json'}"
+    )
+    # Break into two lines for readability: label on one line, path on the next
+    print("  - Sidebar config (dialects):")
+    print(f"    {docs_dir / '.vitepress' / 'sidebar-dialects.json'}")
 
     return 0
 
