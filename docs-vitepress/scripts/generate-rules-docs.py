@@ -57,6 +57,9 @@ def rst_to_markdown(rst_text: str) -> str:
         md = result.stdout
 
         # Post-process the markdown
+        # Convert cfg code blocks to ini (handle both with and without space)
+        md = re.sub(r"```\s*cfg", "```ini", md)
+
         # Fix inline code that pandoc might convert
         md = re.sub(r":code:`([^`]+)`", r"`\1`", md)
         md = re.sub(r":ref:`([^`]+)`", r"`\1`", md)
@@ -134,25 +137,80 @@ def simple_rst_to_markdown(rst_text: str) -> str:
 
 
 def get_bundle_name(bundle_key: str) -> str:
-    """Convert bundle key to display name."""
-    bundle_names = {
-        "aliasing": "Aliasing",
-        "ambiguous": "Ambiguous",
-        "capitalisation": "Capitalisation",
-        "convention": "Convention",
-        "jinja": "Jinja",
-        "layout": "Layout",
-        "references": "References",
-        "structure": "Structure",
-        "tsql": "T-SQL Specific",
-    }
-    return bundle_names.get(bundle_key, bundle_key.capitalize())
+    """Get display name for a bundle."""
+    # Capitalize first letter of bundle name
+    return bundle_key.capitalize()
 
 
-def get_category_prefix(code: str) -> str:
-    """Extract category prefix from rule code (e.g., 'LT' from 'LT01')."""
-    match = re.match(r"^([A-Z]+)", code)
-    return match.group(1) if match else ""
+def format_configuration_section(markdown_text: str) -> str:
+    """Convert Configuration section from list format to markdown table.
+
+    Also removes duplicate metadata (Name, Aliases, Groups) that appears in docstrings
+    since we now show this in a metadata table at the top of each rule.
+
+    Looks for patterns like:
+    **Configuration**
+    -   `option_name`: Description text. Must be one of `[values]`.
+
+    And converts to a markdown table format.
+    """
+    # Remove duplicate metadata lines from docstring
+    # These appear as **Name**: `value`, **Aliases**: `value`, **Groups**: `value`
+    # Handle both single-line and multi-line variations
+    markdown_text = re.sub(
+        r"\*\*Name\*\*:\s*`[^`]+`\s*\n+", "", markdown_text, flags=re.IGNORECASE
+    )
+    markdown_text = re.sub(
+        r"\*\*Aliases\*\*:\s*`[^`]+(?:`,\s*`[^`]+)*`\s*\n+",
+        "",
+        markdown_text,
+        flags=re.IGNORECASE,
+    )
+    markdown_text = re.sub(
+        r"\*\*Groups\*\*:\s*`[^`]+(?:`,\s*`[^`]+)*`\s*\n+",
+        "",
+        markdown_text,
+        flags=re.IGNORECASE,
+    )
+
+    # Remove "This rule is sqlfluff fix compatible" line
+    # (redundant with Auto-fixable in table)
+    markdown_text = re.sub(
+        r"This rule is `sqlfluff fix` compatible\.\s*\n+",
+        "",
+        markdown_text,
+        flags=re.IGNORECASE,
+    )
+
+    # Pattern to match Configuration section with bullet points
+    config_pattern = r"\*\*Configuration\*\*\s*\n\n((?:-\s+`[^`]+`:[^\n]+\n?)+)"
+
+    def replace_config(match):
+        config_text = match.group(1)
+
+        # Parse each configuration option
+        # Pattern: -   `option_name`: Description. Must be one of `[values]`.
+        option_pattern = r"-\s+`([^`]+)`:\s+([^\n]+)"
+        options = re.findall(option_pattern, config_text)
+
+        if not options:
+            return match.group(0)  # Return original if can't parse
+
+        # Build markdown table
+        table = "**Configuration**\n\n"
+        table += "| Option | Description |\n"
+        table += "|--------|-------------|\n"
+
+        for option_name, description in options:
+            # Clean up description - remove extra spaces
+            description = description.strip()
+            # Escape pipe characters in description
+            description = description.replace("|", "\\|")
+            table += f"| `{option_name}` | {description} |\n"
+
+        return table
+
+    return re.sub(config_pattern, replace_config, markdown_text, flags=re.MULTILINE)
 
 
 def generate_rules_documentation(output_dir: Path) -> dict[str, Any]:
@@ -212,36 +270,53 @@ def generate_rules_documentation(output_dir: Path) -> dict[str, Any]:
 
         # Detailed documentation for each rule
         for rule in rules:
+            # Extract summary (first line of docstring)
+            summary = ""
+            if rule.__doc__:
+                first_line = rule.__doc__.strip().split("\n")[0]
+                summary = first_line.strip()
+
             md_content += f"## {rule.code}: {rule.name} {{#{rule.code.lower()}}}\n\n"
 
-            # Add metadata
+            if summary:
+                md_content += f"{summary}\n\n"
+
+            # Create metadata table
+            md_content += "| Property | Value |\n"
+            md_content += "|----------|-------|\n"
+            md_content += f"| **Name** | `{rule.name}` |\n"
+
             if rule.aliases:
-                md_content += (
-                    f"**Aliases:** {', '.join(f'`{a}`' for a in rule.aliases)}\n\n"
-                )
+                aliases_str = ", ".join(f"`{a}`" for a in rule.aliases)
+                md_content += f"| **Aliases** | {aliases_str} |\n"
 
             if rule.groups:
-                md_content += (
-                    f"**Groups:** {', '.join(f'`{g}`' for g in rule.groups)}\n\n"
-                )
+                groups_str = ", ".join(f"`{g}`" for g in rule.groups)
+                md_content += f"| **Groups** | {groups_str} |\n"
 
             auto_fixable = "Yes ✅" if rule.is_fix_compatible else "No ❌"
-            md_content += f"**Auto-fixable:** {auto_fixable}\n\n"
+            md_content += f"| **Auto-fixable** | {auto_fixable} |\n\n"
 
-            # Convert and add docstring
+            # Convert and add rest of docstring (skip first line which is the summary)
             if rule.__doc__:
-                md_content += rst_to_markdown(rule.__doc__)
-                md_content += "\n\n"
+                # Split docstring into lines and skip the first line (summary)
+                lines = rule.__doc__.split("\n")
+                # Find where the actual content starts (after summary and blank lines)
+                content_start = 1
+                while content_start < len(lines) and not lines[content_start].strip():
+                    content_start += 1
 
-            # Configuration keywords
-            if hasattr(rule, "config_keywords") and rule.config_keywords:
-                md_content += "### Configuration\n\n"
-                md_content += (
-                    "This rule supports the following configuration options:\n\n"
-                )
-                for keyword in rule.config_keywords:
-                    md_content += f"- `{keyword}`\n"
-                md_content += "\n"
+                # Join remaining lines
+                remaining_doc = "\n".join(lines[content_start:])
+
+                if remaining_doc.strip():
+                    converted_doc = rst_to_markdown(remaining_doc)
+
+                    # Extract and replace configuration section with a table
+                    converted_doc = format_configuration_section(converted_doc)
+
+                    md_content += converted_doc
+                    md_content += "\n\n"
 
             md_content += "---\n\n"
 

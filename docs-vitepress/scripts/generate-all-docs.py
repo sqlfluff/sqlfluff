@@ -107,11 +107,6 @@ def main():
     print(f"  - Redirects config: {docs_dir / '.vitepress' / 'redirects.json'}")
     print(f"  - Sidebar config: {docs_dir / '.vitepress' / 'sidebar-rules.json'}")
 
-    print("\n📝 Next steps:")
-    print("  1. Install Node dependencies: cd docs-vitepress && pnpm install")
-    print("  2. Start dev server: pnpm run docs:dev")
-    print("  3. Build for production: pnpm run docs:build")
-
     return 0
 
 
