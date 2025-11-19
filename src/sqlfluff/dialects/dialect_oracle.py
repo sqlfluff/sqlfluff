@@ -3099,7 +3099,7 @@ class CreateSynonymStatementSegment(BaseSegment):
         Ref.keyword("PUBLIC", optional=True),
         "SYNONYM",
         Ref("IfNotExistsGrammar", optional=True),
-        Ref("SingleIdentifierGrammar"),
+        Ref("ObjectReferenceSegment"),
         Ref("SharingClauseGrammar", optional=True),
         "FOR",
         Ref("ObjectReferenceSegment"),
@@ -3122,7 +3122,7 @@ class DropSynonymStatementSegment(BaseSegment):
         Ref.keyword("PUBLIC", optional=True),
         "SYNONYM",
         Ref("IfExistsGrammar", optional=True),
-        Ref("SingleIdentifierGrammar"),
+        Ref("ObjectReferenceSegment"),
         Ref.keyword("FORCE", optional=True),
     )
 
@@ -3140,6 +3140,6 @@ class AlterSynonymStatementSegment(BaseSegment):
         Ref.keyword("PUBLIC", optional=True),
         "SYNONYM",
         Ref("IfExistsGrammar", optional=True),
-        Ref("SingleIdentifierGrammar"),
+        Ref("ObjectReferenceSegment"),
         OneOf("EDITIONABLE", "NONEDITIONABLE", "COMPILE", optional=True),
     )
