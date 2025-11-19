@@ -1162,6 +1162,9 @@ class StatementSegment(ansi.StatementSegment):
             Ref("RaiseStatementSegment"),
             Ref("ReturnStatementSegment"),
             Ref("AlterIndexStatementSegment"),
+            Ref("CreateSynonymStatementSegment"),
+            Ref("DropSynonymStatementSegment"),
+            Ref("AlterSynonymStatementSegment"),
         ],
     )
 
@@ -3069,4 +3072,74 @@ class DeleteStatementSegment(ansi.DeleteStatementSegment):
 
     match_grammar: Matchable = ansi.DeleteStatementSegment.match_grammar.copy(
         insert=[Ref("ReturningClauseSegment", optional=True)]
+    )
+
+
+class DatabaseLinkReferenceSegment(ansi.ObjectReferenceSegment):
+    """A reference to a database link."""
+
+    type = "database_link_reference"
+    match_grammar: Matchable = Delimited(
+        Ref("SingleIdentifierGrammar"), delimiter=Ref("DotSegment")
+    )
+
+
+class CreateSynonymStatementSegment(BaseSegment):
+    """A `CREATE SYNONYM` statement.
+
+    https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/CREATE-SYNONYM.html
+    """
+
+    type = "create_synonym_statement"
+
+    match_grammar: Matchable = Sequence(
+        "CREATE",
+        Ref("OrReplaceGrammar", optional=True),
+        OneOf("EDITIONABLE", "NONEDITIONABLE", optional=True),
+        Ref.keyword("PUBLIC", optional=True),
+        "SYNONYM",
+        Ref("IfNotExistsGrammar", optional=True),
+        Ref("SingleIdentifierGrammar"),
+        Ref("SharingClauseGrammar", optional=True),
+        "FOR",
+        Ref("ObjectReferenceSegment"),
+        Sequence(
+            Ref("AtSignSegment"), Ref("DatabaseLinkReferenceSegment"), optional=True
+        ),
+    )
+
+
+class DropSynonymStatementSegment(BaseSegment):
+    """A `DROP SYNONYM` statement.
+
+    https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/DROP-SYNONYM.html
+    """
+
+    type = "drop_synonym_statement"
+
+    match_grammar: Matchable = Sequence(
+        "DROP",
+        Ref.keyword("PUBLIC", optional=True),
+        "SYNONYM",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("SingleIdentifierGrammar"),
+        Ref.keyword("FORCE", optional=True),
+    )
+
+
+class AlterSynonymStatementSegment(BaseSegment):
+    """An `ALTER SYNONYM` statement.
+
+    https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/ALTER-SYNONYM.html
+    """
+
+    type = "alter_synonym_statement"
+
+    match_grammar: Matchable = Sequence(
+        "ALTER",
+        Ref.keyword("PUBLIC", optional=True),
+        "SYNONYM",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("SingleIdentifierGrammar"),
+        OneOf("EDITIONABLE", "NONEDITIONABLE", "COMPILE", optional=True),
     )
