@@ -1177,6 +1177,8 @@ class StatementSegment(ansi.StatementSegment):
             Ref("ReturnStatementSegment"),
             Ref("AlterIndexStatementSegment"),
             Ref("CreateDatabaseLinkStatementSegment"),
+            Ref("DropDatabaseLinkStatementSegment"),
+            Ref("AlterDatabaseLinkStatementSegment"),
         ],
     )
 
@@ -3138,4 +3140,58 @@ class CreateDatabaseLinkStatementSegment(BaseSegment):
             optional=True,
         ),
         Sequence("USING", Ref("SingleQuotedIdentifierSegment"), optional=True),
+    )
+
+
+class DropDatabaseLinkStatementSegment(BaseSegment):
+    """A `DROP DATABASE LINK` statement.
+
+    https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/DROP-DATABASE-LINK.html
+    """
+
+    type = "drop_database_link_statement"
+
+    match_grammar: Matchable = Sequence(
+        "DROP",
+        Ref.keyword("PUBLIC", optional=True),
+        "DATABASE",
+        "LINK",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("DatabaseLinkReferenceSegment"),
+    )
+
+
+class AlterDatabaseLinkStatementSegment(BaseSegment):
+    """An `ALTER DATABASE LINK` statement.
+
+    https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/ALTER-DATABASE-LINK.html
+    """
+
+    type = "alter_database_link_statement"
+
+    match_grammar: Matchable = Sequence(
+        "ALTER",
+        Ref.keyword("SHARED", optional=True),
+        Ref.keyword("PUBLIC", optional=True),
+        "DATABASE",
+        "LINK",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("DatabaseLinkReferenceSegment"),
+        OneOf(
+            Sequence(
+                "CONNECT",
+                OneOf(
+                    Sequence(
+                        "TO",
+                        Ref("RoleReferenceSegment"),
+                        "IDENTIFIED",
+                        "BY",
+                        Ref("SingleIdentifierGrammar"),
+                        Ref("DBLinkAuthenticationGrammar", optional=True),
+                    ),
+                    Sequence("WITH", Ref("SingleIdentifierGrammar")),
+                ),
+            ),
+            Ref("DBLinkAuthenticationGrammar"),
+        ),
     )
