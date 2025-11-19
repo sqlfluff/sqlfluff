@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: d60326cc9197d8b98aa2e1d3659cd40cebca9963acdd921edb07f0f294e8dcfb
+_hash: 27426be9f121ff7c2e9ef2c89b313fdc522235d756c7356832a49359301957ec
 file:
   batch:
   - statement:
@@ -17,14 +17,14 @@ file:
         keyword: DECLARE
         parameter: '@BinVar'
         data_type:
-          data_type_identifier: varbinary
+          keyword: varbinary
           bracketed_arguments:
             bracketed:
               start_bracket: (
               expression:
                 integer_literal: '128'
               end_bracket: )
-        statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       set_local_variable_segment:
         keyword: SET
@@ -53,7 +53,7 @@ file:
                       - end_bracket: )
                 keyword: AS
                 data_type:
-                  data_type_identifier: varbinary
+                  keyword: varbinary
                   bracketed_arguments:
                     bracketed:
                       start_bracket: (
@@ -84,4 +84,4 @@ file:
               alias_operator:
                 keyword: AS
               naked_identifier: MyContextInfo
-        statement_terminator: ;
+  - statement_terminator: ;

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 78c6fc88cc49231444a1316f884ab2fd2d2214e9e3b89605420da0f223b4fa77
+_hash: 7eb5998c6a2fb9549787c8cf721db057156484ccc89969d8588b8d33f345c507
 file:
   batch:
   - statement:
@@ -858,9 +858,9 @@ file:
                     integer_literal: '1'
                   keyword: as
                   data_type:
-                    data_type_identifier: character
-                    keyword: varying
-                    bracketed_arguments:
+                  - keyword: character
+                  - keyword: varying
+                  - bracketed_arguments:
                       bracketed:
                         start_bracket: (
                         expression:
@@ -880,7 +880,7 @@ file:
                       quoted_identifier: '[central]'
                   keyword: as
                   data_type:
-                    data_type_identifier: int
+                    keyword: int
                   end_bracket: )
         - comma: ','
         - select_clause_element:
@@ -920,7 +920,7 @@ file:
                 - naked_identifier: dbo
                 - dot: .
                 - naked_identifier: all_pop
-          statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       select_statement:
         select_clause:
@@ -940,7 +940,7 @@ file:
               table_expression:
                 table_reference:
                   naked_identifier: some_table
-          statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       select_statement:
         select_clause:
@@ -974,7 +974,7 @@ file:
                 - naked_identifier: dbo
                 - dot: .
                 - naked_identifier: sql_modules
-          statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       select_statement:
         select_clause:
@@ -986,4 +986,4 @@ file:
               alias_operator:
                 keyword: AS
               naked_identifier: 日期差多少天
-        statement_terminator: ;
+  - statement_terminator: ;

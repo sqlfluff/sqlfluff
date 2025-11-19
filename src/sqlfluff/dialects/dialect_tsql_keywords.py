@@ -532,6 +532,7 @@ UNRESERVED_KEYWORDS = [
     "BERNOULLI",
     "BLOCK",
     "BLOCKERS",
+    "BULK_LOGGED",
     "CACHE",
     "CALLER",
     "CATALOG_COLLATION",
@@ -791,6 +792,7 @@ UNRESERVED_KEYWORDS = [
     "REBUILD",
     "RECEIVE",
     "RECOMPILE",
+    "RECOVERY",
     "REGENERATE",
     "REJECT_SAMPLE_VALUE",
     "REJECT_TYPE",
@@ -844,6 +846,7 @@ UNRESERVED_KEYWORDS = [
     "SHOWPLAN_TEXT",
     "SHOWPLAN_XML",
     "SID",
+    "SIMPLE",
     "SINGLE_BLOB",
     "SINGLE_CLOB",
     "SINGLE_NCLOB",
@@ -903,4 +906,33 @@ UNRESERVED_KEYWORDS = [
     "XMLSCHEMA",
     "XSINIL",
     "YEARS",
+    # Data type keywords
+    # https://learn.microsoft.com/en-us/sql/t-sql/data-types/data-types-transact-sql
+    # Exact numeric types
+    "TINYINT",
+    "BIGINT",
+    "MONEY",
+    "SMALLMONEY",
+    # Approximate numeric types
+    # Date and time types
+    "SMALLDATETIME",
+    "DATETIME",
+    "DATETIME2",
+    "DATETIMEOFFSET",
+    # Character string types
+    "TEXT",
+    # Unicode character string types
+    "NVARCHAR",
+    "NTEXT",
+    # Binary string types
+    "VARBINARY",
+    "IMAGE",
+    # Other data types
+    "SQL_VARIANT",
+    "ROWVERSION",
+    "UNIQUEIDENTIFIER",
+    "GEOGRAPHY",
+    "GEOMETRY",
+    "HIERARCHYID",
+    "VECTOR",
 ]

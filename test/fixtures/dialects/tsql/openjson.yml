@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 53386a039d8feacad8152fe4e5054037b4918d9192976d44dced09dc9fbeaee5
+_hash: 8b70dcfbd7428cddf7edd66501fd1afd5395cca55d7d07e022be2a274e77da0f
 file:
   batch:
   - statement:
@@ -52,7 +52,7 @@ file:
                   - naked_identifier: productTypes
                   - dot: .
                   - naked_identifier: value
-          statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       select_statement:
         select_clause:
@@ -80,7 +80,7 @@ file:
                     - column_reference:
                         naked_identifier: month
                     - data_type:
-                        data_type_identifier: VARCHAR
+                        keyword: VARCHAR
                         bracketed_arguments:
                           bracketed:
                             start_bracket: (
@@ -91,19 +91,19 @@ file:
                     - column_reference:
                         naked_identifier: temp
                     - data_type:
-                        data_type_identifier: int
+                        keyword: int
                     - comma: ','
                     - column_reference:
                         naked_identifier: month_id
                     - data_type:
-                        data_type_identifier: tinyint
+                        keyword: tinyint
                     - quoted_literal: "'$.sql:identity()'"
                     - end_bracket: )
               alias_expression:
                 alias_operator:
                   keyword: as
                 naked_identifier: months
-          statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       select_statement:
         select_clause:
@@ -131,7 +131,7 @@ file:
                     - column_reference:
                         naked_identifier: Number
                     - data_type:
-                        data_type_identifier: VARCHAR
+                        keyword: VARCHAR
                         bracketed_arguments:
                           bracketed:
                             start_bracket: (
@@ -143,13 +143,13 @@ file:
                     - column_reference:
                         naked_identifier: Date
                     - data_type:
-                        data_type_identifier: DATETIME
+                        keyword: DATETIME
                     - quoted_literal: "'$.Order.Date'"
                     - comma: ','
                     - column_reference:
                         naked_identifier: Customer
                     - data_type:
-                        data_type_identifier: VARCHAR
+                        keyword: VARCHAR
                         bracketed_arguments:
                           bracketed:
                             start_bracket: (
@@ -161,13 +161,13 @@ file:
                     - column_reference:
                         naked_identifier: Quantity
                     - data_type:
-                        data_type_identifier: INT
+                        keyword: INT
                     - quoted_literal: "'$.Item.Quantity'"
                     - comma: ','
                     - column_reference:
                         quoted_identifier: '[Order]'
                     - data_type:
-                        data_type_identifier: NVARCHAR
+                        keyword: NVARCHAR
                         bracketed_arguments:
                           bracketed:
                             start_bracket: (
@@ -176,7 +176,7 @@ file:
                     - keyword: AS
                     - keyword: JSON
                     - end_bracket: )
-          statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       select_statement:
         select_clause:
@@ -224,7 +224,7 @@ file:
                         column_reference:
                           naked_identifier: value
                         data_type:
-                          data_type_identifier: NVARCHAR
+                          keyword: NVARCHAR
                           bracketed_arguments:
                             bracketed:
                               start_bracket: (
@@ -233,7 +233,7 @@ file:
                               end_bracket: )
                         quoted_literal: "'$'"
                         end_bracket: )
-          statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       select_statement:
         select_clause:
@@ -291,7 +291,7 @@ file:
                       - column_reference:
                           naked_identifier: street
                       - data_type:
-                          data_type_identifier: VARCHAR
+                          keyword: VARCHAR
                           bracketed_arguments:
                             bracketed:
                               start_bracket: (
@@ -302,7 +302,7 @@ file:
                       - column_reference:
                           naked_identifier: postcode
                       - data_type:
-                          data_type_identifier: VARCHAR
+                          keyword: VARCHAR
                           bracketed_arguments:
                             bracketed:
                               start_bracket: (
@@ -314,20 +314,20 @@ file:
                       - column_reference:
                           naked_identifier: lon
                       - data_type:
-                          data_type_identifier: int
+                          keyword: int
                       - quoted_literal: "'$.geo.longitude'"
                       - comma: ','
                       - column_reference:
                           naked_identifier: lat
                       - data_type:
-                          data_type_identifier: int
+                          keyword: int
                       - quoted_literal: "'$.geo.latitude'"
                       - end_bracket: )
                 alias_expression:
                   alias_operator:
                     keyword: AS
                   naked_identifier: location
-          statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       insert_statement:
       - keyword: INSERT
@@ -360,12 +360,12 @@ file:
                       - column_reference:
                           naked_identifier: id
                       - data_type:
-                          data_type_identifier: INT
+                          keyword: INT
                       - comma: ','
                       - column_reference:
                           naked_identifier: firstName
                       - data_type:
-                          data_type_identifier: NVARCHAR
+                          keyword: NVARCHAR
                           bracketed_arguments:
                             bracketed:
                               start_bracket: (
@@ -376,7 +376,7 @@ file:
                       - column_reference:
                           naked_identifier: lastName
                       - data_type:
-                          data_type_identifier: NVARCHAR
+                          keyword: NVARCHAR
                           bracketed_arguments:
                             bracketed:
                               start_bracket: (
@@ -387,22 +387,22 @@ file:
                       - column_reference:
                           naked_identifier: isAlive
                       - data_type:
-                          data_type_identifier: BIT
+                          keyword: BIT
                       - comma: ','
                       - column_reference:
                           naked_identifier: age
                       - data_type:
-                          data_type_identifier: INT
+                          keyword: INT
                       - comma: ','
                       - column_reference:
                           naked_identifier: dateOfBirth
                       - data_type:
-                          data_type_identifier: DATETIME
+                          keyword: DATETIME
                       - comma: ','
                       - column_reference:
                           naked_identifier: spouse
                       - data_type:
-                          data_type_identifier: NVARCHAR
+                          keyword: NVARCHAR
                           bracketed_arguments:
                             bracketed:
                               start_bracket: (
@@ -410,7 +410,7 @@ file:
                                 integer_literal: '50'
                               end_bracket: )
                       - end_bracket: )
-            statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       select_statement:
         select_clause:
@@ -475,4 +475,4 @@ file:
                   alias_operator:
                     keyword: AS
                   naked_identifier: TheValues
-          statement_terminator: ;
+  - statement_terminator: ;
