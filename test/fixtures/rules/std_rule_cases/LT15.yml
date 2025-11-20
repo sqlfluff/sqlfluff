@@ -154,3 +154,75 @@ test_pass_macros_with_embedded_newlines:
 
             {% endmacro %}
 # yamllint enable
+
+test_pass_tsql_batches_one_empty_line:
+  # T-SQL specific: allow 1 empty line between batches
+  pass_str: |
+    SELECT 1;
+
+    GO
+
+    SELECT 2;
+  configs:
+    core:
+      dialect: tsql
+    rules:
+      layout.newlines:
+        maximum_empty_lines_between_batches: 1
+
+test_fail_tsql_batches_too_many_empty_lines:
+  # T-SQL specific: more than 1 empty line between batches should fail
+  fail_str: |
+    SELECT 1;
+
+    GO
+
+
+    SELECT 2;
+  fix_str: |
+    SELECT 1;
+
+    GO
+
+    SELECT 2;
+  configs:
+    core:
+      dialect: tsql
+    rules:
+      layout.newlines:
+        maximum_empty_lines_between_batches: 1
+
+test_fail_tsql_batches_zero_empty_lines:
+  # T-SQL specific: no empty lines between batches when set to 0
+  fail_str: |
+    SELECT 1;
+    GO
+
+
+    SELECT 2;
+  fix_str: |
+    SELECT 1;
+    GO
+    SELECT 2;
+  configs:
+    core:
+      dialect: tsql
+    rules:
+      layout.newlines:
+        maximum_empty_lines_between_batches: 0
+
+test_pass_tsql_inside_batch_respects_statement_limit:
+  # Inside a batch, statement limits should apply
+  pass_str: |
+    SELECT 1;
+
+    SELECT 2;
+
+    GO
+  configs:
+    core:
+      dialect: tsql
+    rules:
+      layout.newlines:
+        maximum_empty_lines_inside_statements: 1
+        maximum_empty_lines_between_statements: 1
