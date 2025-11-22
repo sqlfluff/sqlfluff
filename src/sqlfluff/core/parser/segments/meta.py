@@ -260,7 +260,8 @@ class TemplateSegment(MetaSegment):
         # Add position as third element only if requested
         if include_position and self.pos_marker:
             return cast(
-                TupleSerialisedSegment, base_tuple + (self.pos_marker.to_source_dict(),)
+                TupleSerialisedSegment,
+                base_tuple + (self.pos_marker.to_source_dict(),),
             )
         else:
             return base_tuple
