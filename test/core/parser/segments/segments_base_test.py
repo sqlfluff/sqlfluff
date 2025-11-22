@@ -369,3 +369,19 @@ def test__parser__raw_segment_raw_normalized():
     assert rs3.raw_normalized() == "E"
     assert bs1.raw == '"a"""."e"'
     assert bs1.raw_normalized() == 'A".E'
+
+
+def test__parser__base_segments_structural_simplify_with_position():
+    """Test structural_simplify with 3-element tuple (with position)."""
+    # This covers lines 603 and 614 in base.py
+    pos_info = {"start_line_no": 1}
+    elem = ("key", "value", pos_info)
+    result = BaseSegment.structural_simplify(elem)
+    assert result == {"key": "value", "start_line_no": 1}
+
+    # Also test with nested structure
+    elem_nested = ("parent", (("child", "val", pos_info),), pos_info)
+    result_nested = BaseSegment.structural_simplify(elem_nested)
+    assert result_nested["start_line_no"] == 1
+    assert result_nested["parent"]["child"] == "val"
+    assert result_nested["parent"]["start_line_no"] == 1
