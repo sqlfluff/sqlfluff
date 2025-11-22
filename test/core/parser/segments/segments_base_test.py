@@ -46,7 +46,8 @@ def test__parser__base_segments_to_tuple_a(raw_segments, DummySegment, DummyAuxS
     test_seg = DummySegment([DummyAuxSegment(raw_segments)])
     assert test_seg.to_tuple() == (
         "dummy",
-        (("dummy_aux", (("raw", ()), ("raw", ()))),),
+        (("dummy_aux", (("raw", (), None), ("raw", (), None)), None),),
+        None,
     )
 
 
@@ -57,7 +58,18 @@ def test__parser__base_segments_to_tuple_b(raw_segments, DummySegment, DummyAuxS
     )
     assert test_seg.to_tuple() == (
         "dummy",
-        (("dummy_aux", (("raw", ()), ("raw", ()), ("dummy_aux", (("raw", ()),)))),),
+        (
+            (
+                "dummy_aux",
+                (
+                    ("raw", (), None),
+                    ("raw", (), None),
+                    ("dummy_aux", (("raw", (), None),), None),
+                ),
+                None,
+            ),
+        ),
+        None,
     )
 
 
@@ -72,12 +84,14 @@ def test__parser__base_segments_to_tuple_c(raw_segments, DummySegment, DummyAuxS
             (
                 "dummy_aux",
                 (
-                    ("raw", "foobar"),
-                    ("raw", ".barfoo"),
-                    ("dummy_aux", (("raw", "foobar"),)),
+                    ("raw", "foobar", None),
+                    ("raw", ".barfoo", None),
+                    ("dummy_aux", (("raw", "foobar", None),), None),
                 ),
+                None,
             ),
         ),
+        None,
     )
 
 
@@ -206,9 +220,9 @@ def test__parser__base_segments_raw(raw_seg):
         "        'foobar'\n"
     )
     # Check tuple
-    assert raw_seg.to_tuple() == ("raw", ())
+    assert raw_seg.to_tuple() == ("raw", (), None)
     # Check tuple
-    assert raw_seg.to_tuple(show_raw=True) == ("raw", "foobar")
+    assert raw_seg.to_tuple(show_raw=True) == ("raw", "foobar", None)
 
 
 def test__parser__base_segments_base(raw_segments, fresh_ansi_dialect, DummySegment):
@@ -230,6 +244,7 @@ def test__parser__base_segments_base(raw_segments, fresh_ansi_dialect, DummySegm
     assert base_seg.to_tuple() == (
         "dummy",
         (raw_segments[0].to_tuple(), raw_segments[1].to_tuple()),
+        None,
     )
     # Check Formatting and Stringification
     assert str(base_seg) == repr(base_seg) == "<DummySegment: ([L:  1, P:  1])>"

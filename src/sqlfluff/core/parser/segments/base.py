@@ -43,9 +43,18 @@ if TYPE_CHECKING:  # pragma: no cover
 # Instantiate the linter logger (only for use in methods involved with fixing.)
 linter_logger = logging.getLogger("sqlfluff.linter")
 
-TupleSerialisedSegment = tuple[str, Union[str, tuple["TupleSerialisedSegment", ...]]]
+TupleSerialisedSegment = tuple[
+    str, Union[str, tuple["TupleSerialisedSegment", ...]], Optional[dict[str, int]]
+]
 RecordSerialisedSegment = dict[
-    str, Union[None, str, "RecordSerialisedSegment", list["RecordSerialisedSegment"]]
+    str,
+    Union[
+        None,
+        str,
+        int,
+        "RecordSerialisedSegment",
+        list["RecordSerialisedSegment"],
+    ],
 ]
 
 
@@ -589,15 +598,25 @@ class BaseSegment(metaclass=SegmentMetaclass):
 
         This is used in the .as_record() method.
         """
-        assert len(elem) == 2
-        key, value = elem
+        assert len(elem) == 3
+        key, value, position = elem
         assert isinstance(key, str)
+
+        # Start building the result dict
+        result: RecordSerialisedSegment = {}
+
+        # Add position information if present
+        if position is not None:
+            result.update(position)
+
         if isinstance(value, str):
-            return {key: value}
+            result[key] = value
+            return result
         assert isinstance(value, tuple)
         # If it's an empty tuple return a dict with None.
         if not value:
-            return {key: None}
+            result[key] = None
+            return result
         # Otherwise value is a tuple with length.
         # Simplify all the child elements
         contents = [cls.structural_simplify(e) for e in value]
@@ -609,14 +628,16 @@ class BaseSegment(metaclass=SegmentMetaclass):
         if len(set(subkeys)) != len(subkeys):
             # Yes: use a list of single dicts.
             # Recurse directly.
-            return {key: contents}
+            result[key] = contents
+            return result
 
         # Otherwise there aren't duplicates, un-nest the list into a dict:
         content_dict = {}
         for record in contents:
             for k, v in record.items():
                 content_dict[k] = v
-        return {key: content_dict}
+        result[key] = content_dict
+        return result
 
     @classmethod
     def match(
@@ -828,12 +849,18 @@ class BaseSegment(metaclass=SegmentMetaclass):
         code_only: bool = False,
         show_raw: bool = False,
         include_meta: bool = False,
+        include_position: bool = False,
     ) -> TupleSerialisedSegment:
         """Return a tuple structure from this segment."""
         # works for both base and raw
 
+        # Get position info if requested
+        pos_dict = None
+        if include_position and self.pos_marker:
+            pos_dict = self.pos_marker.to_source_dict()
+
         if show_raw and not self.segments:
-            return (self.get_type(), self.raw)
+            return (self.get_type(), self.raw, pos_dict)
         elif code_only:
             return (
                 self.get_type(),
@@ -842,10 +869,12 @@ class BaseSegment(metaclass=SegmentMetaclass):
                         code_only=code_only,
                         show_raw=show_raw,
                         include_meta=include_meta,
+                        include_position=include_position,
                     )
                     for seg in self.segments
                     if seg.is_code and not seg.is_meta
                 ),
+                pos_dict,
             )
         else:
             return (
@@ -855,10 +884,12 @@ class BaseSegment(metaclass=SegmentMetaclass):
                         code_only=code_only,
                         show_raw=show_raw,
                         include_meta=include_meta,
+                        include_position=include_position,
                     )
                     for seg in self.segments
                     if include_meta or not seg.is_meta
                 ),
+                pos_dict,
             )
 
     def copy(

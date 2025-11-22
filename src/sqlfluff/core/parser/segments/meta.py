@@ -7,7 +7,7 @@ from uuid import UUID
 from sqlfluff.core.parser.context import ParseContext
 from sqlfluff.core.parser.markers import PositionMarker
 from sqlfluff.core.parser.match_result import MatchResult
-from sqlfluff.core.parser.segments.base import BaseSegment
+from sqlfluff.core.parser.segments.base import BaseSegment, TupleSerialisedSegment
 from sqlfluff.core.parser.segments.raw import RawSegment, SourceFix
 from sqlfluff.core.templaters.base import TemplatedFile
 
@@ -242,7 +242,8 @@ class TemplateSegment(MetaSegment):
         code_only: bool = False,
         show_raw: bool = False,
         include_meta: bool = False,
-    ) -> tuple[str, str]:
+        include_position: bool = False,
+    ) -> TupleSerialisedSegment:
         """Return a tuple structure from this segment.
 
         Unlike most segments, we return the _source_ content for placeholders
@@ -253,7 +254,11 @@ class TemplateSegment(MetaSegment):
         relies on any parent segment to do filtering associated with whether to
         include or not include meta segments.
         """
-        return (self.get_type(), self.source_str)
+        # Get position info if requested
+        pos_dict = None
+        if include_position and self.pos_marker:
+            pos_dict = self.pos_marker.to_source_dict()
+        return (self.get_type(), self.source_str, pos_dict)
 
     def edit(
         self,
