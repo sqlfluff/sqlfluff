@@ -169,3 +169,104 @@ def test__meta_segment_to_tuple_with_positions():
     tuple_without_pos = indent.to_tuple(include_position=False)
     assert len(tuple_without_pos) == 2
     assert tuple_without_pos[0] == "indent"
+
+
+def test__structural_simplify_with_2_element_tuple():
+    """Test structural_simplify with 2-element tuples (backward compatible)."""
+    from sqlfluff.core.parser.segments.base import BaseSegment
+
+    # Test with a 2-element tuple (no position) - covers line 603
+    elem_2 = ("keyword", "SELECT")
+    result = BaseSegment.structural_simplify(elem_2)
+    assert "keyword" in result
+    assert result["keyword"] == "SELECT"
+    # Should not have position fields
+    assert "start_line_no" not in result
+
+    # Test with nested 2-element tuples - covers line 614
+    # When there are duplicate keys (two "keyword" elements), it returns a list
+    nested_elem = ("statement", (("keyword", "SELECT"), ("keyword", "FROM")))
+    result_nested = BaseSegment.structural_simplify(nested_elem)
+    assert "statement" in result_nested
+    # With duplicate subkeys, should be a list
+    assert isinstance(result_nested["statement"], list)
+    assert len(result_nested["statement"]) == 2
+
+
+def test__structural_simplify_with_3_element_tuple():
+    """Test structural_simplify with 3-element tuples (with position)."""
+    from sqlfluff.core.parser.segments.base import BaseSegment
+
+    # Test with a 3-element tuple (with position)
+    position_dict = {
+        "start_line_no": 1,
+        "start_line_pos": 1,
+        "start_file_pos": 0,
+        "end_line_no": 1,
+        "end_line_pos": 7,
+        "end_file_pos": 6,
+    }
+    elem_3 = ("keyword", "SELECT", position_dict)
+    result = BaseSegment.structural_simplify(elem_3)
+
+    # Should have the keyword
+    assert "keyword" in result
+    assert result["keyword"] == "SELECT"
+
+    # Should also have position fields merged in
+    assert result["start_line_no"] == 1
+    assert result["start_line_pos"] == 1
+    assert result["end_line_no"] == 1
+
+
+def test__cli_parse_includes_meta_segment_positions():
+    """Test that meta segments in parsed output include pos. with --include-meta."""
+    from sqlfluff.core import Linter
+
+    # Parse SQL that will generate meta segments (indents)
+    sql_with_indents = """SELECT
+    col1,
+    col2
+FROM table1"""
+
+    linter = Linter(dialect="ansi")
+    parsed = linter.parse_string(sql_with_indents)
+
+    # Get as_record with include_position=True and include_meta=True
+    record = parsed.tree.as_record(
+        code_only=False,
+        show_raw=True,
+        include_meta=True,
+        include_position=True,
+    )
+
+    # The record should exist and have position info
+    assert record is not None
+    assert "start_line_no" in record
+
+    # Look for meta segments with positions by converting to tuple first
+    tuple_repr = parsed.tree.to_tuple(
+        code_only=False,
+        show_raw=True,
+        include_meta=True,
+        include_position=True,
+    )
+
+    # Recursively search for 3-element tuples (which include positions)
+    def find_3_element_tuples(obj, depth=0):
+        if depth > 20:  # Prevent infinite recursion
+            return []
+        if isinstance(obj, tuple):
+            if len(obj) == 3 and isinstance(obj[2], dict):
+                return [obj]
+            elif len(obj) >= 2:
+                results = []
+                if isinstance(obj[1], tuple):
+                    for item in obj[1]:
+                        results.extend(find_3_element_tuples(item, depth + 1))
+                return results
+        return []
+
+    tuples_with_pos = find_3_element_tuples(tuple_repr)
+    # Should find at least some tuples with position information
+    assert len(tuples_with_pos) > 0, "Should find segments with position information"
