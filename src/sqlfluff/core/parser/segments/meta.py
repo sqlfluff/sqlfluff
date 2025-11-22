@@ -1,7 +1,7 @@
 """Indent and Dedent classes."""
 
 from collections.abc import Sequence
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING, Optional, cast
 from uuid import UUID
 
 from sqlfluff.core.parser.context import ParseContext
@@ -254,11 +254,16 @@ class TemplateSegment(MetaSegment):
         relies on any parent segment to do filtering associated with whether to
         include or not include meta segments.
         """
-        # Get position info if requested
-        pos_dict = None
+        # Build base 2-element tuple
+        base_tuple: tuple[str, str] = (self.get_type(), self.source_str)
+
+        # Add position as third element only if requested
         if include_position and self.pos_marker:
-            pos_dict = self.pos_marker.to_source_dict()
-        return (self.get_type(), self.source_str, pos_dict)
+            return cast(
+                TupleSerialisedSegment, base_tuple + (self.pos_marker.to_source_dict(),)
+            )
+        else:
+            return base_tuple
 
     def edit(
         self,

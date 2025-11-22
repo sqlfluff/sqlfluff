@@ -43,8 +43,10 @@ if TYPE_CHECKING:  # pragma: no cover
 # Instantiate the linter logger (only for use in methods involved with fixing.)
 linter_logger = logging.getLogger("sqlfluff.linter")
 
-TupleSerialisedSegment = tuple[
-    str, Union[str, tuple["TupleSerialisedSegment", ...]], Optional[dict[str, int]]
+# Can be either 2-element (backward compatible) or 3-element (with position)
+TupleSerialisedSegment = Union[
+    tuple[str, Union[str, tuple["TupleSerialisedSegment", ...]]],
+    tuple[str, Union[str, tuple["TupleSerialisedSegment", ...]], dict[str, int]],
 ]
 RecordSerialisedSegment = dict[
     str,
@@ -598,8 +600,14 @@ class BaseSegment(metaclass=SegmentMetaclass):
 
         This is used in the .as_record() method.
         """
-        assert len(elem) == 3
-        key, value, position = elem
+        # Handle both 2-element (backward compatible) and 3-element
+        # (with position) tuples
+        assert len(elem) in (2, 3)
+        if len(elem) == 3:
+            key, value, position = elem
+        else:
+            key, value = elem
+            position = None
         assert isinstance(key, str)
 
         # Start building the result dict
@@ -854,15 +862,15 @@ class BaseSegment(metaclass=SegmentMetaclass):
         """Return a tuple structure from this segment."""
         # works for both base and raw
 
-        # Get position info if requested
-        pos_dict = None
-        if include_position and self.pos_marker:
-            pos_dict = self.pos_marker.to_source_dict()
-
+        # Build the base tuple (2 elements)
+        base_tuple: Union[
+            tuple[str, str],
+            tuple[str, tuple[TupleSerialisedSegment, ...]],
+        ]
         if show_raw and not self.segments:
-            return (self.get_type(), self.raw, pos_dict)
+            base_tuple = (self.get_type(), self.raw)
         elif code_only:
-            return (
+            base_tuple = (
                 self.get_type(),
                 tuple(
                     seg.to_tuple(
@@ -874,10 +882,9 @@ class BaseSegment(metaclass=SegmentMetaclass):
                     for seg in self.segments
                     if seg.is_code and not seg.is_meta
                 ),
-                pos_dict,
             )
         else:
-            return (
+            base_tuple = (
                 self.get_type(),
                 tuple(
                     seg.to_tuple(
@@ -889,8 +896,15 @@ class BaseSegment(metaclass=SegmentMetaclass):
                     for seg in self.segments
                     if include_meta or not seg.is_meta
                 ),
-                pos_dict,
             )
+
+        # Add position as third element only if requested
+        if include_position and self.pos_marker:
+            return cast(
+                TupleSerialisedSegment, base_tuple + (self.pos_marker.to_source_dict(),)
+            )
+        else:
+            return base_tuple
 
     def copy(
         self,
