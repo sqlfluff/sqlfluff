@@ -104,3 +104,68 @@ FROM my_table"""
     assert segments["start_file_pos"] == 0
     # end_file_pos should be at or near the end of the input
     assert segments["end_file_pos"] >= len(sql_input.rstrip())
+
+
+def test__segment_structural_simplify_with_positions():
+    """Test that structural_simplify correctly handles tuples with position info."""
+    from sqlfluff.core import Linter
+
+    # Use the linter to parse actual SQL and get real segments with positions
+    linter = Linter(dialect="ansi")
+    parsed = linter.parse_string("SELECT 1")
+
+    # Get the root segment
+    segment = parsed.tree
+
+    # Test as_record with include_position=True to cover line 899 in base.py
+    record_with_pos = segment.as_record(include_position=True)
+    assert "start_line_no" in record_with_pos
+    assert "start_line_pos" in record_with_pos
+    assert record_with_pos["start_line_no"] == 1
+    assert record_with_pos["start_line_pos"] == 1
+
+    # Test as_record with include_position=False to ensure backward compatibility
+    record_without_pos = segment.as_record(include_position=False)
+    assert "start_line_no" not in record_without_pos
+    assert "start_line_pos" not in record_without_pos
+
+
+def test__meta_segment_to_tuple_with_positions():
+    """Test that MetaSegment.to_tuple includes positions when requested."""
+    from sqlfluff.core.parser.markers import PositionMarker
+    from sqlfluff.core.parser.segments.meta import Indent
+    from sqlfluff.core.templaters import TemplatedFile
+
+    # Create a templated file for position tracking
+    raw_sql = "\n    SELECT 1"  # Line 2, position 1 starts here
+    templated_file = TemplatedFile.from_string(raw_sql)
+
+    # Create an Indent meta segment with position marker at line 2
+    indent = Indent(
+        pos_marker=PositionMarker(
+            slice(1, 5),  # The indent (4 spaces starting at position 1)
+            slice(1, 5),
+            templated_file,
+        ),
+    )
+
+    # Verify the indent has a position marker
+    assert indent.pos_marker is not None, "Indent should have a position marker"
+
+    # Test to_tuple with include_position=True to cover line 259 in meta.py
+    tuple_with_pos = indent.to_tuple(include_position=True)
+    assert (
+        len(tuple_with_pos) == 3
+    ), f"Expected 3-element tuple, got {len(tuple_with_pos)}"
+    assert tuple_with_pos[0] == "indent"
+    assert isinstance(
+        tuple_with_pos[2], dict
+    ), f"Third element should be dict, got {type(tuple_with_pos[2])}"
+    assert "start_line_no" in tuple_with_pos[2]
+    assert "end_line_no" in tuple_with_pos[2]
+    assert tuple_with_pos[2]["start_line_no"] == 2
+
+    # Test to_tuple with include_position=False
+    tuple_without_pos = indent.to_tuple(include_position=False)
+    assert len(tuple_without_pos) == 2
+    assert tuple_without_pos[0] == "indent"
