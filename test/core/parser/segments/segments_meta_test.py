@@ -52,3 +52,30 @@ def test_meta_segment_to_tuple_with_position():
     tuple_without_pos = indent.to_tuple(include_position=False)
     assert len(tuple_without_pos) == 2
     assert tuple_without_pos[0] == "indent"
+
+
+def test_template_segment_to_tuple_with_position():
+    """Test that TemplateSegment.to_tuple includes position when requested."""
+    from sqlfluff.core.parser.segments.meta import TemplateSegment
+
+    raw_sql = "SELECT 1"
+    templated_file = TemplatedFile.from_string(raw_sql)
+
+    # Create a TemplateSegment with position marker
+    template_seg = TemplateSegment(
+        pos_marker=PositionMarker(
+            slice(0, 6),
+            slice(0, 6),
+            templated_file,
+        ),
+        source_str="SELECT",
+        block_type="test_block",
+    )
+
+    # Test with include_position=True
+    tuple_with_pos = template_seg.to_tuple(include_position=True)
+    assert len(tuple_with_pos) == 3
+    assert tuple_with_pos[0] == "placeholder"
+    assert tuple_with_pos[1] == "SELECT"
+    assert isinstance(tuple_with_pos[2], dict)
+    assert "start_line_no" in tuple_with_pos[2]
