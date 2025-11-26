@@ -3,13 +3,14 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 4bb8443e56523a2b135a5f5e43260604e889dc64aba3872a12726c5556a3a7d9
+_hash: 405576ba8846593acb664fd4bc75aee02b4ea60ad31bd9b57ab802c52f093556
 file:
 - statement:
     alter_synonym_statement:
     - keyword: ALTER
     - keyword: SYNONYM
-    - naked_identifier: offices
+    - object_reference:
+        naked_identifier: offices
     - keyword: COMPILE
 - statement_terminator: ;
 - statement:
@@ -17,13 +18,15 @@ file:
     - keyword: ALTER
     - keyword: PUBLIC
     - keyword: SYNONYM
-    - naked_identifier: emp_table
+    - object_reference:
+        naked_identifier: emp_table
     - keyword: COMPILE
 - statement_terminator: ;
 - statement:
     alter_synonym_statement:
     - keyword: ALTER
     - keyword: SYNONYM
-    - naked_identifier: offices
+    - object_reference:
+        naked_identifier: offices
     - keyword: NONEDITIONABLE
 - statement_terminator: ;

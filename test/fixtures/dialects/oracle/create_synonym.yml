@@ -3,13 +3,14 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 23b9e04a8ede7fcf853426dc177ae6103807f0862aa17555fab7bf52eba48e52
+_hash: 57e08a1f9025170f1510cab53e867730a3129cc88a5e0d88cc3b48f31a27744e
 file:
 - statement:
     create_synonym_statement:
     - keyword: CREATE
     - keyword: SYNONYM
-    - naked_identifier: offices
+    - object_reference:
+        naked_identifier: offices
     - keyword: FOR
     - object_reference:
       - naked_identifier: hr
@@ -21,7 +22,8 @@ file:
     - keyword: CREATE
     - keyword: PUBLIC
     - keyword: SYNONYM
-    - naked_identifier: emp_table
+    - object_reference:
+        naked_identifier: emp_table
     - keyword: FOR
     - object_reference:
       - naked_identifier: hr
@@ -42,7 +44,8 @@ file:
     - keyword: CREATE
     - keyword: PUBLIC
     - keyword: SYNONYM
-    - naked_identifier: customers
+    - object_reference:
+        naked_identifier: customers
     - keyword: FOR
     - object_reference:
       - naked_identifier: oe
