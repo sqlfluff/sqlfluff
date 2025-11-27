@@ -164,16 +164,16 @@ tsql_dialect.sets("serde_method").update(
 
 tsql_dialect.insert_lexer_matchers(
     [
+        # According to Microsoft spec, subsequent characters in identifiers can include
+        # @, $, #, _ in addition to letters and numbers
+        # https://learn.microsoft.com/en-us/sql/relational-databases/databases/database-identifiers
         RegexLexer(
             "atsign",
-            r"[@][a-zA-Z0-9_]+",
+            r"[@][a-zA-Z0-9_@$#]+",
             CodeSegment,
         ),
-        RegexLexer(
-            "var_prefix",
-            r"[$][a-zA-Z0-9_]+",
-            CodeSegment,
-        ),
+        # Note: $ can only appear in subsequent positions of identifiers, not as prefix
+        # $ACTION is handled separately by ActionParameterSegment parser
         RegexLexer(
             "square_quote",
             r"\[([^\[\]]*)*\]",
@@ -193,7 +193,7 @@ tsql_dialect.insert_lexer_matchers(
         ),
         RegexLexer(
             "hash_prefix",
-            r"[#][#]?[a-zA-Z0-9_]+",
+            r"[#][#]?[a-zA-Z0-9_@$#]+",
             CodeSegment,
         ),
         RegexLexer(
@@ -272,9 +272,12 @@ tsql_dialect.patch_lexer_matchers(
                 WhitespaceSegment,
             ),
         ),
-        RegexLexer(
-            "word", r"[0-9a-zA-Z_#@\p{L}]+", WordSegment
-        ),  # overriding to allow hash mark and at-sign in code
+        # Patch word lexer to allow @, $, # in identifiers (subsequent positions)
+        # According to Microsoft spec, these can appear anywhere in identifier
+        # except $ cannot be first character (first must be letter, _, @, or #)
+        # The special prefix lexers (atsign, hash_prefix) will match first for
+        # @, # prefixed identifiers which have semantic meaning (variables, temp tables)
+        RegexLexer("word", r"[0-9a-zA-Z_#@$\p{L}]+", WordSegment),
     ]
 )
 
@@ -294,12 +297,6 @@ tsql_dialect.add(
         "hash_prefix",
         IdentifierSegment,
         type="hash_identifier",
-        casefold=str.upper,
-    ),
-    VariableIdentifierSegment=TypedParser(
-        "var_prefix",
-        IdentifierSegment,
-        type="variable_identifier",
         casefold=str.upper,
     ),
     BatchDelimiterGrammar=Ref("GoStatementSegment"),
@@ -490,7 +487,6 @@ tsql_dialect.replace(
         Ref("BracketedIdentifierSegment"),
         Ref("HashIdentifierSegment"),
         Ref("ParameterNameSegment"),
-        Ref("VariableIdentifierSegment"),
     ),
     NumericLiteralSegment=OneOf(
         # Try integer first, then fallback to the original numeric
@@ -516,7 +512,9 @@ tsql_dialect.replace(
             Ref("SystemVariableSegment"),
         ],
     ),
-    ParameterNameSegment=RegexParser(r"@[A-Za-z0-9_]+", CodeSegment, type="parameter"),
+    ParameterNameSegment=RegexParser(
+        r"@(?!@)[A-Za-z0-9_@$#]+", CodeSegment, type="parameter"
+    ),
     FunctionParameterGrammar=Sequence(
         Ref("ParameterNameSegment", optional=True),
         Sequence("AS", optional=True),
@@ -4901,11 +4899,7 @@ class TransactionStatementSegment(BaseSegment):
         Sequence(
             OneOf("COMMIT", "ROLLBACK"),
             Ref("TransactionGrammar", optional=True),
-            OneOf(
-                Ref("SingleIdentifierGrammar"),
-                Ref("VariableIdentifierSegment"),
-                optional=True,
-            ),
+            Ref("SingleIdentifierGrammar", optional=True),
         ),
         Sequence(
             OneOf("COMMIT", "ROLLBACK"),
@@ -4914,11 +4908,7 @@ class TransactionStatementSegment(BaseSegment):
         Sequence(
             "SAVE",
             Ref("TransactionGrammar"),
-            OneOf(
-                Ref("SingleIdentifierGrammar"),
-                Ref("VariableIdentifierSegment"),
-                optional=True,
-            ),
+            Ref("SingleIdentifierGrammar", optional=True),
         ),
     )
 
