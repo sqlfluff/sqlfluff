@@ -24,9 +24,7 @@ fn test_anynumberof_trim_function() {
                 Dialect::Ansi,
                 RootGrammar::TableDriven { grammar_id, tables },
             );
-            parser
-                .parse_table_driven_iterative(grammar_id, &[])
-                .unwrap()
+            parser.parse_table_iterative(grammar_id, &[]).unwrap()
         }
     };
     println!("{:#?}", node);
@@ -61,9 +59,7 @@ fn test_anynumberof_trim_function_with_expression() {
                 Dialect::Ansi,
                 RootGrammar::TableDriven { grammar_id, tables },
             );
-            parser
-                .parse_table_driven_iterative(grammar_id, &[])
-                .unwrap()
+            parser.parse_table_iterative(grammar_id, &[]).unwrap()
         }
     };
     println!("{:#?}", node);
@@ -116,9 +112,7 @@ fn test_anynumberof_order_and_earliest_match() {
             tables: _,
         } => {
             let mut parser = Parser::new_with_tables(&tokens, Dialect::Ansi);
-            parser
-                .parse_table_driven_iterative(grammar_id, &[])
-                .unwrap()
+            parser.parse_table_iterative(grammar_id, &[]).unwrap()
         }
     };
     // The result should match the TRIM grammar, not the EXTRACT/SUBSTRING grammar
@@ -167,9 +161,7 @@ fn test_anynumberof_order_and_earliest_match_with_expression() {
                 Dialect::Ansi,
                 RootGrammar::TableDriven { grammar_id, tables },
             );
-            parser
-                .parse_table_driven_iterative(grammar_id, &[])
-                .unwrap()
+            parser.parse_table_iterative(grammar_id, &[]).unwrap()
         }
     };
     // The result should match the TRIM grammar, not the EXTRACT/SUBSTRING grammar

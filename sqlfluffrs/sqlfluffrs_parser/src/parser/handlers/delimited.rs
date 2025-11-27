@@ -259,6 +259,7 @@ impl crate::parser::Parser<'_> {
             Some(child_max_idx),
             element_terminators.len()
         );
+        log::debug!("[DELIMITED-DEBUG] elements (debug): {:?}", elements);
         let mut child_frame = ParseFrame::new_child(
             stack.frame_id_counter,
             child_grammar.into(),
@@ -771,6 +772,7 @@ impl crate::parser::Parser<'_> {
                             "[DELIM-DEBUG] Before creating element child: working_idx={}, matched_idx={}, max_idx={}",
                             *working_idx, *matched_idx, *max_idx
                         );
+                        log::debug!("[DELIMITED-DEBUG] elements (debug): {:?}", elements);
                         // let delimiter_max_idx = self.trim_to_terminator(*working_idx, &[(**delimiter).clone()]);
                         // log::debug!(
                         //     "[DELIM-DEBUG] After trim_to_terminator: delimiter_max_idx={}",

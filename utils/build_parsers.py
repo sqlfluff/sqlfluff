@@ -715,31 +715,37 @@ class TableBuilder:
 
         # Flatten elements + brackets
         children_start = len(self.child_ids)
-        num_children = len(grammar._elements) + 2
-        # Reserve placeholders for elements + two brackets
+        element_count = len(grammar._elements)
+
+        # Reserve space for all elements + two brackets
+        num_children = element_count + 2
         self.child_ids.extend([0] * num_children)
 
-        element_ids = self._flatten_list(grammar._elements, parse_context)
-        for i, eid in enumerate(element_ids):
-            self.child_ids[children_start + i] = eid
+        # Flatten all content elements directly
+        for i, element in enumerate(grammar._elements):
+            element_id = self.flatten_grammar(element, parse_context)
+            self.child_ids[children_start + i] = element_id
 
-        # Add brackets into reserved slots after elements
-        start_bracket, end_bracket, _ = grammar.get_bracket_from_dialect(parse_context)
+        # Add brackets after elements
+        start_bracket, end_bracket, persists = grammar.get_bracket_from_dialect(
+            parse_context
+        )
         start_bracket_id = self.flatten_grammar(
             grammar.start_bracket or start_bracket, parse_context
         )
         end_bracket_id = self.flatten_grammar(
             grammar.end_bracket or end_bracket, parse_context
         )
-        self.child_ids[children_start + len(element_ids)] = start_bracket_id
-        self.child_ids[children_start + len(element_ids) + 1] = end_bracket_id
+        self.child_ids[children_start + element_count] = start_bracket_id
+        self.child_ids[children_start + element_count + 1] = end_bracket_id
 
-        children_count = len(element_ids) + 2
+        children_count = element_count + 2
 
-        # Store bracket indices in aux_data
+        # Store bracket indices and persists in aux_data
         aux_offset = len(self.aux_data)
-        self.aux_data.append(len(element_ids))  # start_bracket_index
-        self.aux_data.append(len(element_ids) + 1)  # end_bracket_index
+        self.aux_data.append(element_count)  # start_bracket_index
+        self.aux_data.append(element_count + 1)  # end_bracket_index
+        self.aux_data.append(1 if persists else 0)  # persists flag as int
 
         # Flatten terminators
         terminators_start = len(self.terminators)
@@ -747,7 +753,9 @@ class TableBuilder:
         self.terminators.extend(terminator_ids)
         terminators_count = len(terminator_ids)
 
-        comment = f"Bracketed({len(element_ids)} elements)"
+        comment = (
+            f"Bracketed({len(grammar._elements)} elements -> {element_count} child)"
+        )
 
         return GrammarInstData(
             variant="Bracketed",

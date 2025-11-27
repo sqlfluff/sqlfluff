@@ -1257,7 +1257,7 @@ impl<'a> Parser<'a> {
             let check_pos = self.pos;
             self.pos = saved_pos;
 
-            if let Ok(node) = self.parse_table_driven_iterative(*term_id, &[]) {
+            if let Ok(node) = self.parse_table_iterative(*term_id, &[]) {
                 let is_empty = node.is_empty();
                 self.pos = check_pos;
 
@@ -1324,7 +1324,7 @@ impl<'a> Parser<'a> {
 
             // Check if we're at a terminator
             for term_id in terminators {
-                if let Ok(node) = self.parse_table_driven_iterative(*term_id, &[]) {
+                if let Ok(node) = self.parse_table_iterative(*term_id, &[]) {
                     if !node.is_empty() {
                         log::debug!("  Found terminator at idx {}: {:?}", idx, term_id);
                         self.pos = saved_pos;
@@ -1356,14 +1356,48 @@ impl<'a> Parser<'a> {
     /// Trim to first terminator position for table-driven parsing with element awareness.
     ///
     /// This is the table-driven equivalent of trim_to_terminator_with_elements().
-    fn trim_to_terminator_with_elements_table_driven(
+    pub(crate) fn trim_to_terminator_with_elements_table_driven(
         &mut self,
         start_idx: usize,
         terminators: &[sqlfluffrs_types::GrammarId],
         _elements: &[sqlfluffrs_types::GrammarId],
     ) -> usize {
-        // Note: elements parameter exists for future use but is not currently used
-        // in Python's implementation. It's for filtering terminators that also match elements.
-        self.trim_to_terminator_table_driven(start_idx, terminators)
+        // Python version: trim at the first position where a terminator matches, ignoring element-aware checks.
+        if terminators.is_empty() {
+            return self.tokens.len();
+        }
+
+        let mut idx = start_idx;
+        while idx < self.tokens.len() {
+            let saved_pos = self.pos;
+            self.pos = idx;
+
+            // Skip transparent tokens before matching
+            self.skip_transparent(true);
+
+            for term_id in terminators {
+                if let Ok(node) = self.parse_table_iterative(*term_id, &[]) {
+                    if !node.is_empty() {
+                        self.pos = saved_pos;
+                        return idx;
+                    }
+                }
+            }
+
+            // Skip brackets to avoid false positives
+            if let Some(tok) = self.tokens.get(idx) {
+                let tok_type = tok.get_type();
+                if tok_type == "start_bracket" || tok_type == "start_square_bracket" {
+                    if let Some(end_idx) = self.find_matching_bracket(idx) {
+                        idx = end_idx + 1;
+                        continue;
+                    }
+                }
+            }
+
+            idx += 1;
+        }
+
+        self.tokens.len()
     }
 }

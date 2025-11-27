@@ -225,6 +225,17 @@ impl<'a> GrammarContext<'a> {
         (start_id, end_id)
     }
 
+    /// Get persists flag for Bracketed variant (from aux_data)
+    #[inline]
+    pub fn bracketed_persists(&self, id: GrammarId) -> bool {
+        let inst = self.inst(id);
+        debug_assert_eq!(inst.variant, GrammarVariant::Bracketed);
+
+        let aux_offset = self.tables.aux_data_offsets[id.get() as usize] as usize;
+        // Persists flag is expected at aux_data[aux_offset + 2]
+        self.tables.aux_data[aux_offset + 2] != 0
+    }
+
     /// Get exclude grammar ID (for variants with HAS_EXCLUDE flag)
     /// The exclude grammar is always stored as the last child when present
     #[inline]

@@ -13,6 +13,7 @@ pub(crate) mod types;
 mod handlers;
 mod helpers; // Utility methods for Parser
 mod iterative;
+mod table_driven;
 mod utils;
 
 // Re-export public types

@@ -38,9 +38,7 @@ fn main() {
         let mut parser = Parser::new_with_tables(&tokens, dialect);
 
         // If we have a table-driven grammar, set grammar context and parse by id.
-        match parser
-            .parse_table_driven_iterative(dialect.get_root_grammar().as_table_driven().0, &[])
-        {
+        match parser.parse_table_iterative(dialect.get_root_grammar().as_table_driven().0, &[]) {
             Ok(result) => {
                 if result.is_empty() {
                     println!("  ❌ Failed to parse (returned Empty)\n");

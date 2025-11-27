@@ -190,6 +190,7 @@ impl<'a> Parser<'_> {
             last_child_frame_id: None,
             current_element_idx: 0, // Start at first element
             first_match: true,      // For GREEDY_ONCE_STARTED trimming
+            optional: *optional,    // Store Sequence-level optional flag
         };
         frame.terminators = all_terminators;
         let current_frame_id = frame.frame_id; // Save before moving frame
@@ -390,223 +391,167 @@ impl<'a> Parser<'_> {
         Ok(FrameResult::Done) // No child pushed, don't continue
     }
 
-    // ========================================================================
-    // Table-Driven Sequence Handlers
-    // ========================================================================
+    /// Helper: Correct a child_end_pos when an EMPTY child illegally consumed tokens.
+    fn correct_empty_child_end_pos(
+        &self,
+        current_element: &Arc<Grammar>,
+        child_end_pos: usize,
+        element_start: usize,
+    ) -> usize {
+        if child_end_pos != element_start {
+            let child_desc = match current_element.as_ref() {
+                Grammar::Ref { name, .. } => format!("Ref({})", name),
+                Grammar::Sequence { .. } => "Sequence".to_string(),
+                Grammar::OneOf { .. } => "OneOf".to_string(),
+                Grammar::Delimited { .. } => "Delimited".to_string(),
+                Grammar::StringParser { template, .. } => {
+                    format!("StringParser('{}')", template)
+                }
+                _ => format!("{:?}", current_element).chars().take(50).collect(),
+            };
 
-    /// Handle Sequence Initial state using table-driven approach
-    pub(crate) fn handle_sequence_table_driven_initial(
+            log::debug!(
+                "[SEQUENCE FIX] Child {} returned Empty with child_end_pos={} > element_start={}. Correcting to element_start.",
+                child_desc,
+                child_end_pos,
+                element_start
+            );
+
+            element_start
+        } else {
+            child_end_pos
+        }
+    }
+
+    /// Helper: Push whitespace/newline tokens from (last_code_consumed+1) .. collect_end into frame.accumulated
+    /// and record them in tentatively_collected if not already present.
+    fn collect_retroactive_whitespace(
         &mut self,
-        grammar_id: GrammarId,
-        mut frame: ParseFrame,
-        parent_terminators: &[GrammarId],
-        stack: &mut ParseFrameStack,
-    ) -> Result<FrameResult, ParseError> {
-        self.pos = frame.pos;
-        let start_idx = self.pos;
-        let ctx = self.grammar_ctx.expect("Grammar Context");
-        let grammar_inst = ctx.inst(grammar_id);
-        let local_terminators = ctx.terminators(grammar_id).collect::<Vec<_>>();
-        let reset_terminators = grammar_inst.flags.reset_terminators();
-        let parse_mode = grammar_inst.parse_mode;
-        let elements = ctx.children(grammar_id).collect::<Vec<_>>();
+        accumulated: &mut Vec<Node>,
+        tentatively_collected: &mut Vec<usize>,
+        frame_id: usize,
+        element_start: usize,
+        matched_idx: usize,
+    ) {
+        // Find last code token consumed in [element_start, matched_idx)
+        let last_code_consumed = (element_start..matched_idx)
+            .rev()
+            .find(|&pos| pos < self.tokens.len() && self.tokens[pos].is_code())
+            .unwrap_or(element_start);
 
-        // combine parent and local terminators
-        let all_terminators = self.combine_table_terminators(
-            &local_terminators,
-            parent_terminators,
-            reset_terminators,
+        // Find end of retroactive collection (first code token after matched_idx)
+        let collect_end = (matched_idx..self.tokens.len())
+            .find(|&pos| self.tokens[pos].is_code())
+            .unwrap_or(self.tokens.len());
+
+        log::debug!(
+            "Retroactive collection for frame_id={}: element_start={}, last_code_consumed={}, matched_idx={}, collect_end={}",
+            frame_id,
+            element_start,
+            last_code_consumed,
+            matched_idx,
+            collect_end
         );
 
-        // calculate max_idx with terminator and parent constraints
-        let max_idx = self.calculate_max_idx_table_driven(
-            start_idx,
-            &all_terminators,
-            parse_mode,
-            frame.parent_max_idx,
-        );
-
-        // Push a collection checkpoint for this sequence
-        // This allows us to rollback transparent token collections if we backtrack
-        // TODO: Do we still need this?
-        self.push_collection_checkpoint(frame.frame_id);
-
-        // Update frame with Sequence context
-        frame.state = FrameState::WaitingForChild {
-            child_index: 0,
-            total_children: elements.len(),
-        };
-        frame.context = FrameContext::SequenceTableDriven {
-            grammar_id,
-            matched_idx: start_idx,
-            tentatively_collected: vec![],
-            max_idx,
-            original_max_idx: max_idx, // Store original before any GREEDY_ONCE_STARTED trimming
-            last_child_frame_id: None,
-            current_element_idx: 0, // Start at first element
-            first_match: true,      // For GREEDY_ONCE_STARTED trimming
-        };
-        frame.table_terminators = all_terminators;
-        let current_frame_id = frame.frame_id; // Save before moving frame
-        stack.push(&mut frame);
-
-        // Don't skip whitespace here! Python's Sequence.match skips whitespace IN THE LOOP
-        let first_child_pos = start_idx; // Start at the original position
-
-        // Handle empty elements case - sequence with no elements should succeed immediately
-        if elements.is_empty() {
-            // Pop the frame we just pushed
-            stack.pop();
-            // Transition to Combining to finalize empty Sequence result
-            frame.end_pos = Some(start_idx);
-            frame.state = FrameState::Combining;
-            stack.push(&mut frame);
-            return Ok(FrameResult::Done);
-        }
-
-        if first_child_pos >= max_idx {
-            stack.pop();
-            self.rollback_collection_checkpoint(current_frame_id);
-
-            if parse_mode == ParseMode::Strict {
-                stack
-                    .results
-                    .insert(current_frame_id, (Node::Empty, start_idx, None));
-                return Ok(FrameResult::Done);
-            }
-
-            // In greedy modes, check if first element is optional
-            if ctx.is_optional(elements[0]) {
-                stack
-                    .results
-                    .insert(current_frame_id, (Node::Empty, start_idx, None));
-                return Ok(FrameResult::Done);
-            } else {
-                // Wrap remaining content as an Unparsable node (table-driven variant)
-                let element_desc = format!("GrammarId({})", elements[0]);
-                let unparsable_children: Vec<Node> = (start_idx..max_idx)
-                    .filter_map(|pos| {
-                        if pos < self.tokens.len() {
-                            let tok = &self.tokens[pos];
-                            Some(Node::Token {
-                                token_type: tok.get_type(),
-                                raw: tok.raw().to_string(),
-                                token_idx: pos,
-                            })
-                        } else {
-                            None
+        for check_pos in (last_code_consumed + 1)..collect_end {
+            if check_pos < self.tokens.len() && !self.tokens[check_pos].is_code() {
+                if !tentatively_collected.contains(&check_pos)
+                    && !accumulated.iter().any(|node| match node {
+                        Node::Whitespace { token_idx, .. } | Node::Newline { token_idx, .. } => {
+                            *token_idx == check_pos
                         }
+                        _ => false,
                     })
-                    .collect();
-
-                let unparsable_node = Node::Unparsable {
-                    children: unparsable_children,
-                    expected_message: element_desc,
-                };
-
-                stack
-                    .results
-                    .insert(current_frame_id, (unparsable_node, max_idx, None));
-                return Ok(FrameResult::Done);
-            }
-        }
-
-        let mut child_idx = 0;
-        while child_idx < elements.len() {
-            if ctx.variant(elements[child_idx]) == sqlfluffrs_types::GrammarVariant::Meta {
-                // Meta doesn't need parsing - just add to accumulated
-                if let Some(ref mut parent_frame) = stack.last_mut() {
-                    if ctx.segment_type(elements[child_idx]).expect("meta type") == "indent" {
-                        // Indent goes before whitespace
-                        let mut insert_pos = parent_frame.accumulated.len();
-                        while insert_pos > 0 {
-                            match &parent_frame.accumulated[insert_pos - 1] {
-                                Node::Whitespace {
-                                    raw: _,
-                                    token_idx: _,
-                                }
-                                | Node::Newline {
-                                    raw: _,
-                                    token_idx: _,
-                                } => {
-                                    insert_pos -= 1;
-                                }
-                                _ => break,
-                            }
+                {
+                    let tok = &self.tokens[check_pos];
+                    match &*tok.get_type() {
+                        "whitespace" => {
+                            accumulated.push(Node::Whitespace {
+                                raw: tok.raw().to_string(),
+                                token_idx: check_pos,
+                            });
+                            tentatively_collected.push(check_pos);
                         }
-                        parent_frame.accumulated.insert(
-                            insert_pos,
-                            Node::Meta {
-                                token_type: "indent".to_string(),
-                                token_idx: None,
-                            },
-                        );
-                    } else {
-                        parent_frame.accumulated.push(Node::Meta {
-                            token_type: ctx
-                                .segment_type(elements[child_idx])
-                                .expect("meta type")
-                                .to_string(),
-                            token_idx: None,
-                        });
-                    }
-
-                    // Update state to next child
-                    if let FrameState::WaitingForChild {
-                        child_index,
-                        total_children: _,
-                    } = &mut parent_frame.state
-                    {
-                        *child_index = child_idx + 1;
+                        "newline" => {
+                            accumulated.push(Node::Newline {
+                                raw: tok.raw().to_string(),
+                                token_idx: check_pos,
+                            });
+                            tentatively_collected.push(check_pos);
+                        }
+                        _ => {}
                     }
                 }
-                child_idx += 1;
-            } else {
-                // Get max_idx from parent Sequence to pass to child
-                let current_max_idx = if let Some(parent_frame) = stack.last_mut() {
-                    if let FrameContext::SequenceTableDriven { max_idx, .. } = &parent_frame.context
-                    {
-                        Some(*max_idx)
-                    } else {
-                        None
-                    }
-                } else {
-                    None
-                };
-
-                // Non-meta element - needs actual parsing
-                log::debug!(
-                    "DEBUG: Creating FIRST child at pos={}, max_idx={}",
-                    first_child_pos,
-                    max_idx
-                );
-
-                let child_frame = ParseFrame {
-                    frame_id: stack.frame_id_counter,
-                    grammar: Arc::new(sqlfluffrs_types::Grammar::Nothing()),
-                    pos: first_child_pos, // Use position after skipping to code!
-                    terminators: vec![],
-                    state: FrameState::Initial,
-                    accumulated: vec![],
-                    context: FrameContext::None,
-                    parent_max_idx: current_max_idx, // Pass Sequence's max_idx to child!
-                    end_pos: None,
-                    transparent_positions: None,
-                    element_key: None,
-                    grammar_id: Some(elements[child_idx]),
-                    table_terminators: stack
-                        .last_mut()
-                        .map(|f| f.table_terminators.clone())
-                        .unwrap_or_default(),
-                };
-
-                // Update parent (already on stack) and push child
-                ParseFrame::update_sequence_parent_and_push_child(stack, child_frame, child_idx);
-                return Ok(FrameResult::Done);
             }
         }
+    }
 
-        Ok(FrameResult::Done)
+    /// Helper: Collect transparent tokens between two positions (from .. to), used when allow_gaps==true.
+    fn collect_transparent_between_into_accum(
+        &mut self,
+        accumulated: &mut Vec<Node>,
+        tentatively_collected: &mut Vec<usize>,
+        frame_id: usize,
+        from: usize,
+        to: usize,
+    ) {
+        for collect_pos in from..to {
+            if collect_pos < self.tokens.len() && !self.tokens[collect_pos].is_code() {
+                let tok = &self.tokens[collect_pos];
+                let tok_type = tok.get_type();
+                // Only check if already in THIS frame's accumulated to avoid duplicating within the same frame
+                let already_in_frame = accumulated.iter().any(|node| match node {
+                    Node::Whitespace { token_idx: pos, .. }
+                    | Node::Newline { token_idx: pos, .. } => *pos == collect_pos,
+                    _ => false,
+                });
+                if !already_in_frame {
+                    if tok_type == "whitespace" {
+                        log::debug!("COLLECTING whitespace at {}: {:?}", collect_pos, tok.raw());
+                        accumulated.push(Node::Whitespace {
+                            raw: tok.raw().to_string(),
+                            token_idx: collect_pos,
+                        });
+                        tentatively_collected.push(collect_pos);
+                    } else if tok_type == "newline" {
+                        log::debug!("COLLECTING newline at {}: {:?}", collect_pos, tok.raw());
+                        accumulated.push(Node::Newline {
+                            raw: tok.raw().to_string(),
+                            token_idx: collect_pos,
+                        });
+                        tentatively_collected.push(collect_pos);
+                    }
+                }
+            }
+        }
+    }
+
+    /// Helper: Insert a Meta node into an accumulated vector, placing `indent` before trailing
+    /// whitespace/newline nodes to preserve original ordering semantics.
+    fn insert_meta_into_accumulated(&self, accumulated: &mut Vec<Node>, meta_type: &str) {
+        if meta_type == "indent" {
+            let mut insert_pos = accumulated.len();
+            while insert_pos > 0 {
+                match &accumulated[insert_pos - 1] {
+                    Node::Whitespace { .. } | Node::Newline { .. } => {
+                        insert_pos -= 1;
+                    }
+                    _ => break,
+                }
+            }
+            accumulated.insert(
+                insert_pos,
+                Node::Meta {
+                    token_type: meta_type.to_string(),
+                    token_idx: None,
+                },
+            );
+        } else {
+            accumulated.push(Node::Meta {
+                token_type: meta_type.to_string(),
+                token_idx: None,
+            });
+        }
     }
 
     /// Handle Sequence grammar WaitingForChild state in iterative parser
@@ -635,6 +580,7 @@ impl<'a> Parser<'_> {
             last_child_frame_id: _,
             current_element_idx,
             first_match,
+            optional,
         } = &mut frame.context
         else {
             panic!("Expected FrameContext::Sequence in handle_sequence_waiting_for_child");
@@ -662,34 +608,13 @@ impl<'a> Parser<'_> {
             // FIX: Override the buggy child_end_pos with element_start to maintain Python parity.
             // This handles cases where child grammars with allow_gaps=True call collect_transparent,
             // advancing self.pos, but then fail to properly restore it before returning Empty.
-            let corrected_child_end_pos = if *child_end_pos != element_start {
-                // Get child grammar description for debugging
-                let child_desc = match current_element.as_ref() {
-                    Grammar::Ref { name, .. } => format!("Ref({})", name),
-                    Grammar::Sequence { .. } => "Sequence".to_string(),
-                    Grammar::OneOf { .. } => "OneOf".to_string(),
-                    Grammar::Delimited { .. } => "Delimited".to_string(),
-                    Grammar::StringParser { template, .. } => {
-                        format!("StringParser('{}')", template)
-                    }
-                    _ => format!("{:?}", current_element).chars().take(50).collect(),
-                };
-
-                log::debug!(
-                    "[SEQUENCE FIX] Child {} returned Empty with child_end_pos={} > element_start={}. Correcting to element_start.",
-                    child_desc, *child_end_pos, element_start
-                );
-
-                element_start
-            } else {
-                *child_end_pos
-            };
+            let corrected_child_end_pos =
+                self.correct_empty_child_end_pos(current_element, *child_end_pos, element_start);
 
             log::debug!("[SEQUENCE EMPTY] frame_id={}, current_elem_idx={}/{}, is_optional={}, element_start={}, child_end_pos={}, corrected={}",
                 frame.frame_id, *current_element_idx, elements.len(), current_element.is_optional(), element_start, *child_end_pos, corrected_child_end_pos);
 
             // Use corrected_child_end_pos for all subsequent logic
-            let child_end_pos = &corrected_child_end_pos;
 
             if current_element.is_optional() {
                 log::debug!(
@@ -849,10 +774,27 @@ impl<'a> Parser<'_> {
                 log::debug!("  At position: {} (found: {})", element_start, found_token);
 
                 // Python reference: sequence.py Sequence.match() lines ~240-280
-                // When a required element fails to match, check parse_mode:
+                // When a required element fails to match, check parse_mode AND optional flag:
+                // - If Sequence-level optional=True: return Empty (regardless of parse_mode)
                 // - STRICT: return Empty (no match)
                 // - GREEDY_ONCE_STARTED: if nothing matched yet, return Empty; else wrap as unparsable
                 // - GREEDY: wrap remaining content as unparsable
+
+                // CRITICAL: If the Sequence itself has optional=True, return Empty when
+                // any required element fails. This means "this Sequence is optional as a whole".
+                if *optional {
+                    log::debug!(
+                        "Sequence: Sequence-level optional=true - required element returned Empty, returning Empty"
+                    );
+                    self.pos = frame.pos;
+                    // Rollback the checkpoint - undoes all collections made during this sequence
+                    self.rollback_collection_checkpoint(frame.frame_id);
+                    stack
+                        .results
+                        .insert(frame.frame_id, (Node::Empty, frame.pos, None));
+                    return Ok(FrameResult::Done);
+                }
+
                 if *parse_mode == ParseMode::Strict {
                     log::debug!(
                         "Sequence: STRICT mode - required element returned Empty, returning Empty"
@@ -1001,52 +943,13 @@ impl<'a> Parser<'_> {
 
             frame.accumulated.push(child_node.clone());
             if !*allow_gaps {
-                // Find last code token consumed in [element_start, *matched_idx)
-                let last_code_consumed = (element_start..*matched_idx)
-                    .rev()
-                    .find(|&pos| pos < self.tokens.len() && self.tokens[pos].is_code())
-                    .unwrap_or(element_start);
-
-                // Find end of retroactive collection (first code token after matched_idx)
-                let collect_end = (*matched_idx..self.tokens.len())
-                    .find(|&pos| self.tokens[pos].is_code())
-                    .unwrap_or(self.tokens.len());
-
-                log::debug!(
-                    "Retroactive collection for frame_id={}: element_start={}, last_code_consumed={}, matched_idx={}, collect_end={}",
-                    frame.frame_id, element_start, last_code_consumed, *matched_idx, collect_end
+                self.collect_retroactive_whitespace(
+                    &mut frame.accumulated,
+                    tentatively_collected,
+                    frame.frame_id,
+                    element_start,
+                    *matched_idx,
                 );
-
-                for check_pos in (last_code_consumed + 1)..collect_end {
-                    if check_pos < self.tokens.len() && !self.tokens[check_pos].is_code() {
-                        if !tentatively_collected.contains(&check_pos)
-                            && !frame.accumulated.iter().any(|node| match node {
-                                Node::Whitespace { token_idx, .. }
-                                | Node::Newline { token_idx, .. } => *token_idx == check_pos,
-                                _ => false,
-                            })
-                        {
-                            let tok = &self.tokens[check_pos];
-                            match &*tok.get_type() {
-                                "whitespace" => {
-                                    frame.accumulated.push(Node::Whitespace {
-                                        raw: tok.raw().to_string(),
-                                        token_idx: check_pos,
-                                    });
-                                    tentatively_collected.push(check_pos);
-                                }
-                                "newline" => {
-                                    frame.accumulated.push(Node::Newline {
-                                        raw: tok.raw().to_string(),
-                                        token_idx: check_pos,
-                                    });
-                                    tentatively_collected.push(check_pos);
-                                }
-                                _ => {}
-                            }
-                        }
-                    }
-                }
             }
             log::debug!(
                 "[TRIM CHECK] frame_id={}, first_match={}, parse_mode={:?}, about to check trimming",
@@ -1262,44 +1165,13 @@ impl<'a> Parser<'_> {
                     current_matched_idx,
                     _idx
                 );
-                // Collect all non-code tokens between current position and next code token
-                for collect_pos in current_matched_idx.._idx {
-                    if collect_pos < self.tokens.len() && !self.tokens[collect_pos].is_code() {
-                        let tok = &self.tokens[collect_pos];
-                        let tok_type = tok.get_type();
-                        // Only check if already in THIS frame's accumulated to avoid duplicating within the same frame
-                        let already_in_frame = frame.accumulated.iter().any(|node| match node {
-                            Node::Whitespace { token_idx: pos, .. }
-                            | Node::Newline { token_idx: pos, .. } => *pos == collect_pos,
-                            _ => false,
-                        });
-                        if !already_in_frame {
-                            if tok_type == "whitespace" {
-                                log::debug!(
-                                    "COLLECTING whitespace at {}: {:?}",
-                                    collect_pos,
-                                    tok.raw()
-                                );
-                                frame.accumulated.push(Node::Whitespace {
-                                    raw: tok.raw().to_string(),
-                                    token_idx: collect_pos,
-                                });
-                                tentatively_collected.push(collect_pos);
-                            } else if tok_type == "newline" {
-                                log::debug!(
-                                    "COLLECTING newline at {}: {:?}",
-                                    collect_pos,
-                                    tok.raw()
-                                );
-                                frame.accumulated.push(Node::Newline {
-                                    raw: tok.raw().to_string(),
-                                    token_idx: collect_pos,
-                                });
-                                tentatively_collected.push(collect_pos);
-                            }
-                        }
-                    }
-                }
+                self.collect_transparent_between_into_accum(
+                    &mut frame.accumulated,
+                    tentatively_collected,
+                    frame.frame_id,
+                    current_matched_idx,
+                    _idx,
+                );
                 next_pos = _idx;
             }
             let next_elem_idx = current_elem_idx + 1;
@@ -1393,40 +1265,8 @@ impl<'a> Parser<'_> {
             let mut final_accumulated = frame.accumulated.clone();
             while next_elem_idx < elements_clone.len() {
                 if let Grammar::Meta(meta_type) = elements_clone[next_elem_idx].as_ref() {
-                    if *meta_type == "indent" {
-                        let mut insert_pos = final_accumulated.len();
-                        while insert_pos > 0 {
-                            match &final_accumulated[insert_pos - 1] {
-                                Node::Whitespace { .. } | Node::Newline { .. } => {
-                                    insert_pos -= 1;
-                                }
-                                _ => break,
-                            }
-                        }
-                        final_accumulated.insert(
-                            insert_pos,
-                            Node::Meta {
-                                token_type: meta_type.to_string(),
-                                token_idx: None,
-                            },
-                        );
-                        frame.accumulated.insert(
-                            insert_pos,
-                            Node::Meta {
-                                token_type: meta_type.to_string(),
-                                token_idx: None,
-                            },
-                        );
-                    } else {
-                        final_accumulated.push(Node::Meta {
-                            token_type: meta_type.to_string(),
-                            token_idx: None,
-                        });
-                        frame.accumulated.push(Node::Meta {
-                            token_type: meta_type.to_string(),
-                            token_idx: None,
-                        });
-                    }
+                    self.insert_meta_into_accumulated(&mut final_accumulated, meta_type);
+                    self.insert_meta_into_accumulated(&mut frame.accumulated, meta_type);
                     next_elem_idx += 1;
                 } else {
                     // Python parity: Pass the TRIMMED max_idx to child frames, not the original.
@@ -1490,357 +1330,6 @@ impl<'a> Parser<'_> {
             stack.push(&mut frame);
         }
         Ok(FrameResult::Done)
-    }
-
-    /// Handle Sequence grammar Waiting for child state
-    /// child_node,
-                        // child_end_pos,
-                        // child_element_key,
-                        // stack,
-    pub(crate) fn handle_sequence_table_driven_waiting_for_child(
-        &mut self,
-        mut frame: ParseFrame,
-        child_node: &Node,
-        child_end_pos: &usize,
-        child_element_key: &Option<u64>,
-        stack: &mut ParseFrameStack,
-    ) -> Result<FrameResult, ParseError> {
-        let FrameContext::SequenceTableDriven {
-            grammar_id,
-            matched_idx,
-            tentatively_collected,
-            max_idx,
-            original_max_idx,
-            last_child_frame_id,
-            current_element_idx,
-            first_match,
-        } = &mut frame.context
-        else {
-            unimplemented!("Expected FrameContext::SequenceTablelDriven in handle_sequence_table_driven_initial")
-        };
-        let ctx = self.grammar_ctx.expect("Grammar Context");
-        let seq_grammar = ctx.inst(*grammar_id);
-        let elements = ctx.element_children(*grammar_id).collect::<Vec<_>>();
-        let allow_gaps = seq_grammar.flags.allow_gaps();
-        let parse_mode = seq_grammar.parse_mode;
-        let element_start = matched_idx;
-        let current_element = elements[*current_element_idx];
-
-        if child_node.is_empty() {
-            let child_end_pos = *matched_idx;
-
-            if ctx.is_optional(current_element) {
-                log::debug!(
-                    "SequenceTableDriven: Child returned EMPTY result but is OPTIONAL, continuing. frame_id={}, child_index={}",
-                    frame.frame_id,
-                    current_element_idx
-                );
-                // Child is optional, continue to next element
-                *current_element_idx += 1;
-
-                if *current_element_idx >= elements.len() {
-                    log::debug!(
-                        "SequenceTableDriven: All elements processed after optional EMPTY child, completing sequence. frame_id={}",
-                        frame.frame_id
-                    );
-                    // All elements processed, complete the sequence
-                    let result_node = if frame.accumulated.is_empty() {
-                        log::debug!(
-                            "WARNING: SequenceTableDriven completing with EMPTY accumulated! frame_id={}",
-                            frame.frame_id
-                        );
-                        Node::Empty
-                    } else {
-                        Node::Sequence {
-                            children: frame.accumulated.clone(),
-                        }
-                    };
-
-                    // Store transparent positions for parent to use
-                    stack
-                        .transparent_positions
-                        .insert(frame.frame_id, tentatively_collected.clone());
-
-                    // Commit the collection checkpoint
-                    self.commit_collection_checkpoint(frame.frame_id);
-
-                    log::debug!(
-                        "SequenceTableDriven COMPLETE: Storing result at frame_id={}",
-                        frame.frame_id
-                    );
-
-                    stack
-                        .results
-                        .insert(frame.frame_id, (result_node, *matched_idx, None));
-                    return Ok(FrameResult::Done);
-                }
-
-                // Create next child frame for the next element
-                let next_elem_idx = *current_element_idx;
-                let next_pos = if allow_gaps {
-                    self.skip_start_index_forward_to_code(*matched_idx, *max_idx)
-                } else {
-                    *matched_idx
-                };
-
-                // Check if we've run out of segments
-                if next_pos >= *max_idx {
-                    log::debug!(
-                        "SequenceTableDriven: Reached max_idx after optional EMPTY child, completing sequence. frame_id={}",
-                        frame.frame_id
-                    );
-
-                    let remaining_all_optional = elements[next_elem_idx..]
-                        .iter()
-                        .all(|el| ctx.is_optional(*el) || ctx.variant(*el) == GrammarVariant::Meta);
-
-                    if !remaining_all_optional {
-                        log::debug!(
-                            "SequenceTableDriven: Remaining elements are NOT all optional, failing sequence. frame_id={}",
-                            frame.frame_id
-                        );
-                        let result_node = if frame.accumulated.is_empty() {
-                            log::debug!(
-                                "WARNING: SequenceTableDriven completing with EMPTY accumulated! frame_id={}",
-                                frame.frame_id
-                            );
-                            Node::Empty
-                        } else {
-                            Node::Sequence {
-                                children: frame.accumulated.clone(),
-                            }
-                        };
-
-                        stack
-                            .transparent_positions
-                            .insert(frame.frame_id, tentatively_collected.clone());
-                        self.commit_collection_checkpoint(frame.frame_id);
-
-                        stack
-                            .results
-                            .insert(frame.frame_id, (result_node, *matched_idx, None));
-                        return Ok(FrameResult::Done);
-                    } else if parse_mode == ParseMode::Strict {
-                        log::debug!(
-                            "SequenceTableDriven: Remaining elements are NOT all optional, and in STRICT mode, failing sequence. frame_id={}",
-                            frame.frame_id
-                        );
-                        self.rollback_collection_checkpoint(frame.frame_id);
-                        stack
-                            .results
-                            .insert(frame.frame_id, (Node::Empty, *element_start, None));
-                        return Ok(FrameResult::Done);
-                    } else {
-                        log::debug!(
-                            "SequenceTableDriven: Required elements remain but in GREEDY mode, completing sequence. frame_id={}",
-                            frame.frame_id
-                        )
-                    }
-
-                    // Increment child_index in WaitingForChild state, preserving total_children
-                    if let FrameState::WaitingForChild {
-                        child_index,
-                        total_children,
-                    } = frame.state
-                    {
-                        frame.state = FrameState::WaitingForChild {
-                            child_index: child_index + 1,
-                            total_children,
-                        };
-                    } else {
-                        unreachable!();
-                    }
-
-                    let child_frame = ParseFrame::new_table_driven_child(
-                        stack.frame_id_counter,
-                        elements[next_elem_idx],
-                        next_pos,
-                        frame.table_terminators,
-                        Some(*original_max_idx),
-                    );
-                    ParseFrame::push_sequence_child_and_update_parent(
-                        stack,
-                        &mut frame,
-                        child_frame,
-                        next_elem_idx,
-                    );
-                    return Ok(FrameResult::Done);
-                } else {
-                    if parse_mode != ParseMode::Strict {
-                        self.pos = frame.pos;
-                        self.rollback_collection_checkpoint(frame.frame_id);
-                        stack
-                            .results
-                            .insert(frame.frame_id, (Node::Empty, frame.pos, None));
-                        return Ok(FrameResult::Done);
-                    }
-
-                    if *element_start == frame.pos {
-                        if parse_mode == ParseMode::GreedyOnceStarted {
-                            self.pos = frame.pos;
-                            self.rollback_collection_checkpoint(frame.frame_id);
-                            stack
-                                .results
-                                .insert(frame.frame_id, (Node::Empty, frame.pos, None));
-                            return Ok(FrameResult::Done);
-                        }
-
-                        let unparsable_children: Vec<Node> = (*element_start..next_pos)
-                            .filter_map(|pos| {
-                                if pos < self.tokens.len() {
-                                    let tok = &self.tokens[pos];
-                                    Some(Node::Token {
-                                        token_type: tok.get_type(),
-                                        raw: tok.raw().to_string(),
-                                        token_idx: pos,
-                                    })
-                                } else {
-                                    None
-                                }
-                            })
-                            .collect();
-
-                        let unparsable_node = Node::Unparsable {
-                            children: unparsable_children,
-                            expected_message: format!("expected something",),
-                        };
-
-                        stack
-                            .results
-                            .insert(frame.frame_id, (unparsable_node, next_pos, None));
-                        return Ok(FrameResult::Done);
-                    }
-
-                    let unparsable_start = if allow_gaps {
-                        self.skip_start_index_forward_to_code(*element_start, *max_idx)
-                    } else {
-                        *element_start
-                    };
-
-                    if allow_gaps && unparsable_start > *element_start {
-                        for pos in *element_start..unparsable_start {
-                            if pos < self.tokens.len() {
-                                let tok = &self.tokens[pos];
-                                let tok_type = tok.get_type();
-                                if tok_type == "whitespace" {
-                                    frame.accumulated.push(Node::Whitespace {
-                                        raw: tok.raw().to_string(),
-                                        token_idx: pos,
-                                    });
-                                } else if tok_type == "newline" {
-                                    frame.accumulated.push(Node::Newline {
-                                        raw: tok.raw().to_string(),
-                                        token_idx: pos,
-                                    });
-                                }
-                            }
-                        }
-                    }
-
-                    let unparsable_children: Vec<Node> = (unparsable_start..*max_idx)
-                        .filter_map(|pos| {
-                            if pos < self.tokens.len() {
-                                let tok = &self.tokens[pos];
-                                Some(Node::Token {
-                                    token_type: tok.get_type(),
-                                    raw: tok.raw().to_string(),
-                                    token_idx: pos,
-                                })
-                            } else {
-                                None
-                            }
-                        })
-                        .collect();
-
-                    let unparsable_node = Node::Unparsable {
-                        children: unparsable_children,
-                        expected_message: format!("expected something",),
-                    };
-
-                    frame.accumulated.push(unparsable_node);
-
-                    let result_node = Node::Sequence {
-                        children: frame.accumulated.clone(),
-                    };
-                    stack
-                        .transparent_positions
-                        .insert(frame.frame_id, tentatively_collected.clone());
-                    return Ok(FrameResult::Done);
-                }
-            } else {
-                // Child returned a non-empty result
-                *matched_idx = child_end_pos;
-                if child_end_pos > *max_idx {
-                    *max_idx = child_end_pos;
-                }
-
-                frame.accumulated.push(child_node.clone());
-                if !allow_gaps {
-                    // When not allowing gaps, we only collect from child nodes
-                    // so update tentatively_collected with child's transparent positions
-                    // Find the last code token consumed between element_start and matched_idx
-                    let last_code_consumed = (*element_start..*matched_idx)
-                        .rev()
-                        .find(|&pos| pos < self.tokens.len() && self.tokens[pos].is_code())
-                        .unwrap_or(*element_start);
-
-                    // Find the end position for retroactive collection (first code token after matched_idx)
-                    let collect_end = (*matched_idx..self.tokens.len())
-                        .find(|&pos| self.tokens[pos].is_code())
-                        .unwrap_or(self.tokens.len());
-
-                    // Retroactive collection for frame
-                    for check_pos in (last_code_consumed + 1)..collect_end {
-                        if check_pos < self.tokens.len() && !self.tokens[check_pos].is_code() {
-                            if !tentatively_collected.contains(&check_pos)
-                                && !frame.accumulated.iter().any(|node| match node {
-                                    Node::Whitespace { token_idx, .. }
-                                    | Node::Newline { token_idx, .. } => *token_idx == check_pos,
-                                    _ => false,
-                                })
-                            {
-                                let tok = &self.tokens[check_pos];
-                                match &*tok.get_type() {
-                                    "whitespace" => {
-                                        frame.accumulated.push(Node::Whitespace {
-                                            raw: tok.raw().to_string(),
-                                            token_idx: check_pos,
-                                        });
-                                        tentatively_collected.push(check_pos);
-                                    }
-                                    "newline" => {
-                                        frame.accumulated.push(Node::Newline {
-                                            raw: tok.raw().to_string(),
-                                            token_idx: check_pos,
-                                        });
-                                        tentatively_collected.push(check_pos);
-                                    }
-                                    _ => {}
-                                }
-                            }
-                        }
-                    }
-
-                    if *first_match && parse_mode == ParseMode::GreedyOnceStarted {
-                        // In GREEDY_ONCE_STARTED mode, after the first successful match,
-                        // we trim max_idx to the next terminator
-                        let next_terminator_pos = self.trim_to_terminator_table_driven(
-                            *matched_idx,
-                            &frame.table_terminators,
-                        );
-                        log::debug!(
-                            "SequenceTableDriven: GREEDY_ONCE_STARTED - Trimming max_idx from {} to next terminator at {}. frame_id={}",
-                            *max_idx,
-                            next_terminator_pos,
-                            frame.frame_id
-                        );
-                        *max_idx = next_terminator_pos;
-                        *first_match = false;
-                    }
-                }
-            }
-        }
-        todo!()
     }
 
     /// Handle Sequence grammar Combining state - build final node from accumulated children.
@@ -1907,129 +1396,6 @@ impl<'a> Parser<'_> {
         // Transition to Complete state
         frame.state = FrameState::Complete(result_node);
         frame.end_pos = Some(final_pos);
-
-        Ok(FrameResult::Push(frame))
-    }
-
-    /// Handle Bracketed grammar Combining state - build final node from accumulated children.
-    ///
-    /// Called after all children have been collected in waiting_for_child state.
-    /// Builds the final Bracketed node and transitions to Complete state.
-    pub(crate) fn handle_bracketed_combining(
-        &mut self,
-        mut frame: ParseFrame,
-    ) -> Result<FrameResult, ParseError> {
-        let combine_end = frame.end_pos.unwrap_or(self.pos);
-        log::debug!(
-            "🔨 Bracketed combining at pos {}-{} - frame_id={}, accumulated={}",
-            frame.pos,
-            combine_end.saturating_sub(1),
-            frame.frame_id,
-            frame.accumulated.len()
-        );
-
-        // Extract the bracketed state and grammar from the frame context
-        let (is_complete, bracket_persists) = if let FrameContext::Bracketed {
-            state,
-            grammar,
-            ..
-        } = &frame.context
-        {
-            let complete = matches!(state, BracketedState::Complete);
-
-            // Determine bracket_persists from the grammar's bracket_pairs
-            // Python parity: round brackets persist=True, square/curly persist=False
-            let persists = if let Grammar::Bracketed { bracket_pairs, .. } = grammar.as_ref() {
-                // bracket_pairs is (Box<Arc<Grammar>>, Box<Arc<Grammar>>)
-                // So bracket_pairs.0 is Box<Arc<Grammar>>
-                let start_bracket_grammar: &Grammar = &**bracket_pairs.0;
-
-                // Check the bracket type - could be Ref or StringParser
-                match start_bracket_grammar {
-                    Grammar::Ref { name, .. } => {
-                        let is_round = *name == "StartBracketSegment";
-                        log::debug!(
-                            "Bracketed: start bracket Ref name={}, bracket_persists={}",
-                            name,
-                            is_round
-                        );
-                        // Round brackets: "StartBracketSegment" -> persist=True
-                        // Square brackets: "StartSquareBracketSegment" -> persist=False
-                        // Curly brackets: "StartCurlyBracketSegment" -> persist=False
-                        is_round
-                    }
-                    Grammar::StringParser { template, .. } => {
-                        let is_round = *template == "(";
-                        log::debug!(
-                            "Bracketed: start bracket StringParser template={}, bracket_persists={}",
-                            template,
-                            is_round
-                        );
-                        // Round: "(" -> persist=True
-                        // Square: "[" -> persist=False
-                        // Curly: "{" -> persist=False
-                        is_round
-                    }
-                    Grammar::MultiStringParser { templates, .. } => {
-                        let bracket_char = templates.first().map(|s| *s).unwrap_or("(");
-                        let is_round = bracket_char == "(";
-                        log::debug!(
-                            "Bracketed: start bracket MultiStringParser template={}, bracket_persists={}",
-                            bracket_char,
-                            is_round
-                        );
-                        is_round
-                    }
-                    _ => {
-                        log::debug!("Bracketed: start bracket is neither Ref nor StringParser, defaulting to persist=true");
-                        // Default to true if we can't determine
-                        true
-                    }
-                }
-            } else {
-                log::debug!("Bracketed: grammar is not Bracketed, defaulting to persist=true");
-                true
-            };
-
-            (complete, persists)
-        } else {
-            (false, true)
-        };
-
-        // The result is determined by the bracketed state:
-        // - If state is Complete, we successfully matched all parts (open + content + close)
-        // - Otherwise, the match failed at some point and we return Empty
-
-        let result_node = if is_complete {
-            log::debug!(
-                "Bracketed combining with COMPLETE state → building Node::Bracketed, frame_id={}, bracket_persists={}",
-                frame.frame_id,
-                bracket_persists
-            );
-            Node::Bracketed {
-                children: frame.accumulated.clone(),
-                bracket_persists,
-            }
-        } else {
-            // Log the actual state for debugging
-            let state_str = if let FrameContext::Bracketed { state, .. } = &frame.context {
-                format!("{:?}", state)
-            } else {
-                "Unknown".to_string()
-            };
-            log::debug!(
-                "Bracketed combining with INCOMPLETE state ({}) → returning Node::Empty, frame_id={}, accumulated={}",
-                state_str,
-                frame.frame_id,
-                frame.accumulated.len()
-            );
-            Node::Empty
-        };
-
-        // Transition to Complete state with the final result
-        let end_pos = frame.end_pos.unwrap_or(frame.pos);
-        frame.state = FrameState::Complete(result_node);
-        frame.end_pos = Some(end_pos);
 
         Ok(FrameResult::Push(frame))
     }
@@ -2109,7 +1475,15 @@ impl<'a> Parser<'_> {
                 panic!("handle_bracketed_initial called with non-Bracketed grammar");
             }
         };
-        let start_idx = frame.pos;
+        // Skip transparent tokens (whitespace/newline) before attempting to
+        // match the opening bracket. This mirrors the Python runtime semantics
+        // where transparent tokens between sequence elements are collected
+        // and don't prevent matching of the next element.
+        let start_idx = self.skip_start_index_forward_to_code(frame.pos, self.tokens.len());
+        log::debug!(
+            "Bracketed[table] initial start_idx after skipping transparent tokens = {}",
+            start_idx
+        );
         log::debug!(
             "Bracketed starting at {}, allow_gaps={}, parse_mode={:?}",
             start_idx,
@@ -2566,392 +1940,6 @@ impl<'a> Parser<'_> {
             }
         }
     }
-
-    pub(crate) fn handle_bracketed_table_driven_initial(
-        &mut self,
-        grammar_id: GrammarId,
-        mut frame: ParseFrame,
-        parent_terminators: &[GrammarId],
-        stack: &mut ParseFrameStack,
-    ) -> Result<FrameResult, ParseError> {
-        let ctx = self.grammar_ctx.expect("GrammarContext required");
-        let start_idx = frame.pos;
-        let local_terminators = ctx.terminators(grammar_id).collect::<Vec<GrammarId>>();
-        let reset_terminators = ctx.inst(grammar_id).flags.reset_terminators();
-        let all_terminators = self.combine_table_terminators(
-            &local_terminators,
-            parent_terminators,
-            reset_terminators,
-        );
-        let all_children: Vec<GrammarId> = ctx.children(grammar_id).collect();
-        if all_children.len() < 2 {
-            log::debug!("Bracketed[table]: Not enough children (need bracket_pairs + elements)");
-            stack
-                .results
-                .insert(frame.frame_id, (Node::Empty, start_idx, None));
-            return Ok(FrameResult::Done);
-        }
-        let (start_bracket_idx, _end_bracket_idx) = ctx.bracketed_config(grammar_id);
-        let open_bracket_id = all_children[start_bracket_idx];
-        initialize_table_driven_bracketed_frame(grammar_id, frame, stack, &all_terminators);
-        let parent_max_idx = stack.last_mut().unwrap().parent_max_idx;
-        let mut child_frame = create_table_driven_child_frame(
-            stack.frame_id_counter,
-            open_bracket_id,
-            start_idx,
-            &all_terminators,
-            FrameContext::None,
-            parent_max_idx,
-        );
-        update_parent_last_child_frame(stack);
-        stack.increment_frame_id_counter();
-        stack.push(&mut child_frame);
-        Ok(FrameResult::Done) // Child pushed, continue main loop
-    }
-
-    /// Handle Bracketed WaitingForChild state using table-driven approach
-    pub(crate) fn handle_bracketed_table_driven_waiting_for_child(
-        &mut self,
-        mut frame: ParseFrame,
-        child_node: &Node,
-        child_end_pos: &usize,
-        stack: &mut ParseFrameStack,
-    ) -> Result<FrameResult, ParseError> {
-        let ctx = self.grammar_ctx.expect("GrammarContext required");
-        // Extract needed fields from frame.context
-        let FrameContext::BracketedTableDriven {
-            grammar_id,
-            state: bracket_state,
-            bracket_max_idx,
-            last_child_frame_id,
-        } = &mut frame.context
-        else {
-            unreachable!("Expected BracketedTableDriven context");
-        };
-
-        let all_children: Vec<GrammarId> = ctx.children(*grammar_id).collect();
-        let (start_bracket_idx, end_bracket_idx) = ctx.bracketed_config(*grammar_id);
-        let close_bracket_id = all_children[end_bracket_idx];
-        let content_ids = all_children
-            .iter()
-            .cloned()
-            .enumerate()
-            .filter(|(idx, _id)| *idx != start_bracket_idx && *idx != end_bracket_idx)
-            .map(|(_, id)| id)
-            .collect::<Vec<_>>();
-
-        log::debug!(
-            "Bracketed[table] WaitingForChild: frame_id={}, child_empty={}, state={:?}",
-            frame.frame_id,
-            child_node.is_empty(),
-            bracket_state
-        );
-
-        match bracket_state {
-            BracketedState::MatchingOpen => {
-                if child_node.is_empty() {
-                    self.pos = frame.pos;
-                    log::debug!("Bracketed[table] returning Empty (no opening bracket)",);
-                    // Transition to Combining to finalize Empty result
-                    frame.end_pos = Some(frame.pos);
-                    frame.state = FrameState::Combining;
-                    stack.push(&mut frame);
-                    return Ok(FrameResult::Done);
-                }
-
-                let ctx = self.grammar_ctx.expect("GrammarContext required");
-                let grammar_inst = ctx.inst(frame.grammar_id.expect("grammar_id required"));
-                let allow_gaps = grammar_inst.flags.allow_gaps();
-                let parse_mode = grammar_inst.parse_mode;
-
-                frame.accumulated.push(child_node.clone());
-                let content_start_idx = *child_end_pos;
-                // TODO: do we need to recompute bracket_max_idx here, does the context not provide this?
-                let bracket_max_idx = child_node
-                    .get_token_idx()
-                    .and_then(|i| self.get_matching_bracket_idx(i));
-                if let Some(close_idx) = bracket_max_idx {
-                    log::debug!(
-                        "Bracketed: Using pre-computed closing bracket at idx={} as max_idx",
-                        close_idx
-                    );
-                }
-
-                // If allow_gaps is false and there's whitespace after opening bracket, fail in STRICT mode
-                if !allow_gaps && parse_mode == ParseMode::Strict {
-                    if let Some(ws_pos) = (content_start_idx..self.tokens.len())
-                        .find(|&pos| !self.tokens[pos].is_code())
-                    {
-                        log::debug!("Bracketed: allow_gaps=false, found whitespace/newline at {}, failing in STRICT mode", ws_pos);
-                        self.pos = frame.pos;
-
-                        // Transition to Combining to finalize Empty result
-                        frame.end_pos = Some(frame.pos);
-                        frame.state = FrameState::Combining;
-                        stack.push(&mut frame);
-                        return Ok(FrameResult::Done);
-                    }
-                }
-
-                // Collect whitespace/newlines after opening bracket if allow_gaps
-                if allow_gaps {
-                    let code_idx =
-                        self.skip_start_index_forward_to_code(content_start_idx, self.tokens.len());
-                    for pos in content_start_idx..code_idx {
-                        if let Some(tok) = self.tokens.get(pos) {
-                            match &*tok.get_type() {
-                                "whitespace" => frame.accumulated.push(Node::Whitespace {
-                                    raw: tok.raw().to_string(),
-                                    token_idx: pos,
-                                }),
-                                "newline" => frame.accumulated.push(Node::Newline {
-                                    raw: tok.raw().to_string(),
-                                    token_idx: pos,
-                                }),
-                                _ => {}
-                            }
-                        }
-                    }
-                    self.pos = code_idx;
-                } else {
-                    self.pos = content_start_idx;
-                }
-
-                // Transition to MatchingContent state
-                *bracket_state = BracketedState::MatchingContent;
-
-                let content_grammar_id = if !content_ids.is_empty() {
-                    content_ids[0]
-                } else {
-                    // No elements - skip to closing bracket
-                    // update the state in the frame context to MatchingClose
-                    log::debug!("DEBUG: Transitioning to MatchingClose!");
-                    *bracket_state = BracketedState::MatchingClose;
-                    let parent_limit = frame.parent_max_idx;
-                    log::debug!(
-                        "DEBUG: Creating closing bracket child at pos={}, parent_limit={:?}",
-                        self.pos,
-                        parent_limit
-                    );
-                    let mut close_frame = create_table_driven_child_frame(
-                        stack.frame_id_counter,
-                        close_bracket_id,
-                        self.pos,
-                        &[close_bracket_id],
-                        FrameContext::None,
-                        parent_limit,
-                    );
-
-                    *last_child_frame_id = Some(stack.frame_id_counter);
-                    stack.increment_frame_id_counter();
-                    stack.push(&mut frame);
-                    stack.push(&mut close_frame);
-                    return Ok(FrameResult::Done);
-                };
-
-                // Push content frame
-                let context = FrameContext::BracketedTableDriven {
-                    grammar_id: *grammar_id,
-                    state: BracketedState::MatchingContent,
-                    last_child_frame_id: *last_child_frame_id,
-                    bracket_max_idx,
-                };
-                let mut child_frame = create_table_driven_child_frame(
-                    stack.frame_id_counter,
-                    content_grammar_id,
-                    self.pos,
-                    &[close_bracket_id],
-                    context,
-                    bracket_max_idx,
-                );
-                *last_child_frame_id = Some(stack.frame_id_counter);
-                stack.increment_frame_id_counter();
-                stack.push(&mut frame);
-                stack.push(&mut child_frame);
-                Ok(FrameResult::Done)
-            }
-            BracketedState::MatchingContent => {
-                let mut check_pos = *child_end_pos;
-                check_pos = self.skip_start_index_forward_to_code(check_pos, self.tokens.len());
-
-                // Python reference: sequence.py Bracketed.match() lines ~530-570
-                // In Python, Bracketed doesn't pre-compute the closing bracket position.
-                // Instead, it lets Sequence.match() handle the content (which may return
-                // unparsable segments in GREEDY mode), then matches the closing bracket.
-                // This Rust logic optimizes by pre-computing the bracket position, but
-                // must still respect GREEDY mode semantics.
-                let ctx = self.grammar_ctx.expect("GrammarContext required");
-                let grammar_inst = ctx.inst(frame.grammar_id.expect("grammar_id required"));
-                let parse_mode = grammar_inst.parse_mode;
-                let allow_gaps = grammar_inst.flags.allow_gaps();
-                let (_start_bracket_idx, end_bracket_idx) = ctx.bracketed_config(*grammar_id);
-                let close_bracket_id = all_children[end_bracket_idx];
-
-                if let Some(expected_close_pos) = *bracket_max_idx {
-                    if check_pos != expected_close_pos {
-                        if parse_mode == ParseMode::Strict {
-                            log::debug!("Bracketed[table] STRICT mode: content did not end at closing bracket, returning Empty for retry. frame_id={}, frame.pos={}", frame.frame_id, frame.pos);
-                            self.pos = frame.pos;
-                            // Transition to Combining to finalize Empty result
-                            frame.end_pos = Some(frame.pos);
-                            frame.state = FrameState::Combining;
-                            stack.push(&mut frame);
-                            return Ok(FrameResult::Done);
-                        } else {
-                            log::debug!("Bracketed[table] GREEDY mode: content did not end at closing bracket, but continuing (may contain unparsable). check_pos={}, expected_close_pos={}", check_pos, expected_close_pos);
-                        }
-                    } else {
-                        log::debug!("[BRACKET-DEBUG] Bracketed content ends at expected closing bracket (check_pos == expected_close_pos)");
-                    }
-                }
-
-                // Replace deep-clone traversal with a reference-based flattening.
-                // Only clone the nodes that actually get pushed into `frame.accumulated`.
-                if !child_node.is_empty() {
-                    let mut to_process: Vec<&Node> = vec![child_node];
-                    while let Some(node) = to_process.pop() {
-                        match node {
-                            Node::Sequence { children } | Node::DelimitedList { children } => {
-                                // push children as references (reverse order to preserve original order)
-                                for child in children.iter().rev() {
-                                    to_process.push(child);
-                                }
-                            }
-                            _ => {
-                                // clone only the leaf node we actually keep
-                                frame.accumulated.push(node.clone());
-                            }
-                        }
-                    }
-                }
-
-                let gap_start = *child_end_pos;
-                self.pos = gap_start;
-                log::debug!(
-                    "DEBUG: After content, gap_start={}, current_pos={}",
-                    gap_start,
-                    self.pos
-                );
-
-                if allow_gaps {
-                    let code_idx =
-                        self.skip_start_index_forward_to_code(gap_start, self.tokens.len());
-                    log::debug!(
-                        "[BRACKET-DEBUG] After content, gap_start={}, code_idx={}, token at gap_start={:?}, token at code_idx={:?}",
-                        gap_start, code_idx,
-                        self.tokens.get(gap_start).map(|t| t.raw()),
-                        self.tokens.get(code_idx).map(|t| t.raw()),
-                    );
-                    for pos in self.pos..code_idx {
-                        if let Some(tok) = self.tokens.get(pos) {
-                            let tok_type = tok.get_type();
-                            if tok_type == "whitespace" {
-                                frame.accumulated.push(Node::Whitespace {
-                                    raw: tok.raw().to_string(),
-                                    token_idx: pos,
-                                });
-                            } else if tok_type == "newline" {
-                                frame.accumulated.push(Node::Newline {
-                                    raw: tok.raw().to_string(),
-                                    token_idx: pos,
-                                });
-                            }
-                        }
-                    }
-                    self.pos = code_idx;
-                }
-                log::debug!(
-                    "DEBUG: Checking for closing bracket - self.pos={}, tokens.len={}",
-                    self.pos,
-                    self.tokens.len()
-                );
-                if self.pos >= self.tokens.len()
-                    || self.peek().is_some_and(|t| t.get_type() == "end_of_file")
-                {
-                    log::debug!("DEBUG: No closing bracket found!");
-                    if parse_mode == ParseMode::Strict {
-                        self.pos = frame.pos;
-                        // Transition to Combining to finalize Empty result
-                        frame.end_pos = Some(frame.pos);
-                        frame.state = FrameState::Combining;
-                        stack.push(&mut frame);
-                        Ok(FrameResult::Done)
-                    } else {
-                        panic!("Couldn't find closing bracket for opening bracket");
-                    }
-                } else {
-                    log::debug!("DEBUG: Transitioning to MatchingClose!");
-                    *bracket_state = BracketedState::MatchingClose;
-                    let parent_limit = frame.parent_max_idx;
-                    log::debug!(
-                        "DEBUG: Creating closing bracket child at pos={}, parent_limit={:?}",
-                        self.pos,
-                        parent_limit
-                    );
-                    let mut child_frame = create_table_driven_child_frame(
-                        stack.frame_id_counter,
-                        close_bracket_id,
-                        self.pos,
-                        &[close_bracket_id],
-                        FrameContext::None,
-                        parent_limit,
-                    );
-                    *last_child_frame_id = Some(stack.frame_id_counter);
-                    stack.increment_frame_id_counter();
-                    stack.push(&mut frame);
-                    stack.push(&mut child_frame);
-                    Ok(FrameResult::Done)
-                }
-            }
-            BracketedState::MatchingClose => {
-                log::debug!(
-                    "DEBUG: Bracketed[table] MatchingClose - child_node.is_empty={}, child_end_pos={}",
-                    child_node.is_empty(),
-                    child_end_pos
-                );
-                let ctx = self.grammar_ctx.expect("GrammarContext required");
-                let grammar_inst = ctx.inst(frame.grammar_id.expect("grammar_id required"));
-                let parse_mode = grammar_inst.parse_mode;
-
-                if child_node.is_empty() {
-                    if parse_mode == ParseMode::Strict {
-                        self.pos = frame.pos;
-                        frame.end_pos = Some(frame.pos);
-                    } else {
-                        // In GREEDY mode, not finding a closing bracket is an error
-                        // But we still need to store SOME result so the parent doesn't wait forever
-                        log::error!(
-                            "Bracketed[table] GREEDY mode: Couldn't find closing bracket for opening bracket at pos {}, frame_id={}",
-                            frame.pos,
-                            frame.frame_id
-                        );
-                        self.pos = frame.pos;
-                        frame.end_pos = Some(frame.pos);
-                    }
-                } else {
-                    frame.accumulated.push(child_node.clone());
-                    self.pos = *child_end_pos;
-                    log::debug!(
-                        "Bracketed[table] SUCCESS: {} children, transitioning to Combining at frame_id={}",
-                        frame.accumulated.len(),
-                        frame.frame_id
-                    );
-                    // Mark as Complete so the combining handler knows this is a successful match
-                    *bracket_state = BracketedState::Complete;
-                    frame.end_pos = Some(*child_end_pos);
-                }
-                // Transition to Combining to finalize result
-                frame.state = FrameState::Combining;
-                stack.push(&mut frame);
-                Ok(FrameResult::Done)
-            }
-            BracketedState::Complete => {
-                unreachable!(
-                    "BracketedState::Complete should not occur in WaitingForChild handler"
-                );
-            }
-        }
-    }
 }
 
 fn initialize_bracketed_frame(
@@ -2972,27 +1960,6 @@ fn initialize_bracketed_frame(
         bracket_max_idx: None,
     };
     frame.terminators = all_terminators;
-    stack.push(&mut frame);
-}
-
-fn initialize_table_driven_bracketed_frame(
-    grammar_id: GrammarId,
-    mut frame: ParseFrame,
-    stack: &mut ParseFrameStack,
-    all_terminators: &[GrammarId],
-) {
-    // Update frame with Bracketed context
-    frame.state = FrameState::WaitingForChild {
-        child_index: 0,
-        total_children: 3, // open, content, close
-    };
-    frame.context = FrameContext::BracketedTableDriven {
-        grammar_id,
-        state: BracketedState::MatchingOpen,
-        last_child_frame_id: None,
-        bracket_max_idx: None,
-    };
-    frame.table_terminators = all_terminators.to_vec();
     stack.push(&mut frame);
 }
 

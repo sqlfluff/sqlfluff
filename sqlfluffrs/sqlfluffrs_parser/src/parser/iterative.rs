@@ -116,7 +116,7 @@ impl Parser<'_> {
     ) -> Result<FrameResult, ParseError> {
         // Check if this is a table-driven frame
         if let Some(grammar_id) = frame.grammar_id {
-            return self.handle_table_driven_initial(frame, grammar_id, stack, iteration_count);
+            unimplemented!("Bad state: table-driven frame should use handle_table_driven_initial");
         }
 
         let grammar = frame.grammar.clone();
@@ -445,66 +445,8 @@ impl Parser<'_> {
                                 }
                             }
                         }
-                        FrameContext::OneOfTableDriven { .. } => {
-                            match self.handle_oneof_table_driven_combining(frame, &mut stack)? {
-                                FrameResult::Done => continue 'main_loop,
-                                FrameResult::Push(mut updated_frame) => {
-                                    stack.push(&mut updated_frame);
-                                }
-                            }
-                        }
-                        FrameContext::SequenceTableDriven { .. } => {
-                            match self.handle_sequence_table_driven_combining(frame, &mut stack)? {
-                                FrameResult::Done => continue 'main_loop,
-                                FrameResult::Push(mut updated_frame) => {
-                                    stack.push(&mut updated_frame);
-                                }
-                            }
-                        }
-                        FrameContext::RefTableDriven { .. } => {
-                            match self.handle_ref_table_driven_combining(frame)? {
-                                FrameResult::Done => continue 'main_loop,
-                                FrameResult::Push(mut updated_frame) => {
-                                    stack.push(&mut updated_frame);
-                                }
-                            }
-                        }
-                        FrameContext::DelimitedTableDriven { .. } => {
-                            match self.handle_delimited_table_driven_combining(frame, &mut stack)? {
-                                FrameResult::Done => continue 'main_loop,
-                                FrameResult::Push(mut updated_frame) => {
-                                    stack.push(&mut updated_frame);
-                                }
-                            }
-                        }
-                        FrameContext::BracketedTableDriven { .. } => {
-                            match self.handle_bracketed_table_driven_combining(frame, &mut stack)? {
-                                FrameResult::Done => continue 'main_loop,
-                                FrameResult::Push(mut updated_frame) => {
-                                    stack.push(&mut updated_frame);
-                                }
-                            }
-                        }
-                        FrameContext::AnyNumberOfTableDriven { .. } => {
-                            match self
-                                .handle_anynumberof_table_driven_combining(frame, &mut stack)?
-                            {
-                                FrameResult::Done => continue 'main_loop,
-                                FrameResult::Push(mut updated_frame) => {
-                                    stack.push(&mut updated_frame);
-                                }
-                            }
-                        }
                         FrameContext::AnyNumberOf { .. } => {
                             match self.handle_anynumberof_combining(frame, &mut stack)? {
-                                FrameResult::Done => continue 'main_loop,
-                                FrameResult::Push(mut updated_frame) => {
-                                    stack.push(&mut updated_frame);
-                                }
-                            }
-                        }
-                        FrameContext::Bracketed { .. } => {
-                            match self.handle_bracketed_combining(frame)? {
                                 FrameResult::Done => continue 'main_loop,
                                 FrameResult::Push(mut updated_frame) => {
                                     stack.push(&mut updated_frame);
@@ -792,12 +734,13 @@ impl Parser<'_> {
                 }
                 FrameState::Combining => {
                     // Delegate to combining handlers based on context
-                    match self.handle_combining(frame, &mut stack)? {
-                        FrameResult::Done => continue 'main_loop,
-                        FrameResult::Push(mut updated_frame) => {
-                            stack.push(&mut updated_frame);
-                        }
-                    }
+                    unimplemented!();
+                    // match self.handle_combining(frame, &mut stack)? {
+                    //     FrameResult::Done => continue 'main_loop,
+                    //     FrameResult::Push(mut updated_frame) => {
+                    //         stack.push(&mut updated_frame);
+                    //     }
+                    // }
                 }
                 FrameState::Complete(ref node) => {
                     // This state is reached when a handler has finished producing a result.
@@ -913,35 +856,6 @@ impl Parser<'_> {
         stack
             .results
             .insert(frame.frame_id, (node.clone(), end_pos, element_key));
-    }
-
-    /// Helper that delegates combining state to the proper handler based on frame.context.
-    fn handle_combining(
-        &mut self,
-        frame: ParseFrame,
-        stack: &mut ParseFrameStack,
-    ) -> Result<FrameResult, ParseError> {
-        match &frame.context {
-            FrameContext::OneOfTableDriven { .. } => {
-                self.handle_oneof_table_driven_combining(frame, stack)
-            }
-            FrameContext::SequenceTableDriven { .. } => {
-                self.handle_sequence_table_driven_combining(frame, stack)
-            }
-            FrameContext::RefTableDriven { .. } => self.handle_ref_table_driven_combining(frame),
-            FrameContext::DelimitedTableDriven { .. } => {
-                self.handle_delimited_table_driven_combining(frame, stack)
-            }
-            FrameContext::BracketedTableDriven { .. } => {
-                self.handle_bracketed_table_driven_combining(frame, stack)
-            }
-            FrameContext::AnyNumberOfTableDriven { .. } => {
-                self.handle_anynumberof_table_driven_combining(frame, stack)
-            }
-            _ => Err(ParseError::new(
-                "Unhandled combining context in table-driven loop".to_string(),
-            )),
-        }
     }
 
     /// Checks the cache for a frame and handles cache hits. Returns FrameResult indicating what to do next.
@@ -1161,225 +1075,6 @@ impl Parser<'_> {
         }
     }
 
-    /// Dispatch handler for table-driven Initial state.
-    fn handle_table_driven_initial(
-        &mut self,
-        frame: ParseFrame,
-        grammar_id: sqlfluffrs_types::GrammarId,
-        stack: &mut ParseFrameStack,
-        _iteration_count: usize,
-    ) -> Result<FrameResult, ParseError> {
-        use sqlfluffrs_types::GrammarVariant;
-
-        let ctx = self.grammar_ctx.ok_or_else(|| {
-            ParseError::new("Table-driven parsing requires GrammarContext".to_string())
-        })?;
-
-        let inst = ctx.inst(grammar_id);
-        let variant = inst.variant;
-        let table_terminators = frame.table_terminators.clone();
-
-        log::debug!(
-            "Table-driven Initial: frame_id={}, grammar_id={}, variant={:?}",
-            frame.frame_id,
-            grammar_id.0,
-            variant
-        );
-
-        match variant {
-            GrammarVariant::OneOf => {
-                self.handle_oneof_table_driven_initial(grammar_id, frame, &table_terminators, stack)
-            }
-            GrammarVariant::Sequence => self.handle_sequence_table_driven_initial(
-                grammar_id,
-                frame,
-                &table_terminators,
-                stack,
-            ),
-            GrammarVariant::Delimited => self.handle_delimited_table_driven_initial(
-                grammar_id,
-                frame,
-                &table_terminators,
-                stack,
-            ),
-            GrammarVariant::Bracketed => self.handle_bracketed_table_driven_initial(
-                grammar_id,
-                frame,
-                &table_terminators,
-                stack,
-            ),
-            GrammarVariant::AnyNumberOf | GrammarVariant::AnySetOf => {
-                // AnySetOf currently delegates to AnyNumberOf semantics in table-driven handlers
-                self.handle_anynumberof_table_driven_initial(
-                    grammar_id,
-                    frame,
-                    &table_terminators,
-                    stack,
-                )
-            }
-            GrammarVariant::Ref => {
-                self.handle_ref_table_driven_initial(grammar_id, frame, &table_terminators, stack)
-            }
-            // Terminal/simple variants should be handled synchronously here
-            GrammarVariant::StringParser => {
-                // Synchronous match: call the table-driven string parser and store result for parent
-                let res = self.handle_string_parser_table_driven(grammar_id, ctx);
-                match res {
-                    Ok(node) => {
-                        // Insert result directly so parent frames can pick it up
-                        log::debug!(
-                            "[SYNC INSERT] frame_id={} StringParser result at pos {} -> node={:?}",
-                            frame.frame_id,
-                            self.pos,
-                            node
-                        );
-                        stack.results.insert(frame.frame_id, (node, self.pos, None));
-                        return Ok(FrameResult::Done);
-                    }
-                    Err(e) => return Err(e),
-                }
-            }
-            GrammarVariant::TypedParser => {
-                self.handle_typed_parser_table_driven(frame, grammar_id, ctx)
-            }
-            GrammarVariant::MultiStringParser => {
-                let res = self.handle_multi_string_parser_table_driven(grammar_id, ctx);
-                match res {
-                    Ok(node) => {
-                        log::debug!(
-                            "[SYNC INSERT] frame_id={} MultiStringParser result at pos {} -> node={:?}",
-                            frame.frame_id,
-                            self.pos,
-                            node
-                        );
-                        stack.results.insert(frame.frame_id, (node, self.pos, None));
-                        return Ok(FrameResult::Done);
-                    }
-                    Err(e) => return Err(e),
-                }
-            }
-            GrammarVariant::RegexParser => {
-                let res = self.handle_regex_parser_table_driven(grammar_id, ctx);
-                match res {
-                    Ok(node) => {
-                        log::debug!(
-                            "[SYNC INSERT] frame_id={} RegexParser result at pos {} -> node={:?}",
-                            frame.frame_id,
-                            self.pos,
-                            node
-                        );
-                        stack.results.insert(frame.frame_id, (node, self.pos, None));
-                        return Ok(FrameResult::Done);
-                    }
-                    Err(e) => return Err(e),
-                }
-            }
-            GrammarVariant::Nothing => {
-                let res = self.handle_nothing_table_driven();
-                match res {
-                    Ok(node) => {
-                        log::debug!(
-                            "[SYNC INSERT] frame_id={} Nothing result at pos {} -> node={:?}",
-                            frame.frame_id,
-                            self.pos,
-                            node
-                        );
-                        stack.results.insert(frame.frame_id, (node, self.pos, None));
-                        return Ok(FrameResult::Done);
-                    }
-                    Err(e) => return Err(e),
-                }
-            }
-            GrammarVariant::Empty => {
-                let res = self.handle_empty_table_driven();
-                match res {
-                    Ok(node) => {
-                        log::debug!(
-                            "[SYNC INSERT] frame_id={} Empty result at pos {} -> node={:?}",
-                            frame.frame_id,
-                            self.pos,
-                            node
-                        );
-                        stack.results.insert(frame.frame_id, (node, self.pos, None));
-                        return Ok(FrameResult::Done);
-                    }
-                    Err(e) => return Err(e),
-                }
-            }
-            GrammarVariant::Missing => {
-                let res = self.handle_missing_table_driven();
-                match res {
-                    Ok(node) => {
-                        log::debug!(
-                            "[SYNC INSERT] frame_id={} Missing result at pos {} -> node={:?}",
-                            frame.frame_id,
-                            self.pos,
-                            node
-                        );
-                        stack.results.insert(frame.frame_id, (node, self.pos, None));
-                        return Ok(FrameResult::Done);
-                    }
-                    Err(e) => return Err(e),
-                }
-            }
-            GrammarVariant::Token => {
-                let res = self.handle_token_table_driven(grammar_id, ctx);
-                match res {
-                    Ok(node) => {
-                        log::debug!(
-                            "[SYNC INSERT] frame_id={} Token result at pos {} -> node={:?}",
-                            frame.frame_id,
-                            self.pos,
-                            node
-                        );
-                        stack.results.insert(frame.frame_id, (node, self.pos, None));
-                        return Ok(FrameResult::Done);
-                    }
-                    Err(e) => return Err(e),
-                }
-            }
-            GrammarVariant::Meta => {
-                let res = self.handle_meta_table_driven(grammar_id, ctx);
-                match res {
-                    Ok(node) => {
-                        log::debug!(
-                            "[SYNC INSERT] frame_id={} Meta result at pos {} -> node={:?}",
-                            frame.frame_id,
-                            self.pos,
-                            node
-                        );
-                        stack.results.insert(frame.frame_id, (node, self.pos, None));
-                        return Ok(FrameResult::Done);
-                    }
-                    Err(e) => return Err(e),
-                }
-            }
-            GrammarVariant::NonCodeMatcher => {
-                let res = self.handle_noncode_matcher_table_driven();
-                match res {
-                    Ok(node) => {
-                        log::debug!(
-                            "[SYNC INSERT] frame_id={} NonCodeMatcher result at pos {} -> node={:?}",
-                            frame.frame_id,
-                            self.pos,
-                            node
-                        );
-                        stack.results.insert(frame.frame_id, (node, self.pos, None));
-                        return Ok(FrameResult::Done);
-                    }
-                    Err(e) => return Err(e),
-                }
-            }
-            _ => {
-                // For now, other variants not implemented
-                Err(ParseError::new(format!(
-                    "Table-driven handler not implemented for variant: {:?}",
-                    variant
-                )))
-            }
-        }
-    }
-
     /// Dispatch handler for WaitingForChild state.
     fn handle_waiting_for_child(
         &mut self,
@@ -1572,92 +1267,6 @@ impl Parser<'_> {
                         stack,
                         frame_terminators,
                     )?;
-                    Ok(FrameResult::Done)
-                }
-                FrameContext::OneOfTableDriven { .. } => {
-                    match self.handle_oneof_table_driven_waiting_for_child(
-                        frame,
-                        child_node,
-                        child_end_pos,
-                        child_element_key,
-                        stack,
-                    )? {
-                        FrameResult::Done => {}
-                        FrameResult::Push(mut updated_frame) => {
-                            stack.push(&mut updated_frame);
-                        }
-                    }
-                    Ok(FrameResult::Done)
-                }
-                FrameContext::SequenceTableDriven { .. } => {
-                    match self.handle_sequence_table_driven_waiting_for_child(
-                        frame,
-                        child_node,
-                        child_end_pos,
-                        child_element_key,
-                        stack,
-                    )? {
-                        FrameResult::Done => {}
-                        FrameResult::Push(mut updated_frame) => {
-                            stack.push(&mut updated_frame);
-                        }
-                    }
-                    Ok(FrameResult::Done)
-                }
-                FrameContext::RefTableDriven { .. } => {
-                    match self.handle_ref_table_driven_waiting_for_child(
-                        frame,
-                        child_node,
-                        child_end_pos,
-                        stack,
-                    )? {
-                        FrameResult::Done => {}
-                        FrameResult::Push(mut updated_frame) => {
-                            stack.push(&mut updated_frame);
-                        }
-                    }
-                    Ok(FrameResult::Done)
-                }
-                FrameContext::DelimitedTableDriven { .. } => {
-                    match self.handle_delimited_table_driven_waiting_for_child(
-                        frame,
-                        child_node,
-                        child_end_pos,
-                        stack,
-                    )? {
-                        FrameResult::Done => {}
-                        FrameResult::Push(mut updated_frame) => {
-                            stack.push(&mut updated_frame);
-                        }
-                    }
-                    Ok(FrameResult::Done)
-                }
-                FrameContext::BracketedTableDriven { .. } => {
-                    match self.handle_bracketed_table_driven_waiting_for_child(
-                        frame,
-                        child_node,
-                        child_end_pos,
-                        stack,
-                    )? {
-                        FrameResult::Done => {}
-                        FrameResult::Push(mut updated_frame) => {
-                            stack.push(&mut updated_frame);
-                        }
-                    }
-                    Ok(FrameResult::Done)
-                }
-                FrameContext::AnyNumberOfTableDriven { .. } => {
-                    match self.handle_anynumberof_table_driven_waiting_for_child(
-                        frame,
-                        child_node,
-                        child_end_pos,
-                        stack,
-                    )? {
-                        FrameResult::Done => {}
-                        FrameResult::Push(mut updated_frame) => {
-                            stack.push(&mut updated_frame);
-                        }
-                    }
                     Ok(FrameResult::Done)
                 }
                 FrameContext::Delimited { .. } => {
