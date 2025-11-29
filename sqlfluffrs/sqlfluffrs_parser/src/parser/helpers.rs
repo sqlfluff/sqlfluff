@@ -1309,11 +1309,11 @@ impl<'a> Parser<'a> {
         terminators: &[sqlfluffrs_types::GrammarId],
     ) -> usize {
         // If no terminators, return tokens length
-        if terminators.is_empty() {
+        if terminators.is_empty() || start_idx >= self.tokens.len() {
             return self.tokens.len();
         }
 
-        // Scan forward looking for terminator match
+        // Scan forward looking for terminators, but skip over bracketed sections
         let mut idx = start_idx;
         while idx < self.tokens.len() {
             let saved_pos = self.pos;

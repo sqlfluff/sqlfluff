@@ -16,6 +16,16 @@ pub struct GrammarContext<'a> {
 }
 
 impl<'a> GrammarContext<'a> {
+    /// Get a human-readable name for a GrammarId (Ref, StringParser, TypedParser, RegexParser)
+    pub fn grammar_id_name(&self, id: GrammarId) -> String {
+        match self.variant(id) {
+            GrammarVariant::Ref => self.ref_name(id).to_string(),
+            GrammarVariant::StringParser
+            | GrammarVariant::TypedParser
+            | GrammarVariant::RegexParser => self.template(id).to_string(),
+            other => format!("{:?}", other),
+        }
+    }
     /// Create new context from tables
     pub const fn new(tables: &'a GrammarTables) -> Self {
         Self { tables }
