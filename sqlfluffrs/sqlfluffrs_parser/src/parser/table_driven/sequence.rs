@@ -555,11 +555,8 @@ impl<'a> Parser<'_> {
         mut frame: TableParseFrame,
         stack: &mut TableParseFrameStack,
     ) -> Result<TableFrameResult, ParseError> {
-        let ctx = self.grammar_ctx.expect("GrammarContext required");
-        let _stack = stack; // Suppress unused warning
-
         let FrameContext::SequenceTableDriven {
-            grammar_id,
+            tentatively_collected,
             matched_idx,
             ..
         } = &frame.context
@@ -569,32 +566,18 @@ impl<'a> Parser<'_> {
             ));
         };
 
-        let inst = ctx.inst(*grammar_id);
-
         log::debug!(
-            "Sequence[table] Combining: frame_id={}, accumulated={}",
+            "Sequence[table] Combining: frame_id={}, accumulated={}, matched_idx={}",
             frame.frame_id,
-            frame.accumulated.len()
+            frame.accumulated.len(),
+            matched_idx
         );
 
-        // Commit collection checkpoint on success
-        if !frame.accumulated.is_empty() {
-            self.commit_collection_checkpoint(frame.frame_id);
-        } else {
-            self.rollback_collection_checkpoint(frame.frame_id);
-        }
-
-        // Build final result
         let (result_node, final_pos) = if frame.accumulated.is_empty() {
-            // No children matched
-            if inst.flags.optional() {
-                (Node::Empty, frame.pos)
-            } else {
-                // TODO: Apply parse_mode
-                (Node::Empty, frame.pos)
-            }
+            self.rollback_collection_checkpoint(frame.frame_id);
+            (Node::Empty, frame.pos)
         } else {
-            // Children matched
+            self.commit_collection_checkpoint(frame.frame_id);
             (
                 Node::Sequence {
                     children: frame.accumulated.clone(),
@@ -602,6 +585,11 @@ impl<'a> Parser<'_> {
                 *matched_idx,
             )
         };
+
+        stack
+            .transparent_positions
+            .insert(frame.frame_id, tentatively_collected.clone());
+
 
         self.pos = final_pos;
         frame.end_pos = Some(final_pos);
