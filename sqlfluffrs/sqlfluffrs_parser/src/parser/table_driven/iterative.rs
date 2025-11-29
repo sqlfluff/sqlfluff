@@ -595,10 +595,6 @@ impl Parser<'_> {
                 last_child_frame_id,
                 ..
             }
-            | FrameContext::AnySetOf {
-                last_child_frame_id,
-                ..
-            }
             | FrameContext::AnyNumberOfTableDriven {
                 last_child_frame_id,
                 ..

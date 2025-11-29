@@ -148,11 +148,9 @@ impl<'a> Parser<'_> {
                 ),
                 _ => panic!("handle_sequence_initial called with non-Sequence grammar"),
             };
-        let pos = frame.pos;
         log::debug!("DEBUG: Sequence Initial at pos={}, parent_max_idx={:?}, allow_gaps={}, elements.len()={}, parse_mode={:?}",
-                  pos, frame.parent_max_idx, allow_gaps, elements.len(), parse_mode);
-        let start_idx = pos; // Where did we start
-
+                  self.pos, frame.parent_max_idx, allow_gaps, elements.len(), parse_mode);
+        let start_idx = self.pos; // Where did we start
         // Combine parent and local terminators
         let all_terminators =
             self.combine_terminators(seq_terminators, parent_terminators, *reset_terminators);

@@ -826,7 +826,7 @@ mod table_driven_anything_tests {
     use env_logger;
     use sqlfluffrs_dialects::dialect::ansi::parser::get_ansi_segment_grammar;
     use sqlfluffrs_dialects::Dialect;
-    use sqlfluffrs_lexer::Lexer;
+    use sqlfluffrs_lexer::{LexInput, Lexer};
 
     // Smoke test: ensure bracketed tokens are preserved properly by table-driven Anything
     #[test]
@@ -838,17 +838,14 @@ mod table_driven_anything_tests {
         let dialect = Dialect::Ansi;
 
         // Choose a root grammar that will exercise expression/bracket parsing
-        let root = get_ansi_segment_grammar("ColumnDefinitionSegment")
-            .expect("ColumnDefinitionSegment not found in ANSI tables");
-
         let lexer = Lexer::new(None, dialect.get_lexers().to_vec());
         let (tokens, _violations) =
-            lexer.lex(sqlfluffrs_lexer::LexInput::String(sql.to_string()), true);
+            lexer.lex(LexInput::String(sql.to_string()), true);
 
         // Create parser using the RootGrammar (table-driven)
-        let mut parser = Parser::new_with_root(&tokens, dialect, root);
+        let mut parser = Parser::new_with_tables(&tokens, dialect);
         let node = parser
-            .call_rule_as_root()
+            .call_rule("ColumnDefinitionSegment", &[])
             .expect("parse_root should not error");
 
         // Basic assertions: parse should be non-empty and contain bracketed nodes
@@ -900,7 +897,7 @@ mod table_driven_anything_tests {
 
         let lexer = Lexer::new(None, dialect.get_lexers().to_vec());
         let (tokens, _violations) =
-            lexer.lex(sqlfluffrs_lexer::LexInput::String(sql.to_string()), true);
+            lexer.lex(LexInput::String(sql.to_string()), true);
 
         let mut parser = Parser::new_with_root(&tokens, dialect, root);
         let node = parser
