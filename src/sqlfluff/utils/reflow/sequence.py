@@ -518,6 +518,8 @@ class ReflowSequence:
                 root_segment=self.root_segment,
                 lint_results=lint_results,
                 strip_newlines=strip_newlines,
+                indent_unit=self.reflow_config.indent_unit,
+                tab_space_size=self.reflow_config.tab_space_size,
             )
             # If filter has been set, optionally unset the returned values.
             if (
@@ -574,10 +576,18 @@ class ReflowSequence:
 
         # Delegate to the rebreak algorithm
         if rebreak_type == "lines":
-            elem_buff, lint_results = rebreak_sequence(self.elements, self.root_segment)
+            elem_buff, lint_results = rebreak_sequence(
+                self.elements,
+                self.root_segment,
+                self.reflow_config.indent_unit,
+                self.reflow_config.tab_space_size,
+            )
         elif rebreak_type == "keywords":
             elem_buff, lint_results = rebreak_keywords_sequence(
-                self.elements, self.root_segment
+                self.elements,
+                self.root_segment,
+                self.reflow_config.indent_unit,
+                self.reflow_config.tab_space_size,
             )
         else:  # pragma: no cover
             raise NotImplementedError(
