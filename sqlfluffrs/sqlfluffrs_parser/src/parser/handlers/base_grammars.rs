@@ -839,8 +839,7 @@ mod table_driven_anything_tests {
 
         // Choose a root grammar that will exercise expression/bracket parsing
         let lexer = Lexer::new(None, dialect.get_lexers().to_vec());
-        let (tokens, _violations) =
-            lexer.lex(LexInput::String(sql.to_string()), true);
+        let (tokens, _violations) = lexer.lex(LexInput::String(sql.to_string()), true);
 
         // Create parser using the RootGrammar (table-driven)
         let mut parser = Parser::new_with_tables(&tokens, dialect);
@@ -896,8 +895,7 @@ mod table_driven_anything_tests {
             .expect("SelectClauseSegment not found in ANSI tables");
 
         let lexer = Lexer::new(None, dialect.get_lexers().to_vec());
-        let (tokens, _violations) =
-            lexer.lex(LexInput::String(sql.to_string()), true);
+        let (tokens, _violations) = lexer.lex(LexInput::String(sql.to_string()), true);
 
         let mut parser = Parser::new_with_root(&tokens, dialect, root);
         let node = parser

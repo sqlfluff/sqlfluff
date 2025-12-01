@@ -325,6 +325,18 @@ impl<'a> Parser<'_> {
             return Ok(TableFrameResult::Done);
         }
 
+        if *child_end_pos > *max_idx {
+            log::debug!(
+                "AnyNumberOf[table]: child_end_pos={} exceeds max_idx={}, stopping without accumulating this match",
+                child_end_pos,
+                max_idx
+            );
+            frame.end_pos = Some(*matched_idx);
+            frame.state = FrameState::Combining;
+            stack.push(&mut frame);
+            return Ok(TableFrameResult::Done);
+        }
+
         let allow_gaps = inst.flags.allow_gaps();
         if allow_gaps && *matched_idx < *working_idx {
             self.tokens[*matched_idx..*working_idx]

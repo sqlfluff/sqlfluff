@@ -1032,10 +1032,10 @@ impl<'a> Parser<'a> {
     /// If reset_terminators is true, only local_terminators are used.
     /// Otherwise, both local and parent terminators are combined.
     pub(crate) fn combine_terminators_table_driven(
-        local_terminators: &[sqlfluffrs_types::GrammarId],
-        parent_terminators: &[sqlfluffrs_types::GrammarId],
+        local_terminators: &[GrammarId],
+        parent_terminators: &[GrammarId],
         reset_terminators: bool,
-    ) -> Vec<sqlfluffrs_types::GrammarId> {
+    ) -> Vec<GrammarId> {
         if reset_terminators {
             local_terminators.to_vec()
         } else {
@@ -1053,7 +1053,7 @@ impl<'a> Parser<'a> {
     pub(crate) fn calculate_max_idx_table_driven(
         &mut self,
         start_idx: usize,
-        terminators: &[sqlfluffrs_types::GrammarId],
+        terminators: &[GrammarId],
         parse_mode: ParseMode,
         parent_max_idx: Option<usize>,
     ) -> usize {
@@ -1088,8 +1088,8 @@ impl<'a> Parser<'a> {
     pub(crate) fn calculate_max_idx_with_elements_table_driven(
         &mut self,
         start_idx: usize,
-        terminators: &[sqlfluffrs_types::GrammarId],
-        elements: &[sqlfluffrs_types::GrammarId],
+        terminators: &[GrammarId],
+        elements: &[GrammarId],
         parse_mode: ParseMode,
         parent_max_idx: Option<usize>,
     ) -> usize {
@@ -1116,10 +1116,7 @@ impl<'a> Parser<'a> {
     /// Prune options for table-driven parsing based on simple hints.
     ///
     /// This is the table-driven equivalent of prune_options().
-    pub(crate) fn prune_options_table_driven(
-        &mut self,
-        options: &[sqlfluffrs_types::GrammarId],
-    ) -> Vec<sqlfluffrs_types::GrammarId> {
+    pub(crate) fn prune_options_table_driven(&mut self, options: &[GrammarId]) -> Vec<GrammarId> {
         // Track stats
         self.pruning_calls.set(self.pruning_calls.get() + 1);
         self.pruning_total
@@ -1208,8 +1205,8 @@ impl<'a> Parser<'a> {
     /// This is the table-driven equivalent of is_terminated_with_elements().
     pub(crate) fn is_terminated_with_elements_table_driven(
         &mut self,
-        terminators: &[sqlfluffrs_types::GrammarId],
-        elements: &[sqlfluffrs_types::GrammarId],
+        terminators: &[GrammarId],
+        elements: &[GrammarId],
     ) -> bool {
         let init_pos = self.pos;
         self.skip_transparent(true);
@@ -1280,10 +1277,7 @@ impl<'a> Parser<'a> {
     /// Prune terminators for table-driven parsing based on simple matchers.
     ///
     /// This is the table-driven equivalent of prune_terminators().
-    fn prune_terminators_table_driven(
-        &mut self,
-        terminators: &[sqlfluffrs_types::GrammarId],
-    ) -> Vec<sqlfluffrs_types::GrammarId> {
+    fn prune_terminators_table_driven(&mut self, terminators: &[GrammarId]) -> Vec<GrammarId> {
         let first_token = self.tokens.get(self.pos);
         if let Some(tok) = first_token {
             if !tok.is_code() {
@@ -1303,10 +1297,10 @@ impl<'a> Parser<'a> {
     /// Trim to first terminator position for table-driven parsing.
     ///
     /// This is the table-driven equivalent of trim_to_terminator().
-    pub(crate) fn trim_to_terminator_table_driven(
+    pub(crate) fn trim_to_terminator_table_driven_old(
         &mut self,
         start_idx: usize,
-        terminators: &[sqlfluffrs_types::GrammarId],
+        terminators: &[GrammarId],
     ) -> usize {
         // If no terminators, return tokens length
         if terminators.is_empty() || start_idx >= self.tokens.len() {
@@ -1353,14 +1347,82 @@ impl<'a> Parser<'a> {
         self.tokens.len()
     }
 
+    pub(crate) fn trim_to_terminator_table_driven(
+        &mut self,
+        start_idx: usize,
+        terminators: &[GrammarId],
+    ) -> usize {
+        let segments = self.tokens;
+
+        if start_idx >= segments.len() {
+            log::debug!(
+                "[TRIM_TO_TERM_TABLE] start_idx {} >= segments.len() {}, returning {}",
+                start_idx,
+                segments.len(),
+                segments.len()
+            );
+            return segments.len();
+        }
+
+        let pruned_terms = self.prune_options_table_driven(terminators);
+        log::debug!(
+            "[TRIM_TO_TERM_TABLE] Scanning for terminators from idx={}, pruned_terms={:?}",
+            start_idx,
+            pruned_terms
+        );
+        for term in pruned_terms.iter() {
+            let grammar_name = if let Some(ctx) = self.grammar_ctx {
+                ctx.grammar_id_name(*term)
+            } else {
+                "<no_ctx>".to_string()
+            };
+            log::debug!(
+                "[TRIM_TO_TERM_TABLE] Trying terminator {:?} (name: {}) at idx={}",
+                term,
+                grammar_name,
+                start_idx
+            );
+            if let Ok(m) = self.try_match_grammar_table_driven(*term, start_idx, &[]) {
+                log::debug!(
+                    "[TRIM_TO_TERM_TABLE] Terminator {:?} (name: {}) matched at idx={}, returning {}",
+                    term,
+                    grammar_name,
+                    start_idx,
+                    m
+                );
+                return m;
+            } else {
+                log::debug!(
+                    "[TRIM_TO_TERM_TABLE] Terminator {:?} (name: {}) did NOT match at idx={}",
+                    term,
+                    grammar_name,
+                    start_idx
+                );
+            }
+        }
+
+        let term_match = self.greedy_match_table_driven(start_idx, terminators, self.tokens.len());
+        log::debug!(
+            "[TRIM_TO_TERM_TABLE] greedy_match_table_driven returned {:?}",
+            term_match
+        );
+        // term_match.1 is already the last code index before the terminator (computed by greedy_match_table_driven)
+        let final_idx = term_match.1;
+        log::debug!(
+            "[TRIM_TO_TERM_TABLE] Using term_match.1 as final_idx: {}",
+            final_idx
+        );
+        final_idx
+    }
+
     /// Trim to first terminator position for table-driven parsing with element awareness.
     ///
     /// This is the table-driven equivalent of trim_to_terminator_with_elements().
     pub(crate) fn trim_to_terminator_with_elements_table_driven(
         &mut self,
         start_idx: usize,
-        terminators: &[sqlfluffrs_types::GrammarId],
-        _elements: &[sqlfluffrs_types::GrammarId],
+        terminators: &[GrammarId],
+        _elements: &[GrammarId],
     ) -> usize {
         // Python version: trim at the first position where a terminator matches, ignoring element-aware checks.
         if terminators.is_empty() {

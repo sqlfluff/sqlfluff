@@ -151,7 +151,7 @@ impl<'a> Parser<'_> {
         log::debug!("DEBUG: Sequence Initial at pos={}, parent_max_idx={:?}, allow_gaps={}, elements.len()={}, parse_mode={:?}",
                   self.pos, frame.parent_max_idx, allow_gaps, elements.len(), parse_mode);
         let start_idx = self.pos; // Where did we start
-        // Combine parent and local terminators
+                                  // Combine parent and local terminators
         let all_terminators =
             self.combine_terminators(seq_terminators, parent_terminators, *reset_terminators);
 

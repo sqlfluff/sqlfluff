@@ -590,7 +590,6 @@ impl<'a> Parser<'_> {
             .transparent_positions
             .insert(frame.frame_id, tentatively_collected.clone());
 
-
         self.pos = final_pos;
         frame.end_pos = Some(final_pos);
         frame.state = FrameState::Complete(result_node);
