@@ -1424,7 +1424,6 @@ def parse(
                     code_only=code_only,
                     show_raw=True,
                     include_meta=include_meta,
-                    include_position=include_meta,
                 )
             else:
                 # Parsing failed - return null for segments.
