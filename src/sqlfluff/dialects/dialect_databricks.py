@@ -68,6 +68,7 @@ databricks_dialect.insert_lexer_matchers(
 databricks_dialect.insert_lexer_matchers(
     # Databricks Pipeline Parameters:
     # https://docs.databricks.com/en/delta-live-tables/parameters.html
+    # Must come before dollar_quote since both start with $
     [
         RegexLexer(
             "pipeline_parameter",
@@ -75,7 +76,7 @@ databricks_dialect.insert_lexer_matchers(
             CodeSegment,
         ),
     ],
-    before="equals",
+    before="dollar_quote",
 )
 
 
@@ -144,7 +145,9 @@ databricks_dialect.add(
 
 # Override SingleIdentifierGrammar to include parameterized segments
 databricks_dialect.replace(
-    SingleIdentifierGrammar=sparksql_dialect.get_grammar("SingleIdentifierGrammar").copy(
+    SingleIdentifierGrammar=sparksql_dialect.get_grammar(
+        "SingleIdentifierGrammar"
+    ).copy(
         insert=[
             Ref("ParameterizedSegment"),
         ]
@@ -532,7 +535,7 @@ class CatalogReferenceSegment(ansi.ObjectReferenceSegment):
     """
 
     type = "catalog_reference"
-    
+
     # Allow catalog names to be identifiers or parameters
     match_grammar: Matchable = OneOf(
         Delimited(
@@ -1777,8 +1780,10 @@ class ParameterizedSegment(BaseSegment):
     """Databricks named parameters to prevent SQL Injection.
 
     Supports both colon-based (:param) and pipeline (${param}) parameters:
-    - https://docs.databricks.com/aws/en/jobs/parameter-use#use-named-parameters-in-a-sql-notebook
-    - https://docs.databricks.com/en/delta-live-tables/parameters.html
+    - Colon syntax:
+      https://docs.databricks.com/aws/en/jobs/parameter-use
+    - Pipeline syntax:
+      https://docs.databricks.com/en/delta-live-tables/parameters.html
     """
 
     type = "parameterized_expression"

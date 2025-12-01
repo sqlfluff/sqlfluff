@@ -90,5 +90,3 @@ SELECT
 FROM STREAM (${bronze_catalog}.customers.raw_customers) AS c
     LEFT JOIN ${gold_catalog}.analytics.customer_purchases AS p
         ON c.customer_id = p.customer_id;
-
-
