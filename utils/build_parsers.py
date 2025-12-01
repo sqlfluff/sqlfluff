@@ -65,11 +65,14 @@ class TableBuilder:
     """Flattens Python Grammar AST into flat table representation."""
 
     # GrammarFlags bit positions
+    # (must match sqlfluffrs_types::grammar_inst::GrammarFlags)
     FLAG_OPTIONAL = 1 << 0
     FLAG_RESET_TERMINATORS = 1 << 1
     FLAG_ALLOW_GAPS = 1 << 2
     FLAG_ALLOW_TRAILING = 1 << 3
     FLAG_OPTIONAL_DELIMITER = 1 << 4
+    FLAG_HAS_SIMPLE_HINT = 1 << 5
+    FLAG_HAS_EXCLUDE = 1 << 6
 
     def __init__(self):
         # Core tables
@@ -169,6 +172,8 @@ class TableBuilder:
             flags |= self.FLAG_ALLOW_TRAILING
         if hasattr(grammar, "optional_delimiter") and grammar.optional_delimiter:
             flags |= self.FLAG_OPTIONAL_DELIMITER
+        if getattr(grammar, "exclude", None) is not None:
+            flags |= self.FLAG_HAS_EXCLUDE
         return flags
 
     def _get_parse_mode(self, grammar) -> str:

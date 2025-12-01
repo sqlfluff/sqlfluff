@@ -71,11 +71,16 @@ impl<'a> Parser<'_> {
         }
 
         let saved_pos = start_pos;
-        let children: Vec<GrammarId> = ctx.children(grammar_id).collect();
 
-        // Use first child grammar id if present, otherwise resolve by name via dialect mapping.
-        let child_grammar_id = if !children.is_empty() {
-            children[0]
+        // Get element children (excludes the exclude grammar if present).
+        // For a Ref with only an exclude (no explicit match_grammar child), this will be empty.
+        let element_children: Vec<GrammarId> = ctx.element_children(grammar_id).collect();
+
+        // Use first element child if present, otherwise resolve by name via dialect mapping.
+        // CRITICAL: For Ref grammars with an exclude, the `children` list contains ONLY the
+        // exclude grammar. The actual referenced segment must be resolved by name.
+        let child_grammar_id = if !element_children.is_empty() {
+            element_children[0]
         } else {
             match self.dialect.get_segment_grammar(&rule_name) {
                 Some(RootGrammar::TableDriven {
@@ -84,7 +89,7 @@ impl<'a> Parser<'_> {
                 }) => target_gid,
                 _ => {
                     log::debug!(
-                "Ref[table]: No child grammar and no dialect mapping for '{}', returning Empty",
+                "Ref[table]: No element children and no dialect mapping for '{}', returning Empty",
                 rule_name
                 );
                     stack

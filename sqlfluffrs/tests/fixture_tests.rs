@@ -573,7 +573,7 @@ impl FixtureTest {
             return Err(format!("Lexer errors: {:?}", lex_errors));
         }
 
-        let mut parser = Parser::new(&tokens, dialect);
+        let mut parser = Parser::new_with_tables(&tokens, dialect);
 
         // Try to parse as a file (top-level rule)
         parser

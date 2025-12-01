@@ -1809,7 +1809,7 @@ pub static INSTRUCTIONS: &[GrammarInst] = &[
     // [890] RegexParser
     GrammarInst { variant: GrammarVariant::RegexParser, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(0), first_child_idx: 689, child_count: 0, min_times: 0, first_terminator_idx: 20, terminator_count: 0, _padding: 0 },
     // [891] Ref(SingleIdentifierGrammar)
-    GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 689, child_count: 1, min_times: 0, first_terminator_idx: 20, terminator_count: 0, _padding: 0 },
+    GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(68), first_child_idx: 689, child_count: 1, min_times: 0, first_terminator_idx: 20, terminator_count: 0, _padding: 0 },
     // [892] Ref(NakedIdentifierSegment)
     GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 690, child_count: 0, min_times: 0, first_terminator_idx: 20, terminator_count: 0, _padding: 0 },
     // [893] OneOf(4 options)
@@ -2343,7 +2343,7 @@ pub static INSTRUCTIONS: &[GrammarInst] = &[
     // [1157] OneOf(4 options)
     GrammarInst { variant: GrammarVariant::OneOf, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 841, child_count: 4, min_times: 0, first_terminator_idx: 20, terminator_count: 0, _padding: 0 },
     // [1158] Ref(SignedSegmentGrammar)
-    GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 845, child_count: 1, min_times: 0, first_terminator_idx: 20, terminator_count: 0, _padding: 0 },
+    GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(68), first_child_idx: 845, child_count: 1, min_times: 0, first_terminator_idx: 20, terminator_count: 0, _padding: 0 },
     // [1159] Sequence(1 elements)
     GrammarInst { variant: GrammarVariant::Sequence, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 846, child_count: 1, min_times: 0, first_terminator_idx: 20, terminator_count: 0, _padding: 0 },
     // [1160] Ref(QualifiedNumericLiteralSegment)
@@ -2377,7 +2377,7 @@ pub static INSTRUCTIONS: &[GrammarInst] = &[
     // [1174] OneOf(2 options)
     GrammarInst { variant: GrammarVariant::OneOf, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 856, child_count: 2, min_times: 0, first_terminator_idx: 20, terminator_count: 0, _padding: 0 },
     // [1175] Ref(SignedSegmentGrammar)
-    GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 858, child_count: 1, min_times: 0, first_terminator_idx: 20, terminator_count: 0, _padding: 0 },
+    GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(68), first_child_idx: 858, child_count: 1, min_times: 0, first_terminator_idx: 20, terminator_count: 0, _padding: 0 },
     // [1176] Sequence(1 elements)
     GrammarInst { variant: GrammarVariant::Sequence, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 859, child_count: 1, min_times: 0, first_terminator_idx: 20, terminator_count: 0, _padding: 0 },
     // [1177] Ref(QualifiedNumericLiteralSegment)
@@ -2529,7 +2529,7 @@ pub static INSTRUCTIONS: &[GrammarInst] = &[
     // [1250] Ref(NumericLiteralSegment)
     GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 931, child_count: 0, min_times: 0, first_terminator_idx: 22, terminator_count: 0, _padding: 0 },
     // [1251] Ref(ExpressionSegment)
-    GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 931, child_count: 1, min_times: 0, first_terminator_idx: 22, terminator_count: 0, _padding: 0 },
+    GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(68), first_child_idx: 931, child_count: 1, min_times: 0, first_terminator_idx: 22, terminator_count: 0, _padding: 0 },
     // [1252] Ref(RowKeywordSegment)
     GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 932, child_count: 0, min_times: 0, first_terminator_idx: 22, terminator_count: 0, _padding: 0 },
     // [1253] OneOf(2 options)
@@ -2733,7 +2733,7 @@ pub static INSTRUCTIONS: &[GrammarInst] = &[
     // [1352] Ref(TemporalQuerySegment)
     GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(5), first_child_idx: 1011, child_count: 0, min_times: 0, first_terminator_idx: 22, terminator_count: 0, _padding: 0 },
     // [1353] Ref(AliasExpressionSegment)
-    GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(5), first_child_idx: 1011, child_count: 1, min_times: 0, first_terminator_idx: 22, terminator_count: 0, _padding: 0 },
+    GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(69), first_child_idx: 1011, child_count: 1, min_times: 0, first_terminator_idx: 22, terminator_count: 0, _padding: 0 },
     // [1354] OneOf(4 options)
     GrammarInst { variant: GrammarVariant::OneOf, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 1012, child_count: 4, min_times: 0, first_terminator_idx: 22, terminator_count: 0, _padding: 0 },
     // [1355] Ref(FromClauseTerminatorGrammar)
@@ -2843,7 +2843,7 @@ pub static INSTRUCTIONS: &[GrammarInst] = &[
     // [1407] Ref(TrimParametersGrammar)
     GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 1072, child_count: 0, min_times: 0, first_terminator_idx: 26, terminator_count: 0, _padding: 0 },
     // [1408] Ref(ExpressionSegment)
-    GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(5), first_child_idx: 1072, child_count: 1, min_times: 0, first_terminator_idx: 26, terminator_count: 0, _padding: 0 },
+    GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(69), first_child_idx: 1072, child_count: 1, min_times: 0, first_terminator_idx: 26, terminator_count: 0, _padding: 0 },
     // [1409] Ref(FromKeywordSegment)
     GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 1073, child_count: 0, min_times: 0, first_terminator_idx: 26, terminator_count: 0, _padding: 0 },
     // [1410] Ref(FromKeywordSegment)
@@ -2997,7 +2997,7 @@ pub static INSTRUCTIONS: &[GrammarInst] = &[
     // [1484] Sequence(2 elements)
     GrammarInst { variant: GrammarVariant::Sequence, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 1135, child_count: 2, min_times: 0, first_terminator_idx: 28, terminator_count: 0, _padding: 0 },
     // [1485] Ref(FunctionNameSegment)
-    GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 1137, child_count: 1, min_times: 0, first_terminator_idx: 28, terminator_count: 0, _padding: 0 },
+    GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(68), first_child_idx: 1137, child_count: 1, min_times: 0, first_terminator_idx: 28, terminator_count: 0, _padding: 0 },
     // [1486] OneOf(3 options)
     GrammarInst { variant: GrammarVariant::OneOf, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 1138, child_count: 3, min_times: 0, first_terminator_idx: 28, terminator_count: 0, _padding: 0 },
     // [1487] Ref(DatePartFunctionNameSegment)
@@ -4177,7 +4177,7 @@ pub static INSTRUCTIONS: &[GrammarInst] = &[
     // [2074] Ref(NumericLiteralSegment)
     GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 1501, child_count: 0, min_times: 0, first_terminator_idx: 30, terminator_count: 0, _padding: 0 },
     // [2075] Ref(ExpressionSegment)
-    GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 1501, child_count: 1, min_times: 0, first_terminator_idx: 30, terminator_count: 0, _padding: 0 },
+    GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(68), first_child_idx: 1501, child_count: 1, min_times: 0, first_terminator_idx: 30, terminator_count: 0, _padding: 0 },
     // [2076] Ref(RowKeywordSegment)
     GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 1502, child_count: 0, min_times: 0, first_terminator_idx: 30, terminator_count: 0, _padding: 0 },
     // [2077] OneOf(2 options)
@@ -5003,7 +5003,7 @@ pub static INSTRUCTIONS: &[GrammarInst] = &[
     // [2487] StringParser("SET")
     GrammarInst { variant: GrammarVariant::StringParser, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(0), first_child_idx: 1710, child_count: 0, min_times: 0, first_terminator_idx: 36, terminator_count: 0, _padding: 0 },
     // [2488] OneOf(3 options)
-    GrammarInst { variant: GrammarVariant::OneOf, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 1710, child_count: 4, min_times: 0, first_terminator_idx: 36, terminator_count: 0, _padding: 0 },
+    GrammarInst { variant: GrammarVariant::OneOf, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(68), first_child_idx: 1710, child_count: 4, min_times: 0, first_terminator_idx: 36, terminator_count: 0, _padding: 0 },
     // [2489] Ref(UnionGrammar)
     GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 1713, child_count: 0, min_times: 0, first_terminator_idx: 36, terminator_count: 0, _padding: 0 },
     // [2490] Sequence(2 elements)
@@ -5729,7 +5729,7 @@ pub static INSTRUCTIONS: &[GrammarInst] = &[
     // [2850] Ref(TableReferenceSegment)
     GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 1900, child_count: 0, min_times: 0, first_terminator_idx: 44, terminator_count: 0, _padding: 0 },
     // [2851] Ref(AliasExpressionSegment)
-    GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(5), first_child_idx: 1900, child_count: 1, min_times: 0, first_terminator_idx: 44, terminator_count: 0, _padding: 0 },
+    GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(69), first_child_idx: 1900, child_count: 1, min_times: 0, first_terminator_idx: 44, terminator_count: 0, _padding: 0 },
     // [2852] Ref(SetKeywordSegment)
     GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 1901, child_count: 0, min_times: 0, first_terminator_idx: 44, terminator_count: 0, _padding: 0 },
     // [2853] Ref(SetClauseListSegment)
@@ -5945,7 +5945,7 @@ pub static INSTRUCTIONS: &[GrammarInst] = &[
     // [2958] Sequence(4 elements)
     GrammarInst { variant: GrammarVariant::Sequence, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(5), first_child_idx: 1960, child_count: 4, min_times: 0, first_terminator_idx: 44, terminator_count: 0, _padding: 0 },
     // [2959] Ref(SingleIdentifierGrammar)
-    GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(5), first_child_idx: 1964, child_count: 1, min_times: 0, first_terminator_idx: 44, terminator_count: 0, _padding: 0 },
+    GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(69), first_child_idx: 1964, child_count: 1, min_times: 0, first_terminator_idx: 44, terminator_count: 0, _padding: 0 },
     // [2960] OneOf(2 options)
     GrammarInst { variant: GrammarVariant::OneOf, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 1965, child_count: 2, min_times: 0, first_terminator_idx: 44, terminator_count: 0, _padding: 0 },
     // [2961] Ref(PartitionKeywordSegment)
@@ -8457,7 +8457,7 @@ pub static REGEX_PATTERNS: &[&str] = &[
     r#"[A-Z_][A-Z0-9_]*"#, // [0]
     r#"^(NOT)$"#, // [1]
     r#"[A-Z0-9_]*[A-Z][A-Z0-9_]*"#, // [2]
-    r#"^(INNER|LEFT|CASE|FULL|ON|RESPECT|NULL|NOT|SET|ORDER|NATURAL|CROSS|SELECT|IGNORE|ROWS|PARTITION|USING|INTERVAL|RIGHT|JOIN|UNION|OUTER)$"#, // [3]
+    r#"^(ORDER|NATURAL|ROWS|FULL|RESPECT|NULL|INTERVAL|CROSS|SET|SELECT|NOT|JOIN|PARTITION|LEFT|CASE|UNION|IGNORE|USING|ON|RIGHT|INNER|OUTER)$"#, // [3]
     r#"\"?[A-Z][A-Z0-9_]*\"?"#, // [4]
 ];
 

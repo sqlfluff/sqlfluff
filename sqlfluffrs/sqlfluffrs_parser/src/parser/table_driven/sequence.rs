@@ -519,29 +519,19 @@ impl<'a> Parser<'_> {
             self.pos = frame.pos;
             self.rollback_collection_checkpoint(frame.frame_id);
 
-            // CRITICAL FIX: If this Sequence has optional=true at the grammar level,
-            // return Empty immediately instead of going to Combining state.
-            // This implements the correct behavior where an optional Sequence that fails
-            // to match all required elements should return Empty, not a partial match.
-            let sequence_optional = match &frame.context {
-                FrameContext::SequenceTableDriven { optional, .. } => *optional,
-                _ => false,
-            };
-
-            if sequence_optional {
-                log::debug!(
-                    "Sequence[table]: Sequence-level optional=true - required element returned Empty, returning Empty immediately"
-                );
-                // Return Empty directly
-                stack
-                    .results
-                    .insert(frame.frame_id, (Node::Empty, frame.pos, None));
-                return Ok(TableFrameResult::Done);
-            }
-
-            frame.end_pos = Some(frame.pos);
-            frame.state = FrameState::Combining;
-            stack.push(&mut frame);
+            // CRITICAL FIX: When a required element fails, the Sequence must fail completely.
+            // This is true regardless of whether the Sequence itself is optional.
+            // - If Sequence is optional, the parent handles the Empty appropriately.
+            // - If Sequence is not optional, this is a parse error that propagates up.
+            // In both cases, we should NOT go to Combining state with partial results,
+            // as that would incorrectly return a partial Sequence node.
+            log::debug!(
+                "Sequence[table]: Required element {} returned Empty - Sequence fails completely",
+                failed_idx
+            );
+            stack
+                .results
+                .insert(frame.frame_id, (Node::Empty, frame.pos, None));
             return Ok(TableFrameResult::Done);
         }
     }

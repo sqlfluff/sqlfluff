@@ -52,7 +52,7 @@ fn debug_delimited() {
         );
     }
 
-    let mut parser = Parser::new(&tokens, Dialect::Ansi);
+    let mut parser = Parser::new_with_tables(&tokens, Dialect::Ansi);
     let ast = parser.call_rule("SelectStatementSegment", &[]).unwrap();
 
     let mut ast_positions = HashSet::new();
@@ -94,7 +94,7 @@ fn debug_bracketed() {
         );
     }
 
-    let mut parser = Parser::new(&tokens, Dialect::Ansi);
+    let mut parser = Parser::new_with_tables(&tokens, Dialect::Ansi);
     let ast = parser.call_rule("SelectStatementSegment", &[]).unwrap();
 
     let mut ast_positions = HashSet::new();
