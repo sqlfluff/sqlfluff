@@ -351,14 +351,11 @@ impl<'a> Parser<'_> {
 
                 let next_child = all_children[current_element_idx_val];
 
-                // Pass the original_max_idx (sequence parent's original constraint)
-                // to child frames to preserve Python parity in some contexts.
-                let child_parent_max = match &frame.context {
-                    FrameContext::SequenceTableDriven {
-                        original_max_idx, ..
-                    } => Some(*original_max_idx),
-                    _ => Some(max_idx_val),
-                };
+                // Pass the current (possibly trimmed) max_idx to child frames.
+                // For GREEDY_ONCE_STARTED, max_idx is trimmed after the first match,
+                // and subsequent children MUST respect this trimmed boundary to prevent
+                // parsing past terminators (e.g., FROM being parsed as an alias).
+                let child_parent_max = Some(max_idx_val);
 
                 // Debug: log token at matched_idx and at next_start_pos to diagnose why
                 // parsing doesn't advance beyond this point in table-driven mode.
