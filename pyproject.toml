@@ -72,7 +72,7 @@ dependencies = [
     "chardet",
     # Click can include breaking changes in minor releases. Make sure to test
     # well before updating upper bound.
-    "click<=8.3.0",
+    "click<8.4.0",
     "colorama>=0.3",
     # Used for diffcover plugin
     "diff-cover>=2.5.0",

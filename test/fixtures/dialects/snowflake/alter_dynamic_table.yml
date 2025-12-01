@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 572a70df8a2111a8978dd989a8a7b1ed0ec83d0ebe27f3c0d54d9136b89b712e
+_hash: 092cd2b01a8fb0a951cda769ae2facf8abebe7bd5fc65326736089dde5169f4f
 file:
 - statement:
     alter_dynamic_table_statement:
@@ -880,6 +880,25 @@ file:
     - table_reference:
         naked_identifier: my_dynamic_table
     - keyword: SET
+    - keyword: WAREHOUSE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - object_reference:
+        naked_identifier: my_warehouse
+    - comma: ','
+    - keyword: TARGET_LAG
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'1 hour'"
+- statement_terminator: ;
+- statement:
+    alter_dynamic_table_statement:
+    - keyword: ALTER
+    - keyword: DYNAMIC
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: my_dynamic_table
+    - keyword: SET
     - keyword: IMMUTABLE
     - keyword: WHERE
     - bracketed:
@@ -983,4 +1002,16 @@ file:
         naked_identifier: my_dynamic_table
     - keyword: UNSET
     - keyword: IMMUTABLE
+- statement_terminator: ;
+- statement:
+    alter_dynamic_table_statement:
+    - keyword: ALTER
+    - keyword: DYNAMIC
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: my_dynamic_table
+    - keyword: UNSET
+    - keyword: IMMUTABLE
+    - comma: ','
+    - keyword: LOG_LEVEL
 - statement_terminator: ;
