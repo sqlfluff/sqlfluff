@@ -35,21 +35,21 @@ def test_meta_segment_to_tuple_with_position():
         ),
     )
 
-    # Test with include_position=True
+    # Test with include_meta=True
     for meta_seg, expected_type in [
         (indent, "indent"),
         (dedent, "dedent"),
         (eof, "end_of_file"),
     ]:
-        tuple_with_pos = meta_seg.to_tuple(include_position=True)
+        tuple_with_pos = meta_seg.to_tuple(include_meta=True)
         assert len(tuple_with_pos) == 3, f"{expected_type} should have 3 elements"
         assert tuple_with_pos[0] == expected_type
         assert isinstance(tuple_with_pos[2], dict)
         assert "start_line_no" in tuple_with_pos[2]
         assert "end_line_no" in tuple_with_pos[2]
 
-    # Test with include_position=False (default)
-    tuple_without_pos = indent.to_tuple(include_position=False)
+    # Test with include_meta=False (default)
+    tuple_without_pos = indent.to_tuple(include_meta=False)
     assert len(tuple_without_pos) == 2
     assert tuple_without_pos[0] == "indent"
 
@@ -72,8 +72,8 @@ def test_template_segment_to_tuple_with_position():
         block_type="test_block",
     )
 
-    # Test with include_position=True
-    tuple_with_pos = template_seg.to_tuple(include_position=True)
+    # Test with include_meta=True
+    tuple_with_pos = template_seg.to_tuple(include_meta=True)
     assert len(tuple_with_pos) == 3
     assert tuple_with_pos[0] == "placeholder"
     assert tuple_with_pos[1] == "SELECT"

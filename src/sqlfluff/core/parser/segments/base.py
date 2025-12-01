@@ -857,7 +857,6 @@ class BaseSegment(metaclass=SegmentMetaclass):
         code_only: bool = False,
         show_raw: bool = False,
         include_meta: bool = False,
-        include_position: bool = False,
     ) -> TupleSerialisedSegment:
         """Return a tuple structure from this segment."""
         # works for both base and raw
@@ -877,7 +876,6 @@ class BaseSegment(metaclass=SegmentMetaclass):
                         code_only=code_only,
                         show_raw=show_raw,
                         include_meta=include_meta,
-                        include_position=include_position,
                     )
                     for seg in self.segments
                     if seg.is_code and not seg.is_meta
@@ -891,7 +889,6 @@ class BaseSegment(metaclass=SegmentMetaclass):
                         code_only=code_only,
                         show_raw=show_raw,
                         include_meta=include_meta,
-                        include_position=include_position,
                     )
                     for seg in self.segments
                     if include_meta or not seg.is_meta
@@ -899,7 +896,7 @@ class BaseSegment(metaclass=SegmentMetaclass):
             )
 
         # Add position as third element only if requested
-        if include_position and self.pos_marker:
+        if include_meta and self.pos_marker:
             return cast(
                 TupleSerialisedSegment, base_tuple + (self.pos_marker.to_source_dict(),)
             )

@@ -117,15 +117,15 @@ def test__segment_structural_simplify_with_positions():
     # Get the root segment
     segment = parsed.tree
 
-    # Test as_record with include_position=True to cover line 899 in base.py
-    record_with_pos = segment.as_record(include_position=True)
+    # Test as_record with include_meta=True to cover line 899 in base.py
+    record_with_pos = segment.as_record(include_meta=True)
     assert "start_line_no" in record_with_pos
     assert "start_line_pos" in record_with_pos
     assert record_with_pos["start_line_no"] == 1
     assert record_with_pos["start_line_pos"] == 1
 
-    # Test as_record with include_position=False to ensure backward compatibility
-    record_without_pos = segment.as_record(include_position=False)
+    # Test as_record with include_meta=False to ensure backward compatibility
+    record_without_pos = segment.as_record(include_meta=False)
     assert "start_line_no" not in record_without_pos
     assert "start_line_pos" not in record_without_pos
 
@@ -152,8 +152,8 @@ def test__meta_segment_to_tuple_with_positions():
     # Verify the indent has a position marker
     assert indent.pos_marker is not None, "Indent should have a position marker"
 
-    # Test to_tuple with include_position=True to cover line 259 in meta.py
-    tuple_with_pos = indent.to_tuple(include_position=True)
+    # Test to_tuple with include_meta=True to cover line 259 in meta.py
+    tuple_with_pos = indent.to_tuple(include_meta=True)
     assert (
         len(tuple_with_pos) == 3
     ), f"Expected 3-element tuple, got {len(tuple_with_pos)}"
@@ -165,8 +165,8 @@ def test__meta_segment_to_tuple_with_positions():
     assert "end_line_no" in tuple_with_pos[2]
     assert tuple_with_pos[2]["start_line_no"] == 2
 
-    # Test to_tuple with include_position=False
-    tuple_without_pos = indent.to_tuple(include_position=False)
+    # Test to_tuple with include_meta=False
+    tuple_without_pos = indent.to_tuple(include_meta=False)
     assert len(tuple_without_pos) == 2
     assert tuple_without_pos[0] == "indent"
 
@@ -232,12 +232,11 @@ FROM table1"""
     linter = Linter(dialect="ansi")
     parsed = linter.parse_string(sql_with_indents)
 
-    # Get as_record with include_position=True and include_meta=True
+    # Get as_record with include_meta=True
     record = parsed.tree.as_record(
         code_only=False,
         show_raw=True,
         include_meta=True,
-        include_position=True,
     )
 
     # The record should exist and have position info
@@ -249,7 +248,6 @@ FROM table1"""
         code_only=False,
         show_raw=True,
         include_meta=True,
-        include_position=True,
     )
 
     # Recursively search for 3-element tuples (which include positions)
