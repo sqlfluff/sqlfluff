@@ -1,6 +1,7 @@
 use sqlfluffrs_types::{GrammarId, GrammarVariant};
 
 use crate::parser::{
+    cache::TableCacheKey,
     table_driven::frame::{TableFrameResult, TableParseFrame, TableParseFrameStack},
     FrameContext, FrameState, Node, ParseError, Parser,
 };
@@ -25,51 +26,31 @@ impl Parser<'_> {
             self.pos
         );
 
-        // Check cache first, unless disabled
+        // Check table cache first, unless disabled
         let start_pos = self.pos;
-        let grammar_for_log = grammar;
-        let grammar_for_cache = grammar;
-        // For entry point, use tokens.len() as max_idx
         let max_idx = self.tokens.len();
-        // let cache_key = CacheKey::new(
-        //     start_pos,
-        //     grammar_for_cache,
-        //     self.tokens,
-        //     max_idx,
-        //     parent_terminators,
-        //     &mut self.grammar_hash_cache,
-        // );
 
-        // if self.cache_enabled {
-        //     if let Some(cached_result) = self.parse_cache.get(&cache_key) {
-        //         match cached_result {
-        //             Ok((node, end_pos, transparent_positions)) => {
-        //                 log::debug!(
-        //                     "Cache HIT for grammar {} at pos {} -> end_pos {}",
-        //                     grammar_for_log,
-        //                     start_pos,
-        //                     end_pos
-        //                 );
+        if self.cache_enabled {
+            let cache_key = TableCacheKey::new(start_pos, grammar, max_idx, parent_terminators);
+            if let Some((node, end_pos, transparent_positions)) = self.table_cache.get(&cache_key) {
+                log::debug!(
+                    "TableCache HIT for grammar {} at pos {} -> end_pos {}",
+                    grammar,
+                    start_pos,
+                    end_pos
+                );
 
-        //                 // Restore parser position and transparent positions
-        //                 self.pos = end_pos;
-        //                 for &pos in &transparent_positions {
-        //                     self.collected_transparent_positions.insert(pos);
-        //                 }
+                // Restore parser position and transparent positions
+                self.pos = *end_pos;
+                if let Some(positions) = transparent_positions {
+                    for &pos in positions {
+                        self.collected_transparent_positions.insert(pos);
+                    }
+                }
 
-        //                 return Ok(node);
-        //             }
-        //             Err(e) => {
-        //                 log::debug!(
-        //                     "Cache HIT (error) for grammar {} at pos {}",
-        //                     grammar_for_log,
-        //                     start_pos
-        //                 );
-        //                 return Err(e);
-        //             }
-        //         }
-        //     }
-        // }
+                return Ok(node.clone());
+            }
+        }
 
         // Stack of parse frames and state
         let mut stack = TableParseFrameStack::new();
@@ -79,7 +60,7 @@ impl Parser<'_> {
             frame_id: initial_frame_id,
             grammar_id: grammar,
             pos: self.pos,
-            table_terminators: vec![],
+            table_terminators: parent_terminators.to_vec(),
             state: FrameState::Initial,
             accumulated: vec![],
             context: FrameContext::None,
@@ -286,7 +267,7 @@ impl Parser<'_> {
                 }
 
                 log::debug!("\nGrammar that failed to match:");
-                log::debug!("  {}", grammar_for_log);
+                log::debug!("  {}", grammar);
                 log::debug!("===================\n");
             }
 
@@ -298,19 +279,26 @@ impl Parser<'_> {
                 .copied()
                 .collect();
 
-            // Store successful parse in cache
-            // let cache_value = Ok((node.clone(), *end_pos, transparent_positions));
-            // self.parse_cache.put(cache_key, cache_value);
+            // Store successful parse in table cache
+            if self.cache_enabled {
+                let cache_key = TableCacheKey::new(start_pos, grammar, max_idx, parent_terminators);
+                let transparent_opt = if transparent_positions.is_empty() {
+                    None
+                } else {
+                    Some(transparent_positions)
+                };
+                self.table_cache
+                    .put(cache_key, (node.clone(), *end_pos, transparent_opt));
+            }
 
             Ok(node.clone())
         } else {
-            // Store parse error in cache
+            // Parse error - don't cache errors for now (to keep it simple)
             let error = ParseError::new(format!(
                 "Iterative parse produced no result (initial_frame_id={}, stack.results has {} entries)",
                 initial_frame_id,
                 stack.results.len()
             ));
-            // self.parse_cache.put(cache_key, Err(error.clone()));
             Err(error)
         }
     }
@@ -900,6 +888,49 @@ impl Parser<'_> {
         stack
             .results
             .insert(frame.frame_id, (node.clone(), end_pos, element_key));
+
+        // Cache the result for future reuse
+        // Cache non-empty results always, but only cache Empty results when
+        // terminators are empty (otherwise the Empty might become non-Empty
+        // with different terminator context)
+        if self.cache_enabled {
+            let should_cache_empty = node.is_empty() && frame.table_terminators.is_empty();
+            let should_cache_success = !node.is_empty();
+
+            if should_cache_empty || should_cache_success {
+                let ctx = self
+                    .grammar_ctx
+                    .expect("GrammarContext required for caching");
+                let variant = ctx.variant(frame.grammar_id);
+
+                // Only cache compound grammars that are expensive to re-parse
+                // Skip simple terminals (StringParser, TypedParser, etc.) - they're fast
+                let should_cache = matches!(
+                    variant,
+                    GrammarVariant::Ref
+                        | GrammarVariant::Sequence
+                        | GrammarVariant::OneOf
+                        | GrammarVariant::AnyNumberOf
+                        | GrammarVariant::AnySetOf
+                        | GrammarVariant::Delimited
+                        | GrammarVariant::Bracketed
+                );
+
+                if should_cache {
+                    let max_idx = frame.parent_max_idx.unwrap_or(self.tokens.len());
+                    let cache_key = TableCacheKey::new(
+                        frame.pos,
+                        frame.grammar_id,
+                        max_idx,
+                        &frame.table_terminators,
+                    );
+                    // Get transparent positions for this frame
+                    let transparent_opt = frame.transparent_positions.clone();
+                    self.table_cache
+                        .put(cache_key, (node.clone(), end_pos, transparent_opt));
+                }
+            }
+        }
     }
 
     /// Checks the cache for a frame and handles cache hits. Returns FrameResult indicating what to do next.
@@ -915,53 +946,36 @@ impl Parser<'_> {
         frame: TableParseFrame,
         stack: &mut TableParseFrameStack,
     ) -> Result<TableFrameResult, ParseError> {
-        // if self.cache_enabled {
-        //     // Use frame's parent_max_idx if available, otherwise tokens.len()
-        //     let max_idx = frame.parent_max_idx.unwrap_or(self.tokens.len());
-        //     let cache_key = CacheKey::new(
-        //         frame.pos,
-        //         frame.grammar.clone(),
-        //         self.tokens,
-        //         max_idx,
-        //         &frame.terminators,
-        //         &mut self.grammar_hash_cache,
-        //     );
-        //     if let Some(cached_result) = self.parse_cache.get(&cache_key) {
-        //         match cached_result {
-        //             Ok((node, end_pos, transparent_positions)) => {
-        //                 log::debug!(
-        //                     "[LOOP] Cache HIT for grammar {} at pos {} -> end_pos {} (frame_id={})",
-        //                     frame.grammar,
-        //                     frame.pos,
-        //                     end_pos,
-        //                     frame.frame_id
-        //                 );
-        //                 log::debug!("[CACHE HIT] frame_id={}, grammar={}, pos={} -> end_pos={}, storing cached result",
-        //                     frame.frame_id, frame.grammar, frame.pos, end_pos);
-        //                 self.pos = end_pos;
-        //                 for &pos in &transparent_positions {
-        //                     self.collected_transparent_positions.insert(pos);
-        //                 }
-        //                 stack.results.insert(frame.frame_id, (node, end_pos, None));
-        //                 return Ok(FrameResult::Done);
-        //             }
-        //             Err(_e) => {
-        //                 log::debug!(
-        //                     "[LOOP] Cache HIT (error) for grammar {} at pos {} (frame_id={})",
-        //                     frame.grammar,
-        //                     frame.pos,
-        //                     frame.frame_id
-        //                 );
-        //                 log::debug!("[CACHE ERROR] frame_id={}, grammar={}, pos={}, storing Empty and skipping",
-        //                     frame.frame_id, frame.grammar, frame.pos);
-        //                 stack
-        //                     .results
-        //                     .insert(frame.frame_id, (Node::Empty, frame.pos, None));
-        //                 return Ok(FrameResult::Done);
-        //             }
-        //         }
-        //     }
-        // }
+        if self.cache_enabled {
+            // Use frame's parent_max_idx if available, otherwise tokens.len()
+            let max_idx = frame.parent_max_idx.unwrap_or(self.tokens.len());
+            let cache_key = TableCacheKey::new(
+                frame.pos,
+                frame.grammar_id,
+                max_idx,
+                &frame.table_terminators,
+            );
+            if let Some((node, end_pos, transparent_positions)) = self.table_cache.get(&cache_key) {
+                log::debug!(
+                    "[LOOP] TableCache HIT for grammar {} at pos {} -> end_pos {} (frame_id={})",
+                    frame.grammar_id,
+                    frame.pos,
+                    end_pos,
+                    frame.frame_id
+                );
+                self.pos = *end_pos;
+                if let Some(positions) = transparent_positions {
+                    for &pos in positions {
+                        self.collected_transparent_positions.insert(pos);
+                    }
+                }
+                // Clone values before inserting (since we only have reference from cache)
+                stack
+                    .results
+                    .insert(frame.frame_id, (node.clone(), *end_pos, None));
+                return Ok(TableFrameResult::Done);
+            }
+        }
         // Cache miss or cache disabled - push frame back to process normally
         Ok(TableFrameResult::Push(frame))
     }

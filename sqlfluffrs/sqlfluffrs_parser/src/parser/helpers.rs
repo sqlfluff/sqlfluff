@@ -394,11 +394,13 @@ impl<'a> Parser<'a> {
 
     /// Print cache statistics
     pub fn print_cache_stats(&self) {
-        let (hits, misses, hit_rate) = self.parse_cache.stats();
-        println!("Parse Cache Statistics:");
-        println!("  Hits: {}", hits);
-        println!("  Misses: {}", misses);
-        println!("  Hit Rate: {:.2}%", hit_rate * 100.0);
+        // Print table cache stats
+        let (table_hits, table_misses, table_hit_rate) = self.table_cache.stats();
+        println!("Table Parse Cache Statistics:");
+        println!("  Hits: {}", table_hits);
+        println!("  Misses: {}", table_misses);
+        println!("  Entries: {}", self.table_cache.len());
+        println!("  Hit Rate: {:.2}%", table_hit_rate * 100.0);
         println!();
 
         // Print pruning stats

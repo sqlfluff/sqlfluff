@@ -11,7 +11,7 @@ use crate::parser::iterative::{FrameResult, ParseFrameStack};
 use crate::parser::table_driven::frame::{TableFrameResult, TableParseFrame, TableParseFrameStack};
 use crate::parser::{self, iterative, FrameContext, FrameState, ParseFrame};
 
-use super::{cache::ParseCache, Node, ParseError};
+use super::{cache::ParseCache, cache::TableParseCache, Node, ParseError};
 use sqlfluffrs_dialects::Dialect;
 use sqlfluffrs_types::regex::RegexMode;
 use sqlfluffrs_types::{Grammar, GrammarInstExt, ParseMode, SimpleHint, Token};
@@ -36,6 +36,7 @@ pub struct Parser<'a> {
     pub pos: usize, // current position in tokens
     pub dialect: Dialect,
     pub parse_cache: ParseCache,
+    pub table_cache: TableParseCache, // NEW: Table-driven parser cache
     pub cache_enabled: bool,
     pub collected_transparent_positions: HashSet<usize>, // Track which token positions have had transparent tokens collected
     /// Stack of collection checkpoints for backtracking.
@@ -64,6 +65,7 @@ impl<'a> Parser<'a> {
             pos: 0,
             dialect,
             parse_cache: ParseCache::new(),
+            table_cache: TableParseCache::new(),
             collected_transparent_positions: HashSet::new(),
             collection_stack: Vec::new(),
             pruning_calls: std::cell::Cell::new(0),
@@ -107,6 +109,7 @@ impl<'a> Parser<'a> {
             pos: 0,
             dialect,
             parse_cache: ParseCache::new(),
+            table_cache: TableParseCache::new(),
             collected_transparent_positions: HashSet::new(),
             collection_stack: Vec::new(),
             pruning_calls: std::cell::Cell::new(0),

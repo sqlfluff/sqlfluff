@@ -494,4 +494,24 @@ mod tests {
         // Print pruning statistics
         parser.print_cache_stats();
     }
+
+    #[test]
+    fn test_complex_query_cache() {
+        use sqlfluffrs_dialects::Dialect;
+        use sqlfluffrs_lexer::{LexInput, Lexer};
+
+        // A more complex query to exercise the cache better
+        let sql = "SELECT a, b, c FROM table1 WHERE a = 1 AND b = 2 ORDER BY c";
+        let input = LexInput::String(sql.to_string());
+        let dialect = Dialect::Ansi;
+        let lexer = Lexer::new(None, Dialect::get_lexers(&dialect).clone());
+        let (tokens, _errors) = lexer.lex(input, false);
+
+        let mut parser = Parser::new_with_tables(&tokens, dialect);
+        let _ast = parser.call_rule_as_root().expect("Parse failed");
+
+        // Print cache statistics for complex query
+        println!("\n=== Complex Query Cache Stats ===");
+        parser.print_cache_stats();
+    }
 }
