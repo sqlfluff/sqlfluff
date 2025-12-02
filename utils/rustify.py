@@ -53,9 +53,15 @@ if __name__ == "__main__":
             ("build_dialect", "mod", []),
             ("build_lexers", "matcher", [dialect.label.lower()]),
             # Only use table-driven for ANSI for now
-            ("build_parsers", "parser", 
-             [dialect.label.lower(), "--table-driven"] if dialect.label.lower() == "ansi" 
-             else [dialect.label.lower()]),
+            (
+                "build_parsers",
+                "parser",
+                (
+                    [dialect.label.lower(), "--table-driven"]
+                    if dialect.label.lower() == "ansi"
+                    else [dialect.label.lower()]
+                ),
+            ),
         ]
     ]
 

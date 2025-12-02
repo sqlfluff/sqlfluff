@@ -21,4 +21,3 @@ pub fn get_materialize_root_grammar_arc() -> RootGrammar {
 pub fn get_materialize_root_grammar() -> RootGrammar {
     unimplemented!()
 }
-

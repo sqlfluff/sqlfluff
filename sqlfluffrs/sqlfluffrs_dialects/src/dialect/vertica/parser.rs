@@ -21,4 +21,3 @@ pub fn get_vertica_root_grammar_arc() -> RootGrammar {
 pub fn get_vertica_root_grammar() -> RootGrammar {
     unimplemented!()
 }
-
