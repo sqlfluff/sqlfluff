@@ -5,4 +5,4 @@ SELECT
         5 + 6,
         SQRT(a.nother_long_variable_name_of_some_kind)
     ) AS second_one
-FROM this_other_table
+    FROM this_other_table

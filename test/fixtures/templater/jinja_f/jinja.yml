@@ -5,153 +5,174 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-            identifier: job_id
+            naked_identifier: job_id
       - comma: ","
       - select_clause_element:
           function:
             function_name:
               function_name_identifier: MAX
-            bracketed:
-              start_bracket: (
-              expression:
-                case_expression:
-                - keyword: CASE
-                - keyword: WHEN
-                - expression:
-                    column_reference:
-                      identifier: word
-                    comparison_operator: "="
-                    literal: "'shop'"
-                - keyword: THEN
-                - expression:
-                    literal: "1"
-                - keyword: ELSE
-                - expression:
-                    literal: "0"
-                - keyword: END
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  case_expression:
+                  - keyword: CASE
+                  - when_clause:
+                    - keyword: WHEN
+                    - expression:
+                        column_reference:
+                          naked_identifier: word
+                        comparison_operator:
+                          raw_comparison_operator: '='
+                        quoted_literal: "'shop'"
+                    - keyword: THEN
+                    - expression:
+                        numeric_literal: "1"
+                  - else_clause:
+                    - keyword: ELSE
+                    - expression:
+                        numeric_literal: "0"
+                  - keyword: END
+                end_bracket: )
           alias_expression:
-            keyword: AS
-            identifier: shop_word
+            alias_operator:
+              keyword: AS
+            naked_identifier: shop_word
       - comma: ","
       - select_clause_element:
           function:
             function_name:
               function_name_identifier: MAX
-            bracketed:
-              start_bracket: (
-              expression:
-                case_expression:
-                - keyword: CASE
-                - keyword: WHEN
-                - expression:
-                    column_reference:
-                      identifier: word
-                    comparison_operator: "="
-                    literal: "'products'"
-                - keyword: THEN
-                - expression:
-                    literal: "1"
-                - keyword: ELSE
-                - expression:
-                    literal: "0"
-                - keyword: END
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  case_expression:
+                  - keyword: CASE
+                  - when_clause:
+                    - keyword: WHEN
+                    - expression:
+                        column_reference:
+                          naked_identifier: word
+                        comparison_operator:
+                          raw_comparison_operator: '='
+                        quoted_literal: "'products'"
+                    - keyword: THEN
+                    - expression:
+                        numeric_literal: "1"
+                  - else_clause:
+                    - keyword: ELSE
+                    - expression:
+                        numeric_literal: "0"
+                  - keyword: END
+                end_bracket: )
           alias_expression:
-            keyword: AS
-            identifier: products_word
+            alias_operator:
+              keyword: AS
+            naked_identifier: products_word
       - comma: ","
       - select_clause_element:
           function:
             function_name:
               function_name_identifier: MAX
-            bracketed:
-              start_bracket: (
-              expression:
-                case_expression:
-                - keyword: CASE
-                - keyword: WHEN
-                - expression:
-                    column_reference:
-                      identifier: word
-                    comparison_operator: "="
-                    literal: "'code'"
-                - keyword: THEN
-                - expression:
-                    literal: "1"
-                - keyword: ELSE
-                - expression:
-                    literal: "0"
-                - keyword: END
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  case_expression:
+                  - keyword: CASE
+                  - when_clause:
+                    - keyword: WHEN
+                    - expression:
+                        column_reference:
+                          naked_identifier: word
+                        comparison_operator:
+                          raw_comparison_operator: '='
+                        quoted_literal: "'code'"
+                    - keyword: THEN
+                    - expression:
+                        numeric_literal: "1"
+                  - else_clause:
+                    - keyword: ELSE
+                    - expression:
+                        numeric_literal: "0"
+                  - keyword: END
+                end_bracket: )
           alias_expression:
-            keyword: AS
-            identifier: code_word
+            alias_operator:
+              keyword: AS
+            naked_identifier: code_word
       - comma: ","
       - select_clause_element:
           function:
             function_name:
               function_name_identifier: safe_cast
-            bracketed:
-              start_bracket: (
-              expression:
-                column_reference:
-                  identifier: vector_array
-                array_accessor:
-                  start_square_bracket: "["
-                  expression:
-                    function:
-                      function_name:
-                        function_name_identifier: ORDINAL
-                      bracketed:
-                        start_bracket: (
-                        expression:
-                          literal: "0"
-                        end_bracket: )
-                  end_square_bracket: "]"
-              keyword: AS
-              data_type:
-                data_type_identifier: FLOAT64
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: vector_array
+                  array_accessor:
+                    start_square_bracket: "["
+                    expression:
+                      function:
+                        function_name:
+                          function_name_identifier: ORDINAL
+                        function_contents:
+                          bracketed:
+                            start_bracket: (
+                            expression:
+                              numeric_literal: "0"
+                            end_bracket: )
+                    end_square_bracket: "]"
+                keyword: AS
+                data_type:
+                  data_type_identifier: FLOAT64
+                end_bracket: )
           alias_expression:
-            keyword: AS
-            identifier: v0
+            alias_operator:
+              keyword: AS
+            naked_identifier: v0
       - comma: ","
       - select_clause_element:
           function:
             function_name:
               function_name_identifier: safe_cast
-            bracketed:
-              start_bracket: (
-              expression:
-                column_reference:
-                  identifier: vector_array
-                array_accessor:
-                  start_square_bracket: "["
-                  expression:
-                    function:
-                      function_name:
-                        function_name_identifier: ORDINAL
-                      bracketed:
-                        start_bracket: (
-                        expression:
-                          literal: "1"
-                        end_bracket: )
-                  end_square_bracket: "]"
-              keyword: AS
-              data_type:
-                data_type_identifier: FLOAT64
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: vector_array
+                  array_accessor:
+                    start_square_bracket: "["
+                    expression:
+                      function:
+                        function_name:
+                          function_name_identifier: ORDINAL
+                        function_contents:
+                          bracketed:
+                            start_bracket: (
+                            expression:
+                              numeric_literal: "1"
+                            end_bracket: )
+                    end_square_bracket: "]"
+                keyword: AS
+                data_type:
+                  data_type_identifier: FLOAT64
+                end_bracket: )
           alias_expression:
-            keyword: AS
-            identifier: v1
+            alias_operator:
+              keyword: AS
+            naked_identifier: v1
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: tbl
+                naked_identifier: tbl
       limit_clause:
         keyword: LIMIT
-        literal: "1"
+        numeric_literal: "1"

@@ -1,0 +1,115 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 03b392bd977fce1dbcbc460dcb6e9b5765213d1d2192edb3c16fc98f18c074d7
+file:
+  statement:
+    select_statement:
+      select_clause:
+      - keyword: select
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: json_query
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                    naked_identifier: payload
+              - keyword: format
+              - keyword: json
+              - comma: ','
+              - expression:
+                  quoted_literal: "'lax $.unstructured.abcd[*].field?(@ > 0.5)'"
+              - keyword: with
+              - keyword: array
+              - keyword: wrapper
+              - end_bracket: )
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: json_query
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                    naked_identifier: payload
+              - keyword: format
+              - keyword: json
+              - keyword: encoding
+              - keyword: utf8
+              - comma: ','
+              - expression:
+                  quoted_literal: "'lax $.unstructured.abcd[*].field?(@ > 0.5)'"
+              - keyword: without
+              - keyword: array
+              - keyword: wrapper
+              - end_bracket: )
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: json_query
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                    naked_identifier: payload
+              - keyword: format
+              - keyword: json
+              - keyword: encoding
+              - keyword: utf16
+              - comma: ','
+              - expression:
+                  quoted_literal: "'lax $.unstructured.abcd[*].field?(@ > 0.5)'"
+              - keyword: with
+              - keyword: conditional
+              - keyword: wrapper
+              - end_bracket: )
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: json_query
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                    naked_identifier: payload
+              - keyword: format
+              - keyword: json
+              - keyword: encoding
+              - keyword: utf32
+              - comma: ','
+              - expression:
+                  quoted_literal: "'lax $.unstructured.abcd[*].field?(@ > 0.5)'"
+              - keyword: with
+              - keyword: unconditional
+              - keyword: array
+              - keyword: wrapper
+              - end_bracket: )
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: json_query
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                    naked_identifier: payload
+              - keyword: format
+              - keyword: json
+              - comma: ','
+              - expression:
+                  quoted_literal: "'lax $.unstructured.abcd[*].field?(@ > 0.5)'"
+              - end_bracket: )
+  statement_terminator: ;

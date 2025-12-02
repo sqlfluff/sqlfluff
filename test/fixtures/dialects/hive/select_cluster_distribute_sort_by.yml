@@ -1,0 +1,210 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 687d8bd77aea2b7099c821762f7a783d5e459ac8c2f220f1d7856a73a89b1124
+file:
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+            naked_identifier: col1
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: col2
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: t1
+      orderby_clause:
+      - keyword: ORDER
+      - keyword: BY
+      - column_reference:
+          naked_identifier: col1
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+            naked_identifier: col1
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: col2
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: t1
+      clusterby_clause:
+      - keyword: CLUSTER
+      - keyword: BY
+      - column_reference:
+          naked_identifier: col1
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+            naked_identifier: col1
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: col2
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: t1
+      orderby_clause:
+      - keyword: ORDER
+      - keyword: BY
+      - column_reference:
+          naked_identifier: col1
+      clusterby_clause:
+      - keyword: CLUSTER
+      - keyword: BY
+      - column_reference:
+          naked_identifier: col1
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+            naked_identifier: key
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: value
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: src
+      sortby_clause:
+      - keyword: SORT
+      - keyword: BY
+      - column_reference:
+          naked_identifier: key
+      - keyword: ASC
+      - comma: ','
+      - column_reference:
+          naked_identifier: value
+      - keyword: DESC
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+            naked_identifier: col1
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: col2
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: t1
+      distributeby_clause:
+      - keyword: DISTRIBUTE
+      - keyword: BY
+      - column_reference:
+          naked_identifier: col1
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+            naked_identifier: col1
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: col2
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: t1
+      distributeby_clause:
+      - keyword: DISTRIBUTE
+      - keyword: BY
+      - column_reference:
+          naked_identifier: col1
+      sortby_clause:
+      - keyword: SORT
+      - keyword: BY
+      - column_reference:
+          naked_identifier: col1
+      - keyword: ASC
+      - comma: ','
+      - column_reference:
+          naked_identifier: col2
+      - keyword: DESC
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+            naked_identifier: col1
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: col2
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: t1
+      orderby_clause:
+      - keyword: ORDER
+      - keyword: BY
+      - column_reference:
+          naked_identifier: col1
+      distributeby_clause:
+      - keyword: DISTRIBUTE
+      - keyword: BY
+      - column_reference:
+          naked_identifier: col1
+      sortby_clause:
+      - keyword: SORT
+      - keyword: BY
+      - column_reference:
+          naked_identifier: col1
+      - keyword: ASC
+      - comma: ','
+      - column_reference:
+          naked_identifier: col2
+      - keyword: DESC
+- statement_terminator: ;

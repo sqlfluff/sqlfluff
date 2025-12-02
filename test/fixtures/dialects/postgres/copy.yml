@@ -1,0 +1,1443 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 7183a7dc7491c71f71cee5e900729ff0c5f0d5eb9d01884c0b76be0b066ad37c
+file:
+- statement:
+    copy_statement:
+    - keyword: COPY
+    - bracketed:
+        start_bracket: (
+        select_statement:
+          select_clause:
+            keyword: Select
+            select_clause_element:
+              column_reference:
+                naked_identifier: my_col
+          from_clause:
+            keyword: From
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                    naked_identifier: my_table
+        end_bracket: )
+    - keyword: TO
+    - quoted_literal: "'/tmp/dump.csv'"
+    - keyword: WITH
+    - bracketed:
+      - start_bracket: (
+      - keyword: FORMAT
+      - naked_identifier: csv
+      - comma: ','
+      - keyword: HEADER
+      - comma: ','
+      - keyword: DELIMITER
+      - quoted_literal: "'#'"
+      - comma: ','
+      - keyword: ENCODING
+      - quoted_literal: "'UTF8'"
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    copy_statement:
+    - keyword: COPY
+    - bracketed:
+        start_bracket: (
+        select_statement:
+          select_clause:
+            keyword: Select
+            select_clause_element:
+              wildcard_expression:
+                wildcard_identifier:
+                  star: '*'
+          from_clause:
+            keyword: From
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                    naked_identifier: my_table
+        end_bracket: )
+    - keyword: TO
+    - quoted_literal: "'/tmp/dump.csv'"
+    - keyword: WITH
+    - bracketed:
+      - start_bracket: (
+      - keyword: FORMAT
+      - naked_identifier: csv
+      - comma: ','
+      - keyword: HEADER
+      - comma: ','
+      - keyword: DELIMITER
+      - quoted_literal: "'#'"
+      - comma: ','
+      - keyword: 'NULL'
+      - quoted_literal: "'null'"
+      - comma: ','
+      - keyword: QUOTE
+      - quoted_literal: "'\"'"
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    copy_statement:
+    - keyword: COPY
+    - bracketed:
+        start_bracket: (
+        select_statement:
+          select_clause:
+            keyword: Select
+            select_clause_element:
+              wildcard_expression:
+                wildcard_identifier:
+                  star: '*'
+          from_clause:
+            keyword: From
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                    naked_identifier: my_table
+        end_bracket: )
+    - keyword: TO
+    - quoted_literal: "'/tmp/dump.csv'"
+    - keyword: WITH
+    - bracketed:
+      - start_bracket: (
+      - keyword: FORMAT
+      - naked_identifier: csv
+      - comma: ','
+      - keyword: ESCAPE
+      - quoted_literal: "'\\'"
+      - comma: ','
+      - keyword: FREEZE
+      - boolean_literal: 'true'
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    copy_statement:
+    - keyword: COPY
+    - bracketed:
+        start_bracket: (
+        select_statement:
+          select_clause:
+            keyword: Select
+            select_clause_element:
+              wildcard_expression:
+                wildcard_identifier:
+                  star: '*'
+          from_clause:
+            keyword: From
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                    naked_identifier: my_table
+        end_bracket: )
+    - keyword: TO
+    - quoted_literal: "'/tmp/dump.csv'"
+    - keyword: WITH
+    - bracketed:
+      - start_bracket: (
+      - keyword: FORMAT
+      - naked_identifier: csv
+      - comma: ','
+      - keyword: ESCAPE
+      - quoted_literal: "'\\'"
+      - comma: ','
+      - keyword: FORCE_QUOTE
+      - bracketed:
+        - start_bracket: (
+        - column_reference:
+            naked_identifier: col1
+        - comma: ','
+        - column_reference:
+            naked_identifier: col2
+        - end_bracket: )
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    copy_statement:
+    - keyword: COPY
+    - bracketed:
+        start_bracket: (
+        select_statement:
+          select_clause:
+            keyword: Select
+            select_clause_element:
+              wildcard_expression:
+                wildcard_identifier:
+                  star: '*'
+          from_clause:
+            keyword: From
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                    naked_identifier: my_table
+        end_bracket: )
+    - keyword: TO
+    - quoted_literal: "'/tmp/dump.csv'"
+    - keyword: WITH
+    - bracketed:
+      - start_bracket: (
+      - keyword: FORMAT
+      - naked_identifier: csv
+      - comma: ','
+      - keyword: ESCAPE
+      - quoted_literal: "'\\'"
+      - comma: ','
+      - keyword: FORCE_QUOTE
+      - star: '*'
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    copy_statement:
+    - keyword: COPY
+    - bracketed:
+        start_bracket: (
+        select_statement:
+          select_clause:
+            keyword: Select
+            select_clause_element:
+              wildcard_expression:
+                wildcard_identifier:
+                  star: '*'
+          from_clause:
+            keyword: From
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                    naked_identifier: my_table
+        end_bracket: )
+    - keyword: TO
+    - quoted_literal: "'/tmp/dump.csv'"
+    - keyword: WITH
+    - bracketed:
+      - start_bracket: (
+      - keyword: FORMAT
+      - naked_identifier: csv
+      - comma: ','
+      - keyword: ESCAPE
+      - quoted_literal: "'\\'"
+      - comma: ','
+      - keyword: FORCE_NOT_NULL
+      - bracketed:
+        - start_bracket: (
+        - column_reference:
+            naked_identifier: col1
+        - comma: ','
+        - column_reference:
+            naked_identifier: col2
+        - end_bracket: )
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    copy_statement:
+    - keyword: COPY
+    - bracketed:
+        start_bracket: (
+        select_statement:
+          select_clause:
+            keyword: Select
+            select_clause_element:
+              wildcard_expression:
+                wildcard_identifier:
+                  star: '*'
+          from_clause:
+            keyword: From
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                    naked_identifier: my_table
+        end_bracket: )
+    - keyword: TO
+    - quoted_literal: "'/tmp/dump.csv'"
+    - keyword: WITH
+    - bracketed:
+      - start_bracket: (
+      - keyword: FORMAT
+      - naked_identifier: csv
+      - comma: ','
+      - keyword: ESCAPE
+      - quoted_literal: "'\\'"
+      - comma: ','
+      - keyword: FORCE_NULL
+      - bracketed:
+        - start_bracket: (
+        - column_reference:
+            naked_identifier: col1
+        - comma: ','
+        - column_reference:
+            naked_identifier: col2
+        - end_bracket: )
+      - comma: ','
+      - keyword: FREEZE
+      - boolean_literal: 'false'
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    copy_statement:
+    - keyword: COPY
+    - bracketed:
+        start_bracket: (
+        select_statement:
+          select_clause:
+            keyword: Select
+            select_clause_element:
+              wildcard_expression:
+                wildcard_identifier:
+                  star: '*'
+          from_clause:
+            keyword: From
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                    naked_identifier: my_table
+        end_bracket: )
+    - keyword: TO
+    - keyword: STDOUT
+    - keyword: WITH
+    - bracketed:
+      - start_bracket: (
+      - keyword: FORMAT
+      - naked_identifier: csv
+      - comma: ','
+      - keyword: ESCAPE
+      - quoted_literal: "'\\'"
+      - comma: ','
+      - keyword: FORCE_NULL
+      - bracketed:
+        - start_bracket: (
+        - column_reference:
+            naked_identifier: col1
+        - comma: ','
+        - column_reference:
+            naked_identifier: col2
+        - end_bracket: )
+      - comma: ','
+      - keyword: FREEZE
+      - boolean_literal: 'true'
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    copy_statement:
+    - keyword: COPY
+    - bracketed:
+        start_bracket: (
+        select_statement:
+          select_clause:
+            keyword: Select
+            select_clause_element:
+              wildcard_expression:
+                wildcard_identifier:
+                  star: '*'
+          from_clause:
+            keyword: From
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                    naked_identifier: my_table
+        end_bracket: )
+    - keyword: TO
+    - keyword: PROGRAM
+    - quoted_literal: "'/path/to/script'"
+    - keyword: WITH
+    - bracketed:
+      - start_bracket: (
+      - keyword: FORMAT
+      - naked_identifier: csv
+      - comma: ','
+      - keyword: ESCAPE
+      - quoted_literal: "'\\'"
+      - comma: ','
+      - keyword: FORCE_NULL
+      - bracketed:
+        - start_bracket: (
+        - column_reference:
+            naked_identifier: col1
+        - comma: ','
+        - column_reference:
+            naked_identifier: col2
+        - end_bracket: )
+      - comma: ','
+      - keyword: FREEZE
+      - boolean_literal: 'false'
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    copy_statement:
+    - keyword: COPY
+    - bracketed:
+        start_bracket: (
+        with_compound_statement:
+          keyword: WITH
+          common_table_expression:
+            naked_identifier: c
+            keyword: AS
+            bracketed:
+              start_bracket: (
+              select_statement:
+                select_clause:
+                  keyword: SELECT
+                  select_clause_element:
+                    expression:
+                      cast_expression:
+                        numeric_literal: '1'
+                        casting_operator: '::'
+                        data_type:
+                          keyword: int
+                    alias_expression:
+                      alias_operator:
+                        keyword: AS
+                      naked_identifier: id
+              end_bracket: )
+          select_statement:
+            select_clause:
+              keyword: SELECT
+              select_clause_element:
+                column_reference:
+                  naked_identifier: id
+            from_clause:
+              keyword: FROM
+              from_expression:
+                from_expression_element:
+                  table_expression:
+                    table_reference:
+                      naked_identifier: c
+        end_bracket: )
+    - keyword: TO
+    - keyword: STDOUT
+    - keyword: WITH
+    - bracketed:
+      - start_bracket: (
+      - keyword: FORMAT
+      - naked_identifier: csv
+      - comma: ','
+      - keyword: HEADER
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    copy_statement:
+    - keyword: COPY
+    - table_reference:
+        naked_identifier: my_table
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          naked_identifier: col
+        end_bracket: )
+    - keyword: TO
+    - quoted_literal: "'/tmp/dump.csv'"
+- statement_terminator: ;
+- statement:
+    copy_statement:
+    - keyword: COPY
+    - table_reference:
+        naked_identifier: my_table
+    - keyword: TO
+    - quoted_literal: "'/tmp/dump.csv'"
+    - keyword: WITH
+    - bracketed:
+      - start_bracket: (
+      - keyword: FORMAT
+      - naked_identifier: csv
+      - comma: ','
+      - keyword: HEADER
+      - boolean_literal: 'true'
+      - comma: ','
+      - keyword: FREEZE
+      - boolean_literal: 'true'
+      - comma: ','
+      - keyword: FORCE_NULL
+      - bracketed:
+        - start_bracket: (
+        - column_reference:
+            naked_identifier: col1
+        - comma: ','
+        - column_reference:
+            naked_identifier: col2
+        - end_bracket: )
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    copy_statement:
+    - keyword: COPY
+    - table_reference:
+        naked_identifier: my_table
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: col1
+      - comma: ','
+      - column_reference:
+          naked_identifier: col2
+      - end_bracket: )
+    - keyword: TO
+    - quoted_literal: "'/tmp/dump.csv'"
+    - keyword: WITH
+    - bracketed:
+      - start_bracket: (
+      - keyword: FORMAT
+      - naked_identifier: csv
+      - comma: ','
+      - keyword: HEADER
+      - boolean_literal: 'true'
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    copy_statement:
+    - keyword: COPY
+    - table_reference:
+        naked_identifier: my_table
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: col1
+      - comma: ','
+      - column_reference:
+          naked_identifier: col2
+      - comma: ','
+      - column_reference:
+          naked_identifier: col3
+      - comma: ','
+      - column_reference:
+          naked_identifier: col4
+      - end_bracket: )
+    - keyword: TO
+    - keyword: PROGRAM
+    - quoted_literal: "'/path/to/script'"
+    - keyword: WITH
+    - bracketed:
+      - start_bracket: (
+      - keyword: FORMAT
+      - naked_identifier: csv
+      - comma: ','
+      - keyword: HEADER
+      - boolean_literal: 'true'
+      - comma: ','
+      - keyword: FREEZE
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    copy_statement:
+    - keyword: COPY
+    - table_reference:
+        naked_identifier: my_table
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: col1
+      - comma: ','
+      - column_reference:
+          naked_identifier: col2
+      - end_bracket: )
+    - keyword: TO
+    - keyword: STDOUT
+- statement_terminator: ;
+- statement:
+    copy_statement:
+    - keyword: COPY
+    - table_reference:
+        naked_identifier: my_table
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: col1
+      - comma: ','
+      - column_reference:
+          naked_identifier: col2
+      - end_bracket: )
+    - keyword: TO
+    - keyword: STDOUT
+    - keyword: WITH
+    - bracketed:
+      - start_bracket: (
+      - keyword: FORMAT
+      - naked_identifier: csv
+      - comma: ','
+      - keyword: HEADER
+      - boolean_literal: 'true'
+      - comma: ','
+      - keyword: FREEZE
+      - boolean_literal: 'false'
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    copy_statement:
+    - keyword: COPY
+    - table_reference:
+        naked_identifier: my_table
+    - keyword: TO
+    - keyword: STDOUT
+    - keyword: WITH
+    - bracketed:
+      - start_bracket: (
+      - keyword: FORMAT
+      - naked_identifier: csv
+      - comma: ','
+      - keyword: HEADER
+      - boolean_literal: 'true'
+      - comma: ','
+      - keyword: FREEZE
+      - boolean_literal: 'true'
+      - comma: ','
+      - keyword: FORCE_NULL
+      - bracketed:
+        - start_bracket: (
+        - column_reference:
+            naked_identifier: col1
+        - comma: ','
+        - column_reference:
+            naked_identifier: col2
+        - end_bracket: )
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    copy_statement:
+    - keyword: COPY
+    - table_reference:
+        naked_identifier: my_table
+    - keyword: FROM
+    - quoted_literal: "'/tmp/dump.csv'"
+- statement_terminator: ;
+- statement:
+    copy_statement:
+    - keyword: COPY
+    - table_reference:
+        naked_identifier: my_table
+    - keyword: FROM
+    - keyword: STDIN
+- statement_terminator: ;
+- statement:
+    copy_statement:
+    - keyword: COPY
+    - table_reference:
+        naked_identifier: my_table
+    - keyword: FROM
+    - keyword: PROGRAM
+    - quoted_literal: "'/path/to/script'"
+- statement_terminator: ;
+- statement:
+    copy_statement:
+    - keyword: COPY
+    - table_reference:
+        naked_identifier: my_table
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          naked_identifier: col
+        end_bracket: )
+    - keyword: FROM
+    - quoted_literal: "'/tmp/dump.csv'"
+- statement_terminator: ;
+- statement:
+    copy_statement:
+    - keyword: COPY
+    - table_reference:
+        naked_identifier: my_table
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: col1
+      - comma: ','
+      - column_reference:
+          naked_identifier: col2
+      - comma: ','
+      - column_reference:
+          naked_identifier: col3
+      - end_bracket: )
+    - keyword: FROM
+    - keyword: STDIN
+- statement_terminator: ;
+- statement:
+    copy_statement:
+    - keyword: COPY
+    - table_reference:
+        naked_identifier: my_table
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: col1
+      - comma: ','
+      - column_reference:
+          naked_identifier: col2
+      - end_bracket: )
+    - keyword: FROM
+    - keyword: PROGRAM
+    - quoted_literal: "'/path/to/script'"
+- statement_terminator: ;
+- statement:
+    copy_statement:
+    - keyword: COPY
+    - table_reference:
+        naked_identifier: my_table
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: col1
+      - comma: ','
+      - column_reference:
+          naked_identifier: col2
+      - comma: ','
+      - column_reference:
+          naked_identifier: col3
+      - comma: ','
+      - column_reference:
+          naked_identifier: col4
+      - end_bracket: )
+    - keyword: FROM
+    - keyword: PROGRAM
+    - quoted_literal: "'/path/to/script'"
+    - keyword: WITH
+    - bracketed:
+      - start_bracket: (
+      - keyword: FORMAT
+      - naked_identifier: csv
+      - comma: ','
+      - keyword: HEADER
+      - boolean_literal: 'true'
+      - comma: ','
+      - keyword: FREEZE
+      - boolean_literal: 'true'
+      - comma: ','
+      - keyword: FORCE_NULL
+      - bracketed:
+        - start_bracket: (
+        - column_reference:
+            naked_identifier: col1
+        - comma: ','
+        - column_reference:
+            naked_identifier: col2
+        - end_bracket: )
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    copy_statement:
+    - keyword: COPY
+    - table_reference:
+        naked_identifier: my_table
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: col1
+      - comma: ','
+      - column_reference:
+          naked_identifier: col2
+      - comma: ','
+      - column_reference:
+          naked_identifier: col3
+      - comma: ','
+      - column_reference:
+          naked_identifier: col4
+      - end_bracket: )
+    - keyword: FROM
+    - quoted_literal: "'/tmp/dump.csv'"
+    - keyword: WITH
+    - bracketed:
+      - start_bracket: (
+      - keyword: FORMAT
+      - naked_identifier: csv
+      - comma: ','
+      - keyword: ESCAPE
+      - quoted_literal: "'\\'"
+      - comma: ','
+      - keyword: FORCE_QUOTE
+      - star: '*'
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    copy_statement:
+    - keyword: COPY
+    - table_reference:
+        naked_identifier: my_table
+    - keyword: FROM
+    - keyword: STDIN
+    - keyword: WITH
+    - bracketed:
+      - start_bracket: (
+      - keyword: FORMAT
+      - naked_identifier: csv
+      - comma: ','
+      - keyword: HEADER
+      - comma: ','
+      - keyword: DELIMITER
+      - quoted_literal: "'#'"
+      - comma: ','
+      - keyword: ENCODING
+      - quoted_literal: "'UTF8'"
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    copy_statement:
+    - keyword: COPY
+    - table_reference:
+        naked_identifier: my_table
+    - keyword: FROM
+    - keyword: STDIN
+    - keyword: WITH
+    - bracketed:
+      - start_bracket: (
+      - keyword: FORMAT
+      - naked_identifier: csv
+      - comma: ','
+      - keyword: ESCAPE
+      - quoted_literal: "'\\'"
+      - comma: ','
+      - keyword: FORCE_NULL
+      - bracketed:
+        - start_bracket: (
+        - column_reference:
+            naked_identifier: col1
+        - comma: ','
+        - column_reference:
+            naked_identifier: col2
+        - end_bracket: )
+      - comma: ','
+      - keyword: FREEZE
+      - boolean_literal: 'true'
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    copy_statement:
+    - keyword: COPY
+    - table_reference:
+        naked_identifier: my_table
+    - keyword: FROM
+    - keyword: STDIN
+    - keyword: WITH
+    - bracketed:
+      - start_bracket: (
+      - keyword: FORMAT
+      - naked_identifier: csv
+      - comma: ','
+      - keyword: HEADER
+      - comma: ','
+      - keyword: DELIMITER
+      - quoted_literal: "'#'"
+      - comma: ','
+      - keyword: 'NULL'
+      - quoted_literal: "'null'"
+      - comma: ','
+      - keyword: QUOTE
+      - quoted_literal: "'\"'"
+      - comma: ','
+      - keyword: FORCE_QUOTE
+      - star: '*'
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    copy_statement:
+    - keyword: COPY
+    - table_reference:
+        naked_identifier: my_table
+    - keyword: FROM
+    - keyword: STDIN
+    - keyword: WITH
+    - bracketed:
+      - start_bracket: (
+      - keyword: FORMAT
+      - naked_identifier: csv
+      - comma: ','
+      - keyword: HEADER
+      - comma: ','
+      - keyword: DELIMITER
+      - quoted_literal: "'#'"
+      - comma: ','
+      - keyword: 'NULL'
+      - quoted_literal: "'null'"
+      - comma: ','
+      - keyword: QUOTE
+      - quoted_literal: "'\"'"
+      - comma: ','
+      - keyword: FORCE_QUOTE
+      - star: '*'
+      - end_bracket: )
+    - keyword: WHERE
+    - expression:
+        column_reference:
+          naked_identifier: col1
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'some_value'"
+- statement_terminator: ;
+- statement:
+    copy_statement:
+    - keyword: COPY
+    - table_reference:
+        naked_identifier: copy_statement_bug
+    - keyword: FROM
+    - keyword: stdin
+    - keyword: WITH
+    - keyword: csv
+    - keyword: header
+- statement_terminator: ;
+- statement:
+    copy_statement:
+    - keyword: COPY
+    - table_reference:
+        naked_identifier: my_table
+    - keyword: FROM
+    - keyword: STDIN
+    - keyword: WITH
+- statement_terminator: ;
+- statement:
+    copy_statement:
+    - keyword: COPY
+    - table_reference:
+        naked_identifier: my_table
+    - keyword: FROM
+    - keyword: STDIN
+    - keyword: WITH
+    - keyword: BINARY
+- statement_terminator: ;
+- statement:
+    copy_statement:
+    - keyword: COPY
+    - table_reference:
+        naked_identifier: my_table
+    - keyword: FROM
+    - keyword: STDIN
+    - keyword: WITH
+    - keyword: DELIMITER
+    - quoted_literal: "'#'"
+- statement_terminator: ;
+- statement:
+    copy_statement:
+    - keyword: COPY
+    - table_reference:
+        naked_identifier: my_table
+    - keyword: FROM
+    - keyword: STDIN
+    - keyword: WITH
+    - keyword: DELIMITER
+    - keyword: AS
+    - quoted_literal: "'#'"
+- statement_terminator: ;
+- statement:
+    copy_statement:
+    - keyword: COPY
+    - table_reference:
+        naked_identifier: my_table
+    - keyword: FROM
+    - keyword: STDIN
+    - keyword: WITH
+    - keyword: 'NULL'
+    - quoted_literal: "'null'"
+- statement_terminator: ;
+- statement:
+    copy_statement:
+    - keyword: COPY
+    - table_reference:
+        naked_identifier: my_table
+    - keyword: FROM
+    - keyword: STDIN
+    - keyword: WITH
+    - keyword: 'NULL'
+    - keyword: AS
+    - quoted_literal: "'null'"
+- statement_terminator: ;
+- statement:
+    copy_statement:
+    - keyword: COPY
+    - table_reference:
+        naked_identifier: my_table
+    - keyword: FROM
+    - keyword: STDIN
+    - keyword: WITH
+    - keyword: CSV
+- statement_terminator: ;
+- statement:
+    copy_statement:
+    - keyword: COPY
+    - table_reference:
+        naked_identifier: my_table
+    - keyword: FROM
+    - keyword: STDIN
+    - keyword: WITH
+    - keyword: CSV
+    - keyword: QUOTE
+    - quoted_literal: "'\"'"
+- statement_terminator: ;
+- statement:
+    copy_statement:
+    - keyword: COPY
+    - table_reference:
+        naked_identifier: my_table
+    - keyword: FROM
+    - keyword: STDIN
+    - keyword: WITH
+    - keyword: CSV
+    - keyword: QUOTE
+    - keyword: AS
+    - quoted_literal: "'\"'"
+- statement_terminator: ;
+- statement:
+    copy_statement:
+    - keyword: COPY
+    - table_reference:
+        naked_identifier: my_table
+    - keyword: FROM
+    - keyword: STDIN
+    - keyword: WITH
+    - keyword: CSV
+    - keyword: ESCAPE
+    - quoted_literal: "'\\'"
+- statement_terminator: ;
+- statement:
+    copy_statement:
+    - keyword: COPY
+    - table_reference:
+        naked_identifier: my_table
+    - keyword: FROM
+    - keyword: STDIN
+    - keyword: WITH
+    - keyword: CSV
+    - keyword: ESCAPE
+    - keyword: AS
+    - quoted_literal: "'\\'"
+- statement_terminator: ;
+- statement:
+    copy_statement:
+    - keyword: COPY
+    - table_reference:
+        naked_identifier: my_table
+    - keyword: FROM
+    - keyword: STDIN
+    - keyword: WITH
+    - keyword: CSV
+    - keyword: FORCE
+    - keyword: NOT
+    - keyword: 'NULL'
+    - column_reference:
+        naked_identifier: col1
+- statement_terminator: ;
+- statement:
+    copy_statement:
+    - keyword: COPY
+    - table_reference:
+        naked_identifier: my_table
+    - keyword: FROM
+    - keyword: STDIN
+    - keyword: WITH
+    - keyword: CSV
+    - keyword: FORCE
+    - keyword: NOT
+    - keyword: 'NULL'
+    - column_reference:
+        naked_identifier: col1
+    - comma: ','
+    - column_reference:
+        naked_identifier: col2
+- statement_terminator: ;
+- statement:
+    copy_statement:
+    - keyword: COPY
+    - table_reference:
+        naked_identifier: my_table
+    - keyword: FROM
+    - quoted_literal: "'/tmp/dump.csv'"
+    - keyword: WITH
+    - keyword: BINARY
+- statement_terminator: ;
+- statement:
+    copy_statement:
+    - keyword: COPY
+    - table_reference:
+        naked_identifier: my_table
+    - keyword: FROM
+    - quoted_literal: "'/tmp/dump.csv'"
+    - keyword: WITH
+    - keyword: DELIMITER
+    - quoted_literal: "'#'"
+- statement_terminator: ;
+- statement:
+    copy_statement:
+    - keyword: COPY
+    - table_reference:
+        naked_identifier: my_table
+    - keyword: FROM
+    - quoted_literal: "'/tmp/dump.csv'"
+    - keyword: WITH
+    - keyword: DELIMITER
+    - keyword: AS
+    - quoted_literal: "'#'"
+- statement_terminator: ;
+- statement:
+    copy_statement:
+    - keyword: COPY
+    - table_reference:
+        naked_identifier: my_table
+    - keyword: FROM
+    - quoted_literal: "'/tmp/dump.csv'"
+    - keyword: WITH
+    - keyword: 'NULL'
+    - quoted_literal: "'null'"
+- statement_terminator: ;
+- statement:
+    copy_statement:
+    - keyword: COPY
+    - table_reference:
+        naked_identifier: my_table
+    - keyword: FROM
+    - quoted_literal: "'/tmp/dump.csv'"
+    - keyword: WITH
+    - keyword: 'NULL'
+    - keyword: AS
+    - quoted_literal: "'null'"
+- statement_terminator: ;
+- statement:
+    copy_statement:
+    - keyword: COPY
+    - table_reference:
+        naked_identifier: my_table
+    - keyword: FROM
+    - quoted_literal: "'/tmp/dump.csv'"
+    - keyword: WITH
+    - keyword: CSV
+- statement_terminator: ;
+- statement:
+    copy_statement:
+    - keyword: COPY
+    - table_reference:
+        naked_identifier: my_table
+    - keyword: FROM
+    - quoted_literal: "'/tmp/dump.csv'"
+    - keyword: WITH
+    - keyword: CSV
+    - keyword: QUOTE
+    - quoted_literal: "'\"'"
+- statement_terminator: ;
+- statement:
+    copy_statement:
+    - keyword: COPY
+    - table_reference:
+        naked_identifier: my_table
+    - keyword: FROM
+    - quoted_literal: "'/tmp/dump.csv'"
+    - keyword: WITH
+    - keyword: CSV
+    - keyword: QUOTE
+    - keyword: AS
+    - quoted_literal: "'\"'"
+- statement_terminator: ;
+- statement:
+    copy_statement:
+    - keyword: COPY
+    - table_reference:
+        naked_identifier: my_table
+    - keyword: FROM
+    - quoted_literal: "'/tmp/dump.csv'"
+    - keyword: WITH
+    - keyword: CSV
+    - keyword: ESCAPE
+    - quoted_literal: "'\\'"
+- statement_terminator: ;
+- statement:
+    copy_statement:
+    - keyword: COPY
+    - table_reference:
+        naked_identifier: my_table
+    - keyword: FROM
+    - quoted_literal: "'/tmp/dump.csv'"
+    - keyword: WITH
+    - keyword: CSV
+    - keyword: ESCAPE
+    - keyword: AS
+    - quoted_literal: "'\\'"
+- statement_terminator: ;
+- statement:
+    copy_statement:
+    - keyword: COPY
+    - bracketed:
+        start_bracket: (
+        select_statement:
+          select_clause:
+            keyword: SELECT
+            select_clause_element:
+              wildcard_expression:
+                wildcard_identifier:
+                  star: '*'
+          from_clause:
+            keyword: FROM
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                    naked_identifier: country
+          where_clause:
+            keyword: WHERE
+            expression:
+              column_reference:
+                naked_identifier: country_name
+              keyword: LIKE
+              quoted_literal: "'A%'"
+        end_bracket: )
+    - keyword: TO
+    - quoted_literal: "'/usr1/proj/bray/sql/a_list_countries.copy'"
+- statement_terminator: ;
+- statement:
+    copy_statement:
+    - keyword: COPY
+    - table_reference:
+        naked_identifier: my_table
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: col1
+      - comma: ','
+      - column_reference:
+          naked_identifier: col2
+      - end_bracket: )
+    - keyword: TO
+    - keyword: STDOUT
+- statement_terminator: ;
+- statement:
+    copy_statement:
+    - keyword: COPY
+    - table_reference:
+        naked_identifier: my_table
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          naked_identifier: col2
+        end_bracket: )
+    - keyword: TO
+    - keyword: STDOUT
+- statement_terminator: ;
+- statement:
+    copy_statement:
+    - keyword: COPY
+    - table_reference:
+        naked_identifier: my_table
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: col1
+      - comma: ','
+      - column_reference:
+          naked_identifier: col2
+      - end_bracket: )
+    - keyword: TO
+    - keyword: STDOUT
+    - keyword: WITH
+- statement_terminator: ;
+- statement:
+    copy_statement:
+    - keyword: COPY
+    - table_reference:
+        naked_identifier: my_table
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: col1
+      - comma: ','
+      - column_reference:
+          naked_identifier: col2
+      - end_bracket: )
+    - keyword: TO
+    - keyword: STDOUT
+    - keyword: WITH
+    - keyword: BINARY
+- statement_terminator: ;
+- statement:
+    copy_statement:
+    - keyword: COPY
+    - table_reference:
+        naked_identifier: my_table
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: col1
+      - comma: ','
+      - column_reference:
+          naked_identifier: col2
+      - end_bracket: )
+    - keyword: TO
+    - keyword: STDOUT
+    - keyword: WITH
+    - keyword: DELIMITER
+    - quoted_literal: "'#'"
+- statement_terminator: ;
+- statement:
+    copy_statement:
+    - keyword: COPY
+    - table_reference:
+        naked_identifier: my_table
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: col1
+      - comma: ','
+      - column_reference:
+          naked_identifier: col2
+      - end_bracket: )
+    - keyword: TO
+    - keyword: STDOUT
+    - keyword: WITH
+    - keyword: DELIMITER
+    - keyword: AS
+    - quoted_literal: "'#'"
+- statement_terminator: ;
+- statement:
+    copy_statement:
+    - keyword: COPY
+    - table_reference:
+        naked_identifier: my_table
+    - keyword: TO
+    - keyword: STDOUT
+    - keyword: WITH
+    - keyword: 'NULL'
+    - quoted_literal: "'null'"
+- statement_terminator: ;
+- statement:
+    copy_statement:
+    - keyword: COPY
+    - table_reference:
+        naked_identifier: my_table
+    - keyword: TO
+    - keyword: STDOUT
+    - keyword: WITH
+    - keyword: 'NULL'
+    - keyword: AS
+    - quoted_literal: "'null'"
+- statement_terminator: ;
+- statement:
+    copy_statement:
+    - keyword: COPY
+    - table_reference:
+        naked_identifier: my_table
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          naked_identifier: col1
+        end_bracket: )
+    - keyword: TO
+    - keyword: STDOUT
+    - keyword: WITH
+    - keyword: CSV
+- statement_terminator: ;
+- statement:
+    copy_statement:
+    - keyword: COPY
+    - table_reference:
+        naked_identifier: my_table
+    - keyword: TO
+    - keyword: STDOUT
+    - keyword: WITH
+    - keyword: CSV
+    - keyword: HEADER
+- statement_terminator: ;
+- statement:
+    copy_statement:
+    - keyword: COPY
+    - table_reference:
+        naked_identifier: my_table
+    - keyword: TO
+    - keyword: STDOUT
+    - keyword: WITH
+    - keyword: CSV
+    - keyword: QUOTE
+    - quoted_literal: "'\"'"
+- statement_terminator: ;
+- statement:
+    copy_statement:
+    - keyword: COPY
+    - table_reference:
+        naked_identifier: my_table
+    - keyword: TO
+    - keyword: STDOUT
+    - keyword: WITH
+    - keyword: CSV
+    - keyword: QUOTE
+    - keyword: AS
+    - quoted_literal: "'\"'"
+- statement_terminator: ;
+- statement:
+    copy_statement:
+    - keyword: COPY
+    - table_reference:
+        naked_identifier: my_table
+    - keyword: TO
+    - keyword: STDOUT
+    - keyword: WITH
+    - keyword: CSV
+    - keyword: ESCAPE
+    - quoted_literal: "'\\'"
+- statement_terminator: ;
+- statement:
+    copy_statement:
+    - keyword: COPY
+    - table_reference:
+        naked_identifier: my_table
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: col1
+      - comma: ','
+      - column_reference:
+          naked_identifier: col2
+      - end_bracket: )
+    - keyword: TO
+    - keyword: STDOUT
+    - keyword: WITH
+    - keyword: CSV
+    - keyword: ESCAPE
+    - keyword: AS
+    - quoted_literal: "'\\'"
+- statement_terminator: ;
+- statement:
+    copy_statement:
+    - keyword: COPY
+    - table_reference:
+        naked_identifier: my_table
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: col1
+      - comma: ','
+      - column_reference:
+          naked_identifier: col2
+      - end_bracket: )
+    - keyword: TO
+    - keyword: STDOUT
+    - keyword: WITH
+    - keyword: CSV
+    - keyword: FORCE
+    - keyword: QUOTE
+    - star: '*'
+- statement_terminator: ;
+- statement:
+    copy_statement:
+    - keyword: COPY
+    - table_reference:
+        naked_identifier: my_table
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: col1
+      - comma: ','
+      - column_reference:
+          naked_identifier: col2
+      - end_bracket: )
+    - keyword: TO
+    - keyword: STDOUT
+    - keyword: WITH
+    - keyword: CSV
+    - keyword: FORCE
+    - keyword: QUOTE
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: col1
+      - comma: ','
+      - column_reference:
+          naked_identifier: col2
+      - end_bracket: )
+- statement_terminator: ;

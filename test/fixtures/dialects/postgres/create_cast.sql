@@ -1,0 +1,24 @@
+CREATE CAST (int AS bool) WITH FUNCTION fname;
+CREATE CAST (int AS bool) WITH FUNCTION fname AS ASSIGNMENT;
+CREATE CAST (int AS bool) WITH FUNCTION fname AS IMPLICIT;
+
+CREATE CAST (int AS bool) WITH FUNCTION fname();
+CREATE CAST (int AS bool) WITH FUNCTION fname() AS ASSIGNMENT;
+CREATE CAST (int AS bool) WITH FUNCTION fname() AS IMPLICIT;
+
+CREATE CAST (int AS bool) WITH FUNCTION fname(bool);
+
+CREATE CAST (int AS bool) WITH FUNCTION sch.fname(int, bool) AS ASSIGNMENT;
+
+CREATE CAST (udt_1 AS udt_2) WITH FUNCTION fname(udt_1, udt_2);
+
+CREATE CAST (sch.udt_1 AS sch.udt_2) WITH FUNCTION sch.fname(sch.udt_1, sch.udt_2);
+
+-- PG extension for not listing an actual function:
+CREATE CAST (int AS bool) WITHOUT FUNCTION;
+CREATE CAST (int AS bool) WITHOUT FUNCTION AS ASSIGNMENT;
+CREATE CAST (int AS bool) WITHOUT FUNCTION AS IMPLICIT;
+
+CREATE CAST (int AS bool) WITH INOUT;
+CREATE CAST (int AS bool) WITH INOUT AS ASSIGNMENT;
+CREATE CAST (int AS bool) WITH INOUT AS IMPLICIT;

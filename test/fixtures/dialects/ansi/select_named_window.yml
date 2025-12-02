@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 7b5edf495b8f6eaf273573c38318815669191cf7cc8f54866db6a155c8d5b626
+_hash: 1927f81fb17b972b82b8383bc371b34a6c15fb5549bc25d21ec47d4f38934b9f
 file:
   statement:
     select_statement:
@@ -13,18 +13,19 @@ file:
           function:
             function_name:
               function_name_identifier: AVG
-            bracketed:
-              start_bracket: (
-              expression:
-                column_reference:
-                  identifier: col
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: col
+                end_bracket: )
             over_clause:
               keyword: OVER
               bracketed:
                 start_bracket: (
                 window_specification:
-                  identifier: win
+                  naked_identifier: win
                 end_bracket: )
       from_clause:
         keyword: FROM
@@ -32,11 +33,11 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: table
+                naked_identifier: table
       named_window:
         keyword: WINDOW
         named_window_expression:
-          identifier: win
+          naked_identifier: win
           keyword: AS
           bracketed:
             start_bracket: (
@@ -46,5 +47,5 @@ file:
               - keyword: BY
               - expression:
                   column_reference:
-                    identifier: date
+                    naked_identifier: date
             end_bracket: )

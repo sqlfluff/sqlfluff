@@ -1,0 +1,71 @@
+rule: AL06
+
+test_pass_no_config:
+  pass_str: |
+    select
+      x.a,
+      x_2.b
+    from x
+    left join x as x_2 on x.foreign_key = x.foreign_key
+
+test_fail_alias_too_short:
+  fail_str: |
+    SELECT
+      u.id,
+      c.first_name,
+      c.last_name,
+      COUNT(o.user_id)
+    FROM users as u
+    JOIN customers as c on u.id = c.user_id
+    JOIN orders as o on u.id = o.user_id;
+  configs:
+    rules:
+      aliasing.length:
+        min_alias_length: 4
+
+test_fail_alias_too_long:
+  fail_str: |
+    SELECT
+      u.id,
+      customers_customers_customers.first_name,
+      customers_customers_customers.last_name,
+      COUNT(o.user_id)
+    FROM users as u
+    JOIN customers as customers_customers_customers on u.id = customers_customers_customers.user_id
+    JOIN orders as o on u.id = o.user_id;
+  configs:
+    rules:
+      aliasing.length:
+        max_alias_length: 10
+
+test_fail_alias_min_and_max:
+  fail_str: |
+    SELECT
+      u.id,
+      customers_customers_customers.first_name,
+      customers_customers_customers.last_name,
+      COUNT(o.user_id)
+    FROM users as u
+    JOIN customers as customers_customers_customers on u.id = customers_customers_customers.user_id
+    JOIN orders as o on u.id = o.user_id;
+  configs:
+    rules:
+      aliasing.length:
+        min_alias_length: 4
+        max_alias_length: 10
+
+test_pass_with_config:
+  pass_str: |
+    SELECT
+      users.id,
+      customers_customers_customers.first_name,
+      customers_customers_customers.last_name,
+      COUNT(latest_orders.user_id)
+    FROM users
+    JOIN customers as customers_customers_customers on users.id = customers_customers_customers.user_id
+    JOIN orders as latest_orders on users.id = latest_orders.user_id;
+  configs:
+    rules:
+      aliasing.length:
+        min_alias_length: 10
+        max_alias_length: 30

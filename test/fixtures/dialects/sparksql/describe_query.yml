@@ -1,0 +1,137 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 660a139643479a998850c9a939599ba535d578c1d2b8a7c594ee512a67c0dd29
+file:
+- statement:
+    describe_statement:
+    - keyword: DESCRIBE
+    - keyword: QUERY
+    - statement:
+        select_statement:
+          select_clause:
+          - keyword: SELECT
+          - select_clause_element:
+              column_reference:
+                naked_identifier: age
+          - comma: ','
+          - select_clause_element:
+              function:
+                function_name:
+                  function_name_identifier: sum
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      column_reference:
+                        naked_identifier: age
+                    end_bracket: )
+              alias_expression:
+                alias_operator:
+                  keyword: AS
+                naked_identifier: sum_age
+          from_clause:
+            keyword: FROM
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                    naked_identifier: person
+          groupby_clause:
+          - keyword: GROUP
+          - keyword: BY
+          - column_reference:
+              naked_identifier: age
+- statement_terminator: ;
+- statement:
+    describe_statement:
+    - keyword: DESCRIBE
+    - keyword: QUERY
+    - statement:
+        with_compound_statement:
+          keyword: WITH
+          common_table_expression:
+            naked_identifier: all_names_cte
+            keyword: AS
+            bracketed:
+              start_bracket: (
+              select_statement:
+                select_clause:
+                  keyword: SELECT
+                  select_clause_element:
+                    column_reference:
+                      naked_identifier: name
+                from_clause:
+                  keyword: FROM
+                  from_expression:
+                    from_expression_element:
+                      table_expression:
+                        table_reference:
+                          naked_identifier: person
+              end_bracket: )
+          select_statement:
+            select_clause:
+              keyword: SELECT
+              select_clause_element:
+                column_reference:
+                  naked_identifier: name
+            from_clause:
+              keyword: FROM
+              from_expression:
+                from_expression_element:
+                  table_expression:
+                    table_reference:
+                      naked_identifier: all_names_cte
+- statement_terminator: ;
+- statement:
+    describe_statement:
+    - keyword: DESC
+    - keyword: QUERY
+    - statement:
+        values_clause:
+          keyword: VALUES
+          bracketed:
+          - start_bracket: (
+          - expression:
+              numeric_literal: '100'
+          - comma: ','
+          - expression:
+              quoted_literal: "'John'"
+          - comma: ','
+          - expression:
+              numeric_literal: 10000.20D
+          - end_bracket: )
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: employee
+            bracketed:
+              start_bracket: (
+              identifier_list:
+              - naked_identifier: id
+              - comma: ','
+              - naked_identifier: name
+              - comma: ','
+              - naked_identifier: salary
+              end_bracket: )
+- statement_terminator: ;
+- statement:
+    describe_statement:
+    - keyword: DESC
+    - keyword: QUERY
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: person
+- statement_terminator: ;
+- statement:
+    describe_statement:
+    - keyword: DESCRIBE
+    - keyword: FROM
+    - table_reference:
+        naked_identifier: person
+    - keyword: SELECT
+    - column_reference:
+        naked_identifier: age
+- statement_terminator: ;

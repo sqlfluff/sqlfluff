@@ -1,0 +1,436 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 689eb8e9c6be114a8b8e8bf0fafdcebe5d65d2d9d874f6e6cd3f7f1d278b722c
+file:
+- statement:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: from
+        from_expression:
+          from_expression_element:
+            table_expression:
+              bracketed:
+                start_bracket: (
+                select_statement:
+                  select_clause:
+                  - keyword: select
+                  - select_clause_element:
+                      column_reference:
+                        naked_identifier: times_purchased
+                  - comma: ','
+                  - select_clause_element:
+                      column_reference:
+                        naked_identifier: state_code
+                  from_clause:
+                    keyword: from
+                    from_expression:
+                      from_expression_element:
+                        table_expression:
+                          table_reference:
+                            naked_identifier: customers
+                        alias_expression:
+                          naked_identifier: t
+                end_bracket: )
+      pivot_clause:
+        keyword: pivot
+        bracketed:
+        - start_bracket: (
+        - function:
+            function_name:
+              function_name_identifier: count
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: state_code
+                end_bracket: )
+        - keyword: for
+        - column_reference:
+            naked_identifier: state_code
+        - keyword: in
+        - bracketed:
+          - start_bracket: (
+          - quoted_literal: "'NY'"
+          - alias_expression:
+              alias_operator:
+                keyword: as
+              naked_identifier: new_york
+          - comma: ','
+          - quoted_literal: "'CT'"
+          - comma: ','
+          - quoted_literal: "'NJ'"
+          - comma: ','
+          - quoted_literal: "'FL'"
+          - comma: ','
+          - quoted_literal: "'MO'"
+          - end_bracket: )
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: from
+        from_expression:
+          from_expression_element:
+            table_expression:
+              bracketed:
+                start_bracket: (
+                select_statement:
+                  select_clause:
+                  - keyword: select
+                  - select_clause_element:
+                      column_reference:
+                        naked_identifier: times_purchased
+                  - comma: ','
+                  - select_clause_element:
+                      column_reference:
+                        naked_identifier: state_code
+                  from_clause:
+                    keyword: from
+                    from_expression:
+                      from_expression_element:
+                        table_expression:
+                          table_reference:
+                            naked_identifier: customers
+                        alias_expression:
+                          naked_identifier: t
+                end_bracket: )
+      pivot_clause:
+        keyword: pivot
+        bracketed:
+        - start_bracket: (
+        - function:
+            function_name:
+              function_name_identifier: count
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: state_code
+                end_bracket: )
+        - keyword: for
+        - column_reference:
+            naked_identifier: state_code
+        - keyword: in
+        - bracketed:
+            start_bracket: (
+            select_statement:
+              select_clause:
+                keyword: select
+                select_clause_modifier:
+                  keyword: distinct
+                select_clause_element:
+                  column_reference:
+                    naked_identifier: state_code
+              from_clause:
+                keyword: from
+                from_expression:
+                  from_expression_element:
+                    table_expression:
+                      table_reference:
+                        naked_identifier: state
+            end_bracket: )
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: from
+        from_expression:
+          from_expression_element:
+            table_expression:
+              bracketed:
+                start_bracket: (
+                select_statement:
+                  select_clause:
+                  - keyword: select
+                  - select_clause_element:
+                      column_reference:
+                        naked_identifier: times_purchased
+                  - comma: ','
+                  - select_clause_element:
+                      column_reference:
+                        naked_identifier: state_code
+                  from_clause:
+                    keyword: from
+                    from_expression:
+                      from_expression_element:
+                        table_expression:
+                          table_reference:
+                            naked_identifier: customers
+                        alias_expression:
+                          naked_identifier: t
+                end_bracket: )
+      pivot_clause:
+        keyword: pivot
+        bracketed:
+        - start_bracket: (
+        - function:
+            function_name:
+              function_name_identifier: count
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: state_code
+                end_bracket: )
+        - keyword: for
+        - column_reference:
+            naked_identifier: state_code
+        - keyword: in
+        - bracketed:
+            start_bracket: (
+            keyword: any
+            end_bracket: )
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: from
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: sale_stats
+      unpivot_clause:
+        keyword: unpivot
+        bracketed:
+        - start_bracket: (
+        - column_reference:
+            naked_identifier: quantity
+        - keyword: for
+        - column_reference:
+            naked_identifier: product_code
+        - keyword: in
+        - bracketed:
+          - start_bracket: (
+          - column_reference:
+              naked_identifier: product_a
+          - alias_expression:
+              alias_operator:
+                keyword: AS
+              quoted_identifier: "'A'"
+          - comma: ','
+          - column_reference:
+              naked_identifier: product_b
+          - alias_expression:
+              alias_operator:
+                keyword: AS
+              quoted_identifier: "'B'"
+          - comma: ','
+          - column_reference:
+              naked_identifier: product_c
+          - alias_expression:
+              alias_operator:
+                keyword: AS
+              quoted_identifier: "'C'"
+          - end_bracket: )
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: from
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: sale_stats
+      unpivot_clause:
+      - keyword: unpivot
+      - keyword: include
+      - keyword: nulls
+      - bracketed:
+        - start_bracket: (
+        - column_reference:
+            naked_identifier: quantity
+        - keyword: for
+        - column_reference:
+            naked_identifier: product_code
+        - keyword: in
+        - bracketed:
+          - start_bracket: (
+          - column_reference:
+              naked_identifier: product_a
+          - alias_expression:
+              alias_operator:
+                keyword: AS
+              quoted_identifier: "'A'"
+          - comma: ','
+          - column_reference:
+              naked_identifier: product_b
+          - alias_expression:
+              alias_operator:
+                keyword: AS
+              quoted_identifier: "'B'"
+          - comma: ','
+          - column_reference:
+              naked_identifier: product_c
+          - alias_expression:
+              alias_operator:
+                keyword: AS
+              quoted_identifier: "'C'"
+          - end_bracket: )
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: from
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: sale_stats
+      unpivot_clause:
+        keyword: unpivot
+        bracketed:
+        - start_bracket: (
+        - bracketed:
+          - start_bracket: (
+          - column_reference:
+              naked_identifier: quantity
+          - comma: ','
+          - column_reference:
+              naked_identifier: amount
+          - end_bracket: )
+        - keyword: for
+        - column_reference:
+            naked_identifier: product_code
+        - keyword: in
+        - bracketed:
+          - start_bracket: (
+          - bracketed:
+            - start_bracket: (
+            - column_reference:
+                naked_identifier: a_qty
+            - comma: ','
+            - column_reference:
+                naked_identifier: a_value
+            - end_bracket: )
+          - alias_expression:
+              alias_operator:
+                keyword: as
+              quoted_identifier: "'A'"
+          - comma: ','
+          - bracketed:
+            - start_bracket: (
+            - column_reference:
+                naked_identifier: b_qty
+            - comma: ','
+            - column_reference:
+                naked_identifier: b_value
+            - end_bracket: )
+          - alias_expression:
+              alias_operator:
+                keyword: as
+              quoted_identifier: "'B'"
+          - end_bracket: )
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: from
+        from_expression:
+          from_expression_element:
+            table_expression:
+              bracketed:
+                start_bracket: (
+                select_statement:
+                  select_clause:
+                  - keyword: select
+                  - select_clause_element:
+                      column_reference:
+                        naked_identifier: times_purchased
+                  - comma: ','
+                  - select_clause_element:
+                      column_reference:
+                        naked_identifier: state_code
+                  from_clause:
+                    keyword: from
+                    from_expression:
+                      from_expression_element:
+                        table_expression:
+                          table_reference:
+                            naked_identifier: customers
+                        alias_expression:
+                          naked_identifier: t
+                end_bracket: )
+      pivot_clause:
+        keyword: pivot
+        bracketed:
+        - start_bracket: (
+        - function:
+            function_name:
+              function_name_identifier: count
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: state_code
+                end_bracket: )
+        - alias_expression:
+            alias_operator:
+              keyword: as
+            naked_identifier: state_code
+        - keyword: for
+        - column_reference:
+            naked_identifier: state_code
+        - keyword: in
+        - bracketed:
+            start_bracket: (
+            keyword: any
+            end_bracket: )
+        - end_bracket: )
+- statement_terminator: ;

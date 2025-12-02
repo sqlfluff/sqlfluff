@@ -1,0 +1,271 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 31ef385307d5070f629949797cf0fbebb6f29f5051032ba265a517155f228eab
+file:
+- multi_statement_segment:
+    begin_statement:
+    - keyword: BEGIN
+    - statement:
+        select_statement:
+          select_clause:
+            keyword: SELECT
+            select_clause_element:
+              wildcard_expression:
+                wildcard_identifier:
+                  star: '*'
+          from_clause:
+            keyword: FROM
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                    naked_identifier: one_table
+    - statement_terminator: ;
+    - keyword: END
+- statement_terminator: ;
+- statement:
+    declare_segment:
+    - keyword: DECLARE
+    - naked_identifier: x
+    - data_type:
+        data_type_identifier: INT64
+    - keyword: DEFAULT
+    - numeric_literal: '10'
+- statement_terminator: ;
+- multi_statement_segment:
+    begin_statement:
+    - keyword: BEGIN
+    - statement:
+        declare_segment:
+          keyword: DECLARE
+          naked_identifier: y
+          data_type:
+            data_type_identifier: INT64
+    - statement_terminator: ;
+    - statement:
+        set_segment:
+          keyword: SET
+          naked_identifier: y
+          comparison_operator:
+            raw_comparison_operator: '='
+          expression:
+            column_reference:
+              naked_identifier: x
+    - statement_terminator: ;
+    - statement:
+        select_statement:
+          select_clause:
+            keyword: SELECT
+            select_clause_element:
+              column_reference:
+                naked_identifier: y
+    - statement_terminator: ;
+    - keyword: END
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          column_reference:
+            naked_identifier: x
+- statement_terminator: ;
+- multi_statement_segment:
+    begin_statement:
+    - keyword: BEGIN
+    - statement:
+        select_statement:
+          select_clause:
+            keyword: SELECT
+            select_clause_element:
+              expression:
+              - numeric_literal: '1'
+              - binary_operator: /
+              - numeric_literal: '0'
+    - statement_terminator: ;
+    - keyword: EXCEPTION
+    - keyword: WHEN
+    - keyword: ERROR
+    - keyword: THEN
+    - statement:
+        raise_statement:
+        - keyword: RAISE
+        - keyword: USING
+        - keyword: MESSAGE
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - expression:
+            quoted_literal: '"An error happened"'
+    - statement_terminator: ;
+    - keyword: END
+- statement_terminator: ;
+- multi_statement_segment:
+    begin_statement:
+    - keyword: BEGIN
+    - statement:
+        select_statement:
+          select_clause:
+            keyword: SELECT
+            select_clause_element:
+              expression:
+              - numeric_literal: '100'
+              - binary_operator: /
+              - numeric_literal: '0'
+    - statement_terminator: ;
+    - keyword: EXCEPTION
+    - keyword: WHEN
+    - keyword: ERROR
+    - keyword: THEN
+    - statement:
+        raise_statement:
+        - keyword: RAISE
+        - keyword: USING
+        - keyword: MESSAGE
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - expression:
+            function:
+              function_name:
+                function_name_identifier: FORMAT
+              function_contents:
+                bracketed:
+                - start_bracket: (
+                - expression:
+                    quoted_literal: '"Something went wrong: %s"'
+                - comma: ','
+                - expression:
+                    system_variable:
+                      double_at_sign_literal: '@@error.message'
+                - end_bracket: )
+    - statement_terminator: ;
+    - keyword: END
+- statement_terminator: ;
+- multi_statement_segment:
+    begin_statement:
+    - keyword: BEGIN
+    - statement:
+        export_statement:
+        - keyword: EXPORT
+        - keyword: DATA
+        - keyword: OPTIONS
+        - bracketed:
+          - start_bracket: (
+          - export_option: uri
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - quoted_literal: "'gs://bucket/folder/*.csv'"
+          - comma: ','
+          - export_option: format
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - quoted_literal: "'CSV'"
+          - comma: ','
+          - export_option: overwrite
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - boolean_literal: 'true'
+          - comma: ','
+          - export_option: header
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - boolean_literal: 'true'
+          - comma: ','
+          - export_option: field_delimiter
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - quoted_literal: "';'"
+          - end_bracket: )
+        - keyword: AS
+        - bracketed:
+            start_bracket: (
+            select_statement:
+              select_clause:
+              - keyword: SELECT
+              - select_clause_element:
+                  column_reference:
+                    naked_identifier: field1
+              - comma: ','
+              - select_clause_element:
+                  column_reference:
+                    naked_identifier: field2
+              from_clause:
+                keyword: FROM
+                from_expression:
+                  from_expression_element:
+                    table_expression:
+                      table_reference:
+                      - naked_identifier: mydataset
+                      - dot: .
+                      - naked_identifier: table1
+              orderby_clause:
+              - keyword: ORDER
+              - keyword: BY
+              - column_reference:
+                  naked_identifier: field1
+              limit_clause:
+                keyword: LIMIT
+                numeric_literal: '10'
+            end_bracket: )
+    - statement_terminator: ;
+    - statement:
+        select_statement:
+          select_clause:
+            keyword: SELECT
+            select_clause_element:
+              expression:
+              - numeric_literal: '1'
+              - binary_operator: /
+              - numeric_literal: '0'
+    - statement_terminator: ;
+    - keyword: EXCEPTION
+    - keyword: WHEN
+    - keyword: ERROR
+    - keyword: THEN
+    - statement:
+        delete_statement:
+        - keyword: DELETE
+        - keyword: FROM
+        - table_reference:
+          - naked_identifier: mydataset
+          - dot: .
+          - naked_identifier: table1
+        - where_clause:
+            keyword: WHERE
+            expression:
+              column_reference:
+                naked_identifier: field1
+              comparison_operator:
+                raw_comparison_operator: '='
+              quoted_literal: "'1'"
+    - statement_terminator: ;
+    - statement:
+        raise_statement:
+        - keyword: RAISE
+        - keyword: USING
+        - keyword: MESSAGE
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - expression:
+            function:
+              function_name:
+                function_name_identifier: FORMAT
+              function_contents:
+                bracketed:
+                - start_bracket: (
+                - expression:
+                    quoted_literal: '"Something went wrong: %s"'
+                - comma: ','
+                - expression:
+                    system_variable:
+                      double_at_sign_literal: '@@error.message'
+                - end_bracket: )
+    - statement_terminator: ;
+    - statement:
+        return_statement:
+          keyword: RETURN
+    - statement_terminator: ;
+    - keyword: END
+- statement_terminator: ;

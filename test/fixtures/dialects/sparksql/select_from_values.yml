@@ -1,0 +1,764 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 419e87742bfb76efab772081a48f64ecacbc24ecd162b44e9d9f82ec7e6f3b43
+file:
+- statement:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: from
+        from_expression:
+          from_expression_element:
+            table_expression:
+              values_clause:
+                keyword: values
+                expression:
+                  numeric_literal: '1'
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: from
+        from_expression:
+          from_expression_element:
+            table_expression:
+              values_clause:
+                keyword: values
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    numeric_literal: '1'
+                  end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: from
+        from_expression:
+          from_expression_element:
+            table_expression:
+              values_clause:
+                keyword: values
+                bracketed:
+                - start_bracket: (
+                - expression:
+                    numeric_literal: '1'
+                - comma: ','
+                - expression:
+                    numeric_literal: '2'
+                - end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: from
+        from_expression:
+          bracketed:
+            start_bracket: (
+            from_expression_element:
+              table_expression:
+                values_clause:
+                - keyword: values
+                - expression:
+                    numeric_literal: '1'
+                - comma: ','
+                - expression:
+                    numeric_literal: '2'
+                - comma: ','
+                - expression:
+                    numeric_literal: '3'
+            end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: from
+        from_expression:
+          bracketed:
+            start_bracket: (
+            from_expression_element:
+              table_expression:
+                values_clause:
+                - keyword: values
+                - bracketed:
+                    start_bracket: (
+                    expression:
+                      numeric_literal: '1'
+                    end_bracket: )
+                - comma: ','
+                - bracketed:
+                    start_bracket: (
+                    expression:
+                      numeric_literal: '2'
+                    end_bracket: )
+                - comma: ','
+                - bracketed:
+                    start_bracket: (
+                    expression:
+                      numeric_literal: '3'
+                    end_bracket: )
+            end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: from
+        from_expression:
+          bracketed:
+            start_bracket: (
+            from_expression_element:
+              table_expression:
+                values_clause:
+                - keyword: values
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                      numeric_literal: '1'
+                  - comma: ','
+                  - expression:
+                      numeric_literal: '2'
+                  - end_bracket: )
+                - comma: ','
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                      numeric_literal: '3'
+                  - comma: ','
+                  - expression:
+                      numeric_literal: '4'
+                  - end_bracket: )
+            end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+      - keyword: from
+      - from_expression:
+          from_expression_element:
+            table_expression:
+              values_clause:
+                keyword: values
+                expression:
+                  numeric_literal: '1'
+      - comma: ','
+      - from_expression:
+          from_expression_element:
+            table_expression:
+              values_clause:
+                keyword: values
+                expression:
+                  numeric_literal: '2'
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+      - keyword: from
+      - from_expression:
+          bracketed:
+            start_bracket: (
+            from_expression_element:
+              table_expression:
+                values_clause:
+                - keyword: values
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                      numeric_literal: '1'
+                  - comma: ','
+                  - expression:
+                      numeric_literal: '2'
+                  - end_bracket: )
+                - comma: ','
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                      numeric_literal: '3'
+                  - comma: ','
+                  - expression:
+                      numeric_literal: '4'
+                  - end_bracket: )
+            end_bracket: )
+      - comma: ','
+      - from_expression:
+          bracketed:
+            start_bracket: (
+            from_expression_element:
+              table_expression:
+                values_clause:
+                - keyword: values
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                      numeric_literal: '1'
+                  - comma: ','
+                  - expression:
+                      numeric_literal: '2'
+                  - end_bracket: )
+                - comma: ','
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                      numeric_literal: '3'
+                  - comma: ','
+                  - expression:
+                      numeric_literal: '4'
+                  - end_bracket: )
+            end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: from
+        from_expression:
+          bracketed:
+            start_bracket: (
+            from_expression_element:
+              table_expression:
+                values_clause:
+                - keyword: values
+                - expression:
+                    numeric_literal: '1'
+                - comma: ','
+                - expression:
+                    function:
+                      function_name:
+                        function_name_identifier: least
+                      function_contents:
+                        bracketed:
+                        - start_bracket: (
+                        - expression:
+                            numeric_literal: '2'
+                        - comma: ','
+                        - expression:
+                            numeric_literal: '3'
+                        - end_bracket: )
+                - comma: ','
+                - expression:
+                    function:
+                      function_name:
+                        function_name_identifier: greatest
+                      function_contents:
+                        bracketed:
+                        - start_bracket: (
+                        - expression:
+                            numeric_literal: '4'
+                        - comma: ','
+                        - expression:
+                            numeric_literal: '5'
+                        - end_bracket: )
+            end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: from
+        from_expression:
+          from_expression_element:
+            table_expression:
+              values_clause:
+                keyword: values
+                expression:
+                  numeric_literal: '1'
+                alias_expression:
+                  alias_operator:
+                    keyword: as
+                  naked_identifier: t
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: from
+        from_expression:
+          from_expression_element:
+            table_expression:
+              values_clause:
+                keyword: values
+                bracketed:
+                - start_bracket: (
+                - expression:
+                    numeric_literal: '1'
+                - comma: ','
+                - expression:
+                    numeric_literal: '2'
+                - end_bracket: )
+                alias_expression:
+                  alias_operator:
+                    keyword: as
+                  naked_identifier: t
+                  bracketed:
+                    start_bracket: (
+                    identifier_list:
+                    - naked_identifier: a
+                    - comma: ','
+                    - naked_identifier: b
+                    end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: from
+        from_expression:
+          from_expression_element:
+            bracketed:
+              start_bracket: (
+              table_expression:
+                values_clause:
+                - keyword: values
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                      numeric_literal: '1'
+                  - comma: ','
+                  - expression:
+                      numeric_literal: '2'
+                  - end_bracket: )
+                - comma: ','
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                      numeric_literal: '3'
+                  - comma: ','
+                  - expression:
+                      numeric_literal: '4'
+                  - end_bracket: )
+              end_bracket: )
+            alias_expression:
+              alias_operator:
+                keyword: as
+              naked_identifier: t
+              bracketed:
+                start_bracket: (
+                identifier_list:
+                - naked_identifier: a
+                - comma: ','
+                - naked_identifier: b
+                end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: from
+        from_expression:
+          from_expression_element:
+            bracketed:
+              start_bracket: (
+              table_expression:
+                values_clause:
+                - keyword: values
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                      numeric_literal: '1'
+                  - comma: ','
+                  - expression:
+                      numeric_literal: '2'
+                  - end_bracket: )
+                - comma: ','
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                      numeric_literal: '3'
+                  - comma: ','
+                  - expression:
+                      numeric_literal: '4'
+                  - end_bracket: )
+              end_bracket: )
+            alias_expression:
+              alias_operator:
+                keyword: as
+              bracketed:
+                start_bracket: (
+                identifier_list:
+                - naked_identifier: a
+                - comma: ','
+                - naked_identifier: b
+                end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: from
+        from_expression:
+          from_expression_element:
+            table_expression:
+              values_clause:
+                keyword: values
+                expression:
+                  numeric_literal: '1'
+                alias_expression:
+                  naked_identifier: t
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: from
+        from_expression:
+          from_expression_element:
+            table_expression:
+              values_clause:
+                keyword: values
+                bracketed:
+                - start_bracket: (
+                - expression:
+                    numeric_literal: '1'
+                - comma: ','
+                - expression:
+                    numeric_literal: '2'
+                - end_bracket: )
+                alias_expression:
+                  naked_identifier: t
+                  bracketed:
+                    start_bracket: (
+                    identifier_list:
+                    - naked_identifier: a
+                    - comma: ','
+                    - naked_identifier: b
+                    end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: from
+        from_expression:
+          from_expression_element:
+            bracketed:
+              start_bracket: (
+              table_expression:
+                values_clause:
+                - keyword: values
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                      numeric_literal: '1'
+                  - comma: ','
+                  - expression:
+                      numeric_literal: '2'
+                  - end_bracket: )
+                - comma: ','
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                      numeric_literal: '3'
+                  - comma: ','
+                  - expression:
+                      numeric_literal: '4'
+                  - end_bracket: )
+              end_bracket: )
+            alias_expression:
+              naked_identifier: t
+              bracketed:
+                start_bracket: (
+                identifier_list:
+                - naked_identifier: a
+                - comma: ','
+                - naked_identifier: b
+                end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: from
+        from_expression:
+          from_expression_element:
+            bracketed:
+              start_bracket: (
+              table_expression:
+                values_clause:
+                - keyword: values
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                      numeric_literal: '1'
+                  - comma: ','
+                  - expression:
+                      numeric_literal: '2'
+                  - end_bracket: )
+                - comma: ','
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                      numeric_literal: '3'
+                  - comma: ','
+                  - expression:
+                      numeric_literal: '4'
+                  - end_bracket: )
+              end_bracket: )
+            alias_expression:
+              bracketed:
+                start_bracket: (
+                identifier_list:
+                - naked_identifier: a
+                - comma: ','
+                - naked_identifier: b
+                end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: from
+        from_expression:
+          from_expression_element:
+            table_expression:
+              values_clause:
+              - keyword: values
+              - expression:
+                  numeric_literal: '1'
+              - comma: ','
+              - expression:
+                  numeric_literal: '2'
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: from
+        from_expression:
+          from_expression_element:
+            table_expression:
+              values_clause:
+              - keyword: values
+              - bracketed:
+                - start_bracket: (
+                - expression:
+                    numeric_literal: '1'
+                - comma: ','
+                - expression:
+                    numeric_literal: '2'
+                - end_bracket: )
+              - comma: ','
+              - bracketed:
+                - start_bracket: (
+                - expression:
+                    numeric_literal: '3'
+                - comma: ','
+                - expression:
+                    numeric_literal: '4'
+                - end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+      - keyword: from
+      - from_expression:
+          from_expression_element:
+            table_expression:
+              values_clause:
+              - keyword: values
+              - expression:
+                  numeric_literal: '1'
+              - comma: ','
+              - expression:
+                  numeric_literal: '2'
+      - comma: ','
+      - from_expression:
+          from_expression_element:
+            table_expression:
+              values_clause:
+              - keyword: values
+              - expression:
+                  numeric_literal: '3'
+              - comma: ','
+              - expression:
+                  numeric_literal: '4'
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: from
+        from_expression:
+          from_expression_element:
+            table_expression:
+              values_clause:
+              - keyword: values
+              - bracketed:
+                  start_bracket: (
+                  expression:
+                    numeric_literal: '1'
+                  end_bracket: )
+              - comma: ','
+              - bracketed:
+                  start_bracket: (
+                  expression:
+                    numeric_literal: '2'
+                  end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+      - keyword: from
+      - from_expression:
+          from_expression_element:
+            table_expression:
+              values_clause:
+              - keyword: values
+              - expression:
+                  numeric_literal: '1'
+              - comma: ','
+              - expression:
+                  numeric_literal: '2'
+      - comma: ','
+      - from_expression:
+          from_expression_element:
+            table_expression:
+              values_clause:
+              - keyword: values
+              - expression:
+                  numeric_literal: '3'
+              - comma: ','
+              - expression:
+                  numeric_literal: '4'
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_clause_element:
+          expression:
+          - numeric_literal: '1'
+          - binary_operator: +
+          - numeric_literal: '2'
+          - comparison_operator: ==
+          - numeric_literal: '3'
+      from_clause:
+        keyword: from
+        from_expression:
+          from_expression_element:
+            table_expression:
+              values_clause:
+                keyword: values
+                expression:
+                  numeric_literal: '1'
+- statement_terminator: ;

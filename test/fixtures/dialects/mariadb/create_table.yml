@@ -1,0 +1,446 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: c68c54d88ed9bd057c63a36c382a9107dc7e72057fa06b05c216c1ad51b8c8a4
+file:
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        quoted_identifier: '`foo`'
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          naked_identifier: b
+          data_type:
+            data_type_identifier: VARCHAR
+            bracketed_arguments:
+              bracketed:
+                start_bracket: (
+                numeric_literal: '255'
+                end_bracket: )
+            keyword: BINARY
+      - comma: ','
+      - column_definition:
+        - quoted_identifier: '`id`'
+        - data_type:
+            data_type_identifier: int
+            bracketed_arguments:
+              bracketed:
+                start_bracket: (
+                numeric_literal: '11'
+                end_bracket: )
+            keyword: unsigned
+        - column_constraint_segment:
+          - keyword: NOT
+          - keyword: 'NULL'
+        - column_constraint_segment:
+            keyword: AUTO_INCREMENT
+      - comma: ','
+      - table_constraint:
+        - keyword: PRIMARY
+        - keyword: KEY
+        - bracketed:
+            start_bracket: (
+            column_reference:
+              quoted_identifier: '`id`'
+            end_bracket: )
+      - end_bracket: )
+    - parameter: ENGINE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - parameter: InnoDB
+    - keyword: DEFAULT
+    - keyword: CHARACTER
+    - keyword: SET
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - parameter: utf8mb4
+    - parameter: COLLATE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - parameter: utf8mb4_unicode_ci
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        quoted_identifier: '`foo`'
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          naked_identifier: b
+          data_type:
+            data_type_identifier: VARCHAR
+            bracketed_arguments:
+              bracketed:
+                start_bracket: (
+                numeric_literal: '255'
+                end_bracket: )
+            keyword: BINARY
+      - comma: ','
+      - column_definition:
+        - quoted_identifier: '`id`'
+        - data_type:
+            data_type_identifier: int
+            bracketed_arguments:
+              bracketed:
+                start_bracket: (
+                numeric_literal: '11'
+                end_bracket: )
+            keyword: unsigned
+        - column_constraint_segment:
+          - keyword: NOT
+          - keyword: 'NULL'
+        - column_constraint_segment:
+            keyword: AUTO_INCREMENT
+      - comma: ','
+      - table_constraint:
+        - keyword: PRIMARY
+        - keyword: KEY
+        - bracketed:
+            start_bracket: (
+            column_reference:
+              quoted_identifier: '`id`'
+            end_bracket: )
+      - end_bracket: )
+    - parameter: ENGINE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - parameter: InnoDB
+    - keyword: DEFAULT
+    - parameter: CHARSET
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - parameter: '`utf8mb4`'
+    - parameter: COLLATE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - parameter: '`utf8mb4_unicode_ci`'
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        quoted_identifier: '`foo`'
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          naked_identifier: b
+          data_type:
+            data_type_identifier: VARCHAR
+            bracketed_arguments:
+              bracketed:
+                start_bracket: (
+                numeric_literal: '255'
+                end_bracket: )
+            keyword: BINARY
+      - comma: ','
+      - column_definition:
+        - quoted_identifier: '`id`'
+        - data_type:
+            data_type_identifier: int
+            bracketed_arguments:
+              bracketed:
+                start_bracket: (
+                numeric_literal: '11'
+                end_bracket: )
+            keyword: unsigned
+        - column_constraint_segment:
+          - keyword: NOT
+          - keyword: 'NULL'
+        - column_constraint_segment:
+            keyword: AUTO_INCREMENT
+      - comma: ','
+      - table_constraint:
+        - keyword: PRIMARY
+        - keyword: KEY
+        - bracketed:
+            start_bracket: (
+            column_reference:
+              quoted_identifier: '`id`'
+            end_bracket: )
+      - end_bracket: )
+    - parameter: ENGINE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - parameter: InnoDB
+    - keyword: DEFAULT
+    - parameter: CHARSET
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'utf8mb4'"
+    - parameter: COLLATE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'utf8mb4_unicode_ci'"
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        quoted_identifier: '`foo`'
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          naked_identifier: b
+          data_type:
+            data_type_identifier: VARCHAR
+            bracketed_arguments:
+              bracketed:
+                start_bracket: (
+                numeric_literal: '255'
+                end_bracket: )
+            keyword: BINARY
+      - comma: ','
+      - column_definition:
+        - quoted_identifier: '`id`'
+        - data_type:
+            data_type_identifier: int
+            bracketed_arguments:
+              bracketed:
+                start_bracket: (
+                numeric_literal: '11'
+                end_bracket: )
+            keyword: unsigned
+        - column_constraint_segment:
+          - keyword: NOT
+          - keyword: 'NULL'
+        - column_constraint_segment:
+            keyword: AUTO_INCREMENT
+      - comma: ','
+      - table_constraint:
+        - keyword: PRIMARY
+        - keyword: KEY
+        - bracketed:
+            start_bracket: (
+            column_reference:
+              quoted_identifier: '`id`'
+            end_bracket: )
+      - end_bracket: )
+    - parameter: ENGINE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - parameter: InnoDB
+    - keyword: DEFAULT
+    - parameter: CHARSET
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: '"utf8mb4"'
+    - parameter: COLLATE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: '"utf8mb4_unicode_ci"'
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: create
+    - keyword: table
+    - table_reference:
+        quoted_identifier: '`tickets`'
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          quoted_identifier: '`id`'
+          data_type:
+            data_type_identifier: serial
+          column_constraint_segment:
+          - keyword: primary
+          - keyword: key
+      - comma: ','
+      - column_definition:
+          quoted_identifier: '`material_number`'
+          data_type:
+            data_type_identifier: varchar
+            bracketed_arguments:
+              bracketed:
+                start_bracket: (
+                numeric_literal: '255'
+                end_bracket: )
+          column_constraint_segment:
+            keyword: default
+            null_literal: 'null'
+      - comma: ','
+      - column_definition:
+          quoted_identifier: '`material_name`'
+          data_type:
+            data_type_identifier: varchar
+            bracketed_arguments:
+              bracketed:
+                start_bracket: (
+                numeric_literal: '255'
+                end_bracket: )
+          column_constraint_segment:
+            keyword: default
+            null_literal: 'null'
+      - comma: ','
+      - column_definition:
+        - quoted_identifier: '`date_created`'
+        - data_type:
+            data_type_identifier: date
+        - column_constraint_segment:
+          - keyword: not
+          - keyword: 'null'
+        - column_constraint_segment:
+            keyword: default
+            bracketed:
+              start_bracket: (
+              bare_function: current_date
+              end_bracket: )
+      - comma: ','
+      - column_definition:
+          quoted_identifier: '`date_closed`'
+          data_type:
+            data_type_identifier: date
+          column_constraint_segment:
+            keyword: default
+            null_literal: 'null'
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: create
+    - keyword: table
+    - table_reference:
+        naked_identifier: _
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          naked_identifier: a
+          data_type:
+            data_type_identifier: int
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: create
+    - keyword: table
+    - table_reference:
+        naked_identifier: y
+    - keyword: LIKE
+    - table_reference:
+        naked_identifier: x
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        quoted_identifier: '`messages_daily_stats`'
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+        - quoted_identifier: '`id`'
+        - data_type:
+            data_type_identifier: int
+            bracketed_arguments:
+              bracketed:
+                start_bracket: (
+                numeric_literal: '20'
+                end_bracket: )
+        - column_constraint_segment:
+          - keyword: NOT
+          - keyword: 'NULL'
+        - column_constraint_segment:
+            keyword: AUTO_INCREMENT
+      - comma: ','
+      - column_definition:
+          quoted_identifier: '`optional`'
+          data_type:
+            data_type_identifier: int
+            bracketed_arguments:
+              bracketed:
+                start_bracket: (
+                numeric_literal: '20'
+                end_bracket: )
+          column_constraint_segment:
+          - keyword: NOT
+          - keyword: 'NULL'
+      - comma: ','
+      - column_definition:
+        - quoted_identifier: '`test`'
+        - data_type:
+            data_type_identifier: int
+            bracketed_arguments:
+              bracketed:
+                start_bracket: (
+                numeric_literal: '11'
+                end_bracket: )
+        - column_constraint_segment:
+          - keyword: GENERATED
+          - keyword: ALWAYS
+          - keyword: AS
+          - bracketed:
+              start_bracket: (
+              expression:
+                case_expression:
+                - keyword: case
+                - when_clause:
+                  - keyword: when
+                  - expression:
+                      column_reference:
+                        quoted_identifier: '`optional`'
+                      comparison_operator:
+                        raw_comparison_operator: '='
+                      numeric_literal: '1'
+                  - keyword: then
+                  - expression:
+                      column_reference:
+                        quoted_identifier: '`id`'
+                - else_clause:
+                    keyword: else
+                    expression:
+                      null_literal: 'NULL'
+                - keyword: end
+              end_bracket: )
+          - keyword: STORED
+        - column_constraint_segment:
+            keyword: INVISIBLE
+      - end_bracket: )
+    - parameter: ENGINE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - parameter: InnoDB
+    - keyword: DEFAULT
+    - parameter: CHARSET
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - parameter: utf8mb4
+    - parameter: COLLATE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - parameter: utf8mb4_unicode_ci
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t1
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          naked_identifier: i
+          data_type:
+            data_type_identifier: INT
+          column_constraint_segment:
+            keyword: VISIBLE
+      - comma: ','
+      - column_definition:
+          naked_identifier: j
+          data_type:
+            data_type_identifier: DATE
+          column_constraint_segment:
+            keyword: INVISIBLE
+      - end_bracket: )
+    - parameter: ENGINE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - parameter: InnoDB
+- statement_terminator: ;

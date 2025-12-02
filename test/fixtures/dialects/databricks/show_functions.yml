@@ -1,0 +1,152 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 4f2683ec5b6ee42315dfc9980bca4d2c063ef508083cc4c038ec8ed4a2facd89
+file:
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: FUNCTIONS
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: FUNCTIONS
+    - function_name:
+        function_name_identifier: trim
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: ALL
+    - keyword: FUNCTIONS
+    - function_name:
+        function_name_identifier: trim
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: SYSTEM
+    - keyword: FUNCTIONS
+    - function_name:
+        function_name_identifier: concat
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: USER
+    - keyword: FUNCTIONS
+    - function_name:
+        function_name_identifier: concat_user
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: SYSTEM
+    - keyword: FUNCTIONS
+    - function_name:
+        naked_identifier: salesdb
+        dot: .
+        function_name_identifier: max
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: FUNCTIONS
+    - keyword: LIKE
+    - quoted_literal: "'t*'"
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: FUNCTIONS
+    - quoted_literal: "'t*'"
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: USER
+    - keyword: FUNCTIONS
+    - keyword: LIKE
+    - quoted_literal: "'t*'"
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: USER
+    - keyword: FUNCTIONS
+    - quoted_literal: "'t*'"
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: FUNCTIONS
+    - keyword: LIKE
+    - quoted_literal: "'yea*|windo*'"
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: FUNCTIONS
+    - keyword: LIKE
+    - quoted_literal: "'t[a-z][a-z][a-z]'"
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: FUNCTIONS
+    - keyword: FROM
+    - database_reference:
+        naked_identifier: default
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: USER
+    - keyword: FUNCTIONS
+    - keyword: FROM
+    - database_reference:
+        naked_identifier: default
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: FUNCTIONS
+    - keyword: FROM
+    - database_reference:
+        naked_identifier: default
+    - keyword: LIKE
+    - quoted_literal: "'t*'"
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: FUNCTIONS
+    - keyword: FROM
+    - database_reference:
+        naked_identifier: default
+    - quoted_literal: "'t*'"
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: USER
+    - keyword: FUNCTIONS
+    - keyword: FROM
+    - database_reference:
+        naked_identifier: default
+    - keyword: LIKE
+    - quoted_literal: "'t*'"
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: USER
+    - keyword: FUNCTIONS
+    - keyword: FROM
+    - database_reference:
+        naked_identifier: default
+    - quoted_literal: "'t*'"
+- statement_terminator: ;

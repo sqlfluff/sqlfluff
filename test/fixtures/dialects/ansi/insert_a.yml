@@ -3,23 +3,47 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 057711c3c38c6571411e5bd4ba2850cd5cb9654c8aa6cba4b343dc53cf55981f
+_hash: 039eff37d4ce25fec8d2a99a5e11fc8145d03925916ccfa9ef22203887299592
 file:
-  statement:
+- statement:
     insert_statement:
     - keyword: INSERT
     - keyword: into
     - table_reference:
-        identifier: tbl_b
+        naked_identifier: tbl_b
     - bracketed:
         start_bracket: (
         column_reference:
-          identifier: col1
+          naked_identifier: col1
         end_bracket: )
     - values_clause:
         keyword: values
         bracketed:
           start_bracket: (
-          literal: '123'
+          numeric_literal: '123'
           end_bracket: )
-  statement_terminator: ;
+- statement_terminator: ;
+- statement:
+    insert_statement:
+    - keyword: INSERT
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: tbl_c
+    - bracketed:
+        start_bracket: (
+        select_statement:
+          select_clause:
+            keyword: SELECT
+            select_clause_element:
+              wildcard_expression:
+                wildcard_identifier:
+                  star: '*'
+          from_clause:
+            keyword: FROM
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                    naked_identifier: table1
+        end_bracket: )
+- statement_terminator: ;

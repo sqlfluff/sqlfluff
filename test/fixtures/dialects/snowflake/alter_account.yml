@@ -1,0 +1,158 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 3308a5d4a713f6b6af28b2ed40d1be038e1872d6258480544dfa2de8dc161107
+file:
+- statement:
+    alter_account_statement:
+    - keyword: ALTER
+    - keyword: ACCOUNT
+    - keyword: SET
+    - parameter: TIMEZONE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'UTC'"
+- statement_terminator: ;
+- statement:
+    alter_account_statement:
+    - keyword: ALTER
+    - keyword: ACCOUNT
+    - keyword: SET
+    - parameter: ALLOW_ID_TOKEN
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - boolean_literal: 'TRUE'
+    - comma: ','
+    - parameter: DEFAULT_DDL_COLLATION
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'en-ci'"
+    - comma: ','
+    - parameter: CLIENT_ENCRYPTION_KEY_SIZE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - numeric_literal: '128'
+    - comma: ','
+    - parameter: NETWORK_POLICY
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - naked_identifier: mypolicy
+- statement_terminator: ;
+- statement:
+    alter_account_statement:
+    - keyword: ALTER
+    - keyword: ACCOUNT
+    - keyword: UNSET
+    - naked_identifier: TIMEZONE
+- statement_terminator: ;
+- statement:
+    alter_account_statement:
+    - keyword: ALTER
+    - keyword: ACCOUNT
+    - keyword: UNSET
+    - naked_identifier: DATA_RETENTION_TIME_IN_DAYS
+    - comma: ','
+    - naked_identifier: JSON_INDENT
+- statement_terminator: ;
+- statement:
+    alter_account_statement:
+    - keyword: ALTER
+    - keyword: ACCOUNT
+    - keyword: SET
+    - keyword: RESOURCE_MONITOR
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - naked_identifier: VERY_RESTRICTIVE_MONITOR
+- statement_terminator: ;
+- statement:
+    alter_account_statement:
+    - keyword: ALTER
+    - keyword: ACCOUNT
+    - keyword: SET
+    - keyword: PASSWORD
+    - keyword: POLICY
+    - table_reference:
+      - naked_identifier: mydb
+      - dot: .
+      - naked_identifier: security
+      - dot: .
+      - naked_identifier: at_least_twelve_characters
+- statement_terminator: ;
+- statement:
+    alter_account_statement:
+    - keyword: ALTER
+    - keyword: ACCOUNT
+    - keyword: SET
+    - keyword: SESSION
+    - keyword: POLICY
+    - table_reference:
+      - naked_identifier: mydb
+      - dot: .
+      - naked_identifier: policies
+      - dot: .
+      - naked_identifier: only_one_hour
+- statement_terminator: ;
+- statement:
+    alter_account_statement:
+    - keyword: ALTER
+    - keyword: ACCOUNT
+    - keyword: UNSET
+    - keyword: PASSWORD
+    - keyword: POLICY
+- statement_terminator: ;
+- statement:
+    alter_account_statement:
+    - keyword: ALTER
+    - keyword: ACCOUNT
+    - keyword: UNSET
+    - keyword: SESSION
+    - keyword: POLICY
+- statement_terminator: ;
+- statement:
+    alter_account_statement:
+    - keyword: ALTER
+    - keyword: ACCOUNT
+    - keyword: SET
+    - tag_equals:
+      - keyword: TAG
+      - tag_reference:
+          naked_identifier: env
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'prod'"
+      - comma: ','
+      - tag_reference:
+          naked_identifier: domain
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'sales'"
+- statement_terminator: ;
+- statement:
+    alter_account_statement:
+    - keyword: ALTER
+    - keyword: ACCOUNT
+    - keyword: UNSET
+    - keyword: TAG
+    - tag_reference:
+        naked_identifier: env
+    - comma: ','
+    - tag_reference:
+        naked_identifier: domain
+- statement_terminator: ;
+- statement:
+    alter_account_statement:
+    - keyword: ALTER
+    - keyword: ACCOUNT
+    - keyword: SET
+    - parameter: EVENT_TABLE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - table_reference:
+      - naked_identifier: LOG_TRACE_DB
+      - dot: .
+      - naked_identifier: PUBLIC
+      - dot: .
+      - naked_identifier: EVENT_TABLE
+- statement_terminator: ;

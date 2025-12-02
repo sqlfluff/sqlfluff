@@ -1,0 +1,691 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 75bd79907979e6ea7aebeb6f7d48fc286a783a67d2656f26fe0d620845221e4d
+file:
+- statement:
+    alter_view_statement:
+    - keyword: ALTER
+    - keyword: VIEW
+    - table_reference:
+        naked_identifier: myview
+    - keyword: ALTER
+    - column_reference:
+        naked_identifier: date_column
+    - keyword: SET
+    - keyword: DEFAULT
+    - function:
+        function_name:
+          function_name_identifier: NOW
+        function_contents:
+          bracketed:
+            start_bracket: (
+            end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_view_statement:
+    - keyword: ALTER
+    - keyword: VIEW
+    - table_reference:
+        naked_identifier: myview
+    - keyword: ALTER
+    - column_reference:
+        naked_identifier: int_column
+    - keyword: SET
+    - keyword: DEFAULT
+    - numeric_literal: '1'
+- statement_terminator: ;
+- statement:
+    alter_view_statement:
+    - keyword: ALTER
+    - keyword: VIEW
+    - table_reference:
+        naked_identifier: myview
+    - keyword: ALTER
+    - column_reference:
+        naked_identifier: text_column
+    - keyword: SET
+    - keyword: DEFAULT
+    - quoted_literal: "'value'"
+- statement_terminator: ;
+- statement:
+    alter_view_statement:
+    - keyword: ALTER
+    - keyword: VIEW
+    - table_reference:
+        naked_identifier: myview
+    - keyword: ALTER
+    - column_reference:
+        naked_identifier: bool_column
+    - keyword: SET
+    - keyword: DEFAULT
+    - boolean_literal: 'false'
+- statement_terminator: ;
+- statement:
+    alter_view_statement:
+    - keyword: ALTER
+    - keyword: VIEW
+    - table_reference:
+        naked_identifier: myview
+    - keyword: ALTER
+    - column_reference:
+        naked_identifier: other_column
+    - keyword: SET
+    - keyword: DEFAULT
+    - expression:
+        column_reference:
+          naked_identifier: other_value
+- statement_terminator: ;
+- statement:
+    alter_view_statement:
+    - keyword: ALTER
+    - keyword: VIEW
+    - table_reference:
+        naked_identifier: myview
+    - keyword: ALTER
+    - column_reference:
+        naked_identifier: other_column
+    - keyword: SET
+    - keyword: DEFAULT
+    - bare_function: CURRENT_TIMESTAMP
+- statement_terminator: ;
+- statement:
+    alter_view_statement:
+    - keyword: ALTER
+    - keyword: VIEW
+    - table_reference:
+        naked_identifier: myview
+    - keyword: ALTER
+    - column_reference:
+        naked_identifier: other_column
+    - keyword: SET
+    - keyword: DEFAULT
+    - function:
+        function_name:
+          function_name_identifier: a_function
+        function_contents:
+          bracketed:
+            start_bracket: (
+            expression:
+              column_reference:
+                naked_identifier: a_parameter
+            end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_view_statement:
+    - keyword: ALTER
+    - keyword: VIEW
+    - table_reference:
+        naked_identifier: myview
+    - keyword: ALTER
+    - column_reference:
+        naked_identifier: other_column
+    - keyword: SET
+    - keyword: DEFAULT
+    - function:
+        function_name:
+          function_name_identifier: a_function
+        function_contents:
+          bracketed:
+            start_bracket: (
+            expression:
+              quoted_literal: "'a_parameter'"
+            end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_view_statement:
+    - keyword: ALTER
+    - keyword: VIEW
+    - table_reference:
+        naked_identifier: myview
+    - keyword: ALTER
+    - column_reference:
+        naked_identifier: other_column
+    - keyword: DROP
+    - keyword: DEFAULT
+- statement_terminator: ;
+- statement:
+    alter_view_statement:
+    - keyword: ALTER
+    - keyword: VIEW
+    - keyword: IF
+    - keyword: EXISTS
+    - table_reference:
+        naked_identifier: myview
+    - keyword: ALTER
+    - column_reference:
+        naked_identifier: date_column
+    - keyword: SET
+    - keyword: DEFAULT
+    - function:
+        function_name:
+          function_name_identifier: NOW
+        function_contents:
+          bracketed:
+            start_bracket: (
+            end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_view_statement:
+    - keyword: ALTER
+    - keyword: VIEW
+    - keyword: IF
+    - keyword: EXISTS
+    - table_reference:
+        naked_identifier: myview
+    - keyword: ALTER
+    - column_reference:
+        naked_identifier: int_column
+    - keyword: SET
+    - keyword: DEFAULT
+    - numeric_literal: '1'
+- statement_terminator: ;
+- statement:
+    alter_view_statement:
+    - keyword: ALTER
+    - keyword: VIEW
+    - keyword: IF
+    - keyword: EXISTS
+    - table_reference:
+        naked_identifier: myview
+    - keyword: ALTER
+    - column_reference:
+        naked_identifier: text_column
+    - keyword: SET
+    - keyword: DEFAULT
+    - quoted_literal: "'value'"
+- statement_terminator: ;
+- statement:
+    alter_view_statement:
+    - keyword: ALTER
+    - keyword: VIEW
+    - keyword: IF
+    - keyword: EXISTS
+    - table_reference:
+        naked_identifier: myview
+    - keyword: ALTER
+    - column_reference:
+        naked_identifier: bool_column
+    - keyword: SET
+    - keyword: DEFAULT
+    - boolean_literal: 'false'
+- statement_terminator: ;
+- statement:
+    alter_view_statement:
+    - keyword: ALTER
+    - keyword: VIEW
+    - keyword: IF
+    - keyword: EXISTS
+    - table_reference:
+        naked_identifier: myview
+    - keyword: ALTER
+    - column_reference:
+        naked_identifier: other_column
+    - keyword: SET
+    - keyword: DEFAULT
+    - expression:
+        column_reference:
+          naked_identifier: other_value
+- statement_terminator: ;
+- statement:
+    alter_view_statement:
+    - keyword: ALTER
+    - keyword: VIEW
+    - keyword: IF
+    - keyword: EXISTS
+    - table_reference:
+        naked_identifier: myview
+    - keyword: ALTER
+    - column_reference:
+        naked_identifier: other_column
+    - keyword: SET
+    - keyword: DEFAULT
+    - bare_function: CURRENT_TIMESTAMP
+- statement_terminator: ;
+- statement:
+    alter_view_statement:
+    - keyword: ALTER
+    - keyword: VIEW
+    - keyword: IF
+    - keyword: EXISTS
+    - table_reference:
+        naked_identifier: myview
+    - keyword: ALTER
+    - column_reference:
+        naked_identifier: other_column
+    - keyword: SET
+    - keyword: DEFAULT
+    - function:
+        function_name:
+          function_name_identifier: a_function
+        function_contents:
+          bracketed:
+            start_bracket: (
+            expression:
+              column_reference:
+                naked_identifier: a_parameter
+            end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_view_statement:
+    - keyword: ALTER
+    - keyword: VIEW
+    - keyword: IF
+    - keyword: EXISTS
+    - table_reference:
+        naked_identifier: myview
+    - keyword: ALTER
+    - column_reference:
+        naked_identifier: other_column
+    - keyword: SET
+    - keyword: DEFAULT
+    - function:
+        function_name:
+          function_name_identifier: a_function
+        function_contents:
+          bracketed:
+            start_bracket: (
+            expression:
+              quoted_literal: "'a_parameter'"
+            end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_view_statement:
+    - keyword: ALTER
+    - keyword: VIEW
+    - keyword: IF
+    - keyword: EXISTS
+    - table_reference:
+        naked_identifier: myview
+    - keyword: ALTER
+    - column_reference:
+        naked_identifier: other_column
+    - keyword: DROP
+    - keyword: DEFAULT
+- statement_terminator: ;
+- statement:
+    alter_view_statement:
+    - keyword: ALTER
+    - keyword: VIEW
+    - table_reference:
+        naked_identifier: myview
+    - keyword: OWNER
+    - keyword: TO
+    - object_reference:
+        naked_identifier: baz_role
+- statement_terminator: ;
+- statement:
+    alter_view_statement:
+    - keyword: ALTER
+    - keyword: VIEW
+    - table_reference:
+        naked_identifier: myview
+    - keyword: OWNER
+    - keyword: TO
+    - object_reference:
+        quoted_identifier: '"baz-role"'
+- statement_terminator: ;
+- statement:
+    alter_view_statement:
+    - keyword: ALTER
+    - keyword: VIEW
+    - table_reference:
+        naked_identifier: myview
+    - keyword: OWNER
+    - keyword: TO
+    - keyword: CURRENT_ROLE
+- statement_terminator: ;
+- statement:
+    alter_view_statement:
+    - keyword: ALTER
+    - keyword: VIEW
+    - table_reference:
+        naked_identifier: myview
+    - keyword: OWNER
+    - keyword: TO
+    - object_reference:
+        naked_identifier: CURRENT_USER
+- statement_terminator: ;
+- statement:
+    alter_view_statement:
+    - keyword: ALTER
+    - keyword: VIEW
+    - table_reference:
+        naked_identifier: myview
+    - keyword: OWNER
+    - keyword: TO
+    - keyword: SESSION_USER
+- statement_terminator: ;
+- statement:
+    alter_view_statement:
+    - keyword: ALTER
+    - keyword: VIEW
+    - keyword: IF
+    - keyword: EXISTS
+    - table_reference:
+        naked_identifier: myview
+    - keyword: OWNER
+    - keyword: TO
+    - object_reference:
+        naked_identifier: baz_role
+- statement_terminator: ;
+- statement:
+    alter_view_statement:
+    - keyword: ALTER
+    - keyword: VIEW
+    - keyword: IF
+    - keyword: EXISTS
+    - table_reference:
+        naked_identifier: myview
+    - keyword: OWNER
+    - keyword: TO
+    - object_reference:
+        quoted_identifier: '"baz-role"'
+- statement_terminator: ;
+- statement:
+    alter_view_statement:
+    - keyword: ALTER
+    - keyword: VIEW
+    - keyword: IF
+    - keyword: EXISTS
+    - table_reference:
+        naked_identifier: myview
+    - keyword: OWNER
+    - keyword: TO
+    - keyword: CURRENT_ROLE
+- statement_terminator: ;
+- statement:
+    alter_view_statement:
+    - keyword: ALTER
+    - keyword: VIEW
+    - keyword: IF
+    - keyword: EXISTS
+    - table_reference:
+        naked_identifier: myview
+    - keyword: OWNER
+    - keyword: TO
+    - object_reference:
+        naked_identifier: CURRENT_USER
+- statement_terminator: ;
+- statement:
+    alter_view_statement:
+    - keyword: ALTER
+    - keyword: VIEW
+    - keyword: IF
+    - keyword: EXISTS
+    - table_reference:
+        naked_identifier: myview
+    - keyword: OWNER
+    - keyword: TO
+    - keyword: SESSION_USER
+- statement_terminator: ;
+- statement:
+    alter_view_statement:
+    - keyword: ALTER
+    - keyword: VIEW
+    - table_reference:
+        naked_identifier: myview
+    - keyword: RENAME
+    - column_reference:
+        naked_identifier: column_name
+    - keyword: TO
+    - column_reference:
+        naked_identifier: new_column_name
+- statement_terminator: ;
+- statement:
+    alter_view_statement:
+    - keyword: ALTER
+    - keyword: VIEW
+    - table_reference:
+        naked_identifier: myview
+    - keyword: RENAME
+    - keyword: COLUMN
+    - column_reference:
+        naked_identifier: column_name
+    - keyword: TO
+    - column_reference:
+        naked_identifier: new_column_name
+- statement_terminator: ;
+- statement:
+    alter_view_statement:
+    - keyword: ALTER
+    - keyword: VIEW
+    - keyword: IF
+    - keyword: EXISTS
+    - table_reference:
+        naked_identifier: myview
+    - keyword: RENAME
+    - column_reference:
+        naked_identifier: column_name
+    - keyword: TO
+    - column_reference:
+        naked_identifier: new_column_name
+- statement_terminator: ;
+- statement:
+    alter_view_statement:
+    - keyword: ALTER
+    - keyword: VIEW
+    - keyword: IF
+    - keyword: EXISTS
+    - table_reference:
+        naked_identifier: myview
+    - keyword: RENAME
+    - keyword: COLUMN
+    - column_reference:
+        naked_identifier: column_name
+    - keyword: TO
+    - column_reference:
+        naked_identifier: new_column_name
+- statement_terminator: ;
+- statement:
+    alter_view_statement:
+    - keyword: ALTER
+    - keyword: VIEW
+    - table_reference:
+        naked_identifier: myview
+    - keyword: RENAME
+    - keyword: TO
+    - table_reference:
+        naked_identifier: new_name
+- statement_terminator: ;
+- statement:
+    alter_view_statement:
+    - keyword: ALTER
+    - keyword: VIEW
+    - keyword: IF
+    - keyword: EXISTS
+    - table_reference:
+        naked_identifier: myview
+    - keyword: RENAME
+    - keyword: TO
+    - table_reference:
+        naked_identifier: new_name
+- statement_terminator: ;
+- statement:
+    alter_view_statement:
+    - keyword: ALTER
+    - keyword: VIEW
+    - table_reference:
+        naked_identifier: myview
+    - keyword: SET
+    - keyword: SCHEMA
+    - schema_reference:
+        naked_identifier: new_schema
+- statement_terminator: ;
+- statement:
+    alter_view_statement:
+    - keyword: ALTER
+    - keyword: VIEW
+    - keyword: IF
+    - keyword: EXISTS
+    - table_reference:
+        naked_identifier: myview
+    - keyword: SET
+    - keyword: SCHEMA
+    - schema_reference:
+        naked_identifier: new_schema
+- statement_terminator: ;
+- statement:
+    alter_view_statement:
+    - keyword: ALTER
+    - keyword: VIEW
+    - table_reference:
+        naked_identifier: myview
+    - keyword: SET
+    - bracketed:
+        start_bracket: (
+        parameter: view_option_name
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_view_statement:
+    - keyword: ALTER
+    - keyword: VIEW
+    - table_reference:
+        naked_identifier: myview
+    - keyword: SET
+    - bracketed:
+        start_bracket: (
+        parameter: view_option_name
+        comparison_operator:
+          raw_comparison_operator: '='
+        numeric_literal: '1'
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_view_statement:
+    - keyword: ALTER
+    - keyword: VIEW
+    - table_reference:
+        naked_identifier: myview
+    - keyword: SET
+    - bracketed:
+      - start_bracket: (
+      - parameter: view_option_name
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - numeric_literal: '1'
+      - comma: ','
+      - parameter: view_option_name2
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'value'"
+      - comma: ','
+      - parameter: view_option_name3
+      - comma: ','
+      - parameter: view_option_name4
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - boolean_literal: 'false'
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_view_statement:
+    - keyword: ALTER
+    - keyword: VIEW
+    - keyword: IF
+    - keyword: EXISTS
+    - table_reference:
+        naked_identifier: myview
+    - keyword: SET
+    - bracketed:
+        start_bracket: (
+        parameter: view_option_name
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_view_statement:
+    - keyword: ALTER
+    - keyword: VIEW
+    - keyword: IF
+    - keyword: EXISTS
+    - table_reference:
+        naked_identifier: myview
+    - keyword: SET
+    - bracketed:
+        start_bracket: (
+        parameter: view_option_name
+        comparison_operator:
+          raw_comparison_operator: '='
+        numeric_literal: '1'
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_view_statement:
+    - keyword: ALTER
+    - keyword: VIEW
+    - keyword: IF
+    - keyword: EXISTS
+    - table_reference:
+        naked_identifier: myview
+    - keyword: SET
+    - bracketed:
+      - start_bracket: (
+      - parameter: view_option_name
+      - comma: ','
+      - parameter: view_option_name2
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - numeric_literal: '1'
+      - comma: ','
+      - parameter: view_option_name3
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_view_statement:
+    - keyword: ALTER
+    - keyword: VIEW
+    - table_reference:
+        naked_identifier: myview
+    - keyword: RESET
+    - bracketed:
+        start_bracket: (
+        parameter: view_option_name
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_view_statement:
+    - keyword: ALTER
+    - keyword: VIEW
+    - table_reference:
+        naked_identifier: myview
+    - keyword: RESET
+    - bracketed:
+      - start_bracket: (
+      - parameter: view_option_name
+      - comma: ','
+      - parameter: view_option_name2
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_view_statement:
+    - keyword: ALTER
+    - keyword: VIEW
+    - keyword: IF
+    - keyword: EXISTS
+    - table_reference:
+        naked_identifier: myview
+    - keyword: RESET
+    - bracketed:
+        start_bracket: (
+        parameter: view_option_name
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_view_statement:
+    - keyword: ALTER
+    - keyword: VIEW
+    - keyword: IF
+    - keyword: EXISTS
+    - table_reference:
+        naked_identifier: myview
+    - keyword: RESET
+    - bracketed:
+      - start_bracket: (
+      - parameter: view_option_name
+      - comma: ','
+      - parameter: view_option_name2
+      - end_bracket: )
+- statement_terminator: ;

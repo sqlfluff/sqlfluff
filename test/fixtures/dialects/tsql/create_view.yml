@@ -3,165 +3,169 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 9847203dfe62aa77d02827bd8d172a378991a31f879aaecdd7ea2f81fd78a125
+_hash: b3309837c852cd22ce3ce3e0131ef249d3eeef0915c2e0a74a3139de03d78383
 file:
   batch:
   - statement:
       create_view_statement:
       - keyword: CREATE
-      - binary_operator: OR
+      - keyword: OR
       - keyword: ALTER
       - keyword: VIEW
       - object_reference:
-        - identifier: Sales
+        - naked_identifier: Sales
         - dot: .
-        - identifier: SalesPersonPerform
+        - naked_identifier: SalesPersonPerform
       - keyword: AS
       - select_statement:
           select_clause:
           - keyword: SELECT
           - select_clause_modifier:
               keyword: TOP
-              expression:
-                bracketed:
-                  start_bracket: (
-                  expression:
-                    literal: '100'
-                  end_bracket: )
+              bracketed:
+                start_bracket: (
+                expression:
+                  integer_literal: '100'
+                end_bracket: )
           - select_clause_element:
               column_reference:
-                identifier: SalesPersonID
+                naked_identifier: SalesPersonID
           - comma: ','
           - select_clause_element:
               function:
                 function_name:
                   function_name_identifier: SUM
-                bracketed:
-                  start_bracket: (
-                  expression:
-                    column_reference:
-                      identifier: TotalDue
-                  end_bracket: )
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      column_reference:
+                        naked_identifier: TotalDue
+                    end_bracket: )
               alias_expression:
-                keyword: AS
-                identifier: TotalSales
+                alias_operator:
+                  keyword: AS
+                naked_identifier: TotalSales
           from_clause:
             keyword: FROM
             from_expression:
               from_expression_element:
                 table_expression:
                   table_reference:
-                  - identifier: Sales
+                  - naked_identifier: Sales
                   - dot: .
-                  - identifier: SalesOrderHeader
+                  - naked_identifier: SalesOrderHeader
           where_clause:
             keyword: WHERE
             expression:
               column_reference:
-                identifier: OrderDate
-              comparison_operator: '>'
+                naked_identifier: OrderDate
+              comparison_operator:
+                raw_comparison_operator: '>'
               function:
                 function_name:
                   keyword: CONVERT
-                bracketed:
-                - start_bracket: (
-                - data_type:
-                    identifier: DATETIME
-                - comma: ','
-                - expression:
-                    literal: "'20001231'"
-                - comma: ','
-                - expression:
-                    literal: '101'
-                - end_bracket: )
+                function_contents:
+                  bracketed:
+                  - start_bracket: (
+                  - data_type:
+                      keyword: DATETIME
+                  - comma: ','
+                  - expression:
+                      quoted_literal: "'20001231'"
+                  - comma: ','
+                  - numeric_literal: '101'
+                  - end_bracket: )
           groupby_clause:
           - keyword: GROUP
           - keyword: BY
           - column_reference:
-              identifier: SalesPersonID
-          statement_terminator: ;
+              naked_identifier: SalesPersonID
+  - statement_terminator: ;
   - statement:
       create_view_statement:
       - keyword: CREATE
-      - binary_operator: OR
+      - keyword: OR
       - keyword: ALTER
       - keyword: VIEW
       - object_reference:
-        - identifier: Sales
+        - naked_identifier: Sales
         - dot: .
-        - identifier: SalesPersonPerform
+        - naked_identifier: SalesPersonPerform
       - keyword: AS
       - select_statement:
           select_clause:
           - keyword: SELECT
           - select_clause_modifier:
               keyword: TOP
-              expression:
-                bracketed:
-                  start_bracket: (
-                  expression:
-                    literal: '100'
-                  end_bracket: )
+              bracketed:
+                start_bracket: (
+                expression:
+                  integer_literal: '100'
+                end_bracket: )
           - select_clause_element:
               column_reference:
-                identifier: SalesPersonID
+                naked_identifier: SalesPersonID
           - comma: ','
           - select_clause_element:
               function:
                 function_name:
                   function_name_identifier: SUM
-                bracketed:
-                  start_bracket: (
-                  expression:
-                    column_reference:
-                      identifier: TotalDue
-                  end_bracket: )
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      column_reference:
+                        naked_identifier: TotalDue
+                    end_bracket: )
               alias_expression:
-                keyword: AS
-                identifier: TotalSales
+                alias_operator:
+                  keyword: AS
+                naked_identifier: TotalSales
           from_clause:
             keyword: FROM
             from_expression:
               from_expression_element:
                 table_expression:
                   table_reference:
-                  - identifier: Sales
+                  - naked_identifier: Sales
                   - dot: .
-                  - identifier: SalesOrderHeader
+                  - naked_identifier: SalesOrderHeader
           where_clause:
             keyword: WHERE
             expression:
               column_reference:
-                identifier: OrderDate
-              comparison_operator: '>'
+                naked_identifier: OrderDate
+              comparison_operator:
+                raw_comparison_operator: '>'
               function:
                 function_name:
                   keyword: CONVERT
-                bracketed:
-                - start_bracket: (
-                - data_type:
-                    identifier: DATETIME
-                - comma: ','
-                - expression:
-                    literal: "'20001231'"
-                - comma: ','
-                - expression:
-                    literal: '101'
-                - end_bracket: )
+                function_contents:
+                  bracketed:
+                  - start_bracket: (
+                  - data_type:
+                      keyword: DATETIME
+                  - comma: ','
+                  - expression:
+                      quoted_literal: "'20001231'"
+                  - comma: ','
+                  - numeric_literal: '101'
+                  - end_bracket: )
           groupby_clause:
           - keyword: GROUP
           - keyword: BY
           - column_reference:
-              identifier: SalesPersonID
-          statement_terminator: ;
+              naked_identifier: SalesPersonID
+  - statement_terminator: ;
   - statement:
       create_view_statement:
       - keyword: CREATE
       - keyword: VIEW
       - object_reference:
-        - identifier: Purchasing
+        - naked_identifier: Purchasing
         - dot: .
-        - identifier: PurchaseOrderReject
+        - naked_identifier: PurchaseOrderReject
       - keyword: WITH
       - keyword: SCHEMABINDING
       - keyword: AS
@@ -170,233 +174,241 @@ file:
           - keyword: SELECT
           - select_clause_element:
               column_reference:
-                identifier: PurchaseOrderID
+                naked_identifier: PurchaseOrderID
           - comma: ','
           - select_clause_element:
               column_reference:
-                identifier: ReceivedQty
+                naked_identifier: ReceivedQty
           - comma: ','
           - select_clause_element:
               column_reference:
-                identifier: RejectedQty
+                naked_identifier: RejectedQty
           - comma: ','
           - select_clause_element:
               expression:
               - column_reference:
-                  identifier: RejectedQty
+                  naked_identifier: RejectedQty
               - binary_operator: /
               - column_reference:
-                  identifier: ReceivedQty
+                  naked_identifier: ReceivedQty
               alias_expression:
-                keyword: AS
-                identifier: RejectRatio
+                alias_operator:
+                  keyword: AS
+                naked_identifier: RejectRatio
           - comma: ','
           - select_clause_element:
               column_reference:
-                identifier: DueDate
+                naked_identifier: DueDate
           from_clause:
             keyword: FROM
             from_expression:
               from_expression_element:
                 table_expression:
                   table_reference:
-                  - identifier: Purchasing
+                  - naked_identifier: Purchasing
                   - dot: .
-                  - identifier: PurchaseOrderDetail
+                  - naked_identifier: PurchaseOrderDetail
           where_clause:
             keyword: WHERE
             expression:
             - column_reference:
-                identifier: RejectedQty
+                naked_identifier: RejectedQty
             - binary_operator: /
             - column_reference:
-                identifier: ReceivedQty
-            - comparison_operator: '>'
-            - literal: '0'
+                naked_identifier: ReceivedQty
+            - comparison_operator:
+                raw_comparison_operator: '>'
+            - integer_literal: '0'
             - binary_operator: AND
             - column_reference:
-                identifier: DueDate
-            - comparison_operator: '>'
+                naked_identifier: DueDate
+            - comparison_operator:
+                raw_comparison_operator: '>'
             - function:
                 function_name:
                   keyword: CONVERT
-                bracketed:
-                - start_bracket: (
-                - data_type:
-                    identifier: DATETIME
-                - comma: ','
-                - expression:
-                    literal: "'20010630'"
-                - comma: ','
-                - expression:
-                    literal: '101'
-                - end_bracket: )
-          statement_terminator: ;
+                function_contents:
+                  bracketed:
+                  - start_bracket: (
+                  - data_type:
+                      keyword: DATETIME
+                  - comma: ','
+                  - expression:
+                      quoted_literal: "'20010630'"
+                  - comma: ','
+                  - numeric_literal: '101'
+                  - end_bracket: )
+  - statement_terminator: ;
   - statement:
       create_view_statement:
       - keyword: CREATE
       - keyword: VIEW
       - object_reference:
-        - identifier: dbo
+        - naked_identifier: dbo
         - dot: .
-        - identifier: SeattleOnly
+        - naked_identifier: SeattleOnly
       - keyword: AS
       - select_statement:
           select_clause:
           - keyword: SELECT
           - select_clause_element:
               column_reference:
-              - identifier: p
+              - naked_identifier: p
               - dot: .
-              - identifier: LastName
+              - naked_identifier: LastName
           - comma: ','
           - select_clause_element:
               column_reference:
-              - identifier: p
+              - naked_identifier: p
               - dot: .
-              - identifier: FirstName
+              - naked_identifier: FirstName
           - comma: ','
           - select_clause_element:
               column_reference:
-              - identifier: e
+              - naked_identifier: e
               - dot: .
-              - identifier: JobTitle
+              - naked_identifier: JobTitle
           - comma: ','
           - select_clause_element:
               column_reference:
-              - identifier: a
+              - naked_identifier: a
               - dot: .
-              - identifier: City
+              - naked_identifier: City
           - comma: ','
           - select_clause_element:
               column_reference:
-              - identifier: sp
+              - naked_identifier: sp
               - dot: .
-              - identifier: StateProvinceCode
+              - naked_identifier: StateProvinceCode
           from_clause:
             keyword: FROM
             from_expression:
             - from_expression_element:
                 table_expression:
                   table_reference:
-                  - identifier: HumanResources
+                  - naked_identifier: HumanResources
                   - dot: .
-                  - identifier: Employee
+                  - naked_identifier: Employee
                 alias_expression:
-                  identifier: e
+                  naked_identifier: e
             - join_clause:
               - keyword: INNER
               - keyword: JOIN
               - from_expression_element:
                   table_expression:
                     table_reference:
-                    - identifier: Person
+                    - naked_identifier: Person
                     - dot: .
-                    - identifier: Person
+                    - naked_identifier: Person
                   alias_expression:
-                    identifier: p
+                    naked_identifier: p
               - join_on_condition:
                   keyword: 'ON'
                   expression:
                   - column_reference:
-                    - identifier: p
+                    - naked_identifier: p
                     - dot: .
-                    - identifier: BusinessEntityID
-                  - comparison_operator: '='
+                    - naked_identifier: BusinessEntityID
+                  - comparison_operator:
+                      raw_comparison_operator: '='
                   - column_reference:
-                    - identifier: e
+                    - naked_identifier: e
                     - dot: .
-                    - identifier: BusinessEntityID
+                    - naked_identifier: BusinessEntityID
             - join_clause:
               - keyword: INNER
               - keyword: JOIN
               - from_expression_element:
                   table_expression:
                     table_reference:
-                    - identifier: Person
+                    - naked_identifier: Person
                     - dot: .
-                    - identifier: BusinessEntityAddress
+                    - naked_identifier: BusinessEntityAddress
                   alias_expression:
-                    identifier: bea
+                    naked_identifier: bea
               - join_on_condition:
                   keyword: 'ON'
                   expression:
                   - column_reference:
-                    - identifier: bea
+                    - naked_identifier: bea
                     - dot: .
-                    - identifier: BusinessEntityID
-                  - comparison_operator: '='
+                    - naked_identifier: BusinessEntityID
+                  - comparison_operator:
+                      raw_comparison_operator: '='
                   - column_reference:
-                    - identifier: e
+                    - naked_identifier: e
                     - dot: .
-                    - identifier: BusinessEntityID
+                    - naked_identifier: BusinessEntityID
             - join_clause:
               - keyword: INNER
               - keyword: JOIN
               - from_expression_element:
                   table_expression:
                     table_reference:
-                    - identifier: Person
+                    - naked_identifier: Person
                     - dot: .
-                    - identifier: Address
+                    - naked_identifier: Address
                   alias_expression:
-                    identifier: a
+                    naked_identifier: a
               - join_on_condition:
                   keyword: 'ON'
                   expression:
                   - column_reference:
-                    - identifier: a
+                    - naked_identifier: a
                     - dot: .
-                    - identifier: AddressID
-                  - comparison_operator: '='
+                    - naked_identifier: AddressID
+                  - comparison_operator:
+                      raw_comparison_operator: '='
                   - column_reference:
-                    - identifier: bea
+                    - naked_identifier: bea
                     - dot: .
-                    - identifier: AddressID
+                    - naked_identifier: AddressID
             - join_clause:
               - keyword: INNER
               - keyword: JOIN
               - from_expression_element:
                   table_expression:
                     table_reference:
-                    - identifier: Person
+                    - naked_identifier: Person
                     - dot: .
-                    - identifier: StateProvince
+                    - naked_identifier: StateProvince
                   alias_expression:
-                    identifier: sp
+                    naked_identifier: sp
               - join_on_condition:
                   keyword: 'ON'
                   expression:
                   - column_reference:
-                    - identifier: sp
+                    - naked_identifier: sp
                     - dot: .
-                    - identifier: StateProvinceID
-                  - comparison_operator: '='
+                    - naked_identifier: StateProvinceID
+                  - comparison_operator:
+                      raw_comparison_operator: '='
                   - column_reference:
-                    - identifier: a
+                    - naked_identifier: a
                     - dot: .
-                    - identifier: StateProvinceID
+                    - naked_identifier: StateProvinceID
           where_clause:
             keyword: WHERE
             expression:
               column_reference:
-              - identifier: a
+              - naked_identifier: a
               - dot: .
-              - identifier: City
-              comparison_operator: '='
-              literal: "'Seattle'"
+              - naked_identifier: City
+              comparison_operator:
+                raw_comparison_operator: '='
+              quoted_literal: "'Seattle'"
       - keyword: WITH
       - keyword: CHECK
       - keyword: OPTION
-      - statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       create_view_statement:
       - keyword: CREATE
       - keyword: VIEW
       - object_reference:
-        - identifier: dbo
+        - naked_identifier: dbo
         - dot: .
-        - identifier: all_supplier_view
+        - naked_identifier: all_supplier_view
       - keyword: WITH
       - keyword: SCHEMABINDING
       - keyword: AS
@@ -406,20 +418,20 @@ file:
             - keyword: SELECT
             - select_clause_element:
                 column_reference:
-                  identifier: supplyID
+                  naked_identifier: supplyID
             - comma: ','
             - select_clause_element:
                 column_reference:
-                  identifier: supplier
+                  naked_identifier: supplier
             from_clause:
               keyword: FROM
               from_expression:
                 from_expression_element:
                   table_expression:
                     table_reference:
-                    - identifier: dbo
+                    - naked_identifier: dbo
                     - dot: .
-                    - identifier: SUPPLY1
+                    - naked_identifier: SUPPLY1
         - set_operator:
           - keyword: UNION
           - keyword: ALL
@@ -428,20 +440,20 @@ file:
             - keyword: SELECT
             - select_clause_element:
                 column_reference:
-                  identifier: supplyID
+                  naked_identifier: supplyID
             - comma: ','
             - select_clause_element:
                 column_reference:
-                  identifier: supplier
+                  naked_identifier: supplier
             from_clause:
               keyword: FROM
               from_expression:
                 from_expression_element:
                   table_expression:
                     table_reference:
-                    - identifier: dbo
+                    - naked_identifier: dbo
                     - dot: .
-                    - identifier: SUPPLY2
+                    - naked_identifier: SUPPLY2
         - set_operator:
           - keyword: UNION
           - keyword: ALL
@@ -450,20 +462,20 @@ file:
             - keyword: SELECT
             - select_clause_element:
                 column_reference:
-                  identifier: supplyID
+                  naked_identifier: supplyID
             - comma: ','
             - select_clause_element:
                 column_reference:
-                  identifier: supplier
+                  naked_identifier: supplier
             from_clause:
               keyword: FROM
               from_expression:
                 from_expression_element:
                   table_expression:
                     table_reference:
-                    - identifier: dbo
+                    - naked_identifier: dbo
                     - dot: .
-                    - identifier: SUPPLY3
+                    - naked_identifier: SUPPLY3
         - set_operator:
           - keyword: UNION
           - keyword: ALL
@@ -472,27 +484,27 @@ file:
             - keyword: SELECT
             - select_clause_element:
                 column_reference:
-                  identifier: supplyID
+                  naked_identifier: supplyID
             - comma: ','
             - select_clause_element:
                 column_reference:
-                  identifier: supplier
+                  naked_identifier: supplier
             from_clause:
               keyword: FROM
               from_expression:
                 from_expression_element:
                   table_expression:
                     table_reference:
-                    - identifier: dbo
+                    - naked_identifier: dbo
                     - dot: .
-                    - identifier: SUPPLY4
-              statement_terminator: ;
+                    - naked_identifier: SUPPLY4
+  - statement_terminator: ;
   - statement:
       create_view_statement:
       - keyword: create
       - keyword: view
       - object_reference:
-          identifier: vw_view
+          naked_identifier: vw_view
       - keyword: with
       - keyword: schemabinding
       - comma: ','
@@ -503,13 +515,13 @@ file:
             keyword: select
             select_clause_element:
               column_reference:
-              - identifier: A
+              - naked_identifier: A
               - dot: .
-              - identifier: ID
+              - naked_identifier: ID
           from_clause:
             keyword: from
             from_expression:
               from_expression_element:
                 table_expression:
                   table_reference:
-                    identifier: A
+                    naked_identifier: A

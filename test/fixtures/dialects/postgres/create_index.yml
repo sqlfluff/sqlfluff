@@ -1,0 +1,492 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 4672198550270b7d4506c0a3189b92c6a115ac3fa72247a53943c986fd45dc80
+file:
+- statement:
+    create_index_statement:
+    - keyword: CREATE
+    - keyword: UNIQUE
+    - keyword: INDEX
+    - index_reference:
+        naked_identifier: title_idx
+    - keyword: 'ON'
+    - table_reference:
+        naked_identifier: films
+    - bracketed:
+        start_bracket: (
+        index_element:
+          column_reference:
+            naked_identifier: title
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_index_statement:
+    - keyword: CREATE
+    - keyword: UNIQUE
+    - keyword: INDEX
+    - index_reference:
+        naked_identifier: title_idx
+    - keyword: 'ON'
+    - table_reference:
+        naked_identifier: films
+    - bracketed:
+        start_bracket: (
+        index_element:
+          column_reference:
+            naked_identifier: title
+        end_bracket: )
+    - keyword: INCLUDE
+    - bracketed:
+      - start_bracket: (
+      - index_element:
+          column_reference:
+            naked_identifier: director
+      - comma: ','
+      - index_element:
+          column_reference:
+            naked_identifier: rating
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_index_statement:
+    - keyword: CREATE
+    - keyword: INDEX
+    - index_reference:
+        naked_identifier: title_idx
+    - keyword: 'ON'
+    - table_reference:
+        naked_identifier: films
+    - bracketed:
+        start_bracket: (
+        index_element:
+          column_reference:
+            naked_identifier: title
+        end_bracket: )
+    - keyword: WITH
+    - relation_options:
+        bracketed:
+          start_bracket: (
+          relation_option:
+            properties_naked_identifier: deduplicate_items
+            comparison_operator:
+              raw_comparison_operator: '='
+            quoted_literal: "'off'"
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_index_statement:
+    - keyword: CREATE
+    - keyword: INDEX
+    - keyword: 'ON'
+    - table_reference:
+        naked_identifier: films
+    - bracketed:
+        start_bracket: (
+        index_element:
+          bracketed:
+            start_bracket: (
+            expression:
+              function:
+                function_name:
+                  function_name_identifier: lower
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      column_reference:
+                        naked_identifier: title
+                    end_bracket: )
+            end_bracket: )
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_index_statement:
+    - keyword: CREATE
+    - keyword: INDEX
+    - index_reference:
+        naked_identifier: title_idx_german
+    - keyword: 'ON'
+    - table_reference:
+        naked_identifier: films
+    - bracketed:
+        start_bracket: (
+        index_element:
+          column_reference:
+            naked_identifier: title
+          index_element_options:
+            keyword: COLLATE
+            collation_reference:
+              quoted_identifier: '"de_DE"'
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_index_statement:
+    - keyword: CREATE
+    - keyword: INDEX
+    - index_reference:
+        naked_identifier: title_idx_nulls_low
+    - keyword: 'ON'
+    - table_reference:
+        naked_identifier: films
+    - bracketed:
+        start_bracket: (
+        index_element:
+          column_reference:
+            naked_identifier: title
+          index_element_options:
+          - keyword: NULLS
+          - keyword: FIRST
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_index_statement:
+    - keyword: CREATE
+    - keyword: INDEX
+    - index_reference:
+        naked_identifier: title_idx_nulls_high
+    - keyword: 'ON'
+    - table_reference:
+        naked_identifier: films
+    - bracketed:
+        start_bracket: (
+        index_element:
+          column_reference:
+            naked_identifier: title
+          index_element_options:
+          - keyword: NULLS
+          - keyword: LAST
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_index_statement:
+    - keyword: CREATE
+    - keyword: UNIQUE
+    - keyword: INDEX
+    - index_reference:
+        naked_identifier: title_idx
+    - keyword: 'ON'
+    - table_reference:
+        naked_identifier: films
+    - bracketed:
+        start_bracket: (
+        index_element:
+          column_reference:
+            naked_identifier: title
+        end_bracket: )
+    - keyword: WITH
+    - relation_options:
+        bracketed:
+          start_bracket: (
+          relation_option:
+            properties_naked_identifier: fillfactor
+            comparison_operator:
+              raw_comparison_operator: '='
+            numeric_literal: '70'
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_index_statement:
+    - keyword: CREATE
+    - keyword: INDEX
+    - index_reference:
+        naked_identifier: gin_idx
+    - keyword: 'ON'
+    - table_reference:
+        naked_identifier: documents_table
+    - keyword: USING
+    - index_access_method:
+        naked_identifier: GIN
+    - bracketed:
+        start_bracket: (
+        index_element:
+          column_reference:
+            naked_identifier: locations
+        end_bracket: )
+    - keyword: WITH
+    - relation_options:
+        bracketed:
+          start_bracket: (
+          relation_option:
+            properties_naked_identifier: fastupdate
+            comparison_operator:
+              raw_comparison_operator: '='
+            quoted_literal: "'off'"
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_index_statement:
+    - keyword: CREATE
+    - keyword: INDEX
+    - index_reference:
+        naked_identifier: code_idx
+    - keyword: 'ON'
+    - table_reference:
+        naked_identifier: films
+    - bracketed:
+        start_bracket: (
+        index_element:
+          column_reference:
+            naked_identifier: code
+        end_bracket: )
+    - keyword: TABLESPACE
+    - tablespace_reference:
+        naked_identifier: indexspace
+- statement_terminator: ;
+- statement:
+    create_index_statement:
+    - keyword: CREATE
+    - keyword: INDEX
+    - index_reference:
+        naked_identifier: pointloc
+    - keyword: 'ON'
+    - table_reference:
+        naked_identifier: points
+    - keyword: USING
+    - index_access_method:
+        naked_identifier: gist
+    - bracketed:
+        start_bracket: (
+        index_element:
+          function:
+            function_name:
+              function_name_identifier: box
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                    naked_identifier: location
+              - comma: ','
+              - expression:
+                  column_reference:
+                    naked_identifier: location
+              - end_bracket: )
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_index_statement:
+    - keyword: CREATE
+    - keyword: INDEX
+    - keyword: CONCURRENTLY
+    - index_reference:
+        naked_identifier: sales_quantity_index
+    - keyword: 'ON'
+    - table_reference:
+        naked_identifier: sales_table
+    - bracketed:
+        start_bracket: (
+        index_element:
+          column_reference:
+            naked_identifier: quantity
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_index_statement:
+    - keyword: CREATE
+    - keyword: INDEX
+    - index_reference:
+        naked_identifier: super_idx
+    - keyword: 'ON'
+    - table_reference:
+        naked_identifier: super_table
+    - keyword: USING
+    - index_access_method:
+        naked_identifier: btree
+    - bracketed:
+        start_bracket: (
+        index_element:
+          column_reference:
+            naked_identifier: super_column
+          index_element_options:
+            keyword: DESC
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_index_statement:
+    - keyword: CREATE
+    - keyword: INDEX
+    - index_reference:
+        naked_identifier: opclass_index
+    - keyword: 'ON'
+    - table_reference:
+      - naked_identifier: schema
+      - dot: .
+      - naked_identifier: opclass_table
+    - bracketed:
+        start_bracket: (
+        index_element:
+          column_reference:
+            naked_identifier: col
+          index_element_options:
+            operator_class_reference:
+              naked_identifier: varchar_pattern_ops
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_index_statement:
+    - keyword: CREATE
+    - keyword: INDEX
+    - index_reference:
+        naked_identifier: opclass_index_with_parameters
+    - keyword: 'ON'
+    - table_reference:
+      - naked_identifier: schema
+      - dot: .
+      - naked_identifier: opclass_table
+    - bracketed:
+        start_bracket: (
+        index_element:
+          column_reference:
+            naked_identifier: col
+          index_element_options:
+            operator_class_reference:
+              naked_identifier: varchar_pattern_ops
+            relation_options:
+              bracketed:
+              - start_bracket: (
+              - relation_option:
+                  properties_naked_identifier: p1
+                  comparison_operator:
+                    raw_comparison_operator: '='
+                  quoted_literal: "'3'"
+              - comma: ','
+              - relation_option:
+                  properties_naked_identifier: p2
+                  comparison_operator:
+                    raw_comparison_operator: '='
+                  quoted_literal: "'4'"
+              - end_bracket: )
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_index_statement:
+    - keyword: CREATE
+    - keyword: UNIQUE
+    - keyword: INDEX
+    - index_reference:
+        naked_identifier: tests_success_constraint
+    - keyword: 'ON'
+    - table_reference:
+        naked_identifier: tests
+    - bracketed:
+      - start_bracket: (
+      - index_element:
+          column_reference:
+            naked_identifier: subject
+      - comma: ','
+      - index_element:
+          column_reference:
+            naked_identifier: target
+      - end_bracket: )
+    - keyword: WHERE
+    - expression:
+        column_reference:
+          naked_identifier: success
+- statement_terminator: ;
+- statement:
+    create_index_statement:
+    - keyword: CREATE
+    - keyword: INDEX
+    - index_reference:
+        naked_identifier: nulls_distinct_index
+    - keyword: 'ON'
+    - table_reference:
+        naked_identifier: documents_table
+    - keyword: USING
+    - index_access_method:
+        naked_identifier: GIN
+    - bracketed:
+        start_bracket: (
+        index_element:
+          column_reference:
+            naked_identifier: locations
+        end_bracket: )
+    - keyword: NULLS
+    - keyword: DISTINCT
+    - keyword: WITH
+    - relation_options:
+        bracketed:
+          start_bracket: (
+          relation_option:
+            properties_naked_identifier: fastupdate
+            comparison_operator:
+              raw_comparison_operator: '='
+            quoted_literal: "'off'"
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_index_statement:
+    - keyword: CREATE
+    - keyword: INDEX
+    - index_reference:
+        naked_identifier: nulls_not_distinct_index
+    - keyword: 'ON'
+    - table_reference:
+        naked_identifier: documents_table
+    - keyword: USING
+    - index_access_method:
+        naked_identifier: GIN
+    - bracketed:
+        start_bracket: (
+        index_element:
+          column_reference:
+            naked_identifier: locations
+        end_bracket: )
+    - keyword: NULLS
+    - keyword: NOT
+    - keyword: DISTINCT
+    - keyword: WITH
+    - relation_options:
+        bracketed:
+          start_bracket: (
+          relation_option:
+            properties_naked_identifier: fastupdate
+            comparison_operator:
+              raw_comparison_operator: '='
+            quoted_literal: "'off'"
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_index_statement:
+    - keyword: CREATE
+    - keyword: INDEX
+    - index_reference:
+        naked_identifier: code_idx
+    - keyword: 'ON'
+    - table_reference:
+        naked_identifier: films
+    - bracketed:
+        start_bracket: (
+        index_element:
+          column_reference:
+            naked_identifier: code
+        end_bracket: )
+    - keyword: TABLESPACE
+    - tablespace_reference:
+        naked_identifier: indexspace
+- statement_terminator: ;
+- statement:
+    create_index_statement:
+    - keyword: CREATE
+    - keyword: INDEX
+    - keyword: CONCURRENTLY
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - index_reference:
+        naked_identifier: user_my_column_idx
+    - keyword: 'ON'
+    - table_reference:
+      - naked_identifier: my_schema
+      - dot: .
+      - naked_identifier: user
+    - bracketed:
+        start_bracket: (
+        index_element:
+          column_reference:
+            naked_identifier: my_column
+        end_bracket: )
+- statement_terminator: ;

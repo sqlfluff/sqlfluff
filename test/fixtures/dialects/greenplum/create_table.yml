@@ -1,0 +1,834 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 1879c4ed396cb8893d523c19d4502a7ccbcfe71eb87e9b19abd1087b9f0a4387
+file:
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: measurement
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: city_id
+      - data_type:
+          keyword: int
+      - column_constraint_segment:
+        - keyword: NOT
+        - keyword: 'NULL'
+      - comma: ','
+      - column_reference:
+          naked_identifier: logdate
+      - data_type:
+          datetime_type_identifier:
+            keyword: date
+      - column_constraint_segment:
+        - keyword: NOT
+        - keyword: 'NULL'
+      - comma: ','
+      - column_reference:
+          naked_identifier: peaktemp
+      - data_type:
+          keyword: int
+      - comma: ','
+      - column_reference:
+          naked_identifier: unitsales
+      - data_type:
+          keyword: int
+      - end_bracket: )
+    - keyword: WITH
+    - bracketed:
+      - start_bracket: (
+      - parameter: appendoptimized
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - boolean_literal: 'true'
+      - comma: ','
+      - parameter: compresslevel
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - numeric_literal: '5'
+      - end_bracket: )
+    - distributed_by:
+      - keyword: DISTRIBUTED
+      - keyword: BY
+      - bracketed:
+        - start_bracket: (
+        - column_reference:
+            naked_identifier: txn_id
+        - comma: ','
+        - column_reference:
+            naked_identifier: other_field
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: measurement
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: city_id
+      - data_type:
+          keyword: int
+      - column_constraint_segment:
+        - keyword: NOT
+        - keyword: 'NULL'
+      - comma: ','
+      - column_reference:
+          naked_identifier: logdate
+      - data_type:
+          datetime_type_identifier:
+            keyword: date
+      - column_constraint_segment:
+        - keyword: NOT
+        - keyword: 'NULL'
+      - comma: ','
+      - column_reference:
+          naked_identifier: peaktemp
+      - data_type:
+          keyword: int
+      - comma: ','
+      - column_reference:
+          naked_identifier: unitsales
+      - data_type:
+          keyword: int
+      - end_bracket: )
+    - keyword: WITH
+    - bracketed:
+      - start_bracket: (
+      - parameter: appendoptimized
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - boolean_literal: 'true'
+      - comma: ','
+      - parameter: orientation
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_identifier: '"column"'
+      - end_bracket: )
+    - distributed_by:
+      - keyword: DISTRIBUTED
+      - keyword: BY
+      - bracketed:
+          start_bracket: (
+          column_reference:
+            naked_identifier: txn_id
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TEMP
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: test
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: test_id
+      - data_type:
+          keyword: int
+      - column_constraint_segment:
+        - keyword: NOT
+        - keyword: 'NULL'
+      - comma: ','
+      - column_reference:
+          naked_identifier: logdate
+      - data_type:
+          datetime_type_identifier:
+            keyword: date
+      - column_constraint_segment:
+        - keyword: NOT
+        - keyword: 'NULL'
+      - comma: ','
+      - column_reference:
+          naked_identifier: test_text
+      - data_type:
+          keyword: int
+      - end_bracket: )
+    - distributed_by:
+      - keyword: DISTRIBUTED
+      - keyword: BY
+      - bracketed:
+          start_bracket: (
+          column_reference:
+            naked_identifier: txn_id
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: test_randomly
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: test_id
+      - data_type:
+          keyword: int
+      - column_constraint_segment:
+        - keyword: NOT
+        - keyword: 'NULL'
+      - comma: ','
+      - column_reference:
+          naked_identifier: logdate
+      - data_type:
+          datetime_type_identifier:
+            keyword: date
+      - column_constraint_segment:
+        - keyword: NOT
+        - keyword: 'NULL'
+      - comma: ','
+      - column_reference:
+          naked_identifier: test_text
+      - data_type:
+          keyword: int
+      - end_bracket: )
+    - distributed_by:
+      - keyword: DISTRIBUTED
+      - keyword: RANDOMLY
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: test_replicated
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: test_id
+      - data_type:
+          keyword: int
+      - column_constraint_segment:
+        - keyword: NOT
+        - keyword: 'NULL'
+      - comma: ','
+      - column_reference:
+          naked_identifier: logdate
+      - data_type:
+          datetime_type_identifier:
+            keyword: date
+      - column_constraint_segment:
+        - keyword: NOT
+        - keyword: 'NULL'
+      - comma: ','
+      - column_reference:
+          naked_identifier: test_text
+      - data_type:
+          keyword: int
+      - end_bracket: )
+    - distributed_by:
+      - keyword: DISTRIBUTED
+      - keyword: REPLICATED
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: create
+    - keyword: table
+    - table_reference:
+        naked_identifier: table1
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: column1
+      - data_type:
+          keyword: int
+      - comma: ','
+      - column_reference:
+          naked_identifier: column2
+      - data_type:
+          keyword: varchar
+      - comma: ','
+      - column_reference:
+          naked_identifier: column3
+      - data_type:
+          keyword: boolean
+      - end_bracket: )
+    - keyword: with
+    - bracketed:
+      - start_bracket: (
+      - parameter: appendoptimized
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - boolean_literal: 'true'
+      - comma: ','
+      - parameter: compresstype
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - naked_identifier: zstd
+      - end_bracket: )
+    - distributed_by:
+      - keyword: distributed
+      - keyword: by
+      - bracketed:
+        - start_bracket: (
+        - column_reference:
+            naked_identifier: column1
+        - comma: ','
+        - column_reference:
+            naked_identifier: column2
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: sales
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: id
+      - data_type:
+          keyword: int
+      - comma: ','
+      - column_reference:
+          naked_identifier: year
+      - data_type:
+          keyword: int
+      - comma: ','
+      - column_reference:
+          naked_identifier: qtr
+      - data_type:
+          keyword: int
+      - comma: ','
+      - column_reference:
+          naked_identifier: c_rank
+      - data_type:
+          keyword: int
+      - comma: ','
+      - column_reference:
+          naked_identifier: code
+      - data_type:
+          keyword: char
+          bracketed_arguments:
+            bracketed:
+              start_bracket: (
+              numeric_literal: '1'
+              end_bracket: )
+      - comma: ','
+      - column_reference:
+          naked_identifier: region
+      - data_type:
+          keyword: text
+      - end_bracket: )
+    - distributed_by:
+      - keyword: DISTRIBUTED
+      - keyword: BY
+      - bracketed:
+          start_bracket: (
+          column_reference:
+            naked_identifier: id
+          end_bracket: )
+    - keyword: PARTITION
+    - keyword: BY
+    - keyword: LIST
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          naked_identifier: code
+        end_bracket: )
+    - bracketed:
+      - start_bracket: (
+      - word: PARTITION
+      - word: sales
+      - word: VALUES
+      - bracketed:
+          start_bracket: (
+          single_quote: "'S'"
+          end_bracket: )
+      - comma: ','
+      - word: PARTITION
+      - word: returns
+      - word: VALUES
+      - bracketed:
+          start_bracket: (
+          single_quote: "'R'"
+          end_bracket: )
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: sales
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: id
+      - data_type:
+          keyword: int
+      - comma: ','
+      - column_reference:
+          naked_identifier: year
+      - data_type:
+          keyword: int
+      - comma: ','
+      - column_reference:
+          naked_identifier: qtr
+      - data_type:
+          keyword: int
+      - comma: ','
+      - column_reference:
+          naked_identifier: c_rank
+      - data_type:
+          keyword: int
+      - comma: ','
+      - column_reference:
+          naked_identifier: code
+      - data_type:
+          keyword: char
+          bracketed_arguments:
+            bracketed:
+              start_bracket: (
+              numeric_literal: '1'
+              end_bracket: )
+      - comma: ','
+      - column_reference:
+          naked_identifier: region
+      - data_type:
+          keyword: text
+      - end_bracket: )
+    - distributed_by:
+      - keyword: DISTRIBUTED
+      - keyword: BY
+      - bracketed:
+          start_bracket: (
+          column_reference:
+            naked_identifier: id
+          end_bracket: )
+    - keyword: PARTITION
+    - keyword: BY
+    - keyword: LIST
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          naked_identifier: code
+        end_bracket: )
+    - keyword: SUBPARTITION
+    - keyword: BY
+    - keyword: RANGE
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          naked_identifier: c_rank
+        end_bracket: )
+    - keyword: SUBPARTITION
+    - keyword: by
+    - keyword: LIST
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          naked_identifier: region
+        end_bracket: )
+    - bracketed:
+      - start_bracket: (
+      - word: PARTITION
+      - word: sales
+      - word: VALUES
+      - bracketed:
+          start_bracket: (
+          single_quote: "'S'"
+          end_bracket: )
+      - bracketed:
+        - start_bracket: (
+        - word: SUBPARTITION
+        - word: cr1
+        - word: START
+        - bracketed:
+            start_bracket: (
+            numeric_literal: '1'
+            end_bracket: )
+        - word: END
+        - bracketed:
+            start_bracket: (
+            numeric_literal: '2'
+            end_bracket: )
+        - bracketed:
+          - start_bracket: (
+          - word: SUBPARTITION
+          - word: ca
+          - word: VALUES
+          - start_bracket: (
+          - single_quote: "'CA'"
+          - end_bracket: )
+          - end_bracket: )
+        - comma: ','
+        - word: SUBPARTITION
+        - word: cr2
+        - word: START
+        - bracketed:
+            start_bracket: (
+            numeric_literal: '3'
+            end_bracket: )
+        - word: END
+        - bracketed:
+            start_bracket: (
+            numeric_literal: '4'
+            end_bracket: )
+        - bracketed:
+          - start_bracket: (
+          - word: SUBPARTITION
+          - word: ca
+          - word: VALUES
+          - start_bracket: (
+          - single_quote: "'CA'"
+          - end_bracket: )
+          - end_bracket: )
+        - end_bracket: )
+      - comma: ','
+      - word: PARTITION
+      - word: returns
+      - word: VALUES
+      - bracketed:
+          start_bracket: (
+          single_quote: "'R'"
+          end_bracket: )
+      - bracketed:
+        - start_bracket: (
+        - word: SUBPARTITION
+        - word: cr1
+        - word: START
+        - bracketed:
+            start_bracket: (
+            numeric_literal: '1'
+            end_bracket: )
+        - word: END
+        - bracketed:
+            start_bracket: (
+            numeric_literal: '2'
+            end_bracket: )
+        - bracketed:
+          - start_bracket: (
+          - word: SUBPARTITION
+          - word: ca
+          - word: VALUES
+          - start_bracket: (
+          - single_quote: "'CA'"
+          - end_bracket: )
+          - end_bracket: )
+        - comma: ','
+        - word: SUBPARTITION
+        - word: cr2
+        - word: START
+        - bracketed:
+            start_bracket: (
+            numeric_literal: '3'
+            end_bracket: )
+        - word: END
+        - bracketed:
+            start_bracket: (
+            numeric_literal: '4'
+            end_bracket: )
+        - bracketed:
+          - start_bracket: (
+          - word: SUBPARTITION
+          - word: ca
+          - word: VALUES
+          - start_bracket: (
+          - single_quote: "'CA'"
+          - end_bracket: )
+          - end_bracket: )
+        - end_bracket: )
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: sales1
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: id
+      - data_type:
+          keyword: int
+      - comma: ','
+      - column_reference:
+          naked_identifier: year
+      - data_type:
+          keyword: int
+      - comma: ','
+      - column_reference:
+          naked_identifier: qtr
+      - data_type:
+          keyword: int
+      - comma: ','
+      - column_reference:
+          naked_identifier: c_rank
+      - data_type:
+          keyword: int
+      - comma: ','
+      - column_reference:
+          naked_identifier: code
+      - data_type:
+          keyword: char
+          bracketed_arguments:
+            bracketed:
+              start_bracket: (
+              numeric_literal: '1'
+              end_bracket: )
+      - comma: ','
+      - column_reference:
+          naked_identifier: region
+      - data_type:
+          keyword: text
+      - end_bracket: )
+    - distributed_by:
+      - keyword: DISTRIBUTED
+      - keyword: BY
+      - bracketed:
+          start_bracket: (
+          column_reference:
+            naked_identifier: id
+          end_bracket: )
+    - keyword: PARTITION
+    - keyword: BY
+    - keyword: LIST
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          naked_identifier: code
+        end_bracket: )
+    - keyword: SUBPARTITION
+    - keyword: BY
+    - keyword: RANGE
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          naked_identifier: c_rank
+        end_bracket: )
+    - keyword: SUBPARTITION
+    - keyword: TEMPLATE
+    - bracketed:
+      - start_bracket: (
+      - word: SUBPARTITION
+      - word: cr1
+      - word: START
+      - bracketed:
+          start_bracket: (
+          numeric_literal: '1'
+          end_bracket: )
+      - word: END
+      - bracketed:
+          start_bracket: (
+          numeric_literal: '2'
+          end_bracket: )
+      - comma: ','
+      - word: SUBPARTITION
+      - word: cr2
+      - word: START
+      - bracketed:
+          start_bracket: (
+          numeric_literal: '3'
+          end_bracket: )
+      - word: END
+      - bracketed:
+          start_bracket: (
+          numeric_literal: '4'
+          end_bracket: )
+      - end_bracket: )
+    - keyword: SUBPARTITION
+    - keyword: BY
+    - keyword: LIST
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          naked_identifier: region
+        end_bracket: )
+    - keyword: SUBPARTITION
+    - keyword: TEMPLATE
+    - bracketed:
+      - start_bracket: (
+      - word: SUBPARTITION
+      - word: ca
+      - word: VALUES
+      - bracketed:
+          start_bracket: (
+          single_quote: "'CA'"
+          end_bracket: )
+      - end_bracket: )
+    - bracketed:
+      - start_bracket: (
+      - word: PARTITION
+      - word: sales
+      - word: VALUES
+      - bracketed:
+          start_bracket: (
+          single_quote: "'S'"
+          end_bracket: )
+      - comma: ','
+      - word: PARTITION
+      - word: returns
+      - word: VALUES
+      - bracketed:
+          start_bracket: (
+          single_quote: "'R'"
+          end_bracket: )
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: sales
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: id
+      - data_type:
+          keyword: int
+      - comma: ','
+      - column_reference:
+          naked_identifier: year
+      - data_type:
+          keyword: int
+      - comma: ','
+      - column_reference:
+          naked_identifier: qtr
+      - data_type:
+          keyword: int
+      - comma: ','
+      - column_reference:
+          naked_identifier: c_rank
+      - data_type:
+          keyword: int
+      - comma: ','
+      - column_reference:
+          naked_identifier: code
+      - data_type:
+          keyword: char
+          bracketed_arguments:
+            bracketed:
+              start_bracket: (
+              numeric_literal: '1'
+              end_bracket: )
+      - comma: ','
+      - column_reference:
+          naked_identifier: region
+      - data_type:
+          keyword: text
+      - end_bracket: )
+    - distributed_by:
+      - keyword: DISTRIBUTED
+      - keyword: BY
+      - bracketed:
+          start_bracket: (
+          column_reference:
+            naked_identifier: id
+          end_bracket: )
+    - keyword: PARTITION
+    - keyword: BY
+    - keyword: RANGE
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          naked_identifier: year
+        end_bracket: )
+    - keyword: SUBPARTITION
+    - keyword: BY
+    - keyword: RANGE
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          naked_identifier: qtr
+        end_bracket: )
+    - keyword: SUBPARTITION
+    - keyword: TEMPLATE
+    - bracketed:
+      - start_bracket: (
+      - word: START
+      - bracketed:
+          start_bracket: (
+          numeric_literal: '1'
+          end_bracket: )
+      - word: END
+      - bracketed:
+          start_bracket: (
+          numeric_literal: '5'
+          end_bracket: )
+      - word: EVERY
+      - bracketed:
+          start_bracket: (
+          numeric_literal: '1'
+          end_bracket: )
+      - comma: ','
+      - word: DEFAULT
+      - word: SUBPARTITION
+      - word: bad_qtr
+      - end_bracket: )
+    - keyword: SUBPARTITION
+    - keyword: BY
+    - keyword: LIST
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          naked_identifier: region
+        end_bracket: )
+    - keyword: SUBPARTITION
+    - keyword: TEMPLATE
+    - bracketed:
+      - start_bracket: (
+      - word: SUBPARTITION
+      - word: usa
+      - word: VALUES
+      - bracketed:
+          start_bracket: (
+          single_quote: "'usa'"
+          end_bracket: )
+      - comma: ','
+      - word: SUBPARTITION
+      - word: europe
+      - word: VALUES
+      - bracketed:
+          start_bracket: (
+          single_quote: "'europe'"
+          end_bracket: )
+      - comma: ','
+      - word: SUBPARTITION
+      - word: asia
+      - word: VALUES
+      - bracketed:
+          start_bracket: (
+          single_quote: "'asia'"
+          end_bracket: )
+      - comma: ','
+      - word: DEFAULT
+      - word: SUBPARTITION
+      - word: other_regions
+      - end_bracket: )
+    - bracketed:
+      - start_bracket: (
+      - word: START
+      - bracketed:
+          start_bracket: (
+          numeric_literal: '2009'
+          end_bracket: )
+      - word: END
+      - bracketed:
+          start_bracket: (
+          numeric_literal: '2011'
+          end_bracket: )
+      - word: EVERY
+      - bracketed:
+          start_bracket: (
+          numeric_literal: '1'
+          end_bracket: )
+      - comma: ','
+      - word: DEFAULT
+      - word: PARTITION
+      - word: outlying_years
+      - end_bracket: )
+- statement_terminator: ;

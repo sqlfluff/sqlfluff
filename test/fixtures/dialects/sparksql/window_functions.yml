@@ -1,0 +1,1175 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: dc476388efd344ea47f0a9fc2f657203b53be98e98c4b3edc87e118d17fec208
+file:
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+            naked_identifier: name
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: dept
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: RANK
+            function_contents:
+              bracketed:
+                start_bracket: (
+                end_bracket: )
+            over_clause:
+              keyword: OVER
+              bracketed:
+                start_bracket: (
+                window_specification:
+                  partitionby_clause:
+                  - keyword: PARTITION
+                  - keyword: BY
+                  - expression:
+                      column_reference:
+                        naked_identifier: dept
+                  orderby_clause:
+                  - keyword: ORDER
+                  - keyword: BY
+                  - column_reference:
+                      naked_identifier: salary
+                end_bracket: )
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: row_rank
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: employees
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+            naked_identifier: name
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: dept
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: DENSE_RANK
+            function_contents:
+              bracketed:
+                start_bracket: (
+                end_bracket: )
+            over_clause:
+              keyword: OVER
+              bracketed:
+                start_bracket: (
+                window_specification:
+                  partitionby_clause:
+                  - keyword: PARTITION
+                  - keyword: BY
+                  - expression:
+                      column_reference:
+                        naked_identifier: dept
+                  orderby_clause:
+                  - keyword: ORDER
+                  - keyword: BY
+                  - column_reference:
+                      naked_identifier: salary
+                  frame_clause:
+                  - keyword: ROWS
+                  - keyword: BETWEEN
+                  - keyword: UNBOUNDED
+                  - keyword: PRECEDING
+                  - keyword: AND
+                  - keyword: CURRENT
+                  - keyword: ROW
+                end_bracket: )
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: row_dense_rank
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: employees
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+            naked_identifier: name
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: dept
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: age
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: CUME_DIST
+            function_contents:
+              bracketed:
+                start_bracket: (
+                end_bracket: )
+            over_clause:
+              keyword: OVER
+              bracketed:
+                start_bracket: (
+                window_specification:
+                  partitionby_clause:
+                  - keyword: PARTITION
+                  - keyword: BY
+                  - expression:
+                      column_reference:
+                        naked_identifier: dept
+                  orderby_clause:
+                  - keyword: ORDER
+                  - keyword: BY
+                  - column_reference:
+                      naked_identifier: age
+                  frame_clause:
+                  - keyword: RANGE
+                  - keyword: BETWEEN
+                  - keyword: UNBOUNDED
+                  - keyword: PRECEDING
+                  - keyword: AND
+                  - keyword: CURRENT
+                  - keyword: ROW
+                end_bracket: )
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: data_cume_dist
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: employees
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+            naked_identifier: name
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: dept
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: salary
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: MIN
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: salary
+                end_bracket: )
+            over_clause:
+              keyword: OVER
+              bracketed:
+                start_bracket: (
+                window_specification:
+                  partitionby_clause:
+                  - keyword: PARTITION
+                  - keyword: BY
+                  - expression:
+                      column_reference:
+                        naked_identifier: dept
+                  orderby_clause:
+                  - keyword: ORDER
+                  - keyword: BY
+                  - column_reference:
+                      naked_identifier: salary
+                end_bracket: )
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: salary_min
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: employees
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+            naked_identifier: name
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: salary
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: LAG
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: salary
+                end_bracket: )
+            over_clause:
+              keyword: OVER
+              bracketed:
+                start_bracket: (
+                window_specification:
+                  partitionby_clause:
+                  - keyword: PARTITION
+                  - keyword: BY
+                  - expression:
+                      column_reference:
+                        naked_identifier: dept
+                  orderby_clause:
+                  - keyword: ORDER
+                  - keyword: BY
+                  - column_reference:
+                      naked_identifier: salary
+                end_bracket: )
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: salary_lag
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: LEAD
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                    naked_identifier: salary
+              - comma: ','
+              - expression:
+                  numeric_literal: '1'
+              - comma: ','
+              - expression:
+                  numeric_literal: '0'
+              - end_bracket: )
+            over_clause:
+              keyword: OVER
+              bracketed:
+                start_bracket: (
+                window_specification:
+                  partitionby_clause:
+                  - keyword: PARTITION
+                  - keyword: BY
+                  - expression:
+                      column_reference:
+                        naked_identifier: dept
+                  orderby_clause:
+                  - keyword: ORDER
+                  - keyword: BY
+                  - column_reference:
+                      naked_identifier: salary
+                end_bracket: )
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: salary_lead
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: employees
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+            naked_identifier: name
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: salary
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: LAG
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: salary
+                end_bracket: )
+            over_clause:
+            - keyword: IGNORE
+            - keyword: NULLS
+            - keyword: OVER
+            - bracketed:
+                start_bracket: (
+                window_specification:
+                  partitionby_clause:
+                  - keyword: PARTITION
+                  - keyword: BY
+                  - expression:
+                      column_reference:
+                        naked_identifier: dept
+                  orderby_clause:
+                  - keyword: ORDER
+                  - keyword: BY
+                  - column_reference:
+                      naked_identifier: salary
+                end_bracket: )
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: salary_lag
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: LEAD
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                    naked_identifier: salary
+              - comma: ','
+              - expression:
+                  numeric_literal: '1'
+              - comma: ','
+              - expression:
+                  numeric_literal: '0'
+              - end_bracket: )
+            over_clause:
+            - keyword: IGNORE
+            - keyword: NULLS
+            - keyword: OVER
+            - bracketed:
+                start_bracket: (
+                window_specification:
+                  partitionby_clause:
+                  - keyword: PARTITION
+                  - keyword: BY
+                  - expression:
+                      column_reference:
+                        naked_identifier: dept
+                  orderby_clause:
+                  - keyword: ORDER
+                  - keyword: BY
+                  - column_reference:
+                      naked_identifier: salary
+                end_bracket: )
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: salary_lead
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: employees
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+            naked_identifier: name
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: salary
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: LAG
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: salary
+                end_bracket: )
+            over_clause:
+            - keyword: RESPECT
+            - keyword: NULLS
+            - keyword: OVER
+            - bracketed:
+                start_bracket: (
+                window_specification:
+                  partitionby_clause:
+                  - keyword: PARTITION
+                  - keyword: BY
+                  - expression:
+                      column_reference:
+                        naked_identifier: dept
+                  orderby_clause:
+                  - keyword: ORDER
+                  - keyword: BY
+                  - column_reference:
+                      naked_identifier: salary
+                end_bracket: )
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: salary_lag
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: LEAD
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                    naked_identifier: salary
+              - comma: ','
+              - expression:
+                  numeric_literal: '1'
+              - comma: ','
+              - expression:
+                  numeric_literal: '0'
+              - end_bracket: )
+            over_clause:
+            - keyword: RESPECT
+            - keyword: NULLS
+            - keyword: OVER
+            - bracketed:
+                start_bracket: (
+                window_specification:
+                  partitionby_clause:
+                  - keyword: PARTITION
+                  - keyword: BY
+                  - expression:
+                      column_reference:
+                        naked_identifier: dept
+                  orderby_clause:
+                  - keyword: ORDER
+                  - keyword: BY
+                  - column_reference:
+                      naked_identifier: salary
+                end_bracket: )
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: salary_lead
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: employees
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+            naked_identifier: id
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: v
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: LEAD
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                    naked_identifier: v
+              - comma: ','
+              - expression:
+                  numeric_literal: '0'
+              - end_bracket: )
+            over_clause:
+            - keyword: IGNORE
+            - keyword: NULLS
+            - keyword: OVER
+            - naked_identifier: w
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: v_lead
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: LAG
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                    naked_identifier: v
+              - comma: ','
+              - expression:
+                  numeric_literal: '0'
+              - end_bracket: )
+            over_clause:
+            - keyword: IGNORE
+            - keyword: NULLS
+            - keyword: OVER
+            - naked_identifier: w
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: v_lag
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: NTH_VALUE
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                    naked_identifier: v
+              - comma: ','
+              - expression:
+                  numeric_literal: '2'
+              - end_bracket: )
+            over_clause:
+            - keyword: IGNORE
+            - keyword: NULLS
+            - keyword: OVER
+            - naked_identifier: w
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: v_nth_value
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: FIRST_VALUE
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: v
+                end_bracket: )
+            over_clause:
+            - keyword: IGNORE
+            - keyword: NULLS
+            - keyword: OVER
+            - naked_identifier: w
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: v_first_value
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: LAST_VALUE
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: v
+                end_bracket: )
+            over_clause:
+            - keyword: IGNORE
+            - keyword: NULLS
+            - keyword: OVER
+            - naked_identifier: w
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: v_last_value
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: test_ignore_null
+      named_window:
+        keyword: WINDOW
+        named_window_expression:
+          naked_identifier: w
+          keyword: AS
+          bracketed:
+            start_bracket: (
+            window_specification:
+              orderby_clause:
+              - keyword: ORDER
+              - keyword: BY
+              - column_reference:
+                  naked_identifier: id
+            end_bracket: )
+      orderby_clause:
+      - keyword: ORDER
+      - keyword: BY
+      - column_reference:
+          naked_identifier: id
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+            naked_identifier: id
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: v
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: LEAD
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                    naked_identifier: v
+              - comma: ','
+              - expression:
+                  numeric_literal: '0'
+              - end_bracket: )
+            over_clause:
+            - keyword: RESPECT
+            - keyword: NULLS
+            - keyword: OVER
+            - naked_identifier: w
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: v_lead
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: LAG
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                    naked_identifier: v
+              - comma: ','
+              - expression:
+                  numeric_literal: '0'
+              - end_bracket: )
+            over_clause:
+            - keyword: RESPECT
+            - keyword: NULLS
+            - keyword: OVER
+            - naked_identifier: w
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: v_lag
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: NTH_VALUE
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                    naked_identifier: v
+              - comma: ','
+              - expression:
+                  numeric_literal: '2'
+              - end_bracket: )
+            over_clause:
+            - keyword: RESPECT
+            - keyword: NULLS
+            - keyword: OVER
+            - naked_identifier: w
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: v_nth_value
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: FIRST_VALUE
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: v
+                end_bracket: )
+            over_clause:
+            - keyword: RESPECT
+            - keyword: NULLS
+            - keyword: OVER
+            - naked_identifier: w
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: v_first_value
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: LAST_VALUE
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: v
+                end_bracket: )
+            over_clause:
+            - keyword: RESPECT
+            - keyword: NULLS
+            - keyword: OVER
+            - naked_identifier: w
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: v_last_value
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: test_ignore_null
+      named_window:
+        keyword: WINDOW
+        named_window_expression:
+          naked_identifier: w
+          keyword: AS
+          bracketed:
+            start_bracket: (
+            window_specification:
+              orderby_clause:
+              - keyword: ORDER
+              - keyword: BY
+              - column_reference:
+                  naked_identifier: id
+            end_bracket: )
+      orderby_clause:
+      - keyword: ORDER
+      - keyword: BY
+      - column_reference:
+          naked_identifier: id
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+          - naked_identifier: ignore_nulls
+          - dot: .
+          - naked_identifier: id
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+          - naked_identifier: ignore_nulls
+          - dot: .
+          - naked_identifier: v
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: LEAD
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                  - naked_identifier: ignore_nulls
+                  - dot: .
+                  - naked_identifier: v
+              - comma: ','
+              - expression:
+                  numeric_literal: '0'
+              - end_bracket: )
+            over_clause:
+            - keyword: RESPECT
+            - keyword: NULLS
+            - keyword: OVER
+            - naked_identifier: w
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: v_lead
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: LAG
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                  - naked_identifier: ignore_nulls
+                  - dot: .
+                  - naked_identifier: v
+              - comma: ','
+              - expression:
+                  numeric_literal: '0'
+              - end_bracket: )
+            over_clause:
+            - keyword: RESPECT
+            - keyword: NULLS
+            - keyword: OVER
+            - naked_identifier: w
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: v_lag
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: NTH_VALUE
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                  - naked_identifier: ignore_nulls
+                  - dot: .
+                  - naked_identifier: v
+              - comma: ','
+              - expression:
+                  numeric_literal: '2'
+              - end_bracket: )
+            over_clause:
+            - keyword: RESPECT
+            - keyword: NULLS
+            - keyword: OVER
+            - naked_identifier: w
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: v_nth_value
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: FIRST_VALUE
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                  - naked_identifier: ignore_nulls
+                  - dot: .
+                  - naked_identifier: v
+                end_bracket: )
+            over_clause:
+            - keyword: RESPECT
+            - keyword: NULLS
+            - keyword: OVER
+            - naked_identifier: w
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: v_first_value
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: LAST_VALUE
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                  - naked_identifier: ignore_nulls
+                  - dot: .
+                  - naked_identifier: v
+                end_bracket: )
+            over_clause:
+            - keyword: RESPECT
+            - keyword: NULLS
+            - keyword: OVER
+            - naked_identifier: w
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: v_last_value
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: test_ignore_null
+            alias_expression:
+              alias_operator:
+                keyword: AS
+              naked_identifier: ignore_nulls
+      named_window:
+        keyword: WINDOW
+        named_window_expression:
+          naked_identifier: w
+          keyword: AS
+          bracketed:
+            start_bracket: (
+            window_specification:
+              orderby_clause:
+              - keyword: ORDER
+              - keyword: BY
+              - column_reference:
+                - naked_identifier: ignore_nulls
+                - dot: .
+                - naked_identifier: id
+            end_bracket: )
+      orderby_clause:
+      - keyword: ORDER
+      - keyword: BY
+      - column_reference:
+        - naked_identifier: ignore_nulls
+        - dot: .
+        - naked_identifier: id
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+          - naked_identifier: ignore_nulls
+          - dot: .
+          - naked_identifier: id
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+          - naked_identifier: ignore_nulls
+          - dot: .
+          - naked_identifier: v
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: LEAD
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                  - naked_identifier: ignore_nulls
+                  - dot: .
+                  - naked_identifier: v
+              - comma: ','
+              - expression:
+                  numeric_literal: '0'
+              - end_bracket: )
+            over_clause:
+            - keyword: RESPECT
+            - keyword: NULLS
+            - keyword: OVER
+            - naked_identifier: w
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: v_lead
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: LAG
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                  - naked_identifier: ignore_nulls
+                  - dot: .
+                  - naked_identifier: v
+              - comma: ','
+              - expression:
+                  numeric_literal: '0'
+              - end_bracket: )
+            over_clause:
+            - keyword: RESPECT
+            - keyword: NULLS
+            - keyword: OVER
+            - naked_identifier: w
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: v_lag
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: NTH_VALUE
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                  - naked_identifier: ignore_nulls
+                  - dot: .
+                  - naked_identifier: v
+              - comma: ','
+              - expression:
+                  numeric_literal: '2'
+              - end_bracket: )
+            over_clause:
+            - keyword: RESPECT
+            - keyword: NULLS
+            - keyword: OVER
+            - naked_identifier: w
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: v_nth_value
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: FIRST_VALUE
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                  - naked_identifier: ignore_nulls
+                  - dot: .
+                  - naked_identifier: v
+                end_bracket: )
+            over_clause:
+            - keyword: RESPECT
+            - keyword: NULLS
+            - keyword: OVER
+            - naked_identifier: w
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: v_first_value
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: LAST_VALUE
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                  - naked_identifier: ignore_nulls
+                  - dot: .
+                  - naked_identifier: v
+                end_bracket: )
+            over_clause:
+            - keyword: RESPECT
+            - keyword: NULLS
+            - keyword: OVER
+            - naked_identifier: w
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: v_last_value
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: test_ignore_null
+            alias_expression:
+              alias_operator:
+                keyword: AS
+              naked_identifier: ignore_nulls
+      named_window:
+        keyword: WINDOW
+        named_window_expression:
+          naked_identifier: w
+          keyword: AS
+          bracketed:
+            start_bracket: (
+            window_specification:
+              orderby_clause:
+              - keyword: ORDER
+              - keyword: BY
+              - column_reference:
+                - naked_identifier: ignore_nulls
+                - dot: .
+                - naked_identifier: id
+              frame_clause:
+              - keyword: range
+              - keyword: between
+              - interval_expression:
+                  keyword: interval
+                  interval_literal:
+                    numeric_literal: '6'
+                    date_part: days
+              - keyword: preceding
+              - keyword: and
+              - keyword: current
+              - keyword: row
+            end_bracket: )
+      orderby_clause:
+      - keyword: ORDER
+      - keyword: BY
+      - column_reference:
+        - naked_identifier: ignore_nulls
+        - dot: .
+        - naked_identifier: id
+- statement_terminator: ;

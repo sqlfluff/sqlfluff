@@ -8,48 +8,52 @@ file:
           - function:
               function_name:
                 function_name_identifier: lower
-              bracketed:
-                start_bracket: (
-                expression:
-                  column_reference:
-                    identifier: note_text
-                end_bracket: )
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                      naked_identifier: note_text
+                  end_bracket: )
           - keyword: NOT
           - keyword: LIKE
-          - literal: "'%daycare: {%'"
+          - quoted_literal: "'%daycare: {%'"
           - binary_operator: AND
           - function:
               function_name:
                 function_name_identifier: lower
-              bracketed:
-                start_bracket: (
-                expression:
-                  column_reference:
-                    identifier: note_text
-                end_bracket: )
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                      naked_identifier: note_text
+                  end_bracket: )
           - keyword: NOT
           - keyword: LIKE
-          - literal: "'%grade/ school name:  {%'"
+          - quoted_literal: "'%grade/ school name:  {%'"
           - binary_operator: AND
           - function:
               function_name:
                 function_name_identifier: lower
-              bracketed:
-                start_bracket: (
-                expression:
-                  column_reference:
-                    identifier: note_text
-                end_bracket: )
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                      naked_identifier: note_text
+                  end_bracket: )
           - keyword: NOT
           - keyword: LIKE
-          - literal: "'%social history:  {%'"
+          - quoted_literal: "'%social history:  {%'"
           alias_expression:
-            keyword: AS
-            identifier: foo
+            alias_operator:
+              keyword: AS
+            naked_identifier: foo
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: my_table
+                naked_identifier: my_table

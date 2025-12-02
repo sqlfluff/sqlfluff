@@ -1,0 +1,23 @@
+file:
+  - placeholder: '{% if true %}'
+  - indent: ""
+  - newline: "\n"
+  - statement:
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          indent: ""
+          whitespace: ' '
+          select_clause_element:
+            expression:
+            - numeric_literal: '1'
+            - whitespace: ' '
+            - binary_operator: +
+            - whitespace: ' '
+            - numeric_literal: '1'
+          dedent: ""
+  - placeholder: "\n"
+  - dedent: ""
+  - placeholder: "{%- endif %}"
+  - newline: "\n"
+  - end_of_file: ""

@@ -1,0 +1,342 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: b34c9265de799012319e8433fbae9c22e7904cbb2b895d145e5548d4b2c411c8
+file:
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+            naked_identifier: a
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: b
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+              - naked_identifier: default
+              - dot: .
+              - naked_identifier: people10m
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+            naked_identifier: a
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: b
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              file_reference:
+                keyword: DELTA
+                dot: .
+                quoted_identifier: '`/delta/people10m`'
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+            naked_identifier: a
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: b
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+              - naked_identifier: default
+              - dot: .
+              - naked_identifier: people10m
+              at_sign_literal: '@20190101000000000'
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: count
+            function_contents:
+              bracketed:
+                start_bracket: (
+                star: '*'
+                end_bracket: )
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              file_reference:
+                keyword: DELTA
+                dot: .
+                quoted_identifier: '`/delta/people10m@20190101000000000`'
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: count
+            function_contents:
+              bracketed:
+                start_bracket: (
+                star: '*'
+                end_bracket: )
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+            - file_reference:
+                keyword: DELTA
+                dot: .
+                quoted_identifier: '`/delta/people10m`'
+            - keyword: TIMESTAMP
+            - keyword: AS
+            - keyword: OF
+            - quoted_literal: '"2019-01-01"'
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: count
+            function_contents:
+              bracketed:
+                start_bracket: (
+                star: '*'
+                end_bracket: )
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+            - table_reference:
+              - naked_identifier: default
+              - dot: .
+              - naked_identifier: people10m
+            - keyword: TIMESTAMP
+            - keyword: AS
+            - keyword: OF
+            - quoted_literal: '"2019-01-01"'
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: count
+            function_contents:
+              bracketed:
+                start_bracket: (
+                star: '*'
+                end_bracket: )
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+            - table_reference:
+              - naked_identifier: default
+              - dot: .
+              - naked_identifier: people10m
+            - keyword: TIMESTAMP
+            - keyword: AS
+            - keyword: OF
+            - function:
+                function_name:
+                  function_name_identifier: date_sub
+                function_contents:
+                  bracketed:
+                  - start_bracket: (
+                  - expression:
+                      function:
+                        function_name:
+                          function_name_identifier: current_date
+                        function_contents:
+                          bracketed:
+                            start_bracket: (
+                            end_bracket: )
+                  - comma: ','
+                  - expression:
+                      numeric_literal: '1'
+                  - end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: count
+            function_contents:
+              bracketed:
+                start_bracket: (
+                star: '*'
+                end_bracket: )
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+            - table_reference:
+              - naked_identifier: default
+              - dot: .
+              - naked_identifier: people10m
+            - keyword: TIMESTAMP
+            - keyword: AS
+            - keyword: OF
+            - quoted_literal: '"2019-01-01 01:30:00.000"'
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+            naked_identifier: a
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: b
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+              - naked_identifier: default
+              - dot: .
+              - naked_identifier: people10m
+              at_sign_literal: '@v123'
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: count
+            function_contents:
+              bracketed:
+                start_bracket: (
+                star: '*'
+                end_bracket: )
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+            - table_reference:
+              - naked_identifier: default
+              - dot: .
+              - naked_identifier: people10m
+            - keyword: VERSION
+            - keyword: AS
+            - keyword: OF
+            - numeric_literal: '5238'
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: count
+            function_contents:
+              bracketed:
+                start_bracket: (
+                star: '*'
+                end_bracket: )
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+              - naked_identifier: default
+              - dot: .
+              - naked_identifier: people10m
+              at_sign_literal: '@v5238'
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: count
+            function_contents:
+              bracketed:
+                start_bracket: (
+                star: '*'
+                end_bracket: )
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              file_reference:
+                keyword: DELTA
+                dot: .
+                quoted_identifier: '`/delta/people10m@v5238`'
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: count
+            function_contents:
+              bracketed:
+                start_bracket: (
+                star: '*'
+                end_bracket: )
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+            - file_reference:
+                keyword: DELTA
+                dot: .
+                quoted_identifier: '`/delta/people10m`'
+            - keyword: VERSION
+            - keyword: AS
+            - keyword: OF
+            - numeric_literal: '5238'
+- statement_terminator: ;

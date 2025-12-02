@@ -1,15 +1,15 @@
 """Round trip tests for rules with a fix method."""
 
-import tempfile
 import os
-import shutil
 import re
-import pytest
+import shutil
+import tempfile
 from io import StringIO
 
+import pytest
 from click.testing import CliRunner
 
-from sqlfluff.cli.commands import lint, fix
+from sqlfluff.cli.commands import fix, lint
 
 
 def generic_roundtrip_test(source_file, rulestring):
@@ -23,7 +23,7 @@ def generic_roundtrip_test(source_file, rulestring):
         with open(source_file) as f:
             source_file = StringIO(f.read())
 
-    filename = "tesing.sql"
+    filename = "testing.sql"
     # Lets get the path of a file to use
     tempdir_path = tempfile.mkdtemp()
     filepath = os.path.join(tempdir_path, filename)
@@ -33,13 +33,15 @@ def generic_roundtrip_test(source_file, rulestring):
             dest_file.write(line)
     runner = CliRunner()
     # Check that we first detect the issue
-    result = runner.invoke(lint, ["--rules", rulestring, filepath])
-    assert result.exit_code == 65
+    result = runner.invoke(lint, ["--rules", rulestring, "--dialect=ansi", filepath])
+    assert result.exit_code == 1
     # Fix the file (in force mode)
-    result = runner.invoke(fix, ["--rules", rulestring, "-f", filepath])
+    result = runner.invoke(
+        fix, ["--rules", rulestring, "--dialect=ansi", "-f", filepath]
+    )
     assert result.exit_code == 0
     # Now lint the file and check for exceptions
-    result = runner.invoke(lint, ["--rules", rulestring, filepath])
+    result = runner.invoke(lint, ["--rules", rulestring, "--dialect=ansi", filepath])
     assert result.exit_code == 0
     shutil.rmtree(tempdir_path)
 
@@ -75,13 +77,19 @@ def jinja_roundtrip_test(
 
     runner = CliRunner()
     # Check that we first detect the issue
-    result = runner.invoke(lint, ["--rules", rulestring, sql_filepath])
-    assert result.exit_code == 65
+    result = runner.invoke(
+        lint, ["--rules", rulestring, "--dialect=ansi", sql_filepath]
+    )
+    assert result.exit_code == 1
     # Fix the file (in force mode)
-    result = runner.invoke(fix, ["--rules", rulestring, "-f", sql_filepath])
+    result = runner.invoke(
+        fix, ["--rules", rulestring, "-f", "--dialect=ansi", sql_filepath]
+    )
     assert result.exit_code == 0
     # Now lint the file and check for exceptions
-    result = runner.invoke(lint, ["--rules", rulestring, sql_filepath])
+    result = runner.invoke(
+        lint, ["--rules", rulestring, "--dialect=ansi", sql_filepath]
+    )
     if result.exit_code != 0:
         # Output the file content for debugging
         print("File content:")
@@ -105,12 +113,12 @@ def jinja_roundtrip_test(
 @pytest.mark.parametrize(
     "rule,path",
     [
-        ("L001", "test/fixtures/linter/indentation_errors.sql"),
-        ("L008", "test/fixtures/linter/whitespace_errors.sql"),
-        ("L008", "test/fixtures/linter/indentation_errors.sql"),
-        ("L010", "test/fixtures/linter/whitespace_errors.sql"),
-        ("L011", "test/fixtures/dialects/ansi/select_simple_i.sql"),
-        ("L012", "test/fixtures/dialects/ansi/select_simple_i.sql"),
+        ("LT01", "test/fixtures/linter/indentation_errors.sql"),
+        ("LT01", "test/fixtures/linter/whitespace_errors.sql"),
+        ("LT01", "test/fixtures/linter/indentation_errors.sql"),
+        ("CP01", "test/fixtures/linter/whitespace_errors.sql"),
+        ("AL01", "test/fixtures/dialects/ansi/select_simple_i.sql"),
+        ("AL02", "test/fixtures/dialects/ansi/select_simple_i.sql"),
     ],
 )
 def test__cli__command__fix(rule, path):
@@ -118,7 +126,7 @@ def test__cli__command__fix(rule, path):
     generic_roundtrip_test(path, rule)
 
 
-@pytest.mark.parametrize("rule", ["L010", "L001"])
+@pytest.mark.parametrize("rule", ["CP01", "LT01"])
 def test__cli__command__fix_templated(rule):
     """Roundtrip test, making sure that we don't drop tags while templating."""
     jinja_roundtrip_test("test/fixtures/templater/jinja_d_roundtrip", rule)

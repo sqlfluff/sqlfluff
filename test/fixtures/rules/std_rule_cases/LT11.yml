@@ -1,0 +1,114 @@
+rule: LT11
+
+test_fail_simple_fix_union_all_before:
+  fail_str: |
+      SELECT 'a' UNION ALL
+      SELECT 'b'
+  fix_str: |
+      SELECT 'a'
+      UNION ALL
+      SELECT 'b'
+
+test_fail_simple_fix_union_all_after:
+  fail_str: |
+      SELECT 'a'
+      UNION ALL SELECT 'b'
+  fix_str: |
+      SELECT 'a'
+      UNION ALL
+      SELECT 'b'
+
+test_fail_simple_fix_union_all_before_and_after:
+  fail_str: |
+      SELECT 'a' UNION ALL SELECT 'b'
+  fix_str: |
+      SELECT 'a'
+      UNION ALL
+      SELECT 'b'
+
+test_pass_multiple_newlines_are_allowed:
+  pass_str: |
+      SELECT 'a'
+
+
+      UNION ALL
+
+
+      SELECT 'b'
+
+# The autofix of LT11 doesn't respect indentation of the surrounding query.
+# Hence, the fix result of only LT11 looks ugly. But LT02 will fix the indentation
+# in a second step.
+# See the test blow.
+test_fail_fix_works_in_subqueries:
+  fail_str: |
+      SELECT * FROM (
+          SELECT 'g' UNION ALL
+          SELECT 'h'
+          UNION ALL SELECT 'j'
+      )
+  fix_str: |
+      SELECT * FROM (
+          SELECT 'g'
+          UNION ALL
+          SELECT 'h'
+          UNION ALL
+          SELECT 'j'
+      )
+
+# Test autofix after LT02 passes LT11
+test_pass_fix_works_in_subqueries_after_LT02_fix:
+  pass_str: |
+      SELECT * FROM (
+          SELECT 'g'
+          UNION ALL
+          SELECT 'h'
+          UNION ALL
+          SELECT 'j'
+      )
+
+test_fail_simple_fix_union_before_and_after:
+  fail_str: |
+      SELECT 'a' UNION SELECT 'b'
+  fix_str: |
+      SELECT 'a'
+      UNION
+      SELECT 'b'
+
+test_fail_simple_fix_intersect_before_and_after:
+  fail_str: |
+      SELECT 'a' INTERSECT SELECT 'b'
+  fix_str: |
+      SELECT 'a'
+      INTERSECT
+      SELECT 'b'
+
+test_fail_simple_fix_except_before_and_after:
+  fail_str: |
+      SELECT 'a' EXCEPT SELECT 'b'
+  fix_str: |
+      SELECT 'a'
+      EXCEPT
+      SELECT 'b'
+
+test_fail_simple_fix_minus_before_and_after:
+  fail_str: |
+      SELECT 'a' EXCEPT SELECT 'b'
+  fix_str: |
+      SELECT 'a'
+      EXCEPT
+      SELECT 'b'
+
+test_fail_simple_fix_bigquery_intersect_distinct_before_and_after:
+  fail_str: |
+      SELECT 'a' INTERSECT DISTINCT SELECT 'b'
+  fix_str: |
+      SELECT 'a'
+      INTERSECT DISTINCT
+      SELECT 'b'
+  configs:
+    core:
+      dialect: bigquery
+
+# NOTE: We used to exclude TSQL from fixing these queries, but
+# the reflow logic now enables this.

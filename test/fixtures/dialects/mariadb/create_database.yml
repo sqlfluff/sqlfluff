@@ -1,0 +1,108 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 28d48d2ecab94ea00fef8f5f3e64a0c0f392dab3b36b7d29548cfdd50bb2a0b2
+file:
+- statement:
+    create_database_statement:
+    - keyword: CREATE
+    - keyword: DATABASE
+    - database_reference:
+        naked_identifier: my_database
+- statement_terminator: ;
+- statement:
+    create_database_statement:
+    - keyword: CREATE
+    - keyword: DATABASE
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - database_reference:
+        naked_identifier: my_database
+- statement_terminator: ;
+- statement:
+    create_database_statement:
+    - keyword: CREATE
+    - keyword: DATABASE
+    - database_reference:
+        naked_identifier: my_database
+    - create_option_segment:
+      - keyword: DEFAULT
+      - keyword: CHARACTER
+      - keyword: SET
+      - naked_identifier: utf8mb4
+    - create_option_segment:
+        keyword: COLLATE
+        collation_reference:
+          naked_identifier: utf8mb4_0900_ai_ci
+    - create_option_segment:
+      - keyword: DEFAULT
+      - keyword: ENCRYPTION
+      - quoted_literal: "'N'"
+- statement_terminator: ;
+- statement:
+    create_database_statement:
+    - keyword: CREATE
+    - keyword: DATABASE
+    - database_reference:
+        naked_identifier: my_database
+    - create_option_segment:
+      - keyword: DEFAULT
+      - keyword: CHARACTER
+      - keyword: SET
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - naked_identifier: utf8mb4
+    - create_option_segment:
+        keyword: COLLATE
+        comparison_operator:
+          raw_comparison_operator: '='
+        collation_reference:
+          naked_identifier: utf8mb4_0900_ai_ci
+    - create_option_segment:
+      - keyword: DEFAULT
+      - keyword: ENCRYPTION
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'N'"
+- statement_terminator: ;
+- statement:
+    create_database_statement:
+    - keyword: CREATE
+    - keyword: SCHEMA
+    - database_reference:
+        naked_identifier: my_database
+    - create_option_segment:
+      - keyword: DEFAULT
+      - keyword: CHARACTER
+      - keyword: SET
+      - naked_identifier: utf8mb4
+    - create_option_segment:
+        keyword: COLLATE
+        collation_reference:
+          naked_identifier: utf8mb4_0900_ai_ci
+    - create_option_segment:
+      - keyword: DEFAULT
+      - keyword: ENCRYPTION
+      - quoted_literal: "'N'"
+- statement_terminator: ;
+- statement:
+    create_database_statement:
+    - keyword: CREATE
+    - keyword: DATABASE
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - database_reference:
+        naked_identifier: xxx
+    - create_option_segment:
+      - keyword: CHARACTER
+      - keyword: SET
+      - quoted_literal: '"utf8mb4"'
+    - create_option_segment:
+        keyword: COLLATE
+        collation_reference:
+          quoted_literal: '"utf8mb4_bin"'
+- statement_terminator: ;

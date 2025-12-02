@@ -3,13 +3,13 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: cff7472280114d6ca9c8f399bb2358a58cf6aabad3dae801b57c711f05fe00c7
+_hash: fba6cf39f7c4ae9198a483d68763f3811f0d996dc386522336f8ad08c869b772
 file:
   statement:
     update_statement:
       keyword: UPDATE
       table_reference:
-        identifier: table_name
+        naked_identifier: table_name
       from_in_update_clause:
         keyword: FROM
         from_expression_element:
@@ -21,75 +21,81 @@ file:
                 - keyword: SELECT
                 - select_clause_element:
                     column_reference:
-                      identifier: a
+                      naked_identifier: a
                 - comma: ','
                 - select_clause_element:
                     column_reference:
-                      identifier: b
+                      naked_identifier: b
                 - comma: ','
                 - select_clause_element:
                     column_reference:
-                      identifier: c
+                      naked_identifier: c
                 - comma: ','
                 - select_clause_element:
                     column_reference:
-                      identifier: d
+                      naked_identifier: d
                 from_clause:
                   keyword: FROM
                   from_expression:
                     from_expression_element:
                       table_expression:
                         table_reference:
-                          identifier: t_b
+                          naked_identifier: t_b
                     join_clause:
                     - keyword: INNER
                     - keyword: JOIN
                     - from_expression_element:
                         table_expression:
                           table_reference:
-                            identifier: t_c
+                            naked_identifier: t_c
                     - join_on_condition:
                         keyword: 'ON'
                         expression:
                         - column_reference:
-                          - identifier: t_b
+                          - naked_identifier: t_b
                           - dot: .
-                          - identifier: d
-                        - comparison_operator: '='
+                          - naked_identifier: d
+                        - comparison_operator:
+                            raw_comparison_operator: '='
                         - column_reference:
-                          - identifier: t_c
+                          - naked_identifier: t_c
                           - dot: .
-                          - identifier: d
+                          - naked_identifier: d
                 where_clause:
                   keyword: WHERE
                   expression:
                     column_reference:
-                      identifier: b
-                    comparison_operator: '='
-                    literal: "'F'"
+                      naked_identifier: b
+                    comparison_operator:
+                      raw_comparison_operator: '='
+                    quoted_literal: "'F'"
               end_bracket: )
           alias_expression:
-            keyword: AS
-            identifier: t_d
+            alias_operator:
+              keyword: AS
+            naked_identifier: t_d
       set_clause_list:
       - keyword: SET
       - set_clause:
         - column_reference:
-            identifier: column1
-        - comparison_operator: '='
+            naked_identifier: column1
+        - comparison_operator:
+            raw_comparison_operator: '='
         - column_reference:
-            identifier: value1
+            naked_identifier: value1
       - comma: ','
       - set_clause:
           column_reference:
-            identifier: column2
-          comparison_operator: '='
-          literal: "'value2'"
+            naked_identifier: column2
+          comparison_operator:
+            raw_comparison_operator: '='
+          quoted_literal: "'value2'"
       where_clause:
         keyword: WHERE
         expression:
           column_reference:
-            identifier: a
-          comparison_operator: '='
-          literal: '1'
+            naked_identifier: a
+          comparison_operator:
+            raw_comparison_operator: '='
+          numeric_literal: '1'
   statement_terminator: ;

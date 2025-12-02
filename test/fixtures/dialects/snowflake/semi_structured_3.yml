@@ -1,0 +1,71 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: bae42bbb3def0dc54eebfd2ef3c5c36180b4175315309ba55d41ef491961ad5b
+file:
+  statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          expression:
+          - function:
+              function_name:
+                function_name_identifier: PARSE_JSON
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                    - naked_identifier: t
+                    - dot: .
+                    - naked_identifier: metadata
+                  end_bracket: )
+          - array_accessor:
+              start_square_bracket: '['
+              expression:
+                quoted_literal: "'names'"
+              end_square_bracket: ']'
+          - array_accessor:
+              start_square_bracket: '['
+              numeric_literal: '0'
+              end_square_bracket: ']'
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: first_name
+      - comma: ','
+      - select_clause_element:
+          expression:
+            function:
+              function_name:
+                function_name_identifier: PARSE_JSON
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                    - naked_identifier: t
+                    - dot: .
+                    - naked_identifier: metadata
+                  end_bracket: )
+            semi_structured_expression:
+              colon: ':'
+              semi_structured_element: customer_id
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: customer_id
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: tickets
+            alias_expression:
+              alias_operator:
+                keyword: AS
+              naked_identifier: t

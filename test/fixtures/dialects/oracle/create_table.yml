@@ -1,0 +1,217 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: d769af0449f931aab8e131f48d87f64c8260b09d944567e1583bb56e388185a1
+file:
+- statement:
+    create_table_statement:
+    - keyword: create
+    - keyword: table
+    - table_reference:
+        naked_identifier: tabl#e1
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          naked_identifier: c1
+          data_type:
+            data_type_identifier: SMALLINT
+      - comma: ','
+      - column_definition:
+          naked_identifier: c2
+          data_type:
+            data_type_identifier: DATE
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: create
+    - keyword: table
+    - table_reference:
+        naked_identifier: table1$
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          naked_identifier: c1
+          data_type:
+            data_type_identifier: SMALLINT
+      - comma: ','
+      - column_definition:
+          naked_identifier: c2
+          data_type:
+            data_type_identifier: DATE
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: create
+    - keyword: table
+    - table_reference:
+        naked_identifier: tab#le1$
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          naked_identifier: c1
+          data_type:
+            data_type_identifier: SMALLINT
+      - comma: ','
+      - column_definition:
+          naked_identifier: c2
+          data_type:
+            data_type_identifier: DATE
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: create
+    - keyword: table
+    - table_reference:
+        naked_identifier: tab#le1$
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          naked_identifier: c#1
+          data_type:
+            data_type_identifier: SMALLINT
+      - comma: ','
+      - column_definition:
+          naked_identifier: c$2
+          data_type:
+            data_type_identifier: DATE
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t1
+    - bracketed:
+        start_bracket: (
+        column_definition:
+        - naked_identifier: id
+        - data_type:
+            data_type_identifier: NUMBER
+        - keyword: GENERATED
+        - keyword: AS
+        - keyword: IDENTITY
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t2
+    - bracketed:
+        start_bracket: (
+        column_definition:
+        - naked_identifier: id
+        - data_type:
+            data_type_identifier: NUMBER
+        - keyword: GENERATED
+        - keyword: BY
+        - keyword: DEFAULT
+        - keyword: AS
+        - keyword: IDENTITY
+        - bracketed:
+          - start_bracket: (
+          - keyword: START
+          - keyword: WITH
+          - numeric_literal: '100'
+          - keyword: INCREMENT
+          - keyword: BY
+          - numeric_literal: '10'
+          - end_bracket: )
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t3
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          naked_identifier: id
+          data_type:
+            data_type_identifier: NUMBER
+          column_constraint_segment:
+          - keyword: DEFAULT
+          - naked_identifier: some_seq
+          - dot: .
+          - keyword: NEXTVAL
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: departments_demo
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          naked_identifier: department_id
+          data_type:
+            data_type_identifier: NUMBER
+            bracketed_arguments:
+              bracketed:
+                start_bracket: (
+                numeric_literal: '4'
+                end_bracket: )
+          column_constraint_segment:
+          - keyword: PRIMARY
+          - keyword: KEY
+          keyword: ENABLE
+      - comma: ','
+      - column_definition:
+          naked_identifier: department_name
+          data_type:
+            data_type_identifier: VARCHAR2
+            bracketed_arguments:
+              bracketed:
+                start_bracket: (
+                numeric_literal: '30'
+                end_bracket: )
+          column_constraint_segment:
+          - keyword: CONSTRAINT
+          - object_reference:
+              naked_identifier: dept_name_nn
+          - keyword: NOT
+          - keyword: 'NULL'
+          keyword: DISABLE
+      - comma: ','
+      - column_definition:
+          naked_identifier: manager_id
+          data_type:
+            data_type_identifier: NUMBER
+            bracketed_arguments:
+              bracketed:
+                start_bracket: (
+                numeric_literal: '6'
+                end_bracket: )
+      - comma: ','
+      - column_definition:
+          naked_identifier: location_id
+          data_type:
+            data_type_identifier: NUMBER
+            bracketed_arguments:
+              bracketed:
+                start_bracket: (
+                numeric_literal: '4'
+                end_bracket: )
+      - comma: ','
+      - column_definition:
+          naked_identifier: dn
+          data_type:
+            data_type_identifier: VARCHAR2
+            bracketed_arguments:
+              bracketed:
+                start_bracket: (
+                numeric_literal: '300'
+                end_bracket: )
+      - end_bracket: )
+- statement_terminator: ;

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 05fee9ed4ea0da1d49d85f1443fcf13593b88711a7fdb1a58f4e9250ec39d82c
+_hash: 2428658bc2293c9aefd795c0a4b8c1a06782af7a491997d363e47f54f1a69474
 file:
   statement:
     select_statement:
@@ -13,32 +13,34 @@ file:
           function:
             function_name:
               function_name_identifier: NTH_VALUE
-            bracketed:
-            - start_bracket: (
-            - expression:
-                column_reference:
-                  identifier: bar
-            - comma: ','
-            - expression:
-                literal: '1'
-            - end_bracket: )
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                    naked_identifier: bar
+              - comma: ','
+              - expression:
+                  numeric_literal: '1'
+              - end_bracket: )
             over_clause:
               keyword: OVER
-              identifier: w1
+              naked_identifier: w1
           alias_expression:
-            keyword: AS
-            identifier: baz
+            alias_operator:
+              keyword: AS
+            naked_identifier: baz
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: t
+                naked_identifier: t
       named_window:
         keyword: WINDOW
         named_window_expression:
-          identifier: w1
+          naked_identifier: w1
           keyword: AS
           bracketed:
             start_bracket: (
@@ -48,19 +50,19 @@ file:
               - keyword: BY
               - expression:
                   column_reference:
-                    identifier: x
+                    naked_identifier: x
               - comma: ','
               - expression:
                   column_reference:
-                    identifier: y
+                    naked_identifier: y
               - comma: ','
               - expression:
                   column_reference:
-                    identifier: z
+                    naked_identifier: z
               orderby_clause:
               - keyword: ORDER
               - keyword: BY
               - column_reference:
-                  identifier: abc
+                  naked_identifier: abc
               - keyword: DESC
             end_bracket: )

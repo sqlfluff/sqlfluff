@@ -1,0 +1,352 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: a189ac9b55ee6d03fec76f09b113dd37bd80d8ba3cd7f2a36358ab7377b94429
+file:
+- statement:
+    copy_statement:
+    - keyword: copy
+    - table_reference:
+        naked_identifier: favoritemovies
+    - keyword: from
+    - quoted_literal: "'dynamodb://Movies'"
+    - authorization_segment:
+        keyword: iam_role
+        quoted_literal: "'arn:aws:iam::0123456789012:role/MyRedshiftRole'"
+    - keyword: readratio
+    - numeric_literal: '50'
+- statement_terminator: ;
+- statement:
+    copy_statement:
+    - keyword: copy
+    - table_reference:
+        naked_identifier: listing
+    - keyword: from
+    - quoted_literal: "'s3://mybucket/data/listing/'"
+    - authorization_segment:
+        keyword: iam_role
+        quoted_literal: "'arn:aws:iam::0123456789012:role/MyRedshiftRole'"
+- statement_terminator: ;
+- statement:
+    copy_statement:
+    - keyword: copy
+    - table_reference:
+        naked_identifier: sales
+    - keyword: from
+    - quoted_literal: "'emr://j-SAMPLE2B500FC/myoutput/part-*'"
+    - authorization_segment:
+        keyword: iam_role
+        quoted_literal: "'arn:aws:iam::0123456789012:role/MyRedshiftRole'"
+    - keyword: delimiter
+    - quoted_literal: "'\\t'"
+    - keyword: lzop
+- statement_terminator: ;
+- statement:
+    copy_statement:
+    - keyword: copy
+    - table_reference:
+        naked_identifier: sales
+    - keyword: from
+    - quoted_literal: "'emr://j-SAMPLE2B500FC/myoutput/json/'"
+    - authorization_segment:
+        keyword: iam_role
+        quoted_literal: "'arn:aws:iam::0123456789012:role/MyRedshiftRole'"
+    - data_format_segment:
+        keyword: JSON
+        quoted_literal: "'s3://mybucket/jsonpaths.txt'"
+- statement_terminator: ;
+- statement:
+    copy_statement:
+    - keyword: copy
+    - table_reference:
+        naked_identifier: category
+    - keyword: from
+    - quoted_literal: "'s3://mybucket/custdata'"
+    - authorization_segment:
+        keyword: iam_role
+        quoted_literal: "'arn:aws:iam::0123456789012:role/MyRedshiftRole'"
+- statement_terminator: ;
+- statement:
+    copy_statement:
+    - keyword: copy
+    - table_reference:
+        naked_identifier: customer
+    - keyword: from
+    - quoted_literal: "'s3://mybucket/cust.manifest'"
+    - authorization_segment:
+        keyword: iam_role
+        quoted_literal: "'arn:aws:iam::0123456789012:role/MyRedshiftRole'"
+    - keyword: manifest
+- statement_terminator: ;
+- statement:
+    copy_statement:
+    - keyword: copy
+    - table_reference:
+        naked_identifier: listing
+    - keyword: from
+    - quoted_literal: "'s3://mybucket/data/listings/parquet/'"
+    - authorization_segment:
+        keyword: iam_role
+        quoted_literal: "'arn:aws:iam::0123456789012:role/MyRedshiftRole'"
+    - data_format_segment:
+      - keyword: format
+      - keyword: as
+      - keyword: parquet
+- statement_terminator: ;
+- statement:
+    copy_statement:
+    - keyword: copy
+    - table_reference:
+        naked_identifier: event
+    - keyword: from
+    - quoted_literal: "'s3://mybucket/data/allevents_pipe.txt'"
+    - authorization_segment:
+        keyword: iam_role
+        quoted_literal: "'arn:aws:iam::0123456789012:role/MyRedshiftRole'"
+    - keyword: removequotes
+    - keyword: emptyasnull
+    - keyword: blanksasnull
+    - keyword: maxerror
+    - numeric_literal: '5'
+    - keyword: delimiter
+    - quoted_literal: "'|'"
+    - keyword: timeformat
+    - quoted_literal: "'YYYY-MM-DD HH:MI:SS'"
+- statement_terminator: ;
+- statement:
+    copy_statement:
+    - keyword: copy
+    - table_reference:
+        naked_identifier: venue
+    - keyword: from
+    - quoted_literal: "'s3://mybucket/data/venue_fw.txt'"
+    - authorization_segment:
+        keyword: iam_role
+        quoted_literal: "'arn:aws:iam::0123456789012:role/MyRedshiftRole'"
+    - keyword: fixedwidth
+    - quoted_literal: "'venueid:3,venuename:25,venuecity:12,venuestate:2,venueseats:6'"
+- statement_terminator: ;
+- statement:
+    copy_statement:
+    - keyword: copy
+    - table_reference:
+        naked_identifier: category
+    - keyword: from
+    - quoted_literal: "'s3://mybucket/data/category_csv.txt'"
+    - authorization_segment:
+        keyword: iam_role
+        quoted_literal: "'arn:aws:iam::0123456789012:role/MyRedshiftRole'"
+    - data_format_segment:
+        keyword: csv
+- statement_terminator: ;
+- statement:
+    copy_statement:
+    - keyword: copy
+    - table_reference:
+        naked_identifier: category
+    - keyword: from
+    - quoted_literal: "'s3://mybucket/data/category_csv.txt'"
+    - authorization_segment:
+        keyword: iam_role
+        quoted_literal: "'arn:aws:iam::0123456789012:role/MyRedshiftRole'"
+    - data_format_segment:
+      - keyword: csv
+      - keyword: quote
+      - keyword: as
+      - quoted_literal: "'%'"
+- statement_terminator: ;
+- statement:
+    copy_statement:
+    - keyword: copy
+    - table_reference:
+        naked_identifier: venue
+    - keyword: from
+    - quoted_literal: "'s3://mybucket/data/venue.txt'"
+    - authorization_segment:
+        keyword: iam_role
+        quoted_literal: "'arn:aws:iam::0123456789012:role/MyRedshiftRole'"
+    - keyword: explicit_ids
+- statement_terminator: ;
+- statement:
+    copy_statement:
+    - keyword: copy
+    - table_reference:
+        naked_identifier: time
+    - keyword: from
+    - quoted_literal: "'s3://mybucket/data/timerows.gz'"
+    - authorization_segment:
+        keyword: iam_role
+        quoted_literal: "'arn:aws:iam::0123456789012:role/MyRedshiftRole'"
+    - keyword: gzip
+    - keyword: delimiter
+    - quoted_literal: "'|'"
+- statement_terminator: ;
+- statement:
+    copy_statement:
+    - keyword: copy
+    - table_reference:
+        naked_identifier: timestamp1
+    - keyword: from
+    - quoted_literal: "'s3://mybucket/data/time.txt'"
+    - authorization_segment:
+        keyword: iam_role
+        quoted_literal: "'arn:aws:iam::0123456789012:role/MyRedshiftRole'"
+    - keyword: timeformat
+    - quoted_literal: "'YYYY-MM-DD HH:MI:SS'"
+- statement_terminator: ;
+- statement:
+    copy_statement:
+    - keyword: copy
+    - table_reference:
+        naked_identifier: venue_new
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: venueid
+      - comma: ','
+      - column_reference:
+          naked_identifier: venuename
+      - comma: ','
+      - column_reference:
+          naked_identifier: venuecity
+      - comma: ','
+      - column_reference:
+          naked_identifier: venuestate
+      - end_bracket: )
+    - keyword: from
+    - quoted_literal: "'s3://mybucket/data/venue_noseats.txt'"
+    - authorization_segment:
+        keyword: iam_role
+        quoted_literal: "'arn:aws:iam::0123456789012:role/MyRedshiftRole'"
+    - keyword: delimiter
+    - quoted_literal: "'|'"
+- statement_terminator: ;
+- statement:
+    copy_statement:
+    - keyword: copy
+    - table_reference:
+        naked_identifier: redshiftinfo
+    - keyword: from
+    - quoted_literal: "'s3://mybucket/data/redshiftinfo.txt'"
+    - authorization_segment:
+        keyword: iam_role
+        quoted_literal: "'arn:aws:iam::0123456789012:role/MyRedshiftRole'"
+    - keyword: delimiter
+    - quoted_literal: "'|'"
+    - keyword: escape
+- statement_terminator: ;
+- statement:
+    copy_statement:
+    - keyword: copy
+    - table_reference:
+        naked_identifier: category
+    - keyword: from
+    - quoted_literal: "'s3://mybucket/category_object_auto.json'"
+    - authorization_segment:
+        keyword: iam_role
+        quoted_literal: "'arn:aws:iam::0123456789012:role/MyRedshiftRole'"
+    - data_format_segment:
+        keyword: json
+        quoted_literal: "'auto'"
+- statement_terminator: ;
+- statement:
+    copy_statement:
+    - keyword: copy
+    - table_reference:
+        naked_identifier: category
+    - keyword: from
+    - quoted_literal: "'s3://mybucket/category_auto-ignorecase.avro'"
+    - authorization_segment:
+        keyword: iam_role
+        quoted_literal: "'arn:aws:iam::0123456789012:role/MyRedshiftRole'"
+    - data_format_segment:
+      - keyword: format
+      - keyword: as
+      - keyword: avro
+      - quoted_literal: "'auto ignorecase'"
+- statement_terminator: ;
+- statement:
+    copy_statement:
+    - keyword: COPY
+    - table_reference:
+        naked_identifier: norway_natural
+    - keyword: FROM
+    - quoted_literal: "'s3://bucket_name/shapefiles/norway/gis_osm_natural_free_1.shp'"
+    - data_format_segment:
+      - keyword: FORMAT
+      - keyword: SHAPEFILE
+    - authorization_segment:
+        keyword: CREDENTIALS
+        quoted_literal: "'aws_iam_role=arn:aws:iam::123456789012:role/MyRoleName'"
+- statement_terminator: ;
+- statement:
+    copy_statement:
+    - keyword: COPY
+    - table_reference:
+        naked_identifier: norway_water
+    - keyword: FROM
+    - quoted_literal: "'s3://bucket_name/shapefiles/norway/gis_osm_water_a_free_1.shp'"
+    - data_format_segment:
+      - keyword: FORMAT
+      - keyword: SHAPEFILE
+      - keyword: SIMPLIFY
+      - keyword: AUTO
+      - numeric_literal: '1.1E-05'
+    - keyword: MAXERROR
+    - numeric_literal: '2'
+    - authorization_segment:
+        keyword: CREDENTIALS
+        quoted_literal: "'aws_iam_role=arn:aws:iam::123456789012:role/MyRoleName'"
+- statement_terminator: ;
+- statement:
+    copy_statement:
+    - keyword: COPY
+    - table_reference:
+        naked_identifier: norway_natural_order
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: wkb_geometry
+      - comma: ','
+      - column_reference:
+          naked_identifier: osm_id
+      - comma: ','
+      - column_reference:
+          naked_identifier: code
+      - comma: ','
+      - column_reference:
+          naked_identifier: fclass
+      - comma: ','
+      - column_reference:
+          naked_identifier: name
+      - end_bracket: )
+    - keyword: FROM
+    - quoted_literal: "'s3://bucket_name/shapefiles/norway/gis_osm_natural_free_1.shp'"
+    - data_format_segment:
+      - keyword: FORMAT
+      - keyword: SHAPEFILE
+    - authorization_segment:
+        keyword: CREDENTIALS
+        quoted_literal: "'aws_iam_role=arn:aws:iam::123456789012:role/MyRoleName'"
+- statement_terminator: ;
+- statement:
+    copy_statement:
+    - keyword: COPY
+    - table_reference:
+        naked_identifier: some_table
+    - keyword: FROM
+    - quoted_literal: "'s3://some_bucket/some/path'"
+    - authorization_segment:
+        keyword: IAM_ROLE
+        quoted_literal: "'some_iam_role'"
+    - data_format_segment:
+      - keyword: FORMAT
+      - keyword: AS
+      - keyword: CSV
+    - keyword: TRUNCATECOLUMNS
+    - keyword: IGNOREHEADER
+    - numeric_literal: '1'
+    - keyword: ACCEPTINVCHARS
+- statement_terminator: ;

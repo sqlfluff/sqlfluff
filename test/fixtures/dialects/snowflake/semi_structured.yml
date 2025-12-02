@@ -1,0 +1,212 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 0fe13d614c4812dcff87c863d704cb3a6222971088f10e4ddde48f8c217d72f8
+file:
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+            naked_identifier: ticket_id
+      - comma: ','
+      - select_clause_element:
+          expression:
+            column_reference:
+              naked_identifier: value
+            semi_structured_expression:
+              colon: ':'
+              semi_structured_element: value
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: uncasted
+      - comma: ','
+      - select_clause_element:
+          expression:
+            cast_expression:
+              column_reference:
+                naked_identifier: value
+              semi_structured_expression:
+                colon: ':'
+                semi_structured_element: id
+              casting_operator: '::'
+              data_type:
+                data_type_identifier: bigint
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: field_id
+      - comma: ','
+      - select_clause_element:
+          expression:
+            cast_expression:
+              column_reference:
+                naked_identifier: value
+              semi_structured_expression:
+                colon: ':'
+                semi_structured_element: value
+              casting_operator: '::'
+              data_type:
+                data_type_identifier: STRING
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: field_val
+      - comma: ','
+      - select_clause_element:
+          expression:
+            column_reference:
+              naked_identifier: value
+            semi_structured_expression:
+            - colon: ':'
+            - semi_structured_element: thing
+            - array_accessor:
+                start_square_bracket: '['
+                numeric_literal: '4'
+                end_square_bracket: ']'
+            - dot: .
+            - semi_structured_element: foo
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: another_val
+      - comma: ','
+      - select_clause_element:
+          expression:
+            cast_expression:
+              column_reference:
+                naked_identifier: value
+              semi_structured_expression:
+              - colon: ':'
+              - semi_structured_element: thing
+              - array_accessor:
+                  start_square_bracket: '['
+                  numeric_literal: '4'
+                  end_square_bracket: ']'
+              - dot: .
+              - semi_structured_element: bar
+              - dot: .
+              - semi_structured_element: baz
+              - array_accessor:
+                  start_square_bracket: '['
+                  numeric_literal: '0'
+                  end_square_bracket: ']'
+              - dot: .
+              - semi_structured_element: foo
+              casting_operator: '::'
+              data_type:
+                data_type_identifier: bigint
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: another_val
+      - comma: ','
+      - select_clause_element:
+          expression:
+            column_reference:
+              naked_identifier: array_field
+            array_accessor:
+              start_square_bracket: '['
+              numeric_literal: '0'
+              end_square_bracket: ']'
+            semi_structured_expression:
+              dot: .
+              semi_structured_element: array_element_property
+          alias_expression:
+            alias_operator:
+              keyword: as
+            naked_identifier: test_array_access
+      from_clause:
+      - keyword: FROM
+      - from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: raw_tickets
+      - comma: ','
+      - from_expression:
+          from_expression_element:
+            keyword: lateral
+            table_expression:
+              function:
+                function_name:
+                  function_name_identifier: flatten
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    snowflake_keyword_expression:
+                      parameter: INPUT
+                      parameter_assigner: =>
+                      column_reference:
+                        naked_identifier: custom_fields
+                    end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          expression:
+            cast_expression:
+              column_reference:
+                naked_identifier: value
+              semi_structured_expression:
+              - colon: ':'
+              - semi_structured_element: point
+              - colon: ':'
+              - semi_structured_element: from
+              - colon: ':'
+              - semi_structured_element: latitude
+              casting_operator: '::'
+              data_type:
+                data_type_identifier: NUMBER
+                bracketed_arguments:
+                  bracketed:
+                  - start_bracket: (
+                  - numeric_literal: '10'
+                  - comma: ','
+                  - numeric_literal: '6'
+                  - end_bracket: )
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: lat
+      - comma: ','
+      - select_clause_element:
+          expression:
+            cast_expression:
+              column_reference:
+                naked_identifier: value
+              semi_structured_expression:
+              - colon: ':'
+              - semi_structured_element: point
+              - colon: ':'
+              - semi_structured_element: from
+              - colon: ':'
+              - semi_structured_element: longitude
+              casting_operator: '::'
+              data_type:
+                data_type_identifier: NUMBER
+                bracketed_arguments:
+                  bracketed:
+                  - start_bracket: (
+                  - numeric_literal: '10'
+                  - comma: ','
+                  - numeric_literal: '6'
+                  - end_bracket: )
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: lng
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: table1
+- statement_terminator: ;

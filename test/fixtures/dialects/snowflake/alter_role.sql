@@ -1,0 +1,10 @@
+ALTER ROLE IF EXISTS "test_role" RENAME TO "prod_role";
+ALTER ROLE "test_role" RENAME TO "prod_role";
+ALTER ROLE IF EXISTS "test_role" SET COMMENT = 'test_comment';
+ALTER ROLE IF EXISTS "test_role" UNSET COMMENT;
+ALTER ROLE "test_role" SET COMMENT = 'test_comment';
+ALTER ROLE "test_role" UNSET COMMENT;
+ALTER ROLE IF EXISTS "test_role" SET TAG TAG1 = 'value1';
+ALTER ROLE IF EXISTS "test_role" SET TAG TAG1 = 'value1', TAG1 = 'value2', TAG1 = 'value3';
+ALTER ROLE IF EXISTS "test_role" UNSET TAG TAG1;
+ALTER ROLE IF EXISTS "test_role" UNSET TAG TAG1, TAG2, TAG3;

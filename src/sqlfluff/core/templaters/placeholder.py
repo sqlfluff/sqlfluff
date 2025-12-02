@@ -1,40 +1,62 @@
 """Defines the placeholder template."""
 
 import logging
-import re
-from typing import Dict, Optional, Tuple
+from typing import Any, Optional
 
+import regex
 
+from sqlfluff.core.config import FluffConfig
 from sqlfluff.core.errors import SQLTemplaterError
-
+from sqlfluff.core.formatter import FormatterInterface
+from sqlfluff.core.helpers.slice import offset_slice
 from sqlfluff.core.templaters.base import (
     RawFileSlice,
+    RawTemplater,
     TemplatedFile,
     TemplatedFileSlice,
+    large_file_check,
 )
-
-from sqlfluff.core.templaters.base import RawTemplater
 
 # Instantiate the templater logger
 templater_logger = logging.getLogger("sqlfluff.templater")
 
 KNOWN_STYLES = {
     # e.g. WHERE bla = :name
-    "colon": re.compile(r"(?<![:\w\x5c]):(?P<param_name>\w+)(?!:)", re.UNICODE),
+    "colon": regex.compile(r"(?<![:\w\x5c]):(?P<param_name>\w+)(?!:)", regex.UNICODE),
+    # e.g. SELECT :"column" FROM :table WHERE bla = :'name'
+    "colon_optional_quotes": regex.compile(
+        r"(?<!:):(?P<quotation>['\"]?)(?P<param_name>[\w_]+)\1", regex.UNICODE
+    ),
+    # e.g. WHERE bla = table:name - use with caution as more prone to false positives
+    "colon_nospaces": regex.compile(r"(?<!:):(?P<param_name>\w+)", regex.UNICODE),
     # e.g. WHERE bla = :2
-    "numeric_colon": re.compile(r"(?<![:\w\x5c]):(?P<param_name>\d+)", re.UNICODE),
+    "numeric_colon": regex.compile(
+        r"(?<![:\w\x5c]):(?P<param_name>\d+)", regex.UNICODE
+    ),
     # e.g. WHERE bla = %(name)s
-    "pyformat": re.compile(r"(?<![:\w\x5c])%\((?P<param_name>[\w_]+)\)s", re.UNICODE),
-    # e.g. WHERE bla = $name
-    "dollar": re.compile(r"(?<![:\w\x5c])\$(?P<param_name>[\w_]+)", re.UNICODE),
+    "pyformat": regex.compile(
+        r"(?<![:\w\x5c])%\((?P<param_name>[\w_]+)\)s", regex.UNICODE
+    ),
+    # e.g. WHERE bla = $name or WHERE bla = ${name}
+    "dollar": regex.compile(
+        r"(?<![:\w\x5c])\${?(?P<param_name>[\w_]+)}?", regex.UNICODE
+    ),
+    # e.g. WHERE bla = $name$ (DbUp compatible)
+    "dollar_surround": regex.compile(
+        r"(?<![:\w\x5c])\$(?P<param_name>[-\w]+)\$", regex.UNICODE
+    ),
+    # e.g. USE ${flyway:database}.schema_name;
+    "flyway_var": regex.compile(r"\${(?P<param_name>\w+[:\w_]+)}", regex.UNICODE),
     # e.g. WHERE bla = ?
-    "question_mark": re.compile(r"(?<![:\w\x5c])\?", re.UNICODE),
-    # e.g. WHERE bla = $3
-    "numeric_dollar": re.compile(r"(?<![:\w\x5c])\$(?P<param_name>[\d]+)", re.UNICODE),
+    "question_mark": regex.compile(r"(?<![:\w\x5c])\?", regex.UNICODE),
+    # e.g. WHERE bla = $3 or WHERE bla = ${3}
+    "numeric_dollar": regex.compile(
+        r"(?<![:\w\x5c])\${?(?P<param_name>[\d]+)}?", regex.UNICODE
+    ),
     # e.g. WHERE bla = %s
-    "percent": re.compile(r"(?<![:\w\x5c])%s", re.UNICODE),
+    "percent": regex.compile(r"(?<![:\w\x5c])%s", regex.UNICODE),
     # e.g. WHERE bla = &s or WHERE bla = &{s} or USE DATABASE {ENV}_MARKETING
-    "ampersand": re.compile(r"(?<!&)&{?(?P<param_name>[\w]+)}?", re.UNICODE),
+    "ampersand": regex.compile(r"(?<!&)&{?(?P<param_name>[\w]+)}?", regex.UNICODE),
 }
 
 
@@ -55,32 +77,27 @@ class PlaceholderTemplater(RawTemplater):
 
     name = "placeholder"
 
-    def __init__(self, override_context=None, **kwargs):
+    def __init__(self, override_context: Optional[dict[str, Any]] = None):
         self.default_context = dict(test_value="__test__")
         self.override_context = override_context or {}
 
     # copy of the Python templater
-    def get_context(self, config) -> Dict:
+    def get_context(
+        self,
+        fname: Optional[str],
+        config: Optional[FluffConfig],
+    ) -> dict[str, Any]:
         """Get the templating context from the config."""
-        # TODO: The config loading should be done outside the templater code. Here
-        # is a silly place.
-        if config:
-            # This is now a nested section
-            loaded_context = (
-                config.get_section((self.templater_selector, self.name)) or {}
-            )
-        else:
-            loaded_context = {}
-        live_context = {}
-        live_context.update(self.default_context)
-        live_context.update(loaded_context)
-        live_context.update(self.override_context)
+        live_context = super().get_context(fname, config)
+
         if "param_regex" in live_context and "param_style" in live_context:
             raise ValueError(
                 "Either param_style or param_regex must be provided, not both"
             )
         if "param_regex" in live_context:
-            live_context["__bind_param_regex"] = re.compile(live_context["param_regex"])
+            live_context["__bind_param_regex"] = regex.compile(
+                live_context["param_regex"]
+            )
         elif "param_style" in live_context:
             param_style = live_context["param_style"]
             if param_style not in KNOWN_STYLES:
@@ -92,14 +109,21 @@ class PlaceholderTemplater(RawTemplater):
             live_context["__bind_param_regex"] = KNOWN_STYLES[param_style]
         else:
             raise ValueError(
-                "No param_regex nor param_style was provided to the placeholder templater!"
+                "No param_regex nor param_style was provided to the placeholder "
+                "templater!"
             )
 
         return live_context
 
+    @large_file_check
     def process(
-        self, *, in_str: str, fname: str, config=None, formatter=None
-    ) -> Tuple[Optional[TemplatedFile], list]:
+        self,
+        *,
+        in_str: str,
+        fname: str,
+        config: Optional[FluffConfig] = None,
+        formatter: Optional[FormatterInterface] = None,
+    ) -> tuple[TemplatedFile, list[SQLTemplaterError]]:
         """Process a string and return a TemplatedFile.
 
         Note that the arguments are enforced as keywords
@@ -119,7 +143,7 @@ class PlaceholderTemplater(RawTemplater):
             formatter (:obj:`CallbackFormatter`): Optional object for output.
 
         """
-        context = self.get_context(config)
+        context = self.get_context(fname, config)
         template_slices = []
         raw_slices = []
         last_pos_raw, last_pos_templated = 0, 0
@@ -136,24 +160,21 @@ class PlaceholderTemplater(RawTemplater):
             else:
                 param_name = found_param["param_name"]
             last_literal_length = span[0] - last_pos_raw
-            try:
-                replacement = context[param_name]
-            except KeyError as err:
-                # TODO: Add a url here so people can get more help.
-                raise SQLTemplaterError(
-                    "Failure in placeholder templating: {}. Have you configured your variables?".format(
-                        err
-                    )
-                )
+            if param_name in context:
+                replacement = str(context[param_name])
+            else:
+                replacement = param_name
+            if "quotation" in found_param.groupdict():
+                quotation = found_param["quotation"]
+                replacement = quotation + replacement + quotation
             # add the literal to the slices
             template_slices.append(
                 TemplatedFileSlice(
                     slice_type="literal",
                     source_slice=slice(last_pos_raw, span[0], None),
-                    templated_slice=slice(
+                    templated_slice=offset_slice(
                         last_pos_templated,
-                        last_pos_templated + last_literal_length,
-                        None,
+                        last_literal_length,
                     ),
                 )
             )
@@ -169,17 +190,15 @@ class PlaceholderTemplater(RawTemplater):
             start_template_pos = last_pos_templated + last_literal_length
             template_slices.append(
                 TemplatedFileSlice(
-                    slice_type="block_start",
-                    source_slice=slice(span[0], span[1], None),
-                    templated_slice=slice(
-                        start_template_pos, start_template_pos + len(replacement), None
-                    ),
+                    slice_type="templated",
+                    source_slice=slice(span[0], span[1]),
+                    templated_slice=offset_slice(start_template_pos, len(replacement)),
                 )
             )
             raw_slices.append(
                 RawFileSlice(
                     raw=in_str[span[0] : span[1]],
-                    slice_type="block_start",
+                    slice_type="templated",
                     source_idx=span[0],
                 )
             )
@@ -192,11 +211,10 @@ class PlaceholderTemplater(RawTemplater):
             template_slices.append(
                 TemplatedFileSlice(
                     slice_type="literal",
-                    source_slice=slice(last_pos_raw, len(in_str), None),
-                    templated_slice=slice(
+                    source_slice=slice(last_pos_raw, len(in_str)),
+                    templated_slice=offset_slice(
                         last_pos_templated,
-                        last_pos_templated + (len(in_str) - last_pos_raw),
-                        None,
+                        (len(in_str) - last_pos_raw),
                     ),
                 )
             )

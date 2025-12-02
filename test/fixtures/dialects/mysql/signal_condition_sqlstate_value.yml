@@ -3,12 +3,12 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 6e3d285baebb4c91e6f0c7a27a1f2ae6de32c2a45f4c0207582b3447fc554ccc
+_hash: 7b6936c92a4757c398e5999d01c2144a086621ab6f1cb6003576f46ab6bacf3d
 file:
   statement:
     resignal_segment:
     - keyword: resignal
     - keyword: sqlstate
     - keyword: value
-    - literal: "'42S02'"
+    - quoted_literal: "'42S02'"
   statement_terminator: ;

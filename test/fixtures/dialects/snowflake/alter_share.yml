@@ -1,0 +1,233 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 8d2c7ce2989b3d13f324fc71c0d0042f957442a4696b7eef728f14eacbd28526
+file:
+- statement:
+    alter_share_statement:
+    - keyword: ALTER
+    - keyword: SHARE
+    - naked_identifier: MY_SHARE
+    - keyword: ADD
+    - keyword: ACCOUNTS
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - object_reference:
+        naked_identifier: my_account_1
+- statement_terminator: ;
+- statement:
+    alter_share_statement:
+    - keyword: ALTER
+    - keyword: SHARE
+    - keyword: IF
+    - keyword: EXISTS
+    - naked_identifier: MY_SHARE
+    - keyword: ADD
+    - keyword: ACCOUNTS
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - object_reference:
+        naked_identifier: my_account_1
+- statement_terminator: ;
+- statement:
+    alter_share_statement:
+    - keyword: ALTER
+    - keyword: SHARE
+    - naked_identifier: MY_SHARE
+    - keyword: REMOVE
+    - keyword: ACCOUNTS
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - object_reference:
+        naked_identifier: my_account_1
+- statement_terminator: ;
+- statement:
+    alter_share_statement:
+    - keyword: ALTER
+    - keyword: SHARE
+    - naked_identifier: MY_SHARE
+    - keyword: ADD
+    - keyword: ACCOUNTS
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - object_reference:
+        naked_identifier: my_account_1
+    - comma: ','
+    - object_reference:
+        naked_identifier: my_account_2
+- statement_terminator: ;
+- statement:
+    alter_share_statement:
+    - keyword: ALTER
+    - keyword: SHARE
+    - naked_identifier: MY_SHARE
+    - keyword: ADD
+    - keyword: ACCOUNTS
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - object_reference:
+        naked_identifier: my_account_1
+    - comma: ','
+    - object_reference:
+        naked_identifier: my_account_2
+    - comma: ','
+    - object_reference:
+        naked_identifier: my_account_3
+- statement_terminator: ;
+- statement:
+    alter_share_statement:
+    - keyword: ALTER
+    - keyword: SHARE
+    - naked_identifier: MY_SHARE
+    - keyword: SET
+    - tag_equals:
+        keyword: TAG
+        tag_reference:
+          naked_identifier: tag1
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'value1'"
+- statement_terminator: ;
+- statement:
+    alter_share_statement:
+    - keyword: ALTER
+    - keyword: SHARE
+    - keyword: IF
+    - keyword: EXISTS
+    - naked_identifier: MY_SHARE
+    - keyword: SET
+    - tag_equals:
+      - keyword: TAG
+      - tag_reference:
+          naked_identifier: tag1
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'value1'"
+      - comma: ','
+      - tag_reference:
+          naked_identifier: tag2
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'value2'"
+- statement_terminator: ;
+- statement:
+    alter_share_statement:
+    - keyword: ALTER
+    - keyword: SHARE
+    - naked_identifier: MY_SHARE
+    - keyword: UNSET
+    - keyword: TAG
+    - tag_reference:
+        naked_identifier: tag1
+- statement_terminator: ;
+- statement:
+    alter_share_statement:
+    - keyword: ALTER
+    - keyword: SHARE
+    - naked_identifier: MY_SHARE
+    - keyword: UNSET
+    - keyword: TAG
+    - tag_reference:
+        naked_identifier: tag1
+    - comma: ','
+    - tag_reference:
+        naked_identifier: tag2
+- statement_terminator: ;
+- statement:
+    alter_share_statement:
+    - keyword: ALTER
+    - keyword: SHARE
+    - naked_identifier: MY_SHARE
+    - keyword: UNSET
+    - keyword: COMMENT
+- statement_terminator: ;
+- statement:
+    alter_share_statement:
+    - keyword: ALTER
+    - keyword: SHARE
+    - naked_identifier: MY_SHARE
+    - keyword: ADD
+    - keyword: ACCOUNTS
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - object_reference:
+        naked_identifier: my_account_1
+    - keyword: SHARE_RESTRICTIONS
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - boolean_literal: 'TRUE'
+- statement_terminator: ;
+- statement:
+    alter_share_statement:
+    - keyword: ALTER
+    - keyword: SHARE
+    - naked_identifier: MY_SHARE
+    - keyword: ADD
+    - keyword: ACCOUNTS
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - object_reference:
+        naked_identifier: my_account_1
+    - comma: ','
+    - object_reference:
+        naked_identifier: my_account_2
+    - keyword: SHARE_RESTRICTIONS
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - boolean_literal: 'FALSE'
+- statement_terminator: ;
+- statement:
+    alter_share_statement:
+    - keyword: ALTER
+    - keyword: SHARE
+    - naked_identifier: MY_SHARE
+    - keyword: SET
+    - keyword: ACCOUNTS
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - object_reference:
+        naked_identifier: my_account_1
+    - comment_equals_clause:
+        keyword: COMMENT
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'my_comment'"
+- statement_terminator: ;
+- statement:
+    alter_share_statement:
+    - keyword: ALTER
+    - keyword: SHARE
+    - keyword: IF
+    - keyword: EXISTS
+    - naked_identifier: MY_SHARE
+    - keyword: SET
+    - keyword: ACCOUNTS
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - object_reference:
+        naked_identifier: my_account_1
+    - comma: ','
+    - object_reference:
+        naked_identifier: my_account_2
+    - comment_equals_clause:
+        keyword: COMMENT
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'my_comment'"
+- statement_terminator: ;
+- statement:
+    alter_share_statement:
+    - keyword: ALTER
+    - keyword: SHARE
+    - naked_identifier: my_share
+    - keyword: ADD
+    - keyword: ACCOUNTS
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - object_reference:
+      - naked_identifier: org
+      - dot: .
+      - naked_identifier: account
+- statement_terminator: ;

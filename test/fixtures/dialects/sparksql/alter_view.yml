@@ -1,0 +1,183 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 6f67fec9e7dfdde2df2601aa70249fa1791b81b87d99917515dc3535f6d91901
+file:
+- statement:
+    alter_view_statement:
+    - keyword: ALTER
+    - keyword: VIEW
+    - table_reference:
+        naked_identifier: view_identifier
+    - keyword: RENAME
+    - keyword: TO
+    - table_reference:
+        naked_identifier: view_identifier
+- statement_terminator: ;
+- statement:
+    alter_view_statement:
+    - keyword: ALTER
+    - keyword: VIEW
+    - table_reference:
+      - naked_identifier: tempdb1
+      - dot: .
+      - naked_identifier: v1
+    - keyword: RENAME
+    - keyword: TO
+    - table_reference:
+      - naked_identifier: tempdb1
+      - dot: .
+      - naked_identifier: v2
+- statement_terminator: ;
+- statement:
+    alter_view_statement:
+    - keyword: ALTER
+    - keyword: VIEW
+    - table_reference:
+        naked_identifier: view_identifier
+    - keyword: SET
+    - keyword: TBLPROPERTIES
+    - bracketed:
+        start_bracket: (
+        property_name_identifier:
+          quoted_identifier: '"property_key"'
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: '"property_val"'
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_view_statement:
+    - keyword: ALTER
+    - keyword: VIEW
+    - table_reference:
+      - naked_identifier: tempdb1
+      - dot: .
+      - naked_identifier: v2
+    - keyword: SET
+    - keyword: TBLPROPERTIES
+    - bracketed:
+      - start_bracket: (
+      - property_name_identifier:
+          quoted_identifier: "'created.by.user'"
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: '"John"'
+      - comma: ','
+      - property_name_identifier:
+          quoted_identifier: "'created.date'"
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'01-01-2001'"
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_view_statement:
+    - keyword: ALTER
+    - keyword: VIEW
+    - table_reference:
+        naked_identifier: view_identifier
+    - keyword: UNSET
+    - keyword: TBLPROPERTIES
+    - bracketed:
+        start_bracket: (
+        property_name_identifier:
+          quoted_identifier: '"property_key"'
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_view_statement:
+    - keyword: ALTER
+    - keyword: VIEW
+    - table_reference:
+        naked_identifier: view_identifier
+    - keyword: UNSET
+    - keyword: TBLPROPERTIES
+    - keyword: IF
+    - keyword: EXISTS
+    - bracketed:
+        start_bracket: (
+        property_name_identifier:
+          quoted_identifier: '"property_key"'
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_view_statement:
+    - keyword: ALTER
+    - keyword: VIEW
+    - table_reference:
+      - naked_identifier: tempdb1
+      - dot: .
+      - naked_identifier: v2
+    - keyword: UNSET
+    - keyword: TBLPROPERTIES
+    - bracketed:
+      - start_bracket: (
+      - property_name_identifier:
+          quoted_identifier: "'created.by.user'"
+      - comma: ','
+      - property_name_identifier:
+          quoted_identifier: "'created.date'"
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_view_statement:
+    - keyword: ALTER
+    - keyword: VIEW
+    - table_reference:
+        naked_identifier: view_identifier
+    - keyword: AS
+    - bracketed:
+        start_bracket: (
+        select_statement:
+          select_clause:
+          - keyword: SELECT
+          - select_clause_element:
+              column_reference:
+                naked_identifier: a
+          - comma: ','
+          - select_clause_element:
+              column_reference:
+                naked_identifier: b
+          from_clause:
+            keyword: FROM
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                  - naked_identifier: tempdb1
+                  - dot: .
+                  - naked_identifier: v1
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_view_statement:
+    - keyword: ALTER
+    - keyword: VIEW
+    - table_reference:
+      - naked_identifier: tempdb1
+      - dot: .
+      - naked_identifier: v2
+    - keyword: AS
+    - select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+              naked_identifier: a
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: b
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                - naked_identifier: tempdb1
+                - dot: .
+                - naked_identifier: v1
+- statement_terminator: ;

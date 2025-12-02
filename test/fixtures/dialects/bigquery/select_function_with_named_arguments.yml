@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 8df475d52201ff67086bd79c0ce54ed188e8ccd38ffd704a23ad72d4b892f796
+_hash: a3cf7d8cbc3f0818051569deb9853222ce6bc0da4a9b09cc0f3359544701c40c
 file:
   statement:
     select_statement:
@@ -13,14 +13,15 @@ file:
           function:
             function_name:
               function_name_identifier: ST_GEOGFROMGEOJSON
-            bracketed:
-              start_bracket: (
-              expression:
-                literal: "'{\"type\":\"LineString\",\"coordinates\":[[1,2],[4,5]]}'"
-              comma: ','
-              named_argument:
-                identifier: make_valid
-                right_arrow: =>
+            function_contents:
+              bracketed:
+                start_bracket: (
                 expression:
-                  literal: 'true'
-              end_bracket: )
+                  quoted_literal: "'{\"type\":\"LineString\",\"coordinates\":[[1,2],[4,5]]}'"
+                comma: ','
+                named_argument:
+                  naked_identifier: make_valid
+                  right_arrow: =>
+                  expression:
+                    boolean_literal: 'true'
+                end_bracket: )

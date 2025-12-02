@@ -1,0 +1,30 @@
+services:
+  development:
+    build:
+      context: .
+      dockerfile: ./docker/development/Dockerfile
+    environment:
+      - GITHUB_REPOSITORY_OWNER=sqlfluff
+      - GITHUB_TOKEN=${SQLFLUFF_GITHUB_TOKEN}
+      - POSTGRES_HOST=postgres
+      - SSH_AUTH_SOCK=/ssh-agent
+    volumes:
+      - .:/app
+      - ./test/fixtures/dbt/profiles_yml:/root/.dbt
+      - ~/.gitconfig:/etc/gitconfig
+      - ~/.ssh:/root/.ssh
+      - /run/host-services/ssh-auth.sock:/ssh-agent
+    stdin_open: true
+    tty: true
+    depends_on:
+      - postgres
+    entrypoint: /bin/bash
+  postgres:
+    image: postgres:14-bullseye
+    environment:
+      - POSTGRES_PASSWORD=password
+    ports:
+      # NOTE: "5432:5432" makes the Postgres server accessible to both the host
+      # developer machine *and* the "app" container in Docker. If you don't want
+      # it available on the host machine, change this to simply "5432".
+      - "5432:5432"

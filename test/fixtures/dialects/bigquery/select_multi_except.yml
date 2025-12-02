@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: be54eabbd7970ddb1accd3fa3bc424939e65e9aa600f6b4c558239bc7b737527
+_hash: ae1c1a43af1f653738b7938e70f261d774e8738d0d682a9f7a86442a1c12c8d3
 file:
   statement:
     select_statement:
@@ -12,21 +12,21 @@ file:
       - select_clause_element:
           wildcard_expression:
             wildcard_identifier:
-              identifier: d
+              naked_identifier: d
               dot: .
               star: '*'
       - comma: ','
       - select_clause_element:
           wildcard_expression:
             wildcard_identifier:
-              identifier: r
+              naked_identifier: r
               dot: .
               star: '*'
             select_except_clause:
               keyword: except
               bracketed:
                 start_bracket: (
-                identifier: date_key
+                naked_identifier: date_key
                 end_bracket: )
       from_clause:
         keyword: from
@@ -34,22 +34,24 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: my_table
+                naked_identifier: my_table
             alias_expression:
-              keyword: as
-              identifier: d
+              alias_operator:
+                keyword: as
+              naked_identifier: d
           join_clause:
           - keyword: inner
           - keyword: join
           - from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: my_other_table
+                  naked_identifier: my_other_table
               alias_expression:
-                keyword: as
-                identifier: r
+                alias_operator:
+                  keyword: as
+                naked_identifier: r
           - keyword: using
           - bracketed:
               start_bracket: (
-              identifier: date_key
+              naked_identifier: date_key
               end_bracket: )

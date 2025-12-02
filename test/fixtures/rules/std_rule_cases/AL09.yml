@@ -1,0 +1,304 @@
+rule: AL09
+
+test_pass_no_self_alias:
+    # Test that the rule passes when there's no self alias.
+    pass_str: |
+        select
+            no_alias,
+            col_b as rename_alias,
+            max(sum) as max_sum
+        from foo
+
+test_pass_no_self_alias_tsql:
+    # Test that the rule passes when there's no self alias.
+    pass_str: |
+        select
+            no_alias,
+            rename_alias = col_b,
+            max_sum = max(sum)
+        from foo
+    configs: &tsql_dialect
+        core:
+            dialect: tsql
+
+
+test_pass_no_self_alias_tsql_no_spaces:
+    # Test that the rule passes when there's no self alias.
+    pass_str: |
+        select
+            no_alias,
+            col_b=rename_alias,
+            rename_alias_2 AS col_c,
+            max_sum=max(sum)
+        from foo
+    configs: *tsql_dialect
+
+
+test_fail_no_quotes_same_case:
+    # When unquoted and the same case, we should always remove the alias.
+    fail_str: |
+        select
+            col_a as this_alias_is_fine,
+            col_b as col_b,
+            COL_C as COL_C,
+            Col_D as Col_D,
+            col_e col_e,
+            COL_F COL_F,
+            Col_G Col_G
+        from foo
+    fix_str: |
+        select
+            col_a as this_alias_is_fine,
+            col_b,
+            COL_C,
+            Col_D,
+            col_e,
+            COL_F,
+            Col_G
+        from foo
+
+test_fail_no_quotes_same_case_tsql:
+    # When unquoted and the same case, we should always remove the alias.
+    fail_str: |
+        select
+            this_alias_is_fine = col_a,
+            col_b = col_b,
+            COL_C AS COL_C,
+            Col_D = Col_D,
+            col_e col_e,
+            COL_F COL_F,
+            Col_G Col_G
+        from foo
+    fix_str: |
+        select
+            this_alias_is_fine = col_a,
+            col_b,
+            COL_C,
+            Col_D,
+            col_e,
+            COL_F,
+            Col_G
+        from foo
+    configs: *tsql_dialect
+
+test_fail_with_quotes_same_case:
+    # When quoted and the same case, we should always remove the alias.
+    fail_str: |
+        select
+            "col_a" as "this_alias_is_fine",
+            "col_b" as "col_b",
+            "COL_C" as "COL_C",
+            "Col_D" as "Col_D",
+            "col_e" "col_e",
+            "COL_F" "COL_F",
+            "Col_G" "Col_G"
+        from foo
+    fix_str: |
+        select
+            "col_a" as "this_alias_is_fine",
+            "col_b",
+            "COL_C",
+            "Col_D",
+            "col_e",
+            "COL_F",
+            "Col_G"
+        from foo
+
+test_fail_different_case:
+    # If the casing is different, even if the quoting is the same, we
+    # should never propose a fix. However in most dialects we should still
+    # flag the issue. If CP02 is active, this situation will be resolved
+    # before an error shows.
+    fail_str: |
+        select
+            col_a as this_alias_is_fine,
+            col_b as Col_B,
+            COL_C as col_c,
+            Col_D as COL_D,
+            col_e Col_e,
+            COL_F col_f,
+            Col_G COL_G,
+            "col_b" as "Col_B",
+            "COL_C" as "col_c",
+            "Col_D" as "COL_D",
+            "col_e" "Col_e",
+            "COL_F" "col_f",
+            "Col_G" "COL_G"
+        from foo
+    violations:
+    - code: AL09
+      description: >-
+        Ambiguous self alias. Either remove unnecessary alias, or quote
+        alias/reference to make case change explicit.
+      name: aliasing.self_alias.column
+      warning: false
+      fixes: []
+      start_line_no: 3
+      start_line_pos: 5
+      start_file_pos: 44
+      end_line_no: 3
+      end_line_pos: 10
+      end_file_pos: 49
+    - code: AL09
+      description: >-
+        Ambiguous self alias. Either remove unnecessary alias, or quote
+        alias/reference to make case change explicit.
+      name: aliasing.self_alias.column
+      warning: false
+      fixes: []
+      start_line_no: 4
+      start_line_pos: 5
+      start_file_pos: 64
+      end_line_no: 4
+      end_line_pos: 10
+      end_file_pos: 69
+    - code: AL09
+      description: >-
+        Ambiguous self alias. Either remove unnecessary alias, or quote
+        alias/reference to make case change explicit.
+      name: aliasing.self_alias.column
+      warning: false
+      fixes: []
+      start_line_no: 5
+      start_line_pos: 5
+      start_file_pos: 84
+      end_line_no: 5
+      end_line_pos: 10
+      end_file_pos: 89
+    - code: AL09
+      description: >-
+        Ambiguous self alias. Either remove unnecessary alias, or quote
+        alias/reference to make case change explicit.
+      name: aliasing.self_alias.column
+      warning: false
+      fixes: []
+      start_line_no: 6
+      start_line_pos: 5
+      start_file_pos: 104
+      end_line_no: 6
+      end_line_pos: 10
+      end_file_pos: 109
+    - code: AL09
+      description: >-
+        Ambiguous self alias. Either remove unnecessary alias, or quote
+        alias/reference to make case change explicit.
+      name: aliasing.self_alias.column
+      warning: false
+      fixes: []
+      start_line_no: 7
+      start_line_pos: 5
+      start_file_pos: 121
+      end_line_no: 7
+      end_line_pos: 10
+      end_file_pos: 126
+    - code: AL09
+      description: >-
+        Ambiguous self alias. Either remove unnecessary alias, or quote
+        alias/reference to make case change explicit.
+      name: aliasing.self_alias.column
+      warning: false
+      fixes: []
+      start_line_no: 8
+      start_line_pos: 5
+      start_file_pos: 138
+      end_line_no: 8
+      end_line_pos: 10
+      end_file_pos: 143
+
+test_pass_different_case_clickhouse:
+    # If the casing is different, even if the quoting is the same, we
+    # should never propose a fix. In clickhouse, different cases are
+    # always different objects, even when unquoted - so never flag
+    # aliases as unnecessary if the casing is different.
+    pass_str: |
+        select
+            col_a as this_alias_is_fine,
+            col_b as Col_B,
+            COL_C as col_c,
+            Col_D as COL_D,
+            col_e Col_e,
+            COL_F col_f,
+            Col_G COL_G,
+            "col_b" as "Col_B",
+            "COL_C" as "col_c",
+            "Col_D" as "COL_D",
+            "col_e" "Col_e",
+            "COL_F" "col_f",
+            "Col_G" "COL_G"
+        from foo
+    configs:
+        core:
+            dialect: clickhouse
+
+test_pass_different_quotes:
+    # If the quoting is different, even if the casing is the same, we
+    # should never fail/fix the rule. If RF06 changes the quoting we
+    # might trigger after that, but by then the quoting will be different.
+    pass_str: |
+        select
+            col_a as this_alias_is_fine,
+            "col_b" as col_b,
+            COL_C as "COL_C",
+            "Col_D" as Col_D,
+            col_e "col_e",
+            "COL_F" COL_F,
+            Col_G "Col_G"
+        from foo
+
+test_pass_mysql_quoted_identifiers:
+    pass_str: |
+        SELECT
+            users.email AS "Email_in_double_quotes",
+            users.email AS "Email""with_escaped_double_quotes",
+            users.email AS `Email_in_backticks`,
+            users.email AS 'Email_in_single_quotes'
+        FROM users;
+    configs:
+        core:
+            dialect: mysql
+
+test_pass_tsql_quoted_column_no_space_with_as:
+    pass_str: |
+        SELECT c.[name]as clientName
+        FROM clients as c
+    configs:
+        core:
+            dialect: tsql
+
+test_pass_bigquery_quoted_column_no_space_with_as:
+    pass_str: |
+        SELECT `col`as`renamed_col`
+        FROM clients as c
+    configs:
+        core:
+            dialect: bigquery
+
+test_fail_bigquery_quoted_column_no_space_with_as:
+    fail_str: |
+        SELECT `col`as`col`
+        FROM clients as c
+    fix_str: |
+        SELECT `col`
+        FROM clients as c
+    configs:
+        core:
+            dialect: bigquery
+
+test_pass_bigquery_quoted_column_no_space_without_as:
+    pass_str: |
+        SELECT `col``renamed_col`
+        FROM clients as c
+    configs:
+        core:
+            dialect: bigquery
+
+test_fail_bigquery_quoted_column_no_space_without_as:
+    fail_str: |
+        SELECT `col``col`
+        FROM clients as c
+    fix_str: |
+        SELECT `col`
+        FROM clients as c
+    configs:
+        core:
+            dialect: bigquery

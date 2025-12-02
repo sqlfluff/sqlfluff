@@ -1,0 +1,95 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 37851c6bdee0d627670cc081f33fa25b5a868d7381595ce389951905265f2487
+file:
+- statement:
+    describe_statement:
+    - keyword: DESCRIBE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: customer
+- statement_terminator: ;
+- statement:
+    describe_statement:
+      keyword: DESCRIBE
+      table_reference:
+        naked_identifier: customer
+- statement_terminator: ;
+- statement:
+    describe_statement:
+    - keyword: DESCRIBE
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: salesdb
+      - dot: .
+      - naked_identifier: customer
+- statement_terminator: ;
+- statement:
+    describe_statement:
+    - keyword: DESCRIBE
+    - keyword: TABLE
+    - keyword: EXTENDED
+    - table_reference:
+        naked_identifier: customer
+- statement_terminator: ;
+- statement:
+    describe_statement:
+    - keyword: DESCRIBE
+    - keyword: TABLE
+    - keyword: EXTENDED
+    - table_reference:
+        naked_identifier: customer
+    - keyword: PARTITION
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          naked_identifier: state
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'AR'"
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    describe_statement:
+    - keyword: DESCRIBE
+    - table_reference:
+        naked_identifier: customer
+    - naked_identifier: salesdb
+    - dot: .
+    - naked_identifier: customer
+    - dot: .
+    - naked_identifier: name
+- statement_terminator: ;
+- statement:
+    describe_statement:
+    - keyword: DESCRIBE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: customer
+    - naked_identifier: salesdb
+    - dot: .
+    - naked_identifier: customer
+    - dot: .
+    - naked_identifier: name
+- statement_terminator: ;
+- statement:
+    describe_statement:
+    - keyword: DESCRIBE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: customer
+    - naked_identifier: customer
+    - dot: .
+    - naked_identifier: name
+- statement_terminator: ;
+- statement:
+    describe_statement:
+    - keyword: DESCRIBE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: customer
+    - naked_identifier: name
+- statement_terminator: ;

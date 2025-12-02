@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: e054a71b01b9b357e5d14b9a69feb7a1c4c120587c8f9a34f5ecebd496e45229
+_hash: e7e2a19499cb4875ea5e86b4b9a3ef52564d1cb0fe3ee88e4da65c8f29287ec0
 file:
   statement:
     select_statement:
@@ -19,7 +19,7 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: TABLE_1
+                naked_identifier: TABLE_1
           join_clause:
           - keyword: FULL
           - keyword: OUTER
@@ -42,14 +42,15 @@ file:
                           from_expression_element:
                             table_expression:
                               table_reference:
-                                identifier: Table_B
+                                naked_identifier: Table_B
                       where_clause:
                         keyword: WHERE
                         expression:
                           column_reference:
-                            identifier: COL_2
-                          comparison_operator: '='
-                          literal: "'B'"
+                            naked_identifier: COL_2
+                          comparison_operator:
+                            raw_comparison_operator: '='
+                          quoted_literal: "'B'"
                   - set_operator:
                     - keyword: UNION
                     - keyword: ALL
@@ -66,24 +67,26 @@ file:
                           from_expression_element:
                             table_expression:
                               table_reference:
-                                identifier: TABLE_C
+                                naked_identifier: TABLE_C
                       where_clause:
                         keyword: WHERE
                         expression:
                           column_reference:
-                            identifier: COL_1
-                          comparison_operator: '='
-                          literal: '0'
+                            naked_identifier: COL_1
+                          comparison_operator:
+                            raw_comparison_operator: '='
+                          numeric_literal: '0'
                   end_bracket: )
           - join_on_condition:
               keyword: 'ON'
               expression:
               - column_reference:
-                - identifier: TABLE_1
+                - naked_identifier: TABLE_1
                 - dot: .
-                - identifier: A
-              - comparison_operator: '='
+                - naked_identifier: A
+              - comparison_operator:
+                  raw_comparison_operator: '='
               - column_reference:
-                - identifier: TABLE_2
+                - naked_identifier: TABLE_2
                 - dot: .
-                - identifier: A
+                - naked_identifier: A

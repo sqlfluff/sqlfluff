@@ -1,0 +1,398 @@
+rule: CV10
+
+test_fail_result_of_fix_is_valid_bigquery:
+  fail_str: |
+    SELECT
+        "some string",
+        'some string'
+  fix_str: |
+    SELECT
+        "some string",
+        "some string"
+  configs:
+    core:
+      dialect: bigquery
+
+test_fail_result_of_fix_is_valid_hive:
+  fail_str: |
+    SELECT
+        "some string",
+        'some string'
+  fix_str: |
+    SELECT
+        "some string",
+        "some string"
+  configs:
+    core:
+      dialect: hive
+
+test_fail_result_of_fix_is_valid_mysql:
+  fail_str: |
+    SELECT
+        "some string",
+        'some string'
+  fix_str: |
+    SELECT
+        "some string",
+        "some string"
+  configs:
+    core:
+      dialect: mysql
+
+test_fail_result_of_fix_is_valid_sparksql:
+  fail_str: |
+    SELECT
+        "some string",
+        'some string'
+  fix_str: |
+    SELECT
+        "some string",
+        "some string"
+  configs:
+    core:
+      dialect: sparksql
+
+test_pass_preferred_tripple_quotes:
+  pass_str: |
+    SELECT """some_string"""
+  configs:
+    core:
+      dialect: bigquery
+    rules:
+      convention.quoted_literals:
+        preferred_quoted_literal_style: double_quotes
+
+test_fail_alternate_tripple_quotes:
+  fail_str: |
+    SELECT '''some_string'''
+  fix_str: |
+    SELECT """some_string"""
+  configs:
+    core:
+      dialect: bigquery
+    rules:
+      convention.quoted_literals:
+        preferred_quoted_literal_style: double_quotes
+
+test_fail_unnecessary_escaping:
+  fail_str: |
+    SELECT
+        'unnecessary \"\"escaping',
+        "unnecessary \'\'escaping"
+  fix_str: |
+    SELECT
+        'unnecessary ""escaping',
+        "unnecessary ''escaping"
+  configs:
+    core:
+      dialect: bigquery
+    rules:
+      convention.quoted_literals:
+        preferred_quoted_literal_style: double_quotes
+
+test_fail_bigquery_string_prefixes:
+  fail_str: |
+    SELECT
+        r'some_string',
+        b'some_string',
+        R'some_string',
+        B'some_string'
+  fix_str: |
+    SELECT
+        r"some_string",
+        b"some_string",
+        R"some_string",
+        B"some_string"
+  configs:
+    core:
+      dialect: bigquery
+    rules:
+      convention.quoted_literals:
+        preferred_quoted_literal_style: double_quotes
+
+test_fail_bigquery_string_prefixes_when_style_is_consistent:
+  fail_str: |
+    SELECT
+        r'some_string',
+        b"some_string"
+  fix_str: |
+    SELECT
+        r'some_string',
+        b'some_string'
+  configs:
+    core:
+      dialect: bigquery
+
+test_fail_tripple_quoted_strings_with_quotes_in_them:
+  fail_str: |
+    SELECT
+        """Strings with "" in them""",
+        '''Strings with "" in them'''
+  fix_str: |
+    SELECT
+        """Strings with "" in them""",
+        """Strings with "" in them"""
+  configs:
+    core:
+      dialect: bigquery
+
+test_fail_tripple_quoted_strings_dont_remove_escapes_single_quotes:
+  fail_str: |
+    SELECT
+        """Strings escaped quotes \" and \' in them""",
+        '''Strings escaped quotes \" and \' in them'''
+  fix_str: |
+    SELECT
+        '''Strings escaped quotes \" and \' in them''',
+        '''Strings escaped quotes \" and \' in them'''
+  configs:
+    core:
+      dialect: bigquery
+    rules:
+      convention.quoted_literals:
+        preferred_quoted_literal_style: single_quotes
+
+test_fail_tripple_quoted_strings_dont_remove_escapes_double_quotes:
+  fail_str: |
+    SELECT
+        """Strings escaped quotes \" and \' in them""",
+        '''Strings escaped quotes \" and \' in them'''
+  fix_str: |
+    SELECT
+        """Strings escaped quotes \" and \' in them""",
+        """Strings escaped quotes \" and \' in them"""
+  configs:
+    core:
+      dialect: bigquery
+    rules:
+      convention.quoted_literals:
+        preferred_quoted_literal_style: double_quotes
+
+test_fail_edge_case_tripple_quoted_string_ending_with_double_quote:
+  # Test that a trailing preferred quote in triple quote scenario doesn't break
+  fail_str: |
+    SELECT
+        '''Here's a "''',
+        '''Here's a " '''
+  fix_str: |
+    SELECT
+        '''Here's a "''',
+        """Here's a " """
+  configs:
+    core:
+      dialect: bigquery
+    rules:
+      convention.quoted_literals:
+        preferred_quoted_literal_style: double_quotes
+
+test_pass_lots_of_quotes:
+  # Test that we can handle complex quoting scenarios
+  pass_str: |
+    SELECT
+      '\\""',
+      "\\''"
+  configs:
+    core:
+      dialect: bigquery
+    rules:
+      convention.quoted_literals:
+        preferred_quoted_literal_style: double_quotes
+
+test_fail_lots_of_quotes:
+  # Test that we can handle complex quoting scenarios
+  fail_str: |
+    SELECT 'Lots of \\\\\\\\\'quotes\''
+  fix_str: |
+    SELECT "Lots of \\\\\\\\'quotes'"
+  configs:
+    core:
+      dialect: bigquery
+    rules:
+      convention.quoted_literals:
+        preferred_quoted_literal_style: double_quotes
+
+test_fail_quote_replace_in_raw_strings:
+  # Test that we can handle complex quoting scenarios
+  fail_str: |
+    SELECT
+        r'Tricky "quote',
+        r'Not-so-tricky \"quote'
+  fix_str: |
+    SELECT
+        r'Tricky "quote',
+        r"Not-so-tricky \"quote"
+  configs:
+    core:
+      dialect: bigquery
+    rules:
+      convention.quoted_literals:
+        preferred_quoted_literal_style: double_quotes
+
+test_pass_dollar_quoted_strings_are_ignored:
+  # Test that we don't interfere with dollar quoted strings
+  pass_str: |
+    SELECT
+        'some string',
+        $$some_other_string$$
+  configs:
+    core:
+      dialect: postgres
+    rules:
+      convention.quoted_literals:
+        force_enable: true
+        preferred_quoted_literal_style: single_quotes
+
+test_pass_date_constructor_strings_are_ignored_1:
+  # Test that we don't interfere with date constructor strings
+  pass_str: |
+    SELECT
+        "quoted string",
+        DATE'some string'
+
+test_pass_date_constructor_strings_are_ignored_2:
+  # Test that we don't interfere with date constructor strings
+  pass_str: |
+    SELECT
+        DATE'some string'
+  configs:
+    rules:
+      convention.quoted_literals:
+        force_enable: true
+        preferred_quoted_literal_style: double_quotes
+
+test_pass_empty_string:
+  pass_str: |
+    SELECT ""
+  configs:
+    core:
+      dialect: bigquery
+    rules:
+      convention.quoted_literals:
+        preferred_quoted_literal_style: double_quotes
+
+test_fail_empty_string:
+  fail_str: |
+    SELECT ''
+  fix_str: |
+    SELECT ""
+  configs:
+    core:
+      dialect: bigquery
+    rules:
+      convention.quoted_literals:
+        preferred_quoted_literal_style: double_quotes
+
+test_pass_partially_templated_quoted_literals_simple:
+  pass_str: |
+    SELECT "{{ 'a string' }}"
+  configs:
+    core:
+      dialect: bigquery
+    rules:
+      convention.quoted_literals:
+        preferred_quoted_literal_style: double_quotes
+
+test_fail_partially_templated_quoted_literals_simple:
+  fail_str: |
+    SELECT '{{ "a string" }}'
+  configs:
+    core:
+      dialect: bigquery
+    rules:
+      convention.quoted_literals:
+        preferred_quoted_literal_style: double_quotes
+
+test_pass_partially_templated_quoted_literals_complex:
+  pass_str: |
+    SELECT "this_is_a_lintable_{{ 'string' }}"
+  configs:
+    core:
+      dialect: bigquery
+    rules:
+      convention.quoted_literals:
+        preferred_quoted_literal_style: double_quotes
+
+test_fail_partially_templated_quoted_literals_complex:
+  fail_str: |
+    SELECT 'this_is_a_lintable_{{ "string" }}'
+  configs:
+    core:
+      dialect: bigquery
+    rules:
+      convention.quoted_literals:
+        preferred_quoted_literal_style: double_quotes
+
+test_pass_partially_templated_quoted_literals_with_multiple_templates:
+  pass_str: |
+    SELECT "this_{{ 'is' }}_{{ 'a_lintable' }}_{{ 'string' }}"
+  configs:
+    core:
+      dialect: bigquery
+    rules:
+      convention.quoted_literals:
+        preferred_quoted_literal_style: double_quotes
+
+test_fail_partially_templated_quoted_literals_with_multiple_templates:
+  fail_str: |
+    SELECT 'this_{{ "is" }}_{{ "a_lintable" }}_{{ "string" }}'
+  configs:
+    core:
+      dialect: bigquery
+    rules:
+      convention.quoted_literals:
+        preferred_quoted_literal_style: double_quotes
+
+test_fail_partially_templated_quoted_literals_inside_blocks:
+  fail_str: |
+    SELECT
+        {% if true %}
+        '{{ "another_templated_string" }}'
+        {% endif %}
+  configs:
+    core:
+      dialect: bigquery
+    rules:
+      convention.quoted_literals:
+        preferred_quoted_literal_style: double_quotes
+
+test_pass_fully_templated_quoted_literals_are_ignored:
+  pass_str: |
+    SELECT {{ "'a_non_lintable_string'" }}
+  configs:
+    core:
+      dialect: bigquery
+    rules:
+      convention.quoted_literals:
+        preferred_quoted_literal_style: double_quotes
+
+test_pass_partially_templated_literals_are_ignored_when_some_quotes_are_inside_the_template_1:
+  pass_str: |
+    SELECT '{{ "string' FROM table1" }}
+  configs:
+    core:
+      dialect: bigquery
+    rules:
+      convention.quoted_literals:
+        preferred_quoted_literal_style: double_quotes
+
+test_pass_partially_templated_literals_are_ignored_when_some_quotes_are_inside_the_template_2:
+  pass_str: |
+    {{ "SELECT 'stri" -}}ng' FROM table1
+  configs:
+    core:
+      dialect: bigquery
+    rules:
+      convention.quoted_literals:
+        preferred_quoted_literal_style: double_quotes
+
+test_pass_prefix_chars_are_correctly_detected_as_unlintable:
+  pass_str: |
+    SELECT
+      r{{ "''" }},
+      r{{ "'project' FROM table1" }}
+  configs:
+    core:
+      dialect: bigquery
+    rules:
+      convention.quoted_literals:
+        preferred_quoted_literal_style: double_quotes

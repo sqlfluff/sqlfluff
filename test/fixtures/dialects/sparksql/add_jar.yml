@@ -1,0 +1,97 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 1f4d8b977e9c4218926f0256036b4bca8e2378b7470065bcca0cbfd694fe6fec
+file:
+- statement:
+    add_jar_statement:
+      keyword: ADD
+      file_keyword: JAR
+      quoted_literal: '"/path/to/some.jar"'
+- statement_terminator: ;
+- statement:
+    add_jar_statement:
+      keyword: ADD
+      file_keyword: JAR
+      quoted_literal: "'/some/other.jar'"
+- statement_terminator: ;
+- statement:
+    add_jar_statement:
+      keyword: ADD
+      file_keyword: JAR
+      quoted_literal: '"/path with space/abc.jar"'
+- statement_terminator: ;
+- statement:
+    add_jar_statement:
+    - keyword: ADD
+    - file_keyword: JARS
+    - quoted_literal: '"/path with space/def.jar"'
+    - quoted_literal: "'/path with space/ghi.jar'"
+- statement_terminator: ;
+- statement:
+    add_jar_statement:
+      keyword: ADD
+      file_keyword: JAR
+      quoted_literal: '"ivy://group:module:version"'
+- statement_terminator: ;
+- statement:
+    add_jar_statement:
+      keyword: ADD
+      file_keyword: JAR
+      quoted_literal: '"ivy://group:module:version?transitive=false"'
+- statement_terminator: ;
+- statement:
+    add_jar_statement:
+      keyword: ADD
+      file_keyword: JAR
+      quoted_literal: '"ivy://group:module:version?transitive=true"'
+- statement_terminator: ;
+- statement:
+    add_jar_statement:
+      keyword: ADD
+      file_keyword: JAR
+      quoted_literal: '"ivy://group:module:version?exclude=group:module&transitive=true"'
+- statement_terminator: ;
+- statement:
+    add_jar_statement:
+      keyword: ADD
+      file_keyword: JAR
+      file_literal:
+        literal: ivy://group:module:version?exclude=group:module&transitive=true
+- statement_terminator: ;
+- statement:
+    add_jar_statement:
+      keyword: ADD
+      file_keyword: JAR
+      file_literal:
+      - slash: /
+      - path_segment: path
+      - slash: /
+      - path_segment: to
+      - slash: /
+      - path_segment: some
+      - dot: .
+      - path_segment: jar
+- statement_terminator: ;
+- statement:
+    add_jar_statement:
+      keyword: ADD
+      file_keyword: JAR
+      file_literal:
+      - path_segment: path
+      - slash: /
+      - path_segment: to
+      - slash: /
+      - path_segment: some
+      - dot: .
+      - path_segment: jar
+- statement_terminator: ;
+- statement:
+    add_jar_statement:
+      keyword: ADD
+      file_keyword: JAR
+      file_literal:
+        literal: ivy://path/to/some.jar
+- statement_terminator: ;

@@ -1,0 +1,71 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: ea4268913f3e8032923463fa2506d27f61d8fd2d2084cf5188627913fdc13d08
+file:
+- batch:
+  - statement:
+      execute_script_statement:
+        keyword: EXECUTE
+        object_reference:
+          naked_identifier: sp_add_job
+        parameter: '@job_name'
+        comparison_operator:
+          raw_comparison_operator: '='
+        expression:
+          quoted_literal: "'TestJob'"
+  - statement_terminator: ;
+  - statement:
+      begin_end_block:
+      - keyword: BEGIN
+      - statement:
+          waitfor_statement:
+          - keyword: WAITFOR
+          - keyword: TIME
+          - expression:
+              quoted_literal: "'22:20'"
+      - statement_terminator: ;
+      - statement:
+          execute_script_statement:
+          - keyword: EXECUTE
+          - object_reference:
+              naked_identifier: sp_update_job
+          - parameter: '@job_name'
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - expression:
+              quoted_literal: "'TestJob'"
+          - comma: ','
+          - parameter: '@new_name'
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - expression:
+              quoted_literal: "'UpdatedJob'"
+      - statement_terminator: ;
+      - keyword: END
+  - statement_terminator: ;
+  - go_statement:
+      keyword: GO
+- batch:
+    statement:
+      begin_end_block:
+      - keyword: BEGIN
+      - statement:
+          waitfor_statement:
+          - keyword: WAITFOR
+          - keyword: DELAY
+          - expression:
+              quoted_literal: "'02:00'"
+      - statement_terminator: ;
+      - statement:
+          execute_script_statement:
+            keyword: EXECUTE
+            object_reference:
+              naked_identifier: sp_helpdb
+      - statement_terminator: ;
+      - keyword: END
+    statement_terminator: ;
+    go_statement:
+      keyword: GO

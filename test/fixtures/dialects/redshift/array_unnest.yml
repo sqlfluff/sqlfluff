@@ -1,0 +1,271 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: e093f4f5e0c82351e8b64bb61bb4b4291c51f04d1d195f0a4981eaaa7d2eeaf8
+file:
+- statement:
+    with_compound_statement:
+      keyword: WITH
+      common_table_expression:
+        naked_identifier: example_data
+        keyword: AS
+        bracketed:
+          start_bracket: (
+          set_expression:
+          - select_statement:
+              select_clause:
+              - keyword: SELECT
+              - select_clause_element:
+                  numeric_literal: '10'
+                  alias_expression:
+                    alias_operator:
+                      keyword: AS
+                    naked_identifier: shop_id
+              - comma: ','
+              - select_clause_element:
+                  function:
+                    function_name:
+                      function_name_identifier: json_parse
+                    function_contents:
+                      bracketed:
+                        start_bracket: (
+                        expression:
+                          quoted_literal: "'[1, 2]'"
+                        end_bracket: )
+                  alias_expression:
+                    alias_operator:
+                      keyword: AS
+                    naked_identifier: inventory
+          - set_operator:
+            - keyword: UNION
+            - keyword: ALL
+          - select_statement:
+              select_clause:
+              - keyword: SELECT
+              - select_clause_element:
+                  numeric_literal: '20'
+                  alias_expression:
+                    alias_operator:
+                      keyword: AS
+                    naked_identifier: shop_id
+              - comma: ','
+              - select_clause_element:
+                  function:
+                    function_name:
+                      function_name_identifier: json_parse
+                    function_contents:
+                      bracketed:
+                        start_bracket: (
+                        expression:
+                          quoted_literal: "'[3, 4, 5]'"
+                        end_bracket: )
+                  alias_expression:
+                    alias_operator:
+                      keyword: AS
+                    naked_identifier: inventory
+          - set_operator:
+            - keyword: UNION
+            - keyword: ALL
+          - select_statement:
+              select_clause:
+              - keyword: SELECT
+              - select_clause_element:
+                  numeric_literal: '30'
+                  alias_expression:
+                    alias_operator:
+                      keyword: AS
+                    naked_identifier: shop_id
+              - comma: ','
+              - select_clause_element:
+                  function:
+                    function_name:
+                      function_name_identifier: json_parse
+                    function_contents:
+                      bracketed:
+                        start_bracket: (
+                        expression:
+                          quoted_literal: "'[6, 7, 8, 9]'"
+                        end_bracket: )
+                  alias_expression:
+                    alias_operator:
+                      keyword: AS
+                    naked_identifier: inventory
+          end_bracket: )
+      select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+              naked_identifier: shop_id
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: value
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: index
+        from_clause:
+        - keyword: FROM
+        - from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: example_data
+              alias_expression:
+                naked_identifier: ed
+        - comma: ','
+        - from_expression:
+            from_expression_element:
+              table_expression:
+                array_unnesting:
+                - object_reference:
+                  - naked_identifier: ed
+                  - dot: .
+                  - naked_identifier: inventory
+                - keyword: AS
+                - naked_identifier: value
+                - keyword: AT
+                - naked_identifier: index
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+            naked_identifier: c_name
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+          - naked_identifier: orders
+          - dot: .
+          - naked_identifier: o_orderkey
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: orderkey
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: index
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: orderkey_index
+      from_clause:
+      - keyword: FROM
+      - from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: customer_orders_lineitem
+            alias_expression:
+              naked_identifier: c
+      - comma: ','
+      - from_expression:
+          from_expression_element:
+            table_expression:
+              array_unnesting:
+              - object_reference:
+                - naked_identifier: c
+                - dot: .
+                - naked_identifier: c_orders
+              - keyword: AS
+              - naked_identifier: orders
+              - keyword: AT
+              - naked_identifier: index
+      orderby_clause:
+      - keyword: ORDER
+      - keyword: BY
+      - column_reference:
+          naked_identifier: orderkey_index
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          expression:
+            cast_expression:
+              column_reference:
+                naked_identifier: value_a
+              casting_operator: '::'
+              data_type:
+                keyword: BIGINT
+      - comma: ','
+      - select_clause_element:
+          expression:
+            cast_expression:
+              column_reference:
+                naked_identifier: array_b
+              array_accessor:
+                start_square_bracket: '['
+                expression:
+                  column_reference:
+                    naked_identifier: idx
+                end_square_bracket: ']'
+              casting_operator: '::'
+              data_type:
+                keyword: VARCHAR
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: value_b
+      - comma: ','
+      - select_clause_element:
+          expression:
+            cast_expression:
+              column_reference:
+                naked_identifier: array_c
+              array_accessor:
+                start_square_bracket: '['
+                expression:
+                  function:
+                    function_name:
+                      function_name_identifier: MOD
+                    function_contents:
+                      bracketed:
+                      - start_bracket: (
+                      - expression:
+                          column_reference:
+                            naked_identifier: idx
+                      - comma: ','
+                      - expression:
+                          numeric_literal: '3'
+                      - end_bracket: )
+                  binary_operator: +
+                  numeric_literal: '1'
+                end_square_bracket: ']'
+              casting_operator: '::'
+              data_type:
+                keyword: FLOAT8
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: value_c
+      from_clause:
+      - keyword: FROM
+      - from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: mytable
+            alias_expression:
+              naked_identifier: t
+      - comma: ','
+      - from_expression:
+          from_expression_element:
+            table_expression:
+              array_unnesting:
+              - object_reference:
+                - naked_identifier: t
+                - dot: .
+                - naked_identifier: array_a
+              - keyword: AS
+              - naked_identifier: value_a
+              - keyword: AT
+              - naked_identifier: idx
+- statement_terminator: ;

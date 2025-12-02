@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: e6a682c094d53ff0e0db4c2997dbd6a000d661fbff503448cb2275bd903e4875
+_hash: e5386e4860e0aa6d386ebf042c49b0c72e13a2a31c22ff8e2372822eef781d18
 file:
   statement:
     insert_statement:
@@ -11,19 +11,21 @@ file:
     - keyword: OVERWRITE
     - keyword: TABLE
     - table_reference:
-        identifier: foo
+        naked_identifier: foo
     - keyword: PARTITION
     - bracketed:
       - start_bracket: (
       - column_reference:
-          identifier: a
-      - comparison_operator: '='
-      - literal: "'test_foo'"
+          naked_identifier: a
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'test_foo'"
       - comma: ','
       - column_reference:
-          identifier: b
-      - comparison_operator: '='
-      - literal: "'test_bar'"
+          naked_identifier: b
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'test_bar'"
       - end_bracket: )
     - keyword: IF
     - keyword: NOT
@@ -33,24 +35,24 @@ file:
         - keyword: SELECT
         - select_clause_element:
             column_reference:
-              identifier: a
+              naked_identifier: a
         - comma: ','
         - select_clause_element:
             column_reference:
-              identifier: b
+              naked_identifier: b
         - comma: ','
         - select_clause_element:
             column_reference:
-              identifier: c
+              naked_identifier: c
         - comma: ','
         - select_clause_element:
             column_reference:
-              identifier: d
+              naked_identifier: d
         from_clause:
           keyword: FROM
           from_expression:
             from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: bar
+                  naked_identifier: bar
   statement_terminator: ;

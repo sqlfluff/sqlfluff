@@ -1,0 +1,101 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: d8b140fb9cc1c853aeda1a516b109fbeb56bdb9491aeea517dcd243e3fb87225
+file:
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+          - naked_identifier: X
+          - dot: .
+          - naked_identifier: NUM
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+          - naked_identifier: D
+          - dot: .
+          - naked_identifier: MY_COL
+      from_clause:
+      - keyword: FROM
+      - from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+              - naked_identifier: MY_SCHEMA
+              - dot: .
+              - naked_identifier: MY_TABLE
+            alias_expression:
+              alias_operator:
+                keyword: AS
+              naked_identifier: D
+      - comma: ','
+      - from_expression:
+          from_expression_element:
+            keyword: LATERAL
+            bracketed:
+              start_bracket: (
+              table_expression:
+                values_clause:
+                - keyword: VALUES
+                - expression:
+                    numeric_literal: '0'
+                - comma: ','
+                - expression:
+                    numeric_literal: '1'
+              end_bracket: )
+            alias_expression:
+              alias_operator:
+                keyword: AS
+              naked_identifier: X
+              bracketed:
+                start_bracket: (
+                identifier_list:
+                  naked_identifier: NUM
+                end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          column_reference:
+          - naked_identifier: X
+          - dot: .
+          - naked_identifier: NUM
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            keyword: LATERAL
+            bracketed:
+              start_bracket: (
+              table_expression:
+                values_clause:
+                - keyword: values
+                - bracketed:
+                    start_bracket: (
+                    expression:
+                      numeric_literal: '0'
+                    end_bracket: )
+                - comma: ','
+                - bracketed:
+                    start_bracket: (
+                    expression:
+                      numeric_literal: '1'
+                    end_bracket: )
+              end_bracket: )
+            alias_expression:
+              alias_operator:
+                keyword: AS
+              naked_identifier: X
+              bracketed:
+                start_bracket: (
+                identifier_list:
+                  naked_identifier: NUM
+                end_bracket: )
+- statement_terminator: ;

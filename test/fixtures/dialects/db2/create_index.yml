@@ -1,0 +1,462 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 69d8bf392480a9a51a81b274c0109f1ad758f91f6f684e79f3677138b56c5ac4
+file:
+- statement:
+    create_index_statement:
+    - keyword: CREATE
+    - keyword: UNIQUE
+    - keyword: INDEX
+    - index_reference:
+      - naked_identifier: SESSION
+      - dot: .
+      - naked_identifier: FOO_IDX
+    - keyword: 'ON'
+    - table_reference:
+      - naked_identifier: SESSION
+      - dot: .
+      - naked_identifier: FOO
+    - bracketed:
+        start_bracket: (
+        index_column_definition:
+          naked_identifier: column1
+        end_bracket: )
+    - keyword: COMPRESS
+    - keyword: 'YES'
+    - keyword: ALLOW
+    - keyword: REVERSE
+    - keyword: SCANS
+- statement_terminator: ;
+- statement:
+    create_index_statement:
+    - keyword: CREATE
+    - keyword: UNIQUE
+    - keyword: INDEX
+    - index_reference:
+        naked_identifier: UNIQUE_NAME
+    - keyword: 'ON'
+    - table_reference:
+        naked_identifier: PROJECT
+    - bracketed:
+        start_bracket: (
+        index_column_definition:
+          naked_identifier: PROJNAME
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_index_statement:
+    - keyword: CREATE
+    - keyword: INDEX
+    - index_reference:
+        naked_identifier: JOB_BY_DPT
+    - keyword: 'ON'
+    - table_reference:
+        naked_identifier: EMPLOYEE
+    - bracketed:
+      - start_bracket: (
+      - index_column_definition:
+          naked_identifier: WORKDEPT
+      - comma: ','
+      - index_column_definition:
+          naked_identifier: JOB
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_index_statement:
+    - keyword: CREATE
+    - keyword: INDEX
+    - index_reference:
+        naked_identifier: JOB_BY_DPT_NME
+    - keyword: 'ON'
+    - table_reference:
+        naked_identifier: EMPLOYEE
+    - bracketed:
+      - start_bracket: (
+      - index_column_definition:
+          naked_identifier: WORKDEPT
+      - comma: ','
+      - index_column_definition:
+          naked_identifier: JOB
+          keyword: DESC
+      - comma: ','
+      - index_column_definition:
+          naked_identifier: NAME
+          keyword: RANDOM
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_index_statement:
+    - keyword: CREATE
+    - keyword: UNIQUE
+    - keyword: INDEX
+    - index_reference:
+        naked_identifier: JOB_BY_DEPT
+    - keyword: 'ON'
+    - table_reference:
+        naked_identifier: EMPLOYEE
+    - bracketed:
+      - start_bracket: (
+      - index_column_definition:
+          naked_identifier: WORKDEPT
+      - comma: ','
+      - index_column_definition:
+          naked_identifier: JOB
+      - end_bracket: )
+    - keyword: SPECIFICATION
+    - keyword: ONLY
+- statement_terminator: ;
+- statement:
+    create_index_statement:
+    - keyword: CREATE
+    - keyword: INDEX
+    - index_reference:
+        naked_identifier: SPATIAL_INDEX
+    - keyword: 'ON'
+    - table_reference:
+        naked_identifier: CUSTOMER
+    - bracketed:
+        start_bracket: (
+        index_column_definition:
+          naked_identifier: LOCATION
+        end_bracket: )
+    - keyword: EXTEND
+    - keyword: USING
+    - bracketed:
+        start_bracket: (
+        index_reference:
+          naked_identifier: GRID_EXTENSION
+        bracketed:
+          start_bracket: (
+          expression:
+            data_type:
+              data_type_identifier: x
+            quoted_literal: "'000100100010001000400010'"
+          end_bracket: )
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_index_statement:
+    - keyword: CREATE
+    - keyword: INDEX
+    - index_reference:
+        naked_identifier: IDX1
+    - keyword: 'ON'
+    - table_reference:
+        naked_identifier: TAB1
+    - bracketed:
+        start_bracket: (
+        index_column_definition:
+          naked_identifier: COL1
+        end_bracket: )
+    - keyword: COLLECT
+    - keyword: STATISTICS
+- statement_terminator: ;
+- statement:
+    create_index_statement:
+    - keyword: CREATE
+    - keyword: INDEX
+    - index_reference:
+        naked_identifier: IDX2
+    - keyword: 'ON'
+    - table_reference:
+        naked_identifier: TAB1
+    - bracketed:
+        start_bracket: (
+        index_column_definition:
+          naked_identifier: COL2
+        end_bracket: )
+    - keyword: COLLECT
+    - keyword: DETAILED
+    - keyword: STATISTICS
+- statement_terminator: ;
+- statement:
+    create_index_statement:
+    - keyword: CREATE
+    - keyword: INDEX
+    - index_reference:
+        naked_identifier: IDX3
+    - keyword: 'ON'
+    - table_reference:
+        naked_identifier: TAB1
+    - bracketed:
+        start_bracket: (
+        index_column_definition:
+          naked_identifier: COL3
+        end_bracket: )
+    - keyword: COLLECT
+    - keyword: SAMPLED
+    - keyword: DETAILED
+    - keyword: STATISTICS
+- statement_terminator: ;
+- statement:
+    create_index_statement:
+    - keyword: CREATE
+    - keyword: UNIQUE
+    - keyword: INDEX
+    - index_reference:
+        naked_identifier: A_IDX
+    - keyword: 'ON'
+    - table_reference:
+        naked_identifier: MYNUMBERDATA
+    - bracketed:
+        start_bracket: (
+        index_column_definition:
+          naked_identifier: A
+        end_bracket: )
+    - keyword: IN
+    - tablespace_reference:
+        naked_identifier: IDX_TBSP
+- statement_terminator: ;
+- statement:
+    create_index_statement:
+    - keyword: CREATE
+    - keyword: UNIQUE
+    - keyword: INDEX
+    - index_reference:
+        naked_identifier: TIME_IDX
+    - keyword: 'ON'
+    - table_reference:
+        naked_identifier: MYNUMBERDATA
+    - bracketed:
+      - start_bracket: (
+      - index_column_definition:
+          naked_identifier: A
+      - comma: ','
+      - keyword: BUSINESS_TIME
+      - keyword: WITHOUT
+      - keyword: OVERLAPS
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_index_statement:
+    - keyword: CREATE
+    - keyword: INDEX
+    - index_reference:
+        naked_identifier: B_IDX
+    - keyword: 'ON'
+    - table_reference:
+        naked_identifier: MYNUMBERDATA
+    - bracketed:
+        start_bracket: (
+        index_column_definition:
+          naked_identifier: B
+        end_bracket: )
+    - keyword: NOT
+    - keyword: PARTITIONED
+    - keyword: IN
+    - tablespace_reference:
+        naked_identifier: IDX_TBSP
+- statement_terminator: ;
+- statement:
+    create_index_statement:
+    - keyword: CREATE
+    - keyword: INDEX
+    - index_reference:
+        naked_identifier: EMPINDEX
+    - keyword: 'ON'
+    - table_reference:
+        naked_identifier: COMPANYINFO
+    - bracketed:
+        start_bracket: (
+        index_column_definition:
+          naked_identifier: COMPANYDOCS
+        end_bracket: )
+    - keyword: GENERATE
+    - keyword: KEY
+    - keyword: USING
+    - keyword: XMLPATTERN
+    - quoted_literal: "'/company/emp/@id'"
+    - keyword: AS
+    - keyword: SQL
+    - data_type:
+        data_type_identifier: DOUBLE
+- statement_terminator: ;
+- statement:
+    create_index_statement:
+    - keyword: CREATE
+    - keyword: INDEX
+    - index_reference:
+        naked_identifier: EMPINDEX
+    - keyword: 'ON'
+    - table_reference:
+        naked_identifier: COMPANYINFO
+    - bracketed:
+        start_bracket: (
+        index_column_definition:
+          naked_identifier: COMPANYDOCS
+        end_bracket: )
+    - keyword: GENERATE
+    - keyword: KEY
+    - keyword: USING
+    - keyword: XMLPATTERN
+    - quoted_literal: "'/child::company/child::emp/attribute::id'"
+    - keyword: AS
+    - keyword: SQL
+    - data_type:
+        data_type_identifier: DOUBLE
+- statement_terminator: ;
+- statement:
+    create_index_statement:
+    - keyword: CREATE
+    - keyword: UNIQUE
+    - keyword: INDEX
+    - index_reference:
+        naked_identifier: MYDOCSIDX
+    - keyword: 'ON'
+    - table_reference:
+        naked_identifier: MYDOCS
+    - bracketed:
+        start_bracket: (
+        index_column_definition:
+          naked_identifier: DOC
+        end_bracket: )
+    - keyword: GENERATE
+    - keyword: KEY
+    - keyword: USING
+    - keyword: XMLPATTERN
+    - quoted_literal: "'/book/title'"
+    - keyword: AS
+    - keyword: SQL
+    - data_type:
+        data_type_identifier: VARCHAR
+        bracketed_arguments:
+          bracketed:
+            start_bracket: (
+            numeric_literal: '100'
+            end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_index_statement:
+    - keyword: CREATE
+    - keyword: INDEX
+    - index_reference:
+        naked_identifier: MYDOCSIDX
+    - keyword: 'ON'
+    - table_reference:
+        naked_identifier: MYDOCS
+    - bracketed:
+        start_bracket: (
+        index_column_definition:
+          naked_identifier: DOC
+        end_bracket: )
+    - keyword: GENERATE
+    - keyword: KEY
+    - keyword: USING
+    - keyword: XMLPATTERN
+    - quoted_literal: "'declare namespace b=\"http://www.example.com/book/\";\n  \
+        \   declare namespace c=\"http://acme.org/chapters\";\n       /b:book/c:chapter/@number'"
+    - keyword: AS
+    - keyword: SQL
+    - data_type:
+        data_type_identifier: DOUBLE
+- statement_terminator: ;
+- statement:
+    create_index_statement:
+    - keyword: CREATE
+    - keyword: UNIQUE
+    - keyword: INDEX
+    - index_reference:
+        naked_identifier: IDXPROJEST
+    - keyword: 'ON'
+    - table_reference:
+        naked_identifier: PROJECT
+    - bracketed:
+        start_bracket: (
+        index_column_definition:
+          naked_identifier: PROJNO
+        end_bracket: )
+    - keyword: INCLUDE
+    - bracketed:
+        start_bracket: (
+        naked_identifier: PRSTAFF
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_index_statement:
+    - keyword: CREATE
+    - keyword: UNIQUE
+    - keyword: INDEX
+    - index_reference:
+        naked_identifier: IDXUSERID
+    - keyword: 'ON'
+    - table_reference:
+        naked_identifier: CUSTOMER
+    - bracketed:
+        start_bracket: (
+        index_column_definition:
+          naked_identifier: USER_ID
+        end_bracket: )
+    - keyword: EXCLUDE
+    - keyword: 'NULL'
+    - keyword: KEYS
+- statement_terminator: ;
+- statement:
+    create_index_statement:
+    - keyword: CREATE
+    - keyword: INDEX
+    - index_reference:
+        naked_identifier: EMP_UPPERNAME
+    - keyword: 'ON'
+    - table_reference:
+        naked_identifier: EMPLOYEE
+    - bracketed:
+      - start_bracket: (
+      - index_column_definition:
+          expression:
+            function:
+              function_name:
+                function_name_identifier: UPPER
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                      naked_identifier: NAME
+                  end_bracket: )
+      - comma: ','
+      - index_column_definition:
+          naked_identifier: ID
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_index_statement:
+    - keyword: CREATE
+    - keyword: INDEX
+    - index_reference:
+        naked_identifier: EMP_PCT
+    - keyword: 'ON'
+    - table_reference:
+        naked_identifier: EMPLOYEE
+    - bracketed:
+        start_bracket: (
+        index_column_definition:
+          naked_identifier: ID
+        end_bracket: )
+    - keyword: PCTFREE
+    - numeric_literal: '10'
+    - keyword: LEVEL2
+    - keyword: PCTFREE
+    - numeric_literal: '20'
+    - keyword: PAGE
+    - keyword: SPLIT
+    - keyword: SYMMETRIC
+- statement_terminator: ;
+- statement:
+    create_index_statement:
+    - keyword: CREATE
+    - keyword: INDEX
+    - index_reference:
+        naked_identifier: EMP_CLUSTER
+    - keyword: 'ON'
+    - table_reference:
+        naked_identifier: EMPLOYEE
+    - bracketed:
+        start_bracket: (
+        index_column_definition:
+          naked_identifier: ID
+        end_bracket: )
+    - keyword: CLUSTER
+- statement_terminator: ;

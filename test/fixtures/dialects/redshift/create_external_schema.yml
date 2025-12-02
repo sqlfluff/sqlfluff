@@ -1,0 +1,230 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: b3d5fda65dae918fce7c5488005253c63e3b356c8a2dbd727f5be5817f17cbd9
+file:
+- statement:
+    create_external_schema_statement:
+    - keyword: create
+    - keyword: external
+    - keyword: schema
+    - schema_reference:
+        naked_identifier: spectrum_schema
+    - keyword: from
+    - keyword: data
+    - keyword: catalog
+    - keyword: database
+    - quoted_literal: "'sampledb'"
+    - keyword: region
+    - quoted_literal: "'us-west-2'"
+    - keyword: iam_role
+    - quoted_literal: "'arn:aws:iam::123456789012:role/MySpectrumRole'"
+- statement_terminator: ;
+- statement:
+    create_external_schema_statement:
+    - keyword: create
+    - keyword: external
+    - keyword: schema
+    - schema_reference:
+        naked_identifier: spectrum_schema
+    - keyword: from
+    - keyword: data
+    - keyword: catalog
+    - keyword: database
+    - quoted_literal: "'spectrum_db'"
+    - keyword: iam_role
+    - quoted_literal: "'arn:aws:iam::123456789012:role/MySpectrumRole'"
+    - keyword: create
+    - keyword: external
+    - keyword: database
+    - keyword: if
+    - keyword: not
+    - keyword: exists
+- statement_terminator: ;
+- statement:
+    create_external_schema_statement:
+    - keyword: create
+    - keyword: external
+    - keyword: schema
+    - schema_reference:
+        naked_identifier: hive_schema
+    - keyword: from
+    - keyword: hive
+    - keyword: metastore
+    - keyword: database
+    - quoted_literal: "'hive_db'"
+    - keyword: uri
+    - quoted_literal: "'172.10.10.10'"
+    - keyword: port
+    - numeric_literal: '99'
+    - keyword: iam_role
+    - quoted_literal: "'arn:aws:iam::123456789012:role/MySpectrumRole'"
+- statement_terminator: ;
+- statement:
+    create_external_schema_statement:
+    - keyword: create
+    - keyword: external
+    - keyword: schema
+    - schema_reference:
+        naked_identifier: spectrum_schema
+    - keyword: from
+    - keyword: data
+    - keyword: catalog
+    - keyword: database
+    - quoted_literal: "'spectrum_db'"
+    - keyword: iam_role
+    - quoted_literal: "'arn:aws:iam::123456789012:role/myRedshiftRole,arn:aws:iam::123456789012:role/myS3Role'"
+    - keyword: catalog_role
+    - quoted_literal: "'arn:aws:iam::123456789012:role/myAthenaRole'"
+    - keyword: create
+    - keyword: external
+    - keyword: database
+    - keyword: if
+    - keyword: not
+    - keyword: exists
+- statement_terminator: ;
+- statement:
+    create_external_schema_statement:
+    - keyword: CREATE
+    - keyword: EXTERNAL
+    - keyword: SCHEMA
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - schema_reference:
+        naked_identifier: myRedshiftSchema
+    - keyword: FROM
+    - keyword: POSTGRES
+    - keyword: DATABASE
+    - quoted_literal: "'my_aurora_db'"
+    - keyword: SCHEMA
+    - quoted_literal: "'my_aurora_schema'"
+    - keyword: URI
+    - quoted_literal: "'endpoint to aurora hostname'"
+    - keyword: PORT
+    - numeric_literal: '5432'
+    - keyword: IAM_ROLE
+    - quoted_literal: "'arn:aws:iam::123456789012:role/MyAuroraRole'"
+    - keyword: SECRET_ARN
+    - quoted_literal: "'arn:aws:secretsmanager:us-east-2:123456789012:secret:development/MyTestDatabase-AbCdEf'"
+- statement_terminator: ;
+- statement:
+    create_external_schema_statement:
+    - keyword: CREATE
+    - keyword: EXTERNAL
+    - keyword: SCHEMA
+    - schema_reference:
+        naked_identifier: sales_schema
+    - keyword: FROM
+    - keyword: REDSHIFT
+    - keyword: DATABASE
+    - quoted_literal: "'sales_db'"
+    - keyword: SCHEMA
+    - quoted_literal: "'public'"
+- statement_terminator: ;
+- statement:
+    create_external_schema_statement:
+    - keyword: CREATE
+    - keyword: EXTERNAL
+    - keyword: SCHEMA
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - schema_reference:
+        naked_identifier: myRedshiftSchema
+    - keyword: FROM
+    - keyword: MYSQL
+    - keyword: DATABASE
+    - quoted_literal: "'my_aurora_db'"
+    - keyword: URI
+    - quoted_literal: "'endpoint to aurora hostname'"
+    - keyword: IAM_ROLE
+    - quoted_literal: "'arn:aws:iam::123456789012:role/MyAuroraRole'"
+    - keyword: SECRET_ARN
+    - quoted_literal: "'arn:aws:secretsmanager:us-east-2:123456789012:secret:development/MyTestDatabase-AbCdEf'"
+- statement_terminator: ;
+- statement:
+    create_external_schema_statement:
+    - keyword: create
+    - keyword: external
+    - keyword: schema
+    - schema_reference:
+        naked_identifier: spectrum_schema
+    - keyword: from
+    - keyword: data
+    - keyword: catalog
+    - keyword: database
+    - quoted_literal: "'sampledb'"
+    - keyword: region
+    - quoted_literal: "'us-west-2'"
+    - keyword: iam_role
+    - quoted_literal: "'arn:aws:iam::123456789012:role/MySpectrumRole'"
+- statement_terminator: ;
+- statement:
+    create_external_schema_statement:
+    - keyword: create
+    - keyword: external
+    - keyword: schema
+    - schema_reference:
+        naked_identifier: my_schema
+    - keyword: from
+    - keyword: kafka
+    - keyword: iam_role
+    - quoted_literal: "'arn:aws:iam::012345678901:role/my_role'"
+    - keyword: authentication
+    - keyword: iam
+    - keyword: uri
+    - quoted_literal: "'b-1.myTestCluster.123z8u.c2.kafka.us-west-1.amazonaws.com:9098,b-2.myTestCluster.123z8u.c2.kafka.us-west-1.amazonaws.com:9098'"
+- statement_terminator: ;
+- statement:
+    create_external_schema_statement:
+    - keyword: create
+    - keyword: external
+    - keyword: schema
+    - schema_reference:
+        naked_identifier: my_schema
+    - keyword: from
+    - keyword: kafka
+    - keyword: authentication
+    - keyword: none
+    - keyword: uri
+    - quoted_literal: "'b-1.myTestCluster.123z8u.c2.kafka.us-west-1.amazonaws.com:9092,b-2.myTestCluster.123z8u.c2.kafka.us-west-1.amazonaws.com:9092'"
+- statement_terminator: ;
+- statement:
+    create_external_schema_statement:
+    - keyword: create
+    - keyword: external
+    - keyword: schema
+    - schema_reference:
+        naked_identifier: my_schema
+    - keyword: from
+    - keyword: kafka
+    - keyword: iam_role
+    - quoted_literal: "'arn:aws:iam::012345678901:role/my_role'"
+    - keyword: authentication
+    - keyword: mtls
+    - keyword: uri
+    - quoted_literal: "'lkc-2v531.domz6wj0p.us-west-1.aws.confluent.cloud:9092'"
+    - keyword: authentication_arn
+    - quoted_literal: "'arn:aws:acm:region:444455556666:certificate/certificate_ID'"
+- statement_terminator: ;
+- statement:
+    create_external_schema_statement:
+    - keyword: create
+    - keyword: external
+    - keyword: schema
+    - schema_reference:
+        naked_identifier: my_schema
+    - keyword: from
+    - keyword: kafka
+    - keyword: iam_role
+    - quoted_literal: "'arn:aws:iam::012345678901:role/my_role'"
+    - keyword: authentication
+    - keyword: mtls
+    - keyword: uri
+    - quoted_literal: "'b-1.myTestCluster.123z8u.c2.kafka.us-west-1.amazonaws.com:9094,b-2.myTestCluster.123z8u.c2.kafka.us-west-1.amazonaws.com:9094'"
+    - keyword: secret_arn
+    - quoted_literal: "'arn:aws:secretsmanager:us-east-1:012345678910:secret:myMTLSSecret'"
+- statement_terminator: ;

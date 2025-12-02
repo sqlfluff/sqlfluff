@@ -1,0 +1,10 @@
+[sqlfluff]
+testing_val=foobar
+testing_int=4
+
+[sqlfluff:bar]
+foo=barbar
+
+[sqlfluff:templater:placeholder]
+param_style = flyway_var
+flyway:database = test_db

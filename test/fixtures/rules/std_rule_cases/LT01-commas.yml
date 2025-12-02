@@ -1,0 +1,53 @@
+rule: LT01
+
+test_fail_whitespace_before_comma:
+  fail_str: SELECT 1 ,4
+  fix_str: SELECT 1, 4
+
+test_fail_whitespace_before_comma_template:
+  fail_str: |
+    {{ 'SELECT 1 ,4' }}
+  configs:
+    core:
+      ignore_templated_areas: false
+
+test_pass_errors_only_in_templated_and_ignore:
+  pass_str: |
+    {{ 'SELECT 1 ,4' }}, 5, 6
+  configs:
+    core:
+      ignore_templated_areas: true
+
+test_fail_errors_only_in_non_templated_and_ignore:
+  fail_str: |
+    {{ 'SELECT 1, 4' }}, 5 , 6
+  fix_str: |
+    {{ 'SELECT 1, 4' }}, 5, 6
+  configs:
+    core:
+      ignore_templated_areas: true
+
+test_pass_single_whitespace_after_comma:
+  pass_str: SELECT 1, 4
+
+test_pass_single_whitespace_after_comma_template:
+  pass_str: |
+    {{ 'SELECT 1, 4' }}
+  configs:
+    core:
+      ignore_templated_areas: false
+
+test_fail_multiple_whitespace_after_comma:
+  fail_str: SELECT 1,   4
+  fix_str: SELECT 1, 4
+
+test_fail_no_whitespace_after_comma:
+  fail_str: SELECT 1,4
+  fix_str: SELECT 1, 4
+
+test_fail_no_whitespace_after_comma_2:
+  fail_str: SELECT FLOOR(dt) ,count(*) FROM test
+  fix_str: SELECT FLOOR(dt), count(*) FROM test
+
+test_pass_bigquery_trailing_comma:
+  pass_str: SELECT 1, 2,

@@ -1,0 +1,245 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 7ee0530bd712ee7e7d4126a018e9ad96c8c71a4da68c5808c08fb9df47a507d3
+file:
+- statement:
+    values_clause:
+      keyword: values
+      bracketed:
+      - start_bracket: (
+      - expression:
+          numeric_literal: '1'
+      - comma: ','
+      - expression:
+          numeric_literal: '2'
+      - end_bracket: )
+      alias_expression:
+        alias_operator:
+          keyword: as
+        naked_identifier: t
+- statement_terminator: ;
+- statement:
+    values_clause:
+      keyword: values
+      bracketed:
+      - start_bracket: (
+      - expression:
+          numeric_literal: '1'
+      - comma: ','
+      - expression:
+          numeric_literal: '2'
+      - end_bracket: )
+      alias_expression:
+        naked_identifier: t
+- statement_terminator: ;
+- statement:
+    values_clause:
+      keyword: values
+      bracketed:
+      - start_bracket: (
+      - expression:
+          numeric_literal: '1'
+      - comma: ','
+      - expression:
+          numeric_literal: '2'
+      - end_bracket: )
+      alias_expression:
+        alias_operator:
+          keyword: as
+        naked_identifier: t
+        bracketed:
+          start_bracket: (
+          identifier_list:
+          - naked_identifier: a
+          - comma: ','
+          - naked_identifier: b
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    values_clause:
+    - keyword: values
+    - bracketed:
+      - start_bracket: (
+      - expression:
+          numeric_literal: '1'
+      - comma: ','
+      - expression:
+          numeric_literal: '2'
+      - end_bracket: )
+    - comma: ','
+    - bracketed:
+      - start_bracket: (
+      - expression:
+          numeric_literal: '3'
+      - comma: ','
+      - expression:
+          numeric_literal: '4'
+      - end_bracket: )
+    - alias_expression:
+        alias_operator:
+          keyword: as
+        naked_identifier: t
+        bracketed:
+          start_bracket: (
+          identifier_list:
+          - naked_identifier: a
+          - comma: ','
+          - naked_identifier: b
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    values_clause:
+      keyword: values
+      bracketed:
+      - start_bracket: (
+      - expression:
+          numeric_literal: '1'
+      - comma: ','
+      - expression:
+          numeric_literal: '2'
+      - end_bracket: )
+      alias_expression:
+        alias_operator:
+          keyword: as
+        bracketed:
+          start_bracket: (
+          identifier_list:
+          - naked_identifier: a
+          - comma: ','
+          - naked_identifier: b
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    values_clause:
+      keyword: values
+      bracketed:
+      - start_bracket: (
+      - expression:
+          numeric_literal: '1'
+      - comma: ','
+      - expression:
+          numeric_literal: '2'
+      - end_bracket: )
+      alias_expression:
+        naked_identifier: t
+        bracketed:
+          start_bracket: (
+          identifier_list:
+          - naked_identifier: a
+          - comma: ','
+          - naked_identifier: b
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    values_clause:
+      keyword: values
+      bracketed:
+      - start_bracket: (
+      - expression:
+          numeric_literal: '1'
+      - comma: ','
+      - expression:
+          numeric_literal: '2'
+      - end_bracket: )
+      alias_expression:
+        bracketed:
+          start_bracket: (
+          identifier_list:
+          - naked_identifier: a
+          - comma: ','
+          - naked_identifier: b
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    values_clause:
+    - keyword: values
+    - bracketed:
+      - start_bracket: (
+      - expression:
+          numeric_literal: '1'
+      - comma: ','
+      - expression:
+          numeric_literal: '2'
+      - end_bracket: )
+    - comma: ','
+    - bracketed:
+      - start_bracket: (
+      - expression:
+          numeric_literal: '3'
+      - comma: ','
+      - expression:
+          numeric_literal: '4'
+      - end_bracket: )
+    - alias_expression:
+        alias_operator:
+          keyword: as
+        bracketed:
+          start_bracket: (
+          identifier_list:
+          - naked_identifier: a
+          - comma: ','
+          - naked_identifier: b
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    values_clause:
+    - keyword: values
+    - bracketed:
+      - start_bracket: (
+      - expression:
+          numeric_literal: '1'
+      - comma: ','
+      - expression:
+          numeric_literal: '2'
+      - end_bracket: )
+    - comma: ','
+    - bracketed:
+      - start_bracket: (
+      - expression:
+          numeric_literal: '3'
+      - comma: ','
+      - expression:
+          numeric_literal: '4'
+      - end_bracket: )
+    - alias_expression:
+        naked_identifier: t
+        bracketed:
+          start_bracket: (
+          identifier_list:
+          - naked_identifier: a
+          - comma: ','
+          - naked_identifier: b
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    values_clause:
+    - keyword: values
+    - bracketed:
+      - start_bracket: (
+      - expression:
+          numeric_literal: '1'
+      - comma: ','
+      - expression:
+          numeric_literal: '2'
+      - end_bracket: )
+    - comma: ','
+    - bracketed:
+      - start_bracket: (
+      - expression:
+          numeric_literal: '3'
+      - comma: ','
+      - expression:
+          numeric_literal: '4'
+      - end_bracket: )
+    - alias_expression:
+        bracketed:
+          start_bracket: (
+          identifier_list:
+          - naked_identifier: a
+          - comma: ','
+          - naked_identifier: b
+          end_bracket: )
+- statement_terminator: ;

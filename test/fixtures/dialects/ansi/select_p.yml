@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 638c93a98748612b02bb3b1d597fd79ca15389c8d37621960e066007f53618eb
+_hash: ef37a2924556ffa5c75e02ecde51fedf309dab23c0ee4dd2d587596c337a90bd
 file:
   statement:
     select_statement:
@@ -13,50 +13,55 @@ file:
           function:
             function_name:
               function_name_identifier: CAST
-            bracketed:
-              start_bracket: (
-              expression:
-                literal: '25.65'
-              keyword: AS
-              data_type:
-                data_type_identifier: int
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  numeric_literal: '25.65'
+                keyword: AS
+                data_type:
+                  data_type_identifier: int
+                end_bracket: )
       - comma: ','
       - select_clause_element:
           function:
             function_name:
               function_name_identifier: SAFE_CAST
-            bracketed:
-              start_bracket: (
-              expression:
-                literal: 'NULL'
-              keyword: AS
-              data_type:
-                data_type_identifier: STRING
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  null_literal: 'NULL'
+                keyword: AS
+                data_type:
+                  data_type_identifier: STRING
+                end_bracket: )
           alias_expression:
-            keyword: AS
-            identifier: age_label
+            alias_operator:
+              keyword: AS
+            naked_identifier: age_label
       - comma: ','
       - select_clause_element:
           function:
             function_name:
               function_name_identifier: EXTRACT
-            bracketed:
-              start_bracket: (
-              date_part: day
-              keyword: FROM
-              expression:
-                column_reference:
-                  identifier: end_time
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                date_part: day
+                keyword: FROM
+                expression:
+                  column_reference:
+                    naked_identifier: end_time
+                end_bracket: )
           alias_expression:
-            keyword: AS
-            identifier: day
+            alias_operator:
+              keyword: AS
+            naked_identifier: day
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: benchmark_with_performance
+                naked_identifier: benchmark_with_performance

@@ -1,0 +1,224 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 8680e95465f367bf955e272bb11d300b23c79d34b289c34a3425bfe2ddb1a023
+file:
+- statement:
+    alter_table_statement:
+      alter_table_column_statement:
+      - keyword: ALTER
+      - keyword: TABLE
+      - table_reference:
+          naked_identifier: t
+      - alter_table_add_column:
+        - keyword: ADD
+        - keyword: COLUMN
+        - keyword: IF
+        - keyword: NOT
+        - keyword: EXISTS
+        - column_definition:
+            column_datatype_definition:
+              naked_identifier: new_dec
+              data_type:
+                keyword: DECIMAL
+                bracketed_arguments:
+                  bracketed:
+                  - start_bracket: (
+                  - numeric_literal: '18'
+                  - comma: ','
+                  - numeric_literal: '0'
+                  - end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+      alter_table_column_statement:
+      - keyword: ALTER
+      - keyword: TABLE
+      - table_reference:
+          naked_identifier: t
+      - alter_table_add_column:
+          keyword: ADD
+          bracketed:
+            start_bracket: (
+            column_definition:
+              column_datatype_definition:
+                naked_identifier: new_char
+                data_type:
+                  keyword: CHAR
+                  bracketed_arguments:
+                    bracketed:
+                      start_bracket: (
+                      numeric_literal: '10'
+                      end_bracket: )
+              column_constraint_segment:
+                keyword: DEFAULT
+                quoted_literal: "'some text'"
+            end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+      alter_table_column_statement:
+      - keyword: ALTER
+      - keyword: TABLE
+      - table_reference:
+        - naked_identifier: myschema
+        - dot: .
+        - naked_identifier: t
+      - alter_table_drop_column:
+        - keyword: DROP
+        - keyword: COLUMN
+        - naked_identifier: i
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+      alter_table_column_statement:
+      - keyword: ALTER
+      - keyword: TABLE
+      - table_reference:
+          naked_identifier: t
+      - alter_table_drop_column:
+          keyword: DROP
+          naked_identifier: j
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+      alter_table_column_statement:
+      - keyword: ALTER
+      - keyword: TABLE
+      - table_reference:
+          naked_identifier: t
+      - alter_table_modify_column:
+          keyword: MODIFY
+          bracketed:
+            start_bracket: (
+            naked_identifier: i
+            data_type:
+              keyword: DECIMAL
+              bracketed_arguments:
+                bracketed:
+                - start_bracket: (
+                - numeric_literal: '10'
+                - comma: ','
+                - numeric_literal: '2'
+                - end_bracket: )
+            end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+      alter_table_column_statement:
+      - keyword: ALTER
+      - keyword: TABLE
+      - table_reference:
+          naked_identifier: t
+      - alter_table_modify_column:
+          keyword: MODIFY
+          bracketed:
+            start_bracket: (
+            naked_identifier: j
+            data_type:
+              keyword: VARCHAR
+              bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  numeric_literal: '5'
+                  end_bracket: )
+            column_constraint_segment:
+              keyword: DEFAULT
+              quoted_literal: "'text'"
+            end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+      alter_table_column_statement:
+      - keyword: ALTER
+      - keyword: TABLE
+      - table_reference:
+          naked_identifier: t
+      - alter_table_modify_column:
+          keyword: MODIFY
+          naked_identifier: k
+          data_type:
+            keyword: INTEGER
+          column_constraint_segment:
+            keyword: IDENTITY
+            bracketed:
+              start_bracket: (
+              numeric_literal: '1000'
+              end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+      alter_table_column_statement:
+      - keyword: ALTER
+      - keyword: TABLE
+      - table_reference:
+          naked_identifier: t
+      - alter_table_rename_column:
+        - keyword: RENAME
+        - keyword: COLUMN
+        - naked_identifier: i
+        - keyword: TO
+        - naked_identifier: j
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+      alter_table_column_statement:
+      - keyword: ALTER
+      - keyword: TABLE
+      - table_reference:
+          naked_identifier: t
+      - alter_table_alter_column:
+        - keyword: ALTER
+        - keyword: COLUMN
+        - naked_identifier: v
+        - keyword: SET
+        - keyword: DEFAULT
+        - bare_function: CURRENT_USER
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+      alter_table_column_statement:
+      - keyword: ALTER
+      - keyword: TABLE
+      - table_reference:
+        - quoted_identifier: '"SCHEMA"'
+        - dot: .
+        - quoted_identifier: '"TABLE"'
+      - alter_table_alter_column:
+        - keyword: ALTER
+        - keyword: COLUMN
+        - naked_identifier: v
+        - keyword: DROP
+        - keyword: DEFAULT
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+      alter_table_column_statement:
+      - keyword: ALTER
+      - keyword: TABLE
+      - table_reference:
+          naked_identifier: t
+      - alter_table_alter_column:
+        - keyword: ALTER
+        - keyword: COLUMN
+        - naked_identifier: id
+        - keyword: SET
+        - keyword: IDENTITY
+        - numeric_literal: '1000'
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+      alter_table_column_statement:
+      - keyword: ALTER
+      - keyword: TABLE
+      - table_reference:
+          naked_identifier: t
+      - alter_table_alter_column:
+        - keyword: ALTER
+        - keyword: COLUMN
+        - naked_identifier: id
+        - keyword: DROP
+        - keyword: IDENTITY
+- statement_terminator: ;

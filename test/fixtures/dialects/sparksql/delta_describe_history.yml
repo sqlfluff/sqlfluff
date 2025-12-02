@@ -1,0 +1,38 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 5f99fb5a337816b3a7fb490100e7d41efaf3f18687c49d9e3f7125b13d17e809
+file:
+- statement:
+    describe_history_statement:
+    - keyword: DESCRIBE
+    - keyword: HISTORY
+    - quoted_literal: "'/data/events/'"
+- statement_terminator: ;
+- statement:
+    describe_history_statement:
+    - keyword: DESCRIBE
+    - keyword: HISTORY
+    - file_reference:
+        keyword: DELTA
+        dot: .
+        quoted_identifier: '`/data/events/`'
+- statement_terminator: ;
+- statement:
+    describe_history_statement:
+    - keyword: DESCRIBE
+    - keyword: HISTORY
+    - quoted_literal: "'/data/events/'"
+    - limit_clause:
+        keyword: LIMIT
+        numeric_literal: '1'
+- statement_terminator: ;
+- statement:
+    describe_history_statement:
+    - keyword: DESCRIBE
+    - keyword: HISTORY
+    - table_reference:
+        naked_identifier: EVENTSTABLE
+- statement_terminator: ;

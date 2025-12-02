@@ -1,0 +1,818 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 9ced3217608b0057fd622848b8cf35f25cd4b3c5ad64af0f64e6114cbcf03189
+file:
+- statement:
+    create_materialized_view_statement:
+    - keyword: CREATE
+    - keyword: MATERIALIZED
+    - keyword: VIEW
+    - table_reference:
+        naked_identifier: my_mat_view
+    - keyword: AS
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            column_reference:
+              naked_identifier: a
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: my_table
+- statement_terminator: ;
+- statement:
+    create_materialized_view_statement:
+    - keyword: CREATE
+    - keyword: MATERIALIZED
+    - keyword: VIEW
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - table_reference:
+        naked_identifier: my_mat_view
+    - keyword: AS
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            column_reference:
+              naked_identifier: a
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: my_table
+- statement_terminator: ;
+- statement:
+    create_materialized_view_statement:
+    - keyword: CREATE
+    - keyword: MATERIALIZED
+    - keyword: VIEW
+    - table_reference:
+        naked_identifier: my_mat_view
+    - keyword: AS
+    - bracketed:
+        start_bracket: (
+        select_statement:
+          select_clause:
+            keyword: SELECT
+            select_clause_element:
+              column_reference:
+                naked_identifier: a
+          from_clause:
+            keyword: FROM
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                    naked_identifier: my_table
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_materialized_view_statement:
+    - keyword: CREATE
+    - keyword: MATERIALIZED
+    - keyword: VIEW
+    - table_reference:
+        naked_identifier: my_mat_view
+    - keyword: AS
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            column_reference:
+              naked_identifier: a
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: my_table
+    - with_data_clause:
+      - keyword: WITH
+      - keyword: 'NO'
+      - keyword: DATA
+- statement_terminator: ;
+- statement:
+    create_materialized_view_statement:
+    - keyword: CREATE
+    - keyword: MATERIALIZED
+    - keyword: VIEW
+    - table_reference:
+        naked_identifier: my_mat_view
+    - keyword: AS
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            column_reference:
+              naked_identifier: a
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: my_table
+    - with_data_clause:
+      - keyword: WITH
+      - keyword: DATA
+- statement_terminator: ;
+- statement:
+    create_materialized_view_statement:
+    - keyword: CREATE
+    - keyword: MATERIALIZED
+    - keyword: VIEW
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - table_reference:
+        naked_identifier: my_mat_view
+    - keyword: AS
+    - bracketed:
+        start_bracket: (
+        select_statement:
+          select_clause:
+            keyword: SELECT
+            select_clause_element:
+              column_reference:
+                naked_identifier: a
+          from_clause:
+            keyword: FROM
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                    naked_identifier: my_table
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_materialized_view_statement:
+    - keyword: CREATE
+    - keyword: MATERIALIZED
+    - keyword: VIEW
+    - table_reference:
+        naked_identifier: my_mat_view
+    - keyword: AS
+    - bracketed:
+        start_bracket: (
+        select_statement:
+          select_clause:
+          - keyword: SELECT
+          - select_clause_element:
+              column_reference:
+                naked_identifier: a
+          - comma: ','
+          - select_clause_element:
+              column_reference:
+                naked_identifier: b
+          from_clause:
+            keyword: FROM
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                    naked_identifier: my_table
+          where_clause:
+            keyword: WHERE
+            expression:
+              column_reference:
+                naked_identifier: y
+              comparison_operator:
+                raw_comparison_operator: '='
+              quoted_literal: "'value'"
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_materialized_view_statement:
+    - keyword: CREATE
+    - keyword: MATERIALIZED
+    - keyword: VIEW
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - table_reference:
+        naked_identifier: my_mat_view
+    - keyword: AS
+    - bracketed:
+        start_bracket: (
+        select_statement:
+          select_clause:
+          - keyword: SELECT
+          - select_clause_element:
+              column_reference:
+                naked_identifier: a
+          - comma: ','
+          - select_clause_element:
+              column_reference:
+                naked_identifier: b
+          from_clause:
+            keyword: FROM
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                    naked_identifier: my_table
+          where_clause:
+            keyword: WHERE
+            expression:
+              column_reference:
+                naked_identifier: y
+              comparison_operator:
+                raw_comparison_operator: '='
+              quoted_literal: "'value'"
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_materialized_view_statement:
+    - keyword: CREATE
+    - keyword: MATERIALIZED
+    - keyword: VIEW
+    - table_reference:
+        naked_identifier: my_mat_view
+    - keyword: AS
+    - select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+              naked_identifier: a
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: b
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: my_table
+        where_clause:
+          keyword: WHERE
+          expression:
+            column_reference:
+              naked_identifier: y
+            comparison_operator:
+              raw_comparison_operator: '='
+            quoted_literal: "'value'"
+- statement_terminator: ;
+- statement:
+    create_materialized_view_statement:
+    - keyword: CREATE
+    - keyword: MATERIALIZED
+    - keyword: VIEW
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - table_reference:
+        naked_identifier: my_mat_view
+    - keyword: AS
+    - select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+              naked_identifier: a
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: b
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: my_table
+        where_clause:
+          keyword: WHERE
+          expression:
+            column_reference:
+              naked_identifier: y
+            comparison_operator:
+              raw_comparison_operator: '='
+            quoted_literal: "'value'"
+- statement_terminator: ;
+- statement:
+    create_materialized_view_statement:
+    - keyword: CREATE
+    - keyword: MATERIALIZED
+    - keyword: VIEW
+    - table_reference:
+        naked_identifier: my_mat_view
+    - keyword: AS
+    - select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+              naked_identifier: a
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: b
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: my_table
+- statement_terminator: ;
+- statement:
+    create_materialized_view_statement:
+    - keyword: CREATE
+    - keyword: MATERIALIZED
+    - keyword: VIEW
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - table_reference:
+        naked_identifier: my_mat_view
+    - keyword: AS
+    - select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+              naked_identifier: a
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: b
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: my_table
+- statement_terminator: ;
+- statement:
+    create_materialized_view_statement:
+    - keyword: CREATE
+    - keyword: MATERIALIZED
+    - keyword: VIEW
+    - table_reference:
+        naked_identifier: bar
+    - keyword: AS
+    - bracketed:
+        start_bracket: (
+        select_statement:
+          select_clause:
+            keyword: SELECT
+            select_clause_element:
+              column_reference:
+                naked_identifier: col
+          from_clause:
+            keyword: FROM
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                    naked_identifier: my_table
+        end_bracket: )
+    - with_data_clause:
+      - keyword: WITH
+      - keyword: 'NO'
+      - keyword: DATA
+- statement_terminator: ;
+- statement:
+    create_materialized_view_statement:
+    - keyword: CREATE
+    - keyword: MATERIALIZED
+    - keyword: VIEW
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - table_reference:
+        naked_identifier: bar
+    - keyword: AS
+    - bracketed:
+        start_bracket: (
+        select_statement:
+          select_clause:
+            keyword: SELECT
+            select_clause_element:
+              column_reference:
+                naked_identifier: col
+          from_clause:
+            keyword: FROM
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                    naked_identifier: my_table
+        end_bracket: )
+    - with_data_clause:
+      - keyword: WITH
+      - keyword: 'NO'
+      - keyword: DATA
+- statement_terminator: ;
+- statement:
+    create_materialized_view_statement:
+    - keyword: CREATE
+    - keyword: MATERIALIZED
+    - keyword: VIEW
+    - table_reference:
+        naked_identifier: my_mat_view
+    - keyword: USING
+    - parameter: heap
+    - keyword: WITH
+    - relation_options:
+        bracketed:
+        - start_bracket: (
+        - relation_option:
+            properties_naked_identifier: prop_a
+            comparison_operator:
+              raw_comparison_operator: '='
+            numeric_literal: '1'
+        - comma: ','
+        - relation_option:
+            properties_naked_identifier: prob_b
+            comparison_operator:
+              raw_comparison_operator: '='
+            quoted_literal: "'some_value'"
+        - comma: ','
+        - relation_option:
+            properties_naked_identifier: prop_c
+            comparison_operator:
+              raw_comparison_operator: '='
+            boolean_literal: 'FALSE'
+        - comma: ','
+        - relation_option:
+            properties_naked_identifier: prop_d
+        - end_bracket: )
+    - keyword: TABLESPACE
+    - tablespace_reference:
+        naked_identifier: pg_default
+    - keyword: AS
+    - bracketed:
+        start_bracket: (
+        select_statement:
+          select_clause:
+          - keyword: SELECT
+          - select_clause_element:
+              column_reference:
+                naked_identifier: a
+          - comma: ','
+          - select_clause_element:
+              function:
+                function_name:
+                  function_name_identifier: avg
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      column_reference:
+                        naked_identifier: b
+                    end_bracket: )
+              alias_expression:
+                alias_operator:
+                  keyword: AS
+                naked_identifier: my_avg
+          - comma: ','
+          - select_clause_element:
+              function:
+                function_name:
+                  function_name_identifier: count
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    star: '*'
+                    end_bracket: )
+              alias_expression:
+                alias_operator:
+                  keyword: AS
+                naked_identifier: my_count
+          from_clause:
+            keyword: FROM
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                    naked_identifier: my_table
+          groupby_clause:
+          - keyword: GROUP
+          - keyword: BY
+          - column_reference:
+              naked_identifier: grp
+          having_clause:
+            keyword: HAVING
+            expression:
+              column_reference:
+                naked_identifier: col
+              comparison_operator:
+                raw_comparison_operator: '>'
+              numeric_literal: '2'
+        end_bracket: )
+    - with_data_clause:
+      - keyword: WITH
+      - keyword: DATA
+- statement_terminator: ;
+- statement:
+    create_materialized_view_statement:
+    - keyword: CREATE
+    - keyword: MATERIALIZED
+    - keyword: VIEW
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - table_reference:
+        naked_identifier: my_mat_view
+    - keyword: USING
+    - parameter: heap
+    - keyword: WITH
+    - relation_options:
+        bracketed:
+        - start_bracket: (
+        - relation_option:
+            properties_naked_identifier: prop_a
+            comparison_operator:
+              raw_comparison_operator: '='
+            numeric_literal: '1'
+        - comma: ','
+        - relation_option:
+            properties_naked_identifier: prob_b
+            comparison_operator:
+              raw_comparison_operator: '='
+            quoted_literal: "'some_value'"
+        - comma: ','
+        - relation_option:
+            properties_naked_identifier: prop_c
+            comparison_operator:
+              raw_comparison_operator: '='
+            boolean_literal: 'FALSE'
+        - comma: ','
+        - relation_option:
+            properties_naked_identifier: prop_d
+        - end_bracket: )
+    - keyword: TABLESPACE
+    - tablespace_reference:
+        naked_identifier: pg_default
+    - keyword: AS
+    - bracketed:
+        start_bracket: (
+        select_statement:
+          select_clause:
+          - keyword: SELECT
+          - select_clause_element:
+              column_reference:
+                naked_identifier: a
+          - comma: ','
+          - select_clause_element:
+              function:
+                function_name:
+                  function_name_identifier: avg
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      column_reference:
+                        naked_identifier: b
+                    end_bracket: )
+              alias_expression:
+                alias_operator:
+                  keyword: AS
+                naked_identifier: my_avg
+          - comma: ','
+          - select_clause_element:
+              function:
+                function_name:
+                  function_name_identifier: count
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    star: '*'
+                    end_bracket: )
+              alias_expression:
+                alias_operator:
+                  keyword: AS
+                naked_identifier: my_count
+          from_clause:
+            keyword: FROM
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                    naked_identifier: my_table
+          groupby_clause:
+          - keyword: GROUP
+          - keyword: BY
+          - column_reference:
+              naked_identifier: grp
+          having_clause:
+            keyword: HAVING
+            expression:
+              column_reference:
+                naked_identifier: col
+              comparison_operator:
+                raw_comparison_operator: '>'
+              numeric_literal: '2'
+        end_bracket: )
+    - with_data_clause:
+      - keyword: WITH
+      - keyword: DATA
+- statement_terminator: ;
+- statement:
+    create_materialized_view_statement:
+    - keyword: CREATE
+    - keyword: MATERIALIZED
+    - keyword: VIEW
+    - table_reference:
+        naked_identifier: my_mat_view
+    - keyword: TABLESPACE
+    - tablespace_reference:
+        naked_identifier: pg_default
+    - keyword: AS
+    - set_expression:
+      - select_statement:
+          select_clause:
+          - keyword: SELECT
+          - select_clause_element:
+              column_reference:
+              - naked_identifier: table_1
+              - dot: .
+              - naked_identifier: field_1
+          - comma: ','
+          - select_clause_element:
+              column_reference:
+              - naked_identifier: table_1
+              - dot: .
+              - naked_identifier: field_2
+          from_clause:
+            keyword: FROM
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                    naked_identifier: table_1
+      - set_operator:
+          keyword: UNION
+      - select_statement:
+          select_clause:
+          - keyword: SELECT
+          - select_clause_element:
+              column_reference:
+              - naked_identifier: table_2
+              - dot: .
+              - naked_identifier: field_1
+          - comma: ','
+          - select_clause_element:
+              column_reference:
+              - naked_identifier: table_2
+              - dot: .
+              - naked_identifier: field_2
+          from_clause:
+            keyword: FROM
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                    naked_identifier: table_2
+      - orderby_clause:
+        - keyword: ORDER
+        - keyword: BY
+        - column_reference:
+            naked_identifier: field_1
+        - comma: ','
+        - column_reference:
+            naked_identifier: field_2
+    - with_data_clause:
+      - keyword: WITH
+      - keyword: DATA
+- statement_terminator: ;
+- statement:
+    create_materialized_view_statement:
+    - keyword: CREATE
+    - keyword: MATERIALIZED
+    - keyword: VIEW
+    - table_reference:
+        naked_identifier: my_mat_view
+    - keyword: WITH
+    - relation_options:
+        bracketed:
+          start_bracket: (
+          relation_option:
+          - properties_naked_identifier: left
+          - dot: .
+          - properties_naked_identifier: right
+          end_bracket: )
+    - keyword: AS
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            column_reference:
+              naked_identifier: a
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: my_table
+- statement_terminator: ;
+- statement:
+    create_materialized_view_statement:
+    - keyword: CREATE
+    - keyword: MATERIALIZED
+    - keyword: VIEW
+    - table_reference:
+        naked_identifier: my_mat_view
+    - keyword: WITH
+    - relation_options:
+        bracketed:
+        - start_bracket: (
+        - relation_option:
+            properties_naked_identifier: opt1
+        - comma: ','
+        - relation_option:
+            properties_naked_identifier: opt2
+            comparison_operator:
+              raw_comparison_operator: '='
+            numeric_literal: '5'
+        - comma: ','
+        - relation_option:
+            properties_naked_identifier: opt3
+            comparison_operator:
+              raw_comparison_operator: '='
+            quoted_literal: "'str'"
+        - comma: ','
+        - relation_option:
+          - properties_naked_identifier: ns
+          - dot: .
+          - properties_naked_identifier: opt4
+        - comma: ','
+        - relation_option:
+          - properties_naked_identifier: ns
+          - dot: .
+          - properties_naked_identifier: opt5
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - numeric_literal: '6'
+        - comma: ','
+        - relation_option:
+          - properties_naked_identifier: ns
+          - dot: .
+          - properties_naked_identifier: opt6
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - quoted_literal: "'str'"
+        - comma: ','
+        - relation_option:
+          - properties_naked_identifier: opt7
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - properties_naked_identifier: ASC
+        - end_bracket: )
+    - keyword: AS
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            column_reference:
+              naked_identifier: a
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: my_table
+- statement_terminator: ;
+- statement:
+    create_materialized_view_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: MATERIALIZED
+    - keyword: VIEW
+    - table_reference:
+        naked_identifier: my_mat_view
+    - keyword: AS
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            column_reference:
+              naked_identifier: a
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: my_table
+- statement_terminator: ;

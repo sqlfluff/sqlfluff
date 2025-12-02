@@ -1,0 +1,141 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: eb02d79aba938fead56e37e60e21c34daebb4c3f1ab0cb5a47eb78114ae536eb
+file:
+- statement:
+    alter_materialized_view_statement:
+    - keyword: alter
+    - keyword: materialized
+    - keyword: view
+    - table_reference:
+        naked_identifier: table1_mv
+    - keyword: rename
+    - keyword: to
+    - table_reference:
+        naked_identifier: my_mv
+- statement_terminator: ;
+- statement:
+    alter_materialized_view_statement:
+    - keyword: alter
+    - keyword: materialized
+    - keyword: view
+    - table_reference:
+        naked_identifier: my_mv
+    - keyword: cluster
+    - keyword: by
+    - expression:
+        bracketed:
+          start_bracket: (
+          expression:
+            column_reference:
+              naked_identifier: i
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_materialized_view_statement:
+    - keyword: alter
+    - keyword: materialized
+    - keyword: view
+    - table_reference:
+        naked_identifier: my_mv
+    - keyword: suspend
+    - keyword: recluster
+- statement_terminator: ;
+- statement:
+    alter_materialized_view_statement:
+    - keyword: alter
+    - keyword: materialized
+    - keyword: view
+    - table_reference:
+        naked_identifier: my_mv
+    - keyword: resume
+    - keyword: recluster
+- statement_terminator: ;
+- statement:
+    alter_materialized_view_statement:
+    - keyword: alter
+    - keyword: materialized
+    - keyword: view
+    - table_reference:
+        naked_identifier: my_mv
+    - keyword: suspend
+- statement_terminator: ;
+- statement:
+    alter_materialized_view_statement:
+    - keyword: alter
+    - keyword: materialized
+    - keyword: view
+    - table_reference:
+        naked_identifier: my_mv
+    - keyword: resume
+- statement_terminator: ;
+- statement:
+    alter_materialized_view_statement:
+    - keyword: alter
+    - keyword: materialized
+    - keyword: view
+    - table_reference:
+        naked_identifier: my_mv
+    - keyword: drop
+    - keyword: clustering
+    - keyword: key
+- statement_terminator: ;
+- statement:
+    alter_materialized_view_statement:
+    - keyword: alter
+    - keyword: materialized
+    - keyword: view
+    - table_reference:
+        naked_identifier: mv1
+    - keyword: set
+    - keyword: secure
+- statement_terminator: ;
+- statement:
+    alter_materialized_view_statement:
+    - keyword: alter
+    - keyword: materialized
+    - keyword: view
+    - table_reference:
+        naked_identifier: mv1
+    - keyword: set
+    - comment_equals_clause:
+        keyword: comment
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'Sample view'"
+- statement_terminator: ;
+- statement:
+    alter_materialized_view_statement:
+    - keyword: alter
+    - keyword: materialized
+    - keyword: view
+    - table_reference:
+        naked_identifier: mv1
+    - keyword: set
+    - tag_equals:
+        keyword: tag
+        tag_reference:
+          naked_identifier: my_tag
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'my tag'"
+- statement_terminator: ;
+- statement:
+    alter_materialized_view_statement:
+    - keyword: alter
+    - keyword: materialized
+    - keyword: view
+    - table_reference:
+        naked_identifier: mv1
+    - keyword: unset
+    - tag_equals:
+        keyword: tag
+        tag_reference:
+          naked_identifier: my_tag
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'not my tag anymore'"
+- statement_terminator: ;

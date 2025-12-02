@@ -1,0 +1,2 @@
+[sqlfluff:templater:jinja]
+library_path = libs

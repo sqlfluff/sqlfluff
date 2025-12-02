@@ -10,26 +10,26 @@ jobs:
   run:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-python@v1
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
         with:
-          python-version: "3.7"
+          python-version: "3.10"
 
       - name: Install Dependencies
         run: |
           pip install --upgrade pip tox
-      
+
       - name: Build Distribution (dbt plugin)
         # tox commands run relative to the repo root.
         run: tox -e build-dist -- plugins/sqlfluff-templater-dbt
-      
+
       - name: Copy builds to main dist folder
         # We move them here so that the github action can still access them
         run: cp -r plugins/sqlfluff-templater-dbt/dist/. dist/
 
       - name: Publish Python distribution to PyPI
-        uses: pypa/gh-action-pypi-publish@master
+        uses: pypa/gh-action-pypi-publish@release/v1
         with:
           user: __token__
           password: ${{ secrets.PYPI_DBT_TEMPLATER_TOKEN }}
-          skip_existing: true
+          skip-existing: true

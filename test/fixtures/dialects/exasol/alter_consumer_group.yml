@@ -1,0 +1,63 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 7b7717c26fca6eb0d644963773b5281d3d356b649bd48dd0110c107999ef6450
+file:
+- statement:
+    alter_consumer_group_statement:
+    - keyword: ALTER
+    - keyword: CONSUMER
+    - keyword: GROUP
+    - naked_identifier: TEST_TEAM
+    - keyword: SET
+    - consumer_group_parameter:
+        keyword: PRECEDENCE
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'800'"
+    - comma: ','
+    - consumer_group_parameter:
+        keyword: CPU_WEIGHT
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'150'"
+    - comma: ','
+    - consumer_group_parameter:
+        keyword: GROUP_TEMP_DB_RAM_LIMIT
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'10G'"
+    - comma: ','
+    - consumer_group_parameter:
+        keyword: SESSION_TEMP_DB_RAM_LIMIT
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'5G'"
+    - comma: ','
+    - consumer_group_parameter:
+        keyword: QUERY_TIMEOUT
+        comparison_operator:
+          raw_comparison_operator: '='
+        numeric_literal: '60'
+    - comma: ','
+    - consumer_group_parameter:
+        keyword: IDLE_TIMEOUT
+        comparison_operator:
+          raw_comparison_operator: '='
+        numeric_literal: '3600'
+- statement_terminator: ;
+- statement:
+    alter_consumer_group_statement:
+    - keyword: ALTER
+    - keyword: CONSUMER
+    - keyword: GROUP
+    - quoted_identifier: '"ADMIN"'
+    - keyword: SET
+    - consumer_group_parameter:
+        keyword: PRECEDENCE
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'800'"
+- statement_terminator: ;

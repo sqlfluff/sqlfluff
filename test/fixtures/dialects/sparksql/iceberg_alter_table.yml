@@ -1,0 +1,967 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 774d35657222c080220d9defa262d46afe2d820f54be34fdb054573213520698
+file:
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: prod
+      - dot: .
+      - naked_identifier: db
+      - dot: .
+      - naked_identifier: sample
+    - keyword: RENAME
+    - keyword: TO
+    - table_reference:
+      - naked_identifier: prod
+      - dot: .
+      - naked_identifier: db
+      - dot: .
+      - naked_identifier: new_name
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: prod
+      - dot: .
+      - naked_identifier: db
+      - dot: .
+      - naked_identifier: sample
+    - keyword: SET
+    - keyword: TBLPROPERTIES
+    - bracketed:
+        start_bracket: (
+        property_name_identifier:
+          quoted_identifier: "'read.split.target-size'"
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'268435456'"
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: prod
+      - dot: .
+      - naked_identifier: db
+      - dot: .
+      - naked_identifier: sample
+    - keyword: UNSET
+    - keyword: TBLPROPERTIES
+    - bracketed:
+        start_bracket: (
+        property_name_identifier:
+          quoted_identifier: "'read.split.target-size'"
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: prod
+      - dot: .
+      - naked_identifier: db
+      - dot: .
+      - naked_identifier: sample
+    - keyword: SET
+    - keyword: TBLPROPERTIES
+    - bracketed:
+        start_bracket: (
+        property_name_identifier:
+          quoted_identifier: "'comment'"
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'A table comment.'"
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: prod
+      - dot: .
+      - naked_identifier: db
+      - dot: .
+      - naked_identifier: sample
+    - keyword: ADD
+    - keyword: COLUMNS
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          column_reference:
+            naked_identifier: new_column
+          data_type:
+            primitive_type:
+              keyword: string
+          column_constraint_segment:
+            comment_clause:
+              keyword: comment
+              quoted_literal: "'new_column docs'"
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: prod
+      - dot: .
+      - naked_identifier: db
+      - dot: .
+      - naked_identifier: sample
+    - keyword: ADD
+    - keyword: COLUMN
+    - column_definition:
+        column_reference:
+          naked_identifier: point
+        data_type:
+          struct_type:
+            keyword: struct
+            struct_type_schema:
+            - start_angle_bracket: <
+            - naked_identifier: x
+            - colon: ':'
+            - data_type:
+                primitive_type:
+                  keyword: double
+            - comma: ','
+            - naked_identifier: y
+            - colon: ':'
+            - data_type:
+                primitive_type:
+                  keyword: double
+            - end_angle_bracket: '>'
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: prod
+      - dot: .
+      - naked_identifier: db
+      - dot: .
+      - naked_identifier: sample
+    - keyword: ADD
+    - keyword: COLUMN
+    - column_definition:
+        column_reference:
+        - naked_identifier: point
+        - dot: .
+        - naked_identifier: z
+        data_type:
+          primitive_type:
+            keyword: double
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: prod
+      - dot: .
+      - naked_identifier: db
+      - dot: .
+      - naked_identifier: sample
+    - keyword: ADD
+    - keyword: COLUMN
+    - column_definition:
+        column_reference:
+          naked_identifier: points
+        data_type:
+          array_type:
+            keyword: array
+            start_angle_bracket: <
+            data_type:
+              struct_type:
+                keyword: struct
+                struct_type_schema:
+                - start_angle_bracket: <
+                - naked_identifier: x
+                - colon: ':'
+                - data_type:
+                    primitive_type:
+                      keyword: double
+                - comma: ','
+                - naked_identifier: y
+                - colon: ':'
+                - data_type:
+                    primitive_type:
+                      keyword: double
+                - end_angle_bracket: '>'
+            end_angle_bracket: '>'
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: prod
+      - dot: .
+      - naked_identifier: db
+      - dot: .
+      - naked_identifier: sample
+    - keyword: ADD
+    - keyword: COLUMN
+    - column_definition:
+        column_reference:
+        - naked_identifier: points
+        - dot: .
+        - naked_identifier: element
+        - dot: .
+        - naked_identifier: z
+        data_type:
+          primitive_type:
+            keyword: double
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: prod
+      - dot: .
+      - naked_identifier: db
+      - dot: .
+      - naked_identifier: sample
+    - keyword: ADD
+    - keyword: COLUMN
+    - column_definition:
+        column_reference:
+          naked_identifier: points
+        data_type:
+        - keyword: map
+        - start_angle_bracket: <
+        - data_type:
+            struct_type:
+              keyword: struct
+              struct_type_schema:
+                start_angle_bracket: <
+                naked_identifier: x
+                colon: ':'
+                data_type:
+                  primitive_type:
+                    keyword: int
+                end_angle_bracket: '>'
+        - comma: ','
+        - data_type:
+            struct_type:
+              keyword: struct
+              struct_type_schema:
+                start_angle_bracket: <
+                naked_identifier: a
+                colon: ':'
+                data_type:
+                  primitive_type:
+                    keyword: int
+                end_angle_bracket: '>'
+        - end_angle_bracket: '>'
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: prod
+      - dot: .
+      - naked_identifier: db
+      - dot: .
+      - naked_identifier: sample
+    - keyword: ADD
+    - keyword: COLUMN
+    - column_definition:
+        column_reference:
+        - naked_identifier: points
+        - dot: .
+        - naked_identifier: value
+        - dot: .
+        - naked_identifier: b
+        data_type:
+          primitive_type:
+            keyword: int
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: prod
+      - dot: .
+      - naked_identifier: db
+      - dot: .
+      - naked_identifier: sample
+    - keyword: ADD
+    - keyword: COLUMN
+    - column_definition:
+        column_reference:
+          naked_identifier: new_column
+        data_type:
+          primitive_type:
+            keyword: bigint
+    - keyword: AFTER
+    - column_reference:
+        naked_identifier: other_column
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: prod
+      - dot: .
+      - naked_identifier: db
+      - dot: .
+      - naked_identifier: sample
+    - keyword: ADD
+    - keyword: COLUMN
+    - column_definition:
+        column_reference:
+        - naked_identifier: nested
+        - dot: .
+        - naked_identifier: new_column
+        data_type:
+          primitive_type:
+            keyword: bigint
+    - keyword: FIRST
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: prod
+      - dot: .
+      - naked_identifier: db
+      - dot: .
+      - naked_identifier: sample
+    - keyword: RENAME
+    - keyword: COLUMN
+    - column_reference:
+        naked_identifier: data
+    - keyword: TO
+    - column_reference:
+        naked_identifier: payload
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: prod
+      - dot: .
+      - naked_identifier: db
+      - dot: .
+      - naked_identifier: sample
+    - keyword: RENAME
+    - keyword: COLUMN
+    - column_reference:
+      - naked_identifier: location
+      - dot: .
+      - naked_identifier: lat
+    - keyword: TO
+    - column_reference:
+        naked_identifier: latitude
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: prod
+      - dot: .
+      - naked_identifier: db
+      - dot: .
+      - naked_identifier: sample
+    - keyword: ALTER
+    - keyword: COLUMN
+    - column_reference:
+        naked_identifier: measurement
+    - keyword: TYPE
+    - data_type:
+        primitive_type:
+          keyword: double
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: prod
+      - dot: .
+      - naked_identifier: db
+      - dot: .
+      - naked_identifier: sample
+    - keyword: ALTER
+    - keyword: COLUMN
+    - column_reference:
+        naked_identifier: measurement
+    - keyword: TYPE
+    - data_type:
+        primitive_type:
+          keyword: double
+    - keyword: COMMENT
+    - quoted_literal: "'unit is bytes per second'"
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: prod
+      - dot: .
+      - naked_identifier: db
+      - dot: .
+      - naked_identifier: sample
+    - keyword: ALTER
+    - keyword: COLUMN
+    - column_reference:
+        naked_identifier: measurement
+    - keyword: COMMENT
+    - quoted_literal: "'unit is kilobytes per second'"
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: prod
+      - dot: .
+      - naked_identifier: db
+      - dot: .
+      - naked_identifier: sample
+    - keyword: ALTER
+    - keyword: COLUMN
+    - column_reference:
+        naked_identifier: col
+    - keyword: FIRST
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: prod
+      - dot: .
+      - naked_identifier: db
+      - dot: .
+      - naked_identifier: sample
+    - keyword: ALTER
+    - keyword: COLUMN
+    - column_reference:
+      - naked_identifier: nested
+      - dot: .
+      - naked_identifier: col
+    - keyword: AFTER
+    - column_reference:
+        naked_identifier: other_col
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: prod
+      - dot: .
+      - naked_identifier: db
+      - dot: .
+      - naked_identifier: sample
+    - keyword: ALTER
+    - keyword: COLUMN
+    - column_reference:
+        naked_identifier: id
+    - keyword: DROP
+    - keyword: NOT
+    - keyword: 'NULL'
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: prod
+      - dot: .
+      - naked_identifier: db
+      - dot: .
+      - naked_identifier: sample
+    - keyword: DROP
+    - keyword: COLUMN
+    - column_reference:
+        naked_identifier: id
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: prod
+      - dot: .
+      - naked_identifier: db
+      - dot: .
+      - naked_identifier: sample
+    - keyword: DROP
+    - keyword: COLUMN
+    - column_reference:
+      - naked_identifier: point
+      - dot: .
+      - naked_identifier: z
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: prod
+      - dot: .
+      - naked_identifier: db
+      - dot: .
+      - naked_identifier: sample
+    - keyword: ADD
+    - keyword: PARTITION
+    - keyword: FIELD
+    - column_reference:
+        naked_identifier: catalog
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: prod
+      - dot: .
+      - naked_identifier: db
+      - dot: .
+      - naked_identifier: sample
+    - keyword: ADD
+    - keyword: PARTITION
+    - keyword: FIELD
+    - iceberg_transformation:
+        keyword: bucket
+        bracketed:
+          start_bracket: (
+          numeric_literal: '16'
+          comma: ','
+          column_reference:
+            naked_identifier: id
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: prod
+      - dot: .
+      - naked_identifier: db
+      - dot: .
+      - naked_identifier: sample
+    - keyword: ADD
+    - keyword: PARTITION
+    - keyword: FIELD
+    - iceberg_transformation:
+        keyword: truncate
+        bracketed:
+          start_bracket: (
+          numeric_literal: '4'
+          comma: ','
+          column_reference:
+            naked_identifier: data
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: prod
+      - dot: .
+      - naked_identifier: db
+      - dot: .
+      - naked_identifier: sample
+    - keyword: ADD
+    - keyword: PARTITION
+    - keyword: FIELD
+    - iceberg_transformation:
+        keyword: years
+        bracketed:
+          start_bracket: (
+          column_reference:
+            naked_identifier: ts
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: prod
+      - dot: .
+      - naked_identifier: db
+      - dot: .
+      - naked_identifier: sample
+    - keyword: ADD
+    - keyword: PARTITION
+    - keyword: FIELD
+    - iceberg_transformation:
+        keyword: bucket
+        bracketed:
+          start_bracket: (
+          numeric_literal: '16'
+          comma: ','
+          column_reference:
+            naked_identifier: id
+          end_bracket: )
+    - keyword: AS
+    - naked_identifier: shard
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: prod
+      - dot: .
+      - naked_identifier: db
+      - dot: .
+      - naked_identifier: sample
+    - keyword: DROP
+    - keyword: PARTITION
+    - keyword: FIELD
+    - column_reference:
+        naked_identifier: catalog
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: prod
+      - dot: .
+      - naked_identifier: db
+      - dot: .
+      - naked_identifier: sample
+    - keyword: DROP
+    - keyword: PARTITION
+    - keyword: FIELD
+    - iceberg_transformation:
+        keyword: bucket
+        bracketed:
+          start_bracket: (
+          numeric_literal: '16'
+          comma: ','
+          column_reference:
+            naked_identifier: id
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: prod
+      - dot: .
+      - naked_identifier: db
+      - dot: .
+      - naked_identifier: sample
+    - keyword: DROP
+    - keyword: PARTITION
+    - keyword: FIELD
+    - iceberg_transformation:
+        keyword: truncate
+        bracketed:
+          start_bracket: (
+          numeric_literal: '4'
+          comma: ','
+          column_reference:
+            naked_identifier: data
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: prod
+      - dot: .
+      - naked_identifier: db
+      - dot: .
+      - naked_identifier: sample
+    - keyword: DROP
+    - keyword: PARTITION
+    - keyword: FIELD
+    - iceberg_transformation:
+        keyword: years
+        bracketed:
+          start_bracket: (
+          column_reference:
+            naked_identifier: ts
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: prod
+      - dot: .
+      - naked_identifier: db
+      - dot: .
+      - naked_identifier: sample
+    - keyword: DROP
+    - keyword: PARTITION
+    - keyword: FIELD
+    - column_reference:
+        naked_identifier: shard
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: prod
+      - dot: .
+      - naked_identifier: db
+      - dot: .
+      - naked_identifier: sample
+    - keyword: REPLACE
+    - keyword: PARTITION
+    - keyword: FIELD
+    - column_reference:
+        naked_identifier: ts_day
+    - keyword: WITH
+    - iceberg_transformation:
+        keyword: days
+        bracketed:
+          start_bracket: (
+          column_reference:
+            naked_identifier: ts
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: prod
+      - dot: .
+      - naked_identifier: db
+      - dot: .
+      - naked_identifier: sample
+    - keyword: REPLACE
+    - keyword: PARTITION
+    - keyword: FIELD
+    - column_reference:
+        naked_identifier: ts_day
+    - keyword: WITH
+    - iceberg_transformation:
+        keyword: days
+        bracketed:
+          start_bracket: (
+          column_reference:
+            naked_identifier: ts
+          end_bracket: )
+    - keyword: AS
+    - naked_identifier: day_of_ts
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: prod
+      - dot: .
+      - naked_identifier: db
+      - dot: .
+      - naked_identifier: sample
+    - keyword: WRITE
+    - keyword: ORDERED
+    - keyword: BY
+    - column_reference:
+        naked_identifier: category
+    - comma: ','
+    - column_reference:
+        naked_identifier: id
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: prod
+      - dot: .
+      - naked_identifier: db
+      - dot: .
+      - naked_identifier: sample
+    - keyword: WRITE
+    - keyword: ORDERED
+    - keyword: BY
+    - column_reference:
+        naked_identifier: category
+    - keyword: ASC
+    - comma: ','
+    - column_reference:
+        naked_identifier: id
+    - keyword: DESC
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: prod
+      - dot: .
+      - naked_identifier: db
+      - dot: .
+      - naked_identifier: sample
+    - keyword: WRITE
+    - keyword: ORDERED
+    - keyword: BY
+    - column_reference:
+        naked_identifier: category
+    - keyword: ASC
+    - keyword: NULLS
+    - keyword: LAST
+    - comma: ','
+    - column_reference:
+        naked_identifier: id
+    - keyword: DESC
+    - keyword: NULLS
+    - keyword: FIRST
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: prod
+      - dot: .
+      - naked_identifier: db
+      - dot: .
+      - naked_identifier: sample
+    - keyword: WRITE
+    - keyword: LOCALLY
+    - keyword: ORDERED
+    - keyword: BY
+    - column_reference:
+        naked_identifier: category
+    - comma: ','
+    - column_reference:
+        naked_identifier: id
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: prod
+      - dot: .
+      - naked_identifier: db
+      - dot: .
+      - naked_identifier: sample
+    - keyword: WRITE
+    - keyword: DISTRIBUTED
+    - keyword: BY
+    - keyword: PARTITION
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: prod
+      - dot: .
+      - naked_identifier: db
+      - dot: .
+      - naked_identifier: sample
+    - keyword: WRITE
+    - keyword: DISTRIBUTED
+    - keyword: BY
+    - keyword: PARTITION
+    - keyword: LOCALLY
+    - keyword: ORDERED
+    - keyword: BY
+    - column_reference:
+        naked_identifier: category
+    - comma: ','
+    - column_reference:
+        naked_identifier: id
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: prod
+      - dot: .
+      - naked_identifier: db
+      - dot: .
+      - naked_identifier: sample
+    - keyword: SET
+    - keyword: IDENTIFIER
+    - keyword: FIELDS
+    - column_reference:
+        naked_identifier: id
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: prod
+      - dot: .
+      - naked_identifier: db
+      - dot: .
+      - naked_identifier: sample
+    - keyword: SET
+    - keyword: IDENTIFIER
+    - keyword: FIELDS
+    - column_reference:
+        naked_identifier: id
+    - comma: ','
+    - column_reference:
+        naked_identifier: data
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: prod
+      - dot: .
+      - naked_identifier: db
+      - dot: .
+      - naked_identifier: sample
+    - keyword: DROP
+    - keyword: IDENTIFIER
+    - keyword: FIELDS
+    - column_reference:
+        naked_identifier: id
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: prod
+      - dot: .
+      - naked_identifier: db
+      - dot: .
+      - naked_identifier: sample
+    - keyword: DROP
+    - keyword: IDENTIFIER
+    - keyword: FIELDS
+    - column_reference:
+        naked_identifier: id
+    - comma: ','
+    - column_reference:
+        naked_identifier: data

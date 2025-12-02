@@ -1,0 +1,58 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: f59962f7301c0cb73e1f54786fce79b348cb48010870a5a23c83bb413f0c35ec
+file:
+  batch:
+  - statement:
+      bulk_insert_statement:
+      - keyword: BULK
+      - keyword: INSERT
+      - table_reference:
+        - naked_identifier: my_schema
+        - dot: .
+        - naked_identifier: my_table
+      - keyword: FROM
+      - quoted_literal: "'data.csv'"
+  - statement_terminator: ;
+  - statement:
+      bulk_insert_statement:
+      - keyword: BULK
+      - keyword: INSERT
+      - table_reference:
+        - naked_identifier: my_schema
+        - dot: .
+        - naked_identifier: my_table
+      - keyword: FROM
+      - quoted_literal: "'data.csv'"
+      - bulk_insert_with_segment:
+          keyword: WITH
+          bracketed:
+          - start_bracket: (
+          - keyword: BATCHSIZE
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - numeric_literal: '1024'
+          - comma: ','
+          - keyword: CHECK_CONSTRAINTS
+          - comma: ','
+          - keyword: ORDER
+          - bracketed:
+            - start_bracket: (
+            - column_reference:
+                naked_identifier: col1
+            - keyword: ASC
+            - comma: ','
+            - column_reference:
+                naked_identifier: col2
+            - keyword: DESC
+            - end_bracket: )
+          - comma: ','
+          - keyword: FORMAT
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - quoted_literal: "'CSV'"
+          - end_bracket: )
+  - statement_terminator: ;

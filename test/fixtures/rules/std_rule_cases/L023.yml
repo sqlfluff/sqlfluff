@@ -1,6 +1,0 @@
-rule: L023
-
-test_fail_cte_no_space_after_as:
-  # Check fixing of single space rules
-  fail_str: WITH a AS(select 1) select * from a
-  fix_str: WITH a AS (select 1) select * from a

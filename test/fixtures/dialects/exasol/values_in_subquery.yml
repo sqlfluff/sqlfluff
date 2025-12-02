@@ -1,0 +1,171 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: e2128fc09d7141ee0db981a81abec4e88bfffd79d0aa77bd4e13de2009a77154
+file:
+- statement:
+    with_compound_statement:
+      keyword: WITH
+      common_table_expression:
+        naked_identifier: txt
+        keyword: AS
+        bracketed:
+          start_bracket: (
+          values_clause:
+            keyword: VALUES
+            bracketed:
+              start_bracket: (
+              numeric_literal: '1'
+              end_bracket: )
+            alias_expression:
+              alias_operator:
+                keyword: AS
+              naked_identifier: t
+              bracketed:
+                start_bracket: (
+                identifier_list:
+                  naked_identifier: id
+                end_bracket: )
+          end_bracket: )
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: txt
+- statement_terminator: ;
+- statement:
+    with_compound_statement:
+      keyword: WITH
+      common_table_expression:
+        naked_identifier: txt
+        keyword: AS
+        bracketed:
+          start_bracket: (
+          values_clause:
+          - keyword: VALUES
+          - bracketed:
+            - start_bracket: (
+            - numeric_literal: '1'
+            - comma: ','
+            - numeric_literal: '2'
+            - end_bracket: )
+          - comma: ','
+          - bracketed:
+            - start_bracket: (
+            - numeric_literal: '3'
+            - comma: ','
+            - numeric_literal: '4'
+            - end_bracket: )
+          - alias_expression:
+              alias_operator:
+                keyword: AS
+              naked_identifier: t
+              bracketed:
+                start_bracket: (
+                identifier_list:
+                - naked_identifier: c1
+                - comma: ','
+                - naked_identifier: c2
+                end_bracket: )
+          end_bracket: )
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: txt
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            bracketed:
+              start_bracket: (
+              table_expression:
+                values_clause:
+                  keyword: VALUES
+                  bracketed:
+                    start_bracket: (
+                    numeric_literal: '1'
+                    end_bracket: )
+              end_bracket: )
+            alias_expression:
+              alias_operator:
+                keyword: AS
+              naked_identifier: t
+              bracketed:
+                start_bracket: (
+                identifier_list:
+                  naked_identifier: id
+                end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            bracketed:
+              start_bracket: (
+              table_expression:
+                values_clause:
+                - keyword: VALUES
+                - bracketed:
+                  - start_bracket: (
+                  - numeric_literal: '1'
+                  - comma: ','
+                  - numeric_literal: '2'
+                  - end_bracket: )
+                - comma: ','
+                - bracketed:
+                  - start_bracket: (
+                  - numeric_literal: '3'
+                  - comma: ','
+                  - numeric_literal: '4'
+                  - end_bracket: )
+              end_bracket: )
+            alias_expression:
+              alias_operator:
+                keyword: AS
+              naked_identifier: t
+              bracketed:
+                start_bracket: (
+                identifier_list:
+                - naked_identifier: c1
+                - comma: ','
+                - naked_identifier: c2
+                end_bracket: )
+- statement_terminator: ;

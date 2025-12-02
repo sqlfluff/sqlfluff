@@ -1,0 +1,87 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 3d88e69d20b6a87900b65adc3bb71901858ca2796d0deedf0bf8cff02b159bee
+file:
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+            naked_identifier: pushdown_id
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: pushdown_involved_tables
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: pushdown_sql
+      from_clause:
+        keyword: FROM
+        from_expression:
+          bracketed:
+            start_bracket: (
+            from_expression_element:
+              table_expression:
+                explain_virtual_statement:
+                - keyword: EXPLAIN
+                - keyword: VIRTUAL
+                - select_statement:
+                    select_clause:
+                      keyword: SELECT
+                      select_clause_element:
+                        wildcard_expression:
+                          wildcard_identifier:
+                            star: '*'
+                    from_clause:
+                      keyword: FROM
+                      from_expression:
+                        from_expression_element:
+                          table_expression:
+                            table_reference:
+                            - naked_identifier: vs_impala
+                            - dot: .
+                            - naked_identifier: sample_07
+                    where_clause:
+                      keyword: WHERE
+                      expression:
+                        column_reference:
+                          naked_identifier: total_emp
+                        comparison_operator:
+                          raw_comparison_operator: '>'
+                        numeric_literal: '10000'
+            end_bracket: )
+- statement_terminator: ;
+- statement:
+    explain_virtual_statement:
+    - keyword: EXPLAIN
+    - keyword: VIRTUAL
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                - naked_identifier: vs_impala
+                - dot: .
+                - naked_identifier: sample_07
+        where_clause:
+          keyword: WHERE
+          expression:
+            column_reference:
+              naked_identifier: total_emp
+            comparison_operator:
+              raw_comparison_operator: '>'
+            numeric_literal: '10000'
+- statement_terminator: ;

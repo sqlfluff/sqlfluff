@@ -1,0 +1,60 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 07e21c879bb73b81e693b06dd837baeed944a5fb81ca3ea5230e7466117479e9
+file:
+- statement:
+    import_foreign_schema_statement:
+    - keyword: IMPORT
+    - keyword: FOREIGN
+    - keyword: SCHEMA
+    - schema_reference:
+        naked_identifier: foreign_films
+    - keyword: FROM
+    - keyword: SERVER
+    - server_reference:
+        naked_identifier: film_server
+    - keyword: INTO
+    - schema_reference:
+        naked_identifier: films
+- statement_terminator: ;
+- statement:
+    import_foreign_schema_statement:
+    - keyword: IMPORT
+    - keyword: FOREIGN
+    - keyword: SCHEMA
+    - schema_reference:
+        quoted_identifier: '"TEST"'
+    - keyword: FROM
+    - keyword: SERVER
+    - server_reference:
+        naked_identifier: test_server
+    - keyword: INTO
+    - schema_reference:
+        naked_identifier: test
+- statement_terminator: ;
+- statement:
+    import_foreign_schema_statement:
+    - keyword: IMPORT
+    - keyword: FOREIGN
+    - keyword: SCHEMA
+    - schema_reference:
+        naked_identifier: foreign_films
+    - keyword: LIMIT
+    - keyword: TO
+    - bracketed:
+      - start_bracket: (
+      - naked_identifier_all: actors
+      - comma: ','
+      - naked_identifier_all: directors
+      - end_bracket: )
+    - keyword: FROM
+    - keyword: SERVER
+    - server_reference:
+        naked_identifier: film_server
+    - keyword: INTO
+    - schema_reference:
+        naked_identifier: films
+- statement_terminator: ;

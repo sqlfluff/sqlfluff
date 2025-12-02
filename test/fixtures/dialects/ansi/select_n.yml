@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 52e57c1336f5bd8001abb02a4147a579c93770658b66ba464fa26cf88753bb5f
+_hash: 552a1824901cd1a298125560d4f3a138ae64a2d2408e54e2f345ee3f99caa910
 file:
   statement:
     select_statement:
@@ -11,50 +11,55 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-          - identifier: exists_left
+          - naked_identifier: exists_left
           - dot: .
-          - identifier: business_type
+          - naked_identifier: business_type
           alias_expression:
-            keyword: AS
-            identifier: business_type_left
+            alias_operator:
+              keyword: AS
+            naked_identifier: business_type_left
       - comma: ','
       - select_clause_element:
           column_reference:
-          - identifier: exists_right
+          - naked_identifier: exists_right
           - dot: .
-          - identifier: business_type
+          - naked_identifier: business_type
           alias_expression:
-            keyword: AS
-            identifier: business_type_right
+            alias_operator:
+              keyword: AS
+            naked_identifier: business_type_right
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: benchmark_summaries
+                naked_identifier: benchmark_summaries
             alias_expression:
-              keyword: AS
-              identifier: exists_left
+              alias_operator:
+                keyword: AS
+              naked_identifier: exists_left
           join_clause:
           - keyword: FULL
           - keyword: JOIN
           - from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: business_types
+                  naked_identifier: business_types
               alias_expression:
-                keyword: AS
-                identifier: exists_right
+                alias_operator:
+                  keyword: AS
+                naked_identifier: exists_right
           - join_on_condition:
               keyword: 'ON'
               expression:
               - column_reference:
-                - identifier: exists_left
+                - naked_identifier: exists_left
                 - dot: .
-                - identifier: business_type
-              - comparison_operator: '='
+                - naked_identifier: business_type
+              - comparison_operator:
+                  raw_comparison_operator: '='
               - column_reference:
-                - identifier: exists_right
+                - naked_identifier: exists_right
                 - dot: .
-                - identifier: business_type
+                - naked_identifier: business_type

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 702a7117b57ed73ac259d6bc9e110e4730066c3b75e3868db6bb6f6853b64004
+_hash: edbb120691c09f820c566b1d76cdb31c7f7877987824509c9d7585fbac87f829
 file:
   statement:
     select_statement:
@@ -12,42 +12,44 @@ file:
         select_clause_element:
           function:
             function_name:
-              keyword: DATEADD
-            bracketed:
-            - start_bracket: (
-            - date_part:
-                keyword: DAY
-            - comma: ','
-            - expression:
-                function:
-                  function_name:
-                    function_name_identifier: ROW_NUMBER
-                  bracketed:
-                    start_bracket: (
-                    end_bracket: )
-                  over_clause:
-                    keyword: OVER
-                    bracketed:
-                      start_bracket: (
-                      window_specification:
-                        orderby_clause:
-                        - keyword: ORDER
-                        - keyword: BY
-                        - column_reference:
-                            identifier: DateCD
-                        - keyword: ASC
-                      end_bracket: )
-            - comma: ','
-            - expression:
-                literal: "'2014-01-01'"
-            - end_bracket: )
+              function_name_identifier: DATEADD
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - date_part: DAY
+              - comma: ','
+              - expression:
+                  function:
+                    function_name:
+                      function_name_identifier: ROW_NUMBER
+                    function_contents:
+                      bracketed:
+                        start_bracket: (
+                        end_bracket: )
+                    over_clause:
+                      keyword: OVER
+                      bracketed:
+                        start_bracket: (
+                        window_specification:
+                          orderby_clause:
+                          - keyword: ORDER
+                          - keyword: BY
+                          - column_reference:
+                              naked_identifier: DateCD
+                          - keyword: ASC
+                        end_bracket: )
+              - comma: ','
+              - expression:
+                  quoted_literal: "'2014-01-01'"
+              - end_bracket: )
           alias_expression:
-            keyword: AS
-            identifier: dt
+            alias_operator:
+              keyword: AS
+            naked_identifier: dt
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: boo
+                naked_identifier: boo

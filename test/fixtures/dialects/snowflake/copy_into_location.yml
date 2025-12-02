@@ -1,0 +1,222 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 8c42ecb4f022f041d2ba57aa66a0896dda567d95c9d43229604dfe90db1ca859
+file:
+- statement:
+    copy_into_location_statement:
+    - keyword: COPY
+    - keyword: INTO
+    - storage_location:
+        stage_path: "'@public.dir/airflow-pipelines/'"
+    - keyword: FROM
+    - table_reference:
+      - quoted_identifier: '"MODEL"'
+      - dot: .
+      - quoted_identifier: '"FCT_ROLLING_ACTIVE_USERS_L28"'
+    - keyword: FILE_FORMAT
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - file_format_segment:
+        bracketed:
+          start_bracket: (
+          parquet_file_format_type_parameters:
+            keyword: TYPE
+            comparison_operator:
+              raw_comparison_operator: '='
+            file_type: PARQUET
+          end_bracket: )
+    - keyword: SINGLE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - boolean_literal: 'FALSE'
+    - keyword: MAX_FILE_SIZE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - numeric_literal: '1000000000'
+    - keyword: INCLUDE_QUERY_ID
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - boolean_literal: 'TRUE'
+    - keyword: HEADER
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - boolean_literal: 'TRUE'
+- statement_terminator: ;
+- statement:
+    copy_into_location_statement:
+    - keyword: COPY
+    - keyword: INTO
+    - storage_location:
+        bucket_path: "'s3://geotags.csv.gz'"
+    - keyword: FROM
+    - bracketed:
+        start_bracket: (
+        select_statement:
+          select_clause:
+          - keyword: SELECT
+          - select_clause_modifier:
+              keyword: DISTINCT
+          - select_clause_element:
+              column_reference:
+                naked_identifier: ID
+          - comma: ','
+          - select_clause_element:
+              function:
+                function_name:
+                  function_name_identifier: CAST
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      column_reference:
+                      - naked_identifier: Z
+                      - dot: .
+                      - naked_identifier: VALUE
+                    keyword: AS
+                    data_type:
+                      data_type_identifier: INTEGER
+                    end_bracket: )
+              alias_expression:
+                alias_operator:
+                  keyword: AS
+                naked_identifier: LISTING_ADDRESS_POSTALCODE
+          from_clause:
+          - keyword: FROM
+          - from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                  - naked_identifier: ANALYTICS_PROD
+                  - dot: .
+                  - naked_identifier: SERVICE
+                  - dot: .
+                  - naked_identifier: GEO_DATA_LAYER_FLATTEN
+          - comma: ','
+          - from_expression:
+              from_expression_element:
+                keyword: LATERAL
+                table_expression:
+                  function:
+                    function_name:
+                      function_name_identifier: FLATTEN
+                    function_contents:
+                      bracketed:
+                        start_bracket: (
+                        expression:
+                          column_reference:
+                            naked_identifier: ZIPS
+                        end_bracket: )
+                alias_expression:
+                  alias_operator:
+                    keyword: AS
+                  naked_identifier: Z
+          where_clause:
+            keyword: WHERE
+            expression:
+            - column_reference:
+                naked_identifier: TYPE
+            - keyword: IN
+            - bracketed:
+              - start_bracket: (
+              - quoted_literal: "'canton'"
+              - comma: ','
+              - quoted_literal: "'region'"
+              - comma: ','
+              - quoted_literal: "'zip'"
+              - end_bracket: )
+            - binary_operator: AND
+            - column_reference:
+                naked_identifier: PARENTPATHS
+            - keyword: LIKE
+            - quoted_literal: "'%geo-country-switzerland%'"
+        end_bracket: )
+    - stage_parameters:
+        keyword: STORAGE_INTEGRATION
+        comparison_operator:
+          raw_comparison_operator: '='
+        object_reference:
+          naked_identifier: SI_S3_DS_ASSETS
+    - keyword: FILE_FORMAT
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - file_format_segment:
+        bracketed:
+          start_bracket: (
+          csv_file_format_type_parameters:
+          - keyword: TYPE
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - file_type: CSV
+          - keyword: NULL_IF
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - bracketed:
+              start_bracket: (
+              end_bracket: )
+          - keyword: EMPTY_FIELD_AS_NULL
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - boolean_literal: 'FALSE'
+          - keyword: COMPRESSION
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - compression_type: GZIP
+          end_bracket: )
+    - keyword: SINGLE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - boolean_literal: 'TRUE'
+    - keyword: OVERWRITE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - boolean_literal: 'TRUE'
+    - keyword: HEADER
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - boolean_literal: 'TRUE'
+    - keyword: MAX_FILE_SIZE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - numeric_literal: '5368709120'
+- statement_terminator: ;
+- statement:
+    copy_into_location_statement:
+    - keyword: COPY
+    - keyword: INTO
+    - storage_location:
+        stage_path: '@my_stage/path/to/file.json.gz'
+    - keyword: FROM
+    - bracketed:
+        start_bracket: (
+        with_compound_statement:
+          keyword: WITH
+          common_table_expression:
+            naked_identifier: my_cte
+            keyword: AS
+            bracketed:
+              start_bracket: (
+              select_statement:
+                select_clause:
+                  keyword: SELECT
+                  select_clause_element:
+                    numeric_literal: '1'
+              end_bracket: )
+          select_statement:
+            select_clause:
+              keyword: SELECT
+              select_clause_element:
+                wildcard_expression:
+                  wildcard_identifier:
+                    star: '*'
+            from_clause:
+              keyword: FROM
+              from_expression:
+                from_expression_element:
+                  table_expression:
+                    table_reference:
+                      naked_identifier: my_cte
+        end_bracket: )
+- statement_terminator: ;

@@ -1,0 +1,205 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 21f949c3e22dc36d82f0e1ec032237d865836e8822be6f181ed39efd44f6cce6
+file:
+- statement:
+    access_statement:
+    - keyword: grant
+    - keyword: select
+    - keyword: 'on'
+    - object_reference:
+        naked_identifier: my_table
+    - keyword: to
+    - role_reference:
+        sqlplus_variable:
+          ampersand: '&'
+          naked_identifier: REGISTRY
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          expression:
+            sqlplus_variable:
+              ampersand: '&'
+              naked_identifier: SORTCOL
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: SALARY
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              sqlplus_variable:
+                ampersand: '&'
+                naked_identifier: MYTABLE
+      where_clause:
+        keyword: WHERE
+        expression:
+          column_reference:
+            naked_identifier: SALARY
+          comparison_operator:
+            raw_comparison_operator: '>'
+          numeric_literal: '12000'
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_clause_element:
+          column_reference:
+            naked_identifier: employee_id
+      from_clause:
+        keyword: from
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: employees
+      where_clause:
+        keyword: where
+        expression:
+          column_reference:
+            naked_identifier: last_name
+          comparison_operator:
+            raw_comparison_operator: '='
+          quoted_literal: "'&myv'"
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: from
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: employees
+      where_clause:
+        keyword: where
+        expression:
+          column_reference:
+            naked_identifier: employee_id
+          comparison_operator:
+            raw_comparison_operator: '='
+          sqlplus_variable:
+            ampersand: '&'
+            naked_identifier: myv
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          column_reference:
+            naked_identifier: SALARY
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: EMP_DETAILS_VIEW
+      where_clause:
+        keyword: WHERE
+        expression:
+          column_reference:
+            naked_identifier: EMPLOYEE_ID
+          comparison_operator:
+            raw_comparison_operator: '='
+          quoted_literal: "'&X.5'"
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          expression:
+            sqlplus_variable:
+              ampersand: '&'
+              naked_identifier: GROUP_COL
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: MAX
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  sqlplus_variable:
+                    ampersand: '&'
+                    naked_identifier: NUMBER_COL
+                end_bracket: )
+          alias_expression:
+            naked_identifier: MAXIMUM
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              sqlplus_variable:
+                ampersand: '&'
+                naked_identifier: MY_TABLE
+      groupby_clause:
+      - keyword: GROUP
+      - keyword: BY
+      - expression:
+          sqlplus_variable:
+            ampersand: '&'
+            naked_identifier: GROUP_COL
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: from
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: employees
+      where_clause:
+        keyword: where
+        expression:
+          column_reference:
+            naked_identifier: employee_id
+          comparison_operator:
+            raw_comparison_operator: '='
+          sqlplus_variable:
+          - ampersand: '&'
+          - ampersand: '&'
+          - naked_identifier: myv
+- statement_terminator: ;
+- statement:
+    insert_statement:
+    - keyword: insert
+    - keyword: into
+    - table_reference:
+        naked_identifier: mytable
+    - values_clause:
+        keyword: values
+        bracketed:
+          start_bracket: (
+          expression:
+            sqlplus_variable:
+              ampersand: '&'
+              naked_identifier: myv
+          end_bracket: )
+- statement_terminator: ;

@@ -3,18 +3,18 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: ec9964f0134d4577550e65980bd9baeb3c7b52976bd774143d642a7e9a8afe9e
+_hash: 2d6f8816319d86ded1fe93d5cf969ec7b49812373d0e058ebb07a60df9fa1ebf
 file:
   statement:
     create_table_statement:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-        identifier: foo
+        naked_identifier: foo
     - bracketed:
       - start_bracket: (
       - column_definition:
-          identifier: col1
+          naked_identifier: col1
           data_type:
             primitive_type:
               keyword: INT
@@ -23,7 +23,7 @@ file:
           - keyword: KEY
       - comma: ','
       - column_definition:
-          identifier: col2
+          naked_identifier: col2
           data_type:
             primitive_type:
               keyword: BIGINT
@@ -32,23 +32,23 @@ file:
           - keyword: 'NULL'
       - comma: ','
       - column_definition:
-          identifier: col3
+          naked_identifier: col3
           data_type:
             primitive_type:
               keyword: STRING
       - comma: ','
       - column_definition:
-          identifier: col4
+          naked_identifier: col4
           data_type:
             primitive_type:
               keyword: STRING
           column_constraint_segment:
             comment_clause:
               keyword: COMMENT
-              literal: "'Column 4'"
+              quoted_literal: "'Column 4'"
       - end_bracket: )
     - keyword: COMMENT
-    - literal: "'This is a test table'"
+    - quoted_literal: "'This is a test table'"
     - row_format_clause:
       - keyword: ROW
       - keyword: FORMAT
@@ -56,25 +56,25 @@ file:
       - keyword: FIELDS
       - keyword: TERMINATED
       - keyword: BY
-      - literal: "'\\001'"
+      - quoted_literal: "'\\001'"
       - keyword: COLLECTION
       - keyword: ITEMS
       - keyword: TERMINATED
       - keyword: BY
-      - literal: "'\\002'"
+      - quoted_literal: "'\\002'"
       - keyword: MAP
       - keyword: KEYS
       - keyword: TERMINATED
       - keyword: BY
-      - literal: "'\\003'"
+      - quoted_literal: "'\\003'"
       - keyword: LINES
       - keyword: TERMINATED
       - keyword: BY
-      - literal: "'\\004'"
+      - quoted_literal: "'\\004'"
       - keyword: 'NULL'
       - keyword: DEFINED
       - keyword: AS
-      - literal: "'\\005'"
+      - quoted_literal: "'\\005'"
     - keyword: STORED
     - keyword: AS
     - file_format: SEQUENCEFILE

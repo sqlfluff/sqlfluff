@@ -3,61 +3,63 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 71c37fda083d9cb57258a02461686c2d84ec45670d26eaadcb91c9850a113ed3
+_hash: 573132cc8678bdd65aaf8d8f93f664d0011238f1f07b973bb82a083aa93a9d66
 file:
   batch:
     statement:
       with_compound_statement:
         keyword: WITH
         common_table_expression:
-        - identifier: Sales_CTE
-        - bracketed:
-            start_bracket: (
-            identifier_list:
-            - identifier: SalesPersonID
-            - comma: ','
-            - identifier: NumberOfOrders
-            end_bracket: )
-        - keyword: AS
-        - bracketed:
+          naked_identifier: Sales_CTE
+          cte_column_list:
+            bracketed:
+              start_bracket: (
+              identifier_list:
+              - naked_identifier: SalesPersonID
+              - comma: ','
+              - naked_identifier: NumberOfOrders
+              end_bracket: )
+          keyword: AS
+          bracketed:
             start_bracket: (
             select_statement:
               select_clause:
               - keyword: SELECT
               - select_clause_element:
                   column_reference:
-                    identifier: SalesPersonID
+                    naked_identifier: SalesPersonID
               - comma: ','
               - select_clause_element:
                   function:
                     function_name:
                       function_name_identifier: COUNT
-                    bracketed:
-                      start_bracket: (
-                      star: '*'
-                      end_bracket: )
+                    function_contents:
+                      bracketed:
+                        start_bracket: (
+                        star: '*'
+                        end_bracket: )
               from_clause:
                 keyword: FROM
                 from_expression:
                   from_expression_element:
                     table_expression:
                       table_reference:
-                      - identifier: Sales
+                      - naked_identifier: Sales
                       - dot: .
-                      - identifier: SalesOrderHeader
+                      - naked_identifier: SalesOrderHeader
               where_clause:
                 keyword: WHERE
                 expression:
                 - column_reference:
-                    identifier: SalesPersonID
+                    naked_identifier: SalesPersonID
                 - keyword: IS
                 - keyword: NOT
-                - keyword: 'NULL'
+                - null_literal: 'NULL'
               groupby_clause:
               - keyword: GROUP
               - keyword: BY
               - column_reference:
-                  identifier: SalesPersonID
+                  naked_identifier: SalesPersonID
             end_bracket: )
         select_statement:
           select_clause:
@@ -66,20 +68,22 @@ file:
               function:
                 function_name:
                   function_name_identifier: AVG
-                bracketed:
-                  start_bracket: (
-                  expression:
-                    column_reference:
-                      identifier: NumberOfOrders
-                  end_bracket: )
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      column_reference:
+                        naked_identifier: NumberOfOrders
+                    end_bracket: )
               alias_expression:
-                keyword: AS
-                identifier: '"Average Sales Per Person"'
+                alias_operator:
+                  keyword: AS
+                quoted_identifier: '"Average Sales Per Person"'
           from_clause:
             keyword: FROM
             from_expression:
               from_expression_element:
                 table_expression:
                   table_reference:
-                    identifier: Sales_CTE
-            statement_terminator: ;
+                    naked_identifier: Sales_CTE
+    statement_terminator: ;

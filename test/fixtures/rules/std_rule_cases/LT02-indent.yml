@@ -1,0 +1,2607 @@
+rule: LT02
+
+test_fail_reindent_first_line_1:
+  fail_str: "     SELECT 1"
+  fix_str: SELECT 1
+  violations:
+    - code: LT02
+      description: First line should not be indented.
+      name: layout.indent
+      warning: false
+      start_line_no: 1
+      start_line_pos: 1
+      start_file_pos: 0
+      end_line_no: 1
+      end_line_pos: 6
+      end_file_pos: 5
+      fixes:
+        - edit: ""
+          end_file_pos: 5
+          end_line_no: 1
+          end_line_pos: 6
+          start_file_pos: 0
+          start_line_no: 1
+          start_line_pos: 1
+          type: delete
+
+test_fail_reindent_first_line_2:
+  # Github Bug #99. Python2 Issues with fixing LT02
+  fail_str: "  select 1 from tbl;"
+  fix_str: select 1 from tbl;
+
+test_pass_indentation_of_comments_1:
+  # Github Bug #203
+  # Comments should be aligned to the following line.
+  pass_str: |
+    SELECT
+        -- Compute the thing
+        (a + b) AS c
+    FROM
+        acceptable_buckets
+
+test_pass_indentation_of_comments_2:
+  # Comments should be aligned to the following line.
+  pass_str: |
+    SELECT
+        user_id
+    FROM
+        age_data
+    JOIN
+        audience_size
+        USING (user_id, list_id)
+    -- We LEFT JOIN because blah
+    LEFT JOIN
+        verts
+        USING
+            (user_id)
+
+test_fail_tab_indentation:
+  # Using tabs as indents works
+  fail_str: |
+    SELECT
+    	a,
+    b
+    FROM my_tbl
+  fix_str: |
+    SELECT
+    	a,
+    	b
+    FROM my_tbl
+  configs:
+    indentation:
+      indent_unit: tab
+  violations:
+    - code: LT02
+      description: Expected indent of 1 tabs.
+      name: layout.indent
+      warning: false
+      start_line_no: 3
+      start_line_pos: 1
+      start_file_pos: 11
+      end_line_no: 3
+      end_line_pos: 2
+      end_file_pos: 12
+      fixes:
+        - edit: "\n\t"
+          end_file_pos: 11
+          end_line_no: 3
+          end_line_pos: 1
+          start_file_pos: 10
+          start_line_no: 2
+          start_line_pos: 4
+          type: replace
+
+test_pass_indented_joins_default:
+  # Configurable indents work.
+  # a) default
+  pass_str: |
+    SELECT a, b, c
+    FROM my_tbl
+    LEFT JOIN another_tbl USING(a)
+
+test_pass_indented_joins_false:
+  # b) specific
+  pass_str: |
+    SELECT a, b, c
+    FROM my_tbl
+    LEFT JOIN another_tbl USING(a)
+  configs:
+    indentation:
+      indented_joins: false
+
+test_pass_indented_joins_true:
+  # c) specific True, but passing
+  pass_str: |
+    SELECT a, b, c
+    FROM my_tbl
+        LEFT JOIN another_tbl USING(a)
+
+  configs:
+    indentation:
+      indented_joins: true
+
+test_fail_indented_joins_true_fix:
+  # d) specific True, but failing
+  fail_str: |
+    SELECT a, b, c
+    FROM my_tbl
+    LEFT JOIN another_tbl USING(a)
+  fix_str: |
+    SELECT a, b, c
+    FROM my_tbl
+        LEFT JOIN another_tbl USING(a)
+  configs:
+    indentation:
+      indented_joins: true
+  violations:
+    - code: LT02
+      description: Expected indent of 4 spaces.
+      name: layout.indent
+      warning: false
+      start_line_no: 3
+      start_line_pos: 1
+      start_file_pos: 27
+      end_line_no: 3
+      end_line_pos: 5
+      end_file_pos: 31
+      fixes:
+        - edit: "\n    "
+          end_file_pos: 27
+          end_line_no: 3
+          end_line_pos: 1
+          start_file_pos: 26
+          start_line_no: 2
+          start_line_pos: 12
+          type: replace
+
+test_fail_indented_joins_false_fix:
+  # e) specific False, and failing
+  fail_str: |
+    SELECT a, b, c
+    FROM my_tbl
+        LEFT JOIN another_tbl USING(a)
+  fix_str: |
+    SELECT a, b, c
+    FROM my_tbl
+    LEFT JOIN another_tbl USING(a)
+  configs:
+    indentation:
+      indented_joins: false
+
+test_pass_indented_using_on_default:
+  # Configurable using_on indents work.
+  # 2.a) default
+  pass_str: |
+    SELECT a, b, c
+    FROM my_tbl
+    LEFT JOIN another_tbl
+        USING(a)
+
+test_pass_indented_using_on_true:
+  # 2.b) specific
+  pass_str: |
+    SELECT a, b, c
+    FROM my_tbl
+        LEFT JOIN another_tbl
+            USING(a)
+  configs:
+    indentation:
+      indented_joins: true
+      indented_using_on: true
+
+test_pass_indented_using_on_false:
+  # 2.c) specific False, but passing
+  pass_str: |
+    SELECT a, b, c
+    FROM my_tbl
+        LEFT JOIN another_tbl
+        USING(a)
+  configs:
+    indentation:
+      indented_joins: true
+      indented_using_on: false
+
+test_fail_indented_using_on_false:
+  # 2.d) specific False, but failing
+  fail_str: |
+    SELECT a, b, c
+    FROM my_tbl
+        LEFT JOIN another_tbl
+            USING(a)
+  fix_str: |
+    SELECT a, b, c
+    FROM my_tbl
+        LEFT JOIN another_tbl
+        USING(a)
+  configs:
+    indentation:
+      indented_joins: true
+      indented_using_on: false
+
+test_fail_indented_joins_using_on_true:
+  # 2.e) specific True, and failing
+  fail_str: |
+    SELECT a, b, c
+    FROM my_tbl
+        LEFT JOIN another_tbl
+        USING(a)
+  fix_str: |
+    SELECT a, b, c
+    FROM my_tbl
+        LEFT JOIN another_tbl
+            USING(a)
+  configs:
+    indentation:
+      indented_joins: true
+      indented_using_on: true
+
+test_fail_indented_joins_using_on_false:
+  # 2.f) specific false for both, and failing
+  fail_str: |
+    SELECT a, b, c
+    FROM my_tbl
+        LEFT JOIN another_tbl
+            USING(a)
+  fix_str: |
+    SELECT a, b, c
+    FROM my_tbl
+    LEFT JOIN another_tbl
+    USING(a)
+  configs:
+    indentation:
+      indented_joins: false
+      indented_using_on: false
+
+test_fail_indented_using_on_merge_statment_default:
+  # indented_using_on also covers MERGE INTO statements
+  fail_str: |
+    MERGE INTO t
+    USING u
+    ON t.a = u.b
+    WHEN MATCHED THEN
+        UPDATE SET a = 1
+  fix_str: |
+    MERGE INTO t
+    USING u
+        ON t.a = u.b
+    WHEN MATCHED THEN
+        UPDATE SET a = 1
+
+test_pass_indented_using_on_merge_statment_false:
+  # indented_using_on also covers MERGE INTO statements
+  pass_str: |
+    MERGE INTO t
+    USING u
+    ON t.a = u.b
+    WHEN MATCHED THEN
+        UPDATE SET a = 1
+  configs:
+    indentation:
+      indented_using_on: false
+
+test_pass_indented_on_contents_default:
+  # Test indented_on_contents when default (true)
+  pass_str: |
+    SELECT
+        r.a,
+        s.b
+    FROM r
+    JOIN s
+        ON
+            r.a = s.a
+            AND true
+
+test_pass_indented_on_contents_true:
+  # Test indented_on_contents when true (default)
+  fail_str: |
+    SELECT
+        r.a,
+        s.b
+    FROM r
+    JOIN s
+        ON r.a = s.a
+            AND true
+  fix_str: |
+    SELECT
+        r.a,
+        s.b
+    FROM r
+    JOIN s
+        ON
+            r.a = s.a
+            AND true
+  configs:
+    indentation:
+      indented_on_contents: true
+
+test_pass_indented_on_contents_false:
+  # Test indented_on_contents when false (non-default)
+  pass_str: |
+    SELECT
+        r.a,
+        s.b
+    FROM r
+    JOIN s
+        ON r.a = s.a
+        AND true
+  configs:
+    indentation:
+      indented_on_contents: false
+
+test_fail_indented_on_contents_default_fix_a:
+  # Default config for indented_on_contents is true
+  fail_str: |
+    SELECT *
+    FROM t1
+    JOIN t2
+        ON true
+    AND true
+  fix_str: |
+    SELECT *
+    FROM t1
+    JOIN t2
+        ON
+            true
+            AND true
+
+test_fail_indented_on_contents_default_fix_b:
+  # Default config for indented_on_contents is true.
+  # This is an alternate interpretation of untaken indents.
+  fail_str: |
+    SELECT *
+    FROM t1
+    JOIN t2 ON true
+    AND true
+  fix_str: |
+    SELECT *
+    FROM t1
+    JOIN t2 ON
+        true
+        AND true
+
+test_fail_indented_on_contents_false_fix:
+  fail_str: |
+    SELECT
+        t1.a,
+        t2.b
+    FROM t1
+    JOIN t2
+        ON true
+    AND true
+  fix_str: |
+    SELECT
+        t1.a,
+        t2.b
+    FROM t1
+    JOIN t2
+        ON true
+        AND true
+  configs:
+    indentation:
+      indented_on_contents: false
+
+test_pass_indented_from_with_comment:
+  pass_str: |
+    SELECT *
+    FROM
+        t1
+    -- Comment
+    JOIN t2 USING (user_id)
+
+test_pass_ignored_comment:
+  # Test ignoring comments entirely.
+  # https://github.com/sqlfluff/sqlfluff/issues/3311
+  pass_str: |
+    SELECT *
+    FROM
+        t1
+                             -- Comment
+    JOIN t2 USING (user_id)
+  configs:
+    indentation:
+      ignore_comment_lines: true
+
+test_fail_indented_from_with_comment_alternate:
+  # This shows the alternative position of comments being allowed.
+  pass_str: |
+    SELECT *
+    FROM
+        t1
+        -- Comment
+    JOIN t2 USING (user_id)
+
+test_fail_indented_from_with_comment_fix:
+  # This shows the fix still returns to the primary location.
+  fail_str: |
+    SELECT *
+    FROM
+        t1
+            -- Comment
+    JOIN t2 USING (user_id)
+  fix_str: |
+    SELECT *
+    FROM
+        t1
+    -- Comment
+    JOIN t2 USING (user_id)
+
+test_fail_indented_multi_line_comment:
+  fail_str: |
+    SELECT
+    business_type,
+
+    -- The following is the slope of the regression line. Note that CORR (which is the Pearson's correlation
+    -- coefficient is symmetric in its arguments, but since STDDEV_POP(open_rate_su) appears in the
+    customer_type
+
+    FROM
+    global_actions_states
+  fix_str: |
+    SELECT
+        business_type,
+
+        -- The following is the slope of the regression line. Note that CORR (which is the Pearson's correlation
+        -- coefficient is symmetric in its arguments, but since STDDEV_POP(open_rate_su) appears in the
+        customer_type
+
+    FROM
+        global_actions_states
+
+test_jinja_with_disbalanced_pairs:
+  # The range(3) -%} results in swallowing the \n
+  # N.B. The way LT02 handles this is questionable,
+  # and this test seals in that behaviour.
+  pass_str: |
+    SELECT
+        cohort_month
+        {% for i in range(3) -%}
+            , {{ i }} AS index_{{ i }}
+        {% endfor -%}
+        , TRUE AS overall
+    FROM orders
+
+test_fail_attempted_hanger_fix:
+  # Check messy hanger correction.
+  fail_str: |
+    SELECT coalesce(foo,
+                  bar)
+       FROM tbl
+  fix_str: |
+    SELECT
+        coalesce(
+            foo,
+            bar
+        )
+    FROM tbl
+
+test_fail_possible_hanger_fix:
+  # Same note as above, but with a messier example.
+  fail_str: |
+    SELECT coalesce(foo,
+     bar)
+       FROM tbl
+  fix_str: |
+    SELECT
+        coalesce(
+            foo,
+            bar
+        )
+    FROM tbl
+
+test_fail_consecutive_hangers:
+  fail_str: |
+    select *
+    from foo
+    where a like 'a%'
+      and b like 'b%'
+      and c like 'c%'
+      and d like 'd%'
+      and e like 'e%'
+      and f like 'f%'
+  fix_str: |
+    select *
+    from foo
+    where
+        a like 'a%'
+        and b like 'b%'
+        and c like 'c%'
+        and d like 'd%'
+        and e like 'e%'
+        and f like 'f%'
+
+test_fail_consecutive_hangers_implicit:
+  # NOTE: The allowed implicit indent in the WHERE clause,
+  # but by default they're not enabled.
+  fail_str: |
+    select *
+    from foo
+    where a like 'a%'
+      and b like 'b%'
+      and c like 'c%'
+      and d like 'd%'
+      and e like 'e%'
+      and f like 'f%'
+  fix_str: |
+    select *
+    from foo
+    where a like 'a%'
+        and b like 'b%'
+        and c like 'c%'
+        and d like 'd%'
+        and e like 'e%'
+        and f like 'f%'
+  configs:
+    indentation:
+      implicit_indents: allow
+
+test_fail_clean_reindent_fix:
+  # A "clean" indent is where the previous line ends with an
+  # indent token (as per this example). We should use the
+  # default approach and indent by 1 step.
+  # NOTE: That because the indent opened before "coalesce"
+  # isn't closed before the end of the line, we force an
+  # additional indent before it.
+  fail_str: |
+    SELECT coalesce(
+    foo,
+                    bar)
+       FROM tbl
+  fix_str: |
+    SELECT
+        coalesce(
+            foo,
+            bar
+        )
+    FROM tbl
+
+# https://github.com/sqlfluff/sqlfluff/issues/643
+test_pass_indent_snowflake:
+  pass_str: |
+    with source_data as (
+        select * from {{ source('source_name', 'xxx_yyy_zzz') }}
+    )
+
+    select *
+    from source_data
+  configs:
+    core:
+      dialect: snowflake
+
+# https://github.com/sqlfluff/sqlfluff/issues/643
+test_pass_indent_indent_bigquery:
+  pass_str: |
+    with source_data as (
+        select * from {{ source('source_name', 'xxx_yyy_zzz') }}
+    )
+    select *
+    from source_data
+  configs:
+    core:
+      dialect: bigquery
+
+test_jinja_indent_templated_table_name_a:
+  fail_str: |
+    -- This file combines product data from individual brands into a staging table
+    {% for product in ['table1', 'table2'] %}
+    SELECT
+      brand,
+      country_code,
+      category,
+      name,
+      id
+    FROM
+      {{ product }}
+    {% if not loop.last -%} UNION ALL {%- endif %}
+    {% endfor %}
+  fix_str: |
+    -- This file combines product data from individual brands into a staging table
+    {% for product in ['table1', 'table2'] %}
+        SELECT
+            brand,
+            country_code,
+            category,
+            name,
+            id
+        FROM
+            {{ product }}
+        {% if not loop.last -%} UNION ALL {%- endif %}
+    {% endfor %}
+
+# Like test_jinja_indent_1_a but "FROM" table not initially
+# indented.
+test_jinja_indent_templated_table_name_b:
+  fail_str: |
+    -- This file combines product data from individual brands into a staging table
+    {% for product in ['table1', 'table2'] %}
+    SELECT
+      brand,
+      country_code,
+      category,
+      name,
+      id
+    FROM
+    {{ product }}
+    {% if not loop.last -%} UNION ALL {%- endif %}
+    {% endfor %}
+  fix_str: |
+    -- This file combines product data from individual brands into a staging table
+    {% for product in ['table1', 'table2'] %}
+        SELECT
+            brand,
+            country_code,
+            category,
+            name,
+            id
+        FROM
+            {{ product }}
+        {% if not loop.last -%} UNION ALL {%- endif %}
+    {% endfor %}
+
+test_jinja_nested_blocks:
+  fail_str: |
+    WITH
+    raw_effect_sizes AS (
+    SELECT
+    {% for action in ['a'] %}
+    {% if True %}
+    rate_su_{{action}},
+    {% endif %}
+    {% endfor %}
+    )
+    SELECT 1
+
+  fix_str: |
+    WITH
+    raw_effect_sizes AS (
+        SELECT
+            {% for action in ['a'] %}
+                {% if True %}
+                    rate_su_{{action}},
+                {% endif %}
+            {% endfor %}
+    )
+    SELECT 1
+
+# LIMIT, QUALIFY, and WINDOW both indent
+test_limit_and_qualify_and_window_indent:
+  fail_str: |
+    SELECT
+        a,
+        b
+    FROM
+    my_tbl
+    QUALIFY
+    1
+    LIMIT
+    1
+    WINDOW
+    some_window AS (PARTITION BY 1)
+  fix_str: |
+    SELECT
+        a,
+        b
+    FROM
+        my_tbl
+    QUALIFY
+        1
+    LIMIT
+        1
+    WINDOW
+        some_window AS (PARTITION BY 1)
+  configs:
+    core:
+      dialect: bigquery
+
+# LIMIT, QUALIFY and WINDOW both acceptable on single line
+test_limit_and_qualify_and_window_single_line:
+  pass_str: |
+    SELECT
+        a,
+        b
+    FROM
+        my_tbl
+    QUALIFY 1
+    LIMIT 1
+    WINDOW some_window AS (PARTITION BY 1)
+  configs:
+    core:
+      dialect: bigquery
+
+# By default CTEs should not be indented
+test_pass_cte:
+  pass_str: |
+    WITH
+    some_cte AS (
+        SELECT 1 FROM table1
+    ),
+
+    some_other_cte AS (
+        SELECT 1 FROM table1
+    )
+
+    SELECT 1 FROM table1
+  configs:
+    core:
+      dialect: bigquery
+
+# CTEs can be configured to be indented
+test_fail_indented_cte:
+  fail_str: |
+    WITH
+    some_cte AS (
+        SELECT 1 FROM table1
+    ),
+
+    some_other_cte AS (
+        SELECT 1 FROM table1
+    )
+
+    SELECT 1 FROM table1
+  fix_str: |
+    WITH
+        some_cte AS (
+            SELECT 1 FROM table1
+        ),
+
+        some_other_cte AS (
+            SELECT 1 FROM table1
+        )
+
+    SELECT 1 FROM table1
+  configs:
+    core:
+      dialect: bigquery
+    indentation:
+      indented_ctes: true
+
+# Exasol LUA script
+test_exasol_script:
+  pass_str: |
+    CREATE OR REPLACE LUA SCRIPT ASCRIPT (APARAM) RETURNS ROWCOUNT AS
+        res = 1
+        suc = true
+        if not suc then
+            error("ERROR")
+        end
+        return res
+    /
+  configs:
+    core:
+      dialect: exasol
+
+test_pass_tsql_else_if:
+  pass_str: |
+    IF (1 > 1)
+        PRINT 'A';
+    ELSE IF (2 > 2)
+        PRINT 'B';
+    ELSE IF (3 > 3)
+        PRINT 'C';
+    ELSE
+        PRINT 'D';
+  configs:
+    core:
+      dialect: tsql
+
+test_fail_tsql_else_if:
+  fail_str: |
+    IF (1 > 1)
+      PRINT 'A';
+     ELSE IF (2 > 2)
+         PRINT 'B';
+    ELSE IF (3 > 3)
+     PRINT 'C';
+    ELSE
+            PRINT 'D';
+  fix_str: |
+    IF (1 > 1)
+        PRINT 'A';
+    ELSE IF (2 > 2)
+        PRINT 'B';
+    ELSE IF (3 > 3)
+        PRINT 'C';
+    ELSE
+        PRINT 'D';
+  configs:
+    core:
+      dialect: tsql
+
+test_fail_tsql_else_if_successive:
+  fail_str: |
+    IF (1 > 1)
+        PRINT 'A';
+        ELSE IF (2 > 2)
+            PRINT 'B';
+            ELSE IF (3 > 3)
+                PRINT 'C';
+                ELSE
+                    PRINT 'D';
+  fix_str: |
+    IF (1 > 1)
+        PRINT 'A';
+    ELSE IF (2 > 2)
+        PRINT 'B';
+    ELSE IF (3 > 3)
+        PRINT 'C';
+    ELSE
+        PRINT 'D';
+  configs:
+    core:
+      dialect: tsql
+
+# TSQL function
+test_tsql_function:
+  fail_str: |
+    CREATE FUNCTION dbo.isoweek (@DATE datetime)
+    RETURNS int
+    WITH EXECUTE AS CALLER
+    AS
+    BEGIN
+        DECLARE @ISOweek int;
+        SET @ISOweek = DATEPART(wk, @DATE) + 1
+            - DATEPART(wk, CAST(DATEPART(yy, @DATE) AS char(4)) + '0104');
+    --Special cases Jan 1-3 may belong to the previous year
+        IF (@ISOweek = 0)
+            SET @ISOweek = dbo.ISOWEEK(CAST(DATEPART(yy, @DATE) - 1
+                AS char(4)
+            ) + '12' + CAST(24 + DATEPART(day, @DATE) AS char(2))) + 1;
+    --Special case Dec 29-31 may belong to the next year
+        IF ((DATEPART(mm, @DATE) = 12)
+        AND ((DATEPART(dd, @DATE) - DATEPART(dw, @DATE)) >= 28))
+        SET @ISOweek = 1;
+        RETURN(@ISOweek);
+    END;
+    GO
+  fix_str: |
+    CREATE FUNCTION dbo.isoweek (@DATE datetime)
+    RETURNS int
+    WITH EXECUTE AS CALLER
+    AS
+    BEGIN
+        DECLARE @ISOweek int;
+        SET
+            @ISOweek = DATEPART(wk, @DATE) + 1
+            - DATEPART(wk, CAST(DATEPART(yy, @DATE) AS char(4)) + '0104');
+        --Special cases Jan 1-3 may belong to the previous year
+        IF (@ISOweek = 0)
+            SET @ISOweek = dbo.ISOWEEK(CAST(
+                DATEPART(yy, @DATE) - 1
+                AS char(4)
+            ) + '12' + CAST(24 + DATEPART(day, @DATE) AS char(2))) + 1;
+        --Special case Dec 29-31 may belong to the next year
+        IF (
+            (DATEPART(mm, @DATE) = 12)
+            AND ((DATEPART(dd, @DATE) - DATEPART(dw, @DATE)) >= 28)
+        )
+            SET @ISOweek = 1;
+        RETURN(@ISOweek);
+    END;
+    GO
+  configs:
+    core:
+      dialect: tsql
+
+test_pass_ignore_templated_whitespace:
+  pass_str: |
+    SELECT
+        c1,
+        {{ "      c2" }}
+    FROM my_table
+  configs:
+    core:
+      ignore_templated_areas: false
+
+test_fail_ignore_templated_whitespace_1:
+  fail_str: |
+    SELECT
+        c1,
+    d{{ "      c2" }}
+    FROM my_table
+  fix_str: |
+    SELECT
+        c1,
+        d{{ "      c2" }}
+    FROM my_table
+
+  configs:
+    core:
+      ignore_templated_areas: false
+
+test_fail_ignore_templated_whitespace_2:
+  fail_str: |
+    SELECT
+        c1,
+      d{{ "      c2" }}
+    FROM my_table
+  fix_str: |
+    SELECT
+        c1,
+        d{{ "      c2" }}
+    FROM my_table
+  configs:
+    core:
+      ignore_templated_areas: false
+
+test_fail_ignore_templated_whitespace_3:
+  fail_str: |
+    SELECT
+        c1,
+          d{{ "      c2" }}
+    FROM my_table
+  fix_str: |
+    SELECT
+        c1,
+        d{{ "      c2" }}
+    FROM my_table
+  configs:
+    core:
+      ignore_templated_areas: false
+
+test_pass_ignore_templated_whitespace_4:
+  # Note the newline after c2. This causes "AS other_id" to be on a different
+  # line in templated space, but not raw space. LT02 should ignore lines like
+  # this.
+  pass_str: |
+    SELECT
+        c1,
+        {{ "      c2\n" }} AS other_id
+    FROM my_table
+
+test_pass_ignore_templated_newline_not_last_line:
+  pass_str: |
+    select *
+    from {{ "\n\nmy_table" }}
+    inner join
+        my_table2
+        using (id)
+
+test_pass_ignore_templated_newline_last_line:
+  pass_str: |
+    select *
+    from {{ "\n\nmy_table" }}
+
+test_fail_fix_template_indentation_1:
+  fail_str: |
+    SELECT
+        c1,
+    {{ "c2" }}
+  fix_str: |
+    SELECT
+        c1,
+        {{ "c2" }}
+
+test_fail_fix_template_indentation_2:
+  fail_str: |
+    with
+    first_join as (
+        select
+    {{ "c1" }},
+            c2
+        from helper
+    {{ "group by 1" }}
+    )
+
+    select * from first_join
+  fix_str: |
+    with
+    first_join as (
+        select
+            {{ "c1" }},
+            c2
+        from helper
+        {{ "group by 1" }}
+    )
+
+    select * from first_join
+
+test_pass_tsql_update_indent:
+  pass_str: |
+    update Extracts.itt_parm_base
+    set
+        DateF = convert(varchar, @from_date, 112),
+        DateT = convert(varchar, @to_date, 112)
+  configs:
+    core:
+      dialect: tsql
+
+test_pass_tsql_declare_indent:
+  fail_str: |
+    DECLARE @prv_qtr_1st_dt DATETIME,
+            @last_qtr INT,
+            @last_qtr_first_mn INT,
+            @last_qtr_yr INT;
+  fix_str: |
+    DECLARE
+        @prv_qtr_1st_dt DATETIME,
+        @last_qtr INT,
+        @last_qtr_first_mn INT,
+        @last_qtr_yr INT;
+  configs:
+    core:
+      dialect: tsql
+
+test_pass_tsql_set_indent:
+  pass_str: |
+    SET
+        @prv_qtr_1st_dt = CAST(@last_qtr_yr AS VARCHAR(4)) + '-' +
+        CAST(@last_qtr_first_mn AS VARCHAR(2)) + '-01'
+  configs:
+    core:
+      dialect: tsql
+
+test_pass_tsql_set_indent_multiple_params:
+  pass_str: |
+    SET
+        @param1 = 1,
+        @param2 = 2
+  configs:
+    core:
+      dialect: tsql
+
+test_pass_tsql_if_indent:
+  pass_str: |
+    IF
+        1 > 1 AND
+        2 < 2
+        SELECT 1;
+  configs:
+    core:
+      dialect: tsql
+
+test_pass_exasol_func_indent:
+  pass_str: |
+    CREATE FUNCTION schem.func (
+        p1 VARCHAR(6),
+        p2 VARCHAR(10)
+    ) RETURN VARCHAR (20)
+    IS
+        res VARCHAR(20);
+
+    BEGIN
+
+        IF p1 IS NOT NULL AND p2 IS NOT NULL THEN
+            IF p1 = 1 THEN
+                res:= 'Hello World';
+            ELSE
+                IF p2 = 3 THEN
+                    res:= 'ABC';
+                END IF;
+                res:= 'WOHOOOO';
+            END IF;
+        END IF;
+        RETURN res;
+    END schem.func;
+    /
+  configs:
+    core:
+      dialect: exasol
+
+test_fail_fix_exa_func_format:
+  fail_str: |
+    CREATE FUNCTION schem.func (
+        p1 VARCHAR(6)
+    ) RETURN VARCHAR (20)
+    IS
+    res VARCHAR(20);
+    BEGIN
+    IF p1 = 1 THEN
+      res:= 'Hello World';
+        END IF;
+    RETURN res;
+    END schem.func;
+    /
+  fix_str: |
+    CREATE FUNCTION schem.func (
+        p1 VARCHAR(6)
+    ) RETURN VARCHAR (20)
+    IS
+        res VARCHAR(20);
+    BEGIN
+        IF p1 = 1 THEN
+            res:= 'Hello World';
+        END IF;
+        RETURN res;
+    END schem.func;
+    /
+  configs:
+    core:
+      dialect: exasol
+
+test_pass_tsql_index_indent:
+  pass_str: |
+    CREATE UNIQUE INDEX AK_UnitMeasure_Name
+        ON Production.UnitMeasure(Name);
+  configs:
+    core:
+      dialect: tsql
+
+test_pass_tsql_statistics_indent:
+  pass_str: |
+    CREATE STATISTICS [stat_ccode]
+        ON [dbo].[CodeValues]([ccode]);
+  configs:
+    core:
+      dialect: tsql
+
+test_fail_snowflake_merge_statement:
+  fail_str: |
+    merge into foo.bar as tgt
+    using (
+    select
+      foo::date as bar
+    from foo.bar
+    where
+    split(foo, '|')[2] REGEXP '^\\d+\\-\\d+\\-\\d+ \\d+\\:\\d+$'
+    OR
+    foo IN ('BAR','FOO')
+    ) as src
+    on
+      src.foo = tgt.foo
+    when matched then
+    update set
+      tgt.foo = src.foo
+    ;
+  fix_str: |
+    merge into foo.bar as tgt
+    using (
+        select
+            foo::date as bar
+        from foo.bar
+        where
+            split(foo, '|')[2] REGEXP '^\\d+\\-\\d+\\-\\d+ \\d+\\:\\d+$'
+            OR
+            foo IN ('BAR','FOO')
+    ) as src
+        on
+            src.foo = tgt.foo
+    when matched then
+        update set
+            tgt.foo = src.foo
+    ;
+  configs:
+    core:
+      dialect: snowflake
+
+test_fail_hanging_indents_convert_to_normal_indent:
+  # This takes advantage of new indent treatment in 2.0.x
+  fail_str: |
+    SELECT
+        a.line + (a.with
+                  + a.hanging_indent) as actually_not_ok,
+    FROM tbl as a
+  fix_str: |
+    SELECT
+        a.line + (
+            a.with
+            + a.hanging_indent
+        ) as actually_not_ok,
+    FROM tbl as a
+
+test_fail_hanging_indents_fix_mixed_indents:
+  # The tab is removed.
+  fail_str: |
+    SELECT
+        a.line + (
+            a.something_indented_well
+            + least(
+            	  a.good_example, -- there is a tab here
+        a.bad_example,
+         a.really_bad_example,
+                a.nother_good_example
+            )
+        ) as some_harder_problems
+    FROM tbl as a
+  fix_str: |
+    SELECT
+        a.line + (
+            a.something_indented_well
+            + least(
+                a.good_example, -- there is a tab here
+                a.bad_example,
+                a.really_bad_example,
+                a.nother_good_example
+            )
+        ) as some_harder_problems
+    FROM tbl as a
+
+test_pass_indented_procedure_parameters:
+  pass_str: |
+    CREATE OR ALTER PROCEDURE some_procedure
+        @param1 int
+    AS SELECT * FROM dbo
+  configs:
+    core:
+      dialect: tsql
+
+test_fail_unindented_procedure_parameters:
+  fail_str: |
+    CREATE OR ALTER PROCEDURE someOtherProcedure
+    @param1 nvarchar(100),
+    @param2 nvarchar(20)
+    AS SELECT * FROM dbo
+  fix_str: |
+    CREATE OR ALTER PROCEDURE someOtherProcedure
+        @param1 nvarchar(100),
+        @param2 nvarchar(20)
+    AS SELECT * FROM dbo
+  configs:
+    core:
+      dialect: tsql
+
+test_tsql_bubble_up_newline_after_fix:
+  # Tests issue 3303, where an LT02 fix leaves a newline as the final child
+  # segment that has to be "bubbled up" two levels to avoid violating the
+  # _is_code_or_meta() check in core/parser/segments/base.py.
+  fail_str: |
+    create procedure name as
+    begin
+    drop table if exists #something
+      end
+  fix_str: |
+    create procedure name as
+    begin
+        drop table if exists #something
+    end
+  configs:
+    core:
+      dialect: tsql
+
+test_tsql_cross_apply_indentation:
+  # Test for behavior in issue #3672
+  pass_str: |
+    SELECT
+        table1.col,
+        table2.col
+    FROM table1
+    CROSS APPLY (
+        VALUES ((1), (2))
+    ) AS table2(col)
+    INNER JOIN table3
+        ON table1.col = table3.col;
+  configs:
+    core:
+      dialect: tsql
+
+test_tsql_cross_join_indentation:
+  # Test for behavior in issue #3672
+  pass_str: |
+    SELECT
+        table1.col,
+        table2.col
+    FROM table1
+    CROSS JOIN table2
+    INNER JOIN table3
+        ON table1.col = table3.col;
+  configs:
+    core:
+      dialect: tsql
+
+test_tsql_nested_join:
+  # Test for behavior prior to issue #3672
+  fail_str: |
+    SELECT
+        table1.col,
+        table2.col
+    FROM table1
+    INNER JOIN table2
+    INNER JOIN table3
+        ON table1.col = table2.col AND table1.col = table3.col;
+  fix_str: |
+    SELECT
+        table1.col,
+        table2.col
+    FROM table1
+    INNER JOIN table2
+        INNER JOIN table3
+            ON table1.col = table2.col AND table1.col = table3.col;
+  configs:
+    core:
+      dialect: tsql
+
+test_tsql_outer_apply_indentation:
+  # Test for behavior in issue #3685
+  pass_str: |
+    SELECT table1.*
+    FROM table1
+    OUTER APPLY table2
+    INNER JOIN table3
+        ON table1.col = table3.col
+  configs:
+    core:
+      dialect: tsql
+
+test_tsql_outer_apply_indentation_fix:
+  # Test for behavior in issue #3685
+  fail_str: |
+    SELECT table1.*
+    FROM table1
+    OUTER APPLY table2
+        INNER JOIN table3
+            ON table1.col = table3.col
+  fix_str: |
+    SELECT table1.*
+    FROM table1
+    OUTER APPLY table2
+    INNER JOIN table3
+        ON table1.col = table3.col
+  configs:
+    core:
+      dialect: tsql
+
+test_fail_consuming_whitespace_a:
+  # Test that this works even with tags which consume whitespace.
+  fail_str: |
+    {% for item in [1, 2] -%}
+    SELECT *
+    FROM some_table
+    {{ 'UNION ALL\n' if not loop.last }}
+    {%- endfor %}
+  fix_str: |
+    {% for item in [1, 2] -%}
+        SELECT *
+        FROM some_table
+        {{ 'UNION ALL\n' if not loop.last }}
+    {%- endfor %}
+
+test_fail_consuming_whitespace_b:
+  # Additional test to make sure that crazy things don't happen
+  # with the first newline.
+  fail_str: |
+    {% for item in [1, 2] -%}
+        SELECT *
+    FROM some_table
+    {{ 'UNION ALL\n' if not loop.last }}
+    {%- endfor %}
+  fix_str: |
+    {% for item in [1, 2] -%}
+        SELECT *
+        FROM some_table
+        {{ 'UNION ALL\n' if not loop.last }}
+    {%- endfor %}
+
+test_pass_consuming_whitespace_stable:
+  # Test for stability in fixes with loops and consuming tags.
+  # https://github.com/sqlfluff/sqlfluff/issues/3185
+  pass_str: |
+    {% for item in [1, 2] -%}
+        SELECT *
+        FROM some_table
+        {{ 'UNION ALL\n' if not loop.last }}
+    {%- endfor %}
+
+test_fail_trailing_comments:
+  # Additional test to make sure that crazy things don't happen
+  # with the first newline.
+  fail_str: |
+    SELECT 1
+        -- foo
+            -- bar
+  fix_str: |
+    SELECT 1
+    -- foo
+    -- bar
+
+test_fail_case_statement:
+  # Test for issue with case statement indentation:
+  # https://github.com/sqlfluff/sqlfluff/issues/3836
+  fail_str: |
+    SELECT
+    foo
+    , CASE
+    WHEN 1 = 1
+    THEN 2
+    END AS example
+    FROM tbl
+  fix_str: |
+    SELECT
+      foo
+      , CASE
+        WHEN 1 = 1
+          THEN 2
+      END AS example
+    FROM tbl
+  configs:
+    indentation:
+      tab_space_size: 2
+
+test_pass_templated_case_statement:
+  # Test for template block in case statement indentation
+  # https://github.com/sqlfluff/sqlfluff/issues/3988
+  pass_str: |
+    {%- set json_keys = ["a", "b", "c"] -%}
+
+    with
+    dummy as (
+        select
+            {% for json_key in json_keys -%}
+                case
+                    when 1 = 1
+                        {% if json_key in ["b"] %}
+                            then 0
+                        {% else %}
+                            then 1
+                        {% endif %}
+                    else null
+                end as {{ json_key }}_suffix{% if not loop.last %}, {% endif %}
+            {% endfor %}
+    )
+
+    select *
+    from dummy
+
+test_pass_jinja_tag_multiline:
+  # Test that jinja block tags which contain newlines
+  # aren't linted, because we can't reliably fix them.
+  # The default fixing routine would only moving the
+  # start of the tag, which is ok but potentially strange.
+  # TODO: At some point we should find a better solution for
+  # this.
+  pass_str: |
+    SELECT
+        1,
+    {{
+            "my_jinja_tag_with_odd_indents"
+          }},
+        2,
+          {%
+      if True
+    %}
+            3,  -- NOTE: indented because within block
+    {%       endif
+    %}
+        4
+
+test_pass_trailing_inline_noqa:
+  pass_str: |
+    SELECT
+        col1,
+        col2
+    FROM
+        table1 -- noqa: CV09
+
+test_pass_implicit_indent:
+  # Test for ImplicitIndent.
+  # The theoretical indent between WHERE and "a" is implicit.
+  pass_str: |
+    SELECT *
+    FROM foo
+    WHERE a
+        AND b
+  configs:
+    indentation:
+      implicit_indents: allow
+
+test_fail_deny_implicit_indent:
+  # Test for ImplicitIndent.
+  # The theoretical indent between WHERE and "a" is implicit.
+  fail_str: |
+    SELECT *
+    FROM foo
+    WHERE a
+        AND b
+  fix_str: |
+    SELECT *
+    FROM foo
+    WHERE
+        a
+        AND b
+  configs:
+    indentation:
+      implicit_indents: forbid
+
+test_pass_templated_newlines:
+  # NOTE: The macro has many newlines in it,
+  # and the calling of it is indented. Check that
+  # this doesn't panic.
+  pass_str: |
+    {% macro my_macro() %}
+
+      macro
+      + with_newlines
+
+    {% endmacro %}
+
+    SELECT
+        {{ my_macro() }} as awkward_indentation
+    FROM foo
+
+test_fail_fix_beside_templated:
+  # Check that templated code checks aren't too aggressive.
+  # https://github.com/sqlfluff/sqlfluff/issues/4215
+  fail_str: |
+    {% if False %}
+    SELECT 1
+    {% else %}
+    SELECT c
+    FROM t
+    WHERE c < 0
+    {% endif %}
+  fix_str: |
+    {% if False %}
+    SELECT 1
+    {% else %}
+        SELECT c
+        FROM t
+        WHERE c < 0
+    {% endif %}
+
+test_pass_block_comment:
+  # Check that subsequent block comment lines are ok to be indented.
+  # https://github.com/sqlfluff/sqlfluff/issues/4224
+  pass_str: |
+    SELECT
+        /* This comment
+           is unusually indented
+              - and contains
+              - even more indents
+        */
+        foo
+    FROM bar
+
+test_fix_block_comment:
+  # Check other comments are still fixed.
+  # https://github.com/sqlfluff/sqlfluff/issues/4224
+  fail_str: |
+    SELECT
+      -- bad
+        -- good
+        foo,
+      /* bad */
+           foo_bad,
+        /* long
+           comment which should keep indent
+              - including this
+        */
+        good_foo,
+        /*
+            and this
+        this is ok
+    this is NOT ok
+        */
+        bar
+    FROM tbl
+  fix_str: |
+    SELECT
+        -- bad
+        -- good
+        foo,
+        /* bad */
+        foo_bad,
+        /* long
+           comment which should keep indent
+              - including this
+        */
+        good_foo,
+        /*
+            and this
+        this is ok
+        this is NOT ok
+        */
+        bar
+    FROM tbl
+
+test_fail_case_else_end_clause:
+  # Checks linting of missing newline in CASE statement.
+  # More specifically this is a case of a multi-dedent
+  # not being handled properly when one of the indents
+  # it covers is taken, but the other is untaken.
+  # https://github.com/sqlfluff/sqlfluff/issues/4222
+  fail_str: |
+    select
+        case
+            when a then 'abc'
+            when b then 'def'
+            else 'ghi' end as field,
+        bar
+    from foo
+  fix_str: |
+    select
+        case
+            when a then 'abc'
+            when b then 'def'
+            else 'ghi'
+        end as field,
+        bar
+    from foo
+
+test_fail_hard_templated_indents:
+  # Test for consumed initial indents and consumed line indents.
+  # https://github.com/sqlfluff/sqlfluff/issues/4230
+  # NOTE: We're using a block indentation indicator because the
+  # test query has initial leading whitespace.
+  # https://yaml.org/spec/1.2.2/#8111-block-indentation-indicator
+  fail_str: |2
+      {%- if true -%}
+    SELECT * FROM {{ "t1" }}
+      {%- endif %}
+  fix_str: |2
+    {%- if true -%}
+        SELECT * FROM {{ "t1" }}
+    {%- endif %}
+
+test_fail_fix_consistency_around_comments:
+  # Check that comments don't make fixes inconsistent.
+  # https://github.com/sqlfluff/sqlfluff/issues/4223
+  fail_str: |
+    select
+        case
+            when a
+            then b
+        end as foo,
+        case
+            when a -- bar
+            then b
+        end as bar
+    from c
+  fix_str: |
+    select
+        case
+            when a
+                then b
+        end as foo,
+        case
+            when a -- bar
+                then b
+        end as bar
+    from c
+
+test_fail_coverage_indent_trough:
+  # This test primarily tests the handling of closing trough indents
+  fail_str: |
+    WITH bar as (SELECT 1
+        FROM foo)
+    SELECT a FROM bar
+  fix_str: |
+    WITH bar as (
+        SELECT 1
+        FROM foo
+    )
+    SELECT a FROM bar
+
+test_pass_combined_comment_impulses:
+  # This tests issue #4252
+  # https://github.com/sqlfluff/sqlfluff/issues/4252
+  pass_str: |
+    WITH cte AS (
+        SELECT *
+        FROM (
+            SELECT *
+            FROM table
+            WHERE
+                NOT bool_column AND NOT bool_column
+                AND some_column >= 1  -- This is a comment
+        )
+    ),
+
+    SELECT *
+    FROM cte
+    ;
+
+    SELECT *
+    FROM table3
+    ;
+
+test_indented_comment_tsql:
+  # TSQL redefines the block_comment. This checks that is done correctly.
+  # https://github.com/sqlfluff/sqlfluff/issues/4249
+  pass_str: |
+    /*
+
+        Author:                     tester
+        Create date:                2021-03-16
+
+    */
+
+    SELECT 1 AS a
+  configs:
+    core:
+      dialect: tsql
+
+test_pass_join_comment_indents_1:
+  # https://github.com/sqlfluff/sqlfluff/issues/4291
+  pass_str: |
+    select * from a
+    left join b
+        -- comment
+        on (a.x = b.x)
+test_pass_join_comment_indents_2:
+  # https://github.com/sqlfluff/sqlfluff/issues/4291
+  pass_str: |
+    select * from a
+    left join b -- comment
+        on (a.x = b.x)
+
+test_comment_effect_indents_default:
+  # https://github.com/sqlfluff/sqlfluff/issues/4294
+  fail_str: |
+    SELECT *
+    FROM table
+    WHERE TRUE -- comment
+    AND TRUE
+  fix_str: |
+    SELECT *
+    FROM table
+    WHERE
+        TRUE -- comment
+        AND TRUE
+
+test_comment_effect_indents_implicit:
+  # https://github.com/sqlfluff/sqlfluff/issues/4294
+  fail_str: |
+    SELECT *
+    FROM table
+    WHERE TRUE -- comment
+    AND TRUE
+  fix_str: |
+    SELECT *
+    FROM table
+    WHERE TRUE -- comment
+        AND TRUE
+  configs:
+    indentation:
+      implicit_indents: allow
+
+test_untaken_negative_1:
+  # https://github.com/sqlfluff/sqlfluff/issues/4234
+  fail_str: |
+    CREATE TABLE mytable
+    AS
+    (SELECT
+        id,
+        user_id
+    FROM another_table
+    )
+    ;
+  fix_str: |
+    CREATE TABLE mytable
+    AS
+    (
+        SELECT
+            id,
+            user_id
+        FROM another_table
+    )
+    ;
+
+test_untaken_negative_2:
+  # https://github.com/sqlfluff/sqlfluff/issues/4234
+  fail_str: |
+    WITH m AS (SELECT
+      firstCol
+      , secondCol
+    FROM dbo.myTable
+    )
+
+    SELECT * FROM m
+  fix_str: |
+    WITH m AS (
+        SELECT
+            firstCol
+            , secondCol
+        FROM dbo.myTable
+    )
+
+    SELECT * FROM m
+
+test_untaken_negative_implicit:
+  # NOTE: Check that implicit indents don't
+  # apply before single brackets.
+  pass_str: |
+    SELECT *
+    FROM foo
+    WHERE (
+        a = b
+    )
+    GROUP BY a
+  configs:
+    indentation:
+      implicit_indents: allow
+
+test_fail_mixed_tabs_and_spaces:
+  # NOTE: This used to be L002 (rather than L003)
+  fail_str: "SELECT\n \t 1"
+  fix_str: "SELECT\n    1"
+
+test_fix_implicit_indents_4467_a:
+  # https://github.com/sqlfluff/sqlfluff/issues/4467
+  fail_str: |
+    SELECT *
+    FROM d
+    LEFT JOIN l
+      ON d.a = l.a
+        AND d.b = l.b
+  fix_str: |
+    SELECT *
+    FROM d
+    LEFT JOIN l
+        ON d.a = l.a
+            AND d.b = l.b
+  configs:
+    indentation:
+      implicit_indents: allow
+
+test_fix_implicit_indents_4467_b:
+  # https://github.com/sqlfluff/sqlfluff/issues/4467
+  pass_str: |
+    SELECT *
+    FROM d
+    LEFT JOIN l
+      ON d.a = l.a
+        AND d.b = l.b
+  configs:
+    indentation:
+      implicit_indents: allow
+      tab_space_size: 2
+
+test_fix_macro_indents_4367:
+  # https://github.com/sqlfluff/sqlfluff/issues/4367
+  fail_str: |
+    {% macro my_macro(col) %}
+        {{ col }}
+    {% endmacro %}
+    SELECT
+        something,
+    {{ my_macro("mycol") }},
+        something_else
+    FROM mytable
+  fix_str: |
+    {% macro my_macro(col) %}
+        {{ col }}
+    {% endmacro %}
+    SELECT
+        something,
+        {{ my_macro("mycol") }},
+        something_else
+    FROM mytable
+
+test_fix_untaken_positive_4433:
+  # https://github.com/sqlfluff/sqlfluff/issues/4433
+  fail_str: |
+    CREATE TABLE mytable
+    AS
+    (SELECT
+        id,
+        user_id
+    FROM another_table
+    WHERE
+        TRUE
+    )
+    ;
+  fix_str: |
+    CREATE TABLE mytable
+    AS
+    (
+        SELECT
+            id,
+            user_id
+        FROM another_table
+        WHERE
+            TRUE
+    )
+    ;
+
+test_implicit_case_4542:
+  # https://github.com/sqlfluff/sqlfluff/issues/4542
+  pass_str: |
+    select
+        a,
+        case when b is null then 0 else 1 end as c
+    from my_table;
+  configs:
+    indentation:
+      implicit_indents: allow
+
+test_indented_joins_4484:
+  # https://github.com/sqlfluff/sqlfluff/issues/4484
+  pass_str: |
+    select *
+    from table_1
+        inner join table_2
+            on table_1.key = table_2.key
+        inner join table_3
+            on table_2.key = table_3.key
+  configs:
+    indentation:
+      indented_joins: true
+
+test_tsql_where_implicit_4559:
+  # https://github.com/sqlfluff/sqlfluff/issues/4559
+  pass_str: |
+    SELECT t.col1
+    WHERE t.col2 = 'foo'
+        AND t.col3 = 'bar'
+  configs:
+    core:
+      dialect: tsql
+    indentation:
+      implicit_indents: allow
+
+test_require_implicit_indents_where:
+  # Test that require_implicit_indents collapses WHERE line breaks
+  fail_str: |
+    SELECT t.col1
+    WHERE
+        t.col2 = 'foo'
+        AND t.col3 = 'bar'
+  fix_str: |
+    SELECT t.col1
+    WHERE t.col2 = 'foo'
+        AND t.col3 = 'bar'
+  configs:
+    indentation:
+      implicit_indents: require
+
+test_require_implicit_indents_having:
+  # Test that require_implicit_indents works with HAVING clauses
+  fail_str: |
+    SELECT t.col1, COUNT(*)
+    FROM table1 t
+    GROUP BY t.col1
+    HAVING
+        COUNT(*) > 5
+        AND t.col1 IS NOT NULL
+  fix_str: |
+    SELECT t.col1, COUNT(*)
+    FROM table1 t
+    GROUP BY t.col1
+    HAVING COUNT(*) > 5
+        AND t.col1 IS NOT NULL
+  configs:
+    indentation:
+      implicit_indents: require
+
+test_require_implicit_indents_join_on:
+  # Test that require_implicit_indents works with JOIN ON clauses
+  fail_str: |
+    SELECT *
+    FROM table1 t1
+    JOIN table2 t2
+        ON
+            t1.id = t2.id
+            AND t1.status = t2.status
+  fix_str: |
+    SELECT *
+    FROM table1 t1
+    JOIN table2 t2
+        ON t1.id = t2.id
+            AND t1.status = t2.status
+  configs:
+    indentation:
+      implicit_indents: require
+
+test_require_implicit_indents_case:
+  # Test that require_implicit_indents works with CASE expressions
+  fail_str: |
+    SELECT
+        CASE
+            WHEN t.col1 = 'A' THEN 'Alpha'
+            WHEN t.col1 = 'B' THEN 'Beta'
+            ELSE 'Other'
+        END as category
+    FROM table1 t
+  fix_str: |
+    SELECT
+        CASE WHEN t.col1 = 'A' THEN 'Alpha'
+            WHEN t.col1 = 'B' THEN 'Beta'
+            ELSE 'Other'
+        END as category
+    FROM table1 t
+  configs:
+    indentation:
+      implicit_indents: require
+
+test_jinja_nested_tracking:
+  # This tests the caching features of BlockTracker
+  # in the lexer. If that's not functioning properly
+  # the indentation of the nested jinja blocks in this
+  # query will likely fail.
+  pass_str: |
+    SELECT *
+    FROM
+    {% for action in ['a', 'b'] %}
+        {% if loop.first %}
+            {{action}}_var
+        {% else %}
+        JOIN
+            {{action}}_var
+            USING
+                (c, d, e)
+        {% endif %}
+    {% endfor %}
+
+test_configure_no_indent_before_then_4589:
+  # THEN can be configured to not be indented
+  pass_str: |
+    SELECT
+        a,
+        CASE
+            WHEN b >= 42 THEN
+                1
+            ELSE 0
+        END AS c
+    FROM some_table
+  configs:
+    core:
+      dialect: ansi
+    indentation:
+      indented_then: false
+
+test_bigquery_insert_statement_values_clause:
+  pass_str: |
+    INSERT dataset.inventory (product, quantity)
+    VALUES("top load washer", 10);
+  configs:
+    core:
+      dialect: bigquery
+
+test_bigquery_merge_statement_values_clause:
+  fail_str: |
+    MERGE dataset.detailedinventory AS t
+    USING dataset.inventory AS s
+        ON t.product = s.product
+    WHEN NOT MATCHED AND quantity < 20 THEN
+        INSERT (product, quantity, supply_constrained)
+            VALUES (product, quantity, TRUE)
+    WHEN NOT MATCHED THEN
+        INSERT (product, quantity, supply_constrained)
+            VALUES (product, quantity, FALSE);
+  fix_str: |
+    MERGE dataset.detailedinventory AS t
+    USING dataset.inventory AS s
+        ON t.product = s.product
+    WHEN NOT MATCHED AND quantity < 20 THEN
+        INSERT (product, quantity, supply_constrained)
+        VALUES (product, quantity, TRUE)
+    WHEN NOT MATCHED THEN
+        INSERT (product, quantity, supply_constrained)
+        VALUES (product, quantity, FALSE);
+  configs:
+    core:
+      dialect: bigquery
+
+test_fail_issue_4680:
+  # NOTE: It doesn't reindent the second clause, but the important
+  # thing is that we don't get an exception.
+  fail_str: |
+    SELECT col1
+    FROM table
+    WHERE
+      {% if true %}
+        col1 > 1
+      {% else %}
+        col1 > 0
+      {% endif %}
+  fix_str: |
+    SELECT col1
+    FROM table
+    WHERE
+        {% if true %}
+            col1 > 1
+        {% else %}
+        col1 > 0
+      {% endif %}
+
+test_implicit_indent_when:
+  fail_str: |
+    SELECT
+        col1,
+        CASE WHEN col2 = 1
+                THEN col2 + 1
+        END AS col2
+    FROM table1
+  fix_str: |
+    SELECT
+        col1,
+        CASE WHEN col2 = 1
+            THEN col2 + 1
+        END AS col2
+    FROM table1
+  configs:
+    indentation:
+      implicit_indents: allow
+      indented_then: false
+
+test_implicit_indent_nested_when:
+  fail_str: |
+    SELECT
+        col1,
+        CASE WHEN col2 = 1
+            THEN CASE WHEN col2 = 2
+                    THEN col2 + 1
+            END
+        END AS col2
+    FROM table1
+  fix_str: |
+    SELECT
+        col1,
+        CASE WHEN col2 = 1
+            THEN CASE WHEN col2 = 2
+                THEN col2 + 1
+            END
+        END AS col2
+    FROM table1
+  configs:
+    indentation:
+      implicit_indents: allow
+      indented_then: false
+      indented_then_contents: false
+
+test_fail_issue_4745:
+  fail_str: |
+    with
+    {% for a in [1, 2, 3] %}{% for b in ['C'] %}
+
+    {{ b }}_fill_{{ a }} as (
+        select *
+        from data
+    ),
+    {% endfor %}{% endfor %}
+
+    select 1
+  fix_str: |
+    with
+    {% for a in [1, 2, 3] %}{% for b in ['C'] %}
+
+        {{ b }}_fill_{{ a }} as (
+            select *
+            from data
+        ),
+    {% endfor %}{% endfor %}
+
+    select 1
+
+test_pass_trailing_comment_1:
+  # NOTE: This checks that we allow the alternative placement of comments
+  pass_str: |
+    select
+        bar
+        -- comment
+    from foo
+
+test_pass_trailing_comment_2:
+  # NOTE: This checks that we allow the alternative placement of comments
+  pass_str: |
+    select
+        bar
+        /* comment
+        with
+        more
+        lines */
+    from foo
+
+test_pass_issue_4582:
+  # https://github.com/sqlfluff/sqlfluff/issues/4582
+  pass_str: |
+    select a.col
+
+    /*
+    Multi
+    line
+    comment 1
+    */
+    from a
+
+    /*
+    Multi
+    line
+    comment 2
+    */
+    inner join b
+        on a.id = b.id;
+
+
+    select a.col
+
+    /* Single line comment 1 */
+    from a
+
+    /* Single line comment 2 */
+    inner join b
+        on a.id = b.id
+
+test_pass_issue_4540:
+  # https://github.com/sqlfluff/sqlfluff/issues/4540
+  pass_str: |
+    with cte as (
+        select a
+        from b
+        qualify row_number() over (
+            partition by a
+        ) = 1
+    )
+
+    select a
+    from cte
+    qualify row_number() over (
+        partition by a
+    ) = 1;
+  configs:
+    core:
+      dialect: snowflake
+
+test_pass_closed_bracketed_implicit:
+  pass_str: |
+    select *
+    from a
+    where (b = a)
+        and (c = d)
+  configs:
+    indentation:
+      implicit_indents: allow
+
+test_fix_unclosed_bracketed_implicit:
+  fail_str: |
+    select *
+    from a
+    where (b = a
+        and c = d)
+  fix_str: |
+    select *
+    from a
+    where (
+        b = a
+        and c = d
+    )
+  configs:
+    indentation:
+      implicit_indents: allow
+
+test_pass_implicit_where:
+  pass_str: |
+    SELECT a
+    FROM b
+    WHERE c = d
+        AND e = f
+    ;
+  configs:
+    indentation:
+      implicit_indents: allow
+
+test_pass_templated_join:
+  # See: https://github.com/sqlfluff/sqlfluff/issues/5290
+  pass_str: |
+    select *
+    from a
+    {% if True %}
+        left join b using(x)
+    {% endif %}
+
+test_whitespace_control_issue_5277:
+  # https://github.com/sqlfluff/sqlfluff/issues/5277
+  fail_str: |
+    WITH a AS (
+        SELECT *
+        FROM tbl
+        WHERE
+            TRUE
+            {% if True -%}
+                AND b > (SELECT 1 FROM {{ this }})
+        {%- endif %}
+    )
+    select * from a
+  fix_str: |
+    WITH a AS (
+        SELECT *
+        FROM tbl
+        WHERE
+            TRUE
+            {% if True -%}
+                AND b > (SELECT 1 FROM {{ this }})
+            {%- endif %}
+    )
+    select * from a
+
+test_inconsistent_indent:
+  # In specific circumstances the indentation algorithm can behave
+  # unexpectedly, this is a test case to catch one, where the
+  # fix was unexpected.
+  # https://github.com/sqlfluff/sqlfluff/issues/5277
+  fail_str: |
+    WITH x AS (
+        SELECT
+            o.p AS p
+            {% for action in ["a", "b"] %}
+                , n.campaign_count_{{ action }}
+        {% endfor %}
+        FROM o
+    )
+    SELECT * FROM x
+  fix_str: |
+    WITH x AS (
+        SELECT
+            o.p AS p
+            {% for action in ["a", "b"] %}
+                , n.campaign_count_{{ action }}
+            {% endfor %}
+        FROM o
+    )
+    SELECT * FROM x
+
+test_pass_loop_indent_0:
+  # NOTE: This biguqery test is designed to be a kind of base case
+  # for the next few cases. Bigquery allows a trailing comma in a
+  # select so is a good candidate for this.
+  pass_str: |
+    select
+        {% for i in range(1, 3) %}
+            1,
+        {% endfor %}
+    from foo
+  configs:
+    core:
+      dialect: bigquery
+
+test_pass_loop_indent_1:
+  pass_str: |
+    select
+        {% for i in range(1, 3) %}
+            {% for j in range(1, 3) %}
+                1
+                {% if not loop.last %},{% endif %}
+            {% endfor %}
+            {% if not loop.last %},{% endif %}
+        {% endfor %}
+    from foo
+
+test_pass_loop_indent_2:
+  pass_str: |
+    select
+        {% for i in range(1, 3) %}
+            1 {% if not loop.last %},{% endif %}
+        {% endfor %}
+    from foo
+
+test_pass_loop_indent_3:
+  pass_str: |
+    select
+        {% for i in range(1, 3) %}
+            1
+            {% if not loop.last %}
+                ,
+            {% endif %}
+        {% endfor %}
+    from foo
+
+test_pass_loop_indent_4:
+  pass_str: |
+    select
+        {% for i in range(1, 3) %}
+            1
+            {%- if not loop.last -%}
+                ,
+            {%- endif -%}
+        {% endfor %}
+    from foo
+
+test_pass_loop_indent_5:
+  pass_str: |
+    select
+        {% for i in range(1, 3) %}
+            {% if not loop.first %},{% endif %}
+            1
+        {% endfor %}
+    from foo
+
+test_pass_loop_indent_6:
+  pass_str: |
+    select
+        {% for i in range(1, 3) %}
+            {% if not loop.first %},{% endif %}
+            {% for j in range(1, 3) %}
+                {% if not loop.first %},{% endif %}
+                1
+            {% endfor %}
+        {% endfor %}
+    from foo
+
+test_fail_sqlite_update_returning:
+  fail_str: |
+    UPDATE
+    foo
+    SET
+    updated = now()
+    WHERE
+        bar = $1
+    RETURNING
+    updated;
+  fix_str: |
+    UPDATE
+        foo
+    SET
+        updated = now()
+    WHERE
+        bar = $1
+    RETURNING
+        updated;
+  configs:
+    core:
+      dialect: sqlite
+
+test_fail_postgres_update_returning:
+  fail_str: |
+    UPDATE
+    foo
+    SET
+    updated = now()
+    WHERE
+        bar = ''
+    RETURNING
+    updated;
+  fix_str: |
+    UPDATE
+        foo
+    SET
+        updated = now()
+    WHERE
+        bar = ''
+    RETURNING
+        updated;
+  configs:
+    core:
+      dialect: postgres
+
+test_fail_postgres_insert_returning:
+  fail_str: |
+    INSERT INTO foo (updated)
+    VALUES (now())
+    RETURNING
+    updated;
+  fix_str: |
+    INSERT INTO foo (updated)
+    VALUES (now())
+    RETURNING
+        updated;
+  configs:
+    core:
+      dialect: postgres
+
+test_fail_postgres_on_conflict_returning:
+  fail_str: |
+    INSERT INTO foo (
+    id, bar
+    )
+    VALUES (
+    $1, $2
+    ) ON CONFLICT (id) DO UPDATE
+    SET
+    bar = $2;
+  fix_str: |
+    INSERT INTO foo (
+        id, bar
+    )
+    VALUES (
+        $1, $2
+    ) ON CONFLICT (id) DO UPDATE
+        SET
+            bar = $2;
+  configs:
+    core:
+      dialect: postgres
+
+test_fail_ansi_update:
+  fail_str: |
+    UPDATE
+    foo
+    SET
+    updated = now()
+    WHERE
+        bar = '';
+  fix_str: |
+    UPDATE
+        foo
+    SET
+        updated = now()
+    WHERE
+        bar = '';
+  configs:
+    core:
+      dialect: ansi
+
+test_fail_exasol_update:
+  fail_str: |
+    UPDATE
+    foo
+    SET
+    updated = now()
+    WHERE
+        bar = '';
+  fix_str: |
+    UPDATE
+        foo
+    SET
+        updated = now()
+    WHERE
+        bar = '';
+  configs:
+    core:
+      dialect: exasol
+
+test_fail_mysql_update:
+  fail_str: |
+    UPDATE
+    foo
+    SET
+    updated = now()
+    WHERE
+        bar = '';
+  fix_str: |
+    UPDATE
+        foo
+    SET
+        updated = now()
+    WHERE
+        bar = '';
+  configs:
+    core:
+      dialect: mysql
+
+test_fail_teradata_update:
+  fail_str: |
+    UPDATE
+    foo
+    SET
+    updated = now()
+    WHERE
+        bar = '';
+  fix_str: |
+    UPDATE
+        foo
+    SET
+        updated = now()
+    WHERE
+        bar = '';
+  configs:
+    core:
+      dialect: teradata
+
+test_fail_tsql_update:
+  fail_str: |
+    UPDATE
+    foo
+    SET
+    updated = now()
+    WHERE
+        bar = '';
+  fix_str: |
+    UPDATE
+        foo
+    SET
+        updated = now()
+    WHERE
+        bar = '';
+  configs:
+    core:
+      dialect: tsql
+
+test_jinja_value_error_6378:
+  # https://github.com/sqlfluff/sqlfluff/issues/6378
+  pass_str: |
+    CREATE OR REPLACE TRANSIENT TABLE TEST AS
+    WITH abc AS (
+        SELECT
+            spine.some_id AS some_id
+            {% for cols in each_table_cols -%}
+            {%- set src_loop = loop -%}
+            {%- for c in cols -%}
+            , t{{ src_loop.index }}."{{ c }}"
+            {% endfor %}
+            {%- endfor %}
+        FROM tbl AS spine
+        {% for t in tables %}
+        LEFT JOIN {{ t }} AS t{{ loop.index }}
+            ON spine.some_id = t{{ loop.index }}.some_id
+        {% endfor %}
+    )
+
+    SELECT * FROM abc;
+  configs:
+    core:
+      templater: jinja
+    indentation:
+      template_blocks_indent: false
+    templater:
+      jinja:
+        context:
+          tables: ["tbl_a", "tbl_b", "tbl_c"]
+          each_table_cols:
+            [["aa", "ab", "ac"], ["ba", "bb", "bc"], ["ca", "cb", "cc"]]

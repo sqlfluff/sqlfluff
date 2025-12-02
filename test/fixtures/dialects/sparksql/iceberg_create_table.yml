@@ -1,0 +1,188 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: cc5ed8f11c2fee1bddd19be2b9c59a0e1519b63496b9d9f54e9418b18b4abb23
+file:
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: prod
+      - dot: .
+      - naked_identifier: db
+      - dot: .
+      - naked_identifier: sample
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          column_reference:
+            naked_identifier: id
+          data_type:
+            primitive_type:
+              keyword: bigint
+          column_constraint_segment:
+            comment_clause:
+              keyword: COMMENT
+              quoted_literal: "'unique id'"
+      - comma: ','
+      - column_definition:
+          column_reference:
+            naked_identifier: data
+          data_type:
+            primitive_type:
+              keyword: string
+      - end_bracket: )
+    - using_clause:
+        keyword: USING
+        data_source_format:
+          keyword: iceberg
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: prod
+      - dot: .
+      - naked_identifier: db
+      - dot: .
+      - naked_identifier: sample
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          column_reference:
+            naked_identifier: id
+          data_type:
+            primitive_type:
+              keyword: bigint
+      - comma: ','
+      - column_definition:
+          column_reference:
+            naked_identifier: data
+          data_type:
+            primitive_type:
+              keyword: string
+      - comma: ','
+      - column_definition:
+          column_reference:
+            naked_identifier: category
+          data_type:
+            primitive_type:
+              keyword: string
+      - end_bracket: )
+    - using_clause:
+        keyword: USING
+        data_source_format:
+          keyword: iceberg
+    - keyword: PARTITIONED
+    - keyword: BY
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          naked_identifier: category
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: prod
+      - dot: .
+      - naked_identifier: db
+      - dot: .
+      - naked_identifier: sample
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          column_reference:
+            naked_identifier: id
+          data_type:
+            primitive_type:
+              keyword: bigint
+      - comma: ','
+      - column_definition:
+          column_reference:
+            naked_identifier: data
+          data_type:
+            primitive_type:
+              keyword: string
+      - comma: ','
+      - column_definition:
+          column_reference:
+            naked_identifier: category
+          data_type:
+            primitive_type:
+              keyword: string
+      - comma: ','
+      - column_definition:
+          column_reference:
+            naked_identifier: ts
+          data_type:
+            primitive_type:
+              keyword: timestamp
+      - end_bracket: )
+    - using_clause:
+        keyword: USING
+        data_source_format:
+          keyword: iceberg
+    - keyword: PARTITIONED
+    - keyword: BY
+    - bracketed:
+      - start_bracket: (
+      - iceberg_transformation:
+          keyword: bucket
+          bracketed:
+            start_bracket: (
+            numeric_literal: '16'
+            comma: ','
+            column_reference:
+              naked_identifier: id
+            end_bracket: )
+      - comma: ','
+      - iceberg_transformation:
+          keyword: days
+          bracketed:
+            start_bracket: (
+            column_reference:
+              naked_identifier: ts
+            end_bracket: )
+      - comma: ','
+      - column_reference:
+          naked_identifier: category
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: prod
+      - dot: .
+      - naked_identifier: db
+      - dot: .
+      - naked_identifier: sample
+    - using_clause:
+        keyword: USING
+        data_source_format:
+          keyword: iceberg
+    - keyword: PARTITIONED
+    - keyword: BY
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          naked_identifier: part
+        end_bracket: )
+    - keyword: TBLPROPERTIES
+    - bracketed:
+        start_bracket: (
+        property_name_identifier:
+          quoted_identifier: "'key'"
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'value'"
+        end_bracket: )
+- statement_terminator: ;

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 462a1619d04fbcf97e7e8a254f0e84d3d1e5ccf5f3c02b6194e4d0f0d5164d66
+_hash: be2da0a9d3075d88de3fcd56c77f485b750ab43f32e2f7ea59c8ad6b891e5db4
 file:
   statement:
     select_statement:
@@ -12,32 +12,34 @@ file:
       - select_clause_element:
           function:
             function_name:
-              keyword: ADD_DAYS
-            bracketed:
-            - start_bracket: (
-            - expression:
-                keyword: DATE
-                literal: "'2000-02-28'"
-            - comma: ','
-            - expression:
-                literal: '1'
-            - end_bracket: )
+              function_name_identifier: ADD_DAYS
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  keyword: DATE
+                  date_constructor_literal: "'2000-02-28'"
+              - comma: ','
+              - expression:
+                  numeric_literal: '1'
+              - end_bracket: )
           alias_expression:
-            identifier: AD1
+            naked_identifier: AD1
       - comma: ','
       - select_clause_element:
           function:
             function_name:
-              keyword: ADD_DAYS
-            bracketed:
-            - start_bracket: (
-            - expression:
-                keyword: TIMESTAMP
-                literal: "'2001-02-28 12:00:00'"
-            - comma: ','
-            - expression:
-                literal: '1'
-            - end_bracket: )
+              function_name_identifier: ADD_DAYS
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  keyword: TIMESTAMP
+                  date_constructor_literal: "'2001-02-28 12:00:00'"
+              - comma: ','
+              - expression:
+                  numeric_literal: '1'
+              - end_bracket: )
           alias_expression:
-            identifier: AD2
+            naked_identifier: AD2
   statement_terminator: ;

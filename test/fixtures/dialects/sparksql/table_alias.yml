@@ -1,0 +1,217 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 42f347aec9a9663f00ae7ca2021a7bcae7c70d010fa83954e8bb1ea981d0b279
+file:
+- statement:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: from
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: u
+            alias_expression:
+              alias_operator:
+                keyword: as
+              naked_identifier: t
+              bracketed:
+                start_bracket: (
+                identifier_list:
+                - naked_identifier: a
+                - comma: ','
+                - naked_identifier: b
+                end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: from
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: u
+            alias_expression:
+              alias_operator:
+                keyword: as
+              naked_identifier: t
+              bracketed:
+                start_bracket: (
+                identifier_list:
+                - naked_identifier: a
+                - comma: ','
+                - naked_identifier: b
+                end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: from
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: u
+            alias_expression:
+              alias_operator:
+                keyword: as
+              naked_identifier: t
+              bracketed:
+                start_bracket: (
+                identifier_list:
+                - naked_identifier: a
+                - comma: ','
+                - naked_identifier: b
+                end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: from
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: u
+            alias_expression:
+              alias_operator:
+                keyword: as
+              bracketed:
+                start_bracket: (
+                identifier_list:
+                - naked_identifier: a
+                - comma: ','
+                - naked_identifier: b
+                end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: from
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: u
+            alias_expression:
+              naked_identifier: t
+              bracketed:
+                start_bracket: (
+                identifier_list:
+                - naked_identifier: a
+                - comma: ','
+                - naked_identifier: b
+                end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: from
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: u
+            alias_expression:
+              naked_identifier: t
+              bracketed:
+                start_bracket: (
+                identifier_list:
+                - naked_identifier: a
+                - comma: ','
+                - naked_identifier: b
+                end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: from
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: u
+            alias_expression:
+              naked_identifier: t
+              bracketed:
+                start_bracket: (
+                identifier_list:
+                - naked_identifier: a
+                - comma: ','
+                - naked_identifier: b
+                end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: from
+        from_expression:
+          from_expression_element:
+            table_expression:
+              function:
+                function_name:
+                  function_name_identifier: u
+                function_contents:
+                  bracketed:
+                  - start_bracket: (
+                  - expression:
+                      column_reference:
+                        naked_identifier: a
+                  - comma: ','
+                  - expression:
+                      column_reference:
+                        naked_identifier: b
+                  - end_bracket: )
+- statement_terminator: ;

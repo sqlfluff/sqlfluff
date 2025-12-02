@@ -3,28 +3,137 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: a1639b23caae2ef929b84a2aca006d612e9a1921c7f09ade149572641813c75b
+_hash: 9877b89a7b3c96ec9e5766e99ef93a7e5e9073613ee64bd0e9107c1e24d162f1
 file:
   batch:
-    statement:
+  - statement:
       alter_table_switch_statement:
       - keyword: ALTER
       - keyword: TABLE
       - object_reference:
-        - identifier: '[Facility]'
+        - quoted_identifier: '[Facility]'
         - dot: .
-        - identifier: '[PL_stage]'
+        - quoted_identifier: '[PL_stage]'
       - keyword: SWITCH
       - keyword: TO
       - object_reference:
-        - identifier: '[Facility]'
+        - quoted_identifier: '[Facility]'
         - dot: .
-        - identifier: '[PL_BASE]'
+        - quoted_identifier: '[PL_BASE]'
       - keyword: WITH
       - bracketed:
         - start_bracket: (
         - keyword: TRUNCATE_TARGET
-        - comparison_operator: '='
+        - comparison_operator:
+            raw_comparison_operator: '='
         - keyword: 'ON'
         - end_bracket: )
-      - statement_terminator: ;
+  - statement_terminator: ;
+  - statement:
+      alter_table_switch_statement:
+      - keyword: ALTER
+      - keyword: TABLE
+      - object_reference:
+          quoted_identifier: '[PartitionTable]'
+      - keyword: SWITCH
+      - keyword: PARTITION
+      - numeric_literal: '1'
+      - keyword: TO
+      - object_reference:
+          naked_identifier: NonPartitionTable
+  - statement_terminator: ;
+  - statement:
+      alter_table_switch_statement:
+      - keyword: ALTER
+      - keyword: TABLE
+      - object_reference:
+          naked_identifier: Orders
+      - keyword: SWITCH
+      - keyword: PARTITION
+      - numeric_literal: '2'
+      - keyword: TO
+      - object_reference:
+          quoted_identifier: '[OrdersHistory]'
+      - keyword: PARTITION
+      - numeric_literal: '2'
+  - statement_terminator: ;
+  - statement:
+      alter_table_switch_statement:
+      - keyword: ALTER
+      - keyword: TABLE
+      - object_reference:
+          naked_identifier: Orders
+      - keyword: SWITCH
+      - keyword: PARTITION
+      - numeric_literal: '3'
+      - keyword: TO
+      - object_reference:
+          quoted_identifier: '[OrdersHistory]'
+      - keyword: PARTITION
+      - numeric_literal: '3'
+  - statement_terminator: ;
+  - statement:
+      alter_table_switch_statement:
+      - keyword: ALTER
+      - keyword: TABLE
+      - object_reference:
+          naked_identifier: Orders
+      - keyword: SWITCH
+      - keyword: PARTITION
+      - numeric_literal: '4'
+      - keyword: TO
+      - object_reference:
+          quoted_identifier: '[OrdersHistory]'
+      - keyword: PARTITION
+      - numeric_literal: '4'
+      - keyword: WITH
+      - bracketed:
+          start_bracket: (
+          keyword: WAIT_AT_LOW_PRIORITY
+          bracketed:
+          - start_bracket: (
+          - keyword: MAX_DURATION
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - numeric_literal: '15'
+          - keyword: MINUTES
+          - comma: ','
+          - keyword: ABORT_AFTER_WAIT
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - keyword: NONE
+          - end_bracket: )
+          end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      alter_table_switch_statement:
+      - keyword: ALTER
+      - keyword: TABLE
+      - object_reference:
+          naked_identifier: Orders
+      - keyword: SWITCH
+      - keyword: PARTITION
+      - numeric_literal: '5'
+      - keyword: TO
+      - object_reference:
+          quoted_identifier: '[OrdersHistory]'
+      - keyword: PARTITION
+      - numeric_literal: '5'
+      - keyword: WITH
+      - bracketed:
+          start_bracket: (
+          keyword: WAIT_AT_LOW_PRIORITY
+          bracketed:
+          - start_bracket: (
+          - keyword: MAX_DURATION
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - numeric_literal: '25'
+          - comma: ','
+          - keyword: ABORT_AFTER_WAIT
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - keyword: SELF
+          - end_bracket: )
+          end_bracket: )
+  - statement_terminator: ;

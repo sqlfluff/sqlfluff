@@ -1,0 +1,88 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: a886644c3efff46c5ca5b1a758be2ed6010af31af1e60852590b7ea9b4cc555f
+file:
+- statement:
+    create_extension_statement:
+    - keyword: CREATE
+    - keyword: EXTENSION
+    - extension_reference:
+        naked_identifier: amazing_extension
+    - keyword: with
+    - keyword: schema
+    - schema_reference:
+        naked_identifier: schema1
+    - keyword: VERSION
+    - version_identifier:
+        quoted_literal: "'2.0.1.2'"
+    - keyword: FROM
+    - version_identifier:
+        quoted_literal: "'1.0'"
+- statement_terminator: ;
+- statement:
+    create_extension_statement:
+    - keyword: CREATE
+    - keyword: EXTENSION
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - extension_reference:
+        naked_identifier: amazing_extension
+    - keyword: with
+    - keyword: schema
+    - schema_reference:
+        naked_identifier: schema1
+    - keyword: VERSION
+    - version_identifier:
+        quoted_literal: "'1.2.3a4'"
+    - keyword: FROM
+    - version_identifier:
+        quoted_literal: "'1.0'"
+- statement_terminator: ;
+- statement:
+    create_extension_statement:
+    - keyword: CREATE
+    - keyword: EXTENSION
+    - extension_reference:
+        naked_identifier: amazing_extension
+    - keyword: with
+    - keyword: schema
+    - schema_reference:
+        naked_identifier: schema1
+    - keyword: VERSION
+    - version_identifier:
+        naked_identifier: version_named
+    - keyword: FROM
+    - version_identifier:
+        naked_identifier: from_named
+- statement_terminator: ;
+- statement:
+    create_extension_statement:
+    - keyword: CREATE
+    - keyword: EXTENSION
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - extension_reference:
+        naked_identifier: aws_lambda
+    - keyword: CASCADE
+- statement_terminator: ;
+- statement:
+    drop_extension_statement:
+    - keyword: DROP
+    - keyword: EXTENSION
+    - extension_reference:
+        naked_identifier: amazing_extension
+- statement_terminator: ;
+- statement:
+    drop_extension_statement:
+    - keyword: DROP
+    - keyword: EXTENSION
+    - keyword: IF
+    - keyword: EXISTS
+    - extension_reference:
+        naked_identifier: amazing_extension
+- statement_terminator: ;

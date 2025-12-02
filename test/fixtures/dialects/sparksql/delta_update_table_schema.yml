@@ -1,0 +1,393 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 209c3612244aa11fa9c18b0eea34c906d0f38105c9ae65330fa8867fdf2d23dd
+file:
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: table_name
+    - keyword: ADD
+    - keyword: COLUMNS
+    - column_definition:
+        column_reference:
+          naked_identifier: col_name
+        data_type:
+          primitive_type:
+            keyword: STRING
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: table_name
+    - keyword: ADD
+    - keyword: COLUMNS
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          column_reference:
+            naked_identifier: col_name
+          data_type:
+            primitive_type:
+              keyword: STRING
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: table_name
+    - keyword: ADD
+    - keyword: COLUMNS
+    - column_definition:
+        column_reference:
+          naked_identifier: col_name
+        data_type:
+          primitive_type:
+            keyword: STRING
+    - comma: ','
+    - column_definition:
+        column_reference:
+          naked_identifier: col_name2
+        data_type:
+          primitive_type:
+            keyword: INT
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: table_name
+    - keyword: ADD
+    - keyword: COLUMNS
+    - column_definition:
+        column_reference:
+          naked_identifier: col_name
+        data_type:
+          primitive_type:
+            keyword: STRING
+        column_constraint_segment:
+          comment_clause:
+            keyword: COMMENT
+            quoted_literal: '"col_comment"'
+    - keyword: FIRST
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: table_name
+    - keyword: ADD
+    - keyword: COLUMNS
+    - column_definition:
+        column_reference:
+          naked_identifier: col_name
+        data_type:
+          primitive_type:
+            keyword: STRING
+        column_constraint_segment:
+          comment_clause:
+            keyword: COMMENT
+            quoted_literal: '"col_comment"'
+    - keyword: FIRST
+    - comma: ','
+    - column_definition:
+        column_reference:
+          naked_identifier: col_name2
+        data_type:
+          primitive_type:
+            keyword: INT
+        column_constraint_segment:
+          comment_clause:
+            keyword: COMMENT
+            quoted_literal: '"col_2_comment"'
+    - keyword: AFTER
+    - column_reference:
+        naked_identifier: col_b_name
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: table_name
+    - keyword: CHANGE
+    - column_reference:
+        naked_identifier: col_name_old
+    - column_reference:
+        naked_identifier: col_name_new
+    - data_type:
+        primitive_type:
+          keyword: STRING
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: table_name
+    - keyword: CHANGE
+    - keyword: COLUMN
+    - column_reference:
+        naked_identifier: col_name_old
+    - column_reference:
+        naked_identifier: col_name_new
+    - data_type:
+        primitive_type:
+          keyword: STRING
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: table_name
+    - keyword: CHANGE
+    - keyword: COLUMN
+    - column_reference:
+        naked_identifier: col_name_old
+    - column_reference:
+        naked_identifier: col_name_new
+    - data_type:
+        primitive_type:
+          keyword: STRING
+    - keyword: COMMENT
+    - quoted_literal: '"new_col_comment"'
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: table_name
+    - keyword: CHANGE
+    - keyword: COLUMN
+    - column_reference:
+        naked_identifier: col_name_old
+    - column_reference:
+        naked_identifier: col_name_new
+    - data_type:
+        primitive_type:
+          keyword: STRING
+    - keyword: COMMENT
+    - quoted_literal: '"new_col_comment"'
+    - keyword: FIRST
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: table_name
+    - keyword: CHANGE
+    - keyword: COLUMN
+    - column_reference:
+        naked_identifier: col_name_old
+    - column_reference:
+        naked_identifier: col_name_new
+    - data_type:
+        primitive_type:
+          keyword: STRING
+    - keyword: COMMENT
+    - quoted_literal: '"new_col_comment"'
+    - keyword: AFTER
+    - column_reference:
+        naked_identifier: col_a_name
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: table_name
+    - keyword: CHANGE
+    - column_reference:
+      - naked_identifier: col_name_1
+      - dot: .
+      - naked_identifier: nested_col_name
+    - column_reference:
+        naked_identifier: nested_col_name_new
+    - data_type:
+        primitive_type:
+          keyword: STRING
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: table_name
+    - keyword: CHANGE
+    - keyword: COLUMN
+    - column_reference:
+      - naked_identifier: col_name_1
+      - dot: .
+      - naked_identifier: nested_col_name
+    - column_reference:
+        naked_identifier: nested_col_name_new
+    - data_type:
+        primitive_type:
+          keyword: STRING
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: table_name
+    - keyword: CHANGE
+    - keyword: COLUMN
+    - column_reference:
+      - naked_identifier: col_name_1
+      - dot: .
+      - naked_identifier: nested_col_name
+    - column_reference:
+        naked_identifier: nested_col_name_new
+    - data_type:
+        primitive_type:
+          keyword: STRING
+    - keyword: COMMENT
+    - quoted_literal: '"new_col_comment"'
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: table_name
+    - keyword: CHANGE
+    - keyword: COLUMN
+    - column_reference:
+      - naked_identifier: col_name_1
+      - dot: .
+      - naked_identifier: nested_col_name
+    - column_reference:
+        naked_identifier: nested_col_name_new
+    - data_type:
+        primitive_type:
+          keyword: STRING
+    - keyword: COMMENT
+    - quoted_literal: '"new_col_comment"'
+    - keyword: FIRST
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: table_name
+    - keyword: CHANGE
+    - keyword: COLUMN
+    - column_reference:
+      - naked_identifier: col_name_1
+      - dot: .
+      - naked_identifier: nested_col_name
+    - column_reference:
+        naked_identifier: nested_col_name_new
+    - data_type:
+        primitive_type:
+          keyword: STRING
+    - keyword: COMMENT
+    - quoted_literal: '"new_col_comment"'
+    - keyword: AFTER
+    - column_reference:
+        naked_identifier: col_a_name
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: boxes
+    - keyword: CHANGE
+    - keyword: COLUMN
+    - column_reference:
+      - naked_identifier: col_b
+      - dot: .
+      - naked_identifier: a_key_name
+    - column_reference:
+        naked_identifier: a_new_key_name
+    - data_type:
+        primitive_type:
+          keyword: STRING
+    - keyword: FIRST
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: table_name
+    - keyword: REPLACE
+    - keyword: COLUMNS
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          naked_identifier: col_name1
+          data_type:
+            primitive_type:
+              keyword: STRING
+          column_constraint_segment:
+            comment_clause:
+              keyword: COMMENT
+              quoted_literal: '"col_comment1"'
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: boxes
+    - keyword: REPLACE
+    - keyword: COLUMNS
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          naked_identifier: col_c
+          data_type:
+            primitive_type:
+              keyword: STRING
+      - comma: ','
+      - column_definition:
+          naked_identifier: col_b
+          data_type:
+            struct_type:
+              keyword: STRUCT
+              struct_type_schema:
+              - start_angle_bracket: <
+              - naked_identifier: key2
+              - colon: ':'
+              - data_type:
+                  primitive_type:
+                    keyword: STRING
+              - comma: ','
+              - naked_identifier: nested
+              - colon: ':'
+              - data_type:
+                  primitive_type:
+                    keyword: STRING
+              - comma: ','
+              - naked_identifier: key1
+              - colon: ':'
+              - data_type:
+                  primitive_type:
+                    keyword: STRING
+              - end_angle_bracket: '>'
+      - comma: ','
+      - column_definition:
+          naked_identifier: col_a
+          data_type:
+            primitive_type:
+              keyword: STRING
+      - end_bracket: )
+- statement_terminator: ;

@@ -1,0 +1,137 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: ace9a534be5724cc9bbd017e062b8c783919ad6afdbbf7a8294d15cd43f84a99
+file:
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: extract
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  quoted_literal: "'year'"
+              - keyword: FROM
+              - expression:
+                  datetime_literal:
+                    datetime_type_identifier:
+                      keyword: DATE
+                    quoted_literal: "'1992-09-20'"
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: extract
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  quoted_literal: "'year'"
+              - keyword: FROM
+              - expression:
+                  cast_expression:
+                    quoted_literal: "'1992-09-20'"
+                    casting_operator: '::'
+                    data_type:
+                      datetime_type_identifier:
+                        keyword: DATE
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+    values_clause:
+      keyword: VALUES
+      bracketed:
+        start_bracket: (
+        expression:
+          function:
+            function_name:
+              function_name_identifier: extract
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  quoted_literal: "'year'"
+              - keyword: FROM
+              - expression:
+                  datetime_literal:
+                    datetime_type_identifier:
+                      keyword: DATE
+                    quoted_literal: "'1992-09-20'"
+              - end_bracket: )
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: extract
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  quoted_literal: "'hour'"
+              - keyword: FROM
+              - expression:
+                  datetime_literal:
+                    datetime_type_identifier:
+                      keyword: TIMESTAMP
+                    quoted_literal: "'1992-09-20 20:38:48'"
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: extract
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  quoted_literal: "'hour'"
+              - keyword: FROM
+              - expression:
+                  datetime_literal:
+                    datetime_type_identifier:
+                      keyword: TIMESTAMPTZ
+                    quoted_literal: "'1992-09-20 20:38:48'"
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: extract
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  quoted_literal: "'hour'"
+              - keyword: FROM
+              - expression:
+                  datetime_literal:
+                    datetime_type_identifier:
+                      keyword: TIME
+                    quoted_literal: "'14:21:13'"
+              - end_bracket: )
+- statement_terminator: ;

@@ -1,0 +1,560 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: ca3ab8c1066b6ea04881273aa70b7a64bac115fac1efc171e9528ae1f4ea4b6b
+file:
+- statement:
+    update_statement:
+      keyword: UPDATE
+      table_reference:
+        naked_identifier: films
+      set_clause_list:
+        keyword: SET
+        set_clause:
+          column_reference:
+            naked_identifier: kind
+          comparison_operator:
+            raw_comparison_operator: '='
+          quoted_literal: "'Dramatic'"
+      where_clause:
+        keyword: WHERE
+        expression:
+          column_reference:
+            naked_identifier: kind
+          comparison_operator:
+            raw_comparison_operator: '='
+          quoted_literal: "'Drama'"
+- statement_terminator: ;
+- statement:
+    update_statement:
+      keyword: UPDATE
+      table_reference:
+        naked_identifier: weather
+      set_clause_list:
+      - keyword: SET
+      - set_clause:
+          column_reference:
+            naked_identifier: temp_lo
+          comparison_operator:
+            raw_comparison_operator: '='
+          expression:
+            column_reference:
+              naked_identifier: temp_lo
+            binary_operator: +
+            numeric_literal: '1'
+      - comma: ','
+      - set_clause:
+          column_reference:
+            naked_identifier: temp_hi
+          comparison_operator:
+            raw_comparison_operator: '='
+          expression:
+            column_reference:
+              naked_identifier: temp_lo
+            binary_operator: +
+            numeric_literal: '15'
+      - comma: ','
+      - set_clause:
+          column_reference:
+            naked_identifier: prcp
+          comparison_operator:
+            raw_comparison_operator: '='
+          keyword: DEFAULT
+      where_clause:
+        keyword: WHERE
+        expression:
+        - column_reference:
+            naked_identifier: city
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - quoted_literal: "'San Francisco'"
+        - binary_operator: AND
+        - column_reference:
+            naked_identifier: date
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - quoted_literal: "'2003-07-03'"
+- statement_terminator: ;
+- statement:
+    update_statement:
+    - keyword: UPDATE
+    - table_reference:
+        naked_identifier: weather
+    - set_clause_list:
+      - keyword: SET
+      - set_clause:
+          column_reference:
+            naked_identifier: temp_lo
+          comparison_operator:
+            raw_comparison_operator: '='
+          expression:
+            column_reference:
+              naked_identifier: temp_lo
+            binary_operator: +
+            numeric_literal: '1'
+      - comma: ','
+      - set_clause:
+          column_reference:
+            naked_identifier: temp_hi
+          comparison_operator:
+            raw_comparison_operator: '='
+          expression:
+            column_reference:
+              naked_identifier: temp_lo
+            binary_operator: +
+            numeric_literal: '15'
+      - comma: ','
+      - set_clause:
+          column_reference:
+            naked_identifier: prcp
+          comparison_operator:
+            raw_comparison_operator: '='
+          keyword: DEFAULT
+    - where_clause:
+        keyword: WHERE
+        expression:
+        - column_reference:
+            naked_identifier: city
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - quoted_literal: "'San Francisco'"
+        - binary_operator: AND
+        - column_reference:
+            naked_identifier: date
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - quoted_literal: "'2003-07-03'"
+    - keyword: RETURNING
+    - expression:
+        column_reference:
+          naked_identifier: temp_lo
+    - comma: ','
+    - expression:
+        column_reference:
+          naked_identifier: temp_hi
+    - comma: ','
+    - expression:
+        column_reference:
+          naked_identifier: prcp
+- statement_terminator: ;
+- statement:
+    update_statement:
+      keyword: UPDATE
+      table_reference:
+        naked_identifier: weather
+      set_clause_list:
+        keyword: SET
+        set_clause:
+        - bracketed:
+          - start_bracket: (
+          - column_reference:
+              naked_identifier: temp_lo
+          - comma: ','
+          - column_reference:
+              naked_identifier: temp_hi
+          - comma: ','
+          - column_reference:
+              naked_identifier: prcp
+          - end_bracket: )
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - bracketed:
+          - start_bracket: (
+          - expression:
+              column_reference:
+                naked_identifier: temp_lo
+              binary_operator: +
+              numeric_literal: '1'
+          - comma: ','
+          - expression:
+              column_reference:
+                naked_identifier: temp_lo
+              binary_operator: +
+              numeric_literal: '15'
+          - comma: ','
+          - keyword: DEFAULT
+          - end_bracket: )
+      where_clause:
+        keyword: WHERE
+        expression:
+        - column_reference:
+            naked_identifier: city
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - quoted_literal: "'San Francisco'"
+        - binary_operator: AND
+        - column_reference:
+            naked_identifier: date
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - quoted_literal: "'2003-07-03'"
+- statement_terminator: ;
+- statement:
+    update_statement:
+      keyword: UPDATE
+      table_reference:
+        naked_identifier: employees
+      set_clause_list:
+        keyword: SET
+        set_clause:
+          column_reference:
+            naked_identifier: sales_count
+          comparison_operator:
+            raw_comparison_operator: '='
+          expression:
+            column_reference:
+              naked_identifier: sales_count
+            binary_operator: +
+            numeric_literal: '1'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: accounts
+      where_clause:
+        keyword: WHERE
+        expression:
+        - column_reference:
+          - naked_identifier: accounts
+          - dot: .
+          - naked_identifier: name
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - quoted_literal: "'Acme Corporation'"
+        - binary_operator: AND
+        - column_reference:
+          - naked_identifier: employees
+          - dot: .
+          - naked_identifier: id
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - column_reference:
+          - naked_identifier: accounts
+          - dot: .
+          - naked_identifier: sales_person
+- statement_terminator: ;
+- statement:
+    update_statement:
+      keyword: UPDATE
+      table_reference:
+        naked_identifier: employees
+      set_clause_list:
+        keyword: SET
+        set_clause:
+          column_reference:
+            naked_identifier: sales_count
+          comparison_operator:
+            raw_comparison_operator: '='
+          expression:
+            column_reference:
+              naked_identifier: sales_count
+            binary_operator: +
+            numeric_literal: '1'
+      where_clause:
+        keyword: WHERE
+        expression:
+          column_reference:
+            naked_identifier: id
+          comparison_operator:
+            raw_comparison_operator: '='
+          bracketed:
+            start_bracket: (
+            expression:
+              select_statement:
+                select_clause:
+                  keyword: SELECT
+                  select_clause_element:
+                    column_reference:
+                      naked_identifier: sales_person
+                from_clause:
+                  keyword: FROM
+                  from_expression:
+                    from_expression_element:
+                      table_expression:
+                        table_reference:
+                          naked_identifier: accounts
+                where_clause:
+                  keyword: WHERE
+                  expression:
+                    column_reference:
+                      naked_identifier: name
+                    comparison_operator:
+                      raw_comparison_operator: '='
+                    quoted_literal: "'Acme Corporation'"
+            end_bracket: )
+- statement_terminator: ;
+- statement:
+    update_statement:
+      keyword: UPDATE
+      table_reference:
+        naked_identifier: accounts
+      set_clause_list:
+        keyword: SET
+        set_clause:
+        - bracketed:
+          - start_bracket: (
+          - column_reference:
+              naked_identifier: contact_first_name
+          - comma: ','
+          - column_reference:
+              naked_identifier: contact_last_name
+          - end_bracket: )
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - bracketed:
+            start_bracket: (
+            select_statement:
+              select_clause:
+              - keyword: SELECT
+              - select_clause_element:
+                  column_reference:
+                    naked_identifier: first_name
+              - comma: ','
+              - select_clause_element:
+                  column_reference:
+                    naked_identifier: last_name
+              from_clause:
+                keyword: FROM
+                from_expression:
+                  from_expression_element:
+                    table_expression:
+                      table_reference:
+                        naked_identifier: salesmen
+              where_clause:
+                keyword: WHERE
+                expression:
+                - column_reference:
+                  - naked_identifier: salesmen
+                  - dot: .
+                  - naked_identifier: id
+                - comparison_operator:
+                    raw_comparison_operator: '='
+                - column_reference:
+                  - naked_identifier: accounts
+                  - dot: .
+                  - naked_identifier: sales_id
+            end_bracket: )
+- statement_terminator: ;
+- statement:
+    update_statement:
+      keyword: UPDATE
+      table_reference:
+        naked_identifier: accounts
+      set_clause_list:
+      - keyword: SET
+      - set_clause:
+        - column_reference:
+            naked_identifier: contact_first_name
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - column_reference:
+            naked_identifier: first_name
+      - comma: ','
+      - set_clause:
+        - column_reference:
+            naked_identifier: contact_last_name
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - column_reference:
+            naked_identifier: last_name
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: salesmen
+      where_clause:
+        keyword: WHERE
+        expression:
+        - column_reference:
+          - naked_identifier: salesmen
+          - dot: .
+          - naked_identifier: id
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - column_reference:
+          - naked_identifier: accounts
+          - dot: .
+          - naked_identifier: sales_id
+- statement_terminator: ;
+- statement:
+    update_statement:
+      keyword: UPDATE
+      table_reference:
+        naked_identifier: summary
+      alias_expression:
+        naked_identifier: s
+      set_clause_list:
+        keyword: SET
+        set_clause:
+        - bracketed:
+          - start_bracket: (
+          - column_reference:
+              naked_identifier: sum_x
+          - comma: ','
+          - column_reference:
+              naked_identifier: sum_y
+          - comma: ','
+          - column_reference:
+              naked_identifier: avg_x
+          - comma: ','
+          - column_reference:
+              naked_identifier: avg_y
+          - end_bracket: )
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - bracketed:
+            start_bracket: (
+            select_statement:
+              select_clause:
+              - keyword: SELECT
+              - select_clause_element:
+                  function:
+                    function_name:
+                      function_name_identifier: sum
+                    function_contents:
+                      bracketed:
+                        start_bracket: (
+                        expression:
+                          column_reference:
+                            naked_identifier: x
+                        end_bracket: )
+              - comma: ','
+              - select_clause_element:
+                  function:
+                    function_name:
+                      function_name_identifier: sum
+                    function_contents:
+                      bracketed:
+                        start_bracket: (
+                        expression:
+                          column_reference:
+                            naked_identifier: y
+                        end_bracket: )
+              - comma: ','
+              - select_clause_element:
+                  function:
+                    function_name:
+                      function_name_identifier: avg
+                    function_contents:
+                      bracketed:
+                        start_bracket: (
+                        expression:
+                          column_reference:
+                            naked_identifier: x
+                        end_bracket: )
+              - comma: ','
+              - select_clause_element:
+                  function:
+                    function_name:
+                      function_name_identifier: avg
+                    function_contents:
+                      bracketed:
+                        start_bracket: (
+                        expression:
+                          column_reference:
+                            naked_identifier: y
+                        end_bracket: )
+              from_clause:
+                keyword: FROM
+                from_expression:
+                  from_expression_element:
+                    table_expression:
+                      table_reference:
+                        naked_identifier: data
+                    alias_expression:
+                      naked_identifier: d
+              where_clause:
+                keyword: WHERE
+                expression:
+                - column_reference:
+                  - naked_identifier: d
+                  - dot: .
+                  - naked_identifier: group_id
+                - comparison_operator:
+                    raw_comparison_operator: '='
+                - column_reference:
+                  - naked_identifier: s
+                  - dot: .
+                  - naked_identifier: group_id
+            end_bracket: )
+- statement_terminator: ;
+- statement:
+    update_statement:
+    - keyword: UPDATE
+    - table_reference:
+        naked_identifier: films
+    - set_clause_list:
+        keyword: SET
+        set_clause:
+          column_reference:
+            naked_identifier: kind
+          comparison_operator:
+            raw_comparison_operator: '='
+          quoted_literal: "'Dramatic'"
+    - keyword: WHERE
+    - keyword: CURRENT
+    - keyword: OF
+    - object_reference:
+        naked_identifier: c_films
+- statement_terminator: ;
+- statement:
+    update_statement:
+    - keyword: UPDATE
+    - table_reference:
+        naked_identifier: my_table
+    - set_clause_list:
+        keyword: SET
+        set_clause:
+        - column_reference:
+            naked_identifier: my_column
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - column_reference:
+            quoted_identifier: '"SQLFluff rules!"'
+    - keyword: RETURNING
+    - expression:
+        column_reference:
+          naked_identifier: my_column
+- statement_terminator: ;
+- statement:
+    update_statement:
+    - keyword: UPDATE
+    - table_reference:
+        naked_identifier: employees
+    - set_clause_list:
+        keyword: SET
+        set_clause:
+          column_reference:
+            naked_identifier: deleted_at
+          comparison_operator:
+            raw_comparison_operator: '='
+          function:
+            function_name:
+              function_name_identifier: NOW
+            function_contents:
+              bracketed:
+                start_bracket: (
+                end_bracket: )
+    - where_clause:
+        keyword: WHERE
+        expression:
+          column_reference:
+            naked_identifier: uuid
+          comparison_operator:
+            raw_comparison_operator: '='
+          dollar_numeric_literal: $1
+    - keyword: RETURNING
+    - expression:
+        column_reference:
+          naked_identifier: short_name
+    - alias_expression:
+        alias_operator:
+          keyword: AS
+        naked_identifier: employee_name
+- statement_terminator: ;

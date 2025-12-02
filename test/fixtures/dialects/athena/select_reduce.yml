@@ -1,0 +1,508 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 34cbb85c483c657c4c5b987e7586661081361e78cd178c0ef54f7733d3940281
+file:
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: reduce
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  typed_array_literal:
+                    array_type:
+                      keyword: ARRAY
+                    array_literal:
+                      start_square_bracket: '['
+                      end_square_bracket: ']'
+              - comma: ','
+              - expression:
+                  numeric_literal: '0'
+              - comma: ','
+              - expression:
+                - bracketed:
+                  - start_bracket: (
+                  - column_reference:
+                      naked_identifier: s
+                  - comma: ','
+                  - column_reference:
+                      naked_identifier: x
+                  - end_bracket: )
+                - binary_operator: ->
+                - column_reference:
+                    naked_identifier: s
+                - binary_operator: +
+                - column_reference:
+                    naked_identifier: x
+              - comma: ','
+              - expression:
+                - column_reference:
+                    naked_identifier: s
+                - binary_operator: ->
+                - column_reference:
+                    naked_identifier: s
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: reduce
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  typed_array_literal:
+                    array_type:
+                      keyword: ARRAY
+                    array_literal:
+                    - start_square_bracket: '['
+                    - numeric_literal: '5'
+                    - comma: ','
+                    - numeric_literal: '20'
+                    - comma: ','
+                    - numeric_literal: '50'
+                    - end_square_bracket: ']'
+              - comma: ','
+              - expression:
+                  numeric_literal: '0'
+              - comma: ','
+              - expression:
+                - bracketed:
+                  - start_bracket: (
+                  - column_reference:
+                      naked_identifier: s
+                  - comma: ','
+                  - column_reference:
+                      naked_identifier: x
+                  - end_bracket: )
+                - binary_operator: ->
+                - column_reference:
+                    naked_identifier: s
+                - binary_operator: +
+                - column_reference:
+                    naked_identifier: x
+              - comma: ','
+              - expression:
+                - column_reference:
+                    naked_identifier: s
+                - binary_operator: ->
+                - column_reference:
+                    naked_identifier: s
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: reduce
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  typed_array_literal:
+                    array_type:
+                      keyword: ARRAY
+                    array_literal:
+                    - start_square_bracket: '['
+                    - numeric_literal: '5'
+                    - comma: ','
+                    - numeric_literal: '20'
+                    - comma: ','
+                    - null_literal: 'NULL'
+                    - comma: ','
+                    - numeric_literal: '50'
+                    - end_square_bracket: ']'
+              - comma: ','
+              - expression:
+                  numeric_literal: '0'
+              - comma: ','
+              - expression:
+                - bracketed:
+                  - start_bracket: (
+                  - column_reference:
+                      naked_identifier: s
+                  - comma: ','
+                  - column_reference:
+                      naked_identifier: x
+                  - end_bracket: )
+                - binary_operator: ->
+                - column_reference:
+                    naked_identifier: s
+                - binary_operator: +
+                - column_reference:
+                    naked_identifier: x
+              - comma: ','
+              - expression:
+                - column_reference:
+                    naked_identifier: s
+                - binary_operator: ->
+                - column_reference:
+                    naked_identifier: s
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: reduce
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  typed_array_literal:
+                    array_type:
+                      keyword: ARRAY
+                    array_literal:
+                    - start_square_bracket: '['
+                    - numeric_literal: '5'
+                    - comma: ','
+                    - numeric_literal: '20'
+                    - comma: ','
+                    - null_literal: 'NULL'
+                    - comma: ','
+                    - numeric_literal: '50'
+                    - end_square_bracket: ']'
+              - comma: ','
+              - expression:
+                  numeric_literal: '0'
+              - comma: ','
+              - expression:
+                - bracketed:
+                  - start_bracket: (
+                  - column_reference:
+                      naked_identifier: s
+                  - comma: ','
+                  - column_reference:
+                      naked_identifier: x
+                  - end_bracket: )
+                - binary_operator: ->
+                - column_reference:
+                    naked_identifier: s
+                - binary_operator: +
+                - function:
+                    function_name:
+                      function_name_identifier: COALESCE
+                    function_contents:
+                      bracketed:
+                      - start_bracket: (
+                      - expression:
+                          column_reference:
+                            naked_identifier: x
+                      - comma: ','
+                      - expression:
+                          numeric_literal: '0'
+                      - end_bracket: )
+              - comma: ','
+              - expression:
+                - column_reference:
+                    naked_identifier: s
+                - binary_operator: ->
+                - column_reference:
+                    naked_identifier: s
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: reduce
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  typed_array_literal:
+                    array_type:
+                      keyword: ARRAY
+                    array_literal:
+                    - start_square_bracket: '['
+                    - numeric_literal: '5'
+                    - comma: ','
+                    - numeric_literal: '20'
+                    - comma: ','
+                    - null_literal: 'NULL'
+                    - comma: ','
+                    - numeric_literal: '50'
+                    - end_square_bracket: ']'
+              - comma: ','
+              - expression:
+                  numeric_literal: '0'
+              - comma: ','
+              - expression:
+                  bracketed:
+                  - start_bracket: (
+                  - column_reference:
+                      naked_identifier: s
+                  - comma: ','
+                  - column_reference:
+                      naked_identifier: x
+                  - end_bracket: )
+                  binary_operator: ->
+                  function:
+                    function_name:
+                      function_name_identifier: IF
+                    function_contents:
+                      bracketed:
+                      - start_bracket: (
+                      - expression:
+                          column_reference:
+                            naked_identifier: x
+                          keyword: IS
+                          null_literal: 'NULL'
+                      - comma: ','
+                      - expression:
+                          column_reference:
+                            naked_identifier: s
+                      - comma: ','
+                      - expression:
+                        - column_reference:
+                            naked_identifier: s
+                        - binary_operator: +
+                        - column_reference:
+                            naked_identifier: x
+                      - end_bracket: )
+              - comma: ','
+              - expression:
+                - column_reference:
+                    naked_identifier: s
+                - binary_operator: ->
+                - column_reference:
+                    naked_identifier: s
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: reduce
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  typed_array_literal:
+                    array_type:
+                      keyword: ARRAY
+                    array_literal:
+                    - start_square_bracket: '['
+                    - numeric_literal: '2147483647'
+                    - comma: ','
+                    - numeric_literal: '1'
+                    - end_square_bracket: ']'
+              - comma: ','
+              - expression:
+                  function:
+                    function_name:
+                      function_name_identifier: CAST
+                    function_contents:
+                      bracketed:
+                        start_bracket: (
+                        expression:
+                          numeric_literal: '0'
+                        keyword: AS
+                        data_type:
+                          primitive_type:
+                            keyword: BIGINT
+                        end_bracket: )
+              - comma: ','
+              - expression:
+                - bracketed:
+                  - start_bracket: (
+                  - column_reference:
+                      naked_identifier: s
+                  - comma: ','
+                  - column_reference:
+                      naked_identifier: x
+                  - end_bracket: )
+                - binary_operator: ->
+                - column_reference:
+                    naked_identifier: s
+                - binary_operator: +
+                - column_reference:
+                    naked_identifier: x
+              - comma: ','
+              - expression:
+                - column_reference:
+                    naked_identifier: s
+                - binary_operator: ->
+                - column_reference:
+                    naked_identifier: s
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: reduce
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  typed_array_literal:
+                    array_type:
+                      keyword: ARRAY
+                    array_literal:
+                    - start_square_bracket: '['
+                    - numeric_literal: '5'
+                    - comma: ','
+                    - numeric_literal: '6'
+                    - comma: ','
+                    - numeric_literal: '10'
+                    - comma: ','
+                    - numeric_literal: '20'
+                    - end_square_bracket: ']'
+              - comma: ','
+              - expression:
+                  function:
+                    function_name:
+                      function_name_identifier: CAST
+                    function_contents:
+                      bracketed:
+                        start_bracket: (
+                        expression:
+                          function:
+                            function_name:
+                              function_name_identifier: ROW
+                            function_contents:
+                              bracketed:
+                              - start_bracket: (
+                              - expression:
+                                  numeric_literal: '0.0'
+                              - comma: ','
+                              - expression:
+                                  numeric_literal: '0'
+                              - end_bracket: )
+                        keyword: AS
+                        data_type:
+                          keyword: ROW
+                          bracketed:
+                          - start_bracket: (
+                          - naked_identifier: sum
+                          - data_type:
+                              primitive_type:
+                                keyword: DOUBLE
+                          - comma: ','
+                          - naked_identifier: count
+                          - data_type:
+                              primitive_type:
+                                keyword: INTEGER
+                          - end_bracket: )
+                        end_bracket: )
+              - comma: ','
+              - expression:
+                  bracketed:
+                  - start_bracket: (
+                  - column_reference:
+                      naked_identifier: s
+                  - comma: ','
+                  - column_reference:
+                      naked_identifier: x
+                  - end_bracket: )
+                  binary_operator: ->
+                  function:
+                    function_name:
+                      function_name_identifier: CAST
+                    function_contents:
+                      bracketed:
+                        start_bracket: (
+                        expression:
+                          function:
+                            function_name:
+                              function_name_identifier: ROW
+                            function_contents:
+                              bracketed:
+                              - start_bracket: (
+                              - expression:
+                                - column_reference:
+                                    naked_identifier: x
+                                - binary_operator: +
+                                - column_reference:
+                                  - naked_identifier: s
+                                  - dot: .
+                                  - naked_identifier: sum
+                              - comma: ','
+                              - expression:
+                                  column_reference:
+                                  - naked_identifier: s
+                                  - dot: .
+                                  - naked_identifier: count
+                                  binary_operator: +
+                                  numeric_literal: '1'
+                              - end_bracket: )
+                        keyword: AS
+                        data_type:
+                          keyword: ROW
+                          bracketed:
+                          - start_bracket: (
+                          - naked_identifier: sum
+                          - data_type:
+                              primitive_type:
+                                keyword: DOUBLE
+                          - comma: ','
+                          - naked_identifier: count
+                          - data_type:
+                              primitive_type:
+                                keyword: INTEGER
+                          - end_bracket: )
+                        end_bracket: )
+              - comma: ','
+              - expression:
+                  column_reference:
+                    naked_identifier: s
+                  binary_operator: ->
+                  function:
+                    function_name:
+                      function_name_identifier: IF
+                    function_contents:
+                      bracketed:
+                      - start_bracket: (
+                      - expression:
+                          column_reference:
+                          - naked_identifier: s
+                          - dot: .
+                          - naked_identifier: count
+                          comparison_operator:
+                            raw_comparison_operator: '='
+                          numeric_literal: '0'
+                      - comma: ','
+                      - expression:
+                          null_literal: 'NULL'
+                      - comma: ','
+                      - expression:
+                        - column_reference:
+                          - naked_identifier: s
+                          - dot: .
+                          - naked_identifier: sum
+                        - binary_operator: /
+                        - column_reference:
+                          - naked_identifier: s
+                          - dot: .
+                          - naked_identifier: count
+                      - end_bracket: )
+              - end_bracket: )
+- statement_terminator: ;

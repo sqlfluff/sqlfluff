@@ -1,0 +1,152 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 2a621393789f616aeff908fe9e6dd6481829a9b515fe3fdeb69f637c4a1ef7c9
+file:
+- statement:
+    alter_type_statement:
+    - keyword: ALTER
+    - keyword: TYPE
+    - object_reference:
+        naked_identifier: foo
+    - keyword: RENAME
+    - keyword: TO
+    - object_reference:
+        naked_identifier: bar
+- statement_terminator: ;
+- statement:
+    alter_type_statement:
+    - keyword: ALTER
+    - keyword: TYPE
+    - object_reference:
+        naked_identifier: foo
+    - keyword: OWNER
+    - keyword: TO
+    - keyword: CURRENT_USER
+- statement_terminator: ;
+- statement:
+    alter_type_statement:
+    - keyword: ALTER
+    - keyword: TYPE
+    - object_reference:
+        naked_identifier: foo
+    - keyword: OWNER
+    - keyword: TO
+    - object_reference:
+        naked_identifier: new_owner
+- statement_terminator: ;
+- statement:
+    alter_type_statement:
+    - keyword: ALTER
+    - keyword: TYPE
+    - object_reference:
+        naked_identifier: foo
+    - keyword: SET
+    - keyword: SCHEMA
+    - schema_reference:
+        naked_identifier: new_schema
+- statement_terminator: ;
+- statement:
+    alter_type_statement:
+    - keyword: ALTER
+    - keyword: TYPE
+    - object_reference:
+        naked_identifier: compfoo
+    - keyword: ADD
+    - keyword: ATTRIBUTE
+    - column_reference:
+        naked_identifier: f3
+    - data_type:
+        keyword: int
+    - comma: ','
+    - keyword: DROP
+    - keyword: ATTRIBUTE
+    - keyword: IF
+    - keyword: EXISTS
+    - column_reference:
+        naked_identifier: f4
+    - comma: ','
+    - keyword: ALTER
+    - keyword: ATTRIBUTE
+    - column_reference:
+        naked_identifier: f5
+    - keyword: TYPE
+    - data_type:
+        keyword: int
+- statement_terminator: ;
+- statement:
+    alter_type_statement:
+    - keyword: ALTER
+    - keyword: TYPE
+    - object_reference:
+        naked_identifier: compfoo
+    - keyword: RENAME
+    - keyword: ATTRIBUTE
+    - column_reference:
+        naked_identifier: f6
+    - keyword: TO
+    - column_reference:
+        naked_identifier: f7
+- statement_terminator: ;
+- statement:
+    alter_type_statement:
+    - keyword: ALTER
+    - keyword: TYPE
+    - object_reference:
+        naked_identifier: colors
+    - keyword: ADD
+    - keyword: VALUE
+    - quoted_literal: "'orange'"
+    - keyword: AFTER
+    - quoted_literal: "'red'"
+- statement_terminator: ;
+- statement:
+    alter_type_statement:
+    - keyword: ALTER
+    - keyword: TYPE
+    - object_reference:
+        naked_identifier: foo
+    - keyword: ADD
+    - keyword: VALUE
+    - quoted_literal: "'baz'"
+- statement_terminator: ;
+- statement:
+    alter_type_statement:
+    - keyword: ALTER
+    - keyword: TYPE
+    - object_reference:
+        naked_identifier: foo
+    - keyword: ADD
+    - keyword: VALUE
+    - quoted_literal: "'qux'"
+    - keyword: BEFORE
+    - quoted_literal: "'baz'"
+- statement_terminator: ;
+- statement:
+    alter_type_statement:
+    - keyword: ALTER
+    - keyword: TYPE
+    - object_reference:
+        naked_identifier: foo
+    - keyword: ADD
+    - keyword: VALUE
+    - quoted_literal: "'quux'"
+    - keyword: AFTER
+    - quoted_literal: "'baz'"
+- statement_terminator: ;
+- statement:
+    alter_type_statement:
+    - keyword: ALTER
+    - keyword: TYPE
+    - object_reference:
+      - naked_identifier: financial
+      - dot: .
+      - naked_identifier: reporting_statuses
+    - keyword: RENAME
+    - keyword: VALUE
+    - quoted_literal: "'partially'"
+    - keyword: TO
+    - quoted_literal: "'partially-reported'"
+- statement_terminator: ;

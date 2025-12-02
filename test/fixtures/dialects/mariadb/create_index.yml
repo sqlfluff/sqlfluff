@@ -1,0 +1,282 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 70e8096d9ebac30601b9494145812f9a3a853e35558fb69843eed2d9413be171
+file:
+- statement:
+    create_index_statement:
+    - keyword: CREATE
+    - keyword: INDEX
+    - index_reference:
+        naked_identifier: idx
+    - keyword: 'ON'
+    - table_reference:
+        naked_identifier: tbl
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          naked_identifier: col
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_index_statement:
+    - keyword: CREATE
+    - keyword: UNIQUE
+    - keyword: INDEX
+    - index_reference:
+        naked_identifier: idx
+    - keyword: 'ON'
+    - table_reference:
+        naked_identifier: tbl
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          naked_identifier: col
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_index_statement:
+    - keyword: CREATE
+    - keyword: FULLTEXT
+    - keyword: INDEX
+    - index_reference:
+        naked_identifier: idx
+    - keyword: 'ON'
+    - table_reference:
+        naked_identifier: tbl
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          naked_identifier: col
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_index_statement:
+    - keyword: CREATE
+    - keyword: SPATIAL
+    - keyword: INDEX
+    - index_reference:
+        naked_identifier: idx
+    - keyword: 'ON'
+    - table_reference:
+        naked_identifier: tbl
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          naked_identifier: col
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_index_statement:
+    - keyword: CREATE
+    - keyword: INDEX
+    - index_reference:
+        naked_identifier: idx
+    - index_type:
+      - keyword: USING
+      - keyword: BTREE
+    - keyword: 'ON'
+    - table_reference:
+        naked_identifier: tbl
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          naked_identifier: col
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_index_statement:
+    - keyword: CREATE
+    - keyword: INDEX
+    - index_reference:
+        naked_identifier: idx
+    - index_type:
+      - keyword: USING
+      - keyword: HASH
+    - keyword: 'ON'
+    - table_reference:
+        naked_identifier: tbl
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          naked_identifier: col
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_index_statement:
+    - keyword: CREATE
+    - keyword: INDEX
+    - index_reference:
+        naked_identifier: idx
+    - keyword: 'ON'
+    - table_reference:
+        naked_identifier: tbl
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          naked_identifier: col
+        keyword: ASC
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_index_statement:
+    - keyword: CREATE
+    - keyword: INDEX
+    - index_reference:
+        naked_identifier: idx
+    - keyword: 'ON'
+    - table_reference:
+        naked_identifier: tbl
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          naked_identifier: col
+        keyword: DESC
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_index_statement:
+    - keyword: CREATE
+    - keyword: INDEX
+    - index_reference:
+        naked_identifier: part_of_name
+    - keyword: 'ON'
+    - table_reference:
+        naked_identifier: customer
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          naked_identifier: name
+        bracketed:
+          start_bracket: (
+          numeric_literal: '10'
+          end_bracket: )
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_index_statement:
+    - keyword: CREATE
+    - keyword: INDEX
+    - index_reference:
+        naked_identifier: idx
+    - keyword: 'ON'
+    - table_reference:
+        naked_identifier: tbl
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          naked_identifier: col
+        end_bracket: )
+    - algorithm_option:
+      - keyword: ALGORITHM
+      - keyword: DEFAULT
+- statement_terminator: ;
+- statement:
+    create_index_statement:
+    - keyword: CREATE
+    - keyword: INDEX
+    - index_reference:
+        naked_identifier: idx
+    - keyword: 'ON'
+    - table_reference:
+        naked_identifier: tbl
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          naked_identifier: col
+        end_bracket: )
+    - algorithm_option:
+      - keyword: ALGORITHM
+      - keyword: NOCOPY
+- statement_terminator: ;
+- statement:
+    create_index_statement:
+    - keyword: CREATE
+    - keyword: INDEX
+    - index_reference:
+        naked_identifier: idx
+    - keyword: 'ON'
+    - table_reference:
+        naked_identifier: tbl
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          naked_identifier: col
+        end_bracket: )
+    - algorithm_option:
+      - keyword: ALGORITHM
+      - keyword: INSTANT
+- statement_terminator: ;
+- statement:
+    create_index_statement:
+    - keyword: CREATE
+    - keyword: INDEX
+    - index_reference:
+        naked_identifier: idx
+    - keyword: 'ON'
+    - table_reference:
+        naked_identifier: tbl
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          naked_identifier: col
+        end_bracket: )
+    - lock_option:
+      - keyword: LOCK
+      - keyword: DEFAULT
+- statement_terminator: ;
+- statement:
+    create_index_statement:
+    - keyword: CREATE
+    - keyword: INDEX
+    - index_reference:
+        naked_identifier: idx
+    - keyword: 'ON'
+    - table_reference:
+        naked_identifier: tbl
+    - bracketed:
+      - start_bracket: (
+      - bracketed:
+          start_bracket: (
+          expression:
+          - column_reference:
+              naked_identifier: col1
+          - binary_operator: +
+          - column_reference:
+              naked_identifier: col2
+          end_bracket: )
+      - comma: ','
+      - bracketed:
+          start_bracket: (
+          expression:
+          - column_reference:
+              naked_identifier: col1
+          - binary_operator: '-'
+          - column_reference:
+              naked_identifier: col2
+          end_bracket: )
+      - comma: ','
+      - column_reference:
+          naked_identifier: col1
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_index_statement:
+    - keyword: CREATE
+    - keyword: INDEX
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - index_reference:
+        naked_identifier: index_name
+    - keyword: 'ON'
+    - table_reference:
+        naked_identifier: table_name
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          naked_identifier: field_name
+        end_bracket: )
+- statement_terminator: ;

@@ -1,0 +1,23 @@
+file:
+  - placeholder: '{% macro test_macro() %}'
+  - indent: ''
+  - placeholder: "\n    SELECT 2;\n"
+  - dedent: ''
+  - placeholder: '{% endmacro %}'
+  - newline: "\n"
+  - newline: "\n"
+  - newline: "\n"
+  - whitespace: '    '
+  - statement:
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          indent: ''
+          whitespace: ' '
+          select_clause_element:
+            numeric_literal: '2'
+          dedent: ''
+  - statement_terminator: ;
+  - newline: "\n"
+  - newline: "\n"
+  - end_of_file: ''

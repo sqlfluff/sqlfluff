@@ -3,23 +3,23 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: e6b262b2dc1698bdae9e72a3ebfcb70eaeacca7b4d89c133c9d3471e3f0ec6ce
+_hash: f2ec6c3de951ea1b764a10ac67bddbe60a46994bcfcc6539af64f0fd3b8cd827
 file:
 - statement:
     create_table_statement:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-        identifier: users
+        naked_identifier: users
     - bracketed:
       - start_bracket: (
       - column_definition:
-          identifier: username
+          naked_identifier: username
           data_type:
             data_type_identifier: TEXT
       - comma: ','
       - column_definition:
-          identifier: age
+          naked_identifier: age
           data_type:
             data_type_identifier: INT
           column_constraint_segment:
@@ -28,9 +28,10 @@ file:
               start_bracket: (
               expression:
                 column_reference:
-                  identifier: age
-                comparison_operator: '>'
-                literal: '18'
+                  naked_identifier: age
+                comparison_operator:
+                  raw_comparison_operator: '>'
+                numeric_literal: '18'
               end_bracket: )
       - end_bracket: )
 - statement_terminator: ;
@@ -39,16 +40,16 @@ file:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-        identifier: users
+        naked_identifier: users
     - bracketed:
       - start_bracket: (
       - column_definition:
-          identifier: username
+          naked_identifier: username
           data_type:
             data_type_identifier: TEXT
       - comma: ','
       - column_definition:
-          identifier: age
+          naked_identifier: age
           data_type:
             data_type_identifier: INT
           column_constraint_segment:
@@ -57,10 +58,10 @@ file:
               start_bracket: (
               expression:
               - column_reference:
-                  identifier: age
+                  naked_identifier: age
               - keyword: IS
               - keyword: NOT
-              - keyword: 'NULL'
+              - null_literal: 'NULL'
               end_bracket: )
       - end_bracket: )
 - statement_terminator: ;
@@ -69,11 +70,11 @@ file:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-        identifier: Persons
+        naked_identifier: Persons
     - bracketed:
       - start_bracket: (
       - column_definition:
-          identifier: ID
+          naked_identifier: ID
           data_type:
             data_type_identifier: int
           column_constraint_segment:
@@ -81,45 +82,45 @@ file:
           - keyword: 'NULL'
       - comma: ','
       - column_definition:
-          identifier: LastName
+          naked_identifier: LastName
           data_type:
             data_type_identifier: varchar
-            bracketed:
-              start_bracket: (
-              expression:
-                literal: '255'
-              end_bracket: )
+            bracketed_arguments:
+              bracketed:
+                start_bracket: (
+                numeric_literal: '255'
+                end_bracket: )
           column_constraint_segment:
           - keyword: NOT
           - keyword: 'NULL'
       - comma: ','
       - column_definition:
-          identifier: FirstName
+          naked_identifier: FirstName
           data_type:
             data_type_identifier: varchar
-            bracketed:
-              start_bracket: (
-              expression:
-                literal: '255'
-              end_bracket: )
+            bracketed_arguments:
+              bracketed:
+                start_bracket: (
+                numeric_literal: '255'
+                end_bracket: )
       - comma: ','
       - column_definition:
-          identifier: Age
+          naked_identifier: Age
           data_type:
             data_type_identifier: int
       - comma: ','
       - column_definition:
-          identifier: City
+          naked_identifier: City
           data_type:
             data_type_identifier: varchar
-            bracketed:
-              start_bracket: (
-              expression:
-                literal: '255'
-              end_bracket: )
+            bracketed_arguments:
+              bracketed:
+                start_bracket: (
+                numeric_literal: '255'
+                end_bracket: )
       - comma: ','
       - column_definition:
-          identifier: CONSTRAINT
+          naked_identifier: CONSTRAINT
           data_type:
             data_type_identifier: CHK_Person
           column_constraint_segment:
@@ -128,14 +129,17 @@ file:
               start_bracket: (
               expression:
               - column_reference:
-                  identifier: Age
-              - comparison_operator: '>='
-              - literal: '18'
+                  naked_identifier: Age
+              - comparison_operator:
+                - raw_comparison_operator: '>'
+                - raw_comparison_operator: '='
+              - numeric_literal: '18'
               - binary_operator: AND
               - column_reference:
-                  identifier: City
-              - comparison_operator: '='
-              - literal: "'Sandnes'"
+                  naked_identifier: City
+              - comparison_operator:
+                  raw_comparison_operator: '='
+              - quoted_literal: "'Sandnes'"
               end_bracket: )
       - end_bracket: )
 - statement_terminator: ;

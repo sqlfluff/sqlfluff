@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: e43effa72644b4121d50c7b8dfb79274d9064a19165fe51b7ed7f4a72038a93f
+_hash: 3aeb0b5ca772593ef5b180ecc72ad1f6afb381bc8de9658f67d85b603477c2a7
 file:
   statement:
     set_expression:
@@ -12,17 +12,18 @@ file:
           keyword: SELECT
           select_clause_element:
             column_reference:
-              identifier: col_a
+              naked_identifier: col_a
             alias_expression:
-              keyword: as
-              identifier: foo
+              alias_operator:
+                keyword: as
+              naked_identifier: foo
         from_clause:
           keyword: FROM
           from_expression:
             from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: some_table
+                  naked_identifier: some_table
     - set_operator:
         keyword: UNION
     - select_statement:
@@ -30,17 +31,18 @@ file:
           keyword: SELECT
           select_clause_element:
             column_reference:
-              identifier: col_b
+              naked_identifier: col_b
             alias_expression:
-              keyword: as
-              identifier: foo
+              alias_operator:
+                keyword: as
+              naked_identifier: foo
         from_clause:
           keyword: FROM
           from_expression:
             from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: another_table
+                  naked_identifier: another_table
     - set_operator:
       - keyword: UNION
       - keyword: ALL
@@ -49,17 +51,18 @@ file:
           keyword: SELECT
           select_clause_element:
             column_reference:
-              identifier: col_c
+              naked_identifier: col_c
             alias_expression:
-              keyword: as
-              identifier: foo
+              alias_operator:
+                keyword: as
+              naked_identifier: foo
         from_clause:
           keyword: FROM
           from_expression:
             from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: this_other_table
+                  naked_identifier: this_other_table
     - set_operator:
         keyword: INTERSECT
     - select_statement:
@@ -67,14 +70,15 @@ file:
           keyword: SELECT
           select_clause_element:
             column_reference:
-              identifier: col_d
+              naked_identifier: col_d
             alias_expression:
-              keyword: as
-              identifier: foo
+              alias_operator:
+                keyword: as
+              naked_identifier: foo
         from_clause:
           keyword: FROM
           from_expression:
             from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: the_last_table
+                  naked_identifier: the_last_table

@@ -1,0 +1,287 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 3090d22ed8d674194f74900d99e51ec931338de29f73450737f52cc62ff7c088
+file:
+- statement:
+    alter_publication_statement:
+    - keyword: ALTER
+    - keyword: PUBLICATION
+    - publication_reference:
+        naked_identifier: abc
+    - keyword: ADD
+    - publication_objects:
+        keyword: TABLE
+        publication_table:
+          table_reference:
+            naked_identifier: def
+- statement_terminator: ;
+- statement:
+    alter_publication_statement:
+    - keyword: ALTER
+    - keyword: PUBLICATION
+    - publication_reference:
+        naked_identifier: abc
+    - keyword: ADD
+    - publication_objects:
+        keyword: TABLE
+        publication_table:
+          table_reference:
+            naked_identifier: def
+    - comma: ','
+    - publication_objects:
+        keyword: TABLE
+        publication_table:
+          table_reference:
+            naked_identifier: ghi
+- statement_terminator: ;
+- statement:
+    alter_publication_statement:
+    - keyword: ALTER
+    - keyword: PUBLICATION
+    - publication_reference:
+        naked_identifier: abc
+    - keyword: ADD
+    - publication_objects:
+      - keyword: TABLE
+      - publication_table:
+          table_reference:
+            naked_identifier: def
+      - comma: ','
+      - publication_table:
+          table_reference:
+            naked_identifier: ghi
+          star: '*'
+      - comma: ','
+      - publication_table:
+          keyword: ONLY
+          table_reference:
+            naked_identifier: jkl
+      - comma: ','
+      - publication_table:
+          keyword: ONLY
+          bracketed:
+            start_bracket: (
+            table_reference:
+              naked_identifier: mno
+            end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_publication_statement:
+    - keyword: ALTER
+    - keyword: PUBLICATION
+    - publication_reference:
+        naked_identifier: abc
+    - keyword: SET
+    - publication_objects:
+      - keyword: TABLE
+      - publication_table:
+          table_reference:
+            naked_identifier: def
+      - comma: ','
+      - publication_table:
+          table_reference:
+            naked_identifier: ghi
+    - comma: ','
+    - publication_objects:
+      - keyword: TABLES
+      - keyword: IN
+      - keyword: SCHEMA
+      - schema_reference:
+          naked_identifier: y
+      - comma: ','
+      - schema_reference:
+          naked_identifier: z
+      - comma: ','
+      - keyword: CURRENT_SCHEMA
+- statement_terminator: ;
+- statement:
+    alter_publication_statement:
+    - keyword: ALTER
+    - keyword: PUBLICATION
+    - publication_reference:
+        naked_identifier: abc
+    - keyword: SET
+    - definition_parameters:
+        bracketed:
+        - start_bracket: (
+        - definition_parameter:
+            properties_naked_identifier: publish
+            comparison_operator:
+              raw_comparison_operator: '='
+            quoted_literal: "'insert,update'"
+        - comma: ','
+        - definition_parameter:
+            properties_naked_identifier: publish_via_partition_root
+            comparison_operator:
+              raw_comparison_operator: '='
+            boolean_literal: 'TRUE'
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_publication_statement:
+    - keyword: ALTER
+    - keyword: PUBLICATION
+    - publication_reference:
+        naked_identifier: abc
+    - keyword: OWNER
+    - keyword: TO
+    - role_reference:
+        naked_identifier: bob
+- statement_terminator: ;
+- statement:
+    alter_publication_statement:
+    - keyword: ALTER
+    - keyword: PUBLICATION
+    - publication_reference:
+        naked_identifier: abc
+    - keyword: OWNER
+    - keyword: TO
+    - keyword: CURRENT_ROLE
+- statement_terminator: ;
+- statement:
+    alter_publication_statement:
+    - keyword: ALTER
+    - keyword: PUBLICATION
+    - publication_reference:
+        naked_identifier: abc
+    - keyword: OWNER
+    - keyword: TO
+    - keyword: CURRENT_USER
+- statement_terminator: ;
+- statement:
+    alter_publication_statement:
+    - keyword: ALTER
+    - keyword: PUBLICATION
+    - publication_reference:
+        naked_identifier: abc
+    - keyword: OWNER
+    - keyword: TO
+    - keyword: SESSION_USER
+- statement_terminator: ;
+- statement:
+    alter_publication_statement:
+    - keyword: ALTER
+    - keyword: PUBLICATION
+    - publication_reference:
+        naked_identifier: abc
+    - keyword: RENAME
+    - keyword: TO
+    - publication_reference:
+        naked_identifier: def
+- statement_terminator: ;
+- statement:
+    alter_publication_statement:
+    - keyword: ALTER
+    - keyword: PUBLICATION
+    - publication_reference:
+        naked_identifier: noinsert
+    - keyword: SET
+    - definition_parameters:
+        bracketed:
+          start_bracket: (
+          definition_parameter:
+            properties_naked_identifier: publish
+            comparison_operator:
+              raw_comparison_operator: '='
+            quoted_literal: "'update, delete'"
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_publication_statement:
+    - keyword: ALTER
+    - keyword: PUBLICATION
+    - publication_reference:
+        naked_identifier: mypublication
+    - keyword: ADD
+    - publication_objects:
+      - keyword: TABLE
+      - publication_table:
+          table_reference:
+            naked_identifier: users
+          bracketed:
+          - start_bracket: (
+          - column_reference:
+              naked_identifier: user_id
+          - comma: ','
+          - column_reference:
+              naked_identifier: firstname
+          - end_bracket: )
+      - comma: ','
+      - publication_table:
+          table_reference:
+            naked_identifier: departments
+- statement_terminator: ;
+- statement:
+    alter_publication_statement:
+    - keyword: ALTER
+    - keyword: PUBLICATION
+    - publication_reference:
+        naked_identifier: mypublication
+    - keyword: SET
+    - publication_objects:
+        keyword: TABLE
+        publication_table:
+          table_reference:
+            naked_identifier: users
+          bracketed:
+          - start_bracket: (
+          - column_reference:
+              naked_identifier: user_id
+          - comma: ','
+          - column_reference:
+              naked_identifier: firstname
+          - comma: ','
+          - column_reference:
+              naked_identifier: lastname
+          - end_bracket: )
+    - comma: ','
+    - publication_objects:
+        keyword: TABLE
+        publication_table:
+          table_reference:
+            naked_identifier: departments
+- statement_terminator: ;
+- statement:
+    alter_publication_statement:
+    - keyword: ALTER
+    - keyword: PUBLICATION
+    - publication_reference:
+        naked_identifier: sales_publication
+    - keyword: ADD
+    - publication_objects:
+      - keyword: TABLES
+      - keyword: IN
+      - keyword: SCHEMA
+      - schema_reference:
+          naked_identifier: marketing
+      - comma: ','
+      - schema_reference:
+          naked_identifier: sales
+- statement_terminator: ;
+- statement:
+    alter_publication_statement:
+    - keyword: ALTER
+    - keyword: PUBLICATION
+    - publication_reference:
+        naked_identifier: production_publication
+    - keyword: ADD
+    - publication_objects:
+      - keyword: TABLE
+      - publication_table:
+          table_reference:
+            naked_identifier: users
+      - comma: ','
+      - publication_table:
+          table_reference:
+            naked_identifier: departments
+    - comma: ','
+    - publication_objects:
+      - keyword: TABLES
+      - keyword: IN
+      - keyword: SCHEMA
+      - schema_reference:
+          naked_identifier: production
+- statement_terminator: ;

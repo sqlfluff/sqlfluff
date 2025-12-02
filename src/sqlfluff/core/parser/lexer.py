@@ -1,24 +1,85 @@
 """The code for the Lexer."""
 
 import logging
-from typing import Optional, List, Tuple, Union, NamedTuple
-import re
+from collections.abc import Iterator
+from typing import Any, NamedTuple, Optional, Union
+from uuid import UUID, uuid4
 
+import regex
+
+from sqlfluff.core.config import FluffConfig
+from sqlfluff.core.errors import SQLLexError
+from sqlfluff.core.helpers.slice import is_zero_slice, offset_slice, to_tuple
+from sqlfluff.core.parser.markers import PositionMarker
 from sqlfluff.core.parser.segments import (
     BaseSegment,
-    RawSegment,
-    Indent,
     Dedent,
+    EndOfFile,
+    ImplicitIndent,
+    Indent,
+    LiteralKeywordSegment,
+    MetaSegment,
+    RawSegment,
+    TemplateLoop,
     TemplateSegment,
     UnlexableSegment,
 )
-from sqlfluff.core.parser.markers import PositionMarker
-from sqlfluff.core.errors import SQLLexError
 from sqlfluff.core.templaters import TemplatedFile
-from sqlfluff.core.config import FluffConfig
+from sqlfluff.core.templaters.base import TemplatedFileSlice
 
 # Instantiate the lexer logger
 lexer_logger = logging.getLogger("sqlfluff.lexer")
+
+
+class BlockTracker:
+    """This is an object for keeping track of templating blocks.
+
+    Using the .enter() and .exit() methods on opening and closing
+    blocks, we can match up tags of the same level so that later
+    it's easier to treat them the same way in the linting engine.
+
+    In case looping means that we encounter the same block more
+    than once, we use cache uuids against their source location
+    so that if we try to re-enter the block again, it will get
+    the same uuid on the second pass.
+    """
+
+    _stack: list[UUID] = []
+    _map: dict[tuple[int, int], UUID] = {}
+
+    def enter(self, src_slice: slice) -> None:
+        """Add a block to the stack."""
+        key = to_tuple(src_slice)
+        uuid = self._map.get(key, None)
+
+        if not uuid:
+            uuid = uuid4()
+            self._map[key] = uuid
+            lexer_logger.debug(
+                "        Entering block stack @ %s: %s (fresh)",
+                src_slice,
+                uuid,
+            )
+        else:
+            lexer_logger.debug(
+                "        Entering block stack @ %s: %s (cached)",
+                src_slice,
+                uuid,
+            )
+
+        self._stack.append(uuid)
+
+    def exit(self) -> None:
+        """Pop a block from the stack."""
+        uuid = self._stack.pop()
+        lexer_logger.debug(
+            "        Exiting block stack: %s",
+            uuid,
+        )
+
+    def top(self) -> UUID:
+        """Get the uuid on top of the stack."""
+        return self._stack[-1]
 
 
 class LexedElement(NamedTuple):
@@ -36,26 +97,35 @@ class TemplateElement(NamedTuple):
     matcher: "StringLexer"
 
     @classmethod
-    def from_element(cls, element: LexedElement, template_slice: slice):
+    def from_element(
+        cls, element: LexedElement, template_slice: slice
+    ) -> "TemplateElement":
         """Make a TemplateElement from a LexedElement."""
         return cls(
             raw=element.raw, template_slice=template_slice, matcher=element.matcher
         )
 
-    def to_segment(self, pos_marker):
+    def to_segment(
+        self, pos_marker: PositionMarker, subslice: Optional[slice] = None
+    ) -> RawSegment:
         """Create a segment from this lexed element."""
-        return self.matcher.construct_segment(self.raw, pos_marker=pos_marker)
+        return self.matcher.construct_segment(
+            self.raw[subslice] if subslice else self.raw, pos_marker=pos_marker
+        )
 
 
 class LexMatch(NamedTuple):
     """A class to hold matches from the Lexer."""
 
     forward_string: str
-    elements: List[LexedElement]
+    elements: list[LexedElement]
 
-    def __bool__(self):
+    def __bool__(self) -> bool:
         """A LexMatch is truthy if it contains a non-zero number of matched elements."""
         return len(self.elements) > 0
+
+
+LexerType = Union["RegexLexer", "StringLexer"]
 
 
 class StringLexer:
@@ -69,22 +139,30 @@ class StringLexer:
 
     def __init__(
         self,
-        name,
-        template,
-        segment_class,
-        subdivider=None,
-        trim_post_subdivide=None,
-        segment_kwargs=None,
-    ):
+        name: str,
+        template: str,
+        segment_class: type[RawSegment],
+        subdivider: Optional[LexerType] = None,
+        trim_post_subdivide: Optional[LexerType] = None,
+        segment_kwargs: Optional[dict[str, Any]] = None,
+    ) -> None:
         self.name = name
         self.template = template
         self.segment_class = segment_class
         self.subdivider = subdivider
         self.trim_post_subdivide = trim_post_subdivide
         self.segment_kwargs = segment_kwargs or {}
+        self.__post_init__()
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"<{self.__class__.__name__}: {self.name}>"
+
+    def __post_init__(self) -> None:
+        """Optional post-init method called after __init__().
+
+        Designed for subclasses to use.
+        """
+        pass
 
     def _match(self, forward_string: str) -> Optional[LexedElement]:
         """The private match function. Just look for a literal string."""
@@ -93,7 +171,7 @@ class StringLexer:
         else:
             return None
 
-    def search(self, forward_string: str) -> Optional[Tuple[int, int]]:
+    def search(self, forward_string: str) -> Optional[tuple[int, int]]:
         """Use string methods to find a substring."""
         loc = forward_string.find(self.template)
         if loc >= 0:
@@ -101,14 +179,14 @@ class StringLexer:
         else:
             return None
 
-    def _trim_match(self, matched_str: str) -> List[LexedElement]:
+    def _trim_match(self, matched_str: str) -> list[LexedElement]:
         """Given a string, trim if we are allowed to.
 
         Returns:
             :obj:`tuple` of LexedElement
 
         """
-        elem_buff: List[LexedElement] = []
+        elem_buff: list[LexedElement] = []
         content_buff = ""
         str_buff = matched_str
 
@@ -153,7 +231,7 @@ class StringLexer:
             )
         return elem_buff
 
-    def _subdivide(self, matched: LexedElement) -> List[LexedElement]:
+    def _subdivide(self, matched: LexedElement) -> list[LexedElement]:
         """Given a string, subdivide if we area allowed to.
 
         Returns:
@@ -163,7 +241,7 @@ class StringLexer:
         # Can we have to subdivide?
         if self.subdivider:
             # Yes subdivision
-            elem_buff: List[LexedElement] = []
+            elem_buff: list[LexedElement] = []
             str_buff = matched.raw
             while str_buff:
                 # Iterate through subdividing as appropriate
@@ -207,22 +285,38 @@ class StringLexer:
         else:
             return LexMatch(forward_string, [])
 
-    def construct_segment(self, raw, pos_marker):
-        """Construct a segment using the given class a properties."""
-        return self.segment_class(
-            raw=raw, pos_marker=pos_marker, name=self.name, **self.segment_kwargs
-        )
+    def construct_segment(self, raw: str, pos_marker: PositionMarker) -> RawSegment:
+        """Construct a segment using the given class a properties.
+
+        Unless an override `type` is provided in the `segment_kwargs`,
+        it is assumed that the `name` of the lexer is designated as the
+        intended `type` of the segment.
+        """
+        # NOTE: Using a private attribute here feels a bit wrong.
+        _segment_class_types = self.segment_class._class_types
+        _kwargs = self.segment_kwargs
+        assert not (
+            "type" in _kwargs and "instance_types" in _kwargs
+        ), f"Cannot set both `type` and `instance_types` in segment kwargs: {_kwargs}"
+        if "type" in _kwargs:
+            # TODO: At some point we should probably deprecate this API and only
+            # allow setting `instance_types`.
+            assert _kwargs["type"]
+            _kwargs["instance_types"] = (_kwargs.pop("type"),)
+        elif "instance_types" not in _kwargs and self.name not in _segment_class_types:
+            _kwargs["instance_types"] = (self.name,)
+        return self.segment_class(raw=raw, pos_marker=pos_marker, **_kwargs)
 
 
 class RegexLexer(StringLexer):
     """This RegexLexer matches based on regular expressions."""
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def __post_init__(self) -> None:
+        """Handle setup for RegexLexer."""
         # We might want to configure this at some point, but for now, newlines
         # do get matched by .
-        flags = re.DOTALL
-        self._compiled_regex = re.compile(self.template, flags)
+        flags = regex.DOTALL
+        self._compiled_regex = regex.compile(self.template, flags)
 
     def _match(self, forward_string: str) -> Optional[LexedElement]:
         """Use regexes to match chunks."""
@@ -232,13 +326,14 @@ class RegexLexer(StringLexer):
             match_str = match.group(0)
             if match_str:
                 return LexedElement(match_str, self)
-            else:
+            else:  # pragma: no cover
                 lexer_logger.warning(
-                    f"Zero length Lex item returned from {self.name!r}. Report this as a bug."
+                    f"Zero length Lex item returned from {self.name!r}. Report this as "
+                    "a bug."
                 )
         return None
 
-    def search(self, forward_string: str) -> Optional[Tuple[int, int]]:
+    def search(self, forward_string: str) -> Optional[tuple[int, int]]:
         """Use regex to find a substring."""
         match = self._compiled_regex.search(forward_string)
         if match:
@@ -247,12 +342,390 @@ class RegexLexer(StringLexer):
                 return match.span()
             else:  # pragma: no cover
                 lexer_logger.warning(
-                    f"Zero length Lex item returned from {self.name!r}. Report this as a bug."
+                    f"Zero length Lex item returned from {self.name!r}. Report this as "
+                    "a bug."
                 )
         return None
 
 
-class Lexer:
+def _handle_zero_length_slice(
+    tfs: TemplatedFileSlice,
+    next_tfs: Optional[TemplatedFileSlice],
+    block_stack: BlockTracker,
+    templated_file: TemplatedFile,
+    add_indents: bool,
+) -> Iterator[MetaSegment]:
+    """Generate placeholders and loop segments from a zero length slice.
+
+    This method checks for:
+    1. Backward jumps (inserting :obj:`TemplateLoop`).
+    2. Forward jumps (inserting :obj:`TemplateSegment`).
+    3. Blocks (inserting :obj:`TemplateSegment`).
+    4. Unrendered template elements(inserting :obj:`TemplateSegment`).
+
+    For blocks and loops, :obj:`Indent` and :obj:`Dedent` segments are
+    yielded around them as appropriate.
+
+    NOTE: block_stack is _mutated_ by this method.
+    """
+    assert is_zero_slice(tfs.templated_slice)
+    # First check for jumps. Backward initially, because in the backward
+    # case we don't render the element we find first.
+    # That requires being able to look past to the next element.
+    if tfs.slice_type.startswith("block") and next_tfs:
+        # Look for potential backward jump
+        if next_tfs.source_slice.start < tfs.source_slice.start:
+            lexer_logger.debug("      Backward jump detected. Inserting Loop Marker")
+            # If we're here remember we're on the tfs which is the block end
+            # i.e. not the thing we want to render.
+            pos_marker = PositionMarker.from_point(
+                tfs.source_slice.start,
+                tfs.templated_slice.start,
+                templated_file,
+            )
+            if add_indents:
+                yield Dedent(
+                    is_template=True,
+                    pos_marker=pos_marker,
+                )
+
+            yield TemplateLoop(pos_marker=pos_marker, block_uuid=block_stack.top())
+
+            if add_indents:
+                yield Indent(
+                    is_template=True,
+                    pos_marker=pos_marker,
+                )
+            # Move on to the next templated slice. Don't render this directly.
+            return
+
+    # Then handle blocks (which aren't jumps backward)
+    if tfs.slice_type.startswith("block"):
+        # It's a block. Yield a placeholder with potential indents.
+
+        # Update block stack or add indents
+        if tfs.slice_type == "block_start":
+            block_stack.enter(tfs.source_slice)
+        elif add_indents and tfs.slice_type in ("block_end", "block_mid"):
+            yield Dedent(
+                is_template=True,
+                pos_marker=PositionMarker.from_point(
+                    tfs.source_slice.start,
+                    tfs.templated_slice.start,
+                    templated_file,
+                ),
+                # NOTE: We mark the dedent with the block uuid too.
+                block_uuid=block_stack.top(),
+            )
+
+        yield TemplateSegment.from_slice(
+            tfs.source_slice,
+            tfs.templated_slice,
+            block_type=tfs.slice_type,
+            templated_file=templated_file,
+            block_uuid=block_stack.top(),
+        )
+
+        # Update block stack or add indents
+        if tfs.slice_type == "block_end":
+            block_stack.exit()
+        elif add_indents and tfs.slice_type in ("block_start", "block_mid"):
+            yield Indent(
+                is_template=True,
+                pos_marker=PositionMarker.from_point(
+                    tfs.source_slice.stop,
+                    tfs.templated_slice.stop,
+                    templated_file,
+                ),
+                # NOTE: We mark the indent with the block uuid too.
+                block_uuid=block_stack.top(),
+            )
+
+        # Before we move on, we might have a _forward_ jump to the next
+        # element. That element can handle itself, but we'll add a
+        # placeholder for it here before we move on.
+        if next_tfs and next_tfs.source_slice.start > tfs.source_slice.stop:
+            # We do so extract the string.
+            placeholder_str = templated_file.source_str[
+                tfs.source_slice.stop : next_tfs.source_slice.start
+            ]
+            # Trim it if it's too long to show.
+            if len(placeholder_str) >= 20:
+                placeholder_str = (
+                    f"... [{len(placeholder_str)} unused template characters] ..."
+                )
+            lexer_logger.debug("      Forward jump detected. Inserting placeholder")
+            yield TemplateSegment(
+                pos_marker=PositionMarker(
+                    slice(tfs.source_slice.stop, next_tfs.source_slice.start),
+                    # Zero slice in the template.
+                    tfs.templated_slice,
+                    templated_file,
+                ),
+                source_str=placeholder_str,
+                block_type="skipped_source",
+            )
+
+        # Move on
+        return
+
+    # Always return the slice, even if the source slice was also zero length.  Some
+    # templaters might want to pass through totally zero length slices as a way of
+    # marking locations in the middle of templated output.
+    yield TemplateSegment.from_slice(
+        tfs.source_slice,
+        tfs.templated_slice,
+        tfs.slice_type,
+        templated_file,
+    )
+
+
+def _iter_segments(
+    lexed_elements: list[TemplateElement],
+    templated_file: TemplatedFile,
+    add_indents: bool = True,
+) -> Iterator[RawSegment]:
+    # An index to track where we've got to in the templated file.
+    tfs_idx = 0
+    # We keep a map of previous block locations in case they re-occur.
+    block_stack = BlockTracker()
+    templated_file_slices = templated_file.sliced_file
+
+    # Now work out source slices, and add in template placeholders.
+    for idx, element in enumerate(lexed_elements):
+        # We're working through elements in the rendered file.
+        # When they enter this code they don't have a position in the source.
+        # We already have a map of how templated elements map to the source file
+        # so we work through them to work out what's going on. In theory we can
+        # step through the two lists in lock step.
+
+        # i.e. we worked through the lexed elements, but check off the templated
+        # file slices as we go.
+
+        # Output the slice as we lex.
+        lexer_logger.debug("  %s: %s. [tfs_idx = %s]", idx, element, tfs_idx)
+
+        # All lexed elements, by definition, have a position in the templated
+        # file. That means we've potentially got zero-length elements we also
+        # need to consider. We certainly need to consider templated slices
+        # at tfs_idx. But we should consider some others after that which we
+        # might also need to consider.
+
+        # A lexed element is either a literal in the raw file or the result
+        # (or part of the result) of a template placeholder. We don't make
+        # placeholders for any variables which return a non-zero length of
+        # code. We do add placeholders for others.
+
+        # The amount of the current element which has already been consumed.
+        consumed_element_length = 0
+        # The position in the source which we still need to yield from.
+        stashed_source_idx = None
+
+        for tfs_idx, tfs in enumerate(templated_file_slices[tfs_idx:], tfs_idx):
+            lexer_logger.debug("      %s: %s", tfs_idx, tfs)
+
+            # Is it a zero slice?
+            if is_zero_slice(tfs.templated_slice):
+                next_tfs = (
+                    templated_file_slices[tfs_idx + 1]
+                    if tfs_idx + 1 < len(templated_file_slices)
+                    else None
+                )
+                yield from _handle_zero_length_slice(
+                    tfs, next_tfs, block_stack, templated_file, add_indents
+                )
+                continue
+
+            if tfs.slice_type == "literal":
+                # There's a literal to deal with here. Yield as much as we can.
+
+                # Can we cover this whole lexed element with the current templated
+                # slice without moving on?
+                tfs_offset = tfs.source_slice.start - tfs.templated_slice.start
+                # NOTE: Greater than OR EQUAL, to include the case of it matching
+                # length exactly.
+                if element.template_slice.stop <= tfs.templated_slice.stop:
+                    lexer_logger.debug(
+                        "     Consuming whole from literal. Existing Consumed: %s",
+                        consumed_element_length,
+                    )
+                    # If we have a stashed start use that. Otherwise infer start.
+                    if stashed_source_idx is not None:
+                        slice_start = stashed_source_idx
+                    else:
+                        slice_start = (
+                            element.template_slice.start
+                            + consumed_element_length
+                            + tfs_offset
+                        )
+                    yield element.to_segment(
+                        pos_marker=PositionMarker(
+                            slice(
+                                slice_start,
+                                element.template_slice.stop + tfs_offset,
+                            ),
+                            element.template_slice,
+                            templated_file,
+                        ),
+                        subslice=slice(consumed_element_length, None),
+                    )
+
+                    # If it was an exact match, consume the templated element too.
+                    if element.template_slice.stop == tfs.templated_slice.stop:
+                        tfs_idx += 1
+                    # In any case, we're done with this element. Move on
+                    break
+                elif element.template_slice.start == tfs.templated_slice.stop:
+                    # Did we forget to move on from the last tfs and there's
+                    # overlap?
+                    # NOTE: If the rest of the logic works, this should never
+                    # happen.
+                    lexer_logger.debug("     NOTE: Missed Skip")  # pragma: no cover
+                    continue  # pragma: no cover
+                else:
+                    # This means that the current lexed element spans across
+                    # multiple templated file slices.
+                    lexer_logger.debug("     Consuming whole spanning literal")
+                    # This almost certainly means there's a templated element
+                    # in the middle of a whole lexed element.
+
+                    # What we do here depends on whether we're allowed to split
+                    # lexed elements. This is basically only true if it's whitespace.
+                    # NOTE: We should probably make this configurable on the
+                    # matcher object, but for now we're going to look for the
+                    # name of the lexer.
+                    if element.matcher.name == "whitespace":
+                        # We *can* split it!
+                        # Consume what we can from this slice and move on.
+                        lexer_logger.debug(
+                            "     Consuming split whitespace from literal. "
+                            "Existing Consumed: %s",
+                            consumed_element_length,
+                        )
+                        if stashed_source_idx is not None:
+                            raise NotImplementedError(  # pragma: no cover
+                                "Found literal whitespace with stashed idx!"
+                            )
+                        incremental_length = (
+                            tfs.templated_slice.stop - element.template_slice.start
+                        )
+                        yield element.to_segment(
+                            pos_marker=PositionMarker(
+                                slice(
+                                    element.template_slice.start
+                                    + consumed_element_length
+                                    + tfs_offset,
+                                    tfs.templated_slice.stop + tfs_offset,
+                                ),
+                                element.template_slice,
+                                templated_file,
+                            ),
+                            # Subdivide the existing segment.
+                            subslice=offset_slice(
+                                consumed_element_length,
+                                incremental_length,
+                            ),
+                        )
+                        consumed_element_length += incremental_length
+                        continue
+                    else:
+                        # We can't split it. We're going to end up yielding a segment
+                        # which spans multiple slices. Stash the type, and if we haven't
+                        # set the start yet, stash it too.
+                        lexer_logger.debug("     Spilling over literal slice.")
+                        if stashed_source_idx is None:
+                            stashed_source_idx = (
+                                element.template_slice.start + tfs_offset
+                            )
+                            lexer_logger.debug(
+                                "     Stashing a source start. %s", stashed_source_idx
+                            )
+                        continue
+
+            elif tfs.slice_type in ("templated", "block_start", "escaped"):
+                # Found a templated slice. Does it have length in the templated file?
+                # If it doesn't, then we'll pick it up next.
+                if not is_zero_slice(tfs.templated_slice):
+                    # If it's a block_start. Append to the block stack.
+                    # NOTE: This is rare, but call blocks do occasionally
+                    # have length (and so don't get picked up by
+                    # _handle_zero_length_slice)
+                    if tfs.slice_type == "block_start":
+                        block_stack.enter(tfs.source_slice)
+
+                    # Is our current element totally contained in this slice?
+                    if element.template_slice.stop <= tfs.templated_slice.stop:
+                        lexer_logger.debug("     Contained templated slice.")
+                        # Yes it is. Add lexed element with source slices as the whole
+                        # span of the source slice for the file slice.
+                        # If we've got an existing stashed source start, use that
+                        # as the start of the source slice.
+                        if stashed_source_idx is not None:
+                            slice_start = stashed_source_idx
+                        else:
+                            slice_start = (
+                                tfs.source_slice.start + consumed_element_length
+                            )
+                        yield element.to_segment(
+                            pos_marker=PositionMarker(
+                                slice(
+                                    slice_start,
+                                    # The end in the source is the end of the templated
+                                    # slice. We can't subdivide any better.
+                                    tfs.source_slice.stop,
+                                ),
+                                element.template_slice,
+                                templated_file,
+                            ),
+                            subslice=slice(consumed_element_length, None),
+                        )
+
+                        # If it was an exact match, consume the templated element too.
+                        if element.template_slice.stop == tfs.templated_slice.stop:
+                            tfs_idx += 1
+                        # Carry on to the next lexed element
+                        break
+                    # We've got an element which extends beyond this templated slice.
+                    # This means that a _single_ lexed element claims both some
+                    # templated elements and some non-templated elements. That could
+                    # include all kinds of things (and from here we don't know what
+                    # else is yet to come, comments, blocks, literals etc...).
+
+                    # In the `literal` version of this code we would consider
+                    # splitting the literal element here, but in the templated
+                    # side we don't. That's because the way that templated tokens
+                    # are lexed, means that they should arrive "pre-split".
+                    else:
+                        # Stash the source idx for later when we do make a segment.
+                        lexer_logger.debug("     Spilling over templated slice.")
+                        if stashed_source_idx is None:
+                            stashed_source_idx = tfs.source_slice.start
+                            lexer_logger.debug(
+                                "     Stashing a source start as lexed element spans "
+                                "over the end of a template slice. %s",
+                                stashed_source_idx,
+                            )
+                        # Move on to the next template slice
+                        continue
+
+            raise NotImplementedError(
+                f"Unable to process slice: {tfs}"
+            )  # pragma: no cover
+
+    # If templated elements are left, yield them.
+    # We can assume they're all zero length if we're here.
+    for tfs_idx, tfs in enumerate(templated_file_slices[tfs_idx:], tfs_idx):
+        next_tfs = (
+            templated_file_slices[tfs_idx + 1]
+            if tfs_idx + 1 < len(templated_file_slices)
+            else None
+        )
+        yield from _handle_zero_length_slice(
+            tfs, next_tfs, block_stack, templated_file, add_indents
+        )
+
+
+class PyLexer:
     """The Lexer class actually does the lexing step."""
 
     def __init__(
@@ -261,26 +734,31 @@ class Lexer:
         last_resort_lexer: Optional[StringLexer] = None,
         dialect: Optional[str] = None,
     ):
-        # Allow optional config and dialect
-        self.config = FluffConfig.from_kwargs(config=config, dialect=dialect)
+        if config and dialect:
+            raise ValueError(  # pragma: no cover
+                "Lexer does not support setting both `config` and `dialect`."
+            )
+        # Use the provided config or create one from the dialect.
+        self.config = config or FluffConfig.from_kwargs(dialect=dialect)
         # Store the matchers
         self.lexer_matchers = self.config.get("dialect_obj").get_lexer_matchers()
 
         self.last_resort_lexer = last_resort_lexer or RegexLexer(
             "<unlexable>",
-            r"[^\t\n\,\.\ \-\+\*\\\/\'\"\;\:\[\]\(\)\|]*",
+            r"[^\t\n\ ]*",
             UnlexableSegment,
         )
 
     def lex(
         self, raw: Union[str, TemplatedFile]
-    ) -> Tuple[Tuple[BaseSegment, ...], List[SQLLexError]]:
+    ) -> tuple[tuple[BaseSegment, ...], list[SQLLexError]]:
         """Take a string or TemplatedFile and return segments.
 
         If we fail to match the *whole* string, then we must have
         found something that we cannot lex. If that happens we should
         package it up as unlexable and keep track of the exceptions.
         """
+        lexer_logger.info("Lexing file using PyLexer.")
         # Make sure we've got a string buffer and a template
         # regardless of what was passed in.
         if isinstance(raw, str):
@@ -291,16 +769,16 @@ class Lexer:
             str_buff = str(template)
 
         # Lex the string to get a tuple of LexedElement
-        element_buffer: List[LexedElement] = []
+        element_buffer: list[LexedElement] = []
         while True:
             res = self.lex_match(str_buff, self.lexer_matchers)
             element_buffer += res.elements
             if res.forward_string:
                 resort_res = self.last_resort_lexer.match(res.forward_string)
-                if not resort_res:
+                if not resort_res:  # pragma: no cover
                     # If we STILL can't match, then just panic out.
                     raise SQLLexError(
-                        f"Fatal. Unable to lex characters: {0!r}".format(
+                        "Fatal. Unable to lex characters: {0!r}".format(
                             res.forward_string[:10] + "..."
                             if len(res.forward_string) > 9
                             else res.forward_string
@@ -316,226 +794,43 @@ class Lexer:
         templated_buffer = self.map_template_slices(element_buffer, template)
 
         # Turn lexed elements into segments.
-        segments: Tuple[RawSegment, ...] = self.elements_to_segments(
+        segments: tuple[RawSegment, ...] = self.elements_to_segments(
             templated_buffer, template
         )
 
         # Generate any violations
-        violations: List[SQLLexError] = self.violations_from_segments(segments)
+        violations: list[SQLLexError] = self.violations_from_segments(segments)
 
         return segments, violations
 
     def elements_to_segments(
-        self, elements: List[TemplateElement], templated_file: TemplatedFile
-    ) -> Tuple[RawSegment, ...]:
+        self, elements: list[TemplateElement], templated_file: TemplatedFile
+    ) -> tuple[RawSegment, ...]:
         """Convert a tuple of lexed elements into a tuple of segments."""
-        # Working buffer to build up segments
-        segment_buffer: List[RawSegment] = []
-
         lexer_logger.info("Elements to Segments.")
-        # Get the templated slices to re-insert tokens for them
-        source_only_slices = templated_file.source_only_slices()
-        lexer_logger.info("Source-only slices: %s", source_only_slices)
-        stash_source_slice, last_source_slice = None, None
+        add_indents = self.config.get("template_blocks_indent", "indentation")
+        # Delegate to _iter_segments
+        segment_buffer: list[RawSegment] = list(
+            _iter_segments(elements, templated_file, add_indents)
+        )
 
-        # Now work out source slices, and add in template placeholders.
-        for idx, element in enumerate(elements):
-            # Calculate Source Slice
-            if idx != 0:
-                last_source_slice = stash_source_slice
-            source_slice = templated_file.templated_slice_to_source_slice(
-                element.template_slice
-            )
-            stash_source_slice = source_slice
-            # Output the slice as we lex.
-            lexer_logger.debug(
-                "  %s, %s, %s, %r",
-                idx,
-                element,
-                source_slice,
-                templated_file.templated_str[element.template_slice],
-            )
-
-            # The calculated source slice will include any source only slices.
-            # We should consider all of them in turn to see whether we can
-            # insert them.
-            so_slices = []
-            # Only look for source only slices if we've got a new source slice to
-            # avoid unnecessary duplication.
-            if last_source_slice != source_slice:
-                for source_only_slice in source_only_slices:
-                    # If it's later in the source, stop looking. Any later
-                    # ones *also* won't match.
-                    if source_only_slice.source_idx >= source_slice.stop:
-                        break
-                    elif source_only_slice.source_idx >= source_slice.start:
-                        so_slices.append(source_only_slice)
-
-            if so_slices:
-                lexer_logger.debug("    Collected Source Only Slices")
-                for so_slice in so_slices:
-                    lexer_logger.debug("       %s", so_slice)
-
-                # Calculate some things which will be useful
-                templ_str = templated_file.templated_str[element.template_slice]
-                source_str = templated_file.source_str[source_slice]
-
-                # For reasons which aren't entirely clear right now, if there is
-                # an included literal, it will always be at the end. Let's see if it's
-                # there.
-                if source_str.endswith(templ_str):
-                    existing_len = len(templ_str)
-                else:
-                    existing_len = 0
-
-                # Calculate slices
-                placeholder_slice = slice(
-                    source_slice.start, source_slice.stop - existing_len
-                )
-                placeholder_str = source_str[:-existing_len]
-                source_slice = slice(
-                    source_slice.stop - existing_len, source_slice.stop
-                )
-                # If it doesn't manage to extract a placeholder string from the source
-                # just concatenate the source only strings. There is almost always
-                # only one of them.
-                if not placeholder_str:
-                    placeholder_str = "".join(s.raw for s in so_slices)
-                # The Jinja templater sometimes returns source-only slices with
-                # gaps between. For example, in this section:
-                #
-                #   {% else %}
-                #   JOIN
-                #       {{action}}_raw_effect_sizes
-                #   USING
-                #       ({{ states }})
-                #   {% endif %}
-                #
-                # we might get {% else %} and {% endif %} slices, without the
-                # 4 lines between. This indicates those lines were not executed
-                # In this case, generate a placeholder where the skipped code is
-                # omitted but noted with a brief string, e.g.:
-                #
-                # "{% else %}... [103 unused template characters] ...{% endif %}".
-                #
-                # This is more readable -- it would be REALLY confusing for a
-                # placeholder to include code that wasn't even executed!!
-                if len(so_slices) >= 2:
-                    has_gap = False
-                    gap_placeholder_parts = []
-                    last_slice = None
-                    # For each slice...
-                    for so_slice in so_slices:
-                        # If it's not the first slice, was there a gap?
-                        if last_slice:
-                            end_last = last_slice.source_idx + len(last_slice.raw)
-                            chars_skipped = so_slice.source_idx - end_last
-                            if chars_skipped:
-                                # Yes, gap between last_slice and so_slice.
-                                has_gap = True
-
-                                # Generate a string documenting the gap.
-                                if chars_skipped >= 10:
-                                    gap_placeholder_parts.append(
-                                        f"... [{chars_skipped} unused template characters] ..."
-                                    )
-                                else:
-                                    gap_placeholder_parts.append("...")
-                        # Now add the slice's source.
-                        gap_placeholder_parts.append(so_slice.raw)
-                        last_slice = so_slice
-                    if has_gap:
-                        placeholder_str = "".join(gap_placeholder_parts)
-                lexer_logger.debug(
-                    "    Overlap Length: %s. PS: %s, LS: %s, p_str: %r, templ_str: %r",
-                    existing_len,
-                    placeholder_slice,
-                    source_slice,
-                    placeholder_str,
-                    templ_str,
-                )
-
-                # Calculate potential indent/dedent
-                block_slices = sum(s.slice_type.startswith("block_") for s in so_slices)
-                block_balance = sum(
-                    s.slice_type == "block_start" for s in so_slices
-                ) - sum(s.slice_type == "block_end" for s in so_slices)
-                lead_dedent = so_slices[0].slice_type in ("block_end", "block_mid")
-                trail_indent = so_slices[-1].slice_type in ("block_start", "block_mid")
-                add_indents = self.config.get("template_blocks_indent", "indentation")
-                lexer_logger.debug(
-                    "    Block Slices: %s. Block Balance: %s. Lead: %s, Trail: %s, Add: %s",
-                    block_slices,
-                    block_balance,
-                    lead_dedent,
-                    trail_indent,
-                    add_indents,
-                )
-
-                # Add a dedent if appropriate.
-                if lead_dedent and add_indents:
-                    lexer_logger.debug("      DEDENT")
-                    segment_buffer.append(
-                        Dedent(
-                            pos_marker=PositionMarker.from_point(
-                                placeholder_slice.start,
-                                element.template_slice.start,
-                                templated_file,
-                            )
-                        )
-                    )
-
-                # Always add a placeholder
-                segment_buffer.append(
-                    TemplateSegment(
-                        pos_marker=PositionMarker(
-                            placeholder_slice,
-                            slice(
-                                element.template_slice.start,
-                                element.template_slice.start,
-                            ),
-                            templated_file,
-                        ),
-                        source_str=placeholder_str,
-                        block_type=so_slices[0].slice_type
-                        if len(so_slices) == 1
-                        else "compound",
-                    )
-                )
-                lexer_logger.debug(
-                    "      Placeholder: %s, %r", segment_buffer[-1], placeholder_str
-                )
-
-                # Add an indent if appropriate.
-                if trail_indent and add_indents:
-                    lexer_logger.debug("      INDENT")
-                    segment_buffer.append(
-                        Indent(
-                            is_template=True,
-                            pos_marker=PositionMarker.from_point(
-                                placeholder_slice.stop,
-                                element.template_slice.start,
-                                templated_file,
-                            ),
-                        )
-                    )
-
-            # Add the actual segment
-            segment_buffer.append(
-                element.to_segment(
-                    pos_marker=PositionMarker(
-                        source_slice,
-                        element.template_slice,
-                        templated_file,
-                    ),
+        # Add an end of file marker
+        segment_buffer.append(
+            EndOfFile(
+                pos_marker=(
+                    segment_buffer[-1].pos_marker.end_point_marker()
+                    if segment_buffer
+                    else PositionMarker.from_point(0, 0, templated_file)
                 )
             )
-
+        )
         # Convert to tuple before return
         return tuple(segment_buffer)
 
     @staticmethod
-    def violations_from_segments(segments: Tuple[RawSegment, ...]) -> List[SQLLexError]:
+    def violations_from_segments(
+        segments: tuple[RawSegment, ...],
+    ) -> list[SQLLexError]:
         """Generate any lexing errors for any unlexables."""
         violations = []
         for segment in segments:
@@ -553,9 +848,9 @@ class Lexer:
         return violations
 
     @staticmethod
-    def lex_match(forward_string: str, lexer_matchers: List[StringLexer]) -> LexMatch:
+    def lex_match(forward_string: str, lexer_matchers: list[StringLexer]) -> LexMatch:
         """Iteratively match strings using the selection of submatchers."""
-        elem_buff: List[LexedElement] = []
+        elem_buff: list[LexedElement] = []
         while True:
             if len(forward_string) == 0:
                 return LexMatch(forward_string, elem_buff)
@@ -574,8 +869,8 @@ class Lexer:
 
     @staticmethod
     def map_template_slices(
-        elements: List[LexedElement], template: TemplatedFile
-    ) -> List[TemplateElement]:
+        elements: list[LexedElement], template: TemplatedFile
+    ) -> list[TemplateElement]:
         """Create a tuple of TemplateElement from a tuple of LexedElement.
 
         This adds slices in the templated file to the original lexed
@@ -583,9 +878,9 @@ class Lexer:
         file.
         """
         idx = 0
-        templated_buff: List[TemplateElement] = []
+        templated_buff: list[TemplateElement] = []
         for element in elements:
-            template_slice = slice(idx, idx + len(element.raw))
+            template_slice = offset_slice(idx, len(element.raw))
             idx += len(element.raw)
             templated_buff.append(TemplateElement.from_element(element, template_slice))
             if (
@@ -593,6 +888,92 @@ class Lexer:
             ):  # pragma: no cover
                 raise ValueError(
                     "Template and lexed elements do not match. This should never "
-                    f"happen {element.raw!r} != {template.templated_str[template_slice]!r}"
+                    f"happen {element.raw!r} != "
+                    f"{template.templated_str[template_slice]!r}"
                 )
         return templated_buff
+
+
+try:
+    from sqlfluffrs import RsLexer, RsToken
+
+    def get_segment_type_map(base_class: type) -> dict[str, type[RawSegment]]:
+        """Dynamically create a map of segment types to their subclasses."""
+        segment_map = {}
+        for subclass in base_class.__subclasses__():
+            if subclass is LiteralKeywordSegment or subclass is ImplicitIndent:
+                continue
+            if (
+                hasattr(subclass, "type") and subclass.type
+            ):  # Ensure the subclass has a type
+                segment_map[subclass.type] = subclass
+            # Recursively add subclasses of subclasses
+            segment_map.update(get_segment_type_map(subclass))
+        return segment_map
+
+    # Dynamically generate the segment_types map
+    segment_types = get_segment_type_map(RawSegment)
+
+    class PyRsLexer(RsLexer):
+        """A wrapper around the sqlfluffrs lexer."""
+
+        @staticmethod
+        def _tokens_to_segments(
+            tokens: list["RsToken"], py_template: TemplatedFile
+        ) -> tuple[BaseSegment, ...]:
+            """Convert tokens to segments."""
+            return tuple(
+                segment_types.get(token.type, RawSegment).from_rstoken(
+                    token, py_template
+                )
+                for token in tokens
+            )
+
+        def lex(
+            self, raw: Union[str, TemplatedFile]
+        ) -> tuple[tuple[BaseSegment, ...], list[SQLLexError]]:
+            """Take a string or TemplatedFile and return segments."""
+            lexer_logger.info("Lexing file using RsLexer.")
+            tokens, errors = self._lex(raw)
+            first_token = tokens[0]
+            assert first_token
+            template = first_token.pos_marker.templated_file
+            py_template = TemplatedFile(
+                template.source_str,
+                template.fname,
+                template.templated_str,
+                template.sliced_file,  # type: ignore
+                template.raw_sliced,  # type: ignore
+            )
+
+            return (
+                self._tokens_to_segments(tokens, py_template),
+                [SQLLexError.from_rs_error(error) for error in errors],
+            )
+
+    _HAS_RUST_LEXER = True
+except ImportError:
+    PyRsLexer = None  # type: ignore[assignment, misc]
+    _HAS_RUST_LEXER = False
+
+
+def get_lexer_class() -> type[Union[PyLexer, "PyRsLexer"]]:
+    """Get the appropriate lexer class based on availability.
+
+    Returns PyRsLexer if the Rust extension is available,
+    otherwise returns PyLexer.
+
+    This function provides a single point of lexer selection,
+    making it easy to instantiate the correct lexer:
+
+        Lexer = get_lexer_class()
+        lexer = Lexer(config=config)
+
+    Returns:
+        The lexer class to use (PyRsLexer or PyLexer).
+    """
+    if _HAS_RUST_LEXER:
+        lexer_logger.info("Rust extensions are available. Using PyRsLexer.")
+        return PyRsLexer
+    lexer_logger.info("Rust extensions are not available. Using PyLexer.")
+    return PyLexer

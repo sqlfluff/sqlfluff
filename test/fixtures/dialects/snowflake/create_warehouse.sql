@@ -1,0 +1,27 @@
+create or replace warehouse my_wh with warehouse_size='X-LARGE';
+create or replace warehouse my_wh warehouse_size=large initially_suspended=true;
+create warehouse if not exists LOAD_WH warehouse_size='medium';
+create warehouse if not exists LOAD_WH warehouse_size='medium' warehouse_type = standard;
+
+create warehouse my_wh
+    WAREHOUSE_TYPE = 'SNOWPARK-OPTIMIZED'
+    warehouse_size = 'medium'
+    SCALING_POLICY = ECONOMY
+    comment = 'comment'
+    auto_suspend = 60
+;
+
+CREATE OR ALTER WAREHOUSE my_wh;
+
+create warehouse my_wh
+    resource_constraint = 'STANDARD_GEN_1'
+    warehouse_size = 'medium'
+;
+
+create warehouse my_wh
+    resource_constraint = STANDARD_GEN_2
+    warehouse_size = 'medium'
+    SCALING_POLICY = ECONOMY
+    comment = 'comment'
+    auto_suspend = 60
+;

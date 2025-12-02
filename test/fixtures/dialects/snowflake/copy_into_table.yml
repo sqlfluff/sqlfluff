@@ -1,0 +1,520 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 03ebb03d1607d492fc6f819c3273de3b70736a79c54de8357b6fe94c3933f4c4
+file:
+- statement:
+    copy_into_table_statement:
+    - keyword: copy
+    - keyword: into
+    - table_reference:
+        naked_identifier: mytable
+    - keyword: from
+    - storage_location:
+        stage_path: '@my_int_stage'
+- statement_terminator: ;
+- statement:
+    copy_into_table_statement:
+    - keyword: copy
+    - keyword: into
+    - table_reference:
+        naked_identifier: mytable
+    - keyword: from
+    - storage_location:
+        stage_path: '@my_int_stage'
+    - keyword: file_format
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - file_format_segment:
+        bracketed:
+          start_bracket: (
+          csv_file_format_type_parameters:
+            keyword: type
+            comparison_operator:
+              raw_comparison_operator: '='
+            file_type: csv
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    copy_into_table_statement:
+    - keyword: copy
+    - keyword: into
+    - table_reference:
+        naked_identifier: mytable
+    - keyword: from
+    - storage_location:
+        stage_path: '@my_int_stage'
+    - keyword: file_format
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - file_format_segment:
+        bracketed:
+          start_bracket: (
+          keyword: format_name
+          comparison_operator:
+            raw_comparison_operator: '='
+          quoted_literal: "'mycsv'"
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    copy_into_table_statement:
+    - keyword: copy
+    - keyword: into
+    - table_reference:
+        naked_identifier: mytable
+    - keyword: from
+    - storage_location:
+        stage_path: '@my_int_stage'
+    - keyword: file_format
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - file_format_segment:
+        bracketed:
+          start_bracket: (
+          csv_file_format_type_parameters:
+            keyword: type
+            comparison_operator:
+              raw_comparison_operator: '='
+            file_type: "'CSV'"
+          end_bracket: )
+    - keyword: pattern
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'.*/.*/.*[.]csv[.]gz'"
+- statement_terminator: ;
+- statement:
+    copy_into_table_statement:
+    - keyword: copy
+    - keyword: into
+    - table_reference:
+        naked_identifier: mytable
+    - keyword: from
+    - storage_location:
+        stage_path: '@my_int_stage'
+    - keyword: file_format
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - file_format_segment:
+        bracketed:
+          start_bracket: (
+          keyword: format_name
+          comparison_operator:
+            raw_comparison_operator: '='
+          object_reference:
+            naked_identifier: myformat
+          end_bracket: )
+    - keyword: pattern
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'.*sales.*[.]csv'"
+- statement_terminator: ;
+- statement:
+    copy_into_table_statement:
+    - keyword: copy
+    - keyword: into
+    - table_reference:
+        naked_identifier: mytable
+    - keyword: from
+    - storage_location:
+        stage_path: '@my_int_stage'
+    - keyword: file_format
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - file_format_segment:
+        bracketed:
+          start_bracket: (
+          keyword: format_name
+          comparison_operator:
+            raw_comparison_operator: '='
+          object_reference:
+            naked_identifier: myformat
+          end_bracket: )
+    - keyword: pattern
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - variable: $my_var
+- statement_terminator: ;
+- statement:
+    copy_into_table_statement:
+    - keyword: copy
+    - keyword: into
+    - table_reference:
+        naked_identifier: mytable
+- statement_terminator: ;
+- statement:
+    copy_into_table_statement:
+    - keyword: copy
+    - keyword: into
+    - table_reference:
+        naked_identifier: mytable
+    - keyword: from
+    - storage_location:
+        stage_path: '@%mytable'
+- statement_terminator: ;
+- statement:
+    copy_into_table_statement:
+    - keyword: copy
+    - keyword: into
+    - table_reference:
+        naked_identifier: mytable
+    - keyword: from
+    - storage_location:
+        stage_path: '@~/data_files'
+- statement_terminator: ;
+- statement:
+    copy_into_table_statement:
+    - keyword: copy
+    - keyword: into
+    - table_reference:
+        naked_identifier: mytable
+    - keyword: from
+    - storage_location:
+        stage_path: '@mydb.myschema.mystage'
+- statement_terminator: ;
+- statement:
+    copy_into_table_statement:
+    - keyword: copy
+    - keyword: into
+    - table_reference:
+        naked_identifier: mytable
+    - keyword: from
+    - storage_location:
+        stage_path: '@mydatabase.myschema.%mytable'
+- statement_terminator: ;
+- statement:
+    copy_into_table_statement:
+    - keyword: copy
+    - keyword: into
+    - table_reference:
+        naked_identifier: mytable
+    - keyword: purge
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - boolean_literal: 'true'
+- statement_terminator: ;
+- statement:
+    copy_into_table_statement:
+    - keyword: copy
+    - keyword: into
+    - table_reference:
+        naked_identifier: mytable
+    - keyword: validation_mode
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - validation_mode_option: "'RETURN_ERRORS'"
+- statement_terminator: ;
+- statement:
+    copy_into_table_statement:
+    - keyword: copy
+    - keyword: into
+    - table_reference:
+        naked_identifier: mytable
+    - keyword: validation_mode
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - validation_mode_option: "'RETURN_2_ROWS'"
+- statement_terminator: ;
+- statement:
+    copy_into_table_statement:
+    - keyword: copy
+    - keyword: into
+    - table_reference:
+        naked_identifier: mytable
+    - keyword: validation_mode
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - validation_mode_option: "'RETURN_3_ROWS'"
+- statement_terminator: ;
+- statement:
+    copy_into_table_statement:
+    - keyword: COPY
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: target_table
+    - keyword: FROM
+    - bracketed:
+        start_bracket: (
+        select_statement:
+          select_clause:
+            keyword: SELECT
+            select_clause_element:
+              column_reference:
+                column_index_identifier_segment: $1
+          from_clause:
+            keyword: FROM
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                    stage_path: '@source_stage'
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    copy_into_table_statement:
+    - keyword: copy
+    - keyword: into
+    - table_reference:
+        naked_identifier: mytable1
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          naked_identifier: column1
+        end_bracket: )
+    - keyword: from
+    - storage_location:
+        bucket_path: "'s3://bucket/source'"
+    - keyword: file_format
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - file_format_segment:
+        bracketed:
+          start_bracket: (
+          json_file_format_type_parameters:
+            keyword: TYPE
+            comparison_operator:
+              raw_comparison_operator: '='
+            file_type: JSON
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    copy_into_table_statement:
+    - keyword: copy
+    - keyword: into
+    - table_reference:
+        naked_identifier: mytable1
+    - keyword: from
+    - bracketed:
+        start_bracket: (
+        select_statement:
+          select_clause:
+            keyword: select
+            select_clause_element:
+              column_reference:
+                naked_identifier: column1
+          from_clause:
+            keyword: from
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                    stage_path: '@ext.stage/path1'
+        end_bracket: )
+    - keyword: file_format
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - file_format_segment:
+        bracketed:
+          start_bracket: (
+          json_file_format_type_parameters:
+            keyword: TYPE
+            comparison_operator:
+              raw_comparison_operator: '='
+            file_type: JSON
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    copy_into_table_statement:
+    - keyword: copy
+    - keyword: into
+    - table_reference:
+        naked_identifier: mytable1
+    - keyword: from
+    - storage_location:
+        bucket_path: "'s3://bucket/source'"
+    - keyword: file_format
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - file_format_segment:
+        bracketed:
+          start_bracket: (
+          csv_file_format_type_parameters:
+          - keyword: type
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - file_type: csv
+          - keyword: SKIP_HEADER
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - integer_literal: '1'
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    copy_into_table_statement:
+    - keyword: copy
+    - keyword: into
+    - table_reference:
+        naked_identifier: mytable1
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          naked_identifier: column1
+        end_bracket: )
+    - keyword: from
+    - storage_location:
+        stage_path: '@public.stage/sub-folder/myfile-1.csv'
+    - keyword: file_format
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - file_format_segment:
+        bracketed:
+          start_bracket: (
+          json_file_format_type_parameters:
+            keyword: TYPE
+            comparison_operator:
+              raw_comparison_operator: '='
+            file_type: JSON
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    copy_into_table_statement:
+    - keyword: copy
+    - keyword: into
+    - table_reference:
+        naked_identifier: mytable1
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          naked_identifier: column1
+        end_bracket: )
+    - keyword: from
+    - storage_location:
+        stage_path: '@public.stage/subfolder/'
+    - keyword: file_format
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - file_format_segment:
+        bracketed:
+          start_bracket: (
+          json_file_format_type_parameters:
+            keyword: TYPE
+            comparison_operator:
+              raw_comparison_operator: '='
+            file_type: JSON
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    copy_into_table_statement:
+    - keyword: COPY
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: table1
+    - keyword: FROM
+    - storage_location:
+        stage_path: '@stage1'
+    - keyword: MATCH_BY_COLUMN_NAME
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - keyword: CASE_INSENSITIVE
+    - keyword: INCLUDE_METADATA
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - bracketed:
+      - start_bracket: (
+      - naked_identifier: ingestdate
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - keyword: METADATA$START_SCAN_TIME
+      - comma: ','
+      - naked_identifier: filename
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - keyword: METADATA$FILENAME
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    copy_into_table_statement:
+    - keyword: COPY
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: table1
+    - keyword: FROM
+    - storage_location:
+        stage_path: '@stage1'
+    - keyword: MATCH_BY_COLUMN_NAME
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - keyword: CASE_INSENSITIVE
+    - keyword: FILE_FORMAT
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - file_format_segment:
+        bracketed:
+          start_bracket: (
+          json_file_format_type_parameters:
+            keyword: TYPE
+            comparison_operator:
+              raw_comparison_operator: '='
+            file_type: JSON
+          end_bracket: )
+    - keyword: LOAD_UNCERTAIN_FILES
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - boolean_literal: 'TRUE'
+    - keyword: INCLUDE_METADATA
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - bracketed:
+      - start_bracket: (
+      - naked_identifier: ingestdate
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - keyword: METADATA$START_SCAN_TIME
+      - comma: ','
+      - naked_identifier: filename
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - keyword: METADATA$FILENAME
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    copy_into_table_statement:
+    - keyword: COPY
+    - keyword: INTO
+    - table_reference:
+      - naked_identifier: test
+      - dot: .
+      - naked_identifier: transactions_all
+    - keyword: FROM
+    - storage_location:
+        stage_path: '@rawdata.STITCH_STAGE_NETSUITE/transactions/'
+    - keyword: FILE_FORMAT
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - file_format_segment:
+        object_reference:
+        - naked_identifier: rawdata
+        - dot: .
+        - naked_identifier: json_format
+    - keyword: MATCH_BY_COLUMN_NAME
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'case_insensitive'"
+- statement_terminator: ;
+- statement:
+    copy_into_table_statement:
+    - keyword: copy
+    - keyword: into
+    - table_reference:
+        naked_identifier: mytable1
+    - keyword: from
+    - storage_location:
+        bucket_path: "'s3://bucket/source'"
+    - keyword: file_format
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - file_format_segment:
+        bracketed:
+          start_bracket: (
+          csv_file_format_type_parameters:
+          - keyword: type
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - file_type: csv
+          - keyword: MULTI_LINE
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - boolean_literal: 'FALSE'
+          end_bracket: )
+- statement_terminator: ;

@@ -3,13 +3,13 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: bb3dd4aa676de9e20c129dd64feba49e6758da4dbfcbf4ed4fa270e200a6d5f7
+_hash: 723322574908c867a45279e1a536f61c1f1eed4d0e0010e575295380bd4aa361
 file:
   statement:
     with_compound_statement:
       keyword: WITH
       common_table_expression:
-        identifier: result
+        naked_identifier: result
         keyword: AS
         bracketed:
           start_bracket: (
@@ -19,17 +19,18 @@ file:
                 keyword: SELECT
                 select_clause_element:
                   column_reference:
-                    identifier: customer
+                    naked_identifier: customer
               from_clause:
                 keyword: FROM
                 from_expression:
                   from_expression_element:
                     table_expression:
                       table_reference:
-                        identifier: sales_eu
+                        naked_identifier: sales_eu
                     alias_expression:
-                      keyword: AS
-                      identifier: s
+                      alias_operator:
+                        keyword: AS
+                      naked_identifier: s
           - set_operator:
             - keyword: UNION
             - keyword: ALL
@@ -38,17 +39,18 @@ file:
                 keyword: SELECT
                 select_clause_element:
                   column_reference:
-                    identifier: customer
+                    naked_identifier: customer
               from_clause:
                 keyword: FROM
                 from_expression:
                   from_expression_element:
                     table_expression:
                       table_reference:
-                        identifier: sales_us
+                        naked_identifier: sales_us
                     alias_expression:
-                      keyword: AS
-                      identifier: s2
+                      alias_operator:
+                        keyword: AS
+                      naked_identifier: s2
           end_bracket: )
       select_statement:
         select_clause:
@@ -63,4 +65,4 @@ file:
             from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: result
+                  naked_identifier: result

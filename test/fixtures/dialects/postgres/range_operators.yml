@@ -1,0 +1,179 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 43d2e161162d7698b1567f285ff0ab3bd5e5931c178f9de52588726a8a35b007
+file:
+  statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              naked_identifier: word
+              dot: .
+              star: '*'
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+          - naked_identifier: paragraph
+          - dot: .
+          - naked_identifier: id
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: paragraph_id
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: word
+          join_clause:
+          - keyword: INNER
+          - keyword: JOIN
+          - from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: paragraph
+          - join_on_condition:
+              keyword: 'ON'
+              expression:
+              - column_reference:
+                - naked_identifier: paragraph
+                - dot: .
+                - naked_identifier: page_id
+              - comparison_operator:
+                  raw_comparison_operator: '='
+              - column_reference:
+                - naked_identifier: word
+                - dot: .
+                - naked_identifier: page_id
+      where_clause:
+        keyword: WHERE
+        expression:
+        - column_reference:
+          - naked_identifier: word
+          - dot: .
+          - naked_identifier: character_range
+        - binary_operator: '@>'
+        - column_reference:
+          - naked_identifier: paragraph
+          - dot: .
+          - naked_identifier: character_range
+        - binary_operator: AND
+        - column_reference:
+          - naked_identifier: word
+          - dot: .
+          - naked_identifier: character_range
+        - binary_operator: <@
+        - column_reference:
+          - naked_identifier: paragraph
+          - dot: .
+          - naked_identifier: character_range
+        - binary_operator: AND
+        - column_reference:
+          - naked_identifier: word
+          - dot: .
+          - naked_identifier: character_range
+        - comparison_operator:
+          - ampersand: '&'
+          - ampersand: '&'
+        - column_reference:
+          - naked_identifier: paragraph
+          - dot: .
+          - naked_identifier: character_range
+        - binary_operator: AND
+        - column_reference:
+          - naked_identifier: word
+          - dot: .
+          - naked_identifier: character_range
+        - binary_operator:
+          - raw_comparison_operator: <
+          - raw_comparison_operator: <
+        - column_reference:
+          - naked_identifier: paragraph
+          - dot: .
+          - naked_identifier: character_range
+        - binary_operator: AND
+        - column_reference:
+          - naked_identifier: word
+          - dot: .
+          - naked_identifier: character_range
+        - binary_operator:
+          - raw_comparison_operator: '>'
+          - raw_comparison_operator: '>'
+        - column_reference:
+          - naked_identifier: paragraph
+          - dot: .
+          - naked_identifier: character_range
+        - binary_operator: AND
+        - column_reference:
+          - naked_identifier: word
+          - dot: .
+          - naked_identifier: character_range
+        - comparison_operator:
+            ampersand: '&'
+            raw_comparison_operator: '>'
+        - column_reference:
+          - naked_identifier: paragraph
+          - dot: .
+          - naked_identifier: character_range
+        - binary_operator: AND
+        - column_reference:
+          - naked_identifier: word
+          - dot: .
+          - naked_identifier: character_range
+        - comparison_operator:
+            ampersand: '&'
+            raw_comparison_operator: <
+        - column_reference:
+          - naked_identifier: paragraph
+          - dot: .
+          - naked_identifier: character_range
+        - binary_operator: AND
+        - column_reference:
+          - naked_identifier: word
+          - dot: .
+          - naked_identifier: character_range
+        - comparison_operator:
+          - binary_operator: '-'
+          - pipe: '|'
+          - binary_operator: '-'
+        - column_reference:
+          - naked_identifier: paragraph
+          - dot: .
+          - naked_identifier: character_range
+        - binary_operator: AND
+        - column_reference:
+          - naked_identifier: word
+          - dot: .
+          - naked_identifier: character_range
+        - binary_operator: +
+        - column_reference:
+          - naked_identifier: paragraph
+          - dot: .
+          - naked_identifier: character_range
+        - binary_operator: AND
+        - column_reference:
+          - naked_identifier: word
+          - dot: .
+          - naked_identifier: character_range
+        - binary_operator: '*'
+        - column_reference:
+          - naked_identifier: paragraph
+          - dot: .
+          - naked_identifier: character_range
+        - binary_operator: AND
+        - column_reference:
+          - naked_identifier: word
+          - dot: .
+          - naked_identifier: character_range
+        - binary_operator: '-'
+        - column_reference:
+          - naked_identifier: paragraph
+          - dot: .
+          - naked_identifier: character_range

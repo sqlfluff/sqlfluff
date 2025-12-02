@@ -1,0 +1,7 @@
+INSERT INTO t1 SELECT * FROM t2;
+
+INSERT INTO t1 VALUES (1, 'San Francisco');
+
+INSERT INTO t1 (a,b,c) SELECT * FROM t2;
+
+INSERT INTO t1 (a,b,c) VALUES (26, 'POLAND', 3);

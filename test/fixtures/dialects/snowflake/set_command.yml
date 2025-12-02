@@ -1,0 +1,242 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: c4b55d920ebce0f003a5dfc2b56dafac5d1d9befac4eb99ee46084e6315868a7
+file:
+- statement:
+    set_statement:
+      keyword: set
+      variable: v1
+      comparison_operator:
+        raw_comparison_operator: '='
+      expression:
+        numeric_literal: '10'
+- statement_terminator: ;
+- statement:
+    set_statement:
+      keyword: set
+      variable: v2
+      comparison_operator:
+        raw_comparison_operator: '='
+      expression:
+        quoted_literal: "'example'"
+- statement_terminator: ;
+- statement:
+    set_statement:
+    - keyword: set
+    - bracketed:
+      - start_bracket: (
+      - variable: v1
+      - comma: ','
+      - variable: v2
+      - end_bracket: )
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - bracketed:
+      - start_bracket: (
+      - expression:
+          numeric_literal: '10'
+      - comma: ','
+      - expression:
+          quoted_literal: "'example'"
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    set_statement:
+      keyword: set
+      variable: id_threshold
+      comparison_operator:
+        raw_comparison_operator: '='
+      expression:
+        bracketed:
+          start_bracket: (
+          expression:
+            select_statement:
+              select_clause:
+                keyword: select
+                select_clause_element:
+                  function:
+                    function_name:
+                      function_name_identifier: count
+                    function_contents:
+                      bracketed:
+                        start_bracket: (
+                        star: '*'
+                        end_bracket: )
+              from_clause:
+                keyword: from
+                from_expression:
+                  from_expression_element:
+                    table_expression:
+                      table_reference:
+                        naked_identifier: table1
+          end_bracket: )
+        binary_operator: /
+        numeric_literal: '2'
+- statement_terminator: ;
+- statement:
+    set_statement:
+    - keyword: set
+    - bracketed:
+      - start_bracket: (
+      - variable: min
+      - comma: ','
+      - variable: max
+      - end_bracket: )
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - bracketed:
+      - start_bracket: (
+      - expression:
+          numeric_literal: '40'
+      - comma: ','
+      - expression:
+          numeric_literal: '70'
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    set_statement:
+    - keyword: set
+    - bracketed:
+      - start_bracket: (
+      - variable: min
+      - comma: ','
+      - variable: max
+      - end_bracket: )
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - bracketed:
+      - start_bracket: (
+      - expression:
+          numeric_literal: '50'
+      - comma: ','
+      - expression:
+          numeric_literal: '2'
+          binary_operator: '*'
+          variable: $min
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    set_statement:
+      keyword: SET
+      variable: THIS_ROLE
+      comparison_operator:
+        raw_comparison_operator: '='
+      expression:
+        function:
+          function_name:
+            function_name_identifier: CURRENT_ROLE
+          function_contents:
+            bracketed:
+              start_bracket: (
+              end_bracket: )
+- statement_terminator: ;
+- statement:
+    set_statement:
+      keyword: SET
+      bracketed:
+      - start_bracket: (
+      - variable: rec_updated_cutoff_orders
+      - comma: ','
+      - variable: rec_updated_cutoff_deliverables
+      - end_bracket: )
+      comparison_operator:
+        raw_comparison_operator: '='
+      expression:
+        bracketed:
+          start_bracket: (
+          select_statement:
+            select_clause:
+            - keyword: SELECT
+            - select_clause_element:
+                function:
+                  function_name:
+                    function_name_identifier: COALESCE
+                  function_contents:
+                    bracketed:
+                    - start_bracket: (
+                    - expression:
+                        function:
+                          function_name:
+                            function_name_identifier: MAX
+                          function_contents:
+                            bracketed:
+                              start_bracket: (
+                              expression:
+                                case_expression:
+                                - keyword: CASE
+                                - when_clause:
+                                  - keyword: WHEN
+                                  - expression:
+                                      column_reference:
+                                        naked_identifier: entity_type
+                                      comparison_operator:
+                                        raw_comparison_operator: '='
+                                      quoted_literal: "'x'"
+                                  - keyword: THEN
+                                  - expression:
+                                      cast_expression:
+                                        column_reference:
+                                          naked_identifier: rec_updated_at
+                                        casting_operator: '::'
+                                        data_type:
+                                          data_type_identifier: DATE
+                                - keyword: END
+                              end_bracket: )
+                    - comma: ','
+                    - expression:
+                        quoted_literal: "'2013-01-01'"
+                    - end_bracket: )
+            - comma: ','
+            - select_clause_element:
+                function:
+                  function_name:
+                    function_name_identifier: COALESCE
+                  function_contents:
+                    bracketed:
+                    - start_bracket: (
+                    - expression:
+                        function:
+                          function_name:
+                            function_name_identifier: MAX
+                          function_contents:
+                            bracketed:
+                              start_bracket: (
+                              expression:
+                                case_expression:
+                                - keyword: CASE
+                                - when_clause:
+                                  - keyword: WHEN
+                                  - expression:
+                                      column_reference:
+                                        naked_identifier: entity_type
+                                      comparison_operator:
+                                        raw_comparison_operator: '='
+                                      quoted_literal: "'x'"
+                                  - keyword: THEN
+                                  - expression:
+                                      cast_expression:
+                                        column_reference:
+                                          naked_identifier: rec_updated_at
+                                        casting_operator: '::'
+                                        data_type:
+                                          data_type_identifier: DATE
+                                - keyword: END
+                              end_bracket: )
+                    - comma: ','
+                    - expression:
+                        quoted_literal: "'2025-01-01'"
+                    - end_bracket: )
+            from_clause:
+              keyword: FROM
+              from_expression:
+                from_expression_element:
+                  table_expression:
+                    table_reference:
+                    - naked_identifier: test
+                    - dot: .
+                    - naked_identifier: x
+          end_bracket: )
+- statement_terminator: ;

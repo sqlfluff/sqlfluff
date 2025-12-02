@@ -1,0 +1,286 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 0f068e4f34b1a5b03afb39dd77f1cf1dfdaa97fefef25d35dbd6c3e7288ed55b
+file:
+- statement:
+    load_data_statement:
+    - keyword: LOAD
+    - keyword: DATA
+    - keyword: INFILE
+    - quoted_literal: "'/var/lib/mysql-files/libaccess.csv'"
+    - keyword: INTO
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: libaccess
+    - keyword: FIELDS
+    - keyword: TERMINATED
+    - keyword: BY
+    - quoted_literal: "'\\t'"
+    - keyword: OPTIONALLY
+    - keyword: ENCLOSED
+    - keyword: BY
+    - quoted_literal: "'\"'"
+    - keyword: IGNORE
+    - numeric_literal: '1'
+    - keyword: LINES
+- statement_terminator: ;
+- statement:
+    load_data_statement:
+    - keyword: LOAD
+    - keyword: DATA
+    - keyword: INFILE
+    - quoted_literal: "'data.txt'"
+    - keyword: INTO
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: db2
+      - dot: .
+      - naked_identifier: my_table
+- statement_terminator: ;
+- statement:
+    load_data_statement:
+    - keyword: LOAD
+    - keyword: DATA
+    - keyword: INFILE
+    - quoted_literal: "'data.txt'"
+    - keyword: INTO
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: db2
+      - dot: .
+      - naked_identifier: my_table
+    - partition_clause:
+        keyword: PARTITION
+        bracketed:
+          start_bracket: (
+          object_reference:
+            naked_identifier: partition_name
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    load_data_statement:
+    - keyword: LOAD
+    - keyword: DATA
+    - keyword: INFILE
+    - quoted_literal: "'/tmp/test.txt'"
+    - keyword: INTO
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: test
+    - keyword: FIELDS
+    - keyword: TERMINATED
+    - keyword: BY
+    - quoted_literal: "','"
+    - keyword: LINES
+    - keyword: STARTING
+    - keyword: BY
+    - quoted_literal: "'xxx'"
+- statement_terminator: ;
+- statement:
+    load_data_statement:
+    - keyword: LOAD
+    - keyword: DATA
+    - keyword: INFILE
+    - quoted_literal: "'/tmp/test.txt'"
+    - keyword: INTO
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: test
+    - keyword: IGNORE
+    - numeric_literal: '1'
+    - keyword: LINES
+- statement_terminator: ;
+- statement:
+    load_data_statement:
+    - keyword: LOAD
+    - keyword: DATA
+    - keyword: INFILE
+    - quoted_literal: "'data.txt'"
+    - keyword: INTO
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: table2
+    - keyword: FIELDS
+    - keyword: TERMINATED
+    - keyword: BY
+    - quoted_literal: "','"
+- statement_terminator: ;
+- statement:
+    load_data_statement:
+    - keyword: LOAD
+    - keyword: DATA
+    - keyword: INFILE
+    - quoted_literal: "'data.txt'"
+    - keyword: INTO
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: table2
+    - keyword: FIELDS
+    - keyword: TERMINATED
+    - keyword: BY
+    - quoted_literal: "'\\t'"
+- statement_terminator: ;
+- statement:
+    load_data_statement:
+    - keyword: LOAD
+    - keyword: DATA
+    - keyword: INFILE
+    - quoted_literal: "'data.txt'"
+    - keyword: INTO
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: tbl_name
+    - keyword: FIELDS
+    - keyword: TERMINATED
+    - keyword: BY
+    - quoted_literal: "','"
+    - keyword: ENCLOSED
+    - keyword: BY
+    - quoted_literal: "'\"'"
+    - keyword: LINES
+    - keyword: TERMINATED
+    - keyword: BY
+    - quoted_literal: "'\\r\\n'"
+    - keyword: IGNORE
+    - numeric_literal: '1'
+    - keyword: LINES
+- statement_terminator: ;
+- statement:
+    load_data_statement:
+    - keyword: LOAD
+    - keyword: DATA
+    - keyword: INFILE
+    - quoted_literal: "'/tmp/jokes.txt'"
+    - keyword: INTO
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: jokes
+    - keyword: FIELDS
+    - keyword: TERMINATED
+    - keyword: BY
+    - quoted_literal: "''"
+    - keyword: LINES
+    - keyword: TERMINATED
+    - keyword: BY
+    - quoted_literal: "'\\n%%\\n'"
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          naked_identifier: joke
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    load_data_statement:
+    - keyword: LOAD
+    - keyword: DATA
+    - keyword: INFILE
+    - quoted_literal: "'persondata.txt'"
+    - keyword: INTO
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: persondata
+- statement_terminator: ;
+- statement:
+    load_data_statement:
+    - keyword: LOAD
+    - keyword: DATA
+    - keyword: INFILE
+    - quoted_literal: "'file.txt'"
+    - keyword: INTO
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t1
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: column1
+      - comma: ','
+      - column_reference:
+          variable: '@var1'
+      - end_bracket: )
+    - keyword: SET
+    - column_reference:
+        naked_identifier: column2
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - variable: '@var1'
+    - binary_operator: /
+    - numeric_literal: '100'
+- statement_terminator: ;
+- statement:
+    load_data_statement:
+    - keyword: LOAD
+    - keyword: DATA
+    - keyword: INFILE
+    - quoted_literal: "'file.txt'"
+    - keyword: INTO
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t1
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: column1
+      - comma: ','
+      - column_reference:
+          naked_identifier: column2
+      - end_bracket: )
+    - keyword: SET
+    - column_reference:
+        naked_identifier: column3
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - bare_function: CURRENT_TIMESTAMP
+- statement_terminator: ;
+- statement:
+    load_data_statement:
+    - keyword: LOAD
+    - keyword: DATA
+    - keyword: INFILE
+    - quoted_literal: "'file.txt'"
+    - keyword: INTO
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t1
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: column1
+      - comma: ','
+      - column_reference:
+          variable: '@dummy'
+      - comma: ','
+      - column_reference:
+          naked_identifier: column2
+      - comma: ','
+      - column_reference:
+          variable: '@dummy'
+      - comma: ','
+      - column_reference:
+          naked_identifier: column3
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    load_data_statement:
+    - keyword: LOAD
+    - keyword: DATA
+    - keyword: INFILE
+    - quoted_literal: "'/local/access_log'"
+    - keyword: INTO
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: tbl_name
+    - keyword: FIELDS
+    - keyword: TERMINATED
+    - keyword: BY
+    - quoted_literal: "','"
+    - keyword: OPTIONALLY
+    - keyword: ENCLOSED
+    - keyword: BY
+    - quoted_literal: "'\"'"
+    - keyword: ESCAPED
+    - keyword: BY
+    - quoted_literal: "'\\\\'"

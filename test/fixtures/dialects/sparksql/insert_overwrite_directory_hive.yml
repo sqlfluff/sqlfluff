@@ -1,0 +1,62 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 3ae8495d1e0bc05b141ca33ffbca299a332118c02725468fad98933f43c9215d
+file:
+- statement:
+    insert_overwrite_directory_hive_fmt_statement:
+    - keyword: INSERT
+    - keyword: OVERWRITE
+    - keyword: LOCAL
+    - keyword: DIRECTORY
+    - quoted_literal: "'/tmp/destination'"
+    - keyword: STORED
+    - keyword: AS
+    - keyword: ORC
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: test_table
+- statement_terminator: ;
+- statement:
+    insert_overwrite_directory_hive_fmt_statement:
+    - keyword: INSERT
+    - keyword: OVERWRITE
+    - keyword: LOCAL
+    - keyword: DIRECTORY
+    - quoted_literal: "'/tmp/destination'"
+    - row_format_clause:
+      - keyword: ROW
+      - keyword: FORMAT
+      - keyword: DELIMITED
+      - keyword: FIELDS
+      - keyword: TERMINATED
+      - keyword: BY
+      - quoted_literal: "','"
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: test_table
+- statement_terminator: ;

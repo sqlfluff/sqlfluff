@@ -3,9 +3,9 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: e8546310630f303b65d80152ed1442fd74c781c835efe370763fe72efe2e33a0
+_hash: a8adb57b106b17117d895ece47b07a5a0ea042e499d557eb44e0e5ce3a8636fd
 file:
-  statement:
+- statement:
     select_statement:
       select_clause:
       - keyword: SELECT
@@ -13,67 +13,93 @@ file:
           function:
             function_name:
               function_name_identifier: DATE
-            bracketed:
-              start_bracket: (
-              expression:
-                column_reference:
-                  identifier: t
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: t
+                end_bracket: )
       - comma: ','
       - select_clause_element:
           function:
             function_name:
               function_name_identifier: ROUND
-            bracketed:
-            - start_bracket: (
-            - expression:
-                column_reference:
-                  identifier: b
-            - comma: ','
-            - expression:
-                literal: '2'
-            - end_bracket: )
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                    naked_identifier: b
+              - comma: ','
+              - expression:
+                  numeric_literal: '2'
+              - end_bracket: )
       - comma: ','
       - select_clause_element:
           function:
             function_name:
               function_name_identifier: LEFT
-            bracketed:
-            - start_bracket: (
-            - expression:
-                function:
-                  function_name:
-                    function_name_identifier: right
-                  bracketed:
-                  - start_bracket: (
-                  - expression:
-                      column_reference:
-                        identifier: s
-                  - comma: ','
-                  - expression:
-                      literal: '5'
-                  - end_bracket: )
-            - comma: ','
-            - expression:
-                function:
-                  function_name:
-                    function_name_identifier: LEN
-                  bracketed:
-                    start_bracket: (
-                    expression:
-                      column_reference:
-                        identifier: s
-                      binary_operator: +
-                      literal: '6'
-                    end_bracket: )
-            - end_bracket: )
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  function:
+                    function_name:
+                      function_name_identifier: right
+                    function_contents:
+                      bracketed:
+                      - start_bracket: (
+                      - expression:
+                          column_reference:
+                            naked_identifier: s
+                      - comma: ','
+                      - expression:
+                          numeric_literal: '5'
+                      - end_bracket: )
+              - comma: ','
+              - expression:
+                  function:
+                    function_name:
+                      function_name_identifier: LEN
+                    function_contents:
+                      bracketed:
+                        start_bracket: (
+                        expression:
+                          column_reference:
+                            naked_identifier: s
+                          binary_operator: +
+                          numeric_literal: '6'
+                        end_bracket: )
+              - end_bracket: )
           alias_expression:
-            keyword: as
-            identifier: compound
+            alias_operator:
+              keyword: as
+            naked_identifier: compound
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: tbl_b
+                naked_identifier: tbl_b
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: _custom_function
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  numeric_literal: '5'
+                end_bracket: )
+          alias_expression:
+            alias_operator:
+              keyword: as
+            naked_identifier: test_column
+- statement_terminator: ;

@@ -1,0 +1,117 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: c27dee8201bd74584feb07a8e9d3d0c9b16aef3bf9bb6b5a196a061db5428821
+file:
+- statement:
+    create_procedure_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: PROCEDURE
+    - function_name:
+        function_name_identifier: create_account
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          parameter: _account_uuid
+          data_type:
+            keyword: UUID
+          end_bracket: )
+    - function_definition:
+        keyword: AS
+        quoted_literal: "$$\nBEGIN\n    RETURN;\nEND;\n$$"
+        language_clause:
+          keyword: LANGUAGE
+          naked_identifier: plpgsql
+- statement_terminator: ;
+- statement:
+    create_procedure_statement:
+    - keyword: CREATE
+    - keyword: PROCEDURE
+    - function_name:
+        function_name_identifier: insert_data
+    - function_parameter_list:
+        bracketed:
+        - start_bracket: (
+        - parameter: a
+        - data_type:
+            keyword: integer
+        - comma: ','
+        - parameter: b
+        - data_type:
+            keyword: integer
+        - end_bracket: )
+    - function_definition:
+        language_clause:
+          keyword: LANGUAGE
+          naked_identifier: SQL
+        keyword: AS
+        quoted_literal: "$$\nINSERT INTO tbl VALUES (a);\nINSERT INTO tbl VALUES (b);\n\
+          $$"
+- statement_terminator: ;
+- statement:
+    create_procedure_statement:
+    - keyword: CREATE
+    - keyword: PROCEDURE
+    - function_name:
+        naked_identifier: abc
+        dot: .
+        function_name_identifier: cdf
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          end_bracket: )
+    - function_definition:
+      - language_clause:
+          keyword: LANGUAGE
+          naked_identifier: sql
+      - keyword: BEGIN
+      - keyword: ATOMIC
+      - with_compound_statement:
+          keyword: WITH
+          common_table_expression:
+            naked_identifier: tbl2
+            keyword: AS
+            bracketed:
+              start_bracket: (
+              select_statement:
+                select_clause:
+                  keyword: SELECT
+                  select_clause_element:
+                    column_reference:
+                    - naked_identifier: a
+                    - dot: .
+                    - naked_identifier: apple
+                from_clause:
+                  keyword: FROM
+                  from_expression:
+                    from_expression_element:
+                      table_expression:
+                        table_reference:
+                          naked_identifier: tbl1
+                      alias_expression:
+                        naked_identifier: a
+              end_bracket: )
+          select_statement:
+            select_clause:
+              keyword: SELECT
+              select_clause_element:
+                column_reference:
+                - naked_identifier: t
+                - dot: .
+                - naked_identifier: apple
+            from_clause:
+              keyword: FROM
+              from_expression:
+                from_expression_element:
+                  table_expression:
+                    table_reference:
+                      naked_identifier: tbl2
+                  alias_expression:
+                    naked_identifier: t
+      - statement_terminator: ;
+      - keyword: END
+- statement_terminator: ;

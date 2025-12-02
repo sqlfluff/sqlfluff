@@ -1,0 +1,47 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: c2d2d913ebaf7aa1442c2116439e6c3ce2ceb92903df44d3e46ae45156b96484
+file:
+  statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+            wildcard_replace:
+              keyword: REPLACE
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                    naked_identifier: movie_count
+                  binary_operator: +
+                  numeric_literal: '3'
+              - alias_expression:
+                  alias_operator:
+                    keyword: as
+                  naked_identifier: movie_count
+              - comma: ','
+              - expression:
+                  column_reference:
+                    naked_identifier: show_count
+                  binary_operator: '*'
+                  numeric_literal: '1000'
+              - alias_expression:
+                  alias_operator:
+                    keyword: as
+                  naked_identifier: show_count
+              - end_bracket: )
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: star_wars_owned_by_disney
+  statement_terminator: ;

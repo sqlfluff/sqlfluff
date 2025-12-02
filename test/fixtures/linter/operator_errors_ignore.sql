@@ -6,6 +6,6 @@ are still present. No errors should be found on line 8 at all. */
 SELECT
     a.a + a.b AS good,
     a.a-a.b AS bad_1,  -- noqa
-    a.a*a.b AS bad_2,  -- noqa: L007, L006
-    a.a*a.b AS bad_3  -- noqa: L007
+    a.a*a.b AS bad_2,  -- noqa: LT01, LT03
+    a.a*a.b AS bad_3  -- noqa: LT03
 FROM tbl AS a

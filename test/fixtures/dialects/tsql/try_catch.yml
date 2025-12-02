@@ -1,0 +1,95 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 7ae3404b1a9de70649b59afe46b56d0d01bd3862a833d97e1904ee76e680dc77
+file:
+- batch:
+    statement:
+      try_catch:
+      - keyword: BEGIN
+      - keyword: TRY
+      - statement:
+          select_statement:
+            select_clause:
+              keyword: SELECT
+              select_clause_element:
+                wildcard_expression:
+                  wildcard_identifier:
+                    star: '*'
+            from_clause:
+              keyword: FROM
+              from_expression:
+                from_expression_element:
+                  table_expression:
+                    table_reference:
+                      naked_identifier: NonexistentTable
+      - statement_terminator: ;
+      - keyword: END
+      - keyword: TRY
+      - keyword: BEGIN
+      - keyword: CATCH
+      - statement:
+          select_statement:
+            select_clause:
+            - keyword: SELECT
+            - select_clause_element:
+                function:
+                  function_name:
+                    function_name_identifier: ERROR_NUMBER
+                  function_contents:
+                    bracketed:
+                      start_bracket: (
+                      end_bracket: )
+                alias_expression:
+                  alias_operator:
+                    keyword: AS
+                  naked_identifier: ErrorNumber
+            - comma: ','
+            - select_clause_element:
+                function:
+                  function_name:
+                    function_name_identifier: ERROR_MESSAGE
+                  function_contents:
+                    bracketed:
+                      start_bracket: (
+                      end_bracket: )
+                alias_expression:
+                  alias_operator:
+                    keyword: AS
+                  naked_identifier: ErrorMessage
+      - statement_terminator: ;
+      - statement:
+          throw_statement:
+            keyword: THROW
+      - keyword: END
+      - keyword: CATCH
+    go_statement:
+      keyword: GO
+- batch:
+  - statement:
+      throw_statement:
+      - keyword: THROW
+      - numeric_literal: '50005'
+      - comma: ','
+      - quoted_literal: "N'an error occurred'"
+      - comma: ','
+      - numeric_literal: '1'
+  - statement_terminator: ;
+  - statement:
+      try_catch:
+      - keyword: BEGIN
+      - keyword: TRY
+      - statement:
+          execute_script_statement:
+            keyword: EXEC
+            object_reference:
+              naked_identifier: spSomeProc
+      - keyword: END
+      - keyword: TRY
+      - keyword: BEGIN
+      - keyword: CATCH
+      - keyword: END
+      - keyword: CATCH
+  - statement_terminator: ;

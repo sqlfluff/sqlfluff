@@ -1,0 +1,380 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: de1a468926f82e004aaea210ba6a7da8ee74ec746e0452308faa14aa501893c3
+file:
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+            naked_identifier: item
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: purchases
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: category
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: LAST_VALUE
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: item
+                end_bracket: )
+            over_clause:
+              keyword: OVER
+              bracketed:
+                start_bracket: (
+                window_specification:
+                  naked_identifier: item_window
+                end_bracket: )
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: most_popular
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: Produce
+      named_window:
+        keyword: WINDOW
+        named_window_expression:
+          naked_identifier: item_window
+          keyword: AS
+          bracketed:
+            start_bracket: (
+            window_specification:
+              partitionby_clause:
+              - keyword: PARTITION
+              - keyword: BY
+              - expression:
+                  column_reference:
+                    naked_identifier: category
+              orderby_clause:
+              - keyword: ORDER
+              - keyword: BY
+              - column_reference:
+                  naked_identifier: purchases
+              frame_clause:
+              - keyword: ROWS
+              - keyword: BETWEEN
+              - numeric_literal: '2'
+              - keyword: PRECEDING
+              - keyword: AND
+              - numeric_literal: '2'
+              - keyword: FOLLOWING
+            end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+            naked_identifier: item
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: purchases
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: category
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: LAST_VALUE
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: item
+                end_bracket: )
+            over_clause:
+              keyword: OVER
+              bracketed:
+                start_bracket: (
+                window_specification:
+                  naked_identifier: d
+                end_bracket: )
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: most_popular
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: Produce
+      named_window:
+      - keyword: WINDOW
+      - named_window_expression:
+          naked_identifier: a
+          keyword: AS
+          bracketed:
+            start_bracket: (
+            window_specification:
+              partitionby_clause:
+              - keyword: PARTITION
+              - keyword: BY
+              - expression:
+                  column_reference:
+                    naked_identifier: category
+            end_bracket: )
+      - comma: ','
+      - named_window_expression:
+          naked_identifier: b
+          keyword: AS
+          bracketed:
+            start_bracket: (
+            window_specification:
+              naked_identifier: a
+              orderby_clause:
+              - keyword: ORDER
+              - keyword: BY
+              - column_reference:
+                  naked_identifier: purchases
+            end_bracket: )
+      - comma: ','
+      - named_window_expression:
+          naked_identifier: c
+          keyword: AS
+          bracketed:
+            start_bracket: (
+            window_specification:
+              naked_identifier: b
+              frame_clause:
+              - keyword: ROWS
+              - keyword: BETWEEN
+              - numeric_literal: '2'
+              - keyword: PRECEDING
+              - keyword: AND
+              - numeric_literal: '2'
+              - keyword: FOLLOWING
+            end_bracket: )
+      - comma: ','
+      - named_window_expression:
+          naked_identifier: d
+          keyword: AS
+          bracketed:
+            start_bracket: (
+            window_specification:
+              naked_identifier: c
+            end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+            naked_identifier: item
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: purchases
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: category
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: LAST_VALUE
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: item
+                end_bracket: )
+            over_clause:
+              keyword: OVER
+              bracketed:
+                start_bracket: (
+                window_specification:
+                  naked_identifier: c
+                  frame_clause:
+                  - keyword: ROWS
+                  - keyword: BETWEEN
+                  - numeric_literal: '2'
+                  - keyword: PRECEDING
+                  - keyword: AND
+                  - numeric_literal: '2'
+                  - keyword: FOLLOWING
+                end_bracket: )
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: most_popular
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: Produce
+      named_window:
+      - keyword: WINDOW
+      - named_window_expression:
+          naked_identifier: a
+          keyword: AS
+          bracketed:
+            start_bracket: (
+            window_specification:
+              partitionby_clause:
+              - keyword: PARTITION
+              - keyword: BY
+              - expression:
+                  column_reference:
+                    naked_identifier: category
+            end_bracket: )
+      - comma: ','
+      - named_window_expression:
+          naked_identifier: b
+          keyword: AS
+          bracketed:
+            start_bracket: (
+            window_specification:
+              naked_identifier: a
+              orderby_clause:
+              - keyword: ORDER
+              - keyword: BY
+              - column_reference:
+                  naked_identifier: purchases
+            end_bracket: )
+      - comma: ','
+      - named_window_expression:
+        - naked_identifier: c
+        - keyword: AS
+        - naked_identifier: b
+- statement_terminator: ;
+- statement:
+    set_expression:
+    - select_statement:
+        select_clause:
+        - keyword: select
+        - select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        - comma: ','
+        - select_clause_element:
+            function:
+              function_name:
+                function_name_identifier: max
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                      naked_identifier: x
+                  end_bracket: )
+              over_clause:
+                keyword: over
+                bracketed:
+                  start_bracket: (
+                  window_specification:
+                    naked_identifier: window_z
+                  end_bracket: )
+            alias_expression:
+              alias_operator:
+                keyword: as
+              naked_identifier: max_x_over_z
+        from_clause:
+          keyword: from
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: raw_data_1
+        named_window:
+          keyword: window
+          named_window_expression:
+            naked_identifier: window_z
+            keyword: as
+            bracketed:
+              start_bracket: (
+              window_specification:
+                partitionby_clause:
+                - keyword: partition
+                - keyword: by
+                - expression:
+                    column_reference:
+                      naked_identifier: z
+              end_bracket: )
+    - set_operator:
+      - keyword: union
+      - keyword: all
+    - select_statement:
+        select_clause:
+        - keyword: select
+        - select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        - comma: ','
+        - select_clause_element:
+            function:
+              function_name:
+                function_name_identifier: max
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                      naked_identifier: x
+                  end_bracket: )
+              over_clause:
+                keyword: over
+                bracketed:
+                  start_bracket: (
+                  window_specification:
+                    naked_identifier: window_z
+                  end_bracket: )
+            alias_expression:
+              alias_operator:
+                keyword: as
+              naked_identifier: max_x_over_z
+        from_clause:
+          keyword: from
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: raw_data_2
+        named_window:
+          keyword: window
+          named_window_expression:
+            naked_identifier: window_z
+            keyword: as
+            bracketed:
+              start_bracket: (
+              window_specification:
+                partitionby_clause:
+                - keyword: partition
+                - keyword: by
+                - expression:
+                    column_reference:
+                      naked_identifier: z
+              end_bracket: )
+- statement_terminator: ;

@@ -1,4 +1,0 @@
-rule: L002
-
-test_fail_mixed_tabs_and_spaces:
-  fail_str: "    \t    \t    SELECT 1"

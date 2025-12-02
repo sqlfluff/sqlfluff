@@ -1,0 +1,260 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 2fb2b7b92145a270d64b62a485c50214b9a7c2db798ad5427f73a153042c91a7
+file:
+- statement:
+    create_view_statement:
+    - keyword: CREATE
+    - keyword: VIEW
+    - table_reference:
+        naked_identifier: v1
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: c
+      - comma: ','
+      - column_reference:
+          naked_identifier: d
+      - end_bracket: )
+    - keyword: AS
+    - select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+              naked_identifier: a
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: b
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: t1
+- statement_terminator: ;
+- statement:
+    create_view_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: VIEW
+    - table_reference:
+        naked_identifier: v1
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: c
+      - comma: ','
+      - column_reference:
+          naked_identifier: d
+      - comma: ','
+      - column_reference:
+          naked_identifier: e
+      - comma: ','
+      - column_reference:
+          naked_identifier: f
+      - end_bracket: )
+    - keyword: AS
+    - select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+              naked_identifier: a
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: b
+        - comma: ','
+        - select_clause_element:
+            expression:
+              column_reference:
+                naked_identifier: a
+              keyword: IN
+              bracketed:
+                start_bracket: (
+                select_statement:
+                  select_clause:
+                    keyword: SELECT
+                    select_clause_element:
+                      expression:
+                        column_reference:
+                          naked_identifier: a
+                        binary_operator: +
+                        numeric_literal: '2'
+                  from_clause:
+                    keyword: FROM
+                    from_expression:
+                      from_expression_element:
+                        table_expression:
+                          table_reference:
+                            naked_identifier: t1
+                end_bracket: )
+        - comma: ','
+        - select_clause_element:
+            expression:
+              column_reference:
+                naked_identifier: a
+              comparison_operator:
+                raw_comparison_operator: '='
+              function:
+                function_name:
+                  function_name_identifier: all
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      select_statement:
+                        select_clause:
+                          keyword: SELECT
+                          select_clause_element:
+                            column_reference:
+                              naked_identifier: a
+                        from_clause:
+                          keyword: FROM
+                          from_expression:
+                            from_expression_element:
+                              table_expression:
+                                table_reference:
+                                  naked_identifier: t1
+                    end_bracket: )
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: t1
+- statement_terminator: ;
+- statement:
+    create_view_statement:
+    - keyword: CREATE
+    - keyword: VIEW
+    - table_reference:
+        naked_identifier: v2
+    - keyword: AS
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            column_reference:
+              naked_identifier: a
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: t1
+    - with_check_options:
+      - keyword: WITH
+      - keyword: CASCADED
+      - keyword: CHECK
+      - keyword: OPTION
+- statement_terminator: ;
+- statement:
+    create_view_statement:
+    - keyword: CREATE
+    - keyword: VIEW
+    - table_reference:
+        naked_identifier: v2
+    - keyword: AS
+    - bracketed:
+        start_bracket: (
+        select_statement:
+          select_clause:
+            keyword: SELECT
+            select_clause_element:
+              column_reference:
+                naked_identifier: a
+          from_clause:
+            keyword: FROM
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                    naked_identifier: t1
+        end_bracket: )
+    - with_check_options:
+      - keyword: WITH
+      - keyword: CASCADED
+      - keyword: CHECK
+      - keyword: OPTION
+- statement_terminator: ;
+- statement:
+    create_view_statement:
+    - keyword: CREATE
+    - keyword: VIEW
+    - table_reference:
+        naked_identifier: v2
+    - keyword: AS
+    - set_expression:
+      - select_statement:
+          select_clause:
+            keyword: SELECT
+            select_clause_element:
+              numeric_literal: '1'
+      - set_operator:
+          keyword: UNION
+      - select_statement:
+          select_clause:
+            keyword: SELECT
+            select_clause_element:
+              numeric_literal: '2'
+- statement_terminator: ;
+- statement:
+    create_view_statement:
+    - keyword: CREATE
+    - keyword: VIEW
+    - table_reference:
+        naked_identifier: vw_test
+    - keyword: AS
+    - with_compound_statement:
+        keyword: WITH
+        common_table_expression:
+          naked_identifier: testing_cte
+          keyword: as
+          bracketed:
+            start_bracket: (
+            select_statement:
+              select_clause:
+              - keyword: SELECT
+              - select_clause_element:
+                  column_reference:
+                    naked_identifier: a
+              - comma: ','
+              - select_clause_element:
+                  column_reference:
+                    naked_identifier: b
+              from_clause:
+                keyword: FROM
+                from_expression:
+                  from_expression_element:
+                    table_expression:
+                      table_reference:
+                        naked_identifier: t1
+            end_bracket: )
+        select_statement:
+          select_clause:
+          - keyword: SELECT
+          - select_clause_element:
+              column_reference:
+                naked_identifier: a
+          - comma: ','
+          - select_clause_element:
+              column_reference:
+                naked_identifier: b
+          from_clause:
+            keyword: from
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                    naked_identifier: testing_cte
+- statement_terminator: ;

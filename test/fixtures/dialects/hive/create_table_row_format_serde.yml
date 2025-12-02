@@ -3,24 +3,24 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: fa74a7ad6420f492544041a70815bb786b690b727b9a8e0f09664d1147023cdb
+_hash: 6ffe814785db2a2c5967d32556c1def3c828422d965554a8ed2b37bb234a1ed5
 file:
   statement:
     create_table_statement:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-        identifier: foo
+        naked_identifier: foo
     - bracketed:
       - start_bracket: (
       - column_definition:
-          identifier: col1
+          naked_identifier: col1
           data_type:
             primitive_type:
               keyword: int
       - comma: ','
       - column_definition:
-          identifier: col2
+          naked_identifier: col2
           data_type:
             primitive_type:
               keyword: string
@@ -30,13 +30,13 @@ file:
     - bracketed:
       - start_bracket: (
       - column_definition:
-          identifier: col3
+          naked_identifier: col3
           data_type:
             primitive_type:
               keyword: string
       - comma: ','
       - column_definition:
-          identifier: col4
+          naked_identifier: col4
           data_type:
             primitive_type:
               keyword: date
@@ -45,19 +45,20 @@ file:
       - keyword: ROW
       - keyword: FORMAT
       - keyword: SERDE
-      - literal: "'org.apache.hadoop.hive.serde2.RegexSerDe'"
+      - quoted_literal: "'org.apache.hadoop.hive.serde2.RegexSerDe'"
       - keyword: WITH
       - keyword: SERDEPROPERTIES
       - bracketed:
         - start_bracket: (
-        - literal: '"input.regex"'
-        - comparison_operator: '='
-        - literal: '"([^]*) ([^]*) ([^]*) (-|\\[^\\]*\\]) ([^ \"]*|\"[^\"]*\") (-|[0-9]*)
-            (-|[0-9]*)(?: ([^ \"]*|\".*\") ([^ \"]*|\".*\"))?"'
+        - quoted_literal: '"input.regex"'
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - quoted_literal: '"([^]*) ([^]*) ([^]*) (-|\\[^\\]*\\]) ([^ \"]*|\"[^\"]*\")
+            (-|[0-9]*) (-|[0-9]*)(?: ([^ \"]*|\".*\") ([^ \"]*|\".*\"))?"'
         - end_bracket: )
     - keyword: STORED
     - keyword: AS
     - file_format: TEXTFILE
     - keyword: LOCATION
-    - literal: "'hdfs://path'"
+    - quoted_literal: "'hdfs://path'"
   statement_terminator: ;

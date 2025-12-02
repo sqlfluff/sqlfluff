@@ -1,0 +1,72 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 2876e9d4310906922147c390e5da057f0abdc05750e58d23dea16bdd7a91f99b
+file:
+- statement:
+    create_adapter_script:
+    - keyword: CREATE
+    - keyword: JAVA
+    - keyword: ADAPTER
+    - keyword: SCRIPT
+    - script_reference:
+        naked_identifier: my_script
+    - keyword: AS
+    - script_content:
+      - percent: '%'
+      - word: jar
+      - word: hive_jdbc_adapter
+      - dot: .
+      - word: jar
+      - semicolon: ;
+- function_script_terminator: /
+- statement:
+    create_adapter_script:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: PYTHON
+    - keyword: ADAPTER
+    - keyword: SCRIPT
+    - script_reference:
+      - naked_identifier: test
+      - dot: .
+      - naked_identifier: adapter_dummy
+    - keyword: AS
+    - script_content:
+      - word: def
+      - word: adapter_call
+      - bracketed:
+          start_bracket: (
+          word: in_json
+          end_bracket: )
+      - colon: ':'
+      - word: return
+      - double_quote: '"BLABLA"'
+- function_script_terminator: /
+- statement:
+    create_adapter_script:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: LUA
+    - keyword: ADAPTER
+    - keyword: SCRIPT
+    - script_reference:
+      - naked_identifier: test
+      - dot: .
+      - naked_identifier: adapter_dummy
+    - keyword: AS
+    - script_content:
+      - word: function
+      - word: adapter_call
+      - bracketed:
+          start_bracket: (
+          word: in_json
+          end_bracket: )
+      - colon: ':'
+      - word: return
+      - single_quote: "'BLABLA'"
+- function_script_terminator: /

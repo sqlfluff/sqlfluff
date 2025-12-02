@@ -1,0 +1,118 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: b9c2855fe7dd06fc4e5c99824e16eb736d7534e70017c2cdf5c83d50ad587896
+file:
+  statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+            naked_identifier: auto
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: avro
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: backup
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: bzip2
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: case_insensitive
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: case_sensitive
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: compound
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: defaults
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: deflate
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: distkey
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: diststyle
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: encode
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: even
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: excluding
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: explicit
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: gzip
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: including
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: interleaved
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: language
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: lzop
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: offline
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: partitioned
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: sortkey
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: wallet
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: zstd
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: foo
+  statement_terminator: ;

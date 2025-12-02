@@ -1,0 +1,152 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: d6e551923293e16de309bc1eb7a3b0663ffaf8ce1b189a64028c3dea0773f460
+file:
+- statement:
+    insert_statement:
+    - keyword: INSERT
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: t1
+    - values_clause:
+        keyword: VALUES
+        bracketed:
+        - start_bracket: (
+        - numeric_literal: '101'
+        - comma: ','
+        - numeric_literal: '102'
+        - comma: ','
+        - numeric_literal: '103'
+        - comma: ','
+        - numeric_literal: '104'
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+    insert_statement:
+    - keyword: INSERT
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: customer
+    - values_clause:
+        keyword: VALUES
+        bracketed:
+        - start_bracket: (
+        - numeric_literal: '10'
+        - comma: ','
+        - quoted_literal: "'male'"
+        - comma: ','
+        - quoted_literal: "'DPR'"
+        - comma: ','
+        - quoted_literal: "'MA'"
+        - comma: ','
+        - numeric_literal: '35'
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+    insert_statement:
+    - keyword: INSERT
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: start_time
+    - values_clause:
+        keyword: VALUES
+        bracketed:
+        - start_bracket: (
+        - numeric_literal: '12'
+        - comma: ','
+        - quoted_literal: "'film'"
+        - comma: ','
+        - quoted_literal: "'05:10:00:01'"
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+    insert_statement:
+    - keyword: INSERT
+    - keyword: INTO
+    - table_reference:
+      - naked_identifier: retail
+      - dot: .
+      - naked_identifier: t1
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: C0
+      - comma: ','
+      - column_reference:
+          naked_identifier: C1
+      - end_bracket: )
+    - values_clause:
+        keyword: VALUES
+        bracketed:
+        - start_bracket: (
+        - numeric_literal: '1'
+        - comma: ','
+        - numeric_literal: '1001'
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+    insert_statement:
+    - keyword: INSERT
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: films
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: tmp_films
+        where_clause:
+          keyword: WHERE
+          expression:
+            column_reference:
+              naked_identifier: date_prod
+            comparison_operator:
+              raw_comparison_operator: <
+            quoted_literal: "'2004-05-07'"
+- statement_terminator: ;
+- statement:
+    insert_statement:
+    - keyword: INSERT
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: t1
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: col1
+      - comma: ','
+      - column_reference:
+          naked_identifier: col2
+      - end_bracket: )
+    - bracketed:
+        start_bracket: (
+        select_statement:
+          select_clause:
+          - keyword: SELECT
+          - select_clause_element:
+              quoted_literal: "'abc'"
+          - comma: ','
+          - select_clause_element:
+              column_reference:
+                naked_identifier: mycolumn
+          from_clause:
+            keyword: FROM
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                    naked_identifier: mytable
+        end_bracket: )
+- statement_terminator: ;

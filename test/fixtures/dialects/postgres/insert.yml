@@ -1,0 +1,952 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 114ebc036df2cf8cec886322564883072a43209ebd6e31cd69d7edafb4037acd
+file:
+- statement:
+    insert_statement:
+    - keyword: INSERT
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: foo
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          naked_identifier: bar
+        end_bracket: )
+    - values_clause:
+        keyword: VALUES
+        bracketed:
+          start_bracket: (
+          expression:
+            bare_function: current_timestamp
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    insert_statement:
+    - keyword: INSERT
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: foo
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: bar
+      - comma: ','
+      - column_reference:
+          naked_identifier: baz
+      - end_bracket: )
+    - values_clause:
+      - keyword: VALUES
+      - bracketed:
+        - start_bracket: (
+        - expression:
+            numeric_literal: '1'
+        - comma: ','
+        - expression:
+            numeric_literal: '2'
+        - end_bracket: )
+      - comma: ','
+      - bracketed:
+        - start_bracket: (
+        - expression:
+            numeric_literal: '3'
+        - comma: ','
+        - expression:
+            numeric_literal: '4'
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+    insert_statement:
+    - keyword: INSERT
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: foo
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: bar
+      - comma: ','
+      - column_reference:
+          naked_identifier: baz
+      - end_bracket: )
+    - values_clause:
+      - keyword: VALUES
+      - bracketed:
+        - start_bracket: (
+        - expression:
+          - numeric_literal: '1'
+          - binary_operator: +
+          - numeric_literal: '1'
+        - comma: ','
+        - expression:
+            numeric_literal: '2'
+        - end_bracket: )
+      - comma: ','
+      - bracketed:
+        - start_bracket: (
+        - expression:
+            numeric_literal: '3'
+        - comma: ','
+        - expression:
+            numeric_literal: '4'
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+    insert_statement:
+    - keyword: INSERT
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: foo
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          naked_identifier: bar
+        end_bracket: )
+    - values_clause:
+        keyword: VALUES
+        bracketed:
+          start_bracket: (
+          keyword: DEFAULT
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    insert_statement:
+    - keyword: INSERT
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: distributors
+    - alias_expression:
+        alias_operator:
+          keyword: AS
+        naked_identifier: d
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: did
+      - comma: ','
+      - column_reference:
+          naked_identifier: dname
+      - end_bracket: )
+    - values_clause:
+        keyword: VALUES
+        bracketed:
+        - start_bracket: (
+        - expression:
+            numeric_literal: '8'
+        - comma: ','
+        - expression:
+            quoted_literal: "'Anvil Distribution'"
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+    insert_statement:
+    - keyword: INSERT
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: test
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: id
+      - comma: ','
+      - column_reference:
+          naked_identifier: col1
+      - end_bracket: )
+    - keyword: OVERRIDING
+    - keyword: SYSTEM
+    - keyword: VALUE
+    - values_clause:
+        keyword: VALUES
+        bracketed:
+        - start_bracket: (
+        - expression:
+            numeric_literal: '1'
+        - comma: ','
+        - expression:
+            quoted_literal: "'val'"
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+    insert_statement:
+    - keyword: INSERT
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: test
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: id
+      - comma: ','
+      - column_reference:
+          naked_identifier: col1
+      - end_bracket: )
+    - keyword: OVERRIDING
+    - keyword: USER
+    - keyword: VALUE
+    - values_clause:
+        keyword: VALUES
+        bracketed:
+        - start_bracket: (
+        - expression:
+            numeric_literal: '1'
+        - comma: ','
+        - expression:
+            quoted_literal: "'val'"
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+    insert_statement:
+    - keyword: INSERT
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: foo
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          naked_identifier: bar
+        end_bracket: )
+    - keyword: DEFAULT
+    - keyword: VALUES
+- statement_terminator: ;
+- statement:
+    insert_statement:
+    - keyword: INSERT
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: films
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: tmp_films
+        where_clause:
+          keyword: WHERE
+          expression:
+            column_reference:
+              naked_identifier: date_prod
+            comparison_operator:
+              raw_comparison_operator: <
+            quoted_literal: "'2004-05-07'"
+- statement_terminator: ;
+- statement:
+    insert_statement:
+    - keyword: INSERT
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: foo
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          naked_identifier: bar
+        end_bracket: )
+    - values_clause:
+        keyword: VALUES
+        bracketed:
+          start_bracket: (
+          expression:
+            bare_function: current_timestamp
+          end_bracket: )
+    - keyword: RETURNING
+    - star: '*'
+- statement_terminator: ;
+- statement:
+    insert_statement:
+    - keyword: INSERT
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: foo
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          naked_identifier: bar
+        end_bracket: )
+    - values_clause:
+        keyword: VALUES
+        bracketed:
+          start_bracket: (
+          expression:
+            bare_function: current_timestamp
+          end_bracket: )
+    - keyword: RETURNING
+    - expression:
+        column_reference:
+          naked_identifier: bar
+- statement_terminator: ;
+- statement:
+    insert_statement:
+    - keyword: INSERT
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: foo
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          naked_identifier: bar
+        end_bracket: )
+    - values_clause:
+        keyword: VALUES
+        bracketed:
+          start_bracket: (
+          expression:
+            bare_function: current_timestamp
+          end_bracket: )
+    - keyword: RETURNING
+    - expression:
+        column_reference:
+          naked_identifier: bar
+    - alias_expression:
+        alias_operator:
+          keyword: AS
+        naked_identifier: some_alias
+- statement_terminator: ;
+- statement:
+    insert_statement:
+    - keyword: INSERT
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: foo
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: bar
+      - comma: ','
+      - column_reference:
+          naked_identifier: baz
+      - end_bracket: )
+    - values_clause:
+        keyword: VALUES
+        bracketed:
+        - start_bracket: (
+        - expression:
+            numeric_literal: '1'
+        - comma: ','
+        - expression:
+            numeric_literal: '2'
+        - end_bracket: )
+    - keyword: RETURNING
+    - expression:
+        column_reference:
+          naked_identifier: bar
+    - comma: ','
+    - expression:
+        column_reference:
+          naked_identifier: baz
+- statement_terminator: ;
+- statement:
+    insert_statement:
+    - keyword: INSERT
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: foo
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: bar
+      - comma: ','
+      - column_reference:
+          naked_identifier: baz
+      - end_bracket: )
+    - values_clause:
+        keyword: VALUES
+        bracketed:
+        - start_bracket: (
+        - expression:
+            numeric_literal: '1'
+        - comma: ','
+        - expression:
+            numeric_literal: '2'
+        - end_bracket: )
+    - keyword: RETURNING
+    - expression:
+        column_reference:
+          naked_identifier: bar
+    - alias_expression:
+        alias_operator:
+          keyword: AS
+        naked_identifier: alias1
+    - comma: ','
+    - expression:
+        column_reference:
+          naked_identifier: baz
+    - alias_expression:
+        alias_operator:
+          keyword: AS
+        naked_identifier: alias2
+- statement_terminator: ;
+- statement:
+    insert_statement:
+    - keyword: INSERT
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: foo
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: bar
+      - comma: ','
+      - column_reference:
+          naked_identifier: baz
+      - end_bracket: )
+    - values_clause:
+        keyword: VALUES
+        bracketed:
+        - start_bracket: (
+        - expression:
+            numeric_literal: '1'
+        - comma: ','
+        - expression:
+            quoted_literal: "'var'"
+        - end_bracket: )
+    - keyword: 'ON'
+    - keyword: CONFLICT
+    - conflict_target:
+        bracketed:
+          start_bracket: (
+          column_reference:
+            naked_identifier: bar
+          end_bracket: )
+    - conflict_action:
+      - keyword: DO
+      - keyword: UPDATE
+      - keyword: SET
+      - column_reference:
+          naked_identifier: baz
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - expression:
+          column_reference:
+          - naked_identifier: EXCLUDED
+          - dot: .
+          - naked_identifier: baz
+- statement_terminator: ;
+- statement:
+    insert_statement:
+    - keyword: INSERT
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: foo
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: bar
+      - comma: ','
+      - column_reference:
+          naked_identifier: baz
+      - end_bracket: )
+    - values_clause:
+        keyword: VALUES
+        bracketed:
+        - start_bracket: (
+        - expression:
+            numeric_literal: '1'
+        - comma: ','
+        - expression:
+            quoted_literal: "'var'"
+        - end_bracket: )
+    - keyword: 'ON'
+    - keyword: CONFLICT
+    - conflict_target:
+        bracketed:
+          start_bracket: (
+          column_reference:
+            naked_identifier: bar
+          end_bracket: )
+    - conflict_action:
+      - keyword: DO
+      - keyword: NOTHING
+- statement_terminator: ;
+- statement:
+    insert_statement:
+    - keyword: INSERT
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: foo
+    - alias_expression:
+        alias_operator:
+          keyword: AS
+        naked_identifier: f
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: bar
+      - comma: ','
+      - column_reference:
+          naked_identifier: baz
+      - end_bracket: )
+    - values_clause:
+        keyword: VALUES
+        bracketed:
+        - start_bracket: (
+        - expression:
+            numeric_literal: '1'
+        - comma: ','
+        - expression:
+            quoted_literal: "'var'"
+        - end_bracket: )
+    - keyword: 'ON'
+    - keyword: CONFLICT
+    - conflict_target:
+        bracketed:
+          start_bracket: (
+          column_reference:
+            naked_identifier: bar
+          end_bracket: )
+    - conflict_action:
+      - keyword: DO
+      - keyword: UPDATE
+      - keyword: SET
+      - column_reference:
+          naked_identifier: baz
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - expression:
+        - column_reference:
+          - naked_identifier: EXCLUDED
+          - dot: .
+          - naked_identifier: baz
+        - binary_operator:
+          - pipe: '|'
+          - pipe: '|'
+        - quoted_literal: "' (formerly '"
+        - binary_operator:
+          - pipe: '|'
+          - pipe: '|'
+        - column_reference:
+          - naked_identifier: f
+          - dot: .
+          - naked_identifier: baz
+        - binary_operator:
+          - pipe: '|'
+          - pipe: '|'
+        - quoted_literal: "')'"
+      - keyword: WHERE
+      - expression:
+          column_reference:
+          - naked_identifier: f
+          - dot: .
+          - naked_identifier: zipcode
+          comparison_operator:
+          - raw_comparison_operator: '!'
+          - raw_comparison_operator: '='
+          quoted_literal: "'21201'"
+- statement_terminator: ;
+- statement:
+    insert_statement:
+    - keyword: INSERT
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: foo
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: bar
+      - comma: ','
+      - column_reference:
+          naked_identifier: baz
+      - end_bracket: )
+    - values_clause:
+        keyword: VALUES
+        bracketed:
+        - start_bracket: (
+        - expression:
+            numeric_literal: '1'
+        - comma: ','
+        - expression:
+            quoted_literal: "'var'"
+        - end_bracket: )
+    - keyword: 'ON'
+    - keyword: CONFLICT
+    - conflict_target:
+      - keyword: 'ON'
+      - keyword: CONSTRAINT
+      - parameter: foo_pkey
+    - conflict_action:
+      - keyword: DO
+      - keyword: NOTHING
+- statement_terminator: ;
+- statement:
+    insert_statement:
+    - keyword: INSERT
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: foo
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: bar
+      - comma: ','
+      - column_reference:
+          naked_identifier: baz
+      - end_bracket: )
+    - values_clause:
+        keyword: VALUES
+        bracketed:
+        - start_bracket: (
+        - expression:
+            numeric_literal: '1'
+        - comma: ','
+        - expression:
+            quoted_literal: "'var'"
+        - end_bracket: )
+    - keyword: 'ON'
+    - keyword: CONFLICT
+    - conflict_target:
+        bracketed:
+          start_bracket: (
+          column_reference:
+            naked_identifier: bar
+          end_bracket: )
+        keyword: WHERE
+        expression:
+          column_reference:
+            naked_identifier: is_active
+    - conflict_action:
+      - keyword: DO
+      - keyword: NOTHING
+- statement_terminator: ;
+- statement:
+    insert_statement:
+    - keyword: INSERT
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: foo
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: bar
+      - comma: ','
+      - column_reference:
+          naked_identifier: baz
+      - end_bracket: )
+    - values_clause:
+        keyword: VALUES
+        bracketed:
+        - start_bracket: (
+        - expression:
+            numeric_literal: '1'
+        - comma: ','
+        - expression:
+            quoted_literal: "'var'"
+        - end_bracket: )
+    - keyword: 'ON'
+    - keyword: CONFLICT
+    - conflict_target:
+        bracketed:
+          start_bracket: (
+          column_reference:
+            naked_identifier: bar
+          end_bracket: )
+    - conflict_action:
+      - keyword: DO
+      - keyword: UPDATE
+      - keyword: SET
+      - bracketed:
+          start_bracket: (
+          column_reference:
+            naked_identifier: baz
+          end_bracket: )
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - bracketed:
+          start_bracket: (
+          expression:
+            select_statement:
+              select_clause:
+                keyword: SELECT
+                select_clause_element:
+                  column_reference:
+                    naked_identifier: baz
+              from_clause:
+                keyword: FROM
+                from_expression:
+                  from_expression_element:
+                    table_expression:
+                      table_reference:
+                        naked_identifier: foobar
+              where_clause:
+                keyword: WHERE
+                expression:
+                  column_reference:
+                    naked_identifier: bar
+                  comparison_operator:
+                    raw_comparison_operator: '='
+                  numeric_literal: '1'
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    insert_statement:
+    - keyword: INSERT
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: megatable
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          naked_identifier: megacolumn
+        end_bracket: )
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              bracketed:
+                start_bracket: (
+                table_expression:
+                  values_clause:
+                    keyword: VALUES
+                    bracketed:
+                      start_bracket: (
+                      expression:
+                        quoted_literal: "'megavalue'"
+                      end_bracket: )
+                end_bracket: )
+              alias_expression:
+                alias_operator:
+                  keyword: AS
+                naked_identifier: tmp
+                bracketed:
+                  start_bracket: (
+                  identifier_list:
+                    naked_identifier: megacolumn
+                  end_bracket: )
+        where_clause:
+          keyword: WHERE
+          expression:
+          - keyword: NOT
+          - keyword: EXISTS
+          - bracketed:
+              start_bracket: (
+              select_statement:
+                select_clause:
+                  keyword: SELECT
+                from_clause:
+                  keyword: FROM
+                  from_expression:
+                    from_expression_element:
+                      table_expression:
+                        table_reference:
+                          naked_identifier: megatable
+                      alias_expression:
+                        alias_operator:
+                          keyword: AS
+                        naked_identifier: mt
+                where_clause:
+                  keyword: WHERE
+                  expression:
+                  - column_reference:
+                    - naked_identifier: mt
+                    - dot: .
+                    - naked_identifier: megacolumn
+                  - comparison_operator:
+                      raw_comparison_operator: '='
+                  - column_reference:
+                    - naked_identifier: tmp
+                    - dot: .
+                    - naked_identifier: megacolumn
+              end_bracket: )
+    - keyword: 'ON'
+    - keyword: CONFLICT
+    - conflict_action:
+      - keyword: DO
+      - keyword: NOTHING
+- statement_terminator: ;
+- statement:
+    insert_statement:
+    - keyword: INSERT
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: abc
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: foo
+      - comma: ','
+      - column_reference:
+          naked_identifier: bar
+      - end_bracket: )
+    - select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+              naked_identifier: foo
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: bar
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: baz
+    - keyword: RETURNING
+    - expression:
+        column_reference:
+          naked_identifier: quux
+- statement_terminator: ;
+- statement:
+    insert_statement:
+    - keyword: INSERT
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: tbl_a
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: val1
+      - comma: ','
+      - column_reference:
+          naked_identifier: val2
+      - end_bracket: )
+    - select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+              naked_identifier: val1
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: val2
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: tbl_2
+    - keyword: 'ON'
+    - keyword: CONFLICT
+    - conflict_target:
+        bracketed:
+          start_bracket: (
+          column_reference:
+            naked_identifier: val1
+          comma: ','
+          function:
+            function_name:
+              function_name_identifier: COALESCE
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                    naked_identifier: val2
+              - comma: ','
+              - expression:
+                  quoted_literal: "''"
+              - end_bracket: )
+          end_bracket: )
+    - conflict_action:
+      - keyword: DO
+      - keyword: NOTHING
+- statement_terminator: ;
+- statement:
+    insert_statement:
+    - keyword: INSERT
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: prompt_variants
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: test
+      - comma: ','
+      - column_reference:
+          naked_identifier: test2
+      - end_bracket: )
+    - select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+              naked_identifier: test
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: test2
+    - keyword: RETURNING
+    - expression:
+        column_reference:
+          naked_identifier: test
+    - comma: ','
+    - expression:
+        column_reference:
+          naked_identifier: test2
+- statement_terminator: ;
+- statement:
+    insert_statement:
+    - keyword: INSERT
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: baz
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: state
+      - comma: ','
+      - column_reference:
+          naked_identifier: state_changed_at
+      - comma: ','
+      - column_reference:
+          naked_identifier: instance_id
+      - end_bracket: )
+    - select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            numeric_literal: '1'
+        - comma: ','
+        - select_clause_element:
+            numeric_literal: '2'
+        - comma: ','
+        - select_clause_element:
+            numeric_literal: '3'
+    - keyword: 'ON'
+    - keyword: CONFLICT
+    - conflict_target:
+        bracketed:
+          start_bracket: (
+          column_reference:
+            naked_identifier: instance_id
+          end_bracket: )
+    - conflict_action:
+      - keyword: DO
+      - keyword: UPDATE
+      - keyword: SET
+      - column_reference:
+          naked_identifier: state
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - expression:
+          column_reference:
+            naked_identifier: foo
+      - comma: ','
+      - column_reference:
+          naked_identifier: state_changed_at
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - expression:
+          column_reference:
+            naked_identifier: bar
+- statement_terminator: ;

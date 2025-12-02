@@ -1,0 +1,42 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 282b60971e1137caf141e41a55f81c74985ed6ecf12ad8ad3c4d2e304fe7472d
+file:
+- statement:
+    use_catalog_statement:
+    - keyword: USE
+    - keyword: CATALOG
+    - catalog_reference:
+        naked_identifier: catalog_name
+- statement_terminator: ;
+- statement:
+    use_catalog_statement:
+    - keyword: USE
+    - keyword: CATALOG
+    - catalog_reference:
+        naked_identifier: hive_metastore
+- statement_terminator: ;
+- statement:
+    use_catalog_statement:
+    - keyword: USE
+    - keyword: CATALOG
+    - catalog_reference:
+        quoted_identifier: "'hive_metastore'"
+- statement_terminator: ;
+- statement:
+    use_catalog_statement:
+    - keyword: USE
+    - keyword: CATALOG
+    - catalog_reference:
+        quoted_identifier: '`some_catalog`'
+- statement_terminator: ;
+- statement:
+    use_catalog_statement:
+    - keyword: USE
+    - keyword: CATALOG
+    - catalog_reference:
+        naked_identifier: some_cat
+- statement_terminator: ;

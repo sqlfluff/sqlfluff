@@ -1,0 +1,180 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: f24b1e4e956475c5150d571f7d8e10636ec7026aaffb08098a08e3ed0eaf1f14
+file:
+- statement:
+    create_library_statement:
+    - keyword: create
+    - keyword: library
+    - object_reference:
+        naked_identifier: lib1
+    - keyword: language
+    - keyword: plpythonu
+    - keyword: from
+    - quoted_literal: "'s3://s3bucket/lib1.0.3.zip'"
+    - authorization_segment:
+        keyword: credentials
+        quoted_literal: "'aws_iam_role=arn:aws:iam::123456789:role/role_name'"
+    - keyword: region
+    - keyword: as
+    - quoted_literal: "'us-east-1'"
+- statement_terminator: ;
+- statement:
+    create_library_statement:
+    - keyword: create
+    - keyword: library
+    - object_reference:
+        naked_identifier: lib1
+    - keyword: language
+    - keyword: plpythonu
+    - keyword: from
+    - quoted_literal: "'s3://s3bucket/lib1.0.3.zip'"
+    - keyword: region
+    - keyword: as
+    - quoted_literal: "'us-east-1'"
+    - authorization_segment:
+        keyword: credentials
+        quoted_literal: "'aws_iam_role=arn:aws:iam::123456789:role/role_name'"
+- statement_terminator: ;
+- statement:
+    create_library_statement:
+    - keyword: create
+    - keyword: or
+    - keyword: replace
+    - keyword: library
+    - object_reference:
+        naked_identifier: lib1
+    - keyword: language
+    - keyword: plpythonu
+    - keyword: from
+    - quoted_literal: "'s3://s3bucket/lib1.0.3.zip'"
+    - authorization_segment:
+      - keyword: with
+      - keyword: credentials
+      - keyword: as
+      - quoted_literal: "'aws_iam_role=arn:aws:iam::123456789:role/role_name'"
+    - keyword: region
+    - keyword: as
+    - quoted_literal: "'us-east-1'"
+- statement_terminator: ;
+- statement:
+    create_library_statement:
+    - keyword: create
+    - keyword: or
+    - keyword: replace
+    - keyword: library
+    - object_reference:
+        naked_identifier: lib1
+    - keyword: language
+    - keyword: plpythonu
+    - keyword: from
+    - quoted_literal: "'s3://s3bucket/lib1.0.3.zip'"
+    - authorization_segment:
+      - keyword: credentials
+      - keyword: as
+      - quoted_literal: "'aws_access_key_id=<temporary-access-key-id>;aws_secret_access_key=<temporary-secret-access-key>;token=<temporary-token>'"
+    - keyword: region
+    - keyword: as
+    - quoted_literal: "'us-east-1'"
+- statement_terminator: ;
+- statement:
+    create_library_statement:
+    - keyword: create
+    - keyword: or
+    - keyword: replace
+    - keyword: library
+    - object_reference:
+        naked_identifier: lib1
+    - keyword: language
+    - keyword: plpythonu
+    - keyword: from
+    - quoted_literal: "'s3://s3bucket/lib1.0.3.zip'"
+    - authorization_segment:
+      - keyword: with
+      - keyword: credentials
+      - quoted_literal: "'aws_access_key_id=<temporary-access-key-id>;aws_secret_access_key=<temporary-secret-access-key>;token=<temporary-token>'"
+    - keyword: region
+    - keyword: as
+    - quoted_literal: "'us-east-1'"
+- statement_terminator: ;
+- statement:
+    create_library_statement:
+    - keyword: create
+    - keyword: library
+    - object_reference:
+        naked_identifier: lib1
+    - keyword: language
+    - keyword: plpythonu
+    - keyword: from
+    - quoted_literal: "'s3://s3bucket/lib1.0.3.zip'"
+    - authorization_segment:
+        keyword: iam_role
+        quoted_literal: "'aws_iam_role=arn:aws:iam::123456789:role/role_name'"
+- statement_terminator: ;
+- statement:
+    create_library_statement:
+    - keyword: create
+    - keyword: or
+    - keyword: replace
+    - keyword: library
+    - object_reference:
+        naked_identifier: lib1
+    - keyword: language
+    - keyword: plpythonu
+    - keyword: from
+    - quoted_literal: "'s3://s3bucket/lib1.0.3.zip'"
+    - authorization_segment:
+      - keyword: ACCESS_KEY_ID
+      - quoted_literal: "'<access-key-id>'"
+      - keyword: SECRET_ACCESS_KEY
+      - quoted_literal: "'<secret-access-key>'"
+- statement_terminator: ;
+- statement:
+    create_library_statement:
+    - keyword: create
+    - keyword: or
+    - keyword: replace
+    - keyword: library
+    - object_reference:
+        naked_identifier: lib1
+    - keyword: language
+    - keyword: plpythonu
+    - keyword: from
+    - quoted_literal: "'s3://s3bucket/lib1.0.3.zip'"
+    - authorization_segment:
+      - keyword: ACCESS_KEY_ID
+      - quoted_literal: "'<access-key-id>'"
+      - keyword: SECRET_ACCESS_KEY
+      - quoted_literal: "'<secret-access-key>'"
+      - keyword: SESSION_TOKEN
+      - quoted_literal: "'<temporary-token>'"
+    - keyword: region
+    - quoted_literal: "'us-east-1'"
+- statement_terminator: ;
+- statement:
+    create_library_statement:
+    - keyword: create
+    - keyword: library
+    - object_reference:
+        naked_identifier: lib1
+    - keyword: language
+    - keyword: plpythonu
+    - keyword: from
+    - quoted_literal: "'https://example.com/packages/lib1.0.3.zip'"
+- statement_terminator: ;
+- statement:
+    create_library_statement:
+    - keyword: create
+    - keyword: or
+    - keyword: replace
+    - keyword: library
+    - object_reference:
+        naked_identifier: lib1
+    - keyword: language
+    - keyword: plpythonu
+    - keyword: from
+    - quoted_literal: "'https://example.com/packages/lib1.0.3.zip'"
+- statement_terminator: ;

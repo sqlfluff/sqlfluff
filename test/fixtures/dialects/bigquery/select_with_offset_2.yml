@@ -3,39 +3,41 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: b6aa83086d55161a8e103066eed41801931d37db119184d680dbcfae2ec5d3f8
+_hash: 5eb2620f8f3174b4320d0d35ecd12efaf0aac98e92e6f400244dc48bf1c37f04
 file:
   statement:
     select_statement:
       select_clause:
         keyword: SELECT
         select_clause_element:
-          function:
-            function_name:
-              function_name_identifier: ARRAY
-            bracketed:
-              start_bracket: (
-              expression:
-                select_statement:
-                  select_clause:
-                    keyword: SELECT
-                    select_clause_element:
-                      column_reference:
-                        identifier: a
-                  from_clause:
-                    keyword: FROM
-                    from_expression:
-                      from_expression_element:
-                      - table_expression:
-                          table_reference:
-                            identifier: foo
-                      - keyword: WITH
-                      - keyword: OFFSET
-                  where_clause:
-                    keyword: WHERE
-                    expression:
-                      column_reference:
-                        identifier: OFFSET
-                      comparison_operator: '>'
-                      literal: '1'
-              end_bracket: )
+          expression:
+            array_expression:
+              function_name:
+                function_name_identifier: ARRAY
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  select_statement:
+                    select_clause:
+                      keyword: SELECT
+                      select_clause_element:
+                        column_reference:
+                          naked_identifier: a
+                    from_clause:
+                      keyword: FROM
+                      from_expression:
+                        from_expression_element:
+                        - table_expression:
+                            table_reference:
+                              naked_identifier: foo
+                        - keyword: WITH
+                        - keyword: OFFSET
+                    where_clause:
+                      keyword: WHERE
+                      expression:
+                        column_reference:
+                          naked_identifier: OFFSET
+                        comparison_operator:
+                          raw_comparison_operator: '>'
+                        numeric_literal: '1'
+                  end_bracket: )

@@ -1,0 +1,97 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: ae65d21936bdbcbd6b3967a113fa71fe4ce6dffff3fbc5f55be69c82d61d0d2f
+file:
+- statement:
+    create_view_statement:
+    - keyword: CREATE
+    - keyword: TEMPORARY
+    - keyword: VIEW
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - table_reference:
+        naked_identifier: temp_table
+    - keyword: AS
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: tab
+        where_clause:
+          keyword: WHERE
+          expression:
+            column_reference:
+              naked_identifier: col
+            comparison_operator:
+              raw_comparison_operator: '='
+            quoted_literal: "'value'"
+- statement_terminator: ;
+- statement:
+    create_view_statement:
+    - keyword: CREATE
+    - keyword: VIEW
+    - table_reference:
+      - naked_identifier: Test
+      - dot: .
+      - naked_identifier: Data
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: id
+      - comma: ','
+      - column_reference:
+          naked_identifier: name
+      - comma: ','
+      - column_reference:
+          naked_identifier: age
+      - end_bracket: )
+    - keyword: AS
+    - select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+              naked_identifier: id
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: name
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: age
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: temp_table
+        where_clause:
+          keyword: WHERE
+          expression:
+          - column_reference:
+              naked_identifier: age
+          - comparison_operator:
+              raw_comparison_operator: '>'
+          - numeric_literal: '18'
+          - binary_operator: AND
+          - column_reference:
+              naked_identifier: name
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - quoted_literal: "'John'"
+- statement_terminator: ;

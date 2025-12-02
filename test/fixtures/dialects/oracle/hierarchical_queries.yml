@@ -1,0 +1,573 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 5cd22054b73c6bc9aebbea851f9df614763a44922e251854c368e9ce175ede44
+file:
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+            naked_identifier: employee_id
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: last_name
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: manager_id
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: employees
+      hierarchical_query_clause:
+        connectby_clause:
+        - keyword: CONNECT
+        - keyword: BY
+        - expression:
+          - keyword: PRIOR
+          - column_reference:
+              naked_identifier: employee_id
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - column_reference:
+              naked_identifier: manager_id
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+            naked_identifier: employee_id
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: last_name
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: manager_id
+      - comma: ','
+      - select_clause_element:
+          keyword: LEVEL
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: employees
+      hierarchical_query_clause:
+        connectby_clause:
+        - keyword: CONNECT
+        - keyword: BY
+        - expression:
+          - keyword: PRIOR
+          - column_reference:
+              naked_identifier: employee_id
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - column_reference:
+              naked_identifier: manager_id
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+            naked_identifier: last_name
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: employee_id
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: manager_id
+      - comma: ','
+      - select_clause_element:
+          keyword: LEVEL
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: employees
+      hierarchical_query_clause:
+        startwith_clause:
+        - keyword: START
+        - keyword: WITH
+        - expression:
+            column_reference:
+              naked_identifier: employee_id
+            comparison_operator:
+              raw_comparison_operator: '='
+            numeric_literal: '100'
+        connectby_clause:
+        - keyword: CONNECT
+        - keyword: BY
+        - expression:
+          - keyword: PRIOR
+          - column_reference:
+              naked_identifier: employee_id
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - column_reference:
+              naked_identifier: manager_id
+      orderby_clause:
+      - keyword: ORDER
+      - keyword: SIBLINGS
+      - keyword: BY
+      - column_reference:
+          naked_identifier: last_name
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+            naked_identifier: last_name
+          alias_expression:
+            quoted_identifier: '"Employee"'
+      - comma: ','
+      - select_clause_element:
+          keyword: LEVEL
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: SYS_CONNECT_BY_PATH
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                    naked_identifier: last_name
+              - comma: ','
+              - expression:
+                  quoted_literal: "'/'"
+              - end_bracket: )
+          alias_expression:
+            quoted_identifier: '"Path"'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: employees
+      where_clause:
+        keyword: WHERE
+        expression:
+        - keyword: level
+        - comparison_operator:
+          - raw_comparison_operator: <
+          - raw_comparison_operator: '='
+        - numeric_literal: '3'
+        - binary_operator: AND
+        - column_reference:
+            naked_identifier: department_id
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - numeric_literal: '80'
+      hierarchical_query_clause:
+        startwith_clause:
+        - keyword: START
+        - keyword: WITH
+        - expression:
+            column_reference:
+              naked_identifier: last_name
+            comparison_operator:
+              raw_comparison_operator: '='
+            quoted_literal: "'King'"
+        connectby_clause:
+        - keyword: CONNECT
+        - keyword: BY
+        - expression:
+          - keyword: PRIOR
+          - column_reference:
+              naked_identifier: employee_id
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - column_reference:
+              naked_identifier: manager_id
+          - binary_operator: AND
+          - keyword: LEVEL
+          - comparison_operator:
+            - raw_comparison_operator: <
+            - raw_comparison_operator: '='
+          - numeric_literal: '4'
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+            naked_identifier: last_name
+          alias_expression:
+            quoted_identifier: '"Employee"'
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: CONNECT_BY_ISCYCLE
+          alias_expression:
+            quoted_identifier: '"Cycle"'
+      - comma: ','
+      - select_clause_element:
+          keyword: LEVEL
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: SYS_CONNECT_BY_PATH
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                    naked_identifier: last_name
+              - comma: ','
+              - expression:
+                  quoted_literal: "'/'"
+              - end_bracket: )
+          alias_expression:
+            quoted_identifier: '"Path"'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: employees
+      where_clause:
+        keyword: WHERE
+        expression:
+        - keyword: level
+        - comparison_operator:
+          - raw_comparison_operator: <
+          - raw_comparison_operator: '='
+        - numeric_literal: '3'
+        - binary_operator: AND
+        - column_reference:
+            naked_identifier: department_id
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - numeric_literal: '80'
+      hierarchical_query_clause:
+        startwith_clause:
+        - keyword: START
+        - keyword: WITH
+        - expression:
+            column_reference:
+              naked_identifier: last_name
+            comparison_operator:
+              raw_comparison_operator: '='
+            quoted_literal: "'King'"
+        connectby_clause:
+        - keyword: CONNECT
+        - keyword: BY
+        - keyword: NOCYCLE
+        - expression:
+          - keyword: PRIOR
+          - column_reference:
+              naked_identifier: employee_id
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - column_reference:
+              naked_identifier: manager_id
+          - binary_operator: AND
+          - keyword: LEVEL
+          - comparison_operator:
+            - raw_comparison_operator: <
+            - raw_comparison_operator: '='
+          - numeric_literal: '4'
+      orderby_clause:
+      - keyword: ORDER
+      - keyword: BY
+      - column_reference:
+          quoted_identifier: '"Employee"'
+      - comma: ','
+      - column_reference:
+          quoted_identifier: '"Cycle"'
+      - comma: ','
+      - expression:
+          keyword: LEVEL
+      - comma: ','
+      - column_reference:
+          quoted_identifier: '"Path"'
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: LTRIM
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  function:
+                    function_name:
+                      function_name_identifier: SYS_CONNECT_BY_PATH
+                    function_contents:
+                      bracketed:
+                      - start_bracket: (
+                      - expression:
+                          column_reference:
+                            naked_identifier: warehouse_id
+                      - comma: ','
+                      - expression:
+                          quoted_literal: "','"
+                      - end_bracket: )
+              - comma: ','
+              - expression:
+                  quoted_literal: "','"
+              - end_bracket: )
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              bracketed:
+                start_bracket: (
+                select_statement:
+                  select_clause:
+                  - keyword: SELECT
+                  - select_clause_element:
+                      keyword: ROWNUM
+                      alias_expression:
+                        naked_identifier: r
+                  - comma: ','
+                  - select_clause_element:
+                      column_reference:
+                        naked_identifier: warehouse_id
+                  from_clause:
+                    keyword: FROM
+                    from_expression:
+                      from_expression_element:
+                        table_expression:
+                          table_reference:
+                            naked_identifier: warehouses
+                end_bracket: )
+      where_clause:
+        keyword: WHERE
+        expression:
+          column_reference:
+            naked_identifier: CONNECT_BY_ISLEAF
+          comparison_operator:
+            raw_comparison_operator: '='
+          numeric_literal: '1'
+      hierarchical_query_clause:
+        startwith_clause:
+        - keyword: START
+        - keyword: WITH
+        - expression:
+            column_reference:
+              naked_identifier: r
+            comparison_operator:
+              raw_comparison_operator: '='
+            numeric_literal: '1'
+        connectby_clause:
+        - keyword: CONNECT
+        - keyword: BY
+        - expression:
+          - column_reference:
+              naked_identifier: r
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - keyword: PRIOR
+          - column_reference:
+              naked_identifier: r
+          - binary_operator: +
+          - numeric_literal: '1'
+      orderby_clause:
+      - keyword: ORDER
+      - keyword: BY
+      - column_reference:
+          naked_identifier: warehouse_id
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+            naked_identifier: last_name
+          alias_expression:
+            quoted_identifier: '"Employee"'
+      - comma: ','
+      - select_clause_element:
+          keyword: CONNECT_BY_ROOT
+          naked_identifier: last_name
+          alias_expression:
+            quoted_identifier: '"Manager"'
+      - comma: ','
+      - select_clause_element:
+          expression:
+            keyword: LEVEL
+            binary_operator: '-'
+            numeric_literal: '1'
+          alias_expression:
+            quoted_identifier: '"Pathlen"'
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: SYS_CONNECT_BY_PATH
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                    naked_identifier: last_name
+              - comma: ','
+              - expression:
+                  quoted_literal: "'/'"
+              - end_bracket: )
+          alias_expression:
+            quoted_identifier: '"Path"'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: employees
+      where_clause:
+        keyword: WHERE
+        expression:
+        - keyword: LEVEL
+        - comparison_operator:
+            raw_comparison_operator: '>'
+        - numeric_literal: '1'
+        - binary_operator: and
+        - column_reference:
+            naked_identifier: department_id
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - numeric_literal: '110'
+      hierarchical_query_clause:
+        connectby_clause:
+        - keyword: CONNECT
+        - keyword: BY
+        - expression:
+          - keyword: PRIOR
+          - column_reference:
+              naked_identifier: employee_id
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - column_reference:
+              naked_identifier: manager_id
+      orderby_clause:
+      - keyword: ORDER
+      - keyword: BY
+      - column_reference:
+          quoted_identifier: '"Employee"'
+      - comma: ','
+      - column_reference:
+          quoted_identifier: '"Manager"'
+      - comma: ','
+      - column_reference:
+          quoted_identifier: '"Pathlen"'
+      - comma: ','
+      - column_reference:
+          quoted_identifier: '"Path"'
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+            naked_identifier: name
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: SUM
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: salary
+                end_bracket: )
+          alias_expression:
+            quoted_identifier: '"Total_Salary"'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              bracketed:
+                start_bracket: (
+                select_statement:
+                  select_clause:
+                  - keyword: SELECT
+                  - select_clause_element:
+                      keyword: CONNECT_BY_ROOT
+                      naked_identifier: last_name
+                      alias_expression:
+                        alias_operator:
+                          keyword: as
+                        naked_identifier: name
+                  - comma: ','
+                  - select_clause_element:
+                      column_reference:
+                        naked_identifier: Salary
+                  from_clause:
+                    keyword: FROM
+                    from_expression:
+                      from_expression_element:
+                        table_expression:
+                          table_reference:
+                            naked_identifier: employees
+                  where_clause:
+                    keyword: WHERE
+                    expression:
+                      column_reference:
+                        naked_identifier: department_id
+                      comparison_operator:
+                        raw_comparison_operator: '='
+                      numeric_literal: '110'
+                  hierarchical_query_clause:
+                    connectby_clause:
+                    - keyword: CONNECT
+                    - keyword: BY
+                    - expression:
+                      - keyword: PRIOR
+                      - column_reference:
+                          naked_identifier: employee_id
+                      - comparison_operator:
+                          raw_comparison_operator: '='
+                      - column_reference:
+                          naked_identifier: manager_id
+                end_bracket: )
+      groupby_clause:
+      - keyword: GROUP
+      - keyword: BY
+      - column_reference:
+          naked_identifier: name
+      orderby_clause:
+      - keyword: ORDER
+      - keyword: BY
+      - column_reference:
+          naked_identifier: name
+      - comma: ','
+      - column_reference:
+          quoted_identifier: '"Total_Salary"'
+- statement_terminator: ;

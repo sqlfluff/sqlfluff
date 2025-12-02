@@ -1,0 +1,65 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: f60058102cfdbfadc25b26e6235e09246c06828ad39beb4f0d79aec4618fac69
+file:
+- statement:
+    do_statement:
+      keyword: DO
+      quoted_literal: "$$DECLARE r record;\nBEGIN\n    FOR r IN SELECT table_schema,\
+        \ table_name FROM information_schema.tables\n             WHERE table_type\
+        \ = 'VIEW' AND table_schema = 'public'\n    LOOP\n        EXECUTE 'GRANT ALL\
+        \ ON ' || quote_ident(r.table_schema) || '.' || quote_ident(r.table_name)\
+        \ || ' TO webuser';\n    END LOOP;\nEND$$"
+- statement_terminator: ;
+- statement:
+    do_statement:
+      keyword: DO
+      language_clause:
+        keyword: LANGUAGE
+        naked_identifier: plpgsql
+      quoted_literal: "$$\nDECLARE r record;\nBEGIN\n    FOR r IN SELECT table_schema,\
+        \ table_name FROM information_schema.tables\n             WHERE table_type\
+        \ = 'VIEW' AND table_schema = 'public'\n    LOOP\n        EXECUTE 'GRANT ALL\
+        \ ON ' || quote_ident(r.table_schema) || '.' || quote_ident(r.table_name)\
+        \ || ' TO webuser';\n    END LOOP;\nEND$$"
+- statement_terminator: ;
+- statement:
+    do_statement:
+      keyword: DO
+      quoted_literal: "$$\nDECLARE r record;\nBEGIN\n    FOR r IN SELECT table_schema,\
+        \ table_name FROM information_schema.tables\n             WHERE table_type\
+        \ = 'VIEW' AND table_schema = 'public'\n    LOOP\n        EXECUTE 'GRANT ALL\
+        \ ON ' || quote_ident(r.table_schema) || '.' || quote_ident(r.table_name)\
+        \ || ' TO webuser';\n    END LOOP;\nEND$$"
+      language_clause:
+        keyword: LANGUAGE
+        naked_identifier: plpgsql
+- statement_terminator: ;
+- statement:
+    do_statement:
+      keyword: DO
+      quoted_literal: "E'\nDECLARE r record;\nBEGIN\n    FOR r IN SELECT table_schema,\
+        \ table_name FROM information_schema.tables\n             WHERE table_type\
+        \ = \\'VIEW\\' AND table_schema = \\'public\\'\n    LOOP\n        EXECUTE\
+        \ \\'GRANT ALL ON \\' || quote_ident(r.table_schema) || \\'.\\' || quote_ident(r.table_name)\
+        \ || \\' TO webuser\\';\n    END LOOP;\nEND'"
+- statement_terminator: ;
+- statement:
+    do_statement:
+      keyword: DO
+      quoted_literal: "'DECLARE r record;'"
+- statement_terminator: ;
+- statement:
+    do_statement:
+      keyword: DO
+      quoted_literal: "U&'\\0441\\043B\\043E\\043D'"
+- statement_terminator: ;
+- statement:
+    do_statement:
+    - keyword: DO
+    - quoted_literal: "'SELECT foo'"
+    - quoted_literal: "'bar'"
+- statement_terminator: ;

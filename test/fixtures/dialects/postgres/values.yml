@@ -1,0 +1,229 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: c9ac4865633124d729147c4c432dca1e9250cdf5c660d16cea30ac395ec6b017
+file:
+- statement:
+    values_clause:
+      keyword: values
+      bracketed:
+      - start_bracket: (
+      - expression:
+          numeric_literal: '1'
+      - comma: ','
+      - expression:
+          numeric_literal: '2'
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    values_clause:
+      keyword: VALUES
+      bracketed:
+      - start_bracket: (
+      - expression:
+        - numeric_literal: '1'
+        - binary_operator: +
+        - numeric_literal: '1'
+      - comma: ','
+      - expression:
+          numeric_literal: '2'
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    values_clause:
+      keyword: values
+      bracketed:
+      - start_bracket: (
+      - expression:
+        - numeric_literal: '1'
+        - binary_operator: +
+        - numeric_literal: '1'
+      - comma: ','
+      - expression:
+          cast_expression:
+            numeric_literal: '2'
+            casting_operator: '::'
+            data_type:
+              keyword: TEXT
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    values_clause:
+    - keyword: values
+    - bracketed:
+      - start_bracket: (
+      - expression:
+          numeric_literal: '1'
+      - comma: ','
+      - expression:
+          numeric_literal: '2'
+      - end_bracket: )
+    - comma: ','
+    - bracketed:
+      - start_bracket: (
+      - expression:
+          numeric_literal: '3'
+      - comma: ','
+      - expression:
+          numeric_literal: '4'
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    values_clause:
+    - keyword: values
+    - bracketed:
+      - start_bracket: (
+      - expression:
+          numeric_literal: '1'
+      - comma: ','
+      - expression:
+          numeric_literal: '2'
+      - end_bracket: )
+    - comma: ','
+    - bracketed:
+      - start_bracket: (
+      - expression:
+          numeric_literal: '3'
+      - comma: ','
+      - expression:
+          numeric_literal: '4'
+      - end_bracket: )
+    - comma: ','
+    - bracketed:
+      - start_bracket: (
+      - expression:
+          function:
+            function_name:
+              function_name_identifier: greatest
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  numeric_literal: '5'
+              - comma: ','
+              - expression:
+                  numeric_literal: '6'
+              - end_bracket: )
+      - comma: ','
+      - expression:
+          function:
+            function_name:
+              function_name_identifier: least
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  numeric_literal: '7'
+              - comma: ','
+              - expression:
+                  numeric_literal: '8'
+              - end_bracket: )
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    values_clause:
+    - keyword: values
+    - bracketed:
+      - start_bracket: (
+      - expression:
+          numeric_literal: '1'
+      - comma: ','
+      - expression:
+          numeric_literal: '2'
+      - end_bracket: )
+    - comma: ','
+    - bracketed:
+      - start_bracket: (
+      - expression:
+          numeric_literal: '3'
+      - comma: ','
+      - expression:
+          numeric_literal: '4'
+      - end_bracket: )
+    - limit_clause:
+        keyword: limit
+        numeric_literal: '1'
+- statement_terminator: ;
+- statement:
+    values_clause:
+    - keyword: values
+    - bracketed:
+      - start_bracket: (
+      - expression:
+          numeric_literal: '1'
+      - comma: ','
+      - expression:
+          numeric_literal: '2'
+      - end_bracket: )
+    - comma: ','
+    - bracketed:
+      - start_bracket: (
+      - expression:
+          numeric_literal: '3'
+      - comma: ','
+      - expression:
+          numeric_literal: '4'
+      - end_bracket: )
+    - limit_clause:
+      - keyword: limit
+      - numeric_literal: '1'
+      - keyword: offset
+      - numeric_literal: '1'
+- statement_terminator: ;
+- statement:
+    values_clause:
+    - keyword: values
+    - bracketed:
+      - start_bracket: (
+      - expression:
+          numeric_literal: '1'
+      - comma: ','
+      - expression:
+          numeric_literal: '2'
+      - end_bracket: )
+    - comma: ','
+    - bracketed:
+      - start_bracket: (
+      - expression:
+          numeric_literal: '3'
+      - comma: ','
+      - expression:
+          numeric_literal: '4'
+      - end_bracket: )
+    - orderby_clause:
+      - keyword: order
+      - keyword: by
+      - numeric_literal: '1'
+      - keyword: desc
+- statement_terminator: ;
+- statement:
+    values_clause:
+    - keyword: values
+    - bracketed:
+      - start_bracket: (
+      - expression:
+          numeric_literal: '1'
+      - comma: ','
+      - expression:
+          numeric_literal: '2'
+      - end_bracket: )
+    - comma: ','
+    - bracketed:
+      - start_bracket: (
+      - expression:
+          numeric_literal: '3'
+      - comma: ','
+      - expression:
+          numeric_literal: '4'
+      - end_bracket: )
+    - orderby_clause:
+      - keyword: order
+      - keyword: by
+      - numeric_literal: '1'
+      - keyword: desc
+    - limit_clause:
+        keyword: limit
+        numeric_literal: '1'
+- statement_terminator: ;

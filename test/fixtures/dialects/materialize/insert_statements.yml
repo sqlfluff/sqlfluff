@@ -1,0 +1,218 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 173ef80a92e232d685064d8fe7b1b8bfffd92028ffa232af0f9201afcb59f42a
+file:
+- statement:
+    insert_statement:
+    - keyword: INSERT
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: kv
+    - values_clause:
+        keyword: VALUES
+        bracketed:
+          start_bracket: (
+          expression:
+            quoted_literal: "'A'"
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    insert_statement:
+    - keyword: INSERT
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: kv
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          naked_identifier: v
+        end_bracket: )
+    - values_clause:
+        keyword: VALUES
+        bracketed:
+          start_bracket: (
+          expression:
+            quoted_literal: "'a'"
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    insert_statement:
+    - keyword: INSERT
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: kv
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          naked_identifier: k
+        end_bracket: )
+    - values_clause:
+        keyword: VALUES
+        bracketed:
+          start_bracket: (
+          expression:
+            quoted_literal: "'nil1'"
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    insert_statement:
+    - keyword: INSERT
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: kv
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          naked_identifier: k
+        end_bracket: )
+    - values_clause:
+        keyword: VALUES
+        bracketed:
+          start_bracket: (
+          expression:
+            quoted_literal: "'nil2'"
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    insert_statement:
+    - keyword: INSERT
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: kv
+    - values_clause:
+        keyword: VALUES
+        bracketed:
+        - start_bracket: (
+        - expression:
+            quoted_literal: "'nil3'"
+        - comma: ','
+        - expression:
+            null_literal: 'NULL'
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+    insert_statement:
+    - keyword: INSERT
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: kv
+    - values_clause:
+        keyword: VALUES
+        bracketed:
+        - start_bracket: (
+        - expression:
+            quoted_literal: "'nil4'"
+        - comma: ','
+        - expression:
+            null_literal: 'NULL'
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+    insert_statement:
+    - keyword: INSERT
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: kv
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: k
+      - comma: ','
+      - column_reference:
+          naked_identifier: v
+      - end_bracket: )
+    - values_clause:
+      - keyword: VALUES
+      - bracketed:
+        - start_bracket: (
+        - expression:
+            quoted_literal: "'a'"
+        - comma: ','
+        - expression:
+            quoted_literal: "'b'"
+        - end_bracket: )
+      - comma: ','
+      - bracketed:
+        - start_bracket: (
+        - expression:
+            quoted_literal: "'c'"
+        - comma: ','
+        - expression:
+            quoted_literal: "'d'"
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+    insert_statement:
+    - keyword: INSERT
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: t
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          naked_identifier: a
+        end_bracket: )
+    - values_clause:
+        keyword: VALUES
+        bracketed:
+          start_bracket: (
+          expression:
+            numeric_literal: '10'
+          end_bracket: )
+    - keyword: RETURNING
+    - expression:
+        column_reference:
+          naked_identifier: b
+- statement_terminator: ;
+- statement:
+    insert_statement:
+    - keyword: INSERT
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: t
+    - values_clause:
+        keyword: VALUES
+        bracketed:
+        - start_bracket: (
+        - expression:
+            numeric_literal: '7'
+        - comma: ','
+        - expression:
+            numeric_literal: '8'
+        - end_bracket: )
+    - keyword: RETURNING
+    - expression:
+        bracketed:
+          start_bracket: (
+          expression:
+            select_statement:
+              select_clause:
+                keyword: SELECT
+                select_clause_element:
+                  numeric_literal: '1'
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    insert_statement:
+    - keyword: INSERT
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: t
+    - values_clause:
+        keyword: VALUES
+        bracketed:
+        - start_bracket: (
+        - expression:
+            numeric_literal: '7'
+        - comma: ','
+        - expression:
+            numeric_literal: '8'
+        - end_bracket: )
+    - keyword: RETURNING
+    - expression:
+        column_reference:
+          naked_identifier: z
+- statement_terminator: ;

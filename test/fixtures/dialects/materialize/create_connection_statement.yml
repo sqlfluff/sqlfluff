@@ -1,0 +1,257 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 0c7d732ae2c0a2f6008f208779232b37be772e259e75bc46f69e8f16968ef08c
+file:
+- statement:
+    create_secret_statement:
+    - keyword: CREATE
+    - keyword: SECRET
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - object_reference:
+        naked_identifier: name
+    - keyword: AS
+    - word: value
+- statement_terminator: ;
+- statement:
+    create_secret_statement:
+    - keyword: CREATE
+    - keyword: SECRET
+    - object_reference:
+        naked_identifier: name
+    - keyword: AS
+    - word: value
+- statement_terminator: ;
+- statement:
+    create_connection_statement:
+    - keyword: CREATE
+    - keyword: CONNECTION
+    - object_reference:
+        naked_identifier: privatelink_svc
+    - keyword: TO
+    - keyword: AWS
+    - keyword: PRIVATELINK
+    - bracketed:
+      - start_bracket: (
+      - word: SERVICE
+      - word: NAME
+      - single_quote: "'com.amazonaws.vpce.us-east-1.vpce-svc-0e123abc123198abc'"
+      - comma: ','
+      - word: AVAILABILITY
+      - word: ZONES
+      - bracketed:
+        - start_bracket: (
+        - single_quote: "'use1-az1'"
+        - comma: ','
+        - single_quote: "'use1-az4'"
+        - end_bracket: )
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_connection_statement:
+    - keyword: CREATE
+    - keyword: CONNECTION
+    - object_reference:
+        naked_identifier: csr_ssl
+    - keyword: TO
+    - keyword: CONFLUENT
+    - keyword: SCHEMA
+    - keyword: REGISTRY
+    - bracketed:
+      - start_bracket: (
+      - word: URL
+      - single_quote: "'https://rp-f00000bar.data.vectorized.cloud:30993'"
+      - comma: ','
+      - word: SSL
+      - word: KEY
+      - equals: '='
+      - word: SECRET
+      - word: csr_ssl_key
+      - comma: ','
+      - word: SSL
+      - word: CERTIFICATE
+      - equals: '='
+      - word: SECRET
+      - word: csr_ssl_crt
+      - comma: ','
+      - word: USERNAME
+      - equals: '='
+      - single_quote: "'foo'"
+      - comma: ','
+      - word: PASSWORD
+      - equals: '='
+      - word: SECRET
+      - word: csr_password
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_connection_statement:
+    - keyword: CREATE
+    - keyword: CONNECTION
+    - object_reference:
+        naked_identifier: privatelink_svc
+    - keyword: TO
+    - keyword: AWS
+    - keyword: PRIVATELINK
+    - bracketed:
+      - start_bracket: (
+      - word: SERVICE
+      - word: NAME
+      - single_quote: "'com.amazonaws.vpce.us-east-1.vpce-svc-0e123abc123198abc'"
+      - comma: ','
+      - word: AVAILABILITY
+      - word: ZONES
+      - bracketed:
+        - start_bracket: (
+        - single_quote: "'use1-az1'"
+        - comma: ','
+        - single_quote: "'use1-az4'"
+        - end_bracket: )
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_connection_statement:
+    - keyword: CREATE
+    - keyword: CONNECTION
+    - object_reference:
+        naked_identifier: csr_privatelink
+    - keyword: TO
+    - keyword: CONFLUENT
+    - keyword: SCHEMA
+    - keyword: REGISTRY
+    - bracketed:
+      - start_bracket: (
+      - word: URL
+      - single_quote: "'http://my-confluent-schema-registry:8081'"
+      - comma: ','
+      - word: AWS
+      - word: PRIVATELINK
+      - word: privatelink_svc
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_connection_statement:
+    - keyword: CREATE
+    - keyword: CONNECTION
+    - object_reference:
+        naked_identifier: kafka_connection
+    - keyword: TO
+    - keyword: KAFKA
+    - bracketed:
+      - start_bracket: (
+      - word: BROKER
+      - single_quote: "'rp-f00000bar.data.vectorized.cloud:30365'"
+      - comma: ','
+      - word: SSL
+      - word: KEY
+      - equals: '='
+      - word: SECRET
+      - word: kafka_ssl_key
+      - comma: ','
+      - word: SSL
+      - word: CERTIFICATE
+      - equals: '='
+      - word: SECRET
+      - word: kafka_ssl_crt
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_connection_statement:
+    - keyword: CREATE
+    - keyword: CONNECTION
+    - object_reference:
+        naked_identifier: kafka_connection
+    - keyword: TO
+    - keyword: KAFKA
+    - bracketed:
+        start_bracket: (
+        word: BROKERS
+        bracketed:
+        - start_bracket: (
+        - single_quote: "'broker1:9092'"
+        - comma: ','
+        - single_quote: "'broker2:9092'"
+        - end_bracket: )
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_connection_statement:
+    - keyword: CREATE
+    - keyword: CONNECTION
+    - object_reference:
+        naked_identifier: pg_connection
+    - keyword: TO
+    - keyword: POSTGRES
+    - bracketed:
+      - start_bracket: (
+      - word: HOST
+      - single_quote: "'instance.foo000.us-west-1.rds.amazonaws.com'"
+      - comma: ','
+      - word: PORT
+      - numeric_literal: '5432'
+      - comma: ','
+      - word: USER
+      - single_quote: "'postgres'"
+      - comma: ','
+      - word: PASSWORD
+      - word: SECRET
+      - word: pgpass
+      - comma: ','
+      - word: SSL
+      - word: MODE
+      - single_quote: "'require'"
+      - comma: ','
+      - word: DATABASE
+      - single_quote: "'postgres'"
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_connection_statement:
+    - keyword: CREATE
+    - keyword: CONNECTION
+    - object_reference:
+        naked_identifier: tunnel
+    - keyword: TO
+    - keyword: SSH
+    - keyword: TUNNEL
+    - bracketed:
+      - start_bracket: (
+      - word: HOST
+      - single_quote: "'bastion-host'"
+      - comma: ','
+      - word: PORT
+      - numeric_literal: '22'
+      - comma: ','
+      - word: USER
+      - single_quote: "'materialize'"
+      - comma: ','
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_connection_statement:
+    - keyword: CREATE
+    - keyword: CONNECTION
+    - object_reference:
+        naked_identifier: pg_connection
+    - keyword: TO
+    - keyword: POSTGRES
+    - bracketed:
+      - start_bracket: (
+      - word: HOST
+      - single_quote: "'instance.foo000.us-west-1.rds.amazonaws.com'"
+      - comma: ','
+      - word: PORT
+      - numeric_literal: '5432'
+      - comma: ','
+      - word: SSH
+      - word: TUNNEL
+      - word: tunnel
+      - comma: ','
+      - word: DATABASE
+      - single_quote: "'postgres'"
+      - end_bracket: )
+- statement_terminator: ;

@@ -3,25 +3,27 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 7dea322eaef6623d9f971afe5f5712054ae1be113697f880bdc2c76753b11d85
+_hash: a28a744c27fcae9cde0db4c8ff78962f7a1309abc3ffb74e3f9809d3448b0458
 file:
   statement:
     update_statement:
       keyword: UPDATE
       table_reference:
-        identifier: my_table
+        naked_identifier: my_table
       alias_expression:
-        keyword: AS
-        identifier: tttd
+        alias_operator:
+          keyword: AS
+        naked_identifier: tttd
       set_clause_list:
         keyword: SET
         set_clause:
         - column_reference:
-          - identifier: tttd
+          - naked_identifier: tttd
           - dot: .
-          - identifier: days
-        - comparison_operator: '='
+          - naked_identifier: days
+        - comparison_operator:
+            raw_comparison_operator: '='
         - column_reference:
-          - identifier: ttu
+          - naked_identifier: ttu
           - dot: .
-          - identifier: days
+          - naked_identifier: days

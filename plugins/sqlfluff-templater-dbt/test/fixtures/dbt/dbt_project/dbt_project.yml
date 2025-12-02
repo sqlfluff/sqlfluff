@@ -14,3 +14,4 @@ vars:
   my_new_project:
     # Default date stamp of run
     ds: "2020-01-01"
+    # passed_through_cli: testing for vars passed through cli('--vars' option) rather than dbt_project

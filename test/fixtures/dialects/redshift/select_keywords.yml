@@ -1,0 +1,184 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: b531c7dd4da826dd47e7f3600931812be60c72f3298ce517e62afd0f646f68f8
+file:
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+          - naked_identifier: pg_namespace
+          - dot: .
+          - naked_identifier: nspname
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: constraint_schema
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+          - naked_identifier: pg_constraint
+          - dot: .
+          - naked_identifier: conname
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: constraint_name
+      from_clause:
+      - keyword: FROM
+      - from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: pg_namespace
+      - comma: ','
+      - from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: pg_constraint
+      where_clause:
+        keyword: WHERE
+        expression:
+        - column_reference:
+            naked_identifier: pg_namespace
+            dot: .
+            naked_identifier_all: oid
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - column_reference:
+          - naked_identifier: pg_constraint
+          - dot: .
+          - naked_identifier: connamespace
+- statement_terminator: ;
+- statement:
+    create_view_statement:
+    - keyword: create
+    - keyword: view
+    - table_reference:
+        naked_identifier: tables_vw
+    - keyword: as
+    - select_statement:
+        select_clause:
+        - keyword: select
+        - select_clause_modifier:
+            keyword: distinct
+        - select_clause_element:
+            expression:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: id
+                end_bracket: )
+            alias_expression:
+              naked_identifier: table_id
+        - comma: ','
+        - select_clause_element:
+            function:
+              function_name:
+                function_name_identifier: trim
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                      naked_identifier: datname
+                  end_bracket: )
+            alias_expression:
+              naked_identifier: db_name
+        - comma: ','
+        - select_clause_element:
+            function:
+              function_name:
+                function_name_identifier: trim
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                      naked_identifier: nspname
+                  end_bracket: )
+            alias_expression:
+              naked_identifier: schema_name
+        - comma: ','
+        - select_clause_element:
+            function:
+              function_name:
+                function_name_identifier: trim
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                      naked_identifier: relname
+                  end_bracket: )
+            alias_expression:
+              naked_identifier: table_name
+        from_clause:
+          keyword: from
+          from_expression:
+          - from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: stv_tbl_perm
+          - join_clause:
+              keyword: join
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                    naked_identifier: pg_class
+              join_on_condition:
+                keyword: 'on'
+                expression:
+                - column_reference:
+                    naked_identifier: pg_class
+                    dot: .
+                    naked_identifier_all: oid
+                - comparison_operator:
+                    raw_comparison_operator: '='
+                - column_reference:
+                  - naked_identifier: stv_tbl_perm
+                  - dot: .
+                  - naked_identifier: id
+          - join_clause:
+              keyword: join
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                    naked_identifier: pg_namespace
+              join_on_condition:
+                keyword: 'on'
+                expression:
+                - column_reference:
+                    naked_identifier: pg_namespace
+                    dot: .
+                    naked_identifier_all: oid
+                - comparison_operator:
+                    raw_comparison_operator: '='
+                - column_reference:
+                    naked_identifier: relnamespace
+          - join_clause:
+              keyword: join
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                    naked_identifier: pg_database
+              join_on_condition:
+                keyword: 'on'
+                expression:
+                - column_reference:
+                    naked_identifier: pg_database
+                    dot: .
+                    naked_identifier_all: oid
+                - comparison_operator:
+                    raw_comparison_operator: '='
+                - column_reference:
+                  - naked_identifier: stv_tbl_perm
+                  - dot: .
+                  - naked_identifier: db_id
+- statement_terminator: ;

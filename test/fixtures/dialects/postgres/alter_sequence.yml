@@ -1,0 +1,179 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 0d959f82af31851b39c885cc891c8ace400e3e5281dc3fea415ffea82d061c86
+file:
+- statement:
+    alter_sequence_statement:
+    - keyword: ALTER
+    - keyword: SEQUENCE
+    - keyword: IF
+    - keyword: EXISTS
+    - sequence_reference:
+        naked_identifier: foo
+    - alter_sequence_options_segment:
+        keyword: AS
+        data_type:
+          keyword: integer
+- statement_terminator: ;
+- statement:
+    alter_sequence_statement:
+    - keyword: ALTER
+    - keyword: SEQUENCE
+    - sequence_reference:
+        naked_identifier: foo
+    - alter_sequence_options_segment:
+      - keyword: INCREMENT
+      - keyword: BY
+      - numeric_literal: '4'
+    - alter_sequence_options_segment:
+      - keyword: 'NO'
+      - keyword: MINVALUE
+    - alter_sequence_options_segment:
+        keyword: MAXVALUE
+        numeric_literal: '56'
+- statement_terminator: ;
+- statement:
+    alter_sequence_statement:
+    - keyword: ALTER
+    - keyword: SEQUENCE
+    - sequence_reference:
+        naked_identifier: foo
+    - alter_sequence_options_segment:
+        keyword: INCREMENT
+        numeric_literal: '3'
+    - alter_sequence_options_segment:
+      - keyword: 'NO'
+      - keyword: MAXVALUE
+    - alter_sequence_options_segment:
+        keyword: MINVALUE
+        numeric_literal: '3'
+- statement_terminator: ;
+- statement:
+    alter_sequence_statement:
+    - keyword: ALTER
+    - keyword: SEQUENCE
+    - sequence_reference:
+        naked_identifier: foo
+    - alter_sequence_options_segment:
+        keyword: START
+        numeric_literal: '7'
+    - alter_sequence_options_segment:
+        keyword: CACHE
+        numeric_literal: '4'
+- statement_terminator: ;
+- statement:
+    alter_sequence_statement:
+    - keyword: ALTER
+    - keyword: SEQUENCE
+    - sequence_reference:
+        naked_identifier: foo
+    - alter_sequence_options_segment:
+      - keyword: RESTART
+      - keyword: WITH
+      - numeric_literal: '14'
+    - alter_sequence_options_segment:
+      - keyword: 'NO'
+      - keyword: CYCLE
+- statement_terminator: ;
+- statement:
+    alter_sequence_statement:
+    - keyword: ALTER
+    - keyword: SEQUENCE
+    - sequence_reference:
+        naked_identifier: foo
+    - alter_sequence_options_segment:
+      - keyword: OWNED
+      - keyword: BY
+      - column_reference:
+        - naked_identifier: foo
+        - dot: .
+        - naked_identifier: foo
+- statement_terminator: ;
+- statement:
+    alter_sequence_statement:
+    - keyword: ALTER
+    - keyword: SEQUENCE
+    - sequence_reference:
+        naked_identifier: foo
+    - alter_sequence_options_segment:
+      - keyword: OWNED
+      - keyword: BY
+      - keyword: NONE
+- statement_terminator: ;
+- statement:
+    alter_sequence_statement:
+    - keyword: ALTER
+    - keyword: SEQUENCE
+    - keyword: IF
+    - keyword: EXISTS
+    - sequence_reference:
+        naked_identifier: foo
+    - keyword: OWNER
+    - keyword: TO
+    - parameter: my_user
+- statement_terminator: ;
+- statement:
+    alter_sequence_statement:
+    - keyword: ALTER
+    - keyword: SEQUENCE
+    - sequence_reference:
+        naked_identifier: foo
+    - keyword: OWNER
+    - keyword: TO
+    - parameter: CURRENT_USER
+- statement_terminator: ;
+- statement:
+    alter_sequence_statement:
+    - keyword: ALTER
+    - keyword: SEQUENCE
+    - sequence_reference:
+        naked_identifier: foo
+    - keyword: OWNER
+    - keyword: TO
+    - parameter: SESSION_USER
+- statement_terminator: ;
+- statement:
+    alter_sequence_statement:
+    - keyword: ALTER
+    - keyword: SEQUENCE
+    - sequence_reference:
+        naked_identifier: foo
+    - keyword: RENAME
+    - keyword: TO
+    - sequence_reference:
+        naked_identifier: foo2
+- statement_terminator: ;
+- statement:
+    alter_sequence_statement:
+    - keyword: ALTER
+    - keyword: SEQUENCE
+    - sequence_reference:
+        naked_identifier: foo
+    - keyword: SET
+    - keyword: SCHEMA
+    - schema_reference:
+        naked_identifier: my_schema
+- statement_terminator: ;
+- statement:
+    alter_sequence_statement:
+    - keyword: ALTER
+    - keyword: SEQUENCE
+    - sequence_reference:
+        naked_identifier: foo
+    - alter_sequence_options_segment:
+      - keyword: INCREMENT
+      - keyword: BY
+      - sign_indicator: '-'
+      - numeric_literal: '4'
+    - alter_sequence_options_segment:
+        keyword: MINVALUE
+        sign_indicator: '-'
+        numeric_literal: '100'
+    - alter_sequence_options_segment:
+        keyword: MAXVALUE
+        sign_indicator: +
+        numeric_literal: '2'
+- statement_terminator: ;

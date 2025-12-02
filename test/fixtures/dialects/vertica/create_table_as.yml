@@ -1,0 +1,63 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 1cec959c8cbb94d1cd25132cf91f134494e8c41823ef81b6b6e1fa77e1bb2218
+file:
+  statement:
+    create_table_as_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: cust_basic_profile
+    - keyword: AS
+    - select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+              naked_identifier: customer_key
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: customer_gender
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: customer_age
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: marital_status
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: annual_income
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: occupation
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: customer_dimension
+        where_clause:
+          keyword: WHERE
+          expression:
+          - column_reference:
+              naked_identifier: customer_age
+          - comparison_operator:
+              raw_comparison_operator: '>'
+          - numeric_literal: '18'
+          - binary_operator: AND
+          - column_reference:
+              naked_identifier: customer_gender
+          - comparison_operator:
+            - raw_comparison_operator: '!'
+            - raw_comparison_operator: '='
+          - quoted_literal: "''"
+  statement_terminator: ;

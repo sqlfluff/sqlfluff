@@ -1,0 +1,63 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 0b7b6bddcb121899fc43e2267dc5effd92040e2e6121585928a4fd8b5c3afced
+file:
+  statement:
+    unload_statement:
+    - keyword: UNLOAD
+    - bracketed:
+        start_bracket: (
+        select_statement:
+          select_clause:
+          - keyword: SELECT
+          - select_clause_element:
+              column_reference:
+                naked_identifier: field_1
+          - comma: ','
+          - select_clause_element:
+              column_reference:
+                naked_identifier: field_2
+          from_clause:
+            keyword: FROM
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                    naked_identifier: my_table
+        end_bracket: )
+    - keyword: TO
+    - quoted_literal: "'s3://my_athena_data_location/my_folder/'"
+    - keyword: WITH
+    - bracketed:
+      - start_bracket: (
+      - keyword: format
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'CSV'"
+      - comma: ','
+      - keyword: compression
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'gzip'"
+      - comma: ','
+      - keyword: field_delimiter
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "','"
+      - comma: ','
+      - keyword: partitioned_by
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - typed_array_literal:
+          array_type:
+            keyword: ARRAY
+          array_literal:
+            start_square_bracket: '['
+            column_reference:
+              naked_identifier: field_2
+            end_square_bracket: ']'
+      - end_bracket: )
+  statement_terminator: ;

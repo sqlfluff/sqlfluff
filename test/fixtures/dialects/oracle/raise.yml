@@ -1,0 +1,340 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: acaeb3e2b1089b2d6122ba504ef0ad701c7aeaa61faaa1bf2a81a43ef4eeb0d5
+file:
+- statement:
+    create_procedure_statement:
+    - keyword: CREATE
+    - keyword: PROCEDURE
+    - function_name:
+        function_name_identifier: account_status
+    - function_parameter_list:
+        bracketed:
+        - start_bracket: (
+        - parameter: due_date
+        - data_type:
+            data_type_identifier: DATE
+        - comma: ','
+        - parameter: today
+        - data_type:
+            data_type_identifier: DATE
+        - end_bracket: )
+    - keyword: AUTHID
+    - keyword: DEFINER
+    - keyword: IS
+    - declare_segment:
+        naked_identifier: past_due
+        data_type:
+          data_type_identifier: EXCEPTION
+        statement_terminator: ;
+    - begin_end_block:
+      - keyword: BEGIN
+      - statement:
+          if_then_statement:
+          - if_clause:
+            - keyword: IF
+            - expression:
+              - column_reference:
+                  naked_identifier: due_date
+              - comparison_operator:
+                  raw_comparison_operator: <
+              - column_reference:
+                  naked_identifier: today
+            - keyword: THEN
+          - statement:
+              raise_statement:
+                keyword: RAISE
+                naked_identifier: past_due
+          - statement_terminator: ;
+          - keyword: END
+          - keyword: IF
+      - statement_terminator: ;
+      - keyword: EXCEPTION
+      - keyword: WHEN
+      - naked_identifier: past_due
+      - keyword: THEN
+      - statement:
+          function:
+            function_name:
+              naked_identifier: DBMS_OUTPUT
+              dot: .
+              function_name_identifier: PUT_LINE
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  quoted_literal: "'Account past due.'"
+                end_bracket: )
+      - statement_terminator: ;
+      - keyword: END
+    - statement_terminator: ;
+    - statement_terminator: /
+- statement:
+    create_procedure_statement:
+    - keyword: CREATE
+    - keyword: PROCEDURE
+    - function_name:
+        function_name_identifier: p
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          parameter: n
+          data_type:
+            data_type_identifier: NUMBER
+          end_bracket: )
+    - keyword: AUTHID
+    - keyword: DEFINER
+    - keyword: IS
+    - declare_segment:
+        naked_identifier: default_number
+        data_type:
+          data_type_identifier: NUMBER
+        assignment_operator: :=
+        expression:
+          numeric_literal: '0'
+        statement_terminator: ;
+    - begin_end_block:
+      - keyword: BEGIN
+      - statement:
+          if_then_statement:
+          - if_clause:
+            - keyword: IF
+            - expression:
+                column_reference:
+                  naked_identifier: n
+                comparison_operator:
+                  raw_comparison_operator: <
+                numeric_literal: '0'
+            - keyword: THEN
+          - statement:
+              raise_statement:
+                keyword: RAISE
+                naked_identifier: INVALID_NUMBER
+          - statement_terminator: ;
+          - keyword: ELSE
+          - statement:
+              insert_statement:
+              - keyword: INSERT
+              - keyword: INTO
+              - table_reference:
+                  naked_identifier: t
+              - values_clause:
+                  keyword: VALUES
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      function:
+                        function_name:
+                          function_name_identifier: TO_NUMBER
+                        function_contents:
+                          bracketed:
+                          - start_bracket: (
+                          - expression:
+                              quoted_literal: "'100.00'"
+                          - comma: ','
+                          - expression:
+                              quoted_literal: "'9G999'"
+                          - end_bracket: )
+                    end_bracket: )
+          - statement_terminator: ;
+          - keyword: END
+          - keyword: IF
+      - statement_terminator: ;
+      - keyword: EXCEPTION
+      - keyword: WHEN
+      - naked_identifier: INVALID_NUMBER
+      - keyword: THEN
+      - statement:
+          function:
+            function_name:
+              naked_identifier: DBMS_OUTPUT
+              dot: .
+              function_name_identifier: PUT_LINE
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  quoted_literal: "'Substituting default value for invalid number.'"
+                end_bracket: )
+      - statement_terminator: ;
+      - statement:
+          insert_statement:
+          - keyword: INSERT
+          - keyword: INTO
+          - table_reference:
+              naked_identifier: t
+          - values_clause:
+              keyword: VALUES
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: default_number
+                end_bracket: )
+      - statement_terminator: ;
+      - keyword: END
+    - statement_terminator: ;
+    - statement_terminator: /
+- statement:
+    begin_end_block:
+    - declare_segment:
+      - keyword: DECLARE
+      - naked_identifier: salary_too_high
+      - data_type:
+          data_type_identifier: EXCEPTION
+      - statement_terminator: ;
+      - naked_identifier: current_salary
+      - data_type:
+          data_type_identifier: NUMBER
+      - assignment_operator: :=
+      - expression:
+          numeric_literal: '20000'
+      - statement_terminator: ;
+      - naked_identifier: max_salary
+      - data_type:
+          data_type_identifier: NUMBER
+      - assignment_operator: :=
+      - expression:
+          numeric_literal: '10000'
+      - statement_terminator: ;
+      - naked_identifier: erroneous_salary
+      - data_type:
+          data_type_identifier: NUMBER
+      - statement_terminator: ;
+    - keyword: BEGIN
+    - statement:
+        begin_end_block:
+        - keyword: BEGIN
+        - statement:
+            if_then_statement:
+            - if_clause:
+              - keyword: IF
+              - expression:
+                - column_reference:
+                    naked_identifier: current_salary
+                - comparison_operator:
+                    raw_comparison_operator: '>'
+                - column_reference:
+                    naked_identifier: max_salary
+              - keyword: THEN
+            - statement:
+                raise_statement:
+                  keyword: RAISE
+                  naked_identifier: salary_too_high
+            - statement_terminator: ;
+            - keyword: END
+            - keyword: IF
+        - statement_terminator: ;
+        - keyword: EXCEPTION
+        - keyword: WHEN
+        - naked_identifier: salary_too_high
+        - keyword: THEN
+        - statement:
+            assignment_segment_statement:
+              object_reference:
+                naked_identifier: erroneous_salary
+              assignment_operator: :=
+              expression:
+                column_reference:
+                  naked_identifier: current_salary
+        - statement_terminator: ;
+        - statement:
+            function:
+              function_name:
+                naked_identifier: DBMS_OUTPUT
+                dot: .
+                function_name_identifier: PUT_LINE
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                  - quoted_literal: "'Salary '"
+                  - binary_operator:
+                    - pipe: '|'
+                    - pipe: '|'
+                  - column_reference:
+                      naked_identifier: erroneous_salary
+                  - binary_operator:
+                    - pipe: '|'
+                    - pipe: '|'
+                  - quoted_literal: "' is out of range.'"
+                  end_bracket: )
+        - statement_terminator: ;
+        - statement:
+            function:
+              function_name:
+                naked_identifier: DBMS_OUTPUT
+                dot: .
+                function_name_identifier: PUT_LINE
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                  - quoted_literal: "'Maximum salary is '"
+                  - binary_operator:
+                    - pipe: '|'
+                    - pipe: '|'
+                  - column_reference:
+                      naked_identifier: max_salary
+                  - binary_operator:
+                    - pipe: '|'
+                    - pipe: '|'
+                  - quoted_literal: "'.'"
+                  end_bracket: )
+        - statement_terminator: ;
+        - statement:
+            raise_statement:
+              keyword: RAISE
+        - statement_terminator: ;
+        - keyword: END
+    - statement_terminator: ;
+    - keyword: EXCEPTION
+    - keyword: WHEN
+    - naked_identifier: salary_too_high
+    - keyword: THEN
+    - statement:
+        assignment_segment_statement:
+          object_reference:
+            naked_identifier: current_salary
+          assignment_operator: :=
+          expression:
+            column_reference:
+              naked_identifier: max_salary
+    - statement_terminator: ;
+    - statement:
+        function:
+          function_name:
+            naked_identifier: DBMS_OUTPUT
+            dot: .
+            function_name_identifier: PUT_LINE
+          function_contents:
+            bracketed:
+              start_bracket: (
+              expression:
+              - quoted_literal: "'Revising salary from '"
+              - binary_operator:
+                - pipe: '|'
+                - pipe: '|'
+              - column_reference:
+                  naked_identifier: erroneous_salary
+              - binary_operator:
+                - pipe: '|'
+                - pipe: '|'
+              - quoted_literal: "' to '"
+              - binary_operator:
+                - pipe: '|'
+                - pipe: '|'
+              - column_reference:
+                  naked_identifier: current_salary
+              - binary_operator:
+                - pipe: '|'
+                - pipe: '|'
+              - quoted_literal: "'.'"
+              end_bracket: )
+    - statement_terminator: ;
+    - keyword: END
+- statement_terminator: ;
+- statement_terminator: /

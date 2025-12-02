@@ -1,0 +1,269 @@
+rule: LT08
+
+test_pass_blank_line_after_cte_trailing_comma:
+  # Test cases for LT08, both leading and trailing commas.
+  pass_str: |
+    with my_cte as (
+        select 1
+    ),
+
+    other_cte as (
+        select 1
+    )
+
+    select * from my_cte cross join other_cte
+
+test_pass_blank_line_after_cte_leading_comma:
+  pass_str: |
+    with my_cte as (
+        select 1
+    )
+
+    , other_cte as (
+        select 1
+    )
+
+    select * from my_cte cross join other_cte
+
+test_fail_no_blank_line_after_each_cte:
+  fail_str: |
+    with my_cte as (
+        select 1
+    ),
+    other_cte as (
+        select 1
+    )
+
+    select * from my_cte cross join other_cte
+
+  fix_str: |
+    with my_cte as (
+        select 1
+    ),
+
+    other_cte as (
+        select 1
+    )
+
+    select * from my_cte cross join other_cte
+
+test_fail_no_blank_line_after_cte_before_comment:
+  fail_str: |
+    with my_cte as (
+        select 1
+    ),
+    -- Comment
+    other_cte as (
+        select 1
+    )
+
+    select * from my_cte cross join other_cte
+
+  fix_str: |
+    with my_cte as (
+        select 1
+    ),
+
+    -- Comment
+    other_cte as (
+        select 1
+    )
+
+    select * from my_cte cross join other_cte
+
+test_fail_no_blank_line_after_cte_and_comment:
+  # Issue #2136
+  fail_str: |
+    WITH mycte AS (
+      SELECT col
+      FROM
+        my_table
+    )  /* cte comment */
+    SELECT col
+    FROM
+      mycte
+  fix_str: |
+    WITH mycte AS (
+      SELECT col
+      FROM
+        my_table
+    )  /* cte comment */
+
+    SELECT col
+    FROM
+      mycte
+
+test_fail_no_blank_line_after_last_cte_trailing_comma:
+  fail_str: |
+    with my_cte as (
+        select 1
+    ),
+
+    other_cte as (
+        select 1
+    )
+    select * from my_cte cross join other_cte
+
+  fix_str: |
+    with my_cte as (
+        select 1
+    ),
+
+    other_cte as (
+        select 1
+    )
+
+    select * from my_cte cross join other_cte
+
+test_fail_no_blank_line_after_last_cte_leading_comma:
+  fail_str: |
+    with my_cte as (
+        select 1
+    )
+
+    , other_cte as (
+        select 1
+    )
+    select * from my_cte cross join other_cte
+
+  fix_str: |
+    with my_cte as (
+        select 1
+    )
+
+    , other_cte as (
+        select 1
+    )
+
+    select * from my_cte cross join other_cte
+
+test_fail_oneline_cte_leading_comma:
+  # Fixes oneline cte with leading comma style
+  fail_str: |
+    with my_cte as (select 1), other_cte as (select 1) select * from my_cte
+    cross join other_cte
+
+  fix_str: |
+    with my_cte as (select 1)
+
+    , other_cte as (select 1)
+
+    select * from my_cte
+    cross join other_cte
+
+  # NOTE: we're using the global comma position config
+  configs:
+    layout:
+      type:
+        comma:
+          line_position: leading
+
+test_fail_cte_floating_comma:
+  # Fixes cte with a floating comma
+  fail_str: |
+    with my_cte as (select 1)
+
+    ,
+
+    other_cte as (select 1)
+    select * from my_cte cross join other_cte
+
+  fix_str: |
+    with my_cte as (select 1)
+
+    ,
+
+    other_cte as (select 1)
+
+    select * from my_cte cross join other_cte
+
+test_pass_column_name_definition:
+  # Issue #2136
+  pass_str: |
+    with recursive t(n) as (
+        select 1
+        union all
+        select n + 1 from t
+    )
+
+    select n from t limit 100;
+
+test_pass_column_name_definition_multiple:
+  # Issue #3474
+  pass_str: |
+    WITH
+    cte_1 AS (
+        SELECT 1 AS var
+    ),
+
+    cte_2 (var) AS (
+        SELECT 2
+    )
+
+    SELECT
+        cte_1.var,
+        cte_2.var
+    FROM cte_1, cte_2;
+
+test_fail_column_name_definition_newline:
+  fail_str: |
+    WITH
+    cte_1 (var) AS
+    (
+        SELECT 2
+    )
+    SELECT
+        cte_1.var,
+        cte_2.var
+    FROM cte_1, cte_2;
+  fix_str: |
+    WITH
+    cte_1 (var) AS
+    (
+        SELECT 2
+    )
+
+    SELECT
+        cte_1.var,
+        cte_2.var
+    FROM cte_1, cte_2;
+
+test_fail_column_name_definition_comment:
+  fail_str: |
+    WITH
+    cte_1 (var) AS /* random comment */ (
+        SELECT 2
+    )
+    SELECT
+        cte_1.var,
+        cte_2.var
+    FROM cte_1, cte_2;
+  fix_str: |
+    WITH
+    cte_1 (var) AS /* random comment */ (
+        SELECT 2
+    )
+
+    SELECT
+        cte_1.var,
+        cte_2.var
+    FROM cte_1, cte_2;
+
+test_pass_recursive_with_argument_list:
+  pass_str: |
+    WITH RECURSIVE my_cte (n) AS (
+        select 1
+    )
+
+    select * from my_cte
+
+test_pass_recursive_with_argument_list_postgres:
+  pass_str: |
+    WITH RECURSIVE my_cte (n) AS (
+        select 1
+    )
+
+    select * from my_cte
+  configs:
+    core:
+      dialect: postgres

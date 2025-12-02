@@ -1,0 +1,423 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 43f3f35561ce9b381d36b3d4197525025647c2f8026ca9270b19f5adafbf7fb0
+file:
+- statement:
+    begin_end_block:
+    - declare_segment:
+      - keyword: DECLARE
+      - record_type:
+        - keyword: TYPE
+        - naked_identifier: DeptRecTyp
+        - keyword: IS
+        - keyword: RECORD
+        - bracketed:
+          - start_bracket: (
+          - naked_identifier: dept_id
+          - data_type:
+              data_type_identifier: NUMBER
+              bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  numeric_literal: '4'
+                  end_bracket: )
+          - keyword: NOT
+          - keyword: 'NULL'
+          - assignment_operator: :=
+          - expression:
+              numeric_literal: '10'
+          - comma: ','
+          - naked_identifier: dept_name
+          - data_type:
+              data_type_identifier: VARCHAR2
+              bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  numeric_literal: '30'
+                  end_bracket: )
+          - keyword: NOT
+          - keyword: 'NULL'
+          - assignment_operator: :=
+          - expression:
+              quoted_literal: "'Administration'"
+          - comma: ','
+          - naked_identifier: mgr_id
+          - data_type:
+              data_type_identifier: NUMBER
+              bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  numeric_literal: '6'
+                  end_bracket: )
+          - assignment_operator: :=
+          - expression:
+              numeric_literal: '200'
+          - comma: ','
+          - naked_identifier: loc_id
+          - data_type:
+              data_type_identifier: NUMBER
+              bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  numeric_literal: '4'
+                  end_bracket: )
+          - assignment_operator: :=
+          - expression:
+              numeric_literal: '1700'
+          - end_bracket: )
+      - statement_terminator: ;
+      - naked_identifier: dept_rec
+      - data_type:
+          data_type_identifier: DeptRecTyp
+      - statement_terminator: ;
+    - keyword: BEGIN
+    - statement:
+        function:
+          function_name:
+            naked_identifier: DBMS_OUTPUT
+            dot: .
+            function_name_identifier: PUT_LINE
+          function_contents:
+            bracketed:
+              start_bracket: (
+              expression:
+                quoted_literal: "'dept_id:   '"
+                binary_operator:
+                - pipe: '|'
+                - pipe: '|'
+                column_reference:
+                - naked_identifier: dept_rec
+                - dot: .
+                - naked_identifier: dept_id
+              end_bracket: )
+    - statement_terminator: ;
+    - statement:
+        function:
+          function_name:
+            naked_identifier: DBMS_OUTPUT
+            dot: .
+            function_name_identifier: PUT_LINE
+          function_contents:
+            bracketed:
+              start_bracket: (
+              expression:
+                quoted_literal: "'dept_name: '"
+                binary_operator:
+                - pipe: '|'
+                - pipe: '|'
+                column_reference:
+                - naked_identifier: dept_rec
+                - dot: .
+                - naked_identifier: dept_name
+              end_bracket: )
+    - statement_terminator: ;
+    - statement:
+        function:
+          function_name:
+            naked_identifier: DBMS_OUTPUT
+            dot: .
+            function_name_identifier: PUT_LINE
+          function_contents:
+            bracketed:
+              start_bracket: (
+              expression:
+                quoted_literal: "'mgr_id:    '"
+                binary_operator:
+                - pipe: '|'
+                - pipe: '|'
+                column_reference:
+                - naked_identifier: dept_rec
+                - dot: .
+                - naked_identifier: mgr_id
+              end_bracket: )
+    - statement_terminator: ;
+    - statement:
+        function:
+          function_name:
+            naked_identifier: DBMS_OUTPUT
+            dot: .
+            function_name_identifier: PUT_LINE
+          function_contents:
+            bracketed:
+              start_bracket: (
+              expression:
+                quoted_literal: "'loc_id:    '"
+                binary_operator:
+                - pipe: '|'
+                - pipe: '|'
+                column_reference:
+                - naked_identifier: dept_rec
+                - dot: .
+                - naked_identifier: loc_id
+              end_bracket: )
+    - statement_terminator: ;
+    - keyword: END
+- statement_terminator: ;
+- statement_terminator: /
+- statement:
+    begin_end_block:
+    - declare_segment:
+      - keyword: DECLARE
+      - record_type:
+        - keyword: TYPE
+        - naked_identifier: name_rec
+        - keyword: IS
+        - keyword: RECORD
+        - bracketed:
+          - start_bracket: (
+          - naked_identifier: first
+          - column_type_reference:
+              column_reference:
+              - naked_identifier: employees
+              - dot: .
+              - naked_identifier: first_name
+              binary_operator: '%'
+              keyword: TYPE
+          - comma: ','
+          - naked_identifier: last
+          - column_type_reference:
+              column_reference:
+              - naked_identifier: employees
+              - dot: .
+              - naked_identifier: last_name
+              binary_operator: '%'
+              keyword: TYPE
+          - end_bracket: )
+      - statement_terminator: ;
+      - record_type:
+        - keyword: TYPE
+        - naked_identifier: contact
+        - keyword: IS
+        - keyword: RECORD
+        - bracketed:
+          - start_bracket: (
+          - naked_identifier: name
+          - data_type:
+              data_type_identifier: name_rec
+          - comma: ','
+          - naked_identifier: phone
+          - column_type_reference:
+              column_reference:
+              - naked_identifier: employees
+              - dot: .
+              - naked_identifier: phone_number
+              binary_operator: '%'
+              keyword: TYPE
+          - end_bracket: )
+      - statement_terminator: ;
+      - naked_identifier: friend
+      - data_type:
+          data_type_identifier: contact
+      - statement_terminator: ;
+    - keyword: BEGIN
+    - statement:
+        assignment_segment_statement:
+          object_reference:
+          - naked_identifier: friend
+          - dot: .
+          - naked_identifier: name
+          - dot: .
+          - naked_identifier: first
+          assignment_operator: :=
+          expression:
+            quoted_literal: "'John'"
+    - statement_terminator: ;
+    - statement:
+        assignment_segment_statement:
+          object_reference:
+          - naked_identifier: friend
+          - dot: .
+          - naked_identifier: name
+          - dot: .
+          - naked_identifier: last
+          assignment_operator: :=
+          expression:
+            quoted_literal: "'Smith'"
+    - statement_terminator: ;
+    - statement:
+        assignment_segment_statement:
+          object_reference:
+          - naked_identifier: friend
+          - dot: .
+          - naked_identifier: phone
+          assignment_operator: :=
+          expression:
+            quoted_literal: "'1-650-555-1234'"
+    - statement_terminator: ;
+    - statement:
+        function:
+          function_name:
+            naked_identifier: DBMS_OUTPUT
+            dot: .
+            function_name_identifier: PUT_LINE
+          function_contents:
+            bracketed:
+              start_bracket: (
+              expression:
+              - column_reference:
+                - naked_identifier: friend
+                - dot: .
+                - naked_identifier: name
+                - dot: .
+                - naked_identifier: first
+              - binary_operator:
+                - pipe: '|'
+                - pipe: '|'
+              - quoted_literal: "' '"
+              - binary_operator:
+                - pipe: '|'
+                - pipe: '|'
+              - column_reference:
+                - naked_identifier: friend
+                - dot: .
+                - naked_identifier: name
+                - dot: .
+                - naked_identifier: last
+              - binary_operator:
+                - pipe: '|'
+                - pipe: '|'
+              - quoted_literal: "', '"
+              - binary_operator:
+                - pipe: '|'
+                - pipe: '|'
+              - column_reference:
+                - naked_identifier: friend
+                - dot: .
+                - naked_identifier: phone
+              end_bracket: )
+    - statement_terminator: ;
+    - keyword: END
+- statement_terminator: ;
+- statement_terminator: /
+- statement:
+    begin_end_block:
+    - declare_segment:
+      - keyword: DECLARE
+      - collection_type:
+        - keyword: TYPE
+        - naked_identifier: full_name
+        - keyword: IS
+        - data_type:
+            data_type_identifier: VARRAY
+            bracketed_arguments:
+              bracketed:
+                start_bracket: (
+                numeric_literal: '2'
+                end_bracket: )
+        - keyword: OF
+        - data_type:
+            data_type_identifier: VARCHAR2
+            bracketed_arguments:
+              bracketed:
+                start_bracket: (
+                numeric_literal: '20'
+                end_bracket: )
+      - statement_terminator: ;
+      - record_type:
+        - keyword: TYPE
+        - naked_identifier: contact
+        - keyword: IS
+        - keyword: RECORD
+        - bracketed:
+          - start_bracket: (
+          - naked_identifier: name
+          - data_type:
+              data_type_identifier: full_name
+          - assignment_operator: :=
+          - expression:
+              function:
+                function_name:
+                  function_name_identifier: full_name
+                function_contents:
+                  bracketed:
+                  - start_bracket: (
+                  - expression:
+                      quoted_literal: "'John'"
+                  - comma: ','
+                  - expression:
+                      quoted_literal: "'Smith'"
+                  - end_bracket: )
+          - comma: ','
+          - naked_identifier: phone
+          - column_type_reference:
+              column_reference:
+              - naked_identifier: employees
+              - dot: .
+              - naked_identifier: phone_number
+              binary_operator: '%'
+              keyword: TYPE
+          - end_bracket: )
+      - statement_terminator: ;
+      - naked_identifier: friend
+      - data_type:
+          data_type_identifier: contact
+      - statement_terminator: ;
+    - keyword: BEGIN
+    - statement:
+        assignment_segment_statement:
+          object_reference:
+          - naked_identifier: friend
+          - dot: .
+          - naked_identifier: phone
+          assignment_operator: :=
+          expression:
+            quoted_literal: "'1-650-555-1234'"
+    - statement_terminator: ;
+    - statement:
+        function:
+          function_name:
+            naked_identifier: DBMS_OUTPUT
+            dot: .
+            function_name_identifier: PUT_LINE
+          function_contents:
+            bracketed:
+              start_bracket: (
+              expression:
+              - function:
+                  function_name:
+                    naked_identifier: friend
+                    dot: .
+                    function_name_identifier: name
+                  function_contents:
+                    bracketed:
+                      start_bracket: (
+                      expression:
+                        numeric_literal: '1'
+                      end_bracket: )
+              - binary_operator:
+                - pipe: '|'
+                - pipe: '|'
+              - quoted_literal: "' '"
+              - binary_operator:
+                - pipe: '|'
+                - pipe: '|'
+              - function:
+                  function_name:
+                    naked_identifier: friend
+                    dot: .
+                    function_name_identifier: name
+                  function_contents:
+                    bracketed:
+                      start_bracket: (
+                      expression:
+                        numeric_literal: '2'
+                      end_bracket: )
+              - binary_operator:
+                - pipe: '|'
+                - pipe: '|'
+              - quoted_literal: "', '"
+              - binary_operator:
+                - pipe: '|'
+                - pipe: '|'
+              - column_reference:
+                - naked_identifier: friend
+                - dot: .
+                - naked_identifier: phone
+              end_bracket: )
+    - statement_terminator: ;
+    - keyword: END
+- statement_terminator: ;
+- statement_terminator: /

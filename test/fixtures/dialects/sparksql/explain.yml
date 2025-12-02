@@ -1,0 +1,433 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 17716d4fe5cd0261401bbc935d9e7ad8df5ad3186eb565213f311b4ec17682ea
+file:
+- statement:
+    explain_statement:
+      keyword: EXPLAIN
+      statement:
+        select_statement:
+          select_clause:
+          - keyword: SELECT
+          - select_clause_element:
+              column_reference:
+                naked_identifier: a
+          - comma: ','
+          - select_clause_element:
+              column_reference:
+                naked_identifier: b
+          from_clause:
+            keyword: FROM
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                    naked_identifier: person
+- statement_terminator: ;
+- statement:
+    explain_statement:
+      keyword: EXPLAIN
+      statement:
+        select_statement:
+          select_clause:
+            keyword: SELECT
+            transform_clause:
+            - keyword: TRANSFORM
+            - bracketed:
+              - start_bracket: (
+              - naked_identifier: zip_code
+              - comma: ','
+              - naked_identifier: name
+              - comma: ','
+              - naked_identifier: age
+              - end_bracket: )
+            - keyword: USING
+            - quoted_literal: "'cat'"
+            - keyword: AS
+            - bracketed:
+              - start_bracket: (
+              - naked_identifier: a
+              - comma: ','
+              - naked_identifier: b
+              - comma: ','
+              - naked_identifier: c
+              - end_bracket: )
+          from_clause:
+            keyword: FROM
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                    naked_identifier: person
+          where_clause:
+            keyword: WHERE
+            expression:
+              column_reference:
+                naked_identifier: zip_code
+              comparison_operator:
+                raw_comparison_operator: '>'
+              numeric_literal: '94511'
+- statement_terminator: ;
+- statement:
+    explain_statement:
+      keyword: EXPLAIN
+      statement:
+        alter_database_statement:
+        - keyword: ALTER
+        - keyword: DATABASE
+        - database_reference:
+            naked_identifier: inventory
+        - keyword: SET
+        - keyword: DBPROPERTIES
+        - bracketed:
+            start_bracket: (
+            property_name_identifier:
+              quoted_identifier: "'Edited-by'"
+            comparison_operator:
+              raw_comparison_operator: '='
+            quoted_literal: "'John'"
+            end_bracket: )
+- statement_terminator: ;
+- statement:
+    explain_statement:
+      keyword: EXPLAIN
+      statement:
+        alter_table_statement:
+        - keyword: ALTER
+        - keyword: TABLE
+        - table_reference:
+            naked_identifier: student
+        - keyword: RENAME
+        - keyword: TO
+        - table_reference:
+            naked_identifier: studentinfo
+- statement_terminator: ;
+- statement:
+    explain_statement:
+      keyword: EXPLAIN
+      statement:
+        alter_view_statement:
+        - keyword: ALTER
+        - keyword: VIEW
+        - table_reference:
+            naked_identifier: view_identifier
+        - keyword: RENAME
+        - keyword: TO
+        - table_reference:
+            naked_identifier: view_identifier
+- statement_terminator: ;
+- statement:
+    explain_statement:
+      keyword: EXPLAIN
+      statement:
+        create_database_statement:
+        - keyword: CREATE
+        - keyword: DATABASE
+        - keyword: IF
+        - keyword: NOT
+        - keyword: EXISTS
+        - database_reference:
+            naked_identifier: database_name
+        - keyword: COMMENT
+        - quoted_literal: '"database_comment"'
+        - keyword: LOCATION
+        - quoted_literal: '"root/database_directory"'
+        - keyword: WITH
+        - keyword: DBPROPERTIES
+        - bracketed:
+            start_bracket: (
+            property_name_identifier:
+              quoted_identifier: '"property_name"'
+            comparison_operator:
+              raw_comparison_operator: '='
+            quoted_literal: '"property_value"'
+            end_bracket: )
+- statement_terminator: ;
+- statement:
+    explain_statement:
+      keyword: EXPLAIN
+      statement:
+        create_function_statement:
+        - keyword: CREATE
+        - keyword: OR
+        - keyword: REPLACE
+        - keyword: TEMPORARY
+        - keyword: FUNCTION
+        - keyword: IF
+        - keyword: NOT
+        - keyword: EXISTS
+        - function_name_identifier: function_name
+        - keyword: AS
+        - quoted_literal: '"class_name"'
+        - keyword: USING
+        - file_keyword: FILE
+        - quoted_literal: '"resource_locations"'
+- statement_terminator: ;
+- statement:
+    explain_statement:
+      keyword: EXPLAIN
+      statement:
+        create_table_statement:
+        - keyword: CREATE
+        - keyword: TABLE
+        - table_reference:
+            naked_identifier: student
+        - bracketed:
+          - start_bracket: (
+          - column_definition:
+              column_reference:
+                naked_identifier: id
+              data_type:
+                primitive_type:
+                  keyword: INT
+          - comma: ','
+          - column_definition:
+              column_reference:
+                naked_identifier: student_name
+              data_type:
+                primitive_type:
+                  keyword: STRING
+          - comma: ','
+          - column_definition:
+              column_reference:
+                naked_identifier: age
+              data_type:
+                primitive_type:
+                  keyword: INT
+          - end_bracket: )
+        - using_clause:
+            keyword: USING
+            data_source_format:
+              keyword: CSV
+- statement_terminator: ;
+- statement:
+    explain_statement:
+      keyword: EXPLAIN
+      statement:
+        create_table_statement:
+        - keyword: CREATE
+        - keyword: TABLE
+        - table_reference:
+            naked_identifier: student
+        - bracketed:
+          - start_bracket: (
+          - column_definition:
+              column_reference:
+                naked_identifier: id
+              data_type:
+                primitive_type:
+                  keyword: INT
+          - comma: ','
+          - column_definition:
+              column_reference:
+                naked_identifier: student_name
+              data_type:
+                primitive_type:
+                  keyword: STRING
+          - comma: ','
+          - column_definition:
+              column_reference:
+                naked_identifier: age
+              data_type:
+                primitive_type:
+                  keyword: INT
+          - end_bracket: )
+        - keyword: STORED
+        - keyword: AS
+        - keyword: ORC
+- statement_terminator: ;
+- statement:
+    explain_statement:
+      keyword: EXPLAIN
+      statement:
+        create_table_statement:
+        - keyword: CREATE
+        - keyword: TABLE
+        - table_reference:
+            naked_identifier: student_dupli
+        - keyword: LIKE
+        - table_reference:
+            naked_identifier: student
+        - row_format_clause:
+          - keyword: ROW
+          - keyword: FORMAT
+          - keyword: DELIMITED
+          - keyword: FIELDS
+          - keyword: TERMINATED
+          - keyword: BY
+          - quoted_literal: "','"
+        - keyword: STORED
+        - keyword: AS
+        - file_format: TEXTFILE
+        - keyword: TBLPROPERTIES
+        - bracketed:
+            start_bracket: (
+            property_name_identifier:
+              quoted_identifier: "'owner'"
+            comparison_operator:
+              raw_comparison_operator: '='
+            quoted_literal: "'xxxx'"
+            end_bracket: )
+- statement_terminator: ;
+- statement:
+    explain_statement:
+      keyword: EXPLAIN
+      statement:
+        create_view_statement:
+        - keyword: CREATE
+        - keyword: VIEW
+        - table_reference:
+            naked_identifier: experienced_employee_extended
+        - keyword: AS
+        - select_statement:
+            select_clause:
+              keyword: SELECT
+              select_clause_element:
+                column_reference:
+                  naked_identifier: a
+            from_clause:
+              keyword: FROM
+              from_expression:
+                from_expression_element:
+                  table_expression:
+                    table_reference:
+                      naked_identifier: experienced_employee
+- statement_terminator: ;
+- statement:
+    explain_statement:
+      keyword: EXPLAIN
+      statement:
+        drop_database_statement:
+        - keyword: DROP
+        - keyword: DATABASE
+        - keyword: IF
+        - keyword: EXISTS
+        - database_reference:
+            naked_identifier: dbname
+- statement_terminator: ;
+- statement:
+    explain_statement:
+      keyword: EXPLAIN
+      statement:
+        drop_function_statement:
+        - keyword: DROP
+        - keyword: FUNCTION
+        - function_name:
+            function_name_identifier: test_avg
+- statement_terminator: ;
+- statement:
+    explain_statement:
+      keyword: EXPLAIN
+      statement:
+        use_statement:
+          keyword: USE
+          database_reference:
+            naked_identifier: database_name
+- statement_terminator: ;
+- statement:
+    explain_statement:
+      keyword: EXPLAIN
+      statement:
+        truncate_table:
+        - keyword: TRUNCATE
+        - keyword: TABLE
+        - table_reference:
+            naked_identifier: student
+        - keyword: PARTITION
+        - bracketed:
+            start_bracket: (
+            column_reference:
+              naked_identifier: age
+            comparison_operator:
+              raw_comparison_operator: '='
+            numeric_literal: '10'
+            end_bracket: )
+- statement_terminator: ;
+- statement:
+    explain_statement:
+      keyword: EXPLAIN
+      statement:
+        msck_repair_table_statement:
+        - keyword: MSCK
+        - keyword: REPAIR
+        - keyword: TABLE
+        - table_reference:
+            naked_identifier: table_identifier
+        - keyword: ADD
+        - keyword: PARTITIONS
+- statement_terminator: ;
+- statement:
+    explain_statement:
+      keyword: EXPLAIN
+      statement:
+        refresh_statement:
+        - keyword: REFRESH
+        - keyword: TABLE
+        - table_reference:
+            naked_identifier: tbl1
+- statement_terminator: ;
+- statement:
+    explain_statement:
+      keyword: EXPLAIN
+      statement:
+        refresh_statement:
+        - keyword: REFRESH
+        - keyword: FUNCTION
+        - function_name:
+            function_name_identifier: func1
+- statement_terminator: ;
+- statement:
+    explain_statement:
+      keyword: EXPLAIN
+      statement:
+        load_data_statement:
+        - keyword: LOAD
+        - keyword: DATA
+        - keyword: LOCAL
+        - keyword: INPATH
+        - quoted_literal: "'/user/hive/warehouse/students'"
+        - keyword: OVERWRITE
+        - keyword: INTO
+        - keyword: TABLE
+        - table_reference:
+            naked_identifier: test_load
+- statement_terminator: ;
+- statement:
+    explain_statement:
+      keyword: EXPLAIN
+      statement:
+        insert_statement:
+        - keyword: INSERT
+        - keyword: INTO
+        - keyword: TABLE
+        - table_reference:
+            naked_identifier: students
+        - values_clause:
+            keyword: VALUES
+            bracketed:
+            - start_bracket: (
+            - expression:
+                quoted_literal: "'Amy Smith'"
+            - comma: ','
+            - expression:
+                quoted_literal: "'123 Park Ave, San Jose'"
+            - comma: ','
+            - expression:
+                numeric_literal: '111111'
+            - end_bracket: )
+- statement_terminator: ;
+- statement:
+    explain_statement:
+      keyword: EXPLAIN
+      statement:
+        drop_view_statement:
+        - keyword: DROP
+        - keyword: VIEW
+        - keyword: IF
+        - keyword: EXISTS
+        - table_reference:
+            naked_identifier: view_identifier
+- statement_terminator: ;

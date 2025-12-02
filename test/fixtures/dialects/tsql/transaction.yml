@@ -3,35 +3,91 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 455fbc87378f6996811989411cf92023c4ad93fa6e5518965a4e7c6831baae14
+_hash: cb28dd616a3bee1317e04620dc8d8eac7f595a200a57daddeee661f825e05351
 file:
   batch:
   - statement:
       transaction_statement:
       - keyword: BEGIN
       - keyword: TRANSACTION
-      - statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       delete_statement:
-        keyword: DELETE
-        from_clause:
-          keyword: FROM
-          from_expression:
-            from_expression_element:
-              table_expression:
-                table_reference:
-                - identifier: HumanResources
-                - dot: .
-                - identifier: JobCandidate
-        where_clause:
+      - keyword: DELETE
+      - keyword: FROM
+      - table_reference:
+        - naked_identifier: HumanResources
+        - dot: .
+        - naked_identifier: JobCandidate
+      - where_clause:
           keyword: WHERE
           expression:
             column_reference:
-              identifier: JobCandidateID
-            comparison_operator: '='
-            literal: '13'
-        statement_terminator: ;
+              naked_identifier: JobCandidateID
+            comparison_operator:
+              raw_comparison_operator: '='
+            integer_literal: '13'
+  - statement_terminator: ;
   - statement:
       transaction_statement:
         keyword: COMMIT
-        statement_terminator: ;
+  - statement_terminator: ;
+  - statement:
+      transaction_statement:
+      - keyword: BEGIN
+      - keyword: TRAN
+  - statement_terminator: ;
+  - statement:
+      delete_statement:
+      - keyword: DELETE
+      - keyword: FROM
+      - table_reference:
+        - naked_identifier: HumanResources
+        - dot: .
+        - naked_identifier: JobCandidate
+      - where_clause:
+          keyword: WHERE
+          expression:
+            column_reference:
+              naked_identifier: JobCandidateID
+            comparison_operator:
+              raw_comparison_operator: '='
+            integer_literal: '13'
+  - statement_terminator: ;
+  - statement:
+      transaction_statement:
+      - keyword: ROLLBACK
+      - keyword: TRAN
+  - statement_terminator: ;
+  - statement:
+      transaction_statement:
+      - keyword: BEGIN
+      - keyword: TRAN
+  - statement_terminator: ;
+  - statement:
+      transaction_statement:
+      - keyword: SAVE
+      - keyword: TRANSACTION
+  - statement_terminator: ;
+  - statement:
+      transaction_statement:
+      - keyword: BEGIN
+      - keyword: TRAN
+      - naked_identifier: namey
+  - statement_terminator: ;
+  - statement:
+      transaction_statement:
+        keyword: ROLLBACK
+        naked_identifier: namey
+  - statement_terminator: ;
+  - statement:
+      transaction_statement:
+      - keyword: SAVE
+      - keyword: TRAN
+      - parameter: '@variable'
+  - statement_terminator: ;
+  - statement:
+      transaction_statement:
+        keyword: COMMIT
+        parameter: '@variable'
+  - statement_terminator: ;

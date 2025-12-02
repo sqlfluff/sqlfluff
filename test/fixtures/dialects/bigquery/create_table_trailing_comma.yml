@@ -1,0 +1,54 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 018364a69b948f44088a1b9f4dd3793605a728e0f7404b540764dd923a4f9917
+file:
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t_table
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          naked_identifier: col1
+          data_type:
+            data_type_identifier: STRING
+        comma: ','
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t_table
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          naked_identifier: col1
+          data_type:
+            data_type_identifier: STRING
+      - comma: ','
+      - column_definition:
+          naked_identifier: x
+          data_type:
+            data_type_identifier: INT64
+          column_constraint_segment:
+          - keyword: NOT
+          - keyword: 'NULL'
+          options_segment:
+            keyword: OPTIONS
+            bracketed:
+              start_bracket: (
+              parameter: description
+              comparison_operator:
+                raw_comparison_operator: '='
+              quoted_literal: '"An INTEGER field that is NOT NULL"'
+              end_bracket: )
+      - comma: ','
+      - end_bracket: )
+- statement_terminator: ;

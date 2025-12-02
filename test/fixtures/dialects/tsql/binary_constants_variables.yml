@@ -1,0 +1,96 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 07d982aef76fc0d86b442a1d0b63f04a4dee0f67e16c111d2b98bdef46d5d9c2
+file:
+  batch:
+  - statement:
+      declare_segment:
+        keyword: declare
+        parameter: '@var1'
+        data_type:
+          keyword: binary
+          bracketed_arguments:
+            bracketed:
+              start_bracket: (
+              expression:
+                integer_literal: '1'
+              end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      set_local_variable_segment:
+        keyword: set
+        parameter: '@var1'
+        assignment_operator:
+          raw_comparison_operator: '='
+        expression:
+          binary_literal: '0x0'
+  - statement_terminator: ;
+  - statement:
+      declare_segment:
+        keyword: declare
+        parameter: '@var2'
+        data_type:
+          keyword: binary
+          bracketed_arguments:
+            bracketed:
+              start_bracket: (
+              expression:
+                integer_literal: '2'
+              end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      set_local_variable_segment:
+        keyword: set
+        parameter: '@var2'
+        assignment_operator:
+          raw_comparison_operator: '='
+        expression:
+          binary_literal: '0xAE'
+  - statement_terminator: ;
+  - statement:
+      declare_segment:
+        keyword: declare
+        parameter: '@var3'
+        data_type:
+          keyword: binary
+          bracketed_arguments:
+            bracketed:
+              start_bracket: (
+              expression:
+                integer_literal: '8'
+              end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      set_local_variable_segment:
+        keyword: set
+        parameter: '@var3'
+        assignment_operator:
+          raw_comparison_operator: '='
+        expression:
+          binary_literal: '0x69048AEFDD010E'
+  - statement_terminator: ;
+  - statement:
+      declare_segment:
+        keyword: declare
+        parameter: '@var4'
+        data_type:
+          keyword: binary
+          bracketed_arguments:
+            bracketed:
+              start_bracket: (
+              expression:
+                integer_literal: '16'
+              end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      set_local_variable_segment:
+        keyword: set
+        parameter: '@var4'
+        assignment_operator:
+          raw_comparison_operator: '='
+        expression:
+          binary_literal: 0x
+  - statement_terminator: ;

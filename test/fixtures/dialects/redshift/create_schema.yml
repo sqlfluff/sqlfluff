@@ -1,0 +1,212 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 5884da012d93c06f3600f3449b67610e88369ece73a415609623e7b8d6781281
+file:
+- statement:
+    create_schema_statement:
+    - keyword: CREATE
+    - keyword: SCHEMA
+    - schema_reference:
+        naked_identifier: s1
+- statement_terminator: ;
+- statement:
+    create_schema_statement:
+    - keyword: CREATE
+    - keyword: SCHEMA
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - schema_reference:
+        naked_identifier: s1
+- statement_terminator: ;
+- statement:
+    create_schema_statement:
+    - keyword: CREATE
+    - keyword: SCHEMA
+    - schema_reference:
+        naked_identifier: s1
+    - keyword: AUTHORIZATION
+    - role_reference:
+        naked_identifier: dwuser
+- statement_terminator: ;
+- statement:
+    create_schema_statement:
+    - keyword: CREATE
+    - keyword: SCHEMA
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - schema_reference:
+        naked_identifier: s1
+    - keyword: AUTHORIZATION
+    - role_reference:
+        naked_identifier: dwuser
+- statement_terminator: ;
+- statement:
+    create_schema_statement:
+    - keyword: CREATE
+    - keyword: SCHEMA
+    - schema_reference:
+        naked_identifier: s1
+    - keyword: AUTHORIZATION
+    - role_reference:
+        naked_identifier: dwuser
+    - keyword: QUOTA
+    - numeric_literal: '100'
+    - keyword: MB
+- statement_terminator: ;
+- statement:
+    create_schema_statement:
+    - keyword: CREATE
+    - keyword: SCHEMA
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - schema_reference:
+        naked_identifier: s1
+    - keyword: AUTHORIZATION
+    - role_reference:
+        naked_identifier: dwuser
+    - keyword: QUOTA
+    - numeric_literal: '100'
+    - keyword: MB
+- statement_terminator: ;
+- statement:
+    create_schema_statement:
+    - keyword: CREATE
+    - keyword: SCHEMA
+    - schema_reference:
+        naked_identifier: s1
+    - keyword: AUTHORIZATION
+    - role_reference:
+        naked_identifier: dwuser
+    - keyword: QUOTA
+    - numeric_literal: '5'
+    - keyword: GB
+- statement_terminator: ;
+- statement:
+    create_schema_statement:
+    - keyword: CREATE
+    - keyword: SCHEMA
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - schema_reference:
+        naked_identifier: s1
+    - keyword: AUTHORIZATION
+    - role_reference:
+        naked_identifier: dwuser
+    - keyword: QUOTA
+    - numeric_literal: '5'
+    - keyword: GB
+- statement_terminator: ;
+- statement:
+    create_schema_statement:
+    - keyword: CREATE
+    - keyword: SCHEMA
+    - schema_reference:
+        naked_identifier: s1
+    - keyword: AUTHORIZATION
+    - role_reference:
+        naked_identifier: dwuser
+    - keyword: QUOTA
+    - numeric_literal: '0.1'
+    - keyword: TB
+- statement_terminator: ;
+- statement:
+    create_schema_statement:
+    - keyword: CREATE
+    - keyword: SCHEMA
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - schema_reference:
+        naked_identifier: s1
+    - keyword: AUTHORIZATION
+    - role_reference:
+        naked_identifier: dwuser
+    - keyword: QUOTA
+    - numeric_literal: '0.1'
+    - keyword: TB
+- statement_terminator: ;
+- statement:
+    create_schema_statement:
+    - keyword: CREATE
+    - keyword: SCHEMA
+    - schema_reference:
+        naked_identifier: s1
+    - keyword: AUTHORIZATION
+    - role_reference:
+        naked_identifier: dwuser
+    - keyword: QUOTA
+    - keyword: UNLIMITED
+- statement_terminator: ;
+- statement:
+    create_schema_statement:
+    - keyword: CREATE
+    - keyword: SCHEMA
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - schema_reference:
+        naked_identifier: s1
+    - keyword: AUTHORIZATION
+    - role_reference:
+        naked_identifier: dwuser
+    - keyword: QUOTA
+    - keyword: UNLIMITED
+- statement_terminator: ;
+- statement:
+    create_schema_statement:
+    - keyword: CREATE
+    - keyword: SCHEMA
+    - keyword: AUTHORIZATION
+    - role_reference:
+        naked_identifier: dwuser
+- statement_terminator: ;
+- statement:
+    create_schema_statement:
+    - keyword: CREATE
+    - keyword: SCHEMA
+    - keyword: AUTHORIZATION
+    - role_reference:
+        naked_identifier: dwuser
+    - keyword: QUOTA
+    - numeric_literal: '100'
+    - keyword: MB
+- statement_terminator: ;
+- statement:
+    create_schema_statement:
+    - keyword: CREATE
+    - keyword: SCHEMA
+    - keyword: AUTHORIZATION
+    - role_reference:
+        naked_identifier: dwuser
+    - keyword: QUOTA
+    - numeric_literal: '5'
+    - keyword: GB
+- statement_terminator: ;
+- statement:
+    create_schema_statement:
+    - keyword: CREATE
+    - keyword: SCHEMA
+    - keyword: AUTHORIZATION
+    - role_reference:
+        naked_identifier: dwuser
+    - keyword: QUOTA
+    - numeric_literal: '0.1'
+    - keyword: TB
+- statement_terminator: ;
+- statement:
+    create_schema_statement:
+    - keyword: CREATE
+    - keyword: SCHEMA
+    - keyword: AUTHORIZATION
+    - role_reference:
+        naked_identifier: dwuser
+    - keyword: QUOTA
+    - keyword: UNLIMITED
+- statement_terminator: ;

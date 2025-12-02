@@ -1,0 +1,272 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 5ddd8d4a809b4797dc39ce84830624d2a8217c8f68b7b7400b4b42b454901060
+file:
+- statement:
+    create_external_function_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: EXTERNAL
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: LOCAL_ECHO
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          parameter: STRING_COL
+          data_type:
+            data_type_identifier: VARCHAR
+          end_bracket: )
+    - keyword: RETURNS
+    - data_type:
+        data_type_identifier: VARIANT
+    - keyword: API_INTEGRATION
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - naked_identifier: DEMONSTRATION_EXTERNAL_API_INTEGRATION_01
+    - keyword: AS
+    - quoted_identifier: "'https://xyz.execute-api.us-west-2.amazonaws.com/prod/remote_echo'"
+- statement_terminator: ;
+- statement:
+    create_external_function_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: EXTERNAL
+    - keyword: FUNCTION
+    - function_name:
+        naked_identifier: MY_SCHEMA
+        dot: .
+        function_name_identifier: LOCAL_ECHO
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          parameter: STRING_COL
+          data_type:
+            data_type_identifier: VARCHAR
+          end_bracket: )
+    - keyword: RETURNS
+    - data_type:
+        data_type_identifier: VARIANT
+    - keyword: NOT
+    - keyword: 'NULL'
+    - keyword: STRICT
+    - keyword: VOLATILE
+    - keyword: API_INTEGRATION
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - naked_identifier: DEMONSTRATION_EXTERNAL_API_INTEGRATION_01
+    - keyword: HEADERS
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - bracketed:
+      - start_bracket: (
+      - quoted_identifier: "'volume-measure'"
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_identifier: "'liters'"
+      - comma: ','
+      - quoted_identifier: "'distance-measure'"
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_identifier: "'kilometers'"
+      - end_bracket: )
+    - keyword: CONTEXT_HEADERS
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - bracketed:
+        start_bracket: (
+        keyword: CURRENT_TIMESTAMP
+        end_bracket: )
+    - keyword: MAX_BATCH_ROWS
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - numeric_literal: '50'
+    - keyword: COMPRESSION
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - compression_type: NONE
+    - keyword: REQUEST_TRANSLATOR
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - function_name:
+        naked_identifier: UTILITY
+        dot: .
+        function_name_identifier: SOME_FUNCTION
+    - keyword: RESPONSE_TRANSLATOR
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - function_name:
+        naked_identifier: UTILITY
+        dot: .
+        function_name_identifier: SOME_FUNCTION
+    - keyword: AS
+    - quoted_identifier: "'https://xyz.execute-api.us-west-2.amazonaws.com/prod/remote_echo'"
+- statement_terminator: ;
+- statement:
+    create_external_function_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: EXTERNAL
+    - keyword: FUNCTION
+    - function_name:
+        naked_identifier: MY_SCHEMA
+        dot: .
+        function_name_identifier: LOCAL_ECHO
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          parameter: STRING_COL
+          data_type:
+            data_type_identifier: VARCHAR
+          end_bracket: )
+    - keyword: RETURNS
+    - data_type:
+        data_type_identifier: VARIANT
+    - keyword: NOT
+    - keyword: 'NULL'
+    - keyword: RETURNS
+    - keyword: 'NULL'
+    - keyword: 'ON'
+    - keyword: 'NULL'
+    - keyword: INPUT
+    - keyword: VOLATILE
+    - keyword: API_INTEGRATION
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - naked_identifier: DEMONSTRATION_EXTERNAL_API_INTEGRATION_01
+    - keyword: HEADERS
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - bracketed:
+      - start_bracket: (
+      - quoted_identifier: "'volume-measure'"
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_identifier: "'liters'"
+      - comma: ','
+      - quoted_identifier: "'distance-measure'"
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_identifier: "'kilometers'"
+      - end_bracket: )
+    - keyword: CONTEXT_HEADERS
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - bracketed:
+        start_bracket: (
+        keyword: CURRENT_TIMESTAMP
+        end_bracket: )
+    - keyword: MAX_BATCH_ROWS
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - numeric_literal: '50'
+    - keyword: COMPRESSION
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - compression_type: NONE
+    - keyword: REQUEST_TRANSLATOR
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - function_name:
+        naked_identifier: UTILITY
+        dot: .
+        function_name_identifier: SOME_FUNCTION
+    - keyword: RESPONSE_TRANSLATOR
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - function_name:
+        naked_identifier: UTILITY
+        dot: .
+        function_name_identifier: SOME_FUNCTION
+    - keyword: AS
+    - quoted_identifier: "'https://xyz.execute-api.us-west-2.amazonaws.com/prod/remote_echo'"
+- statement_terminator: ;
+- statement:
+    create_external_function_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: EXTERNAL
+    - keyword: FUNCTION
+    - function_name:
+        naked_identifier: MY_SCHEMA
+        dot: .
+        function_name_identifier: LOCAL_ECHO
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          parameter: OBJ
+          data_type:
+            data_type_identifier: OBJECT
+          end_bracket: )
+    - keyword: RETURNS
+    - data_type:
+        data_type_identifier: VARCHAR
+    - keyword: 'NULL'
+    - keyword: CALLED
+    - keyword: 'ON'
+    - keyword: 'NULL'
+    - keyword: INPUT
+    - keyword: IMMUTABLE
+    - comment_equals_clause:
+        keyword: COMMENT
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'SQLFluff rocks!'"
+    - keyword: API_INTEGRATION
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - naked_identifier: DEMONSTRATION_EXTERNAL_API_INTEGRATION_01
+    - keyword: HEADERS
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - bracketed:
+      - start_bracket: (
+      - quoted_identifier: "'volume-measure'"
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_identifier: "'liters'"
+      - comma: ','
+      - quoted_identifier: "'distance-measure'"
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_identifier: "'kilometers'"
+      - end_bracket: )
+    - keyword: CONTEXT_HEADERS
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - bracketed:
+        start_bracket: (
+        keyword: CURRENT_TIMESTAMP
+        end_bracket: )
+    - keyword: MAX_BATCH_ROWS
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - numeric_literal: '50'
+    - keyword: COMPRESSION
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - compression_type: NONE
+    - keyword: REQUEST_TRANSLATOR
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - function_name:
+        naked_identifier: UTILITY
+        dot: .
+        function_name_identifier: SOME_FUNCTION
+    - keyword: RESPONSE_TRANSLATOR
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - function_name:
+        naked_identifier: UTILITY
+        dot: .
+        function_name_identifier: SOME_FUNCTION
+    - keyword: AS
+    - quoted_identifier: "'https://xyz.execute-api.us-west-2.amazonaws.com/prod/remote_echo'"
+- statement_terminator: ;

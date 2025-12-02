@@ -1,0 +1,67 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: aa3d9916537fd4519c38d315f452a01e6a1acc23085673ce5330aede8d0e6bb4
+file:
+- statement:
+    create_user_mapping_statement:
+    - keyword: CREATE
+    - keyword: USER
+    - keyword: MAPPING
+    - keyword: FOR
+    - naked_identifier: bob
+    - keyword: SERVER
+    - server_reference:
+        naked_identifier: foo
+    - keyword: OPTIONS
+    - bracketed:
+      - start_bracket: (
+      - naked_identifier_all: user
+      - quoted_literal: "'bob'"
+      - comma: ','
+      - naked_identifier_all: password
+      - quoted_literal: "'secret'"
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_user_mapping_statement:
+    - keyword: CREATE
+    - keyword: USER
+    - keyword: MAPPING
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - keyword: FOR
+    - keyword: PUBLIC
+    - keyword: SERVER
+    - server_reference:
+        naked_identifier: foo
+- statement_terminator: ;
+- statement:
+    create_user_mapping_statement:
+    - keyword: CREATE
+    - keyword: USER
+    - keyword: MAPPING
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - keyword: FOR
+    - naked_identifier: CURRENT_USER
+    - keyword: SERVER
+    - server_reference:
+        naked_identifier: foo
+    - keyword: OPTIONS
+    - bracketed:
+      - start_bracket: (
+      - naked_identifier_all: user
+      - quoted_literal: "'bob'"
+      - comma: ','
+      - naked_identifier_all: password
+      - quoted_literal: "'secret'"
+      - comma: ','
+      - naked_identifier_all: option
+      - quoted_literal: "'value'"
+      - end_bracket: )
+- statement_terminator: ;

@@ -1,0 +1,42 @@
+file:
+  statement:
+    select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - indent: ""
+      - newline: "\n"
+      - whitespace: '    '
+      - select_clause_element:
+          numeric_literal: '1'
+      - newline: "\n"
+      - placeholder: '{% if true %}'
+      - indent: ""
+      - newline: "\n"
+      - whitespace: '    '
+      - comma: ','
+      - select_clause_element:
+          numeric_literal: '2'
+      - dedent: ""
+    - newline: "\n"
+    - from_clause:
+      - keyword: FROM
+      - whitespace: ' '
+      - from_expression:
+          indent: ""
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: a
+          dedent: ""
+    - newline: "\n"
+    - dedent: ""
+    - placeholder: '{% endif %}'
+    - newline: "\n"
+    - limit_clause:
+        keyword: LIMIT
+        indent: ""
+        whitespace: ' '
+        numeric_literal: '1'
+        dedent: ""
+  newline: "\n"
+  end_of_file: ""

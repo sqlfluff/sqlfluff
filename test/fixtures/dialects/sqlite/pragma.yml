@@ -1,0 +1,158 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 3454a43f612f435c955852c9e3fa10911897024068bd7ad2a973494ea81ecfaf
+file:
+- statement:
+    pragma_statement:
+      keyword: PRAGMA
+      pragma_reference:
+        naked_identifier: analysis_limit
+      comparison_operator:
+        raw_comparison_operator: '='
+      numeric_literal: '7'
+- statement_terminator: ;
+- statement:
+    pragma_statement:
+      keyword: PRAGMA
+      pragma_reference:
+      - naked_identifier: schema
+      - dot: .
+      - naked_identifier: application_id
+- statement_terminator: ;
+- statement:
+    pragma_statement:
+    - keyword: PRAGMA
+    - pragma_reference:
+      - naked_identifier: schema
+      - dot: .
+      - naked_identifier: auto_vacuum
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - keyword: INCREMENTAL
+- statement_terminator: ;
+- statement:
+    pragma_statement:
+      keyword: PRAGMA
+      pragma_reference:
+        naked_identifier: automatic_index
+      comparison_operator:
+        raw_comparison_operator: '='
+      boolean_literal: 'TRUE'
+- statement_terminator: ;
+- statement:
+    pragma_statement:
+      keyword: PRAGMA
+      pragma_reference:
+      - naked_identifier: schema
+      - dot: .
+      - naked_identifier: cache_size
+      comparison_operator:
+        raw_comparison_operator: '='
+      numeric_literal:
+        sign_indicator: '-'
+        numeric_literal: '500'
+- statement_terminator: ;
+- statement:
+    pragma_statement:
+      keyword: PRAGMA
+      pragma_reference:
+        naked_identifier: collation_list
+- statement_terminator: ;
+- statement:
+    pragma_statement:
+      keyword: PRAGMA
+      pragma_reference:
+        naked_identifier: data_store_directory
+      comparison_operator:
+        raw_comparison_operator: '='
+      quoted_literal: "'directory-name'"
+- statement_terminator: ;
+- statement:
+    pragma_statement:
+      keyword: PRAGMA
+      pragma_reference:
+        naked_identifier: encoding
+      comparison_operator:
+        raw_comparison_operator: '='
+      quoted_literal: "'UTF-16be'"
+- statement_terminator: ;
+- statement:
+    pragma_statement:
+      keyword: PRAGMA
+      pragma_reference:
+      - naked_identifier: schema
+      - dot: .
+      - naked_identifier: foreign_key_check
+      bracketed:
+        start_bracket: (
+        quoted_literal: "'table-name'"
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    pragma_statement:
+    - keyword: PRAGMA
+    - pragma_reference:
+      - naked_identifier: schema
+      - dot: .
+      - naked_identifier: journal_mode
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - keyword: WAL
+- statement_terminator: ;
+- statement:
+    pragma_statement:
+    - keyword: PRAGMA
+    - pragma_reference:
+      - naked_identifier: schema
+      - dot: .
+      - naked_identifier: locking_mode
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - keyword: NORMAL
+- statement_terminator: ;
+- statement:
+    pragma_statement:
+    - keyword: PRAGMA
+    - pragma_reference:
+      - naked_identifier: schema
+      - dot: .
+      - naked_identifier: secure_delete
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - keyword: FAST
+- statement_terminator: ;
+- statement:
+    pragma_statement:
+      keyword: PRAGMA
+      pragma_reference:
+      - naked_identifier: schema
+      - dot: .
+      - naked_identifier: synchronous
+      comparison_operator:
+        raw_comparison_operator: '='
+      numeric_literal: '0'
+- statement_terminator: ;
+- statement:
+    pragma_statement:
+    - keyword: PRAGMA
+    - pragma_reference:
+        naked_identifier: temp_store
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - keyword: DEFAULT
+- statement_terminator: ;
+- statement:
+    pragma_statement:
+      keyword: PRAGMA
+      pragma_reference:
+      - naked_identifier: schema
+      - dot: .
+      - naked_identifier: wal_checkpoint
+      bracketed:
+        start_bracket: (
+        keyword: FULL
+        end_bracket: )
+- statement_terminator: ;

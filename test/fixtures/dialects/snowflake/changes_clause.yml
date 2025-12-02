@@ -1,0 +1,192 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: e973f7208e2679907c15c9166fe4cdafba908d888bbc2e726172bda8bcc1a28d
+file:
+- statement:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: from
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: t1
+          changes_clause:
+          - keyword: changes
+          - bracketed:
+            - start_bracket: (
+            - keyword: information
+            - parameter_assigner: =>
+            - keyword: default
+            - end_bracket: )
+          - keyword: at
+          - bracketed:
+              start_bracket: (
+              keyword: timestamp
+              parameter_assigner: =>
+              expression:
+                cast_expression:
+                  quoted_literal: "'Fri, 01 May 2015 16:20:00 -0700'"
+                  casting_operator: '::'
+                  data_type:
+                    keyword: timestamp
+              end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: from
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: t1
+          changes_clause:
+          - keyword: changes
+          - bracketed:
+            - start_bracket: (
+            - keyword: information
+            - parameter_assigner: =>
+            - keyword: append_only
+            - end_bracket: )
+          - keyword: at
+          - bracketed:
+              start_bracket: (
+              keyword: offset
+              parameter_assigner: =>
+              expression:
+              - numeric_literal:
+                  sign_indicator: '-'
+                  numeric_literal: '60'
+              - binary_operator: '*'
+              - numeric_literal: '5'
+              end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_clause_element:
+          column_reference:
+            naked_identifier: c1
+      from_clause:
+        keyword: from
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: t1
+          changes_clause:
+          - keyword: changes
+          - bracketed:
+            - start_bracket: (
+            - keyword: information
+            - parameter_assigner: =>
+            - keyword: append_only
+            - end_bracket: )
+          - keyword: at
+          - bracketed:
+              start_bracket: (
+              keyword: timestamp
+              parameter_assigner: =>
+              expression:
+                cast_expression:
+                  quoted_literal: "'Fri, 01 May 2015 16:20:00 -0700'"
+                  casting_operator: '::'
+                  data_type:
+                    keyword: timestamp
+              end_bracket: )
+          - keyword: end
+          - bracketed:
+              start_bracket: (
+              keyword: timestamp
+              parameter_assigner: =>
+              expression:
+                cast_expression:
+                  quoted_literal: "'Fri, 05 May 2015 16:20:00 -0700'"
+                  casting_operator: '::'
+                  data_type:
+                    keyword: timestamp
+              end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: from
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: t1
+          changes_clause:
+          - keyword: changes
+          - bracketed:
+            - start_bracket: (
+            - keyword: information
+            - parameter_assigner: =>
+            - keyword: default
+            - end_bracket: )
+          - keyword: before
+          - bracketed:
+              start_bracket: (
+              keyword: statement
+              parameter_assigner: =>
+              expression:
+                quoted_literal: "'8e5d0ca9-005e-44e6-b858-a8f5b37c5726'"
+              end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: from
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+              - naked_identifier: st
+              - dot: .
+              - naked_identifier: test
+          changes_clause:
+          - keyword: changes
+          - bracketed:
+            - start_bracket: (
+            - keyword: information
+            - parameter_assigner: =>
+            - keyword: append_only
+            - end_bracket: )
+          - keyword: at
+          - bracketed:
+              start_bracket: (
+              keyword: stream
+              parameter_assigner: =>
+              expression:
+                quoted_literal: "'ppr.str_test'"
+              end_bracket: )
+- statement_terminator: ;

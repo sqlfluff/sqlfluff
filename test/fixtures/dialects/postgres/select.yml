@@ -1,0 +1,998 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: a3033206a24c97d12ac7670f4e1ae4970096485fbcc630ee1be74cbca3d520a6
+file:
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+          - datetime_literal:
+              datetime_type_identifier:
+              - keyword: timestamp
+              - keyword: with
+              - keyword: time
+              - keyword: zone
+              quoted_literal: "'2005-04-02 12:00:00-07'"
+          - binary_operator: +
+          - datetime_literal:
+              datetime_type_identifier:
+                keyword: interval
+              quoted_literal: "'1 day'"
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: DATEADD
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                    naked_identifier: day
+              - comma: ','
+              - expression:
+                  numeric_literal:
+                    sign_indicator: '-'
+                    numeric_literal: '2'
+              - comma: ','
+              - expression:
+                  bare_function: current_date
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+          - datetime_literal:
+              datetime_type_identifier:
+                keyword: timestamptz
+              quoted_literal: "'2013-07-01 12:00:00'"
+          - binary_operator: '-'
+          - datetime_literal:
+              datetime_type_identifier:
+                keyword: timestamptz
+              quoted_literal: "'2013-03-01 12:00:00'"
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+            cast_expression:
+              numeric_literal: '1.0'
+              casting_operator: '::'
+              data_type:
+                keyword: int
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+            cast_expression:
+              quoted_literal: "'2015-10-24 16:38:46'"
+              casting_operator: '::'
+              data_type:
+                datetime_type_identifier:
+                  keyword: TIMESTAMP
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+            cast_expression:
+              quoted_literal: "'2015-10-24 16:38:46'"
+              casting_operator: '::'
+              data_type:
+                datetime_type_identifier:
+                  keyword: TIMESTAMP
+              time_zone_grammar:
+              - keyword: AT
+              - keyword: TIME
+              - keyword: ZONE
+              - expression:
+                  quoted_literal: "'UTC'"
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+            cast_expression:
+              quoted_literal: "'2015-10-24 16:38:46'"
+              casting_operator: '::'
+              data_type:
+                datetime_type_identifier:
+                - keyword: TIMESTAMP
+                - keyword: WITH
+                - keyword: TIME
+                - keyword: ZONE
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+            cast_expression:
+              quoted_literal: "'2015-10-24 16:38:46'"
+              casting_operator: '::'
+              data_type:
+                datetime_type_identifier:
+                - keyword: TIMESTAMP
+                - keyword: WITH
+                - keyword: TIME
+                - keyword: ZONE
+              time_zone_grammar:
+              - keyword: AT
+              - keyword: TIME
+              - keyword: ZONE
+              - expression:
+                  quoted_literal: "'UTC'"
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+            cast_expression:
+              quoted_literal: "'2015-10-24 16:38:46'"
+              casting_operator: '::'
+              data_type:
+                datetime_type_identifier:
+                - keyword: TIMESTAMP
+                - keyword: WITHOUT
+                - keyword: TIME
+                - keyword: ZONE
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+            cast_expression:
+              quoted_literal: "'2015-10-24 16:38:46'"
+              casting_operator: '::'
+              data_type:
+                datetime_type_identifier:
+                  keyword: TIMESTAMPTZ
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+            cast_expression:
+              quoted_literal: "'2015-10-24 16:38:46'"
+              casting_operator: '::'
+              data_type:
+                datetime_type_identifier:
+                  keyword: TIMESTAMPTZ
+              time_zone_grammar:
+              - keyword: AT
+              - keyword: TIME
+              - keyword: ZONE
+              - expression:
+                  quoted_literal: "'UTC'"
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+            datetime_literal:
+              datetime_type_identifier:
+              - keyword: timestamp
+              - keyword: with
+              - keyword: time
+              - keyword: zone
+              quoted_literal: "'2025-11-20 00:00:00+00'"
+            time_zone_grammar:
+            - keyword: AT
+            - keyword: TIME
+            - keyword: ZONE
+            - expression:
+                quoted_literal: "'Africa/Cairo'"
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          datetime_literal:
+            datetime_type_identifier:
+            - keyword: timestamp
+            - keyword: with
+            - keyword: time
+            - keyword: zone
+            quoted_literal: "'2025-11-20 00:00:00'"
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+            datetime_literal:
+              datetime_type_identifier:
+              - keyword: timestamp
+              - keyword: without
+              - keyword: time
+              - keyword: zone
+              quoted_literal: "'2025-11-20 00:00:00'"
+            time_zone_grammar:
+            - keyword: AT
+            - keyword: TIME
+            - keyword: ZONE
+            - expression:
+                quoted_literal: "'Africa/Cairo'"
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+            datetime_literal:
+              datetime_type_identifier:
+              - keyword: timestamp
+              - keyword: without
+              - keyword: time
+              - keyword: zone
+              quoted_literal: "'2025-11-20 00:00:00+12'"
+            time_zone_grammar:
+            - keyword: AT
+            - keyword: TIME
+            - keyword: ZONE
+            - expression:
+                quoted_literal: "'Africa/Cairo'"
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          datetime_literal:
+            datetime_type_identifier:
+            - keyword: timestamp
+            - keyword: without
+            - keyword: time
+            - keyword: zone
+            quoted_literal: "'2025-11-20 00:00:00+12'"
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+            datetime_literal:
+              datetime_type_identifier:
+              - keyword: time
+              - keyword: with
+              - keyword: time
+              - keyword: zone
+              quoted_literal: "'00:00:00+00'"
+            time_zone_grammar:
+            - keyword: AT
+            - keyword: TIME
+            - keyword: ZONE
+            - expression:
+                quoted_literal: "'Africa/Cairo'"
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+            datetime_literal:
+              datetime_type_identifier:
+              - keyword: time
+              - keyword: without
+              - keyword: time
+              - keyword: zone
+              quoted_literal: "'00:00:00'"
+            time_zone_grammar:
+            - keyword: AT
+            - keyword: TIME
+            - keyword: ZONE
+            - expression:
+                quoted_literal: "'Africa/Cairo'"
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+            column_reference:
+              naked_identifier: c_timestamp
+            time_zone_grammar:
+            - keyword: AT
+            - keyword: TIME
+            - keyword: ZONE
+            - expression:
+                quoted_literal: "'Africa/Cairo'"
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: t_table
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+            cast_expression:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: c_timestamp
+                  time_zone_grammar:
+                  - keyword: AT
+                  - keyword: TIME
+                  - keyword: ZONE
+                  - expression:
+                      quoted_literal: "'Africa/Cairo'"
+                end_bracket: )
+              casting_operator: '::'
+              data_type:
+                datetime_type_identifier:
+                  keyword: time
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: t_table
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+            cast_expression:
+              column_reference:
+                naked_identifier: a
+              casting_operator: '::'
+              data_type:
+              - keyword: double
+              - keyword: precision
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: my_table
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+          - naked_identifier: schema1
+          - dot: .
+          - naked_identifier: table1
+          - dot: .
+          - naked_identifier: columna
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+          - naked_identifier: t
+          - dot: .
+          - naked_identifier: col2
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+              - naked_identifier: schema1
+              - dot: .
+              - naked_identifier: table1
+          join_clause:
+          - keyword: CROSS
+          - keyword: JOIN
+          - from_expression_element:
+              keyword: LATERAL
+              table_expression:
+                function:
+                  function_name:
+                    function_name_identifier: somefunc
+                  function_contents:
+                    bracketed:
+                      start_bracket: (
+                      expression:
+                        column_reference:
+                        - naked_identifier: tb
+                        - dot: .
+                        - naked_identifier: columnb
+                      end_bracket: )
+              alias_expression:
+                alias_operator:
+                  keyword: as
+                naked_identifier: t
+                bracketed:
+                - start_bracket: (
+                - parameter: col1
+                - data_type:
+                    keyword: text
+                - comma: ','
+                - parameter: col2
+                - data_type:
+                    keyword: bool
+                - end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+          - column_reference:
+              naked_identifier: a
+          - keyword: COLLATE
+          - column_reference:
+              quoted_identifier: '"de_DE"'
+          - comparison_operator:
+              raw_comparison_operator: <
+          - column_reference:
+              naked_identifier: b
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: test1
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+            column_reference:
+              naked_identifier: a
+            comparison_operator:
+              raw_comparison_operator: <
+            bracketed:
+              start_bracket: (
+              expression:
+                quoted_literal: "'foo'"
+                keyword: COLLATE
+                column_reference:
+                  quoted_identifier: '"fr_FR"'
+              end_bracket: )
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: test1
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+          - column_reference:
+              naked_identifier: a
+          - comparison_operator:
+              raw_comparison_operator: <
+          - column_reference:
+              naked_identifier: b
+          - keyword: COLLATE
+          - column_reference:
+              quoted_identifier: '"de_DE"'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: test1
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+          - column_reference:
+              naked_identifier: a
+          - keyword: COLLATE
+          - column_reference:
+              quoted_identifier: '"de_DE"'
+          - comparison_operator:
+              raw_comparison_operator: <
+          - column_reference:
+              naked_identifier: b
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: test1
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: test1
+      orderby_clause:
+      - keyword: ORDER
+      - keyword: BY
+      - expression:
+        - column_reference:
+            naked_identifier: a
+        - binary_operator:
+          - pipe: '|'
+          - pipe: '|'
+        - column_reference:
+            naked_identifier: b
+        - keyword: COLLATE
+        - column_reference:
+            quoted_identifier: '"fr_FR"'
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: test1
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: select
+      - select_clause_element:
+          column_reference:
+            naked_identifier: id
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: start
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: periods
+            dot: .
+            naked_identifier_all: end
+      from_clause:
+        keyword: from
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: periods
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: concat_lower_or_upper
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  quoted_literal: "'Hello'"
+              - comma: ','
+              - expression:
+                  quoted_literal: "'World'"
+              - comma: ','
+              - expression:
+                  boolean_literal: 'true'
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: concat_lower_or_upper
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - named_argument:
+                  naked_identifier: a
+                  right_arrow: =>
+                  expression:
+                    quoted_literal: "'Hello'"
+              - comma: ','
+              - named_argument:
+                  naked_identifier: b
+                  right_arrow: =>
+                  expression:
+                    quoted_literal: "'World'"
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: concat_lower_or_upper
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  quoted_literal: "'Hello'"
+              - comma: ','
+              - expression:
+                  quoted_literal: "'World'"
+              - comma: ','
+              - named_argument:
+                  naked_identifier: uppercase
+                  right_arrow: =>
+                  expression:
+                    boolean_literal: 'true'
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: mytable
+      for_clause:
+      - keyword: FOR
+      - keyword: UPDATE
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              bracketed:
+                start_bracket: (
+                select_statement:
+                  select_clause:
+                    keyword: SELECT
+                    select_clause_element:
+                      wildcard_expression:
+                        wildcard_identifier:
+                          star: '*'
+                  from_clause:
+                    keyword: FROM
+                    from_expression:
+                      from_expression_element:
+                        table_expression:
+                          table_reference:
+                            naked_identifier: mytable
+                  for_clause:
+                  - keyword: FOR
+                  - keyword: UPDATE
+                end_bracket: )
+            alias_expression:
+              naked_identifier: ss
+      where_clause:
+        keyword: WHERE
+        expression:
+          column_reference:
+            naked_identifier: col1
+          comparison_operator:
+            raw_comparison_operator: '='
+          numeric_literal: '5'
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+            naked_identifier: col1
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: col2
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: mytable1
+          join_clause:
+            keyword: JOIN
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: mytable2
+            join_on_condition:
+              keyword: 'ON'
+              expression:
+              - column_reference:
+                  naked_identifier: col1
+              - comparison_operator:
+                  raw_comparison_operator: '='
+              - column_reference:
+                  naked_identifier: col2
+      orderby_clause:
+      - keyword: ORDER
+      - keyword: BY
+      - column_reference:
+          naked_identifier: sync_time
+      - keyword: ASC
+      limit_clause:
+        keyword: LIMIT
+        numeric_literal: '1'
+      for_clause:
+      - keyword: FOR
+      - keyword: SHARE
+      - keyword: OF
+      - table_reference:
+          naked_identifier: mytable1
+      - comma: ','
+      - table_reference:
+          naked_identifier: mytable2
+      - keyword: SKIP
+      - keyword: LOCKED
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: Select
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: from
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: foo
+            sample_expression:
+            - keyword: TABLESAMPLE
+            - keyword: SYSTEM
+            - bracketed:
+                start_bracket: (
+                numeric_literal: '10'
+                end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: Select
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: from
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: foo
+            sample_expression:
+            - keyword: TABLESAMPLE
+            - keyword: BERNOULLI
+            - bracketed:
+                start_bracket: (
+                numeric_literal: '10'
+                end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              bracketed:
+                start_bracket: (
+                select_statement:
+                  select_clause:
+                    keyword: SELECT
+                    select_clause_element:
+                      wildcard_expression:
+                        wildcard_identifier:
+                          star: '*'
+                  from_clause:
+                    keyword: FROM
+                    from_expression:
+                      from_expression_element:
+                        table_expression:
+                          table_reference:
+                            naked_identifier: mytable
+                  for_clause:
+                  - keyword: FOR
+                  - keyword: UPDATE
+                end_bracket: )
+            alias_expression:
+              naked_identifier: ss
+      where_clause:
+        keyword: WHERE
+        expression:
+          column_reference:
+            naked_identifier: col1
+          comparison_operator:
+            raw_comparison_operator: '='
+          dollar_numeric_literal: $1
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+            column_reference:
+              naked_identifier: i
+            binary_operator: +
+            dollar_numeric_literal: $1
+      into_clause:
+        keyword: INTO
+        table_reference:
+          naked_identifier: j
+      from_clause:
+        keyword: from
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: foo
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          numeric_literal: '1'
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: bar
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          column_reference:
+            quoted_identifier: '"""t"'
+            dot: .
+            naked_identifier: col1
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: tbl1
+            alias_expression:
+              alias_operator:
+                keyword: AS
+              quoted_identifier: '"""t"'
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+            naked_identifier: film_id
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: title
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: film
+      orderby_clause:
+      - keyword: ORDER
+      - keyword: BY
+      - column_reference:
+          naked_identifier: title
+      fetch_clause:
+      - keyword: FETCH
+      - keyword: FIRST
+      - numeric_literal: '10'
+      - keyword: ROW
+      - keyword: ONLY
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          column_reference:
+            naked_identifier: foo
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: bar
+      limit_clause:
+        keyword: LIMIT
+        numeric_literal: '1'
+      for_clause:
+      - keyword: FOR
+      - keyword: UPDATE
+- statement_terminator: ;

@@ -1,0 +1,107 @@
+# This Workflow runs in a more secure context and comments
+# on pull requests.
+# https://securitylab.github.com/research/github-actions-preventing-pwn-requests/
+name: Comment on the pull request
+
+# Run on completion of the CI job.
+# This workflow has access to write comments on PRs event when
+# that PR is triggered by a forked repo.
+on:
+  workflow_run:
+    workflows:
+      - CI
+    types:
+      - completed
+
+jobs:
+  comment-on-pr:
+    runs-on: ubuntu-latest
+    if: >
+      github.event.workflow_run.event == 'pull_request'
+    steps:
+      - name: 'Download txt artifact'
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const artifacts = await github.rest.actions.listWorkflowRunArtifacts({
+               owner: context.repo.owner,
+               repo: context.repo.repo,
+               run_id: ${{github.event.workflow_run.id }},
+            });
+            const matchArtifact = artifacts.data.artifacts.filter((artifact) => {
+              return artifact.name == "txt-report"
+            })[0];
+            const download = await github.rest.actions.downloadArtifact({
+               owner: context.repo.owner,
+               repo: context.repo.repo,
+               artifact_id: matchArtifact.id,
+               archive_format: 'zip',
+            });
+            var fs = require('fs');
+            fs.writeFileSync('${{github.workspace}}/cov-report.zip', Buffer.from(download.data));
+
+      - name: Unzip Downloaded Artifact
+        run: unzip cov-report.zip
+
+      - name: Update PR comment with coverage report.
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            // First list the existing comments
+            const trigger_str = 'Coverage Results';
+            console.log("Getting existing comments...");
+
+            const { promises: fs } = require('fs');
+            const issue_number = await fs.readFile('pr-number.txt', 'utf8');
+            console.log("Issue number: " + issue_number);
+
+            const comments = await github.paginate(
+              github.rest.issues.listComments,
+              {
+                owner: 'sqlfluff',
+                repo: 'sqlfluff',
+                issue_number: Number(issue_number)
+              }
+            );
+
+            let comment_id = null;
+            console.log("Got %d comments", comments.length);
+
+            comments.forEach(comment => {
+              if (comment.body.indexOf(trigger_str) >= 0) {
+                console.log("Found target comment ID: %d", comment.id);
+                comment_id = comment.id;
+              } else {
+                console.log("Comment ID %d not valid with body:\n%s.", comment.id, comment.body);
+              }
+            });
+
+            const previous_outcome = await fs.readFile('outcome.txt', 'utf8');
+            console.log("Previous coverage step outcome: %s", previous_outcome);
+            if (previous_outcome == "success\n") {
+              status_emoji = "✅";
+            } else {
+              status_emoji = "⚠️";
+            }
+
+            const content = await fs.readFile('coverage-report.txt', 'utf8');
+            body = "# " + trigger_str + " " + status_emoji + "\n```\n" + content + "\n```\n";
+
+            if (comment_id > 0) {
+              console.log("Updating comment id: %d", comment_id);
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: comment_id,
+                body: body
+              });
+            } else {
+              console.log("No existing comment matched, creating a new one...");
+              await github.rest.issues.createComment({
+                issue_number: Number(issue_number),
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: body
+              });
+            }

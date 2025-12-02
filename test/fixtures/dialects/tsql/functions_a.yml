@@ -3,9 +3,9 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 252a3ff7798b62db9d272e79c7651940dc7c78d01d9b12d4a373791856ce0b7f
+_hash: 2993d48cfb3e35593d496bcde3a115b428e55b79c1b0e38170d52911fab404d1
 file:
-  batch:
+- batch:
     statement:
       select_statement:
         select_clause:
@@ -14,116 +14,273 @@ file:
             function:
               function_name:
                 function_name_identifier: DATE
-              bracketed:
-                start_bracket: (
-                expression:
-                  column_reference:
-                    identifier: t
-                end_bracket: )
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                      naked_identifier: t
+                  end_bracket: )
             alias_expression:
-              keyword: AS
-              identifier: t_date
+              alias_operator:
+                keyword: AS
+              naked_identifier: t_date
         - comma: ','
         - select_clause_element:
             function:
               function_name:
                 function_name_identifier: ROUND
-              bracketed:
-              - start_bracket: (
-              - expression:
-                  column_reference:
-                    identifier: b
-              - comma: ','
-              - expression:
-                  literal: '2'
-              - end_bracket: )
+              function_contents:
+                bracketed:
+                - start_bracket: (
+                - expression:
+                    column_reference:
+                      naked_identifier: b
+                - comma: ','
+                - expression:
+                    integer_literal: '2'
+                - end_bracket: )
             alias_expression:
-              keyword: AS
-              identifier: b_round
+              alias_operator:
+                keyword: AS
+              naked_identifier: b_round
         - comma: ','
         - select_clause_element:
             function:
               function_name:
-                function_name_identifier: LEFT
-              bracketed:
-              - start_bracket: (
-              - expression:
-                  function:
-                    function_name:
-                      function_name_identifier: RIGHT
-                    bracketed:
-                    - start_bracket: (
-                    - expression:
-                        column_reference:
-                          identifier: s
-                    - comma: ','
-                    - expression:
-                        literal: '5'
-                    - end_bracket: )
-              - comma: ','
-              - expression:
-                  function:
-                    function_name:
-                      function_name_identifier: LEN
-                    bracketed:
-                      start_bracket: (
-                      expression:
-                        column_reference:
-                          identifier: s
-                        binary_operator: +
-                        literal: '6'
-                      end_bracket: )
-              - end_bracket: )
+                keyword: LEFT
+              function_contents:
+                bracketed:
+                - start_bracket: (
+                - expression:
+                    function:
+                      function_name:
+                        keyword: RIGHT
+                      function_contents:
+                        bracketed:
+                        - start_bracket: (
+                        - expression:
+                            column_reference:
+                              naked_identifier: s
+                        - comma: ','
+                        - expression:
+                            integer_literal: '5'
+                        - end_bracket: )
+                - comma: ','
+                - expression:
+                    function:
+                      function_name:
+                        function_name_identifier: LEN
+                      function_contents:
+                        bracketed:
+                          start_bracket: (
+                          expression:
+                            column_reference:
+                              naked_identifier: s
+                            binary_operator: +
+                            integer_literal: '6'
+                          end_bracket: )
+                - end_bracket: )
             alias_expression:
-              keyword: AS
-              identifier: compound
+              alias_operator:
+                keyword: AS
+              naked_identifier: compound
         - comma: ','
         - select_clause_element:
             function:
               function_name:
-                keyword: DATEADD
-              bracketed:
-              - start_bracket: (
-              - date_part:
-                  keyword: month
-              - comma: ','
-              - expression:
-                  numeric_literal:
-                    binary_operator: '-'
-                    literal: '1'
-              - comma: ','
-              - expression:
-                  column_reference:
-                    identifier: column1
-              - end_bracket: )
+                function_name_identifier: DATEADD
+              function_contents:
+                bracketed:
+                - start_bracket: (
+                - date_part: month
+                - comma: ','
+                - expression:
+                    numeric_literal:
+                      sign_indicator: '-'
+                      numeric_literal: '1'
+                - comma: ','
+                - expression:
+                    column_reference:
+                      naked_identifier: column1
+                - end_bracket: )
             alias_expression:
-              keyword: AS
-              identifier: column1_lastmonth
+              alias_operator:
+                keyword: AS
+              naked_identifier: column1_lastmonth
         - comma: ','
         - select_clause_element:
             function:
               function_name:
                 keyword: convert
-              bracketed:
-              - start_bracket: (
-              - data_type:
-                  identifier: varchar
-              - comma: ','
-              - data_type:
-                - identifier: tbl_b
-                - dot: .
-                - identifier: column1
-              - comma: ','
-              - expression:
-                  literal: '23'
-              - end_bracket: )
+              function_contents:
+                bracketed:
+                - start_bracket: (
+                - data_type:
+                    keyword: varchar
+                - comma: ','
+                - expression:
+                    column_reference:
+                    - naked_identifier: tbl_b
+                    - dot: .
+                    - naked_identifier: column1
+                - comma: ','
+                - numeric_literal: '23'
+                - end_bracket: )
             alias_expression:
-              keyword: AS
-              identifier: column1_varchar
+              alias_operator:
+                keyword: AS
+              naked_identifier: column1_varchar
         from_clause:
           keyword: FROM
           from_expression:
             from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: tbl_b
+                  naked_identifier: tbl_b
+    go_statement:
+      keyword: GO
+- batch:
+    statement:
+      create_function_statement:
+      - keyword: CREATE
+      - keyword: FUNCTION
+      - object_reference:
+        - naked_identifier: dbo
+        - dot: .
+        - naked_identifier: RandDate
+      - function_parameter_list:
+          bracketed:
+            start_bracket: (
+            parameter: '@admit'
+            data_type:
+              keyword: DATE
+            end_bracket: )
+      - keyword: RETURNS
+      - data_type:
+          keyword: TABLE
+      - keyword: AS
+      - procedure_statement:
+          statement:
+            return_segment:
+              keyword: RETURN
+              expression:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    select_statement:
+                      select_clause:
+                        keyword: SELECT
+                        select_clause_element:
+                          parameter: '@admit'
+                      from_clause:
+                        keyword: FROM
+                        from_expression:
+                          from_expression_element:
+                            table_expression:
+                              table_reference:
+                                naked_identifier: dbo
+                                dot: .
+                                quoted_identifier: '[RandomDate]'
+                  end_bracket: )
+          statement_terminator: ;
+    go_statement:
+      keyword: GO
+- batch:
+    statement:
+      create_function_statement:
+      - keyword: CREATE
+      - keyword: FUNCTION
+      - object_reference:
+        - naked_identifier: dbo
+        - dot: .
+        - naked_identifier: no_paramters
+      - function_parameter_list:
+          bracketed:
+            start_bracket: (
+            end_bracket: )
+      - keyword: RETURNS
+      - data_type:
+          keyword: INT
+      - keyword: AS
+      - procedure_statement:
+          statement:
+            begin_end_block:
+            - keyword: BEGIN
+            - statement:
+                return_segment:
+                  keyword: RETURN
+                  expression:
+                    integer_literal: '2'
+            - statement_terminator: ;
+            - keyword: END
+    go_statement:
+      keyword: GO
+- batch:
+    statement:
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                naked_identifier: a
+                dot: .
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                bracketed:
+                  start_bracket: (
+                  select_statement:
+                    select_clause:
+                      keyword: SELECT
+                      select_clause_element:
+                        column_reference:
+                          naked_identifier: FIN
+                    from_clause:
+                      keyword: FROM
+                      from_expression:
+                        from_expression_element:
+                          table_expression:
+                            table_reference:
+                              naked_identifier: enc
+                  end_bracket: )
+              alias_expression:
+                alias_operator:
+                  keyword: AS
+                naked_identifier: a
+            join_clause:
+            - keyword: LEFT
+            - keyword: JOIN
+            - from_expression_element:
+                table_expression:
+                  table_reference:
+                    naked_identifier: b
+            - join_on_condition:
+                keyword: 'ON'
+                expression:
+                - column_reference:
+                  - naked_identifier: a
+                  - dot: .
+                  - naked_identifier: FIN
+                - comparison_operator:
+                    raw_comparison_operator: '='
+                - column_reference:
+                  - naked_identifier: b
+                  - dot: .
+                  - naked_identifier: FIN
+        where_clause:
+          keyword: WHERE
+          expression:
+            column_reference:
+            - naked_identifier: b
+            - dot: .
+            - naked_identifier: FIN
+            keyword: IS
+            null_literal: 'NULL'
+    statement_terminator: ;
+    go_statement:
+      keyword: GO

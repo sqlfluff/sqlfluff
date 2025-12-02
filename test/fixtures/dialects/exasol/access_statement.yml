@@ -1,0 +1,265 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 2bb545f4adeb85060bff12a0f95565113146d63e1b8dcd7f456fe621a241f985
+file:
+- statement:
+    access_statement:
+      keyword: GRANT
+      grant_revoke_system_privileges:
+        system_privilege:
+        - keyword: CREATE
+        - keyword: SCHEMA
+        keyword: TO
+        naked_identifier: role1
+- statement_terminator: ;
+- statement:
+    access_statement:
+      keyword: GRANT
+      grant_revoke_system_privileges:
+      - system_privilege:
+        - keyword: SELECT
+        - keyword: ANY
+        - keyword: TABLE
+      - keyword: TO
+      - naked_identifier: user1
+      - keyword: WITH
+      - keyword: ADMIN
+      - keyword: OPTION
+- statement_terminator: ;
+- statement:
+    access_statement:
+      keyword: GRANT
+      grant_revoke_object_privileges:
+      - object_privilege:
+          keyword: INSERT
+      - keyword: 'ON'
+      - object_reference:
+        - naked_identifier: my_schema
+        - dot: .
+        - naked_identifier: my_table
+      - keyword: TO
+      - naked_identifier: user1
+      - comma: ','
+      - naked_identifier: role2
+- statement_terminator: ;
+- statement:
+    access_statement:
+      keyword: GRANT
+      grant_revoke_object_privileges:
+      - object_privilege:
+          keyword: SELECT
+      - keyword: 'ON'
+      - keyword: VIEW
+      - object_reference:
+        - naked_identifier: my_schema
+        - dot: .
+        - naked_identifier: my_view
+      - keyword: TO
+      - naked_identifier: user1
+- statement_terminator: ;
+- statement:
+    access_statement:
+      keyword: GRANT
+      grant_revoke_object_privileges:
+      - object_privilege:
+          keyword: SELECT
+      - keyword: 'ON'
+      - object_reference:
+        - naked_identifier: my_schema
+        - dot: .
+        - naked_identifier: my_view
+      - keyword: TO
+      - naked_identifier: PUBLIC
+- statement_terminator: ;
+- statement:
+    access_statement:
+      keyword: GRANT
+      grant_revoke_roles:
+      - role_reference:
+          naked_identifier: role1
+      - keyword: TO
+      - role_reference:
+          naked_identifier: user1
+      - comma: ','
+      - role_reference:
+          naked_identifier: user2
+      - keyword: WITH
+      - keyword: ADMIN
+      - keyword: OPTION
+- statement_terminator: ;
+- statement:
+    access_statement:
+      keyword: GRANT
+      grant_revoke_roles:
+      - role_reference:
+          naked_identifier: role2
+      - keyword: TO
+      - role_reference:
+          naked_identifier: role1
+- statement_terminator: ;
+- statement:
+    access_statement:
+      keyword: GRANT
+      grant_revoke_impersonation:
+      - keyword: IMPERSONATION
+      - keyword: 'ON'
+      - naked_identifier: user2
+      - keyword: TO
+      - naked_identifier: user1
+- statement_terminator: ;
+- statement:
+    access_statement:
+      keyword: GRANT
+      grant_revoke_impersonation:
+      - keyword: IMPERSONATION
+      - keyword: 'ON'
+      - quoted_identifier: '"user2"'
+      - keyword: TO
+      - naked_identifier: user1
+- statement_terminator: ;
+- statement:
+    access_statement:
+      keyword: GRANT
+      grant_revoke_impersonation:
+      - keyword: IMPERSONATION
+      - keyword: 'ON'
+      - naked_identifier: user2
+      - keyword: TO
+      - quoted_identifier: '"user1"'
+- statement_terminator: ;
+- statement:
+    access_statement:
+      keyword: GRANT
+      grant_revoke_connection:
+      - keyword: CONNECTION
+      - naked_identifier: my_connection
+      - keyword: TO
+      - naked_identifier: user1
+- statement_terminator: ;
+- statement:
+    access_statement:
+      keyword: GRANT
+      grant_revoke_connection:
+      - keyword: CONNECTION
+      - naked_identifier: my_connection
+      - keyword: TO
+      - quoted_identifier: '"ADMIN"'
+- statement_terminator: ;
+- statement:
+    access_statement:
+      keyword: GRANT
+      grant_revoke_connection_restricted:
+      - keyword: ACCESS
+      - keyword: 'ON'
+      - keyword: CONNECTION
+      - naked_identifier: my_connection
+      - keyword: FOR
+      - keyword: SCRIPT
+      - naked_identifier: script1
+      - keyword: TO
+      - naked_identifier: user1
+- statement_terminator: ;
+- statement:
+    access_statement:
+      keyword: GRANT
+      grant_revoke_connection_restricted:
+      - keyword: ACCESS
+      - keyword: 'ON'
+      - keyword: CONNECTION
+      - quoted_identifier: '"my_connection"'
+      - keyword: FOR
+      - keyword: SCRIPT
+      - quoted_identifier: '"script1"'
+      - keyword: TO
+      - quoted_identifier: '"user1"'
+- statement_terminator: ;
+- statement:
+    access_statement:
+      keyword: REVOKE
+      grant_revoke_system_privileges:
+      - system_privilege:
+        - keyword: CREATE
+        - keyword: SCHEMA
+      - keyword: FROM
+      - naked_identifier: role1
+      - comma: ','
+      - naked_identifier: user3
+- statement_terminator: ;
+- statement:
+    access_statement:
+      keyword: REVOKE
+      grant_revoke_object_privileges:
+      - object_privilege:
+          keyword: SELECT
+      - comma: ','
+      - object_privilege:
+          keyword: INSERT
+      - keyword: 'ON'
+      - object_reference:
+        - naked_identifier: my_schema
+        - dot: .
+        - naked_identifier: my_table
+      - keyword: FROM
+      - naked_identifier: user1
+      - comma: ','
+      - naked_identifier: role2
+- statement_terminator: ;
+- statement:
+    access_statement:
+      keyword: REVOKE
+      grant_revoke_object_privileges:
+      - keyword: ALL
+      - keyword: PRIVILEGES
+      - keyword: 'ON'
+      - keyword: VIEW
+      - object_reference:
+        - naked_identifier: my_schema
+        - dot: .
+        - naked_identifier: my_view
+      - keyword: FROM
+      - naked_identifier: PUBLIC
+- statement_terminator: ;
+- statement:
+    access_statement:
+      keyword: REVOKE
+      grant_revoke_roles:
+      - role_reference:
+          naked_identifier: role1
+      - keyword: FROM
+      - role_reference:
+          naked_identifier: user1
+      - comma: ','
+      - role_reference:
+          naked_identifier: user2
+- statement_terminator: ;
+- statement:
+    access_statement:
+      keyword: REVOKE
+      grant_revoke_impersonation:
+      - keyword: IMPERSONATION
+      - keyword: 'ON'
+      - naked_identifier: user2
+      - keyword: FROM
+      - naked_identifier: user1
+- statement_terminator: ;
+- statement:
+    access_statement:
+      keyword: REVOKE
+      grant_revoke_connection:
+      - keyword: CONNECTION
+      - naked_identifier: my_connection
+      - keyword: FROM
+      - naked_identifier: user1
+- statement_terminator: ;
+- statement:
+    access_statement:
+      keyword: REVOKE
+      grant_revoke_connection:
+      - keyword: CONNECTION
+      - naked_identifier: my_connection
+      - keyword: FROM
+      - quoted_identifier: '"ADMIN"'
+- statement_terminator: ;

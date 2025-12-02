@@ -1,0 +1,82 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: e9bd9e837749144da56d0437c753b8ee23bd8983fb5a80912de445473c7148f1
+file:
+- statement:
+    call_statement:
+      keyword: CALL
+      function:
+        function_name:
+          function_name_identifier: test_proc
+        function_contents:
+          bracketed:
+            start_bracket: (
+            end_bracket: )
+- statement_terminator: ;
+- statement:
+    call_statement:
+      keyword: CALL
+      function:
+        function_name:
+          function_name_identifier: test_proc
+        function_contents:
+          bracketed:
+            start_bracket: (
+            expression:
+              function:
+                function_name:
+                  function_name_identifier: pg_last_query_id
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    end_bracket: )
+            end_bracket: )
+- statement_terminator: ;
+- statement:
+    call_statement:
+      keyword: CALL
+      function:
+        function_name:
+          function_name_identifier: outer_proc
+        function_contents:
+          bracketed:
+            start_bracket: (
+            expression:
+              numeric_literal: '5'
+            end_bracket: )
+- statement_terminator: ;
+- statement:
+    call_statement:
+      keyword: call
+      function:
+        function_name:
+          function_name_identifier: test_sp1
+        function_contents:
+          bracketed:
+          - start_bracket: (
+          - expression:
+              numeric_literal: '3'
+          - comma: ','
+          - expression:
+              quoted_literal: "'book'"
+          - end_bracket: )
+- statement_terminator: ;
+- statement:
+    call_statement:
+      keyword: call
+      function:
+        function_name:
+          function_name_identifier: test_sp2
+        function_contents:
+          bracketed:
+          - start_bracket: (
+          - expression:
+              numeric_literal: '2'
+          - comma: ','
+          - expression:
+              quoted_literal: "'2019'"
+          - end_bracket: )
+- statement_terminator: ;

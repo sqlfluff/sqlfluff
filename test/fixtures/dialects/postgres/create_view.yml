@@ -1,0 +1,680 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 4de1412edb707d1fbe44f774c60d2763dc5c476ec6f59a7460a302202a30e426
+file:
+- statement:
+    create_view_statement:
+    - keyword: CREATE
+    - keyword: VIEW
+    - table_reference:
+        naked_identifier: vista
+    - keyword: AS
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            quoted_literal: "'Hello World'"
+- statement_terminator: ;
+- statement:
+    create_view_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: VIEW
+    - table_reference:
+        naked_identifier: vista
+    - keyword: AS
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            quoted_literal: "'Hello World'"
+- statement_terminator: ;
+- statement:
+    create_view_statement:
+    - keyword: CREATE
+    - keyword: VIEW
+    - table_reference:
+        naked_identifier: vista
+    - keyword: AS
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            expression:
+              data_type:
+                keyword: text
+              quoted_literal: "'Hello World'"
+            alias_expression:
+              alias_operator:
+                keyword: AS
+              naked_identifier: hello
+- statement_terminator: ;
+- statement:
+    create_view_statement:
+    - keyword: CREATE
+    - keyword: TEMP
+    - keyword: VIEW
+    - table_reference:
+        naked_identifier: vista
+    - keyword: AS
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            expression:
+              data_type:
+                keyword: text
+              quoted_literal: "'Hello World'"
+            alias_expression:
+              alias_operator:
+                keyword: AS
+              naked_identifier: hello
+- statement_terminator: ;
+- statement:
+    create_view_statement:
+    - keyword: CREATE
+    - keyword: TEMPORARY
+    - keyword: VIEW
+    - table_reference:
+        naked_identifier: vista
+    - keyword: AS
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            expression:
+              data_type:
+                keyword: text
+              quoted_literal: "'Hello World'"
+            alias_expression:
+              alias_operator:
+                keyword: AS
+              naked_identifier: hello
+- statement_terminator: ;
+- statement:
+    create_view_statement:
+    - keyword: CREATE
+    - keyword: VIEW
+    - table_reference:
+        naked_identifier: comedies
+    - keyword: AS
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: films
+        where_clause:
+          keyword: WHERE
+          expression:
+            column_reference:
+              naked_identifier: kind
+            comparison_operator:
+              raw_comparison_operator: '='
+            quoted_literal: "'Comedy'"
+- statement_terminator: ;
+- statement:
+    create_view_statement:
+    - keyword: CREATE
+    - keyword: VIEW
+    - table_reference:
+        naked_identifier: pg_comedies
+    - keyword: AS
+    - values_clause:
+      - keyword: VALUES
+      - bracketed:
+        - start_bracket: (
+        - expression:
+            numeric_literal: '1'
+        - comma: ','
+        - expression:
+            quoted_literal: "'one'"
+        - end_bracket: )
+      - comma: ','
+      - bracketed:
+        - start_bracket: (
+        - expression:
+            numeric_literal: '2'
+        - comma: ','
+        - expression:
+            quoted_literal: "'two'"
+        - end_bracket: )
+      - comma: ','
+      - bracketed:
+        - start_bracket: (
+        - expression:
+            numeric_literal: '3'
+        - comma: ','
+        - expression:
+            quoted_literal: "'three'"
+        - end_bracket: )
+    - with_check_option:
+      - keyword: WITH
+      - keyword: LOCAL
+      - keyword: CHECK
+      - keyword: OPTION
+- statement_terminator: ;
+- statement:
+    create_view_statement:
+    - keyword: CREATE
+    - keyword: VIEW
+    - table_reference:
+        naked_identifier: pg_comedies
+    - keyword: AS
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: comedies
+        where_clause:
+          keyword: WHERE
+          expression:
+            column_reference:
+              naked_identifier: classification
+            comparison_operator:
+              raw_comparison_operator: '='
+            quoted_literal: "'PG'"
+    - with_check_option:
+      - keyword: WITH
+      - keyword: CASCADED
+      - keyword: CHECK
+      - keyword: OPTION
+- statement_terminator: ;
+- statement:
+    create_view_statement:
+    - keyword: create
+    - keyword: view
+    - table_reference:
+        naked_identifier: foo
+    - keyword: with
+    - relation_options:
+        bracketed:
+          start_bracket: (
+          relation_option:
+            properties_naked_identifier: security_invoker
+          end_bracket: )
+    - keyword: as
+    - select_statement:
+        select_clause:
+          keyword: select
+          select_clause_element:
+            numeric_literal: '1'
+- statement_terminator: ;
+- statement:
+    create_view_statement:
+    - keyword: create
+    - keyword: view
+    - table_reference:
+        naked_identifier: foo
+    - keyword: with
+    - relation_options:
+        bracketed:
+          start_bracket: (
+          relation_option:
+            properties_naked_identifier: security_barrier
+          end_bracket: )
+    - keyword: as
+    - select_statement:
+        select_clause:
+          keyword: select
+          select_clause_element:
+            numeric_literal: '1'
+- statement_terminator: ;
+- statement:
+    create_view_statement:
+    - keyword: create
+    - keyword: view
+    - table_reference:
+        naked_identifier: foo
+    - keyword: with
+    - relation_options:
+        bracketed:
+          start_bracket: (
+          relation_option:
+          - properties_naked_identifier: security_invoker
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - properties_naked_identifier: BOOLEAN
+          end_bracket: )
+    - keyword: as
+    - select_statement:
+        select_clause:
+          keyword: select
+          select_clause_element:
+            numeric_literal: '1'
+- statement_terminator: ;
+- statement:
+    create_view_statement:
+    - keyword: create
+    - keyword: view
+    - table_reference:
+        naked_identifier: foo
+    - keyword: with
+    - relation_options:
+        bracketed:
+          start_bracket: (
+          relation_option:
+          - properties_naked_identifier: security_barrier
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - properties_naked_identifier: BOOLEAN
+          end_bracket: )
+    - keyword: as
+    - select_statement:
+        select_clause:
+          keyword: select
+          select_clause_element:
+            numeric_literal: '1'
+- statement_terminator: ;
+- statement:
+    create_view_statement:
+    - keyword: create
+    - keyword: view
+    - table_reference:
+        naked_identifier: foo
+    - keyword: with
+    - relation_options:
+        bracketed:
+          start_bracket: (
+          relation_option:
+          - properties_naked_identifier: check_option
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - properties_naked_identifier: local
+          end_bracket: )
+    - keyword: as
+    - select_statement:
+        select_clause:
+          keyword: select
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: from
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: OTHER_VIEW
+- statement_terminator: ;
+- statement:
+    create_view_statement:
+    - keyword: create
+    - keyword: view
+    - table_reference:
+        naked_identifier: foo
+    - keyword: with
+    - relation_options:
+        bracketed:
+          start_bracket: (
+          relation_option:
+          - properties_naked_identifier: check_option
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - properties_naked_identifier: cascaded
+          end_bracket: )
+    - keyword: as
+    - select_statement:
+        select_clause:
+          keyword: select
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: from
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: OTHER_VIEW
+- statement_terminator: ;
+- statement:
+    create_view_statement:
+    - keyword: create
+    - keyword: view
+    - table_reference:
+        naked_identifier: foo
+    - keyword: with
+    - relation_options:
+        bracketed:
+        - start_bracket: (
+        - relation_option:
+            properties_naked_identifier: opt1
+        - comma: ','
+        - relation_option:
+            properties_naked_identifier: opt2
+            comparison_operator:
+              raw_comparison_operator: '='
+            numeric_literal: '5'
+        - comma: ','
+        - relation_option:
+            properties_naked_identifier: opt3
+            comparison_operator:
+              raw_comparison_operator: '='
+            quoted_literal: "'str'"
+        - comma: ','
+        - relation_option:
+          - properties_naked_identifier: ns
+          - dot: .
+          - properties_naked_identifier: opt4
+        - comma: ','
+        - relation_option:
+          - properties_naked_identifier: ns
+          - dot: .
+          - properties_naked_identifier: opt5
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - numeric_literal: '6'
+        - comma: ','
+        - relation_option:
+          - properties_naked_identifier: ns
+          - dot: .
+          - properties_naked_identifier: opt6
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - quoted_literal: "'str'"
+        - comma: ','
+        - relation_option:
+          - properties_naked_identifier: opt7
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - properties_naked_identifier: ASC
+        - end_bracket: )
+    - keyword: as
+    - select_statement:
+        select_clause:
+          keyword: select
+          select_clause_element:
+            numeric_literal: '1'
+- statement_terminator: ;
+- statement:
+    create_view_statement:
+    - keyword: create
+    - keyword: view
+    - table_reference:
+        naked_identifier: foo
+    - keyword: as
+    - select_statement:
+        select_clause:
+          keyword: select
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: from
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: OTHER_VIEW
+    - with_check_option:
+      - keyword: with
+      - keyword: local
+      - keyword: check
+      - keyword: option
+- statement_terminator: ;
+- statement:
+    create_view_statement:
+    - keyword: create
+    - keyword: view
+    - table_reference:
+        naked_identifier: foo
+    - keyword: as
+    - select_statement:
+        select_clause:
+          keyword: select
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: from
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: OTHER_VIEW
+    - with_check_option:
+      - keyword: with
+      - keyword: cascaded
+      - keyword: check
+      - keyword: option
+- statement_terminator: ;
+- statement:
+    create_view_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: RECURSIVE
+    - keyword: VIEW
+    - table_reference:
+        quoted_identifier: '"grouping_node"'
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          quoted_identifier: '"node_id"'
+      - comma: ','
+      - column_reference:
+          quoted_identifier: '"ancestors"'
+      - comma: ','
+      - column_reference:
+          quoted_identifier: '"category_id"'
+      - comma: ','
+      - column_reference:
+          quoted_identifier: '"path"'
+      - comma: ','
+      - column_reference:
+          quoted_identifier: '"path_nodes"'
+      - end_bracket: )
+    - keyword: AS
+    - set_expression:
+      - select_statement:
+          select_clause:
+          - keyword: SELECT
+          - select_clause_element:
+              column_reference:
+                quoted_identifier: '"group_id"'
+              alias_expression:
+                alias_operator:
+                  keyword: AS
+                quoted_identifier: '"node_id"'
+          - comma: ','
+          - select_clause_element:
+              expression:
+                cast_expression:
+                  typed_array_literal:
+                    array_type:
+                      keyword: ARRAY
+                    array_literal:
+                      start_square_bracket: '['
+                      end_square_bracket: ']'
+                  casting_operator: '::'
+                  data_type:
+                    keyword: INTEGER
+                    start_square_bracket: '['
+                    end_square_bracket: ']'
+              alias_expression:
+                alias_operator:
+                  keyword: AS
+                quoted_identifier: '"ancestors"'
+          - comma: ','
+          - select_clause_element:
+              column_reference:
+                quoted_identifier: '"category_id"'
+          - comma: ','
+          - select_clause_element:
+              expression:
+                cast_expression:
+                  typed_array_literal:
+                    array_type:
+                      keyword: ARRAY
+                    array_literal:
+                      start_square_bracket: '['
+                      column_reference:
+                        quoted_identifier: '"name"'
+                      end_square_bracket: ']'
+                  casting_operator: '::'
+                  data_type:
+                    keyword: text
+                    start_square_bracket: '['
+                    end_square_bracket: ']'
+              alias_expression:
+                alias_operator:
+                  keyword: AS
+                quoted_identifier: '"path"'
+          - comma: ','
+          - select_clause_element:
+              expression:
+                cast_expression:
+                  typed_array_literal:
+                    array_type:
+                      keyword: ARRAY
+                    array_literal:
+                      start_square_bracket: '['
+                      column_reference:
+                        quoted_identifier: '"group_id"'
+                      end_square_bracket: ']'
+                  casting_operator: '::'
+                  data_type:
+                    keyword: INTEGER
+                    start_square_bracket: '['
+                    end_square_bracket: ']'
+              alias_expression:
+                alias_operator:
+                  keyword: AS
+                quoted_identifier: '"path_nodes"'
+          from_clause:
+            keyword: FROM
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                    quoted_identifier: '"grouping_managementgroup"'
+          where_clause:
+            keyword: WHERE
+            expression:
+              column_reference:
+                quoted_identifier: '"parent_id"'
+              keyword: IS
+              null_literal: 'NULL'
+      - set_operator:
+        - keyword: UNION
+        - keyword: ALL
+      - select_statement:
+          select_clause:
+          - keyword: SELECT
+          - select_clause_element:
+              column_reference:
+                quoted_identifier: '"group_id"'
+          - comma: ','
+          - select_clause_element:
+              expression:
+              - column_reference:
+                  quoted_identifier: '"ancestors"'
+              - binary_operator:
+                - pipe: '|'
+                - pipe: '|'
+              - column_reference:
+                  quoted_identifier: '"parent_id"'
+          - comma: ','
+          - select_clause_element:
+              column_reference:
+              - quoted_identifier: '"grouping_node"'
+              - dot: .
+              - quoted_identifier: '"category_id"'
+          - comma: ','
+          - select_clause_element:
+              expression:
+                column_reference:
+                  quoted_identifier: '"path"'
+                binary_operator:
+                - pipe: '|'
+                - pipe: '|'
+                cast_expression:
+                  column_reference:
+                    quoted_identifier: '"name"'
+                  casting_operator: '::'
+                  data_type:
+                    keyword: text
+          - comma: ','
+          - select_clause_element:
+              expression:
+              - column_reference:
+                  quoted_identifier: '"path_nodes"'
+              - binary_operator:
+                - pipe: '|'
+                - pipe: '|'
+              - column_reference:
+                  quoted_identifier: '"group_id"'
+          from_clause:
+          - keyword: FROM
+          - from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                    quoted_identifier: '"grouping_managementgroup"'
+          - comma: ','
+          - from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                    quoted_identifier: '"grouping_node"'
+          where_clause:
+            keyword: WHERE
+            expression:
+            - column_reference:
+                quoted_identifier: '"parent_id"'
+            - comparison_operator:
+                raw_comparison_operator: '='
+            - column_reference:
+                quoted_identifier: '"node_id"'
+- statement_terminator: ;
+- statement:
+    create_view_statement:
+    - keyword: create
+    - keyword: view
+    - table_reference:
+        naked_identifier: foo
+    - keyword: as
+    - select_statement:
+        select_clause:
+          keyword: select
+          select_clause_element:
+            column_reference:
+              naked_identifier: col1
+            alias_expression:
+              alias_operator:
+                keyword: as
+              naked_identifier: collation
+        from_clause:
+          keyword: from
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: OTHER_VIEW
+- statement_terminator: ;

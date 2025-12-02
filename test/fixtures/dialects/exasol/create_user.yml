@@ -1,0 +1,57 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 3e212857d697e4668fd07bc5525d9faf36abec4852435c9703a88df3dc0bea1f
+file:
+- statement:
+    create_user_statement:
+    - keyword: CREATE
+    - keyword: USER
+    - role_reference:
+        naked_identifier: user_1
+    - keyword: IDENTIFIED
+    - password_auth:
+        keyword: BY
+        password_literal: '"h12_xhz"'
+- statement_terminator: ;
+- statement:
+    create_user_statement:
+    - keyword: CREATE
+    - keyword: USER
+    - role_reference:
+        naked_identifier: user_2
+    - keyword: IDENTIFIED
+    - ldap_auth:
+      - keyword: AT
+      - keyword: LDAP
+      - keyword: AS
+      - quoted_literal: "'cn=user_2,dc=authorization,dc=exasol,dc=com'"
+- statement_terminator: ;
+- statement:
+    create_user_statement:
+    - keyword: CREATE
+    - keyword: USER
+    - role_reference:
+        naked_identifier: user_3
+    - keyword: IDENTIFIED
+    - kerberos_auth:
+      - keyword: BY
+      - keyword: KERBEROS
+      - keyword: PRINCIPAL
+      - quoted_literal: "'<user>@<realm>'"
+- statement_terminator: ;
+- statement:
+    create_user_statement:
+    - keyword: CREATE
+    - keyword: USER
+    - role_reference:
+        naked_identifier: oidctestuser
+    - keyword: IDENTIFIED
+    - openid_auth:
+      - keyword: BY
+      - keyword: OPENID
+      - keyword: SUBJECT
+      - quoted_literal: "'database-user@exasol.example'"
+- statement_terminator: ;

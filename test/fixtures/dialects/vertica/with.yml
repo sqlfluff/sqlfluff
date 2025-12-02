@@ -1,0 +1,609 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: c43875273f3e7c3a9af3f05d66bc400a7c69770f5740483a8b7466bad4f67448
+file:
+- statement:
+    with_compound_statement:
+      keyword: WITH
+      common_table_expression:
+        naked_identifier: revenue
+        cte_column_list:
+          bracketed:
+            start_bracket: (
+            identifier_list:
+            - naked_identifier: vkey
+            - comma: ','
+            - naked_identifier: total_revenue
+            end_bracket: )
+        keyword: AS
+        bracketed:
+          start_bracket: (
+          select_statement:
+            select_clause:
+            - keyword: SELECT
+            - select_clause_element:
+                column_reference:
+                  naked_identifier: vendor_key
+            - comma: ','
+            - select_clause_element:
+                function:
+                  function_name:
+                    function_name_identifier: SUM
+                  function_contents:
+                    bracketed:
+                      start_bracket: (
+                      expression:
+                        column_reference:
+                          naked_identifier: total_order_cost
+                      end_bracket: )
+            from_clause:
+              keyword: FROM
+              from_expression:
+                from_expression_element:
+                  table_expression:
+                    table_reference:
+                    - naked_identifier: store
+                    - dot: .
+                    - naked_identifier: store_orders_fact
+            groupby_clause:
+            - keyword: GROUP
+            - keyword: BY
+            - column_reference:
+                naked_identifier: vendor_key
+            orderby_clause:
+            - keyword: ORDER
+            - keyword: BY
+            - numeric_literal: '1'
+          end_bracket: )
+      select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+            - naked_identifier: v
+            - dot: .
+            - naked_identifier: vendor_name
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+            - naked_identifier: v
+            - dot: .
+            - naked_identifier: vendor_address
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+            - naked_identifier: v
+            - dot: .
+            - naked_identifier: vendor_city
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+            - naked_identifier: r
+            - dot: .
+            - naked_identifier: total_revenue
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: vendor_dimension
+              alias_expression:
+                naked_identifier: v
+            join_clause:
+              keyword: JOIN
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                    naked_identifier: revenue
+                alias_expression:
+                  naked_identifier: r
+              join_on_condition:
+                keyword: 'ON'
+                expression:
+                - column_reference:
+                  - naked_identifier: v
+                  - dot: .
+                  - naked_identifier: vendor_key
+                - comparison_operator:
+                    raw_comparison_operator: '='
+                - column_reference:
+                  - naked_identifier: r
+                  - dot: .
+                  - naked_identifier: vkey
+        where_clause:
+          keyword: WHERE
+          expression:
+            column_reference:
+            - naked_identifier: r
+            - dot: .
+            - naked_identifier: total_revenue
+            comparison_operator:
+              raw_comparison_operator: '='
+            bracketed:
+              start_bracket: (
+              expression:
+                select_statement:
+                  select_clause:
+                    keyword: SELECT
+                    select_clause_element:
+                      function:
+                        function_name:
+                          function_name_identifier: MAX
+                        function_contents:
+                          bracketed:
+                            start_bracket: (
+                            expression:
+                              column_reference:
+                                naked_identifier: total_revenue
+                            end_bracket: )
+                  from_clause:
+                    keyword: FROM
+                    from_expression:
+                      from_expression_element:
+                        table_expression:
+                          table_reference:
+                            naked_identifier: revenue
+              end_bracket: )
+        orderby_clause:
+        - keyword: ORDER
+        - keyword: BY
+        - column_reference:
+            naked_identifier: vendor_name
+- statement_terminator: ;
+- statement:
+    with_compound_statement:
+    - keyword: WITH
+    - common_table_expression:
+        naked_identifier: regional_sales
+        cte_column_list:
+          bracketed:
+            start_bracket: (
+            identifier_list:
+            - naked_identifier: region
+            - comma: ','
+            - naked_identifier: total_sales
+            end_bracket: )
+        keyword: AS
+        bracketed:
+          start_bracket: (
+          select_statement:
+            select_clause:
+            - keyword: SELECT
+            - select_clause_element:
+                column_reference:
+                - naked_identifier: sd
+                - dot: .
+                - naked_identifier: store_region
+            - comma: ','
+            - select_clause_element:
+                function:
+                  function_name:
+                    function_name_identifier: SUM
+                  function_contents:
+                    bracketed:
+                      start_bracket: (
+                      expression:
+                        column_reference:
+                        - naked_identifier: of
+                        - dot: .
+                        - naked_identifier: total_order_cost
+                      end_bracket: )
+                alias_expression:
+                  alias_operator:
+                    keyword: AS
+                  naked_identifier: total_sales
+            from_clause:
+              keyword: FROM
+              from_expression:
+                from_expression_element:
+                  table_expression:
+                    table_reference:
+                    - naked_identifier: store
+                    - dot: .
+                    - naked_identifier: store_dimension
+                  alias_expression:
+                    naked_identifier: sd
+                join_clause:
+                  keyword: JOIN
+                  from_expression_element:
+                    table_expression:
+                      table_reference:
+                      - naked_identifier: store
+                      - dot: .
+                      - naked_identifier: store_orders_fact
+                    alias_expression:
+                      naked_identifier: of
+                  join_on_condition:
+                    keyword: 'ON'
+                    expression:
+                    - column_reference:
+                      - naked_identifier: sd
+                      - dot: .
+                      - naked_identifier: store_key
+                    - comparison_operator:
+                        raw_comparison_operator: '='
+                    - column_reference:
+                      - naked_identifier: of
+                      - dot: .
+                      - naked_identifier: store_key
+            groupby_clause:
+            - keyword: GROUP
+            - keyword: BY
+            - column_reference:
+                naked_identifier: store_region
+          end_bracket: )
+    - comma: ','
+    - common_table_expression:
+        naked_identifier: top_regions
+        keyword: AS
+        bracketed:
+          start_bracket: (
+          select_statement:
+            select_clause:
+            - keyword: SELECT
+            - select_clause_element:
+                column_reference:
+                  naked_identifier: region
+            - comma: ','
+            - select_clause_element:
+                column_reference:
+                  naked_identifier: total_sales
+            from_clause:
+              keyword: FROM
+              from_expression:
+                from_expression_element:
+                  table_expression:
+                    table_reference:
+                      naked_identifier: regional_sales
+            orderby_clause:
+            - keyword: ORDER
+            - keyword: BY
+            - column_reference:
+                naked_identifier: total_sales
+            - keyword: DESC
+            limit_clause:
+              keyword: LIMIT
+              numeric_literal: '3'
+          end_bracket: )
+    - select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+            - naked_identifier: sd
+            - dot: .
+            - naked_identifier: store_region
+            alias_expression:
+              alias_operator:
+                keyword: AS
+              naked_identifier: region
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+            - naked_identifier: pd
+            - dot: .
+            - naked_identifier: department_description
+            alias_expression:
+              alias_operator:
+                keyword: AS
+              naked_identifier: department
+        - comma: ','
+        - select_clause_element:
+            function:
+              function_name:
+                function_name_identifier: SUM
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                    - naked_identifier: of
+                    - dot: .
+                    - naked_identifier: total_order_cost
+                  end_bracket: )
+            alias_expression:
+              alias_operator:
+                keyword: AS
+              naked_identifier: product_sales
+        from_clause:
+          keyword: FROM
+          from_expression:
+          - from_expression_element:
+              table_expression:
+                table_reference:
+                - naked_identifier: store
+                - dot: .
+                - naked_identifier: store_orders_fact
+              alias_expression:
+                naked_identifier: of
+          - join_clause:
+              keyword: JOIN
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                  - naked_identifier: store
+                  - dot: .
+                  - naked_identifier: store_dimension
+                alias_expression:
+                  naked_identifier: sd
+              join_on_condition:
+                keyword: 'ON'
+                expression:
+                - column_reference:
+                  - naked_identifier: sd
+                  - dot: .
+                  - naked_identifier: store_key
+                - comparison_operator:
+                    raw_comparison_operator: '='
+                - column_reference:
+                  - naked_identifier: of
+                  - dot: .
+                  - naked_identifier: store_key
+          - join_clause:
+              keyword: JOIN
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                  - naked_identifier: public
+                  - dot: .
+                  - naked_identifier: product_dimension
+                alias_expression:
+                  naked_identifier: pd
+              join_on_condition:
+                keyword: 'ON'
+                expression:
+                - column_reference:
+                  - naked_identifier: of
+                  - dot: .
+                  - naked_identifier: product_key
+                - comparison_operator:
+                    raw_comparison_operator: '='
+                - column_reference:
+                  - naked_identifier: pd
+                  - dot: .
+                  - naked_identifier: product_key
+        where_clause:
+          keyword: WHERE
+          expression:
+            column_reference:
+            - naked_identifier: sd
+            - dot: .
+            - naked_identifier: store_region
+            keyword: IN
+            bracketed:
+              start_bracket: (
+              select_statement:
+                select_clause:
+                  keyword: SELECT
+                  select_clause_element:
+                    column_reference:
+                      naked_identifier: region
+                from_clause:
+                  keyword: FROM
+                  from_expression:
+                    from_expression_element:
+                      table_expression:
+                        table_reference:
+                          naked_identifier: top_regions
+              end_bracket: )
+        groupby_clause:
+        - keyword: GROUP
+        - keyword: BY
+        - expression:
+            function:
+              function_name:
+                function_name_identifier: ROLLUP
+              function_contents:
+                bracketed:
+                - start_bracket: (
+                - expression:
+                    column_reference:
+                      naked_identifier: region
+                - comma: ','
+                - expression:
+                    column_reference:
+                      naked_identifier: department
+                - end_bracket: )
+        orderby_clause:
+        - keyword: ORDER
+        - keyword: BY
+        - column_reference:
+            naked_identifier: region
+        - comma: ','
+        - column_reference:
+            naked_identifier: product_sales
+        - keyword: DESC
+        - comma: ','
+        - expression:
+            function:
+              function_name:
+                function_name_identifier: GROUPING_ID
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  end_bracket: )
+- statement_terminator: ;
+- statement:
+    insert_statement:
+    - keyword: INSERT
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: total_store_sales
+    - with_compound_statement:
+        keyword: WITH
+        common_table_expression:
+          naked_identifier: store_sales
+          keyword: AS
+          bracketed:
+            start_bracket: (
+            select_statement:
+              select_clause:
+              - keyword: SELECT
+              - select_clause_element:
+                  column_reference:
+                  - naked_identifier: sd
+                  - dot: .
+                  - naked_identifier: store_key
+              - comma: ','
+              - select_clause_element:
+                  expression:
+                    cast_expression:
+                      column_reference:
+                      - naked_identifier: sd
+                      - dot: .
+                      - naked_identifier: store_region
+                      casting_operator: '::'
+                      data_type:
+                        keyword: VARCHAR
+                        bracketed_arguments:
+                          bracketed:
+                            start_bracket: (
+                            numeric_literal: '20'
+                            end_bracket: )
+              - comma: ','
+              - select_clause_element:
+                  function:
+                    function_name:
+                      function_name_identifier: SUM
+                    function_contents:
+                      bracketed:
+                        start_bracket: (
+                        expression:
+                          column_reference:
+                          - naked_identifier: of
+                          - dot: .
+                          - naked_identifier: total_order_cost
+                        end_bracket: )
+              from_clause:
+                keyword: FROM
+                from_expression:
+                  from_expression_element:
+                    table_expression:
+                      table_reference:
+                      - naked_identifier: store
+                      - dot: .
+                      - naked_identifier: store_dimension
+                    alias_expression:
+                      naked_identifier: sd
+                  join_clause:
+                    keyword: JOIN
+                    from_expression_element:
+                      table_expression:
+                        table_reference:
+                        - naked_identifier: store
+                        - dot: .
+                        - naked_identifier: store_orders_fact
+                      alias_expression:
+                        naked_identifier: of
+                    join_on_condition:
+                      keyword: 'ON'
+                      expression:
+                      - column_reference:
+                        - naked_identifier: sd
+                        - dot: .
+                        - naked_identifier: store_key
+                      - comparison_operator:
+                          raw_comparison_operator: '='
+                      - column_reference:
+                        - naked_identifier: of
+                        - dot: .
+                        - naked_identifier: store_key
+              groupby_clause:
+              - keyword: GROUP
+              - keyword: BY
+              - column_reference:
+                - naked_identifier: sd
+                - dot: .
+                - naked_identifier: store_region
+              - comma: ','
+              - column_reference:
+                - naked_identifier: sd
+                - dot: .
+                - naked_identifier: store_key
+              orderby_clause:
+              - keyword: ORDER
+              - keyword: BY
+              - column_reference:
+                - naked_identifier: sd
+                - dot: .
+                - naked_identifier: store_region
+              - comma: ','
+              - column_reference:
+                - naked_identifier: sd
+                - dot: .
+                - naked_identifier: store_key
+            end_bracket: )
+        select_statement:
+          select_clause:
+            keyword: SELECT
+            select_clause_element:
+              wildcard_expression:
+                wildcard_identifier:
+                  star: '*'
+          from_clause:
+            keyword: FROM
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                    naked_identifier: store_sales
+- statement_terminator: ;
+- statement:
+    with_compound_statement:
+    - keyword: WITH
+    - keyword: RECURSIVE
+    - common_table_expression:
+        naked_identifier: nums
+        cte_column_list:
+          bracketed:
+            start_bracket: (
+            identifier_list:
+              naked_identifier: n
+            end_bracket: )
+        keyword: AS
+        bracketed:
+          start_bracket: (
+          set_expression:
+          - select_statement:
+              select_clause:
+                keyword: SELECT
+                select_clause_element:
+                  numeric_literal: '1'
+          - set_operator:
+            - keyword: UNION
+            - keyword: ALL
+          - select_statement:
+              select_clause:
+                keyword: SELECT
+                select_clause_element:
+                  expression:
+                    column_reference:
+                      naked_identifier: n
+                    binary_operator: +
+                    numeric_literal: '1'
+              from_clause:
+                keyword: FROM
+                from_expression:
+                  from_expression_element:
+                    table_expression:
+                      table_reference:
+                        naked_identifier: nums
+          end_bracket: )
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            column_reference:
+              naked_identifier: n
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: nums
+- statement_terminator: ;

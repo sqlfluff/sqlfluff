@@ -1,0 +1,121 @@
+rule: CP03
+
+# Inconsistent capitalisation of functions
+test_fail_inconsistent_function_capitalisation_1:
+  fail_str: SELECT MAX(id), min(id) from table
+  fix_str: SELECT MAX(id), MIN(id) from table
+
+test_fail_inconsistent_function_capitalisation_2:
+  fail_str: SELECT MAX(id), min(id) from table
+  fix_str: SELECT max(id), min(id) from table
+  configs:
+    rules:
+      capitalisation.functions:
+        extended_capitalisation_policy: lower
+
+test_bare_functions:
+  fail_str: SELECT current_timestamp from table
+  fix_str: SELECT CURRENT_TIMESTAMP from table
+  configs:
+    rules:
+      capitalisation.functions:
+        extended_capitalisation_policy: upper
+
+test_bare_functions_2:
+  fail_str: SELECT current_timestamp, min(a) from table
+  fix_str: SELECT CURRENT_TIMESTAMP, MIN(a) from table
+  configs:
+    rules:
+      capitalisation.functions:
+        extended_capitalisation_policy: upper
+
+test_bare_functions_3:
+  fail_str: SELECT current_timestamp, min(a) from table
+  fix_str: SELECT Current_Timestamp, Min(a) from table
+  configs:
+    rules:
+      capitalisation.functions:
+        extended_capitalisation_policy: pascal
+
+test_fail_capitalization_after_comma:
+  fail_str: SELECT FLOOR(dt) ,count(*) FROM test
+  fix_str: SELECT FLOOR(dt) ,COUNT(*) FROM test
+
+test_pass_fully_qualified_function_mixed_functions:
+  pass_str: SELECT COUNT(*), project1.foo(value1) AS value2
+
+test_pass_fully_qualified_function_pascal_case:
+  pass_str: SELECT project1.FoO(value1) AS value2
+
+test_pass_ignore_word:
+  pass_str: SELECT MAX(id), min(id) FROM TABLE1
+  configs:
+    rules:
+      capitalisation.functions:
+        ignore_words: min
+
+test_pass_ignore_templated_code_true:
+  pass_str: |
+    SELECT
+        {{ "greatest(a, b)" }},
+        GREATEST(i, j)
+  configs:
+    core:
+      ignore_templated_areas: true
+
+test_fail_ignore_templated_code_false:
+  fail_str: |
+    SELECT
+        {{ "greatest(a, b)" }},
+        GREATEST(i, j)
+  fix_str: |
+    SELECT
+        {{ "greatest(a, b)" }},
+        greatest(i, j)
+  configs:
+    core:
+      ignore_templated_areas: false
+
+test_pass_func_name_templated_literal_mix:
+  # Issue 3022. This was actually a bug in linter.patch._iter_templated_patches().
+  pass_str: SELECT RO(), {{ "t" }}.func()
+
+test_pass_ignore_words_regex_simple:
+  pass_str: SELECT MAX(id), f_test_udf(id) FROM TABLE1
+  configs:
+    rules:
+      capitalisation.functions:
+        ignore_words_regex: ^f_
+
+test_pass_ignore_words_regex_complex:
+  pass_str: SELECT MAX(id), f_test_udf(id), g_test_udf(id) FROM TABLE1
+  configs:
+    rules:
+      capitalisation.functions:
+        ignore_words_regex: (^f_|^g_)
+
+test_pass_ignore_words_regex_bigquery_simple:
+  pass_str: SELECT MAX(id), project.dataset._f_test_udf(id) FROM TABLE1
+  configs:
+    core:
+      dialect: bigquery
+    rules:
+      capitalisation.functions:
+        ignore_words_regex: ^_f_
+
+test_pass_ignore_words_regex_bigquery_complex:
+  pass_str: SELECT MAX(id), project.dataset._f_test_udf(id), `project.dataset._f_test_udf`(id) FROM TABLE1
+  configs:
+    core:
+      dialect: bigquery
+    rules:
+      capitalisation.functions:
+        ignore_words_regex: (^_f_|\._f_)
+
+test_bare_functions_4:
+  fail_str: SELECT Current_Timestamp, Min(a) from table
+  fix_str: SELECT current_timestamp, min(a) from table
+  configs:
+    rules:
+      capitalisation.functions:
+        extended_capitalisation_policy: snake

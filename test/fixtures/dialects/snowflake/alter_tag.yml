@@ -1,0 +1,136 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 9f7e2944dc231680c9300fa3f417a62edf56cd4f4fd0bcced7bc7559db755696
+file:
+- statement:
+    alter_tag_statement:
+    - keyword: ALTER
+    - keyword: TAG
+    - object_reference:
+        naked_identifier: my_tag
+    - keyword: RENAME
+    - keyword: TO
+    - object_reference:
+        naked_identifier: your_tag
+- statement_terminator: ;
+- statement:
+    alter_tag_statement:
+    - keyword: ALTER
+    - keyword: TAG
+    - keyword: IF
+    - keyword: EXISTS
+    - object_reference:
+        naked_identifier: my_tag
+    - keyword: RENAME
+    - keyword: TO
+    - object_reference:
+        naked_identifier: your_tag
+- statement_terminator: ;
+- statement:
+    alter_tag_statement:
+    - keyword: ALTER
+    - keyword: TAG
+    - object_reference:
+        naked_identifier: my_tag
+    - keyword: SET
+    - keyword: MASKING
+    - keyword: POLICY
+    - parameter: policy_name
+- statement_terminator: ;
+- statement:
+    alter_tag_statement:
+    - keyword: ALTER
+    - keyword: TAG
+    - object_reference:
+        naked_identifier: my_tag
+    - keyword: SET
+    - keyword: MASKING
+    - keyword: POLICY
+    - parameter: policy_name
+    - comma: ','
+    - keyword: MASKING
+    - keyword: POLICY
+    - parameter: policy_name_2
+    - comma: ','
+    - keyword: MASKING
+    - keyword: POLICY
+    - parameter: policy_name_3
+- statement_terminator: ;
+- statement:
+    alter_tag_statement:
+    - keyword: ALTER
+    - keyword: TAG
+    - object_reference:
+        naked_identifier: my_tag
+    - keyword: SET
+    - comment_equals_clause:
+        keyword: COMMENT
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'this is a comment'"
+- statement_terminator: ;
+- statement:
+    alter_tag_statement:
+    - keyword: ALTER
+    - keyword: TAG
+    - object_reference:
+        naked_identifier: my_tag
+    - keyword: UNSET
+    - keyword: COMMENT
+- statement_terminator: ;
+- statement:
+    alter_tag_statement:
+    - keyword: ALTER
+    - keyword: TAG
+    - object_reference:
+        naked_identifier: my_tag
+    - keyword: ADD
+    - keyword: ALLOWED_VALUES
+    - quoted_literal: "'my_value'"
+- statement_terminator: ;
+- statement:
+    alter_tag_statement:
+    - keyword: ALTER
+    - keyword: TAG
+    - object_reference:
+        naked_identifier: my_tag
+    - keyword: ADD
+    - keyword: ALLOWED_VALUES
+    - quoted_literal: "'my_value'"
+    - comma: ','
+    - quoted_literal: "'my_value_2'"
+- statement_terminator: ;
+- statement:
+    alter_tag_statement:
+    - keyword: ALTER
+    - keyword: TAG
+    - object_reference:
+        naked_identifier: my_tag
+    - keyword: DROP
+    - keyword: ALLOWED_VALUES
+    - quoted_literal: "'my_value'"
+- statement_terminator: ;
+- statement:
+    alter_tag_statement:
+    - keyword: ALTER
+    - keyword: TAG
+    - object_reference:
+        naked_identifier: my_tag
+    - keyword: DROP
+    - keyword: ALLOWED_VALUES
+    - quoted_literal: "'my_value'"
+    - comma: ','
+    - quoted_literal: "'my_value_2'"
+- statement_terminator: ;
+- statement:
+    alter_tag_statement:
+    - keyword: ALTER
+    - keyword: TAG
+    - object_reference:
+        naked_identifier: my_tag
+    - keyword: UNSET
+    - keyword: ALLOWED_VALUES
+- statement_terminator: ;

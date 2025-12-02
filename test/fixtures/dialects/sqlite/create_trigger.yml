@@ -1,0 +1,332 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 13aaf97dae29df6299a0e6162bba68dda476463abf453b36aedc777abb092c5d
+file:
+- statement:
+    create_trigger:
+    - keyword: CREATE
+    - keyword: TRIGGER
+    - trigger_reference:
+        naked_identifier: update_customer_address
+    - keyword: UPDATE
+    - keyword: OF
+    - column_reference:
+        naked_identifier: address
+    - keyword: 'ON'
+    - table_reference:
+        naked_identifier: customers
+    - keyword: BEGIN
+    - update_statement:
+        keyword: UPDATE
+        table_reference:
+          naked_identifier: orders
+        set_clause_list:
+          keyword: SET
+          set_clause:
+            naked_identifier: address
+            comparison_operator:
+              raw_comparison_operator: '='
+            expression:
+              column_reference:
+              - naked_identifier: new
+              - dot: .
+              - naked_identifier: address
+        where_clause:
+          keyword: WHERE
+          expression:
+          - column_reference:
+              naked_identifier: customer_name
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - column_reference:
+            - naked_identifier: old
+            - dot: .
+            - naked_identifier: name
+    - statement_terminator: ;
+    - keyword: END
+- statement_terminator: ;
+- statement:
+    create_trigger:
+    - keyword: CREATE
+    - keyword: TRIGGER
+    - trigger_reference:
+        naked_identifier: cust_addr_chng
+    - keyword: INSTEAD
+    - keyword: OF
+    - keyword: UPDATE
+    - keyword: OF
+    - column_reference:
+        naked_identifier: cust_addr
+    - keyword: 'ON'
+    - table_reference:
+        naked_identifier: customer_address
+    - keyword: BEGIN
+    - update_statement:
+        keyword: UPDATE
+        table_reference:
+          naked_identifier: customer
+        set_clause_list:
+          keyword: SET
+          set_clause:
+            naked_identifier: cust_addr
+            comparison_operator:
+              raw_comparison_operator: '='
+            expression:
+              column_reference:
+              - naked_identifier: NEW
+              - dot: .
+              - naked_identifier: cust_addr
+        where_clause:
+          keyword: WHERE
+          expression:
+          - column_reference:
+              naked_identifier: cust_id
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - column_reference:
+            - naked_identifier: NEW
+            - dot: .
+            - naked_identifier: cust_id
+    - statement_terminator: ;
+    - keyword: END
+- statement_terminator: ;
+- statement:
+    create_trigger:
+    - keyword: CREATE
+    - keyword: TRIGGER
+    - trigger_reference:
+        naked_identifier: validate_email_before_insert_leads
+    - keyword: BEFORE
+    - keyword: INSERT
+    - keyword: 'ON'
+    - table_reference:
+        naked_identifier: leads
+    - keyword: BEGIN
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            numeric_literal: '1'
+    - statement_terminator: ;
+    - keyword: END
+- statement_terminator: ;
+- statement:
+    create_trigger:
+    - keyword: CREATE
+    - keyword: TRIGGER
+    - trigger_reference:
+        naked_identifier: log_contact_after_update
+    - keyword: AFTER
+    - keyword: UPDATE
+    - keyword: 'ON'
+    - table_reference:
+        naked_identifier: leads
+    - keyword: BEGIN
+    - insert_statement:
+      - keyword: INSERT
+      - keyword: INTO
+      - table_reference:
+          naked_identifier: lead_logs
+      - bracketed:
+        - start_bracket: (
+        - column_reference:
+            naked_identifier: old_id
+        - comma: ','
+        - column_reference:
+            naked_identifier: new_id
+        - comma: ','
+        - column_reference:
+            naked_identifier: old_phone
+        - comma: ','
+        - column_reference:
+            naked_identifier: new_phone
+        - comma: ','
+        - column_reference:
+            naked_identifier: old_email
+        - comma: ','
+        - column_reference:
+            naked_identifier: new_email
+        - comma: ','
+        - column_reference:
+            naked_identifier: user_action
+        - comma: ','
+        - column_reference:
+            naked_identifier: created_at
+        - end_bracket: )
+      - values_clause:
+          keyword: VALUES
+          bracketed:
+          - start_bracket: (
+          - expression:
+              column_reference:
+              - naked_identifier: old
+              - dot: .
+              - naked_identifier: id
+          - comma: ','
+          - expression:
+              column_reference:
+              - naked_identifier: new
+              - dot: .
+              - naked_identifier: id
+          - comma: ','
+          - expression:
+              column_reference:
+              - naked_identifier: old
+              - dot: .
+              - naked_identifier: phone
+          - comma: ','
+          - expression:
+              column_reference:
+              - naked_identifier: new
+              - dot: .
+              - naked_identifier: phone
+          - comma: ','
+          - expression:
+              column_reference:
+              - naked_identifier: old
+              - dot: .
+              - naked_identifier: email
+          - comma: ','
+          - expression:
+              column_reference:
+              - naked_identifier: new
+              - dot: .
+              - naked_identifier: email
+          - comma: ','
+          - expression:
+              quoted_literal: "'UPDATE'"
+          - end_bracket: )
+    - statement_terminator: ;
+    - keyword: END
+- statement_terminator: ;
+- statement:
+    create_trigger:
+    - keyword: CREATE
+    - keyword: TRIGGER
+    - trigger_reference:
+        naked_identifier: aft_insert
+    - keyword: AFTER
+    - keyword: INSERT
+    - keyword: 'ON'
+    - table_reference:
+        naked_identifier: emp_details
+    - keyword: BEGIN
+    - insert_statement:
+      - keyword: INSERT
+      - keyword: INTO
+      - table_reference:
+          naked_identifier: emp_log
+      - bracketed:
+        - start_bracket: (
+        - column_reference:
+            naked_identifier: emp_id
+        - comma: ','
+        - column_reference:
+            naked_identifier: salary
+        - comma: ','
+        - column_reference:
+            naked_identifier: edittime
+        - end_bracket: )
+      - values_clause:
+          keyword: VALUES
+          bracketed:
+          - start_bracket: (
+          - expression:
+              column_reference:
+              - naked_identifier: NEW
+              - dot: .
+              - naked_identifier: employee_id
+          - comma: ','
+          - expression:
+              column_reference:
+              - naked_identifier: NEW
+              - dot: .
+              - naked_identifier: salary
+          - comma: ','
+          - expression:
+              bare_function: current_date
+          - end_bracket: )
+    - statement_terminator: ;
+    - keyword: END
+- statement_terminator: ;
+- statement:
+    create_trigger:
+    - keyword: CREATE
+    - keyword: TRIGGER
+    - trigger_reference:
+        naked_identifier: x
+    - keyword: AFTER
+    - keyword: INSERT
+    - keyword: 'ON'
+    - table_reference:
+        naked_identifier: y
+    - keyword: WHEN
+    - expression:
+        column_reference:
+        - naked_identifier: new
+        - dot: .
+        - naked_identifier: z
+        keyword: IS
+        null_literal: 'NULL'
+    - keyword: BEGIN
+    - update_statement:
+        keyword: UPDATE
+        table_reference:
+          naked_identifier: y
+        set_clause_list:
+          keyword: SET
+          set_clause:
+            naked_identifier: z
+            comparison_operator:
+              raw_comparison_operator: '='
+            expression:
+              boolean_literal: 'TRUE'
+        where_clause:
+          keyword: WHERE
+          expression:
+          - column_reference:
+              naked_identifier: rowid
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - column_reference:
+            - naked_identifier: new
+            - dot: .
+            - naked_identifier: rowid
+    - statement_terminator: ;
+    - keyword: END
+- statement_terminator: ;
+- statement:
+    create_trigger:
+    - keyword: CREATE
+    - keyword: TRIGGER
+    - trigger_reference:
+        naked_identifier: trigger_name
+    - keyword: AFTER
+    - keyword: UPDATE
+    - keyword: 'ON'
+    - table_reference:
+        naked_identifier: table_name
+    - keyword: BEGIN
+    - insert_statement:
+      - keyword: INSERT
+      - keyword: INTO
+      - table_reference:
+          naked_identifier: table_name_history
+      - bracketed:
+          start_bracket: (
+          column_reference:
+            naked_identifier: action
+          end_bracket: )
+      - values_clause:
+          keyword: VALUES
+          bracketed:
+            start_bracket: (
+            expression:
+              quoted_literal: "'UPDATE'"
+            end_bracket: )
+    - statement_terminator: ;
+    - keyword: END
+- statement_terminator: ;

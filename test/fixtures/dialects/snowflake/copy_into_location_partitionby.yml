@@ -1,0 +1,88 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 99c827fb70dfb366195c1af8416a4428e89948d3aad9e9d533276c9cfafcefb6
+file:
+  statement:
+    copy_into_location_statement:
+    - keyword: copy
+    - keyword: into
+    - storage_location:
+        stage_path: '@%t1'
+    - keyword: from
+    - table_reference:
+        naked_identifier: t1
+    - partition_by_segment:
+      - keyword: partition
+      - keyword: by
+      - bracketed:
+          start_bracket: (
+          expression:
+          - quoted_literal: "'date='"
+          - binary_operator:
+            - pipe: '|'
+            - pipe: '|'
+          - function:
+              function_name:
+                function_name_identifier: to_varchar
+              function_contents:
+                bracketed:
+                - start_bracket: (
+                - expression:
+                    column_reference:
+                      naked_identifier: dt
+                - comma: ','
+                - expression:
+                    quoted_literal: "'YYYY-MM-DD'"
+                - end_bracket: )
+          - binary_operator:
+            - pipe: '|'
+            - pipe: '|'
+          - quoted_literal: "'/hour='"
+          - binary_operator:
+            - pipe: '|'
+            - pipe: '|'
+          - function:
+              function_name:
+                function_name_identifier: to_varchar
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    function:
+                      function_name:
+                        function_name_identifier: date_part
+                      function_contents:
+                        bracketed:
+                          start_bracket: (
+                          date_part: hour
+                          comma: ','
+                          expression:
+                            column_reference:
+                              naked_identifier: ts
+                          end_bracket: )
+                  end_bracket: )
+          end_bracket: )
+    - keyword: file_format
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - file_format_segment:
+        bracketed:
+          start_bracket: (
+          parquet_file_format_type_parameters:
+            keyword: type
+            comparison_operator:
+              raw_comparison_operator: '='
+            file_type: parquet
+          end_bracket: )
+    - keyword: max_file_size
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - numeric_literal: '32000000'
+    - keyword: header
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - boolean_literal: 'true'
+  statement_terminator: ;

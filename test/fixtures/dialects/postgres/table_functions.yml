@@ -1,0 +1,257 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 1f202736a579cc354661f68b7f36dbbb6c8698728d78ea05574158df015c0001
+file:
+- statement:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: from
+        from_expression:
+          from_expression_element:
+            table_expression:
+              function:
+                function_name:
+                  function_name_identifier: unnest
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      typed_array_literal:
+                        array_type:
+                          keyword: array
+                        array_literal:
+                        - start_square_bracket: '['
+                        - quoted_literal: "'123'"
+                        - comma: ','
+                        - quoted_literal: "'456'"
+                        - end_square_bracket: ']'
+                    end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: from
+        from_expression:
+          from_expression_element:
+            table_expression:
+              function:
+                function_name:
+                  function_name_identifier: unnest
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      typed_array_literal:
+                        array_type:
+                          keyword: array
+                        array_literal:
+                        - start_square_bracket: '['
+                        - quoted_literal: "'123'"
+                        - comma: ','
+                        - quoted_literal: "'456'"
+                        - end_square_bracket: ']'
+                    end_bracket: )
+            alias_expression:
+              alias_operator:
+                keyword: as
+              naked_identifier: a
+              bracketed:
+                start_bracket: (
+                identifier_list:
+                - naked_identifier: val
+                - comma: ','
+                - naked_identifier: row_num
+                end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: from
+        from_expression:
+          from_expression_element:
+            table_expression:
+            - function:
+                function_name:
+                  function_name_identifier: unnest
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      typed_array_literal:
+                        array_type:
+                          keyword: array
+                        array_literal:
+                        - start_square_bracket: '['
+                        - quoted_literal: "'123'"
+                        - comma: ','
+                        - quoted_literal: "'456'"
+                        - end_square_bracket: ']'
+                    end_bracket: )
+            - keyword: with
+            - keyword: ordinality
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: from
+        from_expression:
+          from_expression_element:
+            table_expression:
+            - function:
+                function_name:
+                  function_name_identifier: unnest
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      typed_array_literal:
+                        array_type:
+                          keyword: array
+                        array_literal:
+                        - start_square_bracket: '['
+                        - quoted_literal: "'123'"
+                        - comma: ','
+                        - quoted_literal: "'456'"
+                        - end_square_bracket: ']'
+                    end_bracket: )
+            - keyword: with
+            - keyword: ordinality
+            alias_expression:
+              alias_operator:
+                keyword: as
+              naked_identifier: a
+              bracketed:
+                start_bracket: (
+                identifier_list:
+                - naked_identifier: val
+                - comma: ','
+                - naked_identifier: row_num
+                end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: table_1
+      where_clause:
+        keyword: WHERE
+        expression:
+        - column_reference:
+            naked_identifier: utc_activity_start_dttm
+        - binary_operator: +
+        - function:
+            function_name:
+              function_name_identifier: make_interval
+            function_contents:
+              bracketed:
+                start_bracket: (
+                named_argument:
+                  naked_identifier: mins
+                  assignment_operator: :=
+                  expression:
+                    column_reference:
+                      naked_identifier: activity_dur_mnt
+                end_bracket: )
+        - keyword: BETWEEN
+        - cast_expression:
+            quoted_literal: "'2024-01-07T00:00:00'"
+            casting_operator: '::'
+            data_type:
+              datetime_type_identifier:
+                keyword: timestamp
+        - keyword: AND
+        - cast_expression:
+            quoted_literal: "'2024-01-14T23:59:59.999999'"
+            casting_operator: '::'
+            data_type:
+              datetime_type_identifier:
+                keyword: timestamp
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: ARRAY
+            function_contents:
+              bracketed:
+                start_bracket: (
+                set_expression:
+                - select_statement:
+                    select_clause:
+                      keyword: SELECT
+                      select_clause_element:
+                        function:
+                          function_name:
+                            function_name_identifier: UNNEST
+                          function_contents:
+                            bracketed:
+                              start_bracket: (
+                              expression:
+                                column_reference:
+                                  naked_identifier: list_field_1
+                              end_bracket: )
+                - set_operator:
+                    keyword: INTERSECT
+                - select_statement:
+                    select_clause:
+                      keyword: SELECT
+                      select_clause_element:
+                        function:
+                          function_name:
+                            function_name_identifier: UNNEST
+                          function_contents:
+                            bracketed:
+                              start_bracket: (
+                              expression:
+                                column_reference:
+                                  naked_identifier: list_field_2
+                              end_bracket: )
+                end_bracket: )
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: table_1
+- statement_terminator: ;

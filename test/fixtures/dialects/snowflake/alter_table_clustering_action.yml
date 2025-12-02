@@ -1,0 +1,203 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: dbefed354133b87f63a0b46676c057e1f6b04f62b6258c8446426115d41e303f
+file:
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: my_table
+    - alter_table_clustering_action:
+      - keyword: CLUSTER
+      - keyword: BY
+      - bracketed:
+        - start_bracket: (
+        - expression:
+            column_reference:
+              naked_identifier: c1
+        - comma: ','
+        - expression:
+            column_reference:
+              naked_identifier: c2
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: my_table
+    - alter_table_clustering_action:
+      - keyword: CLUSTER
+      - keyword: BY
+      - bracketed:
+        - start_bracket: (
+        - expression:
+            function:
+              function_name:
+                function_name_identifier: to_date
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                      naked_identifier: c1
+                  end_bracket: )
+        - comma: ','
+        - expression:
+            function:
+              function_name:
+                function_name_identifier: substring
+              function_contents:
+                bracketed:
+                - start_bracket: (
+                - expression:
+                    column_reference:
+                      naked_identifier: c2
+                - comma: ','
+                - expression:
+                    numeric_literal: '0'
+                - comma: ','
+                - expression:
+                    numeric_literal: '10'
+                - end_bracket: )
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: my_table
+    - alter_table_clustering_action:
+      - keyword: CLUSTER
+      - keyword: BY
+      - bracketed:
+          start_bracket: (
+          expression:
+            cast_expression:
+              column_reference:
+                naked_identifier: v
+              semi_structured_expression:
+              - colon: ':'
+              - semi_structured_element: '"Data"'
+              - colon: ':'
+              - semi_structured_element: id
+              casting_operator: '::'
+              data_type:
+                data_type_identifier: number
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: my_table
+    - alter_table_clustering_action:
+        keyword: RECLUSTER
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: my_table
+    - alter_table_clustering_action:
+      - keyword: RECLUSTER
+      - keyword: MAX_SIZE
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - numeric_literal: '100'
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: my_table
+    - alter_table_clustering_action:
+        keyword: RECLUSTER
+        where_clause:
+          keyword: WHERE
+          expression:
+          - column_reference:
+              naked_identifier: create_date
+          - keyword: BETWEEN
+          - bracketed:
+              start_bracket: (
+              expression:
+                quoted_literal: "'2016-01-01'"
+              end_bracket: )
+          - keyword: AND
+          - bracketed:
+              start_bracket: (
+              expression:
+                quoted_literal: "'2016-01-07'"
+              end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: my_table
+    - alter_table_clustering_action:
+      - keyword: RECLUSTER
+      - keyword: MAX_SIZE
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - numeric_literal: '100'
+      - where_clause:
+          keyword: WHERE
+          expression:
+          - column_reference:
+              naked_identifier: create_date
+          - keyword: BETWEEN
+          - bracketed:
+              start_bracket: (
+              expression:
+                quoted_literal: "'2016-01-01'"
+              end_bracket: )
+          - keyword: AND
+          - bracketed:
+              start_bracket: (
+              expression:
+                quoted_literal: "'2016-01-07'"
+              end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: my_table
+    - alter_table_clustering_action:
+      - keyword: SUSPEND
+      - keyword: RECLUSTER
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: my_table
+    - alter_table_clustering_action:
+      - keyword: RESUME
+      - keyword: RECLUSTER
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: my_table
+    - alter_table_clustering_action:
+      - keyword: DROP
+      - keyword: CLUSTERING
+      - keyword: KEY
+- statement_terminator: ;

@@ -8,14 +8,15 @@ NB: This is not part of the core sqlfluff code.
 
 # This contains various utility scripts
 
-import shutil
 import os
-import click
-import time
+import re
+import shutil
 import subprocess
-import sys
-import oyaml as yaml
-import requests
+import time
+
+import click
+from fastcore.net import HTTPError
+from ghapi.all import GhApi
 
 
 @click.group()
@@ -36,7 +37,8 @@ def clean_tests(path):
         shutil.rmtree(path)
         click.echo(f"Removed {path!r}...")
     # OSError is for python 27
-    # in py36 its FileNotFoundError (but that inherits from IOError, which exists in py27)
+    # in py36 its FileNotFoundError (but that inherits from IOError, which exists in
+    # py27)
     except OSError:
         click.echo(f"Directory {path!r} does not exist. Skipping...")
 
@@ -44,77 +46,300 @@ def clean_tests(path):
     click.echo(f"Created {path!r}")
 
 
+def convert_pep440_to_semver(version: str) -> str:
+    """Convert Python PEP 440 version to Rust SemVer format.
+
+    Maturin automatically converts SemVer back to PEP 440 for Python packages.
+    See: https://www.maturin.rs/metadata.html
+
+    Examples:
+        4.0.0a1 -> 4.0.0-alpha.1
+        4.0.0b2 -> 4.0.0-beta.2
+        4.0.0rc3 -> 4.0.0-rc.3
+        4.0.0 -> 4.0.0 (stable versions unchanged)
+    """
+    # Match PEP 440 pre-release versions: X.Y.Z{a|b|rc}N
+    pep440_pattern = r"^(\d+\.\d+\.\d+)(a|b|rc)(\d+)$"
+    match = re.match(pep440_pattern, version)
+
+    if not match:
+        # Not a pre-release or doesn't match pattern, return as-is
+        return version
+
+    base_version, pre_type, pre_num = match.groups()
+
+    # Map PEP 440 pre-release identifiers to SemVer
+    pre_type_map = {"a": "alpha", "b": "beta", "rc": "rc"}
+
+    semver_pre_type = pre_type_map.get(pre_type, pre_type)
+    return f"{base_version}-{semver_pre_type}.{pre_num}"
+
+
+def check_cargo_installed():
+    """Check if cargo is installed and available.
+
+    Returns:
+        bool: True if cargo is installed, False otherwise.
+    """
+    try:
+        result = subprocess.run(
+            ["cargo", "--version"],
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        return result.returncode == 0
+    except FileNotFoundError:
+        return False
+
+
 @cli.command()
-@click.argument("cmd", nargs=-1)
-@click.option("--from-file", "-f", default=None)
-@click.option("--runs", default=3, show_default=True)
-def benchmark(cmd, runs, from_file):
-    """Benchmark how long it takes to run a particular command."""
-    if from_file:
-        with open(from_file) as yaml_file:
-            parsed = yaml.load(yaml_file.read(), Loader=yaml.FullLoader)
-            benchmarks = parsed["benchmarks"]
-            click.echo(repr(benchmarks))
-    elif cmd:
-        benchmarks = [{"name": str(hash(cmd)), "cmd": cmd}]
-    else:
-        click.echo("No command or file specified!")
-        sys.exit(1)
+@click.argument("new_version_num")
+def release(new_version_num):
+    """Change version number in the cfg files.
 
-    commit_hash = None
-    post_results = False
-    # Try and detect a CI environment
-    if "CI" in os.environ:
-        click.echo("CI detected!")
-        # available_vars = [var for var in os.environ.keys()]  # if var.startswith('CIRCLE')
-        # click.echo("Available keys: {0!r}".format(available_vars))
-        commit_hash = os.environ.get("GITHUB_SHA", None)
-        post_results = True
-        click.echo(f"Commit hash is: {commit_hash!r}")
+    NOTE: For fine grained personal access tokens, this requires
+    _write_ access to the "contents" scope. For dome reason, if you
+    only grant the _read_ access, you can't see any *draft* PRs
+    which are necessary for this script to run.
+    """
+    api = GhApi(
+        owner=os.environ["GITHUB_REPOSITORY_OWNER"],
+        repo="sqlfluff",
+        token=os.environ["GITHUB_TOKEN"],
+    )
+    try:
+        releases = api.repos.list_releases(per_page=100)
+    except HTTPError as err:
+        raise click.UsageError(
+            "HTTP Error from GitHub API. Check your credentials.\n"
+            "(i.e. GITHUB_REPOSITORY_OWNER & GITHUB_TOKEN)\n"
+            f"{err}"
+        )
 
-    all_results = {}
-    for run_no in range(runs):
-        click.echo(f"===== Run #{run_no + 1} =====")
-        results = {}
-        for benchmark in benchmarks:
-            # Iterate through benchmarks
-            click.echo("Starting benchmark: {!r}".format(benchmark["name"]))
-            t0 = time.monotonic()
-            click.echo("===START PROCESS OUTPUT===")
-            process = subprocess.run(benchmark["cmd"])
-            click.echo("===END PROCESS OUTPUT===")
-            t1 = time.monotonic()
-            if process.returncode != 0:
-                if benchmark["cmd"][0] == "sqlfluff" and benchmark["cmd"][1] == "fix":
-                    # Allow fix to fail as not all our benchmark errors are fixable
-                    click.echo(
-                        f"Fix command failed with return code: {process.returncode}"
-                    )
-                else:
-                    click.echo(f"Command failed with return code: {process.returncode}")
-                    sys.exit(process.returncode)
-            else:
-                duration = t1 - t0
-                click.echo(f"Process completed in {duration:.4f}s")
-                results[benchmark["name"]] = duration
+    latest_draft_release = None
+    for rel in releases:
+        if rel["draft"]:
+            latest_draft_release = rel
+            break
 
-        if post_results:
-            click.echo(f"Posting results: {results}")
-            api_key = os.environ["SQLFLUFF_BENCHMARK_API_KEY"]
-            resp = requests.post(
-                "https://f32cvv8yh3.execute-api.eu-west-1.amazonaws.com/result/gh/{repo}/{commit}".format(
-                    # TODO: update the stats collector eventually to allow the new repo path
-                    repo="alanmcruickshank/sqlfluff",
-                    commit=commit_hash,
-                ),
-                params={"key": api_key},
-                json=results,
+    if not latest_draft_release:
+        raise click.UsageError(
+            "No draft release found on GitHub.\n"
+            "This could be because the GitHub action which generates it is broken, "
+            "but is more likely due to using an API token which only has read-only "
+            "access to the `sqlfluff/sqlfluff` repository. This script requires an "
+            "API token with `read and write` access to the `contents` scope in "
+            "order to be able to view draft releases."
+        )
+
+    # Pre-releases are identifiable because they contain letters.
+    # https://peps.python.org/pep-0440/
+    is_pre_release = any(char.isalpha() for char in new_version_num)
+    click.echo(
+        f"Preparing for release {new_version_num}. (Pre-release: {is_pre_release})"
+    )
+
+    # Linkify the PRs and authors
+    draft_body_parts = latest_draft_release["body"].split("\n")
+    potential_new_contributors = []
+    for i, p in enumerate(draft_body_parts):
+        draft_body_parts[i] = re.sub(
+            r"\(#([0-9]*)\) @([^ ]*)$",
+            r"[#\1](https://github.com/sqlfluff/sqlfluff/pull/\1) [@\2](https://github.com/\2)",  # noqa E501
+            p,
+        )
+        new_contrib_string = re.sub(
+            r".*\(#([0-9]*)\) @([^ ]*)$",
+            r"* [@\2](https://github.com/\2) made their first contribution in [#\1](https://github.com/sqlfluff/sqlfluff/pull/\1)",  # noqa E501
+            p,
+        )
+        if new_contrib_string.startswith("* "):
+            new_contrib_name = re.sub(r"\* \[(.*?)\].*", r"\1", new_contrib_string)
+            potential_new_contributors.append(
+                {"name": new_contrib_name, "line": new_contrib_string}
             )
-            click.echo(resp.text)
-        all_results[run_no] = results
-    click.echo("===== Done =====")
-    for run_no in all_results:
-        click.echo("Run {:>5}: {}".format(f"#{run_no}", all_results[run_no]))
+    whats_changed_text = "\n".join(draft_body_parts)
+
+    # Find the first commit for each contributor in this release
+    potential_new_contributors.reverse()
+    seen_contributors = set()
+    deduped_potential_new_contributors = []
+    for c in potential_new_contributors:
+        if c["name"] not in seen_contributors:
+            seen_contributors.add(c["name"])
+            deduped_potential_new_contributors.append(c)
+
+    click.echo("Updating CHANGELOG.md...")
+    input_changelog = open("CHANGELOG.md", encoding="utf8").readlines()
+    write_changelog = open("CHANGELOG.md", "w", encoding="utf8")
+    for i, line in enumerate(input_changelog):
+        write_changelog.write(line)
+        if "DO NOT DELETE THIS LINE" in line:
+            existing_entry_start = i + 2
+            new_heading = f"## [{new_version_num}] - {time.strftime('%Y-%m-%d')}\n"
+            # If the release is already in the changelog, update it
+            if f"## [{new_version_num}]" in input_changelog[existing_entry_start]:
+                click.echo(f"...found existing entry for {new_version_num}")
+                # Update the existing heading with the new date.
+                input_changelog[existing_entry_start] = new_heading
+
+                # Delete the existing What’s Changed and New Contributors sections
+                remaining_changelog = input_changelog[existing_entry_start:]
+                existing_whats_changed_start = (
+                    next(
+                        j
+                        for j, line in enumerate(remaining_changelog)
+                        if line.startswith("## What’s Changed")
+                    )
+                    + existing_entry_start
+                )
+                existing_new_contributors_start = (
+                    next(
+                        j
+                        for j, line in enumerate(remaining_changelog)
+                        if line.startswith("## New Contributors")
+                    )
+                    + existing_entry_start
+                )
+                existing_new_contributors_length = (
+                    next(
+                        j
+                        for j, line in enumerate(
+                            input_changelog[existing_new_contributors_start:]
+                        )
+                        if line.startswith("## [")
+                    )
+                    - 1
+                )
+
+                del input_changelog[
+                    existing_whats_changed_start : existing_new_contributors_start
+                    + existing_new_contributors_length
+                ]
+
+                # Now that we've cleared the previous sections, we will accurately
+                # find if contributors have been previously mentioned in the changelog
+                new_contributor_lines = []
+                input_changelog_str = "".join(
+                    input_changelog[existing_whats_changed_start:]
+                )
+                for c in deduped_potential_new_contributors:
+                    if c["name"] not in input_changelog_str:
+                        new_contributor_lines.append(c["line"])
+                input_changelog[existing_whats_changed_start] = (
+                    whats_changed_text
+                    + "\n\n## New Contributors\n"
+                    + "\n".join(new_contributor_lines)
+                    + "\n\n"
+                )
+
+            else:
+                click.echo(f"...creating new entry for {new_version_num}")
+                write_changelog.write(f"\n{new_heading}\n## Highlights\n\n")
+                write_changelog.write(whats_changed_text)
+                write_changelog.write("\n## New Contributors\n\n")
+                # Ensure contributor names don't appear in input_changelog list
+                new_contributor_lines = []
+                input_changelog_str = "".join(input_changelog)
+                for c in deduped_potential_new_contributors:
+                    if c["name"] not in input_changelog_str:
+                        new_contributor_lines.append(c["line"])
+                write_changelog.write("\n".join(new_contributor_lines))
+                write_changelog.write("\n")
+
+    write_changelog.close()
+
+    click.echo("Updating plugins/sqlfluff-templater-dbt/pyproject.toml")
+    for filename in ["plugins/sqlfluff-templater-dbt/pyproject.toml"]:
+        # NOTE: Toml files are always encoded in UTF-8.
+        input_file = open(filename, "r", encoding="utf-8").readlines()
+        # Regardless of platform, write newlines as \n
+        write_file = open(filename, "w", encoding="utf-8", newline="\n")
+        for line in input_file:
+            if line.startswith("version"):
+                line = f'version = "{new_version_num}"\n'
+            elif line.startswith('    "sqlfluff=='):
+                line = f'    "sqlfluff=={new_version_num}",\n'
+            write_file.write(line)
+        write_file.close()
+
+    click.echo("Updating sqlfluffrs/Cargo.toml")
+    filename = "sqlfluffrs/Cargo.toml"
+    # Convert Python PEP 440 version to Rust SemVer format
+    # Maturin will automatically convert this back to PEP 440 for the Python package
+    rust_version = convert_pep440_to_semver(new_version_num)
+    click.echo(f"  Converting version: {new_version_num} -> {rust_version} (SemVer)")
+    # NOTE: Toml files are always encoded in UTF-8.
+    input_file = open(filename, "r", encoding="utf-8").readlines()
+    # Regardless of platform, write newlines as \n
+    write_file = open(filename, "w", encoding="utf-8", newline="\n")
+    for line in input_file:
+        if line.startswith("version"):
+            line = f'version = "{rust_version}"\n'
+        write_file.write(line)
+    write_file.close()
+
+    # Update Cargo.lock via `cargo check`
+    if check_cargo_installed():
+        click.echo("Running cargo check to update Cargo.lock...")
+        result = subprocess.run(
+            ["cargo", "check"],
+            cwd="sqlfluffrs",
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        if result.returncode == 0:
+            click.echo("✓ Rust cargo check complete")
+        else:
+            click.echo("✗ Rust cargo check failed:")
+            if result.stdout:
+                click.echo(result.stdout)
+            if result.stderr:
+                click.echo(result.stderr)
+    else:
+        click.echo("Error: cargo not installed, unable to update Cargo.lock")
+
+    keys = ["version"]
+    if not is_pre_release:
+        # Only update stable_version if it's not a pre-release.
+        keys.append("stable_version")
+
+    click.echo("Updating pyproject.toml")
+    for filename in ["pyproject.toml"]:
+        input_file = open(filename, "r", encoding="utf-8").readlines()
+        # Regardless of platform, write newlines as \n
+        write_file = open(filename, "w", encoding="utf-8", newline="\n")
+        for line in input_file:
+            for key in keys:
+                if line.startswith(key):
+                    # For pyproject.toml we quote the version identifier.
+                    line = f'{key} = "{new_version_num}"\n'
+                    break
+            # Update sqlfluffrs dependency version
+            if line.startswith('rs = ["sqlfluffrs'):
+                line = f'rs = ["sqlfluffrs=={new_version_num}"]\n'
+            write_file.write(line)
+        write_file.close()
+
+    if not is_pre_release:
+        click.echo("Updating gettingstarted.rst")
+        for filename in ["docs/source/gettingstarted.rst"]:
+            input_file = open(filename, "r").readlines()
+            # Regardless of platform, write newlines as \n
+            write_file = open(filename, "w", newline="\n")
+            change_next_line = False
+            for line in input_file:
+                if change_next_line:
+                    line = f"    {new_version_num}\n"
+                    change_next_line = False
+                elif line.startswith("    $ sqlfluff version"):
+                    change_next_line = True
+                write_file.write(line)
+            write_file.close()
+
+    click.echo("DONE")
 
 
 if __name__ == "__main__":

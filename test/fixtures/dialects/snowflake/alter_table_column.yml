@@ -1,0 +1,1053 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 3e6ca435299c839369d3279c1b959380dd8ef4e2417c98d4c48f029fb102958a
+file:
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: my_table
+    - alter_table_table_column_action:
+      - keyword: ADD
+      - keyword: COLUMN
+      - column_reference:
+          naked_identifier: my_column
+      - data_type:
+          data_type_identifier: INTEGER
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: my_table
+    - alter_table_table_column_action:
+      - keyword: ADD
+      - keyword: COLUMN
+      - column_reference:
+          naked_identifier: my_column
+      - data_type:
+          data_type_identifier: VARCHAR
+          bracketed_arguments:
+            bracketed:
+              start_bracket: (
+              numeric_literal: '5000'
+              end_bracket: )
+      - keyword: NOT
+      - keyword: 'NULL'
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: my_table
+    - alter_table_table_column_action:
+      - keyword: ADD
+      - keyword: COLUMN
+      - keyword: IF
+      - keyword: NOT
+      - keyword: EXISTS
+      - column_reference:
+          naked_identifier: my_column
+      - data_type:
+          data_type_identifier: INTEGER
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: my_table
+    - alter_table_table_column_action:
+      - keyword: ADD
+      - keyword: COLUMN
+      - column_reference:
+          naked_identifier: column_1
+      - data_type:
+          data_type_identifier: varchar
+      - comma: ','
+      - column_reference:
+          naked_identifier: column_2
+      - data_type:
+          data_type_identifier: integer
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: my_table
+    - alter_table_table_column_action:
+      - keyword: ADD
+      - keyword: COLUMN
+      - keyword: IF
+      - keyword: NOT
+      - keyword: EXISTS
+      - column_reference:
+          naked_identifier: column_1
+      - data_type:
+          data_type_identifier: varchar
+      - comma: ','
+      - keyword: IF
+      - keyword: NOT
+      - keyword: EXISTS
+      - column_reference:
+          naked_identifier: column_2
+      - data_type:
+          data_type_identifier: integer
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: my_table
+    - alter_table_table_column_action:
+      - keyword: ADD
+      - keyword: COLUMN
+      - keyword: IF
+      - keyword: NOT
+      - keyword: EXISTS
+      - column_reference:
+          naked_identifier: column_1
+      - data_type:
+          data_type_identifier: varchar
+      - comma: ','
+      - column_reference:
+          naked_identifier: column_2
+      - data_type:
+          data_type_identifier: integer
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: my_table
+    - alter_table_table_column_action:
+      - keyword: ADD
+      - keyword: COLUMN
+      - column_reference:
+          naked_identifier: my_column
+      - data_type:
+          data_type_identifier: INTEGER
+      - keyword: DEFAULT
+      - expression:
+          numeric_literal: '1'
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: my_table
+    - alter_table_table_column_action:
+      - keyword: ADD
+      - keyword: COLUMN
+      - column_reference:
+          naked_identifier: my_column
+      - data_type:
+          data_type_identifier: INTEGER
+      - keyword: AUTOINCREMENT
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: my_table
+    - alter_table_table_column_action:
+      - keyword: ADD
+      - keyword: COLUMN
+      - column_reference:
+          naked_identifier: my_column
+      - data_type:
+          data_type_identifier: INTEGER
+      - keyword: IDENTITY
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: my_table
+    - alter_table_table_column_action:
+      - keyword: ADD
+      - keyword: COLUMN
+      - column_reference:
+          naked_identifier: my_column
+      - data_type:
+          data_type_identifier: INTEGER
+      - keyword: AUTOINCREMENT
+      - bracketed:
+        - start_bracket: (
+        - numeric_literal: '10000'
+        - comma: ','
+        - numeric_literal: '1'
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: my_table
+    - alter_table_table_column_action:
+      - keyword: ADD
+      - keyword: COLUMN
+      - column_reference:
+          naked_identifier: my_column
+      - data_type:
+          data_type_identifier: INTEGER
+      - keyword: IDENTITY
+      - keyword: START
+      - numeric_literal: '10000'
+      - keyword: INCREMENT
+      - numeric_literal: '1'
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: my_table
+    - alter_table_table_column_action:
+      - keyword: ADD
+      - keyword: COLUMN
+      - column_reference:
+          naked_identifier: my_column
+      - data_type:
+          data_type_identifier: INTEGER
+      - keyword: MASKING
+      - keyword: POLICY
+      - function_name:
+          function_name_identifier: my_policy
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: my_table
+    - alter_table_table_column_action:
+      - keyword: ADD
+      - keyword: COLUMN
+      - column_reference:
+          naked_identifier: my_column
+      - data_type:
+          data_type_identifier: INTEGER
+      - keyword: WITH
+      - keyword: MASKING
+      - keyword: POLICY
+      - function_name:
+          function_name_identifier: my_policy
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: my_table
+    - alter_table_table_column_action:
+      - keyword: ADD
+      - keyword: COLUMN
+      - column_reference:
+          naked_identifier: my_column
+      - data_type:
+          data_type_identifier: INTEGER
+      - keyword: WITH
+      - keyword: MASKING
+      - keyword: POLICY
+      - function_name:
+        - naked_identifier: adatabase
+        - dot: .
+        - naked_identifier: aschema
+        - dot: .
+        - function_name_identifier: apolicy
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: my_table
+    - alter_table_table_column_action:
+      - keyword: ADD
+      - keyword: COLUMN
+      - column_reference:
+          naked_identifier: my_column
+      - data_type:
+          data_type_identifier: INTEGER
+      - keyword: WITH
+      - keyword: MASKING
+      - keyword: POLICY
+      - function_name:
+          function_name_identifier: my_policy
+      - keyword: USING
+      - bracketed:
+          start_bracket: (
+          column_reference:
+            naked_identifier: my_column
+          comma: ','
+          expression:
+            column_reference:
+              naked_identifier: my_column
+            comparison_operator:
+              raw_comparison_operator: '>'
+            numeric_literal: '10'
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: reporting_tbl
+    - alter_table_table_column_action:
+      - keyword: ADD
+      - keyword: COLUMN
+      - column_reference:
+          naked_identifier: reporting_group
+      - data_type:
+          data_type_identifier: VARCHAR
+      - comment_clause:
+          keyword: COMMENT
+          quoted_literal: "'internal reporting group defined by DE team'"
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: rpt_enc_table
+    - alter_table_table_column_action:
+        keyword: ADD
+        column_reference:
+          naked_identifier: encounter_count
+        data_type:
+          data_type_identifier: INTEGER
+        comment_clause:
+          keyword: COMMENT
+          quoted_literal: "'count of encounters past year'"
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: empl_info
+    - alter_table_table_column_action:
+      - keyword: RENAME
+      - keyword: COLUMN
+      - column_reference:
+          naked_identifier: old_col_name
+      - keyword: TO
+      - column_reference:
+          naked_identifier: new_col_name
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t1
+    - alter_table_table_column_action:
+      - keyword: alter
+      - keyword: column
+      - column_reference:
+          naked_identifier: c1
+      - keyword: drop
+      - keyword: not
+      - keyword: 'null'
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t1
+    - alter_table_table_column_action:
+        keyword: alter
+        column_reference:
+          naked_identifier: c5
+        comment_clause:
+          keyword: comment
+          quoted_literal: "'50 character column'"
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t1
+    - alter_table_table_column_action:
+      - keyword: modify
+      - column_reference:
+          naked_identifier: c2
+      - keyword: drop
+      - keyword: default
+      - comma: ','
+      - column_reference:
+          naked_identifier: c3
+      - keyword: set
+      - keyword: default
+      - naked_identifier: seq5
+      - dot: .
+      - keyword: nextval
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t1
+    - alter_table_table_column_action:
+      - keyword: alter
+      - column_reference:
+          naked_identifier: c4
+      - keyword: set
+      - keyword: data
+      - keyword: type
+      - data_type:
+          data_type_identifier: varchar
+          bracketed_arguments:
+            bracketed:
+              start_bracket: (
+              numeric_literal: '50'
+              end_bracket: )
+      - comma: ','
+      - keyword: column
+      - column_reference:
+          naked_identifier: c4
+      - keyword: drop
+      - keyword: default
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: xxxx
+      - dot: .
+      - naked_identifier: example_table
+    - alter_table_table_column_action:
+      - keyword: MODIFY
+      - keyword: COLUMN
+      - column_reference:
+          naked_identifier: employeeCode
+      - keyword: SET
+      - keyword: MASKING
+      - keyword: POLICY
+      - function_name:
+          function_name_identifier: example_MASKING_POLICY
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: aschema
+      - dot: .
+      - naked_identifier: atable
+    - alter_table_table_column_action:
+      - keyword: MODIFY
+      - keyword: COLUMN
+      - column_reference:
+          naked_identifier: acolumn
+      - keyword: SET
+      - keyword: MASKING
+      - keyword: POLICY
+      - function_name:
+        - naked_identifier: adatabase
+        - dot: .
+        - naked_identifier: aschema
+        - dot: .
+        - function_name_identifier: apolicy
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: empl_info
+    - alter_table_table_column_action:
+      - keyword: modify
+      - keyword: column
+      - column_reference:
+          naked_identifier: empl_id
+      - keyword: set
+      - keyword: masking
+      - keyword: policy
+      - function_name:
+          function_name_identifier: mask_empl_id
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: empl_info
+    - alter_table_table_column_action:
+      - keyword: modify
+      - keyword: column
+      - column_reference:
+          naked_identifier: empl_id
+      - keyword: set
+      - keyword: masking
+      - keyword: policy
+      - function_name:
+          function_name_identifier: mask_empl_id
+      - keyword: using
+      - bracketed:
+          start_bracket: (
+          column_reference:
+            naked_identifier: empl_id
+          comma: ','
+          expression:
+            column_reference:
+              naked_identifier: empl_id
+            comparison_operator:
+              raw_comparison_operator: '>'
+            numeric_literal: '10'
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: empl_info
+    - alter_table_table_column_action:
+      - keyword: modify
+      - keyword: column
+      - column_reference:
+          naked_identifier: empl_id
+      - keyword: set
+      - keyword: masking
+      - keyword: policy
+      - function_name:
+          function_name_identifier: mask_empl_id
+      - comma: ','
+      - keyword: column
+      - column_reference:
+          naked_identifier: empl_dob
+      - keyword: set
+      - keyword: masking
+      - keyword: policy
+      - function_name:
+          function_name_identifier: mask_empl_dob
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: empl_info
+    - alter_table_table_column_action:
+      - keyword: modify
+      - keyword: column
+      - column_reference:
+          naked_identifier: empl_id
+      - keyword: unset
+      - keyword: masking
+      - keyword: policy
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: empl_info
+    - alter_table_table_column_action:
+      - keyword: modify
+      - keyword: column
+      - column_reference:
+          naked_identifier: empl_id
+      - keyword: unset
+      - keyword: masking
+      - keyword: policy
+      - comma: ','
+      - keyword: column
+      - column_reference:
+          naked_identifier: empl_dob
+      - keyword: unset
+      - keyword: masking
+      - keyword: policy
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: my_table
+    - alter_table_table_column_action:
+      - keyword: MODIFY
+      - keyword: COLUMN
+      - column_reference:
+          naked_identifier: my_column
+      - keyword: SET
+      - keyword: TAG
+      - tag_reference:
+          naked_identifier: my_tag
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'tagged'"
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: my_table
+    - alter_table_table_column_action:
+      - keyword: MODIFY
+      - keyword: COLUMN
+      - column_reference:
+          naked_identifier: my_column
+      - keyword: UNSET
+      - keyword: TAG
+      - tag_reference:
+          naked_identifier: my_tag
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: empl_info
+    - alter_table_table_column_action:
+      - keyword: DROP
+      - keyword: COLUMN
+      - column_reference:
+          naked_identifier: my_column
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: some_schema
+      - dot: .
+      - naked_identifier: empl_info
+    - alter_table_table_column_action:
+      - keyword: DROP
+      - keyword: COLUMN
+      - column_reference:
+          naked_identifier: my_column
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: my_table
+    - alter_table_table_column_action:
+      - keyword: DROP
+      - keyword: COLUMN
+      - column_reference:
+          naked_identifier: column_1
+      - comma: ','
+      - column_reference:
+          naked_identifier: column_2
+      - comma: ','
+      - column_reference:
+          naked_identifier: column_3
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: demo_db
+      - dot: .
+      - naked_identifier: public
+    - alter_table_table_column_action:
+      - keyword: DROP
+      - keyword: column
+      - keyword: IF
+      - keyword: EXISTS
+      - column_reference:
+          naked_identifier: public_name
+      - comma: ','
+      - keyword: IF
+      - keyword: EXISTS
+      - column_reference:
+          naked_identifier: description_text
+      - comma: ','
+      - keyword: IF
+      - keyword: EXISTS
+      - column_reference:
+          naked_identifier: type_alias
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: demo_db
+      - dot: .
+      - naked_identifier: public
+    - alter_table_table_column_action:
+      - keyword: DROP
+      - keyword: column
+      - column_reference:
+          naked_identifier: public_name
+      - comma: ','
+      - column_reference:
+          naked_identifier: description_text
+      - comma: ','
+      - column_reference:
+          naked_identifier: type_alias
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: demo_db
+      - dot: .
+      - naked_identifier: public
+    - alter_table_table_column_action:
+      - keyword: DROP
+      - column_reference:
+          naked_identifier: public_name
+      - comma: ','
+      - column_reference:
+          naked_identifier: description_text
+      - comma: ','
+      - column_reference:
+          naked_identifier: type_alias
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: demo_db
+      - dot: .
+      - naked_identifier: public
+    - alter_table_table_column_action:
+      - keyword: DROP
+      - keyword: IF
+      - keyword: EXISTS
+      - column_reference:
+          naked_identifier: public_name
+      - comma: ','
+      - keyword: IF
+      - keyword: EXISTS
+      - column_reference:
+          naked_identifier: description_text
+      - comma: ','
+      - keyword: IF
+      - keyword: EXISTS
+      - column_reference:
+          naked_identifier: type_alias
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - keyword: IF
+    - keyword: EXISTS
+    - table_reference:
+        naked_identifier: my_table
+    - alter_table_table_column_action:
+      - keyword: ADD
+      - keyword: COLUMN
+      - column_reference:
+          naked_identifier: my_column
+      - data_type:
+          data_type_identifier: INTEGER
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - keyword: IF
+    - keyword: EXISTS
+    - table_reference:
+        naked_identifier: empl_info
+    - alter_table_table_column_action:
+      - keyword: DROP
+      - keyword: COLUMN
+      - column_reference:
+          naked_identifier: my_column
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - keyword: IF
+    - keyword: EXISTS
+    - table_reference:
+        naked_identifier: empl_info
+    - alter_table_table_column_action:
+        keyword: DROP
+        column_reference:
+          naked_identifier: my_column
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - keyword: IF
+    - keyword: EXISTS
+    - table_reference:
+        naked_identifier: empl_info
+    - alter_table_table_column_action:
+      - keyword: RENAME
+      - keyword: COLUMN
+      - column_reference:
+          naked_identifier: old_col_name
+      - keyword: TO
+      - column_reference:
+          naked_identifier: new_col_name
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: my_schema
+      - dot: .
+      - naked_identifier: my_table
+    - keyword: drop
+    - keyword: PRIMARY
+    - keyword: KEY
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: my_schema
+      - dot: .
+      - naked_identifier: my_table
+    - alter_table_constraint_action:
+        keyword: ADD
+        constraint_properties_segment:
+        - keyword: PRIMARY
+        - keyword: KEY
+        - bracketed:
+            start_bracket: (
+            column_reference:
+              naked_identifier: TABLE_ID
+            end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: some_schema
+      - dot: .
+      - naked_identifier: some_table
+    - alter_table_table_column_action:
+      - keyword: ADD
+      - column_reference:
+          naked_identifier: some_column_upr
+      - data_type:
+          data_type_identifier: VARCHAR
+      - keyword: AS
+      - expression:
+          function:
+            function_name:
+              function_name_identifier: UPPER
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: some_column
+                end_bracket: )
+      - comment_clause:
+          keyword: COMMENT
+          quoted_literal: "'This is a virtual column'"
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: some_schema
+      - dot: .
+      - naked_identifier: some_table
+    - alter_table_table_column_action:
+      - keyword: ADD
+      - keyword: column
+      - keyword: IF
+      - keyword: NOT
+      - keyword: EXISTS
+      - column_reference:
+          naked_identifier: some_other_column_upr
+      - data_type:
+          data_type_identifier: VARCHAR
+      - keyword: AS
+      - expression:
+        - function:
+            function_name:
+              function_name_identifier: UPPER
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: some_column
+                end_bracket: )
+        - binary_operator:
+          - pipe: '|'
+          - pipe: '|'
+        - quoted_literal: "'some characters'"
+        - binary_operator:
+          - pipe: '|'
+          - pipe: '|'
+        - function:
+            function_name:
+              function_name_identifier: LOWER
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: some_column
+                end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: some_schema
+      - dot: .
+      - naked_identifier: some_table
+    - alter_table_table_column_action:
+      - keyword: ADD
+      - keyword: column
+      - keyword: IF
+      - keyword: NOT
+      - keyword: EXISTS
+      - column_reference:
+          naked_identifier: some_column_upr
+      - data_type:
+          data_type_identifier: VARCHAR
+      - keyword: AS
+      - expression:
+          bracketed:
+            start_bracket: (
+            expression:
+              function:
+                function_name:
+                  function_name_identifier: UPPER
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      column_reference:
+                        naked_identifier: some_column
+                    end_bracket: )
+            end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: some_schema
+      - dot: .
+      - naked_identifier: some_table
+    - alter_table_table_column_action:
+      - keyword: ADD
+      - keyword: column
+      - keyword: IF
+      - keyword: NOT
+      - keyword: EXISTS
+      - column_reference:
+          naked_identifier: some_event_date_time_utc
+      - data_type:
+          keyword: TIMESTAMP
+      - keyword: AS
+      - expression:
+          bracketed:
+            start_bracket: (
+            expression:
+              function:
+                function_name:
+                  function_name_identifier: IFF
+                function_contents:
+                  bracketed:
+                  - start_bracket: (
+                  - expression:
+                    - column_reference:
+                        naked_identifier: is_condition_true
+                    - binary_operator: AND
+                    - function:
+                        function_name:
+                          function_name_identifier: TRY_TO_NUMBER
+                        function_contents:
+                          bracketed:
+                            start_bracket: (
+                            expression:
+                              column_reference:
+                                naked_identifier: some_text_value
+                            end_bracket: )
+                    - keyword: IS
+                    - keyword: NOT
+                    - null_literal: 'NULL'
+                  - comma: ','
+                  - expression:
+                      function:
+                        function_name:
+                          function_name_identifier: TO_TIMESTAMP
+                        function_contents:
+                          bracketed:
+                            start_bracket: (
+                            expression:
+                              function:
+                                function_name:
+                                  function_name_identifier: SUBSTR
+                                function_contents:
+                                  bracketed:
+                                  - start_bracket: (
+                                  - expression:
+                                      column_reference:
+                                        naked_identifier: some_text_value
+                                  - comma: ','
+                                  - expression:
+                                      numeric_literal: '5'
+                                  - comma: ','
+                                  - expression:
+                                      numeric_literal: '13'
+                                  - end_bracket: )
+                            end_bracket: )
+                  - comma: ','
+                  - expression:
+                      quoted_literal: "'1900-01-01'"
+                  - end_bracket: )
+            end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - keyword: IF
+    - keyword: EXISTS
+    - table_reference:
+        naked_identifier: table1
+    - alter_table_table_column_action:
+      - keyword: ADD
+      - keyword: COLUMN
+      - keyword: IF
+      - keyword: NOT
+      - keyword: EXISTS
+      - column_reference:
+          naked_identifier: some_column
+      - data_type:
+          data_type_identifier: INTEGER
+      - keyword: NOT
+      - keyword: 'NULL'
+- statement_terminator: ;

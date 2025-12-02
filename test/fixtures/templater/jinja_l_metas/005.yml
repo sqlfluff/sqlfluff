@@ -1,0 +1,53 @@
+file:
+  statement:
+    select_statement:
+      select_clause:
+      - keyword: select
+      - indent: ""
+      - newline: "\n"
+      - whitespace: '  '
+      - select_clause_element:
+          numeric_literal: '0'
+      - comma: ','
+      - newline: "\n"
+      - whitespace: '  '
+      - placeholder: '{% for i in [1, 2, 3] %}'
+      - indent: ""
+      - newline: "\n"
+      - whitespace: '    '
+      - select_clause_element:
+          column_reference:
+            naked_identifier: i
+      - comma: ','
+      - newline: "\n"
+      - whitespace: '  '
+      - dedent: ""
+      - template_loop: ""
+      - indent: ""
+      - newline: "\n"
+      - whitespace: '    '
+      - select_clause_element:
+          column_reference:
+            naked_identifier: i
+      - comma: ','
+      - newline: "\n"
+      - whitespace: '  '
+      - dedent: ""
+      - template_loop: ""
+      - indent: ""
+      - newline: "\n"
+      - whitespace: '    '
+      - select_clause_element:
+          column_reference:
+            naked_identifier: i
+      - comma: ','
+      - newline: "\n"
+      - whitespace: '  '
+      - dedent: ""
+      - placeholder: '{% endfor %}'
+      - newline: "\n"
+      - whitespace: '  '
+      - select_clause_element:
+          numeric_literal: '4'
+      - dedent: ""
+  end_of_file: ""

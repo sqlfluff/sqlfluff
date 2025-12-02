@@ -1,0 +1,75 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 7754ff4e3a7fbc34a35af1df6c1417baac7d74ca5e946b8d99cd7d6dff991a4b
+file:
+- statement:
+    create_server_statement:
+    - keyword: CREATE
+    - keyword: SERVER
+    - server_reference:
+        naked_identifier: test
+    - keyword: FOREIGN
+    - keyword: DATA
+    - keyword: WRAPPER
+    - object_reference:
+        naked_identifier: postgres_fdw
+- statement_terminator: ;
+- statement:
+    create_server_statement:
+    - keyword: CREATE
+    - keyword: SERVER
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - server_reference:
+        naked_identifier: test
+    - keyword: FOREIGN
+    - keyword: DATA
+    - keyword: WRAPPER
+    - object_reference:
+        naked_identifier: oracle_fdw
+- statement_terminator: ;
+- statement:
+    create_server_statement:
+    - keyword: CREATE
+    - keyword: SERVER
+    - server_reference:
+        naked_identifier: test
+    - keyword: TYPE
+    - quoted_literal: "'test'"
+    - keyword: VERSION
+    - version_identifier:
+        quoted_literal: "'1.0'"
+    - keyword: FOREIGN
+    - keyword: DATA
+    - keyword: WRAPPER
+    - object_reference:
+        naked_identifier: postgres_fdw
+- statement_terminator: ;
+- statement:
+    create_server_statement:
+    - keyword: CREATE
+    - keyword: SERVER
+    - server_reference:
+        naked_identifier: test
+    - keyword: FOREIGN
+    - keyword: DATA
+    - keyword: WRAPPER
+    - object_reference:
+        naked_identifier: postgres_fdw
+    - keyword: OPTIONS
+    - bracketed:
+      - start_bracket: (
+      - naked_identifier_all: host
+      - quoted_literal: "'foo'"
+      - comma: ','
+      - naked_identifier_all: dbname
+      - quoted_literal: "'foodb'"
+      - comma: ','
+      - naked_identifier_all: port
+      - quoted_literal: "'5432'"
+      - end_bracket: )
+- statement_terminator: ;

@@ -1,0 +1,125 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: b3eb84334d4a93f639f727dd59f0833c1332eab98414140b0076dae106703690
+file:
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: CAST
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  numeric_literal: '1'
+                keyword: AS
+                data_type:
+                  data_type_identifier: FLOAT64
+                end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: SAFE_CAST
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  numeric_literal: '1.0'
+                keyword: AS
+                data_type:
+                  data_type_identifier: INT64
+                end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: CAST
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  typed_array_literal:
+                    data_type:
+                      keyword: ARRAY
+                    array_literal:
+                      start_square_bracket: '['
+                      quoted_literal: '"element1"'
+                      end_square_bracket: ']'
+                keyword: AS
+                data_type:
+                  data_type:
+                    keyword: ARRAY
+                    start_angle_bracket: <
+                    data_type:
+                      data_type_identifier: STRING
+                    end_angle_bracket: '>'
+                end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: CAST
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  quoted_literal: "b'\\x48\\x65\\x6c\\x6c\\x6f'"
+              - keyword: AS
+              - data_type:
+                  data_type_identifier: STRING
+              - expression:
+                  data_type:
+                    data_type_identifier: FORMAT
+                  quoted_literal: "'ASCII'"
+              - end_bracket: )
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: bytes_to_string
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: CAST
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  keyword: TIMESTAMP
+                  date_constructor_literal: "'2008-12-25 00:00:00+00:00'"
+              - keyword: AS
+              - data_type:
+                  data_type_identifier: STRING
+              - expression:
+                  data_type:
+                    data_type_identifier: FORMAT
+                  quoted_literal: "'YYYY-MM-DD HH24:MI:SS TZH:TZM'"
+              - end_bracket: )
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: date_time_to_string
+- statement_terminator: ;

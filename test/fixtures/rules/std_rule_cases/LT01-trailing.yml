@@ -1,0 +1,40 @@
+rule: LT01
+
+test_fail_trailing_whitespace:
+  fail_str: "SELECT 1     \n"
+  fix_str: "SELECT 1\n"
+
+
+test_fail_trailing_whitespace_on_initial_blank_line:
+  fail_str: " \nSELECT 1     \n"
+  fix_str: "\nSELECT 1\n"
+
+
+test_pass_trailing_whitespace_before_template_code:
+  pass_str: |
+    SELECT
+        {% for elem in ["a", "b"] %}
+        {{ elem }},
+        {% endfor %}
+        0
+
+test_fail_trailing_whitespace_and_whitespace_control:
+  fail_str: "{%- set temp = 'temp' -%}\n\nSELECT\n    1, \n    2,\n"
+  fix_str: "{%- set temp = 'temp' -%}\n\nSELECT\n    1,\n    2,\n"
+
+test_pass_macro_trailing:
+  pass_str: |
+    {% macro foo(bar) %}
+        {{bar}}
+    {% endmacro %}
+
+    with base as (
+        select
+            a,
+            b,
+            {{ foo(1) }} as c
+        from tblb
+    )
+
+    select *
+    from tbl

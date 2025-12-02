@@ -3,25 +3,27 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: c097b4a64bc6fde3620bd8d1be9cb846fc250bbd8a052f3e8bef0fc156408893
+_hash: e471a0e0892ed298475a0ee64729fffe5b1b2144edcf454d92f384e0f8e79a2b
 file:
 - statement:
     alter_database_statement:
     - keyword: ALTER
     - keyword: DATABASE
     - database_reference:
-        identifier: foo
+        naked_identifier: foo
     - keyword: SET
     - keyword: DBPROPERTIES
     - bracketed:
       - start_bracket: (
-      - literal: '"prop1"'
-      - comparison_operator: '='
-      - literal: '"val1"'
+      - quoted_literal: '"prop1"'
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: '"val1"'
       - comma: ','
-      - literal: '"prop2"'
-      - comparison_operator: '='
-      - literal: '"val2"'
+      - quoted_literal: '"prop2"'
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: '"val2"'
       - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -29,19 +31,19 @@ file:
     - keyword: ALTER
     - keyword: DATABASE
     - database_reference:
-        identifier: bar
+        naked_identifier: bar
     - keyword: SET
     - keyword: LOCATION
-    - literal: '"hdfs://alternate_path"'
+    - quoted_literal: '"hdfs://alternate_path"'
 - statement_terminator: ;
 - statement:
     alter_database_statement:
     - keyword: ALTER
     - keyword: DATABASE
     - database_reference:
-        identifier: foo2
+        naked_identifier: foo2
     - keyword: SET
     - keyword: OWNER
     - keyword: USER
-    - literal: '"user"'
+    - quoted_literal: '"user"'
 - statement_terminator: ;

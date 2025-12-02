@@ -1,0 +1,104 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: df081acfc90fc98a3ad8bbcac2acf6d07207a20ac79be86fed319f0e9fc35f67
+file:
+  batch:
+  - statement:
+      create_master_key_statement:
+      - keyword: CREATE
+      - keyword: MASTER
+      - keyword: KEY
+      - keyword: ENCRYPTION
+      - keyword: BY
+      - keyword: PASSWORD
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'<strong password>'"
+  - statement_terminator: ;
+  - statement:
+      create_master_key_statement:
+      - keyword: CREATE
+      - keyword: MASTER
+      - keyword: KEY
+  - statement_terminator: ;
+  - statement:
+      alter_master_key_statement:
+      - keyword: ALTER
+      - keyword: MASTER
+      - keyword: KEY
+      - keyword: REGENERATE
+      - keyword: WITH
+      - keyword: ENCRYPTION
+      - keyword: BY
+      - master_key_encryption_option:
+          keyword: PASSWORD
+          comparison_operator:
+            raw_comparison_operator: '='
+          quoted_literal: "'<even stronger password>'"
+  - statement_terminator: ;
+  - statement:
+      alter_master_key_statement:
+      - keyword: ALTER
+      - keyword: MASTER
+      - keyword: KEY
+      - keyword: FORCE
+      - keyword: REGENERATE
+      - keyword: WITH
+      - keyword: ENCRYPTION
+      - keyword: BY
+      - master_key_encryption_option:
+          keyword: PASSWORD
+          comparison_operator:
+            raw_comparison_operator: '='
+          quoted_literal: "'<even stronger password>'"
+  - statement_terminator: ;
+  - statement:
+      alter_master_key_statement:
+      - keyword: ALTER
+      - keyword: MASTER
+      - keyword: KEY
+      - keyword: ADD
+      - keyword: ENCRYPTION
+      - keyword: BY
+      - master_key_encryption_option:
+          keyword: PASSWORD
+          comparison_operator:
+            raw_comparison_operator: '='
+          quoted_literal: "'<even stronger password>'"
+  - statement_terminator: ;
+  - statement:
+      alter_master_key_statement:
+      - keyword: ALTER
+      - keyword: MASTER
+      - keyword: KEY
+      - keyword: ADD
+      - keyword: ENCRYPTION
+      - keyword: BY
+      - master_key_encryption_option:
+        - keyword: SERVICE
+        - keyword: MASTER
+        - keyword: KEY
+  - statement_terminator: ;
+  - statement:
+      alter_master_key_statement:
+      - keyword: ALTER
+      - keyword: MASTER
+      - keyword: KEY
+      - keyword: DROP
+      - keyword: ENCRYPTION
+      - keyword: BY
+      - master_key_encryption_option:
+          keyword: PASSWORD
+          comparison_operator:
+            raw_comparison_operator: '='
+          quoted_literal: "'<even stronger password>'"
+  - statement_terminator: ;
+  - statement:
+      drop_master_key_statement:
+      - keyword: DROP
+      - keyword: MASTER
+      - keyword: KEY
+  - statement_terminator: ;

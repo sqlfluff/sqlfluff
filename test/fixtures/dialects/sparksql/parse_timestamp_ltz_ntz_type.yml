@@ -1,0 +1,48 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 33fd8a03943433a4bc8a67be982cabebbf92c0fd8ee690c0325c92b8b4fedbb5
+file:
+  statement:
+    select_statement:
+      select_clause:
+      - keyword: select
+      - select_clause_element:
+          keyword: timestamp_ntz
+          date_constructor_literal: "'1970-01-01'"
+      - comma: ','
+      - select_clause_element:
+          keyword: TIMESTAMP_LTZ
+          date_constructor_literal: "'1970-01-01'"
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: cast
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  quoted_literal: "'1970-01-01'"
+                keyword: as
+                data_type:
+                  primitive_type:
+                    keyword: TIMESTAMP_NTZ
+                end_bracket: )
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: cast
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  quoted_literal: "'1970-01-01'"
+                keyword: as
+                data_type:
+                  primitive_type:
+                    keyword: timestamp_ltz
+                end_bracket: )

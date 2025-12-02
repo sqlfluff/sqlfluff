@@ -1,17 +1,14 @@
 """Sharing fixtures to test the dialects."""
-import pytest
 
 import logging
 
+import pytest
+
 from sqlfluff.core import FluffConfig, Linter
-from sqlfluff.core.parser import (
-    Lexer,
-    BaseSegment,
-    RawSegment,
-    StringParser,
-)
-from sqlfluff.core.parser.context import RootParseContext
+from sqlfluff.core.parser import BaseSegment, Lexer
+from sqlfluff.core.parser.context import ParseContext
 from sqlfluff.core.parser.match_result import MatchResult
+from sqlfluff.core.parser.matchable import Matchable
 
 
 def lex(raw, config):
@@ -21,16 +18,16 @@ def lex(raw, config):
     # Lex the string for matching. For a good test, this would
     # arguably happen as a fixture, but it's easier to pass strings
     # as parameters than pre-lexed segment strings.
-    seg_list, vs = lex.lex(raw)
+    segments, vs = lex.lex(raw)
     assert not vs
-    print(seg_list)
-    return seg_list
+    print(segments)
+    return segments
 
 
 def validate_segment(segmentref, config):
     """Get and validate segment for tests below."""
     Seg = config.get("dialect_obj").ref(segmentref)
-    if isinstance(Seg, StringParser):
+    if isinstance(Seg, Matchable):
         return Seg
     try:
         if issubclass(Seg, BaseSegment):
@@ -38,7 +35,7 @@ def validate_segment(segmentref, config):
     except TypeError:
         pass
     raise TypeError(
-        "{} is not of type Segment or StringParser. Test is invalid.".format(segmentref)
+        "{} is not of type Segment or Matchable. Test is invalid.".format(segmentref)
     )
 
 
@@ -51,31 +48,21 @@ def _dialect_specific_segment_parses(dialect, segmentref, raw, caplog):
     function of the parent will not be tested.
     """
     config = FluffConfig(overrides=dict(dialect=dialect))
-    seg_list = lex(raw, config=config)
+    segments = lex(raw, config=config)
     Seg = validate_segment(segmentref, config=config)
 
-    # This test is different if we're working with RawSegment
-    # derivatives or not.
-    if isinstance(Seg, StringParser) or issubclass(Seg, RawSegment):
-        print("Raw/Parser route...")
-        with RootParseContext.from_config(config) as ctx:
-            with caplog.at_level(logging.DEBUG):
-                parsed = Seg.match(segments=seg_list, parse_context=ctx)
-        assert isinstance(parsed, MatchResult)
-        assert len(parsed.matched_segments) == 1
-        print(parsed)
-        parsed = parsed.matched_segments[0]
-        print(parsed)
-    else:
-        print("Base route...")
-        # Construct an unparsed segment
-        seg = Seg(seg_list, pos_marker=seg_list[0].pos_marker)
-        # Perform the match (THIS IS THE MEAT OF THE TEST)
-        with RootParseContext.from_config(config) as ctx:
-            with caplog.at_level(logging.DEBUG):
-                parsed = seg.parse(parse_context=ctx)
-        print(parsed)
-        assert isinstance(parsed, Seg)
+    # Most segments won't handle the end of file marker. We should strip it.
+    if segments[-1].is_type("end_of_file"):
+        segments = segments[:-1]
+
+    ctx = ParseContext.from_config(config)
+    with caplog.at_level(logging.DEBUG):
+        result = Seg.match(segments, 0, parse_context=ctx)
+    assert isinstance(result, MatchResult)
+    parsed = result.apply(segments)
+    assert len(parsed) == 1
+    print(parsed)
+    parsed = parsed[0]
 
     # Check we get a good response
     print(parsed)
@@ -95,12 +82,12 @@ def _dialect_specific_segment_not_match(dialect, segmentref, raw, caplog):
     This is the opposite to the above.
     """
     config = FluffConfig(overrides=dict(dialect=dialect))
-    seg_list = lex(raw, config=config)
+    segments = lex(raw, config=config)
     Seg = validate_segment(segmentref, config=config)
 
-    with RootParseContext.from_config(config) as ctx:
-        with caplog.at_level(logging.DEBUG):
-            match = Seg.match(segments=seg_list, parse_context=ctx)
+    ctx = ParseContext.from_config(config)
+    with caplog.at_level(logging.DEBUG):
+        match = Seg.match(segments, 0, parse_context=ctx)
 
     assert not match
 
@@ -108,7 +95,8 @@ def _dialect_specific_segment_not_match(dialect, segmentref, raw, caplog):
 def _validate_dialect_specific_statements(dialect, segment_cls, raw, stmt_count):
     """This validates one or multiple statements against specified segment class.
 
-    It even validates the number of parsed statements with the number of expected statements.
+    It even validates the number of parsed statements with the number of expected
+    statements.
     """
     lnt = Linter(dialect=dialect)
     parsed = lnt.parse_string(raw)
@@ -135,7 +123,7 @@ def dialect_specific_segment_parses():
 
 @pytest.fixture()
 def dialect_specific_segment_not_match():
-    """Fixture to check specific segments of a dialect which will not match to a segment."""
+    """Check specific segments of a dialect which will not match to a segment."""
     return _dialect_specific_segment_not_match
 
 
@@ -143,6 +131,7 @@ def dialect_specific_segment_not_match():
 def validate_dialect_specific_statements():
     """This validates one or multiple statements against specified segment class.
 
-    It even validates the number of parsed statements with the number of expected statements.
+    It even validates the number of parsed statements with the number of expected
+    statements.
     """
     return _validate_dialect_specific_statements

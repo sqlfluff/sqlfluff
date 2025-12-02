@@ -1,0 +1,73 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: d40f9773665452c0ebe432f0dcd4dac3bb66eb3a31b67101aa130727475cb543
+file:
+- statement:
+    drop_database_statement:
+    - keyword: DROP
+    - keyword: DATABASE
+    - database_reference:
+        naked_identifier: db
+- statement_terminator: ;
+- statement:
+    drop_database_statement:
+    - keyword: DROP
+    - keyword: DATABASE
+    - database_reference:
+        naked_identifier: db
+    - bracketed:
+        start_bracket: (
+        keyword: FORCE
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    drop_database_statement:
+    - keyword: DROP
+    - keyword: DATABASE
+    - database_reference:
+        naked_identifier: db
+    - keyword: WITH
+    - bracketed:
+        start_bracket: (
+        keyword: FORCE
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    drop_database_statement:
+    - keyword: DROP
+    - keyword: DATABASE
+    - keyword: IF
+    - keyword: EXISTS
+    - database_reference:
+        naked_identifier: db
+- statement_terminator: ;
+- statement:
+    drop_database_statement:
+    - keyword: DROP
+    - keyword: DATABASE
+    - keyword: IF
+    - keyword: EXISTS
+    - database_reference:
+        naked_identifier: db
+    - bracketed:
+        start_bracket: (
+        keyword: FORCE
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    drop_database_statement:
+    - keyword: DROP
+    - keyword: DATABASE
+    - keyword: IF
+    - keyword: EXISTS
+    - database_reference:
+        naked_identifier: db
+    - keyword: WITH
+    - bracketed:
+        start_bracket: (
+        keyword: FORCE
+        end_bracket: )
+- statement_terminator: ;

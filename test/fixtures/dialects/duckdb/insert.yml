@@ -1,0 +1,380 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 1b2ed34ff8f71346b47ad9d51a0b7565972c6dd558dea3ad13b7c3b40873af07
+file:
+- statement:
+    insert_statement:
+    - keyword: INSERT
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: tbl
+    - values_clause:
+      - keyword: VALUES
+      - bracketed:
+          start_bracket: (
+          expression:
+            numeric_literal: '1'
+          end_bracket: )
+      - comma: ','
+      - bracketed:
+          start_bracket: (
+          expression:
+            numeric_literal: '2'
+          end_bracket: )
+      - comma: ','
+      - bracketed:
+          start_bracket: (
+          expression:
+            numeric_literal: '3'
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    insert_statement:
+    - keyword: INSERT
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: tbl
+    - select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+              naked_identifier: col1
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: col2
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: col3
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: other_tbl
+- statement_terminator: ;
+- statement:
+    insert_statement:
+    - keyword: INSERT
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: tbl
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          naked_identifier: i
+        end_bracket: )
+    - values_clause:
+        keyword: VALUES
+        bracketed:
+          start_bracket: (
+          expression:
+            numeric_literal: '1'
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    insert_statement:
+    - keyword: INSERT
+    - keyword: OR
+    - keyword: IGNORE
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: tbl
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          naked_identifier: i
+        end_bracket: )
+    - values_clause:
+        keyword: VALUES
+        bracketed:
+          start_bracket: (
+          expression:
+            numeric_literal: '1'
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    insert_statement:
+    - keyword: INSERT
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: tbl
+    - keyword: BY
+    - keyword: POSITION
+    - values_clause:
+        keyword: VALUES
+        bracketed:
+        - start_bracket: (
+        - expression:
+            numeric_literal: '5'
+        - comma: ','
+        - expression:
+            numeric_literal: '42'
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+    insert_statement:
+    - keyword: INSERT
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: tbl
+    - keyword: BY
+    - keyword: NAME
+    - bracketed:
+        start_bracket: (
+        select_statement:
+          select_clause:
+            keyword: SELECT
+            select_clause_element:
+              numeric_literal: '22'
+              alias_expression:
+                alias_operator:
+                  keyword: AS
+                naked_identifier: b
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    insert_statement:
+    - keyword: INSERT
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: tbl
+    - values_clause:
+        keyword: VALUES
+        bracketed:
+        - start_bracket: (
+        - expression:
+            numeric_literal: '1'
+        - comma: ','
+        - expression:
+            numeric_literal: '84'
+        - end_bracket: )
+    - keyword: 'ON'
+    - keyword: CONFLICT
+    - conflict_action:
+      - keyword: DO
+      - keyword: NOTHING
+- statement_terminator: ;
+- statement:
+    insert_statement:
+    - keyword: INSERT
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: tbl
+    - values_clause:
+      - keyword: VALUES
+      - bracketed:
+        - start_bracket: (
+        - expression:
+            numeric_literal: '1'
+        - comma: ','
+        - expression:
+            numeric_literal: '52'
+        - end_bracket: )
+      - comma: ','
+      - bracketed:
+        - start_bracket: (
+        - expression:
+            numeric_literal: '1'
+        - comma: ','
+        - expression:
+            numeric_literal: '62'
+        - end_bracket: )
+    - keyword: 'ON'
+    - keyword: CONFLICT
+    - conflict_action:
+      - keyword: DO
+      - keyword: UPDATE
+      - keyword: SET
+      - column_reference:
+          naked_identifier: j
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - expression:
+          column_reference:
+          - naked_identifier: EXCLUDED
+          - dot: .
+          - naked_identifier: j
+- statement_terminator: ;
+- statement:
+    insert_statement:
+    - keyword: INSERT
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: tbl
+    - keyword: BY
+    - keyword: NAME
+    - bracketed:
+        start_bracket: (
+        select_statement:
+          select_clause:
+          - keyword: SELECT
+          - select_clause_element:
+              numeric_literal: '1'
+              alias_expression:
+                alias_operator:
+                  keyword: AS
+                naked_identifier: i
+          - comma: ','
+          - select_clause_element:
+              numeric_literal: '336'
+              alias_expression:
+                alias_operator:
+                  keyword: AS
+                naked_identifier: j
+        end_bracket: )
+    - keyword: 'ON'
+    - keyword: CONFLICT
+    - conflict_action:
+      - keyword: DO
+      - keyword: UPDATE
+      - keyword: SET
+      - column_reference:
+          naked_identifier: j
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - expression:
+          column_reference:
+          - naked_identifier: EXCLUDED
+          - dot: .
+          - naked_identifier: j
+- statement_terminator: ;
+- statement:
+    insert_statement:
+    - keyword: INSERT
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: t1
+    - values_clause:
+      - keyword: VALUES
+      - bracketed:
+          start_bracket: (
+          expression:
+            numeric_literal: '1'
+          end_bracket: )
+      - comma: ','
+      - bracketed:
+          start_bracket: (
+          expression:
+            numeric_literal: '2'
+          end_bracket: )
+      - comma: ','
+      - bracketed:
+          start_bracket: (
+          expression:
+            numeric_literal: '3'
+          end_bracket: )
+    - keyword: RETURNING
+    - star: '*'
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t1
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          naked_identifier: i
+        data_type:
+          keyword: INTEGER
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    insert_statement:
+    - keyword: INSERT
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: t1
+    - values_clause:
+      - keyword: VALUES
+      - bracketed:
+          start_bracket: (
+          expression:
+            numeric_literal: '1'
+          end_bracket: )
+      - comma: ','
+      - bracketed:
+          start_bracket: (
+          expression:
+            numeric_literal: '2'
+          end_bracket: )
+      - comma: ','
+      - bracketed:
+          start_bracket: (
+          expression:
+            numeric_literal: '3'
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t2
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          naked_identifier: i
+        data_type:
+          keyword: INTEGER
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    insert_statement:
+    - keyword: INSERT
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: t2
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            column_reference:
+              naked_identifier: i
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: t1
+        where_clause:
+          keyword: WHERE
+          expression:
+            column_reference:
+              naked_identifier: i
+            keyword: IN
+            bracketed:
+            - start_bracket: (
+            - numeric_literal: '1'
+            - comma: ','
+            - numeric_literal: '3'
+            - end_bracket: )
+    - keyword: 'ON'
+    - keyword: CONFLICT
+    - conflict_action:
+      - keyword: DO
+      - keyword: UPDATE
+      - keyword: SET
+      - column_reference:
+          naked_identifier: j
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - expression:
+          column_reference:
+          - naked_identifier: EXCLUDED
+          - dot: .
+          - naked_identifier: j
+    - keyword: RETURNING
+    - star: '*'
+- statement_terminator: ;

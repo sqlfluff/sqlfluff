@@ -1,0 +1,62 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 9d3a06e6edc2e9c69ccb277055639c7cb78654a1f519fed42f290f4b29edfa34
+file:
+  statement:
+    select_statement:
+      select_clause:
+      - keyword: select
+      - select_clause_element:
+          column_reference:
+            column_index_identifier_segment: $1
+          alias_expression:
+            alias_operator:
+              keyword: as
+            naked_identifier: type
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            column_index_identifier_segment: $2
+          alias_expression:
+            alias_operator:
+              keyword: as
+            naked_identifier: price
+      from_clause:
+        keyword: from
+        from_expression:
+          bracketed:
+            start_bracket: (
+            from_expression_element:
+              table_expression:
+                values_clause:
+                - keyword: values
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                      quoted_literal: "'toffee'"
+                  - comma: ','
+                  - expression:
+                      numeric_literal: '5'
+                  - end_bracket: )
+                - comma: ','
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                      quoted_literal: "'starburst'"
+                  - comma: ','
+                  - expression:
+                      numeric_literal: '8'
+                  - end_bracket: )
+                - comma: ','
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                      quoted_literal: "'flying_saucer'"
+                  - comma: ','
+                  - expression:
+                      numeric_literal: '1'
+                  - end_bracket: )
+            end_bracket: )

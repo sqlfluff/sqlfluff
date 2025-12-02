@@ -1,0 +1,61 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: ac7532cfe4e089b5c0ea6520979cfcafcef2c5b66742a95556de01b8278eac6e
+file:
+  statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: REGEXP_REPLACE
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  quoted_literal: "'new york'"
+              - comma: ','
+              - expression:
+                  quoted_literal: "'(\\w)(\\w*)'"
+              - comma: ','
+              - lambda_function:
+                  parameter: x
+                  lambda_arrow: ->
+                  expression:
+                  - function:
+                      function_name:
+                        function_name_identifier: UPPER
+                      function_contents:
+                        bracketed:
+                          start_bracket: (
+                          expression:
+                            column_reference:
+                              naked_identifier: x
+                            array_accessor:
+                              start_square_bracket: '['
+                              numeric_literal: '1'
+                              end_square_bracket: ']'
+                          end_bracket: )
+                  - binary_operator:
+                    - pipe: '|'
+                    - pipe: '|'
+                  - function:
+                      function_name:
+                        function_name_identifier: LOWER
+                      function_contents:
+                        bracketed:
+                          start_bracket: (
+                          expression:
+                            column_reference:
+                              naked_identifier: x
+                            array_accessor:
+                              start_square_bracket: '['
+                              numeric_literal: '2'
+                              end_square_bracket: ']'
+                          end_bracket: )
+              - end_bracket: )
+  statement_terminator: ;

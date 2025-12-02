@@ -1,0 +1,232 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: fcf38b03dffc0c41aa7d7b82388214b89bbf69add1a96fbc22f6381275abf211
+file:
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          column_reference:
+            naked_identifier: value
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                quoted_identifier: "'[11,22,33,44]'"
+                column_path_operator: ->
+                numeric_literal: '3'
+      where_clause:
+        keyword: WHERE
+        expression:
+        - quoted_literal: "'{\"x\": \"y\"}'"
+        - column_path_operator: ->>
+        - quoted_literal: "'$.x'"
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - quoted_literal: "'y'"
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          column_reference:
+            naked_identifier: value
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                quoted_identifier: "'{\"a\":2,\"c\":[4,5,{\"f\":7}]}'"
+                column_path_operator: ->
+                quoted_literal: "'c'"
+      where_clause:
+        keyword: WHERE
+        expression:
+        - function:
+            function_name:
+              function_name_identifier: Upper
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  quoted_literal: "'{\"x\": \"y\"}'"
+                end_bracket: )
+        - column_path_operator: ->>
+        - quoted_literal: "'$.x'"
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - quoted_literal: "'y'"
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+          - quoted_literal: "'{\"a\":2,\"c\":[4,5,{\"f\":7}]}'"
+          - column_path_operator: ->
+          - quoted_literal: "'$'"
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+            quoted_literal: "'{\"a\":2,\"c\":[4,5,{\"f\":7}]}'"
+            column_path_operator: ->
+            column_reference:
+              quoted_identifier: '"$"'
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+          - quoted_literal: "'{\"a\":2,\"c\":[4,5,{\"f\":7}]}'"
+          - column_path_operator: ->
+          - quoted_literal: "'$.c'"
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+          - quoted_literal: "'{\"a\":2,\"c\":[4,5,{\"f\":7}]}'"
+          - column_path_operator: ->
+          - quoted_literal: "'c'"
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+          - quoted_literal: "'{\"a\":2,\"c\":[4,5,{\"f\":7}]}'"
+          - column_path_operator: ->
+          - quoted_literal: "'$.c[2]'"
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+          - quoted_literal: "'{\"a\":2,\"c\":[4,5,{\"f\":7}]}'"
+          - column_path_operator: ->
+          - quoted_literal: "'$.c[2].f'"
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+          - quoted_literal: "'{\"a\":2,\"c\":[4,5,{\"f\":7}]}'"
+          - column_path_operator: ->>
+          - quoted_literal: "'$.c[2].f'"
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+          - quoted_literal: "'{\"a\":2,\"c\":[4,5,{\"f\":7}]}'"
+          - column_path_operator: ->
+          - quoted_literal: "'c'"
+          - column_path_operator: ->
+          - numeric_literal: '2'
+          - column_path_operator: ->>
+          - quoted_literal: "'f'"
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+          - quoted_literal: "'{\"a\":2,\"c\":[4,5],\"f\":7}'"
+          - column_path_operator: ->
+          - quoted_literal: "'$.c[#-1]'"
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+          - quoted_literal: "'{\"a\":2,\"c\":[4,5,{\"f\":7}]}'"
+          - column_path_operator: ->
+          - quoted_literal: "'$.x'"
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+            quoted_literal: "'[11,22,33,44]'"
+            column_path_operator: ->
+            numeric_literal: '3'
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+            quoted_literal: "'[11,22,33,44]'"
+            column_path_operator: ->>
+            numeric_literal: '3'
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+          - quoted_literal: "'{\"a\":\"xyz\"}'"
+          - column_path_operator: ->
+          - quoted_literal: "'$.a'"
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+          - quoted_literal: "'{\"a\":\"xyz\"}'"
+          - column_path_operator: ->>
+          - quoted_literal: "'$.a'"
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+          - quoted_literal: "'{\"a\":null}'"
+          - column_path_operator: ->
+          - quoted_literal: "'$.a'"
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+          - quoted_literal: "'{\"a\":null}'"
+          - column_path_operator: ->>
+          - quoted_literal: "'$.a'"
+- statement_terminator: ;

@@ -1,0 +1,112 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: bd0e2f13b9bee38a83e6661281bae64e1dfe18014dbbab966576472084ed2f01
+file:
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: aggregate
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  function:
+                    function_name:
+                      function_name_identifier: array
+                    function_contents:
+                      bracketed:
+                      - start_bracket: (
+                      - expression:
+                          numeric_literal: '1'
+                      - comma: ','
+                      - expression:
+                          numeric_literal: '2'
+                      - comma: ','
+                      - expression:
+                          numeric_literal: '3'
+                      - end_bracket: )
+              - comma: ','
+              - expression:
+                  numeric_literal: '0'
+              - comma: ','
+              - expression:
+                - bracketed:
+                  - start_bracket: (
+                  - column_reference:
+                      naked_identifier: acc
+                  - comma: ','
+                  - column_reference:
+                      naked_identifier: x
+                  - end_bracket: )
+                - binary_operator: ->
+                - column_reference:
+                    naked_identifier: acc
+                - binary_operator: +
+                - column_reference:
+                    naked_identifier: x
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: aggregate
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  function:
+                    function_name:
+                      function_name_identifier: array
+                    function_contents:
+                      bracketed:
+                      - start_bracket: (
+                      - expression:
+                          numeric_literal: '1'
+                      - comma: ','
+                      - expression:
+                          numeric_literal: '2'
+                      - comma: ','
+                      - expression:
+                          numeric_literal: '3'
+                      - end_bracket: )
+              - comma: ','
+              - expression:
+                  numeric_literal: '0'
+              - comma: ','
+              - expression:
+                - bracketed:
+                  - start_bracket: (
+                  - column_reference:
+                      naked_identifier: acc
+                  - comma: ','
+                  - column_reference:
+                      naked_identifier: x
+                  - end_bracket: )
+                - binary_operator: ->
+                - column_reference:
+                    naked_identifier: acc
+                - binary_operator: +
+                - column_reference:
+                    naked_identifier: x
+              - comma: ','
+              - expression:
+                - column_reference:
+                    naked_identifier: acc
+                - binary_operator: ->
+                - column_reference:
+                    naked_identifier: acc
+                - binary_operator: '*'
+                - numeric_literal: '10'
+              - end_bracket: )
+- statement_terminator: ;

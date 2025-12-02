@@ -1,0 +1,197 @@
+rule: AM02
+
+test_pass_union_all:
+  pass_str: |
+    SELECT
+      a,
+      b
+    FROM tbl
+    UNION ALL
+    SELECT
+      c,
+      d
+    FROM tbl1
+
+test_fail_bare_union:
+  fail_str: |
+    SELECT
+      a,
+      b
+    FROM tbl
+    UNION
+    SELECT
+      c,
+      d
+    FROM tbl1
+  fix_str: |
+    SELECT
+      a,
+      b
+    FROM tbl
+    UNION DISTINCT
+    SELECT
+      c,
+      d
+    FROM tbl1
+
+test_pass_union_distinct:
+  pass_str: |
+    SELECT
+      a,
+      b
+    FROM tbl
+    UNION DISTINCT
+    SELECT
+      c,
+      d
+    FROM tbl1
+
+test_pass_union_distinct_with_comment:
+  pass_str: |
+    SELECT
+      a,
+      b
+    FROM tbl
+
+    --selecting a and b
+
+    UNION DISTINCT
+
+    SELECT
+      c,
+      d
+    FROM tbl1
+
+test_fail_triple_join_with_one_bad:
+  fail_str: |
+    SELECT
+      a,
+      b
+    FROM tbl
+    UNION DISTINCT
+    SELECT
+      c,
+      d
+    FROM tbl1
+    UNION
+    SELECT
+      e,
+      f
+    FROM tbl2
+  fix_str: |
+    SELECT
+      a,
+      b
+    FROM tbl
+    UNION DISTINCT
+    SELECT
+      c,
+      d
+    FROM tbl1
+    UNION DISTINCT
+    SELECT
+      e,
+      f
+    FROM tbl2
+
+test_fail_triple_join_with_one_bad_lowercase:
+  fail_str: |
+    select
+      a,
+      b
+    from tbl
+    union distinct
+    select
+      c,
+      d
+    from tbl1
+    union
+    select
+      e,
+      f
+    from tbl2
+  fix_str: |
+    select
+      a,
+      b
+    from tbl
+    union distinct
+    select
+      c,
+      d
+    from tbl1
+    union distinct
+    select
+      e,
+      f
+    from tbl2
+
+test_exasol:
+  pass_str: |
+    select
+      a,
+      b
+    from tbl1
+    union
+    select
+      c,
+      d
+    from tbl2
+  configs:
+    core:
+      dialect: exasol
+
+test_exasol_union_all:
+  pass_str: |
+    select
+      a,
+      b
+    from tbl1
+    union all
+    select
+      c,
+      d
+    from tbl2
+  configs:
+    core:
+      dialect: exasol
+
+test_postgres:
+  pass_str: |
+    select
+      a,
+      b
+    from tbl1
+    union
+    select
+      c,
+      d
+    from tbl2
+  configs:
+    core:
+      dialect: postgres
+
+test_redshift:
+  fail_str: |
+    SELECT
+      a,
+      b
+    FROM tbl1
+    UNION
+    SELECT
+      c,
+      d
+    FROM tbl2
+  fix_str: |
+    SELECT
+      a,
+      b
+    FROM tbl1
+    UNION DISTINCT
+    SELECT
+      c,
+      d
+    FROM tbl2
+  configs:
+    core:
+      dialect: redshift

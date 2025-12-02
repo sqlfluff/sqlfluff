@@ -1,0 +1,88 @@
+rule: AL02
+
+issue_561:
+  # Test for https://github.com/sqlfluff/sqlfluff/issues/561
+  pass_str: |
+    select
+      array_agg(catalog_item_id) within group
+        (order by product_position asc) over (partition by (event_id, shelf_position))
+      as shelf_catalog_items
+    from x
+  configs:
+    core:
+      dialect: snowflake
+
+test_fail_explicit_column_default:
+  # Test explicit column alias
+  fail_str: select 1 bar from table1 b
+  fix_str: select 1 AS bar from table1 b
+
+test_fail_explicit_column_explicit:
+  # Test explicit column alias
+  fail_str: select 1 bar from table1 b
+  fix_str: select 1 AS bar from table1 b
+  configs:
+    rules:
+      aliasing.column:
+        aliasing: explicit
+
+test_fail_explicit_column_implicit:
+  # Test explicit column alias
+  fail_str: select 1 AS bar from table1 b
+  fix_str: select 1 bar from table1 b
+  configs:
+    rules:
+      aliasing.column:
+        aliasing: implicit
+
+test_pass_tsql_alternative_alias:
+  # Test explicit column alias
+  pass_str: select alias1 = col1
+  configs: &tsql_dialect
+    core:
+      dialect: tsql
+
+test_pass_tsql_alternative_alias_no_spaces:
+  # Test explicit column alias
+  pass_str: select alias1=col1
+  configs: *tsql_dialect
+
+test_fail_alias_ending_equals:
+  # Test explicit column alias doesn't catch false positives
+  fail_str: select col1 "example="
+  fix_str: select col1 AS "example="
+
+test_fail_alias_ending_raw_equals:
+  # Test explicit column alias doesn't catch false positives
+  fail_str: select col1 raw_equals
+  fix_str: select col1 AS raw_equals
+
+test_fail_alias_expression_oracle_columns:
+  # Test failing alias expressions
+  # https://github.com/sqlfluff/sqlfluff/issues/5038
+  # Skip aliasing with 'AS' for Oracle table expressions
+  # Still alias the columns with 'AS'
+  fail_str:
+    SELECT
+        base.id id,
+        base.customer_id cust_id
+    FROM {{ ref('customers') }} base
+  fix_str:
+    SELECT
+        base.id AS id,
+        base.customer_id AS cust_id
+    FROM {{ ref('customers') }} base
+  configs:
+    core:
+      dialect: oracle
+
+test_pass_bigquery_replace_clause_implicit:
+  pass_str: |
+    select * replace (concat(name, "_new") AS name_test)
+    FROM my_db.test;
+  configs:
+    core:
+      dialect: bigquery
+    rules:
+      aliasing.column:
+        aliasing: implicit

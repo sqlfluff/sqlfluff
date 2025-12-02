@@ -1,0 +1,56 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 229ad331db0574e38536d0ed149fd6bc032240c093a546a9565ae8261568e4ab
+file:
+  statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+            typed_array_literal:
+              array_type:
+                keyword: ARRAY
+              array_literal:
+                start_square_bracket: '['
+                function:
+                  function_name:
+                    function_name_identifier: CAST
+                  function_contents:
+                    bracketed:
+                      start_bracket: (
+                      expression:
+                        function:
+                          function_name:
+                            function_name_identifier: ROW
+                          function_contents:
+                            bracketed:
+                              start_bracket: (
+                              expression:
+                                numeric_literal: '1'
+                              end_bracket: )
+                      keyword: AS
+                      data_type:
+                        keyword: ROW
+                        bracketed:
+                          start_bracket: (
+                          naked_identifier: x
+                          data_type:
+                            primitive_type:
+                              keyword: INT
+                          end_bracket: )
+                      end_bracket: )
+                end_square_bracket: ']'
+            array_accessor:
+              start_square_bracket: '['
+              numeric_literal: '1'
+              end_square_bracket: ']'
+            dot: .
+            object_reference:
+            - naked_identifier: x
+            - dot: .
+            - naked_identifier: y
+  statement_terminator: ;

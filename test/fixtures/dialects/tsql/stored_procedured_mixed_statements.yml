@@ -3,89 +3,156 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 1d71a43a3c51b8860b18d9da2256b0c0d635a475a00841b5b9fc8db8ba541e38
+_hash: 0a08fa8ee3636a3364e6cbd7a691f4ea1f1625e13e8d50e8c040979372648bfc
 file:
   batch:
-    create_procedure_statement:
-    - keyword: CREATE
-    - keyword: PROC
-    - object_reference:
-      - identifier: '[Reporting]'
-      - dot: .
-      - identifier: '[PowerPlan]'
-    - keyword: AS
-    - procedure_statement:
-      - statement:
-          declare_segment:
-            keyword: DECLARE
-            parameter: '@DATEFUNCTION'
-            data_type:
-              identifier: DATE
-            comparison_operator: '='
-            expression:
-              function:
-                function_name:
-                  function_name_identifier: GETDATE
-                bracketed:
-                  start_bracket: (
-                  end_bracket: )
-      - statement:
-          drop_statement:
-          - keyword: DROP
-          - keyword: TABLE
-          - table_reference:
-            - identifier: '[Reporting]'
-            - dot: .
-            - identifier: '[PowerPlan_BASE]'
-          - statement_terminator: ;
-      - begin_end_block:
-        - keyword: BEGIN
+    statement:
+      create_procedure_statement:
+      - keyword: CREATE
+      - keyword: PROC
+      - object_reference:
+        - quoted_identifier: '[Reporting]'
+        - dot: .
+        - quoted_identifier: '[PowerPlan]'
+      - keyword: AS
+      - procedure_statement:
         - statement:
-            select_statement:
-              select_clause:
-                keyword: SELECT
-                select_clause_element:
-                  literal: '1'
+            declare_segment:
+              keyword: DECLARE
+              parameter: '@DATEFUNCTION'
+              data_type:
+                keyword: DATE
+              comparison_operator:
+                raw_comparison_operator: '='
+              expression:
+                function:
+                  function_name:
+                    function_name_identifier: GETDATE
+                  function_contents:
+                    bracketed:
+                      start_bracket: (
+                      end_bracket: )
         - statement:
-            create_table_as_select_statement:
-            - keyword: CREATE
+            drop_table_statement:
+            - keyword: DROP
             - keyword: TABLE
             - table_reference:
-                identifier: '#TempTest'
-            - table_distribution_index_clause:
-                keyword: WITH
-                bracketed:
-                  start_bracket: (
-                  table_distribution_clause:
-                  - keyword: DISTRIBUTION
-                  - comparison_operator: '='
-                  - keyword: ROUND_ROBIN
-                  comma: ','
-                  table_index_clause:
-                    keyword: HEAP
-                  end_bracket: )
-            - keyword: AS
-            - bracketed:
-                start_bracket: (
+              - quoted_identifier: '[Reporting]'
+              - dot: .
+              - quoted_identifier: '[PowerPlan_BASE]'
+        - statement_terminator: ;
+        - statement:
+            declare_segment:
+              keyword: DECLARE
+              parameter: '@deadlock_var'
+              data_type:
+                keyword: NCHAR
+                bracketed_arguments:
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      integer_literal: '3'
+                    end_bracket: )
+        - statement_terminator: ;
+        - statement:
+            set_local_variable_segment:
+              keyword: SET
+              parameter: '@deadlock_var'
+              assignment_operator:
+                raw_comparison_operator: '='
+              expression:
+                quoted_literal: "N'LOW'"
+        - statement_terminator: ;
+        - statement:
+            begin_end_block:
+            - keyword: BEGIN
+            - statement:
+                set_segment:
+                - keyword: SET
+                - keyword: NOCOUNT
+                - keyword: 'ON'
+            - statement:
+                set_segment:
+                - keyword: SET
+                - keyword: DEADLOCK_PRIORITY
+                - keyword: LOW
+            - statement:
+                set_segment:
+                - keyword: SET
+                - keyword: DEADLOCK_PRIORITY
+                - keyword: NORMAL
+            - statement:
+                set_segment:
+                - keyword: SET
+                - keyword: DEADLOCK_PRIORITY
+                - keyword: HIGH
+            - statement:
+                set_segment:
+                - keyword: SET
+                - keyword: DEADLOCK_PRIORITY
+                - parameter: '@deadlock_var'
+            - statement:
+                set_segment:
+                - keyword: SET
+                - keyword: DEADLOCK_PRIORITY
+                - numeric_literal: '10'
+            - statement:
+                set_segment:
+                - keyword: SET
+                - keyword: DEADLOCK_PRIORITY
+                - numeric_literal:
+                    sign_indicator: '-'
+                    numeric_literal: '5'
+            - statement:
                 select_statement:
                   select_clause:
-                  - keyword: SELECT
-                  - select_clause_element:
-                      literal: '2'
-                      alias_expression:
-                        keyword: AS
-                        identifier: Two
-                  - comma: ','
-                  - select_clause_element:
-                      literal: '3'
-                      alias_expression:
-                        keyword: AS
-                        identifier: Three
-                  - comma: ','
-                  - select_clause_element:
-                      literal: '4'
-                      alias_expression:
-                        keyword: AS
-                        identifier: Four
-                end_bracket: )
-        - keyword: END
+                    keyword: SELECT
+                    select_clause_element:
+                      integer_literal: '1'
+            - statement:
+                create_table_as_select_statement:
+                - keyword: CREATE
+                - keyword: TABLE
+                - table_reference:
+                    hash_identifier: '#TempTest'
+                - table_distribution_index_clause:
+                    keyword: WITH
+                    bracketed:
+                      start_bracket: (
+                      table_distribution_clause:
+                      - keyword: DISTRIBUTION
+                      - comparison_operator:
+                          raw_comparison_operator: '='
+                      - keyword: ROUND_ROBIN
+                      comma: ','
+                      table_index_clause:
+                        keyword: HEAP
+                      end_bracket: )
+                - keyword: AS
+                - bracketed:
+                    start_bracket: (
+                    select_statement:
+                      select_clause:
+                      - keyword: SELECT
+                      - select_clause_element:
+                          integer_literal: '2'
+                          alias_expression:
+                            alias_operator:
+                              keyword: AS
+                            naked_identifier: Two
+                      - comma: ','
+                      - select_clause_element:
+                          integer_literal: '3'
+                          alias_expression:
+                            alias_operator:
+                              keyword: AS
+                            naked_identifier: Three
+                      - comma: ','
+                      - select_clause_element:
+                          integer_literal: '4'
+                          alias_expression:
+                            alias_operator:
+                              keyword: AS
+                            naked_identifier: Four
+                    end_bracket: )
+            - keyword: END

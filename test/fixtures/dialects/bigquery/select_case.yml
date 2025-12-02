@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: c9e4ba5686b0bcdb23a74c65815e0a1ced37c267155db8be64b3bb91859f0bcf
+_hash: 3d5dde713271d10a898c0c50db02310a221c81996aa8c099d3049b3a7f409440
 file:
   statement:
     select_statement:
@@ -15,33 +15,37 @@ file:
             - keyword: case
             - expression:
                 column_reference:
-                  identifier: fruit_code
-            - keyword: when
-            - expression:
-                literal: '0'
-            - keyword: then
-            - expression:
-                literal: "'apple'"
-            - keyword: when
-            - expression:
-                literal: '1'
-            - keyword: then
-            - expression:
-                literal: "'banana'"
-            - keyword: when
-            - expression:
-                literal: '2'
-            - keyword: then
-            - expression:
-                literal: "'cashew'"
+                  naked_identifier: fruit_code
+            - when_clause:
+              - keyword: when
+              - expression:
+                  numeric_literal: '0'
+              - keyword: then
+              - expression:
+                  quoted_literal: "'apple'"
+            - when_clause:
+              - keyword: when
+              - expression:
+                  numeric_literal: '1'
+              - keyword: then
+              - expression:
+                  quoted_literal: "'banana'"
+            - when_clause:
+              - keyword: when
+              - expression:
+                  numeric_literal: '2'
+              - keyword: then
+              - expression:
+                  quoted_literal: "'cashew'"
             - keyword: end
           alias_expression:
-            keyword: as
-            identifier: fruit
+            alias_operator:
+              keyword: as
+            naked_identifier: fruit
       from_clause:
         keyword: from
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: some_table
+                naked_identifier: some_table

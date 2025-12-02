@@ -3,47 +3,53 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 8b81e4770b1ee9870fc8d3b209d85e887133cdb463e1106820b0e6fa7071cfaa
+_hash: 9a80463bd722a8feccaa88d702e5fbe88eb34e922b5379831463cc2b3a8f3f97
 file:
   statement:
     update_statement:
       keyword: UPDATE
       table_reference:
-        identifier: table1
+        naked_identifier: table1
       set_clause_list:
         keyword: SET
         set_clause:
           column_reference:
-            identifier: a
-          comparison_operator: '='
+            naked_identifier: a
+          comparison_operator:
+            raw_comparison_operator: '='
           expression:
             case_expression:
             - keyword: CASE
-            - keyword: WHEN
-            - expression:
-                column_reference:
-                - identifier: t2
-                - dot: .
-                - identifier: column
-                comparison_operator: '='
-                literal: "'T'"
-            - keyword: THEN
-            - expression:
-                literal: 'TRUE'
-            - keyword: WHEN
-            - expression:
-                column_reference:
-                - identifier: t2
-                - dot: .
-                - identifier: column
-                comparison_operator: '='
-                literal: "'F'"
-            - keyword: THEN
-            - expression:
-                literal: 'FALSE'
-            - keyword: ELSE
-            - expression:
-                literal: 'NULL'
+            - when_clause:
+              - keyword: WHEN
+              - expression:
+                  column_reference:
+                  - naked_identifier: t2
+                  - dot: .
+                  - naked_identifier: column
+                  comparison_operator:
+                    raw_comparison_operator: '='
+                  quoted_literal: "'T'"
+              - keyword: THEN
+              - expression:
+                  boolean_literal: 'TRUE'
+            - when_clause:
+              - keyword: WHEN
+              - expression:
+                  column_reference:
+                  - naked_identifier: t2
+                  - dot: .
+                  - naked_identifier: column
+                  comparison_operator:
+                    raw_comparison_operator: '='
+                  quoted_literal: "'F'"
+              - keyword: THEN
+              - expression:
+                  boolean_literal: 'FALSE'
+            - else_clause:
+                keyword: ELSE
+                expression:
+                  null_literal: 'NULL'
             - keyword: END
       from_clause:
         keyword: FROM
@@ -51,7 +57,7 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: table2
+                naked_identifier: table2
             alias_expression:
-              identifier: t2
+              naked_identifier: t2
   statement_terminator: ;

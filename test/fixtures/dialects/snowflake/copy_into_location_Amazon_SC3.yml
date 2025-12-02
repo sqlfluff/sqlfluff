@@ -1,0 +1,48 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: db3b90d44ca4034cecf43dd0fef52cc912c21a64d7c7f4664fd075bd97a366ea
+file:
+  statement:
+    copy_into_location_statement:
+    - keyword: copy
+    - keyword: into
+    - storage_location:
+        bucket_path: "'s3://mybucket/unload/'"
+    - keyword: from
+    - table_reference:
+        naked_identifier: mytable
+    - stage_parameters:
+        keyword: credentials
+        comparison_operator:
+          raw_comparison_operator: '='
+        bracketed:
+        - start_bracket: (
+        - keyword: aws_key_id
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - quoted_literal: "'xxxx'"
+        - keyword: aws_secret_key
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - quoted_literal: "'xxxxx'"
+        - keyword: aws_token
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - quoted_literal: "'xxxxxx'"
+        - end_bracket: )
+    - keyword: file_format
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - file_format_segment:
+        bracketed:
+          start_bracket: (
+          keyword: format_name
+          comparison_operator:
+            raw_comparison_operator: '='
+          object_reference:
+            naked_identifier: my_csv_format
+          end_bracket: )
+  statement_terminator: ;

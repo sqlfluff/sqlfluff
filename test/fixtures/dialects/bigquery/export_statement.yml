@@ -1,0 +1,504 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 80bb12f52440a5a21237531e1a15693f0f0684ce77bfb4473b045f6243b208a6
+file:
+- statement:
+    export_statement:
+    - keyword: EXPORT
+    - keyword: DATA
+    - keyword: WITH
+    - keyword: CONNECTION
+    - object_reference:
+      - naked_identifier: PROJECT_ID
+      - dot: .
+      - naked_identifier: LOCATION
+      - dot: .
+      - naked_identifier: CONNECTION_ID
+    - keyword: OPTIONS
+    - bracketed:
+      - start_bracket: (
+      - export_option: uri
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'gs://bucket/folder/*.csv'"
+      - comma: ','
+      - export_option: format
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'CSV'"
+      - comma: ','
+      - export_option: overwrite
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - boolean_literal: 'true'
+      - comma: ','
+      - export_option: header
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - boolean_literal: 'true'
+      - comma: ','
+      - export_option: field_delimiter
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "';'"
+      - end_bracket: )
+    - keyword: AS
+    - select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+              naked_identifier: field1
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: field2
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                - naked_identifier: mydataset
+                - dot: .
+                - naked_identifier: table1
+        orderby_clause:
+        - keyword: ORDER
+        - keyword: BY
+        - column_reference:
+            naked_identifier: field1
+- statement_terminator: ;
+- statement:
+    export_statement:
+    - keyword: EXPORT
+    - keyword: DATA
+    - keyword: WITH
+    - keyword: CONNECTION
+    - object_reference:
+        quoted_identifier: '`PROJECT_ID.LOCATION.CONNECTION_ID`'
+    - keyword: OPTIONS
+    - bracketed:
+      - start_bracket: (
+      - export_option: uri
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'gs://bucket/folder/*.csv'"
+      - comma: ','
+      - export_option: format
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'CSV'"
+      - comma: ','
+      - export_option: overwrite
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - boolean_literal: 'true'
+      - comma: ','
+      - export_option: header
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - boolean_literal: 'true'
+      - comma: ','
+      - export_option: field_delimiter
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "';'"
+      - end_bracket: )
+    - keyword: AS
+    - select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+              naked_identifier: field1
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: field2
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                - naked_identifier: mydataset
+                - dot: .
+                - naked_identifier: table1
+        orderby_clause:
+        - keyword: ORDER
+        - keyword: BY
+        - column_reference:
+            naked_identifier: field1
+- statement_terminator: ;
+- statement:
+    export_statement:
+    - keyword: EXPORT
+    - keyword: DATA
+    - keyword: OPTIONS
+    - bracketed:
+      - start_bracket: (
+      - export_option: uri
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'gs://bucket/folder/*.csv'"
+      - comma: ','
+      - export_option: format
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'CSV'"
+      - comma: ','
+      - export_option: overwrite
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - boolean_literal: 'true'
+      - comma: ','
+      - export_option: header
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - boolean_literal: 'true'
+      - comma: ','
+      - export_option: field_delimiter
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "';'"
+      - end_bracket: )
+    - keyword: AS
+    - select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+              naked_identifier: field1
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: field2
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                - naked_identifier: mydataset
+                - dot: .
+                - naked_identifier: table1
+        orderby_clause:
+        - keyword: ORDER
+        - keyword: BY
+        - column_reference:
+            naked_identifier: field1
+        limit_clause:
+          keyword: LIMIT
+          numeric_literal: '10'
+- statement_terminator: ;
+- statement:
+    export_statement:
+    - keyword: EXPORT
+    - keyword: DATA
+    - keyword: OPTIONS
+    - bracketed:
+      - start_bracket: (
+      - export_option: uri
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: '"gs://bucket/folder/*.csv"'
+      - comma: ','
+      - export_option: format
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: '"CSV"'
+      - comma: ','
+      - export_option: overwrite
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - boolean_literal: 'true'
+      - comma: ','
+      - export_option: header
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - boolean_literal: 'true'
+      - comma: ','
+      - export_option: field_delimiter
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "';'"
+      - end_bracket: )
+    - keyword: AS
+    - select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+              naked_identifier: field1
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: field2
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                - naked_identifier: mydataset
+                - dot: .
+                - naked_identifier: table1
+        orderby_clause:
+        - keyword: ORDER
+        - keyword: BY
+        - column_reference:
+            naked_identifier: field1
+        limit_clause:
+          keyword: LIMIT
+          numeric_literal: '10'
+- statement_terminator: ;
+- statement:
+    export_statement:
+    - keyword: EXPORT
+    - keyword: DATA
+    - keyword: OPTIONS
+    - bracketed:
+      - start_bracket: (
+      - export_option: uri
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'gs://bucket/folder/*'"
+      - comma: ','
+      - export_option: format
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'AVRO'"
+      - comma: ','
+      - export_option: compression
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'SNAPPY'"
+      - end_bracket: )
+    - keyword: AS
+    - select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+              naked_identifier: field1
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: field2
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                - naked_identifier: mydataset
+                - dot: .
+                - naked_identifier: table1
+        orderby_clause:
+        - keyword: ORDER
+        - keyword: BY
+        - column_reference:
+            naked_identifier: field1
+        limit_clause:
+          keyword: LIMIT
+          numeric_literal: '10'
+- statement_terminator: ;
+- statement:
+    export_statement:
+    - keyword: EXPORT
+    - keyword: DATA
+    - keyword: OPTIONS
+    - bracketed:
+      - start_bracket: (
+      - export_option: uri
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'gs://bucket/folder/*'"
+      - comma: ','
+      - export_option: format
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'PARQUET'"
+      - comma: ','
+      - export_option: overwrite
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - boolean_literal: 'true'
+      - end_bracket: )
+    - keyword: AS
+    - select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+              naked_identifier: field1
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: field2
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                - naked_identifier: mydataset
+                - dot: .
+                - naked_identifier: table1
+        orderby_clause:
+        - keyword: ORDER
+        - keyword: BY
+        - column_reference:
+            naked_identifier: field1
+        limit_clause:
+          keyword: LIMIT
+          numeric_literal: '10'
+- statement_terminator: ;
+- statement:
+    export_statement:
+    - keyword: EXPORT
+    - keyword: DATA
+    - keyword: OPTIONS
+    - bracketed:
+      - start_bracket: (
+      - export_option: uri
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'gs://bucket/folder/*.csv'"
+      - comma: ','
+      - export_option: format
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'CSV'"
+      - comma: ','
+      - export_option: overwrite
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - boolean_literal: 'true'
+      - comma: ','
+      - export_option: header
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - boolean_literal: 'true'
+      - comma: ','
+      - export_option: field_delimiter
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "';'"
+      - end_bracket: )
+    - keyword: AS
+    - with_compound_statement:
+        keyword: WITH
+        common_table_expression:
+          naked_identifier: cte
+          keyword: AS
+          bracketed:
+            start_bracket: (
+            select_statement:
+              select_clause:
+              - keyword: SELECT
+              - select_clause_element:
+                  column_reference:
+                    naked_identifier: field1
+              - comma: ','
+              - select_clause_element:
+                  column_reference:
+                    naked_identifier: field2
+              from_clause:
+                keyword: FROM
+                from_expression:
+                  from_expression_element:
+                    table_expression:
+                      table_reference:
+                      - naked_identifier: mydataset
+                      - dot: .
+                      - naked_identifier: table1
+              orderby_clause:
+              - keyword: ORDER
+              - keyword: BY
+              - column_reference:
+                  naked_identifier: field1
+              limit_clause:
+                keyword: LIMIT
+                numeric_literal: '10'
+            end_bracket: )
+        select_statement:
+          select_clause:
+            keyword: SELECT
+            select_clause_element:
+              wildcard_expression:
+                wildcard_identifier:
+                  star: '*'
+          from_clause:
+            keyword: FROM
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                    naked_identifier: cte
+- statement_terminator: ;
+- statement:
+    export_statement:
+    - keyword: EXPORT
+    - keyword: DATA
+    - keyword: OPTIONS
+    - bracketed:
+      - start_bracket: (
+      - export_option: uri
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - function:
+          function_name:
+            function_name_identifier: CONCAT
+          function_contents:
+            bracketed:
+            - start_bracket: (
+            - expression:
+                quoted_literal: '"gs://bucket/"'
+            - comma: ','
+            - expression:
+                quoted_literal: '"/file_*.csv"'
+            - end_bracket: )
+      - comma: ','
+      - export_option: format
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'CSV'"
+      - comma: ','
+      - export_option: overwrite
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - boolean_literal: 'true'
+      - comma: ','
+      - export_option: header
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - boolean_literal: 'true'
+      - comma: ','
+      - export_option: field_delimiter
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "','"
+      - end_bracket: )
+    - keyword: as
+    - select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+              naked_identifier: col1
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: col2
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: thetable
+- statement_terminator: ;

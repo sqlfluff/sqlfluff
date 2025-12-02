@@ -1,0 +1,97 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: cb4515d6700cb2e56cf988b801092be38560e0ea53536094c561ecf5d0b68d98
+file:
+- statement:
+    alter_table_statement:
+      alter_table_constraint_statement:
+      - keyword: ALTER
+      - keyword: TABLE
+      - table_reference:
+          naked_identifier: t1
+      - keyword: ADD
+      - table_constraint_definition:
+        - keyword: CONSTRAINT
+        - naked_identifier: my_primary_key
+        - keyword: PRIMARY
+        - keyword: KEY
+        - bracketed:
+            start_bracket: (
+            column_reference:
+              naked_identifier: a
+            end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+      alter_table_constraint_statement:
+      - keyword: ALTER
+      - keyword: TABLE
+      - table_reference:
+          naked_identifier: t2
+      - keyword: ADD
+      - table_constraint_definition:
+        - keyword: CONSTRAINT
+        - naked_identifier: my_foreign_key
+        - keyword: FOREIGN
+        - keyword: KEY
+        - bracketed:
+            start_bracket: (
+            column_reference:
+              naked_identifier: x
+            end_bracket: )
+        - keyword: REFERENCES
+        - table_reference:
+            naked_identifier: t1
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+      alter_table_constraint_statement:
+      - keyword: ALTER
+      - keyword: TABLE
+      - table_reference:
+          naked_identifier: t2
+      - keyword: MODIFY
+      - keyword: CONSTRAINT
+      - naked_identifier: my_foreign_key
+      - keyword: DISABLE
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+      alter_table_constraint_statement:
+      - keyword: ALTER
+      - keyword: TABLE
+      - table_reference:
+          naked_identifier: t2
+      - keyword: RENAME
+      - keyword: CONSTRAINT
+      - naked_identifier: my_foreign_key
+      - keyword: TO
+      - naked_identifier: my_fk
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+      alter_table_constraint_statement:
+      - keyword: ALTER
+      - keyword: TABLE
+      - table_reference:
+          naked_identifier: t2
+      - keyword: DROP
+      - keyword: CONSTRAINT
+      - naked_identifier: my_fk
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+      alter_table_constraint_statement:
+      - keyword: ALTER
+      - keyword: TABLE
+      - table_reference:
+          naked_identifier: t1
+      - keyword: DROP
+      - keyword: CONSTRAINT
+      - keyword: IF
+      - keyword: EXISTS
+      - naked_identifier: PK_X
+- statement_terminator: ;

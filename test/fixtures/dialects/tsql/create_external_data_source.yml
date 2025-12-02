@@ -1,0 +1,95 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 1130bd8d6d273d4f49c52a4eb01877f3cb15d60c58084d81ef83729d23d9de3c
+file:
+  batch:
+  - statement:
+      create_external_data_source_statement:
+      - keyword: CREATE
+      - keyword: EXTERNAL
+      - keyword: DATA
+      - keyword: SOURCE
+      - object_reference:
+          naked_identifier: MyOracleServer
+      - keyword: WITH
+      - bracketed:
+        - start_bracket: (
+        - table_location_clause:
+            keyword: LOCATION
+            comparison_operator:
+              raw_comparison_operator: '='
+            quoted_literal: "'oracle://145.145.145.145:1521'"
+        - comma: ','
+        - keyword: CREDENTIAL
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - object_reference:
+            naked_identifier: OracleProxyAccount
+        - comma: ','
+        - keyword: PUSHDOWN
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - keyword: 'ON'
+        - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      create_external_data_source_statement:
+      - keyword: CREATE
+      - keyword: EXTERNAL
+      - keyword: DATA
+      - keyword: SOURCE
+      - object_reference:
+          quoted_identifier: '[OracleSalesSrvr]'
+      - keyword: WITH
+      - bracketed:
+        - start_bracket: (
+        - table_location_clause:
+            keyword: LOCATION
+            comparison_operator:
+              raw_comparison_operator: '='
+            quoted_literal: "'oracle://145.145.145.145:1521'"
+        - comma: ','
+        - keyword: CONNECTION_OPTIONS
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - quoted_literal: "'ImpersonateUser=%CURRENT_USER'"
+        - comma: ','
+        - keyword: CREDENTIAL
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - object_reference:
+            quoted_identifier: '[OracleProxyCredential]'
+        - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      create_external_data_source_statement:
+      - keyword: CREATE
+      - keyword: EXTERNAL
+      - keyword: DATA
+      - keyword: SOURCE
+      - object_reference:
+          quoted_identifier: '[external_data_source_name]'
+      - keyword: WITH
+      - bracketed:
+        - start_bracket: (
+        - table_location_clause:
+            keyword: LOCATION
+            comparison_operator:
+              raw_comparison_operator: '='
+            quoted_literal: "N'oracle://XE'"
+        - comma: ','
+        - keyword: CREDENTIAL
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - object_reference:
+            quoted_identifier: '[OracleCredentialTest]'
+        - comma: ','
+        - keyword: CONNECTION_OPTIONS
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - quoted_literal: "N'TNSNamesFile=C:\\Temp\\tnsnames.ora;ServerName=XE'"
+        - end_bracket: )
+  - statement_terminator: ;

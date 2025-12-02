@@ -1,0 +1,85 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 7924caa50d4473f8535da52f0a3b8091a85c2cebb11fe03765ba868e31d034c6
+file:
+- statement:
+    reassign_owned_statement:
+    - keyword: REASSIGN
+    - keyword: OWNED
+    - keyword: BY
+    - role_reference:
+        naked_identifier: bob
+    - keyword: TO
+    - role_reference:
+        naked_identifier: alice
+- statement_terminator: ;
+- statement:
+    reassign_owned_statement:
+    - keyword: REASSIGN
+    - keyword: OWNED
+    - keyword: BY
+    - role_reference:
+        naked_identifier: bob
+    - comma: ','
+    - role_reference:
+        naked_identifier: ted
+    - keyword: TO
+    - role_reference:
+        naked_identifier: alice
+- statement_terminator: ;
+- statement:
+    reassign_owned_statement:
+    - keyword: REASSIGN
+    - keyword: OWNED
+    - keyword: BY
+    - role_reference:
+        naked_identifier: bob
+    - comma: ','
+    - keyword: CURRENT_ROLE
+    - comma: ','
+    - role_reference:
+        naked_identifier: ted
+    - comma: ','
+    - keyword: CURRENT_USER
+    - comma: ','
+    - role_reference:
+        naked_identifier: sam
+    - comma: ','
+    - keyword: SESSION_USER
+    - keyword: TO
+    - role_reference:
+        naked_identifier: alice
+- statement_terminator: ;
+- statement:
+    reassign_owned_statement:
+    - keyword: REASSIGN
+    - keyword: OWNED
+    - keyword: BY
+    - role_reference:
+        naked_identifier: bob
+    - keyword: TO
+    - keyword: CURRENT_ROLE
+- statement_terminator: ;
+- statement:
+    reassign_owned_statement:
+    - keyword: REASSIGN
+    - keyword: OWNED
+    - keyword: BY
+    - role_reference:
+        naked_identifier: bob
+    - keyword: TO
+    - keyword: CURRENT_USER
+- statement_terminator: ;
+- statement:
+    reassign_owned_statement:
+    - keyword: REASSIGN
+    - keyword: OWNED
+    - keyword: BY
+    - role_reference:
+        naked_identifier: bob
+    - keyword: TO
+    - keyword: SESSION_USER
+- statement_terminator: ;

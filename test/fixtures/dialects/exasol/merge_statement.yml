@@ -1,0 +1,217 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: a4d138880f1919176af50be3073357c3b570fd5e695c4e10bceafe0075c0e799
+file:
+- statement:
+    merge_statement:
+    - keyword: MERGE
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: staff
+    - alias_expression:
+        naked_identifier: T
+    - keyword: USING
+    - table_reference:
+        naked_identifier: changes
+    - alias_expression:
+        naked_identifier: U
+    - join_on_condition:
+        keyword: 'ON'
+        expression:
+        - column_reference:
+          - naked_identifier: T
+          - dot: .
+          - naked_identifier: name
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - column_reference:
+          - naked_identifier: U
+          - dot: .
+          - naked_identifier: name
+    - merge_match:
+        merge_when_matched_clause:
+        - keyword: WHEN
+        - keyword: MATCHED
+        - keyword: THEN
+        - merge_update_clause:
+            keyword: UPDATE
+            set_clause_list:
+            - keyword: SET
+            - set_clause:
+                column_reference:
+                - naked_identifier: T
+                - dot: .
+                - naked_identifier: salary
+                comparison_operator:
+                  raw_comparison_operator: '='
+                expression:
+                  column_reference:
+                  - naked_identifier: U
+                  - dot: .
+                  - naked_identifier: salary
+            - comma: ','
+            - set_clause:
+                column_reference:
+                - naked_identifier: T
+                - dot: .
+                - naked_identifier: lastChange
+                comparison_operator:
+                  raw_comparison_operator: '='
+                expression:
+                  bare_function: CURRENT_DATE
+            where_clause:
+              keyword: WHERE
+              expression:
+              - column_reference:
+                - naked_identifier: T
+                - dot: .
+                - naked_identifier: salary
+              - comparison_operator:
+                  raw_comparison_operator: <
+              - column_reference:
+                - naked_identifier: U
+                - dot: .
+                - naked_identifier: salary
+        merge_when_not_matched_clause:
+        - keyword: WHEN
+        - keyword: NOT
+        - keyword: MATCHED
+        - keyword: THEN
+        - merge_insert_clause:
+            keyword: INSERT
+            values_clause:
+              keyword: VALUES
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                  - naked_identifier: U
+                  - dot: .
+                  - naked_identifier: name
+              - comma: ','
+              - expression:
+                  column_reference:
+                  - naked_identifier: U
+                  - dot: .
+                  - naked_identifier: salary
+              - comma: ','
+              - expression:
+                  bare_function: CURRENT_DATE
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+    merge_statement:
+    - keyword: MERGE
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: staff
+    - alias_expression:
+        naked_identifier: T
+    - keyword: USING
+    - bracketed:
+        start_bracket: (
+        select_statement:
+          select_clause:
+            keyword: SELECT
+            select_clause_element:
+              column_reference:
+                naked_identifier: name
+          from_clause:
+            keyword: FROM
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                    naked_identifier: X
+        end_bracket: )
+    - alias_expression:
+        naked_identifier: U
+    - join_on_condition:
+        keyword: 'ON'
+        expression:
+        - column_reference:
+          - naked_identifier: T
+          - dot: .
+          - naked_identifier: name
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - column_reference:
+          - naked_identifier: U
+          - dot: .
+          - naked_identifier: name
+    - merge_match:
+        merge_when_matched_clause:
+        - keyword: WHEN
+        - keyword: MATCHED
+        - keyword: THEN
+        - merge_delete_clause:
+            keyword: DELETE
+- statement_terminator: ;
+- statement:
+    merge_statement:
+    - keyword: MERGE
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: staff
+    - alias_expression:
+        naked_identifier: T
+    - keyword: USING
+    - bracketed:
+        start_bracket: (
+        select_statement:
+          select_clause:
+            keyword: SELECT
+            select_clause_element:
+              column_reference:
+                naked_identifier: name
+          from_clause:
+            keyword: FROM
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                    naked_identifier: X
+        end_bracket: )
+    - alias_expression:
+        naked_identifier: U
+    - join_on_condition:
+        keyword: 'ON'
+        expression:
+        - column_reference:
+          - naked_identifier: T
+          - dot: .
+          - naked_identifier: name
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - column_reference:
+          - naked_identifier: U
+          - dot: .
+          - naked_identifier: name
+    - merge_match:
+        merge_when_not_matched_clause:
+        - keyword: WHEN
+        - keyword: NOT
+        - keyword: MATCHED
+        - keyword: THEN
+        - merge_insert_clause:
+            keyword: INSERT
+            values_clause:
+              keyword: VALUES
+              bracketed:
+              - start_bracket: (
+              - numeric_literal: '1'
+              - comma: ','
+              - numeric_literal: '2'
+              - comma: ','
+              - numeric_literal: '3'
+              - end_bracket: )
+        merge_when_matched_clause:
+        - keyword: WHEN
+        - keyword: MATCHED
+        - keyword: THEN
+        - merge_delete_clause:
+            keyword: DELETE
+- statement_terminator: ;

@@ -1,0 +1,6 @@
+test-config:
+  rules:
+    - LT02
+    - CP01
+    - LT04
+    - ST06

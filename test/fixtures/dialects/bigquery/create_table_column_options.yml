@@ -1,0 +1,112 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 6710b3ef0eea72186c3ca5b9cb5bdb943a51090c073a2844c736f0b2d5f3fd37
+file:
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t_table1
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          naked_identifier: x
+          data_type:
+            data_type_identifier: INT64
+          options_segment:
+            keyword: OPTIONS
+            bracketed:
+              start_bracket: (
+              parameter: description
+              comparison_operator:
+                raw_comparison_operator: '='
+              quoted_literal: '"An INTEGER field"'
+              end_bracket: )
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t_table1
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          naked_identifier: x
+          data_type:
+            data_type_identifier: INT64
+          column_constraint_segment:
+          - keyword: NOT
+          - keyword: 'NULL'
+          options_segment:
+            keyword: OPTIONS
+            bracketed:
+              start_bracket: (
+              parameter: description
+              comparison_operator:
+                raw_comparison_operator: '='
+              quoted_literal: '"An INTEGER field that is NOT NULL"'
+              end_bracket: )
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t_table1
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          naked_identifier: x
+          data_type:
+            data_type:
+              keyword: STRUCT
+              struct_type_schema:
+                start_angle_bracket: <
+                parameter: col1
+                data_type:
+                  data_type_identifier: INT64
+                options_segment:
+                  keyword: OPTIONS
+                  bracketed:
+                    start_bracket: (
+                    parameter: description
+                    comparison_operator:
+                      raw_comparison_operator: '='
+                    quoted_literal: '"An INTEGER field in a STRUCT"'
+                    end_bracket: )
+                end_angle_bracket: '>'
+      - comma: ','
+      - column_definition:
+          naked_identifier: y
+          data_type:
+            data_type:
+              keyword: ARRAY
+              start_angle_bracket: <
+              data_type:
+                data_type:
+                  keyword: STRUCT
+                  struct_type_schema:
+                    start_angle_bracket: <
+                    parameter: col1
+                    data_type:
+                      data_type_identifier: INT64
+                    options_segment:
+                      keyword: OPTIONS
+                      bracketed:
+                        start_bracket: (
+                        parameter: description
+                        comparison_operator:
+                          raw_comparison_operator: '='
+                        quoted_literal: '"An INTEGER field in a REPEATED STRUCT"'
+                        end_bracket: )
+                    end_angle_bracket: '>'
+              end_angle_bracket: '>'
+      - end_bracket: )
+- statement_terminator: ;

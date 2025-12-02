@@ -1,0 +1,146 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: f1a686c6d7d41af4ec7a97ff9a1422408935c3857c3ca63adbb564bfdaf51b96
+file:
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+            cast_expression:
+              function:
+                function_name:
+                  function_name_identifier: match
+                function_contents:
+                  bracketed:
+                  - start_bracket: (
+                  - expression:
+                      quoted_literal: "'test'"
+                  - comma: ','
+                  - expression:
+                      quoted_literal: "'^[0-9]+$'"
+                  - end_bracket: )
+              casting_operator: '::'
+              data_type:
+                data_type_identifier: bool
+- statement_terminator: ;
+- statement:
+    with_compound_statement:
+      keyword: WITH
+      common_table_expression:
+        naked_identifier: test
+        keyword: as
+        bracketed:
+          start_bracket: (
+          select_statement:
+            select_clause:
+              keyword: SELECT
+              select_clause_element:
+                quoted_literal: "'1'"
+                alias_expression:
+                  alias_operator:
+                    keyword: as
+                  naked_identifier: id
+          end_bracket: )
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            expression:
+              case_expression:
+              - keyword: case
+              - when_clause:
+                - keyword: when
+                - expression:
+                    function:
+                      function_name:
+                        function_name_identifier: match
+                      function_contents:
+                        bracketed:
+                        - start_bracket: (
+                        - expression:
+                            column_reference:
+                              naked_identifier: id
+                        - comma: ','
+                        - expression:
+                            quoted_literal: "'^[0-9]*$'"
+                        - end_bracket: )
+                - keyword: then
+                - expression:
+                    cast_expression:
+                      column_reference:
+                        naked_identifier: id
+                      casting_operator: '::'
+                      data_type:
+                        data_type_identifier: Nullable
+                        bracketed:
+                          start_bracket: (
+                          data_type:
+                            data_type_identifier: Float64
+                          end_bracket: )
+              - keyword: end
+            alias_expression:
+              alias_operator:
+                keyword: as
+              naked_identifier: value_as_number
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: test
+- statement_terminator: ;
+- statement:
+    with_compound_statement:
+      keyword: with
+      common_table_expression:
+        naked_identifier: toto
+        keyword: as
+        bracketed:
+          start_bracket: (
+          select_statement:
+            select_clause:
+              keyword: SELECT
+              select_clause_element:
+                quoted_literal: "'1'"
+                alias_expression:
+                  alias_operator:
+                    keyword: as
+                  naked_identifier: id
+          end_bracket: )
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: toto
+        where_clause:
+          keyword: WHERE
+          expression:
+            function:
+              function_name:
+                function_name_identifier: match
+              function_contents:
+                bracketed:
+                - start_bracket: (
+                - expression:
+                    column_reference:
+                      naked_identifier: id
+                - comma: ','
+                - expression:
+                    quoted_literal: "'^[0-9]+$'"
+                - end_bracket: )
+- statement_terminator: ;

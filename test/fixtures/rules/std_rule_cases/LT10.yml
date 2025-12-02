@@ -1,0 +1,62 @@
+rule: LT10
+
+test_fail_distinct_on_next_line_1:
+  fail_str: |
+    SELECT
+        DISTINCT user_id,
+        list_id
+    FROM
+        safe_user
+  fix_str: |
+    SELECT DISTINCT
+        user_id,
+        list_id
+    FROM
+        safe_user
+
+test_fail_distinct_on_next_line_2:
+  fail_str: |
+    SELECT
+        -- The table contains duplicates, so we use DISTINCT.
+        DISTINCT user_id
+    FROM
+        safe_user
+  fix_str: |
+    SELECT DISTINCT
+        -- The table contains duplicates, so we use DISTINCT.
+        user_id
+    FROM
+        safe_user
+
+test_fail_distinct_on_next_line_3:
+  fail_str: |
+    select
+    distinct
+        abc,
+        def
+    from a;
+  fix_str: |
+    select distinct
+        abc,
+        def
+    from a;
+
+test_fail_distinct_on_next_line_4:
+  fail_str: |
+    CREATE OR REPLACE TABLE myschema.mytable AS (
+      SELECT
+        DISTINCT
+        cola
+        , colb
+      FROM myschema.mytable
+    );
+  fix_str: |
+    CREATE OR REPLACE TABLE myschema.mytable AS (
+      SELECT DISTINCT
+        cola
+        , colb
+      FROM myschema.mytable
+    );
+
+test_pass_distinct_on_same_line_with_select:
+  pass_str: SELECT DISTINCT user_id FROM safe_user

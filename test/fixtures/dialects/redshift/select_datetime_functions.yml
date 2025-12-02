@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: f79d6da4d21dfad60142d36bc242c250d86e4d5200f2fbbbcc45ded32f446003
+_hash: 6537745a5bfb75cac7ecca29a8fd62d8390445e9ea6f653f029c8fc36c76e294
 file:
 - statement:
     select_statement:
@@ -24,14 +24,22 @@ file:
       select_clause:
         keyword: SELECT
         select_clause_element:
+          bare_function: current_timestamp
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
           function:
             function_name:
               function_name_identifier: TRUNC
-            bracketed:
-              start_bracket: (
-              expression:
-                bare_function: sysdate
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  bare_function: sysdate
+                end_bracket: )
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -39,74 +47,80 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-            identifier: salesid
+            naked_identifier: salesid
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: pricepaid
+            naked_identifier: pricepaid
       - comma: ','
       - select_clause_element:
           function:
             function_name:
               function_name_identifier: TRUNC
-            bracketed:
-              start_bracket: (
-              expression:
-                column_reference:
-                  identifier: saletime
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: saletime
+                end_bracket: )
           alias_expression:
-            keyword: AS
-            identifier: saletime
+            alias_operator:
+              keyword: AS
+            naked_identifier: saletime
       - comma: ','
       - select_clause_element:
           function:
             function_name:
               function_name_identifier: TRUNC
-            bracketed:
-              start_bracket: (
-              expression:
-                bare_function: sysdate
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  bare_function: sysdate
+                end_bracket: )
           alias_expression:
-            keyword: AS
-            identifier: now
+            alias_operator:
+              keyword: AS
+            naked_identifier: now
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: sales
+                naked_identifier: sales
       where_clause:
         keyword: WHERE
         expression:
         - column_reference:
-            identifier: saletime
+            naked_identifier: saletime
         - keyword: BETWEEN
         - function:
             function_name:
               function_name_identifier: TRUNC
-            bracketed:
-              start_bracket: (
-              expression:
-                bare_function: sysdate
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  bare_function: sysdate
+                end_bracket: )
         - binary_operator: '-'
-        - literal: '120'
-        - binary_operator: AND
+        - numeric_literal: '120'
+        - keyword: AND
         - function:
             function_name:
               function_name_identifier: TRUNC
-            bracketed:
-              start_bracket: (
-              expression:
-                bare_function: sysdate
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  bare_function: sysdate
+                end_bracket: )
       orderby_clause:
       - keyword: ORDER
       - keyword: BY
       - column_reference:
-          identifier: saletime
+          naked_identifier: saletime
       - keyword: ASC
 - statement_terminator: ;

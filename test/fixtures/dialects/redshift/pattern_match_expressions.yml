@@ -1,0 +1,447 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 2531f4c07b8ef215e826ec7909f923aceef841e9a0e692bb8979860564dc3f05
+file:
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: animals
+      where_clause:
+        keyword: WHERE
+        expression:
+          column_reference:
+            naked_identifier: family
+          keyword: LIKE
+          quoted_literal: "'%ursidae%'"
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: animals
+      where_clause:
+        keyword: WHERE
+        expression:
+        - column_reference:
+            naked_identifier: family
+        - keyword: NOT
+        - keyword: LIKE
+        - quoted_literal: "'%ursidae%'"
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: animals
+      where_clause:
+        keyword: WHERE
+        expression:
+          column_reference:
+            naked_identifier: genus
+          keyword: ILIKE
+          quoted_literal: "'%ursus%'"
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: animals
+      where_clause:
+        keyword: WHERE
+        expression:
+        - column_reference:
+            naked_identifier: genus
+        - keyword: NOT
+        - keyword: ILIKE
+        - quoted_literal: "'%ursus%'"
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: animals
+      where_clause:
+        keyword: WHERE
+        expression:
+        - column_reference:
+            naked_identifier: family
+        - keyword: LIKE
+        - quoted_literal: "'%ursidae%'"
+        - keyword: ESCAPE
+        - quoted_literal: "'\\\\'"
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: animals
+      where_clause:
+        keyword: WHERE
+        expression:
+        - column_reference:
+            naked_identifier: genus
+        - keyword: NOT
+        - keyword: ILIKE
+        - quoted_literal: "'%ursus%'"
+        - keyword: ESCAPE
+        - quoted_literal: "'\\\\'"
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: COALESCE
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                - column_reference:
+                    naked_identifier: family
+                - keyword: LIKE
+                - quoted_literal: "'%ursidae%'"
+                - keyword: ESCAPE
+                - quoted_literal: "'\\\\'"
+              - comma: ','
+              - expression:
+                  boolean_literal: 'FALSE'
+              - end_bracket: )
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: is_bear
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: animals
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: animals
+      where_clause:
+        keyword: WHERE
+        expression:
+        - column_reference:
+            naked_identifier: family
+        - keyword: SIMILAR
+        - keyword: TO
+        - quoted_literal: "'%ursidae%'"
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: animals
+      where_clause:
+        keyword: WHERE
+        expression:
+        - column_reference:
+            naked_identifier: family
+        - keyword: NOT
+        - keyword: SIMILAR
+        - keyword: TO
+        - quoted_literal: "'%ursidae%'"
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: animals
+      where_clause:
+        keyword: WHERE
+        expression:
+        - column_reference:
+            naked_identifier: genus
+        - keyword: SIMILAR
+        - keyword: TO
+        - quoted_literal: "'%ursus%'"
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: animals
+      where_clause:
+        keyword: WHERE
+        expression:
+        - column_reference:
+            naked_identifier: genus
+        - keyword: NOT
+        - keyword: SIMILAR
+        - keyword: TO
+        - quoted_literal: "'%ursus%'"
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: animals
+      where_clause:
+        keyword: WHERE
+        expression:
+        - column_reference:
+            naked_identifier: family
+        - keyword: SIMILAR
+        - keyword: TO
+        - quoted_literal: "'%ursidae%'"
+        - keyword: ESCAPE
+        - quoted_literal: "'\\\\'"
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: animals
+      where_clause:
+        keyword: WHERE
+        expression:
+        - column_reference:
+            naked_identifier: genus
+        - keyword: NOT
+        - keyword: SIMILAR
+        - keyword: TO
+        - quoted_literal: "'%ursus%'"
+        - keyword: ESCAPE
+        - quoted_literal: "'\\\\'"
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: COALESCE
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                - column_reference:
+                    naked_identifier: family
+                - keyword: SIMILAR
+                - keyword: TO
+                - quoted_literal: "'%ursidae%'"
+                - keyword: ESCAPE
+                - quoted_literal: "'\\\\'"
+              - comma: ','
+              - expression:
+                  boolean_literal: 'FALSE'
+              - end_bracket: )
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: is_bear
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: animals
+- statement_terminator: ;
+- statement:
+    with_compound_statement:
+      keyword: WITH
+      common_table_expression:
+        naked_identifier: cleaned_bear_financial_branch
+        keyword: AS
+        bracketed:
+          start_bracket: (
+          select_statement:
+            select_clause:
+            - keyword: SELECT
+            - select_clause_element:
+                column_reference:
+                  naked_identifier: branch_id
+            - comma: ','
+            - select_clause_element:
+                function:
+                  function_name:
+                    function_name_identifier: TO_NUMBER
+                  function_contents:
+                    bracketed:
+                    - start_bracket: (
+                    - expression:
+                        case_expression:
+                        - keyword: CASE
+                        - when_clause:
+                          - keyword: WHEN
+                          - expression:
+                            - column_reference:
+                                naked_identifier: honey_numerical_code
+                            - keyword: SIMILAR
+                            - keyword: TO
+                            - quoted_literal: "'[0-9]{0,7}.?[0-9]{0,2}'"
+                          - keyword: THEN
+                          - expression:
+                              column_reference:
+                                naked_identifier: honey_numerical_code
+                        - else_clause:
+                            keyword: ELSE
+                            expression:
+                              null_literal: 'NULL'
+                        - keyword: END
+                    - comma: ','
+                    - expression:
+                        quoted_literal: "'24601'"
+                    - end_bracket: )
+                alias_expression:
+                  alias_operator:
+                    keyword: AS
+                  naked_identifier: honey_numerical_code
+            from_clause:
+              keyword: FROM
+              from_expression:
+                from_expression_element:
+                  table_expression:
+                    table_reference:
+                      naked_identifier: bear_financial_branch
+          end_bracket: )
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            column_reference:
+              naked_identifier: branch_id
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: cleaned_bear_financial_branch
+        limit_clause:
+          keyword: LIMIT
+          numeric_literal: '10'
+- statement_terminator: ;

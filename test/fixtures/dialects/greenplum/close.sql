@@ -1,0 +1,3 @@
+CLOSE portala;
+
+CLOSE ALL;

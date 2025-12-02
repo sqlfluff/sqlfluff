@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: c96c275ab8ce4a18579feb7cce8b6ef5937d21d0396232eb2fd8f8f9e977beb9
+_hash: f870c1c319970e5811413bf9b3678eb15ee3a21fe9fdd824fc05536b53d81662
 file:
   statement:
     create_function_statement:
@@ -12,7 +12,7 @@ file:
     - keyword: FUNCTION
     - function_name:
         function_name_identifier: parseTopSellers
-    - base:
+    - function_parameter_list:
         bracketed:
           start_bracket: (
           parameter: arr_str
@@ -21,32 +21,36 @@ file:
           end_bracket: )
     - keyword: RETURNS
     - data_type:
-        keyword: ARRAY
-        start_angle_bracket: <
         data_type:
-        - keyword: STRUCT
-        - start_angle_bracket: <
-        - parameter: product_id
-        - data_type:
-            data_type_identifier: INT64
-        - comma: ','
-        - parameter: rating
-        - data_type:
-            data_type_identifier: FLOAT64
-        - end_angle_bracket: '>'
-        end_angle_bracket: '>'
-    - base:
+          keyword: ARRAY
+          start_angle_bracket: <
+          data_type:
+            data_type:
+              keyword: STRUCT
+              struct_type_schema:
+              - start_angle_bracket: <
+              - parameter: product_id
+              - data_type:
+                  data_type_identifier: INT64
+              - comma: ','
+              - parameter: rating
+              - data_type:
+                  data_type_identifier: FLOAT64
+              - end_angle_bracket: '>'
+          end_angle_bracket: '>'
+    - function_definition:
       - keyword: LANGUAGE
-      - parameter: js
+      - naked_identifier: js
       - keyword: OPTIONS
       - bracketed:
         - start_bracket: (
         - parameter: library
-        - comparison_operator: '='
+        - comparison_operator:
+            raw_comparison_operator: '='
         - start_square_bracket: '['
-        - raw: '"gs://my-bucket/path/to/lib1.js"'
+        - double_quote: '"gs://my-bucket/path/to/lib1.js"'
         - comma: ','
-        - raw: '"gs://my-bucket/path/to/lib2.js"'
+        - double_quote: '"gs://my-bucket/path/to/lib2.js"'
         - end_square_bracket: ']'
         - end_bracket: )
       - keyword: AS

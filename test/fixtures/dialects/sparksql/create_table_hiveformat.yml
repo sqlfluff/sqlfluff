@@ -1,0 +1,635 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 0073c013e8762f326f646d2dd0633b1fc2f287f1a7ccd4e5ba80c24ff67d544c
+file:
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: EXTERNAL
+    - keyword: TABLE
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - table_reference:
+        naked_identifier: table_identifier
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          column_reference:
+            naked_identifier: col_name1
+          data_type:
+            primitive_type:
+              keyword: STRING
+          column_constraint_segment:
+            comment_clause:
+              keyword: COMMENT
+              quoted_literal: '"col_comment1"'
+        end_bracket: )
+    - keyword: COMMENT
+    - quoted_literal: '"table_comment"'
+    - keyword: PARTITIONED
+    - keyword: BY
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          naked_identifier: col_name2
+          data_type:
+            primitive_type:
+              keyword: STRING
+          column_constraint_segment:
+            comment_clause:
+              keyword: COMMENT
+              quoted_literal: '"col_comment2"'
+        end_bracket: )
+    - keyword: CLUSTERED
+    - keyword: BY
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: col_name1
+      - comma: ','
+      - column_reference:
+          naked_identifier: col_name2
+      - end_bracket: )
+    - keyword: SORTED
+    - keyword: BY
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: col_name1
+      - keyword: ASC
+      - comma: ','
+      - column_reference:
+          naked_identifier: col_name2
+      - keyword: DESC
+      - end_bracket: )
+    - keyword: INTO
+    - numeric_literal: '3'
+    - keyword: BUCKETS
+    - row_format_clause:
+      - keyword: ROW
+      - keyword: FORMAT
+      - keyword: DELIMITED
+      - keyword: FIELDS
+      - keyword: TERMINATED
+      - keyword: BY
+      - quoted_literal: "','"
+    - keyword: STORED
+    - keyword: AS
+    - keyword: PARQUET
+    - keyword: LOCATION
+    - quoted_literal: '"path/to/files"'
+    - keyword: TBLPROPERTIES
+    - bracketed:
+      - start_bracket: (
+      - property_name_identifier:
+          quoted_identifier: '"key1"'
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: '"val1"'
+      - comma: ','
+      - property_name_identifier:
+          quoted_identifier: '"key2"'
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: '"val2"'
+      - end_bracket: )
+    - keyword: AS
+    - bracketed:
+        start_bracket: (
+        select_statement:
+          select_clause:
+            keyword: SELECT
+            select_clause_element:
+              wildcard_expression:
+                wildcard_identifier:
+                  star: '*'
+          from_clause:
+            keyword: FROM
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                    naked_identifier: table_identifier
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: student
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          column_reference:
+            naked_identifier: id
+          data_type:
+            primitive_type:
+              keyword: INT
+      - comma: ','
+      - column_definition:
+          column_reference:
+            naked_identifier: student_name
+          data_type:
+            primitive_type:
+              keyword: STRING
+      - comma: ','
+      - column_definition:
+          column_reference:
+            naked_identifier: age
+          data_type:
+            primitive_type:
+              keyword: INT
+      - end_bracket: )
+    - keyword: STORED
+    - keyword: AS
+    - keyword: ORC
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: student_copy
+    - keyword: STORED
+    - keyword: AS
+    - keyword: ORC
+    - keyword: AS
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: student
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: student
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          column_reference:
+            naked_identifier: id
+          data_type:
+            primitive_type:
+              keyword: INT
+      - comma: ','
+      - column_definition:
+          column_reference:
+            naked_identifier: student_name
+          data_type:
+            primitive_type:
+              keyword: STRING
+      - comma: ','
+      - column_definition:
+          column_reference:
+            naked_identifier: age
+          data_type:
+            primitive_type:
+              keyword: INT
+      - end_bracket: )
+    - keyword: COMMENT
+    - quoted_literal: "'this is a comment'"
+    - keyword: STORED
+    - keyword: AS
+    - keyword: ORC
+    - keyword: TBLPROPERTIES
+    - bracketed:
+        start_bracket: (
+        property_name_identifier:
+          quoted_identifier: "'foo'"
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'bar'"
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: student
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          column_reference:
+            naked_identifier: id
+          data_type:
+            primitive_type:
+              keyword: INT
+      - comma: ','
+      - column_definition:
+          column_reference:
+            naked_identifier: student_name
+          data_type:
+            primitive_type:
+              keyword: STRING
+      - comma: ','
+      - column_definition:
+          column_reference:
+            naked_identifier: age
+          data_type:
+            primitive_type:
+              keyword: INT
+      - end_bracket: )
+    - keyword: STORED
+    - keyword: AS
+    - keyword: ORC
+    - keyword: TBLPROPERTIES
+    - bracketed:
+        start_bracket: (
+        property_name_identifier:
+          quoted_identifier: "'foo'"
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'bar'"
+        end_bracket: )
+    - keyword: COMMENT
+    - quoted_literal: "'this is a comment'"
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: student
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          column_reference:
+            naked_identifier: id
+          data_type:
+            primitive_type:
+              keyword: INT
+      - comma: ','
+      - column_definition:
+          column_reference:
+            naked_identifier: student_name
+          data_type:
+            primitive_type:
+              keyword: STRING
+      - end_bracket: )
+    - keyword: PARTITIONED
+    - keyword: BY
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          naked_identifier: age
+          data_type:
+            primitive_type:
+              keyword: INT
+        end_bracket: )
+    - keyword: STORED
+    - keyword: AS
+    - keyword: ORC
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: student
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          column_reference:
+            naked_identifier: id
+          data_type:
+            primitive_type:
+              keyword: INT
+      - comma: ','
+      - column_definition:
+          column_reference:
+            naked_identifier: student_name
+          data_type:
+            primitive_type:
+              keyword: STRING
+      - end_bracket: )
+    - keyword: STORED
+    - keyword: AS
+    - keyword: ORC
+    - keyword: PARTITIONED
+    - keyword: BY
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          naked_identifier: age
+          data_type:
+            primitive_type:
+              keyword: INT
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: student
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          column_reference:
+            naked_identifier: id
+          data_type:
+            primitive_type:
+              keyword: INT
+      - comma: ','
+      - column_definition:
+          column_reference:
+            naked_identifier: student_name
+          data_type:
+            primitive_type:
+              keyword: STRING
+      - end_bracket: )
+    - row_format_clause:
+      - keyword: ROW
+      - keyword: FORMAT
+      - keyword: DELIMITED
+      - keyword: FIELDS
+      - keyword: TERMINATED
+      - keyword: BY
+      - quoted_literal: "','"
+    - keyword: STORED
+    - keyword: AS
+    - file_format: TEXTFILE
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: EXTERNAL
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: family
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          column_reference:
+            naked_identifier: student_name
+          data_type:
+            primitive_type:
+              keyword: STRING
+      - comma: ','
+      - column_definition:
+          column_reference:
+            naked_identifier: friends
+          data_type:
+            array_type:
+              keyword: ARRAY
+              start_angle_bracket: <
+              data_type:
+                primitive_type:
+                  keyword: STRING
+              end_angle_bracket: '>'
+      - comma: ','
+      - column_definition:
+          column_reference:
+            naked_identifier: children
+          data_type:
+          - keyword: MAP
+          - start_angle_bracket: <
+          - data_type:
+              primitive_type:
+                keyword: STRING
+          - comma: ','
+          - data_type:
+              primitive_type:
+                keyword: INT
+          - end_angle_bracket: '>'
+      - comma: ','
+      - column_definition:
+          column_reference:
+            naked_identifier: address
+          data_type:
+            struct_type:
+              keyword: STRUCT
+              struct_type_schema:
+              - start_angle_bracket: <
+              - naked_identifier: street
+              - colon: ':'
+              - data_type:
+                  primitive_type:
+                    keyword: STRING
+              - comma: ','
+              - naked_identifier: city
+              - colon: ':'
+              - data_type:
+                  primitive_type:
+                    keyword: STRING
+              - end_angle_bracket: '>'
+      - end_bracket: )
+    - row_format_clause:
+      - keyword: ROW
+      - keyword: FORMAT
+      - keyword: DELIMITED
+      - keyword: FIELDS
+      - keyword: TERMINATED
+      - keyword: BY
+      - quoted_literal: "','"
+      - keyword: ESCAPED
+      - keyword: BY
+      - quoted_literal: "'\\\\'"
+      - keyword: COLLECTION
+      - keyword: ITEMS
+      - keyword: TERMINATED
+      - keyword: BY
+      - quoted_literal: "'_'"
+      - keyword: MAP
+      - keyword: KEYS
+      - keyword: TERMINATED
+      - keyword: BY
+      - quoted_literal: "':'"
+      - keyword: LINES
+      - keyword: TERMINATED
+      - keyword: BY
+      - quoted_literal: "'\\n'"
+      - keyword: 'NULL'
+      - keyword: DEFINED
+      - keyword: AS
+      - quoted_literal: "'foonull'"
+    - keyword: STORED
+    - keyword: AS
+    - file_format: TEXTFILE
+    - keyword: LOCATION
+    - quoted_literal: "'/tmp/family/'"
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: avroexample
+    - row_format_clause:
+      - keyword: ROW
+      - keyword: FORMAT
+      - keyword: SERDE
+      - quoted_literal: "'org.apache.hadoop.hive.serde2.avro.AvroSerDe'"
+    - keyword: STORED
+    - keyword: AS
+    - keyword: INPUTFORMAT
+    - quoted_literal: "'org.apache.hadoop.hive.ql.io.avro.AvroContainerInputFormat'"
+    - keyword: OUTPUTFORMAT
+    - quoted_literal: "'org.apache.hadoop.hive.ql.io.avro.AvroContainerOutputFormat'"
+    - keyword: TBLPROPERTIES
+    - bracketed:
+        start_bracket: (
+        property_name_identifier:
+          quoted_identifier: "'avro.schema.literal'"
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'{\n        \"namespace\": \"org.apache.hive\",\n       \
+          \ \"name\": \"first_schema\",\n        \"type\": \"record\",\n        \"\
+          fields\": [ { \"name\":\"string1\", \"type\":\"string\" }, { \"name\":\"\
+          string2\", \"type\":\"string\" }]\n    }'"
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    add_jar_statement:
+      keyword: ADD
+      file_keyword: JAR
+      quoted_literal: "'/tmp/hive_serde_example.jar'"
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: EXTERNAL
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: family
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          column_reference:
+            naked_identifier: id
+          data_type:
+            primitive_type:
+              keyword: INT
+      - comma: ','
+      - column_definition:
+          column_reference:
+            naked_identifier: family_name
+          data_type:
+            primitive_type:
+              keyword: STRING
+      - end_bracket: )
+    - row_format_clause:
+      - keyword: ROW
+      - keyword: FORMAT
+      - keyword: SERDE
+      - quoted_literal: "'com.ly.spark.serde.SerDeExample'"
+    - keyword: STORED
+    - keyword: AS
+    - keyword: INPUTFORMAT
+    - quoted_literal: "'com.ly.spark.example.serde.io.SerDeExampleInputFormat'"
+    - keyword: OUTPUTFORMAT
+    - quoted_literal: "'com.ly.spark.example.serde.io.SerDeExampleOutputFormat'"
+    - keyword: LOCATION
+    - quoted_literal: "'/tmp/family/'"
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: clustered_by_test1
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          column_reference:
+            naked_identifier: id
+          data_type:
+            primitive_type:
+              keyword: INT
+      - comma: ','
+      - column_definition:
+          column_reference:
+            naked_identifier: age
+          data_type:
+            primitive_type:
+              keyword: STRING
+      - end_bracket: )
+    - keyword: CLUSTERED
+    - keyword: BY
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          naked_identifier: id
+        end_bracket: )
+    - keyword: INTO
+    - numeric_literal: '4'
+    - keyword: BUCKETS
+    - keyword: STORED
+    - keyword: AS
+    - keyword: ORC
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: clustered_by_test2
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          column_reference:
+            naked_identifier: id
+          data_type:
+            primitive_type:
+              keyword: INT
+      - comma: ','
+      - column_definition:
+          column_reference:
+            naked_identifier: test_name
+          data_type:
+            primitive_type:
+              keyword: STRING
+      - end_bracket: )
+    - keyword: PARTITIONED
+    - keyword: BY
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          naked_identifier: test_year
+          data_type:
+            primitive_type:
+              keyword: STRING
+        end_bracket: )
+    - keyword: CLUSTERED
+    - keyword: BY
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: id
+      - comma: ','
+      - column_reference:
+          naked_identifier: name
+      - end_bracket: )
+    - keyword: SORTED
+    - keyword: BY
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          naked_identifier: id
+        keyword: ASC
+        end_bracket: )
+    - keyword: INTO
+    - numeric_literal: '3'
+    - keyword: BUCKETS
+    - keyword: STORED
+    - keyword: AS
+    - keyword: PARQUET
+- statement_terminator: ;

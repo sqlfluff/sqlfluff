@@ -1,0 +1,270 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: b85b9a49d3398df61dc2fd11c83f54c7af9cb301a6c55cc8db87a4328f39642d
+file:
+- statement:
+    alter_view_statement:
+    - keyword: ALTER
+    - keyword: VIEW
+    - table_reference:
+      - naked_identifier: tempsc1
+      - dot: .
+      - naked_identifier: v1
+    - keyword: RENAME
+    - keyword: TO
+    - table_reference:
+      - naked_identifier: tempsc1
+      - dot: .
+      - naked_identifier: v2
+- statement_terminator: ;
+- statement:
+    alter_view_statement:
+    - keyword: ALTER
+    - keyword: VIEW
+    - table_reference:
+        identifier_clause_segment:
+          keyword: IDENTIFIER
+          bracketed:
+            start_bracket: (
+            expression:
+              quoted_literal: "'tempsc1.v1'"
+            end_bracket: )
+    - keyword: RENAME
+    - keyword: TO
+    - table_reference:
+        identifier_clause_segment:
+          keyword: IDENTIFIER
+          bracketed:
+            start_bracket: (
+            expression:
+              quoted_literal: "'tempsc1.v2'"
+            end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_view_statement:
+    - keyword: ALTER
+    - keyword: VIEW
+    - table_reference:
+      - naked_identifier: tempsc1
+      - dot: .
+      - naked_identifier: v2
+    - keyword: SET
+    - keyword: TBLPROPERTIES
+    - bracketed:
+      - start_bracket: (
+      - property_name_identifier:
+          quoted_identifier: "'created.by.user'"
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: '"John"'
+      - comma: ','
+      - property_name_identifier:
+          quoted_identifier: "'created.date'"
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'01-01-2001'"
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_view_statement:
+    - keyword: ALTER
+    - keyword: VIEW
+    - table_reference:
+      - naked_identifier: tempsc1
+      - dot: .
+      - naked_identifier: v2
+    - keyword: UNSET
+    - keyword: TBLPROPERTIES
+    - bracketed:
+      - start_bracket: (
+      - property_name_identifier:
+        - properties_naked_identifier: '`created`'
+        - dot: .
+        - properties_naked_identifier: '`by`'
+        - dot: .
+        - properties_naked_identifier: '`user`'
+      - comma: ','
+      - property_name_identifier:
+        - properties_naked_identifier: created
+        - dot: .
+        - properties_naked_identifier: date
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_view_statement:
+    - keyword: ALTER
+    - keyword: VIEW
+    - table_reference:
+      - naked_identifier: tempsc1
+      - dot: .
+      - naked_identifier: v2
+    - keyword: AS
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                - naked_identifier: tempsc1
+                - dot: .
+                - naked_identifier: v1
+- statement_terminator: ;
+- statement:
+    alter_view_statement:
+    - keyword: ALTER
+    - keyword: VIEW
+    - table_reference:
+        naked_identifier: v1
+    - keyword: OWNER
+    - keyword: TO
+    - quoted_identifier: '`alf@melmak.et`'
+- statement_terminator: ;
+- statement:
+    alter_view_statement:
+    - keyword: ALTER
+    - keyword: VIEW
+    - table_reference:
+        naked_identifier: v1
+    - keyword: SET
+    - keyword: OWNER
+    - keyword: TO
+    - quoted_identifier: '`alf@melmak.et`'
+- statement_terminator: ;
+- statement:
+    alter_view_statement:
+    - keyword: ALTER
+    - keyword: VIEW
+    - table_reference:
+        naked_identifier: v1
+    - keyword: WITH
+    - keyword: SCHEMA
+    - keyword: BINDING
+- statement_terminator: ;
+- statement:
+    alter_view_statement:
+    - keyword: ALTER
+    - keyword: VIEW
+    - table_reference:
+        naked_identifier: v1
+    - keyword: WITH
+    - keyword: SCHEMA
+    - keyword: COMPENSATION
+- statement_terminator: ;
+- statement:
+    alter_view_statement:
+    - keyword: ALTER
+    - keyword: VIEW
+    - table_reference:
+        naked_identifier: v1
+    - keyword: WITH
+    - keyword: SCHEMA
+    - keyword: TYPE
+    - keyword: EVOLUTION
+- statement_terminator: ;
+- statement:
+    alter_view_statement:
+    - keyword: ALTER
+    - keyword: VIEW
+    - table_reference:
+        naked_identifier: v1
+    - keyword: WITH
+    - keyword: SCHEMA
+    - keyword: EVOLUTION
+- statement_terminator: ;
+- statement:
+    alter_view_statement:
+    - keyword: ALTER
+    - keyword: MATERIALIZED
+    - keyword: VIEW
+    - table_reference:
+        naked_identifier: my_mv
+    - keyword: ADD
+    - keyword: SCHEDULE
+    - keyword: CRON
+    - quoted_literal: "'0 0 0 * * ? *'"
+    - keyword: AT
+    - keyword: TIME
+    - keyword: ZONE
+    - quoted_literal: "'America/Los_Angeles'"
+- statement_terminator: ;
+- statement:
+    alter_view_statement:
+    - keyword: ALTER
+    - keyword: MATERIALIZED
+    - keyword: VIEW
+    - table_reference:
+        naked_identifier: my_mv
+    - keyword: ALTER
+    - keyword: SCHEDULE
+    - keyword: CRON
+    - quoted_literal: "'0 0/15 * * * ? *'"
+- statement_terminator: ;
+- statement:
+    alter_view_statement:
+    - keyword: ALTER
+    - keyword: MATERIALIZED
+    - keyword: VIEW
+    - table_reference:
+        naked_identifier: my_mv
+    - keyword: DROP
+    - keyword: SCHEDULE
+- statement_terminator: ;
+- statement:
+    alter_view_statement:
+    - keyword: ALTER
+    - keyword: VIEW
+    - table_reference:
+        naked_identifier: test
+    - keyword: SET
+    - keyword: TAGS
+    - bracketed:
+      - start_bracket: (
+      - property_name_identifier:
+          quoted_identifier: "'tag1'"
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'val1'"
+      - comma: ','
+      - property_name_identifier:
+          quoted_identifier: "'tag2'"
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'val2'"
+      - comma: ','
+      - property_name_identifier:
+          quoted_identifier: "'tag3'"
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'val3'"
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_view_statement:
+    - keyword: ALTER
+    - keyword: VIEW
+    - table_reference:
+        naked_identifier: test
+    - keyword: UNSET
+    - keyword: TAGS
+    - bracketed:
+      - start_bracket: (
+      - property_name_identifier:
+          quoted_identifier: "'tag1'"
+      - comma: ','
+      - property_name_identifier:
+          quoted_identifier: "'tag2'"
+      - comma: ','
+      - property_name_identifier:
+          quoted_identifier: "'tag3'"
+      - end_bracket: )
+- statement_terminator: ;

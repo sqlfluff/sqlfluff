@@ -1,0 +1,99 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: faeb9fee63d6841e1780c14f91fccd944590d1b3cdcec3c24db9d80e2e81e069
+file:
+- statement:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: from
+        from_expression:
+          bracketed:
+            start_bracket: (
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: my_table
+            end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: from
+        from_expression:
+          bracketed:
+            start_bracket: (
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: my_table
+              alias_expression:
+                naked_identifier: tt
+            end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: from
+        from_expression:
+          bracketed:
+            start_bracket: (
+            from_expression_element:
+              bracketed:
+                start_bracket: (
+                table_expression:
+                  table_reference:
+                    naked_identifier: my_table
+                alias_expression:
+                  naked_identifier: tt
+                end_bracket: )
+            end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: from
+        from_expression:
+          bracketed:
+            start_bracket: (
+            bracketed:
+              start_bracket: (
+              from_expression:
+                bracketed:
+                  start_bracket: (
+                  from_expression_element:
+                    table_expression:
+                      table_reference:
+                        naked_identifier: my_table
+                    alias_expression:
+                      naked_identifier: tt
+                  end_bracket: )
+              end_bracket: )
+            end_bracket: )
+- statement_terminator: ;

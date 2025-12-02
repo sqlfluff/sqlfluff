@@ -1,19 +1,24 @@
 """Methods to load rules."""
 
 import os
-from importlib import import_module
 from glob import glob
+from importlib import import_module
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:  # pragma: no cover
+    from sqlfluff.core.rules.base import BaseRule
 
 
 def get_rules_from_path(
     # All rule files are expected in the format of L*.py
-    rules_path=os.path.abspath(
+    rules_path: str = os.path.abspath(
         os.path.join(os.path.dirname(__file__), "../../rules", "L*.py")
     ),
-    base_module="sqlfluff.rules",
-):
+    base_module: str = "sqlfluff.rules",
+) -> list[type["BaseRule"]]:
     """Reads all of the Rule classes from a path into a list."""
-    # Create a rules dictionary for importing in sqlfluff/src/sqlfluff/core/rules/__init__.py
+    # Create a rules dictionary for importing in
+    # sqlfluff/src/sqlfluff/core/rules/__init__.py
     rules = []
 
     for module in sorted(glob(rules_path)):
@@ -28,9 +33,11 @@ def get_rules_from_path(
             rule_class = getattr(rule_module, rule_class_name)
         except AttributeError as e:
             raise AttributeError(
-                f"Rule classes must be named in the format of Rule_L*. [{rule_class_name}]"
+                "Rule classes must be named in the format of Rule_*. "
+                f"[{rule_class_name}]"
             ) from e
-        # Add the rules to the rules dictionary for sqlfluff/src/sqlfluff/core/rules/__init__.py
+        # Add the rules to the rules dictionary for
+        # sqlfluff/src/sqlfluff/core/rules/__init__.py
         rules.append(rule_class)
 
     return rules

@@ -1,0 +1,92 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: c558b7e99c57564a274aa6d3dde08cbc81b55855a124d4df7cc3531f991db2ed
+file:
+- statement:
+    drop_function_statement:
+    - keyword: DROP
+    - keyword: FUNCTION
+    - object_reference:
+        naked_identifier: sqrt
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          data_type:
+            keyword: integer
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    drop_function_statement:
+    - keyword: DROP
+    - keyword: FUNCTION
+    - object_reference:
+        naked_identifier: sqrt
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          data_type:
+            keyword: integer
+          end_bracket: )
+    - comma: ','
+    - object_reference:
+        naked_identifier: sqrt
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          data_type:
+            keyword: bigint
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    drop_function_statement:
+    - keyword: DROP
+    - keyword: FUNCTION
+    - object_reference:
+        naked_identifier: update_employee_salaries
+- statement_terminator: ;
+- statement:
+    drop_function_statement:
+    - keyword: DROP
+    - keyword: FUNCTION
+    - object_reference:
+        naked_identifier: update_employee_salaries
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    drop_function_statement:
+    - keyword: DROP
+    - keyword: FUNCTION
+    - keyword: IF
+    - keyword: EXISTS
+    - object_reference:
+        naked_identifier: foo
+    - function_parameter_list:
+        bracketed:
+        - start_bracket: (
+        - keyword: IN
+        - parameter: my_var
+        - data_type:
+            keyword: integer
+        - comma: ','
+        - keyword: VARIADIC
+        - parameter: my_var_2
+        - data_type:
+            keyword: text
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+    drop_function_statement:
+    - keyword: DROP
+    - keyword: FUNCTION
+    - keyword: IF
+    - keyword: EXISTS
+    - object_reference:
+        naked_identifier: f_name
+    - keyword: CASCADE
+- statement_terminator: ;

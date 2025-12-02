@@ -1,0 +1,362 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 9164468cdf8d817d1b6d3fed83e7f44c9abbed1f9388821ec5ee293b606f24d3
+file:
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          expression:
+            column_reference:
+              naked_identifier: c
+            array_accessor:
+              start_square_bracket: '['
+              numeric_literal: '0'
+              end_square_bracket: ']'
+            semi_structured_expression:
+              dot: .
+              naked_identifier: col
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: o
+      from_clause:
+      - keyword: FROM
+      - from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: customer_orders
+            alias_expression:
+              naked_identifier: c
+      - comma: ','
+      - from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+              - naked_identifier: c
+              - dot: .
+              - naked_identifier: c_orders
+            alias_expression:
+              naked_identifier: o
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: COUNT
+            function_contents:
+              bracketed:
+                start_bracket: (
+                star: '*'
+                end_bracket: )
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: customer_orders_lineitem
+      where_clause:
+        keyword: WHERE
+        expression:
+        - column_reference:
+            naked_identifier: c_orders
+        - array_accessor:
+            start_square_bracket: '['
+            numeric_literal: '0'
+            end_square_bracket: ']'
+        - semi_structured_expression:
+            dot: .
+            naked_identifier: o_orderkey
+        - keyword: IS
+        - keyword: NOT
+        - null_literal: 'NULL'
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          column_reference:
+            naked_identifier: c_custkey
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: customer_orders_lineitem
+      where_clause:
+        keyword: WHERE
+        expression:
+          case_expression:
+          - keyword: CASE
+          - when_clause:
+            - keyword: WHEN
+            - expression:
+                function:
+                  function_name:
+                    function_name_identifier: JSON_TYPEOF
+                  function_contents:
+                    bracketed:
+                      start_bracket: (
+                      expression:
+                        column_reference:
+                          naked_identifier: c_orders
+                        array_accessor:
+                          start_square_bracket: '['
+                          numeric_literal: '0'
+                          end_square_bracket: ']'
+                        semi_structured_expression:
+                          dot: .
+                          naked_identifier: o_orderstatus
+                      end_bracket: )
+                comparison_operator:
+                  raw_comparison_operator: '='
+                quoted_literal: "'string'"
+            - keyword: THEN
+            - expression:
+                cast_expression:
+                  column_reference:
+                    naked_identifier: c_orders
+                  array_accessor:
+                    start_square_bracket: '['
+                    numeric_literal: '0'
+                    end_square_bracket: ']'
+                  semi_structured_expression:
+                    dot: .
+                    naked_identifier: o_orderstatus
+                  casting_operator: '::'
+                  data_type:
+                    keyword: VARCHAR
+                comparison_operator:
+                - raw_comparison_operator: <
+                - raw_comparison_operator: '='
+                quoted_literal: "'P'"
+          - else_clause:
+              keyword: ELSE
+              expression:
+                null_literal: 'NULL'
+          - keyword: END
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          expression:
+            column_reference:
+              naked_identifier: c
+            array_accessor:
+            - start_square_bracket: '['
+            - numeric_literal: '0'
+            - end_square_bracket: ']'
+            - start_square_bracket: '['
+            - numeric_literal: '1'
+            - end_square_bracket: ']'
+            - start_square_bracket: '['
+            - numeric_literal: '2'
+            - end_square_bracket: ']'
+            - start_square_bracket: '['
+            - numeric_literal: '3'
+            - end_square_bracket: ']'
+            - start_square_bracket: '['
+            - numeric_literal: '4'
+            - end_square_bracket: ']'
+            semi_structured_expression:
+              dot: .
+              naked_identifier: col
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: o
+      from_clause:
+      - keyword: FROM
+      - from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: customer_orders
+            alias_expression:
+              naked_identifier: c
+      - comma: ','
+      - from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+              - naked_identifier: c
+              - dot: .
+              - naked_identifier: c_orders
+            alias_expression:
+              naked_identifier: o
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              naked_identifier: c
+              dot: .
+              star: '*'
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: o
+      from_clause:
+      - keyword: FROM
+      - from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: customer_orders_lineitem
+            alias_expression:
+              naked_identifier: c
+      - comma: ','
+      - from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+              - naked_identifier: c
+              - dot: .
+              - naked_identifier: c_orders
+            alias_expression:
+              naked_identifier: o
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          expression:
+            column_reference:
+              naked_identifier: messages
+            array_accessor:
+              start_square_bracket: '['
+              numeric_literal: '0'
+              end_square_bracket: ']'
+            semi_structured_expression:
+              dot: .
+              naked_identifier: format
+      - comma: ','
+      - select_clause_element:
+          expression:
+            column_reference:
+              naked_identifier: messages
+            array_accessor:
+              start_square_bracket: '['
+              numeric_literal: '0'
+              end_square_bracket: ']'
+            semi_structured_expression:
+              dot: .
+              naked_identifier: topic
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: subscription_auto
+      where_clause:
+        keyword: WHERE
+        expression:
+          column_reference:
+            naked_identifier: messages
+          array_accessor:
+            start_square_bracket: '['
+            numeric_literal: '0'
+            end_square_bracket: ']'
+          semi_structured_expression:
+          - dot: .
+          - naked_identifier: payload
+          - dot: .
+          - naked_identifier: payload
+          - dot: .
+          - quoted_identifier: '"assetId"'
+          comparison_operator:
+            raw_comparison_operator: '>'
+          numeric_literal: '0'
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          expression:
+            column_reference:
+              naked_identifier: messages
+            array_accessor:
+              start_square_bracket: '['
+              numeric_literal: '0'
+              end_square_bracket: ']'
+            semi_structured_expression:
+              dot: .
+              naked_identifier: format
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: COUNT
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: messages
+                  array_accessor:
+                    start_square_bracket: '['
+                    numeric_literal: '0'
+                    end_square_bracket: ']'
+                  semi_structured_expression:
+                    dot: .
+                    naked_identifier: topic
+                end_bracket: )
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: subscription_auto
+      where_clause:
+        keyword: WHERE
+        expression:
+          column_reference:
+            naked_identifier: messages
+          array_accessor:
+            start_square_bracket: '['
+            numeric_literal: '0'
+            end_square_bracket: ']'
+          semi_structured_expression:
+          - dot: .
+          - naked_identifier: payload
+          - dot: .
+          - naked_identifier: payload
+          - dot: .
+          - quoted_identifier: '"assetId"'
+          comparison_operator:
+            raw_comparison_operator: '>'
+          quoted_literal: "'abc'"
+      groupby_clause:
+      - keyword: GROUP
+      - keyword: BY
+      - expression:
+          column_reference:
+            naked_identifier: messages
+          array_accessor:
+            start_square_bracket: '['
+            numeric_literal: '0'
+            end_square_bracket: ']'
+          semi_structured_expression:
+            dot: .
+            naked_identifier: format
+- statement_terminator: ;

@@ -1,0 +1,385 @@
+rule: LT09
+
+test_single_select_target_and_no_newline_between_select_and_select_target:
+  pass_str: select a from x
+
+test_single_wildcard_select_target_and_no_newline_between_select_and_select_target_1:
+  fail_str: |
+    select * from x
+  fix_str: |
+    select
+    *
+    from x
+  configs:
+    rules:
+      layout.select_targets:
+        wildcard_policy: multiple
+
+test_single_wildcard_select_target_and_no_newline_between_select_and_select_target_2:
+  pass_str: |
+    select * from x
+
+test_single_select_target_and_newline_after_select_target_1:
+  pass_str: |
+    select *
+    from x
+
+test_single_select_target_and_newline_after_select_target_2:
+  fail_str: |
+    select *
+    from x
+  fix_str: |
+    select
+    *
+    from x
+  configs:
+    rules:
+      layout.select_targets:
+        wildcard_policy: multiple
+
+test_single_select_target_and_newline_before_select_target:
+  fail_str: |
+      select
+          a
+      from x
+  fix_str: |
+    select a
+    from x
+
+test_multiple_select_targets_on_newlines_and_newline_after_select:
+  pass_str: |
+    select
+        a,
+        b,
+        c
+    from x
+
+test_single_wildcard_select_target_and_newline_before_select_target_1:
+  pass_str: |
+    select *
+    from x
+
+test_single_wildcard_select_target_and_newline_before_select_target_2:
+  pass_str: |
+    select
+        *
+    from x
+  configs:
+    rules:
+      layout.select_targets:
+        wildcard_policy: multiple
+
+test_single_wildcard_select_target_and_newline_before_select_target_plus_from_on_same_line_1:
+  fail_str: |
+    select
+        * from x
+  fix_str: |
+    select
+        *
+    from x
+  configs:
+    rules:
+      layout.select_targets:
+        wildcard_policy: multiple
+
+test_single_wildcard_select_target_and_newline_before_select_target_plus_from_on_same_line_2:
+  fail_str: |
+    select
+        * from x
+  fix_str: |
+    select *
+        from x
+
+test_multiple_select_targets_all_on_the_same_line:
+  fail_str: |
+    select a, b, c
+    from x
+  fix_str: "select\na,\nb,\nc\nfrom x\n"
+
+test_multiple_select_targets_all_on_the_same_line_plus_from_clause:
+  fail_str: |
+    select a, b, c from x
+  fix_str: "select\na,\nb,\nc\nfrom x\n"
+
+test_multiple_select_targets_including_wildcard_all_on_the_same_line_plus_from_clause:
+  fail_str: |
+    select *, b, c from x
+  fix_str: "select\n*,\nb,\nc\nfrom x\n"
+
+test_multiple_select_target_plus_from_clause_on_the_same_line:
+  fail_str: |
+    select
+      a,
+      b,
+      c from x
+  fix_str: |
+    select
+      a,
+      b,
+      c
+    from x
+
+test_multiple_select_targets_trailing_whitespace_after_select:
+  # TRICKY: Use explicit newlines to preserve the trailing space after "SELECT".
+  pass_str: "SELECT \n    a,\n    b\nFROM t\n"
+
+test_single_select_with_comment_after_select:
+  # Currently not autofixed because dealing with the comment is tricky.
+  # Could be supported later.
+  fail_str: |
+    SELECT --some comment
+    a
+
+test_comment_between_select_and_single_select_target:
+  fail_str: |
+    SELECT
+        -- This is the user's ID.
+        user_id
+    FROM
+        safe_user
+  fix_str: |
+    SELECT user_id
+        -- This is the user's ID.
+    FROM
+        safe_user
+
+test_multiple_select_targets_some_newlines_missing_1:
+  fail_str: |
+    select
+      a, b, c,
+      d, e, f, g,
+      h
+    from x
+  # The spaces before a, d, and h look odd, but these are places where the
+  # select targets were already on a separate line, and the rule made no
+  # changes.
+  fix_str: |
+    select
+      a,
+    b,
+    c,
+      d,
+    e,
+    f,
+    g,
+      h
+    from x
+
+
+test_multiple_select_targets_some_newlines_missing_2:
+  fail_str: |
+    select a, b, c,
+      d, e, f, g,
+      h
+    from x
+  # The spaces before d, and h look odd, but these are places where the
+  # select targets were already on a separate line, and the rule made no
+  # changes.
+  fix_str: |
+    select
+    a,
+    b,
+    c,
+      d,
+    e,
+    f,
+    g,
+      h
+    from x
+
+test_cte:
+  fail_str: |
+    WITH
+    cte1 AS (
+        SELECT
+            c1 AS c
+        FROM
+            t
+    )
+
+    SELECT 1
+    FROM cte1
+  fix_str: |
+    WITH
+    cte1 AS (
+        SELECT c1 AS c
+        FROM
+            t
+    )
+
+    SELECT 1
+    FROM cte1
+
+test_single_newline_no_from:
+  fail_str: |
+    SELECT
+    id
+  fix_str: |
+    SELECT id
+
+test_single_distinct_no_from:
+  fail_str: |
+    SELECT
+    DISTINCT id
+  fix_str: |
+    SELECT DISTINCT id
+
+test_distinct_many:
+  fail_str: |
+    SELECT distinct a, b, c
+    FROM my_table
+  fix_str: |
+    SELECT distinct
+    a,
+    b,
+    c
+    FROM my_table
+
+test_distinct_single_pass:
+  pass_str: |
+    SELECT distinct a
+    FROM my_table
+
+test_distinct_single_fail_a:
+  fail_str: |
+    SELECT distinct
+      a
+    FROM my_table
+  fix_str: |
+    SELECT distinct a
+    FROM my_table
+
+test_distinct_single_fail_b:
+  fail_str: |
+    SELECT
+      distinct a
+    FROM my_table
+  fix_str: |
+    SELECT distinct a
+    FROM my_table
+
+test_single_select_with_no_from:
+  fail_str: "SELECT\n   10000000\n"
+  fix_str: "SELECT 10000000\n"
+
+test_single_select_with_no_from_previous_comment:
+  fail_str: "SELECT\n /* test */  10000000\n"
+  fix_str: "SELECT 10000000 /* test */\n"
+
+test_single_select_with_comment_after_column:
+  fail_str: |
+    SELECT
+      1 -- this is a comment
+    FROM
+      my_table
+  fix_str: |
+    SELECT 1
+      -- this is a comment
+    FROM
+      my_table
+
+test_single_select_with_comment_after_column_no_space:
+  fail_str: |
+    SELECT
+      1-- this is a comment
+    FROM
+      my_table
+  fix_str: |
+    SELECT 1
+      -- this is a comment
+    FROM
+      my_table
+
+test_single_select_with_multiple_mixed_comments:
+  fail_str: |
+    SELECT
+      -- previous comment
+      1 -- this is a comment
+    FROM
+      my_table
+  fix_str: |
+    SELECT 1
+      -- previous comment
+      -- this is a comment
+    FROM
+      my_table
+
+test_single_select_with_comment before:
+  fail_str: |
+    SELECT
+      /* comment before */ 1
+    FROM
+      my_table
+  fix_str: |
+    SELECT 1
+      /* comment before */
+    FROM
+      my_table
+
+test_create_view:
+  fail_str: |
+    CREATE VIEW a
+    AS
+    SELECT
+        c
+    FROM table1
+    INNER JOIN table2 ON (table1.id = table2.id);
+  fix_str: |
+    CREATE VIEW a
+    AS
+    SELECT c
+    FROM table1
+    INNER JOIN table2 ON (table1.id = table2.id);
+
+test_multiline_single:
+  # https://github.com/sqlfluff/sqlfluff/issues/4516
+  pass_str: |
+    SELECT
+        SUM(
+            1 + SUM(
+                2 + 3
+            )
+        ) AS col
+    FROM test_table
+
+test_multiline_expressions:
+  # NOTE: LT09 doesn't fix the indentation, so that may still look strange here,
+  # but we should make sure we're inserting new line breaks in the right places.
+  # https://github.com/sqlfluff/sqlfluff/issues/5258
+  fail_str: |
+    SELECT
+        a,
+        b1, b2,
+        COUNT(DISTINCT id) AS c1, COUNT(DISTINCT name) AS c2, COUNT(DISTINCT city) AS c3,
+        COUNT(
+            DISTINCT id) AS d1, COUNT(DISTINCT name) AS d2, COUNT(DISTINCT city) AS d3,
+        COUNT(DISTINCT
+            id) AS e1, COUNT(DISTINCT name) AS e2, COUNT(DISTINCT city) AS e3
+    FROM some_table;
+  fix_str: |
+    SELECT
+        a,
+        b1,
+    b2,
+        COUNT(DISTINCT id) AS c1,
+    COUNT(DISTINCT name) AS c2,
+    COUNT(DISTINCT city) AS c3,
+        COUNT(
+            DISTINCT id) AS d1,
+    COUNT(DISTINCT name) AS d2,
+    COUNT(DISTINCT city) AS d3,
+        COUNT(DISTINCT
+            id) AS e1,
+    COUNT(DISTINCT name) AS e2,
+    COUNT(DISTINCT city) AS e3
+    FROM some_table;
+
+test_pass_leading_commas:
+  # https://github.com/sqlfluff/sqlfluff/issues/5329
+  # NOTE: We shouldn't even need to configure the leading commas here.
+  # Commas shouldn't be accounted for in whether elements are on the same line.
+  pass_str: |
+    select
+        a
+        , b
+        , c

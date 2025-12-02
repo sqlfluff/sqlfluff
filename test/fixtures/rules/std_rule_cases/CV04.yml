@@ -1,0 +1,240 @@
+rule: CV04
+
+passes_on_count_star:
+  pass_str: |
+    select
+        foo,
+        count(*)
+    from my_table
+    group by
+      foo
+
+passes_on_count_1:
+  pass_str: |
+    select
+        foo,
+        count(1)
+    from my_table
+    group by
+      foo
+
+  configs: &prefer_count_1
+    rules:
+      convention.count_rows:
+        prefer_count_1: true
+
+changes_count_0_to_count_star:
+  fail_str: |
+    select
+        foo,
+        count(0)
+    from my_table
+    group by
+      foo
+
+  fix_str: |
+    select
+        foo,
+        count(*)
+    from my_table
+    group by
+      foo
+
+passes_on_count_0:
+  pass_str: |
+    select
+        foo,
+        count(0)
+    from my_table
+    group by
+      foo
+
+  configs: &prefer_count_0
+    rules:
+      convention.count_rows:
+        prefer_count_0: true
+
+passes_on_count_1_if_both_present:
+  pass_str: |
+    select
+        foo,
+        count(1)
+    from my_table
+    group by
+      foo
+
+  configs: &prefer_both
+    rules:
+      convention.count_rows:
+        prefer_count_0: true
+        prefer_count_1: true
+
+changes_to_count_1_if_both_present:
+  fail_str: |
+    select
+        foo,
+        count(*)
+    from my_table
+    group by
+      foo
+
+  fix_str: |
+    select
+        foo,
+        count(1)
+    from my_table
+    group by
+      foo
+
+  configs: *prefer_both
+
+changes_count_1_to_count_star:
+  fail_str: |
+    select
+        foo,
+        count(1)
+    from my_table
+    group by
+      foo
+
+  fix_str: |
+    select
+        foo,
+        count(*)
+    from my_table
+    group by
+      foo
+
+handles_whitespaces:
+  fail_str: |
+    select
+        foo,
+        count( 1 )
+    from my_table
+    group by
+      foo
+
+  fix_str: |
+    select
+        foo,
+        count( * )
+    from my_table
+    group by
+      foo
+
+changes_count_star_to_count_0:
+  fail_str: |
+    select
+        foo,
+        count(*)
+    from my_table
+    group by
+      foo
+
+  fix_str: |
+    select
+        foo,
+        count(0)
+    from my_table
+    group by
+      foo
+
+  configs: *prefer_count_0
+
+changes_count_star_to_count_1:
+  fail_str: |
+    select
+        foo,
+        count(*)
+    from my_table
+    group by
+      foo
+
+  fix_str: |
+    select
+        foo,
+        count(1)
+    from my_table
+    group by
+      foo
+
+  configs: *prefer_count_1
+
+changes_count_1_to_count_0:
+  fail_str: |
+    select
+        foo,
+        count(1)
+    from my_table
+    group by
+      foo
+
+  fix_str: |
+    select
+        foo,
+        count(0)
+    from my_table
+    group by
+      foo
+
+  configs: *prefer_count_0
+
+changes_count_0_to_count_1:
+  fail_str: |
+    select
+        foo,
+        count(0)
+    from my_table
+    group by
+      foo
+
+  fix_str: |
+    select
+        foo,
+        count(1)
+    from my_table
+    group by
+      foo
+
+  configs: *prefer_count_1
+
+changes_count_star_to_count_1_handle_new_line:
+  fail_str: |
+    select
+        foo,
+        count(
+
+          *
+
+        )
+    from my_table
+    group by
+      foo
+
+  fix_str: |
+    select
+        foo,
+        count(
+
+          1
+
+        )
+    from my_table
+    group by
+      foo
+
+  configs: *prefer_count_1
+
+no_false_positive_on_count_col:
+  pass_str: |
+    select
+        foo,
+        count(bar)
+    from my_table
+
+no_false_positive_on_expression:
+  pass_str: |
+    select
+        foo,
+        count(1 + 10)
+    from my_table

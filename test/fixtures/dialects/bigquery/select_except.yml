@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 6e2048d145ddb722cd689f9027d50ac538be3ed6e930c06adfdd5aff359c91a6
+_hash: 2a75600fe8b482cc8901bff063da812fa022262d426181aa1619a9b917d0f09c
 file:
 - statement:
     select_statement:
@@ -17,24 +17,21 @@ file:
               keyword: EXCEPT
               bracketed:
                 start_bracket: (
-                identifier: seqnum
+                naked_identifier: seqnum
                 end_bracket: )
             select_replace_clause:
               keyword: REPLACE
               bracketed:
               - start_bracket: (
-              - select_clause_element:
-                  column_reference:
-                    identifier: foo
-                  alias_expression:
-                    keyword: as
-                    identifier: bar
+              - column_reference:
+                  naked_identifier: foo
+              - keyword: as
+              - naked_identifier: bar
               - comma: ','
-              - select_clause_element:
-                  column_reference:
-                    identifier: baz
-                  alias_expression:
-                    identifier: foobar
+              - column_reference:
+                  naked_identifier: baz
+              - keyword: as
+              - naked_identifier: foobar
               - end_bracket: )
       from_clause:
         keyword: FROM
@@ -42,7 +39,7 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: my_tbl
+                naked_identifier: my_tbl
 - statement_terminator: ;
 - statement:
     set_expression:
@@ -57,7 +54,7 @@ file:
                 keyword: except
                 bracketed:
                   start_bracket: (
-                  identifier: foo
+                  naked_identifier: foo
                   end_bracket: )
         from_clause:
           keyword: from
@@ -65,7 +62,7 @@ file:
             from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: some_table
+                  naked_identifier: some_table
     - set_operator:
       - keyword: union
       - keyword: all
@@ -82,7 +79,7 @@ file:
             from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: another_table
+                  naked_identifier: another_table
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -90,12 +87,13 @@ file:
       - keyword: select
       - select_clause_element:
           expression:
-          - literal: '1'
+          - numeric_literal: '1'
           - binary_operator: +
-          - literal: '2'
+          - numeric_literal: '2'
           alias_expression:
-            keyword: as
-            identifier: calculated
+            alias_operator:
+              keyword: as
+            naked_identifier: calculated
       - comma: ','
       - select_clause_element:
           wildcard_expression:
@@ -105,7 +103,7 @@ file:
               keyword: except
               bracketed:
                 start_bracket: (
-                identifier: irrelevant
+                naked_identifier: irrelevant
                 end_bracket: )
       from_clause:
         keyword: from
@@ -113,7 +111,7 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: my_tbl
+                naked_identifier: my_tbl
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -122,27 +120,27 @@ file:
       - select_clause_element:
           wildcard_expression:
             wildcard_identifier:
-              identifier: foo
+              naked_identifier: foo
               dot: .
               star: '*'
             select_except_clause:
               keyword: except
               bracketed:
                 start_bracket: (
-                identifier: some_column
+                naked_identifier: some_column
                 end_bracket: )
       - comma: ','
       - select_clause_element:
           wildcard_expression:
             wildcard_identifier:
-              identifier: bar
+              naked_identifier: bar
               dot: .
               star: '*'
             select_except_clause:
               keyword: except
               bracketed:
                 start_bracket: (
-                identifier: other_column
+                naked_identifier: other_column
                 end_bracket: )
       from_clause:
         keyword: from
@@ -150,5 +148,5 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: my_tbl
+                naked_identifier: my_tbl
 - statement_terminator: ;

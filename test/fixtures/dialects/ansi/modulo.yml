@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 8185d366b1449d3fc39f81ce7f4a3b44b56e732e3346967a9d742a0c718af685
+_hash: 32ab1e024dcd9a27f1127abd3b4ee84258d7bf27bae0045f7bfbe862d5d83c0b
 file:
   statement:
     select_statement:
@@ -13,50 +13,57 @@ file:
           expression:
             case_expression:
             - keyword: CASE
-            - keyword: WHEN
-            - expression:
-              - bracketed:
-                  start_bracket: (
-                  expression:
-                  - column_reference:
-                      identifier: year_number
-                  - binary_operator: '%'
-                  - literal: '400'
-                  - comparison_operator: '='
-                  - literal: '0'
-                  end_bracket: )
-              - binary_operator: OR
-              - bracketed:
-                  start_bracket: (
-                  expression:
-                  - column_reference:
-                      identifier: year_number
-                  - binary_operator: '%'
-                  - literal: '4'
-                  - comparison_operator: '='
-                  - literal: '0'
-                  - binary_operator: AND
-                  - column_reference:
-                      identifier: year_number
-                  - binary_operator: '%'
-                  - literal: '100'
-                  - comparison_operator: '!='
-                  - literal: '0'
-                  end_bracket: )
-            - keyword: THEN
-            - expression:
-                literal: 'TRUE'
-            - keyword: ELSE
-            - expression:
-                literal: 'FALSE'
+            - when_clause:
+              - keyword: WHEN
+              - expression:
+                - bracketed:
+                    start_bracket: (
+                    expression:
+                    - column_reference:
+                        naked_identifier: year_number
+                    - binary_operator: '%'
+                    - numeric_literal: '400'
+                    - comparison_operator:
+                        raw_comparison_operator: '='
+                    - numeric_literal: '0'
+                    end_bracket: )
+                - binary_operator: OR
+                - bracketed:
+                    start_bracket: (
+                    expression:
+                    - column_reference:
+                        naked_identifier: year_number
+                    - binary_operator: '%'
+                    - numeric_literal: '4'
+                    - comparison_operator:
+                        raw_comparison_operator: '='
+                    - numeric_literal: '0'
+                    - binary_operator: AND
+                    - column_reference:
+                        naked_identifier: year_number
+                    - binary_operator: '%'
+                    - numeric_literal: '100'
+                    - comparison_operator:
+                      - raw_comparison_operator: '!'
+                      - raw_comparison_operator: '='
+                    - numeric_literal: '0'
+                    end_bracket: )
+              - keyword: THEN
+              - expression:
+                  boolean_literal: 'TRUE'
+            - else_clause:
+                keyword: ELSE
+                expression:
+                  boolean_literal: 'FALSE'
             - keyword: END
           alias_expression:
-            keyword: AS
-            identifier: is_leap_year
+            alias_operator:
+              keyword: AS
+            naked_identifier: is_leap_year
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: mytable
+                naked_identifier: mytable

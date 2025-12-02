@@ -1,0 +1,8 @@
+[sqlfluff]
+
+# TODO: This setting defaults to true. I had to set it false in order to allow a
+# rule (LT02) to indent a templated table name. Technically, indenting templated
+# code is not "touching" templated code, but in order for SQLFluff to detect
+# this and allow the fixes to be applied using default settings,  we'd need to
+# tweak some of the anchor and create logic for LintResult.
+ignore_templated_areas = false

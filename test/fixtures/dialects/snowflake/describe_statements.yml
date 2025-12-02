@@ -1,0 +1,715 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 2d90ff90e34181f6d5c7eda872c6ad20f6e397214b53e9f53306eb38f82f5e7b
+file:
+- statement:
+    describe_statement:
+    - keyword: DESCRIBE
+    - keyword: RESULT
+    - quoted_literal: "'f2f07bdb-6a08-4689-9ad8-a1ba968a44b6'"
+- statement_terminator: ;
+- statement:
+    describe_statement:
+    - keyword: DESC
+    - keyword: RESULT
+    - quoted_literal: "'f2f07bdb-6a08-4689-9ad8-a1ba968a44b6'"
+- statement_terminator: ;
+- statement:
+    describe_statement:
+    - keyword: DESCRIBE
+    - keyword: RESULT
+    - keyword: LAST_QUERY_ID
+    - bracketed:
+        start_bracket: (
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    describe_statement:
+    - keyword: DESC
+    - keyword: RESULT
+    - keyword: LAST_QUERY_ID
+    - bracketed:
+        start_bracket: (
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    describe_statement:
+    - keyword: DESCRIBE
+    - keyword: NETWORK
+    - keyword: POLICY
+    - object_reference:
+        naked_identifier: my_policy
+- statement_terminator: ;
+- statement:
+    describe_statement:
+    - keyword: DESC
+    - keyword: NETWORK
+    - keyword: POLICY
+    - object_reference:
+        naked_identifier: my_policy
+- statement_terminator: ;
+- statement:
+    describe_statement:
+    - keyword: DESCRIBE
+    - keyword: SHARE
+    - object_reference:
+        naked_identifier: sales_s
+- statement_terminator: ;
+- statement:
+    describe_statement:
+    - keyword: DESC
+    - keyword: SHARE
+    - object_reference:
+        naked_identifier: sales_s
+- statement_terminator: ;
+- statement:
+    describe_statement:
+    - keyword: DESCRIBE
+    - keyword: SHARE
+    - object_reference:
+      - naked_identifier: ab67890
+      - dot: .
+      - naked_identifier: sales_s
+- statement_terminator: ;
+- statement:
+    describe_statement:
+    - keyword: DESC
+    - keyword: SHARE
+    - object_reference:
+      - naked_identifier: ab67890
+      - dot: .
+      - naked_identifier: sales_s
+- statement_terminator: ;
+- statement:
+    describe_statement:
+    - keyword: DESCRIBE
+    - keyword: USER
+    - object_reference:
+        naked_identifier: test_user
+- statement_terminator: ;
+- statement:
+    describe_statement:
+    - keyword: DESC
+    - keyword: USER
+    - object_reference:
+        naked_identifier: test_user
+- statement_terminator: ;
+- statement:
+    describe_statement:
+    - keyword: DESCRIBE
+    - keyword: WAREHOUSE
+    - object_reference:
+        naked_identifier: my_warehouse
+- statement_terminator: ;
+- statement:
+    describe_statement:
+    - keyword: DESC
+    - keyword: WAREHOUSE
+    - object_reference:
+        naked_identifier: my_warehouse
+- statement_terminator: ;
+- statement:
+    describe_statement:
+    - keyword: DESCRIBE
+    - keyword: WAREHOUSE
+    - object_reference:
+        quoted_identifier: '"my warehouse"'
+- statement_terminator: ;
+- statement:
+    describe_statement:
+    - keyword: DESC
+    - keyword: WAREHOUSE
+    - object_reference:
+        quoted_identifier: '"my warehouse"'
+- statement_terminator: ;
+- statement:
+    describe_statement:
+    - keyword: DESCRIBE
+    - keyword: DATABASE
+    - database_reference:
+        naked_identifier: my_database
+- statement_terminator: ;
+- statement:
+    describe_statement:
+    - keyword: DESC
+    - keyword: DATABASE
+    - database_reference:
+        naked_identifier: my_database
+- statement_terminator: ;
+- statement:
+    describe_statement:
+    - keyword: DESCRIBE
+    - keyword: API
+    - keyword: INTEGRATION
+    - object_reference:
+        naked_identifier: my_integration
+- statement_terminator: ;
+- statement:
+    describe_statement:
+    - keyword: DESC
+    - keyword: API
+    - keyword: INTEGRATION
+    - object_reference:
+        naked_identifier: my_integration
+- statement_terminator: ;
+- statement:
+    describe_statement:
+    - keyword: DESCRIBE
+    - keyword: NOTIFICATION
+    - keyword: INTEGRATION
+    - object_reference:
+        naked_identifier: my_integration
+- statement_terminator: ;
+- statement:
+    describe_statement:
+    - keyword: DESC
+    - keyword: NOTIFICATION
+    - keyword: INTEGRATION
+    - object_reference:
+        naked_identifier: my_integration
+- statement_terminator: ;
+- statement:
+    describe_statement:
+    - keyword: DESCRIBE
+    - keyword: SECURITY
+    - keyword: INTEGRATION
+    - object_reference:
+        naked_identifier: my_integration
+- statement_terminator: ;
+- statement:
+    describe_statement:
+    - keyword: DESC
+    - keyword: SECURITY
+    - keyword: INTEGRATION
+    - object_reference:
+        naked_identifier: my_integration
+- statement_terminator: ;
+- statement:
+    describe_statement:
+    - keyword: DESCRIBE
+    - keyword: STORAGE
+    - keyword: INTEGRATION
+    - object_reference:
+        naked_identifier: my_integration
+- statement_terminator: ;
+- statement:
+    describe_statement:
+    - keyword: DESC
+    - keyword: STORAGE
+    - keyword: INTEGRATION
+    - object_reference:
+        naked_identifier: my_integration
+- statement_terminator: ;
+- statement:
+    describe_statement:
+    - keyword: DESCRIBE
+    - keyword: INTEGRATION
+    - object_reference:
+        naked_identifier: my_integration
+- statement_terminator: ;
+- statement:
+    describe_statement:
+    - keyword: DESC
+    - keyword: INTEGRATION
+    - object_reference:
+        naked_identifier: my_integration
+- statement_terminator: ;
+- statement:
+    describe_statement:
+    - keyword: DESCRIBE
+    - keyword: SESSION
+    - keyword: POLICY
+    - object_reference:
+        naked_identifier: my_session_policy
+- statement_terminator: ;
+- statement:
+    describe_statement:
+    - keyword: DESC
+    - keyword: SESSION
+    - keyword: POLICY
+    - object_reference:
+        naked_identifier: my_session_policy
+- statement_terminator: ;
+- statement:
+    describe_statement:
+    - keyword: DESCRIBE
+    - keyword: SCHEMA
+    - schema_reference:
+        naked_identifier: my_schema
+- statement_terminator: ;
+- statement:
+    describe_statement:
+    - keyword: DESC
+    - keyword: SCHEMA
+    - schema_reference:
+        naked_identifier: my_schema
+- statement_terminator: ;
+- statement:
+    describe_statement:
+    - keyword: DESCRIBE
+    - keyword: SCHEMA
+    - schema_reference:
+      - naked_identifier: my_database
+      - dot: .
+      - naked_identifier: my_schema
+- statement_terminator: ;
+- statement:
+    describe_statement:
+    - keyword: DESC
+    - keyword: SCHEMA
+    - schema_reference:
+      - naked_identifier: my_database
+      - dot: .
+      - naked_identifier: my_schema
+- statement_terminator: ;
+- statement:
+    describe_statement:
+    - keyword: DESCRIBE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: my_table
+- statement_terminator: ;
+- statement:
+    describe_statement:
+    - keyword: DESC
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: my_table
+- statement_terminator: ;
+- statement:
+    describe_statement:
+    - keyword: DESCRIBE
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: my_database
+      - dot: .
+      - naked_identifier: my_schema
+      - dot: .
+      - naked_identifier: my_table
+- statement_terminator: ;
+- statement:
+    describe_statement:
+    - keyword: DESC
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: my_database
+      - dot: .
+      - naked_identifier: my_schema
+      - dot: .
+      - naked_identifier: my_table
+- statement_terminator: ;
+- statement:
+    describe_statement:
+    - keyword: DESCRIBE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: my_table
+    - keyword: TYPE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - keyword: COLUMNS
+- statement_terminator: ;
+- statement:
+    describe_statement:
+    - keyword: DESC
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: my_table
+    - keyword: TYPE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - keyword: COLUMNS
+- statement_terminator: ;
+- statement:
+    describe_statement:
+    - keyword: DESCRIBE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: my_table
+    - keyword: TYPE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - keyword: STAGE
+- statement_terminator: ;
+- statement:
+    describe_statement:
+    - keyword: DESC
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: my_table
+    - keyword: TYPE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - keyword: STAGE
+- statement_terminator: ;
+- statement:
+    describe_statement:
+    - keyword: DESCRIBE
+    - keyword: EXTERNAL
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: my_table
+- statement_terminator: ;
+- statement:
+    describe_statement:
+    - keyword: DESC
+    - keyword: EXTERNAL
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: my_table
+- statement_terminator: ;
+- statement:
+    describe_statement:
+    - keyword: DESCRIBE
+    - keyword: EXTERNAL
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: my_table
+    - keyword: TYPE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - keyword: COLUMNS
+- statement_terminator: ;
+- statement:
+    describe_statement:
+    - keyword: DESC
+    - keyword: EXTERNAL
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: my_table
+    - keyword: TYPE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - keyword: COLUMNS
+- statement_terminator: ;
+- statement:
+    describe_statement:
+    - keyword: DESCRIBE
+    - keyword: EXTERNAL
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: my_table
+    - keyword: TYPE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - keyword: STAGE
+- statement_terminator: ;
+- statement:
+    describe_statement:
+    - keyword: DESC
+    - keyword: EXTERNAL
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: my_table
+    - keyword: TYPE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - keyword: STAGE
+- statement_terminator: ;
+- statement:
+    describe_statement:
+    - keyword: DESCRIBE
+    - keyword: VIEW
+    - table_reference:
+        naked_identifier: my_view
+- statement_terminator: ;
+- statement:
+    describe_statement:
+    - keyword: DESC
+    - keyword: VIEW
+    - table_reference:
+        naked_identifier: my_view
+- statement_terminator: ;
+- statement:
+    describe_statement:
+    - keyword: DESCRIBE
+    - keyword: VIEW
+    - table_reference:
+      - naked_identifier: my_database
+      - dot: .
+      - naked_identifier: my_schema
+      - dot: .
+      - naked_identifier: my_view
+- statement_terminator: ;
+- statement:
+    describe_statement:
+    - keyword: DESC
+    - keyword: VIEW
+    - table_reference:
+      - naked_identifier: my_database
+      - dot: .
+      - naked_identifier: my_schema
+      - dot: .
+      - naked_identifier: my_view
+- statement_terminator: ;
+- statement:
+    describe_statement:
+    - keyword: DESCRIBE
+    - keyword: MATERIALIZED
+    - keyword: VIEW
+    - table_reference:
+        naked_identifier: my_view
+- statement_terminator: ;
+- statement:
+    describe_statement:
+    - keyword: DESC
+    - keyword: MATERIALIZED
+    - keyword: VIEW
+    - table_reference:
+        naked_identifier: my_view
+- statement_terminator: ;
+- statement:
+    describe_statement:
+    - keyword: DESCRIBE
+    - keyword: MATERIALIZED
+    - keyword: VIEW
+    - table_reference:
+      - naked_identifier: my_database
+      - dot: .
+      - naked_identifier: my_schema
+      - dot: .
+      - naked_identifier: my_view
+- statement_terminator: ;
+- statement:
+    describe_statement:
+    - keyword: DESC
+    - keyword: MATERIALIZED
+    - keyword: VIEW
+    - table_reference:
+      - naked_identifier: my_database
+      - dot: .
+      - naked_identifier: my_schema
+      - dot: .
+      - naked_identifier: my_view
+- statement_terminator: ;
+- statement:
+    describe_statement:
+    - keyword: DESCRIBE
+    - keyword: SEQUENCE
+    - sequence_reference:
+        naked_identifier: my_sequence
+- statement_terminator: ;
+- statement:
+    describe_statement:
+    - keyword: DESC
+    - keyword: SEQUENCE
+    - sequence_reference:
+        naked_identifier: my_sequence
+- statement_terminator: ;
+- statement:
+    describe_statement:
+    - keyword: DESCRIBE
+    - keyword: MASKING
+    - keyword: POLICY
+    - object_reference:
+        naked_identifier: my_masking_policy
+- statement_terminator: ;
+- statement:
+    describe_statement:
+    - keyword: DESC
+    - keyword: MASKING
+    - keyword: POLICY
+    - object_reference:
+        naked_identifier: my_masking_policy
+- statement_terminator: ;
+- statement:
+    describe_statement:
+    - keyword: DESCRIBE
+    - keyword: ROW
+    - keyword: ACCESS
+    - keyword: POLICY
+    - object_reference:
+        naked_identifier: my_row_access_policy
+- statement_terminator: ;
+- statement:
+    describe_statement:
+    - keyword: DESC
+    - keyword: ROW
+    - keyword: ACCESS
+    - keyword: POLICY
+    - object_reference:
+        naked_identifier: my_row_access_policy
+- statement_terminator: ;
+- statement:
+    describe_statement:
+    - keyword: DESCRIBE
+    - keyword: FILE
+    - keyword: FORMAT
+    - object_reference:
+        naked_identifier: my_file_format
+- statement_terminator: ;
+- statement:
+    describe_statement:
+    - keyword: DESC
+    - keyword: FILE
+    - keyword: FORMAT
+    - object_reference:
+        naked_identifier: my_file_format
+- statement_terminator: ;
+- statement:
+    describe_statement:
+    - keyword: DESCRIBE
+    - keyword: STAGE
+    - object_reference:
+        naked_identifier: my_stage
+- statement_terminator: ;
+- statement:
+    describe_statement:
+    - keyword: DESC
+    - keyword: STAGE
+    - object_reference:
+        naked_identifier: my_stage
+- statement_terminator: ;
+- statement:
+    describe_statement:
+    - keyword: DESCRIBE
+    - keyword: PIPE
+    - object_reference:
+        naked_identifier: my_pipe
+- statement_terminator: ;
+- statement:
+    describe_statement:
+    - keyword: DESC
+    - keyword: PIPE
+    - object_reference:
+        naked_identifier: my_pipe
+- statement_terminator: ;
+- statement:
+    describe_statement:
+    - keyword: DESCRIBE
+    - keyword: STREAM
+    - object_reference:
+        naked_identifier: my_stream
+- statement_terminator: ;
+- statement:
+    describe_statement:
+    - keyword: DESC
+    - keyword: STREAM
+    - object_reference:
+        naked_identifier: my_stream
+- statement_terminator: ;
+- statement:
+    describe_statement:
+    - keyword: DESCRIBE
+    - keyword: TASK
+    - object_reference:
+        naked_identifier: my_task
+- statement_terminator: ;
+- statement:
+    describe_statement:
+    - keyword: DESC
+    - keyword: TASK
+    - object_reference:
+        naked_identifier: my_task
+- statement_terminator: ;
+- statement:
+    describe_statement:
+    - keyword: DESCRIBE
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: multiply
+    - bracketed:
+      - start_bracket: (
+      - data_type:
+          data_type_identifier: NUMBER
+      - comma: ','
+      - data_type:
+          data_type_identifier: NUMBER
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    describe_statement:
+    - keyword: DESC
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: multiply
+    - bracketed:
+      - start_bracket: (
+      - data_type:
+          data_type_identifier: NUMBER
+      - comma: ','
+      - data_type:
+          data_type_identifier: NUMBER
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    describe_statement:
+    - keyword: DESCRIBE
+    - keyword: PROCEDURE
+    - function_name:
+        function_name_identifier: my_pi
+    - bracketed:
+        start_bracket: (
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    describe_statement:
+    - keyword: DESC
+    - keyword: PROCEDURE
+    - function_name:
+        function_name_identifier: my_pi
+    - bracketed:
+        start_bracket: (
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    describe_statement:
+    - keyword: DESCRIBE
+    - keyword: PROCEDURE
+    - function_name:
+        function_name_identifier: area_of_circle
+    - bracketed:
+        start_bracket: (
+        data_type:
+          data_type_identifier: FLOAT
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    describe_statement:
+    - keyword: DESC
+    - keyword: PROCEDURE
+    - function_name:
+        function_name_identifier: area_of_circle
+    - bracketed:
+        start_bracket: (
+        data_type:
+          data_type_identifier: FLOAT
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    describe_statement:
+    - keyword: DESCRIBE
+    - keyword: EXTERNAL
+    - keyword: VOLUME
+    - external_volume_reference:
+        naked_identifier: my_volume
+- statement_terminator: ;
+- statement:
+    describe_statement:
+    - keyword: DESC
+    - keyword: PASSWORD
+    - keyword: POLICY
+    - password_policy_reference:
+        naked_identifier: password_policy_prod_1
+- statement_terminator: ;
+- statement:
+    describe_statement:
+    - keyword: DESCRIBE
+    - keyword: CORTEX
+    - keyword: SEARCH
+    - keyword: SERVICE
+    - object_reference:
+        naked_identifier: mysvc
+- statement_terminator: ;
+- statement:
+    describe_statement:
+    - keyword: DESC
+    - keyword: CORTEX
+    - keyword: SEARCH
+    - keyword: SERVICE
+    - object_reference:
+        naked_identifier: mysvc
+- statement_terminator: ;

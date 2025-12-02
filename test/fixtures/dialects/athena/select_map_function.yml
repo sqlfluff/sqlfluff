@@ -1,0 +1,255 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: bfb068b1284cf0064d84486f515d8f29f3be3ca4e2f1b4402bf824690fa4215d
+file:
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: map
+            function_contents:
+              bracketed:
+                start_bracket: (
+                end_bracket: )
+- statement_terminator: ;
+- statement:
+    with_compound_statement:
+      keyword: WITH
+      common_table_expression:
+        naked_identifier: dataset
+        keyword: AS
+        bracketed:
+          start_bracket: (
+          select_statement:
+            select_clause:
+              keyword: SELECT
+              select_clause_element:
+                function:
+                  function_name:
+                    function_name_identifier: map
+                  function_contents:
+                    bracketed:
+                    - start_bracket: (
+                    - expression:
+                        typed_array_literal:
+                          array_type:
+                            keyword: ARRAY
+                          array_literal:
+                          - start_square_bracket: '['
+                          - quoted_literal: "'first'"
+                          - comma: ','
+                          - quoted_literal: "'last'"
+                          - comma: ','
+                          - quoted_literal: "'age'"
+                          - end_square_bracket: ']'
+                    - comma: ','
+                    - expression:
+                        typed_array_literal:
+                          array_type:
+                            keyword: ARRAY
+                          array_literal:
+                          - start_square_bracket: '['
+                          - quoted_literal: "'Bob'"
+                          - comma: ','
+                          - quoted_literal: "'Smith'"
+                          - comma: ','
+                          - quoted_literal: "'35'"
+                          - end_square_bracket: ']'
+                    - end_bracket: )
+                alias_expression:
+                  alias_operator:
+                    keyword: AS
+                  naked_identifier: a_map
+          end_bracket: )
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            column_reference:
+              naked_identifier: a_map
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: dataset
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: map_filter
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  function:
+                    function_name:
+                      function_name_identifier: map
+                    function_contents:
+                      bracketed:
+                      - start_bracket: (
+                      - expression:
+                          typed_array_literal:
+                            array_type:
+                              keyword: ARRAY
+                            array_literal:
+                              start_square_bracket: '['
+                              end_square_bracket: ']'
+                      - comma: ','
+                      - expression:
+                          typed_array_literal:
+                            array_type:
+                              keyword: ARRAY
+                            array_literal:
+                              start_square_bracket: '['
+                              end_square_bracket: ']'
+                      - end_bracket: )
+              - comma: ','
+              - expression:
+                  bracketed:
+                  - start_bracket: (
+                  - column_reference:
+                      naked_identifier: k
+                  - comma: ','
+                  - column_reference:
+                      naked_identifier: v
+                  - end_bracket: )
+                  binary_operator: ->
+                  boolean_literal: 'true'
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: map_filter
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  function:
+                    function_name:
+                      function_name_identifier: map
+                    function_contents:
+                      bracketed:
+                      - start_bracket: (
+                      - expression:
+                          typed_array_literal:
+                            array_type:
+                              keyword: ARRAY
+                            array_literal:
+                            - start_square_bracket: '['
+                            - numeric_literal: '10'
+                            - comma: ','
+                            - numeric_literal: '20'
+                            - comma: ','
+                            - numeric_literal: '30'
+                            - end_square_bracket: ']'
+                      - comma: ','
+                      - expression:
+                          typed_array_literal:
+                            array_type:
+                              keyword: ARRAY
+                            array_literal:
+                            - start_square_bracket: '['
+                            - quoted_literal: "'a'"
+                            - comma: ','
+                            - null_literal: 'null'
+                            - comma: ','
+                            - quoted_literal: "'c'"
+                            - end_square_bracket: ']'
+                      - end_bracket: )
+              - comma: ','
+              - expression:
+                - bracketed:
+                  - start_bracket: (
+                  - column_reference:
+                      naked_identifier: k
+                  - comma: ','
+                  - column_reference:
+                      naked_identifier: v
+                  - end_bracket: )
+                - binary_operator: ->
+                - column_reference:
+                    naked_identifier: v
+                - keyword: IS
+                - keyword: NOT
+                - null_literal: 'NULL'
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: map_filter
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  function:
+                    function_name:
+                      function_name_identifier: map
+                    function_contents:
+                      bracketed:
+                      - start_bracket: (
+                      - expression:
+                          typed_array_literal:
+                            array_type:
+                              keyword: ARRAY
+                            array_literal:
+                            - start_square_bracket: '['
+                            - quoted_literal: "'k1'"
+                            - comma: ','
+                            - quoted_literal: "'k2'"
+                            - comma: ','
+                            - quoted_literal: "'k3'"
+                            - end_square_bracket: ']'
+                      - comma: ','
+                      - expression:
+                          typed_array_literal:
+                            array_type:
+                              keyword: ARRAY
+                            array_literal:
+                            - start_square_bracket: '['
+                            - numeric_literal: '20'
+                            - comma: ','
+                            - numeric_literal: '3'
+                            - comma: ','
+                            - numeric_literal: '15'
+                            - end_square_bracket: ']'
+                      - end_bracket: )
+              - comma: ','
+              - expression:
+                  bracketed:
+                  - start_bracket: (
+                  - column_reference:
+                      naked_identifier: k
+                  - comma: ','
+                  - column_reference:
+                      naked_identifier: v
+                  - end_bracket: )
+                  binary_operator: ->
+                  column_reference:
+                    naked_identifier: v
+                  comparison_operator:
+                    raw_comparison_operator: '>'
+                  numeric_literal: '10'
+              - end_bracket: )
+- statement_terminator: ;

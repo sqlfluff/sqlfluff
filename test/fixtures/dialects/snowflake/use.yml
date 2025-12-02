@@ -1,0 +1,100 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: ccec964f5d1d6a5487cf768b3f963f6a47fe9b86abda53240e605d8e8580a8e1
+file:
+- statement:
+    use_statement:
+    - keyword: use
+    - keyword: role
+    - object_reference:
+        naked_identifier: my_role
+- statement_terminator: ;
+- statement:
+    use_statement:
+    - keyword: use
+    - keyword: warehouse
+    - object_reference:
+        naked_identifier: my_warehouse
+- statement_terminator: ;
+- statement:
+    use_statement:
+    - keyword: use
+    - keyword: database
+    - database_reference:
+        naked_identifier: my_database
+- statement_terminator: ;
+- statement:
+    use_statement:
+    - keyword: use
+    - keyword: schema
+    - schema_reference:
+        naked_identifier: my_schema
+- statement_terminator: ;
+- statement:
+    use_statement:
+    - keyword: USE
+    - keyword: ROLE
+    - object_reference:
+        quoted_identifier: '"MY_ROLE"'
+- statement_terminator: ;
+- statement:
+    use_statement:
+    - keyword: USE
+    - keyword: WAREHOUSE
+    - object_reference:
+        quoted_identifier: '"MY_WAREHOUSE"'
+- statement_terminator: ;
+- statement:
+    use_statement:
+    - keyword: USE
+    - keyword: DATABASE
+    - database_reference:
+        quoted_identifier: '"MY_DATABASE"'
+- statement_terminator: ;
+- statement:
+    use_statement:
+      keyword: USE
+      database_reference:
+        quoted_identifier: '"MY_DATABASE"'
+- statement_terminator: ;
+- statement:
+    use_statement:
+    - keyword: USE
+    - keyword: SCHEMA
+    - schema_reference:
+      - quoted_identifier: '"MY_DATABASE"'
+      - dot: .
+      - quoted_identifier: '"MY_SCHEMA"'
+- statement_terminator: ;
+- statement:
+    use_statement:
+    - keyword: USE
+    - keyword: SCHEMA
+    - schema_reference:
+        quoted_identifier: '"MY_SCHEMA"'
+- statement_terminator: ;
+- statement:
+    use_statement:
+      keyword: USE
+      database_reference:
+      - quoted_identifier: '"MY_DATABASE"'
+      - dot: .
+      - quoted_identifier: '"MY_SCHEMA"'
+- statement_terminator: ;
+- statement:
+    use_statement:
+    - keyword: USE
+    - keyword: SECONDARY
+    - keyword: ROLES
+    - keyword: ALL
+- statement_terminator: ;
+- statement:
+    use_statement:
+    - keyword: USE
+    - keyword: SECONDARY
+    - keyword: ROLES
+    - keyword: NONE
+- statement_terminator: ;

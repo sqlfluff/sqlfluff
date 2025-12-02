@@ -3,13 +3,13 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 3865821cbeda7e6ff5a554b46b42740101dfb3ce3e37f6a39e560b57a2fef238
+_hash: 05963e58706a5e52eea76ffffe933867b3d39ba7ee3323435bd3c964e29c0a9c
 file:
   statement:
     with_compound_statement:
       keyword: WITH
       common_table_expression:
-        identifier: constants
+        naked_identifier: constants
         keyword: AS
         bracketed:
           start_bracket: (
@@ -17,65 +17,68 @@ file:
             select_clause:
               keyword: SELECT
               select_clause_element:
-                literal: '8760'
+                numeric_literal: '8760'
                 alias_expression:
-                  keyword: AS
-                  identifier: hours_per_year
+                  alias_operator:
+                    keyword: AS
+                  naked_identifier: hours_per_year
           end_bracket: )
       select_statement:
         select_clause:
         - keyword: SELECT
         - select_clause_element:
             column_reference:
-            - identifier: table1
+            - naked_identifier: table1
             - dot: .
-            - identifier: name
+            - naked_identifier: name
         - comma: ','
         - select_clause_element:
             column_reference:
-            - identifier: foo
+            - naked_identifier: foo
             - dot: .
-            - identifier: name
+            - naked_identifier: name
         - comma: ','
         - select_clause_element:
             expression:
             - column_reference:
-              - identifier: foo
+              - naked_identifier: foo
               - dot: .
-              - identifier: value
+              - naked_identifier: value
             - binary_operator: '*'
             - column_reference:
-              - identifier: constants
+              - naked_identifier: constants
               - dot: .
-              - identifier: hours_per_year
+              - naked_identifier: hours_per_year
             alias_expression:
-              keyword: AS
-              identifier: some_value
+              alias_operator:
+                keyword: AS
+              naked_identifier: some_value
         from_clause:
           keyword: FROM
           from_expression:
           - from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: table1
+                  naked_identifier: table1
           - join_clause:
             - keyword: CROSS
             - keyword: JOIN
             - from_expression_element:
                 table_expression:
                   table_reference:
-                    identifier: constants
+                    naked_identifier: constants
           - join_clause:
             - keyword: JOIN
             - from_expression_element:
                 table_expression:
                   table_reference:
-                    identifier: table2
+                    naked_identifier: table2
                 alias_expression:
-                  keyword: AS
-                  identifier: foo
+                  alias_operator:
+                    keyword: AS
+                  naked_identifier: foo
             - keyword: USING
             - bracketed:
                 start_bracket: (
-                identifier: id
+                naked_identifier: id
                 end_bracket: )

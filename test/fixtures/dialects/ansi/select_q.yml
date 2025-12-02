@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 5f4d4acff2adde74dcf0ba8ed959a7e0fb6abc5c8063cbb1d83adc8cb72e4ec9
+_hash: 652f61a7adf86fd255f39e8d969589b068bede11b2f6632d9db7d0a889225227
 file:
   statement:
     select_statement:
@@ -11,55 +11,58 @@ file:
         keyword: SELECT
         select_clause_element:
           column_reference:
-          - identifier: data
+          - naked_identifier: data
           - dot: .
-          - identifier: id
+          - naked_identifier: id
       from_clause:
         keyword: FROM
         from_expression:
         - from_expression_element:
             table_expression:
               table_reference:
-                identifier: data
+                naked_identifier: data
         - join_clause:
             keyword: JOIN
             from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: data_max
+                  naked_identifier: data_max
             join_on_condition:
               keyword: 'ON'
               expression:
               - column_reference:
-                - identifier: data
+                - naked_identifier: data
                 - dot: .
-                - identifier: event_id
-              - comparison_operator: '='
+                - naked_identifier: event_id
+              - comparison_operator:
+                  raw_comparison_operator: '='
               - column_reference:
-                - identifier: data_max
+                - naked_identifier: data_max
                 - dot: .
-                - identifier: event_id
+                - naked_identifier: event_id
         - join_clause:
           - keyword: LEFT
           - keyword: JOIN
           - from_expression_element:
               table_expression:
                 table_reference:
-                - identifier: '"other_db"'
+                - quoted_identifier: '"other_db"'
                 - dot: .
-                - identifier: '"other_data"'
+                - quoted_identifier: '"other_data"'
               alias_expression:
-                keyword: AS
-                identifier: od
+                alias_operator:
+                  keyword: AS
+                naked_identifier: od
           - join_on_condition:
               keyword: 'ON'
               expression:
               - column_reference:
-                - identifier: od
+                - naked_identifier: od
                 - dot: .
-                - identifier: fid
-              - comparison_operator: '='
+                - naked_identifier: fid
+              - comparison_operator:
+                  raw_comparison_operator: '='
               - column_reference:
-                - identifier: data_max
+                - naked_identifier: data_max
                 - dot: .
-                - identifier: fid
+                - naked_identifier: fid

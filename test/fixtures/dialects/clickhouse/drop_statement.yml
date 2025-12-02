@@ -1,0 +1,291 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 2009929ac9fd7f306cb4749f88dbdd183dba6fbe1ae1e98b347863f6a4a34301
+file:
+- statement:
+    drop_database_statement:
+    - keyword: DROP
+    - keyword: DATABASE
+    - database_reference:
+        naked_identifier: db
+- statement_terminator: ;
+- statement:
+    drop_database_statement:
+    - keyword: DROP
+    - keyword: DATABASE
+    - keyword: IF
+    - keyword: EXISTS
+    - database_reference:
+        naked_identifier: db
+- statement_terminator: ;
+- statement:
+    drop_database_statement:
+    - keyword: DROP
+    - keyword: DATABASE
+    - database_reference:
+        naked_identifier: db
+    - on_cluster_clause:
+      - keyword: 'ON'
+      - keyword: CLUSTER
+      - naked_identifier: cluster
+- statement_terminator: ;
+- statement:
+    drop_database_statement:
+    - keyword: DROP
+    - keyword: DATABASE
+    - database_reference:
+        naked_identifier: db
+    - keyword: SYNC
+- statement_terminator: ;
+- statement:
+    drop_table_statement:
+    - keyword: DROP
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: db_name
+- statement_terminator: ;
+- statement:
+    drop_table_statement:
+    - keyword: DROP
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: db
+      - dot: .
+      - naked_identifier: name
+- statement_terminator: ;
+- statement:
+    drop_table_statement:
+    - keyword: DROP
+    - keyword: TABLE
+    - keyword: IF
+    - keyword: EXISTS
+    - table_reference:
+        naked_identifier: db_name
+- statement_terminator: ;
+- statement:
+    drop_table_statement:
+    - keyword: DROP
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: db_name
+    - on_cluster_clause:
+      - keyword: 'ON'
+      - keyword: CLUSTER
+      - naked_identifier: cluster
+- statement_terminator: ;
+- statement:
+    drop_table_statement:
+    - keyword: DROP
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: db_name
+    - keyword: SYNC
+- statement_terminator: ;
+- statement:
+    drop_table_statement:
+    - keyword: DROP
+    - keyword: TEMPORARY
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: db_name
+- statement_terminator: ;
+- statement:
+    drop_dictionary_statement:
+    - keyword: DROP
+    - keyword: DICTIONARY
+    - naked_identifier: dict_name
+- statement_terminator: ;
+- statement:
+    drop_dictionary_statement:
+    - keyword: DROP
+    - keyword: DICTIONARY
+    - keyword: IF
+    - keyword: EXISTS
+    - naked_identifier: dict_name
+- statement_terminator: ;
+- statement:
+    drop_dictionary_statement:
+    - keyword: DROP
+    - keyword: DICTIONARY
+    - naked_identifier: dict_name
+    - keyword: SYNC
+- statement_terminator: ;
+- statement:
+    drop_user_statement:
+    - keyword: DROP
+    - keyword: USER
+    - naked_identifier: user_name
+- statement_terminator: ;
+- statement:
+    drop_user_statement:
+    - keyword: DROP
+    - keyword: USER
+    - keyword: IF
+    - keyword: EXISTS
+    - naked_identifier: user_name
+- statement_terminator: ;
+- statement:
+    drop_user_statement:
+    - keyword: DROP
+    - keyword: USER
+    - naked_identifier: user_name
+    - on_cluster_clause:
+      - keyword: 'ON'
+      - keyword: CLUSTER
+      - naked_identifier: cluster_name
+- statement_terminator: ;
+- statement:
+    drop_user_statement:
+    - keyword: DROP
+    - keyword: ROLE
+    - naked_identifier: role_name
+- statement_terminator: ;
+- statement:
+    drop_user_statement:
+    - keyword: DROP
+    - keyword: ROLE
+    - keyword: IF
+    - keyword: EXISTS
+    - naked_identifier: role_name
+- statement_terminator: ;
+- statement:
+    drop_user_statement:
+    - keyword: DROP
+    - keyword: ROLE
+    - naked_identifier: role_name
+    - on_cluster_clause:
+      - keyword: 'ON'
+      - keyword: CLUSTER
+      - naked_identifier: cluster_name
+- statement_terminator: ;
+- statement:
+    drop_quota_statement:
+    - keyword: DROP
+    - keyword: QUOTA
+    - naked_identifier: quota_name
+- statement_terminator: ;
+- statement:
+    drop_quota_statement:
+    - keyword: DROP
+    - keyword: QUOTA
+    - keyword: IF
+    - keyword: EXISTS
+    - naked_identifier: quota_name
+- statement_terminator: ;
+- statement:
+    drop_quota_statement:
+    - keyword: DROP
+    - keyword: QUOTA
+    - naked_identifier: quota_name
+    - on_cluster_clause:
+      - keyword: 'ON'
+      - keyword: CLUSTER
+      - naked_identifier: cluster_name
+- statement_terminator: ;
+- statement:
+    drop_setting_profile_statement:
+    - keyword: DROP
+    - naked_identifier: setting_name
+    - keyword: PROFILE
+    - naked_identifier: profile_name
+- statement_terminator: ;
+- statement:
+    drop_setting_profile_statement:
+    - keyword: DROP
+    - naked_identifier: setting_name
+    - keyword: PROFILE
+    - keyword: IF
+    - keyword: EXISTS
+    - naked_identifier: profile_name
+- statement_terminator: ;
+- statement:
+    drop_setting_profile_statement:
+    - keyword: DROP
+    - naked_identifier: setting_name
+    - keyword: PROFILE
+    - naked_identifier: profile_name
+    - on_cluster_clause:
+      - keyword: 'ON'
+      - keyword: CLUSTER
+      - naked_identifier: cluster_name
+- statement_terminator: ;
+- statement:
+    drop_setting_profile_statement:
+    - keyword: DROP
+    - naked_identifier: setting_name1
+    - comma: ','
+    - naked_identifier: setting_name2
+    - keyword: PROFILE
+    - naked_identifier: profile_name
+- statement_terminator: ;
+- statement:
+    drop_view_statement:
+    - keyword: DROP
+    - keyword: VIEW
+    - table_reference:
+        naked_identifier: view_name
+- statement_terminator: ;
+- statement:
+    drop_view_statement:
+    - keyword: DROP
+    - keyword: VIEW
+    - table_reference:
+      - naked_identifier: db
+      - dot: .
+      - naked_identifier: view_name
+- statement_terminator: ;
+- statement:
+    drop_view_statement:
+    - keyword: DROP
+    - keyword: VIEW
+    - keyword: IF
+    - keyword: EXISTS
+    - table_reference:
+        naked_identifier: view_name
+- statement_terminator: ;
+- statement:
+    drop_view_statement:
+    - keyword: DROP
+    - keyword: VIEW
+    - table_reference:
+        naked_identifier: view_name
+    - on_cluster_clause:
+      - keyword: 'ON'
+      - keyword: CLUSTER
+      - naked_identifier: cluster
+- statement_terminator: ;
+- statement:
+    drop_view_statement:
+    - keyword: DROP
+    - keyword: VIEW
+    - table_reference:
+        naked_identifier: view_name
+    - keyword: SYNC
+- statement_terminator: ;
+- statement:
+    drop_function_statement:
+    - keyword: DROP
+    - keyword: FUNCTION
+    - naked_identifier: function_name
+- statement_terminator: ;
+- statement:
+    drop_function_statement:
+    - keyword: DROP
+    - keyword: FUNCTION
+    - keyword: IF
+    - keyword: EXISTS
+    - naked_identifier: function_name
+- statement_terminator: ;
+- statement:
+    drop_function_statement:
+    - keyword: DROP
+    - keyword: FUNCTION
+    - naked_identifier: function_name
+    - on_cluster_clause:
+      - keyword: 'on'
+      - keyword: CLUSTER
+      - naked_identifier: cluster
+- statement_terminator: ;

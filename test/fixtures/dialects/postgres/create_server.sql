@@ -1,0 +1,7 @@
+CREATE SERVER test FOREIGN DATA WRAPPER postgres_fdw;
+
+CREATE SERVER IF NOT EXISTS test FOREIGN DATA WRAPPER oracle_fdw;
+
+CREATE SERVER test TYPE 'test' VERSION '1.0' FOREIGN DATA WRAPPER postgres_fdw;
+
+CREATE SERVER test FOREIGN DATA WRAPPER postgres_fdw OPTIONS (host 'foo', dbname 'foodb', port '5432');

@@ -1,0 +1,228 @@
+rule: LT15
+
+test_pass_no_empty_lines:
+  pass_str: |
+    SELECT foo
+    FROM bar
+
+test_pass_one_empty_line:
+  pass_str: |
+    SELECT foo
+
+    FROM
+      bar
+  configs:
+    rules:
+      layout.newlines:
+        maximum_empty_lines_inside_statements: 1
+
+test_fail_no_empty_lines:
+  fail_str: |
+    SELECT foo
+
+    FROM
+      bar
+  fix_str: |
+    SELECT foo
+    FROM
+      bar
+  configs:
+    rules:
+      layout.newlines:
+        maximum_empty_lines_inside_statements: 0
+
+test_fail_one_empty_line_between_statements:
+  fail_str: |
+    SELECT foo
+    FROM
+      bar
+    ;
+
+
+    SELECT foo
+    ;
+  fix_str: |
+    SELECT foo
+    FROM
+      bar
+    ;
+
+    SELECT foo
+    ;
+  configs:
+    rules:
+      layout.newlines:
+        maximum_empty_lines_between_statements: 1
+
+test_fail_bad_edge_case:
+  # This test case is a little controversial. Currently the gap before and
+  # after the semicolon is considered *between* statements. While this is
+  # on the lenient side, and also allows people to operate with "leading semicolons"
+  # if they want - it's very possible that some users will want this to be
+  # further tightened. Recommendation for the future is to add an additional
+  # config to control restrict whether the gap a) before b) after or c) both
+  # before and after should be considered "between" statements.
+  fail_str: |
+    SELECT foo
+    FROM
+      bar
+
+
+    ;
+
+
+    SELECT foo
+    ;
+  fix_str: |
+    SELECT foo
+    FROM
+      bar
+
+    ;
+
+    SELECT foo
+    ;
+  configs:
+    rules:
+      layout.newlines:
+        maximum_empty_lines_between_statements: 1
+        maximum_empty_lines_within_statements: 0
+
+# yamllint disable rule:empty-lines
+# We need extra lines to test this rules!
+test_fail_macros_with_newlines:
+  fail_str: |
+    select {{ my_macro(5) }}
+    from t
+    where
+        x =
+
+
+
+
+
+
+        {{ my_macro(4) }}
+
+
+    and y = 2
+    ;
+  fix_str: |
+    select {{ my_macro(5) }}
+    from t
+    where
+        x =
+
+        {{ my_macro(4) }}
+
+    and y = 2
+    ;
+  configs:
+    templater:
+      jinja:
+        macros:
+          a_macro_def: |
+            {% macro my_macro(n) %}
+
+            {{ n }} + {{ n * 2 }}
+
+            {% endmacro %}
+
+test_pass_macros_with_embedded_newlines:
+  pass_str: |
+    select {{ my_macro(5) }}
+    from t
+    where
+
+        x = {{ my_macro(4) }}
+
+        and y = 2
+    ;
+  configs:
+    templater:
+      jinja:
+        macros:
+          a_macro_def: |
+            {% macro my_macro(n) %}
+
+
+
+
+
+
+            {{ n }} + {{ n * 2 }}
+
+            {% endmacro %}
+# yamllint enable
+
+test_pass_tsql_batches_one_empty_line:
+  # T-SQL specific: allow 1 empty line between batches
+  pass_str: |
+    SELECT 1;
+
+    GO
+
+    SELECT 2;
+  configs:
+    core:
+      dialect: tsql
+    rules:
+      layout.newlines:
+        maximum_empty_lines_between_batches: 1
+
+test_fail_tsql_batches_too_many_empty_lines:
+  # T-SQL specific: more than 1 empty line between batches should fail
+  fail_str: |
+    SELECT 1;
+
+    GO
+
+
+    SELECT 2;
+  fix_str: |
+    SELECT 1;
+
+    GO
+
+    SELECT 2;
+  configs:
+    core:
+      dialect: tsql
+    rules:
+      layout.newlines:
+        maximum_empty_lines_between_batches: 1
+
+test_fail_tsql_batches_zero_empty_lines:
+  # T-SQL specific: no empty lines between batches when set to 0
+  fail_str: |
+    SELECT 1;
+    GO
+
+
+    SELECT 2;
+  fix_str: |
+    SELECT 1;
+    GO
+    SELECT 2;
+  configs:
+    core:
+      dialect: tsql
+    rules:
+      layout.newlines:
+        maximum_empty_lines_between_batches: 0
+
+test_pass_tsql_inside_batch_respects_statement_limit:
+  # Inside a batch, statement limits should apply
+  pass_str: |
+    SELECT 1;
+
+    SELECT 2;
+
+    GO
+  configs:
+    core:
+      dialect: tsql
+    rules:
+      layout.newlines:
+        maximum_empty_lines_inside_statements: 1
+        maximum_empty_lines_between_statements: 1

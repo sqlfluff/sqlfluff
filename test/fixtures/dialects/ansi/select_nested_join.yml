@@ -1,0 +1,460 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 61d9b77e97d00d4c8d80182e1b184a084793a528f7519595a86a0dd67f08deca
+file:
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: select
+      - select_clause_element:
+          column_reference:
+          - naked_identifier: orders
+          - dot: .
+          - naked_identifier: order_id
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: order_id
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+          - naked_identifier: customers
+          - dot: .
+          - naked_identifier: email
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: email
+      from_clause:
+        keyword: from
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: orders
+          join_clause:
+            keyword: join
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: customers
+            join_on_condition:
+              keyword: 'on'
+              bracketed:
+                start_bracket: (
+                expression:
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                    - column_reference:
+                      - naked_identifier: customers
+                      - dot: .
+                      - naked_identifier: customer_id
+                    - comparison_operator:
+                        raw_comparison_operator: '='
+                    - column_reference:
+                      - naked_identifier: orders
+                      - dot: .
+                      - naked_identifier: customer_id
+                    end_bracket: )
+                end_bracket: )
+      where_clause:
+        keyword: where
+        bracketed:
+          start_bracket: (
+          expression:
+            column_reference:
+            - naked_identifier: customers
+            - dot: .
+            - naked_identifier: email
+            comparison_operator:
+              raw_comparison_operator: '='
+            quoted_literal: "'sample@gmail.com'"
+          end_bracket: )
+      groupby_clause:
+      - keyword: group
+      - keyword: by
+      - column_reference:
+        - naked_identifier: orders
+        - dot: .
+        - naked_identifier: order_id
+      - comma: ','
+      - column_reference:
+        - naked_identifier: customers
+        - dot: .
+        - naked_identifier: email
+      orderby_clause:
+      - keyword: order
+      - keyword: by
+      - column_reference:
+        - naked_identifier: orders
+        - dot: .
+        - naked_identifier: order_id
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: select
+      - select_clause_element:
+          column_reference:
+          - naked_identifier: orders
+          - dot: .
+          - naked_identifier: order_id
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: order_id
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+          - naked_identifier: customers
+          - dot: .
+          - naked_identifier: email
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: email
+      from_clause:
+        keyword: from
+        from_expression:
+          bracketed:
+            start_bracket: (
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: orders
+            join_clause:
+              keyword: join
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                    naked_identifier: customers
+              join_on_condition:
+                keyword: 'on'
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    bracketed:
+                      start_bracket: (
+                      expression:
+                      - column_reference:
+                        - naked_identifier: customers
+                        - dot: .
+                        - naked_identifier: customer_id
+                      - comparison_operator:
+                          raw_comparison_operator: '='
+                      - column_reference:
+                        - naked_identifier: orders
+                        - dot: .
+                        - naked_identifier: customer_id
+                      end_bracket: )
+                  end_bracket: )
+            end_bracket: )
+      where_clause:
+        keyword: where
+        bracketed:
+          start_bracket: (
+          expression:
+            column_reference:
+            - naked_identifier: customers
+            - dot: .
+            - naked_identifier: email
+            comparison_operator:
+              raw_comparison_operator: '='
+            quoted_literal: "'sample@gmail.com'"
+          end_bracket: )
+      groupby_clause:
+      - keyword: group
+      - keyword: by
+      - column_reference:
+        - naked_identifier: orders
+        - dot: .
+        - naked_identifier: order_id
+      - comma: ','
+      - column_reference:
+        - naked_identifier: customers
+        - dot: .
+        - naked_identifier: email
+      orderby_clause:
+      - keyword: order
+      - keyword: by
+      - column_reference:
+        - naked_identifier: orders
+        - dot: .
+        - naked_identifier: order_id
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: select
+      - select_clause_element:
+          column_reference:
+          - naked_identifier: orders
+          - dot: .
+          - naked_identifier: order_id
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: order_id
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+          - naked_identifier: customers
+          - dot: .
+          - naked_identifier: email
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: email
+      from_clause:
+        keyword: from
+        from_expression:
+          bracketed:
+            start_bracket: (
+            from_expression_element:
+              bracketed:
+                start_bracket: (
+                table_expression:
+                  table_reference:
+                    naked_identifier: orders
+                join_clause:
+                  keyword: join
+                  from_expression_element:
+                    table_expression:
+                      table_reference:
+                        naked_identifier: customers
+                  join_on_condition:
+                    keyword: 'on'
+                    bracketed:
+                      start_bracket: (
+                      expression:
+                        bracketed:
+                          start_bracket: (
+                          expression:
+                          - column_reference:
+                            - naked_identifier: customers
+                            - dot: .
+                            - naked_identifier: customer_id
+                          - comparison_operator:
+                              raw_comparison_operator: '='
+                          - column_reference:
+                            - naked_identifier: orders
+                            - dot: .
+                            - naked_identifier: customer_id
+                          end_bracket: )
+                      end_bracket: )
+                end_bracket: )
+            join_clause:
+              keyword: join
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                    naked_identifier: products
+              join_on_condition:
+                keyword: 'on'
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    bracketed:
+                      start_bracket: (
+                      expression:
+                      - column_reference:
+                        - naked_identifier: products
+                        - dot: .
+                        - naked_identifier: product_id
+                      - comparison_operator:
+                          raw_comparison_operator: '='
+                      - column_reference:
+                        - naked_identifier: orders
+                        - dot: .
+                        - naked_identifier: product_id
+                      end_bracket: )
+                  end_bracket: )
+            end_bracket: )
+      where_clause:
+        keyword: where
+        bracketed:
+          start_bracket: (
+          expression:
+            column_reference:
+            - naked_identifier: customers
+            - dot: .
+            - naked_identifier: email
+            comparison_operator:
+              raw_comparison_operator: '='
+            quoted_literal: "'sample@gmail.com'"
+          end_bracket: )
+      groupby_clause:
+      - keyword: group
+      - keyword: by
+      - column_reference:
+        - naked_identifier: orders
+        - dot: .
+        - naked_identifier: order_id
+      - comma: ','
+      - column_reference:
+        - naked_identifier: customers
+        - dot: .
+        - naked_identifier: email
+      orderby_clause:
+      - keyword: order
+      - keyword: by
+      - column_reference:
+        - naked_identifier: orders
+        - dot: .
+        - naked_identifier: order_id
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: select
+      - select_clause_element:
+          column_reference:
+          - naked_identifier: orders
+          - dot: .
+          - naked_identifier: order_id
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: order_id
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+          - naked_identifier: customers
+          - dot: .
+          - naked_identifier: email
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: email
+      from_clause:
+        keyword: from
+        from_expression:
+          bracketed:
+            start_bracket: (
+            bracketed:
+              start_bracket: (
+              from_expression:
+                from_expression_element:
+                  bracketed:
+                    start_bracket: (
+                    table_expression:
+                      table_reference:
+                        naked_identifier: orders
+                    join_clause:
+                      keyword: join
+                      from_expression_element:
+                        table_expression:
+                          table_reference:
+                            naked_identifier: customers
+                      join_on_condition:
+                        keyword: 'on'
+                        bracketed:
+                          start_bracket: (
+                          expression:
+                            bracketed:
+                              start_bracket: (
+                              expression:
+                              - column_reference:
+                                - naked_identifier: customers
+                                - dot: .
+                                - naked_identifier: customer_id
+                              - comparison_operator:
+                                  raw_comparison_operator: '='
+                              - column_reference:
+                                - naked_identifier: orders
+                                - dot: .
+                                - naked_identifier: customer_id
+                              end_bracket: )
+                          end_bracket: )
+                    end_bracket: )
+                join_clause:
+                  keyword: join
+                  from_expression_element:
+                    table_expression:
+                      table_reference:
+                        naked_identifier: products
+                  join_on_condition:
+                    keyword: 'on'
+                    bracketed:
+                      start_bracket: (
+                      expression:
+                        bracketed:
+                          start_bracket: (
+                          expression:
+                          - column_reference:
+                            - naked_identifier: products
+                            - dot: .
+                            - naked_identifier: product_id
+                          - comparison_operator:
+                              raw_comparison_operator: '='
+                          - column_reference:
+                            - naked_identifier: orders
+                            - dot: .
+                            - naked_identifier: product_id
+                          end_bracket: )
+                      end_bracket: )
+              end_bracket: )
+            join_clause:
+              keyword: join
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                    naked_identifier: random
+              join_on_condition:
+                keyword: 'on'
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    bracketed:
+                      start_bracket: (
+                      expression:
+                      - column_reference:
+                        - naked_identifier: random
+                        - dot: .
+                        - naked_identifier: product_id
+                      - comparison_operator:
+                          raw_comparison_operator: '='
+                      - column_reference:
+                        - naked_identifier: products
+                        - dot: .
+                        - naked_identifier: product_id
+                      end_bracket: )
+                  end_bracket: )
+            end_bracket: )
+      where_clause:
+        keyword: where
+        bracketed:
+          start_bracket: (
+          expression:
+            column_reference:
+            - naked_identifier: customers
+            - dot: .
+            - naked_identifier: email
+            comparison_operator:
+              raw_comparison_operator: '='
+            quoted_literal: "'sample@gmail.com'"
+          end_bracket: )
+      groupby_clause:
+      - keyword: group
+      - keyword: by
+      - column_reference:
+        - naked_identifier: orders
+        - dot: .
+        - naked_identifier: order_id
+      - comma: ','
+      - column_reference:
+        - naked_identifier: customers
+        - dot: .
+        - naked_identifier: email
+      orderby_clause:
+      - keyword: order
+      - keyword: by
+      - column_reference:
+        - naked_identifier: orders
+        - dot: .
+        - naked_identifier: order_id
+- statement_terminator: ;

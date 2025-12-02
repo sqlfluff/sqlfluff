@@ -1,0 +1,77 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 741b41dba0f066e0ce3e0580e49d32d9b701a9fb3dc371ee17844b1021e6512e
+file:
+- statement:
+    create_function_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: TEMPORARY
+    - keyword: FUNCTION
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - function_name_identifier: function_name
+    - keyword: AS
+    - quoted_literal: '"class_name"'
+    - keyword: USING
+    - file_keyword: FILE
+    - quoted_literal: '"resource_locations"'
+- statement_terminator: ;
+- statement:
+    create_function_statement:
+    - keyword: CREATE
+    - keyword: FUNCTION
+    - function_name_identifier: simple_udf
+    - keyword: AS
+    - quoted_literal: "'SimpleUdf'"
+    - keyword: USING
+    - file_keyword: JAR
+    - quoted_literal: "'/tmp/SimpleUdf.jar'"
+- statement_terminator: ;
+- statement:
+    create_function_statement:
+    - keyword: CREATE
+    - keyword: TEMPORARY
+    - keyword: FUNCTION
+    - function_name_identifier: simple_temp_udf
+    - keyword: AS
+    - quoted_literal: "'SimpleUdf'"
+    - keyword: USING
+    - file_keyword: JAR
+    - quoted_literal: "'/tmp/SimpleUdf.jar'"
+- statement_terminator: ;
+- statement:
+    create_function_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: FUNCTION
+    - function_name_identifier: simple_udf
+    - keyword: AS
+    - quoted_literal: "'SimpleUdfR'"
+    - keyword: USING
+    - file_keyword: JAR
+    - quoted_literal: "'/tmp/SimpleUdfR.jar'"
+- statement_terminator: ;
+- statement:
+    create_function_statement:
+    - keyword: CREATE
+    - keyword: FUNCTION
+    - function_name_identifier: test_avg
+    - keyword: AS
+    - quoted_literal: "'org.apache.hadoop.hive.ql.udf.generic.GenericUDAFAverage'"
+- statement_terminator: ;
+- statement:
+    create_function_statement:
+    - keyword: CREATE
+    - keyword: TEMPORARY
+    - keyword: FUNCTION
+    - function_name_identifier: test_avg
+    - keyword: AS
+    - quoted_literal: "'org.apache.hadoop.hive.ql.udf.generic.GenericUDAFAverage'"
+- statement_terminator: ;

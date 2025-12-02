@@ -1,0 +1,728 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: e253811b3c4090c78004856bbcc4ffce77899ea084e7fcd9a659c50f2657d856
+file:
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+            naked_identifier: name
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: status
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+              - naked_identifier: system
+              - dot: .
+              - naked_identifier: dictionaries
+- statement_terminator: ;
+- statement:
+    system_statement:
+      keyword: SYSTEM
+      system_model_segment:
+      - keyword: RELOAD
+      - keyword: MODELS
+- statement_terminator: ;
+- statement:
+    system_statement:
+      keyword: SYSTEM
+      system_model_segment:
+      - keyword: RELOAD
+      - keyword: MODELS
+      - on_cluster_clause:
+        - keyword: 'ON'
+        - keyword: CLUSTER
+        - naked_identifier: cluster_name
+- statement_terminator: ;
+- statement:
+    system_statement:
+      keyword: SYSTEM
+      system_model_segment:
+      - keyword: RELOAD
+      - keyword: MODEL
+      - path_segment:
+        - slash: /
+        - path_segment: model
+        - slash: /
+        - path_segment: path
+- statement_terminator: ;
+- statement:
+    system_statement:
+      keyword: SYSTEM
+      system_model_segment:
+      - keyword: RELOAD
+      - keyword: MODEL
+      - on_cluster_clause:
+        - keyword: 'ON'
+        - keyword: CLUSTER
+        - naked_identifier: cluster_name
+      - path_segment:
+        - slash: /
+        - path_segment: model
+        - slash: /
+        - path_segment: path
+- statement_terminator: ;
+- statement:
+    system_statement:
+      keyword: SYSTEM
+      system_replica_segment:
+      - keyword: DROP
+      - keyword: REPLICA
+      - quoted_identifier: "'replica_name'"
+      - keyword: FROM
+      - keyword: TABLE
+      - table_reference:
+          naked_identifier: table
+- statement_terminator: ;
+- statement:
+    system_statement:
+      keyword: SYSTEM
+      system_replica_segment:
+      - keyword: DROP
+      - keyword: REPLICA
+      - quoted_identifier: "'replica_name'"
+      - keyword: FROM
+      - keyword: TABLE
+      - table_reference:
+        - naked_identifier: database
+        - dot: .
+        - naked_identifier: table
+- statement_terminator: ;
+- statement:
+    system_statement:
+      keyword: SYSTEM
+      system_replica_segment:
+      - keyword: DROP
+      - keyword: REPLICA
+      - quoted_identifier: "'replica_name'"
+      - keyword: FROM
+      - keyword: DATABASE
+      - object_reference:
+          naked_identifier: database
+- statement_terminator: ;
+- statement:
+    system_statement:
+      keyword: SYSTEM
+      system_replica_segment:
+      - keyword: DROP
+      - keyword: REPLICA
+      - quoted_identifier: "'replica_name'"
+- statement_terminator: ;
+- statement:
+    system_statement:
+      keyword: SYSTEM
+      system_replica_segment:
+      - keyword: DROP
+      - keyword: REPLICA
+      - quoted_identifier: "'replica_name'"
+      - keyword: FROM
+      - keyword: ZKPATH
+      - path_segment:
+          quoted_literal: "'/path/to/table/in/zk'"
+- statement_terminator: ;
+- statement:
+    system_statement:
+      keyword: SYSTEM
+      system_distributed_segment:
+      - keyword: STOP
+      - keyword: DISTRIBUTED
+      - keyword: SENDS
+      - table_reference:
+          naked_identifier: distributed_table_name
+- statement_terminator: ;
+- statement:
+    system_statement:
+      keyword: SYSTEM
+      system_distributed_segment:
+      - keyword: STOP
+      - keyword: DISTRIBUTED
+      - keyword: SENDS
+      - table_reference:
+        - naked_identifier: db
+        - dot: .
+        - naked_identifier: distributed_table_name
+- statement_terminator: ;
+- statement:
+    system_statement:
+      keyword: SYSTEM
+      system_distributed_segment:
+      - keyword: FLUSH
+      - keyword: DISTRIBUTED
+      - table_reference:
+          naked_identifier: distributed_table_name
+- statement_terminator: ;
+- statement:
+    system_statement:
+      keyword: SYSTEM
+      system_distributed_segment:
+      - keyword: FLUSH
+      - keyword: DISTRIBUTED
+      - table_reference:
+        - naked_identifier: db
+        - dot: .
+        - naked_identifier: distributed_table_name
+- statement_terminator: ;
+- statement:
+    system_statement:
+      keyword: SYSTEM
+      system_distributed_segment:
+      - keyword: START
+      - keyword: DISTRIBUTED
+      - keyword: SENDS
+      - table_reference:
+          naked_identifier: distributed_table_name
+- statement_terminator: ;
+- statement:
+    system_statement:
+      keyword: SYSTEM
+      system_distributed_segment:
+      - keyword: START
+      - keyword: DISTRIBUTED
+      - keyword: SENDS
+      - table_reference:
+        - naked_identifier: db
+        - dot: .
+        - naked_identifier: distributed_table_name
+- statement_terminator: ;
+- statement:
+    system_statement:
+      keyword: SYSTEM
+      system_merges_segment:
+      - keyword: STOP
+      - keyword: MERGES
+      - keyword: 'ON'
+      - keyword: VOLUME
+      - object_reference:
+          naked_identifier: volume_name
+- statement_terminator: ;
+- statement:
+    system_statement:
+      keyword: SYSTEM
+      system_merges_segment:
+      - keyword: STOP
+      - keyword: MERGES
+      - table_reference:
+          naked_identifier: merge_tree_family_table_name
+- statement_terminator: ;
+- statement:
+    system_statement:
+      keyword: SYSTEM
+      system_merges_segment:
+      - keyword: STOP
+      - keyword: MERGES
+      - table_reference:
+        - naked_identifier: db
+        - dot: .
+        - naked_identifier: merge_tree_family_table_name
+- statement_terminator: ;
+- statement:
+    system_statement:
+      keyword: SYSTEM
+      system_merges_segment:
+      - keyword: START
+      - keyword: MERGES
+      - keyword: 'ON'
+      - keyword: VOLUME
+      - object_reference:
+          naked_identifier: volume_name
+- statement_terminator: ;
+- statement:
+    system_statement:
+      keyword: SYSTEM
+      system_merges_segment:
+      - keyword: START
+      - keyword: MERGES
+      - table_reference:
+          naked_identifier: merge_tree_family_table_name
+- statement_terminator: ;
+- statement:
+    system_statement:
+      keyword: SYSTEM
+      system_merges_segment:
+      - keyword: START
+      - keyword: MERGES
+      - table_reference:
+        - naked_identifier: db
+        - dot: .
+        - naked_identifier: merge_tree_family_table_name
+- statement_terminator: ;
+- statement:
+    system_statement:
+      keyword: SYSTEM
+      system_ttl_merges_segment:
+      - keyword: STOP
+      - keyword: TTL
+      - keyword: MERGES
+- statement_terminator: ;
+- statement:
+    system_statement:
+      keyword: SYSTEM
+      system_ttl_merges_segment:
+      - keyword: STOP
+      - keyword: TTL
+      - keyword: MERGES
+      - table_reference:
+        - naked_identifier: db
+        - dot: .
+        - naked_identifier: merge_tree_family_table_name
+- statement_terminator: ;
+- statement:
+    system_statement:
+      keyword: SYSTEM
+      system_ttl_merges_segment:
+      - keyword: STOP
+      - keyword: TTL
+      - keyword: MERGES
+      - table_reference:
+          naked_identifier: merge_tree_family_table_name
+- statement_terminator: ;
+- statement:
+    system_statement:
+      keyword: SYSTEM
+      system_ttl_merges_segment:
+      - keyword: START
+      - keyword: TTL
+      - keyword: MERGES
+- statement_terminator: ;
+- statement:
+    system_statement:
+      keyword: SYSTEM
+      system_ttl_merges_segment:
+      - keyword: START
+      - keyword: TTL
+      - keyword: MERGES
+      - table_reference:
+          naked_identifier: merge_tree_family_table_name
+- statement_terminator: ;
+- statement:
+    system_statement:
+      keyword: SYSTEM
+      system_ttl_merges_segment:
+      - keyword: START
+      - keyword: TTL
+      - keyword: MERGES
+      - table_reference:
+        - naked_identifier: db
+        - dot: .
+        - naked_identifier: merge_tree_family_table_name
+- statement_terminator: ;
+- statement:
+    system_statement:
+      keyword: SYSTEM
+      system_moves_segment:
+      - keyword: STOP
+      - keyword: MOVES
+- statement_terminator: ;
+- statement:
+    system_statement:
+      keyword: SYSTEM
+      system_moves_segment:
+      - keyword: STOP
+      - keyword: MOVES
+      - table_reference:
+          naked_identifier: merge_tree_family_table_name
+- statement_terminator: ;
+- statement:
+    system_statement:
+      keyword: SYSTEM
+      system_moves_segment:
+      - keyword: STOP
+      - keyword: MOVES
+      - table_reference:
+        - naked_identifier: db
+        - dot: .
+        - naked_identifier: merge_tree_family_table_name
+- statement_terminator: ;
+- statement:
+    system_statement:
+      keyword: SYSTEM
+      system_moves_segment:
+      - keyword: START
+      - keyword: MOVES
+- statement_terminator: ;
+- statement:
+    system_statement:
+      keyword: SYSTEM
+      system_moves_segment:
+      - keyword: START
+      - keyword: MOVES
+      - table_reference:
+          naked_identifier: merge_tree_family_table_name
+- statement_terminator: ;
+- statement:
+    system_statement:
+      keyword: SYSTEM
+      system_moves_segment:
+      - keyword: START
+      - keyword: MOVES
+      - table_reference:
+        - naked_identifier: db
+        - dot: .
+        - naked_identifier: merge_tree_family_table_name
+- statement_terminator: ;
+- statement:
+    system_statement:
+      keyword: SYSTEM
+      system_unfreeze_segment:
+      - keyword: UNFREEZE
+      - keyword: WITH
+      - keyword: NAME
+      - object_reference:
+          naked_identifier: backup_name
+- statement_terminator: ;
+- statement:
+    system_statement:
+      keyword: SYSTEM
+      system_fetches_segment:
+      - keyword: STOP
+      - keyword: FETCHES
+- statement_terminator: ;
+- statement:
+    system_statement:
+      keyword: SYSTEM
+      system_fetches_segment:
+      - keyword: STOP
+      - keyword: FETCHES
+      - table_reference:
+          naked_identifier: replicated_merge_tree_family_table_name
+- statement_terminator: ;
+- statement:
+    system_statement:
+      keyword: SYSTEM
+      system_fetches_segment:
+      - keyword: STOP
+      - keyword: FETCHES
+      - table_reference:
+        - naked_identifier: db
+        - dot: .
+        - naked_identifier: replicated_merge_tree_family_table_name
+- statement_terminator: ;
+- statement:
+    system_statement:
+      keyword: SYSTEM
+      system_fetches_segment:
+      - keyword: START
+      - keyword: FETCHES
+- statement_terminator: ;
+- statement:
+    system_statement:
+      keyword: SYSTEM
+      system_fetches_segment:
+      - keyword: START
+      - keyword: FETCHES
+      - table_reference:
+          naked_identifier: replicated_merge_tree_family_table_name
+- statement_terminator: ;
+- statement:
+    system_statement:
+      keyword: SYSTEM
+      system_fetches_segment:
+      - keyword: START
+      - keyword: FETCHES
+      - table_reference:
+        - naked_identifier: db
+        - dot: .
+        - naked_identifier: replicated_merge_tree_family_table_name
+- statement_terminator: ;
+- statement:
+    system_statement:
+      keyword: SYSTEM
+      system_replicated_segment:
+      - keyword: STOP
+      - keyword: REPLICATED
+      - keyword: SENDS
+- statement_terminator: ;
+- statement:
+    system_statement:
+      keyword: SYSTEM
+      system_replicated_segment:
+      - keyword: STOP
+      - keyword: REPLICATED
+      - keyword: SENDS
+      - table_reference:
+          naked_identifier: replicated_merge_tree_family_table_name
+- statement_terminator: ;
+- statement:
+    system_statement:
+      keyword: SYSTEM
+      system_replicated_segment:
+      - keyword: STOP
+      - keyword: REPLICATED
+      - keyword: SENDS
+      - table_reference:
+        - naked_identifier: db
+        - dot: .
+        - naked_identifier: replicated_merge_tree_family_table_name
+- statement_terminator: ;
+- statement:
+    system_statement:
+      keyword: SYSTEM
+      system_replicated_segment:
+      - keyword: START
+      - keyword: REPLICATED
+      - keyword: SENDS
+- statement_terminator: ;
+- statement:
+    system_statement:
+      keyword: SYSTEM
+      system_replicated_segment:
+      - keyword: START
+      - keyword: REPLICATED
+      - keyword: SENDS
+      - table_reference:
+          naked_identifier: replicated_merge_tree_family_table_name
+- statement_terminator: ;
+- statement:
+    system_statement:
+      keyword: SYSTEM
+      system_replicated_segment:
+      - keyword: START
+      - keyword: REPLICATED
+      - keyword: SENDS
+      - table_reference:
+        - naked_identifier: db
+        - dot: .
+        - naked_identifier: replicated_merge_tree_family_table_name
+- statement_terminator: ;
+- statement:
+    system_statement:
+      keyword: SYSTEM
+      system_replication_segment:
+      - keyword: STOP
+      - keyword: REPLICATION
+      - keyword: QUEUES
+- statement_terminator: ;
+- statement:
+    system_statement:
+      keyword: SYSTEM
+      system_replication_segment:
+      - keyword: STOP
+      - keyword: REPLICATION
+      - keyword: QUEUES
+      - table_reference:
+          naked_identifier: replicated_merge_tree_family_table_name
+- statement_terminator: ;
+- statement:
+    system_statement:
+      keyword: SYSTEM
+      system_replication_segment:
+      - keyword: STOP
+      - keyword: REPLICATION
+      - keyword: QUEUES
+      - table_reference:
+        - naked_identifier: db
+        - dot: .
+        - naked_identifier: replicated_merge_tree_family_table_name
+- statement_terminator: ;
+- statement:
+    system_statement:
+      keyword: SYSTEM
+      system_replication_segment:
+      - keyword: START
+      - keyword: REPLICATION
+      - keyword: QUEUES
+- statement_terminator: ;
+- statement:
+    system_statement:
+      keyword: SYSTEM
+      system_replication_segment:
+      - keyword: START
+      - keyword: REPLICATION
+      - keyword: QUEUES
+      - table_reference:
+          naked_identifier: replicated_merge_tree_family_table_name
+- statement_terminator: ;
+- statement:
+    system_statement:
+      keyword: SYSTEM
+      system_replication_segment:
+      - keyword: START
+      - keyword: REPLICATION
+      - keyword: QUEUES
+      - table_reference:
+        - naked_identifier: db
+        - dot: .
+        - naked_identifier: replicated_merge_tree_family_table_name
+- statement_terminator: ;
+- statement:
+    system_statement:
+      keyword: SYSTEM
+      system_replica_segment:
+      - keyword: SYNC
+      - keyword: REPLICA
+      - table_reference:
+          naked_identifier: replicated_merge_tree_family_table_name
+- statement_terminator: ;
+- statement:
+    system_statement:
+      keyword: SYSTEM
+      system_replica_segment:
+      - keyword: SYNC
+      - keyword: REPLICA
+      - table_reference:
+        - naked_identifier: db
+        - dot: .
+        - naked_identifier: replicated_merge_tree_family_table_name
+- statement_terminator: ;
+- statement:
+    system_statement:
+      keyword: SYSTEM
+      system_replica_segment:
+      - keyword: SYNC
+      - keyword: REPLICA
+      - table_reference:
+          naked_identifier: replicated_merge_tree_family_table_name
+      - keyword: STRICT
+- statement_terminator: ;
+- statement:
+    system_statement:
+      keyword: SYSTEM
+      system_replica_segment:
+      - keyword: SYNC
+      - keyword: REPLICA
+      - on_cluster_clause:
+        - keyword: 'ON'
+        - keyword: CLUSTER
+        - naked_identifier: cluster_name
+      - table_reference:
+          naked_identifier: replicated_merge_tree_family_table_name
+- statement_terminator: ;
+- statement:
+    system_statement:
+      keyword: SYSTEM
+      system_replica_segment:
+      - keyword: SYNC
+      - keyword: REPLICA
+      - on_cluster_clause:
+        - keyword: 'ON'
+        - keyword: CLUSTER
+        - naked_identifier: cluster_name
+      - table_reference:
+          naked_identifier: replicated_merge_tree_family_table_name
+      - keyword: STRICT
+- statement_terminator: ;
+- statement:
+    system_statement:
+      keyword: SYSTEM
+      system_replica_segment:
+      - keyword: SYNC
+      - keyword: REPLICA
+      - on_cluster_clause:
+        - keyword: 'ON'
+        - keyword: CLUSTER
+        - naked_identifier: cluster_name
+      - table_reference:
+        - naked_identifier: db
+        - dot: .
+        - naked_identifier: replicated_merge_tree_family_table_name
+- statement_terminator: ;
+- statement:
+    system_statement:
+      keyword: SYSTEM
+      system_replica_segment:
+      - keyword: SYNC
+      - keyword: REPLICA
+      - on_cluster_clause:
+        - keyword: 'ON'
+        - keyword: CLUSTER
+        - naked_identifier: cluster_name
+      - table_reference:
+        - naked_identifier: db
+        - dot: .
+        - naked_identifier: replicated_merge_tree_family_table_name
+      - keyword: STRICT
+- statement_terminator: ;
+- statement:
+    system_statement:
+      keyword: SYSTEM
+      system_replica_segment:
+      - keyword: RESTART
+      - keyword: REPLICA
+      - table_reference:
+          naked_identifier: replicated_merge_tree_family_table_name
+- statement_terminator: ;
+- statement:
+    system_statement:
+      keyword: SYSTEM
+      system_replica_segment:
+      - keyword: RESTART
+      - keyword: REPLICA
+      - table_reference:
+        - naked_identifier: db
+        - dot: .
+        - naked_identifier: replicated_merge_tree_family_table_name
+- statement_terminator: ;
+- statement:
+    system_statement:
+      keyword: SYSTEM
+      system_replica_segment:
+      - keyword: RESTORE
+      - keyword: REPLICA
+      - table_reference:
+          naked_identifier: replicated_merge_tree_family_table_name
+- statement_terminator: ;
+- statement:
+    system_statement:
+      keyword: SYSTEM
+      system_replica_segment:
+      - keyword: RESTORE
+      - keyword: REPLICA
+      - table_reference:
+        - naked_identifier: db
+        - dot: .
+        - naked_identifier: replicated_merge_tree_family_table_name
+- statement_terminator: ;
+- statement:
+    system_statement:
+      keyword: SYSTEM
+      system_replica_segment:
+      - keyword: RESTORE
+      - keyword: REPLICA
+      - table_reference:
+          naked_identifier: replicated_merge_tree_family_table_name
+      - on_cluster_clause:
+        - keyword: 'ON'
+        - keyword: CLUSTER
+        - naked_identifier: cluster_name
+- statement_terminator: ;
+- statement:
+    system_statement:
+      keyword: SYSTEM
+      system_replica_segment:
+      - keyword: RESTORE
+      - keyword: REPLICA
+      - table_reference:
+        - naked_identifier: db
+        - dot: .
+        - naked_identifier: replicated_merge_tree_family_table_name
+      - on_cluster_clause:
+        - keyword: 'ON'
+        - keyword: CLUSTER
+        - naked_identifier: cluster_name
+- statement_terminator: ;
+- statement:
+    system_statement:
+      keyword: SYSTEM
+      system_filesystem_segment:
+      - keyword: DROP
+      - keyword: FILESYSTEM
+      - keyword: CACHE
+- statement_terminator: ;
+- statement:
+    system_statement:
+      keyword: SYSTEM
+      system_file_segment:
+      - keyword: SYNC
+      - keyword: FILE
+      - keyword: CACHE
+- statement_terminator: ;

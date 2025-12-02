@@ -1,0 +1,630 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 74c9cc5c509062c54c2714634479bdf68a2c9df9ab8d38eb4cbc6d9e0530303e
+file:
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: myschema
+      - dot: .
+      - naked_identifier: t1
+    - bracketed:
+      - start_bracket: (
+      - table_content_definition:
+          column_definition:
+            column_datatype_definition:
+              naked_identifier: a
+              data_type:
+              - keyword: VARCHAR
+              - bracketed_arguments:
+                  bracketed:
+                    start_bracket: (
+                    numeric_literal: '20'
+                    end_bracket: )
+              - keyword: UTF8
+      - comma: ','
+      - table_content_definition:
+          column_definition:
+            column_datatype_definition:
+              naked_identifier: b
+              data_type:
+                keyword: DECIMAL
+                bracketed_arguments:
+                  bracketed:
+                  - start_bracket: (
+                  - numeric_literal: '24'
+                  - comma: ','
+                  - numeric_literal: '4'
+                  - end_bracket: )
+            column_constraint_segment:
+              table_constraint_definition:
+              - keyword: NOT
+              - keyword: 'NULL'
+              comment_clause:
+              - keyword: COMMENT
+              - keyword: IS
+              - quoted_literal: "'The B column'"
+      - comma: ','
+      - table_content_definition:
+          column_definition:
+            column_datatype_definition:
+              naked_identifier: c
+              data_type:
+                keyword: DECIMAL
+            column_constraint_segment:
+              keyword: DEFAULT
+              numeric_literal: '122'
+      - comma: ','
+      - table_content_definition:
+          column_definition:
+            column_datatype_definition:
+              naked_identifier: d
+              data_type:
+                keyword: DOUBLE
+      - comma: ','
+      - table_content_definition:
+          column_definition:
+            column_datatype_definition:
+              naked_identifier: e
+              data_type:
+                keyword: TIMESTAMP
+            column_constraint_segment:
+              keyword: DEFAULT
+              bare_function: CURRENT_TIMESTAMP
+      - comma: ','
+      - table_content_definition:
+          column_definition:
+            column_datatype_definition:
+              naked_identifier: f
+              data_type:
+                keyword: BOOL
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+      - quoted_identifier: '"MYSCHEMA"'
+      - dot: .
+      - quoted_identifier: '"T2"'
+    - keyword: AS
+    - bracketed:
+        start_bracket: (
+        select_statement:
+          select_clause:
+            keyword: SELECT
+            select_clause_element:
+              wildcard_expression:
+                wildcard_identifier:
+                  star: '*'
+          from_clause:
+            keyword: FROM
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                    naked_identifier: t1
+        end_bracket: )
+    - with_data_clause:
+      - keyword: WITH
+      - keyword: 'NO'
+      - keyword: DATA
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: TABLE
+    - table_reference:
+        quoted_identifier: '"MYSCHEMA"'
+        dot: .
+        naked_identifier: T2
+    - keyword: AS
+    - select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+              naked_identifier: a
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: b
+        - comma: ','
+        - select_clause_element:
+            expression:
+              column_reference:
+                naked_identifier: c
+              binary_operator: +
+              numeric_literal: '1'
+            alias_expression:
+              alias_operator:
+                keyword: AS
+              naked_identifier: c
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: t1
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t3
+    - keyword: AS
+    - bracketed:
+        start_bracket: (
+        select_statement:
+          select_clause:
+            keyword: SELECT
+            select_clause_element:
+              function:
+                function_name:
+                  function_name_identifier: count
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    star: '*'
+                    end_bracket: )
+              alias_expression:
+                alias_operator:
+                  keyword: AS
+                naked_identifier: my_count
+          from_clause:
+            keyword: FROM
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                    naked_identifier: t1
+        end_bracket: )
+    - with_data_clause:
+      - keyword: WITH
+      - keyword: 'NO'
+      - keyword: DATA
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t4
+    - table_like_clause:
+        keyword: LIKE
+        table_reference:
+          naked_identifier: t1
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t5
+    - bracketed:
+      - start_bracket: (
+      - table_content_definition:
+          column_definition:
+            column_datatype_definition:
+              naked_identifier: id
+              data_type:
+                keyword: int
+            column_constraint_segment:
+              keyword: IDENTITY
+              table_constraint_definition:
+              - keyword: PRIMARY
+              - keyword: KEY
+              - keyword: DISABLE
+      - comma: ','
+      - table_content_definition:
+          table_like_clause:
+          - keyword: LIKE
+          - table_reference:
+              naked_identifier: t1
+          - keyword: INCLUDING
+          - keyword: DEFAULTS
+      - comma: ','
+      - table_content_definition:
+          column_definition:
+            column_datatype_definition:
+              naked_identifier: g
+              data_type:
+                keyword: DOUBLE
+      - comma: ','
+      - table_distribution_partition_clause:
+        - keyword: DISTRIBUTE
+        - keyword: BY
+        - column_reference:
+            naked_identifier: a
+        - comma: ','
+        - column_reference:
+            naked_identifier: b
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t6
+    - bracketed:
+      - start_bracket: (
+      - table_content_definition:
+          column_definition:
+            column_datatype_definition:
+              naked_identifier: order_id
+              data_type:
+                keyword: INT
+      - comma: ','
+      - table_content_definition:
+          column_definition:
+            column_datatype_definition:
+              naked_identifier: sales_id
+              data_type:
+                keyword: INT
+      - comma: ','
+      - table_content_definition:
+          column_definition:
+            column_datatype_definition:
+              naked_identifier: order_price
+              data_type:
+                keyword: DOUBLE
+      - comma: ','
+      - table_content_definition:
+          column_definition:
+            column_datatype_definition:
+              naked_identifier: order_date
+              data_type:
+                keyword: DATE
+      - comma: ','
+      - table_content_definition:
+          column_definition:
+            column_datatype_definition:
+              naked_identifier: country
+              data_type:
+                keyword: VARCHAR
+                bracketed_arguments:
+                  bracketed:
+                    start_bracket: (
+                    numeric_literal: '40'
+                    end_bracket: )
+      - comma: ','
+      - table_content_definition:
+          table_constraint_definition:
+          - keyword: CONSTRAINT
+          - naked_identifier: t6_pk
+          - keyword: PRIMARY
+          - keyword: KEY
+          - bracketed:
+            - start_bracket: (
+            - column_reference:
+                naked_identifier: order_id
+            - comma: ','
+            - column_reference:
+                naked_identifier: sales_id
+            - end_bracket: )
+      - comma: ','
+      - table_distribution_partition_clause:
+        - keyword: DISTRIBUTE
+        - keyword: BY
+        - column_reference:
+            naked_identifier: order_id
+        - comma: ','
+        - keyword: PARTITION
+        - keyword: BY
+        - column_reference:
+            naked_identifier: order_date
+      - end_bracket: )
+    - comment_clause:
+      - keyword: COMMENT
+      - keyword: IS
+      - quoted_literal: "'a great table'"
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t8
+    - bracketed:
+      - start_bracket: (
+      - table_content_definition:
+          column_definition:
+            column_datatype_definition:
+              naked_identifier: ref_id
+              data_type:
+                keyword: int
+            column_constraint_segment:
+              table_constraint_definition:
+              - keyword: CONSTRAINT
+              - naked_identifier: FK_T5
+              - keyword: REFERENCES
+              - table_reference:
+                  naked_identifier: t5
+              - bracketed:
+                  start_bracket: (
+                  column_reference:
+                    naked_identifier: id
+                  end_bracket: )
+              - keyword: DISABLE
+      - comma: ','
+      - table_content_definition:
+          column_definition:
+            column_datatype_definition:
+              naked_identifier: b
+              data_type:
+                keyword: VARCHAR
+                bracketed_arguments:
+                  bracketed:
+                    start_bracket: (
+                    numeric_literal: '20'
+                    end_bracket: )
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - table_reference:
+      - naked_identifier: SCHEM
+      - dot: .
+      - naked_identifier: TAB
+    - bracketed:
+        start_bracket: (
+        table_content_definition:
+          column_definition:
+            column_datatype_definition:
+              naked_identifier: ID
+              data_type:
+                keyword: DECIMAL
+                bracketed_arguments:
+                  bracketed:
+                  - start_bracket: (
+                  - numeric_literal: '18'
+                  - comma: ','
+                  - numeric_literal: '0'
+                  - end_bracket: )
+            column_constraint_segment:
+              keyword: IDENTITY
+              table_constraint_definition:
+              - keyword: CONSTRAINT
+              - keyword: PRIMARY
+              - keyword: KEY
+              - keyword: DISABLE
+              comment_clause:
+              - keyword: COMMENT
+              - keyword: IS
+              - quoted_literal: "'without constraint name'"
+        end_bracket: )
+    - comment_clause:
+      - keyword: COMMENT
+      - keyword: IS
+      - quoted_literal: "'a nice table'"
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: SCHEM
+      - dot: .
+      - naked_identifier: TAB
+    - bracketed:
+      - start_bracket: (
+      - table_content_definition:
+          column_definition:
+            column_datatype_definition:
+              naked_identifier: ID
+              data_type:
+                keyword: DECIMAL
+                bracketed_arguments:
+                  bracketed:
+                  - start_bracket: (
+                  - numeric_literal: '18'
+                  - comma: ','
+                  - numeric_literal: '0'
+                  - end_bracket: )
+      - comma: ','
+      - table_content_definition:
+          column_definition:
+            column_datatype_definition:
+              naked_identifier: C1
+              data_type:
+                keyword: CHAR
+                bracketed_arguments:
+                  bracketed:
+                    start_bracket: (
+                    numeric_literal: '1'
+                    end_bracket: )
+      - comma: ','
+      - table_content_definition:
+          table_constraint_definition:
+          - keyword: CONSTRAINT
+          - keyword: PRIMARY
+          - keyword: KEY
+          - bracketed:
+              start_bracket: (
+              column_reference:
+                naked_identifier: id
+              end_bracket: )
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: SCHEM
+      - dot: .
+      - naked_identifier: TAB
+    - bracketed:
+      - start_bracket: (
+      - table_content_definition:
+          column_definition:
+            column_datatype_definition:
+              naked_identifier: ID
+              data_type:
+                keyword: DECIMAL
+                bracketed_arguments:
+                  bracketed:
+                  - start_bracket: (
+                  - numeric_literal: '18'
+                  - comma: ','
+                  - numeric_literal: '0'
+                  - end_bracket: )
+      - comma: ','
+      - table_content_definition:
+          column_definition:
+            column_datatype_definition:
+              naked_identifier: C1
+              data_type:
+                keyword: CHAR
+                bracketed_arguments:
+                  bracketed:
+                    start_bracket: (
+                    numeric_literal: '1'
+                    end_bracket: )
+      - comma: ','
+      - table_content_definition:
+          table_constraint_definition:
+          - keyword: CONSTRAINT
+          - quoted_identifier: '"ADMIN"'
+          - keyword: PRIMARY
+          - keyword: KEY
+          - bracketed:
+              start_bracket: (
+              column_reference:
+                naked_identifier: id
+              end_bracket: )
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: SCHEM
+      - dot: .
+      - naked_identifier: TAB
+    - bracketed:
+        start_bracket: (
+        table_content_definition:
+          column_definition:
+            column_datatype_definition:
+              naked_identifier: C1
+              data_type:
+                keyword: CHAR
+                bracketed_arguments:
+                  bracketed:
+                    start_bracket: (
+                    numeric_literal: '1'
+                    end_bracket: )
+            column_constraint_segment:
+              table_constraint_definition:
+              - keyword: CONSTRAINT
+              - quoted_identifier: '"ADMIN"'
+              - keyword: PRIMARY
+              - keyword: KEY
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: T
+    - keyword: AS
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: A
+    - comment_clause:
+      - keyword: COMMENT
+      - keyword: IS
+      - quoted_literal: "'BLABLA'"
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+      - quoted_identifier: '"MYSCHEMA"'
+      - dot: .
+      - quoted_identifier: '"T2"'
+    - keyword: AS
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: t1
+    - with_data_clause:
+      - keyword: WITH
+      - keyword: 'NO'
+      - keyword: DATA
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+      - quoted_identifier: '"MYSCHEMA"'
+      - dot: .
+      - quoted_identifier: '"T2"'
+    - keyword: AS
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: t1
+    - with_data_clause:
+      - keyword: WITH
+      - keyword: 'NO'
+      - keyword: DATA
+    - comment_clause:
+      - keyword: COMMENT
+      - keyword: IS
+      - quoted_literal: "'ABC'"
+- statement_terminator: ;

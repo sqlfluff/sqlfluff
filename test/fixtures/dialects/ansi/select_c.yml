@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 1d2e251bde080ed3f1fb8b3bfc5c1ffc2006d66f090481e433408362ca4c12eb
+_hash: 967bf2de259367305d5ba63678c6dbc6d2e3b43a08e9f40f5b0b73dd60c314c0
 file:
   statement:
     select_statement:
@@ -11,59 +11,64 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-            identifier: col_a
+            naked_identifier: col_a
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: col_b
+            naked_identifier: col_b
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: date_col_a
+            naked_identifier: date_col_a
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: date_col_b
+            naked_identifier: date_col_b
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-              - identifier: '"database"'
+              - quoted_identifier: '"database"'
               - dot: .
-              - identifier: '"sample_table"'
+              - quoted_identifier: '"sample_table"'
       where_clause:
         keyword: WHERE
         expression:
         - function:
             function_name:
               function_name_identifier: DATE
-            bracketed:
-              start_bracket: (
-              expression:
-                column_reference:
-                  identifier: date_col_b
-              end_bracket: )
-        - comparison_operator: '>='
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: date_col_b
+                end_bracket: )
+        - comparison_operator:
+          - raw_comparison_operator: '>'
+          - raw_comparison_operator: '='
         - bare_function: current_date
         - binary_operator: AND
         - function:
             function_name:
               function_name_identifier: length
-            bracketed:
-              start_bracket: (
-              expression:
-                column_reference:
-                  identifier: col_a
-              end_bracket: )
-        - comparison_operator: '='
-        - literal: '4'
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: col_a
+                end_bracket: )
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - numeric_literal: '4'
       orderby_clause:
       - keyword: ORDER
       - keyword: BY
       - column_reference:
-          identifier: date_col_a
+          naked_identifier: date_col_a
       - keyword: DESC
       - keyword: NULLS
       - keyword: LAST

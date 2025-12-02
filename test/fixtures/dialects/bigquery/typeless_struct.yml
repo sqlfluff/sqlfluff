@@ -1,0 +1,159 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: f12370d49a430a0128b84ff0c27517c58fd717379aafad365c67d821c5ff908e
+file:
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: IF
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  boolean_literal: 'TRUE'
+              - comma: ','
+              - expression:
+                  typed_struct_literal:
+                    data_type:
+                      keyword: STRUCT
+                    struct_literal:
+                      bracketed:
+                      - start_bracket: (
+                      - quoted_literal: "'hello'"
+                      - alias_expression:
+                          alias_operator:
+                            keyword: AS
+                          naked_identifier: greeting
+                      - comma: ','
+                      - quoted_literal: "'world'"
+                      - alias_expression:
+                          alias_operator:
+                            keyword: AS
+                          naked_identifier: subject
+                      - end_bracket: )
+              - comma: ','
+              - expression:
+                  typed_struct_literal:
+                    data_type:
+                      keyword: STRUCT
+                    struct_literal:
+                      bracketed:
+                      - start_bracket: (
+                      - quoted_literal: "'hi'"
+                      - alias_expression:
+                          alias_operator:
+                            keyword: AS
+                          naked_identifier: greeting
+                      - comma: ','
+                      - quoted_literal: "'there'"
+                      - alias_expression:
+                          alias_operator:
+                            keyword: AS
+                          naked_identifier: subject
+                      - end_bracket: )
+              - end_bracket: )
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: salute
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              bracketed:
+                start_bracket: (
+                select_statement:
+                  select_clause:
+                    keyword: SELECT
+                    select_clause_element:
+                      numeric_literal: '1'
+                end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+            case_expression:
+            - keyword: CASE
+            - when_clause:
+              - keyword: WHEN
+              - expression:
+                - column_reference:
+                  - naked_identifier: a
+                  - dot: .
+                  - naked_identifier: xxx
+                - comparison_operator:
+                  - raw_comparison_operator: '!'
+                  - raw_comparison_operator: '='
+                - column_reference:
+                  - naked_identifier: b
+                  - dot: .
+                  - naked_identifier: xxx
+              - keyword: THEN
+              - expression:
+                  typed_struct_literal:
+                    data_type:
+                      keyword: STRUCT
+                    struct_literal:
+                      bracketed:
+                      - start_bracket: (
+                      - column_reference:
+                        - naked_identifier: a
+                        - dot: .
+                        - naked_identifier: xxx
+                      - alias_expression:
+                          alias_operator:
+                            keyword: AS
+                          naked_identifier: M
+                      - comma: ','
+                      - column_reference:
+                        - naked_identifier: b
+                        - dot: .
+                        - naked_identifier: xxx
+                      - alias_expression:
+                          alias_operator:
+                            keyword: AS
+                          naked_identifier: N
+                      - end_bracket: )
+            - keyword: END
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: xxx
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: A
+          join_clause:
+            keyword: JOIN
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: B
+            join_on_condition:
+              keyword: 'ON'
+              expression:
+              - column_reference:
+                - naked_identifier: B
+                - dot: .
+                - naked_identifier: id
+              - comparison_operator:
+                  raw_comparison_operator: '='
+              - column_reference:
+                - naked_identifier: A
+                - dot: .
+                - naked_identifier: id
+- statement_terminator: ;

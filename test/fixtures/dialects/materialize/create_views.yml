@@ -1,0 +1,250 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: cf880015691415c32b2bab758c8fe20932b9b00e9a4cfec44b8a5d5aa16a8e88
+file:
+- statement:
+    create_materialized_view_statement:
+    - keyword: CREATE
+    - keyword: MATERIALIZED
+    - keyword: VIEW
+    - object_reference:
+      - quoted_identifier: '"test"'
+      - dot: .
+      - quoted_identifier: '"test"'
+    - keyword: AS
+    - word: SELECT
+    - numeric_literal: '1'
+    - word: AS
+    - double_quote: '"id"'
+- statement_terminator: ;
+- statement:
+    create_view_statement:
+    - keyword: CREATE
+    - keyword: VIEW
+    - object_reference:
+      - quoted_identifier: '"test"'
+      - dot: .
+      - quoted_identifier: '"test"'
+    - keyword: AS
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            numeric_literal: '1'
+            alias_expression:
+              alias_operator:
+                keyword: AS
+              quoted_identifier: '"id"'
+- statement_terminator: ;
+- statement:
+    create_materialized_view_statement:
+    - keyword: CREATE
+    - keyword: MATERIALIZED
+    - keyword: VIEW
+    - object_reference:
+      - quoted_identifier: '"test"'
+      - dot: .
+      - quoted_identifier: '"test"'
+    - keyword: AS
+    - word: SELECT
+    - single_quote: "'{\"a\": 1}'"
+    - casting_operator: '::'
+    - word: json
+    - word: AS
+    - double_quote: '"id"'
+- statement_terminator: ;
+- statement:
+    create_materialized_view_statement:
+    - keyword: CREATE
+    - keyword: MATERIALIZED
+    - keyword: VIEW
+    - object_reference:
+        naked_identifier: active_customer_per_geo
+    - keyword: AS
+    - word: SELECT
+    - word: geo
+    - dot: .
+    - word: name
+    - comma: ','
+    - word: count
+    - bracketed:
+        start_bracket: (
+        star: '*'
+        end_bracket: )
+    - word: FROM
+    - word: geo_regions
+    - word: AS
+    - word: geo
+    - word: JOIN
+    - word: active_customers
+    - word: 'ON'
+    - word: active_customers
+    - dot: .
+    - word: geo_id
+    - equals: '='
+    - word: geo
+    - dot: .
+    - word: id
+    - word: GROUP
+    - word: BY
+    - word: geo
+    - dot: .
+    - word: name
+- statement_terminator: ;
+- statement:
+    create_materialized_view_statement:
+    - keyword: CREATE
+    - keyword: MATERIALIZED
+    - keyword: VIEW
+    - object_reference:
+        naked_identifier: active_customers
+    - keyword: AS
+    - word: SELECT
+    - word: guid
+    - comma: ','
+    - word: geo_id
+    - comma: ','
+    - word: last_active_on
+    - word: FROM
+    - word: customer_source
+    - word: GROUP
+    - word: BY
+    - word: geo_id
+- statement_terminator: ;
+- statement:
+    create_view_statement:
+    - keyword: CREATE
+    - keyword: VIEW
+    - object_reference:
+        naked_identifier: purchase_sum_by_region
+    - keyword: AS
+    - select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            function:
+              function_name:
+                function_name_identifier: sum
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                    - naked_identifier: purchase
+                    - dot: .
+                    - naked_identifier: amount
+                  end_bracket: )
+            alias_expression:
+              alias_operator:
+                keyword: AS
+              naked_identifier: region_sum
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+            - naked_identifier: region
+            - dot: .
+            - naked_identifier: id
+            alias_expression:
+              alias_operator:
+                keyword: AS
+              naked_identifier: region_id
+        from_clause:
+          keyword: FROM
+          from_expression:
+          - from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: region
+          - join_clause:
+            - keyword: INNER
+            - keyword: JOIN
+            - from_expression_element:
+                table_expression:
+                  bare_function: user
+            - join_on_condition:
+                keyword: 'ON'
+                expression:
+                - column_reference:
+                  - naked_identifier: region
+                  - dot: .
+                  - naked_identifier: id
+                - comparison_operator:
+                    raw_comparison_operator: '='
+                - column_reference:
+                  - naked_identifier: user
+                  - dot: .
+                  - naked_identifier: region_id
+          - join_clause:
+            - keyword: INNER
+            - keyword: JOIN
+            - from_expression_element:
+                table_expression:
+                  table_reference:
+                    naked_identifier: purchase
+            - join_on_condition:
+                keyword: 'ON'
+                expression:
+                - column_reference:
+                  - naked_identifier: purchase
+                  - dot: .
+                  - naked_identifier: user_id
+                - comparison_operator:
+                    raw_comparison_operator: '='
+                - column_reference:
+                  - naked_identifier: user
+                  - dot: .
+                  - naked_identifier: id
+        groupby_clause:
+        - keyword: GROUP
+        - keyword: BY
+        - column_reference:
+          - naked_identifier: region
+          - dot: .
+          - naked_identifier: id
+- statement_terminator: ;
+- statement:
+    create_view_statement:
+    - keyword: CREATE
+    - keyword: TEMP
+    - keyword: VIEW
+    - object_reference:
+      - quoted_identifier: '"test"'
+      - dot: .
+      - quoted_identifier: '"test"'
+    - keyword: AS
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            numeric_literal: '1'
+            alias_expression:
+              alias_operator:
+                keyword: AS
+              quoted_identifier: '"id"'
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TEMPORARY
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          naked_identifier: a
+          data_type:
+            keyword: int
+      - comma: ','
+      - column_definition:
+          naked_identifier: b
+          data_type:
+            keyword: text
+          column_constraint_segment:
+          - keyword: NOT
+          - keyword: 'NULL'
+      - end_bracket: )
+- statement_terminator: ;

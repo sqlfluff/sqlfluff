@@ -3,131 +3,51 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 334ab689c5b966ac68643b7eaea3e499a10b695e5428c3a92753ea7a4f7705e5
+_hash: 8082eef7bfbfcd1c980183caceacdb86e81fa23401f733cb71de54d83dcb534b
 file:
 - statement:
     alter_table_statement:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-        identifier: '`users`'
+        quoted_identifier: '`users`'
     - keyword: MODIFY
     - keyword: COLUMN
     - column_definition:
-        identifier: '`name`'
+        quoted_identifier: '`name`'
         data_type:
           data_type_identifier: varchar
-          bracketed:
-            start_bracket: (
-            expression:
-              literal: '255'
-            end_bracket: )
+          bracketed_arguments:
+            bracketed:
+              start_bracket: (
+              numeric_literal: '255'
+              end_bracket: )
         column_constraint_segment:
         - keyword: NOT
         - keyword: 'NULL'
     - comma: ','
     - parameter: COMMENT
-    - literal: '"name of user"'
+    - quoted_literal: '"name of user"'
 - statement_terminator: ;
 - statement:
     alter_table_statement:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-        identifier: '`users`'
-    - keyword: RENAME
-    - keyword: TO
-    - table_reference:
-        identifier: '`user`'
-- statement_terminator: ;
-- statement:
-    alter_table_statement:
-    - keyword: ALTER
-    - keyword: TABLE
-    - table_reference:
-        identifier: '`user`'
-    - keyword: RENAME
-    - keyword: AS
-    - table_reference:
-        identifier: '`users`'
-- statement_terminator: ;
-- statement:
-    alter_table_statement:
-    - keyword: ALTER
-    - keyword: TABLE
-    - table_reference:
-        identifier: '`users`'
-    - keyword: RENAME
-    - table_reference:
-        identifier: '`user`'
-- statement_terminator: ;
-- statement:
-    alter_table_statement:
-    - keyword: ALTER
-    - keyword: TABLE
-    - table_reference:
-        identifier: '`users`'
-    - keyword: CHANGE
-    - keyword: COLUMN
-    - column_reference:
-        identifier: '`birthday`'
+        quoted_identifier: '`users`'
+    - keyword: MODIFY
     - column_definition:
-      - identifier: '`date_of_birth`'
-      - data_type:
-          data_type_identifier: INT
-          bracketed:
-            start_bracket: (
-            expression:
-              literal: '11'
-            end_bracket: )
-      - column_constraint_segment:
-          keyword: 'NULL'
-      - column_constraint_segment:
-          keyword: DEFAULT
-          literal: 'NULL'
-- statement_terminator: ;
-- statement:
-    alter_table_statement:
-    - keyword: ALTER
-    - keyword: TABLE
-    - table_reference:
-        identifier: '`users`'
-    - keyword: CHANGE
-    - keyword: COLUMN
-    - column_reference:
-        identifier: '`birthday`'
-    - column_definition:
-        identifier: '`date_of_birth`'
+        quoted_identifier: '`name`'
         data_type:
-          data_type_identifier: INT
-          bracketed:
-            start_bracket: (
-            expression:
-              literal: '11'
-            end_bracket: )
+          data_type_identifier: varchar
+          bracketed_arguments:
+            bracketed:
+              start_bracket: (
+              numeric_literal: '255'
+              end_bracket: )
         column_constraint_segment:
         - keyword: NOT
         - keyword: 'NULL'
-- statement_terminator: ;
-- statement:
-    alter_table_statement:
-    - keyword: ALTER
-    - keyword: TABLE
-    - table_reference:
-        identifier: '`users`'
-    - keyword: CHANGE
-    - keyword: COLUMN
-    - column_reference:
-        identifier: '`birthday`'
-    - column_definition:
-        identifier: '`date_of_birth`'
-        data_type:
-          data_type_identifier: INT
-          bracketed:
-            start_bracket: (
-            expression:
-              literal: '11'
-            end_bracket: )
     - keyword: FIRST
 - statement_terminator: ;
 - statement:
@@ -135,32 +55,892 @@ file:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-        identifier: '`users`'
-    - keyword: CHANGE
-    - keyword: COLUMN
-    - column_reference:
-        identifier: '`birthday`'
-    - column_definition:
-        identifier: '`date_of_birth`'
-        data_type:
-          data_type_identifier: INT
-          bracketed:
-            start_bracket: (
-            expression:
-              literal: '11'
-            end_bracket: )
-    - keyword: AFTER
-    - column_reference:
-        identifier: '`name`'
+        quoted_identifier: '`users`'
+    - keyword: RENAME
+    - keyword: TO
+    - table_reference:
+        quoted_identifier: '`user`'
 - statement_terminator: ;
 - statement:
     alter_table_statement:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
-        identifier: '`users`'
+        quoted_identifier: '`user`'
+    - keyword: RENAME
+    - keyword: AS
+    - table_reference:
+        quoted_identifier: '`users`'
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        quoted_identifier: '`users`'
+    - keyword: RENAME
+    - table_reference:
+        quoted_identifier: '`user`'
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        quoted_identifier: '`users`'
+    - keyword: RENAME
+    - keyword: COLUMN
+    - column_reference:
+        quoted_identifier: '`col_1`'
+    - keyword: TO
+    - column_reference:
+        quoted_identifier: '`del_col_1`'
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        quoted_identifier: '`users`'
+    - keyword: CHANGE
+    - keyword: COLUMN
+    - column_reference:
+        quoted_identifier: '`birthday`'
+    - column_definition:
+      - quoted_identifier: '`date_of_birth`'
+      - data_type:
+          data_type_identifier: INT
+          bracketed_arguments:
+            bracketed:
+              start_bracket: (
+              numeric_literal: '11'
+              end_bracket: )
+      - column_constraint_segment:
+          keyword: 'NULL'
+      - column_constraint_segment:
+          keyword: DEFAULT
+          null_literal: 'NULL'
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        quoted_identifier: '`users`'
+    - keyword: CHANGE
+    - keyword: COLUMN
+    - column_reference:
+        quoted_identifier: '`birthday`'
+    - column_definition:
+        quoted_identifier: '`date_of_birth`'
+        data_type:
+          data_type_identifier: INT
+          bracketed_arguments:
+            bracketed:
+              start_bracket: (
+              numeric_literal: '11'
+              end_bracket: )
+        column_constraint_segment:
+        - keyword: NOT
+        - keyword: 'NULL'
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        quoted_identifier: '`users`'
+    - keyword: CHANGE
+    - keyword: COLUMN
+    - column_reference:
+        quoted_identifier: '`birthday`'
+    - column_definition:
+        quoted_identifier: '`date_of_birth`'
+        data_type:
+          data_type_identifier: INT
+          bracketed_arguments:
+            bracketed:
+              start_bracket: (
+              numeric_literal: '11'
+              end_bracket: )
+    - keyword: FIRST
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        quoted_identifier: '`users`'
+    - keyword: CHANGE
+    - keyword: COLUMN
+    - column_reference:
+        quoted_identifier: '`birthday`'
+    - column_definition:
+        quoted_identifier: '`date_of_birth`'
+        data_type:
+          data_type_identifier: INT
+          bracketed_arguments:
+            bracketed:
+              start_bracket: (
+              numeric_literal: '11'
+              end_bracket: )
+    - keyword: AFTER
+    - column_reference:
+        quoted_identifier: '`name`'
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        quoted_identifier: '`users`'
     - keyword: DROP
     - keyword: COLUMN
     - column_reference:
-        identifier: '`age`'
+        quoted_identifier: '`age`'
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - quoted_identifier: '`foo`'
+      - dot: .
+      - quoted_identifier: '`bar`'
+    - keyword: ADD
+    - table_constraint:
+      - keyword: CONSTRAINT
+      - object_reference:
+          quoted_identifier: '`index_name`'
+      - keyword: UNIQUE
+      - bracketed:
+        - start_bracket: (
+        - column_reference:
+            quoted_identifier: '`col_1`'
+        - comma: ','
+        - column_reference:
+            quoted_identifier: '`col_2`'
+        - comma: ','
+        - column_reference:
+            quoted_identifier: '`col_3`'
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - quoted_identifier: '`foo`'
+      - dot: .
+      - quoted_identifier: '`bar`'
+    - keyword: ADD
+    - table_constraint:
+        keyword: UNIQUE
+        index_reference:
+          quoted_identifier: '`index_name`'
+        bracketed:
+        - start_bracket: (
+        - column_reference:
+            quoted_identifier: '`col_1`'
+        - comma: ','
+        - column_reference:
+            quoted_identifier: '`col_2`'
+        - comma: ','
+        - column_reference:
+            quoted_identifier: '`col_3`'
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - quoted_identifier: '`foo`'
+      - dot: .
+      - quoted_identifier: '`bar`'
+    - keyword: ADD
+    - table_constraint:
+      - keyword: CONSTRAINT
+      - object_reference:
+          quoted_identifier: '`index_name`'
+      - keyword: UNIQUE
+      - keyword: INDEX
+      - bracketed:
+        - start_bracket: (
+        - column_reference:
+            quoted_identifier: '`col_1`'
+        - comma: ','
+        - column_reference:
+            quoted_identifier: '`col_2`'
+        - comma: ','
+        - column_reference:
+            quoted_identifier: '`col_3`'
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - quoted_identifier: '`foo`'
+      - dot: .
+      - quoted_identifier: '`bar`'
+    - keyword: ADD
+    - table_constraint:
+      - keyword: UNIQUE
+      - keyword: INDEX
+      - index_reference:
+          quoted_identifier: '`index_name`'
+      - bracketed:
+        - start_bracket: (
+        - column_reference:
+            quoted_identifier: '`col_1`'
+        - comma: ','
+        - column_reference:
+            quoted_identifier: '`col_2`'
+        - comma: ','
+        - column_reference:
+            quoted_identifier: '`col_3`'
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - quoted_identifier: '`foo`'
+      - dot: .
+      - quoted_identifier: '`bar`'
+    - keyword: ADD
+    - table_constraint:
+        keyword: INDEX
+        index_reference:
+          quoted_identifier: '`index_name`'
+        bracketed:
+        - start_bracket: (
+        - column_reference:
+            quoted_identifier: '`col_1`'
+        - comma: ','
+        - column_reference:
+            quoted_identifier: '`col_2`'
+        - comma: ','
+        - column_reference:
+            quoted_identifier: '`col_3`'
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - quoted_identifier: '`foo`'
+      - dot: .
+      - quoted_identifier: '`bar`'
+    - keyword: ADD
+    - table_constraint:
+        keyword: INDEX
+        index_reference:
+          quoted_identifier: '`index_name`'
+        bracketed:
+        - start_bracket: (
+        - column_reference:
+            quoted_identifier: '`col_1`'
+        - comma: ','
+        - column_reference:
+            quoted_identifier: '`col_2`'
+        - comma: ','
+        - column_reference:
+            quoted_identifier: '`col_3`'
+        - end_bracket: )
+        index_option:
+          keyword: KEY_BLOCK_SIZE
+          comparison_operator:
+            raw_comparison_operator: '='
+          numeric_literal: '8'
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - quoted_identifier: '`foo`'
+      - dot: .
+      - quoted_identifier: '`bar`'
+    - keyword: ADD
+    - table_constraint:
+        keyword: INDEX
+        index_reference:
+          quoted_identifier: '`index_name`'
+        bracketed:
+        - start_bracket: (
+        - column_reference:
+            quoted_identifier: '`col_1`'
+        - comma: ','
+        - column_reference:
+            quoted_identifier: '`col_2`'
+        - comma: ','
+        - column_reference:
+            quoted_identifier: '`col_3`'
+        - end_bracket: )
+        index_option:
+          keyword: KEY_BLOCK_SIZE
+          numeric_literal: '8'
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - quoted_identifier: '`foo`'
+      - dot: .
+      - quoted_identifier: '`bar`'
+    - keyword: ADD
+    - table_constraint:
+        keyword: INDEX
+        index_reference:
+          quoted_identifier: '`index_name`'
+        bracketed:
+        - start_bracket: (
+        - column_reference:
+            quoted_identifier: '`col_1`'
+        - comma: ','
+        - column_reference:
+            quoted_identifier: '`col_2`'
+        - comma: ','
+        - column_reference:
+            quoted_identifier: '`col_3`'
+        - end_bracket: )
+        index_option:
+          keyword: KEY_BLOCK_SIZE
+          numeric_literal: '8'
+          comment_clause:
+            keyword: COMMENT
+            quoted_literal: "'index for col_1, col_2, col_3'"
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - quoted_identifier: '`foo`'
+      - dot: .
+      - quoted_identifier: '`bar`'
+    - keyword: DROP
+    - keyword: INDEX
+    - index_reference:
+        quoted_identifier: '`index_name`'
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - quoted_identifier: '`foo`'
+      - dot: .
+      - quoted_identifier: '`bar`'
+    - keyword: RENAME
+    - keyword: INDEX
+    - index_reference:
+        quoted_identifier: '`index_name`'
+    - keyword: to
+    - index_reference:
+        quoted_identifier: '`new_index_name`'
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - quoted_identifier: '`foo`'
+      - dot: .
+      - quoted_identifier: '`bar`'
+    - keyword: RENAME
+    - keyword: KEY
+    - index_reference:
+        quoted_identifier: '`key_name`'
+    - keyword: to
+    - index_reference:
+        quoted_identifier: '`new_key_name`'
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        quoted_identifier: '`x`'
+    - keyword: ADD
+    - table_constraint:
+      - keyword: CONSTRAINT
+      - keyword: FOREIGN
+      - keyword: KEY
+      - bracketed:
+          start_bracket: (
+          column_reference:
+            quoted_identifier: '`xk`'
+          end_bracket: )
+      - keyword: REFERENCES
+      - column_reference:
+          quoted_identifier: '`y`'
+      - bracketed:
+          start_bracket: (
+          column_reference:
+            quoted_identifier: '`yk`'
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        quoted_identifier: '`users`'
+    - keyword: ADD
+    - keyword: COLUMN
+    - column_definition:
+        quoted_identifier: '`active`'
+        data_type:
+          data_type_identifier: tinyint
+          bracketed_arguments:
+            bracketed:
+              start_bracket: (
+              numeric_literal: '1'
+              end_bracket: )
+        column_constraint_segment:
+          keyword: DEFAULT
+          quoted_literal: "'0'"
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        quoted_identifier: '`users`'
+    - keyword: ADD
+    - keyword: COLUMN
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - column_definition:
+        quoted_identifier: '`active`'
+        data_type:
+          data_type_identifier: tinyint
+          bracketed_arguments:
+            bracketed:
+              start_bracket: (
+              numeric_literal: '1'
+              end_bracket: )
+        column_constraint_segment:
+          keyword: DEFAULT
+          quoted_literal: "'0'"
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        quoted_identifier: '`foo`'
+    - keyword: ADD
+    - column_definition:
+        quoted_identifier: '`bar`'
+        data_type:
+          data_type_identifier: INT
+    - keyword: FIRST
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        quoted_identifier: '`foo`'
+    - keyword: ADD
+    - keyword: COLUMN
+    - column_definition:
+        naked_identifier: d
+        data_type:
+          data_type_identifier: INT
+        column_constraint_segment:
+        - keyword: GENERATED
+        - keyword: ALWAYS
+        - keyword: AS
+        - bracketed:
+            start_bracket: (
+            expression:
+              column_reference:
+                naked_identifier: a
+              binary_operator: '*'
+              function:
+                function_name:
+                  function_name_identifier: abs
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      column_reference:
+                        naked_identifier: b
+                    end_bracket: )
+            end_bracket: )
+        - keyword: VIRTUAL
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        quoted_identifier: '`foo`'
+    - keyword: ADD
+    - keyword: COLUMN
+    - column_definition:
+        naked_identifier: e
+        data_type:
+          data_type_identifier: TEXT
+        column_constraint_segment:
+        - keyword: GENERATED
+        - keyword: ALWAYS
+        - keyword: AS
+        - bracketed:
+            start_bracket: (
+            expression:
+              function:
+                function_name:
+                  function_name_identifier: substr
+                function_contents:
+                  bracketed:
+                  - start_bracket: (
+                  - expression:
+                      column_reference:
+                        naked_identifier: c
+                  - comma: ','
+                  - expression:
+                      column_reference:
+                        naked_identifier: b
+                  - comma: ','
+                  - expression:
+                      column_reference:
+                        naked_identifier: b
+                      binary_operator: +
+                      numeric_literal: '1'
+                  - end_bracket: )
+            end_bracket: )
+        - keyword: STORED
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        quoted_identifier: '`foo`'
+    - keyword: ADD
+    - keyword: COLUMN
+    - column_definition:
+        naked_identifier: d
+        data_type:
+          data_type_identifier: INT
+        column_constraint_segment:
+          keyword: AS
+          bracketed:
+            start_bracket: (
+            expression:
+              column_reference:
+                naked_identifier: a
+              binary_operator: '*'
+              function:
+                function_name:
+                  function_name_identifier: abs
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      column_reference:
+                        naked_identifier: b
+                    end_bracket: )
+            end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        quoted_identifier: '`foo`'
+    - keyword: ADD
+    - keyword: COLUMN
+    - column_definition:
+        naked_identifier: e
+        data_type:
+          data_type_identifier: TEXT
+        column_constraint_segment:
+        - keyword: AS
+        - bracketed:
+            start_bracket: (
+            expression:
+              function:
+                function_name:
+                  function_name_identifier: substr
+                function_contents:
+                  bracketed:
+                  - start_bracket: (
+                  - expression:
+                      column_reference:
+                        naked_identifier: c
+                  - comma: ','
+                  - expression:
+                      column_reference:
+                        naked_identifier: b
+                  - comma: ','
+                  - expression:
+                      column_reference:
+                        naked_identifier: b
+                      binary_operator: +
+                      numeric_literal: '1'
+                  - end_bracket: )
+            end_bracket: )
+        - keyword: STORED
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        quoted_identifier: '`foo`'
+    - keyword: CONVERT
+    - keyword: TO
+    - alter_option_segment:
+      - keyword: CHARACTER
+      - keyword: SET
+      - naked_identifier: utf8mb4
+    - alter_option_segment:
+        keyword: COLLATE
+        collation_reference:
+          naked_identifier: utf8mb4_unicode_ci
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        quoted_identifier: '`foo`'
+    - keyword: CONVERT
+    - keyword: TO
+    - alter_option_segment:
+      - keyword: CHARACTER
+      - keyword: SET
+      - quoted_identifier: '`utf8mb4`'
+    - alter_option_segment:
+        keyword: COLLATE
+        collation_reference:
+          quoted_identifier: '`utf8mb4_unicode_ci`'
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        quoted_identifier: '`foo`'
+    - keyword: CONVERT
+    - keyword: TO
+    - alter_option_segment:
+      - keyword: CHARACTER
+      - keyword: SET
+      - quoted_identifier: "'utf8mb4'"
+    - alter_option_segment:
+        keyword: COLLATE
+        collation_reference:
+          quoted_literal: "'utf8mb4_unicode_ci'"
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        quoted_identifier: '`foo`'
+    - keyword: CONVERT
+    - keyword: TO
+    - alter_option_segment:
+      - keyword: CHARACTER
+      - keyword: SET
+      - quoted_identifier: '"utf8mb4"'
+    - alter_option_segment:
+        keyword: COLLATE
+        collation_reference:
+          quoted_literal: '"utf8mb4_unicode_ci"'
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: CUST
+    - keyword: TRUNCATE
+    - keyword: PARTITION
+    - naked_identifier: data_dt
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        quoted_identifier: '`foo`'
+    - keyword: ADD
+    - keyword: COLUMN
+    - column_definition:
+      - naked_identifier: geo
+      - data_type:
+          data_type_identifier: GEOMETRY
+      - column_constraint_segment:
+        - keyword: NOT
+        - keyword: 'NULL'
+      - column_constraint_segment:
+          keyword: SRID
+          numeric_literal: '4326'
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: my_table
+    - keyword: MODIFY
+    - column_definition:
+        naked_identifier: num
+        data_type:
+          data_type_identifier: INT
+          keyword: SIGNED
+        column_constraint_segment:
+        - keyword: NOT
+        - keyword: 'NULL'
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: my_table
+    - keyword: MODIFY
+    - column_definition:
+        naked_identifier: num
+        data_type:
+          data_type_identifier: INT
+          keyword: UNSIGNED
+        column_constraint_segment:
+        - keyword: NOT
+        - keyword: 'NULL'
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: my_table
+    - keyword: MODIFY
+    - column_definition:
+        naked_identifier: num
+        data_type:
+          data_type_identifier: INT
+          keyword: ZEROFILL
+        column_constraint_segment:
+        - keyword: NOT
+        - keyword: 'NULL'
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: my_table
+    - keyword: MODIFY
+    - column_definition:
+        naked_identifier: num
+        data_type:
+        - data_type_identifier: INT
+        - keyword: UNSIGNED
+        - keyword: ZEROFILL
+        column_constraint_segment:
+        - keyword: NOT
+        - keyword: 'NULL'
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: my_table
+    - keyword: MODIFY
+    - column_definition:
+        naked_identifier: num
+        data_type:
+        - data_type_identifier: INT
+        - keyword: ZEROFILL
+        - keyword: UNSIGNED
+        column_constraint_segment:
+        - keyword: NOT
+        - keyword: 'NULL'
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: T
+    - keyword: ALTER
+    - naked_identifier: C
+    - keyword: DROP
+    - keyword: DEFAULT
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: T
+    - keyword: ALTER
+    - naked_identifier: C
+    - keyword: SET
+    - keyword: DEFAULT
+    - quoted_literal: "'some default'"
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: T
+    - keyword: ALTER
+    - naked_identifier: C
+    - keyword: SET
+    - keyword: DEFAULT
+    - expression:
+        bare_function: CURRENT_TIMESTAMP
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: T
+    - keyword: ALTER
+    - naked_identifier: C
+    - keyword: SET
+    - keyword: INVISIBLE
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: T
+    - keyword: ALTER
+    - naked_identifier: C
+    - keyword: SET
+    - keyword: VISIBLE
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: T
+    - keyword: ALTER
+    - naked_identifier: C
+    - keyword: SET
+    - keyword: VISIBLE
+    - keyword: DROP
+    - keyword: DEFAULT
 - statement_terminator: ;

@@ -1,32 +1,26 @@
 """Defines small container classes to hold intermediate results during linting."""
 
-from typing import (
-    List,
-    NamedTuple,
-    Optional,
-    Tuple,
-    Dict,
-)
+from typing import Any, NamedTuple, Optional, Union
 
-from sqlfluff.core.errors import SQLBaseError, SQLTemplaterError
-from sqlfluff.core.templaters import TemplatedFile
 from sqlfluff.core.config import FluffConfig
+from sqlfluff.core.errors import (
+    SQLBaseError,
+    SQLLexError,
+    SQLParseError,
+    SQLTemplaterError,
+)
 from sqlfluff.core.parser.segments.base import BaseSegment
+from sqlfluff.core.templaters import TemplatedFile
 
 
 class RuleTuple(NamedTuple):
     """Rule Tuple object for describing rules."""
 
     code: str
+    name: str
     description: str
-
-
-class NoQaDirective(NamedTuple):
-    """Parsed version of a 'noqa' comment."""
-
-    line_no: int  # Source line number
-    rules: Optional[Tuple[str, ...]]  # Affected rule names
-    action: Optional[str]  # "enable", "disable", or "None"
+    groups: tuple[str, ...]
+    aliases: tuple[str, ...]
 
 
 class RenderedFile(NamedTuple):
@@ -36,50 +30,100 @@ class RenderedFile(NamedTuple):
     in the main process and the child processes when running in parallel mode.
     """
 
-    templated_file: TemplatedFile
-    templater_violations: List[SQLTemplaterError]
+    templated_variants: list[TemplatedFile]
+    templater_violations: list[SQLTemplaterError]
     config: FluffConfig
-    time_dict: Dict[str, float]
+    time_dict: dict[str, float]
     fname: str
     encoding: str
+    source_str: str
+
+
+class ParsedVariant(NamedTuple):
+    """An object to store the result of parsing a single TemplatedFile.
+
+    Args:
+        templated_file (:obj:`TemplatedFile`): Containing the details
+            of the templated file. If templating fails, this will be `None`.
+        tree (:obj:`BaseSegment`): The segment structure representing the
+            parsed file. If parsing fails due to an unrecoverable
+            violation then we will be None.
+        lexing_violations (:obj:`list` of :obj:`SQLLexError`): Any violations
+            raised during the lexing phase.
+        parsing_violations (:obj:`list` of :obj:`SQLParseError`): Any violations
+            raised during the parsing phase.
+    """
+
+    templated_file: TemplatedFile
+    tree: Optional[BaseSegment]
+    lexing_violations: list[SQLLexError]
+    parsing_violations: list[SQLParseError]
+
+    def violations(self) -> list[Union[SQLLexError, SQLParseError]]:
+        """Returns the combined lexing and parsing violations for this variant."""
+        return [*self.lexing_violations, *self.parsing_violations]
 
 
 class ParsedString(NamedTuple):
     """An object to store the result of parsing a string.
 
     Args:
-        `parsed` is a segment structure representing the parsed file. If
-            parsing fails due to an unrecoverable violation then we will
-            return None.
-        `violations` is a :obj:`list` of violations so far, which will either be
-            templating, lexing or parsing violations at this stage.
-        `time_dict` is a :obj:`dict` containing timings for how long each step
+        parsed_variants (:obj:`list` of :obj:`ParsedVariant`): The parsed
+            variants of this file. Empty if parsing or templating failed.
+        templating_violations (:obj:`list` of :obj:`SQLTemplaterError`):
+            Any violations raised during the templating phase. Any violations
+            raised during lexing or parsing can be found in the
+            `parsed_variants`, or accessed using the `.violations()` method
+            which combines all the violations.
+        time_dict (:obj:`dict`): Contains timings for how long each step
             took in the process.
-        `templated_file` is a :obj:`TemplatedFile` containing the details
-            of the templated file.
+        config (:obj:`FluffConfig`): The active config for this file,
+            including any parsed in-file directives.
+        fname (str): The name of the file. Used mostly for user feedback.
+        source_str (str): The raw content of the source file.
     """
 
-    tree: Optional[BaseSegment]
-    violations: List[SQLBaseError]
-    time_dict: dict
-    templated_file: TemplatedFile
+    parsed_variants: list[ParsedVariant]
+    templating_violations: list[SQLTemplaterError]
+    time_dict: dict[str, Any]
     config: FluffConfig
     fname: str
-
-
-class EnrichedFixPatch(NamedTuple):
-    """An edit patch for a source file."""
-
-    source_slice: slice
-    templated_slice: slice
-    fixed_raw: str
-    # The patch category, functions mostly for debugging and explanation
-    # than for function. It allows traceability of *why* this patch was
-    # generated.
-    patch_category: str
-    templated_str: str
     source_str: str
 
-    def dedupe_tuple(self):
-        """Generate a tuple of this fix for deduping."""
-        return (self.source_slice, self.fixed_raw)
+    @property
+    def violations(self) -> list[SQLBaseError]:
+        """Returns the combination of violations for this variant.
+
+        NOTE: This is implemented as a property for backward compatibility.
+        """
+        return [
+            *self.templating_violations,
+            *(v for variant in self.parsed_variants for v in variant.violations()),
+        ]
+
+    def root_variant(self) -> Optional[ParsedVariant]:
+        """Returns the root variant if successfully parsed, otherwise None."""
+        if not self.parsed_variants:
+            # In the case of a fatal templating error, there will be no valid
+            # variants. Return None.
+            return None
+        root_variant = self.parsed_variants[0]
+        if not root_variant.tree:
+            # In the case of a parsing fail, there will be a variant, but it will
+            # have failed to parse and so will have a null tree. Count this as
+            # an inappropriate variant to return, so return None.
+            return None
+        return root_variant
+
+    @property
+    def tree(self) -> BaseSegment:
+        """Return the main variant tree.
+
+        NOTE: This method is primarily for testing convenience and therefore
+        asserts that parsing has been successful. If this isn't appropriate
+        for the given use case, then don't use this property.
+        """
+        assert self.parsed_variants, "No successfully parsed variants."
+        root_variant = self.parsed_variants[0]
+        assert root_variant.tree, "Root variant not successfully parsed."
+        return root_variant.tree

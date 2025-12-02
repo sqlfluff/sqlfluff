@@ -1,0 +1,71 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 6af9f443583036f12fbf1244587228403f43241b8dd1671115dff45eabefa34d
+file:
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+            wildcard_exclude:
+              keyword: EXCLUDE
+              column_reference:
+                naked_identifier: y
+            wildcard_replace:
+              keyword: REPLACE
+              bracketed:
+                start_bracket: (
+                numeric_literal: '3'
+                alias_expression:
+                  alias_operator:
+                    keyword: AS
+                  naked_identifier: x
+                end_bracket: )
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: tabx
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+            wildcard_exclude:
+              keyword: EXCLUDE
+              column_reference:
+                naked_identifier: y
+            wildcard_replace:
+              keyword: REPLACE
+              numeric_literal: '3'
+              alias_expression:
+                alias_operator:
+                  keyword: AS
+                naked_identifier: x
+      - comma: ','
+      - select_clause_element:
+          numeric_literal: '6'
+          alias_expression:
+            alias_operator:
+              keyword: as
+            naked_identifier: z
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: tabx
+- statement_terminator: ;

@@ -1,0 +1,57 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 7f31367ccb33b130784b4d551af5b1171b57321497dff55de71bae9d8ac0cc9d
+file:
+- statement:
+    alter_system_statement:
+    - keyword: ALTER
+    - keyword: SYSTEM
+    - keyword: SET
+    - system_parameter: NLS_DATE_LANGUAGE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'DEU'"
+- statement_terminator: ;
+- statement:
+    alter_system_statement:
+    - keyword: ALTER
+    - keyword: SYSTEM
+    - keyword: SET
+    - system_parameter: NLS_FIRST_DAY_OF_WEEK
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - numeric_literal: '1'
+- statement_terminator: ;
+- statement:
+    alter_system_statement:
+    - keyword: ALTER
+    - keyword: SYSTEM
+    - keyword: SET
+    - system_parameter: SNAPSHOT_MODE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'SYSTEM TABLES'"
+- statement_terminator: ;
+- statement:
+    alter_system_statement:
+    - keyword: ALTER
+    - keyword: SYSTEM
+    - keyword: SET
+    - system_parameter: IDLE_TIMEOUT
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - numeric_literal: '3600'
+- statement_terminator: ;
+- statement:
+    alter_system_statement:
+    - keyword: ALTER
+    - keyword: SYSTEM
+    - keyword: SET
+    - system_parameter: USER_TEMP_DB_RAM_LIMIT
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'50G'"
+- statement_terminator: ;

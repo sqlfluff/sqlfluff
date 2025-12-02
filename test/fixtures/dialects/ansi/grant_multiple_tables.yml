@@ -1,0 +1,143 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 1c12c3673e61617399ed12ec453a59f43e5bf00d2b38e6117f3ef08efb25ddc3
+file:
+- statement:
+    access_statement:
+    - keyword: GRANT
+    - keyword: INSERT
+    - keyword: 'ON'
+    - object_reference:
+        naked_identifier: my_table
+    - comma: ','
+    - object_reference:
+        naked_identifier: my_table2
+    - keyword: TO
+    - role_reference:
+        naked_identifier: public
+- statement_terminator: ;
+- statement:
+    access_statement:
+    - keyword: GRANT
+    - keyword: INSERT
+    - keyword: 'ON'
+    - object_reference:
+        naked_identifier: my_table
+    - comma: ','
+    - object_reference:
+        naked_identifier: my_table2
+    - keyword: TO
+    - role_reference:
+        quoted_identifier: '"public"'
+- statement_terminator: ;
+- statement:
+    access_statement:
+    - keyword: GRANT
+    - keyword: INSERT
+    - comma: ','
+    - keyword: UPDATE
+    - keyword: 'ON'
+    - object_reference:
+        naked_identifier: my_table
+    - comma: ','
+    - object_reference:
+        naked_identifier: my_table2
+    - keyword: TO
+    - role_reference:
+        naked_identifier: public
+- statement_terminator: ;
+- statement:
+    access_statement:
+    - keyword: GRANT
+    - keyword: INSERT
+    - comma: ','
+    - keyword: UPDATE
+    - keyword: 'ON'
+    - object_reference:
+        naked_identifier: my_table
+    - comma: ','
+    - object_reference:
+        naked_identifier: my_table2
+    - keyword: TO
+    - role_reference:
+        quoted_identifier: '"public"'
+- statement_terminator: ;
+- statement:
+    access_statement:
+    - keyword: GRANT
+    - keyword: INSERT
+    - comma: ','
+    - keyword: UPDATE
+    - comma: ','
+    - keyword: DELETE
+    - keyword: 'ON'
+    - object_reference:
+        naked_identifier: my_table
+    - comma: ','
+    - object_reference:
+        naked_identifier: my_table2
+    - keyword: TO
+    - role_reference:
+        naked_identifier: public
+- statement_terminator: ;
+- statement:
+    access_statement:
+    - keyword: GRANT
+    - keyword: INSERT
+    - comma: ','
+    - keyword: UPDATE
+    - comma: ','
+    - keyword: DELETE
+    - keyword: 'ON'
+    - object_reference:
+        naked_identifier: my_table
+    - comma: ','
+    - object_reference:
+        naked_identifier: my_table2
+    - keyword: TO
+    - role_reference:
+        quoted_identifier: '"public"'
+- statement_terminator: ;
+- statement:
+    access_statement:
+    - keyword: GRANT
+    - keyword: INSERT
+    - comma: ','
+    - keyword: UPDATE
+    - comma: ','
+    - keyword: DELETE
+    - comma: ','
+    - keyword: SELECT
+    - keyword: 'ON'
+    - object_reference:
+        naked_identifier: my_table
+    - comma: ','
+    - object_reference:
+        naked_identifier: my_table2
+    - keyword: TO
+    - role_reference:
+        naked_identifier: public
+- statement_terminator: ;
+- statement:
+    access_statement:
+    - keyword: GRANT
+    - keyword: INSERT
+    - comma: ','
+    - keyword: UPDATE
+    - comma: ','
+    - keyword: DELETE
+    - comma: ','
+    - keyword: SELECT
+    - keyword: 'ON'
+    - object_reference:
+        naked_identifier: my_table
+    - comma: ','
+    - object_reference:
+        naked_identifier: my_table2
+    - keyword: TO
+    - role_reference:
+        quoted_identifier: '"public"'
+- statement_terminator: ;

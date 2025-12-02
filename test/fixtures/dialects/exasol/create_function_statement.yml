@@ -1,0 +1,609 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 6862f52d714a58a784a1389f908431c78e94275c89d4ecfbee6eae48da5a0350
+file:
+- statement:
+    create_function_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: FUNCTION
+    - function_reference:
+        naked_identifier: percentage
+    - bracketed:
+      - start_bracket: (
+      - naked_identifier: fraction
+      - data_type:
+          keyword: DECIMAL
+      - comma: ','
+      - naked_identifier: entirety
+      - data_type:
+          keyword: DECIMAL
+      - end_bracket: )
+    - keyword: RETURN
+    - data_type:
+        keyword: VARCHAR
+        bracketed_arguments:
+          bracketed:
+            start_bracket: (
+            numeric_literal: '10'
+            end_bracket: )
+    - keyword: AS
+    - variable: res
+    - data_type:
+        keyword: DECIMAL
+    - statement_terminator: ;
+    - keyword: BEGIN
+    - function_body:
+        function_assignment:
+          variable: res
+          assignment_operator: :=
+          expression:
+            bracketed:
+              start_bracket: (
+              expression:
+                numeric_literal: '100'
+                binary_operator: '*'
+                column_reference:
+                  naked_identifier: fraction
+              end_bracket: )
+            binary_operator: /
+            column_reference:
+              naked_identifier: entirety
+          statement_terminator: ;
+    - keyword: RETURN
+    - expression:
+        column_reference:
+          naked_identifier: res
+        binary_operator:
+        - pipe: '|'
+        - pipe: '|'
+        quoted_literal: "' %'"
+    - statement_terminator: ;
+    - keyword: END
+    - function_reference:
+        naked_identifier: percentage
+    - statement_terminator: ;
+- function_script_terminator: /
+- statement:
+    create_function_statement:
+    - keyword: CREATE
+    - keyword: FUNCTION
+    - function_reference:
+        naked_identifier: hello
+    - bracketed:
+        start_bracket: (
+        end_bracket: )
+    - keyword: RETURN
+    - data_type:
+        keyword: VARCHAR
+        bracketed_arguments:
+          bracketed:
+            start_bracket: (
+            numeric_literal: '10'
+            end_bracket: )
+    - keyword: AS
+    - variable: res
+    - data_type:
+        keyword: DECIMAL
+    - statement_terminator: ;
+    - keyword: BEGIN
+    - function_body:
+        function_assignment:
+          variable: res
+          assignment_operator: :=
+          function:
+            function_name:
+              naked_identifier: hello
+              dot: .
+              function_name_identifier: world
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    quoted_identifier: '"no"'
+                end_bracket: )
+          statement_terminator: ;
+    - keyword: RETURN
+    - expression:
+        quoted_literal: "'HELLO'"
+    - statement_terminator: ;
+    - keyword: END
+    - function_reference:
+        naked_identifier: hello
+    - statement_terminator: ;
+- function_script_terminator: /
+- statement:
+    create_function_statement:
+    - keyword: CREATE
+    - keyword: FUNCTION
+    - function_reference:
+        naked_identifier: case_function
+    - bracketed:
+        start_bracket: (
+        end_bracket: )
+    - keyword: RETURN
+    - data_type:
+        keyword: VARCHAR
+        bracketed_arguments:
+          bracketed:
+            start_bracket: (
+            numeric_literal: '10'
+            end_bracket: )
+    - keyword: AS
+    - variable: res
+    - data_type:
+        keyword: DECIMAL
+    - statement_terminator: ;
+    - keyword: BEGIN
+    - function_body:
+        function_assignment:
+          variable: res
+          assignment_operator: :=
+          expression:
+            case_expression:
+            - keyword: CASE
+            - when_clause:
+              - keyword: WHEN
+              - expression:
+                  column_reference:
+                    naked_identifier: input_variable
+                  comparison_operator:
+                    raw_comparison_operator: <
+                  numeric_literal: '0'
+              - keyword: THEN
+              - expression:
+                  numeric_literal: '0'
+            - else_clause:
+                keyword: ELSE
+                expression:
+                  column_reference:
+                    naked_identifier: input_variable
+            - keyword: END
+          statement_terminator: ;
+    - keyword: RETURN
+    - expression:
+        column_reference:
+          naked_identifier: res
+    - statement_terminator: ;
+    - keyword: END
+    - function_reference:
+        naked_identifier: case_function
+    - statement_terminator: ;
+- function_script_terminator: /
+- statement:
+    create_function_statement:
+    - keyword: CREATE
+    - keyword: FUNCTION
+    - function_reference:
+        naked_identifier: assignment_function
+    - bracketed:
+        start_bracket: (
+        end_bracket: )
+    - keyword: RETURN
+    - data_type:
+        keyword: VARCHAR
+        bracketed_arguments:
+          bracketed:
+            start_bracket: (
+            numeric_literal: '10'
+            end_bracket: )
+    - keyword: AS
+    - variable: res
+    - data_type:
+        keyword: DECIMAL
+    - statement_terminator: ;
+    - keyword: BEGIN
+    - function_body:
+        function_assignment:
+          variable: res
+          assignment_operator: :=
+          quoted_literal: "'Hello World'"
+          statement_terminator: ;
+    - keyword: RETURN
+    - expression:
+        column_reference:
+          naked_identifier: res
+    - statement_terminator: ;
+    - keyword: END
+    - function_reference:
+        naked_identifier: assignment_function
+    - statement_terminator: ;
+- function_script_terminator: /
+- statement:
+    create_function_statement:
+    - keyword: CREATE
+    - keyword: FUNCTION
+    - function_reference:
+        naked_identifier: if_function
+    - bracketed:
+        start_bracket: (
+        end_bracket: )
+    - keyword: RETURN
+    - data_type:
+        keyword: VARCHAR
+        bracketed_arguments:
+          bracketed:
+            start_bracket: (
+            numeric_literal: '10'
+            end_bracket: )
+    - keyword: AS
+    - variable: res
+    - data_type:
+        keyword: DECIMAL
+    - statement_terminator: ;
+    - keyword: BEGIN
+    - function_body:
+        function_if_branch:
+        - keyword: IF
+        - expression:
+            column_reference:
+              naked_identifier: input_variable
+            comparison_operator:
+              raw_comparison_operator: '='
+            numeric_literal: '0'
+        - keyword: THEN
+        - function_body:
+            function_assignment:
+            - variable: res
+            - assignment_operator: :=
+            - variable: 'NULL'
+            - statement_terminator: ;
+        - keyword: ELSEIF
+        - expression:
+            column_reference:
+              naked_identifier: input_variable
+            comparison_operator:
+              raw_comparison_operator: '='
+            numeric_literal: '1'
+        - keyword: THEN
+        - function_body:
+            function_assignment:
+              variable: res
+              assignment_operator: :=
+              quoted_literal: "'HELLO'"
+              statement_terminator: ;
+        - keyword: ELSEIF
+        - expression:
+            column_reference:
+              naked_identifier: input_variable
+            comparison_operator:
+              raw_comparison_operator: '='
+            numeric_literal: '2'
+        - keyword: THEN
+        - function_body:
+            function_assignment:
+              variable: res
+              assignment_operator: :=
+              quoted_literal: "'HALLO'"
+              statement_terminator: ;
+        - keyword: ELSE
+        - function_body:
+            function_assignment:
+            - variable: res
+            - assignment_operator: :=
+            - variable: input_variable
+            - statement_terminator: ;
+        - keyword: END
+        - keyword: IF
+        - statement_terminator: ;
+    - keyword: RETURN
+    - expression:
+        column_reference:
+          naked_identifier: res
+    - statement_terminator: ;
+    - keyword: END
+    - function_reference:
+        naked_identifier: if_function
+    - statement_terminator: ;
+- function_script_terminator: /
+- statement:
+    create_function_statement:
+    - keyword: CREATE
+    - keyword: FUNCTION
+    - function_reference:
+        naked_identifier: for_loop_function
+    - bracketed:
+        start_bracket: (
+        end_bracket: )
+    - keyword: RETURN
+    - data_type:
+        keyword: VARCHAR
+        bracketed_arguments:
+          bracketed:
+            start_bracket: (
+            numeric_literal: '10'
+            end_bracket: )
+    - keyword: AS
+    - variable: res
+    - data_type:
+        keyword: DECIMAL
+    - statement_terminator: ;
+    - keyword: BEGIN
+    - function_body:
+        function_for_loop:
+        - keyword: FOR
+        - naked_identifier: cnt
+        - assignment_operator: :=
+        - expression:
+            numeric_literal: '1'
+        - keyword: TO
+        - expression:
+            column_reference:
+              naked_identifier: input_variable
+        - keyword: DO
+        - function_body:
+            function_assignment:
+              variable: res
+              assignment_operator: :=
+              expression:
+                column_reference:
+                  naked_identifier: res
+                binary_operator: '*'
+                numeric_literal: '2'
+              statement_terminator: ;
+        - keyword: END
+        - keyword: FOR
+        - statement_terminator: ;
+    - keyword: RETURN
+    - expression:
+        column_reference:
+          naked_identifier: res
+    - statement_terminator: ;
+    - keyword: END
+    - function_reference:
+        naked_identifier: for_loop_function
+    - statement_terminator: ;
+- function_script_terminator: /
+- statement:
+    create_function_statement:
+    - keyword: CREATE
+    - keyword: FUNCTION
+    - function_reference:
+        naked_identifier: for_loop_function2
+    - bracketed:
+        start_bracket: (
+        end_bracket: )
+    - keyword: RETURN
+    - data_type:
+        keyword: VARCHAR
+        bracketed_arguments:
+          bracketed:
+            start_bracket: (
+            numeric_literal: '10'
+            end_bracket: )
+    - keyword: AS
+    - variable: res
+    - data_type:
+        keyword: DECIMAL
+    - statement_terminator: ;
+    - keyword: BEGIN
+    - function_body:
+        function_for_loop:
+        - keyword: FOR
+        - naked_identifier: cnt
+        - keyword: IN
+        - expression:
+            numeric_literal: '1'
+        - range_operator: ..
+        - expression:
+            numeric_literal: '10'
+        - keyword: LOOP
+        - function_body:
+            function_assignment:
+              variable: res
+              assignment_operator: :=
+              expression:
+                column_reference:
+                  naked_identifier: res
+                binary_operator: '*'
+                numeric_literal: '2'
+              statement_terminator: ;
+        - keyword: END
+        - keyword: LOOP
+        - statement_terminator: ;
+    - keyword: RETURN
+    - expression:
+        column_reference:
+          naked_identifier: res
+    - statement_terminator: ;
+    - keyword: END
+    - function_reference:
+        naked_identifier: for_loop_function2
+    - statement_terminator: ;
+- function_script_terminator: /
+- statement:
+    create_function_statement:
+    - keyword: CREATE
+    - keyword: FUNCTION
+    - function_reference:
+        naked_identifier: for_loop_function3
+    - bracketed:
+        start_bracket: (
+        end_bracket: )
+    - keyword: RETURN
+    - data_type:
+        keyword: VARCHAR
+        bracketed_arguments:
+          bracketed:
+            start_bracket: (
+            numeric_literal: '10'
+            end_bracket: )
+    - keyword: AS
+    - variable: res
+    - data_type:
+        keyword: DECIMAL
+    - statement_terminator: ;
+    - keyword: BEGIN
+    - function_body:
+        function_while_loop:
+        - keyword: WHILE
+        - expression:
+          - column_reference:
+              naked_identifier: cnt
+          - comparison_operator:
+            - raw_comparison_operator: <
+            - raw_comparison_operator: '='
+          - column_reference:
+              naked_identifier: input_variable
+        - keyword: DO
+        - function_body:
+            function_assignment:
+              variable: res
+              assignment_operator: :=
+              expression:
+                column_reference:
+                  naked_identifier: res
+                binary_operator: '*'
+                numeric_literal: '2'
+              statement_terminator: ;
+        - function_body:
+            function_assignment:
+              variable: cnt
+              assignment_operator: :=
+              expression:
+                column_reference:
+                  naked_identifier: cnt
+                binary_operator: +
+                numeric_literal: '1'
+              statement_terminator: ;
+        - keyword: END
+        - keyword: WHILE
+        - statement_terminator: ;
+    - keyword: RETURN
+    - expression:
+        column_reference:
+          naked_identifier: res
+    - statement_terminator: ;
+    - keyword: END
+    - function_reference:
+        naked_identifier: for_loop_function3
+    - statement_terminator: ;
+- function_script_terminator: /
+- statement:
+    create_function_statement:
+    - keyword: CREATE
+    - keyword: FUNCTION
+    - function_reference:
+      - naked_identifier: schem
+      - dot: .
+      - naked_identifier: func
+    - bracketed:
+      - start_bracket: (
+      - naked_identifier: p1
+      - data_type:
+          keyword: VARCHAR
+          bracketed_arguments:
+            bracketed:
+              start_bracket: (
+              numeric_literal: '6'
+              end_bracket: )
+      - comma: ','
+      - naked_identifier: p2
+      - data_type:
+          keyword: VARCHAR
+          bracketed_arguments:
+            bracketed:
+              start_bracket: (
+              numeric_literal: '10'
+              end_bracket: )
+      - end_bracket: )
+    - keyword: RETURN
+    - data_type:
+        keyword: VARCHAR
+        bracketed_arguments:
+          bracketed:
+            start_bracket: (
+            numeric_literal: '20'
+            end_bracket: )
+    - keyword: IS
+    - variable: res
+    - data_type:
+        keyword: VARCHAR
+        bracketed_arguments:
+          bracketed:
+            start_bracket: (
+            numeric_literal: '20'
+            end_bracket: )
+    - statement_terminator: ;
+    - keyword: BEGIN
+    - function_body:
+        function_if_branch:
+        - keyword: IF
+        - expression:
+          - column_reference:
+              naked_identifier: p1
+          - keyword: IS
+          - keyword: NOT
+          - null_literal: 'NULL'
+          - binary_operator: AND
+          - column_reference:
+              naked_identifier: p2
+          - keyword: IS
+          - keyword: NOT
+          - null_literal: 'NULL'
+        - keyword: THEN
+        - function_body:
+            function_if_branch:
+            - keyword: IF
+            - expression:
+                column_reference:
+                  naked_identifier: p1
+                comparison_operator:
+                  raw_comparison_operator: '='
+                numeric_literal: '1'
+            - keyword: THEN
+            - function_body:
+                function_assignment:
+                  variable: res
+                  assignment_operator: :=
+                  quoted_literal: "'Hello World'"
+                  statement_terminator: ;
+            - keyword: ELSE
+            - function_body:
+                function_if_branch:
+                - keyword: IF
+                - expression:
+                    column_reference:
+                      naked_identifier: p2
+                    comparison_operator:
+                      raw_comparison_operator: '='
+                    numeric_literal: '3'
+                - keyword: THEN
+                - function_body:
+                    function_assignment:
+                      variable: res
+                      assignment_operator: :=
+                      quoted_literal: "'ABC'"
+                      statement_terminator: ;
+                - keyword: END
+                - keyword: IF
+                - statement_terminator: ;
+            - function_body:
+                function_assignment:
+                  variable: res
+                  assignment_operator: :=
+                  quoted_literal: "'WOHOOOO'"
+                  statement_terminator: ;
+            - keyword: END
+            - keyword: IF
+            - statement_terminator: ;
+        - keyword: END
+        - keyword: IF
+        - statement_terminator: ;
+    - keyword: RETURN
+    - expression:
+        column_reference:
+          naked_identifier: res
+    - statement_terminator: ;
+    - keyword: END
+    - function_reference:
+      - naked_identifier: schem
+      - dot: .
+      - naked_identifier: func
+    - statement_terminator: ;
+- function_script_terminator: /

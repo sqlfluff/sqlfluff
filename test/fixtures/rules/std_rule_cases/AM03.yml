@@ -1,0 +1,35 @@
+rule: AM03
+
+test_unspecified:
+  pass_str: SELECT * FROM t ORDER BY a
+
+
+test_unspecified_unspecified:
+  pass_str: SELECT * FROM t ORDER BY a, b
+
+
+test_unspecified_desc:
+  fail_str: SELECT * FROM t ORDER BY a, b DESC
+  fix_str: SELECT * FROM t ORDER BY a ASC, b DESC
+
+
+test_asc_desc:
+  pass_str: SELECT * FROM t ORDER BY a ASC, b DESC
+
+
+test_desc_unspecified:
+  fail_str: SELECT * FROM t ORDER BY a DESC, b
+  fix_str: SELECT * FROM t ORDER BY a DESC, b ASC
+
+
+test_desc_asc:
+  pass_str: SELECT * FROM t ORDER BY a DESC, b ASC
+
+
+test_nulls_last:
+  fail_str: SELECT * FROM t ORDER BY a DESC, b NULLS LAST
+  fix_str: SELECT * FROM t ORDER BY a DESC, b ASC NULLS LAST
+
+
+test_comment:
+  pass_str: SELECT * FROM t ORDER BY a /* Comment */ DESC, b ASC

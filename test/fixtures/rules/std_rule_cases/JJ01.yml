@@ -1,0 +1,70 @@
+rule: JJ01
+
+test_simple:
+  pass_str: SELECT 1 from {{ ref('foo') }}
+
+test_simple_modified:
+  # Test that the plus/minus notation works fine.
+  pass_str: SELECT 1 from {%+ if true -%} foo {%- endif %}
+
+test_simple_modified_fail:
+  # Test that the plus/minus notation works fine.
+  fail_str: SELECT 1 from {%+if true-%} {{ref('foo')}} {%-endif%}
+  fix_str: SELECT 1 from {%+ if true -%} {{ ref('foo') }} {%- endif %}
+
+test_fail_jinja_tags_no_space:
+  fail_str: SELECT 1 from {{ref('foo')}}
+  fix_str: SELECT 1 from {{ ref('foo') }}
+
+test_fail_jinja_tags_multiple_spaces:
+  fail_str: SELECT 1 from {{      ref('foo')       }}
+  fix_str: SELECT 1 from {{ ref('foo') }}
+
+test_fail_jinja_tags_no_space_2:
+  fail_str: SELECT 1 from {{+ref('foo')-}}
+  fix_str: SELECT 1 from {{+ ref('foo') -}}
+
+test_pass_newlines:
+  # It's ok if there are newlines.
+  pass_str:
+    SELECT 1 from {{
+      ref('foo')
+    }}
+
+test_fail_templated_segment_contains_leading_literal:
+  fail_str: |
+    SELECT user_id
+    FROM
+        `{{"gcp_project"}}.{{"dataset"}}.campaign_performance`
+  fix_str: |
+    SELECT user_id
+    FROM
+        `{{ "gcp_project" }}.{{ "dataset" }}.campaign_performance`
+  configs:
+    core:
+      dialect: bigquery
+
+test_fail_segment_contains_multiple_templated_slices_last_one_bad:
+  fail_str: CREATE TABLE `{{ "project" }}.{{ "dataset" }}.{{"table"}}`
+  fix_str: CREATE TABLE `{{ "project" }}.{{ "dataset" }}.{{ "table" }}`
+  configs:
+    core:
+      dialect: bigquery
+
+test_fail_jinja_tags_no_space_no_content:
+  fail_str: SELECT {{""-}}1
+  fix_str: SELECT {{ "" -}}1
+
+test_fail_jinja_tags_across_segment_boundaries:
+  fail_str: SELECT a{{-"1 + b"}}2
+  fix_str: SELECT a{{- "1 + b" }}2
+
+test_pass_python_templater:
+  pass_str: SELECT * FROM hello.{my_table};
+  configs:
+    core:
+      templater: python
+    templater:
+      python:
+        context:
+          my_table: foo

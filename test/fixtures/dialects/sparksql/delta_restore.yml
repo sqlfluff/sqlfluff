@@ -1,0 +1,108 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: a7299bd43a17c91f5b044900e37bd0aa7d171cc22ef2a3f8476c92c2a2e1ea7b
+file:
+- statement:
+    restore_table_statement:
+    - keyword: RESTORE
+    - keyword: TABLE
+    - file_reference:
+        keyword: DELTA
+        dot: .
+        quoted_identifier: '`/delta/people10m`'
+    - keyword: TO
+    - keyword: TIMESTAMP
+    - keyword: AS
+    - keyword: OF
+    - quoted_literal: '"2019-01-01"'
+- statement_terminator: ;
+- statement:
+    restore_table_statement:
+    - keyword: RESTORE
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: default
+      - dot: .
+      - naked_identifier: people10m
+    - keyword: TO
+    - keyword: TIMESTAMP
+    - keyword: AS
+    - keyword: OF
+    - quoted_literal: '"2019-01-01"'
+- statement_terminator: ;
+- statement:
+    restore_table_statement:
+    - keyword: RESTORE
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: default
+      - dot: .
+      - naked_identifier: people10m
+    - keyword: TO
+    - keyword: TIMESTAMP
+    - keyword: AS
+    - keyword: OF
+    - function:
+        function_name:
+          function_name_identifier: date_sub
+        function_contents:
+          bracketed:
+          - start_bracket: (
+          - expression:
+              function:
+                function_name:
+                  function_name_identifier: current_date
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    end_bracket: )
+          - comma: ','
+          - expression:
+              numeric_literal: '1'
+          - end_bracket: )
+- statement_terminator: ;
+- statement:
+    restore_table_statement:
+    - keyword: RESTORE
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: default
+      - dot: .
+      - naked_identifier: people10m
+    - keyword: TO
+    - keyword: TIMESTAMP
+    - keyword: AS
+    - keyword: OF
+    - quoted_literal: '"2019-01-01 01:30:00.000"'
+- statement_terminator: ;
+- statement:
+    restore_table_statement:
+    - keyword: RESTORE
+    - keyword: TABLE
+    - file_reference:
+        keyword: DELTA
+        dot: .
+        quoted_identifier: '`/delta/people10m`'
+    - keyword: TO
+    - keyword: VERSION
+    - keyword: AS
+    - keyword: OF
+    - numeric_literal: '5238'
+- statement_terminator: ;
+- statement:
+    restore_table_statement:
+    - keyword: RESTORE
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: default
+      - dot: .
+      - naked_identifier: people10m
+    - keyword: TO
+    - keyword: VERSION
+    - keyword: AS
+    - keyword: OF
+    - numeric_literal: '5238'
+- statement_terminator: ;

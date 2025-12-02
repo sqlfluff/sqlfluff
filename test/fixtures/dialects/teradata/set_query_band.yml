@@ -1,0 +1,80 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: a3d14870d12be52d65f2e1939f1ede0eb56a02f4f2899835133fa373cd836218
+file:
+- statement:
+    set_query_band_statement:
+    - keyword: SET
+    - keyword: QUERY_BAND
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'cat=siamese;dog=akita;'"
+    - keyword: UPDATE
+    - keyword: FOR
+    - keyword: SESSION
+    - keyword: VOLATILE
+- statement_terminator: ;
+- statement:
+    set_query_band_statement:
+    - keyword: SET
+    - keyword: QUERY_BAND
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'area=west;city=sandiego;tree=maple;flower=rose;'"
+    - keyword: FOR
+    - keyword: SESSION
+- statement_terminator: ;
+- statement:
+    set_query_band_statement:
+    - keyword: SET
+    - keyword: QUERY_BAND
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'city=san diego;'"
+    - keyword: UPDATE
+    - keyword: FOR
+    - keyword: SESSION
+- statement_terminator: ;
+- statement:
+    set_query_band_statement:
+    - keyword: SET
+    - keyword: QUERY_BAND
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'PROXYUSER=fred;'"
+    - keyword: FOR
+    - keyword: TRANSACTION
+- statement_terminator: ;
+- statement:
+    set_query_band_statement:
+    - keyword: SET
+    - keyword: QUERY_BAND
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - keyword: NONE
+    - keyword: FOR
+    - keyword: TRANSACTION
+- statement_terminator: ;
+- statement:
+    set_query_band_statement:
+    - keyword: SET
+    - keyword: QUERY_BAND
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - keyword: NONE
+    - keyword: FOR
+    - keyword: TRANSACTION
+- statement_terminator: ;
+- statement:
+    set_query_band_statement:
+    - keyword: SET
+    - keyword: QUERY_BAND
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "''"
+    - keyword: FOR
+    - keyword: TRANSACTION
+- statement_terminator: ;

@@ -3,7 +3,7 @@
 You can run the following steps to generate the documentation website:
 
 ```
-tox -e docbuild, doclint
+tox -e docbuild,doclinting
 ```
 
 The `docbuild` job will recognise when source files have changed and only

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 405b13fe06e7326748fb6817e3196fdeae920b81d6f3e4fac74c4565e1e07784
+_hash: 9439d2deee55d1aca3add7a3f9a6cb4e37fb309ef42a84885414ae83246d16a1
 file:
   statement:
     comment_clause:
@@ -11,11 +11,11 @@ file:
     - keyword: 'on'
     - keyword: column
     - column_reference:
-      - identifier: sandbox_db
+      - naked_identifier: sandbox_db
       - dot: .
-      - identifier: Org_Descendant
+      - naked_identifier: Org_Descendant
       - dot: .
-      - identifier: Org_Unit_Code
+      - naked_identifier: Org_Unit_Code
     - keyword: is
-    - literal: "'Organisational unit code'"
+    - quoted_literal: "'Organisational unit code'"
   statement_terminator: ;

@@ -1,0 +1,72 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 1d054a4501b36dd0006dc6e682760051d612bf5ad29ee4f907259886819b57d5
+file:
+- statement:
+    set_statement:
+      keyword: SET
+      property_name_identifier:
+      - properties_naked_identifier: spark
+      - dot: .
+      - properties_naked_identifier: sql
+      - dot: .
+      - properties_naked_identifier: variable
+      - dot: .
+      - properties_naked_identifier: substitute
+      comparison_operator:
+        raw_comparison_operator: '='
+      boolean_literal: 'FALSE'
+- statement_terminator: ;
+- statement:
+    set_statement:
+      keyword: SET
+      sql_conf_option:
+        dash: '-'
+        sql_conf_option: v
+- statement_terminator: ;
+- statement:
+    set_statement:
+      keyword: SET
+- statement_terminator: ;
+- statement:
+    set_statement:
+      keyword: SET
+      property_name_identifier:
+      - properties_naked_identifier: spark
+      - dot: .
+      - properties_naked_identifier: sql
+      - dot: .
+      - properties_naked_identifier: variable
+      - dot: .
+      - properties_naked_identifier: substitute
+- statement_terminator: ;
+- statement:
+    set_statement:
+    - keyword: SET
+    - property_name_identifier:
+      - properties_naked_identifier: spark
+      - dot: .
+      - properties_naked_identifier: sql
+      - dot: .
+      - properties_naked_identifier: cache
+      - dot: .
+      - properties_naked_identifier: serializer
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - properties_naked_identifier: org
+    - dot: .
+    - properties_naked_identifier: apache
+    - dot: .
+    - properties_naked_identifier: spark
+    - dot: .
+    - properties_naked_identifier: sql
+    - dot: .
+    - properties_naked_identifier: execution
+    - dot: .
+    - properties_naked_identifier: columnar
+    - dot: .
+    - properties_naked_identifier: DefaultCachedBatchSerializer
+- statement_terminator: ;

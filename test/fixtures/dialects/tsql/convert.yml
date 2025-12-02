@@ -1,0 +1,62 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 9f7fbab9329af7f789761ca0adb3c8f208247e591825fa5b708bb8aeb8b0ca7f
+file:
+  batch:
+    statement:
+      select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            function:
+              function_name:
+                keyword: CONVERT
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  data_type:
+                    keyword: nvarchar
+                    bracketed_arguments:
+                      bracketed:
+                        start_bracket: (
+                        expression:
+                          integer_literal: '100'
+                        end_bracket: )
+                  comma: ','
+                  expression:
+                    column_reference:
+                      naked_identifier: first_column
+                  end_bracket: )
+            alias_expression:
+              alias_operator:
+                keyword: as
+              naked_identifier: first
+        - comma: ','
+        - select_clause_element:
+            function:
+              function_name:
+                keyword: TRY_CONVERT
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  data_type:
+                    keyword: float
+                  comma: ','
+                  expression:
+                    column_reference:
+                      naked_identifier: second_column
+                  end_bracket: )
+            alias_expression:
+              alias_operator:
+                keyword: as
+              naked_identifier: second
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: some_table

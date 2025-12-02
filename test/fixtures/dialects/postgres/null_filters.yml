@@ -1,0 +1,81 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: c65e8649bb622ca0c092ee6651dac408914b2bbe39213b74fc320dc94e45ca5e
+file:
+  statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          expression:
+            column_reference:
+              naked_identifier: nullable_field
+            keyword: IS
+            null_literal: 'NULL'
+          alias_expression:
+            alias_operator:
+              keyword: as
+            naked_identifier: standard_is_null
+      - comma: ','
+      - select_clause_element:
+          expression:
+            column_reference:
+              naked_identifier: nullable_field
+            keyword: ISNULL
+          alias_expression:
+            alias_operator:
+              keyword: as
+            naked_identifier: non_standard_is_null
+      - comma: ','
+      - select_clause_element:
+          expression:
+          - column_reference:
+              naked_identifier: nullable_field
+          - keyword: IS
+          - keyword: NOT
+          - null_literal: 'NULL'
+          alias_expression:
+            alias_operator:
+              keyword: as
+            naked_identifier: standard_not_null
+      - comma: ','
+      - select_clause_element:
+          expression:
+            column_reference:
+              naked_identifier: nullable_field
+            keyword: NOTNULL
+          alias_expression:
+            alias_operator:
+              keyword: as
+            naked_identifier: non_standard_not_null
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: t_test
+      where_clause:
+        keyword: WHERE
+        expression:
+        - column_reference:
+            naked_identifier: nullable_field
+        - keyword: IS
+        - null_literal: 'NULL'
+        - binary_operator: OR
+        - column_reference:
+            naked_identifier: nullable_field
+        - keyword: ISNULL
+        - binary_operator: OR
+        - column_reference:
+            naked_identifier: nullable_field
+        - keyword: IS
+        - keyword: NOT
+        - null_literal: 'NULL'
+        - binary_operator: OR
+        - column_reference:
+            naked_identifier: nullable_field
+        - keyword: NOTNULL

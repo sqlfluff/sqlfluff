@@ -1,0 +1,118 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 0ff14789df29a4cff441fc4a3c0198bd94d883c907f428f140d79d42abc912ef
+file:
+- statement:
+    set_statement:
+    - keyword: SET
+    - keyword: DATESTYLE
+    - keyword: TO
+    - parameter: German
+- statement_terminator: ;
+- statement:
+    set_statement:
+    - keyword: SET
+    - keyword: ESCAPE_STRING_WARNING
+    - keyword: TO
+    - parameter: 'OFF'
+- statement_terminator: ;
+- statement:
+    set_statement:
+    - keyword: SET
+    - keyword: LOCALE
+    - keyword: TO
+    - parameter: en_GB
+- statement_terminator: ;
+- statement:
+    set_statement:
+    - keyword: SET
+    - keyword: ROLE
+    - parameter: applogs
+- statement_terminator: ;
+- statement:
+    set_statement:
+    - keyword: SET
+    - keyword: SEARCH_PATH
+    - keyword: TO
+    - parameter: store
+    - comma: ','
+    - parameter: public
+- statement_terminator: ;
+- statement:
+    set_statement:
+    - keyword: SET
+    - keyword: SESSION
+    - keyword: AUTHORIZATION
+    - parameter: debuguser
+- statement_terminator: ;
+- statement:
+    set_statement:
+    - keyword: SET
+    - keyword: SESSION
+    - keyword: AUTOCOMMIT
+    - keyword: TO
+    - keyword: 'on'
+- statement_terminator: ;
+- statement:
+    set_statement:
+    - keyword: SET
+    - keyword: SESSION
+    - keyword: MEMORYCAP
+    - quoted_literal: "'2G'"
+- statement_terminator: ;
+- statement:
+    set_statement:
+    - keyword: SET
+    - keyword: SESSION
+    - keyword: MULTIPLEACTIVERESULTSETS
+    - keyword: TO
+    - keyword: 'on'
+- statement_terminator: ;
+- statement:
+    set_statement:
+    - keyword: SET
+    - keyword: SESSION
+    - keyword: RESOURCE_POOL
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - parameter: ceo_pool
+- statement_terminator: ;
+- statement:
+    set_statement:
+    - keyword: SET
+    - keyword: SESSION
+    - keyword: RUNTIMECAP
+    - quoted_literal: "'10 minutes'"
+- statement_terminator: ;
+- statement:
+    set_statement:
+    - keyword: SET
+    - keyword: SESSION
+    - keyword: TEMPSPACECAP
+    - quoted_literal: "'20G'"
+- statement_terminator: ;
+- statement:
+    set_statement:
+    - keyword: SET
+    - keyword: SESSION
+    - keyword: WORKLOAD
+    - parameter: analytics
+- statement_terminator: ;
+- statement:
+    set_statement:
+    - keyword: SET
+    - keyword: STANDARD_CONFORMING_STRINGS
+    - keyword: TO
+    - parameter: 'OFF'
+- statement_terminator: ;
+- statement:
+    set_statement:
+    - keyword: SET
+    - keyword: TIME
+    - keyword: ZONE
+    - keyword: TO
+    - parameter: DEFAULT
+- statement_terminator: ;

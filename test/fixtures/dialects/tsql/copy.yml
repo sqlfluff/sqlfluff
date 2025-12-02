@@ -1,0 +1,278 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 333e3bd6a2cadc903bd085b29ba78d4ff1cf4d1b4ad8a472980cbf3458f076f0
+file:
+  batch:
+  - statement:
+      copy_into_table_statement:
+      - keyword: COPY
+      - keyword: INTO
+      - table_reference:
+          naked_identifier: dbo
+          dot: .
+          quoted_identifier: '[lineitem]'
+      - from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                storage_location:
+                  external_location: "'https://unsecureaccount.blob.core.windows.net/customerdatasets/folder1/lineitem.csv'"
+  - statement_terminator: ;
+  - statement:
+      copy_into_table_statement:
+      - keyword: COPY
+      - keyword: INTO
+      - table_reference:
+          naked_identifier: test_1
+      - from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                storage_location:
+                  external_location: "'https://myaccount.blob.core.windows.net/myblobcontainer/folder1/'"
+      - keyword: WITH
+      - bracketed:
+        - start_bracket: (
+        - keyword: FILE_TYPE
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - quoted_literal: "'CSV'"
+        - comma: ','
+        - keyword: CREDENTIAL
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - bracketed:
+          - start_bracket: (
+          - keyword: IDENTITY
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - quoted_literal: "'Shared Access Signature'"
+          - comma: ','
+          - keyword: SECRET
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - quoted_literal: "'<Your_SAS_Token>'"
+          - end_bracket: )
+        - comma: ','
+        - keyword: FIELDQUOTE
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - quoted_literal: "'\"'"
+        - comma: ','
+        - keyword: FIELDTERMINATOR
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - quoted_literal: "';'"
+        - comma: ','
+        - keyword: ROWTERMINATOR
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - quoted_literal: "'0X0A'"
+        - comma: ','
+        - keyword: ENCODING
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - file_encoding: "'UTF8'"
+        - comma: ','
+        - keyword: DATEFORMAT
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - quoted_literal: "'ymd'"
+        - comma: ','
+        - keyword: MAXERRORS
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - numeric_literal: '10'
+        - comma: ','
+        - keyword: ERRORFILE
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - quoted_literal: "'/errorsfolder'"
+        - comma: ','
+        - keyword: IDENTITY_INSERT
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - quoted_literal: "'ON'"
+        - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      copy_into_table_statement:
+      - keyword: COPY
+      - keyword: INTO
+      - table_reference:
+          naked_identifier: test_parquet
+      - from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                storage_location:
+                  external_location: "'https://myaccount.blob.core.windows.net/myblobcontainer/folder1/*.parquet'"
+      - keyword: WITH
+      - bracketed:
+        - start_bracket: (
+        - keyword: FILE_FORMAT
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - object_reference:
+            naked_identifier: myFileFormat
+        - comma: ','
+        - keyword: CREDENTIAL
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - bracketed:
+          - start_bracket: (
+          - keyword: IDENTITY
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - quoted_literal: "'Shared Access Signature'"
+          - comma: ','
+          - keyword: SECRET
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - quoted_literal: "'<Your_SAS_Token>'"
+          - end_bracket: )
+        - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      copy_into_table_statement:
+      - keyword: COPY
+      - keyword: INTO
+      - table_reference:
+          naked_identifier: t1
+      - from_clause:
+        - keyword: FROM
+        - from_expression:
+            from_expression_element:
+              table_expression:
+                storage_location:
+                  external_location: "'https://myaccount.blob.core.windows.net/myblobcontainer/folder0/*.txt'"
+        - comma: ','
+        - from_expression:
+            from_expression_element:
+              table_expression:
+                storage_location:
+                  external_location: "'https://myaccount.blob.core.windows.net/myblobcontainer/folder1'"
+      - keyword: WITH
+      - bracketed:
+        - start_bracket: (
+        - keyword: FILE_TYPE
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - quoted_literal: "'CSV'"
+        - comma: ','
+        - keyword: CREDENTIAL
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - bracketed:
+          - start_bracket: (
+          - keyword: IDENTITY
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - quoted_literal: "'<client_id>@<OAuth_2.0_Token_EndPoint>'"
+          - comma: ','
+          - keyword: SECRET
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - quoted_literal: "'<key>'"
+          - end_bracket: )
+        - comma: ','
+        - keyword: FIELDTERMINATOR
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - quoted_literal: "'|'"
+        - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      copy_into_table_statement:
+      - keyword: COPY
+      - keyword: INTO
+      - table_reference:
+        - naked_identifier: dbo
+        - dot: .
+        - naked_identifier: myCOPYDemoTable
+      - from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                storage_location:
+                  external_location: "'https://myaccount.blob.core.windows.net/myblobcontainer/folder0/*.txt'"
+      - keyword: WITH
+      - bracketed:
+        - start_bracket: (
+        - keyword: FILE_TYPE
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - quoted_literal: "'CSV'"
+        - comma: ','
+        - keyword: CREDENTIAL
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - bracketed:
+            start_bracket: (
+            keyword: IDENTITY
+            comparison_operator:
+              raw_comparison_operator: '='
+            quoted_literal: "'Managed Identity'"
+            end_bracket: )
+        - comma: ','
+        - keyword: FIELDQUOTE
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - quoted_literal: "'\"'"
+        - comma: ','
+        - keyword: FIELDTERMINATOR
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - quoted_literal: "','"
+        - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      copy_into_table_statement:
+      - keyword: COPY
+      - keyword: INTO
+      - table_reference:
+          quoted_identifier: '[myCOPYDemoTable]'
+      - from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                storage_location:
+                  external_location: "'https://myaccount.blob.core.windows.net/customerdatasets/folder1/lineitem.parquet'"
+      - keyword: WITH
+      - bracketed:
+        - start_bracket: (
+        - keyword: FILE_TYPE
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - quoted_literal: "'Parquet'"
+        - comma: ','
+        - keyword: CREDENTIAL
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - bracketed:
+          - start_bracket: (
+          - keyword: IDENTITY
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - quoted_literal: "'Shared Access Signature'"
+          - comma: ','
+          - keyword: SECRET
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - quoted_literal: "'<key>'"
+          - end_bracket: )
+        - comma: ','
+        - keyword: AUTO_CREATE_TABLE
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - quoted_literal: "'ON'"
+        - end_bracket: )
+  - statement_terminator: ;

@@ -1,0 +1,98 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: aec9b21db511704d87981c9569cebcfe8fc258f47804deec8ce5fc335d902607
+file:
+- statement:
+    declare_statement:
+    - keyword: declare
+    - object_reference:
+        naked_identifier: curs1
+    - keyword: cursor
+    - keyword: for
+    - select_statement:
+        select_clause:
+        - keyword: select
+        - select_clause_element:
+            column_reference:
+              naked_identifier: col1
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: col2
+        from_clause:
+          keyword: from
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: tbl1
+- statement_terminator: ;
+- statement:
+    declare_statement:
+    - keyword: declare
+    - object_reference:
+        naked_identifier: lollapalooza
+    - keyword: cursor
+    - keyword: for
+    - select_statement:
+        select_clause:
+        - keyword: select
+        - select_clause_element:
+            column_reference:
+              naked_identifier: eventname
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: starttime
+        - comma: ','
+        - select_clause_element:
+            expression:
+            - column_reference:
+                naked_identifier: pricepaid
+            - binary_operator: /
+            - column_reference:
+                naked_identifier: qtysold
+            alias_expression:
+              alias_operator:
+                keyword: as
+              naked_identifier: costperticket
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: qtysold
+        from_clause:
+        - keyword: from
+        - from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: sales
+        - comma: ','
+        - from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: event
+        where_clause:
+          keyword: where
+          expression:
+          - column_reference:
+            - naked_identifier: sales
+            - dot: .
+            - naked_identifier: eventid
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - column_reference:
+            - naked_identifier: event
+            - dot: .
+            - naked_identifier: eventid
+          - binary_operator: and
+          - column_reference:
+              naked_identifier: eventname
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - quoted_literal: "'lollapalooza'"
+- statement_terminator: ;

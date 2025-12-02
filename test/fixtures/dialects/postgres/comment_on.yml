@@ -1,0 +1,518 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 00b5ada20d2830d952d308896106cf7e630812ea7427d6222fe1339d23f7b411
+file:
+- statement:
+    comment_clause:
+    - keyword: COMMENT
+    - keyword: 'ON'
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: mytable
+    - keyword: IS
+    - quoted_literal: "'This is my table.'"
+- statement_terminator: ;
+- statement:
+    comment_clause:
+    - keyword: COMMENT
+    - keyword: 'ON'
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: mytable
+    - keyword: IS
+    - keyword: 'NULL'
+- statement_terminator: ;
+- statement:
+    comment_clause:
+    - keyword: COMMENT
+    - keyword: 'ON'
+    - keyword: ACCESS
+    - keyword: METHOD
+    - object_reference:
+        naked_identifier: gin
+    - keyword: IS
+    - quoted_literal: "'GIN index access method'"
+- statement_terminator: ;
+- statement:
+    comment_clause:
+    - keyword: COMMENT
+    - keyword: 'ON'
+    - keyword: AGGREGATE
+    - object_reference:
+        naked_identifier: my_aggregate
+    - bracketed:
+      - start_bracket: (
+      - word: double
+      - word: precision
+      - end_bracket: )
+    - keyword: IS
+    - quoted_literal: "'Computes sample variance'"
+- statement_terminator: ;
+- statement:
+    comment_clause:
+    - keyword: COMMENT
+    - keyword: 'ON'
+    - keyword: CAST
+    - bracketed:
+      - start_bracket: (
+      - object_reference:
+          naked_identifier: text
+      - keyword: AS
+      - object_reference:
+          naked_identifier: int4
+      - end_bracket: )
+    - keyword: IS
+    - quoted_literal: "'Allow casts from text to int4'"
+- statement_terminator: ;
+- statement:
+    comment_clause:
+    - keyword: COMMENT
+    - keyword: 'ON'
+    - keyword: COLLATION
+    - object_reference:
+        quoted_identifier: '"fr_CA"'
+    - keyword: IS
+    - quoted_literal: "'Canadian French'"
+- statement_terminator: ;
+- statement:
+    comment_clause:
+    - keyword: COMMENT
+    - keyword: 'ON'
+    - keyword: COLUMN
+    - column_reference:
+      - naked_identifier: my_table
+      - dot: .
+      - naked_identifier: my_column
+    - keyword: IS
+    - quoted_literal: "'Employee ID number'"
+- statement_terminator: ;
+- statement:
+    comment_clause:
+    - keyword: COMMENT
+    - keyword: 'ON'
+    - keyword: CONVERSION
+    - object_reference:
+        naked_identifier: my_conv
+    - keyword: IS
+    - quoted_literal: "'Conversion to UTF8'"
+- statement_terminator: ;
+- statement:
+    comment_clause:
+    - keyword: COMMENT
+    - keyword: 'ON'
+    - keyword: CONSTRAINT
+    - object_reference:
+        naked_identifier: bar_col_cons
+    - keyword: 'ON'
+    - object_reference:
+        naked_identifier: bar
+    - keyword: IS
+    - quoted_literal: "'Constrains column col'"
+- statement_terminator: ;
+- statement:
+    comment_clause:
+    - keyword: COMMENT
+    - keyword: 'ON'
+    - keyword: CONSTRAINT
+    - object_reference:
+        naked_identifier: dom_col_constr
+    - keyword: 'ON'
+    - keyword: DOMAIN
+    - object_reference:
+        naked_identifier: dom
+    - keyword: IS
+    - quoted_literal: "'Constrains col of domain'"
+- statement_terminator: ;
+- statement:
+    comment_clause:
+    - keyword: COMMENT
+    - keyword: 'ON'
+    - keyword: DATABASE
+    - database_reference:
+        naked_identifier: my_database
+    - keyword: IS
+    - quoted_literal: "'Development Database'"
+- statement_terminator: ;
+- statement:
+    comment_clause:
+    - keyword: COMMENT
+    - keyword: 'ON'
+    - keyword: DOMAIN
+    - object_reference:
+        naked_identifier: my_domain
+    - keyword: IS
+    - quoted_literal: "'Email Address Domain'"
+- statement_terminator: ;
+- statement:
+    comment_clause:
+    - keyword: COMMENT
+    - keyword: 'ON'
+    - keyword: EVENT
+    - keyword: TRIGGER
+    - object_reference:
+        naked_identifier: abort_ddl
+    - keyword: IS
+    - quoted_literal: "'Aborts all DDL commands'"
+- statement_terminator: ;
+- statement:
+    comment_clause:
+    - keyword: COMMENT
+    - keyword: 'ON'
+    - keyword: EXTENSION
+    - extension_reference:
+        naked_identifier: hstore
+    - keyword: IS
+    - quoted_literal: "'implements the hstore data type'"
+- statement_terminator: ;
+- statement:
+    comment_clause:
+    - keyword: COMMENT
+    - keyword: 'ON'
+    - keyword: FOREIGN
+    - keyword: DATA
+    - keyword: WRAPPER
+    - object_reference:
+        naked_identifier: mywrapper
+    - keyword: IS
+    - quoted_literal: "'my foreign data wrapper'"
+- statement_terminator: ;
+- statement:
+    comment_clause:
+    - keyword: COMMENT
+    - keyword: 'ON'
+    - keyword: FOREIGN
+    - keyword: TABLE
+    - object_reference:
+        naked_identifier: my_foreign_table
+    - keyword: IS
+    - quoted_literal: "'Employee Information in other database'"
+- statement_terminator: ;
+- statement:
+    comment_clause:
+    - keyword: COMMENT
+    - keyword: 'ON'
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: my_function
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          data_type:
+            datetime_type_identifier:
+              keyword: timestamp
+          end_bracket: )
+    - keyword: IS
+    - quoted_literal: "'Returns Roman Numeral'"
+- statement_terminator: ;
+- statement:
+    comment_clause:
+    - keyword: comment
+    - keyword: 'on'
+    - keyword: function
+    - function_name:
+        function_name_identifier: function1
+    - keyword: is
+    - quoted_literal: "'comment'"
+- statement_terminator: ;
+- statement:
+    comment_clause:
+    - keyword: comment
+    - keyword: 'on'
+    - keyword: function
+    - function_name:
+        function_name_identifier: function2
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          end_bracket: )
+    - keyword: is
+    - quoted_literal: "'comment'"
+- statement_terminator: ;
+- statement:
+    comment_clause:
+    - keyword: COMMENT
+    - keyword: 'ON'
+    - keyword: INDEX
+    - index_reference:
+        naked_identifier: my_index
+    - keyword: IS
+    - quoted_literal: "'Enforces uniqueness on employee ID'"
+- statement_terminator: ;
+- statement:
+    comment_clause:
+    - keyword: COMMENT
+    - keyword: 'ON'
+    - keyword: LANGUAGE
+    - object_reference:
+        naked_identifier: plpython
+    - keyword: IS
+    - quoted_literal: "'Python support for stored procedures'"
+- statement_terminator: ;
+- statement:
+    comment_clause:
+    - keyword: COMMENT
+    - keyword: 'ON'
+    - keyword: MATERIALIZED
+    - keyword: VIEW
+    - object_reference:
+        naked_identifier: my_matview
+    - keyword: IS
+    - quoted_literal: "'Summary of order history'"
+- statement_terminator: ;
+- statement:
+    comment_clause:
+    - keyword: COMMENT
+    - keyword: 'ON'
+    - keyword: POLICY
+    - object_reference:
+        naked_identifier: my_policy
+    - keyword: 'ON'
+    - object_reference:
+        naked_identifier: mytable
+    - keyword: IS
+    - quoted_literal: "'Filter rows by users'"
+- statement_terminator: ;
+- statement:
+    comment_clause:
+    - keyword: COMMENT
+    - keyword: 'ON'
+    - keyword: PROCEDURE
+    - object_reference:
+        naked_identifier: my_proc
+    - bracketed:
+      - start_bracket: (
+      - word: integer
+      - comma: ','
+      - word: integer
+      - end_bracket: )
+    - keyword: IS
+    - quoted_literal: "'Runs a report'"
+- statement_terminator: ;
+- statement:
+    comment_clause:
+    - keyword: comment
+    - keyword: 'on'
+    - keyword: procedure
+    - object_reference:
+        naked_identifier: procedure1
+    - keyword: is
+    - quoted_literal: "'comment'"
+- statement_terminator: ;
+- statement:
+    comment_clause:
+    - keyword: comment
+    - keyword: 'on'
+    - keyword: procedure
+    - object_reference:
+        naked_identifier: procedure2
+    - bracketed:
+        start_bracket: (
+        end_bracket: )
+    - keyword: is
+    - quoted_literal: "'comment'"
+- statement_terminator: ;
+- statement:
+    comment_clause:
+    - keyword: COMMENT
+    - keyword: 'ON'
+    - keyword: PUBLICATION
+    - object_reference:
+        naked_identifier: alltables
+    - keyword: IS
+    - quoted_literal: "'Publishes all operations on all tables'"
+- statement_terminator: ;
+- statement:
+    comment_clause:
+    - keyword: COMMENT
+    - keyword: 'ON'
+    - keyword: ROLE
+    - object_reference:
+        naked_identifier: my_role
+    - keyword: IS
+    - quoted_literal: "'Administration group for finance tables'"
+- statement_terminator: ;
+- statement:
+    comment_clause:
+    - keyword: COMMENT
+    - keyword: 'ON'
+    - keyword: ROUTINE
+    - object_reference:
+        naked_identifier: my_routine
+    - bracketed:
+      - start_bracket: (
+      - word: integer
+      - comma: ','
+      - word: integer
+      - end_bracket: )
+    - keyword: IS
+    - quoted_literal: "'Runs a routine (which is a function or procedure)'"
+- statement_terminator: ;
+- statement:
+    comment_clause:
+    - keyword: COMMENT
+    - keyword: 'ON'
+    - keyword: RULE
+    - object_reference:
+        naked_identifier: my_rule
+    - keyword: 'ON'
+    - object_reference:
+        naked_identifier: my_table
+    - keyword: IS
+    - quoted_literal: "'Logs updates of employee records'"
+- statement_terminator: ;
+- statement:
+    comment_clause:
+    - keyword: COMMENT
+    - keyword: 'ON'
+    - keyword: SCHEMA
+    - schema_reference:
+        naked_identifier: my_schema
+    - keyword: IS
+    - quoted_literal: "'Departmental data'"
+- statement_terminator: ;
+- statement:
+    comment_clause:
+    - keyword: COMMENT
+    - keyword: 'ON'
+    - keyword: SEQUENCE
+    - object_reference:
+        naked_identifier: my_sequence
+    - keyword: IS
+    - quoted_literal: "'Used to generate primary keys'"
+- statement_terminator: ;
+- statement:
+    comment_clause:
+    - keyword: COMMENT
+    - keyword: 'ON'
+    - keyword: SERVER
+    - object_reference:
+        naked_identifier: myserver
+    - keyword: IS
+    - quoted_literal: "'my foreign server'"
+- statement_terminator: ;
+- statement:
+    comment_clause:
+    - keyword: COMMENT
+    - keyword: 'ON'
+    - keyword: STATISTICS
+    - object_reference:
+        naked_identifier: my_statistics
+    - keyword: IS
+    - quoted_literal: "'Improves planner row estimations'"
+- statement_terminator: ;
+- statement:
+    comment_clause:
+    - keyword: COMMENT
+    - keyword: 'ON'
+    - keyword: SUBSCRIPTION
+    - object_reference:
+        naked_identifier: alltables
+    - keyword: IS
+    - quoted_literal: "'Subscription for all operations on all tables'"
+- statement_terminator: ;
+- statement:
+    comment_clause:
+    - keyword: COMMENT
+    - keyword: 'ON'
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: my_schema
+      - dot: .
+      - naked_identifier: my_table
+    - keyword: IS
+    - quoted_literal: "'Employee Information'"
+- statement_terminator: ;
+- statement:
+    comment_clause:
+    - keyword: COMMENT
+    - keyword: 'ON'
+    - keyword: TABLESPACE
+    - object_reference:
+        naked_identifier: my_tablespace
+    - keyword: IS
+    - quoted_literal: "'Tablespace for indexes'"
+- statement_terminator: ;
+- statement:
+    comment_clause:
+    - keyword: COMMENT
+    - keyword: 'ON'
+    - keyword: TEXT
+    - keyword: SEARCH
+    - keyword: CONFIGURATION
+    - object_reference:
+        naked_identifier: my_config
+    - keyword: IS
+    - quoted_literal: "'Special word filtering'"
+- statement_terminator: ;
+- statement:
+    comment_clause:
+    - keyword: COMMENT
+    - keyword: 'ON'
+    - keyword: TEXT
+    - keyword: SEARCH
+    - keyword: DICTIONARY
+    - object_reference:
+        naked_identifier: swedish
+    - keyword: IS
+    - quoted_literal: "'Snowball stemmer for Swedish language'"
+- statement_terminator: ;
+- statement:
+    comment_clause:
+    - keyword: COMMENT
+    - keyword: 'ON'
+    - keyword: TEXT
+    - keyword: SEARCH
+    - keyword: PARSER
+    - object_reference:
+        naked_identifier: my_parser
+    - keyword: IS
+    - quoted_literal: "'Splits text into words'"
+- statement_terminator: ;
+- statement:
+    comment_clause:
+    - keyword: COMMENT
+    - keyword: 'ON'
+    - keyword: TEXT
+    - keyword: SEARCH
+    - keyword: TEMPLATE
+    - object_reference:
+        naked_identifier: snowball
+    - keyword: IS
+    - quoted_literal: "'Snowball stemmer'"
+- statement_terminator: ;
+- statement:
+    comment_clause:
+    - keyword: COMMENT
+    - keyword: 'ON'
+    - keyword: TRIGGER
+    - object_reference:
+        naked_identifier: my_trigger
+    - keyword: 'ON'
+    - object_reference:
+        naked_identifier: my_table
+    - keyword: IS
+    - quoted_literal: "'Used for RI'"
+- statement_terminator: ;
+- statement:
+    comment_clause:
+    - keyword: COMMENT
+    - keyword: 'ON'
+    - keyword: TYPE
+    - object_reference:
+        naked_identifier: complex
+    - keyword: IS
+    - quoted_literal: "'Complex number data type'"
+- statement_terminator: ;
+- statement:
+    comment_clause:
+    - keyword: COMMENT
+    - keyword: 'ON'
+    - keyword: VIEW
+    - table_reference:
+        naked_identifier: my_view
+    - keyword: IS
+    - quoted_literal: "'View of departmental costs'"
+- statement_terminator: ;

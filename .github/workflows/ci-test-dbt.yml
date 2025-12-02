@@ -1,0 +1,90 @@
+#############################
+## GitHub Actions CI Tests ##
+#############################
+#
+# This is a reusable workflow to make CI tests more modular.
+# See: https://docs.github.com/en/actions/using-workflows/reusing-workflows
+#
+# Called by ci-tests.yml
+# This one does the dbt tests
+#
+
+name: Modular SQLFluff dbt test workflow
+
+on:
+  workflow_call:
+    inputs:
+      python-version:
+        required: true
+        type: string
+      dbt-version:
+        required: true
+        type: string
+      coverage:
+        required: false
+        type: boolean
+        default: false
+    secrets:
+      gh_token:
+        required: true
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}-${{ inputs.python-version }}-${{ inputs.dbt-version }}-${{ inputs.coverage }}
+  cancel-in-progress: true
+
+jobs:
+  modular-python-test:
+    name: py${{ inputs.python-version }}-${{ inputs.dbt-version }}
+    runs-on: ubuntu-latest
+    env:
+      FORCE_COLOR: 1
+
+    services:
+      # Label used to access the service container
+      postgres:
+        # Docker Hub image
+        image: postgres
+        # Provide the password for postgres
+        env:
+          POSTGRES_PASSWORD: password
+        # Set health checks to wait until postgres has started
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          # Maps tcp port 5432 on service container to the host
+          - 5432:5432
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ inputs.python-version }}
+        cache: 'pip'
+        cache-dependency-path: |
+          setup.cfg
+          requirements_dev.txt
+
+    - name: Install dependencies
+      run: pip install tox
+
+    - name: Run the tests (with coverage)
+      if: ${{ inputs.coverage }}
+      run: tox -e ${{ inputs.dbt-version }} -- --cov=sqlfluff_templater_dbt plugins/sqlfluff-templater-dbt
+
+    - name: Run the tests (without coverage)
+      if: ${{ !inputs.coverage }}
+      run: tox -e ${{ inputs.dbt-version }} -- plugins/sqlfluff-templater-dbt
+
+    - name: Upload coverage data (github)
+      uses: actions/upload-artifact@v4
+      if: ${{ inputs.coverage }}
+      with:
+        name: coverage-data-py${{ inputs.python-version }}-${{ inputs.dbt-version }}
+        path: ".coverage.*"
+        if-no-files-found: ignore
+        include-hidden-files: true

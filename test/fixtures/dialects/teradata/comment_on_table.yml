@@ -1,0 +1,19 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 8564c2af548d9acd67569876c4f609aea96f71c981f35235e2b320c17bf49019
+file:
+  statement:
+    comment_clause:
+    - keyword: comment
+    - keyword: 'on'
+    - keyword: table
+    - table_reference:
+      - naked_identifier: sandbox_db
+      - dot: .
+      - naked_identifier: Org_Descendant
+    - keyword: is
+    - quoted_literal: "'View with all Org_Unit_Ids on all levels'"
+  statement_terminator: ;

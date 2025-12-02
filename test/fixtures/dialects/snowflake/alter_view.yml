@@ -1,0 +1,220 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 3f2b506daf1713ff9acc73d48c9d4fde98eed33469dc6229bb26856750e07cf7
+file:
+- statement:
+    alter_view_statement:
+    - keyword: alter
+    - keyword: view
+    - table_reference:
+        naked_identifier: view1
+    - keyword: rename
+    - keyword: to
+    - table_reference:
+        naked_identifier: view2
+- statement_terminator: ;
+- statement:
+    alter_view_statement:
+    - keyword: alter
+    - keyword: view
+    - table_reference:
+        naked_identifier: view1
+    - keyword: set
+    - keyword: secure
+- statement_terminator: ;
+- statement:
+    alter_view_statement:
+    - keyword: alter
+    - keyword: view
+    - table_reference:
+        naked_identifier: view1
+    - keyword: unset
+    - keyword: secure
+- statement_terminator: ;
+- statement:
+    alter_view_statement:
+    - keyword: alter
+    - keyword: view
+    - table_reference:
+        naked_identifier: user_info_v
+    - keyword: modify
+    - keyword: column
+    - column_reference:
+        naked_identifier: ssn_number
+    - keyword: set
+    - keyword: masking
+    - keyword: policy
+    - function_name:
+        function_name_identifier: ssn_mask_v
+- statement_terminator: ;
+- statement:
+    alter_view_statement:
+    - keyword: alter
+    - keyword: view
+    - table_reference:
+        naked_identifier: user_info_v
+    - keyword: modify
+    - keyword: column
+    - column_reference:
+        naked_identifier: ssn_number
+    - keyword: set
+    - keyword: masking
+    - keyword: policy
+    - function_name:
+        function_name_identifier: ssn_mask_v
+    - comma: ','
+    - keyword: column
+    - column_reference:
+        naked_identifier: dob
+    - keyword: set
+    - keyword: masking
+    - keyword: policy
+    - function_name:
+        function_name_identifier: dob_mask_v
+- statement_terminator: ;
+- statement:
+    alter_view_statement:
+    - keyword: alter
+    - keyword: view
+    - table_reference:
+        naked_identifier: user_info_v
+    - keyword: modify
+    - keyword: column
+    - column_reference:
+        naked_identifier: ssn_number
+    - keyword: unset
+    - keyword: masking
+    - keyword: policy
+- statement_terminator: ;
+- statement:
+    alter_view_statement:
+    - keyword: alter
+    - keyword: view
+    - table_reference:
+        naked_identifier: user_info_v
+    - keyword: modify
+    - keyword: column
+    - column_reference:
+        naked_identifier: ssn_number
+    - keyword: unset
+    - keyword: masking
+    - keyword: policy
+    - comma: ','
+    - keyword: column
+    - column_reference:
+        naked_identifier: dob
+    - keyword: unset
+    - keyword: masking
+    - keyword: policy
+- statement_terminator: ;
+- statement:
+    alter_view_statement:
+    - keyword: alter
+    - keyword: view
+    - table_reference:
+        naked_identifier: v1
+    - keyword: add
+    - keyword: row
+    - keyword: access
+    - keyword: policy
+    - function_name:
+        function_name_identifier: rap_v1
+    - keyword: 'on'
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          naked_identifier: empl_id
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_view_statement:
+    - keyword: alter
+    - keyword: view
+    - table_reference:
+        naked_identifier: v1
+    - keyword: drop
+    - keyword: row
+    - keyword: access
+    - keyword: policy
+    - function_name:
+        function_name_identifier: rap_v1
+- statement_terminator: ;
+- statement:
+    alter_view_statement:
+    - keyword: alter
+    - keyword: view
+    - table_reference:
+        naked_identifier: v1
+    - keyword: drop
+    - keyword: row
+    - keyword: access
+    - keyword: policy
+    - function_name:
+        function_name_identifier: rap_v1_version_1
+    - comma: ','
+    - keyword: add
+    - keyword: row
+    - keyword: access
+    - keyword: policy
+    - function_name:
+        function_name_identifier: rap_v1_version_2
+    - keyword: 'on'
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          naked_identifier: empl_id
+        end_bracket: )
+    - comma: ','
+    - keyword: add
+    - keyword: row
+    - keyword: access
+    - keyword: policy
+    - function_name:
+        function_name_identifier: rap_v1_version_3
+    - keyword: 'on'
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          quoted_identifier: '"empl_id"'
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_view_statement:
+    - keyword: alter
+    - keyword: view
+    - table_reference:
+        naked_identifier: v1
+    - keyword: modify
+    - keyword: column
+    - column_reference:
+        naked_identifier: foo
+    - keyword: set
+    - keyword: masking
+    - keyword: policy
+    - function_name:
+      - naked_identifier: my
+      - dot: .
+      - naked_identifier: scoped
+      - dot: .
+      - function_name_identifier: policy
+- statement_terminator: ;
+- statement:
+    alter_view_statement:
+    - keyword: ALTER
+    - keyword: VIEW
+    - table_reference:
+        quoted_identifier: '"my_table"'
+    - keyword: ALTER
+    - keyword: COLUMN
+    - column_reference:
+        quoted_identifier: '"my_column"'
+    - keyword: SET
+    - keyword: MASKING
+    - keyword: POLICY
+    - function_name:
+        function_name_identifier: my_masking_policy
+    - keyword: FORCE
+- statement_terminator: ;

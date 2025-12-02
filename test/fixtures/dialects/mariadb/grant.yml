@@ -1,0 +1,214 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: df855ae682e4d1b57088f24c78ffb933010ac6eb4fd31fa7a6fc6f6f6466ee06
+file:
+- statement:
+    access_statement:
+    - keyword: GRANT
+    - keyword: INSERT
+    - comma: ','
+    - keyword: UPDATE
+    - comma: ','
+    - keyword: DELETE
+    - comma: ','
+    - keyword: SELECT
+    - comma: ','
+    - keyword: REFERENCES
+    - keyword: 'ON'
+    - object_reference:
+        naked_identifier: prj_table
+    - keyword: TO
+    - role_reference:
+        naked_identifier: prj_svc
+- statement_terminator: ;
+- statement:
+    access_statement:
+    - keyword: GRANT
+    - keyword: INSERT
+    - comma: ','
+    - keyword: UPDATE
+    - comma: ','
+    - keyword: DELETE
+    - comma: ','
+    - keyword: SELECT
+    - comma: ','
+    - keyword: REFERENCES
+    - keyword: 'ON'
+    - object_reference:
+        naked_identifier: prj_table
+    - keyword: TO
+    - role_reference:
+        quoted_identifier: "'prj_svc'"
+- statement_terminator: ;
+- statement:
+    access_statement:
+    - keyword: GRANT
+    - keyword: INSERT
+    - comma: ','
+    - keyword: UPDATE
+    - comma: ','
+    - keyword: DELETE
+    - comma: ','
+    - keyword: SELECT
+    - comma: ','
+    - keyword: REFERENCES
+    - keyword: 'ON'
+    - object_reference:
+        naked_identifier: prj_table
+    - keyword: TO
+    - role_reference:
+        quoted_literal: '"prj_svc"'
+- statement_terminator: ;
+- statement:
+    access_statement:
+    - keyword: GRANT
+    - keyword: INSERT
+    - comma: ','
+    - keyword: UPDATE
+    - comma: ','
+    - keyword: DELETE
+    - comma: ','
+    - keyword: SELECT
+    - comma: ','
+    - keyword: REFERENCES
+    - keyword: 'ON'
+    - object_reference:
+        naked_identifier: prj_table
+    - keyword: TO
+    - role_reference:
+        quoted_identifier: '`prj_svc`'
+- statement_terminator: ;
+- statement:
+    access_statement:
+    - keyword: GRANT
+    - keyword: INSERT
+    - comma: ','
+    - keyword: UPDATE
+    - comma: ','
+    - keyword: DELETE
+    - comma: ','
+    - keyword: SELECT
+    - comma: ','
+    - keyword: REFERENCES
+    - keyword: 'ON'
+    - object_reference:
+        naked_identifier: prj_table
+    - keyword: TO
+    - role_reference:
+      - quoted_identifier: "'prj_svc'"
+      - at_sign_literal: '@'
+      - quoted_identifier: "'%'"
+- statement_terminator: ;
+- statement:
+    access_statement:
+    - keyword: GRANT
+    - keyword: INSERT
+    - comma: ','
+    - keyword: UPDATE
+    - comma: ','
+    - keyword: DELETE
+    - comma: ','
+    - keyword: SELECT
+    - comma: ','
+    - keyword: REFERENCES
+    - keyword: 'ON'
+    - object_reference:
+        naked_identifier: prj_table
+    - keyword: TO
+    - role_reference:
+      - quoted_literal: '"prj_svc"'
+      - at_sign_literal: '@'
+      - quoted_literal: '"%"'
+- statement_terminator: ;
+- statement:
+    access_statement:
+    - keyword: GRANT
+    - keyword: INSERT
+    - comma: ','
+    - keyword: UPDATE
+    - comma: ','
+    - keyword: DELETE
+    - comma: ','
+    - keyword: SELECT
+    - comma: ','
+    - keyword: REFERENCES
+    - keyword: 'ON'
+    - object_reference:
+        naked_identifier: prj_table
+    - keyword: TO
+    - role_reference:
+      - quoted_identifier: '`prj_svc`'
+      - at_sign_literal: '@'
+      - quoted_identifier: '`%`'
+- statement_terminator: ;
+- statement:
+    access_statement:
+    - keyword: GRANT
+    - keyword: INSERT
+    - comma: ','
+    - keyword: UPDATE
+    - comma: ','
+    - keyword: DELETE
+    - comma: ','
+    - keyword: SELECT
+    - comma: ','
+    - keyword: REFERENCES
+    - keyword: 'ON'
+    - object_reference:
+        naked_identifier: prj_table
+    - keyword: TO
+    - role_reference:
+      - quoted_identifier: '`prj_svc`'
+      - at_sign_literal: '@'
+      - quoted_identifier: '`%`'
+- statement_terminator: ;
+- statement:
+    access_statement:
+    - keyword: GRANT
+    - keyword: ALL
+    - keyword: 'ON'
+    - wildcard_identifier:
+        naked_identifier: db1
+        dot: .
+        star: '*'
+    - keyword: TO
+    - role_reference:
+      - quoted_identifier: "'prj_svc'"
+      - at_sign_literal: '@'
+      - quoted_identifier: "'%'"
+- statement_terminator: ;
+- statement:
+    access_statement:
+    - keyword: GRANT
+    - keyword: ALL
+    - keyword: PRIVILEGES
+    - keyword: 'ON'
+    - wildcard_identifier:
+        naked_identifier: db1
+        dot: .
+        star: '*'
+    - keyword: TO
+    - role_reference:
+      - quoted_identifier: "'prj_svc'"
+      - at_sign_literal: '@'
+      - quoted_identifier: "'localhost'"
+- statement_terminator: ;
+- statement:
+    access_statement:
+    - keyword: GRANT
+    - keyword: ALL
+    - keyword: PRIVILEGES
+    - keyword: 'ON'
+    - wildcard_identifier:
+      - star: '*'
+      - dot: .
+      - star: '*'
+    - keyword: TO
+    - role_reference:
+      - quoted_identifier: "'prj_svc'"
+      - at_sign_literal: '@'
+      - quoted_identifier: "'%'"
+- statement_terminator: ;

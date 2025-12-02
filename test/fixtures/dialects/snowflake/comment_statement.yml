@@ -1,0 +1,281 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 9b7345b3981df9970f08b35fe509c88c16a13ea472e57ee56ad33d45d52cf11b
+file:
+- statement:
+    comment_statement:
+    - keyword: comment
+    - keyword: 'on'
+    - keyword: column
+    - object_reference:
+      - naked_identifier: my_table
+      - dot: .
+      - naked_identifier: my_column
+    - keyword: is
+    - quoted_literal: "'comment'"
+- statement_terminator: ;
+- statement:
+    comment_statement:
+    - keyword: comment
+    - keyword: 'on'
+    - keyword: table
+    - object_reference:
+        naked_identifier: foo
+    - keyword: is
+    - quoted_literal: "'comment'"
+- statement_terminator: ;
+- statement:
+    comment_statement:
+    - keyword: comment
+    - keyword: 'on'
+    - keyword: view
+    - object_reference:
+        naked_identifier: foo
+    - keyword: is
+    - quoted_literal: "'comment'"
+- statement_terminator: ;
+- statement:
+    comment_statement:
+    - keyword: comment
+    - keyword: 'on'
+    - keyword: schema
+    - object_reference:
+        naked_identifier: foo
+    - keyword: is
+    - quoted_literal: "'comment'"
+- statement_terminator: ;
+- statement:
+    comment_statement:
+    - keyword: comment
+    - keyword: 'on'
+    - keyword: database
+    - object_reference:
+        naked_identifier: foo
+    - keyword: is
+    - quoted_literal: "'comment'"
+- statement_terminator: ;
+- statement:
+    comment_statement:
+    - keyword: comment
+    - keyword: 'on'
+    - keyword: warehouse
+    - object_reference:
+        naked_identifier: foo
+    - keyword: is
+    - quoted_literal: "'comment'"
+- statement_terminator: ;
+- statement:
+    comment_statement:
+    - keyword: comment
+    - keyword: 'on'
+    - keyword: user
+    - object_reference:
+        naked_identifier: foo
+    - keyword: is
+    - quoted_literal: "'comment'"
+- statement_terminator: ;
+- statement:
+    comment_statement:
+    - keyword: comment
+    - keyword: 'on'
+    - keyword: stage
+    - object_reference:
+        naked_identifier: foo
+    - keyword: is
+    - quoted_literal: "'comment'"
+- statement_terminator: ;
+- statement:
+    comment_statement:
+    - keyword: comment
+    - keyword: 'on'
+    - keyword: function
+    - object_reference:
+        naked_identifier: foo
+    - keyword: is
+    - quoted_literal: "'comment'"
+- statement_terminator: ;
+- statement:
+    comment_statement:
+    - keyword: comment
+    - keyword: 'on'
+    - keyword: procedure
+    - object_reference:
+        naked_identifier: foo
+    - keyword: is
+    - quoted_literal: "'comment'"
+- statement_terminator: ;
+- statement:
+    comment_statement:
+    - keyword: comment
+    - keyword: 'on'
+    - keyword: sequence
+    - object_reference:
+        naked_identifier: foo
+    - keyword: is
+    - quoted_literal: "'comment'"
+- statement_terminator: ;
+- statement:
+    comment_statement:
+    - keyword: comment
+    - keyword: 'on'
+    - keyword: share
+    - object_reference:
+        naked_identifier: foo
+    - keyword: is
+    - quoted_literal: "'comment'"
+- statement_terminator: ;
+- statement:
+    comment_statement:
+    - keyword: comment
+    - keyword: 'on'
+    - keyword: pipe
+    - object_reference:
+        naked_identifier: foo
+    - keyword: is
+    - quoted_literal: "'comment'"
+- statement_terminator: ;
+- statement:
+    comment_statement:
+    - keyword: comment
+    - keyword: 'on'
+    - keyword: stream
+    - object_reference:
+        naked_identifier: foo
+    - keyword: is
+    - quoted_literal: "'comment'"
+- statement_terminator: ;
+- statement:
+    comment_statement:
+    - keyword: comment
+    - keyword: 'on'
+    - keyword: task
+    - object_reference:
+        naked_identifier: foo
+    - keyword: is
+    - quoted_literal: "'comment'"
+- statement_terminator: ;
+- statement:
+    comment_statement:
+    - keyword: comment
+    - keyword: 'on'
+    - keyword: network
+    - keyword: policy
+    - object_reference:
+        naked_identifier: foo
+    - keyword: is
+    - quoted_literal: "'comment'"
+- statement_terminator: ;
+- statement:
+    comment_statement:
+    - keyword: comment
+    - keyword: 'on'
+    - keyword: api
+    - keyword: integration
+    - object_reference:
+        naked_identifier: foo
+    - keyword: is
+    - quoted_literal: "'comment'"
+- statement_terminator: ;
+- statement:
+    comment_statement:
+    - keyword: comment
+    - keyword: 'on'
+    - keyword: notification
+    - keyword: integration
+    - object_reference:
+        naked_identifier: foo
+    - keyword: is
+    - quoted_literal: "'comment'"
+- statement_terminator: ;
+- statement:
+    comment_statement:
+    - keyword: comment
+    - keyword: 'on'
+    - keyword: security
+    - keyword: integration
+    - object_reference:
+        naked_identifier: foo
+    - keyword: is
+    - quoted_literal: "'comment'"
+- statement_terminator: ;
+- statement:
+    comment_statement:
+    - keyword: comment
+    - keyword: 'on'
+    - keyword: storage
+    - keyword: integration
+    - object_reference:
+        naked_identifier: foo
+    - keyword: is
+    - quoted_literal: "'comment'"
+- statement_terminator: ;
+- statement:
+    comment_statement:
+    - keyword: comment
+    - keyword: 'on'
+    - keyword: session
+    - keyword: policy
+    - object_reference:
+        naked_identifier: foo
+    - keyword: is
+    - quoted_literal: "'comment'"
+- statement_terminator: ;
+- statement:
+    comment_statement:
+    - keyword: comment
+    - keyword: 'on'
+    - keyword: external
+    - keyword: table
+    - object_reference:
+        naked_identifier: foo
+    - keyword: is
+    - quoted_literal: "'comment'"
+- statement_terminator: ;
+- statement:
+    comment_statement:
+    - keyword: comment
+    - keyword: 'on'
+    - keyword: materialized
+    - keyword: view
+    - object_reference:
+        naked_identifier: foo
+    - keyword: is
+    - quoted_literal: "'comment'"
+- statement_terminator: ;
+- statement:
+    comment_statement:
+    - keyword: comment
+    - keyword: 'on'
+    - keyword: masking
+    - keyword: policy
+    - object_reference:
+        naked_identifier: foo
+    - keyword: is
+    - quoted_literal: "'comment'"
+- statement_terminator: ;
+- statement:
+    comment_statement:
+    - keyword: comment
+    - keyword: 'on'
+    - keyword: row
+    - keyword: access
+    - keyword: policy
+    - object_reference:
+        naked_identifier: foo
+    - keyword: is
+    - quoted_literal: "'comment'"
+- statement_terminator: ;
+- statement:
+    comment_statement:
+    - keyword: comment
+    - keyword: 'on'
+    - keyword: file
+    - keyword: format
+    - object_reference:
+        naked_identifier: foo
+    - keyword: is
+    - quoted_literal: "'comment'"
+- statement_terminator: ;

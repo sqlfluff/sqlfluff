@@ -1,0 +1,52 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: caad76b6f6b44d0581aa60caa9e087fd345504e0f8cec4bfdaf5d0ca01295cc1
+file:
+  statement:
+    alter_view_statement:
+    - keyword: ALTER
+    - keyword: VIEW
+    - table_reference:
+      - naked_identifier: mydataset
+      - dot: .
+      - naked_identifier: myview
+    - keyword: SET
+    - options_segment:
+        keyword: OPTIONS
+        bracketed:
+        - start_bracket: (
+        - parameter: expiration_timestamp
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - function:
+            function_name:
+              function_name_identifier: TIMESTAMP_ADD
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  function:
+                    function_name:
+                      function_name_identifier: CURRENT_TIMESTAMP
+                    function_contents:
+                      bracketed:
+                        start_bracket: (
+                        end_bracket: )
+              - comma: ','
+              - expression:
+                  interval_expression:
+                    keyword: INTERVAL
+                    expression:
+                      numeric_literal: '7'
+                    date_part: DAY
+              - end_bracket: )
+        - comma: ','
+        - parameter: description
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - quoted_literal: '"View that expires seven days from now"'
+        - end_bracket: )
+  statement_terminator: ;

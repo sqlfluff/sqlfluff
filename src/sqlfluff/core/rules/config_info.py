@@ -1,138 +1,97 @@
 """Documenting and validating rule configuration.
 
-Provide a mapping with all configuration options, with information
-on valid inputs and definitions.
+Provide a mapping with default configuration options, which are common
+to multiple rules with information on valid inputs and definitions.
 
 This mapping is used to validate rule config inputs, as well
 as document rule configuration.
+
+It is assumed that most rule bundles will define their own additional
+sets of these which should be defined within that bundle rather than
+here. Unless your config value is used across multiple bundles, or is
+of more general wider use - please define it in the specific plugin
+rather than here.
 """
+
+from typing import Optional, TypedDict, Union
 
 from sqlfluff.core.plugin.host import get_plugin_manager
 
-STANDARD_CONFIG_INFO_DICT = {
-    "tab_space_size": {
-        "validation": range(100),
-        "definition": (
-            "The number of spaces to consider equal to one tab. "
-            "Used in the fixing step of this rule"
-        ),
-    },
-    "max_line_length": {
-        "validation": range(1000),
-        "definition": (
-            "The maximum length of a line to allow without " "raising a violation"
-        ),
-    },
-    "indent_unit": {
-        "validation": ["space", "tab"],
-        "definition": "Whether to use tabs or spaces to add new indents",
-    },
-    "comma_style": {
-        "validation": ["leading", "trailing"],
-        "definition": "The comma style to to enforce",
-    },
-    "allow_scalar": {
-        "validation": [True, False],
-        "definition": (
-            "Whether or not to allow a single element in the "
-            " select clause to be without an alias"
-        ),
-    },
-    "single_table_references": {
-        "validation": ["consistent", "qualified", "unqualified"],
-        "definition": "The expectation for references in single-table select",
-    },
+
+class ConfigInfo(TypedDict, total=False):
+    """Type definition for a single config info value.
+
+    This TypedDict defines the structure for configuration information used across
+    SQLFluff rules. Each config value must have a definition, and may optionally
+    include validation criteria.
+
+    Args:
+        definition: Required string containing a detailed description of the config
+            option and its purpose. This should be clear enough for users to
+            understand when and how to use the config.
+        validation: Optional list or range of valid values for the config option.
+            Can contain boolean, string, or integer values. If not provided,
+            the config option accepts any value of its expected type.
+    """
+
+    definition: str
+    # NOTE: This type hint is a bit ugly, but necessary for now.
+    # TODO: Tidy this up when we drop support for 3.9.
+    validation: Optional[Union[list[Union[bool, str, int]], range]]
+
+
+STANDARD_CONFIG_INFO_DICT: dict[str, ConfigInfo] = {
     "force_enable": {
         "validation": [True, False],
         "definition": (
-            "Run this rule even for dialects where this rule is disabled by default"
+            "Run this rule even for dialects where this rule is disabled by default."
         ),
     },
-    "unquoted_identifiers_policy": {
-        "validation": ["all", "aliases", "column_aliases"],
-        "definition": "Types of unquoted identifiers to flag violations for",
+    "ignore_words": {
+        "definition": ("Comma separated list of words to ignore from rule"),
     },
-    "quoted_identifiers_policy": {
-        "validation": ["all", "aliases", "column_aliases", "none"],
-        "definition": "Types of quoted identifiers to flag violations for",
-    },
-    "capitalisation_policy": {
-        "validation": ["consistent", "upper", "lower", "capitalise"],
-        "definition": "The capitalisation policy to enforce",
-    },
-    "extended_capitalisation_policy": {
-        "validation": ["consistent", "upper", "lower", "pascal", "capitalise"],
+    "ignore_words_regex": {
         "definition": (
-            "The capitalisation policy to enforce, extended with PascalCase. "
-            "This is separate from capitalisation_policy as it should not be "
-            "applied to keywords."
+            "Words to ignore from rule if they are a partial match for the regular "
+            "expression. To ignore only full matches you can use ``^`` (beginning "
+            "of text) and ``$`` (end of text). Due to regular expression operator "
+            "precedence, it is good practice to use parentheses around everything "
+            "between ``^`` and ``$``."
         ),
     },
-    "select_clause_trailing_comma": {
-        "validation": ["forbid", "require"],
+    "blocked_words": {
         "definition": (
-            "Should trailing commas within select clauses be required or forbidden"
+            "Optional, comma-separated list of blocked words which should not be used "
+            "in statements."
         ),
     },
-    "ignore_comment_lines": {
+    "blocked_regex": {
+        "definition": (
+            "Optional, regex of blocked pattern which should not be used in statements."
+        ),
+    },
+    "match_source": {
+        "definition": (
+            "Optional, also match regex of blocked pattern before applying templating"
+        ),
+    },
+    "case_sensitive": {
         "validation": [True, False],
         "definition": (
-            "Should lines that contain only whitespace and comments"
-            " be ignored when linting line lengths"
+            "If ``False``, comparison is done case in-sensitively. "
+            "Defaults to ``True``."
         ),
-    },
-    "forbid_subquery_in": {
-        "validation": ["join", "from", "both"],
-        "definition": "Which clauses should be linted for subqueries",
-    },
-    "prefer_count_1": {
-        "validation": [True, False],
-        "definition": ("Should count(1) be preferred over count(*) and count(0)?"),
-    },
-    "prefer_count_0": {
-        "validation": [True, False],
-        "definition": ("Should count(0) be preferred over count(*) and count(1)?"),
-    },
-    "operator_new_lines": {
-        "validation": ["before", "after"],
-        "definition": ("Should operator be placed before or after newlines."),
-    },
-    "aliasing": {
-        "validation": ["implicit", "explicit"],
-        "definition": (
-            "Should alias have an explict AS or is implicit aliasing required?"
-        ),
-    },
-    "semicolon_newline": {
-        "validation": [True, False],
-        "definition": (
-            "Should semi-colons be placed on a new line after the statement end?"
-        ),
-    },
-    "require_final_semicolon": {
-        "validation": [True, False],
-        "definition": (
-            "Should final semi-colons be required? "
-            "(N.B. forcing trailing semi-colons is not recommended for dbt users "
-            "as it can cause issues when wrapping the query within other SQL queries)"
-        ),
-    },
-    "group_by_and_order_by_style": {
-        "validation": ["consistent", "implicit", "explicit"],
-        "definition": (
-            "The expectation for using explicit column name references "
-            "or implicit positional references"
-        ),
-    },
-    "allow_space_in_identifier": {
-        "validation": [True, False],
-        "definition": ("Should spaces in identifiers be allowed?"),
     },
 }
 
 
-def get_config_info() -> dict:
-    """Gets the config from core sqlfluff and sqlfluff plugins and merges them."""
+def get_config_info() -> dict[str, ConfigInfo]:
+    """Get the config from core sqlfluff and sqlfluff plugins and merges them.
+
+    NOTE: This should be the entry point into getting config info rather than
+    importing the default set above, as many values are defined only in rule
+    packages.
+    """
     plugin_manager = get_plugin_manager()
     configs_info = plugin_manager.hook.get_configs_info()
     return {

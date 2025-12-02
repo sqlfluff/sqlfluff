@@ -1,0 +1,246 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 9d83b7d7f4186751065b5c90809bdfcdf7c33cdd1a5ad539a65b443d0bd07284
+file:
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          function:
+            function_name:
+              keyword: COLUMNS
+            function_contents:
+              bracketed:
+                start_bracket: (
+                lambda_function:
+                  parameter: c
+                  lambda_arrow: ->
+                  expression:
+                    column_reference:
+                      naked_identifier: c
+                    keyword: LIKE
+                    quoted_literal: "'%num%'"
+                end_bracket: )
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: addresses
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          function:
+            function_name:
+              keyword: COLUMNS
+            function_contents:
+              bracketed:
+                start_bracket: (
+                quoted_literal: "'number\\d+'"
+                end_bracket: )
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: addresses
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: min
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  function:
+                    function_name:
+                      keyword: COLUMNS
+                    function_contents:
+                      bracketed:
+                        start_bracket: (
+                        wildcard_expression:
+                          wildcard_identifier:
+                            star: '*'
+                        end_bracket: )
+                end_bracket: )
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: addresses
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: min
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  function:
+                    function_name:
+                      keyword: COLUMNS
+                    function_contents:
+                      bracketed:
+                        start_bracket: (
+                        wildcard_expression:
+                          wildcard_identifier:
+                            star: '*'
+                        end_bracket: )
+                end_bracket: )
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: count
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  function:
+                    function_name:
+                      keyword: COLUMNS
+                    function_contents:
+                      bracketed:
+                        start_bracket: (
+                        wildcard_expression:
+                          wildcard_identifier:
+                            star: '*'
+                        end_bracket: )
+                end_bracket: )
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: numbers
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: min
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  function:
+                    function_name:
+                      keyword: COLUMNS
+                    function_contents:
+                      bracketed:
+                        start_bracket: (
+                        wildcard_expression:
+                          wildcard_identifier:
+                            star: '*'
+                          wildcard_replace:
+                            keyword: REPLACE
+                            bracketed:
+                              start_bracket: (
+                              expression:
+                              - column_reference:
+                                  naked_identifier: number
+                              - binary_operator: +
+                              - column_reference:
+                                  naked_identifier: id
+                              alias_expression:
+                                alias_operator:
+                                  keyword: AS
+                                naked_identifier: number
+                              end_bracket: )
+                        end_bracket: )
+                end_bracket: )
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: count
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  function:
+                    function_name:
+                      keyword: COLUMNS
+                    function_contents:
+                      bracketed:
+                        start_bracket: (
+                        wildcard_expression:
+                          wildcard_identifier:
+                            star: '*'
+                          wildcard_exclude:
+                            keyword: EXCLUDE
+                            bracketed:
+                              start_bracket: (
+                              column_reference:
+                                naked_identifier: number
+                              end_bracket: )
+                        end_bracket: )
+                end_bracket: )
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: numbers
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+          - function:
+              function_name:
+                keyword: COLUMNS
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  wildcard_expression:
+                    wildcard_identifier:
+                      star: '*'
+                  end_bracket: )
+          - binary_operator: +
+          - function:
+              function_name:
+                keyword: COLUMNS
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  wildcard_expression:
+                    wildcard_identifier:
+                      star: '*'
+                  end_bracket: )
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: numbers
+- statement_terminator: ;

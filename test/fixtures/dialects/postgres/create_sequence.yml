@@ -1,0 +1,154 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: a85996eb46a2024fb4d0ea8adbb883763b1842165a6ccde742dd7eb24de494b3
+file:
+- statement:
+    create_sequence_statement:
+    - keyword: CREATE
+    - keyword: SEQUENCE
+    - sequence_reference:
+        naked_identifier: foo
+- statement_terminator: ;
+- statement:
+    create_sequence_statement:
+    - keyword: CREATE
+    - keyword: SEQUENCE
+    - sequence_reference:
+        naked_identifier: foo
+    - create_sequence_options_segment:
+        keyword: AS
+        data_type:
+          keyword: integer
+- statement_terminator: ;
+- statement:
+    create_sequence_statement:
+    - keyword: CREATE
+    - keyword: SEQUENCE
+    - sequence_reference:
+        naked_identifier: foo
+    - create_sequence_options_segment:
+      - keyword: INCREMENT
+      - keyword: BY
+      - numeric_literal: '3'
+- statement_terminator: ;
+- statement:
+    create_sequence_statement:
+    - keyword: CREATE
+    - keyword: SEQUENCE
+    - sequence_reference:
+        naked_identifier: foo
+    - create_sequence_options_segment:
+        keyword: MINVALUE
+        numeric_literal: '5'
+    - create_sequence_options_segment:
+      - keyword: 'NO'
+      - keyword: MAXVALUE
+- statement_terminator: ;
+- statement:
+    create_sequence_statement:
+    - keyword: CREATE
+    - keyword: SEQUENCE
+    - sequence_reference:
+        naked_identifier: foo
+    - create_sequence_options_segment:
+      - keyword: 'NO'
+      - keyword: MINVALUE
+    - create_sequence_options_segment:
+        keyword: MAXVALUE
+        numeric_literal: '12'
+- statement_terminator: ;
+- statement:
+    create_sequence_statement:
+    - keyword: CREATE
+    - keyword: SEQUENCE
+    - sequence_reference:
+        naked_identifier: foo
+    - create_sequence_options_segment:
+        keyword: INCREMENT
+        numeric_literal: '5'
+    - create_sequence_options_segment:
+      - keyword: START
+      - keyword: WITH
+      - numeric_literal: '8'
+    - create_sequence_options_segment:
+        keyword: CACHE
+        numeric_literal: '4'
+- statement_terminator: ;
+- statement:
+    create_sequence_statement:
+    - keyword: CREATE
+    - keyword: SEQUENCE
+    - sequence_reference:
+        naked_identifier: foo
+    - create_sequence_options_segment:
+      - keyword: 'NO'
+      - keyword: CYCLE
+- statement_terminator: ;
+- statement:
+    create_sequence_statement:
+    - keyword: CREATE
+    - keyword: SEQUENCE
+    - sequence_reference:
+        naked_identifier: foo
+    - create_sequence_options_segment:
+      - keyword: OWNED
+      - keyword: BY
+      - keyword: NONE
+- statement_terminator: ;
+- statement:
+    create_sequence_statement:
+    - keyword: CREATE
+    - keyword: SEQUENCE
+    - sequence_reference:
+        naked_identifier: foo
+    - create_sequence_options_segment:
+      - keyword: OWNED
+      - keyword: BY
+      - column_reference:
+        - naked_identifier: my_table
+        - dot: .
+        - naked_identifier: my_column
+- statement_terminator: ;
+- statement:
+    create_sequence_statement:
+    - keyword: CREATE
+    - keyword: TEMP
+    - keyword: SEQUENCE
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - sequence_reference:
+        naked_identifier: foo
+- statement_terminator: ;
+- statement:
+    create_sequence_statement:
+    - keyword: CREATE
+    - keyword: TEMPORARY
+    - keyword: SEQUENCE
+    - sequence_reference:
+        naked_identifier: foo
+- statement_terminator: ;
+- statement:
+    create_sequence_statement:
+    - keyword: CREATE
+    - keyword: SEQUENCE
+    - sequence_reference:
+        naked_identifier: derp
+    - create_sequence_options_segment:
+      - keyword: INCREMENT
+      - keyword: BY
+      - sign_indicator: '-'
+      - numeric_literal: '5'
+    - create_sequence_options_segment:
+        keyword: MINVALUE
+        sign_indicator: +
+        numeric_literal: '50'
+    - create_sequence_options_segment:
+        keyword: MAXVALUE
+        sign_indicator: '-'
+        numeric_literal: '5'
+- statement_terminator: ;
+- statement_terminator: ;

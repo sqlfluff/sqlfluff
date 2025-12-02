@@ -1,5 +1,9 @@
 file:
-  - placeholder: '{% set some_condition %}...{% endset %}'
+  - placeholder: '{% set some_condition %}'
+  - indent: ''
+  - placeholder: 'TRUE'
+  - dedent: ''
+  - placeholder: '{% endset %}'
   - newline: "\n"
   - newline: "\n"
   - statement:
@@ -7,7 +11,7 @@ file:
       - keyword: WITH
       - whitespace: ' '
       - common_table_expression:
-        - identifier: cust
+        - naked_identifier: cust
         - whitespace: ' '
         - keyword: AS
         - newline: "\n"
@@ -22,10 +26,10 @@ file:
               - whitespace: ' '
               - select_clause_element:
                   column_reference:
-                    identifier: SNAPSHOT_DATE
+                    naked_identifier: SNAPSHOT_DATE
+              - dedent: ''
             - newline: "\n"
             - whitespace: '    '
-            - dedent: ''
             - from_clause:
               - keyword: FROM
               - whitespace: ' '
@@ -34,9 +38,9 @@ file:
                   from_expression_element:
                     table_expression:
                       table_reference:
-                      - identifier: DATAHUB
+                      - naked_identifier: DATAHUB
                       - dot: .
-                      - identifier: SNAPSHOT_DAILY
+                      - naked_identifier: SNAPSHOT_DAILY
                   dedent: ''
             - newline: "\n"
             - whitespace: '    '
@@ -45,7 +49,7 @@ file:
                 indent: ''
                 whitespace: ' '
                 expression:
-                  literal: 'TRUE'
+                  boolean_literal: 'TRUE'
                 dedent: ''
           - newline: "\n"
           - whitespace: '    '
@@ -63,11 +67,11 @@ file:
           - whitespace: ' '
           - select_clause_element:
               column_reference:
-              - identifier: cust
+              - naked_identifier: cust
               - dot: .
-              - identifier: SNAPSHOT_DATE
+              - naked_identifier: SNAPSHOT_DATE
+          - dedent: ''
           newline: "\n"
-          dedent: ''
           from_clause:
             keyword: FROM
             whitespace: ' '
@@ -76,5 +80,6 @@ file:
               from_expression_element:
                 table_expression:
                   table_reference:
-                    identifier: cust
+                    naked_identifier: cust
               dedent: ''
+  - end_of_file: ''

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 65d2a4e7624cdf00bf2809390475290e909acc77a306de526fdaaa64dd92da00
+_hash: 29c7fafdbdad2321a36d17f804f86e5b3fd472049786028fd1310097c14c6c45
 file:
   statement:
     access_statement:
@@ -11,7 +11,7 @@ file:
     - keyword: select
     - keyword: 'on'
     - object_reference:
-        identifier: mytable
+        naked_identifier: mytable
     - keyword: to
-    - object_reference:
-        identifier: public
+    - role_reference:
+        naked_identifier: public

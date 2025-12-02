@@ -1,0 +1,412 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: a488e080ec2fb07fd4007721f6cd6cbf214ec358eccd06b64b5708c00caa9e38
+file:
+- statement:
+    alter_file_format_segment:
+    - keyword: ALTER
+    - keyword: FILE
+    - keyword: FORMAT
+    - keyword: IF
+    - keyword: EXISTS
+    - object_reference:
+        naked_identifier: my_file_format
+    - keyword: RENAME
+    - keyword: TO
+    - object_reference:
+        naked_identifier: your_file_format
+- statement_terminator: ;
+- statement:
+    alter_file_format_segment:
+    - keyword: ALTER
+    - keyword: FILE
+    - keyword: FORMAT
+    - keyword: IF
+    - keyword: EXISTS
+    - object_reference:
+        naked_identifier: my_csv_format
+    - keyword: SET
+    - csv_file_format_type_parameters:
+      - keyword: TYPE
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - file_type: CSV
+      - comma: ','
+      - keyword: COMPRESSION
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - compression_type: AUTO
+      - comma: ','
+      - keyword: RECORD_DELIMITER
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - keyword: NONE
+      - comma: ','
+      - keyword: FIELD_DELIMITER
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - keyword: NONE
+      - comma: ','
+      - keyword: FILE_EXTENSION
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'foobar'"
+      - comma: ','
+      - keyword: SKIP_HEADER
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - integer_literal: '1'
+      - comma: ','
+      - keyword: SKIP_BLANK_LINES
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - boolean_literal: 'TRUE'
+      - comma: ','
+      - keyword: DATE_FORMAT
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - keyword: AUTO
+      - comma: ','
+      - keyword: TIME_FORMAT
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - keyword: AUTO
+      - comma: ','
+      - keyword: TIMESTAMP_FORMAT
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - keyword: AUTO
+      - comma: ','
+      - keyword: BINARY_FORMAT
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - keyword: HEX
+      - comma: ','
+      - keyword: TRIM_SPACE
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - boolean_literal: 'TRUE'
+      - comma: ','
+      - keyword: NULL_IF
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - bracketed:
+        - start_bracket: (
+        - quoted_literal: "'foo'"
+        - comma: ','
+        - quoted_literal: "'bar'"
+        - end_bracket: )
+      - comma: ','
+      - keyword: FIELD_OPTIONALLY_ENCLOSED_BY
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - keyword: NONE
+      - comma: ','
+      - keyword: ERROR_ON_COLUMN_COUNT_MISMATCH
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - boolean_literal: 'TRUE'
+      - comma: ','
+      - keyword: REPLACE_INVALID_CHARACTERS
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - boolean_literal: 'TRUE'
+      - comma: ','
+      - keyword: VALIDATE_UTF8
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - boolean_literal: 'TRUE'
+      - comma: ','
+      - keyword: EMPTY_FIELD_AS_NULL
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - boolean_literal: 'TRUE'
+      - comma: ','
+      - keyword: SKIP_BYTE_ORDER_MARK
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - boolean_literal: 'TRUE'
+      - comma: ','
+      - keyword: ENCODING
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - keyword: UTF8
+- statement_terminator: ;
+- statement:
+    alter_file_format_segment:
+    - keyword: ALTER
+    - keyword: FILE
+    - keyword: FORMAT
+    - keyword: IF
+    - keyword: EXISTS
+    - object_reference:
+        naked_identifier: my_json_format
+    - keyword: SET
+    - json_file_format_type_parameters:
+      - keyword: TYPE
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - file_type: JSON
+      - comma: ','
+      - keyword: COMPRESSION
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - compression_type: AUTO
+      - comma: ','
+      - keyword: DATE_FORMAT
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - keyword: AUTO
+      - comma: ','
+      - keyword: TIME_FORMAT
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - keyword: AUTO
+      - comma: ','
+      - keyword: TIMESTAMP_FORMAT
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - keyword: AUTO
+      - comma: ','
+      - keyword: BINARY_FORMAT
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - keyword: HEX
+      - comma: ','
+      - keyword: TRIM_SPACE
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - boolean_literal: 'TRUE'
+      - comma: ','
+      - keyword: NULL_IF
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - bracketed:
+        - start_bracket: (
+        - quoted_literal: "'foo'"
+        - comma: ','
+        - quoted_literal: "'bar'"
+        - end_bracket: )
+      - comma: ','
+      - keyword: FILE_EXTENSION
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'foobar'"
+      - comma: ','
+      - keyword: ENABLE_OCTAL
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - boolean_literal: 'TRUE'
+      - comma: ','
+      - keyword: ALLOW_DUPLICATE
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - boolean_literal: 'TRUE'
+      - comma: ','
+      - keyword: STRIP_OUTER_ARRAY
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - boolean_literal: 'TRUE'
+      - comma: ','
+      - keyword: STRIP_NULL_VALUES
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - boolean_literal: 'TRUE'
+      - comma: ','
+      - keyword: REPLACE_INVALID_CHARACTERS
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - boolean_literal: 'TRUE'
+      - comma: ','
+      - keyword: IGNORE_UTF8_ERRORS
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - boolean_literal: 'TRUE'
+      - comma: ','
+      - keyword: SKIP_BYTE_ORDER_MARK
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - boolean_literal: 'TRUE'
+- statement_terminator: ;
+- statement:
+    alter_file_format_segment:
+    - keyword: ALTER
+    - keyword: FILE
+    - keyword: FORMAT
+    - keyword: IF
+    - keyword: EXISTS
+    - object_reference:
+        naked_identifier: my_avro_format
+    - keyword: SET
+    - avro_file_format_type_parameters:
+      - keyword: TYPE
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - file_type: AVRO
+      - keyword: COMPRESSION
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - compression_type: "'GZIP'"
+      - keyword: TRIM_SPACE
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - boolean_literal: 'FALSE'
+      - keyword: NULL_IF
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - bracketed:
+        - start_bracket: (
+        - quoted_literal: "'foo'"
+        - comma: ','
+        - quoted_literal: "'bar'"
+        - end_bracket: )
+    - comment_equals_clause:
+        keyword: COMMENT
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'FOOBAR'"
+- statement_terminator: ;
+- statement:
+    alter_file_format_segment:
+    - keyword: ALTER
+    - keyword: FILE
+    - keyword: FORMAT
+    - keyword: IF
+    - keyword: EXISTS
+    - object_reference:
+        naked_identifier: my_orc_format
+    - keyword: SET
+    - orc_file_format_type_parameters:
+      - keyword: TYPE
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - file_type: ORC
+      - keyword: TRIM_SPACE
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - boolean_literal: 'FALSE'
+      - keyword: NULL_IF
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - bracketed:
+        - start_bracket: (
+        - quoted_literal: "'foo'"
+        - comma: ','
+        - quoted_literal: "'bar'"
+        - end_bracket: )
+    - comment_equals_clause:
+        keyword: COMMENT
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'FOOBAR'"
+- statement_terminator: ;
+- statement:
+    alter_file_format_segment:
+    - keyword: ALTER
+    - keyword: FILE
+    - keyword: FORMAT
+    - keyword: IF
+    - keyword: EXISTS
+    - object_reference:
+        naked_identifier: my_parquet_format
+    - keyword: SET
+    - parquet_file_format_type_parameters:
+      - keyword: TYPE
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - file_type: PARQUET
+      - keyword: COMPRESSION
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - compression_type: AUTO
+      - keyword: SNAPPY_COMPRESSION
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - boolean_literal: 'FALSE'
+      - keyword: TRIM_SPACE
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - boolean_literal: 'FALSE'
+      - keyword: BINARY_AS_TEXT
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - boolean_literal: 'TRUE'
+      - keyword: USE_LOGICAL_TYPE
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - boolean_literal: 'FALSE'
+      - keyword: USE_VECTORIZED_SCANNER
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - boolean_literal: 'FALSE'
+      - keyword: REPLACE_INVALID_CHARACTERS
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - boolean_literal: 'FALSE'
+      - keyword: NULL_IF
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - bracketed:
+        - start_bracket: (
+        - quoted_literal: "'foo'"
+        - comma: ','
+        - quoted_literal: "'bar'"
+        - end_bracket: )
+    - comment_equals_clause:
+        keyword: COMMENT
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'FOOBAR'"
+- statement_terminator: ;
+- statement:
+    alter_file_format_segment:
+    - keyword: ALTER
+    - keyword: FILE
+    - keyword: FORMAT
+    - keyword: IF
+    - keyword: EXISTS
+    - object_reference:
+        naked_identifier: my_xml_format
+    - keyword: SET
+    - xml_file_format_type_parameters:
+      - keyword: TYPE
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - file_type: XML
+      - keyword: COMPRESSION
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - compression_type: GZIP
+      - keyword: IGNORE_UTF8_ERRORS
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - boolean_literal: 'FALSE'
+      - keyword: PRESERVE_SPACE
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - boolean_literal: 'FALSE'
+      - keyword: STRIP_OUTER_ELEMENT
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - boolean_literal: 'FALSE'
+      - keyword: DISABLE_SNOWFLAKE_DATA
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - boolean_literal: 'FALSE'
+      - keyword: DISABLE_AUTO_CONVERT
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - boolean_literal: 'FALSE'
+      - keyword: SKIP_BYTE_ORDER_MARK
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - boolean_literal: 'FALSE'
+    - comment_equals_clause:
+        keyword: COMMENT
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'FOOBAR'"
+- statement_terminator: ;

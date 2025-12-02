@@ -3,23 +3,23 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 74c6509baa982c24d9393c80dee2d2bd9160e6eb4845e8fd4a9fa6a94349f383
+_hash: d7212cc0702be19c03fe7d36ba84048d3bd4a728b6e965cdf51533e09a3b3a3c
 file:
   statement:
     create_table_statement:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-        identifier: newtable
+        naked_identifier: newtable
     - bracketed:
       - start_bracket: (
       - column_definition:
-          identifier: x
+          naked_identifier: x
           data_type:
             data_type_identifier: TIMESTAMP
       - comma: ','
       - column_definition:
-          identifier: y
+          naked_identifier: y
           data_type:
             data_type_identifier: INT64
       - end_bracket: )
@@ -30,27 +30,29 @@ file:
           function:
             function_name:
               function_name_identifier: DATE
-            bracketed:
-              start_bracket: (
-              expression:
-                column_reference:
-                  identifier: x
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: x
+                end_bracket: )
     - cluster_by_segment:
       - keyword: CLUSTER
       - keyword: BY
       - expression:
           column_reference:
-            identifier: x
+            naked_identifier: x
       - comma: ','
       - expression:
           column_reference:
-            identifier: y
+            naked_identifier: y
     - options_segment:
         keyword: OPTIONS
         bracketed:
           start_bracket: (
           parameter: description
-          comparison_operator: '='
-          literal: '"foo"'
+          comparison_operator:
+            raw_comparison_operator: '='
+          quoted_literal: '"foo"'
           end_bracket: )

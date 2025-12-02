@@ -1,0 +1,250 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: d2b1ef7069b1ce9b4ec653bff0e7ce75be9e473529914583cb114852a6f13d1b
+file:
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: FILTER
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: ident
+                comma: ','
+                lambda_function:
+                  parameter: i
+                  lambda_arrow: ->
+                  expression:
+                    column_reference:
+                      naked_identifier: i
+                    semi_structured_expression:
+                      colon: ':'
+                      semi_structured_element: value
+                    comparison_operator:
+                      raw_comparison_operator: '>'
+                    numeric_literal: '0'
+                end_bracket: )
+          alias_expression:
+            alias_operator:
+              keyword: as
+            naked_identifier: sample_filter
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: TRANSFORM
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: ident
+                comma: ','
+                lambda_function:
+                  parameter: j
+                  lambda_arrow: ->
+                  expression:
+                    column_reference:
+                      naked_identifier: j
+                    semi_structured_expression:
+                      colon: ':'
+                      semi_structured_element: value
+                end_bracket: )
+          alias_expression:
+            alias_operator:
+              keyword: as
+            naked_identifier: sample_transform
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: TRANSFORM
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: ident
+                comma: ','
+                lambda_function:
+                  parameter: k
+                  data_type:
+                    data_type_identifier: variant
+                  lambda_arrow: ->
+                  expression:
+                    column_reference:
+                      naked_identifier: k
+                    semi_structured_expression:
+                      colon: ':'
+                      semi_structured_element: val
+                end_bracket: )
+          alias_expression:
+            alias_operator:
+              keyword: as
+            naked_identifier: sample_transform_with_type
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: ref
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: FILTER
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    quoted_identifier: '"ident"'
+                comma: ','
+                lambda_function:
+                  bracketed:
+                  - start_bracket: (
+                  - parameter: i
+                  - data_type:
+                      data_type_identifier: INT
+                  - comma: ','
+                  - parameter: j
+                  - data_type:
+                      data_type_identifier: VARIANT
+                  - end_bracket: )
+                  lambda_arrow: ->
+                  expression:
+                    bracketed:
+                      start_bracket: (
+                      expression:
+                      - column_reference:
+                          naked_identifier: i
+                      - semi_structured_expression:
+                          colon: ':'
+                          semi_structured_element: value
+                      - keyword: is
+                      - keyword: not
+                      - null_literal: 'null'
+                      - binary_operator: and
+                      - column_reference:
+                          naked_identifier: j
+                      - semi_structured_expression:
+                          colon: ':'
+                          semi_structured_element: value
+                      - comparison_operator:
+                          raw_comparison_operator: '='
+                      - quoted_literal: "'some_literal'"
+                      end_bracket: )
+                end_bracket: )
+          alias_expression:
+            alias_operator:
+              keyword: as
+            naked_identifier: sample_filter
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: TRANSFORM
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    quoted_identifier: '"ident"'
+                comma: ','
+                lambda_function:
+                  parameter: j
+                  lambda_arrow: ->
+                  expression:
+                    column_reference:
+                      naked_identifier: j
+                end_bracket: )
+          alias_expression:
+            alias_operator:
+              keyword: as
+            naked_identifier: sample_transform
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: some_other_function
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  quoted_literal: "'unusual arguments'"
+              - comma: ','
+              - lambda_function:
+                  parameter: x
+                  lambda_arrow: ->
+                  expression:
+                    quoted_literal: "'still a lambda expression'"
+              - comma: ','
+              - expression:
+                  boolean_literal: 'true'
+              - end_bracket: )
+          alias_expression:
+            alias_operator:
+              keyword: as
+            naked_identifier: sample_other
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: ref
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: REDUCE
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  array_literal:
+                  - start_square_bracket: '['
+                  - numeric_literal: '1'
+                  - comma: ','
+                  - numeric_literal: '2'
+                  - comma: ','
+                  - numeric_literal: '3'
+                  - end_square_bracket: ']'
+              - comma: ','
+              - expression:
+                  numeric_literal: '0'
+              - comma: ','
+              - lambda_function:
+                  bracketed:
+                  - start_bracket: (
+                  - parameter: acc
+                  - comma: ','
+                  - parameter: val
+                  - end_bracket: )
+                  lambda_arrow: ->
+                  expression:
+                  - column_reference:
+                      naked_identifier: acc
+                  - binary_operator: +
+                  - column_reference:
+                      naked_identifier: val
+              - end_bracket: )
+- statement_terminator: ;

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 72c2062dc03c248070b79735a710450c8dfc21668e33ab281559d719c1ab51f2
+_hash: 2bbac882b177fcb1cb0c3b2e52acb2090a97f93dc9a64821e3b96001cfdd1127
 file:
   statement:
     select_statement:
@@ -11,11 +11,11 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-            identifier: i
+            naked_identifier: i
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: offset
+            naked_identifier: offset
       from_clause:
         keyword: FROM
         from_expression:
@@ -24,23 +24,22 @@ file:
               function:
                 function_name:
                   function_name_identifier: UNNEST
-                bracketed:
-                  start_bracket: (
-                  expression:
-                    array_literal:
-                    - start_square_bracket: '['
-                    - expression:
-                        literal: '1'
-                    - comma: ','
-                    - expression:
-                        literal: '2'
-                    - comma: ','
-                    - expression:
-                        literal: '3'
-                    - end_square_bracket: ']'
-                  end_bracket: )
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      array_literal:
+                      - start_square_bracket: '['
+                      - numeric_literal: '1'
+                      - comma: ','
+                      - numeric_literal: '2'
+                      - comma: ','
+                      - numeric_literal: '3'
+                      - end_square_bracket: ']'
+                    end_bracket: )
           - alias_expression:
-              keyword: AS
-              identifier: i
+              alias_operator:
+                keyword: AS
+              naked_identifier: i
           - keyword: WITH
           - keyword: OFFSET

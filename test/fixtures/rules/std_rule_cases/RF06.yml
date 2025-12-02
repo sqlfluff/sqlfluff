@@ -1,0 +1,650 @@
+rule: RF06
+
+test_pass_default:
+  # NOTE: The ANSI dialect casefolds to UPPERCASE.
+  pass_str: |
+    select
+      unquoted_identifier,
+      another as unquoted_alias,
+      1 + 2 as expression_alias,
+      "case_specific_reference",
+      "REFERENCE WITH SPACE",
+      "I-c@nn0t-be~un-quoted",
+      "1_starts_with_digit",
+      "SELECT",  -- Keyword as identifier
+      another as "Case_Specific_Alias"
+    from my_schema.my_table
+
+test_fail_default_uppercase:
+  # Snowflake is a dialect which casefolds to UPPERCASE
+  fail_str: |
+    SELECT
+      "COLUMN_REFERENCE",
+      foo AS "COLUMN_ALIAS",
+      "Case_Specific_Reference"
+    FROM "SCHEMA_REFERENCE"."TABLE_REFERENCE" AS "TABLE_ALIAS"
+  fix_str: |
+    SELECT
+      COLUMN_REFERENCE,
+      foo AS COLUMN_ALIAS,
+      "Case_Specific_Reference"
+    FROM SCHEMA_REFERENCE.TABLE_REFERENCE AS TABLE_ALIAS
+  configs:
+    core:
+      dialect: snowflake
+
+test_fail_default_lowercase:
+  # Postgres is a dialect which casefolds to lowercase
+  fail_str: |
+    SELECT
+      "column_reference",
+      foo AS "column_alias",
+      "Case_Specific_Reference"
+    FROM "schema_reference"."table_reference" AS "table_alias"
+  fix_str: |
+    SELECT
+      column_reference,
+      foo AS column_alias,
+      "Case_Specific_Reference"
+    FROM schema_reference.table_reference AS table_alias
+  configs:
+    core:
+      dialect: postgres
+
+test_fail_default_insensitive:
+  # DuckDB is a dialect which compares insensitively, which means
+  # as long as the identifier is *valid* without quotes, we should
+  # remove the quotes.
+  fail_str: |
+    SELECT
+      "lowercase_reference",
+      "UPPERCASE_REFERENCE",
+      foo AS "column_alias",
+      "Case_Specific_Reference",
+      "SELECT"
+    FROM "schema_reference"."TABLE_REFERENCE" AS "table_alias"
+  fix_str: |
+    SELECT
+      lowercase_reference,
+      UPPERCASE_REFERENCE,
+      foo AS column_alias,
+      Case_Specific_Reference,
+      "SELECT"
+    FROM schema_reference.TABLE_REFERENCE AS table_alias
+  configs:
+    core:
+      dialect: duckdb
+
+test_pass_reference_tsql:
+  # Tests the TSQL bracket quotes.
+  # TSQL casefolds UPPERCASE.
+  pass_str: |
+    SELECT
+        123 as [I cannot be unquoted],  -- Because spaces
+        [I-c@nn0t-be~un-quoted],  -- Because special characters
+        [SELECT]  -- Because keyword
+  configs:
+    core:
+      dialect: tsql
+
+test_fail_reference_tsql:
+  # Tests the TSQL bracket quotes.
+  # TSQL casefolds UPPERCASE.
+  fail_str: |
+    SELECT
+        [FOO] AS [BAR]
+    FROM [SCH].[TBL];
+  fix_str: |
+    SELECT
+        FOO AS BAR
+    FROM SCH.TBL;
+  configs:
+    core:
+      dialect: tsql
+
+
+test_pass_column_reference_prefer_quoted_ansi:
+  pass_str: |
+    SELECT 123 AS "foo";
+  configs:
+    rules:
+      references.quoting:
+        prefer_quoted_identifiers: true
+
+test_pass_column_reference_prefer_quoted_tsql:
+  pass_str: |
+    SELECT 123 AS [foo];
+  configs:
+    core:
+      dialect: tsql
+    rules:
+      references.quoting:
+        prefer_quoted_identifiers: true
+
+test_fail_column_reference_prefer_quoted_ansi:
+  fail_str: |
+    SELECT 123 AS foo;
+  configs:
+    rules:
+      references.quoting:
+        prefer_quoted_identifiers: true
+
+test_pass_table_reference_prefer_quoted_ansi:
+  pass_str: |
+    SELECT "foo"
+    FROM "bar";
+  configs:
+    rules:
+      references.quoting:
+        prefer_quoted_identifiers: true
+
+test_pass_table_reference_prefer_quoted_tsql:
+  pass_str: |
+    SELECT [foo]
+    FROM [bar];
+  configs:
+    core:
+      dialect: tsql
+    rules:
+      references.quoting:
+        prefer_quoted_identifiers: true
+
+test_fail_table_reference_prefer_quoted_ansi:
+  fail_str: |
+    SELECT "foo"
+    FROM bar;
+  configs:
+    rules:
+      references.quoting:
+        prefer_quoted_identifiers: true
+
+test_fail_table_reference_prefer_quoted_tsql:
+  fail_str: |
+    SELECT [foo]
+    FROM bar;
+  configs:
+    core:
+      dialect: tsql
+    rules:
+      references.quoting:
+        prefer_quoted_identifiers: true
+
+test_pass_multiple_references_prefer_quoted_ansi:
+  pass_str: |
+    SELECT "foo"
+    FROM "bar"."baz";
+  configs:
+    rules:
+      references.quoting:
+        prefer_quoted_identifiers: true
+
+test_pass_multiple_references_prefer_quoted_tsql:
+  pass_str: |
+    SELECT [foo]
+    FROM [bar].[baz];
+  configs:
+    core:
+      dialect: tsql
+    rules:
+      references.quoting:
+        prefer_quoted_identifiers: true
+
+test_fail_multiple_references_prefer_quoted_ansi:
+  fail_str: |
+    SELECT "foo"
+    FROM bar.baz;
+  configs:
+    rules:
+      references.quoting:
+        prefer_quoted_identifiers: true
+
+test_fail_multiple_references_prefer_quoted_tsql:
+  fail_str: |
+    SELECT [foo]
+    FROM bar.baz;
+  configs:
+    core:
+      dialect: tsql
+    rules:
+      references.quoting:
+        prefer_quoted_identifiers: true
+
+test_pass_whitespace_prefer_quoted_ansi:
+  pass_str: |
+    SELECT 123 AS "I cannot be unquoted"
+  configs:
+    rules:
+      references.quoting:
+        prefer_quoted_identifiers: true
+
+test_pass_whitespace_prefer_quoted_tsql:
+  pass_str: |
+    SELECT 123 AS [I cannot be unquoted]
+  configs:
+    core:
+      dialect: tsql
+    rules:
+      references.quoting:
+        prefer_quoted_identifiers: true
+
+test_pass_special_symbols_prefer_quoted_ansi:
+  pass_str: |
+    SELECT 123 AS "I-c@nn0t-be~un-quoted"
+  configs:
+    rules:
+      references.quoting:
+        prefer_quoted_identifiers: true
+
+test_pass_special_symbols_prefer_quoted_tsql:
+  pass_str: |
+    SELECT 123 AS [I-c@nn0t-be~un-quoted]
+  configs:
+    core:
+      dialect: tsql
+    rules:
+      references.quoting:
+        prefer_quoted_identifiers: true
+
+test_pass_reserved_keyword_prefer_quoted_ansi:
+  pass_str: |
+    SELECT 123 AS "SELECT"
+  configs:
+    rules:
+      references.quoting:
+        prefer_quoted_identifiers: true
+
+test_pass_reserved_keyword_prefer_quoted_tsql:
+  pass_str: |
+    SELECT 123 AS [SELECT]
+  configs:
+    core:
+      dialect: tsql
+    rules:
+      references.quoting:
+        prefer_quoted_identifiers: true
+
+test_pass_column_reference_prefer_quoted_backticks:
+  pass_str: |
+    SELECT 123 AS `foo`;
+  configs:
+    core:
+      dialect: bigquery
+    rules:
+      references.quoting:
+        prefer_quoted_identifiers: true
+
+test_fail_column_reference_prefer_quoted_backticks:
+  fail_str: |
+    SELECT 123 AS foo;
+  configs:
+    core:
+      dialect: bigquery
+    rules:
+      references.quoting:
+        prefer_quoted_identifiers: true
+
+test_pass_table_reference_prefer_quoted_backticks:
+  pass_str: |
+    SELECT `foo`
+    FROM `bar`;
+  configs:
+    core:
+      dialect: bigquery
+    rules:
+      references.quoting:
+        prefer_quoted_identifiers: true
+
+test_fail_table_reference_prefer_quoted_backticks:
+  fail_str: |
+    SELECT `foo`
+    FROM bar;
+  configs:
+    core:
+      dialect: bigquery
+    rules:
+      references.quoting:
+        prefer_quoted_identifiers: true
+
+test_pass_multiple_references_prefer_quoted_backticks:
+  pass_str: |
+    SELECT `foo`
+    FROM `bar`.`baz`;
+  configs:
+    core:
+      dialect: bigquery
+    rules:
+      references.quoting:
+        prefer_quoted_identifiers: true
+
+test_fail_multiple_references_prefer_quoted_backticks:
+  fail_str: |
+    SELECT `foo`
+    FROM bar.baz;
+  configs:
+    core:
+      dialect: bigquery
+    rules:
+      references.quoting:
+        prefer_quoted_identifiers: true
+
+test_pass_whitespace_prefer_quoted_backticks:
+  pass_str: |
+    SELECT 123 AS `I cannot be unquoted`
+  configs:
+    core:
+      dialect: bigquery
+    rules:
+      references.quoting:
+        prefer_quoted_identifiers: true
+
+test_pass_special_symbols_prefer_quoted_backticks:
+  pass_str: |
+    SELECT 123 AS `I-c@nn0t-be~un-quoted`
+  configs:
+    core:
+      dialect: bigquery
+    rules:
+      references.quoting:
+        prefer_quoted_identifiers: true
+
+test_pass_reserved_keyword_prefer_quoted_backticks:
+  pass_str: |
+    SELECT 123 AS `SELECT`
+  configs:
+    core:
+      dialect: bigquery
+    rules:
+      references.quoting:
+        prefer_quoted_identifiers: true
+
+test_pass_datetime_redshift:
+  pass_str: |
+    SELECT "datetime"
+  configs:
+    core:
+      dialect: redshift
+
+test_pass_uppivot_bigquery:
+  pass_str: |
+    SELECT
+        *
+    FROM model
+    UNPIVOT(
+        (A, B)
+        FOR year
+        IN ((C, D) AS 'year_2011', (E, F) AS 'year_2012'));
+  configs:
+    core:
+      dialect: bigquery
+
+test_pass_quoted_identifier_keyword_tsql:
+  pass_str: |
+    SET QUOTED_IDENTIFIER ON
+    GO
+  configs:
+    core:
+      dialect: tsql
+
+test_pass_create_user_quoted_password_exasol:
+  pass_str: |
+    CREATE USER user_1 IDENTIFIED BY "h12_xhz";
+  configs:
+    core:
+      dialect: exasol
+
+test_fail_create_quoted_user_exasol:
+  fail_str: |
+    CREATE USER "USER1" IDENTIFIED BY "h12_xhz";
+  fix_str: |
+    CREATE USER USER1 IDENTIFIED BY "h12_xhz";
+  configs:
+    core:
+      dialect: exasol
+
+test_pass_ignore_lists:
+  pass_str:
+    SELECT 123 AS "foo";
+  configs:
+    rules:
+      references.quoting:
+        ignore_words: foo
+
+test_pass_ignore_lists_tsql:
+  pass_str:
+    SELECT 123 AS [foo];
+  configs:
+    core:
+      dialect: tsql
+    rules:
+      references.quoting:
+        ignore_words: foo
+
+test_pass_ignore_lists_mixed_case:
+  pass_str:
+    SELECT 123 AS "Foo";
+  configs:
+    rules:
+      references.quoting:
+        ignore_words: foo
+
+test_pass_ignore_lists_mixed_case_tsql:
+  pass_str:
+    SELECT 123 AS [Foo];
+  configs:
+    core:
+      dialect: tsql
+    rules:
+      references.quoting:
+        ignore_words: foo
+
+test_pass_ignore_words_regex:
+  pass_str:
+    SELECT 123 AS "foo";
+  configs:
+    rules:
+      references.quoting:
+        ignore_words_regex: ^fo
+
+test_pass_ignore_words_regex_tsql:
+  pass_str:
+    SELECT 123 AS [foo];
+  configs:
+    core:
+      dialect: tsql
+    rules:
+      references.quoting:
+        ignore_words_regex: ^fo
+
+test_pass_ignore_words_regex_mixed_case:
+  pass_str:
+    SELECT 123 AS "Foo";
+  configs:
+    rules:
+      references.quoting:
+        ignore_words_regex: ^Fo
+
+test_pass_ignore_words_regex_mixed_case_tsql:
+  pass_str:
+    SELECT 123 AS [Foo];
+  configs:
+    core:
+      dialect: tsql
+    rules:
+      references.quoting:
+        ignore_words_regex: ^Fo
+
+test_pass_ignore_if:
+  pass_str:
+    DROP TABLE IF EXISTS "example";
+  configs:
+    rules:
+      references.quoting:
+        prefer_quoted_identifiers: true
+
+test_pass_ignore_if_tsql:
+  pass_str:
+    DROP TABLE IF EXISTS [example];
+  configs:
+    core:
+      dialect: tsql
+    rules:
+      references.quoting:
+        prefer_quoted_identifiers: true
+
+test_fail_insert_overwrite_directory:
+  # NOTE: SparkSQL is case insensitive
+  fail_str: |
+    INSERT OVERWRITE DIRECTORY '/tmp/destination'
+    USING PARQUET
+    OPTIONS ("col1" = "1", "col2" = "2", "col3" = 'test', "user" = "a person")
+    SELECT a FROM test_table;
+  fix_str: |
+    INSERT OVERWRITE DIRECTORY '/tmp/destination'
+    USING PARQUET
+    OPTIONS (col1 = "1", col2 = "2", col3 = 'test', "user" = "a person")
+    SELECT a FROM test_table;
+  configs:
+    core:
+      dialect: sparksql
+
+test_pass_insert_overwrite_directory:
+  pass_str: |
+    INSERT OVERWRITE DIRECTORY '/tmp/destination'
+    USING PARQUET
+    OPTIONS (col1 = "1", col2 = "2", col3 = 'test', "user" = "a person")
+    SELECT a FROM test_table;
+  configs:
+    core:
+      dialect: sparksql
+
+test_fail_quoted_column_ansi:
+  # NOTE: ANSI is UPPERCASE
+  fail_str: |
+    SELECT d."DATE"
+    FROM d
+  fix_str: |
+    SELECT d.DATE
+    FROM d
+
+test_fail_quoted_column_tsql:
+  # NOTE: TSQL is UPPERCASE
+  fail_str: |
+    SELECT d.[DATE]
+    FROM d
+  fix_str: |
+    SELECT d.DATE
+    FROM d
+  configs:
+    core:
+      dialect: tsql
+
+test_fail_quoted_column_tsql_case_insensitive:
+  fail_str: |
+    SELECT d.[date]
+    FROM d
+  fix_str: |
+    SELECT d.date
+    FROM d
+  configs:
+    core:
+      dialect: tsql
+    rules:
+      references.quoting:
+        case_sensitive: false
+
+test_pass_quoted_column_snowflake:
+  # The rule is disabled by default in Snowflake.
+  pass_str: |
+    SELECT d."date"
+    FROM d
+  configs:
+    core:
+      dialect: snowflake
+
+test_fail_quoted_column_snowflake_case_insensitive:
+  fail_str: |
+    SELECT d."date"
+    FROM d
+  fix_str: |
+    SELECT d.date
+    FROM d
+  configs:
+    core:
+      dialect: snowflake
+    rules:
+      references.quoting:
+        case_sensitive: false
+
+test_fail_quoted_column_postgres_case_sensitive:
+  fail_str: |
+    SELECT d."foo", d."FOO"
+    FROM d
+  fix_str: |
+    SELECT d.foo, d."FOO"
+    FROM d
+  configs:
+    core:
+      dialect: postgres
+    rules:
+      references.quoting:
+        case_sensitive: true
+
+test_fail_quoted_column_postgres_case_insensitive:
+  fail_str: |
+    SELECT d."foo", d."FOO"
+    FROM d
+  fix_str: |
+    SELECT d.foo, d.FOO
+    FROM d
+  configs:
+    core:
+      dialect: postgres
+    rules:
+      references.quoting:
+        case_sensitive: false
+
+test_pass_prefer_quoted_keywords_athena:
+  pass_str: SELECT 1 AS "metadata"
+  configs:
+    rules:
+      references.quoting:
+        prefer_quoted_keywords: true
+    core:
+      dialect: athena
+
+test_fail_prefer_quoted_keywords_athena:
+  fail_str: SELECT 1 AS metadata
+  configs:
+    rules:
+      references.quoting:
+        prefer_quoted_keywords: true
+    core:
+      dialect: athena
+
+test_pass_tsql_execute_as:
+  # 'login_test' should remain quoted.
+  pass_str: |
+    CREATE TRIGGER connection_limit_trigger
+    ON ALL SERVER WITH EXECUTE AS 'login_test'
+    FOR LOGON
+    AS
+        PRINT 'Database Created.'
+        SELECT 1
+    GO
+  configs:
+    rules:
+      references.quoting:
+        prefer_quoted_identifiers: false
+    core:
+      dialect: tsql
+
+test_pass_exasol_password_literals:
+  # password literals should remain quoted.
+  pass_str: |
+    ALTER USER user_1 IDENTIFIED BY "h22_xhz" REPLACE "h12_xhz";
+  configs:
+    rules:
+      references.quoting:
+        prefer_quoted_identifiers: false
+    core:
+      dialect: exasol

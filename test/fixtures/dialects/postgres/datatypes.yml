@@ -1,0 +1,862 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 273d8f6968ebba5d069390bd6f3ab32f63f86b75274a1e2c0425e45394daa534
+file:
+- statement:
+    create_table_statement:
+    - keyword: create
+    - keyword: table
+    - table_reference:
+        naked_identifier: a
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          naked_identifier: a
+          data_type:
+            keyword: smallint
+      - comma: ','
+      - column_definition:
+          naked_identifier: b
+          data_type:
+            keyword: integer
+      - comma: ','
+      - column_definition:
+          naked_identifier: ba
+          data_type:
+            keyword: int2
+      - comma: ','
+      - column_definition:
+          naked_identifier: bb
+          data_type:
+            keyword: int4
+      - comma: ','
+      - column_definition:
+          naked_identifier: bc
+          data_type:
+            keyword: int8
+      - comma: ','
+      - column_definition:
+          naked_identifier: bd
+          data_type:
+            keyword: int
+      - comma: ','
+      - column_definition:
+          naked_identifier: c
+          data_type:
+            keyword: bigint
+      - comma: ','
+      - column_definition:
+          naked_identifier: d
+          data_type:
+            keyword: real
+      - comma: ','
+      - column_definition:
+          naked_identifier: e
+          data_type:
+          - keyword: double
+          - keyword: precision
+      - comma: ','
+      - column_definition:
+          naked_identifier: f
+          data_type:
+            keyword: smallserial
+      - comma: ','
+      - column_definition:
+          naked_identifier: g
+          data_type:
+            keyword: serial
+      - comma: ','
+      - column_definition:
+          naked_identifier: ga
+          data_type:
+            keyword: serial2
+      - comma: ','
+      - column_definition:
+          naked_identifier: gb
+          data_type:
+            keyword: serial4
+      - comma: ','
+      - column_definition:
+          naked_identifier: gc
+          data_type:
+            keyword: serial8
+      - comma: ','
+      - column_definition:
+          naked_identifier: h
+          data_type:
+            keyword: bigserial
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: create
+    - keyword: table
+    - table_reference:
+        naked_identifier: b
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          naked_identifier: a
+          data_type:
+            keyword: float
+      - comma: ','
+      - column_definition:
+          naked_identifier: b
+          data_type:
+            keyword: float
+            bracketed_arguments:
+              bracketed:
+                start_bracket: (
+                numeric_literal: '24'
+                end_bracket: )
+      - comma: ','
+      - column_definition:
+          naked_identifier: c
+          data_type:
+            keyword: float4
+      - comma: ','
+      - column_definition:
+          naked_identifier: e
+          data_type:
+            keyword: float8
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: create
+    - keyword: table
+    - table_reference:
+        naked_identifier: c
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          naked_identifier: a
+          data_type:
+            keyword: numeric
+      - comma: ','
+      - column_definition:
+          naked_identifier: aa
+          data_type:
+            keyword: decimal
+      - comma: ','
+      - column_definition:
+          naked_identifier: b
+          data_type:
+            keyword: numeric
+            bracketed_arguments:
+              bracketed:
+                start_bracket: (
+                numeric_literal: '7'
+                end_bracket: )
+      - comma: ','
+      - column_definition:
+          naked_identifier: ba
+          data_type:
+            keyword: decimal
+            bracketed_arguments:
+              bracketed:
+                start_bracket: (
+                numeric_literal: '7'
+                end_bracket: )
+      - comma: ','
+      - column_definition:
+          naked_identifier: c
+          data_type:
+            keyword: numeric
+            bracketed_arguments:
+              bracketed:
+              - start_bracket: (
+              - numeric_literal: '7'
+              - comma: ','
+              - numeric_literal: '2'
+              - end_bracket: )
+      - comma: ','
+      - column_definition:
+          naked_identifier: ca
+          data_type:
+            keyword: decimal
+            bracketed_arguments:
+              bracketed:
+              - start_bracket: (
+              - numeric_literal: '7'
+              - comma: ','
+              - numeric_literal: '2'
+              - end_bracket: )
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: create
+    - keyword: table
+    - table_reference:
+        naked_identifier: d
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          naked_identifier: a
+          data_type:
+            keyword: money
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: create
+    - keyword: table
+    - table_reference:
+        naked_identifier: e
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          naked_identifier: a
+          data_type:
+            keyword: char
+      - comma: ','
+      - column_definition:
+          naked_identifier: b
+          data_type:
+            keyword: char
+            bracketed_arguments:
+              bracketed:
+                start_bracket: (
+                numeric_literal: '7'
+                end_bracket: )
+      - comma: ','
+      - column_definition:
+          naked_identifier: c
+          data_type:
+            keyword: character
+      - comma: ','
+      - column_definition:
+          naked_identifier: d
+          data_type:
+            keyword: character
+            bracketed_arguments:
+              bracketed:
+                start_bracket: (
+                numeric_literal: '5'
+                end_bracket: )
+      - comma: ','
+      - column_definition:
+          naked_identifier: e
+          data_type:
+          - keyword: character
+          - keyword: varying
+      - comma: ','
+      - column_definition:
+          naked_identifier: f
+          data_type:
+          - keyword: character
+          - keyword: varying
+          - bracketed_arguments:
+              bracketed:
+                start_bracket: (
+                numeric_literal: '8'
+                end_bracket: )
+      - comma: ','
+      - column_definition:
+          naked_identifier: g
+          data_type:
+            keyword: varchar
+            bracketed_arguments:
+              bracketed:
+                start_bracket: (
+                numeric_literal: '9'
+                end_bracket: )
+      - comma: ','
+      - column_definition:
+          naked_identifier: h
+          data_type:
+            keyword: varchar
+      - comma: ','
+      - column_definition:
+          naked_identifier: i
+          data_type:
+            keyword: text
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: create
+    - keyword: table
+    - table_reference:
+        naked_identifier: f
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          naked_identifier: a
+          data_type:
+            keyword: bytea
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: create
+    - keyword: table
+    - table_reference:
+        naked_identifier: g
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          naked_identifier: a
+          data_type:
+            datetime_type_identifier:
+              keyword: date
+      - comma: ','
+      - column_definition:
+          naked_identifier: b
+          data_type:
+            datetime_type_identifier:
+              keyword: interval
+              bracketed:
+                start_bracket: (
+                numeric_literal: '4'
+                end_bracket: )
+      - comma: ','
+      - column_definition:
+          naked_identifier: c
+          data_type:
+            datetime_type_identifier:
+              keyword: time
+              bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  numeric_literal: '4'
+                  end_bracket: )
+      - comma: ','
+      - column_definition:
+          naked_identifier: d
+          data_type:
+            datetime_type_identifier:
+            - keyword: time
+            - bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  numeric_literal: '4'
+                  end_bracket: )
+            - keyword: with
+            - keyword: time
+            - keyword: zone
+      - comma: ','
+      - column_definition:
+          naked_identifier: e
+          data_type:
+            datetime_type_identifier:
+            - keyword: time
+            - bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  numeric_literal: '4'
+                  end_bracket: )
+            - keyword: without
+            - keyword: time
+            - keyword: zone
+      - comma: ','
+      - column_definition:
+          naked_identifier: f
+          data_type:
+            datetime_type_identifier:
+              keyword: timestamp
+              bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  numeric_literal: '4'
+                  end_bracket: )
+      - comma: ','
+      - column_definition:
+          naked_identifier: g
+          data_type:
+            datetime_type_identifier:
+            - keyword: timestamp
+            - bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  numeric_literal: '4'
+                  end_bracket: )
+            - keyword: with
+            - keyword: time
+            - keyword: zone
+      - comma: ','
+      - column_definition:
+          naked_identifier: h
+          data_type:
+            datetime_type_identifier:
+            - keyword: timestamp
+            - bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  numeric_literal: '4'
+                  end_bracket: )
+            - keyword: without
+            - keyword: time
+            - keyword: zone
+      - comma: ','
+      - column_definition:
+          naked_identifier: i
+          data_type:
+            datetime_type_identifier:
+              keyword: timetz
+      - comma: ','
+      - column_definition:
+          naked_identifier: j
+          data_type:
+            datetime_type_identifier:
+              keyword: timetz
+              bracketed:
+                start_bracket: (
+                numeric_literal: '4'
+                end_bracket: )
+      - comma: ','
+      - column_definition:
+          naked_identifier: k
+          data_type:
+            datetime_type_identifier:
+              keyword: timestamptz
+      - comma: ','
+      - column_definition:
+          naked_identifier: l
+          data_type:
+            datetime_type_identifier:
+              keyword: timestamptz
+              bracketed:
+                start_bracket: (
+                numeric_literal: '4'
+                end_bracket: )
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: create
+    - keyword: table
+    - table_reference:
+        naked_identifier: h
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          naked_identifier: a
+          data_type:
+            keyword: boolean
+      - comma: ','
+      - column_definition:
+          naked_identifier: b
+          data_type:
+            keyword: bool
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: create
+    - keyword: table
+    - table_reference:
+        naked_identifier: i
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          naked_identifier: a
+          data_type:
+            keyword: point
+      - comma: ','
+      - column_definition:
+          naked_identifier: b
+          data_type:
+            keyword: line
+      - comma: ','
+      - column_definition:
+          naked_identifier: c
+          data_type:
+            keyword: lseg
+      - comma: ','
+      - column_definition:
+          naked_identifier: d
+          data_type:
+            keyword: box
+      - comma: ','
+      - column_definition:
+          naked_identifier: e
+          data_type:
+            keyword: path
+      - comma: ','
+      - column_definition:
+          naked_identifier: f
+          data_type:
+            keyword: polygon
+      - comma: ','
+      - column_definition:
+          naked_identifier: g
+          data_type:
+            keyword: circle
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: create
+    - keyword: table
+    - table_reference:
+        naked_identifier: j
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          naked_identifier: a
+          data_type:
+            keyword: cidr
+      - comma: ','
+      - column_definition:
+          naked_identifier: b
+          data_type:
+            keyword: inet
+      - comma: ','
+      - column_definition:
+          naked_identifier: c
+          data_type:
+            keyword: macaddr
+      - comma: ','
+      - column_definition:
+          naked_identifier: d
+          data_type:
+            keyword: macaddr8
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: create
+    - keyword: table
+    - table_reference:
+        naked_identifier: k
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          naked_identifier: a
+          data_type:
+            keyword: bit
+      - comma: ','
+      - column_definition:
+          naked_identifier: b
+          data_type:
+            keyword: bit
+            bracketed_arguments:
+              bracketed:
+                start_bracket: (
+                numeric_literal: '3'
+                end_bracket: )
+      - comma: ','
+      - column_definition:
+          naked_identifier: c
+          data_type:
+          - keyword: bit
+          - keyword: varying
+      - comma: ','
+      - column_definition:
+          naked_identifier: d
+          data_type:
+          - keyword: bit
+          - keyword: varying
+          - bracketed_arguments:
+              bracketed:
+                start_bracket: (
+                numeric_literal: '5'
+                end_bracket: )
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: create
+    - keyword: table
+    - table_reference:
+        naked_identifier: l
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          naked_identifier: a
+          data_type:
+            keyword: pg_lsn
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: create
+    - keyword: table
+    - table_reference:
+        naked_identifier: l
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          naked_identifier: a
+          data_type:
+            keyword: tsvector
+      - comma: ','
+      - column_definition:
+          naked_identifier: b
+          data_type:
+            keyword: tsquery
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: create
+    - keyword: table
+    - table_reference:
+        naked_identifier: m
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          naked_identifier: a
+          data_type:
+            keyword: uuid
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: create
+    - keyword: table
+    - table_reference:
+        naked_identifier: n
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          naked_identifier: a
+          data_type:
+            keyword: xml
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: create
+    - keyword: table
+    - table_reference:
+        naked_identifier: o
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          naked_identifier: a
+          data_type:
+            keyword: json
+      - comma: ','
+      - column_definition:
+          naked_identifier: b
+          data_type:
+            keyword: jsonb
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: create
+    - keyword: table
+    - table_reference:
+        naked_identifier: p
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          naked_identifier: a
+          data_type:
+            keyword: integer
+            start_square_bracket: '['
+            end_square_bracket: ']'
+      - comma: ','
+      - column_definition:
+          naked_identifier: b
+          data_type:
+          - keyword: float
+          - start_square_bracket: '['
+          - end_square_bracket: ']'
+          - start_square_bracket: '['
+          - end_square_bracket: ']'
+      - comma: ','
+      - column_definition:
+          naked_identifier: c
+          data_type:
+            keyword: char
+            start_square_bracket: '['
+            expression:
+              numeric_literal: '1'
+            end_square_bracket: ']'
+      - comma: ','
+      - column_definition:
+          naked_identifier: d
+          data_type:
+          - keyword: jsonb
+          - start_square_bracket: '['
+          - expression:
+              numeric_literal: '3'
+          - end_square_bracket: ']'
+          - start_square_bracket: '['
+          - expression:
+              numeric_literal: '5'
+          - end_square_bracket: ']'
+      - comma: ','
+      - column_definition:
+          naked_identifier: e
+          data_type:
+            keyword: money
+            array_type:
+              keyword: ARRAY
+      - comma: ','
+      - column_definition:
+          naked_identifier: f
+          data_type:
+            keyword: money
+            sized_array_type:
+              array_type:
+                keyword: ARRAY
+              array_accessor:
+                start_square_bracket: '['
+                numeric_literal: '7'
+                end_square_bracket: ']'
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_type_statement:
+    - keyword: CREATE
+    - keyword: TYPE
+    - object_reference:
+        naked_identifier: bar
+    - keyword: AS
+    - keyword: ENUM
+    - bracketed:
+      - start_bracket: (
+      - single_quote: "'foo'"
+      - comma: ','
+      - single_quote: "'bar'"
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: create
+    - keyword: table
+    - table_reference:
+        naked_identifier: q
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          naked_identifier: a
+          data_type:
+            data_type_identifier: bar
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_type_statement:
+    - keyword: create
+    - keyword: type
+    - object_reference:
+      - naked_identifier: public
+      - dot: .
+      - naked_identifier: c
+    - keyword: AS
+    - keyword: ENUM
+    - bracketed:
+      - start_bracket: (
+      - single_quote: "'foo'"
+      - comma: ','
+      - single_quote: "'bar'"
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: create
+    - keyword: table
+    - table_reference:
+        naked_identifier: r
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          naked_identifier: a
+          data_type:
+            naked_identifier: public
+            dot: .
+            data_type_identifier: c
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: a
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          naked_identifier: b
+          data_type:
+            datetime_type_identifier:
+              keyword: DATE
+      - comma: ','
+      - column_definition:
+          naked_identifier: c
+          data_type:
+            data_type_identifier: DATETIME
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+            cast_expression:
+              column_reference:
+                naked_identifier: b
+              casting_operator: '::'
+              data_type:
+                data_type_identifier: DATETIME
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: a
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+            naked_identifier: b
+      - comma: ','
+      - select_clause_element:
+          expression:
+            cast_expression:
+              column_reference:
+                naked_identifier: c
+              casting_operator: '::'
+              data_type:
+                datetime_type_identifier:
+                  keyword: DATE
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: a
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: create
+    - keyword: table
+    - table_reference:
+        naked_identifier: test
+    - bracketed:
+        start_bracket: (
+        column_definition:
+        - naked_identifier: situation
+        - data_type:
+            keyword: bpchar
+            bracketed_arguments:
+              bracketed:
+                start_bracket: (
+                numeric_literal: '1'
+                end_bracket: )
+        - column_constraint_segment:
+            keyword: 'null'
+        - column_constraint_segment:
+            keyword: default
+            cast_expression:
+              quoted_literal: "'A'"
+              casting_operator: '::'
+              data_type:
+                keyword: bpchar
+        end_bracket: )
+- statement_terminator: ;

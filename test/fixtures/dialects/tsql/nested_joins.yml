@@ -1,0 +1,388 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: a530620325dc05639c53d38db1b0cab45e5ece5cf5c83b1ff34bab2d1dcb11cd
+file:
+- batch:
+    statement:
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            integer_literal: '1'
+            alias_expression:
+              alias_operator:
+                keyword: AS
+              naked_identifier: RegionCode
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: BA
+            join_clause:
+            - keyword: LEFT
+            - keyword: OUTER
+            - keyword: JOIN
+            - from_expression_element:
+                table_expression:
+                  table_reference:
+                    naked_identifier: I
+            - join_clause:
+              - keyword: LEFT
+              - keyword: OUTER
+              - keyword: JOIN
+              - from_expression_element:
+                  table_expression:
+                    table_reference:
+                      naked_identifier: P
+              - join_on_condition:
+                  keyword: 'ON'
+                  expression:
+                  - column_reference:
+                    - naked_identifier: I
+                    - dot: .
+                    - naked_identifier: Pcd
+                  - comparison_operator:
+                      raw_comparison_operator: '='
+                  - column_reference:
+                    - naked_identifier: P
+                    - dot: .
+                    - naked_identifier: Iid
+            - join_on_condition:
+                keyword: 'ON'
+                expression:
+                - column_reference:
+                  - naked_identifier: BA
+                  - dot: .
+                  - naked_identifier: Iid
+                - comparison_operator:
+                    raw_comparison_operator: '='
+                - column_reference:
+                  - naked_identifier: I
+                  - dot: .
+                  - naked_identifier: Bcd
+    statement_terminator: ;
+    go_statement:
+      keyword: GO
+- batch:
+  - statement:
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            integer_literal: '1'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: BA
+            join_clause:
+            - keyword: RIGHT
+            - keyword: OUTER
+            - keyword: JOIN
+            - from_expression_element:
+                table_expression:
+                  table_reference:
+                    naked_identifier: I
+            - join_clause:
+              - keyword: LEFT
+              - keyword: OUTER
+              - keyword: JOIN
+              - from_expression_element:
+                  table_expression:
+                    table_reference:
+                      naked_identifier: P
+                  alias_expression:
+                    alias_operator:
+                      keyword: AS
+                    naked_identifier: P_1
+              - join_clause:
+                - keyword: LEFT
+                - keyword: OUTER
+                - keyword: JOIN
+                - from_expression_element:
+                    table_expression:
+                      table_reference:
+                        naked_identifier: IP
+                    alias_expression:
+                      alias_operator:
+                        keyword: AS
+                      naked_identifier: IP_1
+                - join_on_condition:
+                    keyword: 'ON'
+                    expression:
+                    - column_reference:
+                      - naked_identifier: P_1
+                      - dot: .
+                      - naked_identifier: NID
+                    - comparison_operator:
+                        raw_comparison_operator: '='
+                    - column_reference:
+                      - naked_identifier: IP_1
+                      - dot: .
+                      - naked_identifier: NID
+              - join_on_condition:
+                  keyword: 'ON'
+                  expression:
+                    column_reference:
+                    - naked_identifier: I
+                    - dot: .
+                    - naked_identifier: PID
+                    comparison_operator:
+                      raw_comparison_operator: '='
+                    function:
+                      function_name:
+                        keyword: CAST
+                      function_contents:
+                        bracketed:
+                          start_bracket: (
+                          expression:
+                            column_reference:
+                            - naked_identifier: P_1
+                            - dot: .
+                            - naked_identifier: IDEID
+                          keyword: AS
+                          data_type:
+                            keyword: varchar
+                          end_bracket: )
+            - join_clause:
+              - keyword: LEFT
+              - keyword: OUTER
+              - keyword: JOIN
+              - from_expression_element:
+                  table_expression:
+                    table_reference:
+                      naked_identifier: P
+                  alias_expression:
+                    alias_operator:
+                      keyword: AS
+                    naked_identifier: P_2
+              - join_clause:
+                - keyword: LEFT
+                - keyword: OUTER
+                - keyword: JOIN
+                - from_expression_element:
+                    table_expression:
+                      table_reference:
+                        naked_identifier: IP
+                    alias_expression:
+                      alias_operator:
+                        keyword: AS
+                      naked_identifier: IP_2
+                - join_on_condition:
+                    keyword: 'ON'
+                    expression:
+                    - column_reference:
+                      - naked_identifier: P_2
+                      - dot: .
+                      - naked_identifier: NID
+                    - comparison_operator:
+                        raw_comparison_operator: '='
+                    - column_reference:
+                      - naked_identifier: IP_2
+                      - dot: .
+                      - naked_identifier: NID
+              - join_on_condition:
+                  keyword: 'ON'
+                  expression:
+                    column_reference:
+                    - naked_identifier: I
+                    - dot: .
+                    - naked_identifier: SecondaryPID
+                    comparison_operator:
+                      raw_comparison_operator: '='
+                    function:
+                      function_name:
+                        keyword: CAST
+                      function_contents:
+                        bracketed:
+                          start_bracket: (
+                          expression:
+                            column_reference:
+                            - naked_identifier: P_2
+                            - dot: .
+                            - naked_identifier: IDEID
+                          keyword: AS
+                          data_type:
+                            keyword: varchar
+                          end_bracket: )
+            - join_on_condition:
+                keyword: 'ON'
+                expression:
+                  function:
+                    function_name:
+                      keyword: CAST
+                    function_contents:
+                      bracketed:
+                        start_bracket: (
+                        expression:
+                          column_reference:
+                          - naked_identifier: BA
+                          - dot: .
+                          - naked_identifier: IDEID
+                        keyword: AS
+                        data_type:
+                          keyword: varchar
+                        end_bracket: )
+                  comparison_operator:
+                    raw_comparison_operator: '='
+                  column_reference:
+                  - naked_identifier: I
+                  - dot: .
+                  - naked_identifier: BAID
+  - statement:
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            integer_literal: '1'
+            alias_expression:
+              alias_operator:
+                keyword: AS
+              naked_identifier: RegionCode
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: BA
+            join_clause:
+            - keyword: LEFT
+            - keyword: OUTER
+            - keyword: JOIN
+            - from_expression_element:
+                table_expression:
+                  bracketed:
+                    start_bracket: (
+                    table_expression:
+                      table_reference:
+                        naked_identifier: I
+                    join_clause:
+                      keyword: JOIN
+                      from_expression_element:
+                        table_expression:
+                          table_reference:
+                            naked_identifier: P
+                      join_on_condition:
+                        keyword: 'ON'
+                        expression:
+                        - column_reference:
+                          - naked_identifier: I
+                          - dot: .
+                          - naked_identifier: Pcd
+                        - comparison_operator:
+                            raw_comparison_operator: '='
+                        - column_reference:
+                          - naked_identifier: P
+                          - dot: .
+                          - naked_identifier: Iid
+                    end_bracket: )
+            - join_on_condition:
+                keyword: 'ON'
+                expression:
+                - column_reference:
+                  - naked_identifier: BA
+                  - dot: .
+                  - naked_identifier: Iid
+                - comparison_operator:
+                    raw_comparison_operator: '='
+                - column_reference:
+                  - naked_identifier: I
+                  - dot: .
+                  - naked_identifier: Bcd
+  - statement_terminator: ;
+  - go_statement:
+      keyword: GO
+- batch:
+    statement:
+      select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+            - naked_identifier: tst1
+            - dot: .
+            - naked_identifier: Name
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+            - naked_identifier: tst2
+            - dot: .
+            - naked_identifier: OtherName
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                - naked_identifier: dbo
+                - dot: .
+                - naked_identifier: Test1
+              alias_expression:
+                alias_operator:
+                  keyword: AS
+                naked_identifier: tst1
+            join_clause:
+            - keyword: LEFT
+            - keyword: OUTER
+            - keyword: JOIN
+            - from_expression_element:
+                bracketed:
+                  start_bracket: (
+                  table_expression:
+                    table_reference:
+                    - naked_identifier: dbo
+                    - dot: .
+                    - naked_identifier: Test2
+                  alias_expression:
+                    alias_operator:
+                      keyword: AS
+                    naked_identifier: tst2
+                  join_clause:
+                  - keyword: INNER
+                  - keyword: JOIN
+                  - from_expression_element:
+                      table_expression:
+                        table_reference:
+                        - naked_identifier: dbo
+                        - dot: .
+                        - naked_identifier: FilterTable
+                      alias_expression:
+                        alias_operator:
+                          keyword: AS
+                        naked_identifier: fltr1
+                  - join_on_condition:
+                      keyword: 'ON'
+                      expression:
+                      - column_reference:
+                        - naked_identifier: tst2
+                        - dot: .
+                        - naked_identifier: Id
+                      - comparison_operator:
+                          raw_comparison_operator: '='
+                      - column_reference:
+                        - naked_identifier: fltr1
+                        - dot: .
+                        - naked_identifier: Id
+                  end_bracket: )
+            - join_on_condition:
+                keyword: 'ON'
+                expression:
+                - column_reference:
+                  - naked_identifier: tst1
+                  - dot: .
+                  - naked_identifier: id
+                - comparison_operator:
+                    raw_comparison_operator: '='
+                - column_reference:
+                  - naked_identifier: tst2
+                  - dot: .
+                  - naked_identifier: id
+    statement_terminator: ;

@@ -1,0 +1,424 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: bee0af621e962311b7c1d4e7880c5f20f3d7622a56e5fc5d1f2f26bfd1831108
+file:
+- statement:
+    with_compound_statement:
+      keyword: WITH
+      common_table_expression:
+        naked_identifier: t
+        keyword: AS
+        bracketed:
+          start_bracket: (
+          select_statement:
+            select_clause:
+              keyword: SELECT
+              select_clause_element:
+                typed_array_literal:
+                  array_type:
+                    keyword: ARRAY
+                  array_literal:
+                  - start_square_bracket: '['
+                  - quoted_literal: "'a'"
+                  - comma: ','
+                  - quoted_literal: "'b'"
+                  - comma: ','
+                  - quoted_literal: "'c'"
+                  - end_square_bracket: ']'
+                alias_expression:
+                  alias_operator:
+                    keyword: AS
+                  naked_identifier: array_column
+          end_bracket: )
+      select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+            - naked_identifier: u
+            - dot: .
+            - naked_identifier: element
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+            - naked_identifier: u
+            - dot: .
+            - naked_identifier: ordinality
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: t
+            join_clause:
+            - keyword: CROSS
+            - keyword: JOIN
+            - from_expression_element:
+                table_expression:
+                  function:
+                    function_name:
+                      function_name_identifier: UNNEST
+                    function_contents:
+                      bracketed:
+                        start_bracket: (
+                        expression:
+                          column_reference:
+                          - naked_identifier: t
+                          - dot: .
+                          - naked_identifier: array_column
+                        end_bracket: )
+                    withordinality_clause:
+                    - keyword: WITH
+                    - keyword: ORDINALITY
+                alias_expression:
+                  alias_operator:
+                    keyword: AS
+                  naked_identifier: u
+                  bracketed:
+                    start_bracket: (
+                    identifier_list:
+                    - naked_identifier: element
+                    - comma: ','
+                    - naked_identifier: ordinality
+                    end_bracket: )
+- statement_terminator: ;
+- statement:
+    with_compound_statement:
+      keyword: WITH
+      common_table_expression:
+        naked_identifier: t
+        keyword: AS
+        bracketed:
+          start_bracket: (
+          select_statement:
+            select_clause:
+              keyword: SELECT
+              select_clause_element:
+                typed_array_literal:
+                  array_type:
+                    keyword: ARRAY
+                  array_literal:
+                  - start_square_bracket: '['
+                  - quoted_literal: "'a'"
+                  - comma: ','
+                  - quoted_literal: "'b'"
+                  - comma: ','
+                  - quoted_literal: "'c'"
+                  - end_square_bracket: ']'
+                alias_expression:
+                  alias_operator:
+                    keyword: AS
+                  naked_identifier: array_column
+          end_bracket: )
+      select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+            - naked_identifier: u
+            - dot: .
+            - naked_identifier: element
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+            - naked_identifier: u
+            - dot: .
+            - naked_identifier: ordinality
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: t
+            join_clause:
+            - keyword: CROSS
+            - keyword: JOIN
+            - from_expression_element:
+                table_expression:
+                  function:
+                    function_name:
+                      function_name_identifier: UNNEST
+                    function_contents:
+                      bracketed:
+                        start_bracket: (
+                        expression:
+                          column_reference:
+                          - naked_identifier: t
+                          - dot: .
+                          - naked_identifier: array_column
+                        end_bracket: )
+                    withordinality_clause:
+                    - keyword: WITH
+                    - keyword: ORDINALITY
+                alias_expression:
+                  naked_identifier: u
+                  bracketed:
+                    start_bracket: (
+                    identifier_list:
+                    - naked_identifier: element
+                    - comma: ','
+                    - naked_identifier: ordinality
+                    end_bracket: )
+- statement_terminator: ;
+- statement:
+    with_compound_statement:
+      keyword: WITH
+      common_table_expression:
+        naked_identifier: t
+        keyword: AS
+        bracketed:
+          start_bracket: (
+          select_statement:
+            select_clause:
+              keyword: SELECT
+              select_clause_element:
+                typed_array_literal:
+                  array_type:
+                    keyword: ARRAY
+                  array_literal:
+                  - start_square_bracket: '['
+                  - quoted_literal: "'a'"
+                  - comma: ','
+                  - quoted_literal: "'b'"
+                  - comma: ','
+                  - quoted_literal: "'c'"
+                  - end_square_bracket: ']'
+                alias_expression:
+                  alias_operator:
+                    keyword: AS
+                  naked_identifier: array_column
+          end_bracket: )
+      select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+            - naked_identifier: u
+            - dot: .
+            - naked_identifier: element
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+            - naked_identifier: u
+            - dot: .
+            - naked_identifier: ordinality
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: t
+            join_clause:
+            - keyword: CROSS
+            - keyword: JOIN
+            - from_expression_element:
+                table_expression:
+                  function:
+                    function_name:
+                      function_name_identifier: UNNEST
+                    function_contents:
+                      bracketed:
+                        start_bracket: (
+                        expression:
+                          column_reference:
+                          - naked_identifier: t
+                          - dot: .
+                          - naked_identifier: array_column
+                        end_bracket: )
+                    withordinality_clause:
+                    - keyword: WITH
+                    - keyword: ORDINALITY
+                alias_expression:
+                  naked_identifier: u
+                  bracketed:
+                    start_bracket: (
+                    identifier_list:
+                    - naked_identifier: element
+                    - comma: ','
+                    - naked_identifier: ordinality
+                    end_bracket: )
+- statement_terminator: ;
+- statement:
+    with_compound_statement:
+      keyword: WITH
+      common_table_expression:
+        naked_identifier: t
+        keyword: AS
+        bracketed:
+          start_bracket: (
+          select_statement:
+            select_clause:
+            - keyword: SELECT
+            - select_clause_element:
+                typed_array_literal:
+                  array_type:
+                    keyword: ARRAY
+                  array_literal:
+                  - start_square_bracket: '['
+                  - quoted_literal: "'a'"
+                  - comma: ','
+                  - quoted_literal: "'b'"
+                  - comma: ','
+                  - quoted_literal: "'c'"
+                  - end_square_bracket: ']'
+                alias_expression:
+                  alias_operator:
+                    keyword: AS
+                  naked_identifier: array_column1
+            - comma: ','
+            - select_clause_element:
+                typed_array_literal:
+                  array_type:
+                    keyword: ARRAY
+                  array_literal:
+                  - start_square_bracket: '['
+                  - numeric_literal: '1'
+                  - comma: ','
+                  - numeric_literal: '2'
+                  - end_square_bracket: ']'
+                alias_expression:
+                  alias_operator:
+                    keyword: AS
+                  naked_identifier: array_column2
+          end_bracket: )
+      select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+            - naked_identifier: u
+            - dot: .
+            - naked_identifier: element1
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+            - naked_identifier: u
+            - dot: .
+            - naked_identifier: element2
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+            - naked_identifier: u
+            - dot: .
+            - naked_identifier: ordinality
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: t
+            join_clause:
+            - keyword: CROSS
+            - keyword: JOIN
+            - from_expression_element:
+                table_expression:
+                  function:
+                    function_name:
+                      function_name_identifier: UNNEST
+                    function_contents:
+                      bracketed:
+                      - start_bracket: (
+                      - expression:
+                          column_reference:
+                          - naked_identifier: t
+                          - dot: .
+                          - naked_identifier: array_column1
+                      - comma: ','
+                      - expression:
+                          column_reference:
+                          - naked_identifier: t
+                          - dot: .
+                          - naked_identifier: array_column2
+                      - end_bracket: )
+                    withordinality_clause:
+                    - keyword: WITH
+                    - keyword: ORDINALITY
+                alias_expression:
+                  alias_operator:
+                    keyword: AS
+                  naked_identifier: u
+                  bracketed:
+                    start_bracket: (
+                    identifier_list:
+                    - naked_identifier: element1
+                    - comma: ','
+                    - naked_identifier: element2
+                    - comma: ','
+                    - naked_identifier: ordinality
+                    end_bracket: )
+- statement_terminator: ;
+- statement:
+    with_compound_statement:
+      keyword: WITH
+      common_table_expression:
+        naked_identifier: t
+        keyword: AS
+        bracketed:
+          start_bracket: (
+          select_statement:
+            select_clause:
+              keyword: SELECT
+              select_clause_element:
+                typed_array_literal:
+                  array_type:
+                    keyword: ARRAY
+                  array_literal:
+                  - start_square_bracket: '['
+                  - numeric_literal: '1'
+                  - comma: ','
+                  - numeric_literal: '2'
+                  - end_square_bracket: ']'
+                alias_expression:
+                  alias_operator:
+                    keyword: AS
+                  naked_identifier: array_column
+          end_bracket: )
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            column_reference:
+            - naked_identifier: u
+            - dot: .
+            - naked_identifier: number
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: t
+            join_clause:
+            - keyword: CROSS
+            - keyword: JOIN
+            - from_expression_element:
+                table_expression:
+                  function:
+                    function_name:
+                      function_name_identifier: UNNEST
+                    function_contents:
+                      bracketed:
+                        start_bracket: (
+                        expression:
+                          column_reference:
+                          - naked_identifier: t
+                          - dot: .
+                          - naked_identifier: array_column
+                        end_bracket: )
+                alias_expression:
+                  alias_operator:
+                    keyword: AS
+                  naked_identifier: u
+                  bracketed:
+                    start_bracket: (
+                    identifier_list:
+                      naked_identifier: number
+                    end_bracket: )
+- statement_terminator: ;

@@ -1,0 +1,64 @@
+rule: CV03
+
+test_require_pass:
+  pass_str: SELECT a, b, FROM foo
+  configs:
+    rules:
+      convention.select_trailing_comma:
+        select_clause_trailing_comma: require
+
+test_require_fail:
+  fail_str: SELECT a, b FROM foo
+  fix_str: SELECT a, b, FROM foo
+  configs:
+    rules:
+      convention.select_trailing_comma:
+        select_clause_trailing_comma: require
+
+
+test_forbid_pass:
+  pass_str: SELECT a, b FROM foo
+  configs:
+    rules:
+      convention.select_trailing_comma:
+        select_clause_trailing_comma: forbid
+
+test_forbid_fail:
+  fail_str: SELECT a, b, FROM foo
+  fix_str: SELECT a, b FROM foo
+  configs:
+    rules:
+      convention.select_trailing_comma:
+        select_clause_trailing_comma: forbid
+
+test_fail_templated:
+  # NOTE: Check no fix, because it's not safe.
+  fail_str: |
+    SELECT
+        {% for col in ['a', 'b', 'c'] %}
+            {{col}},
+        {% endfor %}
+    FROM tbl
+  fix_str: |
+    SELECT
+        {% for col in ['a', 'b', 'c'] %}
+            {{col}},
+        {% endfor %}
+    FROM tbl
+  violations_after_fix:
+  - code: CV03
+    description: Trailing comma in select statement forbidden
+    name: "convention.select_trailing_comma"
+    warning: false
+    fixes: []
+    start_line_no: 3
+    start_line_pos: 16
+    start_file_pos: 59
+    end_line_no: 3
+    end_line_pos: 17
+    end_file_pos: 60
+
+  configs:
+    rules:
+      convention.select_trailing_comma:
+        select_clause_trailing_comma: forbid

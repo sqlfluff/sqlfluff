@@ -1,0 +1,188 @@
+rule: CV01
+
+# tests
+test_pass_consistent_c_style_not_equal_to:
+  pass_str: |
+    SELECT * FROM X WHERE 1 != 2
+
+test_fail_consistent_ansi_not_equal_to:
+  pass_str: |
+    SELECT * FROM X WHERE 1 <> 2
+
+test_pass_consistent_less_than:
+  pass_str: |
+    SELECT * FROM X WHERE 1 < 2
+
+test_pass_consistent_non_comparison:
+  pass_str: |
+    SELECT col1 AS "alias_<>" FROM X
+
+test_fail_consistent_c_style_not_equal_to_multi:
+  fail_str: |
+    SELECT * FROM X WHERE 1 != 2 AND 2 <> 1 AND 3 <> 1
+  fix_str: |
+    SELECT * FROM X WHERE 1 != 2 AND 2 != 1 AND 3 != 1
+
+test_fail_consistent_ansi_not_equal_to_multi:
+  fail_str: |
+    SELECT * FROM X WHERE 1 <> 2 AND 2 != 1 AND 3 != 1
+  fix_str: |
+    SELECT * FROM X WHERE 1 <> 2 AND 2 <> 1 AND 3 <> 1
+
+test_pass_consistent_c_style_not_equal_to_tsql:
+  pass_str: |
+    SELECT * FROM X WHERE 1 !   = 2
+  configs:
+    core:
+      dialect: tsql
+
+test_pass_consistent_ansi_not_equal_to_tsql:
+  pass_str: |
+    SELECT * FROM X WHERE 1  <
+      -- some comment
+    > 2
+  configs:
+    core:
+      dialect: tsql
+
+# c_style tests
+test_pass_c_style_not_equal_to:
+  pass_str: |
+    SELECT * FROM X WHERE 1 != 2
+  configs:
+    rules:
+      convention.not_equal:
+        preferred_not_equal_style: "c_style"
+
+test_fail_c_style_not_equal_to:
+  fail_str: |
+    SELECT * FROM X WHERE 1 <> 2
+  fix_str: |
+    SELECT * FROM X WHERE 1 != 2
+  configs:
+    rules:
+      convention.not_equal:
+        preferred_not_equal_style: "c_style"
+
+test_pass_c_style_less_than:
+  pass_str: |
+    SELECT * FROM X WHERE 1 < 2
+  configs:
+    rules:
+      convention.not_equal:
+        preferred_not_equal_style: "c_style"
+
+test_pass_c_style_non_comparison:
+  pass_str: |
+    SELECT col1 AS "alias_<>" FROM X
+  configs:
+    rules:
+      convention.not_equal:
+        preferred_not_equal_style: "c_style"
+
+test_fail_c_style_not_equal_to_multi:
+  fail_str: |
+    SELECT * FROM X WHERE 1 <> 2 AND 2 <> 1 AND 3 != 1
+  fix_str: |
+    SELECT * FROM X WHERE 1 != 2 AND 2 != 1 AND 3 != 1
+  configs:
+    rules:
+      convention.not_equal:
+        preferred_not_equal_style: "c_style"
+
+test_pass_c_style_not_equal_to_tsql:
+  pass_str: |
+    SELECT * FROM X WHERE 1 !   = 2
+  configs:
+    core:
+      dialect: tsql
+    rules:
+      convention.not_equal:
+        preferred_not_equal_style: "c_style"
+
+test_fail_c_style_not_equal_to_tsql:
+  fail_str: |
+    SELECT * FROM X WHERE 1  <
+      -- some comment
+    > 2
+  fix_str: |
+    SELECT * FROM X WHERE 1  !
+      -- some comment
+    = 2
+  configs:
+    core:
+      dialect: tsql
+    rules:
+      convention.not_equal:
+        preferred_not_equal_style: "c_style"
+
+# ansi tests
+test_pass_ansi_not_equal_to:
+  pass_str: |
+    SELECT * FROM X WHERE 1 <> 2
+  configs:
+    rules:
+      convention.not_equal:
+        preferred_not_equal_style: "ansi"
+
+test_fail_ansi_not_equal_to:
+  fail_str: |
+    SELECT * FROM X WHERE 1 != 2
+  fix_str: |
+    SELECT * FROM X WHERE 1 <> 2
+  configs:
+    rules:
+      convention.not_equal:
+        preferred_not_equal_style: "ansi"
+
+test_pass_ansi_less_than:
+  pass_str: |
+    SELECT * FROM X WHERE 1 < 2
+  configs:
+    rules:
+      convention.not_equal:
+        preferred_not_equal_style: "ansi"
+
+test_pass_ansi_non_comparison:
+  pass_str: |
+    SELECT col1 AS "alias_<>" FROM X
+  configs:
+    rules:
+      convention.not_equal:
+        preferred_not_equal_style: "ansi"
+
+test_fail_ansi_not_equal_to_multi:
+  fail_str: |
+    SELECT * FROM X WHERE 1 <> 2 AND 2 != 1 AND 3 != 1
+  fix_str: |
+    SELECT * FROM X WHERE 1 <> 2 AND 2 <> 1 AND 3 <> 1
+  configs:
+    rules:
+      convention.not_equal:
+        preferred_not_equal_style: "ansi"
+
+test_pass_ansi_not_equal_to_tsql:
+  pass_str: |
+    SELECT * FROM X WHERE 1 <   > 2
+  configs:
+    core:
+      dialect: tsql
+    rules:
+      convention.not_equal:
+        preferred_not_equal_style: "ansi"
+
+test_fail_ansi_not_equal_to_tsql:
+  fail_str: |
+    SELECT * FROM X WHERE 1  !
+      -- some comment
+    = 2
+  fix_str: |
+    SELECT * FROM X WHERE 1  <
+      -- some comment
+    > 2
+  configs:
+    core:
+      dialect: tsql
+    rules:
+      convention.not_equal:
+        preferred_not_equal_style: "ansi"

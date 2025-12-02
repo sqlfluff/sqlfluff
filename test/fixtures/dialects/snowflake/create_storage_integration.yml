@@ -1,0 +1,357 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: cf7248179db4474af5a56e319788f109c4e72812456d0e228d199cecf36fe0df
+file:
+- statement:
+    create_statement:
+    - keyword: create
+    - keyword: storage
+    - keyword: integration
+    - object_reference:
+        naked_identifier: s3_int
+    - keyword: type
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - keyword: external_stage
+    - keyword: storage_provider
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - keyword: s3
+    - keyword: storage_aws_role_arn
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'arn:aws:iam::001234567890:role/myrole'"
+    - keyword: enabled
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - boolean_literal: 'true'
+    - keyword: storage_allowed_locations
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - bracketed:
+      - start_bracket: (
+      - bucket_path: "'s3://mybucket1/path1/'"
+      - comma: ','
+      - bucket_path: "'s3://mybucket2/path2/'"
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_statement:
+    - keyword: create
+    - keyword: storage
+    - keyword: integration
+    - object_reference:
+        naked_identifier: s3_int
+    - keyword: type
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - keyword: external_stage
+    - keyword: storage_provider
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - keyword: s3
+    - keyword: storage_aws_role_arn
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'arn:aws:iam::001234567890:role/myrole'"
+    - keyword: enabled
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - boolean_literal: 'true'
+    - keyword: storage_allowed_locations
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - bracketed:
+      - start_bracket: (
+      - bucket_path: "'s3://mybucket1'"
+      - comma: ','
+      - bucket_path: "'s3://mybucket2/'"
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_statement:
+    - keyword: create
+    - keyword: storage
+    - keyword: integration
+    - object_reference:
+        naked_identifier: gcs_int
+    - keyword: type
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - keyword: external_stage
+    - keyword: storage_provider
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - keyword: gcs
+    - keyword: enabled
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - boolean_literal: 'true'
+    - keyword: storage_allowed_locations
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - bracketed:
+      - start_bracket: (
+      - bucket_path: "'gcs://mybucket1/path1/'"
+      - comma: ','
+      - bucket_path: "'gcs://mybucket2/path2/'"
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_statement:
+    - keyword: create
+    - keyword: storage
+    - keyword: integration
+    - object_reference:
+        naked_identifier: azure_int
+    - keyword: type
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - keyword: external_stage
+    - keyword: storage_provider
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - keyword: azure
+    - keyword: enabled
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - boolean_literal: 'true'
+    - keyword: azure_tenant_id
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'<tenant_id>'"
+    - keyword: storage_allowed_locations
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - bracketed:
+      - start_bracket: (
+      - bucket_path: "'azure://myaccount.blob.core.windows.net/mycontainer/path1/'"
+      - comma: ','
+      - bucket_path: "'azure://myaccount.blob.core.windows.net/mycontainer/path2/'"
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_statement:
+    - keyword: create
+    - keyword: or
+    - keyword: replace
+    - keyword: storage
+    - keyword: integration
+    - object_reference:
+        naked_identifier: s3_int
+    - keyword: type
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - keyword: external_stage
+    - keyword: storage_provider
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - keyword: s3
+    - keyword: storage_aws_role_arn
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'arn:aws:iam::001234567890:role/myrole'"
+    - keyword: enabled
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - boolean_literal: 'true'
+    - keyword: storage_allowed_locations
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - bracketed:
+        start_bracket: (
+        quoted_star: "'*'"
+        end_bracket: )
+    - keyword: storage_blocked_locations
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - bracketed:
+      - start_bracket: (
+      - bucket_path: "'s3://mybucket3/path3/'"
+      - comma: ','
+      - bucket_path: "'s3://mybucket4/path4/'"
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_statement:
+    - keyword: create
+    - keyword: or
+    - keyword: replace
+    - keyword: storage
+    - keyword: integration
+    - object_reference:
+        naked_identifier: gcs_int
+    - keyword: type
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - keyword: external_stage
+    - keyword: storage_provider
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - keyword: gcs
+    - keyword: enabled
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - boolean_literal: 'true'
+    - keyword: storage_allowed_locations
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - bracketed:
+        start_bracket: (
+        quoted_star: "'*'"
+        end_bracket: )
+    - keyword: storage_blocked_locations
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - bracketed:
+      - start_bracket: (
+      - bucket_path: "'gcs://mybucket3/path3/'"
+      - comma: ','
+      - bucket_path: "'gcs://mybucket4/path4/'"
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_statement:
+    - keyword: create
+    - keyword: or
+    - keyword: replace
+    - keyword: storage
+    - keyword: integration
+    - object_reference:
+        naked_identifier: azure_int
+    - keyword: type
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - keyword: external_stage
+    - keyword: storage_provider
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - keyword: azure
+    - keyword: enabled
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - boolean_literal: 'false'
+    - keyword: azure_tenant_id
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'a123b4c5-1234-123a-a12b-1a23b45678c9'"
+    - keyword: storage_allowed_locations
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - bracketed:
+        start_bracket: (
+        quoted_star: "'*'"
+        end_bracket: )
+    - keyword: storage_blocked_locations
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - bracketed:
+      - start_bracket: (
+      - bucket_path: "'azure://myaccount.blob.core.windows.net/mycontainer/path3/'"
+      - comma: ','
+      - bucket_path: "'azure://myaccount.blob.core.windows.net/mycontainer/path4/'"
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_statement:
+    - keyword: create
+    - keyword: storage
+    - keyword: integration
+    - object_reference:
+        naked_identifier: s3_int
+    - keyword: type
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - keyword: external_stage
+    - keyword: storage_provider
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'s3'"
+    - keyword: storage_aws_role_arn
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'arn:aws:iam::001234567890:role/myrole'"
+    - keyword: enabled
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - boolean_literal: 'true'
+    - keyword: storage_allowed_locations
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - bracketed:
+      - start_bracket: (
+      - bucket_path: "'s3://mybucket1'"
+      - comma: ','
+      - bucket_path: "'s3://mybucket2/'"
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_statement:
+    - keyword: create
+    - keyword: storage
+    - keyword: integration
+    - object_reference:
+        naked_identifier: gcs_int
+    - keyword: type
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - keyword: external_stage
+    - keyword: storage_provider
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'gcs'"
+    - keyword: enabled
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - boolean_literal: 'true'
+    - keyword: storage_allowed_locations
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - bracketed:
+      - start_bracket: (
+      - bucket_path: "'gcs://mybucket1/path1/'"
+      - comma: ','
+      - bucket_path: "'gcs://mybucket2/path2/'"
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_statement:
+    - keyword: create
+    - keyword: storage
+    - keyword: integration
+    - object_reference:
+        naked_identifier: azure_int
+    - keyword: type
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - keyword: external_stage
+    - keyword: storage_provider
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'azure'"
+    - keyword: enabled
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - boolean_literal: 'true'
+    - keyword: azure_tenant_id
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'<tenant_id>'"
+    - keyword: storage_allowed_locations
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - bracketed:
+      - start_bracket: (
+      - bucket_path: "'azure://myaccount.blob.core.windows.net/mycontainer/path1/'"
+      - comma: ','
+      - bucket_path: "'azure://myaccount.blob.core.windows.net/mycontainer/path2/'"
+      - end_bracket: )
+    - keyword: use_privatelink_endpoint
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - boolean_literal: 'false'
+- statement_terminator: ;
+- statement_terminator: ;

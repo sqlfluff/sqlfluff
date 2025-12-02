@@ -1,0 +1,380 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: fe303913b29b3c4ce818088db1202612f82f8da278b5c417aca917c057aa90ad
+file:
+- statement:
+    import_statement:
+    - keyword: IMPORT
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: table_3
+    - bracketed:
+        start_bracket: (
+        identifier_list:
+        - naked_identifier: col1
+        - comma: ','
+        - naked_identifier: col2
+        - comma: ','
+        - naked_identifier: col4
+        end_bracket: )
+    - import_from_clause:
+        keyword: FROM
+        import_export_dbsrc:
+        - keyword: ORA
+        - keyword: AT
+        - connection_definition:
+          - naked_identifier: my_oracle
+          - keyword: USER
+          - quoted_literal: "'agent_008'"
+          - keyword: IDENTIFIED
+          - keyword: BY
+          - quoted_literal: "'secret'"
+        - keyword: STATEMENT
+        - quoted_literal: "' SELECT * FROM orders WHERE order_state=''OK'' '"
+        import_errors_clause:
+        - keyword: ERRORS
+        - keyword: INTO
+        - import_error_destination:
+            table_reference:
+              naked_identifier: error_table
+        - bracketed:
+            start_bracket: (
+            expression:
+              bare_function: CURRENT_TIMESTAMP
+            end_bracket: )
+        - reject_clause:
+          - keyword: REJECT
+          - keyword: LIMIT
+          - numeric_literal: '10'
+- statement_terminator: ;
+- statement:
+    import_statement:
+    - keyword: IMPORT
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: table_3
+    - bracketed:
+        start_bracket: (
+        identifier_list:
+        - naked_identifier: col1
+        - comma: ','
+        - naked_identifier: col2
+        - comma: ','
+        - naked_identifier: col4
+        end_bracket: )
+    - import_from_clause:
+        keyword: FROM
+        import_export_dbsrc:
+        - keyword: ORA
+        - keyword: AT
+        - connection_definition:
+          - naked_identifier: my_oracle
+          - keyword: USER
+          - quoted_literal: "'agent_008'"
+          - keyword: IDENTIFIED
+          - keyword: BY
+          - quoted_literal: "'secret'"
+        - keyword: TABLE
+        - table_reference:
+          - naked_identifier: a
+          - dot: .
+          - naked_identifier: tab
+        - bracketed:
+            start_bracket: (
+            identifier_list:
+            - naked_identifier: c1
+            - comma: ','
+            - naked_identifier: c2
+            - comma: ','
+            - naked_identifier: c3
+            end_bracket: )
+        import_errors_clause:
+        - keyword: ERRORS
+        - keyword: INTO
+        - import_error_destination:
+            table_reference:
+              naked_identifier: error_table
+        - bracketed:
+            start_bracket: (
+            expression:
+              bare_function: CURRENT_TIMESTAMP
+            end_bracket: )
+        - reject_clause:
+          - keyword: REJECT
+          - keyword: LIMIT
+          - numeric_literal: '10'
+- statement_terminator: ;
+- statement:
+    import_statement:
+    - keyword: IMPORT
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: table_1
+    - import_from_clause:
+        keyword: FROM
+        import_file:
+        - keyword: CSV
+        - keyword: AT
+        - connection_definition:
+          - quoted_literal: "'http://192.168.1.1:8080/'"
+          - keyword: USER
+          - quoted_literal: "'agent_007'"
+          - keyword: IDENTIFIED
+          - keyword: BY
+          - quoted_literal: "'secret'"
+        - keyword: FILE
+        - quoted_literal: "'tab1_part1.csv'"
+        - keyword: FILE
+        - quoted_literal: "'tab1_part2.csv'"
+        - csv_cols:
+            bracketed:
+            - start_bracket: (
+            - numeric_literal: '1'
+            - keyword: FORMAT
+            - comparison_operator:
+                raw_comparison_operator: '='
+            - quoted_literal: "'DD-MM-YYYY'"
+            - comma: ','
+            - numeric_literal: '2'
+            - range_operator: ..
+            - numeric_literal: '4'
+            - keyword: FORMAT
+            - comparison_operator:
+                raw_comparison_operator: '='
+            - quoted_literal: "'YYYYMMDD'"
+            - end_bracket: )
+        - file_opts:
+          - keyword: COLUMN
+          - keyword: SEPARATOR
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - quoted_literal: "';'"
+          - keyword: SKIP
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - numeric_literal: '5'
+- statement_terminator: ;
+- statement:
+    import_statement:
+    - keyword: IMPORT
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: table_2
+    - import_from_clause:
+        keyword: FROM
+        import_file:
+        - keyword: FBV
+        - keyword: AT
+        - connection_definition:
+            naked_identifier: my_fileserver
+        - keyword: FILE
+        - quoted_literal: "'tab2_part1.fbv'"
+        - fbv_cols:
+            bracketed:
+            - start_bracket: (
+            - keyword: SIZE
+            - comparison_operator:
+                raw_comparison_operator: '='
+            - numeric_literal: '8'
+            - keyword: PADDING
+            - comparison_operator:
+                raw_comparison_operator: '='
+            - quoted_literal: "'+'"
+            - keyword: ALIGN
+            - comparison_operator:
+                raw_comparison_operator: '='
+            - keyword: RIGHT
+            - comma: ','
+            - keyword: SIZE
+            - comparison_operator:
+                raw_comparison_operator: '='
+            - numeric_literal: '4'
+            - comma: ','
+            - keyword: SIZE
+            - comparison_operator:
+                raw_comparison_operator: '='
+            - numeric_literal: '8'
+            - comma: ','
+            - keyword: SIZE
+            - comparison_operator:
+                raw_comparison_operator: '='
+            - numeric_literal: '32'
+            - keyword: FORMAT
+            - comparison_operator:
+                raw_comparison_operator: '='
+            - quoted_literal: "'DD-MM-YYYY'"
+            - end_bracket: )
+        - file_opts:
+            keyword: TRIM
+- statement_terminator: ;
+- statement:
+    import_statement:
+    - keyword: IMPORT
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: table_7
+    - import_from_clause:
+        keyword: FROM
+        import_script:
+        - keyword: SCRIPT
+        - object_reference:
+          - naked_identifier: etl
+          - dot: .
+          - naked_identifier: import_hcat_table
+        - keyword: AT
+        - connection_definition:
+          - naked_identifier: my_oracle
+          - keyword: USER
+          - quoted_literal: "'agent_008'"
+          - keyword: IDENTIFIED
+          - keyword: BY
+          - quoted_literal: "'secret'"
+        - keyword: WITH
+        - parameter: HCAT_DB
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - quoted_literal: "'default'"
+        - parameter: HCAT_TABLE
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - quoted_literal: "'my_hcat_table'"
+        - parameter: HCAT_ADDRESS
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - quoted_literal: "'hcatalog-server:50111'"
+        - parameter: HDFS_USER
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - quoted_literal: "'hdfs'"
+- statement_terminator: ;
+- statement:
+    import_statement:
+    - keyword: IMPORT
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: table_4
+    - import_from_clause:
+        keyword: FROM
+        import_export_dbsrc:
+        - keyword: JDBC
+        - keyword: DRIVER
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - quoted_literal: "'MSSQL'"
+        - keyword: AT
+        - connection_definition:
+          - quoted_literal: "'jdbc:sqlserver://dbserver;databaseName=testdb'"
+          - keyword: USER
+          - quoted_literal: "'agent_008'"
+          - keyword: IDENTIFIED
+          - keyword: BY
+          - quoted_literal: "'secret'"
+        - keyword: STATEMENT
+        - quoted_literal: "' SELECT * FROM orders WHERE order_state=''OK'' '"
+- statement_terminator: ;
+- statement:
+    import_statement:
+    - keyword: IMPORT
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: table_5
+    - import_from_clause:
+        keyword: FROM
+        import_file:
+        - keyword: CSV
+        - keyword: AT
+        - connection_definition:
+            quoted_literal: "'http://HadoopNode:50070/webhdfs/v1/tmp'"
+        - keyword: FILE
+        - quoted_literal: "'file.csv?op=OPEN&user.name=user'"
+- statement_terminator: ;
+- statement:
+    import_statement:
+    - keyword: IMPORT
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: table_6
+    - import_from_clause:
+        keyword: FROM
+        import_export_dbsrc:
+        - keyword: EXA
+        - keyword: AT
+        - connection_definition:
+            naked_identifier: my_exasol
+        - keyword: TABLE
+        - table_reference:
+          - naked_identifier: MY_SCHEMA
+          - dot: .
+          - naked_identifier: MY_TABLE
+- statement_terminator: ;
+- statement:
+    import_statement:
+    - keyword: IMPORT
+    - keyword: INTO
+    - bracketed:
+        start_bracket: (
+        import_columns:
+          table_like_clause:
+            keyword: LIKE
+            table_reference:
+              naked_identifier: CAT
+        end_bracket: )
+    - import_from_clause:
+        keyword: FROM
+        import_export_dbsrc:
+        - keyword: EXA
+        - keyword: AT
+        - connection_definition:
+            naked_identifier: my_exa_conn
+        - keyword: STATEMENT
+        - quoted_literal: "' SELECT OBJECT_NAME, OBJECT_TYPE FROM EXA_USER_OBJECTS\
+            \ WHERE OBJECT_TYPE IN (''TABLE'', ''VIEW'') '"
+- statement_terminator: ;
+- statement:
+    import_statement:
+    - keyword: IMPORT
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: table_8
+    - import_from_clause:
+        keyword: FROM
+        import_file:
+        - keyword: LOCAL
+        - keyword: CSV
+        - keyword: FILE
+        - quoted_literal: "'~/my_table.csv'"
+        - file_opts:
+          - keyword: COLUMN
+          - keyword: SEPARATOR
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - quoted_literal: "';'"
+          - keyword: SKIP
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - numeric_literal: '5'
+- statement_terminator: ;
+- statement:
+    import_statement:
+    - keyword: IMPORT
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: table_1
+    - import_from_clause:
+        keyword: FROM
+        import_file:
+        - keyword: CSV
+        - keyword: AT
+        - connection_definition:
+          - quoted_literal: "'https://<bucketname>.s3-<region>.amazonaws.com/'"
+          - keyword: USER
+          - quoted_literal: "'<AccessKeyID>'"
+          - keyword: IDENTIFIED
+          - keyword: BY
+          - quoted_literal: "'<SecretAccessKey>'"
+        - keyword: FILE
+        - quoted_literal: "'file.csv'"
+- statement_terminator: ;

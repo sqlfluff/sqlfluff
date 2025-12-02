@@ -1,0 +1,418 @@
+rule: LT01
+
+test_basic:
+  pass_str: SELECT 1
+
+test_basic_template:
+  pass_str: |
+    {{ 'SELECT 1' }}
+  configs:
+    core:
+      ignore_templated_areas: false
+
+test_basic_fix:
+  fail_str: SELECT     1
+  fix_str: SELECT 1
+
+test_basic_fail_template:
+  fail_str: |
+    {{ 'SELECT     1' }}
+  configs:
+    core:
+      ignore_templated_areas: false
+
+test_simple_fix:
+  fail_str: |
+    select
+        1 + 2     + 3     + 4        -- Comment
+    from     foo
+  fix_str: |
+    select
+        1 + 2 + 3 + 4        -- Comment
+    from foo
+
+test_identifier_fix:
+  fail_str: |
+    SELECT [thistable] . [col]
+    FROM [thisdatabase] . [thisschema]
+            . [thistable]
+  fix_str: |
+    SELECT [thistable].[col]
+    FROM [thisdatabase].[thisschema].[thistable]
+  configs:
+    core:
+      dialect: tsql
+
+test_comparison_operator_fix:
+  fail_str: |
+    SELECT foo
+    FROM bar
+    WHERE baz > = 10;
+  fix_str: |
+    SELECT foo
+    FROM bar
+    WHERE baz >= 10;
+  configs:
+    core:
+      dialect: tsql
+
+test_comparison_operator_pass:
+  pass_str: |
+    SELECT foo
+    FROM bar
+    WHERE baz >= 10;
+  configs:
+    core:
+      dialect: tsql
+
+test_casting_operator_fix:
+  fail_str: |
+    SELECT '1' :: INT;
+  fix_str: |
+    SELECT '1'::INT;
+  configs:
+    core:
+      dialect: postgres
+
+test_casting_operator_pass:
+  pass_str: |
+    SELECT '1'::INT;
+  configs:
+    core:
+      dialect: postgres
+
+test_fix_tsql_spaced_chars:
+  fail_str: |
+    SELECT col1 FROM table1 WHERE 1 > = 1
+  fix_str: |
+    SELECT col1 FROM table1 WHERE 1 >= 1
+  configs:
+    core:
+      dialect: tsql
+
+# Check CASE Statement parses with newlines properly
+# See https://github.com/sqlfluff/sqlfluff/issues/2495
+test_pass_postgres_case_statement:
+  pass_str: |
+    SELECT
+        a,
+        CASE
+            WHEN 1 THEN 'one'
+            WHEN 2 THEN 'two'
+            ELSE 'other'
+        END AS b
+    FROM test;
+  configs:
+    core:
+      dialect: postgres
+
+test_excess_space_cast:
+  fail_str: |
+    select
+        '1'    ::   INT as id1,
+        '2'::int as id2
+    from table_a
+  fix_str: |
+    select
+        '1'::INT as id1,
+        '2'::int as id2
+    from table_a
+
+test_redshift_at_time_zone:
+  pass_str: |
+    SELECT
+    date_w_tz[0] AT TIME ZONE 'Etc/UTC' AS bar
+    FROM foo
+  configs:
+    core:
+      dialect: redshift
+
+test_pass_snowflake_semi_structured:
+  pass_str: "SELECT to_array(a.b:c) FROM d"
+  configs:
+    core:
+      dialect: snowflake
+
+test_fail_snowflake_semi_structured_single:
+  fail_str: |
+    SELECT
+      to_array(a.b : c) as d,
+      e : f : g::string as h
+    FROM j
+  fix_str: |
+    SELECT
+      to_array(a.b:c) as d,
+      e:f:g::string as h
+    FROM j
+  configs:
+    core:
+      dialect: snowflake
+
+test_fail_snowflake_semi_structured_multi:
+  fail_str: |
+    SELECT
+      to_array(a.b    :    c) as d,
+      e    :    f    :    g::string as h
+    FROM j
+  fix_str: |
+    SELECT
+      to_array(a.b:c) as d,
+      e:f:g::string as h
+    FROM j
+  configs:
+    core:
+      dialect: snowflake
+
+test_pass_bigquery_specific:
+  # Test a selection of bigquery specific spacings work.
+  # Specifically EXCEPT & qualified functions.
+  pass_str: |
+    SELECT * EXCEPT (order_id);
+    SELECT NET.HOST(LOWER(url)) AS host FROM urls;
+  configs:
+    core:
+      dialect: bigquery
+
+test_pass_bigquery_specific_arrays_1:
+  # An example of _no whitespace_ after an array type
+  pass_str: |
+    SELECT ARRAY<FLOAT64>[1, 2, 3] AS floats;
+  configs:
+    core:
+      dialect: bigquery
+
+test_pass_bigquery_specific_arrays_2:
+  # An example of _whitespace_ after an array type
+  pass_str: |
+    CREATE TEMPORARY FUNCTION DoSomething(param1 STRING, param2 STRING)
+    RETURNS ARRAY<STRING> LANGUAGE js AS """Some JS""";
+
+    SELECT DoSomething(col1) FROM table1
+  configs:
+    core:
+      dialect: bigquery
+
+test_pass_bigquery_array_function:
+  # Test spacing of Array Generator function brackets
+  pass_str: |
+    SELECT ARRAY(SELECT 1 FROM table1);
+  configs:
+    core:
+      dialect: bigquery
+
+test_pass_bigquery_specific_structs:
+  # Test spacing of complex STRUCT brackets
+  pass_str: |
+    create table testing.array_struct_tbl (
+        address_array_of_nested_structs
+        ARRAY<STRUCT<coll STRUCT<col1_1 STRING, col1_2 INT64>, col2 STRING>>
+    )
+  configs:
+    core:
+      dialect: bigquery
+
+test_pass_bigquery_specific_struct_access:
+  # Test spacing of function access
+  pass_str: |
+    SELECT
+      testFunction(a).b AS field,
+      testFunction(a).* AS wildcard,
+      testFunction(a).b.c AS field_with_field,
+      testFunction(a).b.* AS field_with_wildcard,
+      testFunction(a)[OFFSET(0)].* AS field_with_offset_wildcard,
+      testFunction(a)[SAFE_OFFSET(0)].* AS field_with_safe_offset_wildcard,
+      testFunction(a)[ORDINAL(1)].* AS field_with_ordinal_wildcard,
+      testFunction(a)[ORDINAL(1)].a AS field_with_ordinal_field
+    FROM table1
+  configs:
+    core:
+      dialect: bigquery
+
+test_pass_bigquery_struct_function_no_spaces:
+  # Test struct function does not flag for missing spaces
+  # e.g. doesn't flag `STRUCT()` as should be `STRUCT ()`
+  pass_str: |
+    SELECT
+      TO_JSON(STRUCT()),
+      TO_JSON(STRUCT(1, 2, 3)),
+      STRUCT(1, 2, 3)
+    FROM
+      table1
+  configs:
+    core:
+      dialect: bigquery
+
+test_postgres_datatype:
+  # https://github.com/sqlfluff/sqlfluff/issues/4521
+  # https://github.com/sqlfluff/sqlfluff/issues/4565
+  pass_str: |
+    select
+        1::NUMERIC(3, 1),
+        2::double precision,
+        '2020-01-01'::timestamp with time zone,
+        'foo'::character varying,
+        B'10101'::bit(3),
+        B'10101'::bit varying(3),
+        B'10101'::bit varying
+  configs:
+    core:
+      dialect: postgres
+
+test_redshift_datatype:
+  pass_str: |
+    select
+        1::NUMERIC(3, 1),
+        2::double precision,
+        '2020-01-01'::timestamp with time zone,
+        'foo'::character varying,
+        'foo'::character varying(MAX),
+        'foo'::character varying(255),
+        '10101'::binary varying(6)
+  configs:
+    core:
+      dialect: redshift
+
+test_bigquery_datatype:
+  pass_str: |
+      select 1::NUMERIC(3, 1)
+  configs:
+    core:
+      dialect: bigquery
+
+test_athena_datatype:
+  pass_str: |
+      select
+          1::DECIMAL(3, 1),
+          'foo'::VARCHAR(4),
+          'bar'::CHAR(3),
+          col1::STRUCT<foo: int>,
+          col2::ARRAY<int>,
+          '2020-01-01'::timestamp with time zone
+  configs:
+    core:
+      dialect: athena
+
+test_hive_datatype:
+  pass_str: |
+      select
+          1::DECIMAL(3, 1),
+          1::DEC(3, 1),
+          1::NUMERIC(3, 1),
+          col1::STRUCT<foo: int>,
+          col2::ARRAY<int>,
+          col3::ARRAY<int>[4]
+  configs:
+    core:
+      dialect: hive
+
+test_sqlite_datatype:
+  pass_str: |
+      select
+          1::double precision,
+          1::DECIMAL(10, 5),
+          1::unsigned big int,
+          'foo'::varying character(255),
+          'foo'::character(20),
+          'foo'::nvarchar(200)
+  configs:
+    core:
+      dialect: sqlite
+
+test_sparksql_datatype:
+  pass_str: |
+      select
+          1::DECIMAL(3, 1),
+          1::DEC(3, 1),
+          1::NUMERIC(3, 1),
+          'bar'::CHAR(3),
+          col1::STRUCT<foo: int>,
+          col2::ARRAY<int>
+  configs:
+    core:
+      dialect: sparksql
+
+test_exasol_datatype:
+  pass_str: |
+      select
+          1::double precision,
+          1::DECIMAL(3, 1),
+          1::NUMERIC(3, 1),
+          'bar'::VARCHAR(2000 CHAR),
+          col1::INTERVAL DAY(2) TO SECOND(1)
+  configs:
+    core:
+      dialect: exasol
+
+test_teradata_datatype:
+  pass_str: |
+      select
+          1::DECIMAL(3, 1),
+          1::DEC(3, 1),
+          1::NUMERIC(3, 1),
+          'bar'::CHAR(3)
+  configs:
+    core:
+      dialect: teradata
+
+test_tsql_datatype:
+  pass_str: |
+      select
+          1::DECIMAL(3, 1),
+          1::DEC(3, 1),
+          1::NUMERIC(3, 1),
+          'bar'::character varying(3)
+  configs:
+    core:
+      dialect: tsql
+
+test_snowflake_match_pattern:
+  # Check that the spacing within the pattern isn't changed.
+  # The MATCH_RECOGNIZE & PATTERN keywords however act as keywords and not as functions
+  # therefore _should_ have a space after them.
+  # See: https://docs.snowflake.com/en/sql-reference/constructs/match_recognize
+  pass_str: |
+    select * from stock_price_history
+      match_recognize (
+        partition by company
+        order by price_date
+        measures
+          match_number() as match_number,
+          first(price_date) as start_date,
+          last(price_date) as end_date,
+          count(*) as rows_in_sequence,
+          count(row_with_price_decrease.*) as num_decreases,
+          count(row_with_price_increase.*) as num_increases
+        one row per match
+        after match skip to last row_with_price_increase
+        pattern ((A | B){5} C+)
+        define
+          row_with_price_decrease as price < lag(price),
+          row_with_price_increase as price > lag(price)
+      )
+    order by company, match_number;
+  configs:
+    core:
+      dialect: snowflake
+
+test_hive_set_statement:
+  # This should use ColonDelimiter so it shouldn't have spacing around it.
+  pass_str: |
+    set hivevar:cat = "Chloe";
+  configs:
+    core:
+      dialect: hive
+
+test_spark_set_statement:
+  pass_str: |
+    SET -v;
+  configs:
+    core:
+      dialect: sparksql
+
+test_clickhouse_system_path:
+  # We shouldn't introduce extra spaces within the path.
+  pass_str: |
+    SYSTEM RELOAD MODEL /model/path;
+  configs:
+    core:
+      dialect: clickhouse

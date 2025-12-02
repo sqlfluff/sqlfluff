@@ -1,0 +1,489 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 0f67ffa2e8c994aed93dac9af58387241f5ed38de40507287eb5b96e8efb0994
+file:
+- statement:
+    create_function_statement:
+    - keyword: CREATE
+    - keyword: FUNCTION
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - function_name:
+        function_name_identifier: get_bal
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          parameter: acc_no
+          keyword: IN
+          data_type:
+            data_type_identifier: NUMBER
+          end_bracket: )
+    - keyword: RETURN
+    - data_type:
+        data_type_identifier: NUMBER
+    - keyword: IS
+    - declare_segment:
+        naked_identifier: acc_bal
+        data_type:
+          data_type_identifier: NUMBER
+          bracketed_arguments:
+            bracketed:
+            - start_bracket: (
+            - numeric_literal: '11'
+            - comma: ','
+            - numeric_literal: '2'
+            - end_bracket: )
+        statement_terminator: ;
+    - begin_end_block:
+      - keyword: BEGIN
+      - statement:
+          select_statement:
+            select_clause:
+              keyword: SELECT
+              select_clause_element:
+                column_reference:
+                  naked_identifier: order_total
+            into_clause:
+              keyword: INTO
+              naked_identifier: acc_bal
+            from_clause:
+              keyword: FROM
+              from_expression:
+                from_expression_element:
+                  table_expression:
+                    table_reference:
+                      naked_identifier: orders
+            where_clause:
+              keyword: WHERE
+              expression:
+              - column_reference:
+                  naked_identifier: customer_id
+              - comparison_operator:
+                  raw_comparison_operator: '='
+              - column_reference:
+                  naked_identifier: acc_no
+      - statement_terminator: ;
+      - statement:
+          function:
+            function_name:
+              function_name_identifier: RETURN
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: acc_bal
+                end_bracket: )
+      - statement_terminator: ;
+      - keyword: END
+    - statement_terminator: ;
+    - statement_terminator: /
+- statement:
+    create_function_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: text_length
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          parameter: a
+          data_type:
+            data_type_identifier: CLOB
+          end_bracket: )
+    - keyword: RETURN
+    - data_type:
+        data_type_identifier: NUMBER
+    - keyword: DETERMINISTIC
+    - keyword: IS
+    - begin_end_block:
+      - keyword: BEGIN
+      - statement:
+          return_statement:
+            keyword: RETURN
+            expression:
+              function:
+                function_name:
+                  naked_identifier: DBMS_LOB
+                  dot: .
+                  function_name_identifier: GETLENGTH
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      column_reference:
+                        naked_identifier: a
+                    end_bracket: )
+      - statement_terminator: ;
+      - keyword: END
+    - statement_terminator: ;
+    - statement_terminator: /
+- statement:
+    begin_end_block:
+    - declare_segment:
+        keyword: DECLARE
+        create_function_statement:
+        - keyword: FUNCTION
+        - function_name:
+            function_name_identifier: square
+        - function_parameter_list:
+            bracketed:
+              start_bracket: (
+              parameter: original
+              data_type:
+                data_type_identifier: NUMBER
+              end_bracket: )
+        - keyword: RETURN
+        - data_type:
+            data_type_identifier: NUMBER
+        - keyword: AS
+        - declare_segment:
+            naked_identifier: original_squared
+            data_type:
+              data_type_identifier: NUMBER
+            statement_terminator: ;
+        - begin_end_block:
+          - keyword: BEGIN
+          - statement:
+              assignment_segment_statement:
+                object_reference:
+                  naked_identifier: original_squared
+                assignment_operator: :=
+                expression:
+                - column_reference:
+                    naked_identifier: original
+                - binary_operator: '*'
+                - column_reference:
+                    naked_identifier: original
+          - statement_terminator: ;
+          - statement:
+              return_statement:
+                keyword: RETURN
+                expression:
+                  column_reference:
+                    naked_identifier: original_squared
+          - statement_terminator: ;
+          - keyword: END
+        - statement_terminator: ;
+    - keyword: BEGIN
+    - statement:
+        function:
+          function_name:
+            naked_identifier: DBMS_OUTPUT
+            dot: .
+            function_name_identifier: PUT_LINE
+          function_contents:
+            bracketed:
+              start_bracket: (
+              expression:
+                function:
+                  function_name:
+                    function_name_identifier: square
+                  function_contents:
+                    bracketed:
+                      start_bracket: (
+                      expression:
+                        numeric_literal: '100'
+                      end_bracket: )
+              end_bracket: )
+    - statement_terminator: ;
+    - keyword: END
+- statement_terminator: ;
+- statement_terminator: /
+- statement:
+    begin_end_block:
+    - declare_segment:
+        keyword: DECLARE
+        naked_identifier: x
+        data_type:
+          data_type_identifier: INTEGER
+        statement_terminator: ;
+        create_function_statement:
+        - keyword: FUNCTION
+        - function_name:
+            function_name_identifier: f
+        - function_parameter_list:
+            bracketed:
+              start_bracket: (
+              parameter: n
+              data_type:
+                data_type_identifier: INTEGER
+              end_bracket: )
+        - keyword: RETURN
+        - data_type:
+            data_type_identifier: INTEGER
+        - keyword: IS
+        - begin_end_block:
+          - keyword: BEGIN
+          - statement:
+              function:
+                function_name:
+                  function_name_identifier: RETURN
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                    - column_reference:
+                        naked_identifier: n
+                    - binary_operator: '*'
+                    - column_reference:
+                        naked_identifier: n
+                    end_bracket: )
+          - statement_terminator: ;
+          - keyword: END
+        - statement_terminator: ;
+    - keyword: BEGIN
+    - statement:
+        function:
+          function_name:
+            naked_identifier: DBMS_OUTPUT
+            dot: .
+            function_name_identifier: PUT_LINE
+          function_contents:
+            bracketed:
+              start_bracket: (
+              expression:
+              - quoted_literal: "'f returns '"
+              - binary_operator:
+                - pipe: '|'
+                - pipe: '|'
+              - function:
+                  function_name:
+                    function_name_identifier: f
+                  function_contents:
+                    bracketed:
+                      start_bracket: (
+                      expression:
+                        numeric_literal: '2'
+                      end_bracket: )
+              - binary_operator:
+                - pipe: '|'
+                - pipe: '|'
+              - quoted_literal: "'. Execution returns here (1).'"
+              end_bracket: )
+    - statement_terminator: ;
+    - statement:
+        assignment_segment_statement:
+          object_reference:
+            naked_identifier: x
+          assignment_operator: :=
+          expression:
+            function:
+              function_name:
+                function_name_identifier: f
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    numeric_literal: '2'
+                  end_bracket: )
+    - statement_terminator: ;
+    - statement:
+        function:
+          function_name:
+            naked_identifier: DBMS_OUTPUT
+            dot: .
+            function_name_identifier: PUT_LINE
+          function_contents:
+            bracketed:
+              start_bracket: (
+              expression:
+                quoted_literal: "'Execution returns here (2).'"
+              end_bracket: )
+    - statement_terminator: ;
+    - keyword: END
+- statement_terminator: ;
+- statement_terminator: /
+- statement:
+    begin_end_block:
+    - declare_segment:
+      - create_function_statement:
+        - keyword: CREATE
+        - keyword: OR
+        - keyword: REPLACE
+        - keyword: FUNCTION
+        - function_name:
+            function_name_identifier: f
+        - function_parameter_list:
+            bracketed:
+              start_bracket: (
+              parameter: n
+              data_type:
+                data_type_identifier: INTEGER
+              end_bracket: )
+        - keyword: RETURN
+        - data_type:
+            data_type_identifier: INTEGER
+        - keyword: AUTHID
+        - keyword: DEFINER
+        - keyword: IS
+        - begin_end_block:
+          - keyword: BEGIN
+          - statement:
+              if_then_statement:
+              - if_clause:
+                - keyword: IF
+                - expression:
+                    column_reference:
+                      naked_identifier: n
+                    comparison_operator:
+                      raw_comparison_operator: '='
+                    numeric_literal: '0'
+                - keyword: THEN
+              - statement:
+                  return_statement:
+                    keyword: RETURN
+                    expression:
+                      numeric_literal: '1'
+              - statement_terminator: ;
+              - keyword: ELSIF
+              - expression:
+                  column_reference:
+                    naked_identifier: n
+                  comparison_operator:
+                    raw_comparison_operator: '='
+                  numeric_literal: '1'
+              - keyword: THEN
+              - statement:
+                  return_statement:
+                    keyword: RETURN
+                    expression:
+                      column_reference:
+                        naked_identifier: n
+              - statement_terminator: ;
+              - keyword: END
+              - keyword: IF
+          - statement_terminator: ;
+          - keyword: END
+        - statement_terminator: ;
+        - statement_terminator: /
+      - create_function_statement:
+        - keyword: CREATE
+        - keyword: OR
+        - keyword: REPLACE
+        - keyword: FUNCTION
+        - function_name:
+            function_name_identifier: f
+        - function_parameter_list:
+            bracketed:
+              start_bracket: (
+              parameter: n
+              data_type:
+                data_type_identifier: INTEGER
+              end_bracket: )
+        - keyword: RETURN
+        - data_type:
+            data_type_identifier: INTEGER
+        - keyword: AUTHID
+        - keyword: DEFINER
+        - keyword: IS
+        - begin_end_block:
+          - keyword: BEGIN
+          - statement:
+              if_then_statement:
+              - if_clause:
+                - keyword: IF
+                - expression:
+                    column_reference:
+                      naked_identifier: n
+                    comparison_operator:
+                      raw_comparison_operator: '='
+                    numeric_literal: '0'
+                - keyword: THEN
+              - statement:
+                  return_statement:
+                    keyword: RETURN
+                    expression:
+                      numeric_literal: '1'
+              - statement_terminator: ;
+              - keyword: ELSIF
+              - expression:
+                  column_reference:
+                    naked_identifier: n
+                  comparison_operator:
+                    raw_comparison_operator: '='
+                  numeric_literal: '1'
+              - keyword: THEN
+              - statement:
+                  return_statement:
+                    keyword: RETURN
+                    expression:
+                      column_reference:
+                        naked_identifier: n
+              - statement_terminator: ;
+              - keyword: ELSE
+              - statement:
+                  return_statement:
+                    keyword: RETURN
+                    expression:
+                    - column_reference:
+                        naked_identifier: n
+                    - binary_operator: '*'
+                    - column_reference:
+                        naked_identifier: n
+              - statement_terminator: ;
+              - keyword: END
+              - keyword: IF
+          - statement_terminator: ;
+          - keyword: END
+        - statement_terminator: ;
+        - statement_terminator: /
+    - keyword: BEGIN
+    - statement:
+        for_loop_statement:
+        - keyword: FOR
+        - naked_identifier: i
+        - keyword: IN
+        - numeric_literal: '0'
+        - dot: .
+        - dot: .
+        - numeric_literal: '3'
+        - loop_statement:
+          - keyword: LOOP
+          - statement:
+              function:
+                function_name:
+                  naked_identifier: DBMS_OUTPUT
+                  dot: .
+                  function_name_identifier: PUT_LINE
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                    - quoted_literal: "'f('"
+                    - binary_operator:
+                      - pipe: '|'
+                      - pipe: '|'
+                    - column_reference:
+                        naked_identifier: i
+                    - binary_operator:
+                      - pipe: '|'
+                      - pipe: '|'
+                    - quoted_literal: "') = '"
+                    - binary_operator:
+                      - pipe: '|'
+                      - pipe: '|'
+                    - function:
+                        function_name:
+                          function_name_identifier: f
+                        function_contents:
+                          bracketed:
+                            start_bracket: (
+                            expression:
+                              column_reference:
+                                naked_identifier: i
+                            end_bracket: )
+                    end_bracket: )
+          - statement_terminator: ;
+          - keyword: END
+          - keyword: LOOP
+    - statement_terminator: ;
+    - keyword: END
+- statement_terminator: ;
+- statement_terminator: /

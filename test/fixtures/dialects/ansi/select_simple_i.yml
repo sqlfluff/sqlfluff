@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: d13117144eca059754e21c8379a8a86dbf9fb247b572c0b26d7ddc3788679a59
+_hash: 0744957d16eb3bda89b7216791006755fcdbd5d2e738b3d24c1f41ad0e6de1c3
 file:
   statement:
     select_statement:
@@ -11,85 +11,89 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-            identifier: raw_column
+            naked_identifier: raw_column
       - comma: ','
       - select_clause_element:
           column_reference:
-          - identifier: raw_sch
+          - naked_identifier: raw_sch
           - dot: .
-          - identifier: raw_col
+          - naked_identifier: raw_col
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: simple_explicit
+            naked_identifier: simple_explicit
           alias_expression:
-            keyword: as
-            identifier: aliased_column_1
+            alias_operator:
+              keyword: as
+            naked_identifier: aliased_column_1
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: simple_implicit
+            naked_identifier: simple_implicit
           alias_expression:
-            identifier: aliased_column_2
+            naked_identifier: aliased_column_2
       - comma: ','
       - select_clause_element:
           expression:
           - column_reference:
-              identifier: an_unaliased
+              naked_identifier: an_unaliased
           - binary_operator: +
           - column_reference:
-              identifier: calculation
+              naked_identifier: calculation
       - comma: ','
       - select_clause_element:
           expression:
           - column_reference:
-              identifier: an_explicitly
+              naked_identifier: an_explicitly
           - binary_operator: '-'
           - column_reference:
-              identifier: aliased
+              naked_identifier: aliased
           alias_expression:
-            keyword: as
-            identifier: calculation
+            alias_operator:
+              keyword: as
+            naked_identifier: calculation
       - comma: ','
       - select_clause_element:
-          literal: "'an unalised string'"
+          quoted_literal: "'an unalised string'"
       - comma: ','
       - select_clause_element:
-          literal: '123.6'
+          numeric_literal: '123.6'
       - comma: ','
       - select_clause_element:
           numeric_literal:
-            binary_operator: '-'
-            literal: '786'
+            sign_indicator: '-'
+            numeric_literal: '786'
           alias_expression:
-            keyword: as
-            identifier: aliased_column3
+            alias_operator:
+              keyword: as
+            naked_identifier: aliased_column3
       from_clause:
         keyword: FROM
         from_expression:
         - from_expression_element:
             table_expression:
               table_reference:
-                identifier: unaliased
+                naked_identifier: unaliased
         - join_clause:
             keyword: JOIN
             from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: aliased_1
+                  naked_identifier: aliased_1
               alias_expression:
-                keyword: as
-                identifier: foo
+                alias_operator:
+                  keyword: as
+                naked_identifier: foo
         - join_clause:
           - keyword: JOIN
           - from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: aliased_2
+                  naked_identifier: aliased_2
               alias_expression:
-                identifier: bar
+                naked_identifier: bar
           - keyword: USING
           - bracketed:
               start_bracket: (
-              identifier: b
+              naked_identifier: b
               end_bracket: )

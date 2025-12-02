@@ -1,0 +1,154 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 41225e922471bc8b5fb87ee6f2ac4199f7c7a5f29a52dd5dee1d99fdd1e16485
+file:
+- statement:
+    drop_publication_statement:
+    - keyword: DROP
+    - keyword: PUBLICATION
+    - publication_reference:
+        naked_identifier: abc
+- statement_terminator: ;
+- statement:
+    drop_publication_statement:
+    - keyword: DROP
+    - keyword: PUBLICATION
+    - publication_reference:
+        quoted_identifier: '"abc"'
+- statement_terminator: ;
+- statement:
+    drop_publication_statement:
+    - keyword: DROP
+    - keyword: PUBLICATION
+    - keyword: IF
+    - keyword: EXISTS
+    - publication_reference:
+        naked_identifier: abc
+- statement_terminator: ;
+- statement:
+    drop_publication_statement:
+    - keyword: DROP
+    - keyword: PUBLICATION
+    - publication_reference:
+        naked_identifier: abc
+    - comma: ','
+    - publication_reference:
+        quoted_identifier: '"def"'
+    - comma: ','
+    - publication_reference:
+        naked_identifier: ghi
+- statement_terminator: ;
+- statement:
+    drop_publication_statement:
+    - keyword: DROP
+    - keyword: PUBLICATION
+    - keyword: IF
+    - keyword: EXISTS
+    - publication_reference:
+        naked_identifier: abc
+    - comma: ','
+    - publication_reference:
+        naked_identifier: def
+    - comma: ','
+    - publication_reference:
+        naked_identifier: ghi
+- statement_terminator: ;
+- statement:
+    drop_publication_statement:
+    - keyword: DROP
+    - keyword: PUBLICATION
+    - publication_reference:
+        naked_identifier: abc
+    - keyword: CASCADE
+- statement_terminator: ;
+- statement:
+    drop_publication_statement:
+    - keyword: DROP
+    - keyword: PUBLICATION
+    - keyword: IF
+    - keyword: EXISTS
+    - publication_reference:
+        naked_identifier: abc
+    - keyword: CASCADE
+- statement_terminator: ;
+- statement:
+    drop_publication_statement:
+    - keyword: DROP
+    - keyword: PUBLICATION
+    - publication_reference:
+        naked_identifier: abc
+    - comma: ','
+    - publication_reference:
+        naked_identifier: def
+    - comma: ','
+    - publication_reference:
+        naked_identifier: ghi
+    - keyword: CASCADE
+- statement_terminator: ;
+- statement:
+    drop_publication_statement:
+    - keyword: DROP
+    - keyword: PUBLICATION
+    - keyword: IF
+    - keyword: EXISTS
+    - publication_reference:
+        naked_identifier: abc
+    - comma: ','
+    - publication_reference:
+        naked_identifier: def
+    - comma: ','
+    - publication_reference:
+        naked_identifier: ghi
+    - keyword: CASCADE
+- statement_terminator: ;
+- statement:
+    drop_publication_statement:
+    - keyword: DROP
+    - keyword: PUBLICATION
+    - publication_reference:
+        naked_identifier: abc
+    - keyword: RESTRICT
+- statement_terminator: ;
+- statement:
+    drop_publication_statement:
+    - keyword: DROP
+    - keyword: PUBLICATION
+    - keyword: IF
+    - keyword: EXISTS
+    - publication_reference:
+        naked_identifier: abc
+    - keyword: RESTRICT
+- statement_terminator: ;
+- statement:
+    drop_publication_statement:
+    - keyword: DROP
+    - keyword: PUBLICATION
+    - publication_reference:
+        naked_identifier: abc
+    - comma: ','
+    - publication_reference:
+        naked_identifier: def
+    - comma: ','
+    - publication_reference:
+        naked_identifier: ghi
+    - keyword: RESTRICT
+- statement_terminator: ;
+- statement:
+    drop_publication_statement:
+    - keyword: DROP
+    - keyword: PUBLICATION
+    - keyword: IF
+    - keyword: EXISTS
+    - publication_reference:
+        naked_identifier: abc
+    - comma: ','
+    - publication_reference:
+        naked_identifier: def
+    - comma: ','
+    - publication_reference:
+        naked_identifier: ghi
+    - keyword: RESTRICT
+- statement_terminator: ;

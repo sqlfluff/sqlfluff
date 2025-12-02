@@ -1,0 +1,222 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 617238e8c1decb78501479b84b05ee00fae0aca517bd0d5d3d0b112a6dcd7f29
+file:
+- statement:
+    vacuum_statement:
+      keyword: VACUUM
+- statement_terminator: ;
+- statement:
+    vacuum_statement:
+    - keyword: VACUUM
+    - keyword: FULL
+- statement_terminator: ;
+- statement:
+    vacuum_statement:
+    - keyword: VACUUM
+    - keyword: FREEZE
+- statement_terminator: ;
+- statement:
+    vacuum_statement:
+    - keyword: VACUUM
+    - keyword: VERBOSE
+- statement_terminator: ;
+- statement:
+    vacuum_statement:
+    - keyword: VACUUM
+    - keyword: ANALYZE
+- statement_terminator: ;
+- statement:
+    vacuum_statement:
+    - keyword: VACUUM
+    - keyword: ANALYSE
+- statement_terminator: ;
+- statement:
+    vacuum_statement:
+    - keyword: VACUUM
+    - keyword: FULL
+    - keyword: FREEZE
+    - keyword: VERBOSE
+    - keyword: ANALYSE
+- statement_terminator: ;
+- statement:
+    vacuum_statement:
+      keyword: VACUUM
+      table_reference:
+        naked_identifier: tbl
+- statement_terminator: ;
+- statement:
+    vacuum_statement:
+    - keyword: VACUUM
+    - table_reference:
+        naked_identifier: tbl1
+    - comma: ','
+    - table_reference:
+        naked_identifier: tbl2
+- statement_terminator: ;
+- statement:
+    vacuum_statement:
+    - keyword: VACUUM
+    - keyword: FULL
+    - keyword: FREEZE
+    - keyword: VERBOSE
+    - keyword: ANALYSE
+    - table_reference:
+        naked_identifier: tbl1
+    - comma: ','
+    - table_reference:
+        naked_identifier: tbl2
+- statement_terminator: ;
+- statement:
+    vacuum_statement:
+    - keyword: VACUUM
+    - keyword: FULL
+    - table_reference:
+        naked_identifier: tbl1
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: col1
+      - comma: ','
+      - column_reference:
+          naked_identifier: col2
+      - end_bracket: )
+    - comma: ','
+    - table_reference:
+        naked_identifier: tbl2
+- statement_terminator: ;
+- statement:
+    vacuum_statement:
+    - keyword: VACUUM
+    - keyword: FULL
+    - table_reference:
+        naked_identifier: tbl1
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          naked_identifier: col1
+        end_bracket: )
+    - comma: ','
+    - table_reference:
+        naked_identifier: tbl2
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: col1
+      - comma: ','
+      - column_reference:
+          naked_identifier: col2
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    vacuum_statement:
+      keyword: VACUUM
+      bracketed:
+        start_bracket: (
+        keyword: FULL
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    vacuum_statement:
+      keyword: VACUUM
+      bracketed:
+      - start_bracket: (
+      - keyword: FULL
+      - comma: ','
+      - keyword: FREEZE
+      - end_bracket: )
+      table_reference:
+        naked_identifier: tbl1
+- statement_terminator: ;
+- statement:
+    vacuum_statement:
+    - keyword: VACUUM
+    - bracketed:
+      - start_bracket: (
+      - keyword: FULL
+      - comma: ','
+      - keyword: FREEZE
+      - end_bracket: )
+    - table_reference:
+        naked_identifier: tbl1
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: col1
+      - comma: ','
+      - column_reference:
+          naked_identifier: col2
+      - end_bracket: )
+    - comma: ','
+    - table_reference:
+        naked_identifier: tbl2
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          naked_identifier: col3
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    vacuum_statement:
+      keyword: VACUUM
+      bracketed:
+      - start_bracket: (
+      - keyword: FULL
+      - boolean_literal: 'TRUE'
+      - comma: ','
+      - keyword: FREEZE
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    vacuum_statement:
+      keyword: VACUUM
+      bracketed:
+      - start_bracket: (
+      - keyword: FULL
+      - boolean_literal: 'TRUE'
+      - comma: ','
+      - keyword: FREEZE
+      - boolean_literal: 'FALSE'
+      - comma: ','
+      - keyword: VERBOSE
+      - comma: ','
+      - keyword: ANALYZE
+      - comma: ','
+      - keyword: ANALYSE
+      - comma: ','
+      - keyword: DISABLE_PAGE_SKIPPING
+      - comma: ','
+      - keyword: SKIP_LOCKED
+      - comma: ','
+      - keyword: INDEX_CLEANUP
+      - naked_identifier: 'on'
+      - comma: ','
+      - keyword: PROCESS_TOAST
+      - comma: ','
+      - keyword: TRUNCATE
+      - comma: ','
+      - keyword: PARALLEL
+      - numeric_literal: '70'
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    vacuum_statement:
+      keyword: VACUUM
+      bracketed:
+        start_bracket: (
+        keyword: INDEX_CLEANUP
+        naked_identifier: 'off'
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    vacuum_statement:
+      keyword: VACUUM
+      bracketed:
+        start_bracket: (
+        keyword: INDEX_CLEANUP
+        naked_identifier: auto
+        end_bracket: )
+- statement_terminator: ;

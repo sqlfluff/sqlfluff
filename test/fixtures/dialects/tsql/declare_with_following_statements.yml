@@ -3,125 +3,160 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 0a4f0360dd9086c95bd47fc7ffd98c4443f12a784a2fa4cdc7d016677b5f12e1
+_hash: ca0b5057e6b467ce4e49f533ac5c050b72ecd9a8094d0c708d4c804f286bb22b
 file:
   batch:
-    create_procedure_statement:
-    - keyword: CREATE
-    - keyword: PROC
-    - object_reference:
-      - identifier: Reporting
-      - dot: .
-      - identifier: DeclareProblem
-    - keyword: AS
-    - procedure_statement:
-        begin_end_block:
-        - keyword: BEGIN
-        - statement:
-            declare_segment:
-            - keyword: DECLARE
-            - parameter: '@startdate'
-            - keyword: AS
-            - data_type:
-                identifier: DATE
+    statement:
+      create_procedure_statement:
+      - keyword: CREATE
+      - keyword: PROC
+      - object_reference:
+        - naked_identifier: Reporting
+        - dot: .
+        - naked_identifier: DeclareProblem
+      - keyword: AS
+      - procedure_statement:
+          statement:
+            begin_end_block:
+            - keyword: BEGIN
+            - statement:
+                declare_segment:
+                - keyword: DECLARE
+                - parameter: '@startdate'
+                - keyword: AS
+                - data_type:
+                    keyword: DATE
             - statement_terminator: ;
-        - statement:
-            declare_segment:
-              keyword: DECLARE
-              parameter: '@DateNow'
-              data_type:
-                identifier: DATE
-              comparison_operator: '='
-              expression:
-                function:
-                  function_name:
-                    function_name_identifier: GETDATE
-                  bracketed:
-                    start_bracket: (
-                    end_bracket: )
-              statement_terminator: ;
-        - statement:
-            declare_segment:
-            - keyword: DECLARE
-            - parameter: '@DateStart'
-            - data_type:
-                identifier: DATETIME2
-            - comparison_operator: '='
-            - expression:
-                function:
-                  function_name:
-                    function_name_identifier: GETDATE
-                  bracketed:
-                    start_bracket: (
-                    end_bracket: )
-            - comma: ','
-            - parameter: '@DateEnd'
-            - data_type:
-                identifier: DATETIME2
-            - comparison_operator: '='
-            - expression:
-                function:
-                  function_name:
-                    function_name_identifier: GETDATE
-                  bracketed:
-                    start_bracket: (
-                    end_bracket: )
-        - statement:
-            declare_segment:
-              keyword: DECLARE
-              parameter: '@EOMONTH'
-              data_type:
-                identifier: DATE
-              comparison_operator: '='
-              expression:
-                bracketed:
-                  start_bracket: (
+            - statement:
+                declare_segment:
+                  keyword: DECLARE
+                  parameter: '@DateNow'
+                  data_type:
+                    keyword: DATE
+                  comparison_operator:
+                    raw_comparison_operator: '='
                   expression:
-                    literal: "'1900-01-01'"
-                  end_bracket: )
-        - statement:
-            set_segment:
-              keyword: SET
-              parameter: '@EOMONTH'
-              comparison_operator: '='
-              expression:
-                bracketed:
-                  start_bracket: (
+                    function:
+                      function_name:
+                        function_name_identifier: GETDATE
+                      function_contents:
+                        bracketed:
+                          start_bracket: (
+                          end_bracket: )
+            - statement_terminator: ;
+            - statement:
+                declare_segment:
+                - keyword: DECLARE
+                - parameter: '@DateStart'
+                - data_type:
+                    keyword: DATETIME2
+                - comparison_operator:
+                    raw_comparison_operator: '='
+                - expression:
+                    function:
+                      function_name:
+                        function_name_identifier: GETDATE
+                      function_contents:
+                        bracketed:
+                          start_bracket: (
+                          end_bracket: )
+                - comma: ','
+                - parameter: '@DateEnd'
+                - data_type:
+                    keyword: DATETIME2
+                - comparison_operator:
+                    raw_comparison_operator: '='
+                - expression:
+                    function:
+                      function_name:
+                        function_name_identifier: GETDATE
+                      function_contents:
+                        bracketed:
+                          start_bracket: (
+                          end_bracket: )
+            - statement:
+                declare_segment:
+                  keyword: DECLARE
+                  parameter: '@EOMONTH'
+                  data_type:
+                    keyword: DATE
+                  comparison_operator:
+                    raw_comparison_operator: '='
                   expression:
-                    literal: "'2000-01-01'"
-                  end_bracket: )
-        - statement:
-            set_segment:
-              keyword: SET
-              parameter: '@EOMONTH'
-              comparison_operator: '='
-              expression:
-                bracketed:
-                  start_bracket: (
+                    bracketed:
+                      start_bracket: (
+                      expression:
+                        quoted_literal: "'1900-01-01'"
+                      end_bracket: )
+            - statement:
+                declare_segment:
+                  keyword: DECLARE
+                  parameter: '@USER'
+                  data_type:
+                    keyword: DATE
+                  comparison_operator:
+                    raw_comparison_operator: '='
                   expression:
-                    literal: "'2001-01-01'"
-                  end_bracket: )
-              statement_terminator: ;
-        - statement:
-            if_then_statement:
-              keyword: IF
-              expression:
-              - function:
-                  function_name:
-                    function_name_identifier: OBJECT_ID
-                  bracketed:
-                    start_bracket: (
+                    bare_function: SYSTEM_USER
+            - statement_terminator: ;
+            - statement:
+                declare_segment:
+                  keyword: DECLARE
+                  parameter: '@CURRENTTIME'
+                  data_type:
+                    keyword: DATE
+                  comparison_operator:
+                    raw_comparison_operator: '='
+                  expression:
+                    bare_function: CURRENT_TIMESTAMP
+            - statement_terminator: ;
+            - statement:
+                set_local_variable_segment:
+                  keyword: SET
+                  parameter: '@EOMONTH'
+                  assignment_operator:
+                    raw_comparison_operator: '='
+                  expression:
+                    bracketed:
+                      start_bracket: (
+                      expression:
+                        quoted_literal: "'2000-01-01'"
+                      end_bracket: )
+            - statement:
+                set_local_variable_segment:
+                  keyword: SET
+                  parameter: '@EOMONTH'
+                  assignment_operator:
+                    raw_comparison_operator: '='
+                  expression:
+                    bracketed:
+                      start_bracket: (
+                      expression:
+                        quoted_literal: "'2001-01-01'"
+                      end_bracket: )
+            - statement_terminator: ;
+            - statement:
+                if_then_statement:
+                  if_clause:
+                    keyword: IF
                     expression:
-                      literal: "'tempdb..#UP'"
-                    end_bracket: )
-              - keyword: IS
-              - keyword: NOT
-              - keyword: 'NULL'
-              statement:
-                drop_statement:
-                - keyword: DROP
-                - keyword: TABLE
-                - table_reference:
-                    identifier: '#UP'
-                - statement_terminator: ;
-        - keyword: END
+                    - function:
+                        function_name:
+                          function_name_identifier: OBJECT_ID
+                        function_contents:
+                          bracketed:
+                            start_bracket: (
+                            expression:
+                              quoted_literal: "'tempdb..#UP'"
+                            end_bracket: )
+                    - keyword: IS
+                    - keyword: NOT
+                    - null_literal: 'NULL'
+                  statement:
+                    drop_table_statement:
+                    - keyword: DROP
+                    - keyword: TABLE
+                    - table_reference:
+                        hash_identifier: '#UP'
+                  statement_terminator: ;
+            - keyword: END

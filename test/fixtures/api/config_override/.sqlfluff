@@ -1,0 +1,2 @@
+[sqlfluff]
+exclude_rules = RF02,RF04

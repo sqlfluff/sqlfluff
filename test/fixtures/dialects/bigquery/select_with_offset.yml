@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 9000d23493a6d228b7be5a14fa7ae90a9ea4b2d016a34239e494d15a3ef965b2
+_hash: 084cc8b009816498bd4a12c50e374adfc25c48658b8268b14fe577b0bcfbe939
 file:
   statement:
     select_statement:
@@ -13,26 +13,31 @@ file:
           function:
             function_name:
               function_name_identifier: SUM
-            bracketed:
-              start_bracket: (
-              expression:
-                case_expression:
-                - keyword: CASE
-                - keyword: WHEN
-                - expression:
-                  - column_reference:
-                      identifier: value
-                  - comparison_operator: '!='
-                  - column_reference:
-                      identifier: previous_value
-                - keyword: THEN
-                - expression:
-                    literal: '1.0'
-                - keyword: ELSE
-                - expression:
-                    literal: '0.0'
-                - keyword: END
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  case_expression:
+                  - keyword: CASE
+                  - when_clause:
+                    - keyword: WHEN
+                    - expression:
+                      - column_reference:
+                          naked_identifier: value
+                      - comparison_operator:
+                        - raw_comparison_operator: '!'
+                        - raw_comparison_operator: '='
+                      - column_reference:
+                          naked_identifier: previous_value
+                    - keyword: THEN
+                    - expression:
+                        numeric_literal: '1.0'
+                  - else_clause:
+                      keyword: ELSE
+                      expression:
+                        numeric_literal: '0.0'
+                  - keyword: END
+                end_bracket: )
       from_clause:
         keyword: FROM
         from_expression:
@@ -45,49 +50,55 @@ file:
                   - keyword: SELECT
                   - select_clause_element:
                       column_reference:
-                        identifier: value
+                        naked_identifier: value
                   - comma: ','
                   - select_clause_element:
                       expression:
                         case_expression:
                         - keyword: CASE
-                        - keyword: WHEN
-                        - expression:
-                            column_reference:
-                              identifier: ix
-                            comparison_operator: '!='
-                            literal: '0'
-                        - keyword: THEN
-                        - expression:
-                            function:
-                              function_name:
-                                function_name_identifier: LAG
-                              bracketed:
-                                start_bracket: (
-                                expression:
-                                  column_reference:
-                                    identifier: value
-                                end_bracket: )
-                              over_clause:
-                                keyword: OVER
-                                bracketed:
-                                  start_bracket: (
-                                  window_specification:
-                                    orderby_clause:
-                                    - keyword: ORDER
-                                    - keyword: BY
-                                    - column_reference:
-                                        identifier: ix
-                                    - keyword: ASC
-                                  end_bracket: )
-                        - keyword: ELSE
-                        - expression:
-                            column_reference:
-                              identifier: value
+                        - when_clause:
+                          - keyword: WHEN
+                          - expression:
+                              column_reference:
+                                naked_identifier: ix
+                              comparison_operator:
+                              - raw_comparison_operator: '!'
+                              - raw_comparison_operator: '='
+                              numeric_literal: '0'
+                          - keyword: THEN
+                          - expression:
+                              function:
+                                function_name:
+                                  function_name_identifier: LAG
+                                function_contents:
+                                  bracketed:
+                                    start_bracket: (
+                                    expression:
+                                      column_reference:
+                                        naked_identifier: value
+                                    end_bracket: )
+                                over_clause:
+                                  keyword: OVER
+                                  bracketed:
+                                    start_bracket: (
+                                    window_specification:
+                                      orderby_clause:
+                                      - keyword: ORDER
+                                      - keyword: BY
+                                      - column_reference:
+                                          naked_identifier: ix
+                                      - keyword: ASC
+                                    end_bracket: )
+                        - else_clause:
+                            keyword: ELSE
+                            expression:
+                              column_reference:
+                                naked_identifier: value
                         - keyword: END
                       alias_expression:
-                        keyword: AS
-                        identifier: previous_value
+                        alias_operator:
+                          keyword: AS
+                        naked_identifier: previous_value
                   from_clause:
                     keyword: FROM
                     from_expression:
@@ -96,19 +107,23 @@ file:
                           function:
                             function_name:
                               function_name_identifier: UNNEST
-                            bracketed:
-                              start_bracket: (
-                              expression:
-                                column_reference:
-                                - identifier: sequence_validation_and_business_rules
-                                - dot: .
-                                - identifier: sequence_validation_and_business_rules
-                              end_bracket: )
+                            function_contents:
+                              bracketed:
+                                start_bracket: (
+                                expression:
+                                  column_reference:
+                                  - naked_identifier: sequence_validation_and_business_rules
+                                  - dot: .
+                                  - naked_identifier: sequence_validation_and_business_rules
+                                end_bracket: )
                       - alias_expression:
-                          keyword: AS
-                          identifier: value
+                          alias_operator:
+                            keyword: AS
+                          naked_identifier: value
                       - keyword: WITH
                       - keyword: OFFSET
-                      - keyword: AS
-                      - identifier: ix
+                      - alias_expression:
+                          alias_operator:
+                            keyword: AS
+                          naked_identifier: ix
                 end_bracket: )

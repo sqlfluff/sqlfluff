@@ -1,0 +1,658 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 6ffa5a8e74bb9b7f048568b335d5f8d05e9b7ec2ae044ad88391c1c96d63f863
+file:
+- statement:
+    create_task_statement:
+    - keyword: CREATE
+    - keyword: TASK
+    - object_reference:
+        naked_identifier: t1
+    - keyword: SCHEDULE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'USING CRON 0 9-17 * * SUN America/Los_Angeles'"
+    - parameter: TIMESTAMP_INPUT_FORMAT
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'YYYY-MM-DD HH24'"
+    - keyword: USER_TASK_MANAGED_INITIAL_WAREHOUSE_SIZE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - warehouse_size: "'XSMALL'"
+    - keyword: AS
+    - statement:
+        insert_statement:
+        - keyword: INSERT
+        - keyword: INTO
+        - table_reference:
+            naked_identifier: mytable
+        - bracketed:
+            start_bracket: (
+            column_reference:
+              naked_identifier: ts
+            end_bracket: )
+        - values_clause:
+            keyword: VALUES
+            bracketed:
+              start_bracket: (
+              expression:
+                numeric_literal: '1'
+              end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_task_statement:
+    - keyword: CREATE
+    - keyword: TASK
+    - object_reference:
+        naked_identifier: mytask_hour
+    - keyword: WAREHOUSE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - object_reference:
+        naked_identifier: mywh
+    - keyword: SCHEDULE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'USING CRON 0 9-17 * * SUN America/Los_Angeles'"
+    - parameter: TIMESTAMP_INPUT_FORMAT
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'YYYY-MM-DD HH24'"
+    - keyword: AS
+    - statement:
+        insert_statement:
+        - keyword: INSERT
+        - keyword: INTO
+        - table_reference:
+            naked_identifier: mytable
+        - bracketed:
+            start_bracket: (
+            column_reference:
+              naked_identifier: ts
+            end_bracket: )
+        - values_clause:
+            keyword: VALUES
+            bracketed:
+            - start_bracket: (
+            - expression:
+                numeric_literal: '1'
+            - comma: ','
+            - expression:
+                numeric_literal: '2'
+            - comma: ','
+            - expression:
+                numeric_literal: '3'
+            - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_task_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: TASK
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - object_reference:
+        naked_identifier: t1
+    - keyword: SCHEDULE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'USING CRON 0 9-17 * * SUN America/Los_Angeles'"
+    - keyword: ALLOW_OVERLAPPING_EXECUTION
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - boolean_literal: 'TRUE'
+    - parameter: TIMESTAMP_INPUT_FORMAT
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'YYYY-MM-DD HH24'"
+    - keyword: USER_TASK_TIMEOUT_MS
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - numeric_literal: '25'
+    - keyword: USER_TASK_MANAGED_INITIAL_WAREHOUSE_SIZE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - warehouse_size: "'XSMALL'"
+    - keyword: COPY
+    - keyword: GRANTS
+    - parameter: COMMENT
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'Hello world'"
+    - keyword: AFTER
+    - object_reference:
+        naked_identifier: dependency_task
+    - keyword: AS
+    - statement:
+        insert_statement:
+        - keyword: INSERT
+        - keyword: INTO
+        - table_reference:
+            naked_identifier: mytable
+        - bracketed:
+            start_bracket: (
+            column_reference:
+              naked_identifier: ts
+            end_bracket: )
+        - values_clause:
+            keyword: VALUES
+            bracketed:
+              start_bracket: (
+              expression:
+                numeric_literal: '1'
+              end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_task_statement:
+    - keyword: CREATE
+    - keyword: TASK
+    - object_reference:
+        naked_identifier: t1
+    - keyword: AS
+    - statement:
+        insert_statement:
+        - keyword: INSERT
+        - keyword: INTO
+        - table_reference:
+            naked_identifier: mytable
+        - bracketed:
+            start_bracket: (
+            column_reference:
+              naked_identifier: ts
+            end_bracket: )
+        - values_clause:
+            keyword: VALUES
+            bracketed:
+              start_bracket: (
+              expression:
+                numeric_literal: '1'
+              end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_task_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: TASK
+    - object_reference:
+        naked_identifier: insert_session
+    - keyword: WAREHOUSE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - object_reference:
+        naked_identifier: eng_wh
+    - keyword: SCHEDULE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'USING CRON 45 6 * * * UTC'"
+    - keyword: AS
+    - statement:
+        insert_statement:
+        - keyword: INSERT
+        - keyword: INTO
+        - table_reference:
+          - naked_identifier: sch
+          - dot: .
+          - naked_identifier: s_session
+        - select_statement:
+            select_clause:
+            - keyword: SELECT
+            - select_clause_element:
+                wildcard_expression:
+                  wildcard_identifier:
+                    star: '*'
+            - comma: ','
+            - select_clause_element:
+                function:
+                  function_name:
+                    function_name_identifier: sum
+                  function_contents:
+                    bracketed:
+                      start_bracket: (
+                      expression:
+                        column_reference:
+                          naked_identifier: break
+                      end_bracket: )
+                  over_clause:
+                    keyword: OVER
+                    bracketed:
+                      start_bracket: (
+                      window_specification:
+                        partitionby_clause:
+                        - keyword: PARTITION
+                        - keyword: BY
+                        - expression:
+                            column_reference:
+                              naked_identifier: serial
+                        orderby_clause:
+                        - keyword: ORDER
+                        - keyword: BY
+                        - column_reference:
+                            naked_identifier: datetime
+                      end_bracket: )
+                alias_expression:
+                  alias_operator:
+                    keyword: AS
+                  naked_identifier: session_id
+            from_clause:
+              keyword: FROM
+              from_expression:
+                from_expression_element:
+                  table_expression:
+                    bracketed:
+                      start_bracket: (
+                      select_statement:
+                        select_clause:
+                          keyword: SELECT
+                          select_clause_element:
+                            wildcard_expression:
+                              wildcard_identifier:
+                                star: '*'
+                        from_clause:
+                          keyword: FROM
+                          from_expression:
+                            from_expression_element:
+                              table_expression:
+                                table_reference:
+                                  naked_identifier: base_table
+                      end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_task_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: TASK
+    - object_reference:
+        naked_identifier: update_session
+    - keyword: WAREHOUSE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - object_reference:
+        naked_identifier: eng_wh
+    - keyword: AFTER
+    - object_reference:
+        naked_identifier: insert_session
+    - keyword: AS
+    - statement:
+        update_statement:
+          keyword: UPDATE
+          table_reference:
+          - naked_identifier: sch
+          - dot: .
+          - naked_identifier: s_session
+          set_clause_list:
+          - keyword: SET
+          - set_clause:
+            - column_reference:
+                naked_identifier: lag_datetime
+            - comparison_operator:
+                raw_comparison_operator: '='
+            - column_reference:
+              - naked_identifier: v
+              - dot: .
+              - naked_identifier: lag_datetime
+          - comma: ','
+          - set_clause:
+            - column_reference:
+                naked_identifier: row_number
+            - comparison_operator:
+                raw_comparison_operator: '='
+            - column_reference:
+              - naked_identifier: v
+              - dot: .
+              - naked_identifier: row_number
+          from_clause:
+            keyword: FROM
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  bracketed:
+                    start_bracket: (
+                    select_statement:
+                      select_clause:
+                      - keyword: SELECT
+                      - select_clause_element:
+                          wildcard_expression:
+                            wildcard_identifier:
+                              star: '*'
+                      - comma: ','
+                      - select_clause_element:
+                          expression:
+                            bracketed:
+                              start_bracket: (
+                              expression:
+                                function:
+                                  function_name:
+                                    function_name_identifier: sum
+                                  function_contents:
+                                    bracketed:
+                                      start_bracket: (
+                                      expression:
+                                        column_reference:
+                                          naked_identifier: break
+                                      end_bracket: )
+                                  over_clause:
+                                    keyword: OVER
+                                    bracketed:
+                                      start_bracket: (
+                                      window_specification:
+                                        partitionby_clause:
+                                        - keyword: PARTITION
+                                        - keyword: BY
+                                        - expression:
+                                            column_reference:
+                                              naked_identifier: serial
+                                        orderby_clause:
+                                        - keyword: ORDER
+                                        - keyword: BY
+                                        - column_reference:
+                                            naked_identifier: datetime
+                                      end_bracket: )
+                              end_bracket: )
+                          alias_expression:
+                            alias_operator:
+                              keyword: AS
+                            naked_identifier: session_id
+                      from_clause:
+                        keyword: FROM
+                        from_expression:
+                          from_expression_element:
+                            table_expression:
+                              bracketed:
+                                start_bracket: (
+                                select_statement:
+                                  select_clause:
+                                    keyword: SELECT
+                                    select_clause_element:
+                                      wildcard_expression:
+                                        wildcard_identifier:
+                                          star: '*'
+                                  from_clause:
+                                    keyword: FROM
+                                    from_expression:
+                                      from_expression_element:
+                                        table_expression:
+                                          table_reference:
+                                            naked_identifier: derived_table
+                                end_bracket: )
+                      orderby_clause:
+                      - keyword: ORDER
+                      - keyword: BY
+                      - column_reference:
+                          naked_identifier: serial
+                      - comma: ','
+                      - column_reference:
+                          naked_identifier: datetime
+                    end_bracket: )
+                alias_expression:
+                  alias_operator:
+                    keyword: AS
+                  naked_identifier: v
+          where_clause:
+            keyword: WHERE
+            expression:
+            - column_reference:
+              - naked_identifier: sch
+              - dot: .
+              - naked_identifier: s_session
+              - dot: .
+              - naked_identifier: event_id
+            - comparison_operator:
+                raw_comparison_operator: '='
+            - column_reference:
+              - naked_identifier: v
+              - dot: .
+              - naked_identifier: event_id
+- statement_terminator: ;
+- statement:
+    create_task_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: TASK
+    - object_reference:
+      - naked_identifier: sch
+      - dot: .
+      - naked_identifier: truncate_session
+    - keyword: WAREHOUSE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - object_reference:
+        naked_identifier: eng_wh
+    - keyword: AFTER
+    - object_reference:
+      - naked_identifier: sch
+      - dot: .
+      - naked_identifier: update_session
+    - keyword: AS
+    - statement:
+        call_segment:
+          keyword: CALL
+          function:
+            function_name:
+              naked_identifier: sch
+              dot: .
+              function_name_identifier: session_agg_insert
+            function_contents:
+              bracketed:
+                start_bracket: (
+                end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_task_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: TASK
+    - object_reference:
+        naked_identifier: insert__agg
+    - keyword: WAREHOUSE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - object_reference:
+        naked_identifier: eng_wh
+    - keyword: SCHEDULE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'USING CRON 15 7 2 * * UTC'"
+    - keyword: AS
+    - statement:
+        call_segment:
+          keyword: CALL
+          function:
+            function_name:
+              function_name_identifier: auto_device_insert
+            function_contents:
+              bracketed:
+                start_bracket: (
+                end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_task_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: TASK
+    - object_reference:
+      - naked_identifier: SCH
+      - dot: .
+      - naked_identifier: MY_TASK
+    - keyword: WAREHOUSE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - object_reference:
+        naked_identifier: MY_WH
+    - keyword: SCHEDULE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'USING CRON 15 7 2 * * UTC'"
+    - keyword: USER_TASK_TIMEOUT_MS
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - numeric_literal: '10800000'
+    - keyword: WHEN
+    - snowflake_task_expression_segment:
+        system_function_name: SYSTEM$STREAM_HAS_DATA
+        bracketed:
+          start_bracket: (
+          quoted_literal: "'SCH.MY_STREAM'"
+          end_bracket: )
+        binary_operator: AND
+        expression:
+        - numeric_literal: '1'
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - numeric_literal: '1'
+    - keyword: AS
+    - statement:
+        call_segment:
+          keyword: CALL
+          function:
+            function_name:
+              naked_identifier: SCH
+              dot: .
+              function_name_identifier: MY_SPROC
+            function_contents:
+              bracketed:
+                start_bracket: (
+                end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_task_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: ALTER
+    - keyword: TASK
+    - object_reference:
+        naked_identifier: mytask
+    - keyword: WAREHOUSE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - object_reference:
+        naked_identifier: mywh
+    - keyword: AS
+    - statement:
+        call_segment:
+          keyword: CALL
+          function:
+            function_name:
+              naked_identifier: SCH
+              dot: .
+              function_name_identifier: MY_SPROC
+            function_contents:
+              bracketed:
+                start_bracket: (
+                end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_task_statement:
+    - keyword: CREATE
+    - keyword: TASK
+    - object_reference:
+        naked_identifier: task5
+    - keyword: AFTER
+    - object_reference:
+        naked_identifier: task2
+    - comma: ','
+    - object_reference:
+        naked_identifier: task3
+    - comma: ','
+    - object_reference:
+        naked_identifier: task4
+    - keyword: AS
+    - statement:
+        insert_statement:
+        - keyword: INSERT
+        - keyword: INTO
+        - table_reference:
+            naked_identifier: t1
+        - bracketed:
+            start_bracket: (
+            column_reference:
+              naked_identifier: ts
+            end_bracket: )
+        - values_clause:
+            keyword: VALUES
+            bracketed:
+              start_bracket: (
+              expression:
+                bare_function: CURRENT_TIMESTAMP
+              end_bracket: )
+- statement_terminator: ;
+- statement:
+    set_statement:
+      keyword: SET
+      variable: custom_warehouse
+      comparison_operator:
+        raw_comparison_operator: '='
+      expression:
+        quoted_literal: "'mywh'"
+- statement_terminator: ;
+- statement:
+    set_statement:
+      keyword: SET
+      variable: custom_schedule
+      comparison_operator:
+        raw_comparison_operator: '='
+      expression:
+        quoted_literal: "'USING CRON 15 7 2 * * UTC'"
+- statement_terminator: ;
+- statement:
+    create_task_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: ALTER
+    - keyword: TASK
+    - object_reference:
+        naked_identifier: mytask
+    - keyword: WAREHOUSE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - object_reference:
+        variable: $custom_warehouse
+    - keyword: SCHEDULE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - variable: $custom_schedule
+    - log_level_equals:
+      - keyword: LOG_LEVEL
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - keyword: TRACE
+    - keyword: AS
+    - statement:
+        call_segment:
+          keyword: CALL
+          function:
+            function_name:
+              naked_identifier: SCH
+              dot: .
+              function_name_identifier: MY_SPROC
+            function_contents:
+              bracketed:
+                start_bracket: (
+                end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_task_statement:
+    - keyword: CREATE
+    - keyword: TASK
+    - object_reference:
+        naked_identifier: mytask
+    - keyword: AS
+    - statement:
+        alter_dynamic_table_statement:
+        - keyword: ALTER
+        - keyword: DYNAMIC
+        - keyword: TABLE
+        - table_reference:
+            naked_identifier: foo
+        - keyword: REFRESH
+- statement_terminator: ;

@@ -16,13 +16,12 @@ SELECT
 FROM
 {% for action in considered_actions %}
     {% if loop.first %}
-        -- This next section gets very strange with forced template_blocks_indent
         {{action}}_raw_effect_sizes
     {% else %}
     JOIN
-            {{action}}_raw_effect_sizes
+        {{action}}_raw_effect_sizes
         USING
-                    ({{corr_states}})
+            ({{corr_states}})
     {% endif %}
 {% endfor %}
 CROSS JOIN action_states

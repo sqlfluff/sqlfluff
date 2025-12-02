@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: eceb1338124c97da645a1c603a5a361c08a881511cd0411ad4e373044d6ca0ce
+_hash: 54c22dba7dfd692e748f7cef7b0bd617cfb816401654e0f7e277ec14b7f73031
 file:
   statement:
     select_statement:
@@ -11,59 +11,64 @@ file:
         keyword: select
         select_clause_element:
           column_reference:
-          - identifier: t
+          - naked_identifier: t
           - dot: .
-          - identifier: column1
+          - naked_identifier: column1
       from_clause:
         keyword: from
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-              - identifier: sch
+              - naked_identifier: sch
               - dot: .
-              - identifier: table1
+              - naked_identifier: table1
             alias_expression:
-              keyword: as
-              identifier: t
+              alias_operator:
+                keyword: as
+              naked_identifier: t
       where_clause:
         keyword: where
         expression:
           column_reference:
-          - identifier: t
+          - naked_identifier: t
           - dot: .
-          - identifier: b_year
+          - naked_identifier: b_year
           keyword: in
           bracketed:
           - start_bracket: (
           - function:
               function_name:
                 function_name_identifier: year
-              bracketed:
-                start_bracket: (
-                expression:
-                  function:
-                    function_name:
-                      function_name_identifier: getdate
-                    bracketed:
-                      start_bracket: (
-                      end_bracket: )
-                end_bracket: )
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    function:
+                      function_name:
+                        function_name_identifier: getdate
+                      function_contents:
+                        bracketed:
+                          start_bracket: (
+                          end_bracket: )
+                  end_bracket: )
           - comma: ','
           - function:
               function_name:
                 function_name_identifier: year
-              bracketed:
-                start_bracket: (
-                expression:
-                  function:
-                    function_name:
-                      function_name_identifier: getdate
-                    bracketed:
-                      start_bracket: (
-                      end_bracket: )
-                end_bracket: )
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    function:
+                      function_name:
+                        function_name_identifier: getdate
+                      function_contents:
+                        bracketed:
+                          start_bracket: (
+                          end_bracket: )
+                  end_bracket: )
           - binary_operator: '-'
-          - literal: '1'
+          - numeric_literal: '1'
           - end_bracket: )
   statement_terminator: ;

@@ -1,0 +1,415 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 18124d129b5b153297e8f27e9a86e7f1c039154b996e15fdb7b50b47d9fedf99
+file:
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+            naked_identifier: region
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: city
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: grouping
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                    naked_identifier: region
+              - comma: ','
+              - expression:
+                  column_reference:
+                    naked_identifier: city
+              - end_bracket: )
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: grp_idx
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: count
+            function_contents:
+              bracketed:
+                start_bracket: (
+                keyword: DISTINCT
+                expression:
+                  column_reference:
+                    naked_identifier: id
+                end_bracket: )
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: num_total
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: count
+            function_contents:
+              bracketed:
+                start_bracket: (
+                keyword: DISTINCT
+                expression:
+                  column_reference:
+                    naked_identifier: id
+                end_bracket: )
+            keyword: FILTER
+            bracketed:
+              start_bracket: (
+              keyword: WHERE
+              expression:
+                column_reference:
+                  naked_identifier: is_poi
+              end_bracket: )
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: num_poi
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: count
+            function_contents:
+              bracketed:
+                start_bracket: (
+                keyword: DISTINCT
+                expression:
+                  column_reference:
+                    naked_identifier: id
+                end_bracket: )
+            keyword: FILTER
+            bracketed:
+              start_bracket: (
+              keyword: WHERE
+              expression:
+                column_reference:
+                  naked_identifier: is_gov
+              end_bracket: )
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: num_gov
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: location_data
+      groupby_clause:
+      - keyword: GROUP
+      - keyword: BY
+      - grouping_sets_clause:
+        - keyword: GROUPING
+        - keyword: SETS
+        - bracketed:
+            start_bracket: (
+            grouping_expression_list:
+            - expression:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                      naked_identifier: region
+                  end_bracket: )
+            - comma: ','
+            - expression:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                      naked_identifier: city
+                  end_bracket: )
+            - comma: ','
+            - expression:
+                bracketed:
+                - start_bracket: (
+                - column_reference:
+                    naked_identifier: region
+                - comma: ','
+                - column_reference:
+                    naked_identifier: city
+                - end_bracket: )
+            - comma: ','
+            - expression:
+                bracketed:
+                  start_bracket: (
+                  end_bracket: )
+            end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+            naked_identifier: region
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: city
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: grouping
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                    naked_identifier: region
+              - comma: ','
+              - expression:
+                  column_reference:
+                    naked_identifier: city
+              - end_bracket: )
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: grp_idx
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: count
+            function_contents:
+              bracketed:
+                start_bracket: (
+                keyword: DISTINCT
+                expression:
+                  column_reference:
+                    naked_identifier: id
+                end_bracket: )
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: num_total
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: count
+            function_contents:
+              bracketed:
+                start_bracket: (
+                keyword: DISTINCT
+                expression:
+                  column_reference:
+                    naked_identifier: id
+                end_bracket: )
+            keyword: FILTER
+            bracketed:
+              start_bracket: (
+              keyword: WHERE
+              expression:
+                column_reference:
+                  naked_identifier: is_poi
+              end_bracket: )
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: num_poi
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: count
+            function_contents:
+              bracketed:
+                start_bracket: (
+                keyword: DISTINCT
+                expression:
+                  column_reference:
+                    naked_identifier: id
+                end_bracket: )
+            keyword: FILTER
+            bracketed:
+              start_bracket: (
+              keyword: WHERE
+              expression:
+                column_reference:
+                  naked_identifier: is_gov
+              end_bracket: )
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: num_gov
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: location_data
+      groupby_clause:
+      - keyword: GROUP
+      - keyword: BY
+      - cube_rollup_clause:
+          function_name:
+            function_name_identifier: ROLLUP
+          bracketed:
+            start_bracket: (
+            grouping_expression_list:
+            - expression:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                      naked_identifier: region
+                  end_bracket: )
+            - comma: ','
+            - expression:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                      naked_identifier: city
+                  end_bracket: )
+            end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+            naked_identifier: region
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: city
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: grouping
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                    naked_identifier: region
+              - comma: ','
+              - expression:
+                  column_reference:
+                    naked_identifier: city
+              - end_bracket: )
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: grp_idx
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: count
+            function_contents:
+              bracketed:
+                start_bracket: (
+                keyword: DISTINCT
+                expression:
+                  column_reference:
+                    naked_identifier: id
+                end_bracket: )
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: num_total
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: count
+            function_contents:
+              bracketed:
+                start_bracket: (
+                keyword: DISTINCT
+                expression:
+                  column_reference:
+                    naked_identifier: id
+                end_bracket: )
+            keyword: FILTER
+            bracketed:
+              start_bracket: (
+              keyword: WHERE
+              expression:
+                column_reference:
+                  naked_identifier: is_poi
+              end_bracket: )
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: num_poi
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: count
+            function_contents:
+              bracketed:
+                start_bracket: (
+                keyword: DISTINCT
+                expression:
+                  column_reference:
+                    naked_identifier: id
+                end_bracket: )
+            keyword: FILTER
+            bracketed:
+              start_bracket: (
+              keyword: WHERE
+              expression:
+                column_reference:
+                  naked_identifier: is_gov
+              end_bracket: )
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: num_gov
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: location_data
+      groupby_clause:
+      - keyword: GROUP
+      - keyword: BY
+      - cube_rollup_clause:
+          function_name:
+            function_name_identifier: CUBE
+          bracketed:
+            start_bracket: (
+            grouping_expression_list:
+            - expression:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                      naked_identifier: region
+                  end_bracket: )
+            - comma: ','
+            - expression:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                      naked_identifier: city
+                  end_bracket: )
+            end_bracket: )
+- statement_terminator: ;

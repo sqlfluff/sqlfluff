@@ -1,0 +1,113 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 8a00ae7ae766b2c3c8bb45b62cb098dc6f2b8a3d331e91e1545e7793fcd4da01
+file:
+- statement:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: from
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: real_data
+            sample_expression:
+              keyword: sample
+              bracketed:
+                start_bracket: (
+                numeric_literal: '20'
+                end_bracket: )
+- statement_terminator: ;
+- statement:
+    set_statement:
+      keyword: SET
+      variable: sample_size
+      comparison_operator:
+        raw_comparison_operator: '='
+      expression:
+        numeric_literal: '10'
+- statement_terminator: ;
+- statement:
+    with_compound_statement:
+      keyword: WITH
+      common_table_expression:
+        naked_identifier: dummy_data
+        keyword: AS
+        bracketed:
+          start_bracket: (
+          select_statement:
+            select_clause:
+              keyword: SELECT
+              select_clause_element:
+                function:
+                  function_name:
+                    function_name_identifier: SEQ4
+                  function_contents:
+                    bracketed:
+                      start_bracket: (
+                      end_bracket: )
+                alias_expression:
+                  alias_operator:
+                    keyword: AS
+                  naked_identifier: row_number
+            from_clause:
+              keyword: FROM
+              from_expression:
+                from_expression_element:
+                  table_expression:
+                    function:
+                      function_name:
+                        function_name_identifier: TABLE
+                      function_contents:
+                        bracketed:
+                          start_bracket: (
+                          expression:
+                            function:
+                              function_name:
+                                function_name_identifier: GENERATOR
+                              function_contents:
+                                bracketed:
+                                  start_bracket: (
+                                  snowflake_keyword_expression:
+                                    parameter: rowcount
+                                    parameter_assigner: =>
+                                    numeric_literal: '1000'
+                                  end_bracket: )
+                          end_bracket: )
+            orderby_clause:
+            - keyword: ORDER
+            - keyword: BY
+            - column_reference:
+                naked_identifier: row_number
+          end_bracket: )
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: dummy_data
+              sample_expression:
+                keyword: SAMPLE
+                bracketed:
+                  start_bracket: (
+                  variable: $sample_size
+                  keyword: ROWS
+                  end_bracket: )
+- statement_terminator: ;

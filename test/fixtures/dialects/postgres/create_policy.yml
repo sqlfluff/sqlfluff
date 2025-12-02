@@ -1,0 +1,155 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 0bc9db2c03f65dc23689d69f3df2d39b398ce48bc4d63bd0dcd51491e8896b52
+file:
+- statement:
+    create_policy_statement:
+    - keyword: CREATE
+    - keyword: POLICY
+    - object_reference:
+        naked_identifier: account_managers
+    - keyword: 'ON'
+    - table_reference:
+        naked_identifier: accounts
+    - keyword: TO
+    - object_reference:
+        naked_identifier: current_user
+- statement_terminator: ;
+- statement:
+    create_policy_statement:
+    - keyword: CREATE
+    - keyword: POLICY
+    - object_reference:
+        naked_identifier: account_managers
+    - keyword: 'ON'
+    - table_reference:
+      - naked_identifier: sch
+      - dot: .
+      - naked_identifier: accounts
+    - keyword: AS
+    - keyword: permissive
+    - keyword: FOR
+    - keyword: ALL
+    - keyword: TO
+    - object_reference:
+        naked_identifier: managers
+- statement_terminator: ;
+- statement:
+    create_policy_statement:
+    - keyword: CREATE
+    - keyword: POLICY
+    - object_reference:
+        naked_identifier: account_managers
+    - keyword: 'ON'
+    - table_reference:
+        naked_identifier: accounts
+    - keyword: TO
+    - object_reference:
+        naked_identifier: public
+    - comma: ','
+    - keyword: session_user
+- statement_terminator: ;
+- statement:
+    create_policy_statement:
+    - keyword: CREATE
+    - keyword: POLICY
+    - object_reference:
+        naked_identifier: account_managers
+    - keyword: 'ON'
+    - table_reference:
+        naked_identifier: accounts
+    - keyword: WITH
+    - keyword: CHECK
+    - bracketed:
+        start_bracket: (
+        expression:
+          keyword: NOT
+          function:
+            function_name:
+              function_name_identifier: accounts_is_excluded_full_name
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: full_name
+                end_bracket: )
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_policy_statement:
+    - keyword: CREATE
+    - keyword: POLICY
+    - object_reference:
+        naked_identifier: emp_rls_policy
+    - keyword: 'ON'
+    - table_reference:
+        naked_identifier: employee
+    - keyword: FOR
+    - keyword: all
+    - keyword: TO
+    - object_reference:
+        naked_identifier: public
+    - keyword: USING
+    - bracketed:
+        start_bracket: (
+        expression:
+          column_reference:
+            naked_identifier: ename
+          comparison_operator:
+            raw_comparison_operator: '='
+          function:
+            function_name:
+              function_name_identifier: current_setting
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  quoted_literal: "'rls.ename'"
+                end_bracket: )
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_policy_statement:
+    - keyword: CREATE
+    - keyword: POLICY
+    - object_reference:
+        naked_identifier: account_managers
+    - keyword: 'ON'
+    - table_reference:
+        naked_identifier: accounts
+    - keyword: WITH
+    - keyword: CHECK
+    - bracketed:
+        start_bracket: (
+        expression:
+          column_reference:
+            naked_identifier: col
+          comparison_operator:
+            raw_comparison_operator: '>'
+          numeric_literal: '10'
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_policy_statement:
+    - keyword: CREATE
+    - keyword: POLICY
+    - object_reference:
+        naked_identifier: account_managers
+    - keyword: 'ON'
+    - table_reference:
+        naked_identifier: accounts
+    - keyword: USING
+    - bracketed:
+        start_bracket: (
+        expression:
+          column_reference:
+            naked_identifier: username
+          comparison_operator:
+            raw_comparison_operator: '='
+          bare_function: current_user
+        end_bracket: )
+- statement_terminator: ;

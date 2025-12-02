@@ -1,4 +1,5 @@
 """Tests specific to the postgres dialect."""
+
 from typing import Callable
 
 import pytest
@@ -30,6 +31,10 @@ from sqlfluff.dialects.dialect_postgres_keywords import (
         ("SelectClauseElementSegment", "c is not null as c_notnull"),
         ("SelectClauseElementSegment", "c isnull as c_isnull"),
         ("SelectClauseElementSegment", "c notnull as c_notnull"),
+        ("ArrayAccessorSegment", "[2:10]"),
+        ("ArrayAccessorSegment", "[:10]"),
+        ("ArrayAccessorSegment", "[2:]"),
+        ("ArrayAccessorSegment", "[2]"),
     ],
 )
 def test_dialect_postgres_specific_segment_parses(
@@ -52,14 +57,15 @@ def test_dialect_postgres_specific_segment_parses(
     "raw",
     [
         "SELECT t1.field, EXTRACT(EPOCH FROM t1.sometime) AS myepoch FROM t1",
-        "SELECT t1.field, EXTRACT(EPOCH FROM t1.sometime - t1.othertime) AS myepoch FROM t1",
+        "SELECT t1.field, EXTRACT(EPOCH FROM t1.sometime - t1.othertime) AS myepoch "
+        "FROM t1",
     ],
 )
 def test_epoch_datetime_unit(raw: str) -> None:
     """Test the EPOCH keyword for postgres dialect."""
     # Don't test for new lines or capitalisation
     cfg = FluffConfig(
-        configs={"core": {"exclude_rules": "L009,L016,L036", "dialect": "postgres"}}
+        configs={"core": {"exclude_rules": "LT12,LT05,LT09", "dialect": "postgres"}}
     )
     lnt = Linter(config=cfg)
     result = lnt.lint_string(raw)
@@ -76,7 +82,7 @@ def test_epoch_datetime_unit(raw: str) -> None:
 def test_space_is_not_reserved(raw: str) -> None:
     """Ensure that SPACE is not treated as reserved."""
     cfg = FluffConfig(
-        configs={"core": {"exclude_rules": "L009,L016,L031", "dialect": "postgres"}}
+        configs={"core": {"exclude_rules": "LT12,LT05,AL07", "dialect": "postgres"}}
     )
     lnt = Linter(config=cfg)
     result = lnt.lint_string(raw)
@@ -147,3 +153,7 @@ def test_get_keywords() -> None:
     expected_result_2 = ["C", "E"]
 
     assert sorted(get_keywords(kw_list, "non-reserved")) == sorted(expected_result_2)
+
+    expected_result_3 = ["B"]
+
+    assert sorted(get_keywords(kw_list, "reserved")) == sorted(expected_result_3)

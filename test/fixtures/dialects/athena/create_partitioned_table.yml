@@ -1,0 +1,204 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 3498f71e1d7ea6840645cc414479dd2074b58164fe31a46fb3df6e9470d7c02d
+file:
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: table
+    - table_reference:
+        naked_identifier: my_lineitem_parq_partitioned
+    - keyword: WITH
+    - bracketed:
+        start_bracket: (
+        keyword: partitioned_by
+        comparison_operator:
+          raw_comparison_operator: '='
+        typed_array_literal:
+          array_type:
+            keyword: ARRAY
+          array_literal:
+            start_square_bracket: '['
+            quoted_literal: "'l_shipdate'"
+            end_square_bracket: ']'
+        end_bracket: )
+    - keyword: AS
+    - select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+              naked_identifier: l_orderkey
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: l_partkey
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: l_suppkey
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: l_linenumber
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: l_quantity
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: l_extendedprice
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: l_discount
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: l_tax
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: l_returnflag
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: l_linestatus
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: l_commitdate
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: l_receiptdate
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: l_shipinstruct
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: l_comment
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: l_shipdate
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                - naked_identifier: tpch100
+                - dot: .
+                - naked_identifier: lineitem_parq_partitioned
+        where_clause:
+          keyword: WHERE
+          expression:
+          - function:
+              function_name:
+                function_name_identifier: cast
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                      naked_identifier: l_shipdate
+                  keyword: as
+                  data_type:
+                    primitive_type:
+                      keyword: timestamp
+                  end_bracket: )
+          - comparison_operator:
+              raw_comparison_operator: <
+          - function:
+              function_name:
+                function_name_identifier: DATE
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    quoted_literal: "'1992-02-01'"
+                  end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: db
+      - dot: .
+      - naked_identifier: ctas_iceberg
+    - keyword: WITH
+    - bracketed:
+      - start_bracket: (
+      - keyword: table_type
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'ICEBERG'"
+      - comma: ','
+      - keyword: format
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'PARQUET'"
+      - comma: ','
+      - keyword: location
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'s3://my_athena_results/ctas_iceberg_parquet/'"
+      - comma: ','
+      - keyword: is_external
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - boolean_literal: 'false'
+      - comma: ','
+      - keyword: partitioning
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - typed_array_literal:
+          array_type:
+            keyword: ARRAY
+          array_literal:
+            start_square_bracket: '['
+            quoted_literal: "'month(dt)'"
+            end_square_bracket: ']'
+      - comma: ','
+      - keyword: vacuum_min_snapshots_to_keep
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - numeric_literal: '10'
+      - comma: ','
+      - keyword: vacuum_max_snapshot_age_seconds
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - numeric_literal: '259200'
+      - end_bracket: )
+    - keyword: AS
+    - select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+              naked_identifier: key1
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: name1
+        - comma: ','
+        - select_clause_element:
+            quoted_literal: "'date'"
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                - naked_identifier: db
+                - dot: .
+                - naked_identifier: table1
+- statement_terminator: ;

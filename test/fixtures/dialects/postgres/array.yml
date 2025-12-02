@@ -1,0 +1,793 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 7da1743e6b8a4d2d629db820b6f5d6571c4b73a0011e185324a6b18ff30e46d8
+file:
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+          - typed_array_literal:
+              array_type:
+                keyword: ARRAY
+              array_literal:
+              - start_square_bracket: '['
+              - numeric_literal: '1'
+              - comma: ','
+              - numeric_literal: '2'
+              - end_square_bracket: ']'
+          - binary_operator:
+            - pipe: '|'
+            - pipe: '|'
+          - typed_array_literal:
+              array_type:
+                keyword: ARRAY
+              array_literal:
+              - start_square_bracket: '['
+              - numeric_literal: '3'
+              - comma: ','
+              - numeric_literal: '4'
+              - end_square_bracket: ']'
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          typed_array_literal:
+            array_type:
+              keyword: ARRAY
+            array_literal:
+            - start_square_bracket: '['
+            - array_literal:
+              - start_square_bracket: '['
+              - quoted_literal: "'meeting'"
+              - comma: ','
+              - quoted_literal: "'lunch'"
+              - end_square_bracket: ']'
+            - comma: ','
+            - array_literal:
+              - start_square_bracket: '['
+              - quoted_literal: "'training'"
+              - comma: ','
+              - quoted_literal: "'presentation'"
+              - end_square_bracket: ']'
+            - end_square_bracket: ']'
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: sal_emp
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          naked_identifier: name
+          data_type:
+            keyword: text
+      - comma: ','
+      - column_definition:
+          naked_identifier: pay_by_quarter
+          data_type:
+            keyword: integer
+            start_square_bracket: '['
+            end_square_bracket: ']'
+      - comma: ','
+      - column_definition:
+          naked_identifier: schedule
+          data_type:
+          - keyword: text
+          - start_square_bracket: '['
+          - end_square_bracket: ']'
+          - start_square_bracket: '['
+          - end_square_bracket: ']'
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: tictactoe
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          naked_identifier: squares
+          data_type:
+          - keyword: integer
+          - start_square_bracket: '['
+          - expression:
+              numeric_literal: '3'
+          - end_square_bracket: ']'
+          - start_square_bracket: '['
+          - expression:
+              numeric_literal: '3'
+          - end_square_bracket: ']'
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: sal_emp
+      where_clause:
+        keyword: WHERE
+        expression:
+        - column_reference:
+            naked_identifier: pay_by_quarter
+        - array_accessor:
+            start_square_bracket: '['
+            numeric_literal: '1'
+            end_square_bracket: ']'
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - numeric_literal: '10000'
+        - binary_operator: OR
+        - column_reference:
+            naked_identifier: pay_by_quarter
+        - array_accessor:
+            start_square_bracket: '['
+            numeric_literal: '2'
+            end_square_bracket: ']'
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - numeric_literal: '10000'
+        - binary_operator: OR
+        - column_reference:
+            naked_identifier: pay_by_quarter
+        - array_accessor:
+            start_square_bracket: '['
+            numeric_literal: '3'
+            end_square_bracket: ']'
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - numeric_literal: '10000'
+        - binary_operator: OR
+        - column_reference:
+            naked_identifier: pay_by_quarter
+        - array_accessor:
+            start_square_bracket: '['
+            numeric_literal: '4'
+            end_square_bracket: ']'
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - numeric_literal: '10000'
+- statement_terminator: ;
+- statement:
+    insert_statement:
+    - keyword: INSERT
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: sal_emp
+    - values_clause:
+        keyword: VALUES
+        bracketed:
+        - start_bracket: (
+        - expression:
+            quoted_literal: "'Bill'"
+        - comma: ','
+        - expression:
+            typed_array_literal:
+              array_type:
+                keyword: ARRAY
+              array_literal:
+              - start_square_bracket: '['
+              - numeric_literal: '10000'
+              - comma: ','
+              - numeric_literal: '10000'
+              - comma: ','
+              - numeric_literal: '10000'
+              - comma: ','
+              - numeric_literal: '10000'
+              - end_square_bracket: ']'
+        - comma: ','
+        - expression:
+            typed_array_literal:
+              array_type:
+                keyword: ARRAY
+              array_literal:
+              - start_square_bracket: '['
+              - array_literal:
+                - start_square_bracket: '['
+                - quoted_literal: "'meeting'"
+                - comma: ','
+                - quoted_literal: "'lunch'"
+                - end_square_bracket: ']'
+              - comma: ','
+              - array_literal:
+                - start_square_bracket: '['
+                - quoted_literal: "'training'"
+                - comma: ','
+                - quoted_literal: "'presentation'"
+                - end_square_bracket: ']'
+              - end_square_bracket: ']'
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+    insert_statement:
+    - keyword: INSERT
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: sal_emp
+    - values_clause:
+        keyword: VALUES
+        bracketed:
+        - start_bracket: (
+        - expression:
+            quoted_literal: "'Carol'"
+        - comma: ','
+        - expression:
+            typed_array_literal:
+              array_type:
+                keyword: ARRAY
+              array_literal:
+              - start_square_bracket: '['
+              - numeric_literal: '20000'
+              - comma: ','
+              - numeric_literal: '25000'
+              - comma: ','
+              - numeric_literal: '25000'
+              - comma: ','
+              - numeric_literal: '25000'
+              - end_square_bracket: ']'
+        - comma: ','
+        - expression:
+            typed_array_literal:
+              array_type:
+                keyword: ARRAY
+              array_literal:
+              - start_square_bracket: '['
+              - array_literal:
+                - start_square_bracket: '['
+                - quoted_literal: "'breakfast'"
+                - comma: ','
+                - quoted_literal: "'consulting'"
+                - end_square_bracket: ']'
+              - comma: ','
+              - array_literal:
+                - start_square_bracket: '['
+                - quoted_literal: "'meeting'"
+                - comma: ','
+                - quoted_literal: "'lunch'"
+                - end_square_bracket: ']'
+              - end_square_bracket: ']'
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          column_reference:
+            naked_identifier: name
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: sal_emp
+      where_clause:
+        keyword: WHERE
+        expression:
+        - column_reference:
+            naked_identifier: pay_by_quarter
+        - array_accessor:
+            start_square_bracket: '['
+            numeric_literal: '1'
+            end_square_bracket: ']'
+        - comparison_operator:
+          - raw_comparison_operator: <
+          - raw_comparison_operator: '>'
+        - column_reference:
+            naked_identifier: pay_by_quarter
+        - array_accessor:
+            start_square_bracket: '['
+            numeric_literal: '2'
+            end_square_bracket: ']'
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+          - column_reference:
+              naked_identifier: schedule
+          - array_accessor:
+            - start_square_bracket: '['
+            - numeric_literal: '1'
+            - slice: ':'
+            - numeric_literal: '2'
+            - end_square_bracket: ']'
+          - array_accessor:
+            - start_square_bracket: '['
+            - numeric_literal: '1'
+            - slice: ':'
+            - numeric_literal: '1'
+            - end_square_bracket: ']'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: sal_emp
+      where_clause:
+        keyword: WHERE
+        expression:
+          column_reference:
+            naked_identifier: name
+          comparison_operator:
+            raw_comparison_operator: '='
+          quoted_literal: "'Bill'"
+- statement_terminator: ;
+- statement:
+    update_statement:
+      keyword: UPDATE
+      table_reference:
+        naked_identifier: sal_emp
+      set_clause_list:
+        keyword: SET
+        set_clause:
+          column_reference:
+            naked_identifier: pay_by_quarter
+          array_accessor:
+            start_square_bracket: '['
+            numeric_literal: '4'
+            end_square_bracket: ']'
+          comparison_operator:
+            raw_comparison_operator: '='
+          numeric_literal: '15000'
+      where_clause:
+        keyword: WHERE
+        expression:
+          column_reference:
+            naked_identifier: name
+          comparison_operator:
+            raw_comparison_operator: '='
+          quoted_literal: "'Bill'"
+- statement_terminator: ;
+- statement:
+    update_statement:
+      keyword: UPDATE
+      table_reference:
+        naked_identifier: sal_emp
+      set_clause_list:
+        keyword: SET
+        set_clause:
+          column_reference:
+            naked_identifier: pay_by_quarter
+          array_accessor:
+          - start_square_bracket: '['
+          - numeric_literal: '1'
+          - slice: ':'
+          - numeric_literal: '2'
+          - end_square_bracket: ']'
+          comparison_operator:
+            raw_comparison_operator: '='
+          quoted_literal: "'{27000,27000}'"
+      where_clause:
+        keyword: WHERE
+        expression:
+          column_reference:
+            naked_identifier: name
+          comparison_operator:
+            raw_comparison_operator: '='
+          quoted_literal: "'Carol'"
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: array_dims
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                - typed_array_literal:
+                    array_type:
+                      keyword: ARRAY
+                    array_literal:
+                    - start_square_bracket: '['
+                    - numeric_literal: '1'
+                    - comma: ','
+                    - numeric_literal: '2'
+                    - end_square_bracket: ']'
+                - binary_operator:
+                  - pipe: '|'
+                  - pipe: '|'
+                - typed_array_literal:
+                    array_type:
+                      keyword: ARRAY
+                    array_literal:
+                    - start_square_bracket: '['
+                    - numeric_literal: '3'
+                    - comma: ','
+                    - numeric_literal: '4'
+                    - comma: ','
+                    - numeric_literal: '5'
+                    - end_square_bracket: ']'
+                end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: array_dims
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                - typed_array_literal:
+                    array_type:
+                      keyword: ARRAY
+                    array_literal:
+                    - start_square_bracket: '['
+                    - numeric_literal: '1'
+                    - comma: ','
+                    - numeric_literal: '2'
+                    - end_square_bracket: ']'
+                - binary_operator:
+                  - pipe: '|'
+                  - pipe: '|'
+                - typed_array_literal:
+                    array_type:
+                      keyword: ARRAY
+                    array_literal:
+                    - start_square_bracket: '['
+                    - array_literal:
+                      - start_square_bracket: '['
+                      - numeric_literal: '3'
+                      - comma: ','
+                      - numeric_literal: '4'
+                      - end_square_bracket: ']'
+                    - comma: ','
+                    - array_literal:
+                      - start_square_bracket: '['
+                      - numeric_literal: '5'
+                      - comma: ','
+                      - numeric_literal: '6'
+                      - end_square_bracket: ']'
+                    - end_square_bracket: ']'
+                end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+            typed_array_literal:
+              array_type:
+                keyword: ARRAY
+              array_literal:
+              - start_square_bracket: '['
+              - numeric_literal: '1'
+              - comma: ','
+              - numeric_literal: '2'
+              - end_square_bracket: ']'
+            binary_operator:
+            - pipe: '|'
+            - pipe: '|'
+            quoted_literal: "'{3, 4}'"
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: array_position
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  typed_array_literal:
+                    array_type:
+                      keyword: ARRAY
+                    array_literal:
+                    - start_square_bracket: '['
+                    - quoted_literal: "'sun'"
+                    - comma: ','
+                    - quoted_literal: "'mon'"
+                    - comma: ','
+                    - quoted_literal: "'tue'"
+                    - comma: ','
+                    - quoted_literal: "'wed'"
+                    - comma: ','
+                    - quoted_literal: "'thu'"
+                    - comma: ','
+                    - quoted_literal: "'fri'"
+                    - comma: ','
+                    - quoted_literal: "'sat'"
+                    - end_square_bracket: ']'
+              - comma: ','
+              - expression:
+                  quoted_literal: "'mon'"
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          expression:
+          - column_reference:
+              naked_identifier: f1
+          - array_accessor:
+              start_square_bracket: '['
+              numeric_literal: '1'
+              end_square_bracket: ']'
+          - array_accessor:
+              start_square_bracket: '['
+              numeric_literal:
+                sign_indicator: '-'
+                numeric_literal: '2'
+              end_square_bracket: ']'
+          - array_accessor:
+              start_square_bracket: '['
+              numeric_literal: '3'
+              end_square_bracket: ']'
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: e1
+      - comma: ','
+      - select_clause_element:
+          expression:
+          - column_reference:
+              naked_identifier: f1
+          - array_accessor:
+              start_square_bracket: '['
+              numeric_literal: '1'
+              end_square_bracket: ']'
+          - array_accessor:
+              start_square_bracket: '['
+              numeric_literal:
+                sign_indicator: '-'
+                numeric_literal: '1'
+              end_square_bracket: ']'
+          - array_accessor:
+              start_square_bracket: '['
+              numeric_literal: '5'
+              end_square_bracket: ']'
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: e2
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              bracketed:
+                start_bracket: (
+                select_statement:
+                  select_clause:
+                    keyword: SELECT
+                    select_clause_element:
+                      expression:
+                        cast_expression:
+                          quoted_literal: "'[1:1][-2:-1][3:5]={{{1,2,3},{4,5,6}}}'"
+                          casting_operator: '::'
+                          data_type:
+                            keyword: int
+                            start_square_bracket: '['
+                            end_square_bracket: ']'
+                      alias_expression:
+                        alias_operator:
+                          keyword: AS
+                        naked_identifier: f1
+                end_bracket: )
+            alias_expression:
+              alias_operator:
+                keyword: AS
+              naked_identifier: ss
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+            cast_expression:
+              quoted_literal: "'{Hello,World}'"
+              casting_operator: '::'
+              data_type:
+                data_type_identifier: _text
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: text_array
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+            cast_expression:
+              typed_array_literal:
+                array_type:
+                  keyword: ARRAY
+                array_literal:
+                - start_square_bracket: '['
+                - quoted_literal: "'A'"
+                - comma: ','
+                - quoted_literal: "'B'"
+                - comma: ','
+                - quoted_literal: "'C'"
+                - end_square_bracket: ']'
+              casting_operator: '::'
+              data_type:
+                data_type_identifier: _TEXT
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+            function:
+              function_name:
+                function_name_identifier: SUM
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    case_expression:
+                    - keyword: CASE
+                    - when_clause:
+                      - keyword: WHEN
+                      - expression:
+                          column_reference:
+                            naked_identifier: direction
+                          comparison_operator:
+                            raw_comparison_operator: '='
+                          quoted_literal: "'forward'"
+                      - keyword: THEN
+                      - expression:
+                          column_reference:
+                            naked_identifier: unit
+                    - else_clause:
+                        keyword: ELSE
+                        expression:
+                          numeric_literal: '0'
+                    - keyword: END
+                  end_bracket: )
+            binary_operator: '*'
+            bracketed:
+              start_bracket: (
+              expression:
+                function:
+                  function_name:
+                    function_name_identifier: MAX
+                  function_contents:
+                    bracketed:
+                      start_bracket: (
+                      expression:
+                        typed_array_literal:
+                          array_type:
+                            keyword: ARRAY
+                          array_literal:
+                          - start_square_bracket: '['
+                          - column_reference:
+                              naked_identifier: id
+                          - comma: ','
+                          - column_reference:
+                              naked_identifier: vertical
+                          - end_square_bracket: ']'
+                      end_bracket: )
+              end_bracket: )
+            array_accessor:
+              start_square_bracket: '['
+              numeric_literal: '2'
+              end_square_bracket: ']'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: direction_with_vertical_change
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          expression:
+            column_reference:
+              naked_identifier: a
+            array_accessor:
+              start_square_bracket: '['
+              slice: ':'
+              end_square_bracket: ']'
+      - comma: ','
+      - select_clause_element:
+          expression:
+            column_reference:
+              naked_identifier: b
+            array_accessor:
+              start_square_bracket: '['
+              slice: ':'
+              numeric_literal: '1'
+              end_square_bracket: ']'
+      - comma: ','
+      - select_clause_element:
+          expression:
+            column_reference:
+              naked_identifier: c
+            array_accessor:
+              start_square_bracket: '['
+              numeric_literal: '2'
+              slice: ':'
+              end_square_bracket: ']'
+      - comma: ','
+      - select_clause_element:
+          expression:
+            column_reference:
+              naked_identifier: d
+            array_accessor:
+            - start_square_bracket: '['
+            - numeric_literal: '2'
+            - slice: ':'
+            - numeric_literal: '3'
+            - end_square_bracket: ']'
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          expression:
+            column_reference:
+              naked_identifier: a
+            array_accessor:
+            - start_square_bracket: '['
+            - expression:
+              - numeric_literal: '1'
+              - binary_operator: +
+              - numeric_literal: '2'
+            - slice: ':'
+            - expression:
+              - numeric_literal: '3'
+              - binary_operator: +
+              - numeric_literal: '4'
+            - end_square_bracket: ']'
+      - comma: ','
+      - select_clause_element:
+          expression:
+            column_reference:
+              naked_identifier: b
+            array_accessor:
+              start_square_bracket: '['
+              expression:
+              - numeric_literal: '5'
+              - binary_operator: +
+              - numeric_literal: '6'
+              end_square_bracket: ']'
+- statement_terminator: ;

@@ -1,0 +1,204 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 8c2946b048370a168deda05b624717dd76ea3e5da3abfdc0f7c34cb61cfabfed
+file:
+- statement:
+    create_model_statement:
+    - keyword: CREATE
+    - keyword: MODEL
+    - object_reference:
+        naked_identifier: abalone_xgboost_multi_predict_age
+    - keyword: FROM
+    - bracketed:
+        start_bracket: (
+        select_statement:
+          select_clause:
+          - keyword: SELECT
+          - select_clause_element:
+              column_reference:
+                naked_identifier: length_val
+          - comma: ','
+          - select_clause_element:
+              column_reference:
+                naked_identifier: diameter
+          - comma: ','
+          - select_clause_element:
+              column_reference:
+                naked_identifier: height
+          - comma: ','
+          - select_clause_element:
+              column_reference:
+                naked_identifier: whole_weight
+          - comma: ','
+          - select_clause_element:
+              column_reference:
+                naked_identifier: shucked_weight
+          - comma: ','
+          - select_clause_element:
+              column_reference:
+                naked_identifier: viscera_weight
+          - comma: ','
+          - select_clause_element:
+              column_reference:
+                naked_identifier: shell_weight
+          - comma: ','
+          - select_clause_element:
+              column_reference:
+                naked_identifier: rings
+          from_clause:
+            keyword: FROM
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                    naked_identifier: abalone_xgb
+          where_clause:
+            keyword: WHERE
+            expression:
+              column_reference:
+                naked_identifier: record_number
+              comparison_operator:
+                raw_comparison_operator: <
+              numeric_literal: '2500'
+        end_bracket: )
+    - keyword: TARGET
+    - column_reference:
+        naked_identifier: rings
+    - keyword: FUNCTION
+    - object_reference:
+        naked_identifier: ml_fn_abalone_xgboost_multi_predict_age
+    - keyword: IAM_ROLE
+    - quoted_literal: "'arn:aws:iam::XXXXXXXXXXXX:role/Redshift-ML'"
+    - keyword: AUTO
+    - keyword: 'OFF'
+    - keyword: MODEL_TYPE
+    - keyword: XGBOOST
+    - keyword: OBJECTIVE
+    - quoted_literal: "'multi:softmax'"
+    - keyword: PREPROCESSORS
+    - quoted_literal: "'none'"
+    - keyword: HYPERPARAMETERS
+    - keyword: DEFAULT
+    - keyword: EXCEPT
+    - bracketed:
+      - start_bracket: (
+      - word: NUM_ROUND
+      - single_quote: "'100'"
+      - comma: ','
+      - word: NUM_CLASS
+      - single_quote: "'30'"
+      - end_bracket: )
+    - keyword: SETTINGS
+    - bracketed:
+        start_bracket: (
+        keyword: S3_BUCKET
+        quoted_literal: "'bucket'"
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_model_statement:
+    - keyword: CREATE
+    - keyword: MODEL
+    - object_reference:
+        naked_identifier: customer_churn
+    - keyword: FROM
+    - quoted_literal: "'training-job-customer-churn-v4'"
+    - keyword: FUNCTION
+    - object_reference:
+        naked_identifier: customer_churn_predict
+    - bracketed:
+      - start_bracket: (
+      - data_type:
+          keyword: varchar
+      - comma: ','
+      - data_type:
+          keyword: int
+      - comma: ','
+      - data_type:
+          keyword: float
+      - comma: ','
+      - data_type:
+          keyword: float
+      - end_bracket: )
+    - keyword: RETURNS
+    - data_type:
+        keyword: int
+    - keyword: IAM_ROLE
+    - quoted_literal: "'arn:aws:iam::123456789012:role/Redshift-ML'"
+    - keyword: SETTINGS
+    - bracketed:
+        start_bracket: (
+        keyword: S3_BUCKET
+        quoted_literal: "'bucket'"
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_model_statement:
+    - keyword: CREATE
+    - keyword: MODEL
+    - object_reference:
+        naked_identifier: remote_customer_churn
+    - keyword: FUNCTION
+    - object_reference:
+        naked_identifier: remote_fn_customer_churn_predict
+    - bracketed:
+      - start_bracket: (
+      - data_type:
+          keyword: varchar
+      - comma: ','
+      - data_type:
+          keyword: int
+      - comma: ','
+      - data_type:
+          keyword: float
+      - comma: ','
+      - data_type:
+          keyword: float
+      - end_bracket: )
+    - keyword: RETURNS
+    - data_type:
+        keyword: int
+    - keyword: SAGEMAKER
+    - quoted_literal: "'customer-churn-endpoint'"
+    - keyword: IAM_ROLE
+    - quoted_literal: "'arn:aws:iam::0123456789012:role/Redshift-ML'"
+- statement_terminator: ;
+- statement:
+    create_model_statement:
+    - keyword: CREATE
+    - keyword: MODEL
+    - object_reference:
+        naked_identifier: customers_clusters
+    - keyword: FROM
+    - object_reference:
+        naked_identifier: customers
+    - keyword: FUNCTION
+    - object_reference:
+        naked_identifier: customers_cluster
+    - keyword: IAM_ROLE
+    - quoted_literal: "'iam-role-arn'"
+    - keyword: AUTO
+    - keyword: 'OFF'
+    - keyword: MODEL_TYPE
+    - keyword: KMEANS
+    - keyword: PREPROCESSORS
+    - quoted_literal: "'[\n  {\n    \"ColumnSet\": [ \"*\" ],\n    \"Transformers\"\
+        : [ \"NumericPassthrough\" ]\n  }\n]'"
+    - keyword: HYPERPARAMETERS
+    - keyword: DEFAULT
+    - keyword: EXCEPT
+    - bracketed:
+        start_bracket: (
+        word: K
+        single_quote: "'5'"
+        end_bracket: )
+    - keyword: SETTINGS
+    - bracketed:
+        start_bracket: (
+        keyword: S3_BUCKET
+        quoted_literal: "'bucket'"
+        end_bracket: )
+- statement_terminator: ;

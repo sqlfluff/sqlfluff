@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: f4ea678231c49f1735cb05becaece87f851e4a2bbbcc1a87675239f71d7fb9ae
+_hash: e13d492f83f781ed68921a0c372915028ba8a71cc32b5564714b9e1b9f03ad00
 file:
   statement:
     select_statement:
@@ -19,12 +19,12 @@ file:
           ml_table_expression:
             keyword: ML
             dot: .
-            identifier: PREDICT
+            naked_identifier: PREDICT
             bracketed:
               start_bracket: (
               keyword: MODEL
               object_reference:
-                identifier: '`project.dataset.model`'
+                quoted_identifier: '`project.dataset.model`'
               comma: ','
               bracketed:
                 start_bracket: (
@@ -33,13 +33,13 @@ file:
                     keyword: SELECT
                     select_clause_element:
                       column_reference:
-                        identifier: user_id
+                        naked_identifier: user_id
                   from_clause:
                     keyword: FROM
                     from_expression:
                       from_expression_element:
                         table_expression:
                           table_reference:
-                            identifier: '`project.dataset.stats`'
+                            quoted_identifier: '`project.dataset.stats`'
                 end_bracket: )
               end_bracket: )

@@ -1,0 +1,183 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 3c0e744d5cba1910c6d4a276e9a3efbd62599cf64ea53c748f6461537c9be892
+file:
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+            naked_identifier: id
+      - comma: ','
+      - select_clause_element:
+          expression:
+            case_expression:
+            - keyword: CASE
+            - when_clause:
+              - keyword: WHEN
+              - expression:
+                  column_reference:
+                    naked_identifier: id
+                  comparison_operator:
+                    raw_comparison_operator: '>'
+                  numeric_literal: '200'
+              - keyword: THEN
+              - expression:
+                  quoted_literal: "'bigger'"
+            - else_clause:
+                keyword: ELSE
+                expression:
+                  quoted_literal: "'small'"
+            - keyword: END
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: person
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+            naked_identifier: id
+      - comma: ','
+      - select_clause_element:
+          expression:
+            case_expression:
+            - keyword: CASE
+            - when_clause:
+              - keyword: WHEN
+              - expression:
+                  column_reference:
+                    naked_identifier: id
+                  comparison_operator:
+                    raw_comparison_operator: '>'
+                  numeric_literal: '200'
+              - keyword: THEN
+              - expression:
+                  quoted_literal: "'bigger'"
+            - else_clause:
+                keyword: ELSE
+                expression:
+                  quoted_literal: "'small'"
+            - keyword: END
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: id_size
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: person
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+            naked_identifier: id
+      - comma: ','
+      - select_clause_element:
+          expression:
+            case_expression:
+            - keyword: CASE
+            - expression:
+                column_reference:
+                  naked_identifier: id
+            - when_clause:
+              - keyword: WHEN
+              - expression:
+                  numeric_literal: '100'
+              - keyword: THEN
+              - expression:
+                  quoted_literal: "'bigger'"
+            - when_clause:
+              - keyword: WHEN
+              - expression:
+                  column_reference:
+                    naked_identifier: id
+                  comparison_operator:
+                    raw_comparison_operator: '>'
+                  numeric_literal: '300'
+              - keyword: THEN
+              - expression:
+                  quoted_literal: "'300'"
+            - else_clause:
+                keyword: ELSE
+                expression:
+                  quoted_literal: "'small'"
+            - keyword: END
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: person
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          column_reference:
+            naked_identifier: id
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: person
+      where_clause:
+        keyword: WHERE
+        expression:
+          case_expression:
+          - keyword: CASE
+          - expression:
+            - numeric_literal: '1'
+            - comparison_operator:
+                raw_comparison_operator: '='
+            - numeric_literal: '1'
+          - when_clause:
+            - keyword: WHEN
+            - expression:
+                numeric_literal: '100'
+            - keyword: THEN
+            - expression:
+                quoted_literal: "'big'"
+          - when_clause:
+            - keyword: WHEN
+            - expression:
+                numeric_literal: '200'
+            - keyword: THEN
+            - expression:
+                quoted_literal: "'bigger'"
+          - when_clause:
+            - keyword: WHEN
+            - expression:
+                numeric_literal: '300'
+            - keyword: THEN
+            - expression:
+                quoted_literal: "'biggest'"
+          - else_clause:
+              keyword: ELSE
+              expression:
+                quoted_literal: "'small'"
+          - keyword: END
+          comparison_operator:
+            raw_comparison_operator: '='
+          quoted_literal: "'small'"
+- statement_terminator: ;

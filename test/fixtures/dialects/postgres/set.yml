@@ -1,0 +1,144 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: d35761777a5185b9bf00add5e5b946bbc548c41091b4209b93708e54e7512e23
+file:
+- statement:
+    set_statement:
+    - keyword: SET
+    - keyword: LOCAL
+    - parameter: search_path
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - keyword: DEFAULT
+- statement_terminator: ;
+- statement:
+    set_statement:
+    - keyword: SET
+    - parameter: search_path
+    - keyword: TO
+    - naked_identifier: my_schema
+    - comma: ','
+    - naked_identifier: public
+- statement_terminator: ;
+- statement:
+    set_statement:
+    - keyword: SET
+    - parameter: datestyle
+    - keyword: TO
+    - naked_identifier: postgres
+    - comma: ','
+    - naked_identifier: dmy
+- statement_terminator: ;
+- statement:
+    set_statement:
+    - keyword: SET
+    - keyword: SESSION
+    - parameter: datestyle
+    - keyword: TO
+    - naked_identifier: postgres
+    - comma: ','
+    - quoted_literal: "'dmy'"
+- statement_terminator: ;
+- statement:
+    set_statement:
+    - keyword: SET
+    - parameter: value
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - naked_identifier: 'on'
+    - comma: ','
+    - naked_identifier: 'off'
+    - comma: ','
+    - naked_identifier: auto
+- statement_terminator: ;
+- statement:
+    set_statement:
+    - keyword: SET
+    - parameter: value
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - boolean_literal: 'TRUE'
+    - comma: ','
+    - boolean_literal: 'FALSE'
+- statement_terminator: ;
+- statement:
+    set_statement:
+    - keyword: SET
+    - keyword: TIME
+    - keyword: ZONE
+    - quoted_literal: "'PST8PDT'"
+- statement_terminator: ;
+- statement:
+    set_statement:
+    - keyword: SET
+    - keyword: TIME
+    - keyword: ZONE
+    - quoted_literal: "'Europe/Rome'"
+- statement_terminator: ;
+- statement:
+    set_statement:
+    - keyword: SET
+    - keyword: TIME
+    - keyword: ZONE
+    - keyword: LOCAL
+- statement_terminator: ;
+- statement:
+    set_statement:
+    - keyword: SET
+    - keyword: TIME
+    - keyword: ZONE
+    - keyword: DEFAULT
+- statement_terminator: ;
+- statement:
+    set_statement:
+    - keyword: SET
+    - keyword: SCHEMA
+    - quoted_literal: "'my_schema'"
+- statement_terminator: ;
+- statement:
+    set_statement:
+    - keyword: SET
+    - keyword: SCHEMA
+    - quoted_literal: "'public'"
+- statement_terminator: ;
+- statement:
+    set_statement:
+    - keyword: SET
+    - keyword: ROLE
+    - role_reference:
+        naked_identifier: my_role
+- statement_terminator: ;
+- statement:
+    set_statement:
+    - keyword: SET
+    - keyword: ROLE
+    - role_reference:
+        quoted_identifier: '"my role"'
+- statement_terminator: ;
+- statement:
+    set_statement:
+    - keyword: SET
+    - keyword: ROLE
+    - keyword: NONE
+- statement_terminator: ;
+- statement:
+    set_statement:
+    - keyword: SET
+    - keyword: LOCAL
+    - parameter: search_path
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - naked_identifier: schema_name
+- statement_terminator: ;
+- statement:
+    set_statement:
+    - keyword: SET
+    - keyword: LOCAL
+    - parameter: search_path
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_identifier: '"schema_name"'
+- statement_terminator: ;

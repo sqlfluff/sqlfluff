@@ -1,0 +1,104 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 7f6850662988e19d1e87ca67316859c91011f1d981585f10925c682f454cf8d8
+file:
+  statement:
+    select_statement:
+      select_clause:
+      - keyword: select
+      - select_clause_element:
+          column_reference:
+            naked_identifier: dataset_id
+      - comma: ','
+      - select_clause_element:
+          expression:
+            bracketed:
+              start_bracket: (
+              expression:
+                function:
+                  function_name:
+                    function_name_identifier: percentile_cont
+                  function_contents:
+                    bracketed:
+                      start_bracket: (
+                      expression:
+                        numeric_literal: '0.20'
+                      end_bracket: )
+                  withingroup_clause:
+                  - keyword: within
+                  - keyword: group
+                  - bracketed:
+                      start_bracket: (
+                      orderby_clause:
+                      - keyword: order
+                      - keyword: by
+                      - column_reference:
+                          naked_identifier: tract_percent_below_poverty
+                      - keyword: asc
+                      end_bracket: )
+                  over_clause:
+                    keyword: over
+                    bracketed:
+                      start_bracket: (
+                      window_specification:
+                        partitionby_clause:
+                        - keyword: partition
+                        - keyword: by
+                        - expression:
+                            column_reference:
+                              naked_identifier: dataset_id
+                      end_bracket: )
+              end_bracket: )
+          alias_expression:
+            alias_operator:
+              keyword: as
+            naked_identifier: percentile_20
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: percentile_cont
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  numeric_literal: '0.40'
+                end_bracket: )
+            withingroup_clause:
+            - keyword: within
+            - keyword: group
+            - bracketed:
+                start_bracket: (
+                orderby_clause:
+                - keyword: order
+                - keyword: by
+                - column_reference:
+                    naked_identifier: tract_percent_below_poverty
+                - keyword: asc
+                end_bracket: )
+            over_clause:
+              keyword: over
+              bracketed:
+                start_bracket: (
+                window_specification:
+                  partitionby_clause:
+                  - keyword: partition
+                  - keyword: by
+                  - expression:
+                      column_reference:
+                        naked_identifier: dataset_id
+                end_bracket: )
+          alias_expression:
+            alias_operator:
+              keyword: as
+            naked_identifier: percentile_40
+      from_clause:
+        keyword: from
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: dataset_with_census

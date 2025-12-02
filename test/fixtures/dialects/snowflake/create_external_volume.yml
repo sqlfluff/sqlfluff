@@ -1,0 +1,225 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 2eebd390d4f4b94a0651fa40019d454c1cdf13bd52bf13c9df656319d52a3fb2
+file:
+- statement:
+    create_external_volume_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: EXTERNAL
+    - keyword: VOLUME
+    - external_volume_reference:
+        naked_identifier: exvol
+    - keyword: STORAGE_LOCATIONS
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - bracketed:
+        start_bracket: (
+        bracketed:
+        - start_bracket: (
+        - keyword: NAME
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - quoted_literal: "'my-s3-us-west-2'"
+        - keyword: STORAGE_PROVIDER
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - quoted_literal: "'S3'"
+        - keyword: STORAGE_BASE_URL
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - quoted_literal: "'s3://MY_EXAMPLE_BUCKET/'"
+        - keyword: STORAGE_AWS_ROLE_ARN
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - quoted_literal: "'arn:aws:iam::123456789012:role/myrole'"
+        - keyword: ENCRYPTION
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - bracketed:
+          - start_bracket: (
+          - keyword: TYPE
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - stage_encryption_option: "'AWS_SSE_KMS'"
+          - keyword: KMS_KEY_ID
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - quoted_literal: "'1234abcd-12ab-34cd-56ef-1234567890ab'"
+          - end_bracket: )
+        - end_bracket: )
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_external_volume_statement:
+    - keyword: CREATE
+    - keyword: EXTERNAL
+    - keyword: VOLUME
+    - external_volume_reference:
+        naked_identifier: exvol
+    - keyword: STORAGE_LOCATIONS
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - bracketed:
+        start_bracket: (
+        bracketed:
+        - start_bracket: (
+        - keyword: NAME
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - quoted_literal: "'my-us-east-1'"
+        - keyword: STORAGE_PROVIDER
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - quoted_literal: "'GCS'"
+        - keyword: STORAGE_BASE_URL
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - quoted_literal: "'gcs://mybucket1/path1/'"
+        - keyword: ENCRYPTION
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - bracketed:
+          - start_bracket: (
+          - keyword: TYPE
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - stage_encryption_option: "'GCS_SSE_KMS'"
+          - keyword: KMS_KEY_ID
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - quoted_literal: "'1234abcd-12ab-34cd-56ef-1234567890ab'"
+          - end_bracket: )
+        - end_bracket: )
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_external_volume_statement:
+    - keyword: CREATE
+    - keyword: EXTERNAL
+    - keyword: VOLUME
+    - external_volume_reference:
+        naked_identifier: exvol
+    - keyword: STORAGE_LOCATIONS
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - bracketed:
+        start_bracket: (
+        bracketed:
+        - start_bracket: (
+        - keyword: NAME
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - quoted_literal: "'my-azure-northeurope'"
+        - keyword: STORAGE_PROVIDER
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - quoted_literal: "'AZURE'"
+        - keyword: STORAGE_BASE_URL
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - quoted_literal: "'azure://exampleacct.blob.core.windows.net/my_container_northeurope/'"
+        - keyword: AZURE_TENANT_ID
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - quoted_literal: "'a123b4c5-1234-123a-a12b-1a23b45678c9'"
+        - end_bracket: )
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_external_volume_statement:
+    - keyword: CREATE
+    - keyword: EXTERNAL
+    - keyword: VOLUME
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - external_volume_reference:
+        naked_identifier: exvol
+    - keyword: STORAGE_LOCATIONS
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - bracketed:
+      - start_bracket: (
+      - bracketed:
+        - start_bracket: (
+        - keyword: NAME
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - quoted_literal: "'my-s3-us-west-2'"
+        - keyword: STORAGE_PROVIDER
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - quoted_literal: "'S3'"
+        - keyword: STORAGE_BASE_URL
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - quoted_literal: "'s3://MY_EXAMPLE_BUCKET/'"
+        - keyword: STORAGE_AWS_ROLE_ARN
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - quoted_literal: "'arn:aws:iam::123456789012:role/myrole'"
+        - keyword: ENCRYPTION
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - bracketed:
+          - start_bracket: (
+          - keyword: TYPE
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - stage_encryption_option: "'AWS_SSE_KMS'"
+          - keyword: KMS_KEY_ID
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - quoted_literal: "'1234abcd-12ab-34cd-56ef-1234567890ab'"
+          - end_bracket: )
+        - end_bracket: )
+      - comma: ','
+      - bracketed:
+        - start_bracket: (
+        - keyword: NAME
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - quoted_literal: "'my-s3-us-west-3'"
+        - keyword: STORAGE_PROVIDER
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - quoted_literal: "'S3'"
+        - keyword: STORAGE_BASE_URL
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - quoted_literal: "'s3://MY_EXAMPLE_BUCKET_2/'"
+        - keyword: STORAGE_AWS_ROLE_ARN
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - quoted_literal: "'arn:aws:iam::123456789012:role/myrole'"
+        - keyword: ENCRYPTION
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - bracketed:
+          - start_bracket: (
+          - keyword: TYPE
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - stage_encryption_option: "'AWS_SSE_KMS'"
+          - keyword: KMS_KEY_ID
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - quoted_literal: "'1234abcd-12ab-34cd-56ef-1234567890ab'"
+          - end_bracket: )
+        - end_bracket: )
+      - end_bracket: )
+    - keyword: ALLOW_WRITES
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - boolean_literal: 'FALSE'
+    - comment_equals_clause:
+        keyword: COMMENT
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'foo'"
+- statement_terminator: ;

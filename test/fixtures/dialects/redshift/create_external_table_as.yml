@@ -1,0 +1,556 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 762ab854ca910e4d7691d14d0c772a1a0f5545e8a9815e4bbce5f1e3b8720bf1
+file:
+- statement:
+    create_external_table_statement:
+    - keyword: CREATE
+    - keyword: EXTERNAL
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: external_schema
+      - dot: .
+      - naked_identifier: table_name
+    - keyword: STORED
+    - keyword: AS
+    - keyword: PARQUET
+    - keyword: LOCATION
+    - quoted_literal: "'s3://bucket/folder/'"
+    - keyword: AS
+    - select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+              naked_identifier: col1
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: col2
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                - naked_identifier: external_schema
+                - dot: .
+                - naked_identifier: source_table
+- statement_terminator: ;
+- statement:
+    create_external_table_statement:
+    - keyword: CREATE
+    - keyword: EXTERNAL
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: external_schema
+      - dot: .
+      - naked_identifier: table_name
+    - keyword: STORED
+    - keyword: AS
+    - keyword: PARQUET
+    - keyword: LOCATION
+    - quoted_literal: "'s3://bucket/folder/'"
+    - keyword: AS
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                - naked_identifier: external_schema
+                - dot: .
+                - naked_identifier: source_table
+- statement_terminator: ;
+- statement:
+    create_external_table_statement:
+    - keyword: CREATE
+    - keyword: EXTERNAL
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: external_schema
+      - dot: .
+      - naked_identifier: table_name
+    - partitioned_by_segment:
+      - keyword: PARTITIONED
+      - keyword: BY
+      - bracketed:
+          start_bracket: (
+          column_reference:
+            naked_identifier: col1
+          data_type:
+            keyword: integer
+          end_bracket: )
+    - keyword: STORED
+    - keyword: AS
+    - keyword: PARQUET
+    - keyword: LOCATION
+    - quoted_literal: "'s3://bucket/folder/'"
+    - keyword: AS
+    - select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+              naked_identifier: col1
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: col2
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                - naked_identifier: external_schema
+                - dot: .
+                - naked_identifier: source_table
+- statement_terminator: ;
+- statement:
+    create_external_table_statement:
+    - keyword: CREATE
+    - keyword: EXTERNAL
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: external_schema
+      - dot: .
+      - naked_identifier: table_name
+    - partitioned_by_segment:
+      - keyword: PARTITIONED
+      - keyword: BY
+      - bracketed:
+          start_bracket: (
+          column_reference:
+            naked_identifier: col1
+          data_type:
+            keyword: integer
+          end_bracket: )
+    - keyword: STORED
+    - keyword: AS
+    - keyword: PARQUET
+    - keyword: LOCATION
+    - quoted_literal: "'s3://bucket/folder/'"
+    - keyword: AS
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                - naked_identifier: external_schema
+                - dot: .
+                - naked_identifier: source_table
+- statement_terminator: ;
+- statement:
+    create_external_table_statement:
+    - keyword: CREATE
+    - keyword: EXTERNAL
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: external_schema
+      - dot: .
+      - naked_identifier: table_name
+    - partitioned_by_segment:
+      - keyword: PARTITIONED
+      - keyword: BY
+      - bracketed:
+        - start_bracket: (
+        - column_reference:
+            naked_identifier: col1
+        - data_type:
+            keyword: integer
+        - comma: ','
+        - column_reference:
+            naked_identifier: col2
+        - data_type:
+            keyword: integer
+        - end_bracket: )
+    - keyword: STORED
+    - keyword: AS
+    - keyword: PARQUET
+    - keyword: LOCATION
+    - quoted_literal: "'s3://bucket/folder/'"
+    - keyword: AS
+    - select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+              naked_identifier: col1
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: col2
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                - naked_identifier: external_schema
+                - dot: .
+                - naked_identifier: source_table
+- statement_terminator: ;
+- statement:
+    create_external_table_statement:
+    - keyword: CREATE
+    - keyword: EXTERNAL
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: external_schema
+      - dot: .
+      - naked_identifier: table_name
+    - partitioned_by_segment:
+      - keyword: PARTITIONED
+      - keyword: BY
+      - bracketed:
+        - start_bracket: (
+        - column_reference:
+            naked_identifier: col1
+        - data_type:
+            keyword: integer
+        - comma: ','
+        - column_reference:
+            naked_identifier: col2
+        - data_type:
+            keyword: integer
+        - end_bracket: )
+    - keyword: STORED
+    - keyword: AS
+    - keyword: PARQUET
+    - keyword: LOCATION
+    - quoted_literal: "'s3://bucket/folder/'"
+    - keyword: AS
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                - naked_identifier: external_schema
+                - dot: .
+                - naked_identifier: source_table
+- statement_terminator: ;
+- statement:
+    create_external_table_statement:
+    - keyword: CREATE
+    - keyword: EXTERNAL
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: external_schema
+      - dot: .
+      - naked_identifier: table_name
+    - partitioned_by_segment:
+      - keyword: PARTITIONED
+      - keyword: BY
+      - bracketed:
+        - start_bracket: (
+        - column_reference:
+            naked_identifier: col1
+        - data_type:
+            keyword: integer
+        - comma: ','
+        - column_reference:
+            naked_identifier: col2
+        - data_type:
+            keyword: integer
+        - end_bracket: )
+    - keyword: STORED
+    - keyword: AS
+    - keyword: PARQUET
+    - keyword: LOCATION
+    - quoted_literal: "'s3://bucket/folder/'"
+    - keyword: AS
+    - bracketed:
+        start_bracket: (
+        select_statement:
+          select_clause:
+          - keyword: SELECT
+          - select_clause_element:
+              column_reference:
+                naked_identifier: col1
+          - comma: ','
+          - select_clause_element:
+              column_reference:
+                naked_identifier: col2
+          from_clause:
+            keyword: FROM
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                  - naked_identifier: external_schema
+                  - dot: .
+                  - naked_identifier: source_table
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_external_table_statement:
+    - keyword: CREATE
+    - keyword: EXTERNAL
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: external_schema
+      - dot: .
+      - naked_identifier: table_name
+    - partitioned_by_segment:
+      - keyword: PARTITIONED
+      - keyword: BY
+      - bracketed:
+        - start_bracket: (
+        - column_reference:
+            naked_identifier: col1
+        - data_type:
+            keyword: integer
+        - comma: ','
+        - column_reference:
+            naked_identifier: col2
+        - data_type:
+            keyword: integer
+        - end_bracket: )
+    - keyword: ROW
+    - keyword: FORMAT
+    - keyword: DELIMITED
+    - row_format_delimited_segment:
+      - keyword: LINES
+      - keyword: TERMINATED
+      - keyword: BY
+      - quoted_literal: "'\\007'"
+    - keyword: STORED
+    - keyword: AS
+    - keyword: PARQUET
+    - keyword: LOCATION
+    - quoted_literal: "'s3://bucket/folder/'"
+    - keyword: AS
+    - bracketed:
+        start_bracket: (
+        select_statement:
+          select_clause:
+          - keyword: SELECT
+          - select_clause_element:
+              column_reference:
+                naked_identifier: col1
+          - comma: ','
+          - select_clause_element:
+              column_reference:
+                naked_identifier: col2
+          from_clause:
+            keyword: FROM
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                  - naked_identifier: external_schema
+                  - dot: .
+                  - naked_identifier: source_table
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_external_table_statement:
+    - keyword: CREATE
+    - keyword: EXTERNAL
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: external_schema
+      - dot: .
+      - naked_identifier: table_name
+    - partitioned_by_segment:
+      - keyword: PARTITIONED
+      - keyword: BY
+      - bracketed:
+        - start_bracket: (
+        - column_reference:
+            naked_identifier: col1
+        - data_type:
+            keyword: integer
+        - comma: ','
+        - column_reference:
+            naked_identifier: col2
+        - data_type:
+            keyword: integer
+        - end_bracket: )
+    - keyword: ROW
+    - keyword: FORMAT
+    - keyword: DELIMITED
+    - row_format_delimited_segment:
+      - keyword: FIELDS
+      - keyword: TERMINATED
+      - keyword: BY
+      - quoted_literal: "'\\007'"
+    - keyword: STORED
+    - keyword: AS
+    - keyword: PARQUET
+    - keyword: LOCATION
+    - quoted_literal: "'s3://bucket/folder/'"
+    - keyword: AS
+    - bracketed:
+        start_bracket: (
+        select_statement:
+          select_clause:
+          - keyword: SELECT
+          - select_clause_element:
+              column_reference:
+                naked_identifier: col1
+          - comma: ','
+          - select_clause_element:
+              column_reference:
+                naked_identifier: col2
+          from_clause:
+            keyword: FROM
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                  - naked_identifier: external_schema
+                  - dot: .
+                  - naked_identifier: source_table
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_external_table_statement:
+    - keyword: CREATE
+    - keyword: EXTERNAL
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: external_schema
+      - dot: .
+      - naked_identifier: table_name
+    - keyword: STORED
+    - keyword: AS
+    - keyword: PARQUET
+    - keyword: LOCATION
+    - quoted_literal: "'s3://bucket/folder/'"
+    - keyword: TABLE
+    - keyword: PROPERTIES
+    - bracketed:
+      - start_bracket: (
+      - quoted_literal: "'some_property1'"
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'some_value1'"
+      - comma: ','
+      - quoted_literal: "'some_property2'"
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'some_value2'"
+      - end_bracket: )
+    - keyword: AS
+    - select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+              naked_identifier: col1
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: col2
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                - naked_identifier: external_schema
+                - dot: .
+                - naked_identifier: source_table
+- statement_terminator: ;
+- statement:
+    create_external_table_statement:
+    - keyword: CREATE
+    - keyword: EXTERNAL
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: spectrum
+      - dot: .
+      - naked_identifier: partitioned_lineitem
+    - partitioned_by_segment:
+      - keyword: PARTITIONED
+      - keyword: BY
+      - bracketed:
+        - start_bracket: (
+        - column_reference:
+            naked_identifier: l_shipdate
+        - data_type:
+            datetime_type_identifier:
+              keyword: date
+        - comma: ','
+        - column_reference:
+            naked_identifier: l_shipmode
+        - data_type:
+            keyword: varchar
+            bracketed_arguments:
+              bracketed:
+                start_bracket: (
+                numeric_literal: '24'
+                end_bracket: )
+        - end_bracket: )
+    - keyword: ROW
+    - keyword: FORMAT
+    - keyword: DELIMITED
+    - row_format_delimited_segment:
+      - keyword: FIELDS
+      - keyword: TERMINATED
+      - keyword: BY
+      - quoted_literal: "','"
+      - keyword: LINES
+      - keyword: TERMINATED
+      - keyword: BY
+      - quoted_literal: "'\\n\\l'"
+    - keyword: STORED
+    - keyword: AS
+    - keyword: textfile
+    - keyword: LOCATION
+    - quoted_literal: "'S3://mybucket/cetas/partitioned_lineitem/'"
+    - keyword: AS
+    - select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+              naked_identifier: l_orderkey
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: l_shipmode
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: l_shipdate
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: l_partkey
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: local_table
+- statement_terminator: ;

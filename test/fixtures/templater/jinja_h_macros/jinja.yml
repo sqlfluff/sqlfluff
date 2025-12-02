@@ -5,23 +5,23 @@ file:
         - keyword: select
         - select_clause_element:
             expression:
-              - literal: 1
+              - numeric_literal: 1
               - binary_operator: +
-              - literal: 2
+              - numeric_literal: 2
               - binary_operator: +
-              - literal: 5
+              - numeric_literal: 5
               - binary_operator: +
-              - literal: 6
+              - numeric_literal: 6
               - binary_operator: +
-              - literal: 7
+              - numeric_literal: 7
               - binary_operator: +
-              - literal: 999
+              - numeric_literal: 999
               - binary_operator: +
-              - literal: 101
+              - numeric_literal: 101
       from_clause:
       - keyword: from
       - from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: my_table
+                naked_identifier: my_table

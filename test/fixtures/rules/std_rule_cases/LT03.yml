@@ -1,0 +1,263 @@
+rule: LT03
+
+passes_on_before_default:
+  pass_str: |
+    select
+        a
+        + b
+    from foo
+
+fails_on_after_default:
+  fail_str: |
+    select
+        a +
+        b
+    from foo
+  fix_str: |
+    select
+        a
+        + b
+    from foo
+
+fails_on_after_default_on_and:
+  fail_str: |
+    select
+        a AND
+        b
+    from foo
+  fix_str: |
+    select
+        a
+        AND b
+    from foo
+
+fails_on_after_with_comment_order_preserved:
+  fail_str: |
+    select
+        a AND
+        -- comment1!
+        -- comment2!
+        b
+    from foo
+  fix_str: |
+    select
+        a
+        -- comment1!
+        -- comment2!
+        AND b
+    from foo
+
+passes_on_before_explicit:
+  pass_str: |
+    select
+        a
+        + b
+    from foo
+  configs: &operator_after
+    layout:
+      type:
+        binary_operator:
+          line_position: leading
+        comparison_operator:
+          line_position: leading
+
+
+fails_on_after_explicit:
+  fail_str: |
+    select
+        a +
+        b
+    from foo
+  fix_str: |
+    select
+        a
+        + b
+    from foo
+  configs: *operator_after
+
+fails_on_after_multi_explicit:
+  fail_str: |
+    SELECT
+        *
+    FROM
+      foo
+    WHERE
+        (g > z) AND
+        (
+          (a = 'a' AND b = 'b') OR
+          (a = 'a' AND b = 'e') OR
+          (a = 'c' AND b = 'g') OR
+          (a = 'c' AND b = 'e') OR
+          1 = 1
+        );
+  fix_str: |
+    SELECT
+        *
+    FROM
+      foo
+    WHERE
+        (g > z)
+        AND (
+          (a = 'a' AND b = 'b')
+          OR (a = 'a' AND b = 'e')
+          OR (a = 'c' AND b = 'g')
+          OR (a = 'c' AND b = 'e')
+          OR 1 = 1
+        );
+  configs: *operator_after
+
+fails_on_before_override:
+  fail_str: |
+    select
+        a
+        + b
+    from foo
+  fix_str: |
+    select
+        a +
+        b
+    from foo
+  configs: &operator_before
+    layout:
+      type:
+        binary_operator:
+          line_position: trailing
+        comparison_operator:
+          line_position: trailing
+
+passes_on_after_override:
+  pass_str: |
+    select
+        a +
+        b
+    from foo
+  configs: *operator_before
+
+fails_on_before_override_with_comment_order:
+  fail_str: |
+    select
+        a -- comment1!
+        -- comment2!
+        -- comment3!
+        + b
+    from foo
+  fix_str: |
+    select
+        a + -- comment1!
+        -- comment2!
+        -- comment3!
+        b
+    from foo
+  configs: *operator_before
+
+fails_on_after_override_with_comment_order:
+  fail_str: |
+    select
+        a + -- comment1!
+        -- comment2!
+        -- comment3!
+        b
+    from foo
+  fix_str: |
+    select
+        a -- comment1!
+        -- comment2!
+        -- comment3!
+        + b
+    from foo
+  configs: *operator_after
+
+# Fix the different variations of problematic comments in a leading case.
+fails_leading_with_comments:
+  fail_str: |
+    SELECT
+      1 +
+      /* foo */ 2,
+      1 + -- foo
+      2,
+      1 /* foo */ +
+      2,
+      1 /* foo */ + -- foo
+      /* foo */ 2
+  fix_str: |
+    SELECT
+      1
+      /* foo */ + 2,
+      1 -- foo
+      + 2,
+      1 /* foo */
+      + 2,
+      1 /* foo */ -- foo
+      /* foo */ + 2
+  configs: *operator_after
+
+# Fix the different variations of problematic comments in a trailing case.
+fails_trailing_with_comments:
+  fail_str: |
+    SELECT
+      1
+      + /* foo */ 2,
+      1 -- foo
+      + 2,
+      1
+      /* foo */ + 2,
+      1 -- foo
+      /* foo */ + /* foo */ 2
+  fix_str: |
+    SELECT
+      1 +
+      /* foo */ 2,
+      1 + -- foo
+      2,
+      1 +
+      /* foo */ 2,
+      1 + -- foo
+      /* foo */ /* foo */ 2
+  configs: *operator_before
+
+passes_templated_newline:
+  pass_str: |
+    {% macro binary_literal(expression) %}
+      X'{{ expression }}'
+    {% endmacro %}
+
+    select
+        *
+    from my_table
+    where
+        a = {{ binary_literal("0000") }}
+
+fails_templated_code_non_templated_newline:
+  fail_str: |
+    {% macro binary_literal(expression) %}
+      X'{{ expression }}'
+    {% endmacro %}
+
+    select
+        *
+    from my_table
+    where
+        a =
+            {{ binary_literal("0000") }}
+
+passes_operator_alone_on_line:
+  # Special case: An operator on a line by itself is always okay.
+  pass_str: |
+    SELECT
+      'asdf'
+      ||
+      'jklm'
+
+fixes_tuple_error_issue:
+  # https://github.com/sqlfluff/sqlfluff/issues/4184
+  # NB: This one isn't fixable.
+  fail_str: |
+    select * from foo
+    where c is not null and -- comment
+        {% if true -%}a >= b and
+        -- comment.
+        {% endif %}
+        true
+  configs:
+    indentation:
+      template_blocks_indent: false

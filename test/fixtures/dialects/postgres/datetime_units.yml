@@ -1,0 +1,856 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 867ab4cd4f7555cfb4a6efffb82fc4a1283f45d4c4c36668aa5a999045ba3288
+file:
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+          - naked_identifier: t1
+          - dot: .
+          - naked_identifier: field
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: EXTRACT
+            function_contents:
+              bracketed:
+                start_bracket: (
+                date_part: CENTURY
+                keyword: FROM
+                expression:
+                  column_reference:
+                  - naked_identifier: t1
+                  - dot: .
+                  - naked_identifier: sometime
+                end_bracket: )
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: a
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: t1
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+          - naked_identifier: t1
+          - dot: .
+          - naked_identifier: field
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: EXTRACT
+            function_contents:
+              bracketed:
+                start_bracket: (
+                date_part: DECADE
+                keyword: FROM
+                expression:
+                  column_reference:
+                  - naked_identifier: t1
+                  - dot: .
+                  - naked_identifier: sometime
+                end_bracket: )
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: a
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: t1
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+          - naked_identifier: t1
+          - dot: .
+          - naked_identifier: field
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: EXTRACT
+            function_contents:
+              bracketed:
+                start_bracket: (
+                date_part: DOW
+                keyword: FROM
+                expression:
+                  column_reference:
+                  - naked_identifier: t1
+                  - dot: .
+                  - naked_identifier: sometime
+                end_bracket: )
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: a
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: t1
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+          - naked_identifier: t1
+          - dot: .
+          - naked_identifier: field
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: EXTRACT
+            function_contents:
+              bracketed:
+                start_bracket: (
+                date_part: DOY
+                keyword: FROM
+                expression:
+                  column_reference:
+                  - naked_identifier: t1
+                  - dot: .
+                  - naked_identifier: sometime
+                end_bracket: )
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: a
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: t1
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+          - naked_identifier: t1
+          - dot: .
+          - naked_identifier: field
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: EXTRACT
+            function_contents:
+              bracketed:
+                start_bracket: (
+                date_part: EPOCH
+                keyword: FROM
+                expression:
+                  column_reference:
+                  - naked_identifier: t1
+                  - dot: .
+                  - naked_identifier: sometime
+                end_bracket: )
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: a
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: t1
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+          - naked_identifier: t1
+          - dot: .
+          - naked_identifier: field
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: EXTRACT
+            function_contents:
+              bracketed:
+                start_bracket: (
+                date_part: ISODOW
+                keyword: FROM
+                expression:
+                  column_reference:
+                  - naked_identifier: t1
+                  - dot: .
+                  - naked_identifier: sometime
+                end_bracket: )
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: a
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: t1
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+          - naked_identifier: t1
+          - dot: .
+          - naked_identifier: field
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: EXTRACT
+            function_contents:
+              bracketed:
+                start_bracket: (
+                date_part: ISOYEAR
+                keyword: FROM
+                expression:
+                  column_reference:
+                  - naked_identifier: t1
+                  - dot: .
+                  - naked_identifier: sometime
+                end_bracket: )
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: a
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: t1
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+          - naked_identifier: t1
+          - dot: .
+          - naked_identifier: field
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: EXTRACT
+            function_contents:
+              bracketed:
+                start_bracket: (
+                date_part: MICROSECONDS
+                keyword: FROM
+                expression:
+                  column_reference:
+                  - naked_identifier: t1
+                  - dot: .
+                  - naked_identifier: sometime
+                end_bracket: )
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: a
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: t1
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+          - naked_identifier: t1
+          - dot: .
+          - naked_identifier: field
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: EXTRACT
+            function_contents:
+              bracketed:
+                start_bracket: (
+                date_part: MILLENNIUM
+                keyword: FROM
+                expression:
+                  column_reference:
+                  - naked_identifier: t1
+                  - dot: .
+                  - naked_identifier: sometime
+                end_bracket: )
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: a
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: t1
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+          - naked_identifier: t1
+          - dot: .
+          - naked_identifier: field
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: EXTRACT
+            function_contents:
+              bracketed:
+                start_bracket: (
+                date_part: MILLISECONDS
+                keyword: FROM
+                expression:
+                  column_reference:
+                  - naked_identifier: t1
+                  - dot: .
+                  - naked_identifier: sometime
+                end_bracket: )
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: a
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: t1
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+          - naked_identifier: t1
+          - dot: .
+          - naked_identifier: field
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: EXTRACT
+            function_contents:
+              bracketed:
+                start_bracket: (
+                date_part: TIMEZONE
+                keyword: FROM
+                expression:
+                  column_reference:
+                  - naked_identifier: t1
+                  - dot: .
+                  - naked_identifier: sometime
+                end_bracket: )
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: a
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: t1
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+          - naked_identifier: t1
+          - dot: .
+          - naked_identifier: field
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: EXTRACT
+            function_contents:
+              bracketed:
+                start_bracket: (
+                date_part: TIMEZONE_HOUR
+                keyword: FROM
+                expression:
+                  column_reference:
+                  - naked_identifier: t1
+                  - dot: .
+                  - naked_identifier: sometime
+                end_bracket: )
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: a
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: t1
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+          - naked_identifier: t1
+          - dot: .
+          - naked_identifier: field
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: EXTRACT
+            function_contents:
+              bracketed:
+                start_bracket: (
+                date_part: TIMEZONE_MINUTE
+                keyword: FROM
+                expression:
+                  column_reference:
+                  - naked_identifier: t1
+                  - dot: .
+                  - naked_identifier: sometime
+                end_bracket: )
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: a
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: t1
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+          - naked_identifier: t1
+          - dot: .
+          - naked_identifier: field
+      - comma: ','
+      - select_clause_element:
+          expression:
+          - datetime_literal:
+              datetime_type_identifier:
+                keyword: DATE
+              quoted_literal: "'2001-09-28'"
+          - binary_operator: +
+          - numeric_literal: '7'
+          - binary_operator: +
+          - column_reference:
+            - naked_identifier: t1
+            - dot: .
+            - naked_identifier: data
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: a
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: t1
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+          - naked_identifier: t1
+          - dot: .
+          - naked_identifier: field
+      - comma: ','
+      - select_clause_element:
+          expression:
+          - function:
+              function_name:
+                function_name_identifier: NOW
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  end_bracket: )
+          - binary_operator: +
+          - datetime_literal:
+              datetime_type_identifier:
+                keyword: INTERVAL
+              quoted_literal: "'1 HOUR'"
+          - binary_operator: +
+          - column_reference:
+            - naked_identifier: t1
+            - dot: .
+            - naked_identifier: data
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: a
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: t1
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+          - naked_identifier: t1
+          - dot: .
+          - naked_identifier: field
+      - comma: ','
+      - select_clause_element:
+          expression:
+            column_reference:
+            - naked_identifier: t1
+            - dot: .
+            - naked_identifier: data
+            binary_operator: +
+            datetime_literal:
+              datetime_type_identifier:
+                keyword: TIME
+              quoted_literal: "'03:00'"
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: a
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: t1
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+          - naked_identifier: t1
+          - dot: .
+          - naked_identifier: field
+      - comma: ','
+      - select_clause_element:
+          expression:
+          - datetime_literal:
+              datetime_type_identifier:
+                keyword: INTERVAL
+              quoted_literal: "'1 DAY'"
+          - binary_operator: +
+          - datetime_literal:
+              datetime_type_identifier:
+                keyword: INTERVAL
+              quoted_literal: "'1 HOUR 2 MINUTES'"
+          - binary_operator: +
+          - column_reference:
+            - naked_identifier: t1
+            - dot: .
+            - naked_identifier: data
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: a
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: t1
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+          - naked_identifier: t1
+          - dot: .
+          - naked_identifier: field
+      - comma: ','
+      - select_clause_element:
+          expression:
+          - datetime_literal:
+              datetime_type_identifier:
+                keyword: TIMESTAMP
+              quoted_literal: "'2001-09-28 01:00'"
+          - binary_operator: +
+          - datetime_literal:
+              datetime_type_identifier:
+                keyword: INTERVAL
+              quoted_literal: "'23 HOURS'"
+          - binary_operator: +
+          - column_reference:
+            - naked_identifier: t1
+            - dot: .
+            - naked_identifier: data
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: a
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: t1
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+          - naked_identifier: t1
+          - dot: .
+          - naked_identifier: field
+      - comma: ','
+      - select_clause_element:
+          expression:
+          - datetime_literal:
+              datetime_type_identifier:
+                keyword: TIME
+              quoted_literal: "'01:00'"
+          - binary_operator: +
+          - datetime_literal:
+              datetime_type_identifier:
+                keyword: INTERVAL
+              quoted_literal: "'3S'"
+          - binary_operator: +
+          - column_reference:
+            - naked_identifier: t1
+            - dot: .
+            - naked_identifier: data
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: a
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: t1
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+          - naked_identifier: t1
+          - dot: .
+          - naked_identifier: field
+      - comma: ','
+      - select_clause_element:
+          expression:
+            sign_indicator: '-'
+            datetime_literal:
+              datetime_type_identifier:
+                keyword: INTERVAL
+              quoted_literal: "'23 HOURS'"
+            binary_operator: +
+            column_reference:
+            - naked_identifier: t1
+            - dot: .
+            - naked_identifier: data
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: a
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: t1
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+          - naked_identifier: t1
+          - dot: .
+          - naked_identifier: field
+      - comma: ','
+      - select_clause_element:
+          expression:
+          - datetime_literal:
+              datetime_type_identifier:
+                keyword: INTERVAL
+              quoted_literal: "'1 HOUR'"
+          - binary_operator: /
+          - numeric_literal: '1.5'
+          - binary_operator: +
+          - column_reference:
+            - naked_identifier: t1
+            - dot: .
+            - naked_identifier: data
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: a
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: t1
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+          - naked_identifier: t1
+          - dot: .
+          - naked_identifier: field
+      - comma: ','
+      - select_clause_element:
+          expression:
+          - interval_expression:
+              keyword: INTERVAL
+              quoted_literal: "'1'"
+              date_part: HOUR
+          - binary_operator: '*'
+          - numeric_literal: '3.5'
+          - binary_operator: +
+          - column_reference:
+            - naked_identifier: t1
+            - dot: .
+            - naked_identifier: data
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: a
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: t1
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+          - naked_identifier: t1
+          - dot: .
+          - naked_identifier: field
+      - comma: ','
+      - select_clause_element:
+          expression:
+          - datetime_literal:
+              datetime_type_identifier:
+              - keyword: TIMESTAMP
+              - keyword: WITH
+              - keyword: TIME
+              - keyword: ZONE
+              quoted_literal: "'2005-04-02 12:00:00-07'"
+          - binary_operator: +
+          - datetime_literal:
+              datetime_type_identifier:
+                keyword: INTERVAL
+              quoted_literal: "'24 HOURS'"
+          - binary_operator: +
+          - column_reference:
+            - naked_identifier: t1
+            - dot: .
+            - naked_identifier: data
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: a
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: t1
+- statement_terminator: ;

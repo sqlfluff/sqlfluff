@@ -1,0 +1,94 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 3701321590713305bb67b6c867b1d19318a4f46c706df55d2269bfdf8e1ae68b
+file:
+- statement:
+    insert_statement:
+    - keyword: INSERT
+    - keyword: INTO
+    - table_reference:
+      - naked_identifier: default
+      - dot: .
+      - naked_identifier: people10m
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: more_people
+- statement_terminator: ;
+- statement:
+    insert_statement:
+    - keyword: INSERT
+    - keyword: OVERWRITE
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: default
+      - dot: .
+      - naked_identifier: people10m
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: more_people
+- statement_terminator: ;
+- statement:
+    set_statement:
+      keyword: SET
+      property_name_identifier:
+      - properties_naked_identifier: spark
+      - dot: .
+      - properties_naked_identifier: databricks
+      - dot: .
+      - properties_naked_identifier: delta
+      - dot: .
+      - properties_naked_identifier: commitInfo
+      - dot: .
+      - properties_naked_identifier: userMetadata
+      comparison_operator:
+        raw_comparison_operator: '='
+      quoted_literal: '"overwritten-for-fixing-incorrect-data"'
+- statement_terminator: ;
+- statement:
+    insert_statement:
+    - keyword: INSERT
+    - keyword: OVERWRITE
+    - table_reference:
+      - naked_identifier: default
+      - dot: .
+      - naked_identifier: people10m
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: more_people
+- statement_terminator: ;

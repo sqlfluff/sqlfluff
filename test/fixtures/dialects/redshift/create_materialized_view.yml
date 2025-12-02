@@ -1,0 +1,226 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 827b0fd13132cbb06243f9c709d9e457adb2a796df460d25b929889fababf931
+file:
+- statement:
+    create_materialized_view_statement:
+    - keyword: create
+    - keyword: materialized
+    - keyword: view
+    - table_reference:
+        naked_identifier: mat_view_example
+    - keyword: backup
+    - keyword: 'yes'
+    - keyword: auto
+    - keyword: refresh
+    - keyword: 'no'
+    - keyword: as
+    - select_statement:
+        select_clause:
+          keyword: select
+          select_clause_element:
+            column_reference:
+              naked_identifier: col1
+        from_clause:
+          keyword: from
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: example_table
+- statement_terminator: ;
+- statement:
+    create_materialized_view_statement:
+    - keyword: CREATE
+    - keyword: MATERIALIZED
+    - keyword: VIEW
+    - table_reference:
+        naked_identifier: tickets_mv
+    - keyword: AS
+    - select_statement:
+        select_clause:
+        - keyword: select
+        - select_clause_element:
+            column_reference:
+              naked_identifier: catgroup
+        - comma: ','
+        - select_clause_element:
+            function:
+              function_name:
+                function_name_identifier: sum
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                      naked_identifier: qtysold
+                  end_bracket: )
+            alias_expression:
+              alias_operator:
+                keyword: as
+              naked_identifier: sold
+        from_clause:
+        - keyword: from
+        - from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: category
+              alias_expression:
+                naked_identifier: c
+        - comma: ','
+        - from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: event
+              alias_expression:
+                naked_identifier: e
+        - comma: ','
+        - from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: sales
+              alias_expression:
+                naked_identifier: s
+        where_clause:
+          keyword: where
+          expression:
+          - column_reference:
+            - naked_identifier: c
+            - dot: .
+            - naked_identifier: catid
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - column_reference:
+            - naked_identifier: e
+            - dot: .
+            - naked_identifier: catid
+          - binary_operator: and
+          - column_reference:
+            - naked_identifier: e
+            - dot: .
+            - naked_identifier: eventid
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - column_reference:
+            - naked_identifier: s
+            - dot: .
+            - naked_identifier: eventid
+        groupby_clause:
+        - keyword: group
+        - keyword: by
+        - column_reference:
+            naked_identifier: catgroup
+- statement_terminator: ;
+- statement:
+    create_materialized_view_statement:
+    - keyword: CREATE
+    - keyword: MATERIALIZED
+    - keyword: VIEW
+    - table_reference:
+        naked_identifier: mv_sales_vw
+    - keyword: as
+    - set_expression:
+      - select_statement:
+          select_clause:
+          - keyword: select
+          - select_clause_element:
+              column_reference:
+                naked_identifier: salesid
+          - comma: ','
+          - select_clause_element:
+              column_reference:
+                naked_identifier: qtysold
+          - comma: ','
+          - select_clause_element:
+              column_reference:
+                naked_identifier: pricepaid
+          - comma: ','
+          - select_clause_element:
+              column_reference:
+                naked_identifier: commission
+          - comma: ','
+          - select_clause_element:
+              column_reference:
+                naked_identifier: saletime
+          from_clause:
+            keyword: from
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                  - naked_identifier: public
+                  - dot: .
+                  - naked_identifier: sales
+      - set_operator:
+        - keyword: union
+        - keyword: all
+      - select_statement:
+          select_clause:
+          - keyword: select
+          - select_clause_element:
+              column_reference:
+                naked_identifier: salesid
+          - comma: ','
+          - select_clause_element:
+              column_reference:
+                naked_identifier: qtysold
+          - comma: ','
+          - select_clause_element:
+              column_reference:
+                naked_identifier: pricepaid
+          - comma: ','
+          - select_clause_element:
+              column_reference:
+                naked_identifier: commission
+          - comma: ','
+          - select_clause_element:
+              column_reference:
+                naked_identifier: saletime
+          from_clause:
+            keyword: from
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                  - naked_identifier: spectrum
+                  - dot: .
+                  - naked_identifier: sales
+- statement_terminator: ;
+- statement:
+    create_materialized_view_statement:
+    - keyword: CREATE
+    - keyword: MATERIALIZED
+    - keyword: VIEW
+    - table_reference:
+        naked_identifier: mv_baseball
+    - table_constraint:
+      - keyword: DISTSTYLE
+      - keyword: ALL
+    - keyword: AUTO
+    - keyword: REFRESH
+    - keyword: 'YES'
+    - keyword: AS
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            column_reference:
+              naked_identifier: ball
+            alias_expression:
+              alias_operator:
+                keyword: AS
+              naked_identifier: baseball
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: baseball_table
+- statement_terminator: ;

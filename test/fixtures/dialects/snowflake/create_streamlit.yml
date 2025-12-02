@@ -1,0 +1,152 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 54fe7098ea0135daa073e9f93e27df0f9bf1999db35824d7dad06c9f40c9bc88
+file:
+- statement:
+    create_streamlit_statement:
+    - keyword: CREATE
+    - keyword: STREAMLIT
+    - object_reference:
+        naked_identifier: new_streamlit
+    - keyword: ROOT_LOCATION
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - stage_path: "'@stage_name/folder'"
+    - keyword: MAIN_FILE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'main.py'"
+- statement_terminator: ;
+- statement:
+    create_streamlit_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: STREAMLIT
+    - object_reference:
+        naked_identifier: new_streamlit
+    - keyword: ROOT_LOCATION
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - stage_path: "'@stage_name/folder'"
+    - keyword: MAIN_FILE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'main.py'"
+- statement_terminator: ;
+- statement:
+    create_streamlit_statement:
+    - keyword: CREATE
+    - keyword: STREAMLIT
+    - object_reference:
+        naked_identifier: new_streamlit
+    - keyword: ROOT_LOCATION
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - stage_path: "'@stage_name/folder'"
+    - keyword: MAIN_FILE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'main.py'"
+    - keyword: QUERY_WAREHOUSE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - object_reference:
+        naked_identifier: my_wh
+- statement_terminator: ;
+- statement:
+    create_streamlit_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: STREAMLIT
+    - object_reference:
+        naked_identifier: new_streamlit
+    - keyword: ROOT_LOCATION
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - stage_path: "'@stage_name/folder'"
+    - keyword: MAIN_FILE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'main.py'"
+    - keyword: QUERY_WAREHOUSE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - object_reference:
+        naked_identifier: my_wh
+- statement_terminator: ;
+- statement:
+    create_streamlit_statement:
+    - keyword: CREATE
+    - keyword: STREAMLIT
+    - object_reference:
+        naked_identifier: new_streamlit
+    - keyword: ROOT_LOCATION
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - stage_path: "'@stage_name/folder'"
+    - keyword: MAIN_FILE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'main.py'"
+    - keyword: QUERY_WAREHOUSE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - object_reference:
+        naked_identifier: my_wh
+    - comment_equals_clause:
+        keyword: COMMENT
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'amazing comment'"
+- statement_terminator: ;
+- statement:
+    create_streamlit_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: STREAMLIT
+    - object_reference:
+        naked_identifier: new_streamlit
+    - keyword: ROOT_LOCATION
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - stage_path: "'@stage_name/folder'"
+    - keyword: MAIN_FILE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'main.py'"
+    - keyword: QUERY_WAREHOUSE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - object_reference:
+        naked_identifier: my_wh
+    - comment_equals_clause:
+        keyword: COMMENT
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'amazing comment'"
+- statement_terminator: ;
+- statement:
+    create_streamlit_statement:
+    - keyword: CREATE
+    - keyword: STREAMLIT
+    - object_reference:
+        naked_identifier: new_streamlit
+    - keyword: ROOT_LOCATION
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - stage_path: "'@stage_name/folder'"
+    - keyword: MAIN_FILE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'main.py'"
+    - keyword: TITLE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'amazing title'"
+- statement_terminator: ;

@@ -1,0 +1,115 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 51fd2eaf916746941e1e73f883857a1c6791e83bb7509e02fbccc62d45cc4f72
+file:
+  batch:
+    statement:
+      create_procedure_statement:
+      - keyword: CREATE
+      - keyword: PROCEDURE
+      - object_reference:
+          naked_identifier: findjobs
+      - procedure_parameter_list:
+          parameter: '@nm'
+          data_type:
+            data_type_identifier: sysname
+          comparison_operator:
+            raw_comparison_operator: '='
+          expression:
+            null_literal: 'NULL'
+      - keyword: AS
+      - procedure_statement:
+          statement:
+            if_then_statement:
+            - if_clause:
+                keyword: IF
+                expression:
+                  parameter: '@nm'
+                  keyword: IS
+                  null_literal: 'NULL'
+            - statement:
+                begin_end_block:
+                - keyword: BEGIN
+                - statement:
+                    print_statement:
+                      keyword: PRINT
+                      expression:
+                        quoted_literal: "'You must give a user name'"
+                - statement:
+                    return_segment:
+                      keyword: RETURN
+                - keyword: END
+            - keyword: ELSE
+            - statement:
+                begin_end_block:
+                - keyword: BEGIN
+                - statement:
+                    select_statement:
+                      select_clause:
+                      - keyword: SELECT
+                      - select_clause_element:
+                          column_reference:
+                          - naked_identifier: o
+                          - dot: .
+                          - naked_identifier: name
+                      - comma: ','
+                      - select_clause_element:
+                          column_reference:
+                          - naked_identifier: o
+                          - dot: .
+                          - naked_identifier: id
+                      - comma: ','
+                      - select_clause_element:
+                          column_reference:
+                          - naked_identifier: o
+                          - dot: .
+                          - naked_identifier: uid
+                      from_clause:
+                        keyword: FROM
+                        from_expression:
+                          from_expression_element:
+                            table_expression:
+                              table_reference:
+                                naked_identifier: sysobjects
+                            alias_expression:
+                              naked_identifier: o
+                          join_clause:
+                          - keyword: INNER
+                          - keyword: JOIN
+                          - from_expression_element:
+                              table_expression:
+                                table_reference:
+                                - naked_identifier: master
+                                - dot: .
+                                - dot: .
+                                - naked_identifier: syslogins
+                              alias_expression:
+                                naked_identifier: l
+                          - join_on_condition:
+                              keyword: 'ON'
+                              expression:
+                              - column_reference:
+                                - naked_identifier: o
+                                - dot: .
+                                - naked_identifier: uid
+                              - comparison_operator:
+                                  raw_comparison_operator: '='
+                              - column_reference:
+                                - naked_identifier: l
+                                - dot: .
+                                - naked_identifier: sid
+                      where_clause:
+                        keyword: WHERE
+                        expression:
+                          column_reference:
+                          - naked_identifier: l
+                          - dot: .
+                          - naked_identifier: name
+                          comparison_operator:
+                            raw_comparison_operator: '='
+                          parameter: '@nm'
+                - keyword: END
+            - statement_terminator: ;

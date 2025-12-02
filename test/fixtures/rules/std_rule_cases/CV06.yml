@@ -1,0 +1,721 @@
+rule: CV06
+
+test_pass_semi_colon_same_line_default:
+  pass_str: |
+    SELECT a FROM foo;
+
+test_pass_semi_colon_custom_newline:
+  pass_str: |
+    SELECT a FROM foo;
+  configs:
+    rules:
+      convention.terminator:
+        multiline_newline: true
+
+test_fail_semi_colon_same_line_custom_newline:
+  fail_str: |
+    SELECT a
+    FROM foo;
+  fix_str: |
+    SELECT a
+    FROM foo
+    ;
+  configs:
+    rules:
+      convention.terminator:
+        multiline_newline: true
+
+test_pass_no_semi_colon_default:
+  pass_str: |
+    SELECT a FROM foo
+
+test_pass_no_semi_colon_custom_newline:
+  pass_str: |
+    SELECT a FROM foo
+  configs:
+    rules:
+      convention.terminator:
+        multiline_newline: true
+
+test_fail_no_semi_colon_custom_require:
+  fail_str: |
+    SELECT a FROM foo
+  fix_str: |
+    SELECT a FROM foo;
+  configs:
+    rules:
+      convention.terminator:
+        require_final_semicolon: true
+
+test_fail_no_semi_colon_custom_require_oneline:
+  fail_str: |
+    SELECT a FROM foo
+  fix_str: |
+    SELECT a FROM foo;
+  configs:
+    rules:
+      convention.terminator:
+        require_final_semicolon: true
+        multiline_newline: true
+
+test_fail_no_semi_colon_custom_require_multiline:
+  fail_str: |
+    SELECT a
+    FROM foo
+  fix_str: |
+    SELECT a
+    FROM foo
+    ;
+  configs:
+    rules:
+      convention.terminator:
+        require_final_semicolon: true
+        multiline_newline: true
+
+test_pass_multi_statement_semi_colon_default:
+  pass_str: |
+    SELECT a FROM foo;
+    SELECT b FROM bar;
+
+test_pass_multi_statement_semi_colon_custom_oneline:
+  pass_str: |
+    SELECT a FROM foo;
+    SELECT b FROM bar;
+
+test_fail_multi_statement_semi_colon_custom_multiline:
+  fail_str: |
+    SELECT a
+    FROM foo;
+    SELECT b
+    FROM bar;
+  fix_str: |
+    SELECT a
+    FROM foo
+    ;
+    SELECT b
+    FROM bar
+    ;
+  configs:
+    rules:
+      convention.terminator:
+        multiline_newline: true
+
+test_pass_multi_statement_no_trailing_semi_colon_default:
+  pass_str: |
+    SELECT a FROM foo;
+    SELECT b FROM bar
+
+test_pass_multi_statement_no_trailing_semi_colon_custom_require:
+  fail_str: |
+    SELECT a FROM foo;
+    SELECT b FROM bar
+  fix_str: |
+    SELECT a FROM foo;
+    SELECT b FROM bar;
+  configs:
+    rules:
+      convention.terminator:
+        require_final_semicolon: true
+
+test_fail_multi_statement_no_trailing_semi_colon_custom_require_oneline:
+  fail_str: |
+    SELECT a FROM foo;
+    SELECT b FROM bar
+  fix_str: |
+    SELECT a FROM foo;
+    SELECT b FROM bar;
+  configs:
+    rules:
+      convention.terminator:
+        require_final_semicolon: true
+        multiline_newline: true
+
+test_fail_multi_statement_no_trailing_semi_colon_custom_require_multiline:
+  fail_str: |
+    SELECT a
+    FROM foo;
+    SELECT b
+    FROM bar
+  fix_str: |
+    SELECT a
+    FROM foo
+    ;
+    SELECT b
+    FROM bar
+    ;
+  configs:
+    rules:
+      convention.terminator:
+        require_final_semicolon: true
+        multiline_newline: true
+
+test_fail_space_semi_colon_default:
+  fail_str: |
+    SELECT a FROM foo  ;
+  fix_str: |
+    SELECT a FROM foo;
+
+test_fail_newline_semi_colon_default:
+  fail_str: |
+    SELECT a FROM foo
+    ;
+  fix_str: |
+    SELECT a FROM foo;
+
+test_pass_newline_semi_colon_custom_newline:
+  pass_str: |
+    SELECT a
+    FROM foo
+    ;
+  configs:
+    rules:
+      convention.terminator:
+        multiline_newline: true
+
+test_fail_multi_statement_semi_colon_default:
+  fail_str: |
+    SELECT a FROM foo
+
+    ;
+    SELECT b FROM bar    ;
+  fix_str: |
+    SELECT a FROM foo;
+    SELECT b FROM bar;
+
+test_fail_multi_statement_semi_colon_custom_require_multiline:
+  fail_str: |
+    SELECT a
+    FROM foo
+
+    ;
+    SELECT b
+    FROM bar    ;
+  fix_str: |
+    SELECT a
+    FROM foo
+    ;
+    SELECT b
+    FROM bar
+    ;
+  configs:
+    rules:
+      convention.terminator:
+        require_final_semicolon: true
+        multiline_newline: true
+
+test_fail_multiple_newlines_semi_colon_custom_require_newline:
+  fail_str: |
+    SELECT a
+    FROM foo
+
+    ;
+  fix_str: |
+    SELECT a
+    FROM foo
+    ;
+  configs:
+    rules:
+      convention.terminator:
+        require_final_semicolon: true
+        multiline_newline: true
+
+test_fail_final_semi_colon_same_line_inline_comment:
+  fail_str: |
+    SELECT a FROM foo -- inline comment
+  fix_str: |
+    SELECT a FROM foo; -- inline comment
+  configs:
+    rules:
+      convention.terminator:
+        require_final_semicolon: true
+
+test_fail_final_semi_colon_same_line_inline_comment_custom_oneline:
+  fail_str: |
+    SELECT a FROM foo -- inline comment
+  fix_str: |
+    SELECT a FROM foo; -- inline comment
+  configs:
+    rules:
+      convention.terminator:
+        require_final_semicolon: true
+        multiline_newline: true
+
+test_fail_final_semi_colon_newline_inline_comment_custom_multiline:
+  fail_str: |
+    SELECT a
+    FROM foo -- inline comment
+  fix_str: |
+    SELECT a
+    FROM foo -- inline comment
+    ;
+  configs:
+    rules:
+      convention.terminator:
+        require_final_semicolon: true
+        multiline_newline: true
+
+test_fail_same_line_inline_comment:
+  fail_str: |
+    SELECT a FROM foo -- inline comment
+    ;
+  fix_str: |
+    SELECT a FROM foo; -- inline comment
+
+test_fail_same_line_multiple_inline_comment:
+  fail_str: |
+    SELECT a FROM foo -- inline comment #1
+
+    -- inline comment #2
+    ;
+  fix_str: |
+    SELECT a FROM foo; -- inline comment #1
+
+    -- inline comment #2
+
+test_pass_newline_inline_comment:
+  pass_str: |
+    SELECT a
+    FROM foo -- inline comment
+    ;
+  configs:
+    rules:
+      convention.terminator:
+        multiline_newline: true
+
+test_fail_newline_inline_comment:
+  fail_str: |
+    SELECT a
+    FROM foo -- inline comment
+
+    ;
+  fix_str: |
+    SELECT a
+    FROM foo -- inline comment
+    ;
+  configs:
+    rules:
+      convention.terminator:
+        multiline_newline: true
+
+test_fail_newline_multiple_inline_comments_custom_oneline:
+  fail_str: |
+    SELECT a FROM foo -- inline comment #1
+
+    -- inline comment #2
+
+    ;
+  fix_str: |
+    SELECT a FROM foo; -- inline comment #1
+
+    -- inline comment #2
+  configs:
+    rules:
+      convention.terminator:
+        multiline_newline: true
+
+test_fail_newline_multiple_inline_comments_custom_multiline:
+  fail_str: |
+    SELECT a
+    FROM foo -- inline comment #1
+
+    -- inline comment #2
+
+    ;
+  fix_str: |
+    SELECT a
+    FROM foo -- inline comment #1
+    ;
+
+    -- inline comment #2
+  configs:
+    rules:
+      convention.terminator:
+        multiline_newline: true
+
+test_fail_newline_trailing_inline_comment:
+  fail_str: |
+    SELECT a
+    FROM foo ; -- inline comment
+  fix_str: |
+    SELECT a
+    FROM foo -- inline comment
+    ;
+  configs:
+    rules:
+      convention.terminator:
+        multiline_newline: true
+
+test_fail_newline_preceding_block_comment_custom_oneline:
+  fail_str: |
+    SELECT foo FROM bar /* multiline
+    comment
+    */
+    ;
+  fix_str: |
+    SELECT foo FROM bar; /* multiline
+    comment
+    */
+  configs:
+    rules:
+      convention.terminator:
+        multiline_newline: true
+
+test_fail_newline_preceding_block_comment_custom_multiline:
+  fail_str: |
+    SELECT foo
+    FROM bar /* multiline
+    comment
+    */
+    ;
+  fix_str: |
+    SELECT foo
+    FROM bar
+    ; /* multiline
+    comment
+    */
+  configs:
+    rules:
+      convention.terminator:
+        multiline_newline: true
+
+test_fail_newline_trailing_block_comment:
+  fail_str: |
+    SELECT foo
+    FROM bar; /* multiline
+    comment
+    */
+  fix_str: |
+    SELECT foo
+    FROM bar
+    ; /* multiline
+    comment
+    */
+  configs:
+    rules:
+      convention.terminator:
+        multiline_newline: true
+
+test_fail_newline_block_comment_semi_colon_before:
+  fail_str: |
+    SELECT foo
+    FROM bar;
+    /* multiline
+    comment
+    */
+  fix_str: |
+    SELECT foo
+    FROM bar
+    ;
+    /* multiline
+    comment
+    */
+  configs:
+    rules:
+      convention.terminator:
+        multiline_newline: true
+
+test_fail_newline_block_comment_semi_colon_after:
+  fail_str: |
+    SELECT foo
+    FROM bar
+    /* multiline
+    comment
+    */
+    ;
+  fix_str: |
+    SELECT foo
+    FROM bar
+    ;
+    /* multiline
+    comment
+    */
+  configs:
+    rules:
+      convention.terminator:
+        multiline_newline: true
+
+test_fail_newline_create_table:
+  # https://github.com/sqlfluff/sqlfluff/issues/2268
+  fail_str: |
+    CREATE TABLE my_table (
+      id INTEGER
+    );
+  fix_str: |
+    CREATE TABLE my_table (
+      id INTEGER
+    )
+    ;
+  configs:
+    rules:
+      convention.terminator:
+        multiline_newline: true
+
+test_fail_newline_create_table_inline_comment:
+  fail_str: |
+    CREATE TABLE my_table (
+      id INTEGER
+    ); --inline comment
+  fix_str: |
+    CREATE TABLE my_table (
+      id INTEGER
+    ) --inline comment
+    ;
+  configs:
+    rules:
+      convention.terminator:
+        multiline_newline: true
+
+test_fail_whitespace_after_simple_select:
+  fail_str: |
+    SELECT 1 ;
+  fix_str: |
+    SELECT 1;
+
+test_fail_whitespace_after_snowflake_set:
+  fail_str: |
+    SET foo = (SELECT foo FROM foo.foo) ;
+  fix_str: |
+    SET foo = (SELECT foo FROM foo.foo);
+  configs:
+    core:
+      dialect: snowflake
+
+test_fail_templated_fix_crosses_block_boundary:
+  # The rule wants to move the semicolon to the same line as the SELECT, but
+  # the core linter prevents it because it crosses a template block boundary.
+  fail_str: |
+    {% if True %}
+    SELECT 1
+    {% else %}
+    SELECT 2
+    {% endif %}
+    ;
+  configs:
+    rules:
+      convention.terminator:
+        require_final_semicolon: true
+
+test_pass_empty_file:
+  pass_str: ""
+
+test_pass_empty_file_with_require_final_semicolon:
+  pass_str: ""
+  configs:
+    rules:
+      convention.terminator:
+        require_final_semicolon: true
+
+test_pass_file_with_only_comments:
+  pass_str: |
+    -- just an empty file
+
+test_pass_file_with_only_comments_with_require_final_semicolon:
+  pass_str: |
+    -- just an empty file
+  configs:
+    rules:
+      convention.terminator:
+        require_final_semicolon: true
+
+test_pass_oracle_block_with_slash_delimiter:
+  pass_str: |
+    CREATE PROCEDURE test_proc AS
+    BEGIN
+        NULL;
+    END;
+    /
+  configs:
+    core:
+      dialect: oracle
+    rules:
+      convention.terminator:
+        require_final_semicolon: true
+
+test_pass_oracle_block_with_slash_delimiter_multiline:
+  pass_str: |
+    CREATE PROCEDURE test_proc AS
+    BEGIN
+        NULL;
+    END;
+    /
+  configs:
+    core:
+      dialect: oracle
+    rules:
+      convention.terminator:
+        require_final_semicolon: true
+        multiline_newline: true
+
+test_pass_oracle_mixed_terminators:
+  pass_str: |
+    SELECT * FROM table1;
+    CREATE PROCEDURE test_proc AS
+    BEGIN
+        NULL;
+    END;
+    /
+
+    SELECT * FROM table2;
+    CREATE PROCEDURE test_proc2 AS
+    BEGIN
+        NULL;
+    END;
+    /
+    SELECT * FROM table2;
+  configs:
+    core:
+      dialect: oracle
+    rules:
+      convention.terminator:
+        require_final_semicolon: true
+
+test_pass_oracle_slash_positioning_same_line:
+  pass_str: |
+    CREATE PROCEDURE test_proc AS
+    BEGIN
+        NULL;
+    END; /
+  configs:
+    core:
+      dialect: oracle
+
+test_pass_oracle_slash_positioning_newline:
+  pass_str: |
+    CREATE PROCEDURE test_proc AS
+    BEGIN
+        NULL;
+    END;
+    /
+  configs:
+    core:
+      dialect: oracle
+
+test_pass_oracle_slash_with_extra_spacing:
+  pass_str: |
+    CREATE PROCEDURE test_proc AS
+    BEGIN
+        NULL;
+    END;   /
+  configs:
+    core:
+      dialect: oracle
+
+# T-SQL specific tests for batch segment handling
+test_pass_tsql_single_statement_with_semicolon:
+  pass_str: |
+    CREATE SCHEMA staging;
+  configs:
+    core:
+      dialect: tsql
+
+test_fail_tsql_single_statement_no_semicolon:
+  fail_str: |
+    CREATE SCHEMA staging
+  fix_str: |
+    CREATE SCHEMA staging;
+  configs:
+    core:
+      dialect: tsql
+    rules:
+      convention.terminator:
+        require_final_semicolon: true
+
+test_pass_tsql_multiple_statements_with_semicolons:
+  pass_str: |
+    CREATE SCHEMA staging;
+    CREATE TABLE test (id INT);
+  configs:
+    core:
+      dialect: tsql
+    rules:
+      convention.terminator:
+        require_final_semicolon: true
+
+test_fail_tsql_multiple_statements_last_missing_semicolon:
+  fail_str: |
+    CREATE SCHEMA staging;
+    CREATE TABLE test (id INT)
+  fix_str: |
+    CREATE SCHEMA staging;
+    CREATE TABLE test (id INT);
+  configs:
+    core:
+      dialect: tsql
+    rules:
+      convention.terminator:
+        require_final_semicolon: true
+
+test_pass_tsql_with_go_statement:
+  pass_str: |
+    CREATE SCHEMA staging;
+    GO
+    CREATE TABLE test (id INT);
+  configs:
+    core:
+      dialect: tsql
+    rules:
+      convention.terminator:
+        require_final_semicolon: true
+
+test_fail_tsql_with_go_statement_missing_final_semicolon:
+  fail_str: |
+    CREATE SCHEMA staging;
+    GO
+    CREATE TABLE test (id INT)
+  fix_str: |
+    CREATE SCHEMA staging;
+    GO
+    CREATE TABLE test (id INT);
+  configs:
+    core:
+      dialect: tsql
+    rules:
+      convention.terminator:
+        require_final_semicolon: true
+
+test_pass_tsql_multiline_statement_with_newline_semicolon:
+  pass_str: |
+    CREATE TABLE test (
+        id INT,
+        name VARCHAR(50)
+    )
+    ;
+  configs:
+    core:
+      dialect: tsql
+    rules:
+      convention.terminator:
+        multiline_newline: true
+
+test_fail_tsql_multiline_statement_wrong_semicolon_position:
+  fail_str: |
+    CREATE TABLE test (
+        id INT,
+        name VARCHAR(50)
+    );
+  fix_str: |
+    CREATE TABLE test (
+        id INT,
+        name VARCHAR(50)
+    )
+    ;
+  configs:
+    core:
+      dialect: tsql
+    rules:
+      convention.terminator:
+        multiline_newline: true
+
+test_pass_tsql_batch_already_has_semicolon:
+  # Test that when a semicolon already exists after the last statement in a batch,
+  # no changes are made (covers line 389: semi_colon_exist_flag = True)
+  pass_str: |
+    CREATE SCHEMA staging;
+    GO
+    CREATE TABLE test (id INT);
+  configs:
+    core:
+      dialect: tsql
+    rules:
+      convention.terminator:
+        require_final_semicolon: true

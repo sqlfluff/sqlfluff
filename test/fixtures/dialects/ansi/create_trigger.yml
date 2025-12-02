@@ -3,92 +3,95 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 9a9d8a07762da78a9691d6e3b4c84875377a2c0c8f744b69598ab161391e95b5
+_hash: e2b3ea5295e570d17ef161b60fb9e039007e50fb60c2c3caf15f4c58491fbef8
 file:
 - statement:
     create_trigger:
     - keyword: CREATE
     - keyword: TRIGGER
     - trigger_reference:
-        identifier: foo
+        naked_identifier: foo
     - keyword: BEFORE
     - keyword: INSERT
     - keyword: 'ON'
     - table_reference:
-        identifier: bar
+        naked_identifier: bar
     - keyword: EXECUTE
     - keyword: PROCEDURE
     - function_name_identifier: proc
-    - bracketed:
-        start_bracket: (
-        expression:
-          column_reference:
-            identifier: args
-        end_bracket: )
+    - function_contents:
+        bracketed:
+          start_bracket: (
+          expression:
+            column_reference:
+              naked_identifier: args
+          end_bracket: )
 - statement_terminator: ;
 - statement:
     create_trigger:
     - keyword: CREATE
     - keyword: TRIGGER
     - trigger_reference:
-        identifier: foo
+        naked_identifier: foo
     - keyword: BEFORE
     - keyword: INSERT
     - keyword: 'on'
     - table_reference:
-        identifier: bar
+        naked_identifier: bar
     - keyword: EXECUTE
     - keyword: PROCEDURE
     - function_name_identifier: proc
-    - bracketed:
-        start_bracket: (
-        expression:
-          column_reference:
-            identifier: args
-        end_bracket: )
+    - function_contents:
+        bracketed:
+          start_bracket: (
+          expression:
+            column_reference:
+              naked_identifier: args
+          end_bracket: )
 - statement_terminator: ;
 - statement:
     create_trigger:
     - keyword: CREATE
     - keyword: TRIGGER
     - trigger_reference:
-        identifier: foo
+        naked_identifier: foo
     - keyword: AFTER
     - keyword: UPDATE
     - keyword: OF
     - column_reference:
-        identifier: bar
+        naked_identifier: bar
     - comma: ','
     - column_reference:
-        identifier: baz
+        naked_identifier: baz
     - keyword: 'ON'
     - table_reference:
-        identifier: bar
+        naked_identifier: bar
     - keyword: EXECUTE
     - keyword: PROCEDURE
     - function_name_identifier: proc
-    - bracketed:
-        start_bracket: (
-        expression:
-          column_reference:
-            identifier: args
-        end_bracket: )
+    - function_contents:
+        bracketed:
+          start_bracket: (
+          expression:
+            column_reference:
+              naked_identifier: args
+          end_bracket: )
 - statement_terminator: ;
 - statement:
     create_trigger:
     - keyword: CREATE
     - keyword: TRIGGER
     - trigger_reference:
-        identifier: foo
+        naked_identifier: foo
     - keyword: INSTEAD
     - keyword: OF
     - keyword: DELETE
     - keyword: 'ON'
     - table_reference:
-        identifier: bar
+        naked_identifier: bar
     - keyword: FROM
     - table_reference:
-        identifier: baz
+        naked_identifier: baz
     - keyword: DEFERRABLE
     - keyword: INITIALLY
     - keyword: IMMEDIATE
@@ -98,41 +101,44 @@ file:
     - keyword: EXECUTE
     - keyword: PROCEDURE
     - function_name_identifier: proc
-    - bracketed:
-        start_bracket: (
-        expression:
-          column_reference:
-            identifier: args
-        end_bracket: )
+    - function_contents:
+        bracketed:
+          start_bracket: (
+          expression:
+            column_reference:
+              naked_identifier: args
+          end_bracket: )
 - statement_terminator: ;
 - statement:
     create_trigger:
     - keyword: CREATE
     - keyword: TRIGGER
     - trigger_reference:
-        identifier: foo
+        naked_identifier: foo
     - keyword: BEFORE
     - keyword: INSERT
     - keyword: 'ON'
     - table_reference:
-        identifier: bar
+        naked_identifier: bar
     - keyword: WHEN
     - bracketed:
         start_bracket: (
         expression:
         - column_reference:
-            identifier: a
-        - comparison_operator: '='
+            naked_identifier: a
+        - comparison_operator:
+            raw_comparison_operator: '='
         - column_reference:
-            identifier: b
+            naked_identifier: b
         end_bracket: )
     - keyword: EXECUTE
     - keyword: PROCEDURE
     - function_name_identifier: proc
-    - bracketed:
-        start_bracket: (
-        expression:
-          column_reference:
-            identifier: args
-        end_bracket: )
+    - function_contents:
+        bracketed:
+          start_bracket: (
+          expression:
+            column_reference:
+              naked_identifier: args
+          end_bracket: )
 - statement_terminator: ;

@@ -25,6 +25,9 @@ if errorlevel 9009 (
 	exit /b 1
 )
 
+REM Generate the rule & dialect docs
+python generate-auto-docs.py
+
 %SPHINXBUILD% -M %1 %SOURCEDIR% %BUILDDIR% %SPHINXOPTS% %O%
 goto end
 

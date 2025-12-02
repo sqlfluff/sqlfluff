@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 5f0bdf6abac2afed58fb03c667615a345bd0e9eeb99001180b1238f9008c7c57
+_hash: 19fea6b18d1b3a099ccc486ef23154e06d9235c137d14ddbec970df876046c88
 file:
   statement:
     create_function_statement:
@@ -12,7 +12,7 @@ file:
     - keyword: FUNCTION
     - function_name:
         function_name_identifier: URLDECODE
-    - base:
+    - function_parameter_list:
         bracketed:
           start_bracket: (
           parameter: url
@@ -22,7 +22,7 @@ file:
     - keyword: RETURNS
     - data_type:
         data_type_identifier: STRING
-    - base:
+    - function_definition:
         keyword: AS
         bracketed:
           start_bracket: (
@@ -34,7 +34,7 @@ file:
                   select_clause:
                     keyword: SELECT
                     select_clause_element:
-                      literal: '1'
+                      numeric_literal: '1'
                   from_clause:
                     keyword: FROM
                     from_expression:
@@ -43,28 +43,33 @@ file:
                           function:
                             function_name:
                               function_name_identifier: UNNEST
-                            bracketed:
-                              start_bracket: (
-                              expression:
-                                function:
-                                  function_name:
-                                    function_name_identifier: REGEXP_EXTRACT_ALL
-                                  bracketed:
-                                  - start_bracket: (
-                                  - expression:
-                                      column_reference:
-                                        identifier: url
-                                  - comma: ','
-                                  - expression:
-                                      literal: r"%[0-9a-fA-F]{2}|[^%]+"
-                                  - end_bracket: )
-                              end_bracket: )
+                            function_contents:
+                              bracketed:
+                                start_bracket: (
+                                expression:
+                                  function:
+                                    function_name:
+                                      function_name_identifier: REGEXP_EXTRACT_ALL
+                                    function_contents:
+                                      bracketed:
+                                      - start_bracket: (
+                                      - expression:
+                                          column_reference:
+                                            naked_identifier: url
+                                      - comma: ','
+                                      - expression:
+                                          quoted_literal: r"%[0-9a-fA-F]{2}|[^%]+"
+                                      - end_bracket: )
+                                end_bracket: )
                       - alias_expression:
-                          keyword: AS
-                          identifier: y
+                          alias_operator:
+                            keyword: AS
+                          naked_identifier: y
                       - keyword: WITH
                       - keyword: OFFSET
-                      - keyword: AS
-                      - identifier: i
+                      - alias_expression:
+                          alias_operator:
+                            keyword: AS
+                          naked_identifier: i
               end_bracket: )
           end_bracket: )

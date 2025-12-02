@@ -1,0 +1,177 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: a37f693c347dfe13b88ba1f444497a58bebd55e30bcc0d92604bb749d2adc2e4
+file:
+  batch:
+  - statement:
+      create_login_statement:
+      - keyword: CREATE
+      - keyword: LOGIN
+      - object_reference:
+          quoted_identifier: '[MyUserName]'
+      - keyword: WITH
+      - keyword: PASSWORD
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'<enterStrongPasswordHere>'"
+  - statement_terminator: ;
+  - statement:
+      create_login_statement:
+      - keyword: CREATE
+      - keyword: LOGIN
+      - object_reference:
+          quoted_identifier: '[MyUserName]'
+      - keyword: WITH
+      - keyword: PASSWORD
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'<enterStrongPasswordHere>'"
+      - keyword: MUST_CHANGE
+  - statement_terminator: ;
+  - statement:
+      create_login_statement:
+      - keyword: CREATE
+      - keyword: LOGIN
+      - object_reference:
+          quoted_identifier: '[MyUserName]'
+      - keyword: WITH
+      - keyword: PASSWORD
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'<enterStrongPasswordHere>'"
+      - comma: ','
+      - keyword: CHECK_EXPIRATION
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - keyword: 'ON'
+  - statement_terminator: ;
+  - statement:
+      create_login_statement:
+      - keyword: CREATE
+      - keyword: LOGIN
+      - object_reference:
+          quoted_identifier: '[MyUserName]'
+      - keyword: WITH
+      - keyword: PASSWORD
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'<enterStrongPasswordHere>'"
+      - keyword: MUST_CHANGE
+      - comma: ','
+      - keyword: CHECK_EXPIRATION
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - keyword: 'ON'
+  - statement_terminator: ;
+  - statement:
+      create_login_statement:
+      - keyword: CREATE
+      - keyword: LOGIN
+      - object_reference:
+          quoted_identifier: '[MyUserName]'
+      - keyword: WITH
+      - keyword: PASSWORD
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'<enterStrongPasswordHere>'"
+      - comma: ','
+      - keyword: DEFAULT_DATABASE
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'TestDb'"
+  - statement_terminator: ;
+  - statement:
+      create_login_statement:
+      - keyword: CREATE
+      - keyword: LOGIN
+      - object_reference:
+          quoted_identifier: '[MyUserName]'
+      - keyword: WITH
+      - keyword: PASSWORD
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'<enterStrongPasswordHere>'"
+      - comma: ','
+      - keyword: SID
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - numeric_literal: '0x241C11948AEEB749B0D22646DB1A19F2'
+  - statement_terminator: ;
+  - statement:
+      create_login_statement:
+      - keyword: CREATE
+      - keyword: LOGIN
+      - object_reference:
+          quoted_identifier: '[MyUserName]'
+      - keyword: WITH
+      - keyword: PASSWORD
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'<enterStrongPasswordHere>'"
+      - keyword: FROM
+      - keyword: WINDOWS
+  - statement_terminator: ;
+  - statement:
+      create_login_statement:
+      - keyword: CREATE
+      - keyword: LOGIN
+      - object_reference:
+          quoted_identifier: '[MyUserName]'
+      - keyword: WITH
+      - keyword: PASSWORD
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'<enterStrongPasswordHere>'"
+      - comma: ','
+      - keyword: CHECK_EXPIRATION
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - keyword: 'ON'
+      - comma: ','
+      - keyword: CHECK_POLICY
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - keyword: 'ON'
+      - comma: ','
+      - keyword: CREDENTIAL
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - object_reference:
+          quoted_identifier: '[MyCredential]'
+  - statement_terminator: ;
+  - statement:
+      create_login_statement:
+      - keyword: CREATE
+      - keyword: LOGIN
+      - object_reference:
+          quoted_identifier: '[myapp]'
+      - keyword: FROM
+      - keyword: EXTERNAL
+      - keyword: PROVIDER
+  - statement_terminator: ;
+  - statement:
+      create_login_statement:
+      - keyword: CREATE
+      - keyword: LOGIN
+      - object_reference:
+          quoted_identifier: '[myapp]'
+      - keyword: FROM
+      - keyword: CERTIFICATE
+      - object_reference:
+          quoted_identifier: '[MyCert]'
+  - statement_terminator: ;
+  - statement:
+      create_login_statement:
+      - keyword: CREATE
+      - keyword: LOGIN
+      - object_reference:
+          quoted_identifier: '[myapp]'
+      - keyword: FROM
+      - keyword: ASYMMETRIC
+      - keyword: KEY
+      - object_reference:
+          quoted_identifier: '[MyAsymKey]'
+  - statement_terminator: ;

@@ -2,102 +2,332 @@
 ## GitHub Actions CI Tests ##
 #############################
 #
-# Based on our old CircleCI config
-#
 # This can be kicked off manually in the Actions tab of GitHub
 # It will also run nightly at 2pm
 # It will run on any pull request, except non-code changes
 # (images, markdown files, )
 #
-name: CI Tests
+name: CI
+
 on:
   workflow_dispatch:
   schedule:
     # 2am each night
     - cron: '00 2 * * *'
+  # Don't use pull_request_target here. See:
+  # https://securitylab.github.com/research/github-actions-preventing-pwn-requests/
   pull_request:
   push:
     branches:
       - main
+  merge_group:
+    # Merge Queue checks requested. This feature is still in beta
+    # from Github and so may need updating later.
+    # https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#merge_group
+    types: [checks_requested]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
+
   linting:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        jobs: [ 'linting', 'doclinting', 'docbuild' ]
-    name: ${{ matrix.jobs }} tests
+        job:
+          [
+            "linting",
+            "doclinting",
+            "docbuild",
+            "yamllint",
+            "mypy",
+            "mypyc",
+            "doctests",
+            "check-rs",
+          ]
+        include:
+          # Default to most recent python version
+          - python-version: "3.13"
+          # As at 2024-10-10, docbuild fails on 3.13, so fall back to 3.12
+          - job: docbuild
+            python-version: "3.12"
+    name: ${{ matrix.job }} tests
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
     - name: Set up Python
-      uses: actions/setup-python@v2
-      with:
-        python-version: '3.10'
-    - name: Install dependencies
-      run: |
-        pip install tox
-    - name: Run the tests
-      run: |
-        tox -e ${{ matrix.jobs }}
-  python-version-tests:
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        python-version: [ '3.6', '3.7', '3.8', '3.9', '3.10' ]
-    name: Python ${{ matrix.python-version }} tests
-    steps:
-    - uses: actions/checkout@v2
-    - name: Set up Python
-      uses: actions/setup-python@v2
+      uses: actions/setup-python@v5
       with:
         python-version: ${{ matrix.python-version }}
     - name: Install dependencies
-      run: |
-        pip install tox
-    - name: Set Tox Python Param
-      run: |
-        echo 'TOXENV<<EOF' >> $GITHUB_ENV
-        echo "${{ matrix.python-version }}" | sed "s/\.//" | sed "s/^/py/" >> $GITHUB_ENV
-        echo 'EOF' >> $GITHUB_ENV
+      run: pip install tox
     - name: Run the tests
-      run: |
-        tox -e ${{ env.TOXENV }} -- -n 2 test
-    - name: Upload Coverage Report
-      uses: codecov/codecov-action@v1
-      with:
-        files: ./coverage.xml
-  other-tests:
-    runs-on: ubuntu-latest
+      run: tox -e ${{ matrix.job }}
+
+  rs-build-linux:
+    runs-on: ${{ matrix.platform.runner }}
     strategy:
       matrix:
-        jobs: [ 'bench', 'mypy' ]
-    name: ${{ matrix.jobs }} tests
+        platform:
+          - runner: ubuntu-latest
+            target: x86_64
+          - runner: ubuntu-latest
+            target: x86
+          - runner: ubuntu-latest
+            target: aarch64
+          - runner: ubuntu-latest
+            target: armv7
+          - runner: ubuntu-latest
+            target: s390x
+          - runner: ubuntu-latest
+            target: ppc64le
     steps:
-    - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: 3.x
+      - name: Build wheels
+        uses: PyO3/maturin-action@v1
+        with:
+          target: ${{ matrix.platform.target }}
+          args: --release --out dist --find-interpreter --manifest-path sqlfluffrs/Cargo.toml
+          sccache: ${{ !startsWith(github.ref, 'refs/tags/') }}
+          manylinux: auto
+      - name: Upload wheels
+        uses: actions/upload-artifact@v4
+        with:
+          name: wheels-linux-${{ matrix.platform.target }}
+          path: dist
+
+  rs-build-musllinux:
+    runs-on: ${{ matrix.platform.runner }}
+    strategy:
+      matrix:
+        platform:
+          - runner: ubuntu-latest
+            target: x86_64
+          - runner: ubuntu-latest
+            target: x86
+          - runner: ubuntu-latest
+            target: aarch64
+          - runner: ubuntu-latest
+            target: armv7
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: 3.x
+      - name: Build wheels
+        uses: PyO3/maturin-action@v1
+        with:
+          target: ${{ matrix.platform.target }}
+          args: --release --out dist --find-interpreter --manifest-path sqlfluffrs/Cargo.toml
+          sccache: ${{ !startsWith(github.ref, 'refs/tags/') }}
+          manylinux: musllinux_1_2
+      - name: Upload wheels
+        uses: actions/upload-artifact@v4
+        with:
+          name: wheels-musllinux-${{ matrix.platform.target }}
+          path: dist
+
+  rs-build-windows:
+    runs-on: ${{ matrix.platform.runner }}
+    strategy:
+      matrix:
+        platform:
+          - runner: windows-latest
+            target: x64
+          - runner: windows-latest
+            target: x86
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: 3.x
+          architecture: ${{ matrix.platform.target }}
+      - name: Build wheels
+        uses: PyO3/maturin-action@v1
+        with:
+          target: ${{ matrix.platform.target }}
+          args: --release --out dist --find-interpreter --manifest-path sqlfluffrs/Cargo.toml
+          sccache: ${{ !startsWith(github.ref, 'refs/tags/') }}
+      - name: Upload wheels
+        uses: actions/upload-artifact@v4
+        with:
+          name: wheels-windows-${{ matrix.platform.target }}
+          path: dist
+
+  rs-build-macos:
+    runs-on: ${{ matrix.platform.runner }}
+    strategy:
+      matrix:
+        platform:
+          - runner: macos-15-intel
+            target: x86_64
+          - runner: macos-15
+            target: aarch64
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: 3.x
+      - name: Build wheels
+        uses: PyO3/maturin-action@v1
+        with:
+          target: ${{ matrix.platform.target }}
+          args: --release --out dist --find-interpreter --manifest-path sqlfluffrs/Cargo.toml
+          sccache: ${{ !startsWith(github.ref, 'refs/tags/') }}
+      - name: Upload wheels
+        uses: actions/upload-artifact@v4
+        with:
+          name: wheels-macos-${{ matrix.platform.target }}
+          path: dist
+
+  rs-build-sdist:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build sdist
+        uses: PyO3/maturin-action@v1
+        with:
+          command: sdist
+          args: --out dist --manifest-path sqlfluffrs/Cargo.toml
+      - name: Upload sdist
+        uses: actions/upload-artifact@v4
+        with:
+          name: wheels-sdist
+          path: dist
+
+  # Test with coverage tracking on most recent python (py313).
+  python-version-tests:
+    name: Python Tests
+    needs: rs-build-linux
+    strategy:
+      matrix:
+        python-version: [ "3.9", "3.10", "3.11", "3.12", "3.13" ]
+        include:
+          # Default to test without coverage tracking on older python versions.
+          # This saves time, as testing without coverage tracking is faster.
+          - coverage: false
+          # Override coverage to be true for most recent python version.
+          - python-version: "3.13"
+            coverage: true
+        with-rust: [ "-rust", "" ]
+    permissions:
+      contents: read
+      pull-requests: write
+    uses: ./.github/workflows/ci-test-python.yml
+    with:
+      python-version: ${{ matrix.python-version }}
+      coverage: ${{ matrix.coverage }}
+      with-rust: ${{ matrix.with-rust }}
+    secrets:
+      gh_token: ${{ secrets.github_token }}
+
+  dbt-tests:
+    name: dbt Plugin Tests
+    strategy:
+      fail-fast: false
+      matrix:
+        dbt-version:
+          - dbt170
+          - dbt180
+          - dbt190
+          - dbt1100
+        include:
+          # Default to python 3.12 for dbt tests.
+          # * Python 3.13 not supported yet.
+          # * Looks like it's due to psycopg2 support as of 2024-10-10
+          - python-version: "3.12"
+    permissions:
+      contents: read
+      pull-requests: write
+    uses: ./.github/workflows/ci-test-dbt.yml
+    with:
+      python-version: ${{ matrix.python-version }}
+      dbt-version: ${{ matrix.dbt-version }}
+      coverage: true
+    secrets:
+      gh_token: ${{ secrets.github_token }}
+
+  dialect-tests:
+    name: Dialect ${{ matrix.marks }}${{ matrix.with-rust }}
+    needs: rs-build-linux
+    strategy:
+      matrix:
+        marks: [ "parse_suite", "fix_suite", "rules_suite" ]
+        with-rust: [ "-rust", "" ]
+        include:
+          # This runs the bulk of the dialect _parsing_ tests.
+          #
+          # It's run as a separate job as takes longer than the CI jobs and allows
+          # them to be rerun separately if GitHub Actions or Coverage is experiencing
+          # issues.
+          - marks: "parse_suite"
+            # We test coverage here for some parsing routines.
+            coverage: true
+          # This lints all our dialect fixtures to check rules can handle a variety
+          # of SQL and don't error out badly.
+          #
+          # It's run as a separate job as takes longer than the CI jobs and allows
+          # them to be rerun separately if GitHub Actions or Coverage is experiencing
+          # issues.
+          - marks: "fix_suite"
+            coverage: false
+          # This lints all our rules fixtures to check rules.
+          #
+          # It's run as a separate job as takes longer than the CI jobs and allows
+          # them to be rerun separately if GitHub Actions or Coverage is experiencing
+          # issues.
+          - marks: "rules_suite"
+            coverage: true
+    permissions:
+      contents: read
+      pull-requests: write
+    uses: ./.github/workflows/ci-test-python.yml
+    with:
+      python-version: "3.13"
+      marks: ${{ matrix.marks }}
+      coverage: ${{ matrix.coverage }}
+      with-rust: ${{ matrix.with-rust }}
+    secrets:
+      gh_token: ${{ secrets.github_token }}
+
+  ymlchecks:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
     - name: Set up Python
-      uses: actions/setup-python@v2
+      uses: actions/setup-python@v5
       with:
-        python-version: '3.10'
+        python-version: '3.13'
     - name: Install dependencies
       run: |
-        pip install tox
-    - name: Set Tox Params
+        pip install -r requirements_dev.txt
+        pip install -e .
+    - name: Generate the YAML files
       run: |
-        echo "TOXENV=${{ matrix.jobs }}" >> $GITHUB_ENV
-    - name: Run the tests
-      env:
-        SQLFLUFF_BENCHMARK_API_KEY: ${{ secrets.SQLFLUFF_BENCHMARK_API_KEY }}
+        python test/generate_parse_fixture_yml.py
+    - name: Test the generated YAML files
       run: |
-        tox -e ${{ env.TOXENV }}
+        if [ -n "$(git status --porcelain)" ]; then
+          git diff
+          echo "Generated YAML files do not match branch."
+          echo "Please run the following command to generate these:"
+          echo "  python test/generate_parse_fixture_yml.py"
+          exit 1
+        fi
+
   examples:
     runs-on: ubuntu-latest
     name: example tests
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
     - name: Set up Python
-      uses: actions/setup-python@v2
+      uses: actions/setup-python@v5
       with:
-        python-version: '3.10'
+        python-version: '3.13'
     - name: Install dependencies
       run: |
         pip install -e .
@@ -109,49 +339,27 @@ jobs:
           echo "Running $file"
           python "$file"
         done
-  dbt-tests:
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        dbt-version: [ 'dbt018', 'dbt019', 'dbt020', 'dbt021' ]
-    name: DBT Plugin ${{ matrix.dbt-version }} tests
-    steps:
-    - uses: actions/checkout@v2
-    - name: Set up Python
-      uses: actions/setup-python@v2
-      with:
-        python-version: '3.8'
-    - name: Install dependencies
-      run: |
-        pip install tox
-    - name: Run the tests
-      run: |
-        tox -e ${{ matrix.dbt-version }} -- plugins/sqlfluff-templater-dbt
-    - name: Upload Coverage Report
-      uses: codecov/codecov-action@v1
-      with:
-        files: ./coverage.xml
+
   python-windows-tests:
     runs-on: windows-latest
-    name: Python 3.8 Windows tests
+    name: Python 3.13 Windows tests
     steps:
     - name: Set git to use LF
       run: |
         git config --global core.autocrlf false
         git config --global core.eol lf
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
     - name: Set up Python
-      uses: actions/setup-python@v2
+      uses: actions/setup-python@v5
       with:
-        python-version: '3.8'
+        python-version: "3.13"
     - name: List Env
       shell: bash
       run: |
         env | sort
     - name: Install dependencies
       shell: bash
-      run: |
-        pip install tox
+      run: pip install tox
     - name: Run the tests
       shell: bash
       # Set python temp dir in working dir as on GitHub Actions Windows
@@ -159,38 +367,47 @@ jobs:
       # working dir on D drive which causes problems.
       run: |
         mkdir temp_pytest
-        python -m tox -e winpy -- -n 2 test
-    - name: Upload Coverage Report
-      uses: codecov/codecov-action@v1
+        python -m tox -e winpy -- --cov=sqlfluff -n 2 test -m "not integration"
+    - name: Upload coverage data (github)
+      uses: actions/upload-artifact@v4
       with:
-        files: ./coverage.xml
+        name: coverage-data-winpy3.13
+        path: ".coverage.*"
+        if-no-files-found: ignore
+        include-hidden-files: true
+
   python-windows-dbt-tests:
     runs-on: windows-latest
-    name: DBT Plugin Python 3.8 Windows tests
+    name: dbt Plugin Python 3.12 Windows tests
     steps:
+    - name: Start PostgreSQL on Windows
+      run: |
+        $pgService = Get-Service -Name postgresql*
+        Set-Service -InputObject $pgService -Status running -StartupType automatic
+        Start-Process -FilePath "$env:PGBIN\pg_isready" -Wait -PassThru
+    - name: Set postgres user password
+      run: |
+        & $env:PGBIN\psql --command="ALTER USER postgres PASSWORD 'password';" --command="\du"
     - name: Set git to use LF
       run: |
         git config --global core.autocrlf false
         git config --global core.eol lf
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
     - name: Set up Python
-      uses: actions/setup-python@v2
+      uses: actions/setup-python@v5
       with:
-        python-version: '3.8'
+        # NOTE: As of 2024-10-10, dbt does not yet support python 3.13.
+        python-version: "3.12"
     - name: Install dependencies
       shell: bash
-      run: |
-        pip install tox
+      run: pip install tox
     - name: Run the tests
       shell: bash
       # Do not set explicitly temp dir for dbt as causes problems
       # None of these test need temp dir set
       run: |
-        python -m tox -e dbt018-winpy -- plugins/sqlfluff-templater-dbt
-    - name: Upload Coverage Report
-      uses: codecov/codecov-action@v1
-      with:
-        files: ./coverage.xml
+        python -m tox -e dbt180-winpy -- plugins/sqlfluff-templater-dbt
+
   pip-test-pull-request:
     # Test that using pip install works as we've missed
     # some dependencies in the past - see #1842
@@ -199,24 +416,81 @@ jobs:
     name: pip install tests
     steps:
     - name: Set up Python
-      uses: actions/setup-python@v2
+      uses: actions/setup-python@v5
       with:
-        python-version: '3.10'
+        python-version: "3.13"
+    - uses: actions/checkout@v4
     - name: Install dependencies
       run: |
-        pip install git+https://github.com/${{ github.event.pull_request.head.repo.full_name }}@${{ github.head_ref }}
+        pip install .
     - name: Run the version test
       run: |
         sqlfluff --version
     - name: Run a simple select parse test via stdin
       run: |
-        echo "select 1" | sqlfluff parse -
+        echo "select 1" | sqlfluff parse --dialect=ansi -
     - name: Run a simple select lint test via stdin
       run: |
-        echo "select 1" | sqlfluff lint -
+        echo "select 1" | sqlfluff lint --dialect=ansi -
     - name: Run a simple select parse test via file
       run: |
-        sqlfluff parse <(echo "select 1")
+        sqlfluff parse --dialect=ansi <(echo "select 1")
     - name: Run a simple select lint test via file
       run: |
-        sqlfluff lint <(echo "select 1")
+        sqlfluff lint --dialect=ansi <(echo "select 1")
+
+  coverage_check:
+    name: Combine & check 100% coverage.
+    runs-on: ubuntu-latest
+    needs: [python-version-tests, dbt-tests, python-windows-tests, dialect-tests]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - run: python -m pip install --upgrade coverage[toml]
+
+      - name: Download coverage data.
+        uses: actions/download-artifact@v4
+        with:
+          pattern: coverage-data-*
+          merge-multiple: true
+
+      - name: Combine coverage & fail if it's <100%.
+        id: report_coverage
+        # NOTE: Setting the pipefail option here means that even when
+        # piping the output to `tee`, we still get the exit code of the
+        # `coverage report` command.
+        run: |
+          set -o pipefail
+          python -m coverage combine
+          python -m coverage html --skip-covered --skip-empty
+          python -m coverage report --fail-under=100 --skip-covered --skip-empty -m | tee coverage-report.txt
+
+      - name: Upload HTML report if check failed.
+        uses: actions/upload-artifact@v4
+        with:
+          name: html-report
+          path: htmlcov
+        if: failure() && github.event_name == 'pull_request'
+
+      - name: Stash PR Number.
+        if: always() && github.event_name == 'pull_request'
+        # NOTE: We do this so we know what PR to comment on when we pick up the report.
+        run: |
+          echo ${{ github.event.number }} > ./pr-number.txt
+          echo ${{ steps.report_coverage.outcome }} > ./outcome.txt
+
+      - name: Upload TXT report always (to add as comment to PR).
+        # NOTE: We don't actually comment on the PR from here, we'll do that in
+        # a more secure way by triggering a more secure workflow.
+        # https://securitylab.github.com/research/github-actions-preventing-pwn-requests/
+        uses: actions/upload-artifact@v4
+        with:
+          name: txt-report
+          path: |
+            coverage-report.txt
+            pr-number.txt
+            outcome.txt
+        if: always() && github.event_name == 'pull_request'

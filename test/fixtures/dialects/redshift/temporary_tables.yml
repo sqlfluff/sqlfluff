@@ -1,0 +1,71 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 3c60e384187593cd92b01bd368764c70dad60b74bd061dbc4f6c3d4b586509c3
+file:
+- statement:
+    create_table_as_statement:
+    - keyword: CREATE
+    - keyword: TEMPORARY
+    - keyword: TABLE
+    - object_reference:
+        naked_identifier: '#temp_table'
+    - keyword: AS
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            column_reference:
+              naked_identifier: name
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: other_table
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: '#other_temp_table'
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          naked_identifier: id
+        data_type:
+          keyword: int
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    copy_statement:
+    - keyword: COPY
+    - table_reference:
+        naked_identifier: '#temp_table'
+    - keyword: FROM
+    - quoted_literal: "'s3://mybucket/path'"
+    - authorization_segment:
+        keyword: CREDENTIALS
+        quoted_literal: "'aws_access_key_id=SECRET;aws_secret_access_key=ALSO_SECRET'"
+    - keyword: GZIP
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: '#temp_table'
+- statement_terminator: ;

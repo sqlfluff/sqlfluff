@@ -1,0 +1,94 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 454f298dd31e8681e994d0a8f8da924757e59347a6468218e1b173feb5fdcd36
+file:
+- statement:
+    create_sink_kafka_statement:
+    - keyword: CREATE
+    - keyword: SINK
+    - object_reference:
+        naked_identifier: quotes_sink
+    - keyword: FROM
+    - object_reference:
+        naked_identifier: quotes
+    - keyword: INTO
+    - word: KAFKA
+    - word: CONNECTION
+    - word: kafka_connection
+    - bracketed:
+        start_bracket: (
+        word: TOPIC
+        single_quote: "'quotes-sink'"
+        end_bracket: )
+    - word: FORMAT
+    - word: JSON
+    - word: ENVELOPE
+    - word: DEBEZIUM
+    - word: WITH
+    - bracketed:
+        start_bracket: (
+        word: SIZE
+        equals: '='
+        single_quote: "'3xsmall'"
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_sink_kafka_statement:
+    - keyword: CREATE
+    - keyword: SINK
+    - object_reference:
+        naked_identifier: frank_quotes_sink
+    - keyword: FROM
+    - object_reference:
+        naked_identifier: frank_quotes
+    - keyword: INTO
+    - word: KAFKA
+    - word: CONNECTION
+    - word: kafka_connection
+    - bracketed:
+        start_bracket: (
+        word: TOPIC
+        single_quote: "'frank-quotes-sink'"
+        end_bracket: )
+    - word: FORMAT
+    - word: JSON
+    - word: ENVELOPE
+    - word: DEBEZIUM
+    - word: WITH
+    - bracketed:
+        start_bracket: (
+        word: SIZE
+        equals: '='
+        single_quote: "'3xsmall'"
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_sink_kafka_statement:
+    - keyword: CREATE
+    - keyword: SINK
+    - object_reference:
+        naked_identifier: frank_quotes_cluster
+    - keyword: IN
+    - keyword: CLUSTER
+    - object_reference:
+        naked_identifier: my_cluster
+    - keyword: FROM
+    - object_reference:
+        naked_identifier: frank_quotes
+    - keyword: INTO
+    - word: KAFKA
+    - word: CONNECTION
+    - word: kafka_connection
+    - bracketed:
+        start_bracket: (
+        word: TOPIC
+        single_quote: "'frank-quotes-sink'"
+        end_bracket: )
+    - word: FORMAT
+    - word: JSON
+    - word: ENVELOPE
+    - word: DEBEZIUM
+- statement_terminator: ;

@@ -1,0 +1,35 @@
+DROP INDEX abc;
+
+DROP INDEX "abc";
+
+DROP INDEX IF EXISTS abc;
+
+DROP INDEX abc, "def", ghi;
+
+DROP INDEX IF EXISTS abc, def, ghi;
+
+-- Test CASCADE trailing keyword
+
+DROP INDEX abc CASCADE;
+
+DROP INDEX abc, def, ghi CASCADE;
+
+DROP INDEX IF EXISTS abc, def, ghi CASCADE;
+
+-- Test RESTRICT trailing keyword
+
+DROP INDEX abc RESTRICT;
+
+DROP INDEX abc, def, ghi RESTRICT;
+
+-- Test CONCURRENTLY
+
+DROP INDEX CONCURRENTLY abc;
+
+DROP INDEX CONCURRENTLY IF EXISTS abc;
+
+DROP INDEX CONCURRENTLY abc, def;
+
+DROP INDEX CONCURRENTLY IF EXISTS abc, def;
+
+DROP INDEX CONCURRENTLY abc, def CASCADE;

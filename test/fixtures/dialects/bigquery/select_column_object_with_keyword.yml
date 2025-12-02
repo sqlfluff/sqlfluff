@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: e9b7b38575826b8cc463734bcc7647038a51e5b8342f3c2dd6624b233bae30d8
+_hash: 8320edbbddda2850279525aa5140e648fbcd0e3d164bcadb11a5194ebfee66f8
 file:
   statement:
     select_statement:
@@ -11,33 +11,33 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-          - identifier: table1
+          - naked_identifier: table1
           - dot: .
-          - identifier: current
+          - naked_identifier_all: current
           - dot: .
-          - identifier: column
+          - naked_identifier: column
       - comma: ','
       - select_clause_element:
           column_reference:
-          - identifier: table1
+          - naked_identifier: table1
           - dot: .
-          - identifier: object
+          - naked_identifier: object
           - dot: .
-          - identifier: current
+          - naked_identifier_all: current
           - dot: .
-          - identifier: column
+          - naked_identifier: column
       - comma: ','
       - select_clause_element:
           column_reference:
-          - identifier: table1
+          - naked_identifier: table1
           - dot: .
-          - identifier: object
+          - naked_identifier: object
           - dot: .
-          - identifier: nested
+          - naked_identifier: nested
           - dot: .
-          - identifier: current
+          - naked_identifier_all: current
           - dot: .
-          - identifier: column
+          - naked_identifier: column
       - comma: ','
       from_clause:
         keyword: FROM
@@ -45,4 +45,4 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: table1
+                naked_identifier: table1

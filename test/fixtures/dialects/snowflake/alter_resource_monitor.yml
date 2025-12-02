@@ -1,0 +1,83 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: f22a97807aed43287718615f1553e6c3190fe12a2182f1c12756d7e9b47ca5eb
+file:
+- statement:
+    alter_resource_monitor_statement:
+    - keyword: alter
+    - keyword: resource
+    - keyword: monitor
+    - object_reference:
+        naked_identifier: limiter
+    - keyword: set
+    - resource_monitor_options:
+      - keyword: credit_quota
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - integer_literal: '2000'
+      - keyword: notify_users
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - bracketed:
+        - start_bracket: (
+        - object_reference:
+            naked_identifier: jdoe
+        - comma: ','
+        - object_reference:
+            quoted_identifier: '"jane smith"'
+        - comma: ','
+        - object_reference:
+            quoted_identifier: '"john doe"'
+        - end_bracket: )
+      - keyword: FREQUENCY
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - keyword: DAILY
+      - keyword: start_timestamp
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - keyword: immediately
+      - keyword: end_timestamp
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'2038-01-19 03:14:07'"
+      - keyword: triggers
+      - keyword: 'on'
+      - integer_literal: '80'
+      - keyword: percent
+      - keyword: do
+      - keyword: notify
+      - keyword: 'on'
+      - integer_literal: '100'
+      - keyword: percent
+      - keyword: do
+      - keyword: suspend_immediate
+- statement_terminator: ;
+- statement:
+    alter_resource_monitor_statement:
+    - keyword: ALTER
+    - keyword: RESOURCE
+    - keyword: MONITOR
+    - object_reference:
+        naked_identifier: limiter
+    - keyword: SET
+    - resource_monitor_options:
+      - keyword: CREDIT_QUOTA
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - integer_literal: '2000'
+      - keyword: TRIGGERS
+      - keyword: 'ON'
+      - integer_literal: '80'
+      - keyword: PERCENT
+      - keyword: DO
+      - keyword: NOTIFY
+      - keyword: 'ON'
+      - integer_literal: '100'
+      - keyword: PERCENT
+      - keyword: DO
+      - keyword: SUSPEND_IMMEDIATE
+- statement_terminator: ;

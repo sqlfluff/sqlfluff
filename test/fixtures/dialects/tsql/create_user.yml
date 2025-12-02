@@ -1,0 +1,174 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: dec9cf9f72ec3b863a3155b45a150641d1f0dd342a7aece9c66dd6824d3d9c6b
+file:
+  batch:
+  - statement:
+      create_user_statement:
+      - keyword: CREATE
+      - keyword: USER
+      - role_reference:
+          naked_identifier: user_name
+      - keyword: FOR
+      - keyword: LOGIN
+      - object_reference:
+          naked_identifier: login_name
+  - statement_terminator: ;
+  - statement:
+      create_user_statement:
+      - keyword: CREATE
+      - keyword: USER
+      - role_reference:
+          naked_identifier: user_name
+      - keyword: FROM
+      - keyword: LOGIN
+      - object_reference:
+          naked_identifier: login_name
+  - statement_terminator: ;
+  - statement:
+      create_user_statement:
+      - keyword: CREATE
+      - keyword: USER
+      - role_reference:
+          quoted_identifier: '[TestUser]'
+  - statement_terminator: ;
+  - statement:
+      create_user_statement:
+      - keyword: CREATE
+      - keyword: USER
+      - role_reference:
+          naked_identifier: Barry
+      - keyword: WITH
+      - keyword: PASSWORD
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'sdjklalie8rew8337!$d'"
+  - statement_terminator: ;
+  - statement:
+      create_user_statement:
+      - keyword: CREATE
+      - keyword: USER
+      - role_reference:
+          quoted_identifier: '[TestUser]'
+      - keyword: FROM
+      - keyword: EXTERNAL
+      - keyword: PROVIDER
+  - statement_terminator: ;
+  - statement:
+      create_user_statement:
+      - keyword: CREATE
+      - keyword: USER
+      - role_reference:
+          naked_identifier: RIGHTSHOLDER
+      - keyword: WITHOUT
+      - keyword: LOGIN
+  - statement_terminator: ;
+  - statement:
+      create_user_statement:
+      - keyword: CREATE
+      - keyword: USER
+      - role_reference:
+          naked_identifier: RIGHTSHOLDER
+      - keyword: WITHOUT
+      - keyword: LOGIN
+      - keyword: WITH
+      - keyword: DEFAULT_SCHEMA
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - object_reference:
+          naked_identifier: Other
+  - statement_terminator: ;
+  - statement:
+      create_user_statement:
+      - keyword: CREATE
+      - keyword: USER
+      - role_reference:
+          quoted_identifier: '[Barry]'
+      - keyword: WITH
+      - keyword: ALLOW_ENCRYPTED_VALUE_MODIFICATIONS
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - keyword: 'ON'
+  - statement_terminator: ;
+  - statement:
+      create_user_statement:
+      - keyword: CREATE
+      - keyword: USER
+      - role_reference:
+          naked_identifier: Wanida
+      - keyword: FOR
+      - keyword: LOGIN
+      - object_reference:
+          naked_identifier: WanidaBenshoof
+      - keyword: WITH
+      - keyword: DEFAULT_SCHEMA
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - object_reference:
+          naked_identifier: Marketing
+  - statement_terminator: ;
+  - statement:
+      create_user_statement:
+      - keyword: CREATE
+      - keyword: USER
+      - role_reference:
+          naked_identifier: Wanida
+      - keyword: FOR
+      - keyword: LOGIN
+      - object_reference:
+          naked_identifier: WanidaSmith
+      - keyword: WITH
+      - keyword: DEFAULT_SCHEMA
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - object_reference:
+          naked_identifier: Tech
+      - comma: ','
+      - keyword: ALLOW_ENCRYPTED_VALUE_MODIFICATIONS
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - keyword: 'ON'
+  - statement_terminator: ;
+  - statement:
+      create_user_statement:
+      - keyword: CREATE
+      - keyword: USER
+      - role_reference:
+          naked_identifier: JinghaoLiu
+      - keyword: FOR
+      - keyword: CERTIFICATE
+      - object_reference:
+          naked_identifier: CarnationProduction50
+  - statement_terminator: ;
+  - statement:
+      create_user_statement:
+      - keyword: CREATE
+      - keyword: USER
+      - role_reference:
+          naked_identifier: JinghaoLiu
+      - keyword: FOR
+      - keyword: ASYMMETRIC
+      - keyword: KEY
+      - object_reference:
+          naked_identifier: CarnationProduction
+  - statement_terminator: ;
+  - statement:
+      create_user_statement:
+      - keyword: CREATE
+      - keyword: USER
+      - role_reference:
+          naked_identifier: Barry
+      - keyword: WITH
+      - keyword: PASSWORD
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'sdjklalie8rew8337!$d'"
+      - comma: ','
+      - keyword: SID
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - numeric_literal: '0x241C11948AEEB749B0D22646DB1A19F2'
+  - statement_terminator: ;

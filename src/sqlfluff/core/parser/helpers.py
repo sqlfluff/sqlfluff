@@ -1,45 +1,40 @@
 """Helpers for the parser module."""
 
-from typing import Tuple, List, Any, Iterator, TYPE_CHECKING
+from typing import TYPE_CHECKING
 
 from sqlfluff.core.errors import SQLParseError
-from sqlfluff.core.string_helpers import curtail_string
 
 if TYPE_CHECKING:
     from sqlfluff.core.parser.segments import BaseSegment  # pragma: no cover
 
 
-def join_segments_raw(segments: Tuple["BaseSegment", ...]) -> str:
+def join_segments_raw(segments: tuple["BaseSegment", ...]) -> str:
     """Make a string from the joined `raw` attributes of an iterable of segments."""
     return "".join(s.raw for s in segments)
 
 
-def join_segments_raw_curtailed(segments: Tuple["BaseSegment", ...], length=20) -> str:
-    """Make a string up to a certain length from an iterable of segments."""
-    return curtail_string(join_segments_raw(segments), length=length)
-
-
 def check_still_complete(
-    segments_in: Tuple["BaseSegment", ...],
-    matched_segments: Tuple["BaseSegment", ...],
-    unmatched_segments: Tuple["BaseSegment", ...],
+    segments_in: tuple["BaseSegment", ...],
+    matched_segments: tuple["BaseSegment", ...],
+    unmatched_segments: tuple["BaseSegment", ...],
 ) -> bool:
     """Check that the segments in are the same as the segments out."""
     initial_str = join_segments_raw(segments_in)
     current_str = join_segments_raw(matched_segments + unmatched_segments)
 
-    if initial_str != current_str:
+    if initial_str != current_str:  # pragma: no cover
+        segment = unmatched_segments[0] if unmatched_segments else None
         raise SQLParseError(
-            f"Could not parse: {current_str}",
-            segment=unmatched_segments[0],
+            f"Parse completeness check fail: {current_str!r} != {initial_str!r}",
+            segment=segment,
         )
     return True
 
 
 def trim_non_code_segments(
-    segments: Tuple["BaseSegment", ...]
-) -> Tuple[
-    Tuple["BaseSegment", ...], Tuple["BaseSegment", ...], Tuple["BaseSegment", ...]
+    segments: tuple["BaseSegment", ...],
+) -> tuple[
+    tuple["BaseSegment", ...], tuple["BaseSegment", ...], tuple["BaseSegment", ...]
 ]:
     """Take segments and split off surrounding non-code segments as appropriate.
 
@@ -61,25 +56,3 @@ def trim_non_code_segments(
             post_idx -= 1
 
     return segments[:pre_idx], segments[pre_idx:post_idx], segments[post_idx:]
-
-
-def iter_indices(seq: List, val: Any) -> Iterator[int]:
-    """Iterate all indices in a list that val occurs at.
-
-    Args:
-        seq (list): A list to look for indices in.
-        val: What to look for.
-
-    Yields:
-        int: The index of val in seq.
-
-    Examples:
-        The function works like str.index() but iterates all
-        the results rather than returning the first.
-
-        >>> print([i for i in iter_indices([1, 0, 2, 3, 2], 2)])
-        [2, 4]
-    """
-    for idx, el in enumerate(seq):
-        if el == val:
-            yield idx

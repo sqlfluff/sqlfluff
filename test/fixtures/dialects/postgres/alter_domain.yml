@@ -1,0 +1,123 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: f581f132a8df0f9dcef9165ba325053bded2a28444e08601750dd13aacfa6674
+file:
+- statement:
+    alter_domain_statement:
+    - keyword: ALTER
+    - keyword: DOMAIN
+    - object_reference:
+        naked_identifier: zipcode
+    - keyword: SET
+    - keyword: NOT
+    - keyword: 'NULL'
+- statement_terminator: ;
+- statement:
+    alter_domain_statement:
+    - keyword: ALTER
+    - keyword: DOMAIN
+    - object_reference:
+        naked_identifier: zipcode
+    - keyword: DROP
+    - keyword: NOT
+    - keyword: 'NULL'
+- statement_terminator: ;
+- statement:
+    alter_domain_statement:
+    - keyword: ALTER
+    - keyword: DOMAIN
+    - object_reference:
+        naked_identifier: zipcode
+    - keyword: ADD
+    - keyword: CONSTRAINT
+    - object_reference:
+        naked_identifier: zipchk
+    - keyword: CHECK
+    - expression:
+        bracketed:
+          start_bracket: (
+          expression:
+            function:
+              function_name:
+                function_name_identifier: char_length
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                      naked_identifier: VALUE
+                  end_bracket: )
+            comparison_operator:
+              raw_comparison_operator: '='
+            numeric_literal: '5'
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_domain_statement:
+    - keyword: ALTER
+    - keyword: DOMAIN
+    - object_reference:
+        naked_identifier: zipcode
+    - keyword: DROP
+    - keyword: CONSTRAINT
+    - object_reference:
+        naked_identifier: zipchk
+- statement_terminator: ;
+- statement:
+    alter_domain_statement:
+    - keyword: ALTER
+    - keyword: DOMAIN
+    - object_reference:
+        naked_identifier: zipcode
+    - keyword: RENAME
+    - keyword: CONSTRAINT
+    - object_reference:
+        naked_identifier: zipchk
+    - keyword: TO
+    - object_reference:
+        naked_identifier: zip_check
+- statement_terminator: ;
+- statement:
+    alter_domain_statement:
+    - keyword: ALTER
+    - keyword: DOMAIN
+    - object_reference:
+        naked_identifier: zipcode
+    - keyword: SET
+    - keyword: SCHEMA
+    - object_reference:
+        naked_identifier: customers
+- statement_terminator: ;
+- statement:
+    alter_domain_statement:
+    - keyword: alter
+    - keyword: domain
+    - object_reference:
+        naked_identifier: oname
+    - keyword: add
+    - keyword: constraint
+    - object_reference:
+        quoted_identifier: '"test"'
+    - keyword: check
+    - expression:
+        bracketed:
+          start_bracket: (
+          expression:
+            function:
+              function_name:
+                function_name_identifier: length
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                      naked_identifier: value
+                  end_bracket: )
+            comparison_operator:
+              raw_comparison_operator: <
+            numeric_literal: '512'
+          end_bracket: )
+- statement_terminator: ;

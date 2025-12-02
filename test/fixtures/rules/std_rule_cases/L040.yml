@@ -1,5 +1,0 @@
-rule: L040
-
-test_fail_inconsistent_boolean_capitalisation:
-  fail_str: SeLeCt true, FALSE, NULL
-  fix_str: SeLeCt true, false, null

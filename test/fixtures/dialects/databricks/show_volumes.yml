@@ -1,0 +1,79 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 1b612a552e97cd9625f34225db37954c2a8300ea7af792bcceaa5e379e280e6b
+file:
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: VOLUMES
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: VOLUMES
+    - keyword: IN
+    - database_reference:
+        naked_identifier: sampledb
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: VOLUMES
+    - keyword: FROM
+    - database_reference:
+        naked_identifier: sampledb
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: VOLUMES
+    - keyword: LIKE
+    - quoted_literal: "'regex*'"
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: VOLUMES
+    - quoted_literal: "'regex*'"
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: VOLUMES
+    - keyword: IN
+    - database_reference:
+        naked_identifier: sampledb
+    - keyword: LIKE
+    - quoted_literal: "'regex*'"
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: VOLUMES
+    - keyword: IN
+    - database_reference:
+        naked_identifier: sampledb
+    - quoted_literal: "'regex*'"
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: VOLUMES
+    - keyword: FROM
+    - database_reference:
+        naked_identifier: sampledb
+    - keyword: LIKE
+    - quoted_literal: "'regex*'"
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: VOLUMES
+    - keyword: FROM
+    - database_reference:
+        naked_identifier: sampledb
+    - quoted_literal: "'regex*'"
+- statement_terminator: ;

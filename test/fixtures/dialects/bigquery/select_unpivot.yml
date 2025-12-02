@@ -3,13 +3,13 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 7e657292b3a7d84936b41ac263313c771c046037bf645a34de6ee4066d8777a6
+_hash: 559e504475c8e449b236a27b31b9616c9f4e2624803ebeffa788c54db79d78b6
 file:
 - statement:
     with_compound_statement:
       keyword: WITH
       common_table_expression:
-        identifier: Produce
+        naked_identifier: Produce
         keyword: AS
         bracketed:
           start_bracket: (
@@ -18,34 +18,39 @@ file:
               select_clause:
               - keyword: SELECT
               - select_clause_element:
-                  literal: "'Kale'"
+                  quoted_literal: "'Kale'"
                   alias_expression:
-                    keyword: as
-                    identifier: product
+                    alias_operator:
+                      keyword: as
+                    naked_identifier: product
               - comma: ','
               - select_clause_element:
-                  literal: '51'
+                  numeric_literal: '51'
                   alias_expression:
-                    keyword: as
-                    identifier: Q1
+                    alias_operator:
+                      keyword: as
+                    naked_identifier: Q1
               - comma: ','
               - select_clause_element:
-                  literal: '23'
+                  numeric_literal: '23'
                   alias_expression:
-                    keyword: as
-                    identifier: Q2
+                    alias_operator:
+                      keyword: as
+                    naked_identifier: Q2
               - comma: ','
               - select_clause_element:
-                  literal: '45'
+                  numeric_literal: '45'
                   alias_expression:
-                    keyword: as
-                    identifier: Q3
+                    alias_operator:
+                      keyword: as
+                    naked_identifier: Q3
               - comma: ','
               - select_clause_element:
-                  literal: '3'
+                  numeric_literal: '3'
                   alias_expression:
-                    keyword: as
-                    identifier: Q4
+                    alias_operator:
+                      keyword: as
+                    naked_identifier: Q4
           - set_operator:
             - keyword: UNION
             - keyword: ALL
@@ -53,19 +58,19 @@ file:
               select_clause:
               - keyword: SELECT
               - select_clause_element:
-                  literal: "'Apple'"
+                  quoted_literal: "'Apple'"
               - comma: ','
               - select_clause_element:
-                  literal: '77'
+                  numeric_literal: '77'
               - comma: ','
               - select_clause_element:
-                  literal: '0'
+                  numeric_literal: '0'
               - comma: ','
               - select_clause_element:
-                  literal: '25'
+                  numeric_literal: '25'
               - comma: ','
               - select_clause_element:
-                  literal: '2'
+                  numeric_literal: '2'
           end_bracket: )
       select_statement:
         select_clause:
@@ -80,7 +85,7 @@ file:
             from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: Produce
+                  naked_identifier: Produce
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -96,24 +101,24 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: Produce
+                naked_identifier: Produce
           from_unpivot_expression:
             keyword: UNPIVOT
             bracketed:
             - start_bracket: (
-            - identifier: sales
+            - naked_identifier: sales
             - keyword: FOR
-            - identifier: quarter
+            - naked_identifier: quarter
             - keyword: IN
             - bracketed:
               - start_bracket: (
-              - identifier: Q1
+              - naked_identifier: Q1
               - comma: ','
-              - identifier: Q2
+              - naked_identifier: Q2
               - comma: ','
-              - identifier: Q3
+              - naked_identifier: Q3
               - comma: ','
-              - identifier: Q4
+              - naked_identifier: Q4
               - end_bracket: )
             - end_bracket: )
 - statement_terminator: ;
@@ -131,41 +136,298 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: Produce
+                naked_identifier: Produce
+          from_unpivot_expression:
+            keyword: UNPIVOT
+            bracketed:
+            - start_bracket: (
+            - naked_identifier: sales
+            - keyword: FOR
+            - naked_identifier: quarter
+            - keyword: IN
+            - bracketed:
+              - start_bracket: (
+              - naked_identifier: Q1
+              - alias_expression:
+                  alias_operator:
+                    keyword: AS
+                  numeric_literal: '1'
+              - comma: ','
+              - naked_identifier: Q2
+              - alias_expression:
+                  alias_operator:
+                    keyword: AS
+                  numeric_literal: '2'
+              - comma: ','
+              - naked_identifier: Q3
+              - alias_expression:
+                  alias_operator:
+                    keyword: AS
+                  numeric_literal: '3'
+              - comma: ','
+              - naked_identifier: Q4
+              - alias_expression:
+                  alias_operator:
+                    keyword: AS
+                  numeric_literal: '4'
+              - end_bracket: )
+            - end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: Produce
+          from_unpivot_expression:
+          - keyword: UNPIVOT
+          - keyword: INCLUDE
+          - keyword: NULLS
+          - bracketed:
+            - start_bracket: (
+            - naked_identifier: sales
+            - keyword: FOR
+            - naked_identifier: quarter
+            - keyword: IN
+            - bracketed:
+              - start_bracket: (
+              - naked_identifier: Q1
+              - comma: ','
+              - naked_identifier: Q2
+              - comma: ','
+              - naked_identifier: Q3
+              - comma: ','
+              - naked_identifier: Q4
+              - end_bracket: )
+            - end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: Produce
+          from_unpivot_expression:
+          - keyword: UNPIVOT
+          - keyword: EXCLUDE
+          - keyword: NULLS
+          - bracketed:
+            - start_bracket: (
+            - naked_identifier: sales
+            - keyword: FOR
+            - naked_identifier: quarter
+            - keyword: IN
+            - bracketed:
+              - start_bracket: (
+              - naked_identifier: Q1
+              - comma: ','
+              - naked_identifier: Q2
+              - comma: ','
+              - naked_identifier: Q3
+              - comma: ','
+              - naked_identifier: Q4
+              - end_bracket: )
+            - end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: Produce
           from_unpivot_expression:
             keyword: UNPIVOT
             bracketed:
             - start_bracket: (
             - bracketed:
               - start_bracket: (
-              - identifier: first_half_sales
+              - naked_identifier: first_half_sales
               - comma: ','
-              - identifier: second_half_sales
+              - naked_identifier: second_half_sales
               - end_bracket: )
             - keyword: FOR
-            - identifier: semesters
+            - naked_identifier: semesters
             - keyword: IN
             - bracketed:
               - start_bracket: (
               - bracketed:
                 - start_bracket: (
-                - identifier: Q1
+                - naked_identifier: Q1
                 - comma: ','
-                - identifier: Q2
+                - naked_identifier: Q2
                 - end_bracket: )
               - alias_expression:
-                  keyword: AS
-                  literal: "'semester_1'"
+                  alias_operator:
+                    keyword: AS
+                  quoted_literal: "'semester_1'"
               - comma: ','
               - bracketed:
                 - start_bracket: (
-                - identifier: Q3
+                - naked_identifier: Q3
                 - comma: ','
-                - identifier: Q4
+                - naked_identifier: Q4
                 - end_bracket: )
               - alias_expression:
-                  keyword: AS
-                  literal: "'semester_2'"
+                  alias_operator:
+                    keyword: AS
+                  quoted_literal: "'semester_2'"
+              - end_bracket: )
+            - end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          column_reference:
+            naked_identifier: a
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            quoted_identifier: "'barry'"
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: model
+          from_unpivot_expression:
+            keyword: UNPIVOT
+            bracketed:
+            - start_bracket: (
+            - bracketed:
+              - start_bracket: (
+              - naked_identifier: A
+              - comma: ','
+              - naked_identifier: B
+              - end_bracket: )
+            - keyword: FOR
+            - naked_identifier: year
+            - keyword: IN
+            - bracketed:
+              - start_bracket: (
+              - bracketed:
+                - start_bracket: (
+                - naked_identifier: C
+                - comma: ','
+                - naked_identifier: D
+                - end_bracket: )
+              - alias_expression:
+                  alias_operator:
+                    keyword: AS
+                  quoted_literal: '"year_2011"'
+              - comma: ','
+              - bracketed:
+                - start_bracket: (
+                - naked_identifier: E
+                - comma: ','
+                - naked_identifier: F
+                - end_bracket: )
+              - alias_expression:
+                  alias_operator:
+                    keyword: AS
+                  quoted_literal: '"year_2012"'
+              - end_bracket: )
+            - end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: foo
+          from_unpivot_expression:
+            keyword: UNPIVOT
+            bracketed:
+            - start_bracket: (
+            - bracketed:
+              - start_bracket: (
+              - naked_identifier: bar2
+              - comma: ','
+              - naked_identifier: bar3
+              - comma: ','
+              - naked_identifier: bar4
+              - end_bracket: )
+            - keyword: FOR
+            - naked_identifier: year
+            - keyword: IN
+            - bracketed:
+              - start_bracket: (
+              - bracketed:
+                - start_bracket: (
+                - naked_identifier: foo1
+                - comma: ','
+                - naked_identifier: foo2
+                - comma: ','
+                - naked_identifier: foo3
+                - end_bracket: )
+              - alias_expression:
+                  alias_operator:
+                    keyword: AS
+                  numeric_literal: '1'
+              - comma: ','
+              - bracketed:
+                - start_bracket: (
+                - naked_identifier: foo4
+                - comma: ','
+                - naked_identifier: foo5
+                - comma: ','
+                - naked_identifier: foo6
+                - end_bracket: )
+              - alias_expression:
+                  alias_operator:
+                    keyword: AS
+                  numeric_literal: '2'
+              - comma: ','
+              - bracketed:
+                - start_bracket: (
+                - naked_identifier: foo7
+                - comma: ','
+                - naked_identifier: foo8
+                - comma: ','
+                - naked_identifier: foo9
+                - end_bracket: )
+              - alias_expression:
+                  alias_operator:
+                    keyword: AS
+                  numeric_literal: '3'
               - end_bracket: )
             - end_bracket: )
 - statement_terminator: ;

@@ -1,0 +1,106 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: b8bd1f8892243194c2c7b59437daf47119352608fa0fed465f05dba50c0d5b7d
+file:
+  statement:
+    set_expression:
+    - select_statement:
+        select_clause:
+        - keyword: select
+        - select_clause_element:
+            column_reference:
+              naked_identifier: col1
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: col2
+        from_clause:
+          keyword: from
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: some_table
+        qualify_clause:
+          keyword: qualify
+          expression:
+            function:
+              function_name:
+                function_name_identifier: row_number
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  end_bracket: )
+              over_clause:
+                keyword: over
+                bracketed:
+                  start_bracket: (
+                  window_specification:
+                    partitionby_clause:
+                    - keyword: partition
+                    - keyword: by
+                    - expression:
+                        column_reference:
+                          naked_identifier: col1
+                    orderby_clause:
+                    - keyword: order
+                    - keyword: by
+                    - column_reference:
+                        naked_identifier: col1
+                  end_bracket: )
+            comparison_operator:
+              raw_comparison_operator: '='
+            numeric_literal: '1'
+    - set_operator:
+      - keyword: union
+      - keyword: all
+    - select_statement:
+        select_clause:
+        - keyword: select
+        - select_clause_element:
+            column_reference:
+              naked_identifier: col1
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: col2
+        from_clause:
+          keyword: from
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: some_table
+        qualify_clause:
+          keyword: qualify
+          expression:
+            function:
+              function_name:
+                function_name_identifier: row_number
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  end_bracket: )
+              over_clause:
+                keyword: over
+                bracketed:
+                  start_bracket: (
+                  window_specification:
+                    partitionby_clause:
+                    - keyword: partition
+                    - keyword: by
+                    - expression:
+                        column_reference:
+                          naked_identifier: col1
+                    orderby_clause:
+                    - keyword: order
+                    - keyword: by
+                    - column_reference:
+                        naked_identifier: col1
+                  end_bracket: )
+            comparison_operator:
+              raw_comparison_operator: '='
+            numeric_literal: '1'

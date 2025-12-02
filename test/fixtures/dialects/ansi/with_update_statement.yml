@@ -3,13 +3,13 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 5ef45c03d07899104fc767163f3a9edc375940bf3450304ab9e257ebc21396de
+_hash: e7bacd843605728db15379d32320886ef0a608c3fbfcae64d08a14fd592df72e
 file:
   statement:
     with_compound_statement:
       keyword: WITH
       common_table_expression:
-        identifier: mycte
+        naked_identifier: mycte
         keyword: AS
         bracketed:
           start_bracket: (
@@ -18,40 +18,41 @@ file:
             - keyword: SELECT
             - select_clause_element:
                 column_reference:
-                  identifier: foo
+                  naked_identifier: foo
             - comma: ','
             - select_clause_element:
                 column_reference:
-                  identifier: bar
+                  naked_identifier: bar
             from_clause:
               keyword: FROM
               from_expression:
                 from_expression_element:
                   table_expression:
                     table_reference:
-                      identifier: mytable1
+                      naked_identifier: mytable1
           end_bracket: )
       update_statement:
         keyword: UPDATE
         table_reference:
-          identifier: sometable
+          naked_identifier: sometable
         set_clause_list:
           keyword: SET
           set_clause:
           - column_reference:
-            - identifier: sometable
+            - naked_identifier: sometable
             - dot: .
-            - identifier: baz
-          - comparison_operator: '='
+            - naked_identifier: baz
+          - comparison_operator:
+              raw_comparison_operator: '='
           - column_reference:
-            - identifier: mycte
+            - naked_identifier: mycte
             - dot: .
-            - identifier: bar
+            - naked_identifier: bar
         from_clause:
           keyword: FROM
           from_expression:
             from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: mycte
+                  naked_identifier: mycte
   statement_terminator: ;

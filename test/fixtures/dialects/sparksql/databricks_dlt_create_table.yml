@@ -1,0 +1,300 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 6fda6b7c5e5b1148e8f10df18802ebc12876c3e6ffe484b14fbcd444208a33ba
+file:
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REFRESH
+    - keyword: LIVE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: taxi_raw
+    - keyword: AS
+    - select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+              naked_identifier: a
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: b
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                file_reference:
+                  keyword: JSON
+                  dot: .
+                  quoted_identifier: '`/databricks-datasets/nyctaxi/sample/json/`'
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REFRESH
+    - keyword: LIVE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: filtered_data
+    - keyword: AS
+    - select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+              naked_identifier: a
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: b
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                - naked_identifier: live
+                - dot: .
+                - naked_identifier: taxi_raw
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REFRESH
+    - keyword: STREAMING
+    - keyword: LIVE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: customers_bronze
+    - keyword: AS
+    - select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+              naked_identifier: a
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: b
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                function:
+                  function_name:
+                    function_name_identifier: CLOUD_FILES
+                  function_contents:
+                    bracketed:
+                    - start_bracket: (
+                    - expression:
+                        quoted_literal: '"/databricks-datasets/retail-org/customers/"'
+                    - comma: ','
+                    - expression:
+                        quoted_literal: '"csv"'
+                    - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REFRESH
+    - keyword: STREAMING
+    - keyword: LIVE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: customers_silver
+    - keyword: AS
+    - select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+              naked_identifier: a
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: b
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                function:
+                  function_name:
+                    function_name_identifier: STREAM
+                  function_contents:
+                    bracketed:
+                      start_bracket: (
+                      expression:
+                        column_reference:
+                        - naked_identifier: live
+                        - dot: .
+                        - naked_identifier: customers_bronze
+                      end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REFRESH
+    - keyword: TEMPORARY
+    - keyword: LIVE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: filtered_data
+    - keyword: AS
+    - select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+              naked_identifier: a
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: b
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                - naked_identifier: live
+                - dot: .
+                - naked_identifier: taxi_raw
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REFRESH
+    - keyword: TEMPORARY
+    - keyword: STREAMING
+    - keyword: LIVE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: customers_silver
+    - keyword: AS
+    - select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+              naked_identifier: a
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: b
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                function:
+                  function_name:
+                    function_name_identifier: STREAM
+                  function_contents:
+                    bracketed:
+                      start_bracket: (
+                      expression:
+                        column_reference:
+                        - naked_identifier: live
+                        - dot: .
+                        - naked_identifier: customers_bronze
+                      end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REFRESH
+    - keyword: LIVE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: taxi_raw
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          column_reference:
+            naked_identifier: a
+          data_type:
+            primitive_type:
+              keyword: STRING
+          column_constraint_segment:
+            comment_clause:
+              keyword: COMMENT
+              quoted_literal: "'a'"
+      - comma: ','
+      - column_definition:
+          column_reference:
+            naked_identifier: b
+          data_type:
+            primitive_type:
+              keyword: INT
+          column_constraint_segment:
+            comment_clause:
+              keyword: COMMENT
+              quoted_literal: "'b'"
+      - comma: ','
+      - constraint_statement:
+        - keyword: CONSTRAINT
+        - object_reference:
+            naked_identifier: valid_a
+        - keyword: EXPECT
+        - bracketed:
+            start_bracket: (
+            expression:
+            - column_reference:
+                naked_identifier: a
+            - keyword: IS
+            - keyword: NOT
+            - null_literal: 'NULL'
+            end_bracket: )
+      - comma: ','
+      - constraint_statement:
+        - keyword: CONSTRAINT
+        - object_reference:
+            naked_identifier: valid_b
+        - keyword: EXPECT
+        - bracketed:
+            start_bracket: (
+            expression:
+              column_reference:
+                naked_identifier: b
+              comparison_operator:
+                raw_comparison_operator: '>'
+              numeric_literal: '0'
+            end_bracket: )
+      - end_bracket: )
+    - keyword: AS
+    - select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+              naked_identifier: a
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: b
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                file_reference:
+                  keyword: JSON
+                  dot: .
+                  quoted_identifier: '`/databricks-datasets/nyctaxi/sample/json/`'
+- statement_terminator: ;

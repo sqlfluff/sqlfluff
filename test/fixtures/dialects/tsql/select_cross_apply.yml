@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 0bc4b039ebf0a388fe704b591548f408c116472b58410b75ba40edab65c65aa8
+_hash: dcc9417969928bd87693892de228f887fef020df22d6d58a8142c31f44d30e6b
 file:
   batch:
   - statement:
@@ -12,36 +12,36 @@ file:
         - keyword: SELECT
         - select_clause_element:
             column_reference:
-              identifier: DeptID
+              naked_identifier: DeptID
         - comma: ','
         - select_clause_element:
             column_reference:
-              identifier: DeptName
+              naked_identifier: DeptName
         - comma: ','
         - select_clause_element:
             column_reference:
-              identifier: DeptMgrID
+              naked_identifier: DeptMgrID
         - comma: ','
         - select_clause_element:
             column_reference:
-              identifier: EmpID
+              naked_identifier: EmpID
         - comma: ','
         - select_clause_element:
             column_reference:
-              identifier: EmpLastName
+              naked_identifier: EmpLastName
         - comma: ','
         - select_clause_element:
             column_reference:
-              identifier: EmpSalary
+              naked_identifier: EmpSalary
         from_clause:
           keyword: FROM
           from_expression:
             from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: Departments
+                  naked_identifier: Departments
               alias_expression:
-                identifier: d
+                naked_identifier: d
             join_clause:
             - keyword: CROSS
             - keyword: APPLY
@@ -49,18 +49,101 @@ file:
                 table_expression:
                   function:
                     function_name:
-                      identifier: dbo
+                      naked_identifier: dbo
                       dot: .
                       function_name_identifier: GetReports
-                    bracketed:
-                      start_bracket: (
-                      expression:
-                        column_reference:
-                        - identifier: d
-                        - dot: .
-                        - identifier: DeptMgrID
-                      end_bracket: )
-          statement_terminator: ;
+                    function_contents:
+                      bracketed:
+                        start_bracket: (
+                        expression:
+                          column_reference:
+                          - naked_identifier: d
+                          - dot: .
+                          - naked_identifier: DeptMgrID
+                        end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+            - naked_identifier: d
+            - dot: .
+            - naked_identifier: DeptID
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+            - naked_identifier: d
+            - dot: .
+            - naked_identifier: DeptName
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: DeptMgrID
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+            - naked_identifier: reps
+            - dot: .
+            - naked_identifier: EmpID
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+            - naked_identifier: reps
+            - dot: .
+            - naked_identifier: EmpLastName
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+            - naked_identifier: reps
+            - dot: .
+            - naked_identifier: EmpSalary
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: Departments
+              alias_expression:
+                alias_operator:
+                  keyword: AS
+                naked_identifier: d
+            join_clause:
+            - keyword: CROSS
+            - keyword: APPLY
+            - from_expression_element:
+                table_expression:
+                  function:
+                    function_name:
+                      naked_identifier: dbo
+                      dot: .
+                      function_name_identifier: GetReports
+                    function_contents:
+                      bracketed:
+                        start_bracket: (
+                        expression:
+                          column_reference:
+                          - naked_identifier: d
+                          - dot: .
+                          - naked_identifier: DeptMgrID
+                        end_bracket: )
+                alias_expression:
+                  alias_operator:
+                    keyword: AS
+                  naked_identifier: reps
+        where_clause:
+          keyword: WHERE
+          expression:
+            column_reference:
+            - naked_identifier: d
+            - dot: .
+            - naked_identifier: DeptMgrID
+            comparison_operator:
+              raw_comparison_operator: '='
+            integer_literal: '10'
+  - statement_terminator: ;
   - statement:
       select_statement:
         select_clause:
@@ -75,9 +158,9 @@ file:
             from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: Department
+                  naked_identifier: Department
               alias_expression:
-                identifier: D
+                naked_identifier: D
             join_clause:
             - keyword: OUTER
             - keyword: APPLY
@@ -85,43 +168,96 @@ file:
                 table_expression:
                   function:
                     function_name:
-                      identifier: dbo
+                      naked_identifier: dbo
                       dot: .
                       function_name_identifier: fn_GetAllEmployeeOfADepartment
-                    bracketed:
-                      start_bracket: (
-                      expression:
-                        column_reference:
-                        - identifier: D
-                        - dot: .
-                        - identifier: DepartmentID
-                      end_bracket: )
-          statement_terminator: ;
+                    function_contents:
+                      bracketed:
+                        start_bracket: (
+                        expression:
+                          column_reference:
+                          - naked_identifier: D
+                          - dot: .
+                          - naked_identifier: DepartmentID
+                        end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: Department
+              alias_expression:
+                naked_identifier: D
+            join_clause:
+            - keyword: OUTER
+            - keyword: APPLY
+            - from_expression_element:
+                table_expression:
+                  function:
+                    function_name:
+                      naked_identifier: dbo
+                      dot: .
+                      function_name_identifier: fn_GetAllEmployeeOfADepartment
+                    function_contents:
+                      bracketed:
+                        start_bracket: (
+                        expression:
+                          column_reference:
+                          - naked_identifier: D
+                          - dot: .
+                          - naked_identifier: DepartmentID
+                        end_bracket: )
+                alias_expression:
+                  alias_operator:
+                    keyword: AS
+                  naked_identifier: AllEmp
+        where_clause:
+          keyword: WHERE
+          expression:
+            column_reference:
+            - naked_identifier: D
+            - dot: .
+            - naked_identifier: DepartmentId
+            comparison_operator:
+              raw_comparison_operator: '='
+            integer_literal: '10'
+  - statement_terminator: ;
   - statement:
       select_statement:
         select_clause:
         - keyword: select
         - select_clause_element:
             column_reference:
-            - identifier: s
+            - naked_identifier: s
             - dot: .
-            - identifier: column_id
+            - naked_identifier: column_id
         - comma: ','
         - select_clause_element:
             column_reference:
-            - identifier: sp
+            - naked_identifier: sp
             - dot: .
-            - identifier: value
+            - naked_identifier: value
         from_clause:
           keyword: from
           from_expression:
             from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: table1
+                  naked_identifier: table1
               alias_expression:
-                keyword: as
-                identifier: s
+                alias_operator:
+                  keyword: as
+                naked_identifier: s
             join_clause:
             - keyword: cross
             - keyword: apply
@@ -130,31 +266,34 @@ file:
                   function:
                     function_name:
                       function_name_identifier: string_split
-                    bracketed:
-                    - start_bracket: (
-                    - expression:
-                        function:
-                          function_name:
-                            function_name_identifier: replace
-                          bracketed:
-                          - start_bracket: (
-                          - expression:
-                              column_reference:
-                              - identifier: s
-                              - dot: .
-                              - identifier: some_path
-                          - comma: ','
-                          - expression:
-                              literal: "'->'"
-                          - comma: ','
-                          - expression:
-                              literal: "'{'"
-                          - end_bracket: )
-                    - comma: ','
-                    - expression:
-                        literal: "'{'"
-                    - end_bracket: )
+                    function_contents:
+                      bracketed:
+                      - start_bracket: (
+                      - expression:
+                          function:
+                            function_name:
+                              function_name_identifier: replace
+                            function_contents:
+                              bracketed:
+                              - start_bracket: (
+                              - expression:
+                                  column_reference:
+                                  - naked_identifier: s
+                                  - dot: .
+                                  - naked_identifier: some_path
+                              - comma: ','
+                              - expression:
+                                  quoted_literal: "'->'"
+                              - comma: ','
+                              - expression:
+                                  quoted_literal: "'{'"
+                              - end_bracket: )
+                      - comma: ','
+                      - expression:
+                          quoted_literal: "'{'"
+                      - end_bracket: )
                 alias_expression:
-                  keyword: as
-                  identifier: sp
-          statement_terminator: ;
+                  alias_operator:
+                    keyword: as
+                  naked_identifier: sp
+  - statement_terminator: ;

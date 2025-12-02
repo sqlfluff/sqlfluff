@@ -2,6 +2,8 @@ SELECT current_date;
 
 SELECT sysdate;
 
+SELECT current_timestamp;
+
 SELECT TRUNC(sysdate);
 
 -- As taken from: https://docs.aws.amazon.com/redshift/latest/dg/r_SYSDATE.html

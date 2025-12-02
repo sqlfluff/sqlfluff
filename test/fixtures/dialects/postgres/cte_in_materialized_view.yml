@@ -1,0 +1,200 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 9472e9bac40732b6a255fe5128021c6228ce3e866ac8074a2a8c2aafedfeb070
+file:
+  statement:
+    create_materialized_view_statement:
+    - keyword: CREATE
+    - keyword: MATERIALIZED
+    - keyword: VIEW
+    - table_reference:
+      - naked_identifier: public
+      - dot: .
+      - naked_identifier: mv_sales
+    - keyword: TABLESPACE
+    - tablespace_reference:
+        naked_identifier: pg_default
+    - keyword: AS
+    - with_compound_statement:
+      - keyword: WITH
+      - common_table_expression:
+          naked_identifier: regional_sales
+          keyword: AS
+          bracketed:
+            start_bracket: (
+            select_statement:
+              select_clause:
+              - keyword: SELECT
+              - select_clause_element:
+                  column_reference:
+                    naked_identifier: region
+              - comma: ','
+              - select_clause_element:
+                  function:
+                    function_name:
+                      function_name_identifier: SUM
+                    function_contents:
+                      bracketed:
+                        start_bracket: (
+                        expression:
+                          column_reference:
+                            naked_identifier: amount
+                        end_bracket: )
+                  alias_expression:
+                    alias_operator:
+                      keyword: AS
+                    naked_identifier: total_sales
+              from_clause:
+                keyword: FROM
+                from_expression:
+                  from_expression_element:
+                    table_expression:
+                      table_reference:
+                        naked_identifier: orders
+              groupby_clause:
+              - keyword: GROUP
+              - keyword: BY
+              - column_reference:
+                  naked_identifier: region
+            end_bracket: )
+      - comma: ','
+      - common_table_expression:
+          naked_identifier: top_regions
+          keyword: AS
+          bracketed:
+            start_bracket: (
+            select_statement:
+              select_clause:
+                keyword: SELECT
+                select_clause_element:
+                  column_reference:
+                    naked_identifier: region
+              from_clause:
+                keyword: FROM
+                from_expression:
+                  from_expression_element:
+                    table_expression:
+                      table_reference:
+                        naked_identifier: regional_sales
+              where_clause:
+                keyword: WHERE
+                expression:
+                  column_reference:
+                    naked_identifier: total_sales
+                  comparison_operator:
+                    raw_comparison_operator: '>'
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      select_statement:
+                        select_clause:
+                          keyword: SELECT
+                          select_clause_element:
+                            expression:
+                              function:
+                                function_name:
+                                  function_name_identifier: SUM
+                                function_contents:
+                                  bracketed:
+                                    start_bracket: (
+                                    expression:
+                                      column_reference:
+                                        naked_identifier: total_sales
+                                    end_bracket: )
+                              binary_operator: /
+                              numeric_literal: '10'
+                        from_clause:
+                          keyword: FROM
+                          from_expression:
+                            from_expression_element:
+                              table_expression:
+                                table_reference:
+                                  naked_identifier: regional_sales
+                    end_bracket: )
+            end_bracket: )
+      - select_statement:
+          select_clause:
+          - keyword: SELECT
+          - select_clause_element:
+              column_reference:
+                naked_identifier: region
+          - comma: ','
+          - select_clause_element:
+              column_reference:
+                naked_identifier: product
+          - comma: ','
+          - select_clause_element:
+              function:
+                function_name:
+                  function_name_identifier: SUM
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      column_reference:
+                        naked_identifier: quantity
+                    end_bracket: )
+              alias_expression:
+                alias_operator:
+                  keyword: AS
+                naked_identifier: product_units
+          - comma: ','
+          - select_clause_element:
+              function:
+                function_name:
+                  function_name_identifier: SUM
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      column_reference:
+                        naked_identifier: amount
+                    end_bracket: )
+              alias_expression:
+                alias_operator:
+                  keyword: AS
+                naked_identifier: product_sales
+          from_clause:
+            keyword: FROM
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                    naked_identifier: orders
+          where_clause:
+            keyword: WHERE
+            expression:
+              column_reference:
+                naked_identifier: region
+              keyword: IN
+              bracketed:
+                start_bracket: (
+                select_statement:
+                  select_clause:
+                    keyword: SELECT
+                    select_clause_element:
+                      column_reference:
+                        naked_identifier: region
+                  from_clause:
+                    keyword: FROM
+                    from_expression:
+                      from_expression_element:
+                        table_expression:
+                          table_reference:
+                            naked_identifier: top_regions
+                end_bracket: )
+          groupby_clause:
+          - keyword: GROUP
+          - keyword: BY
+          - column_reference:
+              naked_identifier: region
+          - comma: ','
+          - column_reference:
+              naked_identifier: product
+    - with_data_clause:
+      - keyword: WITH
+      - keyword: DATA
+  statement_terminator: ;

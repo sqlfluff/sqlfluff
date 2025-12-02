@@ -1,0 +1,64 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 7f7351943cd4f95d2828d2d969298e1d114ab1ce6c75c10db25ebc18cc7bdb71
+file:
+- statement:
+    call_segment:
+      keyword: CALL
+      function:
+        function_name:
+          function_name_identifier: MyStoredProcedure
+        function_contents:
+          bracketed:
+            start_bracket: (
+            expression:
+              function:
+                function_name:
+                  function_name_identifier: CURRENT_ROLE
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    end_bracket: )
+            end_bracket: )
+- statement_terminator: ;
+- statement:
+    call_segment:
+      keyword: CALL
+      function:
+        function_name:
+          function_name_identifier: sv_proc1
+        function_contents:
+          bracketed:
+          - start_bracket: (
+          - expression:
+              quoted_literal: "'Manitoba'"
+          - comma: ','
+          - expression:
+              numeric_literal: '127.4'
+          - end_bracket: )
+- statement_terminator: ;
+- statement:
+    set_statement:
+      keyword: SET
+      variable: Variable1
+      comparison_operator:
+        raw_comparison_operator: '='
+      expression:
+        numeric_literal: '49'
+- statement_terminator: ;
+- statement:
+    call_segment:
+      keyword: CALL
+      function:
+        function_name:
+          function_name_identifier: sv_proc2
+        function_contents:
+          bracketed:
+            start_bracket: (
+            expression:
+              variable: $Variable1
+            end_bracket: )
+- statement_terminator: ;

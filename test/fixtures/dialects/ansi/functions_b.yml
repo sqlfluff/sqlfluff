@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 7d90c0ec9830928e215c5b2f80ac5e3b7b8f7d110aa249db51bbb2637a3d3818
+_hash: 75a360d9882ca76c8acb74f87e8bf5b0c2fcbe5d85eeb31f15c1ece499928256
 file:
   statement:
     select_statement:
@@ -13,31 +13,34 @@ file:
           function:
             function_name:
               function_name_identifier: SPLIT
-            bracketed:
-            - start_bracket: (
-            - expression:
-                function:
-                  function_name:
-                    function_name_identifier: LOWER
-                  bracketed:
-                    start_bracket: (
-                    expression:
-                      column_reference:
-                        identifier: text
-                    end_bracket: )
-            - comma: ','
-            - expression:
-                literal: "' '"
-            - end_bracket: )
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  function:
+                    function_name:
+                      function_name_identifier: LOWER
+                    function_contents:
+                      bracketed:
+                        start_bracket: (
+                        expression:
+                          column_reference:
+                            naked_identifier: text
+                        end_bracket: )
+              - comma: ','
+              - expression:
+                  quoted_literal: "' '"
+              - end_bracket: )
           alias_expression:
-            keyword: AS
-            identifier: text
+            alias_operator:
+              keyword: AS
+            naked_identifier: text
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-              - identifier: '"database"'
+              - quoted_identifier: '"database"'
               - dot: .
-              - identifier: '"sample_table"'
+              - quoted_identifier: '"sample_table"'

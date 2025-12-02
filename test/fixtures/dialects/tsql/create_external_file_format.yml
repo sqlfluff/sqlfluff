@@ -1,0 +1,208 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: c72f9b067f1e19be5b1a471617fccccd19cfb32df352e2ee477ef63d3c48572b
+file:
+  batch:
+  - statement:
+      create_external_file_format:
+      - keyword: CREATE
+      - keyword: EXTERNAL
+      - keyword: FILE
+      - keyword: FORMAT
+      - object_reference:
+          naked_identifier: textdelimited1
+      - keyword: WITH
+      - bracketed:
+          start_bracket: (
+          external_file_delimited_text_clause:
+          - keyword: FORMAT_TYPE
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - keyword: DELIMITEDTEXT
+          - comma: ','
+          - keyword: FORMAT_OPTIONS
+          - bracketed:
+            - start_bracket: (
+            - external_file_delimited_text_format_options_clause:
+                keyword: FIELD_TERMINATOR
+                comparison_operator:
+                  raw_comparison_operator: '='
+                quoted_literal: "'|'"
+            - comma: ','
+            - external_file_delimited_text_format_options_clause:
+                keyword: DATE_FORMAT
+                comparison_operator:
+                  raw_comparison_operator: '='
+                quoted_literal: "'MM/dd/yyyy'"
+            - end_bracket: )
+          - comma: ','
+          - keyword: DATA_COMPRESSION
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - file_compression: "'org.apache.hadoop.io.compress.GzipCodec'"
+          end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      create_external_file_format:
+      - keyword: CREATE
+      - keyword: EXTERNAL
+      - keyword: FILE
+      - keyword: FORMAT
+      - object_reference:
+          naked_identifier: skipHeader_CSV
+      - keyword: WITH
+      - bracketed:
+          start_bracket: (
+          external_file_delimited_text_clause:
+          - keyword: FORMAT_TYPE
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - keyword: DELIMITEDTEXT
+          - comma: ','
+          - keyword: FORMAT_OPTIONS
+          - bracketed:
+            - start_bracket: (
+            - external_file_delimited_text_format_options_clause:
+                keyword: FIELD_TERMINATOR
+                comparison_operator:
+                  raw_comparison_operator: '='
+                quoted_literal: "','"
+            - comma: ','
+            - external_file_delimited_text_format_options_clause:
+                keyword: STRING_DELIMITER
+                comparison_operator:
+                  raw_comparison_operator: '='
+                quoted_literal: "'\"'"
+            - comma: ','
+            - external_file_delimited_text_format_options_clause:
+                keyword: FIRST_ROW
+                comparison_operator:
+                  raw_comparison_operator: '='
+                numeric_literal: '2'
+            - comma: ','
+            - external_file_delimited_text_format_options_clause:
+                keyword: USE_TYPE_DEFAULT
+                comparison_operator:
+                  raw_comparison_operator: '='
+                boolean_literal: 'True'
+            - end_bracket: )
+          end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      create_external_file_format:
+      - keyword: CREATE
+      - keyword: EXTERNAL
+      - keyword: FILE
+      - keyword: FORMAT
+      - object_reference:
+          quoted_identifier: '[rcfile1]'
+      - keyword: WITH
+      - bracketed:
+          start_bracket: (
+          external_file_rc_clause:
+          - keyword: FORMAT_TYPE
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - keyword: RCFILE
+          - comma: ','
+          - keyword: SERDE_METHOD
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - serde_method: "'org.apache.hadoop.hive.serde2.columnar.LazyBinaryColumnarSerDe'"
+          - comma: ','
+          - keyword: DATA_COMPRESSION
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - file_compression: "'org.apache.hadoop.io.compress.DefaultCodec'"
+          end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      create_external_file_format:
+      - keyword: CREATE
+      - keyword: EXTERNAL
+      - keyword: FILE
+      - keyword: FORMAT
+      - object_reference:
+          naked_identifier: orcfile1
+      - keyword: WITH
+      - bracketed:
+          start_bracket: (
+          external_file_orc_clause:
+          - keyword: FORMAT_TYPE
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - keyword: ORC
+          - comma: ','
+          - keyword: DATA_COMPRESSION
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - file_compression: "'org.apache.hadoop.io.compress.SnappyCodec'"
+          end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      create_external_file_format:
+      - keyword: CREATE
+      - keyword: EXTERNAL
+      - keyword: FILE
+      - keyword: FORMAT
+      - object_reference:
+          naked_identifier: parquetfile1
+      - keyword: WITH
+      - bracketed:
+          start_bracket: (
+          external_file_parquet_clause:
+          - keyword: FORMAT_TYPE
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - keyword: PARQUET
+          - comma: ','
+          - keyword: DATA_COMPRESSION
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - file_compression: "'org.apache.hadoop.io.compress.SnappyCodec'"
+          end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      create_external_file_format:
+      - keyword: CREATE
+      - keyword: EXTERNAL
+      - keyword: FILE
+      - keyword: FORMAT
+      - object_reference:
+          naked_identifier: jsonFileFormat
+      - keyword: WITH
+      - bracketed:
+          start_bracket: (
+          external_file_json_clause:
+          - keyword: FORMAT_TYPE
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - keyword: JSON
+          - comma: ','
+          - keyword: DATA_COMPRESSION
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - file_compression: "'org.apache.hadoop.io.compress.SnappyCodec'"
+          end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      create_external_file_format:
+      - keyword: CREATE
+      - keyword: EXTERNAL
+      - keyword: FILE
+      - keyword: FORMAT
+      - object_reference:
+          naked_identifier: DeltaFileFormat
+      - keyword: WITH
+      - bracketed:
+          start_bracket: (
+          external_file_delta_clause:
+          - keyword: FORMAT_TYPE
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - keyword: DELTA
+          end_bracket: )
+  - statement_terminator: ;

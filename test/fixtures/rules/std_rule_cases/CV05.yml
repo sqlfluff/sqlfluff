@@ -1,0 +1,131 @@
+rule: CV05
+
+test_is_null:
+  pass_str: |
+    SELECT a
+    FROM foo
+    WHERE a IS NULL
+
+test_is_not_null:
+  pass_str: |
+    SELECT a
+    FROM foo
+    WHERE a IS NOT NULL
+
+test_not_equals_null_upper:
+  fail_str: |
+    SELECT a
+    FROM foo
+    WHERE a <> NULL
+  fix_str: |
+    SELECT a
+    FROM foo
+    WHERE a IS NOT NULL
+
+test_not_equals_null_multi_nulls:
+  fail_str: |
+    SELECT a
+    FROM foo
+    WHERE a <> NULL AND b != NULL AND c = 'foo'
+  fix_str: |
+    SELECT a
+    FROM foo
+    WHERE a IS NOT NULL AND b IS NOT NULL AND c = 'foo'
+
+test_not_equals_null_lower:
+  fail_str: |
+    SELECT a
+    FROM foo
+    WHERE a <> null
+  fix_str: |
+    SELECT a
+    FROM foo
+    WHERE a is not null
+
+test_equals_null_spaces:
+  fail_str: |
+    SELECT a
+    FROM foo
+    WHERE a = NULL
+  fix_str: |
+    SELECT a
+    FROM foo
+    WHERE a IS NULL
+
+test_equals_null_no_spaces:
+  fail_str: |
+    SELECT a
+    FROM foo
+    WHERE a=NULL
+  fix_str: |
+    SELECT a
+    FROM foo
+    WHERE a IS NULL
+
+test_complex_case_1:
+  fail_str: |
+    SELECT a
+    FROM foo
+    WHERE a = b or (c > d or e = NULL)
+  fix_str: |
+    SELECT a
+    FROM foo
+    WHERE a = b or (c > d or e IS NULL)
+
+test_set_clause:
+  pass_str: |
+    UPDATE table1 SET col = NULL
+    WHERE col = ""
+
+test_bigquery_set_options:
+  pass_str: |
+    ALTER TABLE table
+    SET OPTIONS (expiration_timestamp = NULL)
+    ;
+  configs:
+    core:
+      dialect: bigquery
+
+test_tsql_exec_clause:
+  pass_str: |
+    exec something
+      @param1 = 'blah',
+      @param2 = 'blah',
+      @param3 = null,
+      @param4 = 'blah';
+  configs:
+    core:
+      dialect: tsql
+
+test_tsql_alternate_alias_syntax:
+  pass_str: |
+    select
+      name = null
+    from t
+  configs:
+    core:
+      dialect: tsql
+
+test_exclude_constraint:
+  pass_str: |
+    alter table abc add constraint xyz exclude (field WITH =);
+  configs:
+    core:
+      dialect: postgres
+
+test_mysql_system_variable:
+  pass_str: |
+    SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0;
+  configs:
+    core:
+      dialect: mysql
+
+test_tsql_variable_assignment:
+  pass_str: |
+    DECLARE @MyVariable VARCHAR(10);
+
+    SELECT
+      @MyVariable = NULL;
+  configs:
+    core:
+      dialect: tsql

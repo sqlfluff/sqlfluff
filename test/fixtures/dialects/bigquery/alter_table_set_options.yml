@@ -1,0 +1,69 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: ea6d8cd6ca9c4c0f0a0982254ba1bf4569586ee494b7f2d31e945c0f473c37fe
+file:
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: mydataset
+      - dot: .
+      - naked_identifier: mytable
+    - keyword: SET
+    - options_segment:
+        keyword: OPTIONS
+        bracketed:
+        - start_bracket: (
+        - parameter: expiration_timestamp
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - function:
+            function_name:
+              function_name_identifier: TIMESTAMP_ADD
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  function:
+                    function_name:
+                      function_name_identifier: CURRENT_TIMESTAMP
+                    function_contents:
+                      bracketed:
+                        start_bracket: (
+                        end_bracket: )
+              - comma: ','
+              - expression:
+                  interval_expression:
+                    keyword: INTERVAL
+                    expression:
+                      numeric_literal: '7'
+                    date_part: DAY
+              - end_bracket: )
+        - comma: ','
+        - parameter: description
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - quoted_literal: '"Table that expires seven days from now"'
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: table
+    - keyword: SET
+    - options_segment:
+        keyword: OPTIONS
+        bracketed:
+          start_bracket: (
+          parameter: expiration_timestamp
+          comparison_operator:
+            raw_comparison_operator: '='
+          null_literal: 'NULL'
+          end_bracket: )
+- statement_terminator: ;

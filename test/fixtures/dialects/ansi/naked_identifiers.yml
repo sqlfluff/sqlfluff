@@ -1,0 +1,84 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 1fff0ff9569dc6f5cb95b5aea91a1b165d283ab4c67917b503b5babdbe5d3c17
+file:
+- statement:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_clause_element:
+          column_reference:
+            quoted_identifier: '"a"'
+          alias_expression:
+            alias_operator:
+              keyword: as
+            naked_identifier: 0_is_a_legal_identifier
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_clause_element:
+          column_reference:
+            quoted_identifier: '"a"'
+          alias_expression:
+            alias_operator:
+              keyword: as
+            naked_identifier: 00_is_a_legal_identifier
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_clause_element:
+          column_reference:
+          - naked_identifier: 123_is_a_legal_identifier
+          - dot: .
+          - naked_identifier: 456_is_a_legal_identifier
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_clause_element:
+          column_reference:
+            quoted_identifier: '"a"'
+          alias_expression:
+            alias_operator:
+              keyword: as
+            naked_identifier: 0is_a_legal_identifier
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_clause_element:
+          column_reference:
+          - naked_identifier: _s00
+          - dot: .
+          - naked_identifier: 45_is_a_legal_identifier
+      from_clause:
+        keyword: from
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+              - naked_identifier: sdf9_
+              - dot: .
+              - naked_identifier: _234awdf
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_clause_element:
+          column_reference:
+            quoted_identifier: '"a"'
+          alias_expression:
+            alias_operator:
+              keyword: as
+            naked_identifier: is_a_legal_identifier0
+- statement_terminator: ;

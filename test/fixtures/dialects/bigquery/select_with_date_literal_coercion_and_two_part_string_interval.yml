@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: ca34ff4b793d51ceceba510254d1b4f1fc0d442a218bef66cbc4c034533c1ecb
+_hash: 2a29f36f6916ab4b93642827fe4175ac33bd2a11ca860b9b84d3c8e2a2e7a1d4
 file:
   statement:
     select_statement:
@@ -13,25 +13,25 @@ file:
           function:
             function_name:
               function_name_identifier: GENERATE_DATE_ARRAY
-            bracketed:
-            - start_bracket: (
-            - expression:
-                cast_expression:
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
                   keyword: DATE
-                  literal: "'2010-01-01'"
-            - comma: ','
-            - expression:
-                cast_expression:
+                  date_constructor_literal: "'2010-01-01'"
+              - comma: ','
+              - expression:
                   keyword: DATE
-                  literal: "'2010-01-31'"
-            - comma: ','
-            - expression:
-                interval_expression:
-                  keyword: INTERVAL
-                  expression:
-                    literal: "'7'"
-                  date_part: DAY
-            - end_bracket: )
+                  date_constructor_literal: "'2010-01-31'"
+              - comma: ','
+              - expression:
+                  interval_expression:
+                    keyword: INTERVAL
+                    expression:
+                      quoted_literal: "'7'"
+                    date_part: DAY
+              - end_bracket: )
           alias_expression:
-            keyword: AS
-            identifier: my_array
+            alias_operator:
+              keyword: AS
+            naked_identifier: my_array

@@ -1,0 +1,114 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 1cf564a17627f9d44b2a1ff1df37c5703825b77823235b186fa17492b8985625
+file:
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+            naked_identifier: name
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: CAST
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  function:
+                    function_name:
+                      function_name_identifier: ROW
+                    function_contents:
+                      bracketed:
+                      - start_bracket: (
+                      - expression:
+                          column_reference:
+                            naked_identifier: price
+                      - comma: ','
+                      - expression:
+                          column_reference:
+                            naked_identifier: store
+                      - end_bracket: )
+                keyword: AS
+                data_type:
+                  struct_type:
+                    keyword: ROW
+                    struct_type_schema:
+                      bracketed:
+                      - start_bracket: (
+                      - parameter: price
+                      - data_type:
+                          primitive_type:
+                            keyword: REAL
+                      - comma: ','
+                      - parameter: store
+                      - data_type:
+                          primitive_type:
+                            keyword: VARCHAR
+                      - end_bracket: )
+                end_bracket: )
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: data_row
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: customers
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_clause_element:
+          expression:
+            function:
+              function_name:
+                function_name_identifier: CAST
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    function:
+                      function_name:
+                        function_name_identifier: ROW
+                      function_contents:
+                        bracketed:
+                        - start_bracket: (
+                        - expression:
+                            numeric_literal: '1'
+                        - comma: ','
+                        - expression:
+                            numeric_literal: '2.0'
+                        - end_bracket: )
+                  keyword: AS
+                  data_type:
+                    struct_type:
+                      keyword: ROW
+                      struct_type_schema:
+                        bracketed:
+                        - start_bracket: (
+                        - parameter: x
+                        - data_type:
+                            primitive_type:
+                              keyword: BIGINT
+                        - comma: ','
+                        - parameter: y
+                        - data_type:
+                            primitive_type:
+                              keyword: DOUBLE
+                        - end_bracket: )
+                  end_bracket: )
+            semi_structured_expression:
+              dot: .
+              naked_identifier: x
+- statement_terminator: ;

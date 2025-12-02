@@ -1,0 +1,182 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 25e9f3c540f46477dae33271f1f03fa35a0054211ed1cd07a3b84ef28b4d85c1
+file:
+- statement:
+    delete_statement:
+      keyword: DELETE
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: events
+      where_clause:
+        keyword: WHERE
+        expression:
+          column_reference:
+            naked_identifier: date
+          comparison_operator:
+            raw_comparison_operator: <
+          quoted_literal: "'2017-01-01'"
+- statement_terminator: ;
+- statement:
+    delete_statement:
+      keyword: DELETE
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              file_reference:
+                keyword: DELTA
+                dot: .
+                quoted_identifier: '`/data/events/`'
+      where_clause:
+        keyword: WHERE
+        expression:
+          column_reference:
+            naked_identifier: date
+          comparison_operator:
+            raw_comparison_operator: <
+          quoted_literal: "'2017-01-01'"
+- statement_terminator: ;
+- statement:
+    delete_statement:
+      keyword: DELETE
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: all_events
+      where_clause:
+        keyword: WHERE
+        expression:
+          column_reference:
+            naked_identifier: session_time
+          comparison_operator:
+            raw_comparison_operator: <
+          bracketed:
+            start_bracket: (
+            expression:
+              select_statement:
+                select_clause:
+                  keyword: SELECT
+                  select_clause_element:
+                    function:
+                      function_name:
+                        function_name_identifier: min
+                      function_contents:
+                        bracketed:
+                          start_bracket: (
+                          expression:
+                            column_reference:
+                              naked_identifier: session_time
+                          end_bracket: )
+                from_clause:
+                  keyword: FROM
+                  from_expression:
+                    from_expression_element:
+                      table_expression:
+                        table_reference:
+                          naked_identifier: good_events
+            end_bracket: )
+- statement_terminator: ;
+- statement:
+    delete_statement:
+      keyword: DELETE
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: orders
+            alias_expression:
+              alias_operator:
+                keyword: AS
+              naked_identifier: t1
+      where_clause:
+        keyword: WHERE
+        expression:
+          keyword: EXISTS
+          bracketed:
+            start_bracket: (
+            select_statement:
+              select_clause:
+                keyword: SELECT
+                select_clause_element:
+                  column_reference:
+                  - naked_identifier: returned_orders
+                  - dot: .
+                  - naked_identifier: oid
+              from_clause:
+                keyword: FROM
+                from_expression:
+                  from_expression_element:
+                    table_expression:
+                      table_reference:
+                        naked_identifier: returned_orders
+              where_clause:
+                keyword: WHERE
+                expression:
+                - column_reference:
+                  - naked_identifier: t1
+                  - dot: .
+                  - naked_identifier: oid
+                - comparison_operator:
+                    raw_comparison_operator: '='
+                - column_reference:
+                  - naked_identifier: returned_orders
+                  - dot: .
+                  - naked_identifier: oid
+            end_bracket: )
+- statement_terminator: ;
+- statement:
+    delete_statement:
+      keyword: DELETE
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: events
+      where_clause:
+        keyword: WHERE
+        expression:
+        - column_reference:
+            naked_identifier: category
+        - keyword: NOT
+        - keyword: IN
+        - bracketed:
+            start_bracket: (
+            select_statement:
+              select_clause:
+                keyword: SELECT
+                select_clause_element:
+                  column_reference:
+                    naked_identifier: category
+              from_clause:
+                keyword: FROM
+                from_expression:
+                  from_expression_element:
+                    table_expression:
+                      table_reference:
+                        naked_identifier: events2
+              where_clause:
+                keyword: WHERE
+                expression:
+                  column_reference:
+                    naked_identifier: date
+                  comparison_operator:
+                    raw_comparison_operator: '>'
+                  quoted_literal: "'2001-01-01'"
+            end_bracket: )
+- statement_terminator: ;

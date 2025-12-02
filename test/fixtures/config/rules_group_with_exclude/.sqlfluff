@@ -1,0 +1,3 @@
+[sqlfluff]
+rules = core
+exclude_rules = LT04

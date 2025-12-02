@@ -1,0 +1,4 @@
+set cutoff = (
+  select foo
+
+);

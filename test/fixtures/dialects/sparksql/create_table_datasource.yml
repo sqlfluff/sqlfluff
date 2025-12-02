@@ -1,0 +1,494 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: faeb3432718ee96919d12c15b2f2c0681a6bab4f46c46c62859fbd3fb03076ad
+file:
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - table_reference:
+        naked_identifier: table_identifier
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          column_reference:
+            naked_identifier: test
+          data_type:
+            primitive_type:
+              keyword: STRING
+          column_constraint_segment:
+            comment_clause:
+              keyword: COMMENT
+              quoted_literal: '"col_comment1"'
+        end_bracket: )
+    - using_clause:
+        keyword: USING
+        data_source_format:
+          keyword: PARQUET
+    - keyword: OPTIONS
+    - bracketed:
+      - start_bracket: (
+      - property_name_identifier:
+          quoted_identifier: '"key1"'
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: '"val1"'
+      - comma: ','
+      - property_name_identifier:
+          quoted_identifier: '"key2"'
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: '"val2"'
+      - end_bracket: )
+    - keyword: PARTITIONED
+    - keyword: BY
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: col_name1
+      - comma: ','
+      - column_reference:
+          naked_identifier: col_name2
+      - end_bracket: )
+    - keyword: CLUSTERED
+    - keyword: BY
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: col_name3
+      - comma: ','
+      - column_reference:
+          naked_identifier: col_name4
+      - end_bracket: )
+    - keyword: SORTED
+    - keyword: BY
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: col_name3
+      - keyword: ASC
+      - comma: ','
+      - column_reference:
+          naked_identifier: col_name4
+      - keyword: DESC
+      - end_bracket: )
+    - keyword: INTO
+    - numeric_literal: '4'
+    - keyword: BUCKETS
+    - keyword: LOCATION
+    - quoted_literal: "'root/database/table'"
+    - keyword: COMMENT
+    - quoted_literal: "'this is a comment'"
+    - keyword: TBLPROPERTIES
+    - bracketed:
+      - start_bracket: (
+      - property_name_identifier:
+          quoted_identifier: '"key1"'
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: '"val1"'
+      - comma: ','
+      - property_name_identifier:
+          quoted_identifier: '"key2"'
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: '"val2"'
+      - end_bracket: )
+    - keyword: AS
+    - select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+              naked_identifier: id
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: name
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: student
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: student
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          column_reference:
+            naked_identifier: id
+          data_type:
+            primitive_type:
+              keyword: INT
+      - comma: ','
+      - column_definition:
+          column_reference:
+            naked_identifier: student_name
+          data_type:
+            primitive_type:
+              keyword: STRING
+      - comma: ','
+      - column_definition:
+          column_reference:
+            naked_identifier: age
+          data_type:
+            primitive_type:
+              keyword: INT
+      - end_bracket: )
+    - using_clause:
+        keyword: USING
+        data_source_format:
+          keyword: CSV
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: student_copy
+    - using_clause:
+        keyword: USING
+        data_source_format:
+          keyword: CSV
+    - keyword: AS
+    - select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+              naked_identifier: id
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: name
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: student
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: student
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          column_reference:
+            naked_identifier: id
+          data_type:
+            primitive_type:
+              keyword: INT
+      - comma: ','
+      - column_definition:
+          column_reference:
+            naked_identifier: student_name
+          data_type:
+            primitive_type:
+              keyword: STRING
+      - comma: ','
+      - column_definition:
+          column_reference:
+            naked_identifier: age
+          data_type:
+            primitive_type:
+              keyword: INT
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: student
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          column_reference:
+            naked_identifier: id
+          data_type:
+            primitive_type:
+              keyword: INT
+      - comma: ','
+      - column_definition:
+          column_reference:
+            naked_identifier: student_name
+          data_type:
+            primitive_type:
+              keyword: STRING
+      - comma: ','
+      - column_definition:
+          column_reference:
+            naked_identifier: age
+          data_type:
+            primitive_type:
+              keyword: INT
+      - end_bracket: )
+    - using_clause:
+        keyword: USING
+        data_source_format:
+          keyword: CSV
+    - keyword: COMMENT
+    - quoted_literal: "'this is a comment'"
+    - keyword: TBLPROPERTIES
+    - bracketed:
+        start_bracket: (
+        property_name_identifier:
+          quoted_identifier: "'foo'"
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'bar'"
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: student
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          column_reference:
+            naked_identifier: id
+          data_type:
+            primitive_type:
+              keyword: INT
+      - comma: ','
+      - column_definition:
+          column_reference:
+            naked_identifier: student_name
+          data_type:
+            primitive_type:
+              keyword: STRING
+      - comma: ','
+      - column_definition:
+          column_reference:
+            naked_identifier: age
+          data_type:
+            primitive_type:
+              keyword: INT
+      - end_bracket: )
+    - using_clause:
+        keyword: USING
+        data_source_format:
+          keyword: CSV
+    - keyword: PARTITIONED
+    - keyword: BY
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          naked_identifier: age
+        end_bracket: )
+    - keyword: CLUSTERED
+    - keyword: BY
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          naked_identifier: id
+        end_bracket: )
+    - keyword: INTO
+    - numeric_literal: '4'
+    - keyword: BUCKETS
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: EXTERNAL
+    - keyword: TABLE
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - table_reference:
+        naked_identifier: student
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          column_reference:
+            naked_identifier: id
+          data_type:
+            primitive_type:
+              keyword: INT
+      - comma: ','
+      - column_definition:
+          column_reference:
+            naked_identifier: student_name
+          data_type:
+            primitive_type:
+              keyword: STRING
+      - comma: ','
+      - column_definition:
+          column_reference:
+            naked_identifier: age
+          data_type:
+            primitive_type:
+              keyword: INT
+      - end_bracket: )
+    - using_clause:
+        keyword: USING
+        data_source_format:
+          keyword: iceberg
+    - keyword: PARTITIONED
+    - keyword: BY
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          naked_identifier: age
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: student
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          column_reference:
+            naked_identifier: id
+          data_type:
+            primitive_type:
+              keyword: INT
+      - comma: ','
+      - column_definition:
+          column_reference:
+            naked_identifier: student_name
+          data_type:
+            primitive_type:
+              keyword: STRING
+      - comma: ','
+      - column_definition:
+          column_reference:
+            naked_identifier: age
+          data_type:
+            primitive_type:
+              keyword: INT
+      - end_bracket: )
+    - using_clause:
+        keyword: USING
+        data_source_format:
+          keyword: CSV
+    - keyword: COMMENT
+    - quoted_literal: '"this is a comment"'
+    - keyword: PARTITIONED
+    - keyword: BY
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          naked_identifier: age
+        end_bracket: )
+    - keyword: STORED
+    - keyword: AS
+    - keyword: PARQUET
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: create
+    - keyword: table
+    - keyword: if
+    - keyword: not
+    - keyword: exists
+    - table_reference:
+      - naked_identifier: my_table_space
+      - dot: .
+      - naked_identifier: my_test_table
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          column_reference:
+            naked_identifier: test_value
+          data_type:
+            primitive_type:
+              keyword: string
+      - comma: ','
+      - column_definition:
+          column_reference:
+            naked_identifier: activity_date_partition
+          data_type:
+            primitive_type:
+              keyword: date
+      - end_bracket: )
+    - using_clause:
+        keyword: using
+        data_source_format:
+          keyword: DELTA
+    - keyword: location
+    - quoted_literal: "'s3://some-bucket/test-data/'"
+    - keyword: partitioned
+    - keyword: by
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          naked_identifier: activity_date_partition
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: cluster_by_table_none
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          column_reference:
+            naked_identifier: col1
+          data_type:
+            primitive_type:
+              keyword: STRING
+        end_bracket: )
+    - using_clause:
+        keyword: USING
+        data_source_format:
+          keyword: DELTA
+    - table_cluster_by_clause:
+      - keyword: CLUSTER
+      - keyword: BY
+      - keyword: NONE
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: cluster_by_table_cols
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          column_reference:
+            naked_identifier: col1
+          data_type:
+            primitive_type:
+              keyword: STRING
+        end_bracket: )
+    - using_clause:
+        keyword: USING
+        data_source_format:
+          keyword: DELTA
+    - table_cluster_by_clause:
+      - keyword: CLUSTER
+      - keyword: BY
+      - bracketed:
+          start_bracket: (
+          column_reference:
+            naked_identifier: col1
+          end_bracket: )
+- statement_terminator: ;

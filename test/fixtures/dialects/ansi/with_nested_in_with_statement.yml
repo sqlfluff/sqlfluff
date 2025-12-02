@@ -1,0 +1,91 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 949eef4c8f91534769e7a2f739a5e760e42f6fb6e22d66f63cc2b57cd75b3d29
+file:
+  statement:
+    bracketed:
+      start_bracket: (
+      with_compound_statement:
+        keyword: WITH
+        common_table_expression:
+          naked_identifier: mycte2
+          keyword: AS
+          bracketed:
+            start_bracket: (
+            with_compound_statement:
+              keyword: WITH
+              common_table_expression:
+                naked_identifier: mycte1
+                keyword: AS
+                bracketed:
+                  start_bracket: (
+                  select_statement:
+                    select_clause:
+                    - keyword: SELECT
+                    - select_clause_element:
+                        column_reference:
+                          naked_identifier: foo
+                    - comma: ','
+                    - select_clause_element:
+                        column_reference:
+                          naked_identifier: bar
+                    - comma: ','
+                    - select_clause_element:
+                        column_reference:
+                          naked_identifier: baz
+                    from_clause:
+                      keyword: FROM
+                      from_expression:
+                        from_expression_element:
+                          table_expression:
+                            table_reference:
+                              naked_identifier: mytable
+                  end_bracket: )
+              select_statement:
+                select_clause:
+                - keyword: SELECT
+                - select_clause_element:
+                    column_reference:
+                      naked_identifier: foo
+                - comma: ','
+                - select_clause_element:
+                    column_reference:
+                      naked_identifier: bar
+                - comma: ','
+                - select_clause_element:
+                    column_reference:
+                      naked_identifier: baz
+                from_clause:
+                  keyword: FROM
+                  from_expression:
+                    from_expression_element:
+                      table_expression:
+                        table_reference:
+                          naked_identifier: mycte1
+            end_bracket: )
+        select_statement:
+          select_clause:
+          - keyword: SELECT
+          - select_clause_element:
+              column_reference:
+                naked_identifier: foo
+          - comma: ','
+          - select_clause_element:
+              column_reference:
+                naked_identifier: bar
+          - comma: ','
+          - select_clause_element:
+              column_reference:
+                naked_identifier: baz
+          from_clause:
+            keyword: FROM
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                    naked_identifier: mycte2
+      end_bracket: )
+  statement_terminator: ;

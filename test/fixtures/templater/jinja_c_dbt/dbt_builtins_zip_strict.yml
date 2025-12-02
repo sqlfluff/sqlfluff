@@ -1,0 +1,20 @@
+file:
+  - statement:
+      select_statement:
+        select_clause:
+        - keyword: select
+        - select_clause_element:
+            column_reference:
+              naked_identifier: c1
+            alias_expression:
+              alias_operator:
+                keyword: as
+              naked_identifier: a1
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: c2
+            alias_expression:
+              alias_operator:
+                keyword: as
+              naked_identifier: a2

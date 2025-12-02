@@ -1,0 +1,55 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 08c7d43e7a4b042dd59c903967e9582479d8888514a054e04049a5111ff76602
+file:
+- statement:
+    set_timezone_statement:
+    - keyword: SET
+    - keyword: TIME
+    - keyword: ZONE
+    - keyword: LOCAL
+- statement_terminator: ;
+- statement:
+    set_timezone_statement:
+    - keyword: SET
+    - keyword: TIME
+    - keyword: ZONE
+    - quoted_literal: "'America/Los_Angeles'"
+- statement_terminator: ;
+- statement:
+    set_timezone_statement:
+    - keyword: SET
+    - keyword: TIME
+    - keyword: ZONE
+    - quoted_literal: "'+08:00'"
+- statement_terminator: ;
+- statement:
+    set_timezone_statement:
+    - keyword: SET
+    - keyword: TIME
+    - keyword: ZONE
+    - interval_expression:
+      - keyword: INTERVAL
+      - interval_literal:
+          numeric_literal: '1'
+          date_part: HOUR
+      - interval_literal:
+          numeric_literal: '30'
+          date_part: MINUTES
+- statement_terminator: ;
+- statement:
+    set_timezone_statement:
+    - keyword: SET
+    - keyword: TIME
+    - keyword: ZONE
+    - interval_expression:
+        keyword: INTERVAL
+        interval_literal:
+        - signed_quoted_literal: "'08:30:00'"
+        - date_part: HOUR
+        - keyword: TO
+        - date_part: SECOND
+- statement_terminator: ;

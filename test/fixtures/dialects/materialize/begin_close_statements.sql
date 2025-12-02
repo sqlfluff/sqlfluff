@@ -1,0 +1,10 @@
+
+BEGIN;
+
+CLOSE my_cursor;
+
+END;
+
+CLOSE CURSOR;
+
+COMMIT;

@@ -1,0 +1,78 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 00ac34f67f6be5a6e5e60821205465c2816e3c6b7a07fcdd2aae51d33268f4a3
+file:
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: test
+      offset_clause:
+        keyword: OFFSET
+        numeric_literal: '10'
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: test
+      limit_clause:
+      - keyword: LIMIT
+      - numeric_literal: '20'
+      - keyword: OFFSET
+      - numeric_literal: '10'
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          numeric_literal: '1'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: course_permissions
+            alias_expression:
+              alias_operator:
+                keyword: AS
+              naked_identifier: cp
+      where_clause:
+        keyword: WHERE
+        expression:
+          column_reference:
+          - naked_identifier: cp
+          - dot: .
+          - naked_identifier: course_id
+          comparison_operator:
+            raw_comparison_operator: '='
+          numeric_literal: '4'
+      offset_clause:
+        keyword: OFFSET
+        numeric_literal: '1'
+- statement_terminator: ;

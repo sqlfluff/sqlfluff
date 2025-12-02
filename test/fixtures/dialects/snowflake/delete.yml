@@ -1,0 +1,372 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 3f81a445f049a9cad06b1a48a71c9048582c097f966752ec51f575c7b13c3e6a
+file:
+- statement:
+    delete_statement:
+    - keyword: delete
+    - keyword: from
+    - table_reference:
+        naked_identifier: leased_bicycles
+- statement_terminator: ;
+- statement:
+    delete_statement:
+    - keyword: delete
+    - keyword: from
+    - table_reference:
+        naked_identifier: leased_bicycles
+    - alias_expression:
+        alias_operator:
+          keyword: as
+        naked_identifier: lb
+- statement_terminator: ;
+- statement:
+    delete_statement:
+    - keyword: delete
+    - keyword: from
+    - table_reference:
+        naked_identifier: x
+    - keyword: using
+    - table_expression:
+        table_reference:
+          naked_identifier: y
+    - comma: ','
+    - table_expression:
+        table_reference:
+          naked_identifier: z
+- statement_terminator: ;
+- statement:
+    delete_statement:
+    - keyword: delete
+    - keyword: from
+    - table_reference:
+        naked_identifier: x
+    - where_clause:
+        keyword: where
+        expression:
+        - numeric_literal: '1'
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - numeric_literal: '2'
+- statement_terminator: ;
+- statement:
+    delete_statement:
+    - keyword: delete
+    - keyword: from
+    - table_reference:
+        naked_identifier: leased_bicycles
+    - keyword: using
+    - table_expression:
+        table_reference:
+          naked_identifier: returned_bicycles
+    - where_clause:
+        keyword: where
+        expression:
+        - column_reference:
+          - naked_identifier: leased_bicycles
+          - dot: .
+          - naked_identifier: bicycle_id
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - column_reference:
+          - naked_identifier: returned_bicycles
+          - dot: .
+          - naked_identifier: bicycle_id
+- statement_terminator: ;
+- statement:
+    delete_statement:
+    - keyword: delete
+    - keyword: from
+    - table_reference:
+        naked_identifier: leased_bicycles
+    - alias_expression:
+        alias_operator:
+          keyword: as
+        naked_identifier: lb
+    - keyword: using
+    - table_expression:
+        table_reference:
+          naked_identifier: returned_bicycles
+    - alias_expression:
+        alias_operator:
+          keyword: as
+        naked_identifier: rb
+    - where_clause:
+        keyword: where
+        expression:
+        - column_reference:
+          - naked_identifier: lb
+          - dot: .
+          - naked_identifier: bicycle_id
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - column_reference:
+          - naked_identifier: rb
+          - dot: .
+          - naked_identifier: bicycle_id
+- statement_terminator: ;
+- statement:
+    delete_statement:
+    - keyword: delete
+    - keyword: from
+    - table_reference:
+        naked_identifier: leased_bicycles
+    - alias_expression:
+        naked_identifier: lb
+    - keyword: using
+    - table_expression:
+        table_reference:
+          naked_identifier: returned_bicycles
+    - alias_expression:
+        naked_identifier: rb
+    - where_clause:
+        keyword: where
+        expression:
+        - column_reference:
+          - naked_identifier: lb
+          - dot: .
+          - naked_identifier: bicycle_id
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - column_reference:
+          - naked_identifier: rb
+          - dot: .
+          - naked_identifier: bicycle_id
+- statement_terminator: ;
+- statement:
+    delete_statement:
+    - keyword: delete
+    - keyword: from
+    - table_reference:
+        naked_identifier: leased_bicycles
+    - keyword: using
+    - table_expression:
+        table_reference:
+          naked_identifier: returned_bicycles
+    - comma: ','
+    - table_expression:
+        table_reference:
+          naked_identifier: broken_bicycles
+    - where_clause:
+        keyword: where
+        expression:
+        - column_reference:
+          - naked_identifier: leased_bicycles
+          - dot: .
+          - naked_identifier: bicycle_id
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - column_reference:
+          - naked_identifier: returned_bicycles
+          - dot: .
+          - naked_identifier: bicycle_id
+        - binary_operator: and
+        - column_reference:
+          - naked_identifier: leased_bicycles
+          - dot: .
+          - naked_identifier: bicycle_id
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - column_reference:
+          - naked_identifier: broken_bicycles
+          - dot: .
+          - naked_identifier: bicycle_id
+- statement_terminator: ;
+- statement:
+    delete_statement:
+    - keyword: delete
+    - keyword: from
+    - table_reference:
+        naked_identifier: leased_bicycles
+    - alias_expression:
+        alias_operator:
+          keyword: as
+        naked_identifier: lb
+    - keyword: using
+    - table_expression:
+        table_reference:
+          naked_identifier: returned_bicycles
+    - alias_expression:
+        alias_operator:
+          keyword: as
+        naked_identifier: rb
+    - comma: ','
+    - table_expression:
+        table_reference:
+          naked_identifier: broken_bicycles
+    - alias_expression:
+        alias_operator:
+          keyword: as
+        naked_identifier: bb
+    - where_clause:
+        keyword: where
+        expression:
+        - column_reference:
+          - naked_identifier: lb
+          - dot: .
+          - naked_identifier: bicycle_id
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - column_reference:
+          - naked_identifier: rb
+          - dot: .
+          - naked_identifier: bicycle_id
+        - binary_operator: and
+        - column_reference:
+          - naked_identifier: lb
+          - dot: .
+          - naked_identifier: bicycle_id
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - column_reference:
+          - naked_identifier: bb
+          - dot: .
+          - naked_identifier: bicycle_id
+- statement_terminator: ;
+- statement:
+    delete_statement:
+    - keyword: delete
+    - keyword: from
+    - table_reference:
+        naked_identifier: leased_bicycles
+    - alias_expression:
+        naked_identifier: lb
+    - keyword: using
+    - table_expression:
+        table_reference:
+          naked_identifier: returned_bicycles
+    - alias_expression:
+        naked_identifier: rb
+    - comma: ','
+    - table_expression:
+        table_reference:
+          naked_identifier: broken_bicycles
+    - alias_expression:
+        naked_identifier: bb
+    - where_clause:
+        keyword: where
+        expression:
+        - column_reference:
+          - naked_identifier: lb
+          - dot: .
+          - naked_identifier: bicycle_id
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - column_reference:
+          - naked_identifier: rb
+          - dot: .
+          - naked_identifier: bicycle_id
+        - binary_operator: and
+        - column_reference:
+          - naked_identifier: lb
+          - dot: .
+          - naked_identifier: bicycle_id
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - column_reference:
+          - naked_identifier: bb
+          - dot: .
+          - naked_identifier: bicycle_id
+- statement_terminator: ;
+- statement:
+    delete_statement:
+    - keyword: delete
+    - keyword: from
+    - table_reference:
+        naked_identifier: leased_bicycles
+    - keyword: using
+    - table_expression:
+        bracketed:
+          start_bracket: (
+          select_statement:
+            select_clause:
+              keyword: select
+              select_clause_element:
+                column_reference:
+                  naked_identifier: bicycle_id
+                alias_expression:
+                  alias_operator:
+                    keyword: as
+                  naked_identifier: bicycle_id
+            from_clause:
+              keyword: from
+              from_expression:
+                from_expression_element:
+                  table_expression:
+                    table_reference:
+                      naked_identifier: returned_bicycles
+          end_bracket: )
+    - alias_expression:
+        alias_operator:
+          keyword: as
+        naked_identifier: returned
+    - where_clause:
+        keyword: where
+        expression:
+        - column_reference:
+          - naked_identifier: leased_bicycles
+          - dot: .
+          - naked_identifier: bicycle_id
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - column_reference:
+          - naked_identifier: returned
+          - dot: .
+          - naked_identifier: bicycle_id
+- statement_terminator: ;
+- statement:
+    delete_statement:
+    - keyword: delete
+    - keyword: from
+    - table_reference:
+        naked_identifier: leased_bicycles
+    - keyword: using
+    - table_expression:
+        bracketed:
+          start_bracket: (
+          select_statement:
+            select_clause:
+              keyword: select
+              select_clause_element:
+                column_reference:
+                  naked_identifier: bicycle_id
+                alias_expression:
+                  alias_operator:
+                    keyword: as
+                  naked_identifier: bicycle_id
+            from_clause:
+              keyword: from
+              from_expression:
+                from_expression_element:
+                  table_expression:
+                    table_reference:
+                      naked_identifier: returned_bicycles
+            where_clause:
+              keyword: where
+              expression:
+              - numeric_literal: '1'
+              - comparison_operator:
+                  raw_comparison_operator: '='
+              - numeric_literal: '2'
+          end_bracket: )
+    - alias_expression:
+        alias_operator:
+          keyword: as
+        naked_identifier: returned
+    - where_clause:
+        keyword: where
+        expression:
+        - column_reference:
+          - naked_identifier: leased_bicycles
+          - dot: .
+          - naked_identifier: bicycle_id
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - column_reference:
+          - naked_identifier: returned
+          - dot: .
+          - naked_identifier: bicycle_id
+- statement_terminator: ;

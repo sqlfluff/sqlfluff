@@ -1,0 +1,178 @@
+rule: AL01
+
+test_fail_default_explicit:
+  # Add whitespace when fixing implicit aliasing
+  fail_str: select foo.bar from table1 foo
+  fix_str: select foo.bar from table1 AS foo
+
+test_fail_explicit:
+  # Add whitespace when fixing implicit aliasing
+  fail_str: select foo.bar from table1 foo
+  fix_str: select foo.bar from table1 AS foo
+  configs:
+    rules:
+      aliasing.table:
+        aliasing: explicit
+
+test_fail_implicit:
+  # Add whitespace when fixing implicit aliasing
+  fail_str: select foo.bar from table1 AS foo
+  fix_str: select foo.bar from table1 foo
+  configs:
+    rules:
+      aliasing.table:
+        aliasing: implicit
+
+test_fail_implicit_alias:
+  # Add whitespace when fixing implicit aliasing
+  fail_str: select foo.bar from (select 1 as bar)foo
+  fix_str: select foo.bar from (select 1 as bar) AS foo
+
+test_fail_implicit_alias_space:
+  # No unnecessary whitespace added when fixing implicit aliasing
+  fail_str: select foo.bar from (select 1 as bar) foo
+  fix_str: select foo.bar from (select 1 as bar) AS foo
+
+test_fail_implicit_alias_explicit:
+  # Test when explicitly setting explicit
+  fail_str: select foo.bar from (select 1 as bar) foo
+  fix_str: select foo.bar from (select 1 as bar) AS foo
+  configs:
+    rules:
+      aliasing.table:
+        aliasing: explicit
+
+test_fail_implicit_alias_implicit:
+  # Test implicit
+  fail_str: select foo.bar from (select 1 as bar) AS foo
+  fix_str: select foo.bar from (select 1 as bar) foo
+  configs:
+    rules:
+      aliasing.table:
+        aliasing: implicit
+
+test_fail_implicit_alias_implicit_multiple:
+  # Test implicit with multiple tables
+  fail_str: select foo.bar from (select 1 as bar) AS bar, (select 1 as foo) AS foo
+  fix_str: select foo.bar from (select 1 as bar) bar, (select 1 as foo) foo
+  configs:
+    rules:
+      aliasing.table:
+        aliasing: implicit
+
+test_fail_implicit_alias_implicit_newline:
+  # NOTE: Even when removing by a newline, we should still remove any duplicate
+  # whitespace.
+  fail_str: |
+      select foo.bar from (select 1 as bar)
+      AS foo
+  fix_str: |
+      select foo.bar from (select 1 as bar)
+      foo
+  configs:
+    rules:
+      aliasing.table:
+        aliasing: implicit
+
+test_fail_default_explicit_alias_merge:
+  # Add whitespace when fixing implicit aliasing
+  fail_str: |
+    MERGE dataset.inventory t
+    USING dataset.newarrivals s
+        ON t.product = s.product
+    WHEN MATCHED THEN
+        UPDATE SET quantity = t.quantity + s.quantity;
+  fix_str: |
+    MERGE dataset.inventory AS t
+    USING dataset.newarrivals AS s
+        ON t.product = s.product
+    WHEN MATCHED THEN
+        UPDATE SET quantity = t.quantity + s.quantity;
+  configs:
+    core:
+      dialect: bigquery
+
+test_fail_explicit_alias_merge:
+  # Add whitespace when fixing implicit aliasing
+  fail_str: |
+    MERGE dataset.inventory t
+    USING dataset.newarrivals s
+        ON t.product = s.product
+    WHEN MATCHED THEN
+        UPDATE SET quantity = t.quantity + s.quantity;
+  fix_str: |
+    MERGE dataset.inventory AS t
+    USING dataset.newarrivals AS s
+        ON t.product = s.product
+    WHEN MATCHED THEN
+        UPDATE SET quantity = t.quantity + s.quantity;
+  configs:
+    core:
+      dialect: bigquery
+    rules:
+      aliasing.table:
+        aliasing: explicit
+
+test_pass_implicit_alias_merge:
+  # Add whitespace when fixing implicit aliasing
+  pass_str: |
+    MERGE dataset.inventory t
+    USING dataset.newarrivals s
+        ON t.product = s.product
+    WHEN MATCHED THEN
+        UPDATE SET quantity = t.quantity + s.quantity;
+  configs:
+    core:
+      dialect: bigquery
+    rules:
+      aliasing.table:
+        aliasing: implicit
+
+test_alias_expression_4492:
+  # Test failing alias expressions
+  # https://github.com/sqlfluff/sqlfluff/issues/4492
+  fail_str:
+    SELECT
+        voo.a
+    FROM foo voo
+  fix_str:
+    SELECT
+        voo.a
+    FROM foo AS voo
+  configs:
+    core:
+      dialect: snowflake
+    layout:
+      type:
+        alias_expression:
+          spacing_before: align
+
+test_alias_expression_4089:
+  # Test failing alias expressions
+  # https://github.com/sqlfluff/sqlfluff/issues/4089
+  fail_str:
+    SELECT
+    RANK() OVER (PARTITION BY Id ORDER BY Id DESC) nr_rank
+    FROM (values ('Amsterdam', 1), ('London', 2)) Cities(Name, Id)
+  fix_str:
+    SELECT
+    RANK() OVER (PARTITION BY Id ORDER BY Id DESC) nr_rank
+    FROM (values ('Amsterdam', 1), ('London', 2)) AS Cities(Name, Id)
+  configs:
+    layout:
+      type:
+        alias_expression:
+          spacing_before: align
+
+test_pass_alias_expression_oracle_tables:
+  # Test failing alias expressions
+  # https://github.com/sqlfluff/sqlfluff/issues/5038
+  # Skip aliasing with 'AS' for Oracle table expressions
+  pass_str:
+    SELECT
+        base.id,
+        base.customer_id
+    FROM {{ ref('customers') }} base
+  configs:
+    core:
+      dialect: oracle

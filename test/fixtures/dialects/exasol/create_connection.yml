@@ -1,0 +1,58 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 47ec33db1ebe241612043c1c9f8f787697c7fb28196577520d9087bc9e47b936
+file:
+- statement:
+    create_connection:
+    - keyword: CREATE
+    - keyword: CONNECTION
+    - naked_identifier: ftp_connection
+    - keyword: TO
+    - connection_definition:
+      - quoted_literal: "'ftp://192.168.1.1/'"
+      - keyword: USER
+      - quoted_literal: "'agent_007'"
+      - keyword: IDENTIFIED
+      - keyword: BY
+      - quoted_literal: "'secret'"
+- statement_terminator: ;
+- statement:
+    create_connection:
+    - keyword: CREATE
+    - keyword: CONNECTION
+    - naked_identifier: exa_connection
+    - keyword: TO
+    - connection_definition:
+        quoted_literal: "'192.168.6.11..14:8563'"
+- statement_terminator: ;
+- statement:
+    create_connection:
+    - keyword: CREATE
+    - keyword: CONNECTION
+    - naked_identifier: ora_connection
+    - keyword: TO
+    - connection_definition:
+        quoted_literal: "'(DESCRIPTION =\n    (ADDRESS = (PROTOCOL = TCP)(HOST = 192.168.6.54)(PORT\
+          \ = 1521))\n    (CONNECT_DATA = (SERVER = DEDICATED)(SERVICE_NAME = orcl)))'"
+- statement_terminator: ;
+- statement:
+    create_connection:
+    - keyword: CREATE
+    - keyword: CONNECTION
+    - naked_identifier: jdbc_connection_1
+    - keyword: TO
+    - connection_definition:
+        quoted_literal: "'jdbc:mysql://192.168.6.1/my_db'"
+- statement_terminator: ;
+- statement:
+    create_connection:
+    - keyword: CREATE
+    - keyword: CONNECTION
+    - naked_identifier: jdbc_connection_2
+    - keyword: TO
+    - connection_definition:
+        quoted_literal: "'jdbc:postgresql://192.168.6.2:5432/my_db?stringtype=unspecified'"
+- statement_terminator: ;

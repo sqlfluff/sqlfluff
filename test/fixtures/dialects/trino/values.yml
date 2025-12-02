@@ -1,0 +1,88 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 53a12e94e9c580f8189e086531cbc800ba2050da2765ef6534893bf3d39c5631
+file:
+- statement:
+    values_clause:
+    - keyword: VALUES
+    - expression:
+        numeric_literal: '42'
+    - comma: ','
+    - expression:
+        numeric_literal: '13'
+- statement_terminator: ;
+- statement:
+    values_clause:
+    - keyword: VALUES
+    - expression:
+        numeric_literal: '1'
+    - comma: ','
+    - expression:
+        numeric_literal: '2'
+    - comma: ','
+    - expression:
+        numeric_literal: '3'
+- statement_terminator: ;
+- statement:
+    values_clause:
+    - keyword: VALUES
+    - expression:
+        numeric_literal: '5'
+    - comma: ','
+    - expression:
+        numeric_literal: '2'
+    - comma: ','
+    - expression:
+        numeric_literal: '4'
+    - comma: ','
+    - expression:
+        numeric_literal: '1'
+    - comma: ','
+    - expression:
+        numeric_literal: '3'
+- statement_terminator: ;
+- statement:
+    values_clause:
+    - keyword: VALUES
+    - expression:
+        bracketed:
+          start_bracket: (
+          numeric_literal: '1'
+          comma: ','
+          quoted_literal: "'a'"
+          end_bracket: )
+    - comma: ','
+    - expression:
+        bracketed:
+          start_bracket: (
+          numeric_literal: '2'
+          comma: ','
+          quoted_literal: "'b'"
+          end_bracket: )
+    - comma: ','
+    - expression:
+        bracketed:
+          start_bracket: (
+          numeric_literal: '3'
+          comma: ','
+          quoted_literal: "'c'"
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    values_clause:
+      keyword: VALUES
+      expression:
+        bracketed:
+        - start_bracket: (
+        - numeric_literal: '26'
+        - comma: ','
+        - quoted_literal: "'POLAND'"
+        - comma: ','
+        - numeric_literal: '3'
+        - comma: ','
+        - quoted_literal: "'no comment'"
+        - end_bracket: )
+- statement_terminator: ;

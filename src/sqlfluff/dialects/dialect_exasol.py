@@ -4,35 +4,38 @@ https://docs.exasol.com
 https://docs.exasol.com/sql_references/sqlstandardcompliance.htm
 """
 
+from sqlfluff.core.dialects import load_raw_dialect
 from sqlfluff.core.parser import (
     AnyNumberOf,
     Anything,
+    BaseFileSegment,
     BaseSegment,
     Bracketed,
-    OptionallyBracketed,
-    BaseFileSegment,
-    Dedent,
-    Delimited,
-    GreedyUntil,
-    Indent,
-    KeywordSegment,
-    Nothing,
-    OneOf,
-    Ref,
-    Sequence,
-    StartsWith,
-    RegexLexer,
-    StringLexer,
     CodeSegment,
     CommentSegment,
-    NamedParser,
-    SymbolSegment,
-    StringParser,
-    RegexParser,
+    Dedent,
+    Delimited,
+    ImplicitIndent,
+    Indent,
+    LiteralKeywordSegment,
+    LiteralSegment,
+    MultiStringParser,
     NewlineSegment,
+    Nothing,
+    OneOf,
+    OptionallyBracketed,
+    ParseMode,
+    Ref,
+    RegexLexer,
+    RegexParser,
+    SegmentGenerator,
+    Sequence,
+    StringLexer,
+    StringParser,
+    SymbolSegment,
+    TypedParser,
 )
-from sqlfluff.core.dialects import load_raw_dialect
-from sqlfluff.core.parser.segments.generator import SegmentGenerator
+from sqlfluff.dialects import dialect_ansi as ansi
 from sqlfluff.dialects.dialect_exasol_keywords import (
     BARE_FUNCTIONS,
     RESERVED_KEYWORDS,
@@ -42,7 +45,11 @@ from sqlfluff.dialects.dialect_exasol_keywords import (
 )
 
 ansi_dialect = load_raw_dialect("ansi")
-exasol_dialect = ansi_dialect.copy_as("exasol")
+exasol_dialect = ansi_dialect.copy_as(
+    "exasol",
+    formatted_name="Exasol",
+    docstring="The dialect for `Exasol <https://www.exasol.com/>`_.",
+)
 
 # Clear ANSI Keywords and add all EXASOL keywords
 exasol_dialect.sets("unreserved_keywords").clear()
@@ -56,43 +63,86 @@ exasol_dialect.sets("session_parameters").update(SESSION_PARAMETERS)
 exasol_dialect.sets("system_parameters").clear()
 exasol_dialect.sets("system_parameters").update(SYSTEM_PARAMETERS)
 
+exasol_dialect.sets("date_part_function_name").clear()
+exasol_dialect.sets("date_part_function_name").update(
+    [
+        "ADD_DAYS",
+        "ADD_HOURS",
+        "ADD_MINUTES",
+        "ADD_MONTHS",
+        "ADD_SECONDS",
+        "ADD_WEEKS",
+        "ADD_YEARS",
+    ]
+)
+
 exasol_dialect.insert_lexer_matchers(
     [
         RegexLexer("lua_nested_quotes", r"\[={1,3}\[.*\]={1,3}\]", CodeSegment),
         RegexLexer("lua_multiline_quotes", r"\[{2}([^[\\]|\\.)*\]{2}", CodeSegment),
-        RegexLexer("range_operator", r"\.{2}", CodeSegment),
-        StringLexer("hash", "#", CodeSegment),
-        StringLexer(
-            "walrus_operator",
-            ":=",
+        # This matches escaped identifier e.g. [day]. There can be reserved keywords
+        # within the square brackets.
+        RegexLexer(
+            "escaped_identifier",
+            r"\[\w+\]",
             CodeSegment,
-            segment_kwargs={"type": "walrus_operator"},
+            segment_kwargs={
+                "quoted_value": (r"\[(\w+)\]", 1),
+            },
         ),
+        RegexLexer(
+            "udf_param_dot_syntax",
+            r"\.{3}",
+            CodeSegment,
+        ),
+        RegexLexer(
+            "range_operator",
+            r"\.{2}",
+            SymbolSegment,
+        ),
+        StringLexer("hash", "#", CodeSegment),
+        StringLexer("walrus_operator", ":=", CodeSegment),
         RegexLexer(
             "function_script_terminator",
             r"\n/\n|\n/$",
-            CodeSegment,
-            segment_kwargs={"type": "function_script_terminator"},
+            SymbolSegment,
             subdivider=RegexLexer(
                 "newline",
                 r"(\n|\r\n)+",
                 NewlineSegment,
             ),
         ),
-        RegexLexer("atsign_literal", r"@[a-zA-Z_][\w]*", CodeSegment),
+        RegexLexer("at_sign_literal", r"@[a-zA-Z_][\w]*", CodeSegment),
         RegexLexer("dollar_literal", r"[$][a-zA-Z0-9_.]*", CodeSegment),
     ],
-    before="not_equal",
+    before="like_operator",
 )
 
 exasol_dialect.patch_lexer_matchers(
     [
-        # In EXASOL, a double single/double quote resolves as a single/double quote in the string.
-        # It's also used for escaping single quotes inside of STATEMENT strings like in the IMPORT function
+        # In EXASOL, a double single/double quote resolves as a single/double quote in
+        # the string. It's also used for escaping single quotes inside of STATEMENT
+        # strings like in the IMPORT function
         # https://docs.exasol.com/sql_references/basiclanguageelements.htm#Delimited_Identifiers
         # https://docs.exasol.com/sql_references/literals.htm
-        RegexLexer("single_quote", r"'([^']|'')*'", CodeSegment),
-        RegexLexer("double_quote", r'"([^"]|"")*"', CodeSegment),
+        RegexLexer(
+            "single_quote",
+            r"'([^']|'')*'",
+            CodeSegment,
+            segment_kwargs={
+                "quoted_value": (r"'((?:[^']|'')*)'", 1),
+                "escape_replacements": [(r"''", "'")],
+            },
+        ),
+        RegexLexer(
+            "double_quote",
+            r'"([^"]|"")*"',
+            CodeSegment,
+            segment_kwargs={
+                "quoted_value": (r'"((?:[^"]|"")*)"', 1),
+                "escape_replacements": [(r'""', '"')],
+            },
+        ),
         RegexLexer(
             "inline_comment",
             r"--[^\n]*",
@@ -102,14 +152,16 @@ exasol_dialect.patch_lexer_matchers(
     ]
 )
 
-# Access column aliases by using the LOCAL keyword
 exasol_dialect.add(
-    LocalIdentifierSegment=StringParser(
-        "LOCAL", KeywordSegment, name="local_identifier", type="identifier"
+    PasswordLiteralSegment=TypedParser(
+        "double_quote", CodeSegment, type="password_literal"
     ),
-    RangeOperator=NamedParser("range_operator", SymbolSegment, type="range_operator"),
+    UDFParameterDotSyntaxSegment=TypedParser(
+        "udf_param_dot_syntax", SymbolSegment, type="identifier"
+    ),
+    RangeOperator=TypedParser("range_operator", SymbolSegment, type="range_operator"),
     UnknownSegment=StringParser(
-        "unknown", KeywordSegment, name="boolean_literal", type="literal"
+        "unknown", LiteralKeywordSegment, type="boolean_literal"
     ),
     ForeignKeyReferencesClauseGrammar=Sequence(
         "REFERENCES",
@@ -118,100 +170,67 @@ exasol_dialect.add(
     ),
     ColumnReferenceListGrammar=Delimited(
         Ref("ColumnReferenceSegment"),
-        ephemeral_name="ColumnReferenceList",
     ),
-    CommentIsGrammar=Sequence("COMMENT", "IS", Ref("QuotedLiteralSegment")),
-    # delimiter doesn't work for DISTRIBUTE and PARTITION BY
-    # expression because both expressions are splitted by comma
-    # as well as n columns within each expression
-    TableDistributeByGrammar=StartsWith(
-        Sequence(
-            "DISTRIBUTE",
-            "BY",
-            AnyNumberOf(
-                Sequence(
-                    Ref("CommaSegment", optional=True),
-                    Ref("ColumnReferenceSegment"),
-                ),
-                min_times=1,
-            ),
+    TableDistributeByGrammar=Sequence(
+        "DISTRIBUTE",
+        "BY",
+        Delimited(
+            Ref("ColumnReferenceSegment"),
+            terminators=[
+                Ref("TablePartitionByGrammar"),
+                Ref("DelimiterGrammar"),
+            ],
         ),
-        terminator=OneOf(
-            Ref("TablePartitionByGrammar"),
-            Ref("DelimiterSegment"),
-        ),
-        enforce_whitespace_preceding_terminator=True,
     ),
-    TablePartitionByGrammar=StartsWith(
-        Sequence(
-            "PARTITION",
-            "BY",
-            AnyNumberOf(
-                Sequence(
-                    Ref("CommaSegment", optional=True),
-                    Ref("ColumnReferenceSegment"),
-                ),
-                min_times=1,
-            ),
+    TablePartitionByGrammar=Sequence(
+        "PARTITION",
+        "BY",
+        Delimited(
+            Ref("ColumnReferenceSegment"),
+            terminators=[
+                Ref("TableDistributeByGrammar"),
+                Ref("DelimiterGrammar"),
+            ],
         ),
-        terminator=OneOf(
-            Ref("TableDistributeByGrammar"),
-            Ref("DelimiterSegment"),
-        ),
-        enforce_whitespace_preceding_terminator=True,
     ),
     TableConstraintEnableDisableGrammar=OneOf("ENABLE", "DISABLE"),
-    EscapedIdentifierSegment=RegexParser(
-        # This matches escaped identifier e.g. [day]. There can be reserved keywords
-        # within the square brackets.
-        r"\[[A-Z]\]",
-        CodeSegment,
-        name="escaped_identifier",
-        type="identifier",
+    EscapedIdentifierSegment=TypedParser(
+        "escaped_identifier", SymbolSegment, type="identifier"
     ),
     SessionParameterSegment=SegmentGenerator(
-        lambda dialect: RegexParser(
-            r"^(" + r"|".join(dialect.sets("session_parameters")) + r")$",
+        lambda dialect: MultiStringParser(
+            dialect.sets("session_parameters"),
             CodeSegment,
-            name="session_parameter",
             type="session_parameter",
         )
     ),
     SystemParameterSegment=SegmentGenerator(
-        lambda dialect: RegexParser(
-            r"^(" + r"|".join(dialect.sets("system_parameters")) + r")$",
+        lambda dialect: MultiStringParser(
+            dialect.sets("system_parameters"),
             CodeSegment,
-            name="system_parameter",
             type="system_parameter",
         )
     ),
-    EmitsGrammar=Sequence(
-        "EMITS",
-        Bracketed(
-            OneOf(
-                # EMITS (A NUMBER, B VARCHAR) or EMITS(...)
-                Delimited(Ref("ColumnDatatypeSegment")),
-                Sequence(Ref("RangeOperator"), Ref("DotSegment")),
-            )
-        ),
+    UDFParameterGrammar=OneOf(
+        # (A NUMBER, B VARCHAR) or (...)
+        Delimited(Ref("ColumnDatatypeSegment")),
+        Ref("UDFParameterDotSyntaxSegment"),
     ),
-    FunctionScriptTerminatorSegment=NamedParser(
-        "function_script_terminator", CodeSegment, type="function_script_terminator"
+    FunctionScriptTerminatorSegment=TypedParser(
+        "function_script_terminator",
+        SymbolSegment,
+        type="function_script_terminator",
     ),
-    WalrusOperatorSegment=NamedParser(
-        "walrus_operator", SymbolSegment, type="assignment_operator"
-    ),
+    WalrusOperatorSegment=StringParser(":=", SymbolSegment, type="assignment_operator"),
     VariableNameSegment=RegexParser(
         r"[A-Z][A-Z0-9_]*",
         CodeSegment,
-        name="function_variable",
         type="variable",
     ),
 )
 
 exasol_dialect.replace(
     SingleIdentifierGrammar=OneOf(
-        Ref("LocalIdentifierSegment"),
         Ref("NakedIdentifierSegment"),
         Ref("QuotedIdentifierSegment"),
         Ref("EscapedIdentifierSegment"),
@@ -219,41 +238,18 @@ exasol_dialect.replace(
     ParameterNameSegment=RegexParser(
         r"\"?[A-Z][A-Z0-9_]*\"?",
         CodeSegment,
-        name="parameter",
         type="parameter",
     ),
-    LikeGrammar=Ref.keyword("LIKE"),
-    IsClauseGrammar=OneOf(
-        "NULL",
-        Ref("BooleanLiteralGrammar"),
-    ),
-    SelectClauseSegmentGrammar=Sequence(
-        "SELECT",
-        Ref("SelectClauseModifierSegment", optional=True),
-        Indent,
-        Delimited(
-            Ref("SelectClauseElementSegment"),
-            allow_trailing=True,
-            optional=True,  # optional in favor of SELECT INVALID....
-        ),
-        OneOf(Ref("WithInvalidUniquePKSegment"), Ref("IntoTableSegment"), optional=True)
-        # NB: The Dedent for the indent above lives in the
-        # SelectStatementSegment so that it sits in the right
-        # place corresponding to the whitespace.
-    ),
-    SelectClauseElementTerminatorGrammar=OneOf(
-        Sequence(
-            Ref.keyword("WITH", optional=True),
-            "INVALID",
-            OneOf("UNIQUE", Ref("PrimaryKeyGrammar"), Ref("ForeignKeyGrammar")),
-        ),
-        Sequence("INTO", "TABLE"),
+    LikeGrammar=OneOf("LIKE", "REGEXP_LIKE"),
+    NanLiteralSegment=Nothing(),
+    SelectClauseTerminatorGrammar=OneOf(
         "FROM",
         "WHERE",
         Sequence("ORDER", "BY"),
         "LIMIT",
-        Ref("CommaSegment"),
         Ref("SetOperatorSegment"),
+        Ref("WithDataClauseSegment"),
+        Ref("CommentClauseSegment"),
     ),
     FromClauseTerminatorGrammar=OneOf(
         "WHERE",
@@ -266,6 +262,8 @@ exasol_dialect.replace(
         "HAVING",
         "QUALIFY",
         Ref("SetOperatorSegment"),
+        Ref("WithDataClauseSegment"),
+        Ref("CommentClauseSegment"),
     ),
     WhereClauseTerminatorGrammar=OneOf(
         "CONNECT",
@@ -277,20 +275,23 @@ exasol_dialect.replace(
         "HAVING",
         "QUALIFY",
         Ref("SetOperatorSegment"),
+        Ref("WithDataClauseSegment"),
+        Ref("CommentClauseSegment"),
     ),
     DateTimeLiteralGrammar=Sequence(
-        OneOf("DATE", "TIMESTAMP"), Ref("QuotedLiteralSegment")
+        OneOf("DATE", "TIMESTAMP"),
+        TypedParser("single_quote", LiteralSegment, type="date_constructor_literal"),
     ),
-    CharCharacterSetSegment=OneOf(
-        Ref.keyword("UTF8"),
-        Ref.keyword("ASCII"),
+    CharCharacterSetGrammar=OneOf(
+        "UTF8",
+        "ASCII",
     ),
     PreTableFunctionKeywordsGrammar=Ref.keyword("TABLE"),
     BooleanLiteralGrammar=OneOf(
         Ref("TrueSegment"), Ref("FalseSegment"), Ref("UnknownSegment")
     ),
     PostFunctionGrammar=OneOf(
-        Ref("EmitsGrammar"),  # e.g. JSON_EXTRACT()
+        Ref("EmitsSegment"),  # e.g. JSON_EXTRACT()
         Sequence(
             Sequence(OneOf("IGNORE", "RESPECT"), "NULLS", optional=True),
             Ref("OverClauseSegment"),
@@ -304,7 +305,37 @@ exasol_dialect.replace(
 ############################
 
 
-@exasol_dialect.segment(replace=True)
+class UnorderedSelectStatementSegment(BaseSegment):
+    """A `SELECT` statement without any ORDER clauses or later.
+
+    This is designed for use in the context of set operations,
+    for other use cases, we should use the main
+    SelectStatementSegment.
+    """
+
+    type = "select_statement"
+
+    match_grammar = Sequence(
+        Ref("SelectClauseSegment"),
+        Ref("FromClauseSegment", optional=True),
+        Ref("ReferencingClauseSegment", optional=True),
+        Ref("WhereClauseSegment", optional=True),
+        Ref("ConnectByClauseSegment", optional=True),
+        Ref("PreferringClauseSegment", optional=True),
+        Ref("GroupByClauseSegment", optional=True),
+        Ref("HavingClauseSegment", optional=True),
+        Ref("QualifyClauseSegment", optional=True),
+        terminators=[
+            Ref("SetOperatorSegment"),
+            Ref("WithDataClauseSegment"),
+            Ref("CommentClauseSegment"),  # within CREATE TABLE / VIEW statements
+            Ref("OrderByClauseSegment"),
+            Ref("LimitClauseSegment"),
+        ],
+        parse_mode=ParseMode.GREEDY_ONCE_STARTED,
+    )
+
+
 class SelectStatementSegment(BaseSegment):
     """A `SELECT` statement.
 
@@ -312,59 +343,60 @@ class SelectStatementSegment(BaseSegment):
     """
 
     type = "select_statement"
-    match_grammar = StartsWith(
+
+    # Inherit most of the match grammar from the original.
+    match_grammar = UnorderedSelectStatementSegment.match_grammar.copy(
+        insert=[
+            Ref("OrderByClauseSegment", optional=True),
+            Ref("LimitClauseSegment", optional=True),
+        ],
+        terminators=[
+            Ref("SetOperatorSegment"),
+            Ref("WithDataClauseSegment"),
+            Ref("CommentClauseSegment"),  # within CREATE TABLE / VIEW statements
+        ],
+        # Replace terminators because we're removing some.
+        replace_terminators=True,
+    )
+
+
+class SelectClauseSegment(BaseSegment):
+    """A group of elements in a select target statement."""
+
+    type = "select_clause"
+    match_grammar = Sequence(
         "SELECT",
-        terminator=Ref("SetOperatorSegment"),
-        enforce_whitespace_preceding_terminator=True,
-    )
-
-    parse_grammar = Sequence(
-        OneOf(
-            Sequence(
-                # to allow SELECT INVALID FOREIGN KEY
-                "SELECT",
-                Ref("SelectClauseModifierSegment", optional=True),
-                Indent,
-                Delimited(
-                    Ref("SelectClauseElementSegment", optional=True),
-                    allow_trailing=True,
-                    optional=True,
+        Ref("SelectClauseModifierSegment", optional=True),
+        Indent,
+        Delimited(
+            Ref(
+                "SelectClauseElementSegment",
+                exclude=OneOf(
+                    Sequence(
+                        Ref.keyword("WITH", optional=True),
+                        "INVALID",
+                        OneOf("FOREIGN", "PRIMARY"),
+                    ),
+                    Sequence("INTO", "TABLE"),
                 ),
-                Ref("WithInvalidForeignKeySegment"),
             ),
-            Sequence(
-                Ref("SelectClauseSegment"),
-                #     # Dedent for the indent in the select clause.
-                #     # It's here so that it can come AFTER any whitespace.
-                Dedent,
-                Ref("FromClauseSegment", optional=True),
-            ),
+            allow_trailing=True,
+            optional=True,  # optional in favour of SELECT INVALID....
         ),
-        Ref("WhereClauseSegment", optional=True),
-        Ref("ConnectByClauseSegment", optional=True),
-        Ref("PreferringClauseSegment", optional=True),
-        Ref("GroupByClauseSegment", optional=True),
-        Ref("HavingClauseSegment", optional=True),
-        Ref("QualifyClauseSegment", optional=True),
-        Ref("OrderByClauseSegment", optional=True),
-        Ref("LimitClauseSegment", optional=True),
+        Ref("WithInvalidForeignKeySegment", optional=True),
+        Ref("WithInvalidUniquePKSegment", optional=True),
+        Ref("IntoTableSegment", optional=True),
+        Dedent,
+        terminators=[Ref("SelectClauseTerminatorGrammar")],
+        parse_mode=ParseMode.GREEDY_ONCE_STARTED,
     )
 
 
-@exasol_dialect.segment()
 class WithInvalidUniquePKSegment(BaseSegment):
     """`WITH INVALID UNIQUE` or `WITH INVALID PRIMARY KEY` clause within `SELECT`."""
 
     type = "with_invalid_unique_pk_clause"
-    match_grammar = StartsWith(
-        Sequence(
-            Ref.keyword("WITH", optional=True),
-            "INVALID",
-            OneOf("UNIQUE", Ref("PrimaryKeyGrammar")),
-        ),
-        terminator="FROM",
-    )
-    parse_grammar = Sequence(
+    match_grammar = Sequence(
         Ref.keyword("WITH", optional=True),
         "INVALID",
         OneOf("UNIQUE", Ref("PrimaryKeyGrammar")),
@@ -372,41 +404,36 @@ class WithInvalidUniquePKSegment(BaseSegment):
     )
 
 
-@exasol_dialect.segment()
 class WithInvalidForeignKeySegment(BaseSegment):
     """`WITH INVALID FOREIGN KEY` clause within `SELECT`."""
 
     type = "with_invalid_foreign_key_clause"
-    match_grammar = StartsWith(
-        Sequence(
-            Ref.keyword("WITH", optional=True), "INVALID", Ref("ForeignKeyGrammar")
-        ),
-        terminator=Ref("FromClauseTerminatorGrammar"),
-    )
-    parse_grammar = Sequence(
+    match_grammar = Sequence(
         Ref.keyword("WITH", optional=True),
         "INVALID",
         Ref("ForeignKeyGrammar"),
         Ref("BracketedColumnReferenceListGrammar"),
-        Dedent,  # dedent for the indent in the select clause
-        "FROM",
-        Ref("TableReferenceSegment"),
+    )
+
+
+class ReferencingClauseSegment(BaseSegment):
+    """Part of `WITH INVALID FOREIGN KEY` clause within `SELECT`."""
+
+    type = "referencing_clause"
+    match_grammar = Sequence(
         "REFERENCING",
         Ref("TableReferenceSegment"),
         Ref("BracketedColumnReferenceListGrammar", optional=True),
     )
 
 
-@exasol_dialect.segment()
 class IntoTableSegment(BaseSegment):
     """`INTO TABLE` clause within `SELECT`."""
 
     type = "into_table_clause"
-    match_grammar = StartsWith(Sequence("INTO", "TABLE"), terminator="FROM")
-    parse_grammar = Sequence("INTO", "TABLE", Ref("TableReferenceSegment"))
+    match_grammar = Sequence("INTO", "TABLE", Ref("TableReferenceSegment"))
 
 
-@exasol_dialect.segment(replace=True)
 class TableExpressionSegment(BaseSegment):
     """The main table expression e.g. within a FROM clause."""
 
@@ -423,7 +450,6 @@ class TableExpressionSegment(BaseSegment):
     )
 
 
-@exasol_dialect.segment(replace=True)
 class ValuesClauseSegment(BaseSegment):
     """A `VALUES` clause within in `WITH` or `SELECT`."""
 
@@ -434,18 +460,15 @@ class ValuesClauseSegment(BaseSegment):
             OneOf(
                 Bracketed(
                     Delimited(
+                        "DEFAULT",
                         Ref("LiteralGrammar"),
-                        Ref("IntervalExpressionSegment"),
-                        Ref("BareFunctionSegment"),
-                        Ref("FunctionSegment"),
-                        ephemeral_name="ValuesClauseElements",
-                    )
+                        Ref("ExpressionSegment"),
+                    ),
+                    parse_mode=ParseMode.GREEDY,
                 ),
                 Delimited(
-                    # e.g. SELECT * FROM (VALUES 1,2,3);
-                    Ref("LiteralGrammar"),
-                    Ref("BareFunctionSegment"),
-                    Ref("FunctionSegment"),
+                    "DEFAULT",
+                    Ref("ExpressionSegment"),
                 ),
             ),
         ),
@@ -453,7 +476,6 @@ class ValuesClauseSegment(BaseSegment):
     )
 
 
-@exasol_dialect.segment()
 class ValuesRangeClauseSegment(BaseSegment):
     """A `VALUES BETWEEN` clause within a `SELECT` statement.
 
@@ -464,14 +486,21 @@ class ValuesRangeClauseSegment(BaseSegment):
     match_grammar = Sequence(
         "VALUES",
         "BETWEEN",
-        Ref("NumericLiteralSegment"),
+        OneOf(
+            Ref("NumericLiteralSegment"),
+            Ref("BareFunctionSegment"),
+            Ref("FunctionSegment"),
+        ),
         "AND",
-        Ref("NumericLiteralSegment"),
+        OneOf(
+            Ref("NumericLiteralSegment"),
+            Ref("BareFunctionSegment"),
+            Ref("FunctionSegment"),
+        ),
         Sequence("WITH", "STEP", Ref("NumericLiteralSegment"), optional=True),
     )
 
 
-@exasol_dialect.segment(replace=True)
 class SetOperatorSegment(BaseSegment):
     """A set operator such as Union, Minus, Except or Intersect."""
 
@@ -483,27 +512,11 @@ class SetOperatorSegment(BaseSegment):
     )
 
 
-@exasol_dialect.segment()
 class ConnectByClauseSegment(BaseSegment):
     """`CONNECT BY` clause within a select statement."""
 
     type = "connect_by_clause"
-    match_grammar = StartsWith(
-        OneOf(
-            Sequence("CONNECT", "BY"),
-            Sequence("START", "WITH"),
-        ),
-        terminator=OneOf(
-            "PREFERRING",
-            Sequence("GROUP", "BY"),
-            "QUALIFY",
-            Sequence("ORDER", "BY"),
-            "LIMIT",
-            Ref("SetOperatorSegment"),
-        ),
-        enforce_whitespace_preceding_terminator=True,
-    )
-    parse_grammar = OneOf(
+    match_grammar = OneOf(
         Sequence(
             "CONNECT",
             "BY",
@@ -511,7 +524,7 @@ class ConnectByClauseSegment(BaseSegment):
             Delimited(
                 Ref("ExpressionSegment"),
                 delimiter="AND",
-                terminator="START",
+                terminators=["START"],
             ),
             Sequence("START", "WITH", Ref("ExpressionSegment"), optional=True),
         ),
@@ -527,23 +540,11 @@ class ConnectByClauseSegment(BaseSegment):
     )
 
 
-@exasol_dialect.segment(replace=True)
 class GroupByClauseSegment(BaseSegment):
     """A `GROUP BY` clause like in `SELECT`."""
 
-    type = "group_by_clause"
-    match_grammar = StartsWith(
-        Sequence("GROUP", "BY"),
-        terminator=OneOf(
-            Sequence("ORDER", "BY"),
-            "LIMIT",
-            "HAVING",
-            "QUALIFY",
-            Ref("SetOperatorSegment"),
-        ),
-        enforce_whitespace_preceding_terminator=True,
-    )
-    parse_grammar = Sequence(
+    type = "groupby_clause"
+    match_grammar = Sequence(
         "GROUP",
         "BY",
         Indent,
@@ -553,110 +554,40 @@ class GroupByClauseSegment(BaseSegment):
                 # Can `GROUP BY 1`
                 Ref("NumericLiteralSegment"),
                 # Can `GROUP BY coalesce(col, 1)`
-                Ref("ExpressionSegment"),
                 Ref("CubeRollupClauseSegment"),
                 Ref("GroupingSetsClauseSegment"),
+                Ref("ExpressionSegment"),
                 Bracketed(),  # Allows empty parentheses
             ),
-            terminator=OneOf(
+            terminators=[
                 Sequence("ORDER", "BY"),
                 "LIMIT",
                 "HAVING",
                 "QUALIFY",
                 Ref("SetOperatorSegment"),
-            ),
+            ],
         ),
         Dedent,
     )
 
 
-@exasol_dialect.segment()
-class CubeRollupClauseSegment(BaseSegment):
-    """`CUBE` / `ROLLUP` clause within the `GROUP BY` clause."""
-
-    type = "cube_rollup_clause"
-    match_grammar = StartsWith(
-        OneOf("CUBE", "ROLLUP"),
-        terminator=OneOf(
-            "HAVING",
-            "QUALIFY",
-            Sequence("ORDER", "BY"),
-            "LIMIT",
-            Ref("SetOperatorSegment"),
-        ),
-    )
-    parse_grammar = Sequence(
-        OneOf("CUBE", "ROLLUP"),
-        Bracketed(
-            Ref("GroupingExpressionList"),
-        ),
-    )
-
-
-@exasol_dialect.segment()
-class GroupingSetsClauseSegment(BaseSegment):
-    """`GROUPING SETS` clause within the `GROUP BY` clause."""
-
-    type = "grouping_sets_clause"
-    match_grammar = StartsWith(
-        Sequence("GROUPING", "SETS"),
-        terminator=OneOf(
-            "HAVING",
-            "QUALIFY",
-            Sequence("ORDER", "BY"),
-            "LIMIT",
-            Ref("SetOperatorSegment"),
-        ),
-    )
-    parse_grammar = Sequence(
-        "GROUPING",
-        "SETS",
-        Bracketed(
-            Delimited(
-                Ref("CubeRollupClauseSegment"),
-                Ref("GroupingExpressionList"),
-                Bracketed(),  # Allows empty parentheses
-            )
-        ),
-    )
-
-
-@exasol_dialect.segment()
-class GroupingExpressionList(BaseSegment):
-    """Grouping expression list within `CUBE` / `ROLLUP` `GROUPING SETS`."""
-
-    type = "grouping_expression_list"
-    match_grammar = Delimited(
-        OneOf(
-            Bracketed(Delimited(Ref("ExpressionSegment"))),
-            Ref("ExpressionSegment"),
-        )
-    )
-
-
-@exasol_dialect.segment()
 class QualifyClauseSegment(BaseSegment):
     """`QUALIFY` clause within `SELECT`."""
 
     type = "qualify_clause"
-    match_grammar = StartsWith(
+    match_grammar = Sequence(
         "QUALIFY",
-        terminator=OneOf(
-            Sequence("ORDER", "BY"),
-            "LIMIT",
-            Ref("SetOperatorSegment"),
-        ),
+        ImplicitIndent,
+        Ref("ExpressionSegment"),
+        Dedent,
     )
-    parse_grammar = Sequence("QUALIFY", Ref("ExpressionSegment"))
 
 
-@exasol_dialect.segment(replace=True)
 class LimitClauseSegment(BaseSegment):
     """A `LIMIT` clause like in `SELECT`."""
 
     type = "limit_clause"
-    match_grammar = StartsWith("LIMIT")
-    parse_grammar = Sequence(
+    match_grammar = Sequence(
         "LIMIT",
         OneOf(
             Sequence(  # offset, count
@@ -672,106 +603,20 @@ class LimitClauseSegment(BaseSegment):
     )
 
 
-############################
-# DROP
-############################
+class LocalAliasSegment(BaseSegment):
+    """The `LOCAL.ALIAS` syntax allows to use a alias name of a column within clauses.
 
+    E.g.
+    `SELECT ABS(x) AS x FROM t WHERE local.x>10`
 
-@exasol_dialect.segment(replace=True)
-class DropStatementSegment(BaseSegment):
-    """A `DROP` statement without any options."""
+    This is supported by: `SELECT`, `WHERE`, `GROUP BY`, `ORDER BY`, `HAVING`, `QUALIFY`
 
-    type = "drop_statement"
-    is_ddl = False
-    is_dml = False
-    is_dql = False
-    is_dcl = True
-    match_grammar = StartsWith("DROP")
-    parse_grammar = OneOf(
-        Ref("DropWithouOptionsStatementSegment"),
-        Ref("DropCascadeStatementSegment"),
-        Ref("DropCascadeRestrictStatementSegment"),
-        Ref("DropSchemaStatementSegment"),
-        Ref("DropTableStatementSegment"),
-    )
-
-
-@exasol_dialect.segment()
-class DropWithouOptionsStatementSegment(BaseSegment):
-    """A `DROP` statement without any options."""
-
-    type = "drop_wo_options"
-    is_ddl = False
-    is_dml = False
-    is_dql = False
-    is_dcl = True
-    match_grammar = Sequence(
-        "DROP",
-        OneOf(
-            "CONNECTION",
-            Sequence(
-                Ref.keyword("ADAPTER", optional=True),
-                "SCRIPT",
-            ),
-            Sequence("CONSUMER", "GROUP"),
-        ),
-        Ref("IfExistsGrammar", optional=True),
-        Ref("ObjectReferenceSegment"),
-    )
-
-
-@exasol_dialect.segment()
-class DropCascadeStatementSegment(BaseSegment):
-    """A `DROP` statement with CASCADE option.
-
-    https://docs.exasol.com/sql/drop_role.htm
-    https://docs.exasol.com/sql/drop_user.htm
+    Note: it's not necessary to use `LOCAL` within `ÒRDER BY` and `QUALIFY` because the
+    alias could be accessed directly (...but we can).
     """
 
-    type = "drop_cascade"
-
-    is_ddl = False
-    is_dml = False
-    is_dql = False
-    is_dcl = True
-
-    match_grammar = Sequence(
-        "DROP",
-        OneOf(
-            "USER",
-            "ROLE",
-        ),
-        Ref("IfExistsGrammar", optional=True),
-        Ref("ObjectReferenceSegment"),
-        Ref.keyword("CASCADE", optional=True),
-    )
-
-
-@exasol_dialect.segment()
-class DropCascadeRestrictStatementSegment(BaseSegment):
-    """A `DROP` statement with CASCADE and RESTRICT option.
-
-    https://docs.exasol.com/sql/drop_view.htm
-    https://docs.exasol.com/sql/drop_function.htm
-    """
-
-    type = "drop_cascade_restrict"
-
-    is_ddl = True
-    is_dml = False
-    is_dql = False
-    is_dcl = False
-
-    match_grammar = Sequence(
-        "DROP",
-        OneOf(
-            "VIEW",
-            "FUNCTION",
-        ),
-        Ref("IfExistsGrammar", optional=True),
-        Ref("ObjectReferenceSegment"),
-        OneOf("RESTRICT", "CASCADE", optional=True),
-    )
+    type = "local_alias_segment"
+    match_grammar = Sequence("LOCAL", Ref("DotSegment"), Ref("SingleIdentifierGrammar"))
 
 
 ############################
@@ -779,7 +624,6 @@ class DropCascadeRestrictStatementSegment(BaseSegment):
 ############################
 
 
-@exasol_dialect.segment(replace=True)
 class CreateSchemaStatementSegment(BaseSegment):
     """A `CREATE SCHEMA` statement.
 
@@ -791,8 +635,7 @@ class CreateSchemaStatementSegment(BaseSegment):
     is_dml = False
     is_dql = False
     is_dcl = False
-    match_grammar = StartsWith(Sequence("CREATE", "SCHEMA"))
-    parse_grammar = Sequence(
+    match_grammar = Sequence(
         "CREATE",
         "SCHEMA",
         Ref("IfNotExistsGrammar", optional=True),
@@ -800,9 +643,8 @@ class CreateSchemaStatementSegment(BaseSegment):
     )
 
 
-@exasol_dialect.segment()
 class CreateVirtualSchemaStatementSegment(BaseSegment):
-    """A `CREATE VIRUTAL SCHEMA` statement.
+    """A `CREATE VIRTUAL SCHEMA` statement.
 
     https://docs.exasol.com/sql/create_schema.htm
     """
@@ -812,8 +654,7 @@ class CreateVirtualSchemaStatementSegment(BaseSegment):
     is_dml = False
     is_dql = False
     is_dcl = False
-    match_grammar = StartsWith(Sequence("CREATE", "VIRTUAL", "SCHEMA"))
-    parse_grammar = Sequence(
+    match_grammar = Sequence(
         "CREATE",
         "VIRTUAL",
         "SCHEMA",
@@ -832,9 +673,8 @@ class CreateVirtualSchemaStatementSegment(BaseSegment):
     )
 
 
-@exasol_dialect.segment()
 class AlterSchemaStatementSegment(BaseSegment):
-    """A `ALTER VIRUTAL SCHEMA` statement.
+    """A `ALTER VIRTUAL SCHEMA` statement.
 
     https://docs.exasol.com/sql/alter_schema.htm
     """
@@ -845,8 +685,7 @@ class AlterSchemaStatementSegment(BaseSegment):
     is_dml = False
     is_dql = False
     is_dcl = False
-    match_grammar = StartsWith(Sequence("ALTER", "SCHEMA"))
-    parse_grammar = Sequence(
+    match_grammar = Sequence(
         "ALTER",
         "SCHEMA",
         Ref("SchemaReferenceSegment"),
@@ -857,14 +696,13 @@ class AlterSchemaStatementSegment(BaseSegment):
                 Ref("EqualsSegment"),
                 AnyNumberOf(Ref("NumericLiteralSegment"), Ref("StarSegment")),
             ),
-            Sequence("CHANGE", "OWNER", Ref("SchemaReferenceSegment")),
+            Sequence("CHANGE", "OWNER", Ref("SingleIdentifierGrammar")),
         ),
     )
 
 
-@exasol_dialect.segment()
 class AlterVirtualSchemaStatementSegment(BaseSegment):
-    """A `ALTER VIRUTAL SCHEMA` statement.
+    """A `ALTER VIRTUAL SCHEMA` statement.
 
     https://docs.exasol.com/sql/alter_schema.htm
     """
@@ -875,8 +713,7 @@ class AlterVirtualSchemaStatementSegment(BaseSegment):
     is_dml = False
     is_dql = False
     is_dcl = False
-    match_grammar = StartsWith(Sequence("ALTER", "VIRTUAL", "SCHEMA"))
-    parse_grammar = Sequence(
+    match_grammar = Sequence(
         "ALTER",
         "VIRTUAL",
         "SCHEMA",
@@ -900,19 +737,18 @@ class AlterVirtualSchemaStatementSegment(BaseSegment):
                     optional=True,
                 ),
             ),
-            Sequence("CHANGE", "OWNER", Ref("NakedIdentifierSegment")),
+            Sequence("CHANGE", "OWNER", Ref("SingleIdentifierGrammar")),
         ),
     )
 
 
-@exasol_dialect.segment(replace=True)
 class DropSchemaStatementSegment(BaseSegment):
-    """A `DROP` statement for EXASOL schema.
+    """A `DROP SCHEMA` statement for EXASOL schema.
 
     https://docs.exasol.com/sql/drop_schema.htm
     """
 
-    type = "drop_schema"
+    type = "drop_schema_statement"
 
     is_ddl = True
     is_dml = False
@@ -926,21 +762,19 @@ class DropSchemaStatementSegment(BaseSegment):
         "SCHEMA",
         Ref("IfExistsGrammar", optional=True),
         Ref("SchemaReferenceSegment"),
-        OneOf("RESTRICT", Ref.keyword("CASCADE", optional=True), optional=True),
+        Ref("DropBehaviorGrammar", optional=True),
     )
 
 
 ############################
 # VIEW
 ############################
-@exasol_dialect.segment()
-class ViewReferenceSegment(ansi_dialect.get_segment("ObjectReferenceSegment")):  # type: ignore
+class ViewReferenceSegment(ansi.ObjectReferenceSegment):
     """A reference to an schema."""
 
     type = "view_reference"
 
 
-@exasol_dialect.segment(replace=True)
 class CreateViewStatementSegment(BaseSegment):
     """A `CREATE VIEW` statement.
 
@@ -953,15 +787,7 @@ class CreateViewStatementSegment(BaseSegment):
     is_dml = False
     is_dql = False
     is_dcl = False
-    match_grammar = StartsWith(
-        Sequence(
-            "CREATE",
-            Ref("OrReplaceGrammar", optional=True),
-            Ref.keyword("FORCE", optional=True),
-            "VIEW",
-        )
-    )
-    parse_grammar = Sequence(
+    match_grammar = Sequence(
         "CREATE",
         Ref("OrReplaceGrammar", optional=True),
         Ref.keyword("FORCE", optional=True),
@@ -971,26 +797,42 @@ class CreateViewStatementSegment(BaseSegment):
             Delimited(
                 Sequence(
                     Ref("ColumnReferenceSegment"),
-                    Ref("CommentIsGrammar", optional=True),
+                    Ref("CommentClauseSegment", optional=True),
                 ),
             ),
             optional=True,
         ),
         "AS",
-        OneOf(
-            Bracketed(Ref("SelectableGrammar")),
-            Ref("SelectableGrammar"),
-        ),
-        Ref("CommentIsGrammar", optional=True),
-        # TODO: (...) COMMENT IS '...' works, without brackets doesn't work
-        # COMMENT is matched as an identifier...
+        OptionallyBracketed(Ref("SelectableGrammar")),
+        Ref("CommentClauseSegment", optional=True),
+    )
+
+
+class DropViewStatementSegment(BaseSegment):
+    """A `DROP VIEW` statement with CASCADE and RESTRICT option.
+
+    https://docs.exasol.com/sql/drop_view.htm
+    """
+
+    type = "drop_view_statement"
+
+    is_ddl = True
+    is_dml = False
+    is_dql = False
+    is_dcl = False
+
+    match_grammar = Sequence(
+        "DROP",
+        "VIEW",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("ViewReferenceSegment"),
+        Ref("DropBehaviorGrammar", optional=True),
     )
 
 
 ############################
 # TABLE
 ############################
-@exasol_dialect.segment(replace=True)
 class CreateTableStatementSegment(BaseSegment):
     """A `CREATE TABLE` statement.
 
@@ -1003,10 +845,7 @@ class CreateTableStatementSegment(BaseSegment):
     is_dml = False
     is_dql = False
     is_dcl = False
-    match_grammar = StartsWith(
-        Sequence("CREATE", Ref("OrReplaceGrammar", optional=True), "TABLE")
-    )
-    parse_grammar = Sequence(
+    match_grammar = Sequence(
         "CREATE",
         Ref("OrReplaceGrammar", optional=True),
         "TABLE",
@@ -1016,16 +855,12 @@ class CreateTableStatementSegment(BaseSegment):
             # Columns and comment syntax:
             Bracketed(
                 Sequence(
-                    Ref("TableContentDefinitionSegment"),
-                    AnyNumberOf(
-                        Sequence(
-                            Ref("CommaSegment"),
-                            Ref("TableContentDefinitionSegment"),
-                        ),
+                    Delimited(
+                        Ref("TableContentDefinitionSegment"),
                     ),
                     Sequence(
                         Ref("CommaSegment"),
-                        Ref("TableDistributionPartitonClause"),
+                        Ref("TableDistributionPartitionClause"),
                         optional=True,
                     ),
                 ),
@@ -1034,24 +869,15 @@ class CreateTableStatementSegment(BaseSegment):
             Sequence(
                 "AS",
                 Ref("SelectableGrammar"),
-                Sequence(
-                    # TODO: this only works if there are brackets
-                    # around the selectable grammar. this should even
-                    # work without brackets
-                    "WITH",
-                    Ref.keyword("NO", optional=True),
-                    "DATA",
-                    optional=True,
-                ),
+                Ref("WithDataClauseSegment", optional=True),
             ),
             # Create like syntax
             Ref("CreateTableLikeClauseSegment"),
         ),
-        Ref("CommentIsGrammar", optional=True),
+        Ref("CommentClauseSegment", optional=True),
     )
 
 
-@exasol_dialect.segment()
 class TableContentDefinitionSegment(BaseSegment):
     """The table content definition."""
 
@@ -1063,7 +889,6 @@ class TableContentDefinitionSegment(BaseSegment):
     )
 
 
-@exasol_dialect.segment()
 class ColumnDatatypeSegment(BaseSegment):
     """sequence of column and datatype definition."""
 
@@ -1074,7 +899,21 @@ class ColumnDatatypeSegment(BaseSegment):
     )
 
 
-@exasol_dialect.segment(replace=True)
+class BracketedArguments(ansi.BracketedArguments):
+    """A series of bracketed arguments.
+
+    e.g. the bracketed part of numeric(1, 3)
+    """
+
+    match_grammar = Bracketed(
+        # The brackets might be empty for some cases...
+        Delimited(Ref("NumericLiteralSegment"), optional=True),
+        # In exasol, some types offer on optional MAX
+        # qualifier of BIT, BYTE or CHAR
+        OneOf("BIT", "BYTE", "CHAR", optional=True),
+    )
+
+
 class DatatypeSegment(BaseSegment):
     """A data type segment.
 
@@ -1089,13 +928,7 @@ class DatatypeSegment(BaseSegment):
         # Numeric Data Types
         Sequence(
             OneOf("DECIMAL", "DEC", "NUMBER", "NUMERIC"),
-            Bracketed(
-                Ref("NumericLiteralSegment"),
-                Sequence(
-                    Ref("CommaSegment"), Ref("NumericLiteralSegment"), optional=True
-                ),
-                optional=True,
-            ),
+            Ref("BracketedArguments", optional=True),
         ),
         "BIGINT",
         Sequence("DOUBLE", Ref.keyword("PRECISION", optional=True)),
@@ -1116,29 +949,25 @@ class DatatypeSegment(BaseSegment):
         Sequence(
             "INTERVAL",
             "YEAR",
-            Bracketed(Ref("NumericLiteralSegment"), optional=True),
+            Ref("BracketedArguments", optional=True),
             "TO",
             "MONTH",
         ),
         Sequence(
             "INTERVAL",
             "DAY",
-            Bracketed(Ref("NumericLiteralSegment"), optional=True),
+            Ref("BracketedArguments", optional=True),
             "TO",
             "SECOND",
-            Bracketed(Ref("NumericLiteralSegment"), optional=True),
+            Ref("BracketedArguments", optional=True),
         ),
         Sequence(
             "GEOMETRY",
-            Bracketed(Ref("NumericLiteralSegment"), optional=True),
+            Ref("BracketedArguments", optional=True),
         ),
         Sequence(
             "HASHTYPE",
-            Bracketed(
-                Ref("NumericLiteralSegment"),
-                OneOf("BIT", "BYTE", optional=True),
-                optional=True,
-            ),
+            Ref("BracketedArguments", optional=True),
         ),
         Sequence(
             OneOf(
@@ -1151,31 +980,85 @@ class DatatypeSegment(BaseSegment):
                         "NVARCHAR",
                         "NVARCHAR2",
                     ),
-                    Bracketed(
-                        Ref("NumericLiteralSegment"),
-                        OneOf("CHAR", "BYTE", optional=True),
-                        optional=True,
-                    ),
+                    Ref("BracketedArguments", optional=True),
                 ),
                 Sequence("LONG", "VARCHAR"),
                 Sequence(
                     "CHARACTER",
                     Sequence(
                         OneOf(Sequence("LARGE", "OBJECT"), "VARYING", optional=True),
-                        Bracketed(Ref("NumericLiteralSegment"), optional=True),
+                        Ref("BracketedArguments", optional=True),
                     ),
                 ),
                 Sequence(
                     "CLOB",
-                    Bracketed(Ref("NumericLiteralSegment"), optional=True),
+                    Ref("BracketedArguments", optional=True),
                 ),
             ),
-            Ref("CharCharacterSetSegment", optional=True),
+            Ref("CharCharacterSetGrammar", optional=True),
         ),
     )
 
 
-@exasol_dialect.segment(replace=True)
+class IntervalExpressionSegment(BaseSegment):
+    """An interval expression segment.
+
+    https://docs.exasol.com/db/latest/sql_references/literals.htm
+    """
+
+    type = "interval_expression"
+    match_grammar = Sequence(
+        "INTERVAL",
+        Ref("QuotedLiteralSegment"),
+        OneOf(
+            # INTERVAL '5' MONTH
+            # INTERVAL '130' MONTH (3)
+            Sequence(
+                "MONTH",
+                Bracketed(Ref("NumericLiteralSegment"), optional=True),
+            ),
+            # INTERVAL '27' YEAR
+            # INTERVAL '100-1' YEAR(3) TO MONTH
+            Sequence(
+                "YEAR",
+                Bracketed(Ref("NumericLiteralSegment"), optional=True),
+                Sequence("TO", "MONTH", optional=True),
+            ),
+            # INTERVAL '5' DAY
+            # INTERVAL '100' HOUR(3)
+            # INTERVAL '1.99999' SECOND(2,2)
+            # INTERVAL '23:10:59.123' HOUR(2) TO SECOND(3)
+            Sequence(
+                OneOf(
+                    Sequence(
+                        OneOf("DAY", "HOUR", "MINUTE"),
+                        Bracketed(Ref("NumericLiteralSegment"), optional=True),
+                    ),
+                    Sequence(
+                        "SECOND",
+                        Bracketed(
+                            Delimited(Ref("NumericLiteralSegment")),
+                            optional=True,
+                        ),
+                    ),
+                ),
+                Sequence(
+                    "TO",
+                    OneOf(
+                        "HOUR",
+                        "MINUTE",
+                        Sequence(
+                            "SECOND",
+                            Bracketed(Ref("NumericLiteralSegment"), optional=True),
+                        ),
+                    ),
+                    optional=True,
+                ),
+            ),
+        ),
+    )
+
+
 class ColumnDefinitionSegment(BaseSegment):
     """Column definition within a `CREATE / ALTER TABLE` statement."""
 
@@ -1186,11 +1069,9 @@ class ColumnDefinitionSegment(BaseSegment):
     )
 
 
-@exasol_dialect.segment(replace=True)
-class ColumnConstraintSegment(BaseSegment):
+class ColumnConstraintSegment(ansi.ColumnConstraintSegment):
     """A column option; each CREATE TABLE column can have 0 or more."""
 
-    type = "column_option"
     match_grammar = Sequence(
         OneOf(
             Sequence(
@@ -1204,30 +1085,24 @@ class ColumnConstraintSegment(BaseSegment):
             optional=True,
         ),
         Ref("TableInlineConstraintSegment", optional=True),
-        Ref("CommentIsGrammar", optional=True),
+        Ref("CommentClauseSegment", optional=True),
     )
 
 
-@exasol_dialect.segment()
 class TableInlineConstraintSegment(BaseSegment):
     """Inline table constraint for CREATE / ALTER TABLE."""
 
     type = "table_constraint_definition"
-    match_grammar = StartsWith(
-        OneOf("CONSTRAINT", "NOT", "NULL", "PRIMARY", "FOREIGN"),
-        terminator=OneOf("COMMENT", Ref("CommaSegment"), Ref("EndBracketSegment")),
-    )
-    parse_grammar = Sequence(
+    match_grammar = Sequence(
         Sequence(
             "CONSTRAINT",
-            AnyNumberOf(
-                Ref("NakedIdentifierSegment"),
-                max_times=1,
-                min_times=0,
+            Ref(
+                "SingleIdentifierGrammar",
                 # exclude UNRESERVED_KEYWORDS which could used as NakedIdentifier
-                # to make e.g. `id NUMBER CONSTRAINT PRIMARY KEY` work (which is equal to just
-                # `id NUMBER PRIMARY KEY`)
+                # to make e.g. `id NUMBER CONSTRAINT PRIMARY KEY` work (which is equal
+                # to just `id NUMBER PRIMARY KEY`)
                 exclude=OneOf("NOT", "NULL", "PRIMARY", "FOREIGN"),
+                optional=True,
             ),
             optional=True,
         ),
@@ -1243,26 +1118,20 @@ class TableInlineConstraintSegment(BaseSegment):
     )
 
 
-@exasol_dialect.segment()
 class TableOutOfLineConstraintSegment(BaseSegment):
     """Out of line table constraint for CREATE / ALTER TABLE."""
 
     type = "table_constraint_definition"
-    match_grammar = StartsWith(
-        OneOf("CONSTRAINT", "PRIMARY", "FOREIGN"),
-        terminator=OneOf(Ref("CommaSegment"), "DISTRIBUTE", "PARTITION"),
-    )
-    parse_grammar = Sequence(
+    match_grammar = Sequence(
         Sequence(
             "CONSTRAINT",
-            AnyNumberOf(
-                Ref("NakedIdentifierSegment"),
-                max_times=1,
-                min_times=0,
+            Ref(
+                "SingleIdentifierGrammar",
                 # exclude UNRESERVED_KEYWORDS which could used as NakedIdentifier
-                # to make e.g. `id NUMBER, CONSTRAINT PRIMARY KEY(id)` work (which is equal to just
-                # `id NUMBER, PRIMARY KEY(id)`)
+                # to make e.g. `id NUMBER, CONSTRAINT PRIMARY KEY(id)` work (which is
+                # equal to just `id NUMBER, PRIMARY KEY(id)`)
                 exclude=OneOf("NOT", "NULL", "PRIMARY", "FOREIGN"),
+                optional=True,
             ),
             optional=True,
         ),
@@ -1283,7 +1152,6 @@ class TableOutOfLineConstraintSegment(BaseSegment):
     )
 
 
-@exasol_dialect.segment()
 class CreateTableLikeClauseSegment(BaseSegment):
     """`CREATE TABLE` LIKE clause."""
 
@@ -1292,13 +1160,11 @@ class CreateTableLikeClauseSegment(BaseSegment):
         "LIKE",
         Ref("TableReferenceSegment"),
         Bracketed(
-            AnyNumberOf(
+            Delimited(
                 Sequence(
                     Ref("SingleIdentifierGrammar"),
                     Ref("AliasExpressionSegment", optional=True),
                 ),
-                Ref("CommaSegment", optional=True),
-                min_times=1,
             ),
             optional=True,
         ),
@@ -1308,8 +1174,7 @@ class CreateTableLikeClauseSegment(BaseSegment):
     )
 
 
-@exasol_dialect.segment()
-class TableDistributionPartitonClause(BaseSegment):
+class TableDistributionPartitionClause(BaseSegment):
     """`CREATE / ALTER TABLE` distribution / partition clause.
 
     DISTRIBUTE/PARTITION clause doesn't except the identifiers in brackets
@@ -1330,7 +1195,6 @@ class TableDistributionPartitonClause(BaseSegment):
     )
 
 
-@exasol_dialect.segment(replace=True)
 class AlterTableStatementSegment(BaseSegment):
     """`ALTER TABLE` statement."""
 
@@ -1340,15 +1204,13 @@ class AlterTableStatementSegment(BaseSegment):
     is_dml = False
     is_dql = False
     is_dcl = False
-    match_grammar = StartsWith(Sequence("ALTER", "TABLE"))
-    parse_grammar = OneOf(
+    match_grammar = OneOf(
         Ref("AlterTableColumnSegment"),
         Ref("AlterTableConstraintSegment"),
         Ref("AlterTableDistributePartitionSegment"),
     )
 
 
-@exasol_dialect.segment()
 class AlterTableColumnSegment(BaseSegment):
     """A `ALTER TABLE` statement to add, modify, drop or rename columns.
 
@@ -1376,7 +1238,6 @@ class AlterTableColumnSegment(BaseSegment):
     )
 
 
-@exasol_dialect.segment()
 class AlterTableAddColumnSegment(BaseSegment):
     """ALTER TABLE ADD.."""
 
@@ -1389,7 +1250,6 @@ class AlterTableAddColumnSegment(BaseSegment):
     )
 
 
-@exasol_dialect.segment()
 class AlterTableDropColumnSegment(BaseSegment):
     """ALTER TABLE DROP.."""
 
@@ -1403,7 +1263,6 @@ class AlterTableDropColumnSegment(BaseSegment):
     )
 
 
-@exasol_dialect.segment()
 class AlterTableModifyColumnSegment(BaseSegment):
     """ALTER TABLE MODIFY.."""
 
@@ -1419,7 +1278,6 @@ class AlterTableModifyColumnSegment(BaseSegment):
     )
 
 
-@exasol_dialect.segment()
 class AlterTableRenameColumnSegment(BaseSegment):
     """ALTER TABLE RENAME.."""
 
@@ -1433,7 +1291,6 @@ class AlterTableRenameColumnSegment(BaseSegment):
     )
 
 
-@exasol_dialect.segment()
 class AlterTableAlterColumnSegment(BaseSegment):
     """ALTER TABLE ALTER.."""
 
@@ -1462,7 +1319,6 @@ class AlterTableAlterColumnSegment(BaseSegment):
     )
 
 
-@exasol_dialect.segment()
 class AlterTableConstraintSegment(BaseSegment):
     """A `ALTER TABLE` statement to add, modify, drop or rename constraints.
 
@@ -1512,7 +1368,6 @@ class AlterTableConstraintSegment(BaseSegment):
     )
 
 
-@exasol_dialect.segment()
 class AlterTableDistributePartitionSegment(BaseSegment):
     """A `ALTER TABLE` statement to add or drop distribution / partition keys.
 
@@ -1531,7 +1386,7 @@ class AlterTableDistributePartitionSegment(BaseSegment):
         "TABLE",
         Ref("TableReferenceSegment"),
         OneOf(
-            Ref("TableDistributionPartitonClause"),
+            Ref("TableDistributionPartitionClause"),
             Sequence(
                 "DROP",
                 OneOf(
@@ -1552,29 +1407,42 @@ class AlterTableDistributePartitionSegment(BaseSegment):
     )
 
 
-@exasol_dialect.segment()
 class DropTableStatementSegment(BaseSegment):
     """A `DROP` table statement.
 
     https://docs.exasol.com/sql/drop_table.htm
     """
 
-    type = "drop_table"
-    match_grammar = StartsWith(Sequence("DROP", "TABLE"))
-    parse_grammar = Sequence(
+    type = "drop_table_statement"
+
+    is_ddl = True
+    is_dml = False
+    is_dql = False
+    is_dcl = False
+
+    match_grammar = Sequence(
         "DROP",
         "TABLE",
         Ref("IfExistsGrammar", optional=True),
         Ref("TableReferenceSegment"),
-        OneOf("RESTRICT", Ref.keyword("CASCADE", optional=True), optional=True),
+        Ref("DropBehaviorGrammar", optional=True),
         Sequence("CASCADE", "CONSTRAINTS", optional=True),
     )
+
+
+class CommentClauseSegment(BaseSegment):
+    """A comment clause within `CREATE TABLE` / `CREATE VIEW` statements.
+
+    e.g. COMMENT IS 'view/table/column description'
+    """
+
+    type = "comment_clause"
+    match_grammar = Sequence("COMMENT", "IS", Ref("QuotedLiteralSegment"))
 
 
 ############################
 # RENAME
 ############################
-@exasol_dialect.segment()
 class RenameStatementSegment(BaseSegment):
     """`RENAME` statement.
 
@@ -1587,8 +1455,7 @@ class RenameStatementSegment(BaseSegment):
     is_dml = False
     is_dql = False
     is_dcl = False
-    match_grammar = StartsWith("RENAME")
-    parse_grammar = Sequence(
+    match_grammar = Sequence(
         "RENAME",
         OneOf(
             "SCHEMA",
@@ -1613,7 +1480,6 @@ class RenameStatementSegment(BaseSegment):
 ############################
 
 
-@exasol_dialect.segment()
 class CommentStatementSegment(BaseSegment):
     """`COMMENT` statement.
 
@@ -1626,8 +1492,7 @@ class CommentStatementSegment(BaseSegment):
     is_dml = False
     is_dql = False
     is_dcl = False
-    match_grammar = StartsWith(Sequence("COMMENT", "ON"))
-    parse_grammar = Sequence(
+    match_grammar = Sequence(
         "COMMENT",
         "ON",
         OneOf(
@@ -1668,7 +1533,6 @@ class CommentStatementSegment(BaseSegment):
 ############################
 # INSERT
 ############################
-@exasol_dialect.segment(replace=True)
 class InsertStatementSegment(BaseSegment):
     """A `INSERT` statement."""
 
@@ -1679,39 +1543,15 @@ class InsertStatementSegment(BaseSegment):
     is_dql = False
     is_dcl = False
 
-    match_grammar = StartsWith("INSERT")
-    parse_grammar = Sequence(
+    match_grammar = Sequence(
         "INSERT",
         Ref.keyword("INTO", optional=True),
         Ref("TableReferenceSegment"),
         AnyNumberOf(
-            Ref("ValuesInsertClauseSegment"),
+            Ref("ValuesRangeClauseSegment"),
             Sequence("DEFAULT", "VALUES"),
             Ref("SelectableGrammar"),
             Ref("BracketedColumnReferenceListGrammar", optional=True),
-        ),
-    )
-
-
-@exasol_dialect.segment()
-class ValuesInsertClauseSegment(BaseSegment):
-    """A `VALUES` clause like in `INSERT`."""
-
-    type = "values_insert_clause"
-    match_grammar = Sequence(
-        "VALUES",
-        Delimited(
-            Bracketed(
-                Delimited(
-                    Ref("LiteralGrammar"),
-                    Ref("IntervalExpressionSegment"),
-                    Ref("FunctionSegment"),
-                    Ref("BareFunctionSegment"),
-                    "DEFAULT",
-                    Ref("SelectableGrammar"),
-                    ephemeral_name="ValuesClauseElements",
-                )
-            ),
         ),
     )
 
@@ -1721,7 +1561,6 @@ class ValuesInsertClauseSegment(BaseSegment):
 ############################
 
 
-@exasol_dialect.segment(replace=True)
 class UpdateStatementSegment(BaseSegment):
     """A `Update` statement.
 
@@ -1736,10 +1575,11 @@ class UpdateStatementSegment(BaseSegment):
     is_dql = False
     is_dcl = False
 
-    match_grammar = StartsWith("UPDATE")
-    parse_grammar = Sequence(
+    match_grammar = Sequence(
         "UPDATE",
+        Indent,
         OneOf(Ref("TableReferenceSegment"), Ref("AliasedTableReferenceGrammar")),
+        Dedent,
         Ref("SetClauseListSegment"),
         Ref("FromClauseSegment", optional=True),
         Ref("WhereClauseSegment", optional=True),
@@ -1747,7 +1587,6 @@ class UpdateStatementSegment(BaseSegment):
     )
 
 
-@exasol_dialect.segment(replace=True)
 class SetClauseListSegment(BaseSegment):
     """Overwritten from ANSI."""
 
@@ -1757,13 +1596,12 @@ class SetClauseListSegment(BaseSegment):
         Indent,
         Delimited(
             Ref("SetClauseSegment"),
-            terminator="FROM",
+            terminators=["FROM"],
         ),
         Dedent,
     )
 
 
-@exasol_dialect.segment(replace=True)
 class SetClauseSegment(BaseSegment):
     """Overwritten from ANSI."""
 
@@ -1787,59 +1625,27 @@ class SetClauseSegment(BaseSegment):
 ############################
 # MERGE
 ############################
-@exasol_dialect.segment()
-class MergeStatementSegment(BaseSegment):
-    """`MERGE` statement.
+class MergeMatchSegment(BaseSegment):
+    """Contains dialect specific merge operations."""
 
-    https://docs.exasol.com/sql/merge.htm
-    """
-
-    type = "merge_statement"
-
-    is_ddl = False
-    is_dml = True
-    is_dql = False
-    is_dcl = False
-
-    match_grammar = StartsWith(
-        Sequence("MERGE", "INTO"),
-    )
-    parse_grammar = Sequence(
-        "MERGE",
-        "INTO",
-        OneOf(Ref("TableReferenceSegment"), Ref("AliasedTableReferenceGrammar")),
-        "USING",
-        OneOf(
-            Ref("TableReferenceSegment"),  # tables/views
-            Bracketed(
-                Ref("SelectableGrammar"),
-            ),  # subquery
+    type = "merge_match"
+    match_grammar = OneOf(
+        Sequence(
+            Ref("MergeMatchedClauseSegment"),
+            Ref("MergeNotMatchedClauseSegment", optional=True),
         ),
-        Ref("AliasExpressionSegment", optional=True),
-        Ref("JoinOnConditionSegment"),
-        OneOf(
-            Sequence(
-                Ref("MergeMatchedClauseSegment"),
-                Ref("MergeNotMatchedClauseSegment", optional=True),
-            ),
-            Sequence(
-                Ref("MergeNotMatchedClauseSegment"),
-                Ref("MergeMatchedClauseSegment", optional=True),
-            ),
+        Sequence(
+            Ref("MergeNotMatchedClauseSegment"),
+            Ref("MergeMatchedClauseSegment", optional=True),
         ),
     )
 
 
-@exasol_dialect.segment()
 class MergeMatchedClauseSegment(BaseSegment):
     """The `WHEN MATCHED` clause within a `MERGE` statement."""
 
     type = "merge_when_matched_clause"
-    match_grammar = StartsWith(
-        Sequence("WHEN", "MATCHED", "THEN", OneOf("UPDATE", "DELETE")),
-        terminator=Ref("MergeNotMatchedClauseSegment"),
-    )
-    parse_grammar = Sequence(
+    match_grammar = Sequence(
         "WHEN",
         "MATCHED",
         "THEN",
@@ -1850,21 +1656,11 @@ class MergeMatchedClauseSegment(BaseSegment):
     )
 
 
-@exasol_dialect.segment()
 class MergeNotMatchedClauseSegment(BaseSegment):
     """The `WHEN NOT MATCHED` clause within a `MERGE` statement."""
 
     type = "merge_when_not_matched_clause"
-    match_grammar = StartsWith(
-        Sequence(
-            "WHEN",
-            "NOT",
-            "MATCHED",
-            "THEN",
-        ),
-        terminator=Ref("MergeMatchedClauseSegment"),
-    )
-    parse_grammar = Sequence(
+    match_grammar = Sequence(
         "WHEN",
         "NOT",
         "MATCHED",
@@ -1873,7 +1669,6 @@ class MergeNotMatchedClauseSegment(BaseSegment):
     )
 
 
-@exasol_dialect.segment()
 class MergeUpdateClauseSegment(BaseSegment):
     """`UPDATE` clause within the `MERGE` statement."""
 
@@ -1885,7 +1680,6 @@ class MergeUpdateClauseSegment(BaseSegment):
     )
 
 
-@exasol_dialect.segment()
 class MergeDeleteClauseSegment(BaseSegment):
     """`DELETE` clause within the `MERGE` statement."""
 
@@ -1896,23 +1690,16 @@ class MergeDeleteClauseSegment(BaseSegment):
     )
 
 
-@exasol_dialect.segment()
 class MergeInsertClauseSegment(BaseSegment):
     """`INSERT` clause within the `MERGE` statement."""
 
     type = "merge_insert_clause"
     match_grammar = Sequence(
         "INSERT",
+        Indent,
         Ref("BracketedColumnReferenceListGrammar", optional=True),
-        "VALUES",
-        Bracketed(
-            Delimited(
-                OneOf(
-                    "DEFAULT",
-                    Ref("ExpressionSegment"),
-                ),
-            )
-        ),
+        Dedent,
+        Ref("ValuesClauseSegment", optional=True),
         Ref("WhereClauseSegment", optional=True),
     )
 
@@ -1920,7 +1707,6 @@ class MergeInsertClauseSegment(BaseSegment):
 ############################
 # DELETE
 ############################
-@exasol_dialect.segment(replace=True)
 class DeleteStatementSegment(BaseSegment):
     """`DELETE` statement.
 
@@ -1934,8 +1720,7 @@ class DeleteStatementSegment(BaseSegment):
     is_dql = False
     is_dcl = False
 
-    match_grammar = StartsWith("DELETE")
-    parse_grammar = Sequence(
+    match_grammar = Sequence(
         "DELETE",
         Ref("StarSegment", optional=True),
         "FROM",
@@ -1948,7 +1733,6 @@ class DeleteStatementSegment(BaseSegment):
 ############################
 # TRUNCATE
 ############################
-@exasol_dialect.segment(replace=True)
 class TruncateStatementSegment(BaseSegment):
     """`TRUNCATE TABLE` statement.
 
@@ -1962,8 +1746,7 @@ class TruncateStatementSegment(BaseSegment):
     is_dql = False
     is_dcl = False
 
-    match_grammar = StartsWith(Sequence("TRUNCATE", "TABLE"))
-    parse_grammar = Sequence(
+    match_grammar = Sequence(
         "TRUNCATE",
         "TABLE",
         Ref("TableReferenceSegment"),
@@ -1973,7 +1756,6 @@ class TruncateStatementSegment(BaseSegment):
 ############################
 # IMPORT
 ############################
-@exasol_dialect.segment()
 class ImportStatementSegment(BaseSegment):
     """`IMPORT` statement.
 
@@ -1987,8 +1769,7 @@ class ImportStatementSegment(BaseSegment):
     is_dql = False
     is_dcl = False
 
-    match_grammar = StartsWith("IMPORT")
-    parse_grammar = Sequence(
+    match_grammar = Sequence(
         "IMPORT",
         Sequence(
             "INTO",
@@ -2010,7 +1791,6 @@ class ImportStatementSegment(BaseSegment):
     )
 
 
-@exasol_dialect.segment()
 class ExportStatementSegment(BaseSegment):
     """`EXPORT` statement.
 
@@ -2022,8 +1802,7 @@ class ExportStatementSegment(BaseSegment):
     is_dml = True
     is_dql = False
     is_dcl = False
-    match_grammar = StartsWith("EXPORT")
-    parse_grammar = Sequence(
+    match_grammar = Sequence(
         "EXPORT",
         OneOf(
             Sequence(
@@ -2041,7 +1820,6 @@ class ExportStatementSegment(BaseSegment):
     )
 
 
-@exasol_dialect.segment()
 class ExportIntoClauseSegment(BaseSegment):
     """EXPORT INTO CLAUSE."""
 
@@ -2061,7 +1839,6 @@ class ExportIntoClauseSegment(BaseSegment):
     )
 
 
-@exasol_dialect.segment()
 class ImportColumnsSegment(BaseSegment):
     """IMPORT COLUMNS."""
 
@@ -2074,7 +1851,6 @@ class ImportColumnsSegment(BaseSegment):
     )
 
 
-@exasol_dialect.segment()
 class ImportFromClauseSegment(BaseSegment):
     """IMPORT FROM CLAUSE."""
 
@@ -2094,16 +1870,11 @@ class ImportFromClauseSegment(BaseSegment):
     )
 
 
-@exasol_dialect.segment()
 class ImportFromExportIntoDbSrcSegment(BaseSegment):
     """`IMPORT` from or `EXPORT` to a external database source (EXA,ORA,JDBC)."""
 
     type = "import_export_dbsrc"
-    match_grammar = StartsWith(
-        OneOf("EXA", "ORA", "JDBC"),
-        terminator=OneOf(Ref("ImportErrorsClauseSegment"), Ref("RejectClauseSegment")),
-    )
-    parse_grammar = Sequence(
+    match_grammar = Sequence(
         OneOf(
             "EXA",
             "ORA",
@@ -2150,16 +1921,11 @@ class ImportFromExportIntoDbSrcSegment(BaseSegment):
     )
 
 
-@exasol_dialect.segment()
 class ImportFromExportIntoFileSegment(BaseSegment):
     """`IMPORT` from or `EXPORT` to a file source (FBV,CSV)."""
 
     type = "import_file"
-    match_grammar = StartsWith(
-        OneOf("CSV", "FBV", "LOCAL"),
-        terminator=Ref("ImportErrorsClauseSegment"),
-    )
-    parse_grammar = Sequence(
+    match_grammar = Sequence(
         OneOf(
             Sequence(
                 OneOf(
@@ -2202,13 +1968,11 @@ class ImportFromExportIntoFileSegment(BaseSegment):
     )
 
 
-@exasol_dialect.segment()
 class ImportFromExportIntoScriptSegment(BaseSegment):
     """`IMPORT` from / `EXPORT` to a executed database script."""
 
     type = "import_script"
-    match_grammar = StartsWith("SCRIPT")
-    parse_grammar = Sequence(
+    match_grammar = Sequence(
         "SCRIPT",
         Ref("ObjectReferenceSegment"),
         Sequence("AT", Ref("ConnectionDefinition"), optional=True),
@@ -2227,15 +1991,11 @@ class ImportFromExportIntoScriptSegment(BaseSegment):
     )
 
 
-@exasol_dialect.segment()
 class ImportErrorsClauseSegment(BaseSegment):
     """`ERRORS` clause."""
 
     type = "import_errors_clause"
-    match_grammar = StartsWith(
-        "ERRORS",
-    )
-    parse_grammar = Sequence(
+    match_grammar = Sequence(
         "ERRORS",
         "INTO",
         Ref("ImportErrorDestinationSegment"),
@@ -2252,7 +2012,6 @@ class ImportErrorsClauseSegment(BaseSegment):
     )
 
 
-@exasol_dialect.segment()
 class ImportErrorDestinationSegment(BaseSegment):
     """Error destination (csv file or table)."""
 
@@ -2277,13 +2036,11 @@ class ImportErrorDestinationSegment(BaseSegment):
     )
 
 
-@exasol_dialect.segment()
 class RejectClauseSegment(BaseSegment):
     """`REJECT` clause within an import / export statement."""
 
     type = "reject_clause"
-    match_grammar = StartsWith("REJECT")
-    parse_grammar = Sequence(
+    match_grammar = Sequence(
         "REJECT",
         "LIMIT",
         OneOf(
@@ -2294,7 +2051,6 @@ class RejectClauseSegment(BaseSegment):
     )
 
 
-@exasol_dialect.segment()
 class CSVColumnDefinitionSegment(BaseSegment):
     """Definition of csv columns within an `IMPORT` / `EXPORT` statement."""
 
@@ -2329,7 +2085,6 @@ class CSVColumnDefinitionSegment(BaseSegment):
     )
 
 
-@exasol_dialect.segment()
 class FBVColumnDefinitionSegment(BaseSegment):
     """Definition of fbv columns within an `IMPORT` / `EXPORT` statement."""
 
@@ -2337,8 +2092,8 @@ class FBVColumnDefinitionSegment(BaseSegment):
     match_grammar = Bracketed(
         Delimited(
             AnyNumberOf(
-                # IMPORT vaild: SIZE ,START, FORMAT, PADDING, ALIGN
-                # EXPORT vaild: SIZE, FORMAT, ALIGN, PADDING
+                # IMPORT valid: SIZE ,START, FORMAT, PADDING, ALIGN
+                # EXPORT valid: SIZE, FORMAT, ALIGN, PADDING
                 Sequence(
                     OneOf("SIZE", "START"),
                     Ref("EqualsSegment"),
@@ -2359,7 +2114,6 @@ class FBVColumnDefinitionSegment(BaseSegment):
     )
 
 
-@exasol_dialect.segment()
 class FileOptionSegment(BaseSegment):
     """File options."""
 
@@ -2409,57 +2163,48 @@ class FileOptionSegment(BaseSegment):
 ############################
 # USER
 ############################
-@exasol_dialect.segment()
-class CreateUserSegment(BaseSegment):
+class CreateUserStatementSegment(ansi.CreateUserStatementSegment):
     """`CREATE USER` statement.
 
     https://docs.exasol.com/sql/create_user.htm
     """
 
-    type = "create_user"
-
     is_ddl = False
     is_dml = False
     is_dql = False
     is_dcl = True
 
-    match_grammar = StartsWith(
-        Sequence("CREATE", "USER"),
-    )
-    parse_grammar = Sequence(
+    match_grammar = Sequence(
         "CREATE",
         "USER",
-        Ref("NakedIdentifierSegment"),
+        Ref("RoleReferenceSegment"),
         "IDENTIFIED",
         OneOf(
             Ref("UserPasswordAuthSegment"),
             Ref("UserKerberosAuthSegment"),
             Ref("UserLDAPAuthSegment"),
+            Ref("UserOpenIDAuthSegment"),
         ),
     )
 
 
-@exasol_dialect.segment()
-class AlterUserSegment(BaseSegment):
+class AlterUserStatementSegment(BaseSegment):
     """`ALTER USER` statement.
 
     https://docs.exasol.com/sql/alter_user.htm
     """
 
-    type = "alter_user"
+    type = "alter_user_statement"
 
     is_ddl = False
     is_dml = False
     is_dql = False
     is_dcl = True
 
-    match_grammar = StartsWith(
-        Sequence("ALTER", "USER"),
-    )
-    parse_grammar = Sequence(
+    match_grammar = Sequence(
         "ALTER",
         "USER",
-        Ref("NakedIdentifierSegment"),
+        Ref("RoleReferenceSegment"),
         OneOf(
             Sequence(
                 "IDENTIFIED",
@@ -2468,12 +2213,13 @@ class AlterUserSegment(BaseSegment):
                         Ref("UserPasswordAuthSegment"),
                         Sequence(
                             "REPLACE",
-                            Ref("QuotedIdentifierSegment"),
+                            Ref("PasswordLiteralSegment"),
                             optional=True,
                         ),
                     ),
                     Ref("UserLDAPAuthSegment"),
                     Ref("UserKerberosAuthSegment"),
+                    Ref("UserOpenIDAuthSegment"),
                 ),
             ),
             Sequence(
@@ -2487,31 +2233,28 @@ class AlterUserSegment(BaseSegment):
                 "SET",
                 "CONSUMER_GROUP",
                 Ref("EqualsSegment"),
-                OneOf(Ref("NakedIdentifierSegment"), "NULL"),
+                OneOf(Ref("SingleIdentifierGrammar"), "NULL"),
             ),
         ),
     )
 
 
-@exasol_dialect.segment()
 class UserPasswordAuthSegment(BaseSegment):
-    """user password authentification."""
+    """user password authentication."""
 
     type = "password_auth"
     match_grammar = Sequence(
         # password
         "BY",
-        Ref("QuotedIdentifierSegment"),
+        Ref("PasswordLiteralSegment"),
     )
 
 
-@exasol_dialect.segment()
 class UserKerberosAuthSegment(BaseSegment):
-    """user kerberos authentification."""
+    """user kerberos authentication."""
 
     type = "kerberos_auth"
-    match_grammar = StartsWith(Sequence("BY", "KERBEROS"))
-    parse_grammar = Sequence(
+    match_grammar = Sequence(
         "BY",
         "KERBEROS",
         "PRINCIPAL",
@@ -2519,13 +2262,11 @@ class UserKerberosAuthSegment(BaseSegment):
     )
 
 
-@exasol_dialect.segment()
 class UserLDAPAuthSegment(BaseSegment):
-    """user ldap authentification."""
+    """user ldap authentication."""
 
     type = "ldap_auth"
-    match_grammar = StartsWith(Sequence("AT", "LDAP"))
-    parse_grammar = Sequence(
+    match_grammar = Sequence(
         "AT",
         "LDAP",
         "AS",
@@ -2534,12 +2275,43 @@ class UserLDAPAuthSegment(BaseSegment):
     )
 
 
+class UserOpenIDAuthSegment(BaseSegment):
+    """User OpenID authentication."""
+
+    type = "openid_auth"
+    match_grammar = Sequence(
+        "BY",
+        "OPENID",
+        "SUBJECT",
+        Ref("QuotedLiteralSegment"),
+    )
+
+
+class DropUserStatementSegment(ansi.DropUserStatementSegment):
+    """A `DROP USER` statement with CASCADE option.
+
+    https://docs.exasol.com/sql/drop_user.htm
+    """
+
+    is_ddl = False
+    is_dml = False
+    is_dql = False
+    is_dcl = True
+
+    match_grammar = Sequence(
+        "DROP",
+        "USER",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("RoleReferenceSegment"),
+        Ref.keyword("CASCADE", optional=True),
+    )
+
+
 ############################
 # CONSUMER GROUP
 ############################
 
 
-@exasol_dialect.segment()
 class CreateConsumerGroupSegment(BaseSegment):
     """`CREATE CONSUMER GROUP` statement."""
 
@@ -2548,13 +2320,12 @@ class CreateConsumerGroupSegment(BaseSegment):
         "CREATE",
         "CONSUMER",
         "GROUP",
-        Ref("NakedIdentifierSegment"),
+        Ref("SingleIdentifierGrammar"),
         "WITH",
         Delimited(Ref("ConsumerGroupParameterSegment")),
     )
 
 
-@exasol_dialect.segment()
 class AlterConsumerGroupSegment(BaseSegment):
     """`ALTER CONSUMER GROUP` statement."""
 
@@ -2563,13 +2334,12 @@ class AlterConsumerGroupSegment(BaseSegment):
         "ALTER",
         "CONSUMER",
         "GROUP",
-        Ref("NakedIdentifierSegment"),
+        Ref("SingleIdentifierGrammar"),
         "SET",
         Delimited(Ref("ConsumerGroupParameterSegment")),
     )
 
 
-@exasol_dialect.segment()
 class ConsumerGroupParameterSegment(BaseSegment):
     """Consumer Group Parameters."""
 
@@ -2581,73 +2351,97 @@ class ConsumerGroupParameterSegment(BaseSegment):
             "GROUP_TEMP_DB_RAM_LIMIT",
             "USER_TEMP_DB_RAM_LIMIT",
             "SESSION_TEMP_DB_RAM_LIMIT",
+            "QUERY_TIMEOUT",
+            "IDLE_TIMEOUT",
         ),
         Ref("EqualsSegment"),
         OneOf(Ref("QuotedLiteralSegment"), Ref("NumericLiteralSegment")),
     )
 
 
+class DropConsumerGroupSegment(BaseSegment):
+    """A `DROP CONSUMER GROUP` statement.
+
+    https://docs.exasol.com/sql/consumer_group.htm
+    """
+
+    type = "drop_consumer_group_statement"
+
+    match_grammar = Sequence(
+        "DROP", Sequence("CONSUMER", "GROUP"), Ref("SingleIdentifierGrammar")
+    )
+
+
 ############################
 # ROLE
 ############################
-@exasol_dialect.segment()
-class CreateRoleSegment(BaseSegment):
+class CreateRoleStatementSegment(ansi.CreateRoleStatementSegment):
     """`CREATE ROLE` statement.
 
     https://docs.exasol.com/sql/create_role.htm
     """
 
-    type = "create_role"
-
     is_ddl = False
     is_dml = False
     is_dql = False
     is_dcl = True
 
-    match_grammar = StartsWith(
-        Sequence("CREATE", "ROLE"),
-    )
-    parse_grammar = Sequence(
+    match_grammar = Sequence(
         "CREATE",
         "ROLE",
-        Ref("NakedIdentifierSegment"),
+        Ref("RoleReferenceSegment"),
     )
 
 
-@exasol_dialect.segment()
-class AlterRoleSegment(BaseSegment):
+class AlterRoleStatementSegment(BaseSegment):
     """`ALTER ROLE` statement.
 
     Only allowed to alter CONSUMER GROUPs
     """
 
-    type = "alter_role"
+    type = "alter_role_statement"
 
     is_ddl = False
     is_dml = False
     is_dql = False
     is_dcl = True
 
-    match_grammar = StartsWith(
-        Sequence("ALTER", "ROLE"),
-    )
-    parse_grammar = Sequence(
+    match_grammar = Sequence(
         "ALTER",
         "ROLE",
-        Ref("NakedIdentifierSegment"),
+        Ref("RoleReferenceSegment"),
         "SET",
         Sequence(
             "CONSUMER_GROUP",
             Ref("EqualsSegment"),
-            OneOf(Ref("NakedIdentifierSegment"), "NULL"),
+            OneOf(Ref("SingleIdentifierGrammar"), "NULL"),
         ),
+    )
+
+
+class DropRoleStatementSegment(ansi.DropRoleStatementSegment):
+    """A `DROP ROLE` statement with CASCADE option.
+
+    https://docs.exasol.com/sql/drop_role.htm
+    """
+
+    is_ddl = False
+    is_dml = False
+    is_dql = False
+    is_dcl = True
+
+    match_grammar = Sequence(
+        "DROP",
+        "ROLE",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("RoleReferenceSegment"),
+        Ref.keyword("CASCADE", optional=True),
     )
 
 
 ############################
 # CONNECTION
 ############################
-@exasol_dialect.segment()
 class CreateConnectionSegment(BaseSegment):
     """`CREATE CONNECTION` statement.
 
@@ -2661,10 +2455,7 @@ class CreateConnectionSegment(BaseSegment):
     is_dql = False
     is_dcl = True
 
-    match_grammar = StartsWith(
-        Sequence("CREATE", Ref("OrReplaceGrammar", optional=True), "CONNECTION"),
-    )
-    parse_grammar = Sequence(
+    match_grammar = Sequence(
         "CREATE",
         Ref("OrReplaceGrammar", optional=True),
         "CONNECTION",
@@ -2674,7 +2465,6 @@ class CreateConnectionSegment(BaseSegment):
     )
 
 
-@exasol_dialect.segment()
 class AlterConnectionSegment(BaseSegment):
     """`ALTER CONNECTION` statement.
 
@@ -2688,10 +2478,7 @@ class AlterConnectionSegment(BaseSegment):
     is_dql = False
     is_dcl = True
 
-    match_grammar = StartsWith(
-        Sequence("ALTER", "CONNECTION"),
-    )
-    parse_grammar = Sequence(
+    match_grammar = Sequence(
         "ALTER",
         "CONNECTION",
         Ref("NakedIdentifierSegment"),
@@ -2700,7 +2487,6 @@ class AlterConnectionSegment(BaseSegment):
     )
 
 
-@exasol_dialect.segment()
 class ConnectionDefinition(BaseSegment):
     """Definition of a connection."""
 
@@ -2722,10 +2508,30 @@ class ConnectionDefinition(BaseSegment):
     )
 
 
+class DropConnectionStatementSegment(BaseSegment):
+    """A `DROP CONNECTION` statement.
+
+    https://docs.exasol.com/sql/drop_connection.htm
+    """
+
+    type = "drop_connection_statement"
+
+    is_ddl = False
+    is_dml = False
+    is_dql = False
+    is_dcl = True
+
+    match_grammar = Sequence(
+        "DROP",
+        "CONNECTION",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("SingleIdentifierGrammar"),
+    )
+
+
 ############################
 # GRANT / REVOKE
 ############################
-@exasol_dialect.segment(replace=True)
 class AccessStatementSegment(BaseSegment):
     """`GRANT` / `REVOKE` statement.
 
@@ -2740,10 +2546,7 @@ class AccessStatementSegment(BaseSegment):
     is_dql = False
     is_dcl = True
 
-    match_grammar = StartsWith(
-        OneOf("GRANT", "REVOKE"),
-    )
-    parse_grammar = Sequence(
+    match_grammar = Sequence(
         OneOf("GRANT", "REVOKE"),
         OneOf(
             Ref("GrantRevokeSystemPrivilegesSegment"),
@@ -2756,7 +2559,6 @@ class AccessStatementSegment(BaseSegment):
     )
 
 
-@exasol_dialect.segment()
 class GrantRevokeSystemPrivilegesSegment(BaseSegment):
     """`GRANT` / `REVOKE` system privileges."""
 
@@ -2772,7 +2574,7 @@ class GrantRevokeSystemPrivilegesSegment(BaseSegment):
             ),
             Delimited(
                 Ref("SystemPrivilegesSegment"),
-                terminator=OneOf("TO", "FROM"),
+                terminators=["TO", "FROM"],
             ),
         ),
         OneOf("TO", "FROM"),
@@ -2783,7 +2585,6 @@ class GrantRevokeSystemPrivilegesSegment(BaseSegment):
     )
 
 
-@exasol_dialect.segment()
 class GrantRevokeObjectPrivilegesSegment(BaseSegment):
     """`GRANT` / `REVOKE` object privileges."""
 
@@ -2791,7 +2592,7 @@ class GrantRevokeObjectPrivilegesSegment(BaseSegment):
     match_grammar = Sequence(
         OneOf(
             Sequence("ALL", Ref.keyword("PRIVILEGES", optional=True)),
-            Delimited(Ref("ObjectPrivilegesSegment"), terminator="ON"),
+            Delimited(Ref("ObjectPrivilegesSegment"), terminators=["ON"]),
         ),
         "ON",
         OneOf(
@@ -2803,18 +2604,17 @@ class GrantRevokeObjectPrivilegesSegment(BaseSegment):
         OneOf(
             Sequence(  # Grant only
                 "TO",
-                Delimited(Ref("NakedIdentifierSegment")),
+                Delimited(Ref("SingleIdentifierGrammar")),
             ),
             Sequence(  # Revoke only
                 "FROM",
-                Delimited(Ref("NakedIdentifierSegment")),
+                Delimited(Ref("SingleIdentifierGrammar")),
                 Sequence("CASCADE", "CONSTRAINTS", optional=True),
             ),
         ),
     )
 
 
-@exasol_dialect.segment()
 class GrantRevokeRolesSegment(BaseSegment):
     """`GRANT` / `REVOKE` roles."""
 
@@ -2822,15 +2622,14 @@ class GrantRevokeRolesSegment(BaseSegment):
     match_grammar = Sequence(
         OneOf(
             Sequence("ALL", "ROLES"),  # Revoke only
-            Delimited(Ref("NakedIdentifierSegment"), terminator=OneOf("TO", "FROM")),
+            Delimited(Ref("RoleReferenceSegment"), terminators=["TO", "FROM"]),
         ),
         OneOf("TO", "FROM"),
-        Delimited(Ref("NakedIdentifierSegment")),
+        Delimited(Ref("RoleReferenceSegment")),
         Sequence("WITH", "ADMIN", "OPTION", optional=True),  # Grant only
     )
 
 
-@exasol_dialect.segment()
 class GrantRevokeImpersonationSegment(BaseSegment):
     """`GRANT` / `REVOKE` impersonation."""
 
@@ -2839,15 +2638,14 @@ class GrantRevokeImpersonationSegment(BaseSegment):
         "IMPERSONATION",
         "ON",
         Delimited(
-            Ref("NakedIdentifierSegment"),
-            terminator=OneOf("TO", "FROM"),
+            Ref("SingleIdentifierGrammar"),
+            terminators=["TO", "FROM"],
         ),
         OneOf("TO", "FROM"),
-        Delimited(Ref("NakedIdentifierSegment")),
+        Delimited(Ref("SingleIdentifierGrammar")),
     )
 
 
-@exasol_dialect.segment()
 class GrantRevokeConnectionSegment(BaseSegment):
     """`GRANT` / `REVOKE` connection."""
 
@@ -2855,16 +2653,15 @@ class GrantRevokeConnectionSegment(BaseSegment):
     match_grammar = Sequence(
         "CONNECTION",
         Delimited(
-            Ref("NakedIdentifierSegment"),
-            terminator=OneOf("TO", "FROM"),
+            Ref("SingleIdentifierGrammar"),
+            terminators=["TO", "FROM"],
         ),
         OneOf("TO", "FROM"),
-        Delimited(Ref("NakedIdentifierSegment")),
+        Delimited(Ref("SingleIdentifierGrammar")),
         Sequence("WITH", "ADMIN", "OPTION", optional=True),
     )
 
 
-@exasol_dialect.segment()
 class GrantRevokeConnectionRestrictedSegment(BaseSegment):
     """`GRANT` / `REVOKE` connection restricted."""
 
@@ -2873,18 +2670,17 @@ class GrantRevokeConnectionRestrictedSegment(BaseSegment):
         "ACCESS",
         "ON",
         "CONNECTION",
-        Ref("NakedIdentifierSegment"),
+        Ref("SingleIdentifierGrammar"),
         Sequence(
             "FOR",
             OneOf("SCRIPT", "SCHEMA", optional=True),
-            Ref("NakedIdentifierSegment"),
+            Ref("SingleIdentifierGrammar"),
         ),
         OneOf("TO", "FROM"),
-        Delimited(Ref("NakedIdentifierSegment")),
+        Delimited(Ref("SingleIdentifierGrammar")),
     )
 
 
-@exasol_dialect.segment()
 class SystemPrivilegesSegment(BaseSegment):
     """System privileges.
 
@@ -2932,7 +2728,6 @@ class SystemPrivilegesSegment(BaseSegment):
     )
 
 
-@exasol_dialect.segment()
 class ObjectPrivilegesSegment(BaseSegment):
     """Object privileges.
 
@@ -2957,7 +2752,6 @@ class ObjectPrivilegesSegment(BaseSegment):
 ############################
 # SKYLINE
 ############################
-@exasol_dialect.segment()
 class PreferringClauseSegment(BaseSegment):
     """`PREFERRING` clause of the Exasol Skyline extension.
 
@@ -2965,25 +2759,13 @@ class PreferringClauseSegment(BaseSegment):
     """
 
     type = "preferring_clause"
-    match_grammar = StartsWith(
-        "PREFERRING",
-        terminator=OneOf(
-            "LIMIT",
-            Sequence("GROUP", "BY"),
-            Sequence("ORDER", "BY"),
-            "HAVING",
-            "QUALIFY",
-            Ref("SetOperatorSegment"),
-        ),
-    )
-    parse_grammar = Sequence(
+    match_grammar = Sequence(
         "PREFERRING",
         OptionallyBracketed(Ref("PreferringPreferenceTermSegment")),
         Ref("PartitionClauseSegment", optional=True),
     )
 
 
-@exasol_dialect.segment()
 class PreferringPreferenceTermSegment(BaseSegment):
     """The preference term of a `PREFERRING` clause."""
 
@@ -2997,6 +2779,7 @@ class PreferringPreferenceTermSegment(BaseSegment):
                     Ref("BareFunctionSegment"),
                     Ref("FunctionSegment"),
                     Ref("ColumnReferenceSegment"),
+                    Ref("LocalAliasSegment"),
                 ),
             ),
             OneOf(
@@ -3004,15 +2787,15 @@ class PreferringPreferenceTermSegment(BaseSegment):
                 Ref("BareFunctionSegment"),
                 Ref("FunctionSegment"),
                 Ref("ColumnReferenceSegment"),
+                Ref("LocalAliasSegment"),
             ),
         ),
         Ref("PreferringPlusPriorTermSegment", optional=True),
     )
 
 
-@exasol_dialect.segment()
 class PreferringPlusPriorTermSegment(BaseSegment):
-    """The `PLUS` / `PRIOR TO` or `INVERSE` term within a preferring preference term expression."""
+    """The preferring preference term expression."""
 
     type = "plus_prior_inverse"
     match_grammar = OneOf(
@@ -3033,8 +2816,7 @@ class PreferringPlusPriorTermSegment(BaseSegment):
     )
 
 
-@exasol_dialect.segment(replace=True)
-class MLTableExpressionSegment(BaseSegment):
+class MLTableExpressionSegment(ansi.MLTableExpressionSegment):
     """Not supported."""
 
     match_grammar = Nothing()
@@ -3043,7 +2825,6 @@ class MLTableExpressionSegment(BaseSegment):
 ############################
 # SYSTEM
 ############################
-@exasol_dialect.segment()
 class AlterSessionSegment(BaseSegment):
     """`ALTER SESSION` statement."""
 
@@ -3058,7 +2839,6 @@ class AlterSessionSegment(BaseSegment):
     )
 
 
-@exasol_dialect.segment()
 class AlterSystemSegment(BaseSegment):
     """`ALTER SYSTEM` statement."""
 
@@ -3073,7 +2853,6 @@ class AlterSystemSegment(BaseSegment):
     )
 
 
-@exasol_dialect.segment()
 class OpenSchemaSegment(BaseSegment):
     """`OPEN SCHEMA` statement."""
 
@@ -3081,7 +2860,6 @@ class OpenSchemaSegment(BaseSegment):
     match_grammar = Sequence("OPEN", "SCHEMA", Ref("SchemaReferenceSegment"))
 
 
-@exasol_dialect.segment()
 class CloseSchemaSegment(BaseSegment):
     """`CLOSE SCHEMA` statement."""
 
@@ -3089,7 +2867,6 @@ class CloseSchemaSegment(BaseSegment):
     match_grammar = Sequence("CLOSE", "SCHEMA")
 
 
-@exasol_dialect.segment()
 class FlushStatisticsSegment(BaseSegment):
     """`FLUSH STATISTICS` statement."""
 
@@ -3097,7 +2874,6 @@ class FlushStatisticsSegment(BaseSegment):
     match_grammar = Sequence("FLUSH", "STATISTICS")
 
 
-@exasol_dialect.segment()
 class RecompressReorganizeSegment(BaseSegment):
     """`RECOMPRESS` and `REOGRANIZE` statement."""
 
@@ -3119,7 +2895,6 @@ class RecompressReorganizeSegment(BaseSegment):
     )
 
 
-@exasol_dialect.segment()
 class PreloadSegment(BaseSegment):
     """`PRELOAD` statement."""
 
@@ -3140,7 +2915,6 @@ class PreloadSegment(BaseSegment):
     )
 
 
-@exasol_dialect.segment()
 class ImpersonateSegment(BaseSegment):
     """`IMPERSONATE` statement."""
 
@@ -3148,13 +2922,11 @@ class ImpersonateSegment(BaseSegment):
     match_grammar = Sequence("IMPERSONATE", Ref("SingleIdentifierGrammar"))
 
 
-@exasol_dialect.segment()
 class KillSegment(BaseSegment):
     """`KILL` statement."""
 
     type = "kill_statement"
-    match_grammar = StartsWith("KILL")
-    parse_grammar = Sequence(
+    match_grammar = Sequence(
         "KILL",
         OneOf(
             Sequence("SESSION", OneOf("CURRENT_SESSION", Ref("NumericLiteralSegment"))),
@@ -3170,13 +2942,11 @@ class KillSegment(BaseSegment):
     )
 
 
-@exasol_dialect.segment()
 class TruncateAuditLogsSegment(BaseSegment):
     """`TRUNCATE AUDIT LOGS` statement."""
 
     type = "truncate_audit_logs_statement"
-    match_grammar = StartsWith(Sequence("TRUNCATE", "AUDIT", "LOGS"))
-    parse_grammar = Sequence(
+    match_grammar = Sequence(
         "TRUNCATE",
         "AUDIT",
         "LOGS",
@@ -3196,7 +2966,6 @@ class TruncateAuditLogsSegment(BaseSegment):
 ############################
 
 
-@exasol_dialect.segment(replace=True)
 class TransactionStatementSegment(BaseSegment):
     """A `COMMIT` or `ROLLBACK` statement."""
 
@@ -3206,7 +2975,6 @@ class TransactionStatementSegment(BaseSegment):
     )
 
 
-@exasol_dialect.segment()
 class ExecuteScriptSegment(BaseSegment):
     """`EXECUTE SCRIPT` statement."""
 
@@ -3223,7 +2991,6 @@ class ExecuteScriptSegment(BaseSegment):
     )
 
 
-@exasol_dialect.segment()
 class ExplainVirtualSegment(BaseSegment):
     """`EXPLAIN VIRTUAL` statement."""
 
@@ -3236,14 +3003,12 @@ class ExplainVirtualSegment(BaseSegment):
 ############################
 
 
-@exasol_dialect.segment()
-class FunctionReferenceSegment(exasol_dialect.get_segment("ObjectReferenceSegment")):  # type: ignore
+class FunctionReferenceSegment(ansi.ObjectReferenceSegment):
     """A reference to a function."""
 
     type = "function_reference"
 
 
-@exasol_dialect.segment(replace=True)
 class CreateFunctionStatementSegment(BaseSegment):
     """A `CREATE FUNCTION` statement."""
 
@@ -3254,15 +3019,7 @@ class CreateFunctionStatementSegment(BaseSegment):
     is_dql = False
     is_dcl = False
 
-    match_grammar = StartsWith(
-        Sequence(
-            "CREATE",
-            Ref("OrReplaceGrammar", optional=True),
-            "FUNCTION",
-        ),
-        terminator=Ref("FunctionScriptTerminatorSegment"),
-    )
-    parse_grammar = Sequence(
+    match_grammar = Sequence(
         "CREATE",
         Ref("OrReplaceGrammar", optional=True),
         "FUNCTION",
@@ -3280,39 +3037,43 @@ class CreateFunctionStatementSegment(BaseSegment):
         "RETURN",
         Ref("DatatypeSegment"),
         OneOf("IS", "AS", optional=True),
+        Indent,
         AnyNumberOf(
             Sequence(
                 Ref("VariableNameSegment"),
                 Ref("DatatypeSegment"),
-                Ref("DelimiterSegment"),
+                Ref("DelimiterGrammar"),
             ),
             optional=True,
         ),
+        Dedent,
         "BEGIN",
+        Indent,
         AnyNumberOf(Ref("FunctionBodySegment")),
         "RETURN",
         Ref("FunctionContentsExpressionGrammar"),
-        Ref("DelimiterSegment"),
+        Ref("DelimiterGrammar"),
+        Dedent,
         "END",
         Ref("FunctionReferenceSegment", optional=True),
         Ref("SemicolonSegment", optional=True),
     )
 
 
-@exasol_dialect.segment()
 class FunctionBodySegment(BaseSegment):
     """The definition of the function body."""
 
     type = "function_body"
-    match_grammar = OneOf(
-        Ref("FunctionAssignmentSegment"),
-        Ref("FunctionIfBranchSegment"),
-        Ref("FunctionForLoopSegment"),
-        Ref("FunctionWhileLoopSegment"),
+    match_grammar = Sequence(
+        OneOf(
+            Ref("FunctionAssignmentSegment"),
+            Ref("FunctionIfBranchSegment"),
+            Ref("FunctionForLoopSegment"),
+            Ref("FunctionWhileLoopSegment"),
+        ),
     )
 
 
-@exasol_dialect.segment()
 class FunctionAssignmentSegment(BaseSegment):
     """The definition of a assignment within a function body."""
 
@@ -3331,7 +3092,6 @@ class FunctionAssignmentSegment(BaseSegment):
     )
 
 
-@exasol_dialect.segment()
 class FunctionIfBranchSegment(BaseSegment):
     """The definition of a if branch within a function body."""
 
@@ -3340,18 +3100,26 @@ class FunctionIfBranchSegment(BaseSegment):
         "IF",
         AnyNumberOf(Ref("ExpressionSegment")),
         "THEN",
+        Indent,
         AnyNumberOf(Ref("FunctionBodySegment"), min_times=1),
+        Dedent,
         AnyNumberOf(
             Sequence(
                 OneOf("ELSIF", "ELSEIF"),
                 Ref("ExpressionSegment"),
                 "THEN",
+                Indent,
                 AnyNumberOf(Ref("FunctionBodySegment"), min_times=1),
+                Dedent,
             ),
             optional=True,
         ),
         Sequence(
-            "ELSE", AnyNumberOf(Ref("FunctionBodySegment"), min_times=1), optional=True
+            "ELSE",
+            Indent,
+            AnyNumberOf(Ref("FunctionBodySegment"), min_times=1),
+            Dedent,
+            optional=True,
         ),
         "END",
         "IF",
@@ -3359,7 +3127,6 @@ class FunctionIfBranchSegment(BaseSegment):
     )
 
 
-@exasol_dialect.segment()
 class FunctionForLoopSegment(BaseSegment):
     """The definition of a for loop within a function body."""
 
@@ -3395,7 +3162,6 @@ class FunctionForLoopSegment(BaseSegment):
     )
 
 
-@exasol_dialect.segment()
 class FunctionWhileLoopSegment(BaseSegment):
     """The definition of a while loop within a function body."""
 
@@ -3411,85 +3177,37 @@ class FunctionWhileLoopSegment(BaseSegment):
     )
 
 
-@exasol_dialect.segment(replace=True)
-class FunctionSegment(BaseSegment):
-    """A scalar or aggregate function.
+class DropFunctionStatementSegment(BaseSegment):
+    """A `DROP FUNCTION` statement with CASCADE and RESTRICT option.
 
-    Maybe in the future we should distinguish between
-    aggregate functions and other functions. For now
-    we treat them the same because they look the same
-    for our purposes.
+    https://docs.exasol.com/sql/drop_function.htm
     """
 
-    type = "function"
-    match_grammar = OneOf(
-        Sequence(
-            Sequence(
-                Ref("DatePartFunctionNameSegment"),
-                Bracketed(
-                    Ref(
-                        "FunctionContentsGrammar",
-                        # The brackets might be empty for some functions...
-                        optional=True,
-                        ephemeral_name="FunctionContentsGrammar",
-                    ),
-                ),
-            ),
-            Ref("PostFunctionGrammar", optional=True),
-        ),
-        Sequence(
-            Sequence(
-                AnyNumberOf(
-                    Ref("FunctionNameSegment"),
-                    max_times=1,
-                    min_times=1,
-                    exclude=Ref("DatePartFunctionNameSegment"),
-                ),
-                Bracketed(
-                    Ref(
-                        "FunctionContentsGrammar",
-                        # The brackets might be empty for some functions...
-                        optional=True,
-                        ephemeral_name="FunctionContentsGrammar",
-                    )
-                ),
-            ),
-            Ref("PostFunctionGrammar", optional=True),
-        ),
-    )
+    type = "drop_function_statement"
 
+    is_ddl = True
+    is_dml = False
+    is_dql = False
+    is_dcl = False
 
-@exasol_dialect.segment(replace=True)
-class DatePartFunctionNameSegment(BaseSegment):
-    """DATEADD function name segment.
-
-    Need to be able to specify this as type function_name
-    so that linting rules identify it properly
-    """
-
-    type = "function_name"
-    match_grammar = OneOf(
-        "ADD_DAYS",
-        "ADD_HOURS",
-        "ADD_MINUTES",
-        "ADD_MONTHS",
-        "ADD_SECONDS",
-        "ADD_WEEKS",
-        "ADD_YEARS",
+    match_grammar = Sequence(
+        "DROP",
+        "FUNCTION",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("FunctionNameSegment"),
+        Ref("DropBehaviorGrammar", optional=True),
     )
 
 
 ############################
 # SCRIPT
 ############################
-@exasol_dialect.segment()
-class ScriptReferenceSegment(exasol_dialect.get_segment("ObjectReferenceSegment")):  # type: ignore
+class ScriptReferenceSegment(ansi.ObjectReferenceSegment):
     """A reference to a script."""
 
     type = "script_reference"
 
 
-@exasol_dialect.segment()
 class ScriptContentSegment(BaseSegment):
     """This represents the script content.
 
@@ -3498,10 +3216,14 @@ class ScriptContentSegment(BaseSegment):
     """
 
     type = "script_content"
-    match_grammar = Anything()
+    match_grammar = Anything(
+        terminators=[Ref("FunctionScriptTerminatorSegment")],
+        # Within the script we should _only_ look for the script
+        # terminator segment.
+        reset_terminators=True,
+    )
 
 
-@exasol_dialect.segment()
 class CreateScriptingLuaScriptStatementSegment(BaseSegment):
     """`CREATE SCRIPT` statement to create a Lua scripting script.
 
@@ -3515,16 +3237,7 @@ class CreateScriptingLuaScriptStatementSegment(BaseSegment):
     is_dql = False
     is_dcl = False
 
-    match_grammar = StartsWith(
-        Sequence(
-            "CREATE",
-            Ref("OrReplaceGrammar", optional=True),
-            Ref.keyword("LUA", optional=True),
-            "SCRIPT",
-        ),
-        terminator=Ref("FunctionScriptTerminatorSegment"),
-    )
-    parse_grammar = Sequence(
+    match_grammar = Sequence(
         "CREATE",
         Ref("OrReplaceGrammar", optional=True),
         Ref.keyword("LUA", optional=True),
@@ -3547,7 +3260,6 @@ class CreateScriptingLuaScriptStatementSegment(BaseSegment):
     )
 
 
-@exasol_dialect.segment()
 class CreateUDFScriptStatementSegment(BaseSegment):
     """`CREATE SCRIPT` statement create a UDF script.
 
@@ -3561,23 +3273,7 @@ class CreateUDFScriptStatementSegment(BaseSegment):
     is_dql = False
     is_dcl = False
 
-    match_grammar = StartsWith(
-        Sequence(
-            "CREATE",
-            Ref("OrReplaceGrammar", optional=True),
-            OneOf(
-                "JAVA",
-                "PYTHON",
-                "LUA",
-                "R",
-                Ref("SingleIdentifierGrammar"),
-                optional=True,
-            ),
-            OneOf("SCALAR", "SET"),
-            "SCRIPT",
-        )
-    )
-    parse_grammar = Sequence(
+    match_grammar = Sequence(
         "CREATE",
         Ref("OrReplaceGrammar", optional=True),
         OneOf(
@@ -3588,13 +3284,12 @@ class CreateUDFScriptStatementSegment(BaseSegment):
         Ref("ScriptReferenceSegment"),
         Bracketed(
             Sequence(
-                Delimited(Ref("ColumnDatatypeSegment")),
+                Ref("UDFParameterGrammar"),
                 Ref("OrderByClauseSegment", optional=True),
                 optional=True,
             ),
-            optional=True,
         ),
-        OneOf(Sequence("RETURNS", Ref("DatatypeSegment")), Ref("EmitsGrammar")),
+        OneOf(Sequence("RETURNS", Ref("DatatypeSegment")), Ref("EmitsSegment")),
         "AS",
         Indent,
         Ref("ScriptContentSegment"),
@@ -3602,7 +3297,6 @@ class CreateUDFScriptStatementSegment(BaseSegment):
     )
 
 
-@exasol_dialect.segment()
 class CreateAdapterScriptStatementSegment(BaseSegment):
     """`CREATE SCRIPT` statement create a adapter script.
 
@@ -3616,19 +3310,10 @@ class CreateAdapterScriptStatementSegment(BaseSegment):
     is_dql = False
     is_dcl = False
 
-    match_grammar = StartsWith(
-        Sequence(
-            "CREATE",
-            Ref("OrReplaceGrammar", optional=True),
-            OneOf("JAVA", "PYTHON", Ref("SingleIdentifierGrammar"), optional=True),
-            "ADAPTER",
-            "SCRIPT",
-        )
-    )
-    parse_grammar = Sequence(
+    match_grammar = Sequence(
         "CREATE",
         Ref("OrReplaceGrammar", optional=True),
-        OneOf("JAVA", "PYTHON", Ref("SingleIdentifierGrammar"), optional=True),
+        OneOf("JAVA", "PYTHON", "LUA", Ref("SingleIdentifierGrammar")),
         "ADAPTER",
         "SCRIPT",
         Ref("ScriptReferenceSegment"),
@@ -3639,10 +3324,33 @@ class CreateAdapterScriptStatementSegment(BaseSegment):
     )
 
 
+class DropScriptStatementSegment(BaseSegment):
+    """A `DROP SCRIPT` statement.
+
+    https://docs.exasol.com/sql/drop_script.htm
+    """
+
+    type = "drop_script_statement"
+
+    is_ddl = True
+    is_dml = False
+    is_dql = False
+    is_dcl = False
+
+    match_grammar = Sequence(
+        "DROP",
+        Sequence(
+            Ref.keyword("ADAPTER", optional=True),
+            "SCRIPT",
+        ),
+        Ref("IfExistsGrammar", optional=True),
+        Ref("ScriptReferenceSegment"),
+    )
+
+
 ############################
 # DIALECT
 ############################
-@exasol_dialect.segment()
 class FunctionScriptStatementSegment(BaseSegment):
     """A generic segment, to any of its child subsegments."""
 
@@ -3655,14 +3363,12 @@ class FunctionScriptStatementSegment(BaseSegment):
     )
 
 
-@exasol_dialect.segment(replace=True)
-class StatementSegment(BaseSegment):
+class StatementSegment(ansi.StatementSegment):
     """A generic segment, to any of its child subsegments."""
 
     type = "statement"
-    match_grammar = GreedyUntil(Ref("SemicolonSegment"))
 
-    parse_grammar = OneOf(
+    match_grammar = OneOf(
         # Data Query Language (DQL)
         Ref("SelectableGrammar"),
         # Data Modifying Language (DML)
@@ -3682,19 +3388,27 @@ class StatementSegment(BaseSegment):
         Ref("CreateTableStatementSegment"),
         Ref("CreateViewStatementSegment"),
         Ref("CreateVirtualSchemaStatementSegment"),
-        Ref("DropStatementSegment"),
+        Ref("DropViewStatementSegment"),
+        Ref("DropFunctionStatementSegment"),
+        Ref("DropScriptStatementSegment"),
+        Ref("DropSchemaStatementSegment"),
+        Ref("DropTableStatementSegment"),
         Ref("RenameStatementSegment"),
         # Access Control Language (DCL)
         Ref("AccessStatementSegment"),
         Ref("AlterConnectionSegment"),
-        Ref("AlterUserSegment"),
+        Ref("AlterUserStatementSegment"),
         Ref("CreateConnectionSegment"),
-        Ref("CreateRoleSegment"),
-        Ref("CreateUserSegment"),
+        Ref("CreateRoleStatementSegment"),
+        Ref("CreateUserStatementSegment"),
+        Ref("DropRoleStatementSegment"),
+        Ref("DropUserStatementSegment"),
+        Ref("DropConnectionStatementSegment"),
         # System
         Ref("CreateConsumerGroupSegment"),
         Ref("AlterConsumerGroupSegment"),
-        Ref("AlterRoleSegment"),
+        Ref("DropConsumerGroupSegment"),
+        Ref("AlterRoleStatementSegment"),
         Ref("AlterSessionSegment"),
         Ref("AlterSystemSegment"),
         Ref("OpenSchemaSegment"),
@@ -3709,10 +3423,10 @@ class StatementSegment(BaseSegment):
         # Others
         Ref("TransactionStatementSegment"),
         Ref("ExecuteScriptSegment"),
+        terminators=[Ref("DelimiterGrammar")],
     )
 
 
-@exasol_dialect.segment(replace=True)
 class FileSegment(BaseFileSegment):
     """This overwrites the FileSegment from ANSI.
 
@@ -3721,17 +3435,26 @@ class FileSegment(BaseFileSegment):
     A semicolon is the terminator of the statement within the function / script
     """
 
-    parse_grammar = AnyNumberOf(
-        Delimited(
-            Ref("FunctionScriptStatementSegment"),
-            delimiter=Ref("FunctionScriptTerminatorSegment"),
-            allow_gaps=True,
-            allow_trailing=True,
+    match_grammar = Delimited(
+        Ref("FunctionScriptStatementSegment"),
+        Ref("StatementSegment"),
+        delimiter=OneOf(
+            Ref("DelimiterGrammar"),
+            Ref("FunctionScriptTerminatorSegment"),
         ),
-        Delimited(
-            Ref("StatementSegment"),
-            delimiter=Ref("DelimiterSegment"),
-            allow_gaps=True,
-            allow_trailing=True,
-        ),
+        allow_gaps=True,
+        allow_trailing=True,
+    )
+
+
+class EmitsSegment(BaseSegment):
+    """EMITS Segment for JSON_EXTRACT for example.
+
+    In it's own segment to give it a type to allow AL03 to find it easily.
+    """
+
+    type = "emits_segment"
+    match_grammar = Sequence(
+        "EMITS",
+        Bracketed(Ref("UDFParameterGrammar")),
     )

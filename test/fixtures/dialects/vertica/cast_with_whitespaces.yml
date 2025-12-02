@@ -1,0 +1,244 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: d9497ccebaa52506363624f81e7bf1eb3a3a5dc0b6111bbbd3fbc4c44c861cd2
+file:
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+            cast_expression:
+              column_reference:
+                naked_identifier: amount_of_honey
+              casting_operator: '::'
+              data_type:
+                keyword: FLOAT
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: bear_inventory
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+            cast_expression:
+              column_reference:
+                naked_identifier: amount_of_honey
+              casting_operator: '::'
+              data_type:
+                keyword: FLOAT
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: bear_inventory
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+            cast_expression:
+              column_reference:
+                naked_identifier: amount_of_honey
+              casting_operator: '::'
+              data_type:
+                keyword: FLOAT
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: bear_inventory
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+            cast_expression:
+              column_reference:
+                naked_identifier: amount_of_honey
+              casting_operator: '::'
+              data_type:
+                keyword: FLOAT
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: bear_inventory
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+            cast_expression:
+              column_reference:
+                naked_identifier: amount_of_honey
+              casting_operator: '::'
+              data_type:
+                keyword: time
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: bear_inventory
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+            cast_expression:
+              column_reference:
+                naked_identifier: amount_of_honey
+              casting_operator: '::'
+              data_type:
+                keyword: VARCHAR
+                bracketed_arguments:
+                  bracketed:
+                    start_bracket: (
+                    numeric_literal: '512'
+                    end_bracket: )
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: bear_inventory
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+            cast_expression:
+              column_reference:
+                naked_identifier: amount_of_honey
+              casting_operator: '::'
+              data_type:
+                data_type_identifier: TIMESTAMPTZ
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: bear_inventory
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+            cast_expression:
+              column_reference:
+                naked_identifier: amount_of_honey
+              casting_operator: '::'
+              data_type:
+              - keyword: TIMESTAMP
+              - keyword: WITHOUT
+              - keyword: TIME
+              - keyword: ZONE
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: bear_inventory
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          column_reference:
+          - naked_identifier: bi
+          - dot: .
+          - naked_identifier: amount_of_honey
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: bear_inventory
+            alias_expression:
+              naked_identifier: bi
+          join_clause:
+          - keyword: LEFT
+          - keyword: JOIN
+          - from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: favorite_cola
+              alias_expression:
+                naked_identifier: fc
+          - join_on_condition:
+              keyword: 'ON'
+              expression:
+              - cast_expression:
+                  column_reference:
+                  - naked_identifier: fc
+                  - dot: .
+                  - naked_identifier: bear_id
+                  casting_operator: '::'
+                  data_type:
+                    keyword: VARCHAR
+                    bracketed_arguments:
+                      bracketed:
+                        start_bracket: (
+                        numeric_literal: '512'
+                        end_bracket: )
+              - comparison_operator:
+                  raw_comparison_operator: '='
+              - cast_expression:
+                  column_reference:
+                  - naked_identifier: bi
+                  - dot: .
+                  - naked_identifier: bear_id
+                  casting_operator: '::'
+                  data_type:
+                    keyword: VARCHAR
+                    bracketed_arguments:
+                      bracketed:
+                        start_bracket: (
+                        numeric_literal: '512'
+                        end_bracket: )
+      where_clause:
+        keyword: WHERE
+        expression:
+          column_reference:
+          - naked_identifier: fc
+          - dot: .
+          - naked_identifier: favorite_cola
+          comparison_operator:
+            raw_comparison_operator: '='
+          quoted_literal: "'RC Cola'"
+- statement_terminator: ;

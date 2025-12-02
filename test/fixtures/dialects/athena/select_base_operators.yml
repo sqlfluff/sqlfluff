@@ -1,0 +1,127 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: b8e9e7bcece289dac9df11a55010a2ba5fcccdcc38e9f456d1ebd02dadb74f7b
+file:
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+          - function:
+              function_name:
+                function_name_identifier: CAST
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    null_literal: 'null'
+                  keyword: AS
+                  data_type:
+                    primitive_type:
+                      keyword: boolean
+                  end_bracket: )
+          - binary_operator: OR
+          - function:
+              function_name:
+                function_name_identifier: CAST
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    null_literal: 'null'
+                  keyword: AS
+                  data_type:
+                    primitive_type:
+                      keyword: boolean
+                  end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+            function:
+              function_name:
+                function_name_identifier: CAST
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    null_literal: 'null'
+                  keyword: AS
+                  data_type:
+                    primitive_type:
+                      keyword: boolean
+                  end_bracket: )
+            binary_operator: OR
+            boolean_literal: 'false'
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+            function:
+              function_name:
+                function_name_identifier: CAST
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    null_literal: 'null'
+                  keyword: AS
+                  data_type:
+                    primitive_type:
+                      keyword: boolean
+                  end_bracket: )
+            binary_operator: OR
+            boolean_literal: 'true'
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: least
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  numeric_literal: '1'
+              - comma: ','
+              - expression:
+                  numeric_literal: '2'
+              - comma: ','
+              - expression:
+                  numeric_literal: '3'
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: greatest
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  numeric_literal: '1'
+              - comma: ','
+              - expression:
+                  numeric_literal: '2'
+              - comma: ','
+              - expression:
+                  numeric_literal: '3'
+              - end_bracket: )
+- statement_terminator: ;

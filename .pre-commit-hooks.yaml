@@ -1,19 +1,26 @@
 - id: sqlfluff-lint
   name: sqlfluff-lint
-  entry: sqlfluff lint
+  # Set `--processes 0` to use maximum parallelism
+  #  - `--disable-progress-bar` pre-commit suppresses logging already
+  #      this can cause an unneeded slow down.
+  entry: sqlfluff lint --processes 0 --disable-progress-bar
   language: python
-  description: 'Lints sql files with `SQLFluff`'
+  description: "Lints sql files with `SQLFluff`"
   types: [sql]
   require_serial: true
   additional_dependencies: []
 
 - id: sqlfluff-fix
   name: sqlfluff-fix
-  # Needs to use "--force" to disable confirmation
-  # By default all the rules are applied
-  entry: sqlfluff fix --force
+  # Set a couple of default flags:
+  #  - `--show-lint-violations` shows issues to not require running `sqlfluff lint`
+  #  - `--processes 0` to use maximum parallelism
+  #  - `--disable-progress-bar` pre-commit suppresses logging already
+  #      this can cause an unneeded slow down.
+  # By default, this hook applies all rules.
+  entry: sqlfluff fix --show-lint-violations --processes 0 --disable-progress-bar
   language: python
-  description: 'Fixes sql lint errors with `SQLFluff`'
+  description: "Fixes sql lint errors with `SQLFluff`"
   types: [sql]
   require_serial: true
   additional_dependencies: []

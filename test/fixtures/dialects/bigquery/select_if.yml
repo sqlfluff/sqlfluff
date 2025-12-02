@@ -1,0 +1,186 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 242625b1dc9cb498310d499e8e835797605309c85adff35bd2d2dfaf3e91d2a9
+file:
+  statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+            naked_identifier: client
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: firstHtml
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: vary
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: IF
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                    naked_identifier: _cdn_provider
+                  comparison_operator:
+                  - raw_comparison_operator: '!'
+                  - raw_comparison_operator: '='
+                  quoted_literal: "''"
+              - comma: ','
+              - expression:
+                  quoted_literal: "'CDN'"
+              - comma: ','
+              - expression:
+                  quoted_literal: "'Origin'"
+              - end_bracket: )
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: source
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: COUNT
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  numeric_literal: '0'
+                end_bracket: )
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: total
+      from_clause:
+      - keyword: FROM
+      - from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                quoted_identifier: '`httparchive.almanac.requests`'
+      - comma: ','
+      - from_expression:
+          from_expression_element:
+            table_expression:
+              function:
+                function_name:
+                  function_name_identifier: UNNEST
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      function:
+                        function_name:
+                          function_name_identifier: split
+                        function_contents:
+                          bracketed:
+                          - start_bracket: (
+                          - expression:
+                              function:
+                                function_name:
+                                  function_name_identifier: REGEXP_REPLACE
+                                function_contents:
+                                  bracketed:
+                                  - start_bracket: (
+                                  - expression:
+                                      function:
+                                        function_name:
+                                          function_name_identifier: REGEXP_REPLACE
+                                        function_contents:
+                                          bracketed:
+                                          - start_bracket: (
+                                          - expression:
+                                              function:
+                                                function_name:
+                                                  function_name_identifier: LOWER
+                                                function_contents:
+                                                  bracketed:
+                                                    start_bracket: (
+                                                    expression:
+                                                      column_reference:
+                                                        naked_identifier: resp_vary
+                                                    end_bracket: )
+                                          - comma: ','
+                                          - expression:
+                                              quoted_literal: "'\\\"'"
+                                          - comma: ','
+                                          - expression:
+                                              quoted_literal: "''"
+                                          - end_bracket: )
+                                  - comma: ','
+                                  - expression:
+                                      quoted_literal: "'[, ]+|\\\\\\\\0'"
+                                  - comma: ','
+                                  - expression:
+                                      quoted_literal: "','"
+                                  - end_bracket: )
+                          - comma: ','
+                          - expression:
+                              quoted_literal: "','"
+                          - end_bracket: )
+                    end_bracket: )
+            alias_expression:
+              alias_operator:
+                keyword: AS
+              naked_identifier: vary
+      where_clause:
+        keyword: WHERE
+        expression:
+          column_reference:
+            naked_identifier: date
+          comparison_operator:
+            raw_comparison_operator: '='
+          quoted_literal: "'2019-07-01'"
+      groupby_clause:
+      - keyword: GROUP
+      - keyword: BY
+      - column_reference:
+          naked_identifier: client
+      - comma: ','
+      - column_reference:
+          naked_identifier: firstHtml
+      - comma: ','
+      - column_reference:
+          naked_identifier: vary
+      - comma: ','
+      - column_reference:
+          naked_identifier: source
+      having_clause:
+        keyword: HAVING
+        expression:
+        - column_reference:
+            naked_identifier: vary
+        - comparison_operator:
+          - raw_comparison_operator: '!'
+          - raw_comparison_operator: '='
+        - quoted_literal: "''"
+        - binary_operator: AND
+        - column_reference:
+            naked_identifier: vary
+        - keyword: IS
+        - keyword: NOT
+        - null_literal: 'NULL'
+      orderby_clause:
+      - keyword: ORDER
+      - keyword: BY
+      - column_reference:
+          naked_identifier: client
+      - keyword: DESC
+      - comma: ','
+      - column_reference:
+          naked_identifier: firstHtml
+      - keyword: DESC
+      - comma: ','
+      - column_reference:
+          naked_identifier: total
+      - keyword: DESC

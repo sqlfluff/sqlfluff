@@ -1,0 +1,27 @@
+[sqlfluff]
+dialect = snowflake
+templater = jinja
+exclude_rules = AL01,LT05,AL07,ST06,ST01
+output_line_length = 120
+max_line_length = 120
+
+[sqlfluff:layout:type:binary_operator]
+line_position = leading
+
+[sqlfluff:layout:type:comparison_operator]
+line_position = leading
+
+[sqlfluff:indentation]
+tab_space_size = 2
+
+[sqlfluff:rules:capitalisation.keywords]  # Keywords
+capitalisation_policy = upper
+
+[sqlfluff:rules:AL03]  # Column expressions
+allow_scalar = False
+
+[sqlfluff:rules:capitalisation.identifiers]  # Unquoted identifiers
+extended_capitalisation_policy = lower
+
+[sqlfluff:rules:capitalisation.functions]  # Function names
+extended_capitalisation_policy = lower

@@ -1,0 +1,1358 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 6dbe11ccf20071e36fd4bc834de1d67b8aa497152ce9849f6ff363b157c4701d
+file:
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: x
+    - keyword: DROP
+    - keyword: COLUMN
+    - naked_identifier: y
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: x
+    - keyword: DROP
+    - keyword: COLUMN
+    - keyword: IF
+    - keyword: EXISTS
+    - naked_identifier: y
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: x
+    - on_cluster_clause:
+      - keyword: 'ON'
+      - keyword: CLUSTER
+      - quoted_identifier: "'{cluster}'"
+    - keyword: DROP
+    - keyword: COLUMN
+    - naked_identifier: y
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: x
+    - on_cluster_clause:
+      - keyword: 'ON'
+      - keyword: CLUSTER
+      - quoted_identifier: "'{cluster}'"
+    - keyword: DROP
+    - keyword: COLUMN
+    - keyword: IF
+    - keyword: EXISTS
+    - naked_identifier: y
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: visits
+    - keyword: DROP
+    - keyword: COLUMN
+    - naked_identifier: browser
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: x
+    - keyword: ADD
+    - keyword: COLUMN
+    - naked_identifier: y
+    - data_type:
+        data_type_identifier: Int32
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: x
+    - keyword: ADD
+    - keyword: COLUMN
+    - naked_identifier: y
+    - data_type:
+        data_type_identifier: Int32
+    - keyword: DEFAULT
+    - expression:
+        numeric_literal: '1'
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: x
+    - keyword: ADD
+    - keyword: COLUMN
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - naked_identifier: y
+    - data_type:
+        data_type_identifier: Int32
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: x
+    - keyword: ADD
+    - keyword: COLUMN
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - naked_identifier: y
+    - data_type:
+        data_type_identifier: Int32
+    - keyword: DEFAULT
+    - expression:
+        numeric_literal: '1'
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: alter_test
+    - keyword: ADD
+    - keyword: COLUMN
+    - naked_identifier: Added1
+    - data_type:
+        data_type_identifier: UInt32
+    - keyword: FIRST
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: alter_test
+    - keyword: ADD
+    - keyword: COLUMN
+    - naked_identifier: Added2
+    - data_type:
+        data_type_identifier: UInt32
+    - keyword: AFTER
+    - naked_identifier: NestedColumn
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: alter_test
+    - keyword: ADD
+    - keyword: COLUMN
+    - naked_identifier: Added3
+    - data_type:
+        data_type_identifier: UInt32
+    - keyword: AFTER
+    - naked_identifier: ToDrop
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: x
+    - on_cluster_clause:
+      - keyword: 'ON'
+      - keyword: CLUSTER
+      - quoted_identifier: "'{cluster}'"
+    - keyword: ADD
+    - keyword: COLUMN
+    - naked_identifier: y
+    - data_type:
+        data_type_identifier: Int32
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: x
+    - on_cluster_clause:
+      - keyword: 'ON'
+      - keyword: CLUSTER
+      - quoted_identifier: "'{cluster}'"
+    - keyword: ADD
+    - keyword: COLUMN
+    - naked_identifier: y
+    - data_type:
+        data_type_identifier: Int32
+    - keyword: DEFAULT
+    - expression:
+        numeric_literal: '1'
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: x
+    - on_cluster_clause:
+      - keyword: 'ON'
+      - keyword: CLUSTER
+      - quoted_identifier: "'{cluster}'"
+    - keyword: ADD
+    - keyword: COLUMN
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - naked_identifier: y
+    - data_type:
+        data_type_identifier: Int32
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: x
+    - on_cluster_clause:
+      - keyword: 'ON'
+      - keyword: CLUSTER
+      - quoted_identifier: "'{cluster}'"
+    - keyword: ADD
+    - keyword: COLUMN
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - naked_identifier: y
+    - data_type:
+        data_type_identifier: Int32
+    - keyword: DEFAULT
+    - expression:
+        numeric_literal: '1'
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: x
+    - keyword: ADD
+    - keyword: COLUMN
+    - naked_identifier: z
+    - data_type:
+        data_type_identifier: Int32
+    - keyword: CODEC
+    - bracketed:
+        start_bracket: (
+        naked_identifier: ZSTD
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: x
+    - keyword: ADD
+    - keyword: COLUMN
+    - naked_identifier: z
+    - data_type:
+        data_type_identifier: Int32
+    - keyword: AFTER
+    - naked_identifier: y
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: x
+    - keyword: ADD
+    - keyword: COLUMN
+    - naked_identifier: z
+    - data_type:
+        data_type_identifier: Int32
+    - keyword: FIRST
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: x
+    - keyword: ADD
+    - keyword: COLUMN
+    - naked_identifier: z
+    - data_type:
+        data_type_identifier: Int32
+    - keyword: DEFAULT
+    - expression:
+        numeric_literal: '0'
+    - keyword: CODEC
+    - bracketed:
+        start_bracket: (
+        naked_identifier: ZSTD
+        end_bracket: )
+    - keyword: AFTER
+    - naked_identifier: y
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: x
+    - keyword: RENAME
+    - keyword: COLUMN
+    - naked_identifier: old_name
+    - keyword: TO
+    - naked_identifier: new_name
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: x
+    - keyword: RENAME
+    - keyword: COLUMN
+    - keyword: IF
+    - keyword: EXISTS
+    - naked_identifier: old_name
+    - keyword: TO
+    - naked_identifier: new_name
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: x
+    - on_cluster_clause:
+      - keyword: 'ON'
+      - keyword: CLUSTER
+      - quoted_identifier: "'{cluster}'"
+    - keyword: RENAME
+    - keyword: COLUMN
+    - naked_identifier: old_name
+    - keyword: TO
+    - naked_identifier: new_name
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: x
+    - on_cluster_clause:
+      - keyword: 'ON'
+      - keyword: CLUSTER
+      - quoted_identifier: "'{cluster}'"
+    - keyword: RENAME
+    - keyword: COLUMN
+    - keyword: IF
+    - keyword: EXISTS
+    - naked_identifier: old_name
+    - keyword: TO
+    - naked_identifier: new_name
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: visits
+    - keyword: RENAME
+    - keyword: COLUMN
+    - naked_identifier: webBrowser
+    - keyword: TO
+    - naked_identifier: browser
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: x
+    - keyword: COMMENT
+    - keyword: COLUMN
+    - naked_identifier: col_name
+    - quoted_literal: "'This is a comment'"
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: x
+    - keyword: COMMENT
+    - keyword: COLUMN
+    - keyword: IF
+    - keyword: EXISTS
+    - naked_identifier: col_name
+    - quoted_literal: "'Column description'"
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: x
+    - on_cluster_clause:
+      - keyword: 'ON'
+      - keyword: CLUSTER
+      - quoted_identifier: "'{cluster}'"
+    - keyword: COMMENT
+    - keyword: COLUMN
+    - naked_identifier: col_name
+    - quoted_literal: "'Cluster-wide comment'"
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: x
+    - on_cluster_clause:
+      - keyword: 'ON'
+      - keyword: CLUSTER
+      - quoted_identifier: "'{cluster}'"
+    - keyword: COMMENT
+    - keyword: COLUMN
+    - keyword: IF
+    - keyword: EXISTS
+    - naked_identifier: col_name
+    - quoted_literal: "'Cluster-wide description'"
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: visits
+    - keyword: COMMENT
+    - keyword: COLUMN
+    - naked_identifier: browser
+    - quoted_literal: "'This column shows the browser used for accessing the site.'"
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: x
+    - keyword: COMMENT
+    - quoted_literal: "'This is a table comment'"
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: x
+    - on_cluster_clause:
+      - keyword: 'ON'
+      - keyword: CLUSTER
+      - quoted_identifier: "'{cluster}'"
+    - keyword: COMMENT
+    - quoted_literal: "'This is a table comment'"
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: x
+    - keyword: MODIFY
+    - keyword: COMMENT
+    - quoted_literal: "''"
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: x
+    - keyword: MODIFY
+    - keyword: COLUMN
+    - naked_identifier: col_name
+    - data_type:
+        data_type_identifier: Int64
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: x
+    - keyword: MODIFY
+    - keyword: COLUMN
+    - keyword: IF
+    - keyword: EXISTS
+    - naked_identifier: col_name
+    - data_type:
+        data_type_identifier: Int64
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: x
+    - keyword: MODIFY
+    - keyword: COLUMN
+    - naked_identifier: col_name
+    - data_type:
+        data_type_identifier: Int64
+    - keyword: DEFAULT
+    - expression:
+        numeric_literal: '0'
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: x
+    - keyword: MODIFY
+    - keyword: COLUMN
+    - naked_identifier: col_name
+    - data_type:
+        data_type_identifier: Int64
+    - keyword: CODEC
+    - bracketed:
+        start_bracket: (
+        naked_identifier: ZSTD
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: x
+    - keyword: MODIFY
+    - keyword: COLUMN
+    - naked_identifier: col_name
+    - data_type:
+        data_type_identifier: Int64
+    - keyword: AFTER
+    - naked_identifier: other_col
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: x
+    - keyword: MODIFY
+    - keyword: COLUMN
+    - naked_identifier: col_name
+    - data_type:
+        data_type_identifier: Int64
+    - keyword: FIRST
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: x
+    - on_cluster_clause:
+      - keyword: 'ON'
+      - keyword: CLUSTER
+      - quoted_identifier: "'{cluster}'"
+    - keyword: MODIFY
+    - keyword: COLUMN
+    - naked_identifier: col_name
+    - data_type:
+        data_type_identifier: Int64
+    - keyword: DEFAULT
+    - expression:
+        numeric_literal: '0'
+    - keyword: CODEC
+    - bracketed:
+        start_bracket: (
+        naked_identifier: ZSTD
+        end_bracket: )
+    - keyword: AFTER
+    - naked_identifier: other_col
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: visits
+    - keyword: MODIFY
+    - keyword: COLUMN
+    - naked_identifier: browser
+    - data_type:
+        data_type_identifier: Array
+        bracketed:
+          start_bracket: (
+          data_type:
+            data_type_identifier: String
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: users
+    - keyword: MODIFY
+    - keyword: COLUMN
+    - naked_identifier: c2
+    - data_type:
+        data_type_identifier: String
+    - keyword: FIRST
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: users
+    - keyword: MODIFY
+    - keyword: COLUMN
+    - naked_identifier: c2
+    - keyword: TYPE
+    - data_type:
+        data_type_identifier: String
+    - keyword: AFTER
+    - naked_identifier: c1
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: x
+    - keyword: MATERIALIZE
+    - keyword: COLUMN
+    - naked_identifier: col_name
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: x
+    - keyword: MATERIALIZE
+    - keyword: COLUMN
+    - naked_identifier: col_name
+    - keyword: IN
+    - keyword: PARTITION
+    - naked_identifier: partition_name
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: x
+    - keyword: MATERIALIZE
+    - keyword: COLUMN
+    - naked_identifier: col_name
+    - keyword: IN
+    - keyword: PARTITION
+    - keyword: ID
+    - quoted_literal: "'partition_id'"
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: x
+    - on_cluster_clause:
+      - keyword: 'ON'
+      - keyword: CLUSTER
+      - quoted_identifier: "'{cluster}'"
+    - keyword: MATERIALIZE
+    - keyword: COLUMN
+    - naked_identifier: col_name
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: x
+    - on_cluster_clause:
+      - keyword: 'ON'
+      - keyword: CLUSTER
+      - quoted_identifier: "'{cluster}'"
+    - keyword: MATERIALIZE
+    - keyword: COLUMN
+    - naked_identifier: col_name
+    - keyword: IN
+    - keyword: PARTITION
+    - naked_identifier: partition_name
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: tmp
+    - keyword: ADD
+    - keyword: COLUMN
+    - naked_identifier: s
+    - data_type:
+        data_type_identifier: String
+    - keyword: MATERIALIZED
+    - expression:
+        function:
+          function_name:
+            function_name_identifier: toString
+          function_contents:
+            bracketed:
+              start_bracket: (
+              expression:
+                column_reference:
+                  naked_identifier: x
+              end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: tmp
+    - keyword: MODIFY
+    - keyword: COLUMN
+    - naked_identifier: s
+    - data_type:
+        data_type_identifier: String
+    - keyword: MATERIALIZED
+    - expression:
+        function:
+          function_name:
+            function_name_identifier: toString
+          function_contents:
+            bracketed:
+              start_bracket: (
+              expression:
+                function:
+                  function_name:
+                    function_name_identifier: round
+                  function_contents:
+                    bracketed:
+                      start_bracket: (
+                      expression:
+                        numeric_literal: '100'
+                        binary_operator: /
+                        column_reference:
+                          naked_identifier: x
+                      end_bracket: )
+              end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: tmp
+    - keyword: MATERIALIZE
+    - keyword: COLUMN
+    - naked_identifier: s
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: x
+    - keyword: ADD
+    - keyword: ALIAS
+    - naked_identifier: alias_name
+    - keyword: FOR
+    - naked_identifier: col_name
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: x
+    - keyword: ADD
+    - keyword: ALIAS
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - naked_identifier: alias_name
+    - keyword: FOR
+    - naked_identifier: col_name
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: x
+    - on_cluster_clause:
+      - keyword: 'ON'
+      - keyword: CLUSTER
+      - quoted_identifier: "'{cluster}'"
+    - keyword: MODIFY
+    - keyword: COLUMN
+    - naked_identifier: y
+    - keyword: ALIAS
+    - expression:
+        column_reference:
+          naked_identifier: z
+        binary_operator: /
+        numeric_literal: '10'
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: x
+    - on_cluster_clause:
+      - keyword: 'ON'
+      - keyword: CLUSTER
+      - quoted_identifier: "'{cluster}'"
+    - keyword: ADD
+    - keyword: ALIAS
+    - naked_identifier: alias_name
+    - keyword: FOR
+    - naked_identifier: col_name
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: x
+    - on_cluster_clause:
+      - keyword: 'ON'
+      - keyword: CLUSTER
+      - quoted_identifier: "'{cluster}'"
+    - keyword: MODIFY
+    - keyword: COLUMN
+    - naked_identifier: y
+    - keyword: REMOVE
+    - keyword: ALIAS
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: x
+    - on_cluster_clause:
+      - keyword: 'ON'
+      - keyword: CLUSTER
+      - quoted_identifier: "'{cluster}'"
+    - keyword: ADD
+    - keyword: COLUMN
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - naked_identifier: y
+    - data_type:
+        data_type_identifier: Float32
+    - keyword: ALIAS
+    - expression:
+        column_reference:
+          naked_identifier: z
+        binary_operator: '*'
+        numeric_literal: '100'
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: table_with_ttl
+    - keyword: MODIFY
+    - keyword: COLUMN
+    - naked_identifier: column_ttl
+    - keyword: REMOVE
+    - keyword: TTL
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: table_with_ttl
+    - keyword: REMOVE
+    - keyword: TTL
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: table_with_ttl
+    - on_cluster_clause:
+      - keyword: 'ON'
+      - keyword: CLUSTER
+      - quoted_identifier: "'{cluster}'"
+    - keyword: REMOVE
+    - keyword: TTL
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: table_name
+    - on_cluster_clause:
+      - keyword: 'ON'
+      - keyword: CLUSTER
+      - quoted_identifier: "'{cluster}'"
+    - keyword: MODIFY
+    - keyword: TTL
+    - expression:
+        column_reference:
+          naked_identifier: event_time
+        binary_operator: +
+        interval_expression:
+          keyword: INTERVAL
+          numeric_literal: '3'
+          date_part: MONTH
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: x
+    - keyword: ADD
+    - keyword: COLUMN
+    - naked_identifier: y
+    - data_type:
+        data_type_identifier: Int32
+    - keyword: ALIAS
+    - expression:
+        column_reference:
+          naked_identifier: z
+        binary_operator: +
+        numeric_literal: '10'
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: x
+    - on_cluster_clause:
+      - keyword: 'ON'
+      - keyword: CLUSTER
+      - quoted_identifier: "'{cluster}'"
+    - keyword: ADD
+    - keyword: COLUMN
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - naked_identifier: y
+    - data_type:
+        data_type_identifier: Float32
+    - keyword: ALIAS
+    - expression:
+        column_reference:
+          naked_identifier: z
+        binary_operator: '*'
+        numeric_literal: '100'
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: x
+    - keyword: MODIFY
+    - keyword: COLUMN
+    - naked_identifier: y
+    - keyword: ALIAS
+    - expression:
+        column_reference:
+          naked_identifier: z
+        binary_operator: /
+        numeric_literal: '10'
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: x
+    - on_cluster_clause:
+      - keyword: 'ON'
+      - keyword: CLUSTER
+      - quoted_identifier: "'{cluster}'"
+    - keyword: MODIFY
+    - keyword: COLUMN
+    - naked_identifier: y
+    - keyword: REMOVE
+    - keyword: ALIAS
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: mv
+    - keyword: MODIFY
+    - keyword: QUERY
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: source_table
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: mv
+    - keyword: MODIFY
+    - keyword: QUERY
+    - select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+              naked_identifier: id
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: name
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: value
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: source_table
+        where_clause:
+          keyword: WHERE
+          expression:
+            column_reference:
+              naked_identifier: value
+            comparison_operator:
+              raw_comparison_operator: '>'
+            numeric_literal: '0'
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: mv
+    - on_cluster_clause:
+      - keyword: 'ON'
+      - keyword: CLUSTER
+      - naked_identifier: cluster1
+    - keyword: MODIFY
+    - keyword: QUERY
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: source_table
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: mv
+    - on_cluster_clause:
+      - keyword: 'ON'
+      - keyword: CLUSTER
+      - quoted_identifier: "'{cluster}'"
+    - keyword: MODIFY
+    - keyword: QUERY
+    - select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+              naked_identifier: id
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: name
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: value
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: source_table
+        where_clause:
+          keyword: WHERE
+          expression:
+            column_reference:
+              naked_identifier: value
+            comparison_operator:
+              raw_comparison_operator: '>'
+            numeric_literal: '0'
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: mv
+    - keyword: MODIFY
+    - keyword: QUERY
+    - select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+              naked_identifier: id
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: name
+        - comma: ','
+        - select_clause_element:
+            function:
+              function_name:
+                function_name_identifier: sum
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                      naked_identifier: value
+                  end_bracket: )
+            alias_expression:
+              alias_operator:
+                keyword: AS
+              naked_identifier: total_value
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: source_table
+        groupby_clause:
+        - keyword: GROUP
+        - keyword: BY
+        - column_reference:
+            naked_identifier: id
+        - comma: ','
+        - column_reference:
+            naked_identifier: name
+        having_clause:
+          keyword: HAVING
+          expression:
+            column_reference:
+              naked_identifier: total_value
+            comparison_operator:
+              raw_comparison_operator: '>'
+            numeric_literal: '100'
+        orderby_clause:
+        - keyword: ORDER
+        - keyword: BY
+        - column_reference:
+            naked_identifier: total_value
+        - keyword: DESC
+        limit_clause:
+          keyword: LIMIT
+          limit_clause_component:
+            numeric_literal: '10'
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: mv
+    - keyword: MODIFY
+    - keyword: QUERY
+    - select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+            - naked_identifier: t1
+            - dot: .
+            - naked_identifier: id
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+            - naked_identifier: t1
+            - dot: .
+            - naked_identifier: name
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+            - naked_identifier: t2
+            - dot: .
+            - naked_identifier: value
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: table1
+              alias_expression:
+                alias_operator:
+                  keyword: AS
+                naked_identifier: t1
+            join_clause:
+              keyword: JOIN
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                    naked_identifier: table2
+                alias_expression:
+                  alias_operator:
+                    keyword: AS
+                  naked_identifier: t2
+              join_on_condition:
+                keyword: 'ON'
+                expression:
+                - column_reference:
+                  - naked_identifier: t1
+                  - dot: .
+                  - naked_identifier: id
+                - comparison_operator:
+                    raw_comparison_operator: '='
+                - column_reference:
+                  - naked_identifier: t2
+                  - dot: .
+                  - naked_identifier: id
+        where_clause:
+          keyword: WHERE
+          expression:
+            column_reference:
+            - naked_identifier: t1
+            - dot: .
+            - naked_identifier: active
+            comparison_operator:
+              raw_comparison_operator: '='
+            numeric_literal: '1'
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: x
+    - keyword: DROP
+    - keyword: PARTITION
+    - naked_identifier: y
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: x
+    - on_cluster_clause:
+      - keyword: 'ON'
+      - keyword: CLUSTER
+      - quoted_identifier: "'{cluster}'"
+    - keyword: DROP
+    - keyword: PARTITION
+    - quoted_identifier: "'y'"
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: x
+    - keyword: DROP
+    - keyword: PART
+    - quoted_identifier: "'y'"
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: x
+    - on_cluster_clause:
+      - keyword: 'ON'
+      - keyword: CLUSTER
+      - quoted_identifier: "'{cluster}'"
+    - keyword: DROP
+    - keyword: PART
+    - quoted_identifier: "'y'"
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: x
+    - keyword: REPLACE
+    - keyword: PARTITION
+    - quoted_identifier: "'y'"
+    - keyword: FROM
+    - table_reference:
+        naked_identifier: z
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: x
+    - on_cluster_clause:
+      - keyword: 'ON'
+      - keyword: CLUSTER
+      - quoted_identifier: "'{cluster}'"
+    - keyword: REPLACE
+    - keyword: PARTITION
+    - quoted_identifier: "'y'"
+    - keyword: FROM
+    - table_reference:
+        naked_identifier: z
+- statement_terminator: ;

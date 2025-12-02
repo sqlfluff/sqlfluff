@@ -1,8 +1,0 @@
-benchmarks:
-    - name: 004_L003_indentation_3
-      cmd: ['sqlfluff', 'parse', '--bench', 'test/fixtures/linter/autofix/ansi/004_indentation/before.sql']
-    - name: B_001_package
-      cmd: ['sqlfluff', 'parse', '--bench', 'benchmarks/bench_001_package.sql']
-    - name: B_002_pearson
-      cmd: ['sqlfluff', 'fix', '-f', '--bench',
-            '--fixed-suffix', '_fix', 'benchmarks/bench_002/bench_002_pearson.sql']

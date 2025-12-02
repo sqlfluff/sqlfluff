@@ -1,0 +1,134 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 72d7560a2b9989efd3cc3346918c571f1c4ce49d86ee6353d81f12fe4054cd93
+file:
+- statement:
+    create_cluster_statement:
+    - keyword: CREATE
+    - keyword: CLUSTER
+    - object_reference:
+        naked_identifier: mz_joe
+    - keyword: REPLICAS
+    - bracketed:
+        start_bracket: (
+        word: r1
+        bracketed:
+          start_bracket: (
+          word: size
+          single_quote: "'1'"
+          end_bracket: )
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_cluster_statement:
+    - keyword: CREATE
+    - keyword: CLUSTER
+    - object_reference:
+        naked_identifier: mz_joe
+    - keyword: REPLICAS
+    - bracketed:
+      - start_bracket: (
+      - word: r1
+      - bracketed:
+          start_bracket: (
+          word: size
+          single_quote: "'1'"
+          end_bracket: )
+      - comma: ','
+      - word: r2
+      - bracketed:
+          start_bracket: (
+          word: size
+          single_quote: "'1'"
+          end_bracket: )
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_cluster_statement:
+    - keyword: CREATE
+    - keyword: CLUSTER
+    - object_reference:
+        naked_identifier: c1
+    - word: SIZE
+    - equals: '='
+    - single_quote: "'medium'"
+    - comma: ','
+    - word: REPLICATION
+    - word: FACTOR
+    - equals: '='
+    - numeric_literal: '2'
+- statement_terminator: ;
+- statement:
+    create_cluster_statement:
+    - keyword: CREATE
+    - keyword: CLUSTER
+    - object_reference:
+        naked_identifier: c
+    - word: SIZE
+    - equals: '='
+    - single_quote: "'xsmall'"
+    - comma: ','
+    - word: INTROSPECTION
+    - word: INTERVAL
+    - equals: '='
+    - numeric_literal: '0'
+- statement_terminator: ;
+- statement:
+    create_cluster_statement:
+    - keyword: CREATE
+    - keyword: CLUSTER
+    - object_reference:
+        naked_identifier: c1
+    - word: SIZE
+    - single_quote: "'xsmall'"
+    - comma: ','
+    - word: REPLICATION
+    - word: FACTOR
+    - equals: '='
+    - numeric_literal: '0'
+- statement_terminator: ;
+- statement:
+    create_cluster_statement:
+    - keyword: CREATE
+    - keyword: CLUSTER
+    - object_reference:
+        naked_identifier: REPLICA
+    - word: default
+    - dot: .
+    - word: size_1
+    - word: SIZE
+    - single_quote: "'large'"
+- statement_terminator: ;
+- statement:
+    create_cluster_statement:
+    - keyword: CREATE
+    - keyword: CLUSTER
+    - object_reference:
+        naked_identifier: REPLICA
+    - word: c1
+    - dot: .
+    - word: r1
+    - word: SIZE
+    - equals: '='
+    - single_quote: "'medium'"
+- statement_terminator: ;
+- statement:
+    create_cluster_statement:
+    - keyword: CREATE
+    - keyword: CLUSTER
+    - object_reference:
+        naked_identifier: REPLICA
+    - word: default
+    - dot: .
+    - word: replica
+    - word: AVAILABILITY
+    - word: ZONE
+    - single_quote: "'a'"
+    - comma: ','
+    - word: AVAILABILITY
+    - word: ZONE
+    - single_quote: "'b'"
+- statement_terminator: ;

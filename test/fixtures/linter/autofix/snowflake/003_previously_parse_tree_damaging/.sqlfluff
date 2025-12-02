@@ -1,0 +1,5 @@
+[sqlfluff]
+dialect = snowflake
+
+[sqlfluff:indentation]
+tab_space_size = 2

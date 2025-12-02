@@ -3,26 +3,28 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: e71605c4b6393b743a2ba0038e8d1f1a99d185f8176a644629179b2e16fd1d62
+_hash: b8801c03e7efcddeaddf35bb0f6ed630b57534832b82ce29bccd06a854a3afca
 file:
   statement:
     create_database_statement:
     - keyword: CREATE
     - keyword: DATABASE
     - database_reference:
-        identifier: foo
+        naked_identifier: foo
     - keyword: LOCATION
-    - literal: "'hdfs://path'"
+    - quoted_literal: "'hdfs://path'"
     - keyword: WITH
     - keyword: DBPROPERTIES
     - bracketed:
       - start_bracket: (
-      - literal: '"a"'
-      - comparison_operator: '='
-      - literal: '"1"'
+      - quoted_literal: '"a"'
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: '"1"'
       - comma: ','
-      - literal: '"b"'
-      - comparison_operator: '='
-      - literal: '"2"'
+      - quoted_literal: '"b"'
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: '"2"'
       - end_bracket: )
   statement_terminator: ;

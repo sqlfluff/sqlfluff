@@ -1,0 +1,153 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 9089c4ee01870665c30fac293ae6f6f4a1ba8fc257ad08bc955f367391e5275e
+file:
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          array_literal:
+          - start_square_bracket: '['
+          - quoted_literal: "'A-Wing'"
+          - comma: ','
+          - quoted_literal: "'B-Wing'"
+          - comma: ','
+          - quoted_literal: "'X-Wing'"
+          - comma: ','
+          - quoted_literal: "'Y-Wing'"
+          - end_square_bracket: ']'
+          alias_expression:
+            alias_operator:
+              keyword: as
+            naked_identifier: starfighter_list
+      - comma: ','
+      - select_clause_element:
+          object_literal:
+          - start_curly_bracket: '{'
+          - object_literal_element:
+              naked_identifier: name
+              colon: ':'
+              quoted_literal: "'Star Destroyer'"
+          - comma: ','
+          - object_literal_element:
+              naked_identifier: common_misconceptions
+              colon: ':'
+              quoted_literal: "'Can''t in fact destroy a star'"
+          - end_curly_bracket: '}'
+          alias_expression:
+            alias_operator:
+              keyword: as
+            naked_identifier: star_destroyer_facts
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+            column_reference:
+              naked_identifier: starfighter_list
+            array_accessor:
+            - start_square_bracket: '['
+            - numeric_literal: '2'
+            - slice: ':'
+            - numeric_literal: '2'
+            - end_square_bracket: ']'
+          alias_expression:
+            alias_operator:
+              keyword: as
+            naked_identifier: dont_forget_the_b_wing
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              bracketed:
+                start_bracket: (
+                select_statement:
+                  select_clause:
+                    keyword: SELECT
+                    select_clause_element:
+                      array_literal:
+                      - start_square_bracket: '['
+                      - quoted_literal: "'A-Wing'"
+                      - comma: ','
+                      - quoted_literal: "'B-Wing'"
+                      - comma: ','
+                      - quoted_literal: "'X-Wing'"
+                      - comma: ','
+                      - quoted_literal: "'Y-Wing'"
+                      - end_square_bracket: ']'
+                      alias_expression:
+                        alias_operator:
+                          keyword: as
+                        naked_identifier: starfighter_list
+                end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+            quoted_literal: "'I love you! I know'"
+            array_accessor:
+              start_square_bracket: '['
+              slice: ':'
+              numeric_literal:
+                sign_indicator: '-'
+                numeric_literal: '3'
+              end_square_bracket: ']'
+          alias_expression:
+            alias_operator:
+              keyword: as
+            naked_identifier: nearly_soloed
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+          - naked_identifier: planet
+          - dot: .
+          - naked_identifier: name
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: planet
+            dot: .
+            quoted_identifier: '"Amount of sand"'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              bracketed:
+                start_bracket: (
+                select_statement:
+                  select_clause:
+                    keyword: SELECT
+                    select_clause_element:
+                      object_literal:
+                      - start_curly_bracket: '{'
+                      - object_literal_element:
+                          naked_identifier: name
+                          colon: ':'
+                          quoted_literal: "'Tatooine'"
+                      - comma: ','
+                      - object_literal_element:
+                        - quoted_literal: "'Amount of sand'"
+                        - colon: ':'
+                        - quoted_literal: "'High'"
+                      - end_curly_bracket: '}'
+                      alias_expression:
+                        alias_operator:
+                          keyword: as
+                        naked_identifier: planet
+                end_bracket: )
+- statement_terminator: ;

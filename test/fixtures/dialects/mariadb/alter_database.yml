@@ -1,0 +1,115 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: a1c4b4182cc44aace3c98db61b2527155aad4526958fbad5a5d52dc0be2e7079
+file:
+- statement:
+    alter_database_statement:
+    - keyword: ALTER
+    - keyword: DATABASE
+    - database_reference:
+        naked_identifier: my_database
+    - alter_option_segment:
+      - keyword: DEFAULT
+      - keyword: CHARACTER
+      - keyword: SET
+      - naked_identifier: utf8mb4
+    - alter_option_segment:
+        keyword: COLLATE
+        collation_reference:
+          naked_identifier: utf8mb4_0900_ai_ci
+    - alter_option_segment:
+      - keyword: DEFAULT
+      - keyword: ENCRYPTION
+      - quoted_literal: "'N'"
+- statement_terminator: ;
+- statement:
+    alter_database_statement:
+    - keyword: ALTER
+    - keyword: DATABASE
+    - database_reference:
+        naked_identifier: my_database
+    - alter_option_segment:
+      - keyword: DEFAULT
+      - keyword: CHARACTER
+      - keyword: SET
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - naked_identifier: utf8mb4
+    - alter_option_segment:
+        keyword: COLLATE
+        comparison_operator:
+          raw_comparison_operator: '='
+        collation_reference:
+          naked_identifier: utf8mb4_0900_ai_ci
+    - alter_option_segment:
+      - keyword: DEFAULT
+      - keyword: ENCRYPTION
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'N'"
+- statement_terminator: ;
+- statement:
+    alter_database_statement:
+    - keyword: ALTER
+    - keyword: SCHEMA
+    - database_reference:
+        naked_identifier: my_database
+    - alter_option_segment:
+      - keyword: DEFAULT
+      - keyword: CHARACTER
+      - keyword: SET
+      - naked_identifier: utf8mb4
+    - alter_option_segment:
+        keyword: COLLATE
+        collation_reference:
+          naked_identifier: utf8mb4_0900_ai_ci
+    - alter_option_segment:
+      - keyword: DEFAULT
+      - keyword: ENCRYPTION
+      - quoted_literal: "'N'"
+- statement_terminator: ;
+- statement:
+    alter_database_statement:
+    - keyword: ALTER
+    - keyword: DATABASE
+    - database_reference:
+        naked_identifier: my_database
+    - alter_option_segment:
+      - keyword: READ
+      - keyword: ONLY
+      - keyword: DEFAULT
+- statement_terminator: ;
+- statement:
+    alter_database_statement:
+    - keyword: ALTER
+    - keyword: DATABASE
+    - database_reference:
+        naked_identifier: my_database
+    - alter_option_segment:
+      - keyword: READ
+      - keyword: ONLY
+      - numeric_literal: '0'
+- statement_terminator: ;
+- statement:
+    alter_database_statement:
+    - keyword: ALTER
+    - keyword: DATABASE
+    - database_reference:
+        naked_identifier: my_database
+    - alter_option_segment:
+      - keyword: READ
+      - keyword: ONLY
+      - numeric_literal: '1'
+- statement_terminator: ;
+- statement:
+    alter_database_statement:
+    - keyword: ALTER
+    - keyword: DATABASE
+    - alter_option_segment:
+      - keyword: READ
+      - keyword: ONLY
+      - keyword: DEFAULT
+- statement_terminator: ;

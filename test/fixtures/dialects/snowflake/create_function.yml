@@ -1,0 +1,540 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: acbe752dbc688f77d81e29201ed6d731756ec967a06479bd4026b87849830d5a
+file:
+- statement:
+    create_function_statement:
+    - keyword: CREATE
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: pi_udf
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          end_bracket: )
+    - keyword: RETURNS
+    - data_type:
+        data_type_identifier: FLOAT
+    - keyword: AS
+    - udf_body: "'3.141592654::FLOAT'"
+- statement_terminator: ;
+- statement:
+    create_function_statement:
+    - keyword: CREATE
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: simple_table_function
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          end_bracket: )
+    - keyword: RETURNS
+    - keyword: TABLE
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          naked_identifier: x
+          data_type:
+            data_type_identifier: INTEGER
+      - comma: ','
+      - column_definition:
+          naked_identifier: y
+          data_type:
+            data_type_identifier: INTEGER
+      - end_bracket: )
+    - keyword: AS
+    - udf_body: "$$\n    SELECT 1, 2\n    UNION ALL\n    SELECT 3, 4\n  $$"
+- statement_terminator: ;
+- statement:
+    create_function_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: get_countries_for_user
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          parameter: id
+          data_type:
+            data_type_identifier: number
+          end_bracket: )
+    - keyword: RETURNS
+    - keyword: TABLE
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          naked_identifier: country_code
+          data_type:
+            data_type_identifier: char
+      - comma: ','
+      - column_definition:
+          naked_identifier: country_name
+          data_type:
+            data_type_identifier: varchar
+      - end_bracket: )
+    - keyword: RETURNS
+    - keyword: 'NULL'
+    - keyword: 'ON'
+    - keyword: 'NULL'
+    - keyword: INPUT
+    - keyword: AS
+    - udf_body: "'select distinct c.country_code, c.country_name\n      from user_addresses\
+        \ a, countries c\n      where a.user_id = id\n      and c.country_code = a.country_code'"
+- statement_terminator: ;
+- statement:
+    create_function_statement:
+    - keyword: CREATE
+    - keyword: SECURE
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: js_factorial
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          parameter: d
+          data_type:
+            data_type_identifier: double
+          end_bracket: )
+    - keyword: RETURNS
+    - data_type:
+        data_type_identifier: double
+    - keyword: IMMUTABLE
+    - keyword: LANGUAGE
+    - keyword: JAVASCRIPT
+    - keyword: STRICT
+    - keyword: AS
+    - udf_body: "'\n  if (D <= 0) {\n    return 1;\n  } else {\n    var result = 1;\n\
+        \    for (var i = 2; i <= D; i++) {\n      result = result * i;\n    }\n \
+        \   return result;\n  }\n  '"
+- statement_terminator: ;
+- statement:
+    create_function_statement:
+    - keyword: CREATE
+    - keyword: FUNCTION
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - function_name:
+        function_name_identifier: simple_table_function
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          end_bracket: )
+    - keyword: RETURNS
+    - keyword: TABLE
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          naked_identifier: x
+          data_type:
+            data_type_identifier: INTEGER
+      - comma: ','
+      - column_definition:
+          naked_identifier: y
+          data_type:
+            data_type_identifier: INTEGER
+      - end_bracket: )
+    - keyword: LANGUAGE
+    - keyword: SQL
+    - keyword: AS
+    - udf_body: "$$\n    SELECT 1, 2\n    UNION ALL\n    SELECT 3, 4\n  $$"
+- statement_terminator: ;
+- statement:
+    create_function_statement:
+    - keyword: create
+    - keyword: function
+    - function_name:
+        function_name_identifier: my_decrement_udf
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          parameter: i
+          data_type:
+            data_type_identifier: numeric
+            bracketed_arguments:
+              bracketed:
+              - start_bracket: (
+              - numeric_literal: '9'
+              - comma: ','
+              - numeric_literal: '0'
+              - end_bracket: )
+          end_bracket: )
+    - keyword: returns
+    - data_type:
+        data_type_identifier: numeric
+    - keyword: language
+    - keyword: java
+    - keyword: imports
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - bracketed:
+        start_bracket: (
+        quoted_literal: "'@~/my_decrement_udf_package_dir/my_decrement_udf_jar.jar'"
+        end_bracket: )
+    - keyword: handler
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'my_decrement_udf_package.my_decrement_udf_class.my_decrement_udf_method'"
+- statement_terminator: ;
+- statement:
+    create_function_statement:
+    - keyword: create
+    - keyword: or
+    - keyword: replace
+    - keyword: function
+    - function_name:
+        function_name_identifier: echo_varchar
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          parameter: x
+          data_type:
+            data_type_identifier: varchar
+          end_bracket: )
+    - keyword: returns
+    - data_type:
+        data_type_identifier: varchar
+    - keyword: language
+    - keyword: java
+    - keyword: called
+    - keyword: 'on'
+    - keyword: 'null'
+    - keyword: input
+    - keyword: handler
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'TestFunc.echoVarchar'"
+    - keyword: target_path
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'@~/testfunc.jar'"
+    - keyword: as
+    - udf_body: "'class TestFunc {\n  public static String echoVarchar(String x) {\n\
+        \    return x;\n  }\n}'"
+- statement_terminator: ;
+- statement:
+    create_function_statement:
+    - keyword: create
+    - keyword: or
+    - keyword: replace
+    - keyword: function
+    - function_name:
+        function_name_identifier: py_udf
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          end_bracket: )
+    - keyword: returns
+    - data_type:
+        data_type_identifier: variant
+    - keyword: language
+    - keyword: python
+    - keyword: runtime_version
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'3.8'"
+    - keyword: packages
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - bracketed:
+      - start_bracket: (
+      - quoted_literal: "'numpy'"
+      - comma: ','
+      - quoted_literal: "'pandas'"
+      - comma: ','
+      - quoted_literal: "'xgboost==1.5.0'"
+      - end_bracket: )
+    - keyword: handler
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'udf'"
+    - keyword: as
+    - udf_body: "$$\nimport numpy as np\nimport pandas as pd\nimport xgboost as xgb\n\
+        def udf():\n    return [np.__version__, pd.__version__, xgb.__version__]\n\
+        $$"
+- statement_terminator: ;
+- statement:
+    create_function_statement:
+    - keyword: create
+    - keyword: or
+    - keyword: replace
+    - keyword: function
+    - function_name:
+        function_name_identifier: dream
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          parameter: i
+          data_type:
+            data_type_identifier: int
+          end_bracket: )
+    - keyword: returns
+    - data_type:
+        data_type_identifier: variant
+    - keyword: language
+    - keyword: python
+    - keyword: runtime_version
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'3.8'"
+    - keyword: handler
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'sleepy.snore'"
+    - keyword: imports
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - bracketed:
+        start_bracket: (
+        quoted_literal: "'@my_stage/sleepy.py'"
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_function_statement:
+    - keyword: create
+    - keyword: or
+    - keyword: replace
+    - keyword: function
+    - function_name:
+        function_name_identifier: addone
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          parameter: i
+          data_type:
+            data_type_identifier: int
+          end_bracket: )
+    - keyword: returns
+    - data_type:
+        data_type_identifier: int
+    - keyword: language
+    - keyword: python
+    - keyword: runtime_version
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'3.8'"
+    - keyword: handler
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'addone_py'"
+    - keyword: as
+    - udf_body: "$$\ndef addone_py(i):\n  return i+1\n$$"
+- statement_terminator: ;
+- statement:
+    create_function_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: echo_varchar
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          parameter: x
+          data_type:
+            data_type_identifier: VARCHAR
+          end_bracket: )
+    - keyword: RETURNS
+    - data_type:
+        data_type_identifier: VARCHAR
+    - keyword: LANGUAGE
+    - keyword: SCALA
+    - keyword: RUNTIME_VERSION
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'2.12'"
+    - keyword: HANDLER
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'Echo.echoVarchar'"
+    - keyword: AS
+    - udf_body: "$$\nclass Echo {\n  def echoVarchar(x : String): String = {\n   \
+        \ return x\n  }\n}\n$$"
+- statement_terminator: ;
+- statement:
+    create_function_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: google_translate_python
+    - function_parameter_list:
+        bracketed:
+        - start_bracket: (
+        - parameter: sentence
+        - data_type:
+            data_type_identifier: STRING
+        - comma: ','
+        - parameter: language
+        - data_type:
+            data_type_identifier: STRING
+        - end_bracket: )
+    - keyword: RETURNS
+    - data_type:
+        data_type_identifier: STRING
+    - keyword: LANGUAGE
+    - keyword: PYTHON
+    - keyword: RUNTIME_VERSION
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'3.8'"
+    - keyword: HANDLER
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'get_translation'"
+    - keyword: EXTERNAL_ACCESS_INTEGRATIONS
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - bracketed:
+      - start_bracket: (
+      - naked_identifier: google_apis_access_integration
+      - comma: ','
+      - naked_identifier: my_integration
+      - end_bracket: )
+    - keyword: PACKAGES
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - bracketed:
+      - start_bracket: (
+      - quoted_literal: "'snowflake-snowpark-python'"
+      - comma: ','
+      - quoted_literal: "'requests'"
+      - end_bracket: )
+    - keyword: SECRETS
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - bracketed:
+      - start_bracket: (
+      - quoted_literal: "'cred'"
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - naked_identifier: oauth_token
+      - comma: ','
+      - quoted_literal: "'cred2'"
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - naked_identifier: DATA_STAGE
+      - dot: .
+      - naked_identifier: AWS_SECRET_KEY
+      - end_bracket: )
+    - keyword: AS
+    - udf_body: "$$\nimport _snowflake\nimport requests\nimport json\nsession = requests.Session()\n\
+        def get_translation(sentence, language):\n  token = _snowflake.get_oauth_access_token('cred')\n\
+        \  url = \"https://translation.googleapis.com/language/translate/v2\"\n  data\
+        \ = {'q': sentence,'target': language}\n  response = session.post(url, json\
+        \ = data, headers = {\"Authorization\": \"Bearer \" + token})\n  return response.json()['data']['translations'][0]['translatedText']\n\
+        $$"
+- statement_terminator: ;
+- statement:
+    create_function_statement:
+    - keyword: create
+    - keyword: or
+    - keyword: replace
+    - keyword: aggregate
+    - keyword: function
+    - function_name:
+        function_name_identifier: addone
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          parameter: i
+          data_type:
+            data_type_identifier: int
+          end_bracket: )
+    - keyword: returns
+    - data_type:
+        data_type_identifier: int
+    - keyword: language
+    - keyword: python
+    - keyword: runtime_version
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'3.8'"
+    - keyword: handler
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'addone_py'"
+    - keyword: as
+    - udf_body: "$$\ndef addone_py(i):\n  return i+1\n$$"
+- statement_terminator: ;
+- statement:
+    create_function_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: FUNCTION
+    - function_name:
+      - naked_identifier: TEST_DB
+      - dot: .
+      - naked_identifier: TEST_SCHEMA
+      - dot: .
+      - function_name_identifier: TEST_TABLE
+    - function_parameter_list:
+        bracketed:
+        - start_bracket: (
+        - parameter: COL_1
+        - data_type:
+            data_type_identifier: VARCHAR
+        - keyword: DEFAULT
+        - expression:
+            null_literal: 'NULL'
+        - comma: ','
+        - parameter: COL_2
+        - data_type:
+            data_type_identifier: VARCHAR
+        - keyword: DEFAULT
+        - expression:
+            null_literal: 'NULL'
+        - end_bracket: )
+    - keyword: RETURNS
+    - data_type:
+        data_type_identifier: VARCHAR
+    - keyword: LANGUAGE
+    - keyword: SQL
+    - keyword: AS
+    - udf_body: "$$\nSELECT\n        CASE\n            WHEN (LOWER(COL_1) IS NOT NULL\
+        \ AND\n                        LOWER(COL_2) = 'test_marketing')\n        \
+        \        THEN 'marketing_channel'\n            ELSE '(Other)'\nEND\n$$"
+- statement_terminator: ;
+- statement_terminator: ;
+- statement:
+    create_function_statement:
+    - keyword: CREATE
+    - keyword: TEMPORARY
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: pi_udf
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          end_bracket: )
+    - keyword: RETURNS
+    - data_type:
+        data_type_identifier: FLOAT
+    - keyword: AS
+    - udf_body: "'3.141592654::FLOAT'"
+- statement_terminator: ;
+- statement:
+    create_function_statement:
+    - keyword: CREATE
+    - keyword: TEMP
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: pi_udf
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          end_bracket: )
+    - keyword: RETURNS
+    - data_type:
+        data_type_identifier: FLOAT
+    - keyword: AS
+    - udf_body: "'3.141592654::FLOAT'"
+- statement_terminator: ;

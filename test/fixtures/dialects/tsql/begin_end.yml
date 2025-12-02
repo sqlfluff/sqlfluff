@@ -3,50 +3,54 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 603f188d82d1028d86cf80dd929e2c7d16e346ede63a4d16d0c4c758de421f49
+_hash: bb3d559a1092a5029f93b13cbbe8b2f6105b07a5edaf30fd06da912806e61a52
 file:
   batch:
-  - begin_end_block:
-    - keyword: BEGIN
-    - statement:
-        select_statement:
-          select_clause:
-            keyword: SELECT
-            select_clause_element:
-              literal: "'Weekend'"
-          statement_terminator: ;
-    - keyword: END
-  - begin_end_block:
-    - keyword: BEGIN
-    - statement_terminator: ;
-    - statement:
-        select_statement:
-          select_clause:
-            keyword: SELECT
-            select_clause_element:
-              literal: "'Weekend'"
-          statement_terminator: ;
-    - keyword: END
-    - statement_terminator: ;
-  - begin_end_block:
-    - keyword: BEGIN
-    - statement_terminator: ;
-    - statement:
-        select_statement:
-          select_clause:
-            keyword: SELECT
-            select_clause_element:
-              literal: "'Weekend'"
-          statement_terminator: ;
-    - keyword: END
-  - begin_end_block:
-    - keyword: BEGIN
-    - statement:
-        select_statement:
-          select_clause:
-            keyword: SELECT
-            select_clause_element:
-              literal: "'Weekend'"
-          statement_terminator: ;
-    - keyword: END
-    - statement_terminator: ;
+  - statement:
+      begin_end_block:
+      - keyword: BEGIN
+      - statement:
+          select_statement:
+            select_clause:
+              keyword: SELECT
+              select_clause_element:
+                quoted_literal: "'Weekend'"
+      - statement_terminator: ;
+      - keyword: END
+  - statement:
+      begin_end_block:
+      - keyword: BEGIN
+      - statement_terminator: ;
+      - statement:
+          select_statement:
+            select_clause:
+              keyword: SELECT
+              select_clause_element:
+                quoted_literal: "'Weekend'"
+      - statement_terminator: ;
+      - keyword: END
+  - statement_terminator: ;
+  - statement:
+      begin_end_block:
+      - keyword: BEGIN
+      - statement_terminator: ;
+      - statement:
+          select_statement:
+            select_clause:
+              keyword: SELECT
+              select_clause_element:
+                quoted_literal: "'Weekend'"
+      - statement_terminator: ;
+      - keyword: END
+  - statement:
+      begin_end_block:
+      - keyword: BEGIN
+      - statement:
+          select_statement:
+            select_clause:
+              keyword: SELECT
+              select_clause_element:
+                quoted_literal: "'Weekend'"
+      - statement_terminator: ;
+      - keyword: END
+  - statement_terminator: ;

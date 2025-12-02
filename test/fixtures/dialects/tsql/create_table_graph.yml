@@ -1,0 +1,140 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 39acfd2d35bf34fe95b2295d76043f2e00178f19eb06cf51f0d934bea9090f58
+file:
+  batch:
+  - statement:
+      create_table_graph_statement:
+      - keyword: CREATE
+      - keyword: TABLE
+      - table_reference:
+        - quoted_identifier: '[dbo]'
+        - dot: .
+        - quoted_identifier: '[Person]'
+      - bracketed:
+        - start_bracket: (
+        - column_definition:
+            naked_identifier: ID
+            data_type:
+              data_type_identifier: INTEGER
+            column_constraint_segment:
+            - keyword: PRIMARY
+            - keyword: KEY
+        - comma: ','
+        - column_definition:
+            quoted_identifier: '[name]'
+            data_type:
+              keyword: VARCHAR
+              bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    integer_literal: '100'
+                  end_bracket: )
+        - end_bracket: )
+      - keyword: AS
+      - keyword: NODE
+  - statement_terminator: ;
+  - statement:
+      create_table_graph_statement:
+      - keyword: CREATE
+      - keyword: TABLE
+      - table_reference:
+          naked_identifier: friends
+      - bracketed:
+        - start_bracket: (
+        - column_definition:
+            naked_identifier: id
+            data_type:
+              data_type_identifier: INTEGER
+            column_constraint_segment:
+            - keyword: PRIMARY
+            - keyword: KEY
+        - comma: ','
+        - column_definition:
+            naked_identifier: start_date
+            data_type:
+              keyword: DATE
+        - end_bracket: )
+      - keyword: AS
+      - keyword: EDGE
+  - statement_terminator: ;
+  - statement:
+      create_table_graph_statement:
+      - keyword: CREATE
+      - keyword: TABLE
+      - table_reference:
+          naked_identifier: likes
+      - keyword: AS
+      - keyword: EDGE
+  - statement_terminator: ;
+  - statement:
+      create_table_graph_statement:
+      - keyword: CREATE
+      - keyword: TABLE
+      - table_reference:
+        - naked_identifier: dbo
+        - dot: .
+        - naked_identifier: FriendOf
+      - bracketed:
+          start_bracket: (
+          graph_table_constraint:
+            keyword: CONSTRAINT
+            object_reference:
+              naked_identifier: cnt_Person_FriendOf_Person
+            connection_constraint_grammar:
+              keyword: CONNECTION
+              bracketed:
+              - start_bracket: (
+              - table_reference:
+                - naked_identifier: dbo
+                - dot: .
+                - naked_identifier: Person
+              - keyword: TO
+              - table_reference:
+                - naked_identifier: dbo
+                - dot: .
+                - naked_identifier: Person
+              - end_bracket: )
+          end_bracket: )
+      - keyword: AS
+      - keyword: EDGE
+  - statement_terminator: ;
+  - statement:
+      create_table_graph_statement:
+      - keyword: CREATE
+      - keyword: TABLE
+      - table_reference:
+        - naked_identifier: dbo
+        - dot: .
+        - naked_identifier: FriendOf
+      - bracketed:
+          start_bracket: (
+          graph_table_constraint:
+            keyword: CONSTRAINT
+            object_reference:
+              naked_identifier: cnt_Person_FriendOf_Person
+            connection_constraint_grammar:
+            - keyword: CONNECTION
+            - bracketed:
+              - start_bracket: (
+              - table_reference:
+                - naked_identifier: dbo
+                - dot: .
+                - naked_identifier: Person
+              - keyword: TO
+              - table_reference:
+                - naked_identifier: dbo
+                - dot: .
+                - naked_identifier: Person
+              - end_bracket: )
+            - keyword: 'ON'
+            - keyword: DELETE
+            - keyword: CASCADE
+          end_bracket: )
+      - keyword: AS
+      - keyword: EDGE
+  - statement_terminator: ;

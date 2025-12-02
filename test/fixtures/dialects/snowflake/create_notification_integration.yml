@@ -1,0 +1,156 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 506603bca8afa4447f78d441567b2fbc9dd28e9ef3054e669635862218f4dee6
+file:
+- statement:
+    create_statement:
+    - keyword: create
+    - keyword: or
+    - keyword: replace
+    - keyword: notification
+    - keyword: integration
+    - keyword: if
+    - keyword: not
+    - keyword: exists
+    - object_reference:
+        naked_identifier: my_notification_int
+    - keyword: type
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - keyword: queue
+    - keyword: notification_provider
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - keyword: gcp_pubsub
+    - keyword: enabled
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - boolean_literal: 'true'
+    - keyword: gcp_pubsub_subscription_name
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'projects/project-1234/subscriptions/sub2'"
+- statement_terminator: ;
+- statement:
+    create_statement:
+    - keyword: create
+    - keyword: notification
+    - keyword: integration
+    - object_reference:
+        naked_identifier: my_notification_int
+    - keyword: enabled
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - boolean_literal: 'true'
+    - keyword: type
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - keyword: queue
+    - keyword: notification_provider
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - keyword: azure_storage_queue
+    - keyword: azure_storage_queue_primary_uri
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'https://myqueue.queue.core.windows.net/mystoragequeue'"
+    - keyword: azure_tenant_id
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'a123bcde-1234-5678-abc1-9abc12345678'"
+- statement_terminator: ;
+- statement:
+    create_statement:
+    - keyword: create
+    - keyword: notification
+    - keyword: integration
+    - object_reference:
+        naked_identifier: my_notification_int
+    - keyword: enabled
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - boolean_literal: 'true'
+    - keyword: type
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - keyword: queue
+    - keyword: notification_provider
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - keyword: aws_sns
+    - keyword: direction
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - keyword: outbound
+    - keyword: aws_sns_topic_arn
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'arn:aws:sns:us-east-2:111122223333:sns_topic'"
+    - keyword: aws_sns_role_arn
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'arn:aws:iam::111122223333:role/error_sns_role'"
+- statement_terminator: ;
+- statement:
+    create_statement:
+    - keyword: create
+    - keyword: notification
+    - keyword: integration
+    - object_reference:
+        naked_identifier: my_notification_int
+    - keyword: type
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - keyword: queue
+    - keyword: direction
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - keyword: outbound
+    - keyword: notification_provider
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - keyword: gcp_pubsub
+    - keyword: enabled
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - boolean_literal: 'true'
+    - keyword: gcp_pubsub_topic_name
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'projects/sdm-prod/topics/mytopic'"
+- statement_terminator: ;
+- statement:
+    create_statement:
+    - keyword: create
+    - keyword: notification
+    - keyword: integration
+    - object_reference:
+        naked_identifier: my_notification_int
+    - keyword: enabled
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - boolean_literal: 'true'
+    - keyword: type
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - keyword: queue
+    - keyword: notification_provider
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - keyword: azure_event_grid
+    - keyword: direction
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - keyword: outbound
+    - keyword: azure_event_grid_topic_endpoint
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'https://myaccount.region-1.eventgrid.azure.net/api/events'"
+    - keyword: azure_tenant_id
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'mytenantid'"
+- statement_terminator: ;

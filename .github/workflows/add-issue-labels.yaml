@@ -1,0 +1,18 @@
+name: "Add Issue Labels"
+on:
+  issues:
+    types: [opened]
+
+jobs:
+  triage:
+    runs-on: ubuntu-latest
+    steps:
+      # Update .github/labeler.yml for new dialects
+      - uses: github/issue-labeler@v3.2
+        with:
+          configuration-path: .github/labeler.yml
+          include-title: 1
+          include-body: 0
+          not-before: 2023-07-06T02:54:32Z
+          enable-versioned-regex: 0
+          repo-token: ${{ github.token }}

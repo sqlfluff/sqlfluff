@@ -1,0 +1,113 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 3537c3d2aec0168d791402cafdef85909a9589574e34c675acf4e0cd25436cb6
+file:
+  statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: COALESCE
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  function:
+                    function_name:
+                      function_name_identifier: element_at
+                    function_contents:
+                      bracketed:
+                      - start_bracket: (
+                      - expression:
+                          column_reference:
+                          - naked_identifier: rq
+                          - dot: .
+                          - naked_identifier: hiring_managers
+                      - comma: ','
+                      - expression:
+                          numeric_literal: '1'
+                      - end_bracket: )
+              - comma: ','
+              - expression:
+                  function:
+                    function_name:
+                      function_name_identifier: element_at
+                    function_contents:
+                      bracketed:
+                      - start_bracket: (
+                      - expression:
+                          column_reference:
+                          - naked_identifier: rq
+                          - dot: .
+                          - naked_identifier: hiring_managers
+                      - comma: ','
+                      - expression:
+                          numeric_literal: '2'
+                      - end_bracket: )
+              - comma: ','
+              - expression:
+                  column_reference:
+                  - naked_identifier: rq
+                  - dot: .
+                  - naked_identifier: creator_id
+              - end_bracket: )
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: part1
+      - comma: ','
+      - select_clause_element:
+          expression:
+            function:
+              function_name:
+                function_name_identifier: element_at
+              function_contents:
+                bracketed:
+                - start_bracket: (
+                - expression:
+                    column_reference:
+                    - naked_identifier: pl
+                    - dot: .
+                    - naked_identifier: hiring_managers
+                - comma: ','
+                - expression:
+                    numeric_literal: '1'
+                - end_bracket: )
+            dot: .
+            object_reference:
+              naked_identifier: id
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: part2
+      - comma: ','
+      - select_clause_element:
+          expression:
+            function:
+              function_name:
+                function_name_identifier: element_at
+              function_contents:
+                bracketed:
+                - start_bracket: (
+                - expression:
+                    column_reference:
+                    - naked_identifier: pl
+                    - dot: .
+                    - naked_identifier: hiring_managers
+                - comma: ','
+                - expression:
+                    numeric_literal: '2'
+                - end_bracket: )
+            dot: .
+            object_reference:
+              naked_identifier: id
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: part3
+  statement_terminator: ;

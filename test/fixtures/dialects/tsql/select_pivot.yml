@@ -3,121 +3,227 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 8d3d73e16dbaad8f56f91700adb49ee982e3eba0db666149af8a2fa5d50afd2f
+_hash: 09029d1ddb765244996c81a42559b49c74559a645f38e1cdabc4910ff1f3e70b
 file:
-  batch:
+- batch:
   - statement:
       select_statement:
         select_clause:
         - keyword: select
         - select_clause_element:
             column_reference:
-              identifier: '[1]'
+              quoted_identifier: '[1]'
         - comma: ','
         - select_clause_element:
             column_reference:
-              identifier: '[2]'
+              quoted_identifier: '[2]'
         - comma: ','
         - select_clause_element:
             column_reference:
-              identifier: '[3]'
+              quoted_identifier: '[3]'
         from_clause:
           keyword: from
           from_expression:
             from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: table1
+                  naked_identifier: table1
               alias_expression:
-                keyword: as
-                identifier: t1
-        from_pivot_expression:
-        - keyword: pivot
-        - bracketed:
-          - start_bracket: (
-          - function:
-              function_name:
-                function_name_identifier: max
-              bracketed:
-                start_bracket: (
-                expression:
-                  column_reference:
-                    identifier: value
-                end_bracket: )
-          - keyword: for
-          - column_reference:
-              identifier: rn
-          - keyword: in
-          - bracketed:
-            - start_bracket: (
-            - pivot_column_reference:
-                identifier: '[1]'
-            - comma: ','
-            - pivot_column_reference:
-                identifier: '[2]'
-            - comma: ','
-            - pivot_column_reference:
-                identifier: '[3]'
-            - end_bracket: )
-          - end_bracket: )
-        - keyword: as
-        - table_reference:
-            identifier: pvt
-        statement_terminator: ;
+                alias_operator:
+                  keyword: as
+                naked_identifier: t1
+            from_pivot_expression:
+            - keyword: pivot
+            - bracketed:
+              - start_bracket: (
+              - function:
+                  function_name:
+                    function_name_identifier: max
+                  function_contents:
+                    bracketed:
+                      start_bracket: (
+                      expression:
+                        column_reference:
+                          naked_identifier: value
+                      end_bracket: )
+              - keyword: for
+              - column_reference:
+                  naked_identifier: rn
+              - keyword: in
+              - bracketed:
+                - start_bracket: (
+                - pivot_column_reference:
+                    quoted_identifier: '[1]'
+                - comma: ','
+                - pivot_column_reference:
+                    quoted_identifier: '[2]'
+                - comma: ','
+                - pivot_column_reference:
+                    quoted_identifier: '[3]'
+                - end_bracket: )
+              - end_bracket: )
+            - keyword: as
+            - table_reference:
+                naked_identifier: pvt
+  - statement_terminator: ;
   - statement:
       select_statement:
         select_clause:
         - keyword: select
         - select_clause_element:
             column_reference:
-              identifier: '[1]'
+              quoted_identifier: '[1]'
         - comma: ','
         - select_clause_element:
             column_reference:
-              identifier: '[2]'
+              quoted_identifier: '[2]'
         - comma: ','
         - select_clause_element:
             column_reference:
-              identifier: '[3]'
+              quoted_identifier: '[3]'
         from_clause:
           keyword: from
           from_expression:
             from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: table1
+                  naked_identifier: table1
               alias_expression:
-                keyword: as
-                identifier: t1
-        from_pivot_expression:
-          keyword: pivot
-          bracketed:
-          - start_bracket: (
-          - function:
-              function_name:
-                function_name_identifier: max
+                alias_operator:
+                  keyword: as
+                naked_identifier: t1
+            from_pivot_expression:
+              keyword: pivot
               bracketed:
-                start_bracket: (
+              - start_bracket: (
+              - function:
+                  function_name:
+                    function_name_identifier: max
+                  function_contents:
+                    bracketed:
+                      start_bracket: (
+                      expression:
+                        column_reference:
+                          naked_identifier: value
+                      end_bracket: )
+              - keyword: for
+              - column_reference:
+                  naked_identifier: rn
+              - keyword: in
+              - bracketed:
+                - start_bracket: (
+                - pivot_column_reference:
+                    quoted_identifier: '[1]'
+                - comma: ','
+                - pivot_column_reference:
+                    quoted_identifier: '[2]'
+                - comma: ','
+                - pivot_column_reference:
+                    quoted_identifier: '[3]'
+                - end_bracket: )
+              - end_bracket: )
+              table_reference:
+                naked_identifier: pvt
+  - statement_terminator: ;
+  - go_statement:
+      keyword: GO
+- batch:
+    statement:
+      select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+            - naked_identifier: unpvt
+            - dot: .
+            - naked_identifier: Program
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: dd
+              dot: .
+              quoted_identifier: '[Month Number]'
+            alias_expression:
+              alias_operator:
+                keyword: AS
+              naked_identifier: Month
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: p
+            from_pivot_expression:
+            - keyword: UNPIVOT
+            - bracketed:
+              - start_bracket: (
+              - column_reference:
+                  naked_identifier: MonthValue
+              - keyword: FOR
+              - column_reference:
+                  naked_identifier: MonthColumn
+              - keyword: IN
+              - bracketed:
+                - start_bracket: (
+                - pivot_column_reference:
+                    naked_identifier: Jan
+                - comma: ','
+                - pivot_column_reference:
+                    naked_identifier: Feb
+                - comma: ','
+                - pivot_column_reference:
+                    naked_identifier: Mar
+                - comma: ','
+                - pivot_column_reference:
+                    naked_identifier: Apr
+                - comma: ','
+                - pivot_column_reference:
+                    naked_identifier: May
+                - comma: ','
+                - pivot_column_reference:
+                    naked_identifier: Jun
+                - comma: ','
+                - pivot_column_reference:
+                    naked_identifier: Jul
+                - comma: ','
+                - pivot_column_reference:
+                    naked_identifier: Aug
+                - comma: ','
+                - pivot_column_reference:
+                    naked_identifier: Sep
+                - comma: ','
+                - pivot_column_reference:
+                    naked_identifier: Oct
+                - comma: ','
+                - pivot_column_reference:
+                    naked_identifier: Nov
+                - comma: ','
+                - pivot_column_reference:
+                    naked_identifier: Dec
+                - end_bracket: )
+              - end_bracket: )
+            - keyword: AS
+            - table_reference:
+                naked_identifier: unpvt
+            join_clause:
+            - keyword: INNER
+            - keyword: JOIN
+            - from_expression_element:
+                table_expression:
+                  table_reference:
+                    naked_identifier: d
+            - join_on_condition:
+                keyword: 'ON'
                 expression:
-                  column_reference:
-                    identifier: value
-                end_bracket: )
-          - keyword: for
-          - column_reference:
-              identifier: rn
-          - keyword: in
-          - bracketed:
-            - start_bracket: (
-            - pivot_column_reference:
-                identifier: '[1]'
-            - comma: ','
-            - pivot_column_reference:
-                identifier: '[2]'
-            - comma: ','
-            - pivot_column_reference:
-                identifier: '[3]'
-            - end_bracket: )
-          - end_bracket: )
-          table_reference:
-            identifier: pvt
-        statement_terminator: ;
+                - column_reference:
+                    quoted_identifier: '[Month Name]'
+                - comparison_operator:
+                    raw_comparison_operator: '='
+                - column_reference:
+                  - naked_identifier: unpvt
+                  - dot: .
+                  - naked_identifier: MonthColumn
+    statement_terminator: ;
+    go_statement:
+      keyword: GO

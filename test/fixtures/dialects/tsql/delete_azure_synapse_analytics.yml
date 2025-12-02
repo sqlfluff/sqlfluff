@@ -1,0 +1,307 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 9350261594642ae2cc7c6567b143664c656ed8d6ae52099a89ad083072be0396
+file:
+  batch:
+  - statement:
+      delete_statement:
+        keyword: DELETE
+        table_reference:
+        - naked_identifier: dbo
+        - dot: .
+        - naked_identifier: Table2
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                - naked_identifier: dbo
+                - dot: .
+                - naked_identifier: Table2
+            join_clause:
+            - keyword: INNER
+            - keyword: JOIN
+            - from_expression_element:
+                table_expression:
+                  table_reference:
+                  - naked_identifier: dbo
+                  - dot: .
+                  - naked_identifier: Table1
+            - join_on_condition:
+                keyword: 'ON'
+                bracketed:
+                  start_bracket: (
+                  expression:
+                  - column_reference:
+                    - naked_identifier: dbo
+                    - dot: .
+                    - naked_identifier: Table2
+                    - dot: .
+                    - naked_identifier: ColA
+                  - comparison_operator:
+                      raw_comparison_operator: '='
+                  - column_reference:
+                    - naked_identifier: dbo
+                    - dot: .
+                    - naked_identifier: Table1
+                    - dot: .
+                    - naked_identifier: ColA
+                  end_bracket: )
+        where_clause:
+          keyword: WHERE
+          expression:
+            column_reference:
+            - naked_identifier: dboTable2
+            - dot: .
+            - naked_identifier: ColA
+            comparison_operator:
+              raw_comparison_operator: '='
+            integer_literal: '1'
+  - statement_terminator: ;
+  - statement:
+      delete_statement:
+      - keyword: DELETE
+      - keyword: FROM
+      - table_reference:
+          naked_identifier: dodos
+      - post_table_expression:
+          keyword: WITH
+          bracketed:
+            start_bracket: (
+            query_hint_segment:
+              keyword: NOLOCK
+            end_bracket: )
+      - output_clause:
+        - keyword: OUTPUT
+        - expression:
+            column_reference:
+              naked_identifier: age
+        - keyword: INTO
+        - table_reference:
+            naked_identifier: ages
+  - statement:
+      delete_statement:
+      - keyword: DELETE
+      - keyword: FROM
+      - table_reference:
+          naked_identifier: Table1
+  - statement_terminator: ;
+  - statement:
+      delete_statement:
+      - keyword: DELETE
+      - keyword: FROM
+      - table_reference:
+          naked_identifier: Table1
+      - where_clause:
+          keyword: WHERE
+          expression:
+            column_reference:
+              naked_identifier: StandardCost
+            comparison_operator:
+              raw_comparison_operator: '>'
+            numeric_literal: '1000.00'
+  - statement_terminator: ;
+  - statement:
+      delete_statement:
+      - keyword: DELETE
+      - keyword: FROM
+      - table_reference:
+          naked_identifier: Table1
+      - option_clause:
+          keyword: OPTION
+          bracketed:
+            start_bracket: (
+            query_hint_segment:
+              keyword: LABEL
+              comparison_operator:
+                raw_comparison_operator: '='
+              quoted_literal: "N'label1'"
+            end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      delete_statement:
+      - keyword: DELETE
+      - keyword: FROM
+      - table_reference:
+        - naked_identifier: dbo
+        - dot: .
+        - naked_identifier: FactInternetSales
+      - where_clause:
+          keyword: WHERE
+          expression:
+            column_reference:
+              naked_identifier: ProductKey
+            keyword: IN
+            bracketed:
+              start_bracket: (
+              select_statement:
+                select_clause:
+                  keyword: SELECT
+                  select_clause_element:
+                    column_reference:
+                    - naked_identifier: T1
+                    - dot: .
+                    - naked_identifier: ProductKey
+                from_clause:
+                  keyword: FROM
+                  from_expression:
+                    from_expression_element:
+                      table_expression:
+                        table_reference:
+                        - naked_identifier: dbo
+                        - dot: .
+                        - naked_identifier: DimProduct
+                      alias_expression:
+                        naked_identifier: T1
+                    join_clause:
+                      keyword: JOIN
+                      from_expression_element:
+                        table_expression:
+                          table_reference:
+                          - naked_identifier: dbo
+                          - dot: .
+                          - naked_identifier: DimProductSubcategory
+                        alias_expression:
+                          naked_identifier: T2
+                      join_on_condition:
+                        keyword: 'ON'
+                        expression:
+                        - column_reference:
+                          - naked_identifier: T1
+                          - dot: .
+                          - naked_identifier: ProductSubcategoryKey
+                        - comparison_operator:
+                            raw_comparison_operator: '='
+                        - column_reference:
+                          - naked_identifier: T2
+                          - dot: .
+                          - naked_identifier: ProductSubcategoryKey
+                where_clause:
+                  keyword: WHERE
+                  expression:
+                    column_reference:
+                    - naked_identifier: T2
+                    - dot: .
+                    - naked_identifier: EnglishProductSubcategoryName
+                    comparison_operator:
+                      raw_comparison_operator: '='
+                    quoted_literal: "'Road Bikes'"
+              end_bracket: )
+      - option_clause:
+          keyword: OPTION
+          bracketed:
+          - start_bracket: (
+          - query_hint_segment:
+              keyword: LABEL
+              comparison_operator:
+                raw_comparison_operator: '='
+              quoted_literal: "N'CustomJoin'"
+          - comma: ','
+          - query_hint_segment:
+            - keyword: HASH
+            - keyword: JOIN
+          - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      delete_statement:
+        keyword: DELETE
+        table_reference:
+          naked_identifier: tableA
+        where_clause:
+          keyword: WHERE
+          expression:
+            keyword: EXISTS
+            bracketed:
+              start_bracket: (
+              select_statement:
+                select_clause:
+                  keyword: SELECT
+                  select_clause_modifier:
+                    keyword: TOP
+                    expression:
+                      integer_literal: '1'
+                  select_clause_element:
+                    integer_literal: '1'
+                from_clause:
+                  keyword: FROM
+                  from_expression:
+                    from_expression_element:
+                      table_expression:
+                        table_reference:
+                          naked_identifier: tableB
+                      alias_expression:
+                        naked_identifier: tb
+                where_clause:
+                  keyword: WHERE
+                  expression:
+                  - column_reference:
+                    - naked_identifier: tb
+                    - dot: .
+                    - naked_identifier: col1
+                  - comparison_operator:
+                      raw_comparison_operator: '='
+                  - column_reference:
+                    - naked_identifier: tableA
+                    - dot: .
+                    - naked_identifier: col1
+              end_bracket: )
+  - statement:
+      delete_statement:
+        keyword: DELETE
+        table_reference:
+        - naked_identifier: dbo
+        - dot: .
+        - naked_identifier: Table2
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                - naked_identifier: dbo
+                - dot: .
+                - naked_identifier: Table2
+            join_clause:
+            - keyword: INNER
+            - keyword: JOIN
+            - from_expression_element:
+                table_expression:
+                  table_reference:
+                  - naked_identifier: dbo
+                  - dot: .
+                  - naked_identifier: Table1
+            - join_on_condition:
+                keyword: 'ON'
+                bracketed:
+                  start_bracket: (
+                  expression:
+                  - column_reference:
+                    - naked_identifier: dbo
+                    - dot: .
+                    - naked_identifier: Table2
+                    - dot: .
+                    - naked_identifier: ColA
+                  - comparison_operator:
+                      raw_comparison_operator: '='
+                  - column_reference:
+                    - naked_identifier: dbo
+                    - dot: .
+                    - naked_identifier: Table1
+                    - dot: .
+                    - naked_identifier: ColA
+                  end_bracket: )
+        where_clause:
+          keyword: WHERE
+          expression:
+            column_reference:
+            - naked_identifier: dboTable2
+            - dot: .
+            - naked_identifier: ColA
+            comparison_operator:
+              raw_comparison_operator: '='
+            integer_literal: '1'
+  - statement_terminator: ;

@@ -1,0 +1,409 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 6c96894e3d1f73464d5f3d36063824bc2c56e58247c845ada848fc389791ba30
+file:
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+            data_type:
+              data_type_identifier: NUMERIC
+            quoted_literal: "'0'"
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+          - data_type:
+              data_type_identifier: NUMERIC
+          - quoted_literal: "'0'"
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - data_type:
+              data_type_identifier: NUMERIC
+          - quoted_literal: "'0'"
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+            data_type:
+              data_type_identifier: NUMERIC
+            quoted_literal: '"0"'
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+          - data_type:
+              data_type_identifier: NUMERIC
+          - quoted_literal: '"0"'
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - data_type:
+              data_type_identifier: NUMERIC
+          - quoted_literal: '"0"'
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+            data_type:
+              data_type_identifier: BIGNUMERIC
+            quoted_literal: "'0'"
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+          - data_type:
+              data_type_identifier: BIGNUMERIC
+          - quoted_literal: "'0'"
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - data_type:
+              data_type_identifier: BIGNUMERIC
+          - quoted_literal: "'0'"
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+            data_type:
+              data_type_identifier: BIGNUMERIC
+            quoted_literal: '"0"'
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+          - data_type:
+              data_type_identifier: BIGNUMERIC
+          - quoted_literal: '"0"'
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - data_type:
+              data_type_identifier: BIGNUMERIC
+          - quoted_literal: '"0"'
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          keyword: DATE
+          date_constructor_literal: "'2014-09-27'"
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+          - keyword: DATE
+          - date_constructor_literal: "'2014-09-27'"
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - keyword: DATE
+          - date_constructor_literal: "'2014-09-27'"
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+            data_type:
+              data_type_identifier: DATE
+            quoted_literal: '"2014-09-27"'
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+          - data_type:
+              data_type_identifier: DATE
+          - quoted_literal: '"2014-09-27"'
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - data_type:
+              data_type_identifier: DATE
+          - quoted_literal: '"2014-09-27"'
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          keyword: TIME
+          date_constructor_literal: "'12:30:00.45'"
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+          - keyword: TIME
+          - date_constructor_literal: "'12:30:00.45'"
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - keyword: TIME
+          - date_constructor_literal: "'12:30:00.45'"
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+            data_type:
+              data_type_identifier: TIME
+            quoted_literal: '"12:30:00.45"'
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+          - data_type:
+              data_type_identifier: TIME
+          - quoted_literal: '"12:30:00.45"'
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - data_type:
+              data_type_identifier: TIME
+          - quoted_literal: '"12:30:00.45"'
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          keyword: DATETIME
+          date_constructor_literal: "'2014-09-27 12:30:00.45'"
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+          - keyword: DATETIME
+          - date_constructor_literal: "'2014-09-27 12:30:00.45'"
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - keyword: DATETIME
+          - date_constructor_literal: "'2014-09-27 12:30:00.45'"
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+            data_type:
+              data_type_identifier: DATETIME
+            quoted_literal: '"2014-09-27 12:30:00.45"'
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+          - data_type:
+              data_type_identifier: DATETIME
+          - quoted_literal: '"2014-09-27 12:30:00.45"'
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - data_type:
+              data_type_identifier: DATETIME
+          - quoted_literal: '"2014-09-27 12:30:00.45"'
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          keyword: TIMESTAMP
+          date_constructor_literal: "'2014-09-27 12:30:00.45-08'"
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+          - keyword: TIMESTAMP
+          - date_constructor_literal: "'2014-09-27 12:30:00.45-08'"
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - keyword: TIMESTAMP
+          - date_constructor_literal: "'2014-09-27 12:30:00.45-08'"
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+            data_type:
+              data_type_identifier: TIMESTAMP
+            quoted_literal: '"2014-09-27 12:30:00.45-08"'
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+          - data_type:
+              data_type_identifier: TIMESTAMP
+          - quoted_literal: '"2014-09-27 12:30:00.45-08"'
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - data_type:
+              data_type_identifier: TIMESTAMP
+          - quoted_literal: '"2014-09-27 12:30:00.45-08"'
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          interval_expression:
+          - keyword: INTERVAL
+          - expression:
+              quoted_literal: "'10:20:30.52'"
+          - date_part: HOUR
+          - keyword: TO
+          - date_part: SECOND
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+          - interval_expression:
+            - keyword: INTERVAL
+            - expression:
+                quoted_literal: "'10:20:30.52'"
+            - date_part: HOUR
+            - keyword: TO
+            - date_part: SECOND
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - interval_expression:
+            - keyword: INTERVAL
+            - expression:
+                quoted_literal: "'10:20:30.52'"
+            - date_part: HOUR
+            - keyword: TO
+            - date_part: SECOND
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          interval_expression:
+          - keyword: INTERVAL
+          - expression:
+              quoted_literal: '"10:20:30.52"'
+          - date_part: HOUR
+          - keyword: TO
+          - date_part: SECOND
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+          - interval_expression:
+            - keyword: INTERVAL
+            - expression:
+                quoted_literal: '"10:20:30.52"'
+            - date_part: HOUR
+            - keyword: TO
+            - date_part: SECOND
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - interval_expression:
+            - keyword: INTERVAL
+            - expression:
+                quoted_literal: '"10:20:30.52"'
+            - date_part: HOUR
+            - keyword: TO
+            - date_part: SECOND
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+            data_type:
+              data_type_identifier: JSON
+            quoted_literal: "'{}'"
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+          - data_type:
+              data_type_identifier: JSON
+          - quoted_literal: "'{}'"
+          - keyword: IS
+          - keyword: NOT
+          - null_literal: 'NULL'
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+            data_type:
+              data_type_identifier: JSON
+            quoted_literal: '"{}"'
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+          - data_type:
+              data_type_identifier: JSON
+          - quoted_literal: '"{}"'
+          - keyword: IS
+          - keyword: NOT
+          - null_literal: 'NULL'
+- statement_terminator: ;

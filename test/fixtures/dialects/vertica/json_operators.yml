@@ -1,0 +1,47 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: ee56ff437d0b214b28b55c02d2abf4530cbe76eb2d026627c8c5774f9f46c474
+file:
+  statement:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: mapjsonextractor
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                - quoted_literal: "'{\"data\":'"
+                - binary_operator:
+                  - pipe: '|'
+                  - pipe: '|'
+                - column_reference:
+                    naked_identifier: col
+                - binary_operator:
+                  - pipe: '|'
+                  - pipe: '|'
+                - quoted_literal: "'}'"
+              - keyword: using
+              - keyword: parameters
+              - parameter: flatten_maps
+              - comparison_operator:
+                  raw_comparison_operator: '='
+              - boolean_literal: 'false'
+              - end_bracket: )
+          alias_expression:
+            alias_operator:
+              keyword: as
+            naked_identifier: mapped
+      from_clause:
+        keyword: from
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: prepared

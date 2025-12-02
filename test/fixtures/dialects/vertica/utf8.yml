@@ -1,0 +1,2790 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 98e2195318f7224754ce6e522918264b87333348c65b157cf3c7b35fe1b6dc7e
+file:
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+            column_reference:
+              naked_identifier: amount
+            binary_operator: +
+            numeric_literal: '1'
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            quoted_identifier: "'amount'"
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: num1
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+            column_reference:
+              naked_identifier: höhe
+            binary_operator: +
+            numeric_literal: '1'
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            quoted_identifier: "'höhe'"
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: num1
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+            column_reference:
+              naked_identifier: amount
+            binary_operator: '*'
+            numeric_literal: '2'
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            quoted_identifier: "'amount'"
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: num1
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+            column_reference:
+              naked_identifier: höhe
+            binary_operator: '*'
+            numeric_literal: '2'
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            quoted_identifier: "'höhe'"
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: num1
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+          - naked_identifier: employees
+          - dot: .
+          - naked_identifier: personal
+          - dot: .
+          - naked_identifier: name
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+          - naked_identifier: neighbors
+          - dot: .
+          - naked_identifier: area
+      from_clause:
+      - keyword: FROM
+      - from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: neighbors
+      - comma: ','
+      - from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: employees
+      where_clause:
+        keyword: WHERE
+        expression:
+        - column_reference:
+          - naked_identifier: employees
+          - dot: .
+          - naked_identifier: personal
+          - dot: .
+          - naked_identifier: address
+          - dot: .
+          - naked_identifier: zipcode
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - column_reference:
+          - naked_identifier: neighbors
+          - dot: .
+          - naked_identifier: area
+          - dot: .
+          - naked_identifier: zipcode
+        - binary_operator: AND
+        - column_reference:
+          - naked_identifier: neighbors
+          - dot: .
+          - naked_identifier: num_neighbors
+        - comparison_operator:
+            raw_comparison_operator: '>'
+        - numeric_literal: '1'
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+          - naked_identifier: mitarbeiter
+          - dot: .
+          - naked_identifier: persönlicher
+          - dot: .
+          - naked_identifier: name
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+          - naked_identifier: nachbarn
+          - dot: .
+          - naked_identifier: bereich
+      from_clause:
+      - keyword: FROM
+      - from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: nachbarn
+      - comma: ','
+      - from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: mitarbeiter
+      where_clause:
+        keyword: WHERE
+        expression:
+        - column_reference:
+          - naked_identifier: mitarbeiter
+          - dot: .
+          - naked_identifier: persönlicher
+          - dot: .
+          - naked_identifier: adresse
+          - dot: .
+          - naked_identifier: zipcode
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - column_reference:
+          - naked_identifier: nachbarn
+          - dot: .
+          - naked_identifier: gebiet
+          - dot: .
+          - naked_identifier: zipcode
+        - binary_operator: AND
+        - column_reference:
+          - naked_identifier: nachbarn
+          - dot: .
+          - naked_identifier: nummer_nachbarn
+        - comparison_operator:
+            raw_comparison_operator: '>'
+        - numeric_literal: '1'
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+            naked_identifier: itemkey
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: key
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: IMPLODE
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: itemprice
+                end_bracket: )
+            within_group_clause_statement:
+            - keyword: WITHIN
+            - keyword: GROUP
+            - bracketed:
+                start_bracket: (
+                orderby_clause:
+                - keyword: ORDER
+                - keyword: BY
+                - column_reference:
+                    naked_identifier: itemprice
+                end_bracket: )
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: prices
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: filtered
+      groupby_clause:
+      - keyword: GROUP
+      - keyword: BY
+      - column_reference:
+          naked_identifier: itemkey
+      orderby_clause:
+      - keyword: ORDER
+      - keyword: BY
+      - column_reference:
+          naked_identifier: itemkey
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+            naked_identifier: ключтовара
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: key
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: IMPLODE
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: ценатовара
+                end_bracket: )
+            within_group_clause_statement:
+            - keyword: WITHIN
+            - keyword: GROUP
+            - bracketed:
+                start_bracket: (
+                orderby_clause:
+                - keyword: ORDER
+                - keyword: BY
+                - column_reference:
+                    naked_identifier: ценатовара
+                end_bracket: )
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: цены
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: отфильтровано
+      groupby_clause:
+      - keyword: GROUP
+      - keyword: BY
+      - column_reference:
+          naked_identifier: ключтовара
+      orderby_clause:
+      - keyword: ORDER
+      - keyword: BY
+      - column_reference:
+          naked_identifier: ключтовара
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+            naked_identifier: State
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: APPROXIMATE_PERCENTILE
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - column_reference:
+                  naked_identifier: sales
+              - keyword: USING
+              - keyword: PARAMETERS
+              - parameter: percentiles
+              - comparison_operator:
+                  raw_comparison_operator: '='
+              - quoted_literal: "'0.5'"
+              - end_bracket: )
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: median
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: allsales
+      groupby_clause:
+      - keyword: GROUP
+      - keyword: BY
+      - column_reference:
+          naked_identifier: state
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+            naked_identifier: Χώρα
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: APPROXIMATE_PERCENTILE
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - column_reference:
+                  naked_identifier: πωλήσεις
+              - keyword: USING
+              - keyword: PARAMETERS
+              - parameter: percentiles
+              - comparison_operator:
+                  raw_comparison_operator: '='
+              - quoted_literal: "'0.5'"
+              - end_bracket: )
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: διάμεσος
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: όλεςτιςπωλήσεις
+      groupby_clause:
+      - keyword: GROUP
+      - keyword: BY
+      - column_reference:
+          naked_identifier: χώρα
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+            naked_identifier: customer_state
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: customer_key
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: annual_income
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: PERCENTILE_CONT
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  numeric_literal: '0.5'
+                end_bracket: )
+            within_group_clause_statement:
+            - keyword: WITHIN
+            - keyword: GROUP
+            - bracketed:
+                start_bracket: (
+                orderby_clause:
+                - keyword: ORDER
+                - keyword: BY
+                - column_reference:
+                    naked_identifier: annual_income
+                end_bracket: )
+            over_clause:
+              keyword: OVER
+              bracketed:
+                start_bracket: (
+                window_specification:
+                  partitionby_clause:
+                  - keyword: PARTITION
+                  - keyword: BY
+                  - expression:
+                      column_reference:
+                        naked_identifier: customer_state
+                end_bracket: )
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: PERCENTILE_CONT
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: customer_dimension
+      where_clause:
+        keyword: WHERE
+        expression:
+          column_reference:
+            naked_identifier: customer_state
+          keyword: IN
+          bracketed:
+          - start_bracket: (
+          - quoted_literal: "'DC'"
+          - comma: ','
+          - quoted_literal: "'WI'"
+          - end_bracket: )
+      orderby_clause:
+      - keyword: ORDER
+      - keyword: BY
+      - column_reference:
+          naked_identifier: customer_state
+      - comma: ','
+      - column_reference:
+          naked_identifier: customer_key
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+            naked_identifier: état_du_client
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: clé_client
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: revenu_annuel
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: PERCENTILE_CONT
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  numeric_literal: '0.5'
+                end_bracket: )
+            within_group_clause_statement:
+            - keyword: WITHIN
+            - keyword: GROUP
+            - bracketed:
+                start_bracket: (
+                orderby_clause:
+                - keyword: ORDER
+                - keyword: BY
+                - column_reference:
+                    naked_identifier: revenu_annuel
+                end_bracket: )
+            over_clause:
+              keyword: OVER
+              bracketed:
+                start_bracket: (
+                window_specification:
+                  partitionby_clause:
+                  - keyword: PARTITION
+                  - keyword: BY
+                  - expression:
+                      column_reference:
+                        naked_identifier: état_du_client
+                end_bracket: )
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: PERCENTILE_CONT
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: dimension_client
+      where_clause:
+        keyword: WHERE
+        expression:
+          column_reference:
+            naked_identifier: état_du_client
+          keyword: IN
+          bracketed:
+          - start_bracket: (
+          - quoted_literal: "'Provence'"
+          - comma: ','
+          - quoted_literal: "'Сhampagne'"
+          - end_bracket: )
+      orderby_clause:
+      - keyword: ORDER
+      - keyword: BY
+      - column_reference:
+          naked_identifier: état_du_client
+      - comma: ','
+      - column_reference:
+          naked_identifier: clé_client
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+            naked_identifier: customer_state
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: customer_key
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: annual_income
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: PERCENTILE_DISC
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  numeric_literal: '.2'
+                end_bracket: )
+            within_group_clause_statement:
+            - keyword: WITHIN
+            - keyword: GROUP
+            - bracketed:
+                start_bracket: (
+                orderby_clause:
+                - keyword: ORDER
+                - keyword: BY
+                - column_reference:
+                    naked_identifier: annual_income
+                end_bracket: )
+            over_clause:
+              keyword: OVER
+              bracketed:
+                start_bracket: (
+                window_specification:
+                  partitionby_clause:
+                  - keyword: PARTITION
+                  - keyword: BY
+                  - expression:
+                      column_reference:
+                        naked_identifier: customer_state
+                end_bracket: )
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: PERCENTILE_DISC
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: customer_dimension
+      where_clause:
+        keyword: WHERE
+        expression:
+        - column_reference:
+            naked_identifier: customer_state
+        - keyword: IN
+        - bracketed:
+          - start_bracket: (
+          - quoted_literal: "'DC'"
+          - comma: ','
+          - quoted_literal: "'WI'"
+          - end_bracket: )
+        - binary_operator: AND
+        - column_reference:
+            naked_identifier: customer_key
+        - comparison_operator:
+            raw_comparison_operator: <
+        - numeric_literal: '300'
+      orderby_clause:
+      - keyword: ORDER
+      - keyword: BY
+      - column_reference:
+          naked_identifier: customer_state
+      - comma: ','
+      - column_reference:
+          naked_identifier: customer_key
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+            naked_identifier: état_du_client
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: clé_client
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: revenu_annuel
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: PERCENTILE_DISC
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  numeric_literal: '.2'
+                end_bracket: )
+            within_group_clause_statement:
+            - keyword: WITHIN
+            - keyword: GROUP
+            - bracketed:
+                start_bracket: (
+                orderby_clause:
+                - keyword: ORDER
+                - keyword: BY
+                - column_reference:
+                    naked_identifier: annual_income
+                end_bracket: )
+            over_clause:
+              keyword: OVER
+              bracketed:
+                start_bracket: (
+                window_specification:
+                  partitionby_clause:
+                  - keyword: PARTITION
+                  - keyword: BY
+                  - expression:
+                      column_reference:
+                        naked_identifier: état_du_client
+                end_bracket: )
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: PERCENTILE_DISC
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: dimension_client
+      where_clause:
+        keyword: WHERE
+        expression:
+        - column_reference:
+            naked_identifier: état_du_client
+        - keyword: IN
+        - bracketed:
+          - start_bracket: (
+          - quoted_literal: "'Provence'"
+          - comma: ','
+          - quoted_literal: "'Сhampagne'"
+          - end_bracket: )
+        - binary_operator: AND
+        - column_reference:
+            naked_identifier: clé_client
+        - comparison_operator:
+            raw_comparison_operator: <
+        - numeric_literal: '300'
+      orderby_clause:
+      - keyword: ORDER
+      - keyword: BY
+      - column_reference:
+          naked_identifier: état_du_client
+      - comma: ','
+      - column_reference:
+          naked_identifier: clé_client
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+            naked_identifier: customer_state
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: customer_key
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: annual_income
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: PERCENTILE_CONT
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  numeric_literal: '0.5'
+                end_bracket: )
+            within_group_clause_statement:
+            - keyword: WITHIN
+            - keyword: GROUP
+            - bracketed:
+                start_bracket: (
+                orderby_clause:
+                - keyword: ORDER
+                - keyword: BY
+                - column_reference:
+                    naked_identifier: annual_income
+                end_bracket: )
+            over_clause:
+              keyword: OVER
+              bracketed:
+                start_bracket: (
+                window_specification:
+                  partitionby_clause:
+                  - keyword: PARTITION
+                  - keyword: BY
+                  - expression:
+                      column_reference:
+                        naked_identifier: customer_state
+                end_bracket: )
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: PERCENTILE_CONT
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: customer_dimension
+      where_clause:
+        keyword: WHERE
+        expression:
+        - column_reference:
+            naked_identifier: customer_state
+        - keyword: IN
+        - bracketed:
+          - start_bracket: (
+          - quoted_literal: "'DC'"
+          - comma: ','
+          - quoted_literal: "'WI'"
+          - end_bracket: )
+        - binary_operator: AND
+        - column_reference:
+            naked_identifier: customer_key
+        - comparison_operator:
+            raw_comparison_operator: <
+        - numeric_literal: '300'
+      orderby_clause:
+      - keyword: ORDER
+      - keyword: BY
+      - column_reference:
+          naked_identifier: customer_state
+      - comma: ','
+      - column_reference:
+          naked_identifier: customer_key
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+            naked_identifier: état_du_client
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: clé_client
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: revenu_annuel
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: PERCENTILE_CONT
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  numeric_literal: '0.5'
+                end_bracket: )
+            within_group_clause_statement:
+            - keyword: WITHIN
+            - keyword: GROUP
+            - bracketed:
+                start_bracket: (
+                orderby_clause:
+                - keyword: ORDER
+                - keyword: BY
+                - column_reference:
+                    naked_identifier: revenu_annuel
+                end_bracket: )
+            over_clause:
+              keyword: OVER
+              bracketed:
+                start_bracket: (
+                window_specification:
+                  partitionby_clause:
+                  - keyword: PARTITION
+                  - keyword: BY
+                  - expression:
+                      column_reference:
+                        naked_identifier: état_du_client
+                end_bracket: )
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: PERCENTILE_CONT
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: dimension_client
+      where_clause:
+        keyword: WHERE
+        expression:
+        - column_reference:
+            naked_identifier: état_du_client
+        - keyword: IN
+        - bracketed:
+          - start_bracket: (
+          - quoted_literal: "'Provence'"
+          - comma: ','
+          - quoted_literal: "'Сhampagne'"
+          - end_bracket: )
+        - binary_operator: AND
+        - column_reference:
+            naked_identifier: clé_client
+        - comparison_operator:
+            raw_comparison_operator: <
+        - numeric_literal: '300'
+      orderby_clause:
+      - keyword: ORDER
+      - keyword: BY
+      - column_reference:
+          naked_identifier: état_du_client
+      - comma: ','
+      - column_reference:
+          naked_identifier: clé_client
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+            naked_identifier: store_region
+      - comma: ','
+      - select_clause_element:
+          expression:
+          - column_reference:
+              naked_identifier: store_city
+          - binary_operator:
+            - pipe: '|'
+            - pipe: '|'
+          - quoted_literal: "', '"
+          - binary_operator:
+            - pipe: '|'
+            - pipe: '|'
+          - column_reference:
+              naked_identifier: store_state
+          alias_expression:
+            naked_identifier: location
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: store_name
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: number_of_employees
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+              - naked_identifier: store
+              - dot: .
+              - naked_identifier: store_dimension
+      limit_clause:
+        keyword: LIMIT
+        numeric_literal: '2'
+        over_clause:
+          keyword: OVER
+          bracketed:
+            start_bracket: (
+            window_specification:
+              partitionby_clause:
+              - keyword: PARTITION
+              - keyword: BY
+              - expression:
+                  column_reference:
+                    naked_identifier: store_region
+              orderby_clause:
+              - keyword: ORDER
+              - keyword: BY
+              - column_reference:
+                  naked_identifier: number_of_employees
+              - keyword: ASC
+            end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+            naked_identifier: регион_магазина
+      - comma: ','
+      - select_clause_element:
+          expression:
+          - column_reference:
+              naked_identifier: город_магазина
+          - binary_operator:
+            - pipe: '|'
+            - pipe: '|'
+          - quoted_literal: "', '"
+          - binary_operator:
+            - pipe: '|'
+            - pipe: '|'
+          - column_reference:
+              naked_identifier: область_магазина
+          alias_expression:
+            naked_identifier: местоположение
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: имя_магазина
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: количество_сотрудников
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+              - naked_identifier: магазины
+              - dot: .
+              - naked_identifier: измерение_магазины
+      limit_clause:
+        keyword: LIMIT
+        numeric_literal: '2'
+        over_clause:
+          keyword: OVER
+          bracketed:
+            start_bracket: (
+            window_specification:
+              partitionby_clause:
+              - keyword: PARTITION
+              - keyword: BY
+              - expression:
+                  column_reference:
+                    naked_identifier: регион_магазина
+              orderby_clause:
+              - keyword: ORDER
+              - keyword: BY
+              - column_reference:
+                  naked_identifier: количество_сотрудников
+              - keyword: ASC
+            end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: PREDICT_LINEAR_REG
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - column_reference:
+                  naked_identifier: waiting
+              - keyword: USING
+              - keyword: PARAMETERS
+              - parameter: model_name
+              - comparison_operator:
+                  raw_comparison_operator: '='
+              - quoted_literal: "'myLinearRegModel'"
+              - end_bracket: )
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: faithful
+      orderby_clause:
+      - keyword: ORDER
+      - keyword: BY
+      - column_reference:
+          naked_identifier: id
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: PREDICT_LINEAR_REG
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - column_reference:
+                  naked_identifier: attente
+              - keyword: USING
+              - keyword: PARAMETERS
+              - parameter: model_name
+              - comparison_operator:
+                  raw_comparison_operator: '='
+              - quoted_literal: "'monRegModèleLinéaire'"
+              - end_bracket: )
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: fidèle
+      orderby_clause:
+      - keyword: ORDER
+      - keyword: BY
+      - column_reference:
+          naked_identifier: id
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: INFER_EXTERNAL_TABLE_DDL
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - quoted_literal: "'/data/people/*.parquet'"
+              - keyword: USING
+              - keyword: PARAMETERS
+              - parameter: format
+              - comparison_operator:
+                  raw_comparison_operator: '='
+              - quoted_literal: "'parquet'"
+              - comma: ','
+              - parameter: table_name
+              - comparison_operator:
+                  raw_comparison_operator: '='
+              - quoted_literal: "'employees'"
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: INFER_EXTERNAL_TABLE_DDL
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - quoted_literal: "'/data/άνθρωποι/*.parquet'"
+              - keyword: USING
+              - keyword: PARAMETERS
+              - parameter: format
+              - comparison_operator:
+                  raw_comparison_operator: '='
+              - quoted_literal: "'parquet'"
+              - comma: ','
+              - parameter: table_name
+              - comparison_operator:
+                  raw_comparison_operator: '='
+              - quoted_literal: "'εργαζόμενοι'"
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: PREDICT_ARIMA
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - column_reference:
+                  naked_identifier: temperature
+              - keyword: USING
+              - keyword: PARAMETERS
+              - parameter: model_name
+              - comparison_operator:
+                  raw_comparison_operator: '='
+              - quoted_literal: "'arima_temp'"
+              - comma: ','
+              - parameter: start
+              - comparison_operator:
+                  raw_comparison_operator: '='
+              - numeric_literal: '100'
+              - comma: ','
+              - parameter: npredictions
+              - comparison_operator:
+                  raw_comparison_operator: '='
+              - numeric_literal: '10'
+              - end_bracket: )
+            over_clause:
+              keyword: OVER
+              bracketed:
+                start_bracket: (
+                window_specification:
+                  orderby_clause:
+                  - keyword: ORDER
+                  - keyword: BY
+                  - column_reference:
+                      naked_identifier: time
+                end_bracket: )
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: temp_data
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: PREDICT_ARIMA
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - column_reference:
+                  naked_identifier: температура
+              - keyword: USING
+              - keyword: PARAMETERS
+              - parameter: model_name
+              - comparison_operator:
+                  raw_comparison_operator: '='
+              - quoted_literal: "'arima_temp'"
+              - comma: ','
+              - parameter: start
+              - comparison_operator:
+                  raw_comparison_operator: '='
+              - numeric_literal: '100'
+              - comma: ','
+              - parameter: npredictions
+              - comparison_operator:
+                  raw_comparison_operator: '='
+              - numeric_literal: '10'
+              - end_bracket: )
+            over_clause:
+              keyword: OVER
+              bracketed:
+                start_bracket: (
+                window_specification:
+                  orderby_clause:
+                  - keyword: ORDER
+                  - keyword: BY
+                  - column_reference:
+                      naked_identifier: time
+                end_bracket: )
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: временные_данные
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: INFER_TABLE_DDL
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - quoted_literal: "'/data/*.json'"
+              - keyword: USING
+              - keyword: PARAMETERS
+              - parameter: table_name
+              - comparison_operator:
+                  raw_comparison_operator: '='
+              - quoted_literal: "'restaurants'"
+              - comma: ','
+              - parameter: format
+              - comparison_operator:
+                  raw_comparison_operator: '='
+              - quoted_literal: "'json'"
+              - comma: ','
+              - parameter: max_files
+              - comparison_operator:
+                  raw_comparison_operator: '='
+              - numeric_literal: '3'
+              - comma: ','
+              - parameter: max_candidates
+              - comparison_operator:
+                  raw_comparison_operator: '='
+              - numeric_literal: '3'
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: INFER_TABLE_DDL
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - quoted_literal: "'/data/*.json'"
+              - keyword: USING
+              - keyword: PARAMETERS
+              - parameter: table_name
+              - comparison_operator:
+                  raw_comparison_operator: '='
+              - quoted_literal: "'εστιατόρια'"
+              - comma: ','
+              - parameter: format
+              - comparison_operator:
+                  raw_comparison_operator: '='
+              - quoted_literal: "'json'"
+              - comma: ','
+              - parameter: max_files
+              - comparison_operator:
+                  raw_comparison_operator: '='
+              - numeric_literal: '3'
+              - comma: ','
+              - parameter: max_candidates
+              - comparison_operator:
+                  raw_comparison_operator: '='
+              - numeric_literal: '3'
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: PURGE_TABLE
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  quoted_literal: "'store.store_sales_fact'"
+                end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: PURGE_TABLE
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  quoted_literal: "'المتجر.متجر_مبيعات_المتجر'"
+                end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: MSE
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                    naked_identifier: obs
+              - comma: ','
+              - expression:
+                  column_reference:
+                    naked_identifier: prediction
+              - end_bracket: )
+            over_clause:
+              keyword: OVER
+              bracketed:
+                start_bracket: (
+                end_bracket: )
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              bracketed:
+                start_bracket: (
+                select_statement:
+                  select_clause:
+                  - keyword: SELECT
+                  - select_clause_element:
+                      column_reference:
+                        naked_identifier: eruptions
+                      alias_expression:
+                        alias_operator:
+                          keyword: AS
+                        naked_identifier: obs
+                  - comma: ','
+                  - select_clause_element:
+                      function:
+                        function_name:
+                          function_name_identifier: PREDICT_LINEAR_REG
+                        function_contents:
+                          bracketed:
+                          - start_bracket: (
+                          - column_reference:
+                              naked_identifier: waiting
+                          - keyword: USING
+                          - keyword: PARAMETERS
+                          - parameter: model_name
+                          - comparison_operator:
+                              raw_comparison_operator: '='
+                          - quoted_literal: "'myLinearRegModel'"
+                          - end_bracket: )
+                      alias_expression:
+                        alias_operator:
+                          keyword: AS
+                        naked_identifier: prediction
+                  from_clause:
+                    keyword: FROM
+                    from_expression:
+                      from_expression_element:
+                        table_expression:
+                          table_reference:
+                            naked_identifier: faithful_testing
+                end_bracket: )
+            alias_expression:
+              alias_operator:
+                keyword: AS
+              naked_identifier: PredictionOutput
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: MSE
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                    naked_identifier: наблюдения
+              - comma: ','
+              - expression:
+                  column_reference:
+                    naked_identifier: предсказания
+              - end_bracket: )
+            over_clause:
+              keyword: OVER
+              bracketed:
+                start_bracket: (
+                end_bracket: )
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              bracketed:
+                start_bracket: (
+                select_statement:
+                  select_clause:
+                  - keyword: SELECT
+                  - select_clause_element:
+                      column_reference:
+                        naked_identifier: извержения
+                      alias_expression:
+                        alias_operator:
+                          keyword: AS
+                        naked_identifier: наблюдения
+                  - comma: ','
+                  - select_clause_element:
+                      function:
+                        function_name:
+                          function_name_identifier: PREDICT_LINEAR_REG
+                        function_contents:
+                          bracketed:
+                          - start_bracket: (
+                          - column_reference:
+                              naked_identifier: ожидания
+                          - keyword: USING
+                          - keyword: PARAMETERS
+                          - parameter: model_name
+                          - comparison_operator:
+                              raw_comparison_operator: '='
+                          - quoted_literal: "'myLinearRegModel'"
+                          - end_bracket: )
+                      alias_expression:
+                        alias_operator:
+                          keyword: AS
+                        naked_identifier: прогноз
+                  from_clause:
+                    keyword: FROM
+                    from_expression:
+                      from_expression_element:
+                        table_expression:
+                          table_reference:
+                            naked_identifier: верное_испытание
+                end_bracket: )
+            alias_expression:
+              alias_operator:
+                keyword: AS
+              naked_identifier: РезультатПрогноза
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          expression:
+            column_reference:
+              naked_identifier: ps
+            array_accessor:
+              start_square_bracket: '['
+              numeric_literal: '0'
+              end_square_bracket: ']'
+          alias_expression:
+            alias_operator:
+              keyword: as
+            naked_identifier: q0
+      - comma: ','
+      - select_clause_element:
+          expression:
+            column_reference:
+              naked_identifier: ps
+            array_accessor:
+              start_square_bracket: '['
+              numeric_literal: '1'
+              end_square_bracket: ']'
+          alias_expression:
+            alias_operator:
+              keyword: as
+            naked_identifier: q1
+      - comma: ','
+      - select_clause_element:
+          expression:
+            column_reference:
+              naked_identifier: ps
+            array_accessor:
+              start_square_bracket: '['
+              numeric_literal: '2'
+              end_square_bracket: ']'
+          alias_expression:
+            alias_operator:
+              keyword: as
+            naked_identifier: q2
+      - comma: ','
+      - select_clause_element:
+          expression:
+            column_reference:
+              naked_identifier: ps
+            array_accessor:
+              start_square_bracket: '['
+              numeric_literal: '3'
+              end_square_bracket: ']'
+          alias_expression:
+            alias_operator:
+              keyword: as
+            naked_identifier: q3
+      - comma: ','
+      - select_clause_element:
+          expression:
+            column_reference:
+              naked_identifier: ps
+            array_accessor:
+              start_square_bracket: '['
+              numeric_literal: '4'
+              end_square_bracket: ']'
+          alias_expression:
+            alias_operator:
+              keyword: as
+            naked_identifier: q4
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              bracketed:
+                start_bracket: (
+                select_statement:
+                  select_clause:
+                    keyword: SELECT
+                    select_clause_element:
+                      function:
+                        function_name:
+                          function_name_identifier: APPROXIMATE_PERCENTILE
+                        function_contents:
+                          bracketed:
+                          - start_bracket: (
+                          - column_reference:
+                              naked_identifier: sales
+                          - keyword: USING
+                          - keyword: PARAMETERS
+                          - parameter: percentiles
+                          - comparison_operator:
+                              raw_comparison_operator: '='
+                          - quoted_literal: "'0, 0.25, 0.5, 0.75, 1'"
+                          - end_bracket: )
+                      alias_expression:
+                        alias_operator:
+                          keyword: AS
+                        naked_identifier: ps
+                  from_clause:
+                    keyword: FROM
+                    from_expression:
+                      from_expression_element:
+                        table_expression:
+                          table_reference:
+                            naked_identifier: allsales
+                  groupby_clause:
+                  - keyword: GROUP
+                  - keyword: BY
+                  - column_reference:
+                      naked_identifier: state
+                end_bracket: )
+            alias_expression:
+              alias_operator:
+                keyword: as
+              naked_identifier: s1
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          expression:
+            column_reference:
+              naked_identifier: pz
+            array_accessor:
+              start_square_bracket: '['
+              numeric_literal: '0'
+              end_square_bracket: ']'
+          alias_expression:
+            alias_operator:
+              keyword: as
+            naked_identifier: q0
+      - comma: ','
+      - select_clause_element:
+          expression:
+            column_reference:
+              naked_identifier: pz
+            array_accessor:
+              start_square_bracket: '['
+              numeric_literal: '1'
+              end_square_bracket: ']'
+          alias_expression:
+            alias_operator:
+              keyword: as
+            naked_identifier: q1
+      - comma: ','
+      - select_clause_element:
+          expression:
+            column_reference:
+              naked_identifier: pz
+            array_accessor:
+              start_square_bracket: '['
+              numeric_literal: '2'
+              end_square_bracket: ']'
+          alias_expression:
+            alias_operator:
+              keyword: as
+            naked_identifier: q2
+      - comma: ','
+      - select_clause_element:
+          expression:
+            column_reference:
+              naked_identifier: pz
+            array_accessor:
+              start_square_bracket: '['
+              numeric_literal: '3'
+              end_square_bracket: ']'
+          alias_expression:
+            alias_operator:
+              keyword: as
+            naked_identifier: q3
+      - comma: ','
+      - select_clause_element:
+          expression:
+            column_reference:
+              naked_identifier: pz
+            array_accessor:
+              start_square_bracket: '['
+              numeric_literal: '4'
+              end_square_bracket: ']'
+          alias_expression:
+            alias_operator:
+              keyword: as
+            naked_identifier: q4
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              bracketed:
+                start_bracket: (
+                select_statement:
+                  select_clause:
+                    keyword: SELECT
+                    select_clause_element:
+                      function:
+                        function_name:
+                          function_name_identifier: APPROXIMATE_PERCENTILE
+                        function_contents:
+                          bracketed:
+                          - start_bracket: (
+                          - column_reference:
+                              naked_identifier: Verkäufe
+                          - keyword: USING
+                          - keyword: PARAMETERS
+                          - parameter: percentiles
+                          - comparison_operator:
+                              raw_comparison_operator: '='
+                          - quoted_literal: "'0, 0.25, 0.5, 0.75, 1'"
+                          - end_bracket: )
+                      alias_expression:
+                        alias_operator:
+                          keyword: AS
+                        naked_identifier: pz
+                  from_clause:
+                    keyword: FROM
+                    from_expression:
+                      from_expression_element:
+                        table_expression:
+                          table_reference:
+                            naked_identifier: alleVerkäufe
+                  groupby_clause:
+                  - keyword: GROUP
+                  - keyword: BY
+                  - column_reference:
+                      naked_identifier: Staat
+                end_bracket: )
+            alias_expression:
+              alias_operator:
+                keyword: as
+              naked_identifier: s1
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+          - naked_identifier: id
+          - dot: .
+          - naked_identifier: name
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: major
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: GPA
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: students
+      where_clause:
+        keyword: WHERE
+        expression:
+          column_reference:
+            naked_identifier: id
+          comparison_operator:
+            raw_comparison_operator: '='
+          function:
+            function_name:
+              function_name_identifier: ROW
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  quoted_literal: "'alice'"
+              - comma: ','
+              - expression:
+                  numeric_literal: '119'
+              - comma: ','
+              - expression:
+                  typed_array_literal:
+                    array_type:
+                      keyword: ARRAY
+                    array_literal:
+                    - start_square_bracket: '['
+                    - quoted_literal: "'alice@example.com'"
+                    - comma: ','
+                    - quoted_literal: "'ap16@cs.example.edu'"
+                    - end_square_bracket: ']'
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+          - naked_identifier: ид
+          - dot: .
+          - naked_identifier: имя
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: курс
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: СРБАЛЛ
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: студенты
+      where_clause:
+        keyword: WHERE
+        expression:
+          column_reference:
+            naked_identifier: ид
+          comparison_operator:
+            raw_comparison_operator: '='
+          function:
+            function_name:
+              function_name_identifier: ROW
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  quoted_literal: "'алиса'"
+              - comma: ','
+              - expression:
+                  numeric_literal: '119'
+              - comma: ','
+              - expression:
+                  typed_array_literal:
+                    array_type:
+                      keyword: ARRAY
+                    array_literal:
+                    - start_square_bracket: '['
+                    - quoted_literal: "'alice@example.com'"
+                    - comma: ','
+                    - quoted_literal: "'ap16@cs.example.edu'"
+                    - end_square_bracket: ']'
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          quoted_literal: "E'first part o'"
+          alias_expression:
+            quoted_identifier: "'f a long line'"
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          quoted_literal: "E'πρώτο μέρος μι'"
+          alias_expression:
+            quoted_identifier: "'ας μακράς γραμμής'"
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: STRING_TO_ARRAY
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - column_reference:
+                  naked_identifier: name
+              - keyword: USING
+              - keyword: PARAMETERS
+              - parameter: collection_delimiter
+              - comparison_operator:
+                  raw_comparison_operator: '='
+              - quoted_literal: "' '"
+              - end_bracket: )
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: employee
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: STRING_TO_ARRAY
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - column_reference:
+                  naked_identifier: имя
+              - keyword: USING
+              - keyword: PARAMETERS
+              - parameter: collection_delimiter
+              - comparison_operator:
+                  raw_comparison_operator: '='
+              - quoted_literal: "' '"
+              - end_bracket: )
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: сотрудники
+- statement_terminator: ;
+- statement:
+    alter_schema_statement:
+    - keyword: ALTER
+    - keyword: SCHEMA
+    - schema_reference:
+        naked_identifier: ms
+    - keyword: OWNER
+    - keyword: TO
+    - role_reference:
+        naked_identifier: dbadmin
+    - keyword: CASCADE
+- statement_terminator: ;
+- statement:
+    alter_schema_statement:
+    - keyword: ALTER
+    - keyword: SCHEMA
+    - schema_reference:
+        naked_identifier: επιμελητεία
+    - keyword: OWNER
+    - keyword: TO
+    - role_reference:
+        naked_identifier: διαχειριστής
+    - keyword: CASCADE
+- statement_terminator: ;
+- statement:
+    alter_schema_statement:
+    - keyword: ALTER
+    - keyword: SCHEMA
+    - schema_reference:
+        naked_identifier: логистика
+    - keyword: OWNER
+    - keyword: TO
+    - role_reference:
+        naked_identifier: алиса
+    - keyword: CASCADE
+- statement_terminator: ;
+- statement:
+    alter_schema_statement:
+    - keyword: ALTER
+    - keyword: SCHEMA
+    - schema_reference:
+        naked_identifier: s1
+    - comma: ','
+    - schema_reference:
+        naked_identifier: s2
+    - keyword: RENAME
+    - keyword: TO
+    - schema_reference:
+        naked_identifier: s3
+    - comma: ','
+    - schema_reference:
+        naked_identifier: s4
+- statement_terminator: ;
+- statement:
+    alter_schema_statement:
+    - keyword: ALTER
+    - keyword: SCHEMA
+    - schema_reference:
+        naked_identifier: εμπορικός
+    - comma: ','
+    - schema_reference:
+        naked_identifier: s2
+    - keyword: RENAME
+    - keyword: TO
+    - schema_reference:
+        naked_identifier: продажи
+    - comma: ','
+    - schema_reference:
+        naked_identifier: s4
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: public
+      - dot: .
+      - naked_identifier: store_orders
+    - keyword: ADD
+    - keyword: COLUMN
+    - column_reference:
+        naked_identifier: expected_ship_date
+    - data_type:
+        keyword: date
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: public
+      - dot: .
+      - naked_identifier: κατάστημα_παραγγελίες
+    - keyword: ADD
+    - keyword: COLUMN
+    - column_reference:
+        naked_identifier: αναμενόμενη_ημερομηνία_αποστολής
+    - data_type:
+        keyword: date
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: public
+      - dot: .
+      - naked_identifier: заказы_магазина
+    - keyword: ADD
+    - keyword: COLUMN
+    - column_reference:
+        naked_identifier: ожиддаемая_дата_отгрузки
+    - data_type:
+        keyword: date
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t33
+    - alter_table_action_segment:
+      - keyword: OWNER
+      - keyword: TO
+      - parameter: Alice
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: επιμελητεία
+    - alter_table_action_segment:
+      - keyword: OWNER
+      - keyword: TO
+      - parameter: διαχειριστής
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: заказы
+    - alter_table_action_segment:
+      - keyword: OWNER
+      - keyword: TO
+      - parameter: алиса
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+            bracketed:
+              start_bracket: (
+              expression:
+                typed_array_literal:
+                  array_type:
+                    keyword: ARRAY
+                  array_literal:
+                  - start_square_bracket: '['
+                  - quoted_literal: "'مسؤل'"
+                  - comma: ','
+                  - quoted_literal: "'διαχειριστής'"
+                  - comma: ','
+                  - quoted_literal: "'логистика'"
+                  - comma: ','
+                  - quoted_literal: "'d'"
+                  - comma: ','
+                  - quoted_literal: "'e'"
+                  - end_square_bracket: ']'
+              end_bracket: )
+            array_accessor:
+              start_square_bracket: '['
+              numeric_literal: '1'
+              end_square_bracket: ']'
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+            cast_expression:
+              column_reference:
+                naked_identifier: amount_of_honey
+              casting_operator: '::'
+              data_type:
+                keyword: FLOAT
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: bear_inventory
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+            cast_expression:
+              column_reference:
+                naked_identifier: ποσότητα_μελιού
+              casting_operator: '::'
+              data_type:
+                keyword: FLOAT
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: αρκούδα_αποθήκη
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+            cast_expression:
+              column_reference:
+                naked_identifier: количество_мёда
+              casting_operator: '::'
+              data_type:
+                keyword: FLOAT
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: медвежий_склад
+- statement_terminator: ;
+- statement:
+    comment_clause:
+    - keyword: COMMENT
+    - keyword: 'ON'
+    - keyword: AGGREGATE
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: APPROXIMATE_MEDIAN
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          parameter: x
+          data_type:
+            keyword: FLOAT
+          end_bracket: )
+    - keyword: IS
+    - quoted_literal: "'alias of APPROXIMATE_PERCENTILE with 0.5 as its parameter'"
+- statement_terminator: ;
+- statement:
+    comment_clause:
+    - keyword: COMMENT
+    - keyword: 'ON'
+    - keyword: AGGREGATE
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: APPROXIMATE_MEDIAN
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          parameter: x
+          data_type:
+            keyword: FLOAT
+          end_bracket: )
+    - keyword: IS
+    - quoted_literal: "'ψευδώνυμο APPROXIMATE_PERCENTILE με 0,5 ως παράμετρό του'"
+- statement_terminator: ;
+- statement:
+    comment_clause:
+    - keyword: COMMENT
+    - keyword: 'ON'
+    - keyword: AGGREGATE
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: APPROXIMATE_MEDIAN
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          parameter: x
+          data_type:
+            keyword: FLOAT
+          end_bracket: )
+    - keyword: IS
+    - quoted_literal: "'псевдоним APPROXIMATE_PERCENTILE с 0,5 в качестве параметра'"
+- statement_terminator: ;
+- statement:
+    comment_clause:
+    - keyword: COMMENT
+    - keyword: 'ON'
+    - keyword: SCHEMA
+    - schema_reference:
+        naked_identifier: public
+    - keyword: IS
+    - quoted_literal: "'All users can access this schema'"
+- statement_terminator: ;
+- statement:
+    comment_clause:
+    - keyword: COMMENT
+    - keyword: 'ON'
+    - keyword: SCHEMA
+    - schema_reference:
+        naked_identifier: public
+    - keyword: IS
+    - quoted_literal: "'Όλοι οι χρήστες έχουν πρόσβαση σε αυτό το σχήμα'"
+- statement_terminator: ;
+- statement:
+    comment_clause:
+    - keyword: COMMENT
+    - keyword: 'ON'
+    - keyword: SCHEMA
+    - schema_reference:
+        naked_identifier: public
+    - keyword: IS
+    - quoted_literal: "'Все пользователи могут получить доступ к этой схеме'"
+- statement_terminator: ;
+- statement:
+    copy_statement:
+    - keyword: COPY
+    - table_reference:
+      - naked_identifier: public
+      - dot: .
+      - naked_identifier: customer_dimension
+    - bracketed:
+        start_bracket: (
+        copy_column_options:
+          column_reference:
+            naked_identifier: customer_since
+          copy_options_for_columns:
+            keyword: FORMAT
+            quoted_literal: "'YYYY'"
+        end_bracket: )
+    - keyword: FROM
+    - keyword: STDIN
+    - copy_options:
+        copy_options_for_columns:
+        - keyword: DELIMITER
+        - quoted_literal: "','"
+        - keyword: 'NULL'
+        - keyword: AS
+        - quoted_literal: "'null'"
+        - keyword: ENCLOSED
+        - keyword: BY
+        - quoted_literal: "'\"'"
+- statement_terminator: ;
+- statement:
+    copy_statement:
+    - keyword: COPY
+    - table_reference:
+      - naked_identifier: παραγγελίες
+      - dot: .
+      - naked_identifier: παραγγελίες_ανά_ημέρα
+    - bracketed:
+        start_bracket: (
+        copy_column_options:
+          column_reference:
+            naked_identifier: πελάτη_αφού
+          copy_options_for_columns:
+            keyword: FORMAT
+            quoted_literal: "'YYYY'"
+        end_bracket: )
+    - keyword: FROM
+    - keyword: STDIN
+    - copy_options:
+        copy_options_for_columns:
+        - keyword: DELIMITER
+        - quoted_literal: "','"
+        - keyword: 'NULL'
+        - keyword: AS
+        - quoted_literal: "'null'"
+        - keyword: ENCLOSED
+        - keyword: BY
+        - quoted_literal: "'\"'"
+- statement_terminator: ;
+- statement:
+    copy_statement:
+    - keyword: COPY
+    - table_reference:
+      - naked_identifier: заказы
+      - dot: .
+      - naked_identifier: заказы_на_день
+    - bracketed:
+        start_bracket: (
+        copy_column_options:
+          column_reference:
+            naked_identifier: клиент_с_даты
+          copy_options_for_columns:
+            keyword: FORMAT
+            quoted_literal: "'YYYY'"
+        end_bracket: )
+    - keyword: FROM
+    - keyword: STDIN
+    - copy_options:
+        copy_options_for_columns:
+        - keyword: DELIMITER
+        - quoted_literal: "','"
+        - keyword: 'NULL'
+        - keyword: AS
+        - quoted_literal: "'null'"
+        - keyword: ENCLOSED
+        - keyword: BY
+        - quoted_literal: "'\"'"
+- statement_terminator: ;
+- statement:
+    create_projection_statement:
+    - keyword: CREATE
+    - keyword: PROJECTION
+    - table_reference:
+      - naked_identifier: public
+      - dot: .
+      - naked_identifier: employee_dimension_super
+    - keyword: AS
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                - naked_identifier: public
+                - dot: .
+                - naked_identifier: employee_dimension
+    - orderby_clause:
+      - keyword: ORDER
+      - keyword: BY
+      - column_reference:
+          naked_identifier: employee_key
+    - segmentedby_clause:
+      - keyword: SEGMENTED
+      - keyword: BY
+      - function:
+          function_name:
+            function_name_identifier: hash
+          function_contents:
+            bracketed:
+              start_bracket: (
+              expression:
+                column_reference:
+                  naked_identifier: employee_key
+              end_bracket: )
+      - keyword: ALL
+      - keyword: NODES
+- statement_terminator: ;
+- statement:
+    create_projection_statement:
+    - keyword: CREATE
+    - keyword: PROJECTION
+    - table_reference:
+      - naked_identifier: εμπορικός
+      - dot: .
+      - naked_identifier: παραγγελίες_ανά_ημέρα
+    - keyword: AS
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                - naked_identifier: εμπορικός
+                - dot: .
+                - naked_identifier: παραγγελίες
+    - orderby_clause:
+      - keyword: ORDER
+      - keyword: BY
+      - column_reference:
+          naked_identifier: employee_key
+    - segmentedby_clause:
+      - keyword: SEGMENTED
+      - keyword: BY
+      - function:
+          function_name:
+            function_name_identifier: hash
+          function_contents:
+            bracketed:
+              start_bracket: (
+              expression:
+                column_reference:
+                  naked_identifier: employee_key
+              end_bracket: )
+      - keyword: ALL
+      - keyword: NODES
+- statement_terminator: ;
+- statement:
+    create_projection_statement:
+    - keyword: CREATE
+    - keyword: PROJECTION
+    - table_reference:
+      - naked_identifier: продажи
+      - dot: .
+      - naked_identifier: продажи_на_по_клиенту
+    - keyword: AS
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                - naked_identifier: продажи
+                - dot: .
+                - naked_identifier: продажи_на_сегодня
+    - orderby_clause:
+      - keyword: ORDER
+      - keyword: BY
+      - column_reference:
+          naked_identifier: клиент
+    - segmentedby_clause:
+      - keyword: SEGMENTED
+      - keyword: BY
+      - function:
+          function_name:
+            function_name_identifier: hash
+          function_contents:
+            bracketed:
+              start_bracket: (
+              expression:
+                column_reference:
+                  naked_identifier: клиент
+              end_bracket: )
+      - keyword: ALL
+      - keyword: NODES
+- statement_terminator: ;
+- statement:
+    create_schema_statement:
+    - keyword: CREATE
+    - keyword: SCHEMA
+    - schema_reference:
+        naked_identifier: s3
+    - keyword: DEFAULT
+    - schema_privileges_segment:
+      - keyword: INCLUDE
+      - keyword: SCHEMA
+      - keyword: PRIVILEGES
+- statement_terminator: ;
+- statement:
+    create_schema_statement:
+    - keyword: CREATE
+    - keyword: SCHEMA
+    - schema_reference:
+        naked_identifier: εμπορικός
+    - keyword: DEFAULT
+    - schema_privileges_segment:
+      - keyword: INCLUDE
+      - keyword: SCHEMA
+      - keyword: PRIVILEGES
+- statement_terminator: ;
+- statement:
+    create_schema_statement:
+    - keyword: CREATE
+    - keyword: SCHEMA
+    - schema_reference:
+        naked_identifier: продажи
+    - keyword: DEFAULT
+    - schema_privileges_segment:
+      - keyword: INCLUDE
+      - keyword: SCHEMA
+      - keyword: PRIVILEGES
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+              - naked_identifier: логистика
+              - dot: .
+              - naked_identifier: εμπορικός
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+              - naked_identifier: логистика
+              - dot: .
+              - naked_identifier: εμπορικός1
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+              - naked_identifier: логистика
+              - dot: .
+              - naked_identifier: εμπορικός_
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+              - naked_identifier: логистика
+              - dot: .
+              - naked_identifier: s$ales$
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+              - naked_identifier: логистика
+              - dot: .
+              - naked_identifier: _εμπορικός
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+              - naked_identifier: логистика
+              - dot: .
+              - naked_identifier: _1234εμπορικός
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+              - naked_identifier: логистика1
+              - dot: .
+              - naked_identifier: εμπορικός
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+              - naked_identifier: логистика_
+              - dot: .
+              - naked_identifier: εμπορικός
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+              - naked_identifier: p$ublic$
+              - dot: .
+              - naked_identifier: εμπορικός
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+              - naked_identifier: _логистика
+              - dot: .
+              - naked_identifier: εμπορικός
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+              - naked_identifier: _1234логистика
+              - dot: .
+              - naked_identifier: εμπορικός
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+              - naked_identifier: логистика1
+              - dot: .
+              - naked_identifier: εμπορικός1
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+              - naked_identifier: логистика1_
+              - dot: .
+              - naked_identifier: εμπορικός1_
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+              - naked_identifier: p$ublic1_$
+              - dot: .
+              - naked_identifier: s$ales1_$
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+              - quoted_identifier: '"12логистика"'
+              - dot: .
+              - quoted_identifier: '"12344εμπορικός"'
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+              - quoted_identifier: '"_1234логистика"'
+              - dot: .
+              - quoted_identifier: '"_1234εμπορικός"'
+- statement_terminator: ;

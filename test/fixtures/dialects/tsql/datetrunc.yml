@@ -1,0 +1,79 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: df906dc62a257f2996475dc5269c6ab5136d59aade3160e72e668a6ccb75f3a8
+file:
+  batch:
+    statement:
+      select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            function:
+              function_name:
+                function_name_identifier: DATETRUNC
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  date_part: YEAR
+                  comma: ','
+                  expression:
+                    column_reference:
+                    - naked_identifier: my_table
+                    - dot: .
+                    - naked_identifier: date
+                  end_bracket: )
+            alias_expression:
+              alias_operator:
+                keyword: AS
+              quoted_identifier: '[beginningOfYear]'
+        - comma: ','
+        - select_clause_element:
+            function:
+              function_name:
+                function_name_identifier: DATETRUNC
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  date_part: MONTH
+                  comma: ','
+                  expression:
+                    column_reference:
+                    - naked_identifier: my_table
+                    - dot: .
+                    - naked_identifier: date
+                  end_bracket: )
+            alias_expression:
+              alias_operator:
+                keyword: AS
+              quoted_identifier: '[FirstOfMonth]'
+        - comma: ','
+        - select_clause_element:
+            function:
+              function_name:
+                function_name_identifier: DATETRUNC
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  date_part: DAY
+                  comma: ','
+                  expression:
+                    column_reference:
+                    - naked_identifier: my_table
+                    - dot: .
+                    - naked_identifier: date
+                  end_bracket: )
+            alias_expression:
+              alias_operator:
+                keyword: AS
+              quoted_identifier: '[Today]'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: my_table
+    statement_terminator: ;

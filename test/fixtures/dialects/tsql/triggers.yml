@@ -1,0 +1,740 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: b58e0c490b0e21c3c38931d514f207da53fe5c0938942d65f0fcef5c4daea889
+file:
+- batch:
+    statement:
+      create_trigger:
+      - keyword: CREATE
+      - keyword: TRIGGER
+      - trigger_reference:
+          naked_identifier: reminder1
+      - keyword: 'ON'
+      - table_reference:
+        - naked_identifier: Sales
+        - dot: .
+        - naked_identifier: Customer
+      - keyword: AFTER
+      - keyword: INSERT
+      - comma: ','
+      - keyword: UPDATE
+      - keyword: AS
+      - statement:
+          raiserror_statement:
+            keyword: RAISERROR
+            bracketed:
+            - start_bracket: (
+            - quoted_literal: "'Notify Customer Relations'"
+            - comma: ','
+            - numeric_literal: '16'
+            - comma: ','
+            - numeric_literal: '10'
+            - end_bracket: )
+      - statement_terminator: ;
+    go_statement:
+      keyword: GO
+- batch:
+    statement:
+      create_trigger:
+      - keyword: CREATE
+      - keyword: TRIGGER
+      - trigger_reference:
+          naked_identifier: reminder2
+      - keyword: 'ON'
+      - table_reference:
+        - naked_identifier: Sales
+        - dot: .
+        - naked_identifier: Customer
+      - keyword: AFTER
+      - keyword: INSERT
+      - comma: ','
+      - keyword: UPDATE
+      - comma: ','
+      - keyword: DELETE
+      - keyword: AS
+      - statement:
+          execute_script_statement:
+          - keyword: EXEC
+          - object_reference:
+            - naked_identifier: msdb
+            - dot: .
+            - naked_identifier: dbo
+            - dot: .
+            - naked_identifier: sp_send_dbmail
+          - parameter: '@profile_name'
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - expression:
+              quoted_literal: "'AdventureWorks2012 Administrator'"
+          - comma: ','
+          - parameter: '@recipients'
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - expression:
+              quoted_literal: "'danw@Adventure-Works.com'"
+          - comma: ','
+          - parameter: '@body'
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - expression:
+              quoted_literal: "'Don''t forget to print a report for the sales force.'"
+          - comma: ','
+          - parameter: '@subject'
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - expression:
+              quoted_literal: "'Reminder'"
+      - statement_terminator: ;
+    go_statement:
+      keyword: GO
+- batch:
+    statement:
+      create_trigger:
+      - keyword: CREATE
+      - keyword: TRIGGER
+      - trigger_reference:
+        - naked_identifier: Purchasing
+        - dot: .
+        - naked_identifier: LowCredit
+      - keyword: 'ON'
+      - table_reference:
+        - naked_identifier: Purchasing
+        - dot: .
+        - naked_identifier: PurchaseOrderHeader
+      - keyword: AFTER
+      - keyword: INSERT
+      - keyword: AS
+      - statement:
+          if_then_statement:
+            if_clause:
+              keyword: IF
+              expression:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    function:
+                      function_name:
+                        function_name_identifier: ROWCOUNT_BIG
+                      function_contents:
+                        bracketed:
+                          start_bracket: (
+                          end_bracket: )
+                    comparison_operator:
+                      raw_comparison_operator: '='
+                    integer_literal: '0'
+                  end_bracket: )
+            statement:
+              return_segment:
+                keyword: RETURN
+            statement_terminator: ;
+      - statement:
+          if_then_statement:
+            if_clause:
+              keyword: IF
+              expression:
+                keyword: EXISTS
+                bracketed:
+                  start_bracket: (
+                  select_statement:
+                    select_clause:
+                      keyword: SELECT
+                      select_clause_element:
+                        integer_literal: '1'
+                    from_clause:
+                      keyword: FROM
+                      from_expression:
+                        from_expression_element:
+                          table_expression:
+                            table_reference:
+                              naked_identifier: inserted
+                          alias_expression:
+                            alias_operator:
+                              keyword: AS
+                            naked_identifier: i
+                        join_clause:
+                          keyword: JOIN
+                          from_expression_element:
+                            table_expression:
+                              table_reference:
+                              - naked_identifier: Purchasing
+                              - dot: .
+                              - naked_identifier: Vendor
+                            alias_expression:
+                              alias_operator:
+                                keyword: AS
+                              naked_identifier: v
+                          join_on_condition:
+                            keyword: 'ON'
+                            expression:
+                            - column_reference:
+                              - naked_identifier: v
+                              - dot: .
+                              - naked_identifier: BusinessEntityID
+                            - comparison_operator:
+                                raw_comparison_operator: '='
+                            - column_reference:
+                              - naked_identifier: i
+                              - dot: .
+                              - naked_identifier: VendorID
+                    where_clause:
+                      keyword: WHERE
+                      expression:
+                        column_reference:
+                        - naked_identifier: v
+                        - dot: .
+                        - naked_identifier: CreditRating
+                        comparison_operator:
+                          raw_comparison_operator: '='
+                        integer_literal: '5'
+                  end_bracket: )
+            statement:
+              begin_end_block:
+              - keyword: BEGIN
+              - statement:
+                  raiserror_statement:
+                    keyword: RAISERROR
+                    bracketed:
+                    - start_bracket: (
+                    - quoted_literal: "'A vendor''s credit rating is too low to accept\
+                        \ new\npurchase orders.'"
+                    - comma: ','
+                    - numeric_literal: '16'
+                    - comma: ','
+                    - numeric_literal: '1'
+                    - end_bracket: )
+              - statement_terminator: ;
+              - statement:
+                  transaction_statement:
+                  - keyword: ROLLBACK
+                  - keyword: TRANSACTION
+              - statement_terminator: ;
+              - statement:
+                  return_segment:
+                    keyword: RETURN
+              - keyword: END
+            statement_terminator: ;
+    go_statement:
+      keyword: GO
+- batch:
+    statement:
+      create_trigger:
+      - keyword: CREATE
+      - keyword: TRIGGER
+      - trigger_reference:
+          naked_identifier: safety
+      - keyword: 'ON'
+      - keyword: DATABASE
+      - keyword: FOR
+      - naked_identifier: DROP_SYNONYM
+      - keyword: AS
+      - statement:
+          if_then_statement:
+            if_clause:
+              keyword: IF
+              expression:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    system_variable: '@@ROWCOUNT'
+                    comparison_operator:
+                      raw_comparison_operator: '='
+                    integer_literal: '0'
+                  end_bracket: )
+            statement:
+              return_segment:
+                keyword: RETURN
+            statement_terminator: ;
+      - statement:
+          raiserror_statement:
+            keyword: RAISERROR
+            bracketed:
+            - start_bracket: (
+            - quoted_literal: "'You must disable Trigger \"safety\" to remove synonyms!'"
+            - comma: ','
+            - numeric_literal: '10'
+            - comma: ','
+            - numeric_literal: '1'
+            - end_bracket: )
+      - statement:
+          transaction_statement:
+            keyword: ROLLBACK
+    go_statement:
+      keyword: GO
+- batch:
+    statement:
+      drop_trigger:
+      - keyword: DROP
+      - keyword: TRIGGER
+      - trigger_reference:
+          naked_identifier: safety
+      - keyword: 'ON'
+      - keyword: DATABASE
+    statement_terminator: ;
+    go_statement:
+      keyword: GO
+- batch:
+    statement:
+      create_trigger:
+      - keyword: CREATE
+      - keyword: TRIGGER
+      - trigger_reference:
+          naked_identifier: ddl_trig_database
+      - keyword: 'ON'
+      - keyword: ALL
+      - keyword: SERVER
+      - keyword: FOR
+      - naked_identifier: CREATE_DATABASE
+      - keyword: AS
+      - statement:
+          print_statement:
+            keyword: PRINT
+            expression:
+              quoted_literal: "'Database Created.'"
+      - statement:
+          select_statement:
+            select_clause:
+              keyword: SELECT
+              select_clause_element:
+                integer_literal: '1'
+    go_statement:
+      keyword: GO
+- batch:
+    statement:
+      create_trigger:
+      - keyword: CREATE
+      - keyword: TRIGGER
+      - trigger_reference:
+          naked_identifier: ddl_trig_database
+      - keyword: 'ON'
+      - keyword: ALL
+      - keyword: SERVER
+      - keyword: FOR
+      - naked_identifier: CREATE_DATABASE
+      - keyword: AS
+      - statement:
+          print_statement:
+            keyword: PRINT
+            expression:
+              quoted_literal: "'Database Created.'"
+      - statement_terminator: ;
+      - statement:
+          select_statement:
+            select_clause:
+              keyword: SELECT
+              select_clause_element:
+                integer_literal: '1'
+    go_statement:
+      keyword: GO
+- batch:
+    statement:
+      drop_trigger:
+      - keyword: DROP
+      - keyword: TRIGGER
+      - trigger_reference:
+          naked_identifier: ddl_trig_database
+      - keyword: 'ON'
+      - keyword: ALL
+      - keyword: SERVER
+    statement_terminator: ;
+    go_statement:
+      keyword: GO
+- batch:
+    statement:
+      create_trigger:
+      - keyword: CREATE
+      - keyword: TRIGGER
+      - trigger_reference:
+          naked_identifier: connection_limit_trigger
+      - keyword: 'ON'
+      - keyword: ALL
+      - keyword: SERVER
+      - keyword: WITH
+      - execute_as_clause:
+        - keyword: EXECUTE
+        - keyword: AS
+        - quoted_identifier: "'login_test'"
+      - keyword: FOR
+      - naked_identifier: LOGON
+      - keyword: AS
+      - statement:
+          begin_end_block:
+          - keyword: BEGIN
+          - statement:
+              if_then_statement:
+                if_clause:
+                  keyword: IF
+                  expression:
+                  - function:
+                      function_name:
+                        function_name_identifier: ORIGINAL_LOGIN
+                      function_contents:
+                        bracketed:
+                          start_bracket: (
+                          end_bracket: )
+                  - comparison_operator:
+                      raw_comparison_operator: '='
+                  - quoted_literal: "'login_test'"
+                  - binary_operator: AND
+                  - bracketed:
+                      start_bracket: (
+                      expression:
+                        select_statement:
+                          select_clause:
+                            keyword: SELECT
+                            select_clause_element:
+                              function:
+                                function_name:
+                                  function_name_identifier: COUNT
+                                function_contents:
+                                  bracketed:
+                                    start_bracket: (
+                                    star: '*'
+                                    end_bracket: )
+                          from_clause:
+                            keyword: FROM
+                            from_expression:
+                              from_expression_element:
+                                table_expression:
+                                  table_reference:
+                                  - naked_identifier: sys
+                                  - dot: .
+                                  - naked_identifier: dm_exec_sessions
+                          where_clause:
+                            keyword: WHERE
+                            expression:
+                            - column_reference:
+                                naked_identifier: is_user_process
+                            - comparison_operator:
+                                raw_comparison_operator: '='
+                            - integer_literal: '1'
+                            - binary_operator: AND
+                            - column_reference:
+                                naked_identifier: original_login_name
+                            - comparison_operator:
+                                raw_comparison_operator: '='
+                            - quoted_literal: "'login_test'"
+                      end_bracket: )
+                  - comparison_operator:
+                      raw_comparison_operator: '>'
+                  - integer_literal: '3'
+                statement:
+                  transaction_statement:
+                    keyword: ROLLBACK
+                statement_terminator: ;
+          - keyword: END
+      - statement_terminator: ;
+    go_statement:
+      keyword: GO
+- batch:
+    statement:
+      create_trigger:
+      - keyword: Create
+      - keyword: TRIGGER
+      - trigger_reference:
+        - naked_identifier: dbo
+        - dot: .
+        - naked_identifier: tr_SP_BALS_L2_ATTRIBUTES
+      - keyword: 'ON'
+      - table_reference:
+        - naked_identifier: dbo
+        - dot: .
+        - naked_identifier: SP_BALS_L2_ATTRIBUTES
+      - keyword: AFTER
+      - keyword: UPDATE
+      - keyword: AS
+      - statement:
+          update_statement:
+            keyword: UPDATE
+            table_reference:
+            - naked_identifier: dbo
+            - dot: .
+            - naked_identifier: SP_BALS_L2_ATTRIBUTES
+            set_clause_list:
+              keyword: SET
+              set_clause:
+                column_reference:
+                  naked_identifier: PDW_LAST_UPDATED
+                assignment_operator:
+                  raw_comparison_operator: '='
+                expression:
+                  function:
+                    function_name:
+                      function_name_identifier: Getdate
+                    function_contents:
+                      bracketed:
+                        start_bracket: (
+                        end_bracket: )
+            from_clause:
+              keyword: FROM
+              from_expression:
+                from_expression_element:
+                  table_expression:
+                    table_reference:
+                    - naked_identifier: dbo
+                    - dot: .
+                    - naked_identifier: SP_BALS_L2_ATTRIBUTES
+                  alias_expression:
+                    naked_identifier: o
+                join_clause:
+                - keyword: INNER
+                - keyword: JOIN
+                - from_expression_element:
+                    table_expression:
+                      table_reference:
+                        naked_identifier: Inserted
+                    alias_expression:
+                      naked_identifier: i
+                - join_on_condition:
+                    keyword: 'ON'
+                    expression:
+                    - column_reference:
+                      - naked_identifier: o
+                      - dot: .
+                      - naked_identifier: PK_L2_BALS
+                    - comparison_operator:
+                        raw_comparison_operator: '='
+                    - column_reference:
+                      - naked_identifier: i
+                      - dot: .
+                      - naked_identifier: PK_L2_BALS
+    go_statement:
+      keyword: go
+- batch:
+    statement:
+      disable_trigger:
+      - keyword: disable
+      - keyword: trigger
+      - trigger_reference:
+        - naked_identifier: dbo
+        - dot: .
+        - naked_identifier: tr_SP_BALS_L2_ATTRIBUTES
+      - keyword: 'on'
+      - object_reference:
+        - naked_identifier: dbo
+        - dot: .
+        - naked_identifier: SP_BALS_L2_ATTRIBUTES
+    go_statement:
+      keyword: go
+- batch:
+    statement:
+      create_trigger:
+      - keyword: Create
+      - keyword: TRIGGER
+      - trigger_reference:
+        - naked_identifier: dbo
+        - dot: .
+        - naked_identifier: tr_u_SP_BALS_L2_ATTRIBUTES
+      - keyword: 'ON'
+      - table_reference:
+        - naked_identifier: dbo
+        - dot: .
+        - naked_identifier: SP_BALS_L2_ATTRIBUTES
+      - keyword: AFTER
+      - keyword: UPDATE
+      - keyword: AS
+      - statement:
+          update_statement:
+            keyword: UPDATE
+            table_reference:
+            - naked_identifier: dbo
+            - dot: .
+            - naked_identifier: SP_BALS_L2_ATTRIBUTES
+            set_clause_list:
+              keyword: SET
+              set_clause:
+                column_reference:
+                  naked_identifier: PDW_LAST_UPDATED
+                assignment_operator:
+                  raw_comparison_operator: '='
+                expression:
+                  function:
+                    function_name:
+                      function_name_identifier: sysdatetime
+                    function_contents:
+                      bracketed:
+                        start_bracket: (
+                        end_bracket: )
+            from_clause:
+              keyword: FROM
+              from_expression:
+                from_expression_element:
+                  table_expression:
+                    table_reference:
+                    - naked_identifier: dbo
+                    - dot: .
+                    - naked_identifier: SP_BALS_L2_ATTRIBUTES
+                  alias_expression:
+                    naked_identifier: o
+                join_clause:
+                - keyword: INNER
+                - keyword: JOIN
+                - from_expression_element:
+                    table_expression:
+                      table_reference:
+                        naked_identifier: Inserted
+                    alias_expression:
+                      naked_identifier: i
+                - join_on_condition:
+                    keyword: 'ON'
+                    expression:
+                    - column_reference:
+                      - naked_identifier: o
+                      - dot: .
+                      - naked_identifier: PK_L2_BALS
+                    - comparison_operator:
+                        raw_comparison_operator: '='
+                    - column_reference:
+                      - naked_identifier: i
+                      - dot: .
+                      - naked_identifier: PK_L2_BALS
+    go_statement:
+      keyword: GO
+- batch:
+    statement:
+      drop_trigger:
+      - keyword: DROP
+      - keyword: TRIGGER
+      - trigger_reference:
+          naked_identifier: employee_insupd
+    statement_terminator: ;
+    go_statement:
+      keyword: GO
+- batch:
+    statement:
+      drop_trigger:
+      - keyword: DROP
+      - keyword: TRIGGER
+      - trigger_reference:
+          naked_identifier: safety
+      - keyword: 'ON'
+      - keyword: DATABASE
+    statement_terminator: ;
+    go_statement:
+      keyword: GO
+- batch:
+    statement:
+      disable_trigger:
+      - keyword: disable
+      - keyword: trigger
+      - trigger_reference:
+        - naked_identifier: dbo
+        - dot: .
+        - naked_identifier: tr_u_SP_BALS_L2_ATTRIBUTES
+      - keyword: 'on'
+      - object_reference:
+        - naked_identifier: dbo
+        - dot: .
+        - naked_identifier: SP_BALS_L2_ATTRIBUTES
+    go_statement:
+      keyword: GO
+- batch:
+    statement:
+      disable_trigger:
+      - keyword: DISABLE
+      - keyword: TRIGGER
+      - trigger_reference:
+          naked_identifier: safety
+      - keyword: 'ON'
+      - keyword: DATABASE
+    statement_terminator: ;
+    go_statement:
+      keyword: GO
+- batch:
+    statement:
+      create_trigger:
+      - keyword: CREATE
+      - keyword: OR
+      - keyword: ALTER
+      - keyword: TRIGGER
+      - trigger_reference:
+          naked_identifier: reminder1
+      - keyword: 'ON'
+      - table_reference:
+        - naked_identifier: Sales
+        - dot: .
+        - naked_identifier: Customer
+      - keyword: AFTER
+      - keyword: INSERT
+      - comma: ','
+      - keyword: UPDATE
+      - keyword: AS
+      - statement:
+          raiserror_statement:
+            keyword: RAISERROR
+            bracketed:
+            - start_bracket: (
+            - quoted_literal: "'Notify Customer Relations'"
+            - comma: ','
+            - numeric_literal: '16'
+            - comma: ','
+            - numeric_literal: '10'
+            - end_bracket: )
+      - statement_terminator: ;
+    go_statement:
+      keyword: GO
+- batch:
+    statement:
+      create_trigger:
+      - keyword: CREATE
+      - keyword: TRIGGER
+      - trigger_reference:
+          naked_identifier: reminder
+      - keyword: 'ON'
+      - table_reference:
+        - naked_identifier: person
+        - dot: .
+        - naked_identifier: address
+      - keyword: AFTER
+      - keyword: UPDATE
+      - keyword: AS
+      - statement:
+          if_then_statement:
+            if_clause:
+              keyword: IF
+              expression:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                  - function:
+                      function_name:
+                        function_name_identifier: UPDATE
+                      function_contents:
+                        bracketed:
+                          start_bracket: (
+                          expression:
+                            column_reference:
+                              naked_identifier: stateprovinceid
+                          end_bracket: )
+                  - binary_operator: OR
+                  - function:
+                      function_name:
+                        function_name_identifier: UPDATE
+                      function_contents:
+                        bracketed:
+                          start_bracket: (
+                          expression:
+                            column_reference:
+                              naked_identifier: postalcode
+                          end_bracket: )
+                  end_bracket: )
+            statement:
+              begin_end_block:
+              - keyword: BEGIN
+              - statement:
+                  raiserror_statement:
+                    keyword: RAISERROR
+                    bracketed:
+                    - start_bracket: (
+                    - numeric_literal: '50009'
+                    - comma: ','
+                    - numeric_literal: '16'
+                    - comma: ','
+                    - numeric_literal: '10'
+                    - end_bracket: )
+              - keyword: END
+            statement_terminator: ;
+    go_statement:
+      keyword: GO

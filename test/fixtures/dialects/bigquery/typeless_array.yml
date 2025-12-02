@@ -1,0 +1,51 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: b8ef4ac012c633809377a4f716c9b75ed3678fdc82505ccec3b237d9dd7c0f7a
+file:
+  statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+            array_expression:
+              function_name:
+                function_name_identifier: ARRAY
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  set_expression:
+                  - select_statement:
+                      select_clause:
+                        keyword: SELECT
+                        select_clause_element:
+                          column_reference:
+                            naked_identifier: c
+                      from_clause:
+                        keyword: FROM
+                        from_expression:
+                          from_expression_element:
+                            table_expression:
+                              table_reference:
+                                naked_identifier: number1
+                  - set_operator:
+                    - keyword: UNION
+                    - keyword: ALL
+                  - select_statement:
+                      select_clause:
+                        keyword: SELECT
+                        select_clause_element:
+                          column_reference:
+                            naked_identifier: c
+                      from_clause:
+                        keyword: FROM
+                        from_expression:
+                          from_expression_element:
+                            table_expression:
+                              table_reference:
+                                naked_identifier: number2
+                  end_bracket: )
+  statement_terminator: ;

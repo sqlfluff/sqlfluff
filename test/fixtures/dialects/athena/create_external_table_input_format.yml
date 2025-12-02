@@ -1,0 +1,78 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: c0112e4b1374744bea18f7bc4cee2caf76d052a8e188a6b5a88d1f668a728e47
+file:
+  statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: EXTERNAL
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: my_table
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          naked_identifier: col_1
+          data_type:
+            primitive_type:
+              keyword: string
+      - comma: ','
+      - column_definition:
+          naked_identifier: col_2
+          data_type:
+            primitive_type:
+              keyword: boolean
+      - comma: ','
+      - column_definition:
+          naked_identifier: col_3
+          data_type:
+            primitive_type:
+              keyword: bigint
+      - comma: ','
+      - column_definition:
+          naked_identifier: col_4
+          data_type:
+            primitive_type:
+              keyword: string
+      - comma: ','
+      - column_definition:
+          naked_identifier: col_5
+          data_type:
+            primitive_type:
+              keyword: string
+      - end_bracket: )
+    - keyword: PARTITIONED
+    - keyword: BY
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          naked_identifier: field_partition
+          data_type:
+            primitive_type:
+              keyword: string
+        end_bracket: )
+    - row_format_clause:
+      - keyword: ROW
+      - keyword: FORMAT
+      - keyword: SERDE
+      - quoted_literal: "'some row format'"
+    - keyword: STORED
+    - keyword: AS
+    - keyword: INPUTFORMAT
+    - quoted_literal: "'some input format'"
+    - keyword: OUTPUTFORMAT
+    - quoted_literal: "'some output format'"
+    - keyword: LOCATION
+    - quoted_literal: "'s3://athena-examples-myregion/some_data/'"
+    - keyword: TBLPROPERTIES
+    - bracketed:
+      - start_bracket: (
+      - quoted_literal: "'has_encrypted_data'"
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'true'"
+      - end_bracket: )
+  statement_terminator: ;

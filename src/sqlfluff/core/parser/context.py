@@ -10,79 +10,23 @@ and match depth of the current operation.
 
 import logging
 import uuid
+from collections import defaultdict
+from collections.abc import Iterator, Sequence
+from contextlib import contextmanager
+from typing import TYPE_CHECKING, Any, NoReturn, Optional
+
+from tqdm import tqdm
+
+from sqlfluff.core.config import progress_bar_configuration
+
+if TYPE_CHECKING:  # pragma: no cover
+    from sqlfluff.core.config import FluffConfig
+    from sqlfluff.core.dialects.base import Dialect
+    from sqlfluff.core.parser.match_result import MatchResult
+    from sqlfluff.core.parser.matchable import Matchable
 
 # Get the parser logger
-from typing import Dict
-
 parser_logger = logging.getLogger("sqlfluff.parser")
-
-
-class RootParseContext:
-    """Object to handle the context at hand during parsing.
-
-    The root context holds the persistent config which stays
-    consistent through a parsing operation. It also produces
-    the individual contexts that are used at different layers.
-
-    Each ParseContext maintains a reference to the RootParseContext
-    which created it so that it can refer to config within it.
-    """
-
-    def __init__(self, dialect, indentation_config=None, recurse=True):
-        """Store persistent config objects."""
-        self.dialect = dialect
-        self.recurse = recurse
-        # Indentation config is used by Indent and Dedent and used to control
-        # the intended indentation of certain features. Specifically it is
-        # used in the Conditional grammar.
-        self.indentation_config = indentation_config or {}
-        # Initialise the denylist
-        self.denylist = ParseDenylist()
-        # This is the logger that child objects will latch onto.
-        self.logger = parser_logger
-        # A uuid for this parse context to enable cache invalidation
-        self.uuid = uuid.uuid4()
-
-    @classmethod
-    def from_config(cls, config, **overrides: Dict[str, bool]) -> "RootParseContext":
-        """Construct a `RootParseContext` from a `FluffConfig`."""
-        indentation_config = config.get_section("indentation") or {}
-        try:
-            indentation_config = {k: bool(v) for k, v in indentation_config.items()}
-        except TypeError:  # pragma: no cover
-            raise TypeError(
-                "One of the configuration keys in the `indentation` section is not True or False: {!r}".format(
-                    indentation_config
-                )
-            )
-        ctx = cls(
-            dialect=config.get("dialect_obj"),
-            recurse=config.get("recurse"),
-            indentation_config=indentation_config,
-        )
-        # Set any overrides in the creation
-        for key in overrides:
-            if overrides[key] is not None:
-                setattr(ctx, key, overrides[key])
-        return ctx
-
-    def __enter__(self):
-        """Enter into the context.
-
-        Here we return a basic ParseContext with initial values,
-        initialising just the recurse value.
-
-        Note: The RootParseContext is usually entered at the beginning
-        of the parse operation as follows::
-
-            with RootParseContext.from_config(...) as ctx:
-                parsed = file_segment.parse(parse_context=ctx)
-        """
-        return ParseContext(root_ctx=self, recurse=self.recurse)
-
-    def __exit__(self, type, value, traceback):
-        """Clear up the context."""
-        pass
 
 
 class ParseContext:
@@ -96,114 +40,273 @@ class ParseContext:
     The manipulation of the stack config is done using a context
     manager and layered config objects inside the context.
 
+    NOTE: We use context managers here to avoid _copying_
+    the context, just to mutate it safely. This is significantly
+    more performant than the copy operation, but does require some
+    care to use properly.
+
     When fetching elements from the context, we first look
     at the top level stack config object and the persistent
     config values (stored as attributes of the ParseContext
     itself).
     """
 
-    # We create a destroy many ParseContexts so we limit the slots
-    # to improve performance.
-    __slots__ = ["match_depth", "parse_depth", "match_segment", "recurse", "_root_ctx"]
+    def __init__(
+        self,
+        dialect: "Dialect",
+        indentation_config: Optional[dict[str, Any]] = None,
+    ) -> None:
+        """Initialize a new instance of the class.
 
-    def __init__(self, root_ctx, recurse=True):
-        self._root_ctx = root_ctx
-        self.recurse = recurse
+        Args:
+            dialect (Dialect): The dialect used for parsing.
+            indentation_config (Optional[dict[str, Any]], optional): The indentation
+                configuration used by Indent and Dedent to control the intended
+                indentation of certain features. Defaults to None.
+        """
+        self.dialect = dialect
+        # Indentation config is used by Indent and Dedent and used to control
+        # the intended indentation of certain features. Specifically it is
+        # used in the Conditional grammar.
+        self.indentation_config = indentation_config or {}
+        # This is the logger that child objects will latch onto.
+        self.logger = parser_logger
+        # A uuid for this parse context to enable cache invalidation
+        self.uuid = uuid.uuid4()
+        # A dict for parse caching. This is reset for each file,
+        # but persists for the duration of an individual file parse.
+        self._parse_cache: dict[tuple[Any, ...], "MatchResult"] = {}
+        # A dictionary for keeping track of some statistics on parsing
+        # for performance optimisation.
+        # Focused around BaseGrammar._longest_trimmed_match().
+        # Initialise only with "next_counts", the rest will be int
+        # and are dealt with in .increment().
+        self.parse_stats: dict[str, Any] = {"next_counts": defaultdict(int)}
         # The following attributes are only accessible via a copy
         # and not in the init method.
-        self.match_segment = None
+        # NOTE: We default to the name `File` which is not
+        # particularly informative, does indicate the root segment.
+        self.match_segment: str = "File"
+        self._match_stack: list[str] = []
+        self._parse_stack: list[str] = []
         self.match_depth = 0
         self.parse_depth = 0
+        # self.terminators is a tuple to afford some level of isolation
+        # and protection from edits to outside the context. This introduces
+        # a little more overhead than a list, but we manage this by only
+        # copying it when necessary.
+        # NOTE: Includes inherited parent terminators.
+        self.terminators: tuple["Matchable", ...] = ()
+        # Value for holding a reference to the progress bar.
+        self._tqdm: Optional[tqdm[NoReturn]] = None
+        # Variable to store whether we're tracking progress. When looking
+        # ahead to terminators or suchlike, we set this to False so as not
+        # to confuse the progress bar.
+        self.track_progress = True
+        # The current character, to store where the progress bar is at.
+        self._current_char = 0
 
-    def __getattr__(self, name):
-        """If the attribute doesn't exist on this, revert to the root."""
+    @classmethod
+    def from_config(cls, config: "FluffConfig") -> "ParseContext":
+        """Construct a `ParseContext` from a `FluffConfig`.
+
+        Args:
+            config (FluffConfig): The configuration object.
+
+        Returns:
+            ParseContext: The constructed ParseContext object.
+        """
+        indentation_config = config.get_section("indentation") or {}
         try:
-            return getattr(self._root_ctx, name)
-        except AttributeError:  # pragma: no cover
-            raise AttributeError(
-                "Attribute {!r} not found in {!r} or {!r}".format(
-                    name, type(self).__name__, type(self._root_ctx).__name__
-                )
+            indentation_config = {k: bool(v) for k, v in indentation_config.items()}
+        except TypeError:  # pragma: no cover
+            raise TypeError(
+                "One of the configuration keys in the `indentation` section is not "
+                "True or False: {!r}".format(indentation_config)
             )
+        return cls(
+            dialect=config.get("dialect_obj"),
+            indentation_config=indentation_config,
+        )
 
-    def _copy(self):
-        """Mimic the copy.copy() method but restrict only to local vars."""
-        ctx = self.__class__(root_ctx=self._root_ctx)
-        for key in self.__slots__:
-            setattr(ctx, key, getattr(self, key))
-        return ctx
+    def _set_terminators(
+        self,
+        clear_terminators: bool = False,
+        push_terminators: Optional[Sequence["Matchable"]] = None,
+    ) -> tuple[int, tuple["Matchable", ...]]:
+        """Set the terminators used in the class.
 
-    def __enter__(self):
-        """Enter into the context.
+        This private method sets the terminators used in the class. If
+        `clear_terminators` is True and the existing terminators are not
+        already cleared, the method clears the terminators. If `push_terminators` is
+        provided, the method appends them to the existing terminators if they are not
+        already present.
 
-        For the ParseContext, this just returns itself, because
-        we already have the right kind of object.
+        Args:
+            clear_terminators (bool, optional): A flag indicating whether to clear the
+                existing terminators. Defaults to False.
+            push_terminators (Optional[Sequence["Matchable"]], optional): A sequence of
+                `Matchable` objects to be added as terminators.
+            Defaults to None.
+
+        Returns:
+            tuple[int, tuple["Matchable", ...]]: A tuple containing the
+            number of terminators appended and the original terminators.
         """
-        return self
+        _appended = 0
+        # Retain a reference to the original terminators.
+        _terminators = self.terminators
+        # Note: only need to reset if clear _and not already clear_.
+        if clear_terminators and self.terminators:
+            # NOTE: It's really important that we .copy() on the way in, because
+            # we don't know what else has a reference to the input list, and
+            # we rely a lot in this code on having full control over the
+            # list of terminators.
+            self.terminators = tuple(push_terminators) if push_terminators else ()
+        elif push_terminators:
+            # Yes, inefficient for now.
+            for terminator in push_terminators:
+                if terminator not in self.terminators:
+                    self.terminators += (terminator,)
+                    _appended += 1
+        return _appended, _terminators
 
-    def __exit__(self, type, value, traceback):
-        """Clear up the context."""
-        pass
+    def _reset_terminators(
+        self,
+        appended: int,
+        terminators: tuple["Matchable", ...],
+        clear_terminators: bool = False,
+    ) -> None:
+        """Reset the terminators attribute of the class.
 
-    def deeper_match(self):
-        """Return a copy with an incremented match depth."""
-        ctx = self._copy()
-        ctx.match_depth += 1
-        return ctx
+        This method is used to reset the terminators attribute of the
+        class. If the clear_terminators parameter is True, the terminators attribute
+        is set to the provided terminators. If the clear_terminators parameter is
+        False and the appended parameter is non-zero, the terminators attribute is
+        trimmed to its original length minus the value of the appended parameter.
 
-    def deeper_parse(self):
-        """Return a copy with an incremented parse depth."""
-        ctx = self._copy()
-        if not isinstance(ctx.recurse, bool):  # pragma: no cover TODO?
-            ctx.recurse -= 1
-        ctx.parse_depth += 1
-        ctx.match_depth = 0
-        return ctx
-
-    def may_recurse(self):
-        """Return True if allowed to recurse."""
-        return self.recurse > 1 or self.recurse is True
-
-    def matching_segment(self, name):
-        """Set the name of the current matching segment.
-
-        NB: We don't reset the match depth here.
+        Args:
+            appended (int): The number of terminators that were appended.
+            terminators (tuple["Matchable", ...]): The original terminators.
+            clear_terminators (bool, optional): If True, clear the terminators attribute
+                completely. Defaults to False.
         """
-        ctx = self._copy()
-        ctx.match_segment = name
-        return ctx
+        # If we totally reset them, just reinstate the old object.
+        if clear_terminators:
+            self.terminators = terminators
+        # If we didn't, then trim any added ones.
+        # NOTE: Because we dedupe, just because we had push_terminators
+        # doesn't mean any of them actually got added here - we only trim
+        # the number that actually got appended.
+        elif appended:
+            # Trim back to original length.
+            self.terminators = self.terminators[:-appended]
 
+    @contextmanager
+    def deeper_match(
+        self,
+        name: str,
+        clear_terminators: bool = False,
+        push_terminators: Optional[Sequence["Matchable"]] = None,
+        track_progress: Optional[bool] = None,
+    ) -> Iterator["ParseContext"]:
+        """Increment match depth.
 
-class ParseDenylist:
-    """Acts as a cache to stop unnecessary matching."""
-
-    def __init__(self):
-        self._denylist_struct = {}
-
-    def _hashed_version(self):  # pragma: no cover TODO?
-        return {
-            k: {hash(e) for e in self._denylist_struct[k]}
-            for k in self._denylist_struct
-        }
-
-    def check(self, seg_name, seg_tuple):
-        """Check this seg_tuple against this seg_name.
-
-        Has this seg_tuple already been matched
-        unsuccessfully against this segment name.
+        Args:
+            name (:obj:`str`): Name of segment we are starting to parse.
+                NOTE: This value is entirely used for tracking and logging
+                purposes.
+            clear_terminators (:obj:`bool`, optional): Whether to force
+                clear any inherited terminators. This is useful in structures
+                like brackets, where outer terminators shouldn't apply while
+                within. Terminators are stashed until we return back out of
+                this context.
+            push_terminators (:obj:`Sequence` of :obj:`Matchable`): Additional
+                terminators to add to the environment while in this context.
+            track_progress (:obj:`bool`, optional): Whether to pause progress
+                tracking for deeper matches. This avoids having the linting
+                progress bar jump forward when performing greedy matches on
+                terminators.
         """
-        if seg_name in self._denylist_struct:  # pragma: no cover TODO?
-            if seg_tuple in self._denylist_struct[seg_name]:
-                return True
-        return False
+        self._match_stack.append(self.match_segment)
+        self.match_segment = name
+        self.match_depth += 1
+        _append, _terms = self._set_terminators(clear_terminators, push_terminators)
+        _track_progress = self.track_progress
+        if track_progress is False:
+            self.track_progress = False
+        elif track_progress is True:  # pragma: no cover
+            # We can't go from False to True. Raise an issue if not.
+            assert self.track_progress is True, "Cannot set tracking from False to True"
+        try:
+            yield self
+        finally:
+            self._reset_terminators(
+                _append, _terms, clear_terminators=clear_terminators
+            )
+            self.match_depth -= 1
+            # Reset back to old name
+            self.match_segment = self._match_stack.pop()
+            # Reset back to old progress tracking.
+            self.track_progress = _track_progress
 
-    def mark(self, seg_name, seg_tuple):
-        """Mark this seg_tuple as not a match with this seg_name."""
-        if seg_name in self._denylist_struct:
-            self._denylist_struct[seg_name].add(seg_tuple)
-        else:
-            self._denylist_struct[seg_name] = {seg_tuple}
+    @contextmanager
+    def progress_bar(self, last_char: int) -> Iterator["ParseContext"]:
+        """Set up the progress bar (if it's not already set up).
 
-    def clear(self):
-        """Clear the denylist struct."""
-        self._denylist_struct = {}
+        Args:
+            last_char (:obj:`int`): The templated character position of the
+                final segment in the sequence. This is usually populated
+                from the end of `templated_slice` on the final segment.
+                We require this on initialising the progress bar so that
+                we know how far there is to go as we track progress through
+                the file.
+        """
+        assert not self._tqdm, "Attempted to re-initialise progressbar."
+        self._tqdm = tqdm(
+            # Progress is character by character in the *templated* file.
+            total=last_char,
+            desc="parsing",
+            miniters=1,
+            mininterval=0.2,
+            disable=progress_bar_configuration.disable_progress_bar,
+            leave=False,
+        )
+
+        try:
+            yield self
+        finally:
+            self._tqdm.close()
+
+    def update_progress(self, char_idx: int) -> None:
+        """Update the progress bar if configured.
+
+        If progress isn't configured, we do nothing.
+        If `track_progress` is false we do nothing.
+        """
+        if not self._tqdm or not self.track_progress:
+            return None
+        if char_idx <= self._current_char:
+            return None
+        self._tqdm.update(char_idx - self._current_char)
+        self._current_char = char_idx
+        return None
+
+    def stack(self) -> tuple[tuple[str, ...], tuple[str, ...]]:  # pragma: no cover
+        """Return stacks as a tuples so that it can't be edited."""
+        return tuple(self._parse_stack), tuple(self._match_stack)
+
+    def check_parse_cache(
+        self, loc_key: tuple[Any, ...], matcher_key: str
+    ) -> Optional["MatchResult"]:
+        """Check against the parse cache for a pre-existing match.
+
+        If no match is found in the cache, this returns None.
+        """
+        return self._parse_cache.get((loc_key, matcher_key))
+
+    def put_parse_cache(
+        self, loc_key: tuple[Any, ...], matcher_key: str, match: "MatchResult"
+    ) -> None:
+        """Store a match in the cache for later retrieval."""
+        self._parse_cache[(loc_key, matcher_key)] = match

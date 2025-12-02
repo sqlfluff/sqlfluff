@@ -1,0 +1,723 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 8ccf6bc5f00c697fe4ccc0dfb790d4fe997c5da83b3595b2c28583be696a103e
+file:
+- statement:
+    merge_statement:
+    - keyword: MERGE
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: people10m
+    - keyword: USING
+    - table_reference:
+        naked_identifier: people10mupdates
+    - join_on_condition:
+        keyword: 'ON'
+        expression:
+        - column_reference:
+          - naked_identifier: people10m
+          - dot: .
+          - naked_identifier: id
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - column_reference:
+          - naked_identifier: people10mupdates
+          - dot: .
+          - naked_identifier: id
+    - merge_match:
+        merge_when_matched_clause:
+        - keyword: WHEN
+        - keyword: MATCHED
+        - keyword: THEN
+        - merge_update_clause:
+            keyword: UPDATE
+            set_clause_list:
+            - keyword: SET
+            - set_clause:
+              - column_reference:
+                  naked_identifier: id
+              - comparison_operator:
+                  raw_comparison_operator: '='
+              - column_reference:
+                - naked_identifier: people10mupdates
+                - dot: .
+                - naked_identifier: id
+            - comma: ','
+            - set_clause:
+              - column_reference:
+                  naked_identifier: first_name
+              - comparison_operator:
+                  raw_comparison_operator: '='
+              - column_reference:
+                - naked_identifier: people10mupdates
+                - dot: .
+                - naked_identifier: first_name
+            - comma: ','
+            - set_clause:
+              - column_reference:
+                  naked_identifier: middle_name
+              - comparison_operator:
+                  raw_comparison_operator: '='
+              - column_reference:
+                - naked_identifier: people10mupdates
+                - dot: .
+                - naked_identifier: middle_name
+            - comma: ','
+            - set_clause:
+              - column_reference:
+                  naked_identifier: last_name
+              - comparison_operator:
+                  raw_comparison_operator: '='
+              - column_reference:
+                - naked_identifier: people10mupdates
+                - dot: .
+                - naked_identifier: last_name
+            - comma: ','
+            - set_clause:
+              - column_reference:
+                  naked_identifier: gender
+              - comparison_operator:
+                  raw_comparison_operator: '='
+              - column_reference:
+                - naked_identifier: people10mupdates
+                - dot: .
+                - naked_identifier: gender
+            - comma: ','
+            - set_clause:
+              - column_reference:
+                  naked_identifier: birth_date
+              - comparison_operator:
+                  raw_comparison_operator: '='
+              - column_reference:
+                - naked_identifier: people10mupdates
+                - dot: .
+                - naked_identifier: birth_date
+            - comma: ','
+            - set_clause:
+              - column_reference:
+                  naked_identifier: ssn
+              - comparison_operator:
+                  raw_comparison_operator: '='
+              - column_reference:
+                - naked_identifier: people10mupdates
+                - dot: .
+                - naked_identifier: ssn
+            - comma: ','
+            - set_clause:
+              - column_reference:
+                  naked_identifier: salary
+              - comparison_operator:
+                  raw_comparison_operator: '='
+              - column_reference:
+                - naked_identifier: people10mupdates
+                - dot: .
+                - naked_identifier: salary
+        merge_when_not_matched_clause:
+        - keyword: WHEN
+        - keyword: NOT
+        - keyword: MATCHED
+        - keyword: THEN
+        - merge_insert_clause:
+            keyword: INSERT
+            bracketed:
+            - start_bracket: (
+            - column_reference:
+                naked_identifier: id
+            - comma: ','
+            - column_reference:
+                naked_identifier: first_name
+            - comma: ','
+            - column_reference:
+                naked_identifier: middle_name
+            - comma: ','
+            - column_reference:
+                naked_identifier: last_name
+            - comma: ','
+            - column_reference:
+                naked_identifier: gender
+            - comma: ','
+            - column_reference:
+                naked_identifier: birth_date
+            - comma: ','
+            - column_reference:
+                naked_identifier: ssn
+            - comma: ','
+            - column_reference:
+                naked_identifier: salary
+            - end_bracket: )
+            values_clause:
+              keyword: VALUES
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                  - naked_identifier: people10mupdates
+                  - dot: .
+                  - naked_identifier: id
+              - comma: ','
+              - expression:
+                  column_reference:
+                  - naked_identifier: people10mupdates
+                  - dot: .
+                  - naked_identifier: first_name
+              - comma: ','
+              - expression:
+                  column_reference:
+                  - naked_identifier: people10mupdates
+                  - dot: .
+                  - naked_identifier: middle_name
+              - comma: ','
+              - expression:
+                  column_reference:
+                  - naked_identifier: people10mupdates
+                  - dot: .
+                  - naked_identifier: last_name
+              - comma: ','
+              - expression:
+                  column_reference:
+                  - naked_identifier: people10mupdates
+                  - dot: .
+                  - naked_identifier: gender
+              - comma: ','
+              - expression:
+                  column_reference:
+                  - naked_identifier: people10mupdates
+                  - dot: .
+                  - naked_identifier: birth_date
+              - comma: ','
+              - expression:
+                  column_reference:
+                  - naked_identifier: people10mupdates
+                  - dot: .
+                  - naked_identifier: ssn
+              - comma: ','
+              - expression:
+                  column_reference:
+                  - naked_identifier: people10mupdates
+                  - dot: .
+                  - naked_identifier: salary
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+    merge_statement:
+    - keyword: MERGE
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: logs
+    - keyword: USING
+    - table_reference:
+        naked_identifier: new_deduped_logs
+    - join_on_condition:
+        keyword: 'ON'
+        expression:
+        - column_reference:
+          - naked_identifier: logs
+          - dot: .
+          - naked_identifier: unique_id
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - column_reference:
+          - naked_identifier: new_deduped_logs
+          - dot: .
+          - naked_identifier: unique_id
+    - merge_match:
+        merge_when_not_matched_clause:
+        - keyword: WHEN
+        - keyword: NOT
+        - keyword: MATCHED
+        - keyword: THEN
+        - merge_insert_clause:
+            keyword: INSERT
+            wildcard_identifier:
+              star: '*'
+- statement_terminator: ;
+- statement:
+    merge_statement:
+    - keyword: MERGE
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: logs
+    - keyword: USING
+    - table_reference:
+        naked_identifier: new_deduped_logs
+    - join_on_condition:
+        keyword: 'ON'
+        expression:
+        - column_reference:
+          - naked_identifier: logs
+          - dot: .
+          - naked_identifier: unique_id
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - column_reference:
+          - naked_identifier: new_deduped_logs
+          - dot: .
+          - naked_identifier: unique_id
+        - binary_operator: AND
+        - column_reference:
+          - naked_identifier: logs
+          - dot: .
+          - naked_identifier: date
+        - comparison_operator:
+            raw_comparison_operator: '>'
+        - function:
+            function_name:
+              function_name_identifier: current_date
+            function_contents:
+              bracketed:
+                start_bracket: (
+                end_bracket: )
+        - binary_operator: '-'
+        - interval_expression:
+            keyword: INTERVAL
+            interval_literal:
+              numeric_literal: '7'
+              date_part: DAYS
+    - merge_match:
+        merge_when_not_matched_clause:
+        - keyword: WHEN
+        - keyword: NOT
+        - keyword: MATCHED
+        - keyword: AND
+        - expression:
+            column_reference:
+            - naked_identifier: new_deduped_logs
+            - dot: .
+            - naked_identifier: date
+            comparison_operator:
+              raw_comparison_operator: '>'
+            function:
+              function_name:
+                function_name_identifier: current_date
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  end_bracket: )
+            binary_operator: '-'
+            interval_expression:
+              keyword: INTERVAL
+              interval_literal:
+                numeric_literal: '7'
+                date_part: DAYS
+        - keyword: THEN
+        - merge_insert_clause:
+            keyword: INSERT
+            wildcard_identifier:
+              star: '*'
+- statement_terminator: ;
+- statement:
+    merge_statement:
+    - keyword: MERGE
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: customers
+    - keyword: USING
+    - bracketed:
+        start_bracket: (
+        set_expression:
+        - select_statement:
+            select_clause:
+            - keyword: SELECT
+            - select_clause_element:
+                column_reference:
+                - naked_identifier: updates
+                - dot: .
+                - naked_identifier: customer_id
+                alias_expression:
+                  alias_operator:
+                    keyword: AS
+                  naked_identifier: merge_unique_key
+            - comma: ','
+            - select_clause_element:
+                wildcard_expression:
+                  wildcard_identifier:
+                    naked_identifier: updates
+                    dot: .
+                    star: '*'
+            from_clause:
+              keyword: FROM
+              from_expression:
+                from_expression_element:
+                  table_expression:
+                    table_reference:
+                      naked_identifier: updates
+        - set_operator:
+          - keyword: UNION
+          - keyword: ALL
+        - select_statement:
+            select_clause:
+            - keyword: SELECT
+            - select_clause_element:
+                null_literal: 'NULL'
+                alias_expression:
+                  alias_operator:
+                    keyword: AS
+                  naked_identifier: merge_unique_key
+            - comma: ','
+            - select_clause_element:
+                wildcard_expression:
+                  wildcard_identifier:
+                    naked_identifier: updates
+                    dot: .
+                    star: '*'
+            from_clause:
+              keyword: FROM
+              from_expression:
+                from_expression_element:
+                  table_expression:
+                    table_reference:
+                      naked_identifier: updates
+                join_clause:
+                - keyword: INNER
+                - keyword: JOIN
+                - from_expression_element:
+                    table_expression:
+                      table_reference:
+                        naked_identifier: customers
+                - join_on_condition:
+                    keyword: 'ON'
+                    expression:
+                    - column_reference:
+                      - naked_identifier: updates
+                      - dot: .
+                      - naked_identifier: customer_id
+                    - comparison_operator:
+                        raw_comparison_operator: '='
+                    - column_reference:
+                      - naked_identifier: customers
+                      - dot: .
+                      - naked_identifier: customer_id
+            where_clause:
+              keyword: WHERE
+              expression:
+              - column_reference:
+                - naked_identifier: customers
+                - dot: .
+                - naked_identifier: current
+              - comparison_operator:
+                  raw_comparison_operator: '='
+              - boolean_literal: 'TRUE'
+              - binary_operator: AND
+              - column_reference:
+                - naked_identifier: updates
+                - dot: .
+                - naked_identifier: address
+              - comparison_operator:
+                - raw_comparison_operator: '!'
+                - raw_comparison_operator: '='
+              - column_reference:
+                - naked_identifier: customers
+                - dot: .
+                - naked_identifier: address
+        end_bracket: )
+    - alias_expression:
+        naked_identifier: staged_updates
+    - join_on_condition:
+        keyword: 'ON'
+        expression:
+        - column_reference:
+          - naked_identifier: customers
+          - dot: .
+          - naked_identifier: customer_id
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - column_reference:
+            naked_identifier: merge_unique_key
+    - merge_match:
+        merge_when_matched_clause:
+        - keyword: WHEN
+        - keyword: MATCHED
+        - keyword: AND
+        - expression:
+          - column_reference:
+            - naked_identifier: customers
+            - dot: .
+            - naked_identifier: current
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - boolean_literal: 'TRUE'
+          - binary_operator: AND
+          - column_reference:
+            - naked_identifier: customers
+            - dot: .
+            - naked_identifier: address
+          - comparison_operator:
+            - raw_comparison_operator: '!'
+            - raw_comparison_operator: '='
+          - column_reference:
+            - naked_identifier: staged_updates
+            - dot: .
+            - naked_identifier: address
+        - keyword: THEN
+        - merge_update_clause:
+            keyword: UPDATE
+            set_clause_list:
+            - keyword: SET
+            - set_clause:
+                column_reference:
+                  naked_identifier: current
+                comparison_operator:
+                  raw_comparison_operator: '='
+                boolean_literal: 'FALSE'
+            - comma: ','
+            - set_clause:
+              - column_reference:
+                  naked_identifier: end_date
+              - comparison_operator:
+                  raw_comparison_operator: '='
+              - column_reference:
+                - naked_identifier: staged_updates
+                - dot: .
+                - naked_identifier: effective_date
+        merge_when_not_matched_clause:
+        - keyword: WHEN
+        - keyword: NOT
+        - keyword: MATCHED
+        - keyword: THEN
+        - merge_insert_clause:
+            keyword: INSERT
+            bracketed:
+            - start_bracket: (
+            - column_reference:
+                naked_identifier: customer_id
+            - comma: ','
+            - column_reference:
+                naked_identifier: address
+            - comma: ','
+            - column_reference:
+                naked_identifier: current
+            - comma: ','
+            - column_reference:
+                naked_identifier: effective_date
+            - comma: ','
+            - column_reference:
+                naked_identifier: end_date
+            - end_bracket: )
+            values_clause:
+              keyword: VALUES
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                  - naked_identifier: staged_updates
+                  - dot: .
+                  - naked_identifier: customer_id
+              - comma: ','
+              - expression:
+                  column_reference:
+                  - naked_identifier: staged_updates
+                  - dot: .
+                  - naked_identifier: address
+              - comma: ','
+              - expression:
+                  boolean_literal: 'TRUE'
+              - comma: ','
+              - expression:
+                  column_reference:
+                  - naked_identifier: staged_updates
+                  - dot: .
+                  - naked_identifier: effective_date
+              - comma: ','
+              - keyword: 'NULL'
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+    merge_statement:
+    - keyword: MERGE
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: target
+    - alias_expression:
+        naked_identifier: t
+    - keyword: USING
+    - bracketed:
+        start_bracket: (
+        select_statement:
+          select_clause:
+          - keyword: SELECT
+          - select_clause_element:
+              column_reference:
+              - naked_identifier: changes
+              - dot: .
+              - naked_identifier: unique_key
+          - comma: ','
+          - select_clause_element:
+              column_reference:
+              - naked_identifier: changes
+              - dot: .
+              - naked_identifier: latest
+              - dot: .
+              - naked_identifier: new_value
+              alias_expression:
+                alias_operator:
+                  keyword: AS
+                naked_identifier: new_value
+          - comma: ','
+          - select_clause_element:
+              column_reference:
+              - naked_identifier: changes
+              - dot: .
+              - naked_identifier: latest
+              - dot: .
+              - naked_identifier: deleted
+              alias_expression:
+                alias_operator:
+                  keyword: AS
+                naked_identifier: deleted
+          from_clause:
+            keyword: FROM
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  bracketed:
+                    start_bracket: (
+                    select_statement:
+                      select_clause:
+                      - keyword: SELECT
+                      - select_clause_element:
+                          column_reference:
+                            naked_identifier: unique_key
+                      - comma: ','
+                      - select_clause_element:
+                          function:
+                            function_name:
+                              function_name_identifier: max
+                            function_contents:
+                              bracketed:
+                                start_bracket: (
+                                expression:
+                                  function:
+                                    function_name:
+                                      function_name_identifier: struct
+                                    function_contents:
+                                      bracketed:
+                                      - start_bracket: (
+                                      - expression:
+                                          column_reference:
+                                            naked_identifier: change_time
+                                      - comma: ','
+                                      - expression:
+                                          column_reference:
+                                            naked_identifier: new_value
+                                      - comma: ','
+                                      - expression:
+                                          column_reference:
+                                            naked_identifier: deleted
+                                      - end_bracket: )
+                                end_bracket: )
+                          alias_expression:
+                            alias_operator:
+                              keyword: AS
+                            naked_identifier: latest
+                      from_clause:
+                        keyword: FROM
+                        from_expression:
+                          from_expression_element:
+                            table_expression:
+                              table_reference:
+                                naked_identifier: changes
+                      groupby_clause:
+                      - keyword: GROUP
+                      - keyword: BY
+                      - column_reference:
+                          naked_identifier: unique_key
+                    end_bracket: )
+        end_bracket: )
+    - alias_expression:
+        naked_identifier: s
+    - join_on_condition:
+        keyword: 'ON'
+        expression:
+        - column_reference:
+          - naked_identifier: s
+          - dot: .
+          - naked_identifier: unique_key
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - column_reference:
+          - naked_identifier: t
+          - dot: .
+          - naked_identifier: unique_key
+    - merge_match:
+      - merge_when_matched_clause:
+        - keyword: WHEN
+        - keyword: MATCHED
+        - keyword: AND
+        - expression:
+            column_reference:
+            - naked_identifier: s
+            - dot: .
+            - naked_identifier: deleted
+            comparison_operator:
+              raw_comparison_operator: '='
+            boolean_literal: 'TRUE'
+        - keyword: THEN
+        - merge_delete_clause:
+            keyword: DELETE
+      - merge_when_matched_clause:
+        - keyword: WHEN
+        - keyword: MATCHED
+        - keyword: THEN
+        - merge_update_clause:
+            keyword: UPDATE
+            set_clause_list:
+            - keyword: SET
+            - set_clause:
+              - column_reference:
+                  naked_identifier: unique_key
+              - comparison_operator:
+                  raw_comparison_operator: '='
+              - column_reference:
+                - naked_identifier: s
+                - dot: .
+                - naked_identifier: unique_key
+            - comma: ','
+            - set_clause:
+              - column_reference:
+                  naked_identifier: record_value
+              - comparison_operator:
+                  raw_comparison_operator: '='
+              - column_reference:
+                - naked_identifier: s
+                - dot: .
+                - naked_identifier: new_value
+      - merge_when_not_matched_clause:
+        - keyword: WHEN
+        - keyword: NOT
+        - keyword: MATCHED
+        - keyword: AND
+        - expression:
+            column_reference:
+            - naked_identifier: s
+            - dot: .
+            - naked_identifier: deleted
+            comparison_operator:
+              raw_comparison_operator: '='
+            boolean_literal: 'FALSE'
+        - keyword: THEN
+        - merge_insert_clause:
+            keyword: INSERT
+            bracketed:
+            - start_bracket: (
+            - column_reference:
+                naked_identifier: unique_key
+            - comma: ','
+            - column_reference:
+                naked_identifier: record_value
+            - end_bracket: )
+            values_clause:
+              keyword: VALUES
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                    naked_identifier: unique_key
+              - comma: ','
+              - expression:
+                  column_reference:
+                    naked_identifier: new_value
+              - end_bracket: )
+- statement_terminator: ;

@@ -1,0 +1,2 @@
+[sqlfluff:rules:aliasing.forbid]
+force_enable = true

@@ -1,0 +1,749 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 1145859a4e145cf9c986fec7cf06740385f18279926d2013bca49b17377c8f26
+file:
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - bracketed:
+        start_bracket: (
+        table_content_definition:
+          column_definition:
+            column_datatype_definition:
+              naked_identifier: c1
+              data_type:
+                keyword: DECIMAL
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - bracketed:
+        start_bracket: (
+        table_content_definition:
+          column_definition:
+            column_datatype_definition:
+              naked_identifier: c1
+              data_type:
+                keyword: DECIMAL
+                bracketed_arguments:
+                  bracketed:
+                    start_bracket: (
+                    numeric_literal: '10'
+                    end_bracket: )
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - bracketed:
+        start_bracket: (
+        table_content_definition:
+          column_definition:
+            column_datatype_definition:
+              naked_identifier: c1
+              data_type:
+                keyword: DECIMAL
+                bracketed_arguments:
+                  bracketed:
+                  - start_bracket: (
+                  - numeric_literal: '10'
+                  - comma: ','
+                  - numeric_literal: '2'
+                  - end_bracket: )
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - bracketed:
+        start_bracket: (
+        table_content_definition:
+          column_definition:
+            column_datatype_definition:
+              naked_identifier: c1
+              data_type:
+                keyword: DEC
+                bracketed_arguments:
+                  bracketed:
+                  - start_bracket: (
+                  - numeric_literal: '10'
+                  - comma: ','
+                  - numeric_literal: '2'
+                  - end_bracket: )
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - bracketed:
+        start_bracket: (
+        table_content_definition:
+          column_definition:
+            column_datatype_definition:
+              naked_identifier: c1
+              data_type:
+                keyword: NUMERIC
+                bracketed_arguments:
+                  bracketed:
+                    start_bracket: (
+                    numeric_literal: '10'
+                    end_bracket: )
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - bracketed:
+        start_bracket: (
+        table_content_definition:
+          column_definition:
+            column_datatype_definition:
+              naked_identifier: c1
+              data_type:
+                keyword: NUMBER
+                bracketed_arguments:
+                  bracketed:
+                  - start_bracket: (
+                  - numeric_literal: '10'
+                  - comma: ','
+                  - numeric_literal: '2'
+                  - end_bracket: )
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - bracketed:
+        start_bracket: (
+        table_content_definition:
+          column_definition:
+            column_datatype_definition:
+              naked_identifier: c1
+              data_type:
+                keyword: BIGINT
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - bracketed:
+        start_bracket: (
+        table_content_definition:
+          column_definition:
+            column_datatype_definition:
+              naked_identifier: c1
+              data_type:
+                keyword: DOUBLE
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - bracketed:
+        start_bracket: (
+        table_content_definition:
+          column_definition:
+            column_datatype_definition:
+              naked_identifier: c1
+              data_type:
+              - keyword: DOUBLE
+              - keyword: PRECISION
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - bracketed:
+        start_bracket: (
+        table_content_definition:
+          column_definition:
+            column_datatype_definition:
+              naked_identifier: c1
+              data_type:
+                keyword: FLOAT
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - bracketed:
+        start_bracket: (
+        table_content_definition:
+          column_definition:
+            column_datatype_definition:
+              naked_identifier: c1
+              data_type:
+                keyword: INT
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - bracketed:
+        start_bracket: (
+        table_content_definition:
+          column_definition:
+            column_datatype_definition:
+              naked_identifier: c1
+              data_type:
+                keyword: INTEGER
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - bracketed:
+        start_bracket: (
+        table_content_definition:
+          column_definition:
+            column_datatype_definition:
+              naked_identifier: c1
+              data_type:
+                keyword: REAL
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - bracketed:
+        start_bracket: (
+        table_content_definition:
+          column_definition:
+            column_datatype_definition:
+              naked_identifier: c1
+              data_type:
+                keyword: SHORTINT
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - bracketed:
+        start_bracket: (
+        table_content_definition:
+          column_definition:
+            column_datatype_definition:
+              naked_identifier: c1
+              data_type:
+                keyword: TINYINT
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - bracketed:
+        start_bracket: (
+        table_content_definition:
+          column_definition:
+            column_datatype_definition:
+              naked_identifier: c1
+              data_type:
+                keyword: SMALLINT
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - bracketed:
+        start_bracket: (
+        table_content_definition:
+          column_definition:
+            column_datatype_definition:
+              naked_identifier: c1
+              data_type:
+                keyword: BOOL
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - bracketed:
+        start_bracket: (
+        table_content_definition:
+          column_definition:
+            column_datatype_definition:
+              naked_identifier: c1
+              data_type:
+                keyword: BOOLEAN
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - bracketed:
+        start_bracket: (
+        table_content_definition:
+          column_definition:
+            column_datatype_definition:
+              naked_identifier: c1
+              data_type:
+                keyword: DATE
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - bracketed:
+        start_bracket: (
+        table_content_definition:
+          column_definition:
+            column_datatype_definition:
+              naked_identifier: c1
+              data_type:
+                keyword: TIMESTAMP
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - bracketed:
+        start_bracket: (
+        table_content_definition:
+          column_definition:
+            column_datatype_definition:
+              naked_identifier: c1
+              data_type:
+              - keyword: TIMESTAMP
+              - keyword: WITH
+              - keyword: LOCAL
+              - keyword: TIME
+              - keyword: ZONE
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - bracketed:
+        start_bracket: (
+        table_content_definition:
+          column_definition:
+            column_datatype_definition:
+              naked_identifier: c1
+              data_type:
+              - keyword: INTERVAL
+              - keyword: YEAR
+              - bracketed_arguments:
+                  bracketed:
+                    start_bracket: (
+                    numeric_literal: '1'
+                    end_bracket: )
+              - keyword: TO
+              - keyword: MONTH
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - bracketed:
+        start_bracket: (
+        table_content_definition:
+          column_definition:
+            column_datatype_definition:
+              naked_identifier: c1
+              data_type:
+              - keyword: INTERVAL
+              - keyword: DAY
+              - bracketed_arguments:
+                  bracketed:
+                    start_bracket: (
+                    numeric_literal: '2'
+                    end_bracket: )
+              - keyword: TO
+              - keyword: SECOND
+              - bracketed_arguments:
+                  bracketed:
+                    start_bracket: (
+                    numeric_literal: '1'
+                    end_bracket: )
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - bracketed:
+        start_bracket: (
+        table_content_definition:
+          column_definition:
+            column_datatype_definition:
+              naked_identifier: c1
+              data_type:
+                keyword: GEOMETRY
+                bracketed_arguments:
+                  bracketed:
+                    start_bracket: (
+                    numeric_literal: '1000'
+                    end_bracket: )
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - bracketed:
+        start_bracket: (
+        table_content_definition:
+          column_definition:
+            column_datatype_definition:
+              naked_identifier: c1
+              data_type:
+                keyword: HASHTYPE
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - bracketed:
+        start_bracket: (
+        table_content_definition:
+          column_definition:
+            column_datatype_definition:
+              naked_identifier: c1
+              data_type:
+                keyword: HASHTYPE
+                bracketed_arguments:
+                  bracketed:
+                    start_bracket: (
+                    numeric_literal: '8'
+                    keyword: BYTE
+                    end_bracket: )
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - bracketed:
+        start_bracket: (
+        table_content_definition:
+          column_definition:
+            column_datatype_definition:
+              naked_identifier: c1
+              data_type:
+                keyword: HASHTYPE
+                bracketed_arguments:
+                  bracketed:
+                    start_bracket: (
+                    numeric_literal: '8'
+                    keyword: BIT
+                    end_bracket: )
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - bracketed:
+        start_bracket: (
+        table_content_definition:
+          column_definition:
+            column_datatype_definition:
+              naked_identifier: c1
+              data_type:
+                keyword: CHAR
+                bracketed_arguments:
+                  bracketed:
+                    start_bracket: (
+                    numeric_literal: '1'
+                    end_bracket: )
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - bracketed:
+        start_bracket: (
+        table_content_definition:
+          column_definition:
+            column_datatype_definition:
+              naked_identifier: c1
+              data_type:
+              - keyword: CHAR
+              - keyword: VARYING
+              - bracketed_arguments:
+                  bracketed:
+                    start_bracket: (
+                    numeric_literal: '1'
+                    end_bracket: )
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - bracketed:
+        start_bracket: (
+        table_content_definition:
+          column_definition:
+            column_datatype_definition:
+              naked_identifier: c1
+              data_type:
+                keyword: VARCHAR
+                bracketed_arguments:
+                  bracketed:
+                    start_bracket: (
+                    numeric_literal: '2000'
+                    keyword: CHAR
+                    end_bracket: )
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - bracketed:
+        start_bracket: (
+        table_content_definition:
+          column_definition:
+            column_datatype_definition:
+              naked_identifier: c1
+              data_type:
+                keyword: VARCHAR2
+                bracketed_arguments:
+                  bracketed:
+                    start_bracket: (
+                    numeric_literal: '2000'
+                    end_bracket: )
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - bracketed:
+        start_bracket: (
+        table_content_definition:
+          column_definition:
+            column_datatype_definition:
+              naked_identifier: c1
+              data_type:
+                keyword: VARCHAR
+                bracketed_arguments:
+                  bracketed:
+                    start_bracket: (
+                    numeric_literal: '2000'
+                    keyword: BYTE
+                    end_bracket: )
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - bracketed:
+        start_bracket: (
+        table_content_definition:
+          column_definition:
+            column_datatype_definition:
+              naked_identifier: c1
+              data_type:
+              - keyword: LONG
+              - keyword: VARCHAR
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - bracketed:
+        start_bracket: (
+        table_content_definition:
+          column_definition:
+            column_datatype_definition:
+              naked_identifier: c1
+              data_type:
+              - keyword: CHARACTER
+              - keyword: LARGE
+              - keyword: OBJECT
+              - bracketed_arguments:
+                  bracketed:
+                    start_bracket: (
+                    numeric_literal: '1000'
+                    end_bracket: )
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - bracketed:
+        start_bracket: (
+        table_content_definition:
+          column_definition:
+            column_datatype_definition:
+              naked_identifier: c1
+              data_type:
+              - keyword: CHARACTER
+              - keyword: VARYING
+              - bracketed_arguments:
+                  bracketed:
+                    start_bracket: (
+                    numeric_literal: '1000'
+                    end_bracket: )
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - bracketed:
+        start_bracket: (
+        table_content_definition:
+          column_definition:
+            column_datatype_definition:
+              naked_identifier: c1
+              data_type:
+                keyword: CLOB
+                bracketed_arguments:
+                  bracketed:
+                    start_bracket: (
+                    numeric_literal: '2000'
+                    end_bracket: )
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - bracketed:
+        start_bracket: (
+        table_content_definition:
+          column_definition:
+            column_datatype_definition:
+              naked_identifier: c1
+              data_type:
+              - keyword: CLOB
+              - bracketed_arguments:
+                  bracketed:
+                    start_bracket: (
+                    numeric_literal: '2000'
+                    end_bracket: )
+              - keyword: ASCII
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: t
+    - bracketed:
+        start_bracket: (
+        table_content_definition:
+          column_definition:
+            column_datatype_definition:
+              naked_identifier: c1
+              data_type:
+              - keyword: VARCHAR
+              - bracketed_arguments:
+                  bracketed:
+                    start_bracket: (
+                    numeric_literal: '2000'
+                    keyword: CHAR
+                    end_bracket: )
+              - keyword: UTF8
+        end_bracket: )
+- statement_terminator: ;

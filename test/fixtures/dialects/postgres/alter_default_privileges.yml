@@ -1,0 +1,615 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 6cecbb7ede0ff8bce72a86691b5b2d4883afc280921f2f35fb7c28392b1ef09e
+file:
+- statement:
+    alter_default_privileges_statement:
+    - keyword: ALTER
+    - keyword: DEFAULT
+    - keyword: PRIVILEGES
+    - keyword: FOR
+    - keyword: USER
+    - object_reference:
+        naked_identifier: my_user
+    - alter_default_privileges_grant:
+      - keyword: GRANT
+      - alter_default_privileges_object_privilege:
+          keyword: SELECT
+      - keyword: 'ON'
+      - alter_default_privileges_schema_object:
+          keyword: TABLES
+      - keyword: TO
+      - alter_default_privileges_to_from_roles:
+          role_reference:
+            naked_identifier: my_group
+- statement_terminator: ;
+- statement:
+    alter_default_privileges_statement:
+    - keyword: ALTER
+    - keyword: DEFAULT
+    - keyword: PRIVILEGES
+    - keyword: FOR
+    - keyword: USER
+    - object_reference:
+        naked_identifier: my_user
+    - keyword: IN
+    - keyword: SCHEMA
+    - schema_reference:
+        naked_identifier: my_schema
+    - alter_default_privileges_grant:
+      - keyword: GRANT
+      - alter_default_privileges_object_privilege:
+          keyword: INSERT
+      - keyword: 'ON'
+      - alter_default_privileges_schema_object:
+          keyword: TABLES
+      - keyword: TO
+      - alter_default_privileges_to_from_roles:
+          role_reference:
+            naked_identifier: my_group
+- statement_terminator: ;
+- statement:
+    alter_default_privileges_statement:
+    - keyword: ALTER
+    - keyword: DEFAULT
+    - keyword: PRIVILEGES
+    - keyword: FOR
+    - keyword: ROLE
+    - object_reference:
+        naked_identifier: my_user
+    - alter_default_privileges_grant:
+      - keyword: GRANT
+      - alter_default_privileges_object_privilege:
+          keyword: UPDATE
+      - keyword: 'ON'
+      - alter_default_privileges_schema_object:
+          keyword: TABLES
+      - keyword: TO
+      - alter_default_privileges_to_from_roles:
+          role_reference:
+            naked_identifier: my_group
+- statement_terminator: ;
+- statement:
+    alter_default_privileges_statement:
+    - keyword: ALTER
+    - keyword: DEFAULT
+    - keyword: PRIVILEGES
+    - keyword: FOR
+    - keyword: ROLE
+    - object_reference:
+        naked_identifier: my_user
+    - keyword: IN
+    - keyword: SCHEMA
+    - schema_reference:
+        naked_identifier: my_schema
+    - comma: ','
+    - schema_reference:
+        naked_identifier: your_schema
+    - alter_default_privileges_grant:
+      - keyword: GRANT
+      - alter_default_privileges_object_privilege:
+          keyword: DELETE
+      - keyword: 'ON'
+      - alter_default_privileges_schema_object:
+          keyword: TABLES
+      - keyword: TO
+      - alter_default_privileges_to_from_roles:
+          role_reference:
+            naked_identifier: my_group
+      - keyword: WITH
+      - keyword: GRANT
+      - keyword: OPTION
+- statement_terminator: ;
+- statement:
+    alter_default_privileges_statement:
+    - keyword: ALTER
+    - keyword: DEFAULT
+    - keyword: PRIVILEGES
+    - keyword: FOR
+    - keyword: ROLE
+    - object_reference:
+        naked_identifier: my_user
+    - comma: ','
+    - object_reference:
+        naked_identifier: your_user
+    - alter_default_privileges_grant:
+      - keyword: GRANT
+      - alter_default_privileges_object_privilege:
+          keyword: TRUNCATE
+      - keyword: 'ON'
+      - alter_default_privileges_schema_object:
+          keyword: TABLES
+      - keyword: TO
+      - alter_default_privileges_to_from_roles:
+          keyword: GROUP
+          role_reference:
+            naked_identifier: my_group
+- statement_terminator: ;
+- statement:
+    alter_default_privileges_statement:
+    - keyword: ALTER
+    - keyword: DEFAULT
+    - keyword: PRIVILEGES
+    - keyword: FOR
+    - keyword: ROLE
+    - object_reference:
+        naked_identifier: my_user
+    - alter_default_privileges_grant:
+      - keyword: GRANT
+      - alter_default_privileges_object_privilege:
+        - keyword: REFERENCES
+        - comma: ','
+        - keyword: TRIGGER
+      - keyword: 'ON'
+      - alter_default_privileges_schema_object:
+          keyword: TABLES
+      - keyword: TO
+      - alter_default_privileges_to_from_roles:
+          role_reference:
+            naked_identifier: PUBLIC
+- statement_terminator: ;
+- statement:
+    alter_default_privileges_statement:
+    - keyword: ALTER
+    - keyword: DEFAULT
+    - keyword: PRIVILEGES
+    - keyword: FOR
+    - keyword: ROLE
+    - object_reference:
+        naked_identifier: my_user
+    - alter_default_privileges_grant:
+      - keyword: GRANT
+      - alter_default_privileges_object_privilege:
+          keyword: ALL
+      - keyword: 'ON'
+      - alter_default_privileges_schema_object:
+          keyword: SEQUENCES
+      - keyword: TO
+      - alter_default_privileges_to_from_roles:
+          keyword: GROUP
+          role_reference:
+            naked_identifier: my_group
+      - comma: ','
+      - alter_default_privileges_to_from_roles:
+          keyword: GROUP
+          role_reference:
+            naked_identifier: your_group
+- statement_terminator: ;
+- statement:
+    alter_default_privileges_statement:
+    - keyword: ALTER
+    - keyword: DEFAULT
+    - keyword: PRIVILEGES
+    - keyword: FOR
+    - keyword: ROLE
+    - object_reference:
+        naked_identifier: my_user
+    - alter_default_privileges_grant:
+      - keyword: GRANT
+      - alter_default_privileges_object_privilege:
+          keyword: EXECUTE
+      - keyword: 'ON'
+      - alter_default_privileges_schema_object:
+          keyword: ROUTINES
+      - keyword: TO
+      - alter_default_privileges_to_from_roles:
+          role_reference:
+            naked_identifier: my_group
+- statement_terminator: ;
+- statement:
+    alter_default_privileges_statement:
+    - keyword: ALTER
+    - keyword: DEFAULT
+    - keyword: PRIVILEGES
+    - alter_default_privileges_grant:
+      - keyword: GRANT
+      - alter_default_privileges_object_privilege:
+        - keyword: ALL
+        - keyword: PRIVILEGES
+      - keyword: 'ON'
+      - alter_default_privileges_schema_object:
+          keyword: FUNCTIONS
+      - keyword: TO
+      - alter_default_privileges_to_from_roles:
+          role_reference:
+            naked_identifier: my_group
+- statement_terminator: ;
+- statement:
+    alter_default_privileges_statement:
+    - keyword: ALTER
+    - keyword: DEFAULT
+    - keyword: PRIVILEGES
+    - keyword: IN
+    - keyword: SCHEMA
+    - schema_reference:
+        naked_identifier: my_schema
+    - comma: ','
+    - schema_reference:
+        naked_identifier: your_schema
+    - alter_default_privileges_grant:
+      - keyword: GRANT
+      - alter_default_privileges_object_privilege:
+          keyword: USAGE
+      - keyword: 'ON'
+      - alter_default_privileges_schema_object:
+          keyword: TYPES
+      - keyword: TO
+      - alter_default_privileges_to_from_roles:
+          role_reference:
+            naked_identifier: my_group
+      - comma: ','
+      - alter_default_privileges_to_from_roles:
+          keyword: GROUP
+          role_reference:
+            naked_identifier: your_group
+- statement_terminator: ;
+- statement:
+    alter_default_privileges_statement:
+    - keyword: ALTER
+    - keyword: DEFAULT
+    - keyword: PRIVILEGES
+    - keyword: FOR
+    - keyword: ROLE
+    - object_reference:
+        naked_identifier: my_user
+    - alter_default_privileges_grant:
+      - keyword: GRANT
+      - alter_default_privileges_object_privilege:
+          keyword: USAGE
+      - keyword: 'ON'
+      - alter_default_privileges_schema_object:
+          keyword: SCHEMAS
+      - keyword: TO
+      - alter_default_privileges_to_from_roles:
+          role_reference:
+            naked_identifier: my_group
+- statement_terminator: ;
+- statement:
+    alter_default_privileges_statement:
+    - keyword: ALTER
+    - keyword: DEFAULT
+    - keyword: PRIVILEGES
+    - keyword: FOR
+    - keyword: ROLE
+    - object_reference:
+        naked_identifier: my_user
+    - alter_default_privileges_grant:
+      - keyword: GRANT
+      - alter_default_privileges_object_privilege:
+          keyword: CREATE
+      - keyword: 'ON'
+      - alter_default_privileges_schema_object:
+          keyword: SCHEMAS
+      - keyword: TO
+      - alter_default_privileges_to_from_roles:
+          role_reference:
+            naked_identifier: my_group
+- statement_terminator: ;
+- statement:
+    alter_default_privileges_statement:
+    - keyword: ALTER
+    - keyword: DEFAULT
+    - keyword: PRIVILEGES
+    - keyword: FOR
+    - keyword: USER
+    - object_reference:
+        naked_identifier: my_user
+    - comma: ','
+    - object_reference:
+        naked_identifier: your_user
+    - keyword: IN
+    - keyword: SCHEMA
+    - schema_reference:
+        naked_identifier: my_schema
+    - comma: ','
+    - schema_reference:
+        naked_identifier: your_schema
+    - alter_default_privileges_grant:
+      - keyword: GRANT
+      - alter_default_privileges_object_privilege:
+        - keyword: SELECT
+        - comma: ','
+        - keyword: INSERT
+        - comma: ','
+        - keyword: UPDATE
+        - comma: ','
+        - keyword: DELETE
+        - comma: ','
+        - keyword: TRUNCATE
+        - comma: ','
+        - keyword: REFERENCES
+        - comma: ','
+        - keyword: TRIGGER
+      - keyword: 'ON'
+      - alter_default_privileges_schema_object:
+          keyword: TABLES
+      - keyword: TO
+      - alter_default_privileges_to_from_roles:
+          keyword: GROUP
+          role_reference:
+            naked_identifier: my_group
+      - comma: ','
+      - alter_default_privileges_to_from_roles:
+          role_reference:
+            naked_identifier: PUBLIC
+      - keyword: WITH
+      - keyword: GRANT
+      - keyword: OPTION
+- statement_terminator: ;
+- statement:
+    alter_default_privileges_statement:
+    - keyword: ALTER
+    - keyword: DEFAULT
+    - keyword: PRIVILEGES
+    - keyword: FOR
+    - keyword: USER
+    - object_reference:
+        naked_identifier: my_user
+    - alter_default_privileges_revoke:
+      - keyword: REVOKE
+      - alter_default_privileges_object_privilege:
+          keyword: ALL
+      - keyword: 'ON'
+      - alter_default_privileges_schema_object:
+          keyword: TABLES
+      - keyword: FROM
+      - alter_default_privileges_to_from_roles:
+          role_reference:
+            naked_identifier: my_group
+- statement_terminator: ;
+- statement:
+    alter_default_privileges_statement:
+    - keyword: ALTER
+    - keyword: DEFAULT
+    - keyword: PRIVILEGES
+    - keyword: FOR
+    - keyword: USER
+    - object_reference:
+        naked_identifier: my_user
+    - keyword: IN
+    - keyword: SCHEMA
+    - schema_reference:
+        naked_identifier: my_schema
+    - alter_default_privileges_revoke:
+      - keyword: REVOKE
+      - alter_default_privileges_object_privilege:
+          keyword: SELECT
+      - keyword: 'ON'
+      - alter_default_privileges_schema_object:
+          keyword: TABLES
+      - keyword: FROM
+      - alter_default_privileges_to_from_roles:
+          keyword: GROUP
+          role_reference:
+            naked_identifier: my_group
+- statement_terminator: ;
+- statement:
+    alter_default_privileges_statement:
+    - keyword: ALTER
+    - keyword: DEFAULT
+    - keyword: PRIVILEGES
+    - keyword: FOR
+    - keyword: ROLE
+    - object_reference:
+        naked_identifier: my_user
+    - keyword: IN
+    - keyword: SCHEMA
+    - schema_reference:
+        naked_identifier: my_schema
+    - comma: ','
+    - schema_reference:
+        naked_identifier: your_schema
+    - alter_default_privileges_revoke:
+      - keyword: REVOKE
+      - alter_default_privileges_object_privilege:
+          keyword: INSERT
+      - keyword: 'ON'
+      - alter_default_privileges_schema_object:
+          keyword: TABLES
+      - keyword: FROM
+      - alter_default_privileges_to_from_roles:
+          role_reference:
+            naked_identifier: PUBLIC
+      - keyword: CASCADE
+- statement_terminator: ;
+- statement:
+    alter_default_privileges_statement:
+    - keyword: ALTER
+    - keyword: DEFAULT
+    - keyword: PRIVILEGES
+    - keyword: FOR
+    - keyword: ROLE
+    - object_reference:
+        naked_identifier: my_user
+    - keyword: IN
+    - keyword: SCHEMA
+    - schema_reference:
+        naked_identifier: my_schema
+    - alter_default_privileges_revoke:
+      - keyword: REVOKE
+      - alter_default_privileges_object_privilege:
+        - keyword: UPDATE
+        - comma: ','
+        - keyword: DELETE
+        - comma: ','
+        - keyword: TRUNCATE
+        - comma: ','
+        - keyword: REFERENCES
+        - comma: ','
+        - keyword: TRIGGER
+      - keyword: 'ON'
+      - alter_default_privileges_schema_object:
+          keyword: TABLES
+      - keyword: FROM
+      - alter_default_privileges_to_from_roles:
+          role_reference:
+            naked_identifier: PUBLIC
+      - keyword: RESTRICT
+- statement_terminator: ;
+- statement:
+    alter_default_privileges_statement:
+    - keyword: ALTER
+    - keyword: DEFAULT
+    - keyword: PRIVILEGES
+    - keyword: FOR
+    - keyword: ROLE
+    - object_reference:
+        naked_identifier: my_user
+    - comma: ','
+    - object_reference:
+        naked_identifier: your_user
+    - alter_default_privileges_revoke:
+      - keyword: REVOKE
+      - alter_default_privileges_object_privilege:
+        - keyword: ALL
+        - keyword: PRIVILEGES
+      - keyword: 'ON'
+      - alter_default_privileges_schema_object:
+          keyword: SEQUENCES
+      - keyword: FROM
+      - alter_default_privileges_to_from_roles:
+          role_reference:
+            naked_identifier: my_group
+- statement_terminator: ;
+- statement:
+    alter_default_privileges_statement:
+    - keyword: ALTER
+    - keyword: DEFAULT
+    - keyword: PRIVILEGES
+    - keyword: FOR
+    - keyword: ROLE
+    - object_reference:
+        naked_identifier: my_user
+    - alter_default_privileges_revoke:
+      - keyword: REVOKE
+      - alter_default_privileges_object_privilege:
+          keyword: EXECUTE
+      - keyword: 'ON'
+      - alter_default_privileges_schema_object:
+          keyword: FUNCTIONS
+      - keyword: FROM
+      - alter_default_privileges_to_from_roles:
+          role_reference:
+            naked_identifier: my_group
+- statement_terminator: ;
+- statement:
+    alter_default_privileges_statement:
+    - keyword: ALTER
+    - keyword: DEFAULT
+    - keyword: PRIVILEGES
+    - alter_default_privileges_revoke:
+      - keyword: REVOKE
+      - alter_default_privileges_object_privilege:
+          keyword: EXECUTE
+      - keyword: 'ON'
+      - alter_default_privileges_schema_object:
+          keyword: ROUTINES
+      - keyword: FROM
+      - alter_default_privileges_to_from_roles:
+          role_reference:
+            naked_identifier: my_group
+- statement_terminator: ;
+- statement:
+    alter_default_privileges_statement:
+    - keyword: ALTER
+    - keyword: DEFAULT
+    - keyword: PRIVILEGES
+    - keyword: IN
+    - keyword: SCHEMA
+    - schema_reference:
+        naked_identifier: my_schema
+    - comma: ','
+    - schema_reference:
+        naked_identifier: your_schema
+    - alter_default_privileges_revoke:
+      - keyword: REVOKE
+      - alter_default_privileges_object_privilege:
+          keyword: USAGE
+      - keyword: 'ON'
+      - alter_default_privileges_schema_object:
+          keyword: TYPES
+      - keyword: FROM
+      - alter_default_privileges_to_from_roles:
+          role_reference:
+            naked_identifier: my_group
+      - comma: ','
+      - alter_default_privileges_to_from_roles:
+          keyword: GROUP
+          role_reference:
+            naked_identifier: your_group
+- statement_terminator: ;
+- statement:
+    alter_default_privileges_statement:
+    - keyword: ALTER
+    - keyword: DEFAULT
+    - keyword: PRIVILEGES
+    - keyword: FOR
+    - keyword: ROLE
+    - object_reference:
+        naked_identifier: my_user
+    - alter_default_privileges_revoke:
+      - keyword: REVOKE
+      - alter_default_privileges_object_privilege:
+        - keyword: USAGE
+        - comma: ','
+        - keyword: CREATE
+      - keyword: 'ON'
+      - alter_default_privileges_schema_object:
+          keyword: TYPES
+      - keyword: FROM
+      - alter_default_privileges_to_from_roles:
+          role_reference:
+            naked_identifier: my_group
+- statement_terminator: ;
+- statement:
+    alter_default_privileges_statement:
+    - keyword: ALTER
+    - keyword: DEFAULT
+    - keyword: PRIVILEGES
+    - keyword: FOR
+    - keyword: ROLE
+    - object_reference:
+        naked_identifier: my_user
+    - comma: ','
+    - object_reference:
+        naked_identifier: your_user
+    - keyword: IN
+    - keyword: SCHEMA
+    - schema_reference:
+        naked_identifier: my_schema
+    - comma: ','
+    - schema_reference:
+        naked_identifier: your_schema
+    - alter_default_privileges_revoke:
+      - keyword: REVOKE
+      - alter_default_privileges_object_privilege:
+        - keyword: SELECT
+        - comma: ','
+        - keyword: INSERT
+        - comma: ','
+        - keyword: UPDATE
+        - comma: ','
+        - keyword: DELETE
+        - comma: ','
+        - keyword: TRUNCATE
+        - comma: ','
+        - keyword: REFERENCES
+        - comma: ','
+        - keyword: TRIGGER
+      - keyword: 'ON'
+      - alter_default_privileges_schema_object:
+          keyword: TABLES
+      - keyword: FROM
+      - alter_default_privileges_to_from_roles:
+          keyword: GROUP
+          role_reference:
+            naked_identifier: my_group
+      - comma: ','
+      - alter_default_privileges_to_from_roles:
+          role_reference:
+            naked_identifier: PUBLIC
+      - keyword: CASCADE
+- statement_terminator: ;

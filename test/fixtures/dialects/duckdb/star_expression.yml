@@ -1,0 +1,425 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 38b1de2097a25d3e115caebdfbfa5c7bb08291f06b2eeb7499adb0cbf7ca43a9
+file:
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+            wildcard_rename:
+              keyword: RENAME
+              bracketed:
+                start_bracket: (
+                column_reference:
+                  naked_identifier: a
+                alias_expression:
+                  alias_operator:
+                    keyword: AS
+                  naked_identifier: b
+                end_bracket: )
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: tbl
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+            wildcard_pattern_matching:
+              keyword: LIKE
+              quoted_literal: "'col%'"
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: tbl
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+            wildcard_pattern_matching:
+              keyword: ILIKE
+              quoted_literal: "'col%'"
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: tbl
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+            wildcard_pattern_matching:
+            - keyword: NOT
+            - keyword: LIKE
+            - quoted_literal: "'col%'"
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: tbl
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+            wildcard_pattern_matching:
+              keyword: GLOB
+              quoted_literal: "'col*'"
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: tbl
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+            wildcard_pattern_matching:
+            - keyword: SIMILAR
+            - keyword: TO
+            - quoted_literal: "'col.'"
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: tbl
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+            wildcard_pattern_matching:
+              like_operator: ~~
+              quoted_literal: "'col%'"
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: tbl
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+            wildcard_pattern_matching:
+              like_operator: ~~*
+              quoted_literal: "'col%'"
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: tbl
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+            wildcard_pattern_matching:
+              like_operator: '!~~'
+              quoted_literal: "'col%'"
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: tbl
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+            wildcard_pattern_matching:
+              glob_operator: ~~~
+              quoted_literal: "'col*'"
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: tbl
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          function:
+            function_name:
+              keyword: COLUMNS
+            function_contents:
+              bracketed:
+                start_bracket: (
+                array_literal:
+                - start_square_bracket: '['
+                - quoted_literal: "'id'"
+                - comma: ','
+                - quoted_literal: "'num'"
+                - end_square_bracket: ']'
+                end_bracket: )
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: numbers
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: COALESCE
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  function:
+                    function_name:
+                      unpacking_operator: '*'
+                      keyword: COLUMNS
+                    function_contents:
+                      bracketed:
+                        start_bracket: (
+                        expression:
+                          list_comprehension:
+                          - start_square_bracket: '['
+                          - expression:
+                              function:
+                                function_name:
+                                  function_name_identifier: upper
+                                function_contents:
+                                  bracketed:
+                                    start_bracket: (
+                                    expression:
+                                      column_reference:
+                                        naked_identifier: x
+                                    end_bracket: )
+                          - keyword: for
+                          - parameter: x
+                          - keyword: in
+                          - expression:
+                              array_literal:
+                              - start_square_bracket: '['
+                              - quoted_literal: "'a'"
+                              - comma: ','
+                              - quoted_literal: "'b'"
+                              - comma: ','
+                              - quoted_literal: "'c'"
+                              - end_square_bracket: ']'
+                          - end_square_bracket: ']'
+                        end_bracket: )
+                end_bracket: )
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: result
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              bracketed:
+                start_bracket: (
+                select_statement:
+                  select_clause:
+                  - keyword: SELECT
+                  - select_clause_element:
+                      null_literal: 'NULL'
+                      alias_expression:
+                        alias_operator:
+                          keyword: AS
+                        naked_identifier: a
+                  - comma: ','
+                  - select_clause_element:
+                      numeric_literal: '42'
+                      alias_expression:
+                        alias_operator:
+                          keyword: AS
+                        naked_identifier: b
+                  - comma: ','
+                  - select_clause_element:
+                      boolean_literal: 'true'
+                      alias_expression:
+                        alias_operator:
+                          keyword: AS
+                        naked_identifier: c
+                end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+            wildcard_exclude:
+              keyword: EXCLUDE
+              bracketed:
+              - start_bracket: (
+              - column_reference:
+                  naked_identifier: a
+              - comma: ','
+              - column_reference:
+                  naked_identifier: b
+              - comma: ','
+              - column_reference:
+                  naked_identifier: c
+              - comma: ','
+              - end_bracket: )
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: tbl
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+            wildcard_replace:
+              keyword: REPLACE
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                    naked_identifier: a
+                  binary_operator: +
+                  numeric_literal: '1'
+              - alias_expression:
+                  alias_operator:
+                    keyword: as
+                  naked_identifier: a
+              - comma: ','
+              - expression:
+                  column_reference:
+                    naked_identifier: b
+                  binary_operator:
+                  - pipe: '|'
+                  - pipe: '|'
+                  quoted_literal: "'c'"
+              - alias_expression:
+                  alias_operator:
+                    keyword: as
+                  naked_identifier: b
+              - comma: ','
+              - end_bracket: )
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: TBL
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+            wildcard_rename:
+              keyword: RENAME
+              bracketed:
+              - start_bracket: (
+              - column_reference:
+                  naked_identifier: a
+              - alias_expression:
+                  alias_operator:
+                    keyword: as
+                  naked_identifier: apple
+              - comma: ','
+              - column_reference:
+                  naked_identifier: b
+              - alias_expression:
+                  alias_operator:
+                    keyword: as
+                  naked_identifier: berry
+              - comma: ','
+              - end_bracket: )
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: TBL
+- statement_terminator: ;

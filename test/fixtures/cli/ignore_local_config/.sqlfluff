@@ -1,0 +1,2 @@
+[sqlfluff]
+exclude_rules = AL02

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: f81ae6211fdbf8e7592c3fc03b9bd029db9dc4c953a80fe1227d5d66b48f244f
+_hash: 2c32acb2de61f816c5dc61cb76b50097d4436ee10216e63860a163770412b80c
 file:
   batch:
     statement:
@@ -11,46 +11,47 @@ file:
       - keyword: CREATE
       - keyword: TABLE
       - table_reference:
-        - identifier: '[dbo]'
+        - quoted_identifier: '[dbo]'
         - dot: .
-        - identifier: '[EC DC]'
+        - quoted_identifier: '[EC DC]'
       - bracketed:
         - start_bracket: (
         - column_definition:
-            identifier: '[Column B]'
+            quoted_identifier: '[Column B]'
             data_type:
-              identifier: '[varchar]'
-              bracketed:
-                start_bracket: (
-                expression:
-                  literal: '100'
-                end_bracket: )
+              data_type_identifier: '[varchar]'
+            bracketed:
+              start_bracket: (
+              numeric_literal: '100'
+              end_bracket: )
         - comma: ','
         - column_definition:
-            identifier: '[ColumnC]'
+            quoted_identifier: '[ColumnC]'
             data_type:
-              identifier: varchar
-              bracketed:
-                start_bracket: (
-                expression:
-                  literal: '100'
-                end_bracket: )
+              keyword: varchar
+              bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    integer_literal: '100'
+                  end_bracket: )
         - comma: ','
         - column_definition:
-            identifier: '[ColumnDecimal]'
+            quoted_identifier: '[ColumnDecimal]'
             data_type:
-              identifier: decimal
-              bracketed:
-              - start_bracket: (
-              - expression:
-                  literal: '10'
-              - comma: ','
-              - expression:
-                  literal: '3'
-              - end_bracket: )
+              keyword: decimal
+              bracketed_arguments:
+                bracketed:
+                - start_bracket: (
+                - expression:
+                    integer_literal: '10'
+                - comma: ','
+                - expression:
+                    integer_literal: '3'
+                - end_bracket: )
         - end_bracket: )
       - on_partition_or_filegroup_statement:
           filegroup_clause:
             keyword: 'ON'
             filegroup_name:
-              identifier: MyFileGroup
+              naked_identifier: MyFileGroup

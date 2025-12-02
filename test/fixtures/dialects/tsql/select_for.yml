@@ -1,0 +1,393 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 47a072e8ebd4a29ab9931979bd82178bd5475e916339440d64592b82401343fb
+file:
+- batch:
+    statement:
+      select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+              naked_identifier: name
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: surname
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: emp
+        for_clause:
+        - keyword: FOR
+        - keyword: JSON
+        - keyword: AUTO
+    statement_terminator: ;
+    go_statement:
+      keyword: GO
+- batch:
+    statement:
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            integer_literal: '1'
+            alias_expression:
+              alias_operator:
+                keyword: AS
+              naked_identifier: a
+        for_clause:
+        - keyword: FOR
+        - keyword: JSON
+        - keyword: PATH
+    statement_terminator: ;
+    go_statement:
+      keyword: GO
+- batch:
+    statement:
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            integer_literal: '1'
+            alias_expression:
+              alias_operator:
+                keyword: AS
+              naked_identifier: a
+        for_clause:
+        - keyword: FOR
+        - keyword: JSON
+        - keyword: PATH
+        - comma: ','
+        - keyword: WITHOUT_ARRAY_WRAPPER
+    go_statement:
+      keyword: GO
+- batch:
+    statement:
+      select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+            - naked_identifier: c
+            - dot: .
+            - naked_identifier: ClassName
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+            - naked_identifier: s
+            - dot: .
+            - naked_identifier: StudentName
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  hash_identifier: '#tabClass'
+              alias_expression:
+                alias_operator:
+                  keyword: AS
+                naked_identifier: c
+            join_clause:
+            - keyword: RIGHT
+            - keyword: JOIN
+            - from_expression_element:
+                table_expression:
+                  table_reference:
+                    hash_identifier: '#tabStudent'
+                alias_expression:
+                  alias_operator:
+                    keyword: AS
+                  naked_identifier: s
+            - join_on_condition:
+                keyword: 'ON'
+                expression:
+                - column_reference:
+                  - naked_identifier: s
+                  - dot: .
+                  - naked_identifier: ClassGuid
+                - comparison_operator:
+                    raw_comparison_operator: '='
+                - column_reference:
+                  - naked_identifier: c
+                  - dot: .
+                  - naked_identifier: ClassGuid
+        orderby_clause:
+        - keyword: ORDER
+        - keyword: BY
+        - column_reference:
+          - naked_identifier: c
+          - dot: .
+          - naked_identifier: ClassName
+        - comma: ','
+        - column_reference:
+          - naked_identifier: s
+          - dot: .
+          - naked_identifier: StudentName
+        for_clause:
+        - keyword: FOR
+        - keyword: JSON
+        - keyword: AUTO
+    statement_terminator: ;
+    go_statement:
+      keyword: GO
+- batch:
+    statement:
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            integer_literal: '1'
+            alias_expression:
+              alias_operator:
+                keyword: AS
+              naked_identifier: a
+        for_clause:
+        - keyword: FOR
+        - keyword: JSON
+        - keyword: PATH
+        - comma: ','
+        - keyword: ROOT
+        - bracketed:
+            start_bracket: (
+            quoted_literal: "'RootName'"
+            end_bracket: )
+        - comma: ','
+        - keyword: WITHOUT_ARRAY_WRAPPER
+        - comma: ','
+        - keyword: INCLUDE_NULL_VALUES
+    statement_terminator: ;
+    go_statement:
+      keyword: GO
+- batch:
+  - statement:
+      select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+              naked_identifier: ProductModelID
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: Name
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                - naked_identifier: Production
+                - dot: .
+                - naked_identifier: ProductModel
+        where_clause:
+          keyword: WHERE
+          expression:
+          - column_reference:
+              naked_identifier: ProductModelID
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - integer_literal: '122'
+          - binary_operator: or
+          - column_reference:
+              naked_identifier: ProductModelID
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - integer_literal: '119'
+        for_clause:
+        - keyword: FOR
+        - keyword: XML
+        - keyword: RAW
+  - statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+              naked_identifier: ProductPhotoID
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: ThumbNailPhoto
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                - naked_identifier: Production
+                - dot: .
+                - naked_identifier: ProductPhoto
+        where_clause:
+          keyword: WHERE
+          expression:
+            column_reference:
+              naked_identifier: ProductPhotoID
+            comparison_operator:
+              raw_comparison_operator: '='
+            integer_literal: '70'
+        for_clause:
+        - keyword: FOR
+        - keyword: XML
+        - keyword: AUTO
+  - statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            integer_literal: '1'
+            alias_expression:
+              alias_operator:
+                keyword: as
+              naked_identifier: Tag
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                - naked_identifier: HumanResources
+                - dot: .
+                - naked_identifier: Employee
+              alias_expression:
+                alias_operator:
+                  keyword: AS
+                naked_identifier: E
+        for_clause:
+        - keyword: FOR
+        - keyword: XML
+        - keyword: EXPLICIT
+  - statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+              naked_identifier: ProductModelID
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: Name
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                - naked_identifier: Production
+                - dot: .
+                - naked_identifier: ProductModel
+        where_clause:
+          keyword: WHERE
+          expression:
+          - column_reference:
+              naked_identifier: ProductModelID
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - integer_literal: '122'
+          - binary_operator: OR
+          - column_reference:
+              naked_identifier: ProductModelID
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - integer_literal: '119'
+        for_clause:
+        - keyword: FOR
+        - keyword: XML
+        - keyword: PATH
+        - bracketed:
+            start_bracket: (
+            quoted_literal: "'root'"
+            end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            integer_literal: '0'
+            alias_expression:
+              naked_identifier: ErrorCode
+        for_clause:
+        - keyword: FOR
+        - keyword: XML
+        - keyword: PATH
+        - bracketed:
+            start_bracket: (
+            quoted_literal: "'Result'"
+            end_bracket: )
+        - comma: ','
+        - keyword: TYPE
+  - statement:
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            integer_literal: '0'
+            alias_expression:
+              naked_identifier: ErrorCode
+        for_clause:
+        - keyword: FOR
+        - keyword: XML
+        - keyword: PATH
+        - bracketed:
+            start_bracket: (
+            quoted_literal: "'Result'"
+            end_bracket: )
+        - comma: ','
+        - keyword: ROOT
+        - bracketed:
+            start_bracket: (
+            quoted_literal: "'RootName'"
+            end_bracket: )
+        - comma: ','
+        - keyword: TYPE
+  - statement:
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            integer_literal: '0'
+            alias_expression:
+              naked_identifier: ErrorCode
+        for_clause:
+        - keyword: FOR
+        - keyword: XML
+        - keyword: PATH
+        - bracketed:
+            start_bracket: (
+            quoted_literal: "'Result'"
+            end_bracket: )
+        - comma: ','
+        - keyword: TYPE
+        - comma: ','
+        - keyword: ROOT
+        - bracketed:
+            start_bracket: (
+            quoted_literal: "'RootName'"
+            end_bracket: )
+  - statement:
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            integer_literal: '1'
+            alias_expression:
+              alias_operator:
+                keyword: AS
+              naked_identifier: a
+        for_clause:
+        - keyword: FOR
+        - keyword: BROWSE
+  - go_statement:
+      keyword: GO

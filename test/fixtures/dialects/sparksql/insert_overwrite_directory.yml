@@ -1,0 +1,263 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 19bb961922b50927c64f2236dd3634ef20b195c69dfa091278d51d33374d3fb3
+file:
+- statement:
+    insert_overwrite_directory_statement:
+    - keyword: INSERT
+    - keyword: OVERWRITE
+    - keyword: DIRECTORY
+    - quoted_literal: "'/tmp/destination'"
+    - keyword: USING
+    - data_source_format:
+        keyword: PARQUET
+    - keyword: OPTIONS
+    - bracketed:
+      - start_bracket: (
+      - property_name_identifier:
+          properties_naked_identifier: col1
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: '"1"'
+      - comma: ','
+      - property_name_identifier:
+          properties_naked_identifier: col2
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: '"2"'
+      - comma: ','
+      - property_name_identifier:
+          properties_naked_identifier: col3
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'test'"
+      - comma: ','
+      - property_name_identifier:
+          quoted_identifier: '"user"'
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: '"a person"'
+      - end_bracket: )
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            column_reference:
+              naked_identifier: a
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: test_table
+- statement_terminator: ;
+- statement:
+    insert_overwrite_directory_statement:
+    - keyword: INSERT
+    - keyword: OVERWRITE
+    - keyword: DIRECTORY
+    - keyword: USING
+    - data_source_format:
+        keyword: PARQUET
+    - keyword: OPTIONS
+    - bracketed:
+      - start_bracket: (
+      - property_name_identifier:
+          properties_naked_identifier: path
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'/tmp/destination'"
+      - comma: ','
+      - property_name_identifier:
+          properties_naked_identifier: col1
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: '"1"'
+      - comma: ','
+      - property_name_identifier:
+          properties_naked_identifier: col2
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: '"2"'
+      - comma: ','
+      - property_name_identifier:
+          properties_naked_identifier: col3
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'test'"
+      - end_bracket: )
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            column_reference:
+              naked_identifier: a
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: test_table
+- statement_terminator: ;
+- statement:
+    insert_overwrite_directory_statement:
+    - keyword: INSERT
+    - keyword: OVERWRITE
+    - keyword: DIRECTORY
+    - keyword: USING
+    - data_source_format:
+        keyword: PARQUET
+    - keyword: OPTIONS
+    - bracketed:
+      - start_bracket: (
+      - property_name_identifier:
+          properties_naked_identifier: path
+      - quoted_literal: "'/tmp/destination'"
+      - comma: ','
+      - property_name_identifier:
+          properties_naked_identifier: col1
+      - numeric_literal: '1'
+      - comma: ','
+      - property_name_identifier:
+          properties_naked_identifier: col2
+      - numeric_literal: '2'
+      - comma: ','
+      - property_name_identifier:
+          properties_naked_identifier: col3
+      - quoted_literal: "'test'"
+      - end_bracket: )
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            column_reference:
+              naked_identifier: a
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: test_table
+- statement_terminator: ;
+- statement:
+    insert_overwrite_directory_statement:
+    - keyword: INSERT
+    - keyword: OVERWRITE
+    - keyword: DIRECTORY
+    - quoted_literal: "'/tmp/destination'"
+    - keyword: USING
+    - data_source_format:
+        keyword: PARQUET
+    - keyword: OPTIONS
+    - bracketed:
+      - start_bracket: (
+      - property_name_identifier:
+          properties_naked_identifier: col1
+      - numeric_literal: '1'
+      - comma: ','
+      - property_name_identifier:
+          properties_naked_identifier: col2
+      - numeric_literal: '2'
+      - comma: ','
+      - property_name_identifier:
+          properties_naked_identifier: col3
+      - quoted_literal: "'test'"
+      - end_bracket: )
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            column_reference:
+              naked_identifier: a
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: test_table
+- statement_terminator: ;
+- statement:
+    with_compound_statement:
+      keyword: WITH
+      common_table_expression:
+        naked_identifier: cte
+        keyword: AS
+        bracketed:
+          start_bracket: (
+          select_statement:
+            select_clause:
+              keyword: SELECT
+              select_clause_element:
+                wildcard_expression:
+                  wildcard_identifier:
+                    star: '*'
+            from_clause:
+              keyword: FROM
+              from_expression:
+                from_expression_element:
+                  table_expression:
+                    table_reference:
+                      naked_identifier: test_table
+          end_bracket: )
+      insert_overwrite_directory_statement:
+      - keyword: INSERT
+      - keyword: OVERWRITE
+      - keyword: DIRECTORY
+      - quoted_literal: "'destination_dir/path_to'"
+      - keyword: USING
+      - data_source_format:
+          keyword: CSV
+      - keyword: OPTIONS
+      - bracketed:
+        - start_bracket: (
+        - property_name_identifier:
+            properties_naked_identifier: sep
+        - quoted_literal: "'\\t'"
+        - comma: ','
+        - property_name_identifier:
+            properties_naked_identifier: header
+        - quoted_literal: "'true'"
+        - comma: ','
+        - property_name_identifier:
+            properties_naked_identifier: compression
+        - quoted_literal: "'none'"
+        - comma: ','
+        - property_name_identifier:
+            properties_naked_identifier: emptyValue
+        - quoted_literal: "''"
+        - end_bracket: )
+      - select_statement:
+          select_clause:
+            keyword: SELECT
+            select_clause_modifier:
+              select_hint:
+                start_hint: /*+
+                hint_function:
+                  function_name:
+                    function_name_identifier: COALESCE
+                  function_contents:
+                    bracketed:
+                      start_bracket: (
+                      expression:
+                        numeric_literal: '1'
+                      end_bracket: )
+                end_hint: '*/'
+            select_clause_element:
+              wildcard_expression:
+                wildcard_identifier:
+                  star: '*'
+          from_clause:
+            keyword: FROM
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                    naked_identifier: cte
+- statement_terminator: ;

@@ -3,30 +3,30 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 9012ef70efe92b95b01d823716a6c51f09f9025fae1e55a8b99c7f384aa78e03
+_hash: ce74da5f794983b9878af79414b0775e1887ef765352c442b53dbdaf0707d319
 file:
   statement:
     create_table_statement:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-        identifier: foo
+        naked_identifier: foo
     - bracketed:
       - start_bracket: (
       - column_definition:
-          identifier: col1
+          naked_identifier: col1
           data_type:
             primitive_type:
               keyword: STRING
       - comma: ','
       - column_definition:
-          identifier: col2
+          naked_identifier: col2
           data_type:
             primitive_type:
               keyword: int
       - comma: ','
       - column_definition:
-          identifier: col3
+          naked_identifier: col3
           data_type:
             primitive_type:
               keyword: STRING
@@ -37,41 +37,41 @@ file:
       - bracketed:
         - start_bracket: (
         - column_reference:
-            identifier: col1
+            naked_identifier: col1
         - comma: ','
         - column_reference:
-            identifier: col2
+            naked_identifier: col2
         - end_bracket: )
       - keyword: 'ON'
       - bracketed:
         - start_bracket: (
         - bracketed:
-          - start_bracket: (
-          - literal: "'s1'"
-          - comma: ','
-          - literal: '1'
-          - end_bracket: )
+            start_bracket: (
+            quoted_literal: "'s1'"
+            comma: ','
+            numeric_literal: '1'
+            end_bracket: )
         - comma: ','
         - bracketed:
-          - start_bracket: (
-          - literal: "'s3'"
-          - comma: ','
-          - literal: '3'
-          - end_bracket: )
+            start_bracket: (
+            quoted_literal: "'s3'"
+            comma: ','
+            numeric_literal: '3'
+            end_bracket: )
         - comma: ','
         - bracketed:
-          - start_bracket: (
-          - literal: "'s13'"
-          - comma: ','
-          - literal: '13'
-          - end_bracket: )
+            start_bracket: (
+            quoted_literal: "'s13'"
+            comma: ','
+            numeric_literal: '13'
+            end_bracket: )
         - comma: ','
         - bracketed:
-          - start_bracket: (
-          - literal: "'s78'"
-          - comma: ','
-          - literal: '78'
-          - end_bracket: )
+            start_bracket: (
+            quoted_literal: "'s78'"
+            comma: ','
+            numeric_literal: '78'
+            end_bracket: )
         - end_bracket: )
       - keyword: STORED
       - keyword: AS

@@ -1,0 +1,5 @@
+[sqlfluff:templater:jinja]
+apply_dbt_builtins = False
+
+[sqlfluff:templater:jinja:context]
+var = 30

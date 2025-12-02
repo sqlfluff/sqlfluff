@@ -1,0 +1,332 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: e329f7a4d48f64eeede7c96263fce292dcf593644f4dcb9d6d025bb45c68ee35
+file:
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - table_reference:
+        naked_identifier: task
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+        - naked_identifier: id
+        - data_type:
+            data_type_identifier: TEXT
+        - column_constraint_segment:
+          - keyword: PRIMARY
+          - keyword: KEY
+        - column_constraint_segment:
+            keyword: CHECK
+            bracketed:
+              start_bracket: (
+              expression:
+                function:
+                  function_name:
+                    function_name_identifier: length
+                  function_contents:
+                    bracketed:
+                      start_bracket: (
+                      expression:
+                        column_reference:
+                          naked_identifier: id
+                      end_bracket: )
+                comparison_operator:
+                  raw_comparison_operator: '='
+                numeric_literal: '15'
+              end_bracket: )
+      - comma: ','
+      - column_definition:
+          naked_identifier: priority
+          data_type:
+            data_type_identifier: TEXT
+          column_constraint_segment:
+            keyword: CHECK
+            bracketed:
+              start_bracket: (
+              expression:
+                column_reference:
+                  naked_identifier: priority
+                keyword: GLOB
+                quoted_literal: "'[A-Z]'"
+              end_bracket: )
+      - comma: ','
+      - column_definition:
+          naked_identifier: regex_col
+          data_type:
+            data_type_identifier: TEXT
+          column_constraint_segment:
+            keyword: CHECK
+            bracketed:
+              start_bracket: (
+              expression:
+                column_reference:
+                  naked_identifier: priority
+                keyword: REGEXP
+                quoted_literal: "'[A-Z]'"
+              end_bracket: )
+      - comma: ','
+      - column_definition:
+          naked_identifier: match_col
+          data_type:
+            data_type_identifier: TEXT
+          column_constraint_segment:
+            keyword: CHECK
+            bracketed:
+              start_bracket: (
+              expression:
+                column_reference:
+                  naked_identifier: priority
+                keyword: MATCH
+                quoted_literal: "'tacos'"
+              end_bracket: )
+      - comma: ','
+      - column_definition:
+          naked_identifier: title
+          data_type:
+            data_type_identifier: TEXT
+          column_constraint_segment:
+          - keyword: NOT
+          - keyword: 'NULL'
+      - comma: ','
+      - column_definition:
+          naked_identifier: note
+          data_type:
+            data_type_identifier: TEXT
+      - comma: ','
+      - column_definition:
+        - naked_identifier: created_at
+        - data_type:
+            data_type_identifier: DATETIME
+        - column_constraint_segment:
+          - keyword: NOT
+          - keyword: 'NULL'
+        - column_constraint_segment:
+            keyword: DEFAULT
+            expression:
+              bare_function: current_timestamp
+      - comma: ','
+      - column_definition:
+        - naked_identifier: updated_at
+        - data_type:
+            data_type_identifier: DATETIME
+        - column_constraint_segment:
+          - keyword: NOT
+          - keyword: 'NULL'
+        - column_constraint_segment:
+            keyword: DEFAULT
+            expression:
+              bare_function: current_timestamp
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          column_reference:
+            naked_identifier: col1
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: tab_a
+      where_clause:
+        keyword: WHERE
+        expression:
+          column_reference:
+            naked_identifier: this_col
+          keyword: MATCH
+          quoted_literal: "'that'"
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          column_reference:
+            naked_identifier: col1
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: tab_a
+      where_clause:
+        keyword: WHERE
+        expression:
+          column_reference:
+            naked_identifier: this_col
+          keyword: REGEXP
+          quoted_literal: "'(that|other)'"
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          column_reference:
+            naked_identifier: col1
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: tab_a
+      where_clause:
+        keyword: WHERE
+        expression:
+          column_reference:
+            naked_identifier: this_col
+          keyword: GLOB
+          quoted_literal: "'one*two'"
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          column_reference:
+            naked_identifier: col1
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: tab_a
+      where_clause:
+        keyword: WHERE
+        expression:
+        - column_reference:
+            naked_identifier: this_col
+        - keyword: NOT
+        - keyword: MATCH
+        - quoted_literal: "'that'"
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          column_reference:
+            naked_identifier: col1
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: tab_a
+      where_clause:
+        keyword: WHERE
+        expression:
+        - column_reference:
+            naked_identifier: this_col
+        - keyword: NOT
+        - keyword: REGEXP
+        - quoted_literal: "'(that|other)'"
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          column_reference:
+            naked_identifier: col1
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: tab_a
+      where_clause:
+        keyword: WHERE
+        expression:
+        - column_reference:
+            naked_identifier: this_col
+        - keyword: NOT
+        - keyword: GLOB
+        - quoted_literal: "'one*two'"
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          column_reference:
+            naked_identifier: col1
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: tab_a
+      where_clause:
+        keyword: WHERE
+        expression:
+        - keyword: NOT
+        - column_reference:
+            naked_identifier: this_col
+        - keyword: MATCH
+        - quoted_literal: "'that'"
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          column_reference:
+            naked_identifier: col1
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: tab_a
+      where_clause:
+        keyword: WHERE
+        expression:
+        - keyword: NOT
+        - column_reference:
+            naked_identifier: this_col
+        - keyword: REGEXP
+        - quoted_literal: "'(that|other)'"
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          column_reference:
+            naked_identifier: col1
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: tab_a
+      where_clause:
+        keyword: WHERE
+        expression:
+        - keyword: NOT
+        - column_reference:
+            naked_identifier: this_col
+        - keyword: GLOB
+        - quoted_literal: "'one*two'"
+- statement_terminator: ;

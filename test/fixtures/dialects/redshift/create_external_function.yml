@@ -1,0 +1,77 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: d7ab0b2349a61c980c662f461b80832d9ce9a0053d5901f4781e5d10894d1b39
+file:
+- statement:
+    create_external_function_statement:
+    - keyword: CREATE
+    - keyword: EXTERNAL
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: exfunc_sum
+    - bracketed:
+      - start_bracket: (
+      - data_type:
+          keyword: INT
+      - comma: ','
+      - data_type:
+          keyword: INT
+      - end_bracket: )
+    - keyword: RETURNS
+    - data_type:
+        keyword: INT
+    - keyword: STABLE
+    - keyword: LAMBDA
+    - quoted_literal: "'lambda_sum'"
+    - keyword: IAM_ROLE
+    - quoted_literal: "'arn:aws:iam::123456789012:role/Redshift-Exfunc-Test'"
+- statement_terminator: ;
+- statement:
+    create_external_function_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: EXTERNAL
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: exfunc_upper
+    - bracketed:
+        start_bracket: (
+        end_bracket: )
+    - keyword: RETURNS
+    - data_type:
+        keyword: varchar
+    - keyword: STABLE
+    - keyword: LAMBDA
+    - quoted_literal: "'exfunc_sleep_3'"
+    - keyword: IAM_ROLE
+    - quoted_literal: "'arn:aws:iam::123456789012:role/Redshift-Exfunc-Test'"
+    - keyword: RETRY_TIMEOUT
+    - numeric_literal: '0'
+- statement_terminator: ;
+- statement:
+    create_external_function_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: EXTERNAL
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: exfunc_foo
+    - bracketed:
+        start_bracket: (
+        data_type:
+          keyword: varchar
+        end_bracket: )
+    - keyword: RETURNS
+    - data_type:
+        keyword: int
+    - keyword: IMMUTABLE
+    - keyword: SAGEMAKER
+    - quoted_literal: "'some_endpoint_name'"
+    - keyword: IAM_ROLE
+    - keyword: default
+- statement_terminator: ;

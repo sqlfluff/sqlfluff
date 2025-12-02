@@ -1,0 +1,257 @@
+rule: CP01
+
+test_fail_inconsistent_capitalisation_1:
+  # Test that we don't have the "inconsistent" bug
+  fail_str: SeLeCt 1
+  fix_str: SELECT 1
+
+test_fail_inconsistent_capitalisation_2:
+  fail_str: SeLeCt 1 from blah
+  fix_str: SELECT 1 FROM blah
+
+test_fail_capitalisation_policy_lower:
+  # Fix for https://github.com/sqlfluff/sqlfluff/issues/476
+  fail_str: SELECT * FROM MOO ORDER BY dt DESC
+  fix_str: select * from MOO order by dt desc
+  configs:
+    rules:
+      capitalisation.keywords:
+        capitalisation_policy: lower
+
+test_fail_capitalisation_policy_upper:
+  # Fix for https://github.com/sqlfluff/sqlfluff/issues/476
+  fail_str: select * from MOO order by dt desc
+  fix_str: SELECT * FROM MOO ORDER BY dt DESC
+  configs:
+    rules:
+      capitalisation.keywords:
+        capitalisation_policy: upper
+
+test_fail_capitalisation_policy_capitalise:
+  # Test for capitalised casing
+  fail_str: SELECT * FROM MOO ORDER BY dt DESC
+  fix_str: Select * From MOO Order By dt Desc
+  configs:
+    rules:
+      capitalisation.keywords:
+        capitalisation_policy: capitalise
+
+test_fail_date_part_inconsistent_capitalisation:
+  # Test that time unit capitalization is fixed
+  fail_str: SELECT dt + interval 2 day, interval 3 HOUR
+  fix_str: SELECT dt + INTERVAL 2 DAY, INTERVAL 3 HOUR
+
+test_fail_date_part_capitalisation_policy_lower:
+  # Test that capitalization policy is applied on time units
+  fail_str: SELECT dt + interval 2 day, interval 3 HOUR
+  fix_str: select dt + interval 2 day, interval 3 hour
+  configs:
+    rules:
+      capitalisation.keywords:
+        capitalisation_policy: lower
+
+test_fail_date_part_capitalisation_policy_upper:
+  # Test that capitalization policy is applied on time units
+  fail_str: SELECT dt + interval 2 day, interval 3 HOUR
+  fix_str: SELECT dt + INTERVAL 2 DAY, INTERVAL 3 HOUR
+  configs:
+    rules:
+      capitalisation.keywords:
+        capitalisation_policy: upper
+
+test_pass_date_part_consistent_capitalisation:
+  # Test that correctly capitalized time units are left unchanged
+  pass_str: SELECT dt + INTERVAL 2 DAY, INTERVAL 3 HOUR
+
+
+test_pass_data_type_inconsistent_capitalisation:
+  # Test that we don't have the "inconsistent" bug
+  pass_str: CREATE TABLE table1 (account_id bigint);
+  configs:
+    rules:
+      capitalisation.keywords:
+        capitalisation_policy: upper
+
+test_pass_bigquery_date:
+  pass_str: SELECT DATE_ADD(date, INTERVAL 5 YEAR) AS display_date
+  configs:
+    core:
+      dialect: bigquery
+    rules:
+      capitalisation.keywords:
+        capitalisation_policy: upper
+
+test_pass_ignore_word:
+  pass_str: SeleCT 1
+  configs:
+    rules:
+      capitalisation.keywords:
+        capitalisation_policy: upper
+        ignore_words: select
+
+test_pass_ignore_words:
+  pass_str: SeleCT 1
+  configs:
+    rules:
+      capitalisation.keywords:
+        capitalisation_policy: upper
+        ignore_words: select,from
+
+test_pass_ignore_words_regex_simple:
+  pass_str: SeleCT 1
+  configs:
+    rules:
+      capitalisation.keywords:
+        capitalisation_policy: upper
+        ignore_words_regex: ^Se
+
+test_fail_ignore_words_regex_simple:
+  fail_str: SeleCT 1 FrOM t_table
+  fix_str: SeleCT 1 FROM t_table
+  configs:
+    rules:
+      capitalisation.keywords:
+        capitalisation_policy: upper
+        ignore_words_regex: ^Se
+
+test_pass_ignore_words_complex:
+  pass_str: SeleCT 1 FrOM t_table
+  configs:
+    rules:
+      capitalisation.keywords:
+        capitalisation_policy: upper
+        ignore_words_regex: (^Se|^Fr)
+
+test_pass_ignore_templated_code_true:
+  pass_str: |
+    {{ "select" }} a
+    FROM foo
+    WHERE 1
+  configs:
+    core:
+      ignore_templated_areas: true
+
+test_fail_ignore_templated_code_false:
+  fail_str: |
+    {{ "select" }} a
+    FROM foo
+    WHERE 1
+  fix_str: |
+    {{ "select" }} a
+    from foo
+    where 1
+  configs:
+    core:
+      ignore_templated_areas: false
+
+test_fail_snowflake_group_by_cube:
+  fail_str: |
+    SELECT state, city, sum((s.retail_price - p.wholesale_price) * s.quantity) AS profit
+    FROM products AS p, sales AS s
+    WHERE s.product_id = p.product_id
+    GROUP BY cube (state, city)
+    ORDER BY state, city NULLS LAST
+    ;
+  fix_str: |
+    SELECT state, city, sum((s.retail_price - p.wholesale_price) * s.quantity) AS profit
+    FROM products AS p, sales AS s
+    WHERE s.product_id = p.product_id
+    GROUP BY CUBE (state, city)
+    ORDER BY state, city NULLS LAST
+    ;
+  configs:
+    core:
+      dialect: snowflake
+    rules:
+      capitalisation.keywords:
+        capitalisation_policy: upper
+
+test_pass_ignore_null:
+  pass_str: |
+    SELECT null
+    FROM foo
+    WHERE 1
+
+test_pass_ignore_true:
+  pass_str: |
+    SELECT true
+    FROM foo
+    WHERE 1
+
+test_pass_ignore_false:
+  pass_str: |
+    SELECT false
+    FROM foo
+    WHERE 1
+
+test_fail_bigquery_week:
+  fail_str: SELECT LAST_DAY(col, WEEK(monday))
+  fix_str: SELECT LAST_DAY(col, WEEK(MONDAY))
+  configs:
+    core:
+      dialect: bigquery
+    rules:
+      capitalisation.keywords:
+        capitalisation_policy: upper
+
+test_fail_select_lower:
+  # Test for issue #3399, a bug in the core apply_fixes() function that surfaced
+  # with various rules, including this one.
+  fail_str: |
+    select *
+    FROM
+        {{ source("ids","shop") }}
+  fix_str: |
+    SELECT *
+    FROM
+        {{ source("ids","shop") }}
+  configs:
+    core:
+      dialect: tsql
+    rules:
+      capitalisation.keywords:
+        capitalisation_policy: upper
+
+test_fail_select_lower_keyword_functions:
+  # Test for issue #3520
+  fail_str: |
+    SELECT
+    cast(5 AS int) AS test1,
+    coalesce(1, 2) AS test3
+  fix_str: |
+    SELECT
+    CAST(5 AS int) AS test1,
+    COALESCE(1, 2) AS test3
+  configs:
+    core:
+      dialect: tsql
+    rules:
+      capitalisation.keywords:
+        capitalisation_policy: upper
+
+test_pass_bigquery_struct:
+  pass_str: |
+    select
+      STRUCT(
+        first_name as firstName,
+        last_name as lastName
+      ) as name
+    from persons
+  configs:
+    core:
+      dialect: bigquery
+
+test_pass_bigquery_array:
+  pass_str: |
+    select
+      ARRAY<STRUCT<
+        first_name STRING,
+        last_name STRING
+      >>[
+        STRUCT('John' as first_name, 'Doe' as last_name),
+        STRUCT('Jane' as first_name, 'Smith' as last_name)
+      ] as people
+    from dual
+  configs:
+    core:
+      dialect: bigquery

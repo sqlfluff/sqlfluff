@@ -1,0 +1,65 @@
+file:
+  - placeholder: "{% for item in [1,2] -%}"
+  - indent: ""
+  - placeholder: "\n"
+  - statement:
+      set_expression:
+      - select_statement:
+          select_clause:
+            keyword: SELECT
+            indent: ""
+            whitespace: ' '
+            select_clause_element:
+              wildcard_expression:
+                wildcard_identifier:
+                  star: '*'
+            dedent: ""
+          newline: "\n"
+          from_clause:
+            keyword: FROM
+            whitespace: ' '
+            from_expression:
+              indent: ""
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                    naked_identifier: some_table
+              dedent: ""
+      - newline: "\n"
+      - set_operator:
+        - keyword: UNION
+        - whitespace: ' '
+        - keyword: ALL
+      - newline: "\n"
+      - placeholder: "\n"
+      - dedent: ""
+      - template_loop: ""
+      - indent: ""
+      - placeholder: "\n"
+      - select_statement:
+          select_clause:
+            keyword: SELECT
+            indent: ""
+            whitespace: ' '
+            select_clause_element:
+              wildcard_expression:
+                wildcard_identifier:
+                  star: '*'
+            dedent: ""
+          newline: "\n"
+          from_clause:
+            keyword: FROM
+            whitespace: ' '
+            from_expression:
+              indent: ""
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                    naked_identifier: some_table
+              dedent: ""
+  - newline: "\n"
+  - placeholder: '{{ "UNION ALL\n" if not loop.last }}'
+  - placeholder: "\n"
+  - dedent: ""
+  - placeholder: '{%- endfor %}'
+  - end_of_file: ""

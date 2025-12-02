@@ -1,0 +1,77 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 1851a55396f3a7398589408a2778f7dbb75d3f43117d2da7315b73dc81e6f712
+file:
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: PARTITIONS
+    - table_reference:
+        naked_identifier: customer
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: PARTITIONS
+    - table_reference:
+      - naked_identifier: salesdb
+      - dot: .
+      - naked_identifier: customer
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: PARTITIONS
+    - table_reference:
+        naked_identifier: customer
+    - keyword: PARTITION
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: state
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'CA'"
+      - comma: ','
+      - column_reference:
+          naked_identifier: city
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'Fremont'"
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: PARTITIONS
+    - table_reference:
+        naked_identifier: customer
+    - keyword: PARTITION
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          naked_identifier: state
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'CA'"
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: PARTITIONS
+    - table_reference:
+        naked_identifier: customer
+    - keyword: PARTITION
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          naked_identifier: city
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'San Jose'"
+        end_bracket: )
+- statement_terminator: ;

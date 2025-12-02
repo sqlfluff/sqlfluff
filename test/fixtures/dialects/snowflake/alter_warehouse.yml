@@ -1,0 +1,470 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: e4bfc3027cccd8358898f1632cde0c85fa1eeb48e2ae882aa91d36b48600abb3
+file:
+- statement:
+    alter_warehouse_statement:
+    - keyword: alter
+    - keyword: warehouse
+    - keyword: if
+    - keyword: exists
+    - object_reference:
+        naked_identifier: wh1
+    - keyword: rename
+    - keyword: to
+    - object_reference:
+        naked_identifier: wh2
+- statement_terminator: ;
+- statement:
+    alter_warehouse_statement:
+    - keyword: alter
+    - keyword: warehouse
+    - object_reference:
+        naked_identifier: my_wh
+    - keyword: set
+    - warehouse_object_properties:
+        keyword: warehouse_size
+        comparison_operator:
+          raw_comparison_operator: '='
+        warehouse_size: medium
+- statement_terminator: ;
+- statement:
+    alter_warehouse_statement:
+    - keyword: alter
+    - keyword: warehouse
+    - object_reference:
+        naked_identifier: LOAD_WH
+    - keyword: set
+    - warehouse_object_properties:
+        keyword: warehouse_size
+        comparison_operator:
+          raw_comparison_operator: '='
+        warehouse_size: XXLARGE
+- statement_terminator: ;
+- statement:
+    alter_warehouse_statement:
+    - keyword: alter
+    - keyword: warehouse
+    - object_reference:
+        naked_identifier: LOAD_WH
+    - keyword: set
+    - warehouse_object_properties:
+        keyword: WAIT_FOR_COMPLETION
+        comparison_operator:
+          raw_comparison_operator: '='
+        boolean_literal: 'TRUE'
+- statement_terminator: ;
+- statement:
+    alter_warehouse_statement:
+    - keyword: alter
+    - keyword: warehouse
+    - object_reference:
+        naked_identifier: LOAD_WH
+    - keyword: set
+    - warehouse_object_properties:
+        keyword: MAX_CLUSTER_COUNT
+        comparison_operator:
+          raw_comparison_operator: '='
+        numeric_literal: '5'
+- statement_terminator: ;
+- statement:
+    alter_warehouse_statement:
+    - keyword: alter
+    - keyword: warehouse
+    - object_reference:
+        naked_identifier: LOAD_WH
+    - keyword: set
+    - warehouse_object_properties:
+        keyword: MIN_CLUSTER_COUNT
+        comparison_operator:
+          raw_comparison_operator: '='
+        numeric_literal: '1'
+- statement_terminator: ;
+- statement:
+    alter_warehouse_statement:
+    - keyword: alter
+    - keyword: warehouse
+    - object_reference:
+        naked_identifier: LOAD_WH
+    - keyword: set
+    - warehouse_object_properties:
+        keyword: SCALING_POLICY
+        comparison_operator:
+          raw_comparison_operator: '='
+        scaling_policy: STANDARD
+- statement_terminator: ;
+- statement:
+    alter_warehouse_statement:
+    - keyword: alter
+    - keyword: warehouse
+    - object_reference:
+        naked_identifier: LOAD_WH
+    - keyword: set
+    - warehouse_object_properties:
+        keyword: SCALING_POLICY
+        comparison_operator:
+          raw_comparison_operator: '='
+        scaling_policy: "'STANDARD'"
+- statement_terminator: ;
+- statement:
+    alter_warehouse_statement:
+    - keyword: alter
+    - keyword: warehouse
+    - object_reference:
+        naked_identifier: LOAD_WH
+    - keyword: set
+    - warehouse_object_properties:
+        keyword: SCALING_POLICY
+        comparison_operator:
+          raw_comparison_operator: '='
+        scaling_policy: ECONOMY
+- statement_terminator: ;
+- statement:
+    alter_warehouse_statement:
+    - keyword: alter
+    - keyword: warehouse
+    - object_reference:
+        naked_identifier: LOAD_WH
+    - keyword: set
+    - warehouse_object_properties:
+        keyword: SCALING_POLICY
+        comparison_operator:
+          raw_comparison_operator: '='
+        scaling_policy: "'ECONOMY'"
+- statement_terminator: ;
+- statement:
+    alter_warehouse_statement:
+    - keyword: alter
+    - keyword: warehouse
+    - object_reference:
+        naked_identifier: LOAD_WH
+    - keyword: set
+    - warehouse_object_properties:
+        keyword: AUTO_SUSPEND
+        comparison_operator:
+          raw_comparison_operator: '='
+        numeric_literal: '1'
+- statement_terminator: ;
+- statement:
+    alter_warehouse_statement:
+    - keyword: alter
+    - keyword: warehouse
+    - object_reference:
+        naked_identifier: LOAD_WH
+    - keyword: set
+    - warehouse_object_properties:
+        keyword: AUTO_RESUME
+        comparison_operator:
+          raw_comparison_operator: '='
+        boolean_literal: 'FALSE'
+- statement_terminator: ;
+- statement:
+    alter_warehouse_statement:
+    - keyword: alter
+    - keyword: warehouse
+    - object_reference:
+        naked_identifier: LOAD_WH
+    - keyword: set
+    - warehouse_object_properties:
+        keyword: RESOURCE_MONITOR
+        comparison_operator:
+          raw_comparison_operator: '='
+        naked_identifier: monitor_name
+- statement_terminator: ;
+- statement:
+    alter_warehouse_statement:
+    - keyword: alter
+    - keyword: warehouse
+    - object_reference:
+        naked_identifier: LOAD_WH
+    - keyword: set
+    - comment_equals_clause:
+        keyword: COMMENT
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'This is a comment'"
+- statement_terminator: ;
+- statement:
+    alter_warehouse_statement:
+    - keyword: alter
+    - keyword: warehouse
+    - object_reference:
+        naked_identifier: LOAD_WH
+    - keyword: set
+    - warehouse_object_properties:
+        keyword: MAX_CONCURRENCY_LEVEL
+        comparison_operator:
+          raw_comparison_operator: '='
+        numeric_literal: '1'
+- statement_terminator: ;
+- statement:
+    alter_warehouse_statement:
+    - keyword: alter
+    - keyword: warehouse
+    - object_reference:
+        naked_identifier: LOAD_WH
+    - keyword: set
+    - warehouse_object_properties:
+        keyword: STATEMENT_QUEUED_TIMEOUT_IN_SECONDS
+        comparison_operator:
+          raw_comparison_operator: '='
+        numeric_literal: '300'
+- statement_terminator: ;
+- statement:
+    alter_warehouse_statement:
+    - keyword: alter
+    - keyword: warehouse
+    - object_reference:
+        naked_identifier: LOAD_WH
+    - keyword: set
+    - warehouse_object_properties:
+        keyword: STATEMENT_TIMEOUT_IN_SECONDS
+        comparison_operator:
+          raw_comparison_operator: '='
+        numeric_literal: '300'
+- statement_terminator: ;
+- statement:
+    alter_warehouse_statement:
+    - keyword: alter
+    - keyword: warehouse
+    - object_reference:
+        naked_identifier: LOAD_WH
+    - keyword: set
+    - tag_equals:
+        keyword: TAG
+        tag_reference:
+          naked_identifier: thetag
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'tag1'"
+- statement_terminator: ;
+- statement:
+    alter_warehouse_statement:
+    - keyword: alter
+    - keyword: warehouse
+    - object_reference:
+        naked_identifier: LOAD_WH
+    - keyword: set
+    - tag_equals:
+      - keyword: TAG
+      - tag_reference:
+          naked_identifier: thetag1
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'tag1'"
+      - comma: ','
+      - tag_reference:
+          naked_identifier: thetag2
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'tag2'"
+- statement_terminator: ;
+- statement:
+    alter_warehouse_statement:
+    - keyword: alter
+    - keyword: warehouse
+    - object_reference:
+        naked_identifier: LOAD_WH
+    - keyword: RESUME
+    - keyword: IF
+    - keyword: SUSPENDED
+- statement_terminator: ;
+- statement:
+    alter_warehouse_statement:
+    - keyword: alter
+    - keyword: warehouse
+    - object_reference:
+        naked_identifier: LOAD_WH
+    - keyword: ABORT
+    - keyword: ALL
+    - keyword: QUERIES
+- statement_terminator: ;
+- statement:
+    alter_warehouse_statement:
+    - keyword: alter
+    - keyword: warehouse
+    - object_reference:
+        naked_identifier: LOAD_WH
+    - keyword: RENAME
+    - keyword: TO
+    - object_reference:
+        naked_identifier: LOAD_WH2
+- statement_terminator: ;
+- statement:
+    alter_warehouse_statement:
+    - keyword: alter
+    - keyword: warehouse
+    - object_reference:
+        naked_identifier: LOAD_WH
+    - keyword: SET
+    - warehouse_object_properties:
+        keyword: MAX_CONCURRENCY_LEVEL
+        comparison_operator:
+          raw_comparison_operator: '='
+        numeric_literal: '1'
+- statement_terminator: ;
+- statement:
+    alter_warehouse_statement:
+    - keyword: alter
+    - keyword: warehouse
+    - object_reference:
+        naked_identifier: LOAD_WH
+    - keyword: UNSET
+    - naked_identifier: STATEMENT_QUEUED_TIMEOUT_IN_SECONDS
+- statement_terminator: ;
+- statement:
+    alter_warehouse_statement:
+    - keyword: alter
+    - keyword: warehouse
+    - object_reference:
+        naked_identifier: LOAD_WH
+    - keyword: UNSET
+    - naked_identifier: WAREHOUSE_SIZE
+- statement_terminator: ;
+- statement:
+    alter_warehouse_statement:
+    - keyword: alter
+    - keyword: warehouse
+    - object_reference:
+        naked_identifier: LOAD_WH
+    - keyword: UNSET
+    - naked_identifier: WAREHOUSE_SIZE
+    - comma: ','
+    - naked_identifier: WAIT_FOR_COMPLETION
+- statement_terminator: ;
+- statement:
+    alter_warehouse_statement:
+    - keyword: ALTER
+    - keyword: WAREHOUSE
+    - keyword: SET
+    - warehouse_object_properties:
+        keyword: WAREHOUSE_SIZE
+        comparison_operator:
+          raw_comparison_operator: '='
+        warehouse_size: "'X-LARGE'"
+- statement_terminator: ;
+- statement:
+    alter_warehouse_statement:
+    - keyword: alter
+    - keyword: warehouse
+    - keyword: set
+    - warehouse_object_properties:
+        keyword: warehouse_size
+        comparison_operator:
+          raw_comparison_operator: '='
+        warehouse_size: medium
+- statement_terminator: ;
+- statement:
+    alter_warehouse_statement:
+    - keyword: alter
+    - keyword: warehouse
+    - object_reference:
+        naked_identifier: LOAD_WH
+    - keyword: set
+    - warehouse_object_properties:
+        keyword: WAREHOUSE_TYPE
+        comparison_operator:
+          raw_comparison_operator: '='
+        warehouse_size: STANDARD
+- statement_terminator: ;
+- statement:
+    alter_warehouse_statement:
+    - keyword: alter
+    - keyword: warehouse
+    - object_reference:
+        naked_identifier: LOAD_WH
+    - keyword: set
+    - warehouse_object_properties:
+        keyword: WAREHOUSE_TYPE
+        comparison_operator:
+          raw_comparison_operator: '='
+        warehouse_size: "'SNOWPARK-OPTIMIZED'"
+- statement_terminator: ;
+- statement:
+    alter_warehouse_statement:
+    - keyword: alter
+    - keyword: warehouse
+    - object_reference:
+        naked_identifier: LOAD_WH
+    - keyword: set
+    - warehouse_object_properties:
+        keyword: RESOURCE_CONSTRAINT
+        comparison_operator:
+          raw_comparison_operator: '='
+        resource_constraint: "'MEMORY_64X'"
+- statement_terminator: ;
+- statement:
+    alter_warehouse_statement:
+    - keyword: alter
+    - keyword: warehouse
+    - object_reference:
+        naked_identifier: LOAD_WH
+    - keyword: set
+    - warehouse_object_properties:
+        keyword: RESOURCE_CONSTRAINT
+        comparison_operator:
+          raw_comparison_operator: '='
+        resource_constraint: MEMORY_1X
+- statement_terminator: ;
+- statement:
+    alter_warehouse_statement:
+    - keyword: ALTER
+    - keyword: WAREHOUSE
+    - object_reference:
+        keyword: IDENTIFIER
+        bracketed:
+          start_bracket: (
+          variable: $var_wh
+          end_bracket: )
+    - keyword: SET
+    - warehouse_object_properties:
+        keyword: WAREHOUSE_TYPE
+        comparison_operator:
+          raw_comparison_operator: '='
+        warehouse_size: STANDARD
+- statement_terminator: ;
+- statement:
+    alter_warehouse_statement:
+    - keyword: ALTER
+    - keyword: WAREHOUSE
+    - object_reference:
+        naked_identifier: CI_TRANSFORMING
+    - keyword: SET
+    - comment_equals_clause:
+        keyword: COMMENT
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'Warehouse for dbt development transformations in CI'"
+    - comma: ','
+    - warehouse_object_properties:
+        keyword: AUTO_RESUME
+        comparison_operator:
+          raw_comparison_operator: '='
+        boolean_literal: 'TRUE'
+    - comma: ','
+    - warehouse_object_properties:
+        keyword: AUTO_SUSPEND
+        comparison_operator:
+          raw_comparison_operator: '='
+        numeric_literal: '30'
+- statement_terminator: ;
+- statement:
+    alter_warehouse_statement:
+    - keyword: ALTER
+    - keyword: WAREHOUSE
+    - object_reference:
+        naked_identifier: LOAD_WH
+    - keyword: SET
+    - warehouse_object_properties:
+      - keyword: ENABLE_QUERY_ACCELERATION
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - boolean_literal: 'true'
+      - keyword: QUERY_ACCELERATION_MAX_SCALE_FACTOR
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - numeric_literal: '4'
+- statement_terminator: ;

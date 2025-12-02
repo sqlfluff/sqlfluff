@@ -1,0 +1,513 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 6e1270cb4f018e96c5d840c29e7574e725d6959c44388f68cee92557afded9f0
+file:
+- statement:
+    create_publication_statement:
+    - keyword: CREATE
+    - keyword: PUBLICATION
+    - publication_reference:
+        naked_identifier: abc
+- statement_terminator: ;
+- statement:
+    create_publication_statement:
+    - keyword: CREATE
+    - keyword: PUBLICATION
+    - publication_reference:
+        naked_identifier: abc
+    - keyword: FOR
+    - keyword: ALL
+    - keyword: TABLES
+- statement_terminator: ;
+- statement:
+    create_publication_statement:
+    - keyword: CREATE
+    - keyword: PUBLICATION
+    - publication_reference:
+        naked_identifier: abc
+    - keyword: FOR
+    - publication_objects:
+        keyword: TABLE
+        publication_table:
+          table_reference:
+            naked_identifier: def
+- statement_terminator: ;
+- statement:
+    create_publication_statement:
+    - keyword: CREATE
+    - keyword: PUBLICATION
+    - publication_reference:
+        naked_identifier: abc
+    - keyword: FOR
+    - publication_objects:
+      - keyword: TABLE
+      - publication_table:
+          table_reference:
+            naked_identifier: def
+      - comma: ','
+      - publication_table:
+          table_reference:
+          - naked_identifier: sch
+          - dot: .
+          - naked_identifier: ghi
+- statement_terminator: ;
+- statement:
+    create_publication_statement:
+    - keyword: CREATE
+    - keyword: PUBLICATION
+    - publication_reference:
+        naked_identifier: abc
+    - keyword: FOR
+    - publication_objects:
+        keyword: TABLE
+        publication_table:
+          table_reference:
+            naked_identifier: def
+    - comma: ','
+    - publication_objects:
+        keyword: TABLE
+        publication_table:
+          table_reference:
+          - naked_identifier: sch
+          - dot: .
+          - naked_identifier: ghi
+- statement_terminator: ;
+- statement:
+    create_publication_statement:
+    - keyword: CREATE
+    - keyword: PUBLICATION
+    - publication_reference:
+        naked_identifier: abc
+    - keyword: FOR
+    - publication_objects:
+        keyword: TABLE
+        publication_table:
+          table_reference:
+            naked_identifier: def
+          star: '*'
+- statement_terminator: ;
+- statement:
+    create_publication_statement:
+    - keyword: CREATE
+    - keyword: PUBLICATION
+    - publication_reference:
+        naked_identifier: abc
+    - keyword: FOR
+    - publication_objects:
+        keyword: TABLE
+        publication_table:
+          table_reference:
+            naked_identifier: a
+    - comma: ','
+    - publication_objects:
+      - keyword: TABLE
+      - publication_table:
+          table_reference:
+            naked_identifier: aa
+      - comma: ','
+      - publication_table:
+          table_reference:
+            naked_identifier: ab
+      - comma: ','
+      - publication_table:
+          table_reference:
+            naked_identifier: ac
+    - comma: ','
+    - publication_objects:
+        keyword: TABLE
+        publication_table:
+          keyword: ONLY
+          table_reference:
+            naked_identifier: b
+    - comma: ','
+    - publication_objects:
+        keyword: TABLE
+        publication_table:
+          table_reference:
+            naked_identifier: c
+          star: '*'
+    - comma: ','
+    - publication_objects:
+      - keyword: TABLE
+      - publication_table:
+          table_reference:
+            naked_identifier: ca
+          star: '*'
+      - comma: ','
+      - publication_table:
+          table_reference:
+            naked_identifier: cb
+          star: '*'
+    - comma: ','
+    - publication_objects:
+        keyword: TABLE
+        publication_table:
+          keyword: ONLY
+          bracketed:
+            start_bracket: (
+            table_reference:
+              naked_identifier: d
+            end_bracket: )
+    - comma: ','
+    - publication_objects:
+        keyword: TABLE
+        publication_table:
+          table_reference:
+            naked_identifier: e
+          bracketed:
+            start_bracket: (
+            column_reference:
+              naked_identifier: col1
+            end_bracket: )
+    - comma: ','
+    - publication_objects:
+        keyword: TABLE
+        publication_table:
+          table_reference:
+            naked_identifier: f
+          bracketed:
+          - start_bracket: (
+          - column_reference:
+              naked_identifier: col2
+          - comma: ','
+          - column_reference:
+              naked_identifier: col3
+          - end_bracket: )
+    - comma: ','
+    - publication_objects:
+        keyword: TABLE
+        publication_table:
+          table_reference:
+            naked_identifier: g
+          star: '*'
+          bracketed:
+          - start_bracket: (
+          - column_reference:
+              naked_identifier: col4
+          - comma: ','
+          - column_reference:
+              naked_identifier: col5
+          - end_bracket: )
+    - comma: ','
+    - publication_objects:
+        keyword: TABLE
+        publication_table:
+          table_reference:
+            naked_identifier: h
+          keyword: WHERE
+          bracketed:
+            start_bracket: (
+            expression:
+            - column_reference:
+                naked_identifier: col6
+            - comparison_operator:
+                raw_comparison_operator: '>'
+            - column_reference:
+                naked_identifier: col7
+            end_bracket: )
+    - comma: ','
+    - publication_objects:
+        keyword: TABLE
+        publication_table:
+        - table_reference:
+            naked_identifier: i
+        - bracketed:
+          - start_bracket: (
+          - column_reference:
+              naked_identifier: col8
+          - comma: ','
+          - column_reference:
+              naked_identifier: col9
+          - end_bracket: )
+        - keyword: WHERE
+        - bracketed:
+            start_bracket: (
+            expression:
+            - column_reference:
+                naked_identifier: col10
+            - comparison_operator:
+                raw_comparison_operator: '>'
+            - column_reference:
+                naked_identifier: col11
+            end_bracket: )
+    - comma: ','
+    - publication_objects:
+      - keyword: TABLES
+      - keyword: IN
+      - keyword: SCHEMA
+      - schema_reference:
+          naked_identifier: j
+    - comma: ','
+    - publication_objects:
+      - keyword: TABLES
+      - keyword: IN
+      - keyword: SCHEMA
+      - schema_reference:
+          naked_identifier: k
+    - comma: ','
+    - publication_objects:
+      - keyword: TABLES
+      - keyword: IN
+      - keyword: SCHEMA
+      - keyword: CURRENT_SCHEMA
+      - comma: ','
+      - schema_reference:
+          naked_identifier: l
+      - comma: ','
+      - schema_reference:
+          naked_identifier: m
+    - comma: ','
+    - publication_objects:
+      - keyword: TABLES
+      - keyword: IN
+      - keyword: SCHEMA
+      - schema_reference:
+          naked_identifier: n
+      - comma: ','
+      - schema_reference:
+          naked_identifier: o
+      - comma: ','
+      - schema_reference:
+          naked_identifier: p
+- statement_terminator: ;
+- statement:
+    create_publication_statement:
+    - keyword: CREATE
+    - keyword: PUBLICATION
+    - publication_reference:
+        naked_identifier: abc
+    - keyword: FOR
+    - publication_objects:
+      - keyword: TABLE
+      - publication_table:
+          table_reference:
+            naked_identifier: a
+      - comma: ','
+      - publication_table:
+          table_reference:
+            naked_identifier: b
+    - keyword: WITH
+    - definition_parameters:
+        bracketed:
+        - start_bracket: (
+        - definition_parameter:
+            properties_naked_identifier: publish
+            comparison_operator:
+              raw_comparison_operator: '='
+            quoted_literal: "'insert,update'"
+        - comma: ','
+        - definition_parameter:
+            properties_naked_identifier: publish_via_partition_root
+            comparison_operator:
+              raw_comparison_operator: '='
+            boolean_literal: 'TRUE'
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_publication_statement:
+    - keyword: CREATE
+    - keyword: PUBLICATION
+    - publication_reference:
+        naked_identifier: abc
+    - keyword: FOR
+    - publication_objects:
+      - keyword: TABLE
+      - publication_table:
+          table_reference:
+            naked_identifier: a
+      - comma: ','
+      - publication_table:
+          table_reference:
+            naked_identifier: b
+    - keyword: WITH
+    - definition_parameters:
+        bracketed:
+          start_bracket: (
+          definition_parameter:
+            properties_naked_identifier: publish_via_partition_root
+            comparison_operator:
+              raw_comparison_operator: '='
+            boolean_literal: 'TRUE'
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_publication_statement:
+    - keyword: CREATE
+    - keyword: PUBLICATION
+    - publication_reference:
+        naked_identifier: abc
+    - keyword: FOR
+    - publication_objects:
+      - keyword: TABLE
+      - publication_table:
+          table_reference:
+            naked_identifier: a
+      - comma: ','
+      - publication_table:
+          table_reference:
+            naked_identifier: b
+    - keyword: WITH
+    - definition_parameters:
+        bracketed:
+          start_bracket: (
+          definition_parameter:
+            properties_naked_identifier: publish
+            comparison_operator:
+              raw_comparison_operator: '='
+            quoted_literal: "'insert,update'"
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_publication_statement:
+    - keyword: CREATE
+    - keyword: PUBLICATION
+    - publication_reference:
+        naked_identifier: abc
+    - keyword: WITH
+    - definition_parameters:
+        bracketed:
+          start_bracket: (
+          definition_parameter:
+            properties_naked_identifier: publish
+            comparison_operator:
+              raw_comparison_operator: '='
+            quoted_literal: "'insert,update'"
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_publication_statement:
+    - keyword: CREATE
+    - keyword: PUBLICATION
+    - publication_reference:
+        naked_identifier: mypublication
+    - keyword: FOR
+    - publication_objects:
+      - keyword: TABLE
+      - publication_table:
+          table_reference:
+            naked_identifier: users
+      - comma: ','
+      - publication_table:
+          table_reference:
+            naked_identifier: departments
+- statement_terminator: ;
+- statement:
+    create_publication_statement:
+    - keyword: CREATE
+    - keyword: PUBLICATION
+    - publication_reference:
+        naked_identifier: active_departments
+    - keyword: FOR
+    - publication_objects:
+        keyword: TABLE
+        publication_table:
+          table_reference:
+            naked_identifier: departments
+          keyword: WHERE
+          bracketed:
+            start_bracket: (
+            expression:
+              column_reference:
+                naked_identifier: active
+              keyword: IS
+              boolean_literal: 'TRUE'
+            end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_publication_statement:
+    - keyword: CREATE
+    - keyword: PUBLICATION
+    - publication_reference:
+        naked_identifier: alltables
+    - keyword: FOR
+    - keyword: ALL
+    - keyword: TABLES
+- statement_terminator: ;
+- statement:
+    create_publication_statement:
+    - keyword: CREATE
+    - keyword: PUBLICATION
+    - publication_reference:
+        naked_identifier: insert_only
+    - keyword: FOR
+    - publication_objects:
+        keyword: TABLE
+        publication_table:
+          table_reference:
+            naked_identifier: mydata
+    - keyword: WITH
+    - definition_parameters:
+        bracketed:
+          start_bracket: (
+          definition_parameter:
+            properties_naked_identifier: publish
+            comparison_operator:
+              raw_comparison_operator: '='
+            quoted_literal: "'insert'"
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_publication_statement:
+    - keyword: CREATE
+    - keyword: PUBLICATION
+    - publication_reference:
+        naked_identifier: production_publication
+    - keyword: FOR
+    - publication_objects:
+      - keyword: TABLE
+      - publication_table:
+          table_reference:
+            naked_identifier: users
+      - comma: ','
+      - publication_table:
+          table_reference:
+            naked_identifier: departments
+    - comma: ','
+    - publication_objects:
+      - keyword: TABLES
+      - keyword: IN
+      - keyword: SCHEMA
+      - schema_reference:
+          naked_identifier: production
+- statement_terminator: ;
+- statement:
+    create_publication_statement:
+    - keyword: CREATE
+    - keyword: PUBLICATION
+    - publication_reference:
+        naked_identifier: sales_publication
+    - keyword: FOR
+    - publication_objects:
+      - keyword: TABLES
+      - keyword: IN
+      - keyword: SCHEMA
+      - schema_reference:
+          naked_identifier: marketing
+      - comma: ','
+      - schema_reference:
+          naked_identifier: sales
+- statement_terminator: ;
+- statement:
+    create_publication_statement:
+    - keyword: CREATE
+    - keyword: PUBLICATION
+    - publication_reference:
+        naked_identifier: users_filtered
+    - keyword: FOR
+    - publication_objects:
+        keyword: TABLE
+        publication_table:
+          table_reference:
+            naked_identifier: users
+          bracketed:
+          - start_bracket: (
+          - column_reference:
+              naked_identifier: user_id
+          - comma: ','
+          - column_reference:
+              naked_identifier: firstname
+          - end_bracket: )
+- statement_terminator: ;

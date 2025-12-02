@@ -1,0 +1,82 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 0da1f9dc4ff3d33ae884bd0911fc68407a8cfdef9a7da965e994f74da56b5122
+file:
+- statement:
+    create_sequence_statement:
+    - keyword: CREATE
+    - keyword: SEQUENCE
+    - sequence_reference:
+        naked_identifier: seq
+- statement_terminator: ;
+- statement:
+    create_sequence_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: SEQUENCE
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - sequence_reference:
+        naked_identifier: seq
+    - keyword: WITH
+    - keyword: START
+    - keyword: WITH
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - integer_literal: '2'
+    - keyword: INCREMENT
+    - keyword: BY
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - integer_literal: '15'
+    - keyword: ORDER
+    - comment_equals_clause:
+        keyword: COMMENT
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'this_a_beautiful_sequence'"
+- statement_terminator: ;
+- statement:
+    create_sequence_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: SEQUENCE
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - sequence_reference:
+        naked_identifier: seq
+    - keyword: START
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - integer_literal: '2'
+    - keyword: INCREMENT
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - integer_literal: '15'
+    - keyword: NOORDER
+- statement_terminator: ;
+- statement:
+    create_sequence_statement:
+    - keyword: CREATE
+    - keyword: SEQUENCE
+    - sequence_reference:
+        naked_identifier: seq
+    - keyword: START
+    - integer_literal: '2'
+- statement_terminator: ;
+- statement:
+    create_sequence_statement:
+    - keyword: CREATE
+    - keyword: SEQUENCE
+    - sequence_reference:
+        naked_identifier: seq
+    - keyword: INCREMENT
+    - integer_literal: '2'
+- statement_terminator: ;

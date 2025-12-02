@@ -1,0 +1,216 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 4720a5df637f1af3735663cf93ba4e25d885c1db9c4eba5535eb085f019aa04e
+file:
+- statement:
+    alter_function_statement:
+    - keyword: ALTER
+    - keyword: FUNCTION
+    - keyword: IF
+    - keyword: EXISTS
+    - function_name:
+        function_name_identifier: FUNCTION1
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          data_type:
+            data_type_identifier: NUMBER
+          end_bracket: )
+    - keyword: RENAME
+    - keyword: TO
+    - function_name:
+        function_name_identifier: FUNCTION2
+- statement_terminator: ;
+- statement:
+    alter_function_statement:
+    - keyword: ALTER
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: FUNCTION2
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          data_type:
+            data_type_identifier: NUMBER
+          end_bracket: )
+    - keyword: SET
+    - keyword: SECURE
+- statement_terminator: ;
+- statement:
+    alter_function_statement:
+    - keyword: ALTER
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: FUNCTION3
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          data_type:
+            data_type_identifier: NUMBER
+          end_bracket: )
+    - keyword: RENAME
+    - keyword: TO
+    - function_name:
+        function_name_identifier: FUNCTION3B
+- statement_terminator: ;
+- statement:
+    alter_function_statement:
+    - keyword: ALTER
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: FUNCTION4
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          data_type:
+            data_type_identifier: NUMBER
+          end_bracket: )
+    - keyword: SET
+    - keyword: API_INTEGRATION
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - naked_identifier: API_INTEGRATION_2
+- statement_terminator: ;
+- statement:
+    alter_function_statement:
+    - keyword: ALTER
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: FUNCTION5
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          data_type:
+            data_type_identifier: NUMBER
+          end_bracket: )
+    - keyword: SET
+    - keyword: MAX_BATCH_ROWS
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - numeric_literal: '100'
+- statement_terminator: ;
+- statement:
+    alter_function_statement:
+    - keyword: ALTER
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: FUNCTION6
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          data_type:
+            data_type_identifier: NUMBER
+          end_bracket: )
+    - keyword: SET
+    - keyword: COMPRESSION
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - compression_type: GZIP
+- statement_terminator: ;
+- statement:
+    alter_function_statement:
+    - keyword: ALTER
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: FUNCTION7
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          data_type:
+            data_type_identifier: NUMBER
+          end_bracket: )
+    - keyword: SET
+    - keyword: REQUEST_TRANSLATOR
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - function_name:
+        function_name_identifier: TRANSLATOR_FUNCTION
+- statement_terminator: ;
+- statement:
+    alter_function_statement:
+    - keyword: ALTER
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: FUNCTION8
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          data_type:
+            data_type_identifier: NUMBER
+          end_bracket: )
+    - keyword: SET
+    - keyword: RESPONSE_TRANSLATOR
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - function_name:
+        function_name_identifier: TRANSLATOR_FUNCTION
+- statement_terminator: ;
+- statement:
+    alter_function_statement:
+    - keyword: ALTER
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: FUNCTION9
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          data_type:
+            data_type_identifier: NUMBER
+          end_bracket: )
+    - keyword: SET
+    - keyword: HEADERS
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - bracketed:
+      - start_bracket: (
+      - quoted_identifier: "'abc'"
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_identifier: "'def'"
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_function_statement:
+    - keyword: ALTER
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: FUNCTION10
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          data_type:
+            data_type_identifier: NUMBER
+          end_bracket: )
+    - keyword: SET
+    - keyword: CONTEXT_HEADERS
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - bracketed:
+      - start_bracket: (
+      - keyword: CURRENT_ROLE
+      - comma: ','
+      - keyword: CURRENT_TIMESTAMP
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_function_statement:
+    - keyword: ALTER
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: FUNCTION11
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          data_type:
+            data_type_identifier: NUMBER
+          end_bracket: )
+    - keyword: SET
+    - comment_equals_clause:
+        keyword: COMMENT
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'Woohoo!'"
+- statement_terminator: ;

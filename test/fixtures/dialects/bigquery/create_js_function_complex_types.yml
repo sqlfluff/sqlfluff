@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 4dd3e99e4321a5c62fecad2e1703d9c001452eab142905bbb364c177a361b78b
+_hash: d1fa0d72cc2af0530c5f21c4cea3da882175a110632f386d1752c6136a1bb15f
 file:
   statement:
     create_function_statement:
@@ -12,7 +12,7 @@ file:
     - keyword: FUNCTION
     - function_name:
         function_name_identifier: qs
-    - base:
+    - function_parameter_list:
         bracketed:
         - start_bracket: (
         - parameter: foo1
@@ -21,74 +21,87 @@ file:
         - comma: ','
         - parameter: foo2
         - data_type:
-            keyword: ARRAY
-            start_angle_bracket: <
             data_type:
-              data_type_identifier: STRING
-            end_angle_bracket: '>'
-        - comma: ','
-        - parameter: foo3
-        - data_type:
-            keyword: STRUCT
-            start_angle_bracket: <
-            parameter: x
-            data_type:
-              data_type_identifier: INT64
-            end_angle_bracket: '>'
-        - comma: ','
-        - parameter: foo4
-        - data_type:
-          - keyword: STRUCT
-          - start_angle_bracket: <
-          - parameter: x
-          - data_type:
-              data_type_identifier: INT64
-          - comma: ','
-          - parameter: y
-          - data_type:
-              data_type_identifier: INT64
-          - end_angle_bracket: '>'
-        - comma: ','
-        - parameter: foo5
-        - data_type:
-          - keyword: STRUCT
-          - start_angle_bracket: <
-          - parameter: a
-          - data_type:
               keyword: ARRAY
               start_angle_bracket: <
               data_type:
-                data_type_identifier: FLOAT
+                data_type_identifier: STRING
               end_angle_bracket: '>'
-          - comma: ','
-          - parameter: b
-          - data_type:
-            - keyword: STRUCT
-            - start_angle_bracket: <
-            - parameter: x
-            - data_type:
-                data_type_identifier: INT64
-            - comma: ','
-            - parameter: y
-            - data_type:
-                data_type_identifier: INT64
-            - end_angle_bracket: '>'
-          - end_angle_bracket: '>'
+        - comma: ','
+        - parameter: foo3
+        - data_type:
+            data_type:
+              keyword: STRUCT
+              struct_type_schema:
+                start_angle_bracket: <
+                parameter: x
+                data_type:
+                  data_type_identifier: INT64
+                end_angle_bracket: '>'
+        - comma: ','
+        - parameter: foo4
+        - data_type:
+            data_type:
+              keyword: STRUCT
+              struct_type_schema:
+              - start_angle_bracket: <
+              - parameter: x
+              - data_type:
+                  data_type_identifier: INT64
+              - comma: ','
+              - parameter: y
+              - data_type:
+                  data_type_identifier: INT64
+              - end_angle_bracket: '>'
+        - comma: ','
+        - parameter: foo5
+        - data_type:
+            data_type:
+              keyword: STRUCT
+              struct_type_schema:
+              - start_angle_bracket: <
+              - parameter: a
+              - data_type:
+                  data_type:
+                    keyword: ARRAY
+                    start_angle_bracket: <
+                    data_type:
+                      data_type_identifier: FLOAT
+                    end_angle_bracket: '>'
+              - comma: ','
+              - parameter: b
+              - data_type:
+                  data_type:
+                    keyword: STRUCT
+                    struct_type_schema:
+                    - start_angle_bracket: <
+                    - parameter: x
+                    - data_type:
+                        data_type_identifier: INT64
+                    - comma: ','
+                    - parameter: y
+                    - data_type:
+                        data_type_identifier: INT64
+                    - end_angle_bracket: '>'
+              - end_angle_bracket: '>'
         - end_bracket: )
     - keyword: RETURNS
     - data_type:
-        keyword: STRUCT
-        start_angle_bracket: <
-        parameter: product_id
         data_type:
-          keyword: ARRAY
-          start_angle_bracket: <
-          data_type:
-            data_type_identifier: INT64
-          end_angle_bracket: '>'
-        end_angle_bracket: '>'
-    - base:
+          keyword: STRUCT
+          struct_type_schema:
+            start_angle_bracket: <
+            parameter: product_id
+            data_type:
+              data_type:
+                keyword: ARRAY
+                start_angle_bracket: <
+                data_type:
+                  data_type_identifier: INT64
+                end_angle_bracket: '>'
+            end_angle_bracket: '>'
+    - function_definition:
       - keyword: LANGUAGE
-      - parameter: js
+      - naked_identifier: js
       - keyword: AS
       - udf_body: "\"\"\"\n    CODE GOES HERE\n\"\"\""

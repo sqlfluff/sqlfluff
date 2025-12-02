@@ -1,0 +1,212 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: ca868384d802f535ba528cb300ea943a1e0e47a38c09240a0fda06b65c8123e1
+file:
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: GLOBAL
+    - keyword: TEMPORARY
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: today_sales
+    - keyword: 'ON'
+    - keyword: COMMIT
+    - keyword: PRESERVE
+    - keyword: ROWS
+    - keyword: AS
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: orders
+        where_clause:
+          keyword: WHERE
+          expression:
+            column_reference:
+              naked_identifier: order_date
+            comparison_operator:
+              raw_comparison_operator: '='
+            bare_function: SYSDATE
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: GLOBAL
+    - keyword: TEMPORARY
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: HT_AFFAIRES
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          naked_identifier: ID
+          data_type:
+            data_type_identifier: CHAR
+          bracketed:
+            start_bracket: (
+            numeric_literal: '36'
+            word: CHAR
+            end_bracket: )
+        end_bracket: )
+    - keyword: 'ON'
+    - keyword: COMMIT
+    - keyword: DELETE
+    - keyword: ROWS
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: GLOBAL
+    - keyword: TEMPORARY
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: my_temp_table
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          naked_identifier: id
+          data_type:
+            data_type_identifier: NUMBER
+      - comma: ','
+      - column_definition:
+          naked_identifier: description
+          data_type:
+            data_type_identifier: VARCHAR2
+            bracketed_arguments:
+              bracketed:
+                start_bracket: (
+                numeric_literal: '20'
+                end_bracket: )
+      - end_bracket: )
+    - keyword: 'ON'
+    - keyword: COMMIT
+    - keyword: DELETE
+    - keyword: ROWS
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: GLOBAL
+    - keyword: TEMPORARY
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: my_temp_table
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          naked_identifier: id
+          data_type:
+            data_type_identifier: NUMBER
+      - comma: ','
+      - column_definition:
+          naked_identifier: description
+          data_type:
+            data_type_identifier: VARCHAR2
+            bracketed_arguments:
+              bracketed:
+                start_bracket: (
+                numeric_literal: '20'
+                end_bracket: )
+      - end_bracket: )
+    - keyword: 'ON'
+    - keyword: COMMIT
+    - keyword: PRESERVE
+    - keyword: ROWS
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: PRIVATE
+    - keyword: TEMPORARY
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: ora$ptt_my_temp_table
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          naked_identifier: id
+          data_type:
+            data_type_identifier: NUMBER
+      - comma: ','
+      - column_definition:
+          naked_identifier: description
+          data_type:
+            data_type_identifier: VARCHAR2
+          bracketed:
+            start_bracket: (
+            numeric_literal: '20'
+            word: BYTE
+            end_bracket: )
+      - end_bracket: )
+    - keyword: 'ON'
+    - keyword: COMMIT
+    - keyword: DROP
+    - keyword: DEFINITION
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: PRIVATE
+    - keyword: TEMPORARY
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: ora$ptt_my_temp_table
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          naked_identifier: id
+          data_type:
+            data_type_identifier: NUMBER
+      - comma: ','
+      - column_definition:
+          naked_identifier: description
+          data_type:
+            data_type_identifier: VARCHAR2
+          bracketed:
+            start_bracket: (
+            numeric_literal: '20'
+            word: CHAR
+            end_bracket: )
+      - end_bracket: )
+    - keyword: 'ON'
+    - keyword: COMMIT
+    - keyword: PRESERVE
+    - keyword: DEFINITION
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: PRIVATE
+    - keyword: TEMPORARY
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: ora$ptt_emp
+    - keyword: AS
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: emp
+- statement_terminator: ;

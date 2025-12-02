@@ -1,0 +1,8 @@
+rule: AM01
+
+test_pass_only_group_by:
+  # check if using select distinct and group by
+  pass_str: select a from b group by a
+
+test_fail_distinct_and_group_by:
+  fail_str: select distinct a from b group by a

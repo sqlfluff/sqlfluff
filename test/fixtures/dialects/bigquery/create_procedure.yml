@@ -1,0 +1,1006 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 9e057f9770b1f4fd5da3ba204d259fc4558f840c0eb7b21dacbdd3a31b3b82d7
+file:
+- multi_statement_segment:
+    create_procedure_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: PROCEDURE
+    - procedure_name:
+        procedure_name_identifier: '`mfrm_working_temp_dataset.temp`'
+    - procedure_parameter_list:
+        bracketed:
+          start_bracket: (
+          parameter: incremental
+          data_type:
+            data_type_identifier: INT64
+          end_bracket: )
+    - begin_statement:
+      - keyword: BEGIN
+      - statement:
+          select_statement:
+            select_clause:
+              keyword: SELECT
+              select_clause_element:
+                function:
+                  function_name:
+                    function_name_identifier: CURRENT_DATETIME
+                  function_contents:
+                    bracketed:
+                      start_bracket: (
+                      end_bracket: )
+      - statement_terminator: ;
+      - keyword: END
+- statement_terminator: ;
+- multi_statement_segment:
+    create_procedure_statement:
+    - keyword: CREATE
+    - keyword: PROCEDURE
+    - procedure_name:
+      - naked_identifier: myProject
+      - dot: .
+      - naked_identifier: myDataset
+      - dot: .
+      - procedure_name_identifier: QueryTable
+    - procedure_parameter_list:
+        bracketed:
+          start_bracket: (
+          end_bracket: )
+    - begin_statement:
+      - keyword: BEGIN
+      - statement:
+          select_statement:
+            select_clause:
+              keyword: SELECT
+              select_clause_element:
+                wildcard_expression:
+                  wildcard_identifier:
+                    star: '*'
+            from_clause:
+              keyword: FROM
+              from_expression:
+                from_expression_element:
+                  table_expression:
+                    table_reference:
+                    - naked_identifier: anotherDataset
+                    - dot: .
+                    - naked_identifier: myTable
+      - statement_terminator: ;
+      - keyword: END
+- statement_terminator: ;
+- multi_statement_segment:
+    create_procedure_statement:
+    - keyword: CREATE
+    - keyword: PROCEDURE
+    - procedure_name:
+        naked_identifier: mydataset
+        dot: .
+        procedure_name_identifier: AddDelta
+    - procedure_parameter_list:
+        bracketed:
+        - start_bracket: (
+        - keyword: INOUT
+        - parameter: x
+        - data_type:
+            data_type_identifier: INT64
+        - comma: ','
+        - parameter: delta
+        - data_type:
+            data_type_identifier: INT64
+        - end_bracket: )
+    - begin_statement:
+      - keyword: BEGIN
+      - statement:
+          set_segment:
+            keyword: SET
+            naked_identifier: x
+            comparison_operator:
+              raw_comparison_operator: '='
+            expression:
+            - column_reference:
+                naked_identifier: x
+            - binary_operator: +
+            - column_reference:
+                naked_identifier: delta
+      - statement_terminator: ;
+      - keyword: END
+- statement_terminator: ;
+- multi_statement_segment:
+    create_procedure_statement:
+    - keyword: CREATE
+    - keyword: PROCEDURE
+    - procedure_name:
+        naked_identifier: mydataset
+        dot: .
+        procedure_name_identifier: SelectFromTablesAndAppend
+    - procedure_parameter_list:
+        bracketed:
+        - start_bracket: (
+        - parameter: target_date
+        - data_type:
+            data_type_identifier: DATE
+        - comma: ','
+        - keyword: OUT
+        - parameter: rows_added
+        - data_type:
+            data_type_identifier: INT64
+        - end_bracket: )
+    - begin_statement:
+      - keyword: BEGIN
+      - statement:
+          create_table_statement:
+          - keyword: CREATE
+          - keyword: TEMP
+          - keyword: TABLE
+          - table_reference:
+              naked_identifier: DataForTargetDate
+          - keyword: AS
+          - select_statement:
+              select_clause:
+              - keyword: SELECT
+              - select_clause_element:
+                  column_reference:
+                  - naked_identifier: t1
+                  - dot: .
+                  - naked_identifier: id
+              - comma: ','
+              - select_clause_element:
+                  column_reference:
+                  - naked_identifier: t1
+                  - dot: .
+                  - naked_identifier: x
+              - comma: ','
+              - select_clause_element:
+                  column_reference:
+                  - naked_identifier: t2
+                  - dot: .
+                  - naked_identifier: y
+              from_clause:
+                keyword: FROM
+                from_expression:
+                  from_expression_element:
+                    table_expression:
+                      table_reference:
+                      - naked_identifier: dataset
+                      - dot: .
+                      - naked_identifier: partitioned_table1
+                    alias_expression:
+                      alias_operator:
+                        keyword: AS
+                      naked_identifier: t1
+                  join_clause:
+                    keyword: JOIN
+                    from_expression_element:
+                      table_expression:
+                        table_reference:
+                        - naked_identifier: dataset
+                        - dot: .
+                        - naked_identifier: partitioned_table2
+                      alias_expression:
+                        alias_operator:
+                          keyword: AS
+                        naked_identifier: t2
+                    join_on_condition:
+                      keyword: 'ON'
+                      expression:
+                      - column_reference:
+                        - naked_identifier: t1
+                        - dot: .
+                        - naked_identifier: id
+                      - comparison_operator:
+                          raw_comparison_operator: '='
+                      - column_reference:
+                        - naked_identifier: t2
+                        - dot: .
+                        - naked_identifier: id
+              where_clause:
+                keyword: WHERE
+                expression:
+                - column_reference:
+                  - naked_identifier: t1
+                  - dot: .
+                  - naked_identifier: date
+                - comparison_operator:
+                    raw_comparison_operator: '='
+                - column_reference:
+                    naked_identifier: target_date
+                - binary_operator: AND
+                - column_reference:
+                  - naked_identifier: t2
+                  - dot: .
+                  - naked_identifier: date
+                - comparison_operator:
+                    raw_comparison_operator: '='
+                - column_reference:
+                    naked_identifier: target_date
+      - statement_terminator: ;
+      - statement:
+          set_segment:
+            keyword: SET
+            naked_identifier: rows_added
+            comparison_operator:
+              raw_comparison_operator: '='
+            bracketed:
+              start_bracket: (
+              select_statement:
+                select_clause:
+                  keyword: SELECT
+                  select_clause_element:
+                    function:
+                      function_name:
+                        function_name_identifier: COUNT
+                      function_contents:
+                        bracketed:
+                          start_bracket: (
+                          star: '*'
+                          end_bracket: )
+                from_clause:
+                  keyword: FROM
+                  from_expression:
+                    from_expression_element:
+                      table_expression:
+                        table_reference:
+                          naked_identifier: DataForTargetDate
+              end_bracket: )
+      - statement_terminator: ;
+      - statement:
+          select_statement:
+            select_clause:
+            - keyword: SELECT
+            - select_clause_element:
+                column_reference:
+                  naked_identifier: id
+            - comma: ','
+            - select_clause_element:
+                column_reference:
+                  naked_identifier: x
+            - comma: ','
+            - select_clause_element:
+                column_reference:
+                  naked_identifier: y
+            - comma: ','
+            - select_clause_element:
+                column_reference:
+                  naked_identifier: target_date
+            from_clause:
+              keyword: FROM
+              from_expression:
+                from_expression_element:
+                  table_expression:
+                    table_reference:
+                      naked_identifier: DataForTargetDate
+      - statement_terminator: ;
+      - statement:
+          drop_table_statement:
+          - keyword: DROP
+          - keyword: TABLE
+          - table_reference:
+              naked_identifier: DataForTargetDate
+      - statement_terminator: ;
+      - keyword: END
+- statement_terminator: ;
+- multi_statement_segment:
+    create_procedure_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: PROCEDURE
+    - procedure_name:
+        naked_identifier: mydataset
+        dot: .
+        procedure_name_identifier: create_customer
+    - procedure_parameter_list:
+        bracketed:
+          start_bracket: (
+          end_bracket: )
+    - begin_statement:
+      - keyword: BEGIN
+      - statement:
+          declare_segment:
+            keyword: DECLARE
+            naked_identifier: id
+            data_type:
+              data_type_identifier: STRING
+      - statement_terminator: ;
+      - statement:
+          set_segment:
+            keyword: SET
+            naked_identifier: id
+            comparison_operator:
+              raw_comparison_operator: '='
+            function:
+              function_name:
+                function_name_identifier: GENERATE_UUID
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  end_bracket: )
+      - statement_terminator: ;
+      - statement:
+          insert_statement:
+          - keyword: INSERT
+          - keyword: INTO
+          - table_reference:
+            - naked_identifier: mydataset
+            - dot: .
+            - naked_identifier: customers
+          - bracketed:
+              start_bracket: (
+              column_reference:
+                naked_identifier: customer_id
+              end_bracket: )
+          - values_clause:
+              keyword: VALUES
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: id
+                end_bracket: )
+      - statement_terminator: ;
+      - statement:
+          select_statement:
+            select_clause:
+              keyword: SELECT
+              select_clause_element:
+                function:
+                  function_name:
+                    function_name_identifier: FORMAT
+                  function_contents:
+                    bracketed:
+                    - start_bracket: (
+                    - expression:
+                        quoted_literal: '"Created customer %s"'
+                    - comma: ','
+                    - expression:
+                        column_reference:
+                          naked_identifier: id
+                    - end_bracket: )
+      - statement_terminator: ;
+      - keyword: END
+- statement_terminator: ;
+- multi_statement_segment:
+    create_procedure_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: PROCEDURE
+    - procedure_name:
+        naked_identifier: mydataset
+        dot: .
+        procedure_name_identifier: create_customer
+    - procedure_parameter_list:
+        bracketed:
+          start_bracket: (
+          parameter: name
+          data_type:
+            data_type_identifier: STRING
+          end_bracket: )
+    - begin_statement:
+      - keyword: BEGIN
+      - statement:
+          declare_segment:
+            keyword: DECLARE
+            naked_identifier: id
+            data_type:
+              data_type_identifier: STRING
+      - statement_terminator: ;
+      - statement:
+          set_segment:
+            keyword: SET
+            naked_identifier: id
+            comparison_operator:
+              raw_comparison_operator: '='
+            function:
+              function_name:
+                function_name_identifier: GENERATE_UUID
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  end_bracket: )
+      - statement_terminator: ;
+      - statement:
+          insert_statement:
+          - keyword: INSERT
+          - keyword: INTO
+          - table_reference:
+            - naked_identifier: mydataset
+            - dot: .
+            - naked_identifier: customers
+          - bracketed:
+            - start_bracket: (
+            - column_reference:
+                naked_identifier: customer_id
+            - comma: ','
+            - column_reference:
+                naked_identifier: name
+            - end_bracket: )
+          - values_clause:
+              keyword: VALUES
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                    naked_identifier: id
+              - comma: ','
+              - expression:
+                  column_reference:
+                    naked_identifier: name
+              - end_bracket: )
+      - statement_terminator: ;
+      - statement:
+          select_statement:
+            select_clause:
+              keyword: SELECT
+              select_clause_element:
+                function:
+                  function_name:
+                    function_name_identifier: FORMAT
+                  function_contents:
+                    bracketed:
+                    - start_bracket: (
+                    - expression:
+                        quoted_literal: '"Created customer %s (%s)"'
+                    - comma: ','
+                    - expression:
+                        column_reference:
+                          naked_identifier: id
+                    - comma: ','
+                    - expression:
+                        column_reference:
+                          naked_identifier: name
+                    - end_bracket: )
+      - statement_terminator: ;
+      - keyword: END
+- statement_terminator: ;
+- multi_statement_segment:
+    create_procedure_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: PROCEDURE
+    - procedure_name:
+        naked_identifier: mydataset
+        dot: .
+        procedure_name_identifier: create_customer
+    - procedure_parameter_list:
+        bracketed:
+        - start_bracket: (
+        - parameter: name
+        - data_type:
+            data_type_identifier: STRING
+        - comma: ','
+        - keyword: OUT
+        - parameter: id
+        - data_type:
+            data_type_identifier: STRING
+        - end_bracket: )
+    - begin_statement:
+      - keyword: BEGIN
+      - statement:
+          set_segment:
+            keyword: SET
+            naked_identifier: id
+            comparison_operator:
+              raw_comparison_operator: '='
+            function:
+              function_name:
+                function_name_identifier: GENERATE_UUID
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  end_bracket: )
+      - statement_terminator: ;
+      - statement:
+          insert_statement:
+          - keyword: INSERT
+          - keyword: INTO
+          - table_reference:
+            - naked_identifier: mydataset
+            - dot: .
+            - naked_identifier: customers
+          - bracketed:
+            - start_bracket: (
+            - column_reference:
+                naked_identifier: customer_id
+            - comma: ','
+            - column_reference:
+                naked_identifier: name
+            - end_bracket: )
+          - values_clause:
+              keyword: VALUES
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                    naked_identifier: id
+              - comma: ','
+              - expression:
+                  column_reference:
+                    naked_identifier: name
+              - end_bracket: )
+      - statement_terminator: ;
+      - statement:
+          select_statement:
+            select_clause:
+              keyword: SELECT
+              select_clause_element:
+                function:
+                  function_name:
+                    function_name_identifier: FORMAT
+                  function_contents:
+                    bracketed:
+                    - start_bracket: (
+                    - expression:
+                        quoted_literal: '"Created customer %s (%s)"'
+                    - comma: ','
+                    - expression:
+                        column_reference:
+                          naked_identifier: id
+                    - comma: ','
+                    - expression:
+                        column_reference:
+                          naked_identifier: name
+                    - end_bracket: )
+      - statement_terminator: ;
+      - keyword: END
+- statement_terminator: ;
+- multi_statement_segment:
+    create_procedure_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: PROCEDURE
+    - procedure_name:
+        naked_identifier: mydataset
+        dot: .
+        procedure_name_identifier: test_raise_return
+    - procedure_parameter_list:
+        bracketed:
+          start_bracket: (
+          parameter: error_message
+          data_type:
+            data_type_identifier: STRING
+          end_bracket: )
+    - begin_statement:
+      - keyword: BEGIN
+      - statement:
+          return_statement:
+            keyword: RETURN
+      - statement_terminator: ;
+      - statement:
+          raise_statement:
+            keyword: RAISE
+      - statement_terminator: ;
+      - statement:
+          raise_statement:
+          - keyword: RAISE
+          - keyword: USING
+          - keyword: MESSAGE
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - expression:
+              quoted_literal: '"Test"'
+      - statement_terminator: ;
+      - statement:
+          raise_statement:
+          - keyword: RAISE
+          - keyword: USING
+          - keyword: MESSAGE
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - expression:
+              column_reference:
+                naked_identifier: error_message
+      - statement_terminator: ;
+      - keyword: END
+- statement_terminator: ;
+- multi_statement_segment:
+    create_procedure_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: PROCEDURE
+    - procedure_name:
+        naked_identifier: place_name
+        dot: .
+        procedure_name_identifier: proc_name
+    - procedure_parameter_list:
+        bracketed:
+          start_bracket: (
+          parameter: _log
+          data_type:
+            data_type:
+              keyword: STRUCT
+              struct_type_schema:
+              - start_angle_bracket: <
+              - parameter: Process_ID
+              - data_type:
+                  data_type_identifier: STRING
+              - comma: ','
+              - parameter: Debug
+              - data_type:
+                  data_type_identifier: INT64
+              - end_angle_bracket: '>'
+          end_bracket: )
+    - begin_statement:
+      - keyword: BEGIN
+      - statement:
+          declare_segment:
+            keyword: DECLARE
+            naked_identifier: _source_table
+            data_type:
+              data_type_identifier: STRING
+      - statement_terminator: ;
+      - statement:
+          create_table_statement:
+          - keyword: CREATE
+          - keyword: OR
+          - keyword: REPLACE
+          - keyword: TEMP
+          - keyword: TABLE
+          - table_reference:
+            - naked_identifier: _session
+            - dot: .
+            - naked_identifier: __calendar_target_buffer
+          - bracketed:
+              start_bracket: (
+              column_definition:
+                naked_identifier: some_id
+                data_type:
+                  data_type_identifier: INT64
+              end_bracket: )
+      - statement_terminator: ;
+      - multi_statement_segment:
+          begin_statement:
+          - keyword: BEGIN
+          - statement:
+              set_segment:
+                keyword: SET
+                naked_identifier: _metric_id
+                comparison_operator:
+                  raw_comparison_operator: '='
+                numeric_literal: '1001'
+          - statement_terminator: ;
+          - statement:
+              call_statement:
+                keyword: CALL
+                procedure_name:
+                  naked_identifier: some_place
+                  dot: .
+                  procedure_name_identifier: some_name1
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                      naked_identifier: _some_id
+                  end_bracket: )
+          - statement_terminator: ;
+          - keyword: END
+      - statement_terminator: ;
+      - keyword: END
+- statement_terminator: ;
+- multi_statement_segment:
+    create_procedure_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: PROCEDURE
+    - procedure_name:
+        naked_identifier: place_name
+        dot: .
+        procedure_name_identifier: proc_name
+    - procedure_parameter_list:
+        bracketed:
+          start_bracket: (
+          parameter: _log
+          data_type:
+            data_type:
+              keyword: STRUCT
+              struct_type_schema:
+              - start_angle_bracket: <
+              - parameter: Process_ID
+              - data_type:
+                  data_type_identifier: STRING
+              - comma: ','
+              - parameter: Debug
+              - data_type:
+                  data_type_identifier: INT64
+              - end_angle_bracket: '>'
+          end_bracket: )
+    - begin_statement:
+      - keyword: BEGIN
+      - statement:
+          declare_segment:
+            keyword: DECLARE
+            naked_identifier: _source_table
+            data_type:
+              data_type_identifier: STRING
+      - statement_terminator: ;
+      - statement:
+          create_table_statement:
+          - keyword: CREATE
+          - keyword: OR
+          - keyword: REPLACE
+          - keyword: TEMP
+          - keyword: TABLE
+          - table_reference:
+            - naked_identifier: _session
+            - dot: .
+            - naked_identifier: __calendar_target_buffer
+          - bracketed:
+              start_bracket: (
+              column_definition:
+                naked_identifier: some_id
+                data_type:
+                  data_type_identifier: INT64
+              end_bracket: )
+      - statement_terminator: ;
+      - multi_statement_segment:
+          begin_statement:
+          - keyword: BEGIN
+          - statement:
+              set_segment:
+                keyword: SET
+                naked_identifier: _metric_id
+                comparison_operator:
+                  raw_comparison_operator: '='
+                numeric_literal: '1001'
+          - statement_terminator: ;
+          - statement:
+              call_statement:
+                keyword: CALL
+                procedure_name:
+                  naked_identifier: some_place
+                  dot: .
+                  procedure_name_identifier: some_name1
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                      naked_identifier: _some_id
+                  end_bracket: )
+          - statement_terminator: ;
+          - multi_statement_segment:
+              for_in_statement:
+              - keyword: FOR
+              - naked_identifier: x
+              - keyword: IN
+              - bracketed:
+                  start_bracket: (
+                  select_statement:
+                    select_clause:
+                      keyword: SELECT
+                      select_clause_element:
+                        numeric_literal: '1'
+                  end_bracket: )
+              - keyword: DO
+              - for_in_statements:
+                  multi_statement_segment:
+                    for_in_statement:
+                    - keyword: FOR
+                    - naked_identifier: y
+                    - keyword: IN
+                    - bracketed:
+                        start_bracket: (
+                        select_statement:
+                          select_clause:
+                            keyword: SELECT
+                            select_clause_element:
+                              column_reference:
+                                naked_identifier: x
+                        end_bracket: )
+                    - keyword: DO
+                    - for_in_statements:
+                      - statement:
+                          transaction_statement:
+                            keyword: BEGIN
+                      - statement_terminator: ;
+                      - statement:
+                          select_statement:
+                            select_clause:
+                              keyword: SELECT
+                              select_clause_element:
+                                column_reference:
+                                  naked_identifier: y
+                      - statement_terminator: ;
+                      - statement:
+                          transaction_statement:
+                          - keyword: COMMIT
+                          - keyword: TRANSACTION
+                      - statement_terminator: ;
+                    - keyword: END
+                    - keyword: FOR
+                  statement_terminator: ;
+              - keyword: END
+              - keyword: FOR
+          - statement_terminator: ;
+          - keyword: END
+      - statement_terminator: ;
+      - keyword: END
+- statement_terminator: ;
+- multi_statement_segment:
+    create_procedure_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: PROCEDURE
+    - procedure_name:
+        naked_identifier: place_name
+        dot: .
+        procedure_name_identifier: proc_name
+    - procedure_parameter_list:
+        bracketed:
+          start_bracket: (
+          parameter: _log
+          data_type:
+            data_type:
+              keyword: STRUCT
+              struct_type_schema:
+              - start_angle_bracket: <
+              - parameter: Process_ID
+              - data_type:
+                  data_type_identifier: STRING
+              - comma: ','
+              - parameter: Debug
+              - data_type:
+                  data_type_identifier: INT64
+              - end_angle_bracket: '>'
+          end_bracket: )
+    - options_segment:
+        keyword: OPTIONS
+        bracketed:
+        - start_bracket: (
+        - parameter: strict_mode
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - boolean_literal: 'TRUE'
+        - comma: ','
+        - parameter: description
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - quoted_literal: "'''\nAuthor:\n'''"
+        - end_bracket: )
+    - begin_statement:
+      - keyword: BEGIN
+      - statement:
+          declare_segment:
+            keyword: DECLARE
+            naked_identifier: _source_table
+            data_type:
+              data_type_identifier: STRING
+      - statement_terminator: ;
+      - statement:
+          create_table_statement:
+          - keyword: CREATE
+          - keyword: OR
+          - keyword: REPLACE
+          - keyword: TEMP
+          - keyword: TABLE
+          - table_reference:
+            - naked_identifier: _session
+            - dot: .
+            - naked_identifier: __calendar_target_buffer
+          - bracketed:
+              start_bracket: (
+              column_definition:
+                naked_identifier: some_id
+                data_type:
+                  data_type_identifier: INT64
+              end_bracket: )
+      - statement_terminator: ;
+      - multi_statement_segment:
+          begin_statement:
+          - keyword: BEGIN
+          - statement:
+              set_segment:
+                keyword: SET
+                naked_identifier: _metric_id
+                comparison_operator:
+                  raw_comparison_operator: '='
+                numeric_literal: '1001'
+          - statement_terminator: ;
+          - statement:
+              call_statement:
+                keyword: CALL
+                procedure_name:
+                  naked_identifier: some_place
+                  dot: .
+                  procedure_name_identifier: some_name1
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                      naked_identifier: _some_id
+                  end_bracket: )
+          - statement_terminator: ;
+          - keyword: EXCEPTION
+          - keyword: WHEN
+          - keyword: ERROR
+          - keyword: THEN
+          - statement:
+              raise_statement:
+                keyword: RAISE
+          - statement_terminator: ;
+          - keyword: END
+      - statement_terminator: ;
+      - keyword: END
+- statement_terminator: ;
+- multi_statement_segment:
+    create_procedure_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: PROCEDURE
+    - procedure_name:
+        procedure_name_identifier: '`kkk.dynamic_table_creator`'
+    - procedure_parameter_list:
+        bracketed:
+        - start_bracket: (
+        - keyword: IN
+        - parameter: table_suffix
+        - data_type:
+            data_type_identifier: STRING
+        - comma: ','
+        - keyword: IN
+        - parameter: num_rows
+        - data_type:
+            data_type_identifier: INT64
+        - end_bracket: )
+    - begin_statement:
+      - keyword: BEGIN
+      - statement:
+          declare_segment:
+            keyword: DECLARE
+            naked_identifier: table_name
+            data_type:
+              data_type_identifier: STRING
+      - statement_terminator: ;
+      - statement:
+          set_segment:
+            keyword: SET
+            naked_identifier: table_name
+            comparison_operator:
+              raw_comparison_operator: '='
+            expression:
+              quoted_literal: "'my_table_'"
+              binary_operator:
+              - pipe: '|'
+              - pipe: '|'
+              column_reference:
+                naked_identifier: table_suffix
+      - statement_terminator: ;
+      - statement:
+          execute_immediate:
+          - keyword: EXECUTE
+          - keyword: IMMEDIATE
+          - expression:
+            - quoted_literal: "'''\n    CREATE OR REPLACE TABLE `my_dataset.'''"
+            - binary_operator:
+              - pipe: '|'
+              - pipe: '|'
+            - column_reference:
+                naked_identifier: table_name
+            - binary_operator:
+              - pipe: '|'
+              - pipe: '|'
+            - quoted_literal: "'''` AS\n    SELECT\n        GENERATE_UUID() AS id,\n\
+                \        RAND() AS random_value\n    FROM\n        UNNEST(GENERATE_ARRAY(1,\
+                \ '''"
+            - binary_operator:
+              - pipe: '|'
+              - pipe: '|'
+            - column_reference:
+                naked_identifier: num_rows
+            - binary_operator:
+              - pipe: '|'
+              - pipe: '|'
+            - quoted_literal: "''')) AS num\n    '''"
+      - statement_terminator: ;
+      - keyword: END
+- statement_terminator: ;

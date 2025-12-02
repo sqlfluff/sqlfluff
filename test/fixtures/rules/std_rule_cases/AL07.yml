@@ -1,0 +1,553 @@
+rule: AL07
+
+test_pass_allow_self_join_alias:
+  # AL07 Allow self-joins
+  pass_str: |
+    select
+      x.a,
+      x_2.b
+    from x
+    left join x as x_2 on x.foreign_key = x.foreign_key
+  configs:
+    rules:
+      aliasing.forbid:
+        force_enable: true
+
+test_fail_avoid_aliases_1:
+  fail_str: |
+    SELECT
+      u.id,
+      c.first_name,
+      c.last_name,
+      COUNT(o.user_id)
+    FROM users as u
+    JOIN customers as c on u.id = c.user_id
+    JOIN orders as o on u.id = o.user_id;
+
+  fix_str: |
+    SELECT
+      users.id,
+      customers.first_name,
+      customers.last_name,
+      COUNT(orders.user_id)
+    FROM users
+    JOIN customers on users.id = customers.user_id
+    JOIN orders on users.id = orders.user_id;
+  configs:
+    rules:
+      aliasing.forbid:
+        force_enable: true
+
+test_fail_avoid_aliases_2:
+  # AL07 order by
+  fail_str: |
+    SELECT
+      u.id,
+      c.first_name,
+      c.last_name,
+      COUNT(o.user_id)
+    FROM users as u
+    JOIN customers as c on u.id = c.user_id
+    JOIN orders as o on u.id = o.user_id
+    order by o.user_id desc
+
+  fix_str: |
+    SELECT
+      users.id,
+      customers.first_name,
+      customers.last_name,
+      COUNT(orders.user_id)
+    FROM users
+    JOIN customers on users.id = customers.user_id
+    JOIN orders on users.id = orders.user_id
+    order by orders.user_id desc
+  configs:
+    rules:
+      aliasing.forbid:
+        force_enable: true
+
+test_fail_avoid_aliases_3:
+  # AL07 order by identifier which is the same raw as an alias but refers to a column
+  fail_str: |
+    SELECT
+      u.id,
+      c.first_name,
+      c.last_name,
+      COUNT(o.user_id)
+    FROM users as u
+    JOIN customers as c on u.id = c.user_id
+    JOIN orders as o on u.id = o.user_id
+    order by o desc
+
+  fix_str: |
+    SELECT
+      users.id,
+      customers.first_name,
+      customers.last_name,
+      COUNT(orders.user_id)
+    FROM users
+    JOIN customers on users.id = customers.user_id
+    JOIN orders on users.id = orders.user_id
+    order by o desc
+  configs:
+    rules:
+      aliasing.forbid:
+        force_enable: true
+
+alias_single_char_identifiers:
+  fail_str: "select b from tbl as a"
+  fix_str: "select b from tbl"
+  configs:
+    rules:
+      aliasing.forbid:
+        force_enable: true
+
+alias_with_wildcard_identifier:
+  fail_str: "select * from tbl as a"
+  fix_str: "select * from tbl"
+  configs:
+    rules:
+      aliasing.forbid:
+        force_enable: true
+
+select_from_values:
+  pass_str: |
+    select *
+    from values(1, 2, 3)
+  configs:
+    rules:
+      aliasing.forbid:
+        force_enable: true
+
+select_from_table_generator:
+  pass_str: |
+    select *
+    from table(
+        generator(
+            rowcount=>10000
+        )
+    )
+
+  configs:
+    core:
+      dialect: snowflake
+    rules:
+      aliasing.forbid:
+        force_enable: true
+
+issue_635:
+  pass_str: |
+    select
+        id::varchar as id,
+        obj:userid::varchar as user_id,
+        redemptions.value:awardedreceiptid::varchar as awarded_receipt_id
+    from
+        a,
+        lateral flatten(input => a.obj:redemptions) redemptions
+
+
+  configs:
+    core:
+      dialect: snowflake
+    rules:
+      aliasing.forbid:
+        force_enable: true
+
+# This query was causing a runtime error in the rule.
+issue_239:
+  pass_str: |
+    WITH
+      confusion_matrix AS (
+      SELECT
+        expected_label,
+        commerce,
+        digital,
+        traditional_services
+      FROM
+        ML.CONFUSION_MATRIX(MODEL model3,
+          (
+          SELECT
+            *
+          FROM
+            table1
+          WHERE
+            training = 0 )))
+
+    SELECT
+      *,
+      commerce pct_commerce
+    FROM
+      confusion_matrix
+  configs:
+    core:
+      dialect: bigquery
+
+# The rule was removing the aliases from this query, causing incorrect behavior.
+# (Aliases may not only be used in select targets; they also influence whether
+# multiple joins to a table are independent or not).
+issue_610:
+  pass_str: |
+    SELECT aaaaaa.c
+    FROM aaaaaa
+    JOIN bbbbbb AS b ON b.a = aaaaaa.id
+    JOIN bbbbbb AS b2 ON b2.other = b.id
+  configs:
+    rules:
+      aliasing.forbid:
+        force_enable: true
+
+issue_1589:
+  pass_str: |
+    select *
+    from (select random() as v from (values(1))) t1,
+         (select max(repl) as m from data) t2,
+         (select * from data
+         where repl=t2.m and
+              rnd>=t.v
+         order by rnd
+         limit 1)
+  configs:
+    rules:
+      aliasing.forbid:
+        force_enable: true
+
+issue_1639:
+  fail_str: |
+    DECLARE @VariableE date = GETDATE()
+
+    CREATE TABLE #TempTable
+    AS
+    (
+      Select ColumnD
+      from SchemaA.TableB AliasC
+      where ColumnD  >= @VariableE
+    )
+  fix_str: |
+    DECLARE @VariableE date = GETDATE()
+
+    CREATE TABLE #TempTable
+    AS
+    (
+      Select ColumnD
+      from SchemaA.TableB
+      where ColumnD  >= @VariableE
+    )
+  configs:
+    core:
+      dialect: tsql
+    rules:
+      aliasing.forbid:
+        force_enable: true
+
+test_fail_no_copy_code_out_of_template:
+  # The rule wants to replace "t" with "foobar", but
+  # LintFix.has_template_conflicts() correctly prevents it copying code out
+  # of the templated region. Hence, the query is not modified.
+  fail_str: |
+    SELECT t.repo_id
+    FROM {{ source_table }} AS t
+  configs:
+    templater:
+      jinja:
+        context:
+          source_table: foobar
+    rules:
+      aliasing.forbid:
+        force_enable: true
+
+test_bigquery_skip_multipart_names:
+  pass_str: |
+    SELECT t.col1
+    FROM shema1.table1 AS t
+  configs:
+    core:
+      dialect: bigquery
+
+test_bigquery_force_enable:
+  fail_str: |
+    SELECT t.col1
+    FROM schema1.table1 AS t
+  # TRICKY: The fix_str does not parse in the real BigQuery, due to backtick
+  # requirements. That's why the rule is disabled by default.
+  # TODO (low priority): Update this test to test for a case where the rule
+  # produces valid SQL.
+  fix_str: |
+    SELECT schema1.table1.col1
+    FROM schema1.table1
+  configs:
+    core:
+      dialect: bigquery
+    rules:
+      aliasing.forbid:
+        force_enable: true
+
+test_violation_locations:
+  fail_str: |
+    SELECT
+        u.id,
+        c.first_name,
+        c.last_name,
+        COUNT(o.user_id)
+    FROM users as u
+    JOIN customers as c on u.id = c.user_id
+    JOIN orders as o on u.id = o.user_id;
+  fix_str: |
+    SELECT
+        users.id,
+        customers.first_name,
+        customers.last_name,
+        COUNT(orders.user_id)
+    FROM users
+    JOIN customers on users.id = customers.user_id
+    JOIN orders on users.id = orders.user_id;
+  configs:
+    rules:
+      aliasing.forbid:
+        force_enable: true
+  violations:
+    - code: AL07
+      description: Avoid aliases in from clauses and join conditions.
+      name: aliasing.forbid
+      warning: false
+      start_line_no: 6
+      start_line_pos: 15
+      start_file_pos: 87
+      end_line_no: 6
+      end_line_pos: 16
+      end_file_pos: 88
+      fixes:
+      - edit: ''
+        end_file_pos: 88
+        end_line_no: 6
+        end_line_pos: 16
+        start_file_pos: 84
+        start_line_no: 6
+        start_line_pos: 12
+        type: delete
+      - edit: ''
+        end_file_pos: 84
+        end_line_no: 6
+        end_line_pos: 12
+        start_file_pos: 83
+        start_line_no: 6
+        start_line_pos: 11
+        type: delete
+      - edit: users
+        end_file_pos: 88
+        end_line_no: 6
+        end_line_pos: 16
+        start_file_pos: 87
+        start_line_no: 6
+        start_line_pos: 15
+        type: replace
+      - edit: users
+        end_file_pos: 12
+        end_line_no: 2
+        end_line_pos: 6
+        start_file_pos: 11
+        start_line_no: 2
+        start_line_pos: 5
+        type: replace
+      - edit: users
+        end_file_pos: 113
+        end_line_no: 7
+        end_line_pos: 25
+        start_file_pos: 112
+        start_line_no: 7
+        start_line_pos: 24
+        type: replace
+      - edit: users
+        end_file_pos: 150
+        end_line_no: 8
+        end_line_pos: 22
+        start_file_pos: 149
+        start_line_no: 8
+        start_line_pos: 21
+        type: replace
+    - code: AL07
+      description: Avoid aliases in from clauses and join conditions.
+      name: aliasing.forbid
+      warning: false
+      start_line_no: 7
+      start_line_pos: 19
+      start_file_pos: 107
+      end_line_no: 7
+      end_line_pos: 20
+      end_file_pos: 108
+      fixes:
+      - edit: ''
+        end_file_pos: 108
+        end_line_no: 7
+        end_line_pos: 20
+        start_file_pos: 104
+        start_line_no: 7
+        start_line_pos: 16
+        type: delete
+      - edit: ''
+        end_file_pos: 104
+        end_line_no: 7
+        end_line_pos: 16
+        start_file_pos: 103
+        start_line_no: 7
+        start_line_pos: 15
+        type: delete
+      - edit: customers
+        end_file_pos: 108
+        end_line_no: 7
+        end_line_pos: 20
+        start_file_pos: 107
+        start_line_no: 7
+        start_line_pos: 19
+        type: replace
+      - edit: customers
+        end_file_pos: 22
+        end_line_no: 3
+        end_line_pos: 6
+        start_file_pos: 21
+        start_line_no: 3
+        start_line_pos: 5
+        type: replace
+      - edit: customers
+        end_file_pos: 40
+        end_line_no: 4
+        end_line_pos: 6
+        start_file_pos: 39
+        start_line_no: 4
+        start_line_pos: 5
+        type: replace
+      - edit: customers
+        end_file_pos: 120
+        end_line_no: 7
+        end_line_pos: 32
+        start_file_pos: 119
+        start_line_no: 7
+        start_line_pos: 31
+        type: replace
+    - code: AL07
+      description: Avoid aliases in from clauses and join conditions.
+      name: aliasing.forbid
+      warning: false
+      start_line_no: 8
+      start_line_pos: 16
+      start_file_pos: 144
+      end_line_no: 8
+      end_line_pos: 17
+      end_file_pos: 145
+      fixes:
+      - edit: ''
+        end_file_pos: 145
+        end_line_no: 8
+        end_line_pos: 17
+        start_file_pos: 141
+        start_line_no: 8
+        start_line_pos: 13
+        type: delete
+      - edit: ''
+        end_file_pos: 141
+        end_line_no: 8
+        end_line_pos: 13
+        start_file_pos: 140
+        start_line_no: 8
+        start_line_pos: 12
+        type: delete
+      - edit: orders
+        end_file_pos: 145
+        end_line_no: 8
+        end_line_pos: 17
+        start_file_pos: 144
+        start_line_no: 8
+        start_line_pos: 16
+        type: replace
+      - edit: orders
+        end_file_pos: 63
+        end_line_no: 5
+        end_line_pos: 12
+        start_file_pos: 62
+        start_line_no: 5
+        start_line_pos: 11
+        type: replace
+      - edit: orders
+        end_file_pos: 157
+        end_line_no: 8
+        end_line_pos: 29
+        start_file_pos: 156
+        start_line_no: 8
+        start_line_pos: 28
+        type: replace
+
+test_fail_fix_command:
+  # Test originally from commands_test.py
+  fail_str: |
+    SELECT u.id, c.first_name, c.last_name, COUNT(o.user_id)
+    FROM users as u JOIN customers as c on u.id = c.user_id JOIN orders as o
+    on u.id = o.user_id;
+  fix_str: |
+    SELECT users.id, customers.first_name, customers.last_name, COUNT(orders.user_id)
+    FROM users JOIN customers on users.id = customers.user_id JOIN orders
+    on users.id = orders.user_id;
+  configs:
+    rules:
+      aliasing.forbid:
+        force_enable: true
+
+test_fail_fix_self_aliased_table_5954:
+  fail_str: |
+    with
+    foo as (
+        select * from vee
+    ),
+
+    bar as (
+        select * from baz
+    ),
+
+    final as (
+        select
+            foo.col1,
+            foo.col2,
+            foo.col3,
+            bar.col4,
+            bar.col5,
+            bar.col6,
+            bar.col7
+        from
+            foo as foo
+        left join
+            bar
+            on
+                foo.col1 = bar.col2
+    )
+
+    select * from final
+  fix_str: |
+    with
+    foo as (
+        select * from vee
+    ),
+
+    bar as (
+        select * from baz
+    ),
+
+    final as (
+        select
+            foo.col1,
+            foo.col2,
+            foo.col3,
+            bar.col4,
+            bar.col5,
+            bar.col6,
+            bar.col7
+        from
+            foo
+        left join
+            bar
+            on
+                foo.col1 = bar.col2
+    )
+
+    select * from final
+  configs:
+    rules:
+      aliasing.forbid:
+        force_enable: true

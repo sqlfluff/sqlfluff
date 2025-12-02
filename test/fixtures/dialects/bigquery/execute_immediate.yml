@@ -1,0 +1,289 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 963e6eafc7150d4699481e26b4dfd579004c039b584b4493b0da81b674e9c5f6
+file:
+- statement:
+    declare_segment:
+      keyword: declare
+      naked_identifier: var_1
+      data_type:
+        data_type_identifier: string
+- statement_terminator: ;
+- statement:
+    declare_segment:
+      keyword: declare
+      naked_identifier: var_2
+      data_type:
+        data_type_identifier: string
+- statement_terminator: ;
+- statement:
+    set_segment:
+      keyword: set
+      naked_identifier: var_1
+      comparison_operator:
+        raw_comparison_operator: '='
+      quoted_literal: "'''\ninsert into project.data_set.table\nselect\n  \"%s\" as\
+        \ var_1,\n  count(*) as column_1\nfrom (\n  select column_3\n  from %s.column_2\n\
+        \  group by var_3 having count(var_3) > 1\n)\n'''"
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: create
+    - keyword: or
+    - keyword: replace
+    - keyword: table
+    - table_reference:
+      - naked_identifier: project
+      - dot: .
+      - naked_identifier: data_set
+      - dot: .
+      - naked_identifier: table
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          naked_identifier: var_1
+          data_type:
+            data_type_identifier: string
+      - comma: ','
+      - column_definition:
+          naked_identifier: column_1
+          data_type:
+            data_type_identifier: int64
+      - end_bracket: )
+    - options_segment:
+        keyword: options
+        bracketed:
+          start_bracket: (
+          parameter: expiration_timestamp
+          comparison_operator:
+            raw_comparison_operator: '='
+          function:
+            function_name:
+              function_name_identifier: timestamp_add
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  function:
+                    function_name:
+                      function_name_identifier: current_timestamp
+                    function_contents:
+                      bracketed:
+                        start_bracket: (
+                        end_bracket: )
+              - comma: ','
+              - expression:
+                  interval_expression:
+                    keyword: interval
+                    expression:
+                      numeric_literal: '3'
+                    date_part: hour
+              - end_bracket: )
+          end_bracket: )
+- statement_terminator: ;
+- multi_statement_segment:
+    for_in_statement:
+    - keyword: for
+    - naked_identifier: m
+    - keyword: in
+    - bracketed:
+        start_bracket: (
+        select_statement:
+          select_clause:
+            keyword: select
+            select_clause_element:
+              column_reference:
+                naked_identifier: var_1
+          from_clause:
+            keyword: from
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                  - naked_identifier: project
+                  - dot: .
+                  - naked_identifier: data_set
+                  - dot: .
+                  - naked_identifier: table
+        end_bracket: )
+    - keyword: do
+    - for_in_statements:
+      - statement:
+          set_segment:
+            keyword: set
+            naked_identifier: var_1
+            comparison_operator:
+              raw_comparison_operator: '='
+            expression:
+              column_reference:
+                naked_identifier: m
+              array_accessor:
+                start_square_bracket: '['
+                numeric_literal: '0'
+                end_square_bracket: ']'
+      - statement_terminator: ;
+      - statement:
+          execute_immediate:
+          - keyword: execute
+          - keyword: immediate
+          - quoted_literal: "'select 1;'"
+      - statement_terminator: ;
+      - statement:
+          execute_immediate:
+          - keyword: execute
+          - keyword: immediate
+          - naked_identifier: var_1
+      - statement_terminator: ;
+      - statement:
+          execute_immediate:
+          - keyword: execute
+          - keyword: immediate
+          - function:
+              function_name:
+                function_name_identifier: format
+              function_contents:
+                bracketed:
+                - start_bracket: (
+                - expression:
+                    column_reference:
+                      naked_identifier: var_2
+                - comma: ','
+                - expression:
+                    column_reference:
+                      naked_identifier: var_1
+                - comma: ','
+                - expression:
+                    column_reference:
+                      naked_identifier: var_1
+                - end_bracket: )
+      - statement_terminator: ;
+      - statement:
+          execute_immediate:
+          - keyword: execute
+          - keyword: immediate
+          - case_expression:
+            - keyword: case
+            - when_clause:
+              - keyword: when
+              - expression:
+                  column_reference:
+                    naked_identifier: x
+              - keyword: then
+              - expression:
+                  function:
+                    function_name:
+                      function_name_identifier: format
+                    function_contents:
+                      bracketed:
+                      - start_bracket: (
+                      - expression:
+                          column_reference:
+                            naked_identifier: var_1
+                      - comma: ','
+                      - expression:
+                          column_reference:
+                            naked_identifier: var_2
+                      - end_bracket: )
+            - else_clause:
+                keyword: else
+                expression:
+                  function:
+                    function_name:
+                      function_name_identifier: format
+                    function_contents:
+                      bracketed:
+                      - start_bracket: (
+                      - expression:
+                          column_reference:
+                            naked_identifier: var_1
+                      - comma: ','
+                      - expression:
+                          column_reference:
+                            naked_identifier: m
+                      - end_bracket: )
+            - keyword: end
+      - statement_terminator: ;
+      - statement:
+          execute_immediate:
+          - keyword: execute
+          - keyword: immediate
+          - bracketed:
+              start_bracket: (
+              expression:
+                select_statement:
+                  select_clause:
+                    keyword: select
+                    select_clause_element:
+                      function:
+                        function_name:
+                          function_name_identifier: format
+                        function_contents:
+                          bracketed:
+                          - start_bracket: (
+                          - expression:
+                              column_reference:
+                                naked_identifier: var_2
+                          - comma: ','
+                          - expression:
+                              column_reference:
+                                naked_identifier: var_1
+                          - comma: ','
+                          - expression:
+                              column_reference:
+                                naked_identifier: var_1
+                          - end_bracket: )
+              end_bracket: )
+      - statement_terminator: ;
+      - statement:
+          execute_immediate:
+          - keyword: execute
+          - keyword: immediate
+          - quoted_literal: "'SELECT 2 + 3'"
+          - keyword: into
+          - naked_identifier: y
+      - statement_terminator: ;
+      - statement:
+          execute_immediate:
+          - keyword: execute
+          - keyword: immediate
+          - quoted_literal: "'SELECT 2 + 3, 6'"
+          - keyword: into
+          - naked_identifier: y
+          - comma: ','
+          - naked_identifier: z
+      - statement_terminator: ;
+      - statement:
+          execute_immediate:
+          - keyword: execute
+          - keyword: immediate
+          - quoted_literal: "'SELECT ? * (? + 2)'"
+          - keyword: into
+          - naked_identifier: y
+          - keyword: using
+          - numeric_literal: '1'
+          - comma: ','
+          - numeric_literal: '3'
+      - statement_terminator: ;
+      - statement:
+          execute_immediate:
+          - keyword: execute
+          - keyword: immediate
+          - quoted_literal: "'SELECT @a * (@b + 2)'"
+          - keyword: into
+          - naked_identifier: y
+          - keyword: using
+          - numeric_literal: '1'
+          - keyword: as
+          - naked_identifier: a
+          - comma: ','
+          - column_reference:
+              naked_identifier: x
+          - keyword: as
+          - naked_identifier: b
+      - statement_terminator: ;
+    - keyword: end
+    - keyword: for
+- statement_terminator: ;

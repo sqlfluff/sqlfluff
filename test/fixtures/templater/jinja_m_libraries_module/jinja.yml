@@ -1,0 +1,30 @@
+file:
+  statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          numeric_literal: '56'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+              - naked_identifier: sch1
+              - dot: .
+              - naked_identifier: foo_xyz
+      where_clause:
+        keyword: WHERE
+        expression:
+          - column_reference:
+              naked_identifier: x
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - numeric_literal: '23'
+          - binary_operator: and
+          - column_reference:
+              naked_identifier: y
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - numeric_literal: '42'

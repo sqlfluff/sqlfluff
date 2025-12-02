@@ -2,5 +2,5 @@
 
 /* So is this */
 
-/* This is a 
+/* This is a
     multiple line comment */

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 9e679b1894a4a36e0404d88b84d14f1de2017ff364c03afc503e14d12cec39c3
+_hash: 056e3d1311c24d3fd42bc09cc503bc3ba11f2aaa9b9307b04ea0ff3f2d032dce
 file:
 - statement:
     select_statement:
@@ -11,29 +11,29 @@ file:
         keyword: Select
         select_clause_element:
           column_reference:
-            identifier: A
+            naked_identifier: A
       from_clause:
         keyword: from
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-              - identifier: Sys
+              - naked_identifier: Sys
               - dot: .
-              - identifier: dual
+              - naked_identifier: dual
       where_clause:
         keyword: where
         expression:
           column_reference:
-            identifier: a
+            naked_identifier: a
           keyword: in
           bracketed:
           - start_bracket: (
-          - literal: "'RED'"
+          - quoted_literal: "'RED'"
           - comma: ','
-          - literal: "'GREEN'"
+          - quoted_literal: "'GREEN'"
           - comma: ','
-          - literal: "'BLUE'"
+          - quoted_literal: "'BLUE'"
           - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -50,33 +50,33 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: tbl_b
+                naked_identifier: tbl_b
 - statement_terminator: ;
 - statement:
     insert_statement:
     - keyword: insert
     - keyword: into
     - table_reference:
-      - identifier: sch
+      - naked_identifier: sch
       - dot: .
-      - identifier: tbl_b
+      - naked_identifier: tbl_b
     - bracketed:
         start_bracket: (
         column_reference:
-          identifier: col1
+          naked_identifier: col1
         end_bracket: )
     - values_clause:
         keyword: values
         bracketed:
           start_bracket: (
-          literal: '123'
+          numeric_literal: '123'
           end_bracket: )
 - statement_terminator: ;
 - statement:
     with_compound_statement:
       keyword: with
       common_table_expression:
-        identifier: tmp
+        naked_identifier: tmp
         keyword: as
         bracketed:
           start_bracket: (
@@ -93,23 +93,23 @@ file:
                 from_expression_element:
                   table_expression:
                     table_reference:
-                      identifier: blah
+                      naked_identifier: blah
           end_bracket: )
       select_statement:
         select_clause:
         - keyword: select
         - select_clause_element:
             column_reference:
-              identifier: a
+              naked_identifier: a
         - comma: ','
         - select_clause_element:
             column_reference:
-              identifier: b
+              naked_identifier: b
         from_clause:
           keyword: from
           from_expression:
             from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: tmp
+                  naked_identifier: tmp
 - statement_terminator: ;

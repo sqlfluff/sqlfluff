@@ -1,0 +1,83 @@
+ansi:
+  - "/(ansi)/i"
+
+athena:
+  - "/(athena)/i"
+
+bigquery:
+  - "/(bigquery)/i"
+
+clickhouse:
+  - "/(clickhouse)/i"
+
+databricks:
+  - "/(databricks)/i"
+
+db2:
+  - "/(db2)/i"
+
+doris:
+  - "/(doris)/i"
+
+duckdb:
+  - "/(duckdb)/i"
+
+exasol:
+  - "/(exasol)/i"
+
+flink:
+  - "/(flink)/i"
+
+greenplum:
+  - "/(greenplum)/i"
+
+hive:
+  - "/(hive)/i"
+
+impala:
+  - "/(impala)/i"
+
+mariadb:
+  - "/(mariadb)/i"
+
+materialize:
+  - "/(materialize)/i"
+
+mysql:
+  - "/(mysql)/i"
+
+oracle:
+  - "/(oracle)/i"
+
+postgres:
+  - "/(postgres)/i"
+
+redshift:
+  - "/(redshift)/i"
+
+snowflake:
+  - "/(snowflake)/i"
+
+soql:
+  - "/(soql)/i"
+
+sparksql:
+  - "/(sparksql)/i"
+
+sqlite:
+  - "/(sqlite)/i"
+
+starrocks:
+  - "/(starrocks)/i"
+
+t-sql:
+  - "/(t-sql|tsql)/i"
+
+teradata:
+  - "/(teradata)/i"
+
+trino:
+  - "/(trino)/i"
+
+vertica:
+  - "/(vertica)/i"

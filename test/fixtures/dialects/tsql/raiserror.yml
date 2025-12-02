@@ -1,0 +1,162 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 8ecea85b4c0ed446b1bc2d36dab9eec4da660b70ec3e8d3bd1231b87f1c05f3f
+file:
+  batch:
+  - statement:
+      raiserror_statement:
+        keyword: RAISERROR
+        bracketed:
+        - start_bracket: (
+        - numeric_literal: '15600'
+        - comma: ','
+        - expression:
+            numeric_literal:
+              sign_indicator: '-'
+              numeric_literal: '1'
+        - comma: ','
+        - expression:
+            numeric_literal:
+              sign_indicator: '-'
+              numeric_literal: '1'
+        - comma: ','
+        - expression:
+            quoted_literal: "'mysp_CreateCustomer'"
+        - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      raiserror_statement:
+        keyword: RAISERROR
+        bracketed:
+        - start_bracket: (
+        - quoted_literal: "'This is message %s %d.'"
+        - comma: ','
+        - numeric_literal: '10'
+        - comma: ','
+        - numeric_literal: '1'
+        - comma: ','
+        - quoted_literal: "'number'"
+        - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      raiserror_statement:
+        keyword: RAISERROR
+        bracketed:
+        - start_bracket: (
+        - quoted_literal: "'Error raised in TRY block.'"
+        - comma: ','
+        - numeric_literal: '16'
+        - comma: ','
+        - numeric_literal: '1'
+        - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      raiserror_statement:
+        keyword: RAISERROR
+        bracketed:
+        - start_bracket: (
+        - quoted_literal: "N'Unicode error'"
+        - comma: ','
+        - numeric_literal: '16'
+        - comma: ','
+        - numeric_literal: '1'
+        - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      raiserror_statement:
+      - keyword: RAISERROR
+      - bracketed:
+        - start_bracket: (
+        - quoted_literal: "'WITH option'"
+        - comma: ','
+        - numeric_literal: '16'
+        - comma: ','
+        - numeric_literal: '1'
+        - end_bracket: )
+      - keyword: WITH
+      - keyword: LOG
+  - statement_terminator: ;
+  - statement:
+      raiserror_statement:
+        keyword: RAISERROR
+        bracketed:
+        - start_bracket: (
+        - quoted_literal: "'Error with lots of arguments %a %b %c %d %e %f %g %h %i\
+            \ %j %k %l %m %n %o %p %q %r %s %t'"
+        - comma: ','
+        - numeric_literal: '16'
+        - comma: ','
+        - numeric_literal: '1'
+        - comma: ','
+        - quoted_literal: "'a'"
+        - comma: ','
+        - quoted_literal: "N'b'"
+        - comma: ','
+        - parameter: '@c'
+        - comma: ','
+        - numeric_literal: '4'
+        - comma: ','
+        - numeric_literal: '5'
+        - comma: ','
+        - numeric_literal: '6'
+        - comma: ','
+        - numeric_literal: '7'
+        - comma: ','
+        - numeric_literal: '8'
+        - comma: ','
+        - numeric_literal: '9'
+        - comma: ','
+        - numeric_literal: '10'
+        - comma: ','
+        - numeric_literal: '11'
+        - comma: ','
+        - numeric_literal: '12'
+        - comma: ','
+        - numeric_literal: '13'
+        - comma: ','
+        - numeric_literal: '14'
+        - comma: ','
+        - numeric_literal: '15'
+        - comma: ','
+        - numeric_literal: '16'
+        - comma: ','
+        - numeric_literal: '17'
+        - comma: ','
+        - numeric_literal: '18'
+        - comma: ','
+        - numeric_literal: '19'
+        - comma: ','
+        - numeric_literal: '20'
+        - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      raiserror_statement:
+        keyword: RAISERROR
+        bracketed:
+        - start_bracket: (
+        - parameter: '@ErrorMessage'
+        - comma: ','
+        - parameter: '@ErrorSeverity'
+        - comma: ','
+        - parameter: '@ErrorState'
+        - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      raiserror_statement:
+        keyword: RAISERROR
+        bracketed:
+        - start_bracket: (
+        - quoted_literal: "'The specified table does not exist. Please enter @tableName\
+            \ in the following format: Schemaname.Tablename OR [Schemaname].[Tablename]'"
+        - comma: ','
+        - numeric_literal: '11'
+        - comma: ','
+        - expression:
+            numeric_literal:
+              sign_indicator: '-'
+              numeric_literal: '1'
+        - end_bracket: )
+  - statement_terminator: ;

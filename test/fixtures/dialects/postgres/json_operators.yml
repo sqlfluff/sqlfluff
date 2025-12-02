@@ -1,0 +1,322 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: bae80b2997fbfc750c5f908409d1fa0ed27921d4f42da06d4ec8b3e61deed46a
+file:
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: COALESCE
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                    naked_identifier: doc
+                  binary_operator: '#>>'
+                  quoted_literal: "'{fields}'"
+              - comma: ','
+              - expression:
+                  quoted_literal: "''"
+              - end_bracket: )
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: field
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: mytable
+      where_clause:
+        keyword: WHERE
+        expression:
+        - column_reference:
+            naked_identifier: doc
+        - binary_operator: ->>
+        - quoted_literal: "'some_field'"
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - quoted_literal: "'some_value'"
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+            cast_expression:
+              quoted_literal: "'[{\"a\":\"foo\"},{\"b\":\"bar\"},{\"c\":\"baz\"}]'"
+              casting_operator: '::'
+              data_type:
+                keyword: json
+            binary_operator: ->
+            numeric_literal: '2'
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+            cast_expression:
+              quoted_literal: "'{\"a\": {\"b\":\"foo\"}}'"
+              casting_operator: '::'
+              data_type:
+                keyword: json
+            binary_operator: ->
+            quoted_literal: "'a'"
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+            cast_expression:
+              quoted_literal: "'[1,2,3]'"
+              casting_operator: '::'
+              data_type:
+                keyword: json
+            binary_operator: ->>
+            numeric_literal: '2'
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+            cast_expression:
+              quoted_literal: "'{\"a\":1,\"b\":2}'"
+              casting_operator: '::'
+              data_type:
+                keyword: json
+            binary_operator: ->>
+            quoted_literal: "'b'"
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+            cast_expression:
+              quoted_literal: "'{\"a\": {\"b\":{\"c\": \"foo\"}}}'"
+              casting_operator: '::'
+              data_type:
+                keyword: json
+            binary_operator: '#>'
+            quoted_literal: "'{a,b}'"
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+            cast_expression:
+              quoted_literal: "'{\"a\":[1,2,3],\"b\":[4,5,6]}'"
+              casting_operator: '::'
+              data_type:
+                keyword: json
+            binary_operator: '#>>'
+            quoted_literal: "'{a,2}'"
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          expression:
+          - cast_expression:
+              quoted_literal: "'{\"a\":1, \"b\":2}'"
+              casting_operator: '::'
+              data_type:
+                keyword: jsonb
+          - binary_operator: '@>'
+          - cast_expression:
+              quoted_literal: "'{\"b\":2}'"
+              casting_operator: '::'
+              data_type:
+                keyword: jsonb
+      - comma: ','
+      - select_clause_element:
+          expression:
+          - cast_expression:
+              quoted_literal: "'{\"b\":2}'"
+              casting_operator: '::'
+              data_type:
+                keyword: jsonb
+          - binary_operator: <@
+          - cast_expression:
+              quoted_literal: "'{\"a\":1, \"b\":2}'"
+              casting_operator: '::'
+              data_type:
+                keyword: jsonb
+      - comma: ','
+      - select_clause_element:
+          expression:
+            cast_expression:
+              quoted_literal: "'{\"a\":1, \"b\":2}'"
+              casting_operator: '::'
+              data_type:
+                keyword: jsonb
+            binary_operator: '?'
+            quoted_literal: "'b'"
+      - comma: ','
+      - select_clause_element:
+          expression:
+            cast_expression:
+              quoted_literal: "'{\"a\":1, \"b\":2, \"c\":3}'"
+              casting_operator: '::'
+              data_type:
+                keyword: jsonb
+            binary_operator: ?|
+            typed_array_literal:
+              array_type:
+                keyword: array
+              array_literal:
+              - start_square_bracket: '['
+              - quoted_literal: "'b'"
+              - comma: ','
+              - quoted_literal: "'d'"
+              - end_square_bracket: ']'
+      - comma: ','
+      - select_clause_element:
+          expression:
+            cast_expression:
+              quoted_literal: "'[\"a\", \"b\", \"c\"]'"
+              casting_operator: '::'
+              data_type:
+                keyword: jsonb
+            binary_operator: ?&
+            typed_array_literal:
+              array_type:
+                keyword: array
+              array_literal:
+              - start_square_bracket: '['
+              - quoted_literal: "'a'"
+              - comma: ','
+              - quoted_literal: "'b'"
+              - end_square_bracket: ']'
+      - comma: ','
+      - select_clause_element:
+          expression:
+            cast_expression:
+              quoted_literal: "'[\"a\", {\"b\":1}]'"
+              casting_operator: '::'
+              data_type:
+                keyword: jsonb
+            binary_operator: '#-'
+            quoted_literal: "'{1,b}'"
+      - comma: ','
+      - select_clause_element:
+          expression:
+            cast_expression:
+              quoted_literal: "'{\"a\":[1,2,3,4,5]}'"
+              casting_operator: '::'
+              data_type:
+                keyword: jsonb
+            binary_operator: '@?'
+            quoted_literal: "'$.a[*] ? (@ > 2)'"
+      - comma: ','
+      - select_clause_element:
+          expression:
+            cast_expression:
+              quoted_literal: "'{\"a\":[1,2,3,4,5]}'"
+              casting_operator: '::'
+              data_type:
+                keyword: jsonb
+            binary_operator: '@@'
+            quoted_literal: "'$.a[*] > 2'"
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: json_object
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  quoted_literal: "'code'"
+              - keyword: VALUE
+              - expression:
+                  quoted_literal: "'P123'"
+              - comma: ','
+              - expression:
+                  quoted_literal: "'title'"
+              - colon: ':'
+              - expression:
+                  quoted_literal: "'Jaws'"
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: json_object
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  quoted_literal: "'word'"
+              - colon: ':'
+              - expression:
+                  case_expression:
+                  - keyword: CASE
+                  - when_clause:
+                    - keyword: WHEN
+                    - expression:
+                        column_reference:
+                          naked_identifier: str
+                        comparison_operator:
+                          raw_comparison_operator: '='
+                        quoted_literal: "'1'"
+                    - keyword: THEN
+                    - expression:
+                        quoted_literal: "'One'"
+                  - when_clause:
+                    - keyword: WHEN
+                    - expression:
+                        column_reference:
+                          naked_identifier: str
+                        comparison_operator:
+                          raw_comparison_operator: '='
+                        quoted_literal: "'2'"
+                    - keyword: THEN
+                    - expression:
+                        quoted_literal: "'Two'"
+                  - else_clause:
+                      keyword: ELSE
+                      expression:
+                        quoted_literal: "'Unknown'"
+                  - keyword: END
+              - end_bracket: )
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: json_column
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: first_table
+- statement_terminator: ;

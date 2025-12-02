@@ -1,0 +1,570 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 4e9291c11141e27435b3e37ac80bfe6ac5714cc290dac9035d4859cf75fd1f96
+file:
+- statement:
+    create_function_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: TEMPORARY
+    - keyword: FUNCTION
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - function_name_identifier: function_name
+    - keyword: AS
+    - quoted_literal: '"class_name"'
+    - keyword: USING
+    - file_keyword: FILE
+    - quoted_literal: '"resource_locations"'
+- statement_terminator: ;
+- statement:
+    create_function_statement:
+    - keyword: CREATE
+    - keyword: FUNCTION
+    - function_name_identifier: simple_udf
+    - keyword: AS
+    - quoted_literal: "'SimpleUdf'"
+    - keyword: USING
+    - file_keyword: JAR
+    - quoted_literal: "'/tmp/SimpleUdf.jar'"
+- statement_terminator: ;
+- statement:
+    create_function_statement:
+    - keyword: CREATE
+    - keyword: TEMPORARY
+    - keyword: FUNCTION
+    - function_name_identifier: simple_temp_udf
+    - keyword: AS
+    - quoted_literal: "'SimpleUdf'"
+    - keyword: USING
+    - file_keyword: JAR
+    - quoted_literal: "'/tmp/SimpleUdf.jar'"
+- statement_terminator: ;
+- statement:
+    create_function_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: FUNCTION
+    - function_name_identifier: simple_udf
+    - keyword: AS
+    - quoted_literal: "'SimpleUdfR'"
+    - keyword: USING
+    - file_keyword: JAR
+    - quoted_literal: "'/tmp/SimpleUdfR.jar'"
+- statement_terminator: ;
+- statement:
+    create_function_statement:
+    - keyword: CREATE
+    - keyword: FUNCTION
+    - function_name_identifier: test_avg
+    - keyword: AS
+    - quoted_literal: "'org.apache.hadoop.hive.ql.udf.generic.GenericUDAFAverage'"
+- statement_terminator: ;
+- statement:
+    create_function_statement:
+    - keyword: CREATE
+    - keyword: TEMPORARY
+    - keyword: FUNCTION
+    - function_name_identifier: test_avg
+    - keyword: AS
+    - quoted_literal: "'org.apache.hadoop.hive.ql.udf.generic.GenericUDAFAverage'"
+- statement_terminator: ;
+- statement:
+    create_sql_function_statement:
+    - keyword: CREATE
+    - keyword: TEMPORARY
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: hello
+    - function_parameter_list_with_comments:
+        bracketed:
+          start_bracket: (
+          end_bracket: )
+    - keyword: RETURNS
+    - data_type:
+        primitive_type:
+          keyword: STRING
+    - function_definition:
+        keyword: RETURN
+        expression:
+          quoted_literal: "'Hello World!'"
+- statement_terminator: ;
+- statement:
+    create_sql_function_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: TEMPORARY
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: function_name
+    - function_parameter_list_with_comments:
+        bracketed:
+          start_bracket: (
+          end_bracket: )
+    - keyword: RETURNS
+    - data_type:
+        primitive_type:
+          keyword: TIMESTAMP
+    - function_definition:
+      - keyword: LANGUAGE
+      - keyword: SQL
+      - keyword: RETURN
+      - expression:
+          select_statement:
+            select_clause:
+              keyword: SELECT
+              select_clause_element:
+                function:
+                  function_name:
+                    function_name_identifier: MAX
+                  function_contents:
+                    bracketed:
+                      start_bracket: (
+                      expression:
+                        column_reference:
+                          naked_identifier: time
+                      end_bracket: )
+                alias_expression:
+                  alias_operator:
+                    keyword: AS
+                  naked_identifier: time
+            from_clause:
+              keyword: FROM
+              from_expression:
+                from_expression_element:
+                  table_expression:
+                    table_reference:
+                      naked_identifier: my_table
+- statement_terminator: ;
+- statement:
+    create_sql_function_statement:
+    - keyword: CREATE
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: area
+    - function_parameter_list_with_comments:
+        bracketed:
+        - start_bracket: (
+        - parameter: x
+        - data_type:
+            primitive_type:
+              keyword: DOUBLE
+        - comma: ','
+        - parameter: y
+        - data_type:
+            primitive_type:
+              keyword: DOUBLE
+        - end_bracket: )
+    - keyword: RETURNS
+    - data_type:
+        primitive_type:
+          keyword: DOUBLE
+    - function_definition:
+        keyword: RETURN
+        expression:
+        - column_reference:
+            naked_identifier: x
+        - binary_operator: '*'
+        - column_reference:
+            naked_identifier: y
+- statement_terminator: ;
+- statement:
+    create_sql_function_statement:
+    - keyword: CREATE
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: square
+    - function_parameter_list_with_comments:
+        bracketed:
+          start_bracket: (
+          parameter: x
+          data_type:
+            primitive_type:
+              keyword: DOUBLE
+          end_bracket: )
+    - keyword: RETURNS
+    - data_type:
+        primitive_type:
+          keyword: DOUBLE
+    - function_definition:
+        keyword: RETURN
+        expression:
+          function:
+            function_name:
+              function_name_identifier: area
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                    naked_identifier: x
+              - comma: ','
+              - expression:
+                  column_reference:
+                    naked_identifier: x
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_sql_function_statement:
+    - keyword: CREATE
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: cte_function
+    - function_parameter_list_with_comments:
+        bracketed:
+          start_bracket: (
+          parameter: x
+          data_type:
+            primitive_type:
+              keyword: INT
+          end_bracket: )
+    - keyword: RETURNS
+    - data_type:
+        primitive_type:
+          keyword: string
+    - function_definition:
+      - keyword: LANGUAGE
+      - keyword: SQL
+      - keyword: RETURN
+      - with_compound_statement:
+          keyword: WITH
+          common_table_expression:
+            naked_identifier: cte
+            keyword: AS
+            bracketed:
+              start_bracket: (
+              select_statement:
+                select_clause:
+                  keyword: SELECT
+                  select_clause_element:
+                    column_reference:
+                      naked_identifier: x
+                    alias_expression:
+                      alias_operator:
+                        keyword: AS
+                      naked_identifier: y
+              end_bracket: )
+          select_statement:
+            select_clause:
+              keyword: SELECT
+              select_clause_element:
+                wildcard_expression:
+                  wildcard_identifier:
+                    star: '*'
+            from_clause:
+              keyword: FROM
+              from_expression:
+                from_expression_element:
+                  table_expression:
+                    table_reference:
+                      naked_identifier: cte
+- statement_terminator: ;
+- statement:
+    create_sql_function_statement:
+    - keyword: CREATE
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: roll_dice
+    - function_parameter_list_with_comments:
+        bracketed:
+          start_bracket: (
+          end_bracket: )
+    - keyword: RETURNS
+    - data_type:
+        primitive_type:
+          keyword: INT
+    - function_definition:
+      - keyword: NOT
+      - keyword: DETERMINISTIC
+      - keyword: CONTAINS
+      - keyword: SQL
+      - comment_clause:
+          keyword: COMMENT
+          quoted_literal: "'Roll a single 6 sided die'"
+      - keyword: RETURN
+      - expression:
+          cast_expression:
+            bracketed:
+              start_bracket: (
+              expression:
+                function:
+                  function_name:
+                    function_name_identifier: rand
+                  function_contents:
+                    bracketed:
+                      start_bracket: (
+                      end_bracket: )
+                binary_operator: '*'
+                numeric_literal: '6'
+              end_bracket: )
+            casting_operator: '::'
+            data_type:
+              primitive_type:
+                keyword: INT
+          binary_operator: +
+          numeric_literal: '1'
+- statement_terminator: ;
+- statement:
+    create_sql_function_statement:
+    - keyword: CREATE
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: roll_dice
+    - function_parameter_list_with_comments:
+        bracketed:
+        - start_bracket: (
+        - parameter: num_dice
+        - data_type:
+            primitive_type:
+              keyword: INT
+        - keyword: DEFAULT
+        - numeric_literal: '1'
+        - comment_clause:
+            keyword: COMMENT
+            quoted_literal: "'number of dice to roll (Default: 1)'"
+        - comma: ','
+        - parameter: num_sides
+        - data_type:
+            primitive_type:
+              keyword: INT
+        - keyword: DEFAULT
+        - numeric_literal: '6'
+        - comment_clause:
+            keyword: COMMENT
+            quoted_literal: "'number of sides per die (Default: 6)'"
+        - end_bracket: )
+    - keyword: RETURNS
+    - data_type:
+        primitive_type:
+          keyword: INT
+    - function_definition:
+      - keyword: NOT
+      - keyword: DETERMINISTIC
+      - keyword: CONTAINS
+      - keyword: SQL
+      - comment_clause:
+          keyword: COMMENT
+          quoted_literal: "'Roll a number of n-sided dice'"
+      - keyword: RETURN
+      - expression:
+          function:
+            function_name:
+              function_name_identifier: aggregate
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  function:
+                    function_name:
+                      function_name_identifier: sequence
+                    function_contents:
+                      bracketed:
+                      - start_bracket: (
+                      - expression:
+                          numeric_literal: '1'
+                      - comma: ','
+                      - expression:
+                          column_reference:
+                          - naked_identifier: roll_dice
+                          - dot: .
+                          - naked_identifier: num_dice
+                      - comma: ','
+                      - expression:
+                          numeric_literal: '1'
+                      - end_bracket: )
+              - comma: ','
+              - expression:
+                  numeric_literal: '0'
+              - comma: ','
+              - expression:
+                  bracketed:
+                  - start_bracket: (
+                  - column_reference:
+                      naked_identifier: acc
+                  - comma: ','
+                  - column_reference:
+                      naked_identifier: x
+                  - end_bracket: )
+                  binary_operator: ->
+                  cast_expression:
+                    bracketed:
+                      start_bracket: (
+                      expression:
+                        function:
+                          function_name:
+                            function_name_identifier: rand
+                          function_contents:
+                            bracketed:
+                              start_bracket: (
+                              end_bracket: )
+                        binary_operator: '*'
+                        column_reference:
+                        - naked_identifier: roll_dice
+                        - dot: .
+                        - naked_identifier: num_sides
+                      end_bracket: )
+                    casting_operator: '::'
+                    data_type:
+                      primitive_type:
+                        keyword: int
+              - comma: ','
+              - expression:
+                - column_reference:
+                    naked_identifier: acc
+                - binary_operator: ->
+                - column_reference:
+                    naked_identifier: acc
+                - binary_operator: +
+                - column_reference:
+                  - naked_identifier: roll_dice
+                  - dot: .
+                  - naked_identifier: num_dice
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_sql_function_statement:
+    - keyword: CREATE
+    - keyword: FUNCTION
+    - function_name:
+      - naked_identifier: main
+      - dot: .
+      - naked_identifier: default
+      - dot: .
+      - function_name_identifier: greet
+    - function_parameter_list_with_comments:
+        bracketed:
+          start_bracket: (
+          parameter: s
+          data_type:
+            primitive_type:
+              keyword: STRING
+          end_bracket: )
+    - keyword: RETURNS
+    - data_type:
+        primitive_type:
+          keyword: STRING
+    - function_definition:
+      - keyword: LANGUAGE
+      - keyword: PYTHON
+      - keyword: AS
+      - udf_body: "$$\n    def greet(name):\n      return \"Hello \" + name + \"!\"\
+          \n\n    return greet(s) if s else None\n  $$"
+- statement_terminator: ;
+- statement:
+    create_sql_function_statement:
+    - keyword: CREATE
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: return_table
+    - function_parameter_list_with_comments:
+        bracketed:
+          start_bracket: (
+          end_bracket: )
+    - keyword: RETURNS
+    - keyword: TABLE
+    - function_definition:
+        keyword: RETURN
+        expression:
+          select_statement:
+            select_clause:
+              keyword: SELECT
+              select_clause_element:
+                column_reference:
+                  naked_identifier: time
+            from_clause:
+              keyword: FROM
+              from_expression:
+                from_expression_element:
+                  table_expression:
+                    table_reference:
+                      naked_identifier: my_table
+- statement_terminator: ;
+- statement:
+    create_sql_function_statement:
+    - keyword: CREATE
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: return_table
+    - function_parameter_list_with_comments:
+        bracketed:
+          start_bracket: (
+          end_bracket: )
+    - keyword: RETURNS
+    - keyword: TABLE
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: col_a
+      - data_type:
+          primitive_type:
+            keyword: string
+      - comma: ','
+      - column_reference:
+          naked_identifier: col_b
+      - data_type:
+          primitive_type:
+            keyword: string
+      - keyword: comment
+      - quoted_literal: '"asdf"'
+      - end_bracket: )
+    - function_definition:
+        keyword: RETURN
+        select_statement:
+          select_clause:
+          - keyword: SELECT
+          - select_clause_element:
+              column_reference:
+                naked_identifier: col_a
+          - comma: ','
+          - select_clause_element:
+              column_reference:
+                naked_identifier: col_b
+          from_clause:
+            keyword: FROM
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                    naked_identifier: my_table
+- statement_terminator: ;
+- statement:
+    create_sql_function_statement:
+    - keyword: create
+    - keyword: or
+    - keyword: replace
+    - keyword: function
+    - function_name:
+      - quoted_identifier: '`catalog`'
+      - dot: .
+      - quoted_identifier: '`schema`'
+      - dot: .
+      - quoted_identifier: '`name`'
+    - function_parameter_list_with_comments:
+        bracketed:
+          start_bracket: (
+          parameter: param
+          data_type:
+            primitive_type:
+              keyword: int
+          end_bracket: )
+    - keyword: returns
+    - data_type:
+        primitive_type:
+          keyword: int
+    - function_definition:
+        keyword: return
+        expression:
+          select_statement:
+            select_clause:
+              keyword: select
+              select_clause_element:
+                column_reference:
+                  naked_identifier: param
+- statement_terminator: ;

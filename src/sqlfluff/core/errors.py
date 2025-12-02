@@ -1,94 +1,159 @@
-"""Errors - these are closely linked to what used to be called violations."""
-from typing import Optional, Tuple
+"""Errors - these are closely linked to what used to be called violations.
 
-CheckTuple = Tuple[str, int, int]
+NOTE: The BaseException class, which ValueError inherits from, defines
+a custom __reduce__() method for picking and unpickling exceptions.
+For the SQLBaseError, and it's dependent classes, we define properties
+of these exceptions which don't work well with that method, which is
+why we redefine __reduce__() on each of these classes. Given the
+circumstances in which they are called, they don't show up on coverage
+tracking.
+
+https://stackoverflow.com/questions/49715881/how-to-pickle-inherited-exceptions
+"""
+
+from typing import TYPE_CHECKING, Any, Optional, Union, cast
+
+if TYPE_CHECKING:  # pragma: no cover
+    from sqlfluff.core.parser import BaseSegment, PositionMarker
+    from sqlfluff.core.rules import BaseRule, LintFix
+
+    try:
+        from sqlfluffrs import RsSQLLexerError
+    except ImportError:
+        ...
+
+
+CheckTuple = tuple[str, int, int]
+SerializedObject = dict[str, Union[str, int, bool, list["SerializedObject"]]]
+
+
+def _extract_position(segment: Optional["BaseSegment"]) -> dict[str, int]:
+    """If a segment is present and is a literal, return it's source length."""
+    if segment:
+        position = segment.pos_marker
+        assert position
+        if position.is_literal():
+            return position.to_source_dict()
+    # An empty location is an indicator of not being able to accurately
+    # represent the location.
+    return {}  # pragma: no cover
 
 
 class SQLBaseError(ValueError):
     """Base Error Class for all violations."""
 
     _code: Optional[str] = None
+    _name: Optional[str] = None
     _identifier = "base"
+    _warning = False  # The default value for `warning`
 
     def __init__(
         self,
-        *args,
-        pos=None,
-        line_no=0,
-        line_pos=0,
-        ignore=False,
-        fatal=False,
-        **kwargs
-    ):
+        description: Optional[str] = None,
+        pos: Optional["PositionMarker"] = None,
+        line_no: int = 0,
+        line_pos: int = 0,
+        ignore: bool = False,
+        fatal: bool = False,
+        warning: Optional[bool] = None,
+    ) -> None:
         self.fatal = fatal
         self.ignore = ignore
+        self.warning: bool = warning if warning is not None else self._warning
+        self.description = description
         if pos:
             self.line_no, self.line_pos = pos.source_position()
         else:
             self.line_no = line_no
             self.line_pos = line_pos
-        super().__init__(*args, **kwargs)
+        super().__init__(self.desc())
+
+    def __eq__(self, other: Any) -> bool:
+        """Errors compare equal if they are the same type and same content."""
+        if not isinstance(other, self.__class__):
+            return False
+        return self.__dict__ == other.__dict__
+
+    def __reduce__(
+        self,
+    ) -> tuple[type["SQLBaseError"], tuple[Any, ...]]:
+        """Prepare the SQLBaseError for pickling."""
+        return type(self), (
+            self.description,
+            None,
+            self.line_no,
+            self.line_pos,
+            self.ignore,
+            self.fatal,
+            self.warning,
+        )
 
     @property
-    def fixable(self):
+    def fixable(self) -> bool:
         """Should this error be considered fixable?"""
         return False
 
-    def rule_code(self):
-        """Fetch the code of the rule which cause this error.
+    def rule_code(self) -> str:
+        """Fetch the code of the rule which cause this error."""
+        return self._code or "????"
 
-        NB: This only returns a real code for some subclasses of
-        error, (the ones with a `rule` attribute), but otherwise
-        returns a placeholder value which can be used instead.
-        """
-        if hasattr(self, "rule"):
-            return self.rule.code
-        else:
-            return self._code or "????"
+    def rule_name(self) -> str:
+        """Fetch the name of the rule which cause this error."""
+        return self._name or "????"
 
-    def desc(self):
-        """Fetch a description of this violation.
-
-        NB: For violations which don't directly implement a rule
-        this attempts to return the error message linked to whatever
-        caused the violation. Optionally some errors may have their
-        description set directly.
-        """
-        if hasattr(self, "description") and self.description:
-            # This can only override if it's present AND
-            # if it's non-null.
+    def desc(self) -> str:
+        """Fetch a description of this violation."""
+        if self.description:
             return self.description
-        elif hasattr(self, "rule"):
-            return self.rule.description
-        else:
-            # Return the first element - probably a string message
-            if len(self.args) > 1:  # pragma: no cover TODO?
-                return self.args
-            elif len(self.args) == 1:
-                return self.args[0]
-            else:  # pragma: no cover TODO?
-                return self.__class__.__name__
 
-    def get_info_dict(self):
+        return self.__class__.__name__  # pragma: no cover
+
+    def to_dict(self) -> SerializedObject:
         """Return a dict of properties.
 
         This is useful in the API for outputting violations.
         """
         return {
-            "line_no": self.line_no,
-            "line_pos": self.line_pos,
+            "start_line_no": self.line_no,
+            "start_line_pos": self.line_pos,
             "code": self.rule_code(),
             "description": self.desc(),
+            "name": getattr(self, "rule").name if hasattr(self, "rule") else "",
+            "warning": self.warning,
         }
 
-    def ignore_if_in(self, ignore_iterable):
+    def check_tuple(self) -> CheckTuple:
+        """Get a tuple representing this error. Mostly for testing."""
+        return (
+            self.rule_code(),
+            self.line_no,
+            self.line_pos,
+        )
+
+    def source_signature(self) -> tuple[Any, ...]:
+        """Return hashable source signature for deduplication."""
+        return (self.check_tuple(), self.desc())
+
+    def ignore_if_in(self, ignore_iterable: list[str]) -> None:
         """Ignore this violation if it matches the iterable."""
-        # Type conversion
-        if isinstance(ignore_iterable, str):  # pragma: no cover TODO?
-            ignore_iterable = []
-        # Ignoring
         if self._identifier in ignore_iterable:
             self.ignore = True
+
+    def warning_if_in(self, warning_iterable: list[str]) -> None:
+        """Warning only for this violation if it matches the iterable.
+
+        Designed for rule codes so works with L001, LL0X but also TMP or PRS
+        for templating and parsing errors.
+
+        Args:
+            warning_iterable (list[str]): A list of strings representing the warning
+                codes to check.
+
+        Returns:
+            None
+        """
+        if self.rule_code() in warning_iterable or self.rule_name() in warning_iterable:
+            self.warning = True
 
 
 class SQLTemplaterError(SQLBaseError):
@@ -96,7 +161,7 @@ class SQLTemplaterError(SQLBaseError):
 
     Args:
         pos (:obj:`PosMarker`, optional): The position which the error
-            occured at.
+            occurred at.
 
     """
 
@@ -104,7 +169,7 @@ class SQLTemplaterError(SQLBaseError):
     _identifier = "templating"
 
 
-class SQLTemplaterSkipFile(RuntimeError):
+class SQLFluffSkipFile(RuntimeError):
     """An error returned from a templater to skip a file."""
 
     pass
@@ -115,12 +180,24 @@ class SQLLexError(SQLBaseError):
 
     Args:
         pos (:obj:`PosMarker`, optional): The position which the error
-            occured at.
+            occurred at.
 
     """
 
     _code = "LXR"
     _identifier = "lexing"
+
+    @classmethod
+    def from_rs_error(cls, rs_error: "RsSQLLexerError") -> "SQLLexError":
+        """Create a SQLLexError from a RsSQLLexerError."""
+        return cls(
+            description=rs_error.desc,
+            line_no=rs_error.line_no,
+            line_pos=rs_error.line_pos,
+            ignore=rs_error.ignore,
+            fatal=rs_error.fatal,
+            warning=rs_error.warning,
+        )
 
 
 class SQLParseError(SQLBaseError):
@@ -137,12 +214,54 @@ class SQLParseError(SQLBaseError):
     _code = "PRS"
     _identifier = "parsing"
 
-    def __init__(self, *args, segment=None, **kwargs):
+    def __init__(
+        self,
+        description: Optional[str] = None,
+        segment: Optional["BaseSegment"] = None,
+        line_no: int = 0,
+        line_pos: int = 0,
+        ignore: bool = False,
+        fatal: bool = False,
+        warning: Optional[bool] = None,
+    ) -> None:
         # Store the segment on creation - we might need it later
         self.segment = segment
-        if self.segment:
-            kwargs["pos"] = self.segment.pos_marker
-        super().__init__(*args, **kwargs)
+        super().__init__(
+            description=description,
+            pos=segment.pos_marker if segment else None,
+            line_no=line_no,
+            line_pos=line_pos,
+            ignore=ignore,
+            fatal=fatal,
+            warning=warning,
+        )
+
+    def __reduce__(
+        self,
+    ) -> tuple[type["SQLParseError"], tuple[Any, ...]]:
+        """Prepare the SQLParseError for pickling."""
+        return type(self), (
+            self.description,
+            self.segment,
+            self.line_no,
+            self.line_pos,
+            self.ignore,
+            self.fatal,
+            self.warning,
+        )
+
+    def to_dict(self) -> SerializedObject:
+        """Return a dict of properties.
+
+        This is useful in the API for outputting violations.
+
+        For parsing errors we additionally add the length of the unparsable segment.
+        """
+        _base_dict = super().to_dict()
+        _base_dict.update(
+            **_extract_position(self.segment),
+        )
+        return _base_dict
 
 
 class SQLLintError(SQLBaseError):
@@ -162,39 +281,132 @@ class SQLLintError(SQLBaseError):
     _identifier = "linting"
 
     def __init__(
-        self, *args, segment=None, rule=None, fixes=None, description=None, **kwargs
-    ):
-        # Something about position, message and fix?
+        self,
+        description: str,
+        segment: "BaseSegment",
+        rule: "BaseRule",
+        fixes: Optional[list["LintFix"]] = None,
+        ignore: bool = False,
+        fatal: bool = False,
+        warning: Optional[bool] = None,
+    ) -> None:
         self.segment = segment
-        if self.segment:
-            kwargs["pos"] = self.segment.pos_marker
         self.rule = rule
         self.fixes = fixes or []
-        self.description = description
-        super().__init__(*args, **kwargs)
+        super().__init__(
+            description=description,
+            pos=segment.pos_marker if segment else None,
+            ignore=ignore,
+            fatal=fatal,
+            warning=warning,
+        )
+
+    def __reduce__(
+        self,
+    ) -> tuple[type["SQLLintError"], tuple[Any, ...]]:
+        """Prepare the SQLLintError for pickling."""
+        return type(self), (
+            self.description,
+            self.segment,
+            self.rule,
+            self.fixes,
+            self.ignore,
+            self.fatal,
+            self.warning,
+        )
+
+    def to_dict(self) -> SerializedObject:
+        """Return a dict of properties.
+
+        This is useful in the API for outputting violations.
+
+        For linting errors we additionally add details of any fixes.
+        """
+        _base_dict = super().to_dict()
+        _base_dict.update(
+            fixes=[fix.to_dict() for fix in self.fixes],
+            **_extract_position(self.segment),
+        )
+        # Edge case: If the base error doesn't have an end position
+        # but we only have one fix and it _does_. Then use use that in the
+        # overall fix.
+        _fixes = cast(list[SerializedObject], _base_dict.get("fixes", []))
+        if "end_line_pos" not in _base_dict and len(_fixes) == 1:
+            _fix = _fixes[0]
+            # If the mandatory keys match...
+            if (
+                _fix["start_line_no"] == _base_dict["start_line_no"]
+                and _fix["start_line_pos"] == _base_dict["start_line_pos"]
+            ):
+                # ...then hoist all the optional ones from the fix.
+                for key in [
+                    "start_file_pos",
+                    "end_line_no",
+                    "end_line_pos",
+                    "end_file_pos",
+                ]:
+                    _base_dict[key] = _fix[key]
+
+        return _base_dict
 
     @property
-    def fixable(self):
+    def fixable(self) -> bool:
         """Should this error be considered fixable?"""
         if self.fixes:
             return True
         return False
 
-    def check_tuple(self) -> CheckTuple:
-        """Get a tuple representing this error. Mostly for testing."""
-        return (
-            self.rule.code,
-            self.line_no,
-            self.line_pos,
-        )
+    def rule_code(self) -> str:
+        """Fetch the code of the rule which cause this error."""
+        return self.rule.code
 
-    def __repr__(self):
+    def rule_name(self) -> str:
+        """Fetch the name of the rule which cause this error."""
+        return self.rule.name
+
+    def source_signature(self) -> tuple[Any, ...]:
+        """Return hashable source signature for deduplication.
+
+        For linting errors we need to dedupe on more than just location and
+        description, we also need to check the edits potentially made, both
+        in the templated file but also in the source.
+        """
+        fix_raws = tuple(
+            tuple(e.raw for e in f.edit) if f.edit else None for f in self.fixes
+        )
+        _source_fixes: list[tuple[str, int, int]] = []
+        for fix in self.fixes:
+            if not fix.edit:
+                continue
+            for edit in fix.edit:
+                for source_edit in edit.source_fixes:
+                    # NOTE: It's important that we don't dedupe on the
+                    # templated slice for the source fix, because that will
+                    # be different for different locations in any loop.
+                    _source_fixes.append(
+                        (
+                            source_edit.edit,
+                            source_edit.source_slice.start,
+                            source_edit.source_slice.stop,
+                        )
+                    )
+        return (self.check_tuple(), self.description, fix_raws, tuple(_source_fixes))
+
+    def __repr__(self) -> str:
         return "<SQLLintError: rule {} pos:{!r}, #fixes: {}, description: {}>".format(
             self.rule_code(),
             (self.line_no, self.line_pos),
             len(self.fixes),
             self.description,
         )
+
+
+class SQLUnusedNoQaWarning(SQLBaseError):
+    """A warning about an unused noqa directive."""
+
+    _code = "NOQA"
+    _identifier = "noqa"
+    _warning = True
 
 
 class SQLFluffUserError(ValueError):

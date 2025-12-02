@@ -1,0 +1,150 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 0035382ef47bde6ebf1104b4b6b199d904ed536514329a25e2355d4a48b84cfb
+file:
+- statement:
+    create_udf_script:
+    - keyword: CREATE
+    - keyword: LUA
+    - keyword: SCALAR
+    - keyword: SCRIPT
+    - script_reference:
+        naked_identifier: my_average
+    - bracketed:
+      - start_bracket: (
+      - column_datatype_definition:
+          naked_identifier: a
+          data_type:
+            keyword: DOUBLE
+      - comma: ','
+      - column_datatype_definition:
+          naked_identifier: b
+          data_type:
+            keyword: DOUBLE
+      - orderby_clause:
+        - keyword: ORDER
+        - keyword: BY
+        - numeric_literal: '1'
+        - keyword: desc
+      - end_bracket: )
+    - keyword: RETURNS
+    - data_type:
+        keyword: DOUBLE
+    - keyword: AS
+    - script_content:
+      - word: function
+      - word: run
+      - bracketed:
+          start_bracket: (
+          word: ctx
+          end_bracket: )
+      - word: if
+      - word: ctx
+      - dot: .
+      - word: a
+      - equals: '='
+      - equals: '='
+      - word: nil
+      - word: or
+      - word: ctx
+      - dot: .
+      - word: b
+      - equals: '='
+      - equals: '='
+      - word: nil
+      - word: then
+      - word: return
+      - word: 'NULL'
+      - word: end
+      - word: return
+      - bracketed:
+        - start_bracket: (
+        - word: ctx
+        - dot: .
+        - word: a
+        - plus: +
+        - word: ctx
+        - dot: .
+        - word: b
+        - end_bracket: )
+      - divide: /
+      - numeric_literal: '2'
+      - word: end
+- function_script_terminator: /
+- statement:
+    create_udf_script:
+    - keyword: CREATE
+    - keyword: LUA
+    - keyword: SCALAR
+    - keyword: SCRIPT
+    - script_reference:
+        naked_identifier: my_average
+    - bracketed:
+      - start_bracket: (
+      - column_datatype_definition:
+          naked_identifier: a
+          data_type:
+            keyword: DOUBLE
+      - comma: ','
+      - column_datatype_definition:
+          naked_identifier: b
+          data_type:
+            keyword: DOUBLE
+      - orderby_clause:
+        - keyword: ORDER
+        - keyword: BY
+        - numeric_literal: '1'
+        - keyword: desc
+      - end_bracket: )
+    - keyword: RETURNS
+    - data_type:
+        keyword: DOUBLE
+    - keyword: AS
+    - script_content:
+      - word: function
+      - word: run
+      - bracketed:
+          start_bracket: (
+          word: ctx
+          end_bracket: )
+      - word: if
+      - word: ctx
+      - dot: .
+      - word: a
+      - equals: '='
+      - equals: '='
+      - word: nil
+      - word: or
+      - word: ctx
+      - dot: .
+      - word: b
+      - equals: '='
+      - equals: '='
+      - word: nil
+      - word: then
+      - word: return
+      - word: 'NULL'
+      - word: end
+      - word: x
+      - equals: '='
+      - numeric_literal: '10'
+      - divide: /
+      - numeric_literal: '2'
+      - word: return
+      - bracketed:
+        - start_bracket: (
+        - word: ctx
+        - dot: .
+        - word: a
+        - plus: +
+        - word: ctx
+        - dot: .
+        - word: b
+        - end_bracket: )
+      - divide: /
+      - numeric_literal: '2'
+      - word: end
+- function_script_terminator: /

@@ -5,21 +5,22 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-            identifier: col1
+            naked_identifier: col1
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: col2
+            naked_identifier: col2
       - comma: ','
       - select_clause_element:
-          literal: "'{{ a_tag_which_should_be_treated_as_raw }}'"
+          quoted_literal: "'{{ a_tag_which_should_be_treated_as_raw }}'"
           alias_expression:
-            keyword: as
-            identifier: col3
+            alias_operator:
+              keyword: as
+            naked_identifier: col3
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: my_table
+                naked_identifier: my_table

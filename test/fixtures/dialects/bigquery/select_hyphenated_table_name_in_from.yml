@@ -3,9 +3,9 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 103b85caea8316516741519b191e16afa6a3241cd0c0e716e98862e2bf66accf
+_hash: f6d47e1f3af50f343ac387dce247d0715774c44253ae6daa32177c60c94778f9
 file:
-  statement:
+- statement:
     select_statement:
       select_clause:
         keyword: SELECT
@@ -18,32 +18,157 @@ file:
         from_expression:
           from_expression_element:
             table_expression:
-              hyphenated_object_reference:
-              - identifier: project
-              - binary_operator: '-'
-              - identifier: a
+              table_reference:
+              - naked_identifier: project
+              - dash: '-'
+              - naked_identifier: a
               - dot: .
-              - identifier: dataset
-              - binary_operator: '-'
-              - identifier: b
+              - naked_identifier: dataset
+              - dash: '-'
+              - naked_identifier: b
               - dot: .
-              - identifier: table
-              - binary_operator: '-'
-              - identifier: c
+              - naked_identifier: table
+              - dash: '-'
+              - naked_identifier: c
           join_clause:
           - keyword: JOIN
           - from_expression_element:
               table_expression:
-                hyphenated_object_reference:
-                - identifier: dataset
-                - binary_operator: '-'
-                - identifier: c
+                table_reference:
+                - naked_identifier: dataset
+                - dash: '-'
+                - naked_identifier: c
                 - dot: .
-                - identifier: table
-                - binary_operator: '-'
-                - identifier: d
+                - naked_identifier: table
+                - dash: '-'
+                - naked_identifier: d
           - keyword: USING
           - bracketed:
               start_bracket: (
-              identifier: a
+              naked_identifier: a
               end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+              - naked_identifier: a
+              - dash: '-'
+              - naked_identifier: 1a
+              - dot: .
+              - naked_identifier: b
+              - dot: .
+              - naked_identifier: c
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+              - naked_identifier: a
+              - dash: '-'
+              - naked_identifier: '1'
+              - dot: .
+              - naked_identifier: b
+              - dot: .
+              - naked_identifier: c
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+              - naked_identifier: project23
+              - dash: '-'
+              - naked_identifier: '123'
+              - dot: .
+              - naked_identifier: dataset7
+              - dash: '-'
+              - naked_identifier: b1
+              - dot: .
+              - naked_identifier: table
+              - dash: '-'
+              - naked_identifier: 2c
+          join_clause:
+          - keyword: JOIN
+          - from_expression_element:
+              table_expression:
+                table_reference:
+                - naked_identifier: dataset12
+                - dash: '-'
+                - naked_identifier: c1
+                - dot: .
+                - naked_identifier: table
+                - dash: '-'
+                - naked_identifier: 1d
+          - keyword: USING
+          - bracketed:
+              start_bracket: (
+              naked_identifier: a
+              end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          expression:
+          - column_reference:
+              naked_identifier: col1
+          - binary_operator: '-'
+          - column_reference:
+              naked_identifier: col2
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: newcol1
+      - comma: ','
+      - select_clause_element:
+          expression:
+          - column_reference:
+              naked_identifier: col1
+          - binary_operator: '-'
+          - column_reference:
+              naked_identifier: col2
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: newcol2
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+              - naked_identifier: table
+              - dash: '-'
+              - naked_identifier: a123
+- statement_terminator: ;

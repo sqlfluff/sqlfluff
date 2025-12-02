@@ -1,0 +1,80 @@
+rule: ST07
+
+test_pass_specify_join_keys:
+  pass_str: select x.a from x inner join y on x.id = y.id
+
+test_fail_specify_join_keys_1:
+  fail_str: select x.a from x inner join y using (id)
+  fix_str: select x.a from x inner join y ON x.id = y.id
+
+test_fail_specify_join_keys_1_with_alias:
+  fail_str: select x.a from foo_table AS x inner join y using (id)
+  fix_str: select x.a from foo_table AS x inner join y ON x.id = y.id
+
+test_fail_specify_join_keys_1_with_subquery:
+  fail_str: select x.a from (SELECT 1 AS a) AS x inner join y using (id)
+  fix_str: select x.a from (SELECT 1 AS a) AS x inner join y ON x.id = y.id
+
+test_fail_specify_join_keys_1_with_multi_using:
+  fail_str: select x.a from x inner join y using (id, a)
+  fix_str: select x.a from x inner join y ON x.id = y.id AND x.a = y.a
+
+test_fail_specify_join_keys_2:
+  desc: Keys were specified for first join but not the second one.
+  fail_str: select x.a from x inner join y on x.id = y.id inner join z using (id)
+
+test_partial_fixed_up_to_2nd_join:
+  fail_str: |
+    select x.a
+    from x
+    inner join y using(id, foo)
+    inner join z using(id)
+  fix_str: |
+    select x.a
+    from x
+    inner join y ON x.id = y.id AND x.foo = y.foo
+    inner join z using(id)
+  violations_after_fix:
+    - description: Found USING statement. Expected only ON statements.
+      name: structure.using
+      warning: false
+      fixes: []
+      start_line_no: 4
+      start_line_pos: 14
+      start_file_pos: 77
+      end_line_no: 4
+      end_line_pos: 19
+      end_file_pos: 82
+
+select_using_fail:
+  fail_str: |
+    SELECT *
+    FROM A_TABLE
+    INNER JOIN (
+        SELECT margin
+        FROM B_TABLE
+    ) USING (SOME_COLUMN)
+
+test_fail_parent_child_positioning:
+  # Check for issue from https://github.com/sqlfluff/sqlfluff/issues/3656
+  fail_str: |
+    select * from c1 join c2 using (ID)
+    join (select * from c3 join c4 using (ID)) as c5 on c1.ID = c5.ID
+  fix_str: |
+    select * from c1 join c2 ON c1.ID = c2.ID
+    join (select * from c3 join c4 ON c3.ID = c4.ID) as c5 on c1.ID = c5.ID
+
+fail_but_dont_fix_templated_table_names:
+  fail_str: |
+    SELECT
+        {{ "table_a" }}.field_1,
+        table_b.field_2
+    FROM
+        {{ "table_a" }}
+    INNER JOIN table_b USING (id)
+
+test_pass_clickhouse:
+  pass_str: SELECT * FROM test1 as t1 LEFT SEMI JOIN test2 USING ty1,ty2;
+  configs:
+    core:
+      dialect: clickhouse

@@ -1,0 +1,1216 @@
+rule: ST05
+
+select_fail:
+  fail_str: |
+    select
+        a.x, a.y, b.z
+    from a
+    join (
+        select x, z from b
+    ) as b on (a.x = b.x)
+  fix_str: |
+    with b as (
+        select x, z from b
+    )
+    select
+        a.x, a.y, b.z
+    from a
+    join b on (a.x = b.x)
+
+cte_select_fail:
+  fail_str: |
+    with prep as (
+      select 1 as x, 2 as z
+    )
+    select
+        a.x, a.y, b.z
+    from a
+    join (
+        select x, z from b
+    ) as b on (a.x = b.x)
+  fix_str: |
+    with prep as (
+      select 1 as x, 2 as z
+    ),
+    b as (
+        select x, z from b
+    )
+    select
+        a.x, a.y, b.z
+    from a
+    join b on (a.x = b.x)
+
+cte_with_clashing_name:
+  fail_str: |
+    with prep_1 as (
+      select 1 as x, 2 as z
+    )
+    select
+        a.x, a.y, z
+    from a
+    join (
+        select x, z from b
+    ) on a.x = z
+  fix_str: |
+    with prep_1 as (
+      select 1 as x, 2 as z
+    ),
+    prep_2 as (
+        select x, z from b
+    )
+    select
+        a.x, a.y, z
+    from a
+    join prep_2 on a.x = z
+
+double_nested_fail:
+  fail_str: |
+    with p_cte as (
+      select 1 as x, 2 as z
+      UNION ALL
+      select 1 as x, 2 as z
+    )
+    select
+        a.x, a.y, b.z
+    from a
+    join (
+      select x, z from (
+        select x, z from p_cte
+      ) as c
+    ) as b on (a.x = b.x)
+  fix_str: |
+    with p_cte as (
+      select 1 as x, 2 as z
+      UNION ALL
+      select 1 as x, 2 as z
+    ),
+    c as (
+        select x, z from p_cte
+      ),
+    b as (
+      select x, z from c
+    )
+    select
+        a.x, a.y, b.z
+    from a
+    join b on (a.x = b.x)
+  configs:
+    rules:
+      structure.subquery:
+        forbid_subquery_in: both
+
+double_nested_fail_2:
+  fail_str: |
+    select
+        a.x, a.y, b.z
+    from a
+    join (
+      select x, z from (
+        select x, z from p_cte
+      ) as b
+    ) as b on (a.x = b.x)
+  fix_str: |
+    with b as (
+      select x, z from (
+        select x, z from p_cte
+      ) as b
+    )
+    select
+        a.x, a.y, b.z
+    from a
+    join b on (a.x = b.x)
+  violations_after_fix:
+    - description: select_statement clauses should not contain subqueries. Use CTEs instead
+      name: structure.subquery
+      warning: false
+      fixes: []
+      start_line_no: 2
+      start_line_pos: 20
+      start_file_pos: 31
+      end_line_no: 2
+      end_line_pos: 21
+      end_file_pos: 32
+
+  configs:
+    rules:
+      structure.subquery:
+        forbid_subquery_in: both
+
+unfixable_cte_clash:
+  fail_str: |
+    with "b" as (
+      select x, z from p_cte
+    )
+    select
+        a.x, a.y, b.z
+    from a
+    join (
+      select x, z from (
+        select 1
+      ) as b
+    ) as c on (a.x = b.x)
+  fix_str: |
+    with "b" as (
+      select x, z from p_cte
+    ),
+    c as (
+      select x, z from (
+        select 1
+      ) as b
+    )
+    select
+        a.x, a.y, b.z
+    from a
+    join c on (a.x = b.x)
+  violations_after_fix:
+    - description: select_statement clauses should not contain subqueries. Use CTEs instead
+      name: structure.subquery
+      warning: false
+      fixes: []
+      start_line_no: 5
+      start_line_pos: 20
+      start_file_pos: 68
+      end_line_no: 5
+      end_line_pos: 21
+      end_file_pos: 69
+  configs:
+    rules:
+      structure.subquery:
+        forbid_subquery_in: both
+
+with_recursive_fail_no_fix:
+  fail_str: |
+    with recursive p_cte as (
+      select 1 from tbl_foo
+    )
+    select
+        a.x, a.y, b.z
+    from a
+    join (
+      select x, z from p_cte
+    ) as b on a.x = b.x
+
+select_multijoin_fail:
+  fail_str: |
+    select
+        a.x, d.x as foo, a.y, b.z
+    from (select a, x from foo) a
+    join d using(x)
+    join (
+        select x, z from b
+    ) as b using (x)
+  fix_str: |
+    with a as (select a, x from foo),
+    b as (
+        select x, z from b
+    )
+    select
+        a.x, d.x as foo, a.y, b.z
+    from a
+    join d using(x)
+    join b using (x)
+  configs:
+    rules:
+      structure.subquery:
+        forbid_subquery_in: both
+
+with_fail:
+  fail_str: |
+    select
+        a.x, a.y, b.z
+    from a
+    join (
+        with d as (
+            select x, z from b
+        )
+        select * from d
+    ) using (x)
+  fix_str: |
+    with prep_1 as (
+        with d as (
+            select x, z from b
+        )
+        select * from d
+    )
+    select
+        a.x, a.y, b.z
+    from a
+    join prep_1 using (x)
+
+set_fail:
+  fail_str: |
+    SELECT
+        a.x, a.y, b.z
+    FROM a
+    JOIN (
+        select x, z from b
+        union
+        select x, z from d
+    ) USING (x)
+  fix_str: |
+    WITH prep_1 AS (
+        select x, z from b
+        union
+        select x, z from d
+    )
+    SELECT
+        a.x, a.y, b.z
+    FROM a
+    JOIN prep_1 USING (x)
+
+simple_pass:
+  pass_str: |
+    with c as (
+        select x, z from b
+    )
+    select
+        a.x, a.y, c.z
+    from a
+    join c on (a.x = c.x)
+
+from_clause_pass:
+  pass_str: |
+    select
+        a.x, a.y
+    from (
+        select * from b
+    ) as a
+  configs:
+    rules:
+      structure.subquery:
+        forbid_subquery_in: join
+
+from_clause_fail:
+  fail_str: |
+    select
+        a.x, a.y
+    from (
+        select * from b
+    ) as a
+  fix_str: |
+    with a as (
+        select * from b
+    )
+    select
+        a.x, a.y
+    from a
+  configs:
+    rules:
+      structure.subquery:
+        forbid_subquery_in: from
+
+both_clause_fail:
+  fail_str: |
+    select
+        a.x, a.y
+    from (
+        select * from b
+    ) as a
+  fix_str: |
+    with a as (
+        select * from b
+    )
+    select
+        a.x, a.y
+    from a
+  configs:
+    rules:
+      structure.subquery:
+        forbid_subquery_in: both
+
+no_inner_from_pass:
+  pass_str: |
+    select a
+    from (select 1 as a)
+
+uses_templating:
+  fail_str: |
+    SELECT
+        a_table.id,
+        b_table.id
+    FROM a_table
+    INNER JOIN (
+        SELECT
+            id,
+            {{"mrgn"}} AS margin
+        FROM b_tbl
+    ) AS b_table ON a_table.some_column = b_table.some_column
+
+issue_2898_redshift_attribute_error:
+  fail_str: |
+    INSERT INTO target_table (target_column)
+    SELECT table1.column1
+    FROM table1
+    INNER JOIN (
+        SELECT table2.join_column
+        FROM table2
+    ) AS temp3
+    ON table1.join_column = temp3.join_column
+  fix_str: |
+    INSERT INTO target_table (target_column)
+    WITH temp3 AS (
+        SELECT table2.join_column
+        FROM table2
+    )
+    SELECT table1.column1
+    FROM table1
+    INNER JOIN temp3
+    ON table1.join_column = temp3.join_column
+  configs:
+    core:
+      dialect: postgres
+
+issue_3623_internal_error_multiple_templated_files:
+  fail_str: |
+    CREATE TABLE #procs
+    WITH (DISTRIBUTION = HASH([eid])) AS
+    WITH proc_icd
+    AS
+    ( SELECT
+        *
+      FROM fbp
+    )
+    SELECT
+       *
+    FROM
+    (
+       SELECT
+           *
+       FROM proc_icd
+    ) sub
+    ;
+
+    CREATE TABLE #tem
+    WITH (DISTRIBUTION = HASH([eid])) AS
+    SELECT *
+    FROM
+    (
+        SELECT
+            *
+        FROM
+            a
+    ) b
+    ;
+  fix_str: |
+    CREATE TABLE #procs
+    WITH (DISTRIBUTION = HASH([eid])) AS
+    WITH proc_icd
+    AS
+    ( SELECT
+        *
+      FROM fbp
+    ),
+    sub AS (
+       SELECT
+           *
+       FROM proc_icd
+    )
+    SELECT
+       *
+    FROM
+    sub
+    ;
+
+    CREATE TABLE #tem
+    WITH (DISTRIBUTION = HASH([eid])) AS
+    WITH b AS (
+        SELECT
+            *
+        FROM
+            a
+    )
+    SELECT *
+    FROM
+    b
+    ;
+  configs:
+    core:
+      dialect: tsql
+    rules:
+      structure.subquery:
+        forbid_subquery_in: both
+
+issue_3622_no_space_after_from:
+  fail_str: |
+    CREATE TABLE t
+    AS
+    SELECT
+        col1
+    FROM(
+        SELECT 'x' AS col1
+    ) x
+  fix_str: |
+    CREATE TABLE t
+    AS
+    WITH x AS (
+        SELECT 'x' AS col1
+    )
+    SELECT
+        col1
+    FROM x
+  configs:
+    rules:
+      structure.subquery:
+        forbid_subquery_in: both
+
+issue_3617_parentheses_around_ctas_select:
+  fail_str: |
+    CREATE TABLE t
+    AS
+    (SELECT
+        Col1
+    FROM
+    (
+        SELECT 'x' AS COl1
+    ) x
+    )
+  configs:
+    rules:
+      structure.subquery:
+        forbid_subquery_in: both
+
+issue_3572_correlated_subquery_1:
+  pass_str: |
+    select
+        pd.*
+    from person_dates
+    join
+        (select *
+         from events
+         where events.name = person_dates.name)
+
+
+issue_3572_correlated_subquery_2:
+  pass_str: |
+    select
+        pd.*
+    from person_dates as pd
+    join
+        (select *
+         from events as ce
+         where ce.name = pd.name)
+
+
+issue_3572_correlated_subquery_3:
+  pass_str: |
+    select
+        pd.*
+    from person_dates as pd
+    join
+        (select *
+         from events as ce
+         where ce.name = person_dates.name)
+
+issue_3598_avoid_looping_1:
+  fail_str: |
+    WITH cte1 AS (
+        SELECT a
+        FROM (SELECT a)
+    )
+    SELECT a FROM cte1
+  fix_str: |
+    WITH prep_1 AS (SELECT a),
+    cte1 AS (
+        SELECT a
+        FROM prep_1
+    )
+    SELECT a FROM cte1
+  configs:
+    rules:
+      structure.subquery:
+        forbid_subquery_in: both
+
+issue_3598_avoid_looping_2:
+  fail_str: |
+    WITH cte1 AS (
+        SELECT *
+        FROM (SELECT * FROM mongo.temp)
+    )
+    SELECT * FROM cte1
+  fix_str: |
+    WITH prep_1 AS (SELECT * FROM mongo.temp),
+    cte1 AS (
+        SELECT *
+        FROM prep_1
+    )
+    SELECT * FROM cte1
+  configs:
+    rules:
+      structure.subquery:
+        forbid_subquery_in: both
+
+test_fail_subquery_in_cte:
+  fail_str: |
+    with b as (
+      select x, z from (
+        select x, z from p_cte
+      )
+    )
+    select b.z
+    from b
+  fix_str: |
+    with prep_1 as (
+        select x, z from p_cte
+      ),
+    b as (
+      select x, z from prep_1
+    )
+    select b.z
+    from b
+  configs:
+    rules:
+      structure.subquery:
+        forbid_subquery_in: both
+
+test_fail_subquery_in_cte_2:
+  fail_str: |
+    with
+      b as (
+        select
+          x,
+          y
+        from (select
+          x,
+          y,
+          z
+          from a)
+      )
+
+    select
+      x,
+      y
+    from a
+    union all
+    select
+      x,
+      y
+    from b
+  fix_str: |
+    with prep_1 as (select
+          x,
+          y,
+          z
+          from a),
+    b as (
+        select
+          x,
+          y
+        from prep_1
+      )
+    select
+      x,
+      y
+    from a
+    union all
+    select
+      x,
+      y
+    from b
+  configs:
+    rules:
+      structure.subquery:
+        forbid_subquery_in: both
+
+test_fail_subquery_in_cte_3:
+  fail_str: |
+    with
+      b as (
+        select
+          x,
+          y
+        from(select
+          x,
+          y,
+          z
+          from a)
+      )
+
+    select
+      x,
+      y
+    from b
+  fix_str: |
+    with prep_1 as (select
+          x,
+          y,
+          z
+          from a),
+    b as (
+        select
+          x,
+          y
+        from prep_1
+      )
+    select
+      x,
+      y
+    from b
+  configs:
+    rules:
+      structure.subquery:
+        forbid_subquery_in: both
+
+test_cte_with_multiple_subqueries:
+  fail_str: |
+    WITH q AS (
+        SELECT
+            t1.a
+        FROM
+            table_1 AS t1
+        INNER JOIN
+            table_2 AS t2 USING (a)
+        LEFT JOIN (
+            SELECT DISTINCT a FROM table_3
+                WHERE c = 'v1'
+        ) AS dns USING (a)
+        LEFT JOIN (
+            SELECT DISTINCT a FROM table_4
+                WHERE b = 'v2'
+        ) AS dcod USING (a)
+    )
+    SELECT
+        a
+    FROM
+        q
+    ;
+  fix_str: |
+    WITH dns AS (
+            SELECT DISTINCT a FROM table_3
+                WHERE c = 'v1'
+        ),
+    dcod AS (
+            SELECT DISTINCT a FROM table_4
+                WHERE b = 'v2'
+        ),
+    q AS (
+        SELECT
+            t1.a
+        FROM
+            table_1 AS t1
+        INNER JOIN
+            table_2 AS t2 USING (a)
+        LEFT JOIN dns USING (a)
+        LEFT JOIN dcod USING (a)
+    )
+    SELECT
+        a
+    FROM
+        q
+    ;
+
+test_cte_with_double_nested_subquery:
+  fail_str: |
+    WITH q AS (
+        SELECT
+            t1.a
+        FROM
+            table_1 AS t1
+        INNER JOIN
+            table_2 AS t2 USING (a)
+        LEFT JOIN (
+            SELECT DISTINCT a FROM table_3
+                WHERE c = 'v1'
+        ) AS dns USING (a)
+        LEFT JOIN (
+            SELECT DISTINCT a FROM table_5
+            LEFT JOIN (
+                SELECT DISTINCT
+                    a,
+                    b
+                FROM table_6
+                WHERE c < 5
+            ) AS t4
+                USING (a)
+            WHERE table_5.b = 'v2'
+        ) AS dcod USING (a)
+    )
+    SELECT
+        a
+    FROM
+        q;
+  fix_str: |
+    WITH dns AS (
+            SELECT DISTINCT a FROM table_3
+                WHERE c = 'v1'
+        ),
+    t4 AS (
+                SELECT DISTINCT
+                    a,
+                    b
+                FROM table_6
+                WHERE c < 5
+            ),
+    dcod AS (
+            SELECT DISTINCT a FROM table_5
+            LEFT JOIN t4
+                USING (a)
+            WHERE table_5.b = 'v2'
+        ),
+    q AS (
+        SELECT
+            t1.a
+        FROM
+            table_1 AS t1
+        INNER JOIN
+            table_2 AS t2 USING (a)
+        LEFT JOIN dns USING (a)
+        LEFT JOIN dcod USING (a)
+    )
+    SELECT
+        a
+    FROM
+        q;
+
+test_two_ctes_with_same_named_nested_subquery:
+  fail_str: |
+    with purchases_in_the_last_year as (
+        select
+            customer_id
+            , arrayagg(distinct attr) within group (order by attr asc) as attrlist
+        from (
+            select
+                o.customer_id
+                , p.attr
+            from
+                order_line_item as o
+            inner join product as p
+                on o.product_id = p.product_id
+                and o.time_placed >= dateadd(year, -1, current_date())
+        ) group by customer_id
+    )
+
+    , purchases_in_the_last_three_years as (
+        select
+            customer_id
+            , arrayagg(distinct attr) within group (order by attr asc) as attrlist
+        from (
+            select
+                o.customer_id
+                , p.attr
+            from
+                order_line_item as o
+            inner join product as p
+                on o.product_id = p.product_id
+                and o.time_placed >= dateadd(year, -3, current_date())
+        ) group by customer_id
+    )
+
+
+    select distinct
+        c.customer_id
+        , ly.attrlist as attrlist_last_year
+        , l3y.attrlist as attrlist_last_three_years
+    from
+        customers as c
+    left outer join
+        purchases_in_the_last_year as ly
+        on c.customer_id = ly.customer_id
+    left outer join
+        purchases_in_the_last_three_years as l3y
+        on c.customer_id = l3y.customer_id
+    ;
+  fix_str: |
+    with prep_1 as (
+            select
+                o.customer_id
+                , p.attr
+            from
+                order_line_item as o
+            inner join product as p
+                on o.product_id = p.product_id
+                and o.time_placed >= dateadd(year, -1, current_date())
+        ),
+    purchases_in_the_last_year as (
+        select
+            customer_id
+            , arrayagg(distinct attr) within group (order by attr asc) as attrlist
+        from prep_1 group by customer_id
+    ),
+    prep_2 as (
+            select
+                o.customer_id
+                , p.attr
+            from
+                order_line_item as o
+            inner join product as p
+                on o.product_id = p.product_id
+                and o.time_placed >= dateadd(year, -3, current_date())
+        ),
+    purchases_in_the_last_three_years as (
+        select
+            customer_id
+            , arrayagg(distinct attr) within group (order by attr asc) as attrlist
+        from prep_2 group by customer_id
+    )
+    select distinct
+        c.customer_id
+        , ly.attrlist as attrlist_last_year
+        , l3y.attrlist as attrlist_last_three_years
+    from
+        customers as c
+    left outer join
+        purchases_in_the_last_year as ly
+        on c.customer_id = ly.customer_id
+    left outer join
+        purchases_in_the_last_three_years as l3y
+        on c.customer_id = l3y.customer_id
+    ;
+  configs:
+    core:
+      dialect: snowflake
+    rules:
+      structure.subquery:
+        forbid_subquery_in: both
+
+test_fail_set_subquery_in_second_query:
+  fail_str: |
+    SELECT 1 AS value_name
+    UNION
+    SELECT value
+    FROM (SELECT 2 AS value_name);
+  fix_str: |
+    WITH prep_1 AS (SELECT 2 AS value_name)
+    SELECT 1 AS value_name
+    UNION
+    SELECT value
+    FROM prep_1;
+  configs:
+    rules:
+      structure.subquery:
+        forbid_subquery_in: both
+
+test_fail_set_subquery_in_second_query_join:
+  fail_str: |
+    SELECT 1 AS value_name
+    UNION
+    SELECT value
+    FROM (SELECT 2 AS value_name)
+    CROSS JOIN (SELECT 1 as v2);
+  fix_str: |
+    WITH prep_1 AS (SELECT 2 AS value_name),
+    prep_2 AS (SELECT 1 as v2)
+    SELECT 1 AS value_name
+    UNION
+    SELECT value
+    FROM prep_1
+    CROSS JOIN prep_2;
+  configs:
+    rules:
+      structure.subquery:
+        forbid_subquery_in: both
+
+test_fail_order_4782:
+  fail_str: |
+    WITH
+    cte_1 AS (
+        SELECT
+            subquery_a.field_a,
+            subquery_a.field_b
+        FROM (
+            SELECT
+                subquery_b.field_a,
+                alias_a.field_d,
+                alias_a.field_b,
+                alias_b.field_c
+            FROM table_b AS alias_a
+            INNER JOIN
+                (SELECT * FROM table_a) AS subquery_b
+                ON subquery_b.field_a >= alias_a.field_d
+            LEFT OUTER JOIN table_b AS alias_b ON alias_a.field_b = alias_b.field_c
+        ) AS subquery_a
+    ),
+
+    cte_2 AS (
+        SELECT *
+        FROM table_c
+        WHERE field_a > 0
+        ORDER BY field_b DESC
+    ),
+
+    join_ctes AS (
+        SELECT * FROM cte_1 LEFT OUTER JOIN cte_2 ON cte_1.field_a = cte_2.field_a
+    )
+
+    SELECT *
+    FROM join_ctes;
+  fix_str: |
+    WITH subquery_b AS (SELECT * FROM table_a),
+    subquery_a AS (
+            SELECT
+                subquery_b.field_a,
+                alias_a.field_d,
+                alias_a.field_b,
+                alias_b.field_c
+            FROM table_b AS alias_a
+            INNER JOIN
+                subquery_b
+                ON subquery_b.field_a >= alias_a.field_d
+            LEFT OUTER JOIN table_b AS alias_b ON alias_a.field_b = alias_b.field_c
+        ),
+    cte_1 AS (
+        SELECT
+            subquery_a.field_a,
+            subquery_a.field_b
+        FROM subquery_a
+    ),
+    cte_2 AS (
+        SELECT *
+        FROM table_c
+        WHERE field_a > 0
+        ORDER BY field_b DESC
+    ),
+    join_ctes AS (
+        SELECT * FROM cte_1 LEFT OUTER JOIN cte_2 ON cte_1.field_a = cte_2.field_a
+    )
+    SELECT *
+    FROM join_ctes;
+  configs:
+    rules:
+      structure.subquery:
+        forbid_subquery_in: both
+
+test_fail_order_5265:
+  violations_after_fix:
+    - description: select_statement clauses should not contain subqueries. Use CTEs instead
+      name: structure.subquery
+      warning: false
+      fixes: []
+      start_line_no: 18
+      start_line_pos: 15
+      start_file_pos: 343
+      end_line_no: 18
+      end_line_pos: 16
+      end_file_pos: 344
+  fail_str: |
+    WITH
+    cte1 AS (
+        SELECT COUNT(*) AS qty
+        FROM some_table AS st
+        LEFT JOIN (
+            SELECT 'first' AS id
+        ) AS oops
+        ON st.id = oops.id
+    ),
+    cte2 AS (
+        SELECT COUNT(*) AS other_qty
+        FROM other_table AS sot
+        LEFT JOIN (
+            SELECT 'middle' AS id
+        ) AS another
+        ON sot.id = another.id
+        LEFT JOIN (
+            SELECT 'last' AS id
+        ) AS oops
+        ON sot.id = oops.id
+    )
+    SELECT CURRENT_DATE();
+  fix_str: |
+    WITH oops AS (
+            SELECT 'first' AS id
+        ),
+    cte1 AS (
+        SELECT COUNT(*) AS qty
+        FROM some_table AS st
+        LEFT JOIN oops
+        ON st.id = oops.id
+    ),
+    another AS (
+            SELECT 'middle' AS id
+        ),
+    cte2 AS (
+        SELECT COUNT(*) AS other_qty
+        FROM other_table AS sot
+        LEFT JOIN another
+        ON sot.id = another.id
+        LEFT JOIN (
+            SELECT 'last' AS id
+        ) AS oops
+        ON sot.id = oops.id
+    )
+    SELECT CURRENT_DATE();
+  configs:
+    rules:
+      structure.subquery:
+        forbid_subquery_in: both
+
+test_fail_no_fix_nested_subquery_join:
+  fail_str: |
+    SELECT
+        x.a,
+        w2.b
+    FROM x
+    LEFT JOIN (
+        (
+            SELECT
+                w.a,
+                w.b,
+                w.c
+            FROM w
+        ) AS w2
+        LEFT JOIN y
+            ON w2.a = y.a
+    )
+        ON x.a = w2.a;
+
+test_pass_nested_table_function:
+  pass_str: |
+    SELECT *
+    FROM `func`((
+      SELECT 1
+    ));
+  configs:
+    core:
+      dialect: bigquery
+    rules:
+      structure.subquery:
+        forbid_subquery_in: both
+
+test_pass_nested_table_function_with_subquery:
+  pass_str: |
+    SELECT
+      t.col1,
+      res.result
+    FROM t,
+      TABLE(
+        utils.udfs.udtf(
+          t.col1,
+          (SELECT dist.stats FROM dist)
+        ) OVER (
+          PARTITION BY t.col1
+          ORDER BY t.col2 DESC
+        )
+      ) AS res;
+  configs:
+    core:
+      dialect: snowflake
+
+test_fail_mariadb_insert_cte_select:
+  fail_str: |
+    INSERT INTO test_hold (
+        uid,
+        date_created,
+        date_updated,
+        earliest_activity,
+        latest_activity,
+        reason
+    )
+    SELECT
+        uid,
+        sub.earliest_date_created AS date_created,
+        sub.latest_date_updated AS date_updated,
+        earliest_activity,
+        latest_activity,
+        sub.reason
+    FROM test AS t
+    INNER JOIN (
+        SELECT
+            reason,
+            MIN(date_created) AS earliest_date_created,
+            MAX(date_updated) AS latest_date_updated
+        FROM test
+        GROUP BY reason
+    ) AS sub ON t.reason = sub.reason
+    GROUP BY t.reason;
+  fix_str: |
+    INSERT INTO test_hold (
+        uid,
+        date_created,
+        date_updated,
+        earliest_activity,
+        latest_activity,
+        reason
+    )
+    WITH sub AS (
+        SELECT
+            reason,
+            MIN(date_created) AS earliest_date_created,
+            MAX(date_updated) AS latest_date_updated
+        FROM test
+        GROUP BY reason
+    )
+    SELECT
+        uid,
+        sub.earliest_date_created AS date_created,
+        sub.latest_date_updated AS date_updated,
+        earliest_activity,
+        latest_activity,
+        sub.reason
+    FROM test AS t
+    INNER JOIN sub ON t.reason = sub.reason
+    GROUP BY t.reason;
+  configs:
+    core:
+      dialect: mariadb
+
+test_fail_tsql_insert:
+  fail_str: |
+    INSERT INTO Table1 (Id,Name,Attribute)
+    SELECT
+    Main.Id
+    ,Main.Name
+    ,Subq.Attribute
+    FROM MainTable AS Main
+    LEFT JOIN
+    (SELECT
+    Id
+    ,Attribute
+    FROM Table2) Subq
+    ON Main.Id = Subq.Id
+  fix_str: |
+    WITH Subq AS (SELECT
+    Id
+    ,Attribute
+    FROM Table2)
+    INSERT INTO Table1 (Id,Name,Attribute)
+    SELECT
+    Main.Id
+    ,Main.Name
+    ,Subq.Attribute
+    FROM MainTable AS Main
+    LEFT JOIN
+    Subq
+    ON Main.Id = Subq.Id
+  configs:
+    core:
+      dialect: tsql
+
+test_fail_tsql_existing_cte_with_insert:
+  fail_str: |
+    WITH MainTable as (
+        select *
+        from sales
+    )
+
+    INSERT INTO Table1 (Id,Name,Attribute)
+    SELECT
+    Main.Id
+    ,Main.Name
+    ,Subq.Attribute
+    FROM MainTable AS Main
+    LEFT JOIN
+    (SELECT
+    Id
+    ,Attribute
+    FROM Table2) Subq
+    ON Main.Id = Subq.Id
+  fix_str: |
+    WITH MainTable as (
+        select *
+        from sales
+    ),
+    Subq AS (SELECT
+    Id
+    ,Attribute
+    FROM Table2)
+    INSERT INTO Table1 (Id,Name,Attribute)
+    SELECT
+    Main.Id
+    ,Main.Name
+    ,Subq.Attribute
+    FROM MainTable AS Main
+    LEFT JOIN
+    Subq
+    ON Main.Id = Subq.Id
+  configs:
+    core:
+      dialect: tsql

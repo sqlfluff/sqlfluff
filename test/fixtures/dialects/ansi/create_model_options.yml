@@ -3,32 +3,36 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 93c7379255ccf0e871ac6f86fe7dfb7acd290fe728c5e85755ee297beb19da84
+_hash: 211fd01681c933400ac519c3f5901dcefb5dc7e061009417bf5aed3a98d10094
 file:
   statement:
     create_model_statement:
     - keyword: CREATE
-    - binary_operator: OR
+    - keyword: OR
     - keyword: REPLACE
     - keyword: MODEL
     - object_reference:
-        identifier: model3
+        naked_identifier: model3
     - keyword: OPTIONS
     - bracketed:
       - start_bracket: (
       - parameter: MODEL_TYPE
-      - comparison_operator: '='
-      - literal: "'LOGISTIC_REG'"
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'LOGISTIC_REG'"
       - comma: ','
       - parameter: AUTO_CLASS_WEIGHTS
-      - comparison_operator: '='
-      - literal: 'TRUE'
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - boolean_literal: 'TRUE'
       - comma: ','
       - parameter: INPUT_LABEL_COLS
-      - comparison_operator: '='
-      - start_square_bracket: '['
-      - literal: "'label_str'"
-      - end_square_bracket: ']'
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - array_literal:
+          start_square_bracket: '['
+          quoted_literal: "'label_str'"
+          end_square_bracket: ']'
       - end_bracket: )
     - keyword: AS
     - select_statement:
@@ -36,22 +40,23 @@ file:
         - keyword: SELECT
         - select_clause_element:
             column_reference:
-              identifier: a
+              naked_identifier: a
         - comma: ','
         - select_clause_element:
             column_reference:
-              identifier: b
+              naked_identifier: b
         from_clause:
           keyword: FROM
           from_expression:
             from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: table1
+                  naked_identifier: table1
         where_clause:
           keyword: WHERE
           expression:
             column_reference:
-              identifier: training
-            comparison_operator: '='
-            literal: '1'
+              naked_identifier: training
+            comparison_operator:
+              raw_comparison_operator: '='
+            numeric_literal: '1'

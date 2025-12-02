@@ -1,0 +1,83 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 6734bce50d79e2600d1ac66ef061549ec1e1770d93b6f0d8a8260127d517469f
+file:
+  statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: mydataset
+      - dot: .
+      - naked_identifier: mytable
+    - keyword: ALTER
+    - keyword: COLUMN
+    - keyword: IF
+    - keyword: EXISTS
+    - naked_identifier: A
+    - keyword: SET
+    - options_segment:
+        keyword: OPTIONS
+        bracketed:
+          start_bracket: (
+          parameter: description
+          comparison_operator:
+            raw_comparison_operator: '='
+          quoted_literal: "'some description here'"
+          end_bracket: )
+    - comma: ','
+    - keyword: ALTER
+    - keyword: COLUMN
+    - keyword: IF
+    - keyword: EXISTS
+    - naked_identifier: B
+    - keyword: DROP
+    - keyword: NOT
+    - keyword: 'NULL'
+    - comma: ','
+    - keyword: ALTER
+    - keyword: COLUMN
+    - keyword: IF
+    - keyword: EXISTS
+    - naked_identifier: C
+    - keyword: DROP
+    - keyword: DEFAULT
+    - comma: ','
+    - keyword: ALTER
+    - keyword: COLUMN
+    - keyword: IF
+    - keyword: EXISTS
+    - naked_identifier: D
+    - keyword: SET
+    - keyword: DATA
+    - keyword: TYPE
+    - data_type:
+        data_type_identifier: FLOAT64
+    - comma: ','
+    - keyword: ALTER
+    - keyword: COLUMN
+    - keyword: IF
+    - keyword: EXISTS
+    - naked_identifier: E
+    - keyword: SET
+    - keyword: DEFAULT
+    - numeric_literal: '0'
+    - comma: ','
+    - keyword: ALTER
+    - keyword: COLUMN
+    - keyword: IF
+    - keyword: EXISTS
+    - naked_identifier: F
+    - keyword: SET
+    - keyword: DEFAULT
+    - function:
+        function_name:
+          function_name_identifier: CURRENT_TIMESTAMP
+        function_contents:
+          bracketed:
+            start_bracket: (
+            end_bracket: )
+  statement_terminator: ;

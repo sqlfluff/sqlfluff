@@ -1,0 +1,100 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: bf499a2c379af9da9489d8882663427bb624b81625f7b0af1a448b1325630ce4
+file:
+  statement:
+    create_udf_script:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - naked_identifier: PYTHON3
+    - keyword: SCALAR
+    - keyword: SCRIPT
+    - script_reference:
+      - naked_identifier: MYSCHEMA
+      - dot: .
+      - naked_identifier: MYPYTHONSCRIPT
+    - bracketed:
+      - start_bracket: (
+      - column_datatype_definition:
+          naked_identifier: JSON_STR
+          data_type:
+            keyword: VARCHAR
+            bracketed_arguments:
+              bracketed:
+                start_bracket: (
+                numeric_literal: '2000000'
+                end_bracket: )
+      - comma: ','
+      - column_datatype_definition:
+          naked_identifier: LANGUAGE_KEY
+          data_type:
+            keyword: VARCHAR
+            bracketed_arguments:
+              bracketed:
+                start_bracket: (
+                numeric_literal: '50'
+                end_bracket: )
+      - comma: ','
+      - column_datatype_definition:
+          naked_identifier: TXT_KEY
+          data_type:
+            keyword: VARCHAR
+            bracketed_arguments:
+              bracketed:
+                start_bracket: (
+                numeric_literal: '50'
+                end_bracket: )
+      - end_bracket: )
+    - emits_segment:
+        keyword: EMITS
+        bracketed:
+          start_bracket: (
+          column_datatype_definition:
+            naked_identifier: X
+            data_type:
+              keyword: VARCHAR
+              bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  numeric_literal: '2000000'
+                  end_bracket: )
+          end_bracket: )
+    - keyword: AS
+    - script_content:
+      - double_quote: "\"\"\"\n/*====================================================================\n\
+          \    e.g.:\n    SELECT MYSCHEMA.MYPYTHONSCRIPT(\n            '[{\""
+      - at_sign_literal: '@lang'
+      - double_quote: '":"'
+      - word: de
+      - minus: '-'
+      - word: DE
+      - double_quote: '","'
+      - dollar_literal: $
+      - double_quote: '":"'
+      - word: Krztxt
+      - double_quote: '"}, {"'
+      - at_sign_literal: '@lang'
+      - double_quote: '":"'
+      - word: en
+      - minus: '-'
+      - word: GB
+      - double_quote: '","'
+      - dollar_literal: $
+      - double_quote: '":"'
+      - word: Shrttxt
+      - double_quote: "\"}]',\n            '@lang',\n            '$'\n        );\n\
+          \ ====================================================================*/\n\
+          \"\"\""
+      - word: def
+      - word: run
+      - bracketed:
+          start_bracket: (
+          word: ctx
+          end_bracket: )
+      - colon: ':'
+      - word: pass
+  function_script_terminator: /

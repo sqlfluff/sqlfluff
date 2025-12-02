@@ -1,0 +1,75 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 056710a8f94006a6da745c58745d9f8198f33ed161a700216108d294b2de9b04
+file:
+- statement:
+    analyze_table_statement:
+    - keyword: ANALYZE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: students
+    - keyword: COMPUTE
+    - keyword: STATISTICS
+    - keyword: NOSCAN
+- statement_terminator: ;
+- statement:
+    analyze_table_statement:
+    - keyword: ANALYZE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: students
+    - keyword: COMPUTE
+    - keyword: STATISTICS
+- statement_terminator: ;
+- statement:
+    analyze_table_statement:
+    - keyword: ANALYZE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: students
+    - keyword: PARTITION
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          naked_identifier: student_id
+        comparison_operator:
+          raw_comparison_operator: '='
+        numeric_literal: '111111'
+        end_bracket: )
+    - keyword: COMPUTE
+    - keyword: STATISTICS
+- statement_terminator: ;
+- statement:
+    analyze_table_statement:
+    - keyword: ANALYZE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: students
+    - keyword: COMPUTE
+    - keyword: STATISTICS
+    - keyword: FOR
+    - keyword: COLUMNS
+    - column_reference:
+        naked_identifier: name
+- statement_terminator: ;
+- statement:
+    analyze_table_statement:
+    - keyword: ANALYZE
+    - keyword: TABLES
+    - keyword: IN
+    - database_reference:
+        naked_identifier: school_db
+    - keyword: COMPUTE
+    - keyword: STATISTICS
+    - keyword: NOSCAN
+- statement_terminator: ;
+- statement:
+    analyze_table_statement:
+    - keyword: ANALYZE
+    - keyword: TABLES
+    - keyword: COMPUTE
+    - keyword: STATISTICS
+- statement_terminator: ;

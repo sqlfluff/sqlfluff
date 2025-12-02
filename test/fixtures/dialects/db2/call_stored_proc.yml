@@ -1,0 +1,126 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 90a8a38282d756af742bc45a6315b63df620460fd3c85ccdf642376daa6a96fc
+file:
+- statement:
+    call_segment:
+      keyword: CALL
+      function:
+        function_name:
+          function_name_identifier: FOO
+        function_contents:
+          bracketed:
+          - start_bracket: (
+          - expression:
+              column_reference:
+                naked_identifier: I1
+          - comma: ','
+          - expression:
+              column_reference:
+                naked_identifier: I2
+          - end_bracket: )
+- statement_terminator: ;
+- statement:
+    call_segment:
+      keyword: CALL
+      function:
+        function_name:
+          naked_identifier: Y
+          dot: .
+          function_name_identifier: UPDATE_ORDER
+        function_contents:
+          bracketed:
+            start_bracket: (
+            named_argument:
+              naked_identifier: TEST
+              right_arrow: =>
+              expression:
+                numeric_literal: '5'
+            end_bracket: )
+- statement_terminator: ;
+- statement:
+    call_segment:
+      keyword: CALL
+      function:
+        function_name:
+          function_name_identifier: UPDATE_ORDER
+        function_contents:
+          bracketed:
+            start_bracket: (
+            expression:
+              numeric_literal: '5000'
+            comma: ','
+            named_argument:
+              naked_identifier: NEW_STATUS
+              right_arrow: =>
+              expression:
+                quoted_literal: "'Shipped'"
+            end_bracket: )
+- statement_terminator: ;
+- statement:
+    call_segment:
+      keyword: CALL
+      function:
+        function_name:
+          function_name_identifier: UPDATE_ORDER
+        function_contents:
+          bracketed:
+          - start_bracket: (
+          - expression:
+              numeric_literal: '5002'
+          - comma: ','
+          - named_argument:
+              naked_identifier: IN_CUSTID
+              right_arrow: =>
+              expression:
+                numeric_literal: '1001'
+          - comma: ','
+          - named_argument:
+              naked_identifier: NEW_STATUS
+              right_arrow: =>
+              expression:
+                quoted_literal: "'Received'"
+          - comma: ','
+          - named_argument:
+              naked_identifier: NEW_COMMENTS
+              right_arrow: =>
+              expression:
+                quoted_literal: "'Customer satisfied with the order.'"
+          - end_bracket: )
+- statement_terminator: ;
+- statement:
+    call_segment:
+      keyword: CALL
+      function:
+        function_name:
+          naked_identifier: SYSPROC
+          dot: .
+          function_name_identifier: ADMIN_CMD
+        function_contents:
+          bracketed:
+            start_bracket: (
+            expression:
+              quoted_literal: "'RUNSTATS ON TABLE employee ON KEY COLUMNS and INDEXES\
+                \ ALL'"
+            end_bracket: )
+- statement_terminator: ;
+- statement:
+    call_segment:
+      keyword: CALL
+      function:
+        function_name:
+          function_name_identifier: DO_THE_THING
+        function_contents:
+          bracketed:
+            start_bracket: (
+            end_bracket: )
+- statement_terminator: ;
+- statement:
+    call_segment:
+      keyword: CALL
+      function_name:
+        function_name_identifier: DO_THE_THING
+- statement_terminator: ;

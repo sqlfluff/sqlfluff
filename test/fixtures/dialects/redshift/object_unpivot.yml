@@ -1,0 +1,196 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 596220583d11a390ef2206e51a70705f163a936c8a699e5dc5b394aed3d61f12
+file:
+- statement:
+    with_compound_statement:
+      keyword: WITH
+      common_table_expression:
+        naked_identifier: example_data
+        keyword: AS
+        bracketed:
+          start_bracket: (
+          set_expression:
+          - select_statement:
+              select_clause:
+              - keyword: SELECT
+              - select_clause_element:
+                  numeric_literal: '10'
+                  alias_expression:
+                    alias_operator:
+                      keyword: AS
+                    naked_identifier: shop_id
+              - comma: ','
+              - select_clause_element:
+                  function:
+                    function_name:
+                      function_name_identifier: json_parse
+                    function_contents:
+                      bracketed:
+                        start_bracket: (
+                        expression:
+                          quoted_literal: "'{\"apple_count\": 2, \"orange_count\"\
+                            : 6}'"
+                        end_bracket: )
+                  alias_expression:
+                    alias_operator:
+                      keyword: AS
+                    naked_identifier: inventory
+          - set_operator:
+            - keyword: UNION
+            - keyword: ALL
+          - select_statement:
+              select_clause:
+              - keyword: SELECT
+              - select_clause_element:
+                  numeric_literal: '20'
+                  alias_expression:
+                    alias_operator:
+                      keyword: AS
+                    naked_identifier: shop_id
+              - comma: ','
+              - select_clause_element:
+                  function:
+                    function_name:
+                      function_name_identifier: json_parse
+                    function_contents:
+                      bracketed:
+                        start_bracket: (
+                        expression:
+                          quoted_literal: "'{\"pear_count\": 10, \"other_data\": 42}'"
+                        end_bracket: )
+                  alias_expression:
+                    alias_operator:
+                      keyword: AS
+                    naked_identifier: inventory
+          - set_operator:
+            - keyword: UNION
+            - keyword: ALL
+          - select_statement:
+              select_clause:
+              - keyword: SELECT
+              - select_clause_element:
+                  numeric_literal: '30'
+                  alias_expression:
+                    alias_operator:
+                      keyword: AS
+                    naked_identifier: shop_id
+              - comma: ','
+              - select_clause_element:
+                  function:
+                    function_name:
+                      function_name_identifier: json_parse
+                    function_contents:
+                      bracketed:
+                        start_bracket: (
+                        expression:
+                          quoted_literal: "'{\"apple_count\": 3, \"lemon_count\":\
+                            \ 5}'"
+                        end_bracket: )
+                  alias_expression:
+                    alias_operator:
+                      keyword: AS
+                    naked_identifier: inventory
+          end_bracket: )
+      select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+              naked_identifier: shop_id
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: key
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: value
+        from_clause:
+        - keyword: FROM
+        - from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: example_data
+              alias_expression:
+                naked_identifier: ed
+        - comma: ','
+        - from_expression:
+            from_expression_element:
+              table_expression:
+                object_unpivoting:
+                - keyword: UNPIVOT
+                - object_reference:
+                  - naked_identifier: ed
+                  - dot: .
+                  - naked_identifier: inventory
+                - keyword: AS
+                - naked_identifier: value
+                - keyword: AT
+                - naked_identifier: key
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+            naked_identifier: attr
+          alias_expression:
+            alias_operator:
+              keyword: as
+            naked_identifier: attribute_name
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: val
+          alias_expression:
+            alias_operator:
+              keyword: as
+            naked_identifier: object_value
+      from_clause:
+      - keyword: FROM
+      - from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: customer_orders_lineitem
+            alias_expression:
+              naked_identifier: c
+      - comma: ','
+      - from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+              - naked_identifier: c
+              - dot: .
+              - naked_identifier: c_orders
+            alias_expression:
+              alias_operator:
+                keyword: AS
+              naked_identifier: o
+      - comma: ','
+      - from_expression:
+          from_expression_element:
+            table_expression:
+              object_unpivoting:
+              - keyword: UNPIVOT
+              - object_reference:
+                  naked_identifier: o
+              - keyword: AS
+              - naked_identifier: val
+              - keyword: AT
+              - naked_identifier: attr
+      where_clause:
+        keyword: WHERE
+        expression:
+          column_reference:
+            naked_identifier: c_custkey
+          comparison_operator:
+            raw_comparison_operator: '='
+          numeric_literal: '9451'
+- statement_terminator: ;

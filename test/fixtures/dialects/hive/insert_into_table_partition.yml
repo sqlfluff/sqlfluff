@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 2b11170f6ae125eefc32024fbc81eb41ea5583cb28a75b91e9d69b4b7bd8e311
+_hash: 96837e9ccdd944eda65ed9eb2fe07bae2a344a30327d4b73312d1aea59a4f42c
 file:
   statement:
     insert_statement:
@@ -11,43 +11,45 @@ file:
     - keyword: INTO
     - keyword: TABLE
     - table_reference:
-        identifier: foo
+        naked_identifier: foo
     - keyword: PARTITION
     - bracketed:
       - start_bracket: (
       - column_reference:
-          identifier: a
-      - comparison_operator: '='
-      - literal: "'test_foo'"
+          naked_identifier: a
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'test_foo'"
       - comma: ','
       - column_reference:
-          identifier: b
-      - comparison_operator: '='
-      - literal: "'test_bar'"
+          naked_identifier: b
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'test_bar'"
       - end_bracket: )
     - select_statement:
         select_clause:
         - keyword: SELECT
         - select_clause_element:
             column_reference:
-              identifier: a
+              naked_identifier: a
         - comma: ','
         - select_clause_element:
             column_reference:
-              identifier: b
+              naked_identifier: b
         - comma: ','
         - select_clause_element:
             column_reference:
-              identifier: c
+              naked_identifier: c
         - comma: ','
         - select_clause_element:
             column_reference:
-              identifier: d
+              naked_identifier: d
         from_clause:
           keyword: FROM
           from_expression:
             from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: bar
+                  naked_identifier: bar
   statement_terminator: ;

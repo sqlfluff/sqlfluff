@@ -1,0 +1,349 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 926a4ef4cfeaf9d86cd3f01610698554d82783517b5c4f36eb6a7049d34d8b3d
+file:
+- statement:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: cast
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: col1
+                keyword: as
+                data_type:
+                  keyword: integer
+                end_bracket: )
+      from_clause:
+        keyword: from
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: tbl1
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_clause_element:
+          function:
+            function_name:
+              keyword: convert
+            function_contents:
+              bracketed:
+                start_bracket: (
+                data_type:
+                  keyword: integer
+                comma: ','
+                expression:
+                  column_reference:
+                    naked_identifier: col1
+                end_bracket: )
+      from_clause:
+        keyword: from
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: tbl1
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_clause_element:
+          expression:
+            cast_expression:
+              column_reference:
+                naked_identifier: col1
+              casting_operator: '::'
+              data_type:
+                keyword: integer
+      from_clause:
+        keyword: from
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: tbl1
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: cast
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: col1
+                keyword: as
+                data_type:
+                  datetime_type_identifier:
+                    keyword: timestamptz
+                end_bracket: )
+      from_clause:
+        keyword: from
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: tbl1
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_clause_element:
+          function:
+            function_name:
+              keyword: convert
+            function_contents:
+              bracketed:
+                start_bracket: (
+                data_type:
+                  datetime_type_identifier:
+                    keyword: timestamptz
+                comma: ','
+                expression:
+                  column_reference:
+                    naked_identifier: col1
+                end_bracket: )
+      from_clause:
+        keyword: from
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: tbl1
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_clause_element:
+          expression:
+            cast_expression:
+              column_reference:
+                naked_identifier: col1
+              casting_operator: '::'
+              data_type:
+                datetime_type_identifier:
+                  keyword: timestamptz
+      from_clause:
+        keyword: from
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: tbl1
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: cast
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: col1
+                keyword: as
+                data_type:
+                  keyword: decimal
+                  bracketed_arguments:
+                    bracketed:
+                    - start_bracket: (
+                    - numeric_literal: '38'
+                    - comma: ','
+                    - numeric_literal: '2'
+                    - end_bracket: )
+                end_bracket: )
+      from_clause:
+        keyword: from
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: tbl1
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_clause_element:
+          function:
+            function_name:
+              keyword: convert
+            function_contents:
+              bracketed:
+                start_bracket: (
+                data_type:
+                  keyword: decimal
+                  bracketed_arguments:
+                    bracketed:
+                    - start_bracket: (
+                    - numeric_literal: '38'
+                    - comma: ','
+                    - numeric_literal: '2'
+                    - end_bracket: )
+                comma: ','
+                expression:
+                  column_reference:
+                    naked_identifier: col1
+                end_bracket: )
+      from_clause:
+        keyword: from
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: tbl1
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_clause_element:
+          expression:
+            cast_expression:
+              column_reference:
+                naked_identifier: col1
+              casting_operator: '::'
+              data_type:
+                keyword: decimal
+                bracketed_arguments:
+                  bracketed:
+                  - start_bracket: (
+                  - numeric_literal: '38'
+                  - comma: ','
+                  - numeric_literal: '2'
+                  - end_bracket: )
+      from_clause:
+        keyword: from
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: tbl1
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: cast
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: col1
+                keyword: as
+                data_type:
+                  keyword: interval
+                end_bracket: )
+      from_clause:
+        keyword: from
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: tbl1
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_clause_element:
+          function:
+            function_name:
+              keyword: convert
+            function_contents:
+              bracketed:
+                start_bracket: (
+                data_type:
+                  keyword: interval
+                comma: ','
+                expression:
+                  column_reference:
+                    naked_identifier: col1
+                end_bracket: )
+      from_clause:
+        keyword: from
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: tbl1
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_clause_element:
+          expression:
+            cast_expression:
+              column_reference:
+                naked_identifier: col1
+              casting_operator: '::'
+              data_type:
+                keyword: interval
+      from_clause:
+        keyword: from
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: tbl1
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: cast
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                  - naked_identifier: pg_namespace
+                  - dot: .
+                  - naked_identifier: nspname
+                keyword: as
+                data_type:
+                  naked_identifier: information_schema
+                  dot: .
+                  data_type_identifier: sql_identifier
+                end_bracket: )
+      from_clause:
+        keyword: from
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: pg_namespace
+- statement_terminator: ;

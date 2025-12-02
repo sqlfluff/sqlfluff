@@ -1,0 +1,60 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: c247f23f260be5e3615b39aab72649df4419da3f005fe86c1ac18cda8c29ee76
+file:
+  batch:
+  - statement:
+      drop_view_statement:
+      - keyword: drop
+      - keyword: view
+      - table_reference:
+          naked_identifier: some_view
+  - statement_terminator: ;
+  - statement:
+      drop_view_statement:
+      - keyword: drop
+      - keyword: view
+      - keyword: if
+      - keyword: exists
+      - table_reference:
+          naked_identifier: some_view
+  - statement_terminator: ;
+  - statement:
+      drop_view_statement:
+      - keyword: drop
+      - keyword: view
+      - table_reference:
+          naked_identifier: some_view
+      - keyword: restrict
+  - statement_terminator: ;
+  - statement:
+      drop_view_statement:
+      - keyword: drop
+      - keyword: view
+      - keyword: if
+      - keyword: exists
+      - table_reference:
+          naked_identifier: some_view
+      - keyword: restrict
+  - statement_terminator: ;
+  - statement:
+      drop_view_statement:
+      - keyword: drop
+      - keyword: view
+      - table_reference:
+          naked_identifier: some_view
+      - keyword: cascade
+  - statement_terminator: ;
+  - statement:
+      drop_view_statement:
+      - keyword: drop
+      - keyword: view
+      - keyword: if
+      - keyword: exists
+      - table_reference:
+          naked_identifier: some_view
+      - keyword: cascade
+  - statement_terminator: ;

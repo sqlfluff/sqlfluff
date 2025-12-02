@@ -1,0 +1,99 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 4dfd6d5fe802d39ad1c438d48f81d491a48c176757133f3700fbc86bd95ef349
+file:
+  statement:
+    with_compound_statement:
+      keyword: WITH
+      common_table_expression:
+        naked_identifier: with_query
+        keyword: as
+        bracketed:
+          start_bracket: (
+          select_statement:
+            select_clause:
+            - keyword: select
+            - select_clause_element:
+                column_reference:
+                  naked_identifier: field_1
+            - comma: ','
+            - select_clause_element:
+                column_reference:
+                  naked_identifier: field_2
+            from_clause:
+              keyword: from
+              from_expression:
+                from_expression_element:
+                  table_expression:
+                    table_reference:
+                      naked_identifier: table_1
+          end_bracket: )
+      select_statement:
+        select_clause:
+        - keyword: select
+        - select_clause_element:
+            column_reference:
+              naked_identifier: field_1
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: field_2
+        - comma: ','
+        - select_clause_element:
+            function:
+              function_name:
+                function_name_identifier: count
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    numeric_literal: '1'
+                  end_bracket: )
+        from_clause:
+          keyword: from
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: with_query
+        where_clause:
+          keyword: where
+          expression:
+            column_reference:
+              naked_identifier: field_1
+            comparison_operator:
+              raw_comparison_operator: '='
+            quoted_literal: "'value'"
+        groupby_clause:
+        - keyword: group
+        - keyword: by
+        - numeric_literal: '1'
+        - comma: ','
+        - numeric_literal: '2'
+        having_clause:
+          keyword: having
+          expression:
+            function:
+              function_name:
+                function_name_identifier: count
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    numeric_literal: '1'
+                  end_bracket: )
+            comparison_operator:
+              raw_comparison_operator: '>'
+            numeric_literal: '10'
+        orderby_clause:
+        - keyword: order
+        - keyword: by
+        - numeric_literal: '1'
+        - keyword: DESC
+        limit_clause:
+          keyword: limit
+          numeric_literal: '10'
+  statement_terminator: ;

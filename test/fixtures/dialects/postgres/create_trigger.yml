@@ -1,0 +1,541 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 56480788d573c81c4ae61f3a8b80adf517b9075a2f420a82aaef1ee3889e0602
+file:
+- statement:
+    create_trigger:
+    - keyword: CREATE
+    - keyword: TRIGGER
+    - trigger_reference:
+        naked_identifier: foo
+    - keyword: AFTER
+    - keyword: INSERT
+    - keyword: 'ON'
+    - table_reference:
+        naked_identifier: bar
+    - keyword: EXECUTE
+    - keyword: FUNCTION
+    - function:
+        function_name:
+          function_name_identifier: proc
+        function_contents:
+          bracketed:
+            start_bracket: (
+            expression:
+              column_reference:
+                naked_identifier: args
+            end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_trigger:
+    - keyword: CREATE
+    - keyword: TRIGGER
+    - trigger_reference:
+        naked_identifier: foo
+    - keyword: BEFORE
+    - keyword: INSERT
+    - keyword: 'on'
+    - table_reference:
+        naked_identifier: bar
+    - keyword: EXECUTE
+    - keyword: FUNCTION
+    - function:
+        function_name:
+          function_name_identifier: proc
+        function_contents:
+          bracketed:
+            start_bracket: (
+            expression:
+              column_reference:
+                naked_identifier: args
+            end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_trigger:
+    - keyword: CREATE
+    - keyword: TRIGGER
+    - trigger_reference:
+        naked_identifier: foo
+    - keyword: AFTER
+    - keyword: UPDATE
+    - keyword: OF
+    - column_reference:
+        naked_identifier: bar
+    - comma: ','
+    - column_reference:
+        naked_identifier: baz
+    - keyword: 'ON'
+    - table_reference:
+        naked_identifier: bar
+    - keyword: EXECUTE
+    - keyword: FUNCTION
+    - function:
+        function_name:
+          function_name_identifier: proc
+        function_contents:
+          bracketed:
+            start_bracket: (
+            expression:
+              column_reference:
+                naked_identifier: args
+            end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_trigger:
+    - keyword: CREATE
+    - keyword: TRIGGER
+    - trigger_reference:
+        naked_identifier: foo
+    - keyword: INSTEAD
+    - keyword: OF
+    - keyword: DELETE
+    - keyword: 'ON'
+    - table_reference:
+        naked_identifier: bar
+    - keyword: FROM
+    - table_reference:
+        naked_identifier: baz
+    - keyword: DEFERRABLE
+    - keyword: INITIALLY
+    - keyword: DEFERRED
+    - keyword: FOR
+    - keyword: EACH
+    - keyword: STATEMENT
+    - keyword: EXECUTE
+    - keyword: FUNCTION
+    - function:
+        function_name:
+          function_name_identifier: proc
+        function_contents:
+          bracketed:
+            start_bracket: (
+            expression:
+              column_reference:
+                naked_identifier: args
+            end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_trigger:
+    - keyword: CREATE
+    - keyword: TRIGGER
+    - trigger_reference:
+        naked_identifier: foo
+    - keyword: INSTEAD
+    - keyword: OF
+    - keyword: DELETE
+    - keyword: 'ON'
+    - table_reference:
+        naked_identifier: bar
+    - keyword: FROM
+    - table_reference:
+        naked_identifier: baz
+    - keyword: DEFERRABLE
+    - keyword: INITIALLY
+    - keyword: DEFERRED
+    - keyword: FOR
+    - keyword: EACH
+    - keyword: STATEMENT
+    - keyword: EXECUTE
+    - keyword: FUNCTION
+    - function:
+        function_name:
+          naked_identifier: schema
+          dot: .
+          function_name_identifier: proc
+        function_contents:
+          bracketed:
+            start_bracket: (
+            expression:
+              column_reference:
+                naked_identifier: args
+            end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_trigger:
+    - keyword: CREATE
+    - keyword: TRIGGER
+    - trigger_reference:
+        naked_identifier: foo
+    - keyword: BEFORE
+    - keyword: INSERT
+    - keyword: 'ON'
+    - table_reference:
+        naked_identifier: bar
+    - keyword: WHEN
+    - bracketed:
+        start_bracket: (
+        expression:
+        - column_reference:
+            naked_identifier: a
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - column_reference:
+            naked_identifier: b
+        end_bracket: )
+    - keyword: EXECUTE
+    - keyword: FUNCTION
+    - function:
+        function_name:
+          function_name_identifier: proc
+        function_contents:
+          bracketed:
+            start_bracket: (
+            expression:
+              column_reference:
+                naked_identifier: args
+            end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_trigger:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: CONSTRAINT
+    - keyword: TRIGGER
+    - trigger_reference:
+        naked_identifier: foo
+    - keyword: BEFORE
+    - keyword: INSERT
+    - keyword: 'ON'
+    - table_reference:
+        naked_identifier: bar
+    - keyword: EXECUTE
+    - keyword: FUNCTION
+    - function:
+        function_name:
+          function_name_identifier: proc
+        function_contents:
+          bracketed:
+            start_bracket: (
+            expression:
+              column_reference:
+                naked_identifier: args
+            end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_trigger:
+    - keyword: CREATE
+    - keyword: TRIGGER
+    - trigger_reference:
+        naked_identifier: foo
+    - keyword: BEFORE
+    - keyword: INSERT
+    - keyword: 'ON'
+    - table_reference:
+        naked_identifier: bar
+    - keyword: REFERENCING
+    - keyword: OLD
+    - keyword: TABLE
+    - keyword: as
+    - table_reference:
+        naked_identifier: old_table
+    - keyword: NEW
+    - keyword: TABLE
+    - keyword: AS
+    - table_reference:
+        naked_identifier: new_table
+    - keyword: EXECUTE
+    - keyword: PROCEDURE
+    - function:
+        function_name:
+          function_name_identifier: proc
+        function_contents:
+          bracketed:
+            start_bracket: (
+            expression:
+              column_reference:
+                naked_identifier: args
+            end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_trigger:
+    - keyword: CREATE
+    - keyword: TRIGGER
+    - trigger_reference:
+        naked_identifier: check_update
+    - keyword: BEFORE
+    - keyword: INSERT
+    - keyword: OR
+    - keyword: UPDATE
+    - keyword: 'ON'
+    - table_reference:
+        naked_identifier: accounts
+    - keyword: FOR
+    - keyword: EACH
+    - keyword: ROW
+    - keyword: EXECUTE
+    - keyword: FUNCTION
+    - function:
+        function_name:
+          function_name_identifier: check_account_update
+        function_contents:
+          bracketed:
+            start_bracket: (
+            end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_trigger:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: TRIGGER
+    - trigger_reference:
+        naked_identifier: check_update
+    - keyword: BEFORE
+    - keyword: UPDATE
+    - keyword: OF
+    - column_reference:
+        naked_identifier: balance
+    - comma: ','
+    - column_reference:
+        naked_identifier: transactions
+    - keyword: 'ON'
+    - table_reference:
+        naked_identifier: accounts
+    - keyword: FOR
+    - keyword: EACH
+    - keyword: ROW
+    - keyword: EXECUTE
+    - keyword: FUNCTION
+    - function:
+        function_name:
+          function_name_identifier: check_account_update
+        function_contents:
+          bracketed:
+            start_bracket: (
+            end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_trigger:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: TRIGGER
+    - trigger_reference:
+        naked_identifier: check_update
+    - keyword: BEFORE
+    - keyword: UPDATE
+    - keyword: OF
+    - column_reference:
+        naked_identifier: balance
+    - comma: ','
+    - column_reference:
+        naked_identifier: transactions
+    - keyword: OR
+    - keyword: TRUNCATE
+    - keyword: 'ON'
+    - table_reference:
+        naked_identifier: accounts
+    - keyword: FOR
+    - keyword: EACH
+    - keyword: ROW
+    - keyword: EXECUTE
+    - keyword: FUNCTION
+    - function:
+        function_name:
+          function_name_identifier: check_account_update
+        function_contents:
+          bracketed:
+            start_bracket: (
+            end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_trigger:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: TRIGGER
+    - trigger_reference:
+        naked_identifier: check_update
+    - keyword: BEFORE
+    - keyword: UPDATE
+    - keyword: OF
+    - column_reference:
+        naked_identifier: balance
+    - keyword: 'ON'
+    - table_reference:
+        naked_identifier: accounts
+    - keyword: FOR
+    - keyword: EACH
+    - keyword: ROW
+    - keyword: EXECUTE
+    - keyword: FUNCTION
+    - function:
+        function_name:
+          function_name_identifier: check_account_update
+        function_contents:
+          bracketed:
+            start_bracket: (
+            end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_trigger:
+    - keyword: CREATE
+    - keyword: TRIGGER
+    - trigger_reference:
+        naked_identifier: check_update
+    - keyword: BEFORE
+    - keyword: UPDATE
+    - keyword: 'ON'
+    - table_reference:
+        naked_identifier: accounts
+    - keyword: FOR
+    - keyword: EACH
+    - keyword: ROW
+    - keyword: WHEN
+    - bracketed:
+        start_bracket: (
+        expression:
+        - column_reference:
+          - naked_identifier: OLD
+          - dot: .
+          - naked_identifier: balance
+        - keyword: IS
+        - keyword: DISTINCT
+        - keyword: FROM
+        - column_reference:
+          - naked_identifier: NEW
+          - dot: .
+          - naked_identifier: balance
+        end_bracket: )
+    - keyword: EXECUTE
+    - keyword: FUNCTION
+    - function:
+        function_name:
+          function_name_identifier: check_account_update
+        function_contents:
+          bracketed:
+            start_bracket: (
+            end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_trigger:
+    - keyword: CREATE
+    - keyword: TRIGGER
+    - trigger_reference:
+        naked_identifier: view_insert
+    - keyword: INSTEAD
+    - keyword: OF
+    - keyword: INSERT
+    - keyword: 'ON'
+    - table_reference:
+        naked_identifier: my_view
+    - keyword: FOR
+    - keyword: EACH
+    - keyword: ROW
+    - keyword: EXECUTE
+    - keyword: FUNCTION
+    - function:
+        function_name:
+          function_name_identifier: view_insert_row
+        function_contents:
+          bracketed:
+            start_bracket: (
+            end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_trigger:
+    - keyword: CREATE
+    - keyword: TRIGGER
+    - trigger_reference:
+        naked_identifier: transfer_insert
+    - keyword: AFTER
+    - keyword: INSERT
+    - keyword: 'ON'
+    - table_reference:
+        naked_identifier: transfer
+    - keyword: REFERENCING
+    - keyword: NEW
+    - keyword: TABLE
+    - keyword: AS
+    - table_reference:
+        naked_identifier: inserted
+    - keyword: FOR
+    - keyword: EACH
+    - keyword: STATEMENT
+    - keyword: EXECUTE
+    - keyword: FUNCTION
+    - function:
+        function_name:
+          function_name_identifier: check_transfer_balances_to_zero
+        function_contents:
+          bracketed:
+            start_bracket: (
+            end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_trigger:
+    - keyword: CREATE
+    - keyword: TRIGGER
+    - trigger_reference:
+        naked_identifier: paired_items_update
+    - keyword: AFTER
+    - keyword: UPDATE
+    - keyword: 'ON'
+    - table_reference:
+        naked_identifier: paired_items
+    - keyword: REFERENCING
+    - keyword: NEW
+    - keyword: TABLE
+    - keyword: AS
+    - table_reference:
+        naked_identifier: newtab
+    - keyword: OLD
+    - keyword: TABLE
+    - keyword: AS
+    - table_reference:
+        naked_identifier: oldtab
+    - keyword: FOR
+    - keyword: EACH
+    - keyword: ROW
+    - keyword: EXECUTE
+    - keyword: FUNCTION
+    - function:
+        function_name:
+          function_name_identifier: check_matching_pairs
+        function_contents:
+          bracketed:
+            start_bracket: (
+            end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_trigger:
+    - keyword: CREATE
+    - keyword: TRIGGER
+    - trigger_reference:
+        naked_identifier: log_update
+    - keyword: AFTER
+    - keyword: UPDATE
+    - keyword: 'ON'
+    - table_reference:
+        naked_identifier: accounts
+    - keyword: FOR
+    - keyword: EACH
+    - keyword: ROW
+    - keyword: WHEN
+    - bracketed:
+        start_bracket: (
+        expression:
+        - naked_identifier: OLD
+        - dot: .
+        - star: '*'
+        - keyword: IS
+        - keyword: DISTINCT
+        - keyword: FROM
+        - naked_identifier: NEW
+        - dot: .
+        - star: '*'
+        end_bracket: )
+    - keyword: EXECUTE
+    - keyword: FUNCTION
+    - function:
+        function_name:
+          function_name_identifier: log_account_update
+        function_contents:
+          bracketed:
+            start_bracket: (
+            end_bracket: )
+- statement_terminator: ;

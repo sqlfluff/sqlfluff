@@ -1,9 +1,9 @@
 """Tests for templaters."""
+
 import pytest
 
 from sqlfluff.core import FluffConfig
 from sqlfluff.core.templaters import PlaceholderTemplater
-from sqlfluff.core.errors import SQLTemplaterError
 
 
 def test__templater_raw():
@@ -81,6 +81,55 @@ def test__templater_raw():
         ),
         (
             """
+            SELECT user_mail, city_id, :"custom_column"
+            FROM users_data
+            WHERE userid = :user_id AND date > :'start_date'
+            """,
+            "colon_optional_quotes",
+            """
+            SELECT user_mail, city_id, "PascalCaseColumn"
+            FROM users_data
+            WHERE userid = 42 AND date > '2021-10-01'
+            """,
+            dict(
+                user_id="42",
+                custom_column="PascalCaseColumn",
+                start_date="2021-10-01",
+            ),
+        ),
+        (
+            """
+            SELECT user_mail, city_id
+            FROM users_data:table_suffix
+            """,
+            "colon_nospaces",
+            """
+            SELECT user_mail, city_id
+            FROM users_data42
+            """,
+            dict(
+                table_suffix="42",
+            ),
+        ),
+        (
+            # Postgres uses double-colons for type casts , see
+            # https://www.postgresql.org/docs/current/sql-expressions.html#SQL-SYNTAX-TYPE-CASTS
+            # This test ensures we don't confuse them with colon placeholders.
+            """
+            SELECT user_mail, city_id, joined::date
+            FROM users_data:table_suffix
+            """,
+            "colon_nospaces",
+            """
+            SELECT user_mail, city_id, joined::date
+            FROM users_data42
+            """,
+            dict(
+                table_suffix="42",
+            ),
+        ),
+        (
+            """
             SELECT user_mail, city_id
             FROM users_data
             WHERE (city_id) IN ?
@@ -123,6 +172,8 @@ def test__templater_raw():
             FROM users_data
             WHERE (city_id) IN %(city_id)s
             AND date > %(date)s
+            AND someflag = %(someflag)s
+            LIMIT %(limit)s
             """,
             "pyformat",
             """
@@ -130,10 +181,11 @@ def test__templater_raw():
             FROM users_data
             WHERE (city_id) IN (1, 2, 3, 45)
             AND date > '2020-10-01'
+            AND someflag = False
+            LIMIT 15
             """,
             dict(
-                city_id="(1, 2, 3, 45)",
-                date="'2020-10-01'",
+                city_id="(1, 2, 3, 45)", date="'2020-10-01'", limit=15, someflag=False
             ),
         ),
         (
@@ -142,6 +194,7 @@ def test__templater_raw():
             FROM users_data
             WHERE (city_id) IN $city_id
             AND date > $date
+            OR date = ${date}
             """,
             "dollar",
             """
@@ -149,6 +202,7 @@ def test__templater_raw():
             FROM users_data
             WHERE (city_id) IN (1, 2, 3, 45)
             AND date > '2020-10-01'
+            OR date = '2020-10-01'
             """,
             dict(
                 city_id="(1, 2, 3, 45)",
@@ -171,6 +225,63 @@ def test__templater_raw():
             """,
             {
                 "12": "(1, 2, 3, 45)",
+                "90": "'2020-10-01'",
+            },
+        ),
+        (
+            """
+            SELECT user_mail, city_id
+            FROM users_data
+            WHERE (city_id) IN ${12}
+            AND date > ${90}
+            """,
+            "numeric_dollar",
+            """
+            SELECT user_mail, city_id
+            FROM users_data
+            WHERE (city_id) IN (1, 2, 3, 45)
+            AND date > '2020-10-01'
+            """,
+            {
+                "12": "(1, 2, 3, 45)",
+                "90": "'2020-10-01'",
+            },
+        ),
+        (
+            """
+            SELECT user_mail, city_id
+            FROM users_data
+            WHERE user_mail = '${12}'
+            AND date > ${90}
+            """,
+            "numeric_dollar",
+            """
+            SELECT user_mail, city_id
+            FROM users_data
+            WHERE user_mail = 'test@example.com'
+            AND date > '2020-10-01'
+            """,
+            {
+                "12": "test@example.com",
+                "90": "'2020-10-01'",
+            },
+        ),
+        (
+            """
+            SELECT user_mail, city_id
+            FROM users_data
+            WHERE user_mail = '$12$'
+            AND date > $90$
+            """,
+            "dollar_surround",
+            """
+            SELECT user_mail, city_id
+            FROM users_data
+            WHERE user_mail = 'test@example.com'
+            AND date > '2020-10-01'
+            """,
+            {
+                "12": "test@example.com",
                 "90": "'2020-10-01'",
             },
         ),
@@ -215,25 +326,58 @@ def test__templater_raw():
                 start_date="'2021-10-01'",
             ),
         ),
+        (
+            "USE ${flyway:database}.test_schema;",
+            "flyway_var",
+            "USE test_db.test_schema;",
+            {
+                "flyway:database": "test_db",
+            },
+        ),
+        (
+            "SELECT metadata$filename, $1 FROM @stg_data_export_${env_name};",
+            "flyway_var",
+            "SELECT metadata$filename, $1 FROM @stg_data_export_staging;",
+            {
+                "env_name": "staging",
+            },
+        ),
+        (
+            "SELECT metadata$filename, $1 FROM @stg_data_export_${env_name};",
+            "flyway_var",
+            "SELECT metadata$filename, $1 FROM @stg_data_export_env_name;",
+            {},
+        ),
     ],
     ids=[
         "no_changes",
         "colon_simple_substitution",
         "colon_accept_block_at_end",
         "colon_tuple_substitution",
+        "colon_quoted",
+        "colon_nospaces",
+        "colon_nospaces_double_colon_ignored",
         "question_mark",
         "numeric_colon",
         "pyformat",
         "dollar",
         "numeric_dollar",
+        "numeric_dollar_with_braces",
+        "numeric_dollar_with_braces_and_string",
+        "dollar_surround",
         "percent",
         "ampersand",
+        "flyway_var",
+        "flyway_var",
+        "params_not_specified",
     ],
 )
 def test__templater_param_style(instr, expected_outstr, param_style, values):
     """Test different param_style templating."""
     t = PlaceholderTemplater(override_context={**values, "param_style": param_style})
-    outstr, _ = t.process(in_str=instr, fname="test", config=FluffConfig())
+    outstr, _ = t.process(
+        in_str=instr, fname="test", config=FluffConfig(overrides={"dialect": "ansi"})
+    )
     assert str(outstr) == expected_outstr
 
 
@@ -245,19 +389,9 @@ def test__templater_custom_regex():
     outstr, _ = t.process(
         in_str="SELECT bla FROM blob WHERE id = __my_name__",
         fname="test",
-        config=FluffConfig(),
+        config=FluffConfig(overrides={"dialect": "ansi"}),
     )
     assert str(outstr) == "SELECT bla FROM blob WHERE id = john"
-
-
-def test__templater_exception():
-    """Test the exception raised when variables are missing."""
-    t = PlaceholderTemplater(override_context=dict(name="'john'", param_style="colon"))
-    instr = "SELECT name FROM table WHERE user_id = :user_id"
-    with pytest.raises(
-        SQLTemplaterError, match=r"Failure in placeholder templating: 'user_id'"
-    ):
-        t.process(in_str=instr, fname="test")
 
 
 def test__templater_setup():
@@ -265,7 +399,9 @@ def test__templater_setup():
     t = PlaceholderTemplater(override_context=dict(name="'john'"))
     with pytest.raises(
         ValueError,
-        match=r"No param_regex nor param_style was provided to the placeholder templater",
+        match=(
+            "No param_regex nor param_style was provided to the placeholder templater"
+        ),
     ):
         t.process(in_str="SELECT 2+2", fname="test")
 

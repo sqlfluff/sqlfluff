@@ -1,0 +1,110 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 8617b4deee749e41987f262451ed93214ad7dc49f8eb3a96c19efeb08024066a
+file:
+- statement:
+    execute_immediate_clause:
+    - keyword: EXECUTE
+    - keyword: IMMEDIATE
+    - quoted_literal: "'select 1'"
+- statement_terminator: ;
+- statement:
+    execute_immediate_clause:
+    - keyword: EXECUTE
+    - keyword: IMMEDIATE
+    - quoted_literal: "$$\n  SELECT PI();\n$$"
+- statement_terminator: ;
+- statement:
+    set_statement:
+      keyword: SET
+      variable: pie
+      comparison_operator:
+        raw_comparison_operator: '='
+      expression:
+        quoted_literal: "$$\n  SELECT PI();\n$$"
+- statement_terminator: ;
+- statement:
+    set_statement:
+      keyword: SET
+      variable: one
+      comparison_operator:
+        raw_comparison_operator: '='
+      expression:
+        numeric_literal: '1'
+- statement_terminator: ;
+- statement:
+    set_statement:
+      keyword: SET
+      variable: two
+      comparison_operator:
+        raw_comparison_operator: '='
+      expression:
+        numeric_literal: '2'
+- statement_terminator: ;
+- statement:
+    execute_immediate_clause:
+    - keyword: EXECUTE
+    - keyword: IMMEDIATE
+    - variable: $pie
+- statement_terminator: ;
+- statement:
+    execute_immediate_clause:
+    - keyword: EXECUTE
+    - keyword: IMMEDIATE
+    - variable: $pie
+    - keyword: USING
+    - bracketed:
+      - start_bracket: (
+      - variable: one
+      - comma: ','
+      - variable: two
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    set_statement:
+      keyword: SET
+      variable: three
+      comparison_operator:
+        raw_comparison_operator: '='
+      expression:
+        quoted_literal: "'select ? + ?'"
+- statement_terminator: ;
+- statement:
+    execute_immediate_clause:
+    - keyword: EXECUTE
+    - keyword: IMMEDIATE
+    - colon_prefix: ':'
+    - variable: three
+- statement_terminator: ;
+- statement:
+    execute_immediate_clause:
+    - keyword: EXECUTE
+    - keyword: IMMEDIATE
+    - colon_prefix: ':'
+    - variable: three
+    - keyword: USING
+    - bracketed:
+      - start_bracket: (
+      - variable: one
+      - comma: ','
+      - variable: two
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    execute_immediate_clause:
+    - keyword: EXECUTE
+    - keyword: IMMEDIATE
+    - keyword: FROM
+    - quoted_literal: "'./insert-inventory.sql'"
+- statement_terminator: ;
+- statement:
+    execute_immediate_clause:
+    - keyword: EXECUTE
+    - keyword: IMMEDIATE
+    - keyword: FROM
+    - storage_location:
+        stage_path: '@my_stage/scripts/create-inventory.sql'
+- statement_terminator: ;

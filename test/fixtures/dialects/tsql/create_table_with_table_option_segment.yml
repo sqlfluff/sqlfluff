@@ -1,0 +1,300 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 9c3e497417c895b6c6bc59115a299de4e206768b3475a12aaa27a46a51bb529b
+file:
+  batch:
+  - statement:
+      create_table_statement:
+      - keyword: CREATE
+      - keyword: TABLE
+      - table_reference:
+        - quoted_identifier: '[dbo]'
+        - dot: .
+        - quoted_identifier: '[TEST]'
+      - bracketed:
+          start_bracket: (
+          column_definition:
+            quoted_identifier: '[id]'
+            data_type:
+              keyword: INT
+            column_constraint_segment:
+            - keyword: NOT
+            - keyword: 'NULL'
+          end_bracket: )
+      - on_partition_or_filegroup_statement:
+          filegroup_clause:
+            keyword: 'ON'
+            filegroup_name:
+              quoted_identifier: '[PRIMARY]'
+      - table_option_statement:
+          keyword: WITH
+          bracketed:
+          - start_bracket: (
+          - keyword: SYSTEM_VERSIONING
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - keyword: 'ON'
+          - bracketed:
+            - start_bracket: (
+            - keyword: HISTORY_TABLE
+            - comparison_operator:
+                raw_comparison_operator: '='
+            - table_reference:
+              - quoted_identifier: '[dbo]'
+              - dot: .
+              - quoted_identifier: '[TEST_HISTORY]'
+            - comma: ','
+            - keyword: HISTORY_RETENTION_PERIOD
+            - comparison_operator:
+                raw_comparison_operator: '='
+            - keyword: INFINITE
+            - end_bracket: )
+          - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      create_table_statement:
+      - keyword: CREATE
+      - keyword: TABLE
+      - table_reference:
+        - quoted_identifier: '[dbo]'
+        - dot: .
+        - quoted_identifier: '[TEST]'
+      - bracketed:
+          start_bracket: (
+          column_definition:
+            quoted_identifier: '[id]'
+            data_type:
+              keyword: INT
+            column_constraint_segment:
+            - keyword: NOT
+            - keyword: 'NULL'
+          end_bracket: )
+      - on_partition_or_filegroup_statement:
+          filegroup_clause:
+            keyword: 'ON'
+            filegroup_name:
+              quoted_identifier: '[PRIMARY]'
+      - table_option_statement:
+          keyword: WITH
+          bracketed:
+          - start_bracket: (
+          - keyword: SYSTEM_VERSIONING
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - keyword: 'ON'
+          - bracketed:
+            - start_bracket: (
+            - keyword: HISTORY_TABLE
+            - comparison_operator:
+                raw_comparison_operator: '='
+            - table_reference:
+              - quoted_identifier: '[dbo]'
+              - dot: .
+              - quoted_identifier: '[TEST_HISTORY]'
+            - comma: ','
+            - keyword: HISTORY_RETENTION_PERIOD
+            - comparison_operator:
+                raw_comparison_operator: '='
+            - numeric_literal: '1'
+            - keyword: DAYS
+            - comma: ','
+            - keyword: DATA_CONSISTENCY_CHECK
+            - comparison_operator:
+                raw_comparison_operator: '='
+            - keyword: 'ON'
+            - end_bracket: )
+          - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      create_table_statement:
+      - keyword: CREATE
+      - keyword: TABLE
+      - table_reference:
+        - quoted_identifier: '[dbo]'
+        - dot: .
+        - quoted_identifier: '[TEST]'
+      - bracketed:
+          start_bracket: (
+          column_definition:
+            quoted_identifier: '[id]'
+            data_type:
+              keyword: INT
+            column_constraint_segment:
+            - keyword: NOT
+            - keyword: 'NULL'
+          end_bracket: )
+      - on_partition_or_filegroup_statement:
+          filegroup_clause:
+            keyword: 'ON'
+            filegroup_name:
+              quoted_identifier: '[PRIMARY]'
+      - table_option_statement:
+          keyword: WITH
+          bracketed:
+          - start_bracket: (
+          - keyword: SYSTEM_VERSIONING
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - keyword: 'ON'
+          - bracketed:
+            - start_bracket: (
+            - keyword: HISTORY_TABLE
+            - comparison_operator:
+                raw_comparison_operator: '='
+            - table_reference:
+              - quoted_identifier: '[dbo]'
+              - dot: .
+              - quoted_identifier: '[TEST_HISTORY]'
+            - comma: ','
+            - keyword: HISTORY_RETENTION_PERIOD
+            - comparison_operator:
+                raw_comparison_operator: '='
+            - numeric_literal: '10'
+            - keyword: WEEKS
+            - end_bracket: )
+          - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      create_table_statement:
+      - keyword: CREATE
+      - keyword: TABLE
+      - table_reference:
+        - quoted_identifier: '[dbo]'
+        - dot: .
+        - quoted_identifier: '[TEST]'
+      - bracketed:
+          start_bracket: (
+          column_definition:
+            quoted_identifier: '[id]'
+            data_type:
+              keyword: INT
+            column_constraint_segment:
+            - keyword: NOT
+            - keyword: 'NULL'
+          end_bracket: )
+      - on_partition_or_filegroup_statement:
+          filegroup_clause:
+            keyword: 'ON'
+            filegroup_name:
+              quoted_identifier: '[PRIMARY]'
+      - table_option_statement:
+          keyword: WITH
+          bracketed:
+          - start_bracket: (
+          - keyword: SYSTEM_VERSIONING
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - keyword: 'ON'
+          - bracketed:
+            - start_bracket: (
+            - keyword: HISTORY_TABLE
+            - comparison_operator:
+                raw_comparison_operator: '='
+            - table_reference:
+              - quoted_identifier: '[dbo]'
+              - dot: .
+              - quoted_identifier: '[TEST_HISTORY]'
+            - comma: ','
+            - keyword: HISTORY_RETENTION_PERIOD
+            - comparison_operator:
+                raw_comparison_operator: '='
+            - numeric_literal: '4'
+            - keyword: MONTHS
+            - end_bracket: )
+          - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      create_table_statement:
+      - keyword: CREATE
+      - keyword: TABLE
+      - table_reference:
+        - quoted_identifier: '[dbo]'
+        - dot: .
+        - quoted_identifier: '[TEST]'
+      - bracketed:
+          start_bracket: (
+          column_definition:
+            quoted_identifier: '[id]'
+            data_type:
+              keyword: INT
+            column_constraint_segment:
+            - keyword: NOT
+            - keyword: 'NULL'
+          end_bracket: )
+      - on_partition_or_filegroup_statement:
+          filegroup_clause:
+            keyword: 'ON'
+            filegroup_name:
+              quoted_identifier: '[PRIMARY]'
+      - table_option_statement:
+          keyword: WITH
+          bracketed:
+          - start_bracket: (
+          - keyword: SYSTEM_VERSIONING
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - keyword: 'ON'
+          - bracketed:
+            - start_bracket: (
+            - keyword: HISTORY_TABLE
+            - comparison_operator:
+                raw_comparison_operator: '='
+            - table_reference:
+              - quoted_identifier: '[dbo]'
+              - dot: .
+              - quoted_identifier: '[TEST_HISTORY]'
+            - comma: ','
+            - keyword: HISTORY_RETENTION_PERIOD
+            - comparison_operator:
+                raw_comparison_operator: '='
+            - numeric_literal: '1'
+            - keyword: YEARS
+            - end_bracket: )
+          - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      create_table_statement:
+      - keyword: CREATE
+      - keyword: TABLE
+      - table_reference:
+        - quoted_identifier: '[dbo]'
+        - dot: .
+        - quoted_identifier: '[TEST]'
+      - bracketed:
+          start_bracket: (
+          column_definition:
+            quoted_identifier: '[id]'
+            data_type:
+              keyword: INT
+            column_constraint_segment:
+            - keyword: NOT
+            - keyword: 'NULL'
+          end_bracket: )
+      - on_partition_or_filegroup_statement:
+          filegroup_clause:
+            keyword: 'ON'
+            filegroup_name:
+              quoted_identifier: '[PRIMARY]'
+      - table_option_statement:
+          keyword: WITH
+          bracketed:
+          - start_bracket: (
+          - keyword: SYSTEM_VERSIONING
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - keyword: 'ON'
+          - bracketed:
+              start_bracket: (
+              keyword: HISTORY_TABLE
+              comparison_operator:
+                raw_comparison_operator: '='
+              table_reference:
+              - quoted_identifier: '[dbo]'
+              - dot: .
+              - quoted_identifier: '[TEST_HISTORY]'
+              end_bracket: )
+          - end_bracket: )
+  - statement_terminator: ;

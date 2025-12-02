@@ -1,0 +1,42 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 140f2fcb33d59f14b4ca6e0615627f232ebce91d797029e84fe854515cb4213f
+file:
+  batch:
+  - statement:
+      sqlcmd_command_segment:
+        colon: ':'
+        sqlcmd_operator: r
+        unquoted_relative_sql_file_path: script.sql
+  - statement:
+      sqlcmd_command_segment:
+        colon: ':'
+        sqlcmd_operator: r
+        unquoted_relative_sql_file_path: script#01_a-b.sql
+  - statement:
+      sqlcmd_command_segment:
+        colon: ':'
+        sqlcmd_operator: r
+        unquoted_relative_sql_file_path: '...\folder\script.SQL'
+  - statement:
+      sqlcmd_command_segment:
+        colon: ':'
+        sqlcmd_operator: r
+        unquoted_relative_sql_file_path: .\folder_1\folder_2\folder_3\folder_4\script.sql
+  - statement:
+      sqlcmd_command_segment:
+        colon: ':'
+        sqlcmd_operator: setvar
+        object_reference:
+          naked_identifier: variable_name
+        word: variable_value
+  - statement:
+      sqlcmd_command_segment:
+        colon: ':'
+        sqlcmd_operator: setvar
+        object_reference:
+          naked_identifier: variable_name
+        double_quote: '"variable_value"'

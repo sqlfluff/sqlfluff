@@ -1,0 +1,228 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: ec371c6cc1a0a85b9415dbb1b126d30a83961107deeb4e9a9997594200a7a4a7
+file:
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: TABX
+      where_clause:
+        keyword: WHERE
+        expression:
+        - column_reference:
+            naked_identifier: MY_DT
+        - keyword: BETWEEN
+        - bare_function:
+            keyword: CURRENT_DATE
+        - binary_operator: '-'
+        - bracketed:
+            start_bracket: (
+            expression:
+              function:
+                function_name:
+                  function_name_identifier: DAYS
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      bare_function:
+                        keyword: CURRENT_DATE
+                    end_bracket: )
+              binary_operator: '-'
+              numeric_literal: '1'
+            end_bracket: )
+        - keyword: DAYS
+        - binary_operator: '-'
+        - numeric_literal: '180'
+        - keyword: DAYS
+        - keyword: AND
+        - bare_function:
+            keyword: CURRENT_DATE
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+            bare_function:
+              keyword: CURRENT_DATE
+            binary_operator: +
+            column_reference:
+              naked_identifier: COL1
+            keyword: YEAR
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: TABY
+- statement_terminator: ;
+- statement:
+    values_clause:
+    - keyword: VALUES
+    - expression:
+        column_reference:
+          naked_identifier: NOW
+        binary_operator: +
+        numeric_literal: '1'
+        keyword: MICROSECOND
+    - comma: ','
+    - expression:
+        column_reference:
+          naked_identifier: NOW
+        binary_operator: +
+        numeric_literal: '1'
+        keyword: MICROSECONDS
+    - comma: ','
+    - expression:
+        column_reference:
+          naked_identifier: NOW
+        binary_operator: '-'
+        numeric_literal: '1'
+        keyword: SECOND
+    - comma: ','
+    - expression:
+        column_reference:
+          naked_identifier: NOW
+        binary_operator: '-'
+        numeric_literal: '1'
+        keyword: SECONDS
+    - comma: ','
+    - expression:
+        column_reference:
+          naked_identifier: NOW
+        binary_operator: '-'
+        numeric_literal: '1'
+        keyword: MINUTE
+    - comma: ','
+    - expression:
+        column_reference:
+          naked_identifier: NOW
+        binary_operator: '-'
+        numeric_literal: '1'
+        keyword: MINUTES
+    - comma: ','
+    - expression:
+        column_reference:
+          naked_identifier: NOW
+        binary_operator: '-'
+        numeric_literal: '1'
+        keyword: HOUR
+    - comma: ','
+    - expression:
+        column_reference:
+          naked_identifier: NOW
+        binary_operator: +
+        numeric_literal: '1'
+        keyword: HOURS
+    - comma: ','
+    - expression:
+        column_reference:
+          naked_identifier: NOW
+        binary_operator: '-'
+        numeric_literal: '1'
+        keyword: DAY
+    - comma: ','
+    - expression:
+        bare_function:
+          keyword: CURRENT_DATE
+        binary_operator: '-'
+        numeric_literal: '1'
+        keyword: DAYS
+    - comma: ','
+    - expression:
+        column_reference:
+          naked_identifier: NOW
+        binary_operator: '-'
+        numeric_literal: '1'
+        keyword: MONTH
+    - comma: ','
+    - expression:
+        column_reference:
+          naked_identifier: NOW
+        binary_operator: '-'
+        numeric_literal: '1'
+        keyword: MONTHS
+    - comma: ','
+    - expression:
+        function:
+          function_name:
+            function_name_identifier: NOW
+          function_contents:
+            bracketed:
+              start_bracket: (
+              end_bracket: )
+        binary_operator: '-'
+        numeric_literal: '1'
+        keyword: YEAR
+    - comma: ','
+    - expression:
+        column_reference:
+          naked_identifier: NOW
+        binary_operator: '-'
+        numeric_literal: '1'
+        keyword: YEARS
+    - comma: ','
+    - expression:
+      - column_reference:
+          naked_identifier: NOW
+      - binary_operator: '-'
+      - numeric_literal: '1'
+      - keyword: DAY
+      - binary_operator: '-'
+      - numeric_literal: '2'
+      - keyword: HOURS
+    - comma: ','
+    - expression:
+        bracketed:
+          start_bracket: (
+          expression:
+            column_reference:
+              naked_identifier: NOW
+            binary_operator: '-'
+            numeric_literal: '1'
+            keyword: DAY
+          end_bracket: )
+        binary_operator: '-'
+        numeric_literal: '2'
+        keyword: HOURS
+    - comma: ','
+    - expression:
+      - column_reference:
+          naked_identifier: NOW
+      - binary_operator: '-'
+      - bracketed:
+          start_bracket: (
+          expression:
+          - numeric_literal: '2'
+          - binary_operator: '*'
+          - numeric_literal: '3'
+          end_bracket: )
+      - keyword: DAY
+      - binary_operator: '-'
+      - numeric_literal: '2'
+      - keyword: HOURS
+    - comma: ','
+    - expression:
+        column_reference:
+          naked_identifier: NOW
+        binary_operator: +
+        numeric_literal: '.5'
+        keyword: DAY
+- statement_terminator: ;

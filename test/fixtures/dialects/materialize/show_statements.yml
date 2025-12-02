@@ -1,0 +1,304 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 3a15be35a6e89c451fc42a13f335474208d1cf9af5aa778e64035de882852fb6
+file:
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: COLUMNS
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: CONNECTIONS
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: CLUSTERS
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: CLUSTER
+    - keyword: REPLICAS
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: DATABASES
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: INDEXES
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: MATERIALIZED
+    - keyword: VIEWS
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: SECRETS
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: SCHEMAS
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: SINKS
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: SOURCES
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: TABLES
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: TYPES
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: VIEWS
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: OBJECTS
+- statement_terminator: ;
+- statement:
+    show_create_statement:
+    - keyword: SHOW
+    - keyword: CREATE
+    - keyword: CONNECTION
+    - object_reference:
+        naked_identifier: connection_name
+- statement_terminator: ;
+- statement:
+    show_create_statement:
+    - keyword: SHOW
+    - keyword: CREATE
+    - keyword: INDEX
+    - object_reference:
+        naked_identifier: index_name
+- statement_terminator: ;
+- statement:
+    show_create_statement:
+    - keyword: SHOW
+    - keyword: CREATE
+    - keyword: MATERIALIZED
+    - keyword: VIEW
+    - object_reference:
+        naked_identifier: view_name
+- statement_terminator: ;
+- statement:
+    show_create_statement:
+    - keyword: SHOW
+    - keyword: CREATE
+    - keyword: SINK
+    - object_reference:
+        naked_identifier: sink_name
+- statement_terminator: ;
+- statement:
+    show_create_statement:
+    - keyword: SHOW
+    - keyword: CREATE
+    - keyword: SOURCE
+    - object_reference:
+        naked_identifier: source_name
+- statement_terminator: ;
+- statement:
+    show_create_statement:
+    - keyword: SHOW
+    - keyword: CREATE
+    - keyword: TABLE
+    - object_reference:
+        naked_identifier: table_name
+- statement_terminator: ;
+- statement:
+    show_create_statement:
+    - keyword: SHOW
+    - keyword: CREATE
+    - keyword: VIEW
+    - object_reference:
+        naked_identifier: view_name
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: TABLES
+    - keyword: LIKE
+    - quoted_literal: "'v%'"
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: DATABASES
+    - keyword: WHERE
+    - expression:
+        column_reference:
+          naked_identifier: database_name
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'database_name'"
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: SECRETS
+    - keyword: WHERE
+    - expression:
+        column_reference:
+          naked_identifier: name
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'secret_name'"
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: SECRETS
+    - keyword: LIKE
+    - quoted_literal: "'secret_name%'"
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: COLUMNS
+    - keyword: FROM
+    - object_reference:
+        naked_identifier: some_table
+    - keyword: WHERE
+    - expression:
+        column_reference:
+          naked_identifier: name
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'column_name'"
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: SECRETS
+    - keyword: FROM
+    - object_reference:
+        naked_identifier: some_schema
+    - keyword: WHERE
+    - expression:
+        column_reference:
+          naked_identifier: name
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'secret_name'"
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: SECRETS
+    - keyword: FROM
+    - object_reference:
+        naked_identifier: some_schema
+    - keyword: WHERE
+    - expression:
+        data_type:
+          data_type_identifier: LIKE
+        quoted_literal: "'name%'"
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: SCHEMAS
+    - keyword: FROM
+    - object_reference:
+        naked_identifier: database_name
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: SINKS
+    - keyword: FROM
+    - object_reference:
+        naked_identifier: some_schema
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: SOURCES
+    - keyword: FROM
+    - object_reference:
+        naked_identifier: some_schema
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: TABLES
+    - keyword: FROM
+    - object_reference:
+        naked_identifier: some_schema
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: TYPES
+    - keyword: FROM
+    - object_reference:
+        naked_identifier: some_schema
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: VIEWS
+    - keyword: FROM
+    - object_reference:
+        naked_identifier: some_schema
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: OBJECTS
+    - keyword: FROM
+    - object_reference:
+        naked_identifier: some_schema
+- statement_terminator: ;
+- statement:
+    show_indexes_statement:
+    - keyword: SHOW
+    - keyword: INDEXES
+    - keyword: IN
+    - keyword: CLUSTER
+    - object_reference:
+        naked_identifier: bar
+    - keyword: WHERE
+    - expression:
+      - column_reference:
+          naked_identifier: name
+      - keyword: NOT
+      - keyword: LIKE
+      - quoted_literal: "'mz_%'"
+- statement_terminator: ;
+- statement:
+    show_materialized_views_statement:
+    - keyword: SHOW
+    - keyword: MATERIALIZED
+    - keyword: VIEWS
+    - keyword: IN
+    - keyword: CLUSTER
+    - object_reference:
+        naked_identifier: other
+- statement_terminator: ;

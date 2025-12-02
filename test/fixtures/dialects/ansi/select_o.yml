@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: ab4f76d2be07a9f64905c260e2027ae16b20ac4f180de24490d985fd7ae78a2f
+_hash: 27f7510e3029d7c72b72d88565fe738581add837efc8e0a16900e17670aec6f3
 file:
   statement:
     select_statement:
@@ -11,38 +11,47 @@ file:
         keyword: SELECT
         select_clause_element:
           column_reference:
-            identifier: business_type
+            naked_identifier: business_type
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: benchmark_summaries
+                naked_identifier: benchmark_summaries
       where_clause:
         keyword: WHERE
         expression:
         - column_reference:
-            identifier: avg_click_rate
+            naked_identifier: avg_click_rate
         - keyword: NOT
         - keyword: BETWEEN
-        - literal: '0'
-        - binary_operator: and
-        - literal: '1'
+        - numeric_literal: '0'
+        - keyword: and
+        - numeric_literal: '1'
         - binary_operator: +
-        - literal: '1'
+        - numeric_literal: '1'
         - binary_operator: +
         - column_reference:
-            identifier: some_value
+            naked_identifier: some_value
         - binary_operator: AND
         - column_reference:
-            identifier: some_other_thing
+            naked_identifier: some_other_thing
         - keyword: BETWEEN
-        - literal: '0'
+        - numeric_literal: '0'
         - binary_operator: '-'
-        - literal: '1'
+        - numeric_literal: '1'
         - binary_operator: '*'
         - column_reference:
-            identifier: another_value
-        - binary_operator: and
-        - literal: '1'
+            naked_identifier: another_value
+        - keyword: and
+        - numeric_literal: '1'
+        - binary_operator: AND
+        - column_reference:
+            naked_identifier: another_thing
+        - keyword: BETWEEN
+        - sign_indicator: '-'
+        - column_reference:
+            naked_identifier: another_value
+        - keyword: and
+        - numeric_literal: '0'

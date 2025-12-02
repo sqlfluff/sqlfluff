@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 734b39238b348410598ee99d1ba606e55d65287db80a84fcec76bfa952853133
+_hash: 36308a26b455870bd23f73219902ee377b03b3571af6d1ff79bbd1a8562e8dac
 file:
   statement:
     select_statement:
@@ -12,29 +12,32 @@ file:
         select_clause_element:
           function:
             function_name:
-            - identifier: gcpproject
+            - naked_identifier: gcpproject
             - dot: .
-            - identifier: functions
+            - naked_identifier: functions
             - dot: .
             - function_name_identifier: timestamp_parsing
-            bracketed:
-              start_bracket: (
-              expression:
-                column_reference:
-                - identifier: log_tbl
-                - dot: .
-                - identifier: orderdate
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                  - naked_identifier: log_tbl
+                  - dot: .
+                  - naked_identifier: orderdate
+                end_bracket: )
           alias_expression:
-            keyword: AS
-            identifier: orderdate
+            alias_operator:
+              keyword: AS
+            naked_identifier: orderdate
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: '`gcp-project.data.year_2021`'
+                quoted_identifier: '`gcp-project.data.year_2021`'
             alias_expression:
-              keyword: AS
-              identifier: log_tbl
+              alias_operator:
+                keyword: AS
+              naked_identifier: log_tbl

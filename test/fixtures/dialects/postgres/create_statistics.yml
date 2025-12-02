@@ -1,0 +1,122 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 246fe75508ab66a1f76e7d1699f023b674c072ffb372bb09bb733a27565958e6
+file:
+- statement:
+    create_statistics_statement:
+    - keyword: CREATE
+    - keyword: STATISTICS
+    - statistics_reference:
+        naked_identifier: s3
+    - bracketed:
+        start_bracket: (
+        keyword: ndistinct
+        end_bracket: )
+    - keyword: 'ON'
+    - expression:
+        function:
+          function_name:
+            function_name_identifier: date_trunc
+          function_contents:
+            bracketed:
+            - start_bracket: (
+            - expression:
+                quoted_literal: "'month'"
+            - comma: ','
+            - expression:
+                column_reference:
+                  naked_identifier: a
+            - end_bracket: )
+    - comma: ','
+    - expression:
+        function:
+          function_name:
+            function_name_identifier: date_trunc
+          function_contents:
+            bracketed:
+            - start_bracket: (
+            - expression:
+                quoted_literal: "'day'"
+            - comma: ','
+            - expression:
+                column_reference:
+                  naked_identifier: a
+            - end_bracket: )
+    - keyword: FROM
+    - table_reference:
+        naked_identifier: t3
+- statement_terminator: ;
+- statement:
+    create_statistics_statement:
+    - keyword: CREATE
+    - keyword: STATISTICS
+    - statistics_reference:
+        naked_identifier: my_statistic
+    - bracketed:
+        start_bracket: (
+        keyword: dependencies
+        end_bracket: )
+    - keyword: 'ON'
+    - column_reference:
+        naked_identifier: foo
+    - comma: ','
+    - column_reference:
+        naked_identifier: bar
+    - keyword: FROM
+    - table_reference:
+        naked_identifier: baz
+- statement_terminator: ;
+- statement:
+    create_statistics_statement:
+    - keyword: CREATE
+    - keyword: STATISTICS
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - statistics_reference:
+        naked_identifier: s3
+    - bracketed:
+      - start_bracket: (
+      - keyword: ndistinct
+      - comma: ','
+      - keyword: mcv
+      - comma: ','
+      - keyword: dependencies
+      - end_bracket: )
+    - keyword: 'ON'
+    - expression:
+        function:
+          function_name:
+            function_name_identifier: date_trunc
+          function_contents:
+            bracketed:
+            - start_bracket: (
+            - expression:
+                quoted_literal: "'month'"
+            - comma: ','
+            - expression:
+                column_reference:
+                  naked_identifier: a
+            - end_bracket: )
+    - comma: ','
+    - expression:
+        function:
+          function_name:
+            function_name_identifier: date_trunc
+          function_contents:
+            bracketed:
+            - start_bracket: (
+            - expression:
+                quoted_literal: "'day'"
+            - comma: ','
+            - expression:
+                column_reference:
+                  naked_identifier: a
+            - end_bracket: )
+    - keyword: FROM
+    - table_reference:
+        naked_identifier: t3
+- statement_terminator: ;

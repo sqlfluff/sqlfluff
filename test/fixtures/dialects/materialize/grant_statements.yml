@@ -1,0 +1,58 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 994ca2114abc64576e549d934ff7e6e1ef58be7efffacde90e0f385c5b84b108
+file:
+- statement:
+    access_statement:
+    - keyword: GRANT
+    - keyword: SELECT
+    - keyword: 'ON'
+    - object_reference:
+        naked_identifier: mv
+    - keyword: TO
+    - role_reference:
+        naked_identifier: joe
+    - comma: ','
+    - role_reference:
+        naked_identifier: mike
+- statement_terminator: ;
+- statement:
+    access_statement:
+    - keyword: GRANT
+    - keyword: USAGE
+    - comma: ','
+    - keyword: CREATE
+    - keyword: 'ON'
+    - keyword: DATABASE
+    - object_reference:
+        naked_identifier: materialize
+    - keyword: TO
+    - role_reference:
+        naked_identifier: joe
+- statement_terminator: ;
+- statement:
+    grant_statement:
+    - keyword: GRANT
+    - keyword: ALL
+    - keyword: 'ON'
+    - keyword: CLUSTER
+    - object_reference:
+        naked_identifier: dev
+    - keyword: TO
+    - object_reference:
+        naked_identifier: joe
+- statement_terminator: ;
+- statement:
+    grant_statement:
+    - keyword: GRANT
+    - keyword: CREATEDB
+    - keyword: 'ON'
+    - object_reference:
+        naked_identifier: SYSTEM
+    - keyword: TO
+    - object_reference:
+        naked_identifier: joe
+- statement_terminator: ;

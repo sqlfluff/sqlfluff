@@ -1,0 +1,574 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 72edb2ae4aca805149ab4371f61fa26037ba5d94f168b2f77bc14ef0292de940
+file:
+- statement:
+    create_procedure_statement:
+    - keyword: create
+    - keyword: or
+    - keyword: replace
+    - keyword: procedure
+    - function_name:
+        function_name_identifier: sp_pi
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          end_bracket: )
+    - keyword: returns
+    - data_type:
+        data_type_identifier: float
+    - keyword: not
+    - keyword: 'null'
+    - keyword: language
+    - keyword: javascript
+    - keyword: as
+    - udf_body: "$$\n    return 3.1415926;\n    $$"
+- statement_terminator: ;
+- statement:
+    create_procedure_statement:
+    - keyword: create
+    - keyword: or
+    - keyword: replace
+    - keyword: procedure
+    - function_name:
+        function_name_identifier: stproc1
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          parameter: FLOAT_PARAM1
+          data_type:
+            data_type_identifier: FLOAT
+          end_bracket: )
+    - keyword: returns
+    - data_type:
+        data_type_identifier: string
+    - keyword: language
+    - keyword: javascript
+    - keyword: strict
+    - keyword: execute
+    - keyword: as
+    - keyword: owner
+    - keyword: as
+    - udf_body: "$$\n    var sql_command =\n     \"INSERT INTO stproc_test_table1\
+        \ (num_col1) VALUES (\" + FLOAT_PARAM1 + \")\";\n    try {\n        snowflake.execute\
+        \ (\n            {sqlText: sql_command}\n            );\n        return \"\
+        Succeeded.\";   // Return a success/error indicator.\n        }\n    catch\
+        \ (err)  {\n        return \"Failed: \" + err;   // Return a success/error\
+        \ indicator.\n        }\n    $$"
+- statement_terminator: ;
+- statement:
+    create_procedure_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: PROCEDURE
+    - function_name:
+        naked_identifier: public
+        dot: .
+        function_name_identifier: test_procedure
+    - function_parameter_list:
+        bracketed:
+        - start_bracket: (
+        - parameter: test_table
+        - data_type:
+            data_type_identifier: VARCHAR
+            bracketed_arguments:
+              bracketed:
+                start_bracket: (
+                end_bracket: )
+        - comma: ','
+        - parameter: test_col
+        - data_type:
+            data_type_identifier: VARCHAR
+            bracketed_arguments:
+              bracketed:
+                start_bracket: (
+                end_bracket: )
+        - end_bracket: )
+    - keyword: RETURNS
+    - data_type:
+        data_type_identifier: VARCHAR
+        bracketed_arguments:
+          bracketed:
+            start_bracket: (
+            end_bracket: )
+    - keyword: LANGUAGE
+    - keyword: JAVASCRIPT
+    - keyword: AS
+    - udf_body: "$$\ntry {\n    var sql_command = \"ALTER TABLE \" + test_table +\
+        \ \" DROP \" + tet_col;\n    snowflake.execute ({sqlText: sql_command});\n\
+        \    return \"Succeeded.\";\n}\ncatch (err) {\n   return \"Failed: execute\
+        \ \"+ sql_command +\". Error : \"+ err;   // Return a success/error indicator.\n\
+        }\n$$"
+- statement_terminator: ;
+- statement:
+    create_procedure_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: PROCEDURE
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - function_name:
+      - naked_identifier: UTIL_DB
+      - dot: .
+      - naked_identifier: PUBLIC
+      - dot: .
+      - function_name_identifier: PROCEDURE_IF_NOT_EXISTS
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          end_bracket: )
+    - keyword: RETURNS
+    - data_type:
+        data_type_identifier: INT
+    - keyword: LANGUAGE
+    - keyword: JAVASCRIPT
+    - keyword: AS
+    - udf_body: "$$\n    return 1;\n$$"
+- statement_terminator: ;
+- statement:
+    create_procedure_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: PROCEDURE
+    - function_name:
+      - naked_identifier: UTIL_DB
+      - dot: .
+      - naked_identifier: PUBLIC
+      - dot: .
+      - function_name_identifier: PROCEDURE_WITHOUT_EXPLICIT_LANGUAGE
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          end_bracket: )
+    - keyword: RETURNS
+    - data_type:
+        data_type_identifier: INT
+    - keyword: AS
+    - udf_body: "$$\nBEGIN\n    RETURN 1;\nEND\n$$"
+- statement_terminator: ;
+- statement:
+    create_procedure_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: PROCEDURE
+    - function_name:
+      - naked_identifier: UTIL_DB
+      - dot: .
+      - naked_identifier: PUBLIC
+      - dot: .
+      - function_name_identifier: PROCEDURE_LANGUAGE_SQL
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          end_bracket: )
+    - keyword: RETURNS
+    - data_type:
+        data_type_identifier: INT
+    - keyword: LANGUAGE
+    - keyword: SQL
+    - keyword: AS
+    - udf_body: "$$\nBEGIN\n    RETURN 1;\nEND\n$$"
+- statement_terminator: ;
+- statement:
+    create_procedure_statement:
+    - keyword: create
+    - keyword: or
+    - keyword: replace
+    - keyword: procedure
+    - function_name:
+      - naked_identifier: UTIL_DB
+      - dot: .
+      - naked_identifier: PUBLIC
+      - dot: .
+      - function_name_identifier: PROCEDURE_LANGUAGE_PYTHON
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          end_bracket: )
+    - keyword: returns
+    - data_type:
+        data_type_identifier: variant
+    - keyword: language
+    - keyword: python
+    - keyword: runtime_version
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'3.8'"
+    - keyword: packages
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - bracketed:
+      - start_bracket: (
+      - quoted_literal: "'numpy'"
+      - comma: ','
+      - quoted_literal: "'pandas'"
+      - comma: ','
+      - quoted_literal: "'xgboost==1.5.0'"
+      - end_bracket: )
+    - keyword: handler
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'udf'"
+    - comment_equals_clause:
+        keyword: comment
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'hello_world'"
+    - keyword: as
+    - udf_body: "$$\nimport numpy as np\nimport pandas as pd\nimport xgboost as xgb\n\
+        def udf():\n    return [np.__version__, pd.__version__, xgb.__version__]\n\
+        $$"
+- statement_terminator: ;
+- statement:
+    create_procedure_statement:
+    - keyword: create
+    - keyword: or
+    - keyword: replace
+    - keyword: procedure
+    - function_name:
+      - naked_identifier: UTIL_DB
+      - dot: .
+      - naked_identifier: PUBLIC
+      - dot: .
+      - function_name_identifier: PROCEDURE_LANGUAGE_JAVA
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          parameter: x
+          data_type:
+            data_type_identifier: varchar
+          end_bracket: )
+    - keyword: returns
+    - data_type:
+        data_type_identifier: varchar
+    - keyword: language
+    - keyword: java
+    - keyword: called
+    - keyword: 'on'
+    - keyword: 'null'
+    - keyword: input
+    - keyword: handler
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'TestFunc.echoVarchar'"
+    - keyword: target_path
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'@~/testfunc.jar'"
+    - keyword: as
+    - udf_body: "'class TestFunc {\n  public static String echoVarchar(String x) {\n\
+        \    return x;\n  }\n}'"
+- statement_terminator: ;
+- statement:
+    create_procedure_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: PROCEDURE
+    - function_name:
+        function_name_identifier: filter_by_role
+    - function_parameter_list:
+        bracketed:
+        - start_bracket: (
+        - parameter: table_name
+        - data_type:
+            data_type_identifier: VARCHAR
+        - comma: ','
+        - parameter: role
+        - data_type:
+            data_type_identifier: VARCHAR
+        - end_bracket: )
+    - keyword: RETURNS
+    - data_type:
+        data_type_identifier: INT
+    - keyword: LANGUAGE
+    - keyword: SCALA
+    - keyword: RUNTIME_VERSION
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'2.12'"
+    - keyword: PACKAGES
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - bracketed:
+        start_bracket: (
+        quoted_literal: "'com.snowflake:snowpark:latest'"
+        end_bracket: )
+    - keyword: HANDLER
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'Filter.filterByRole'"
+    - keyword: AS
+    - udf_body: "$$\nimport com.snowflake.snowpark.functions._\nimport com.snowflake.snowpark._\n\
+        \nobject Filter {\n    def filterByRole(session: Session, tableName: String,\
+        \ role: String): DataFrame = {\n        val table = session.table(tableName)\n\
+        \        val filteredRows = table.filter(col(\"role\") === role)\n       \
+        \ return filteredRows\n    }\n}\n$$"
+- statement_terminator: ;
+- statement:
+    create_procedure_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: PROCEDURE
+    - function_name:
+        function_name_identifier: myprocedure
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          parameter: '"Id"'
+          data_type:
+            data_type_identifier: NUMBER
+            bracketed_arguments:
+              bracketed:
+              - start_bracket: (
+              - numeric_literal: '38'
+              - comma: ','
+              - numeric_literal: '0'
+              - end_bracket: )
+          end_bracket: )
+    - keyword: RETURNS
+    - data_type:
+        data_type_identifier: VARCHAR
+    - keyword: LANGUAGE
+    - keyword: SQL
+    - keyword: AS
+    - udf_body: "$$\n-- Snowflake Scripting code\nDECLARE\nradius_of_circle FLOAT;\n\
+        area_of_circle FLOAT;\nBEGIN\nradius_of_circle := 3;\narea_of_circle := pi()\
+        \ * radius_of_circle * radius_of_circle;\nRETURN area_of_circle;\nEND;\n$$"
+- statement_terminator: ;
+- statement:
+    create_procedure_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: PROCEDURE
+    - function_name:
+        function_name_identifier: MY_PROCEDURE
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          parameter: '"Id"'
+          data_type:
+            data_type_identifier: NUMBER
+            bracketed_arguments:
+              bracketed:
+              - start_bracket: (
+              - numeric_literal: '38'
+              - comma: ','
+              - numeric_literal: '0'
+              - end_bracket: )
+          end_bracket: )
+    - keyword: RETURNS
+    - data_type:
+        data_type_identifier: VARCHAR
+    - keyword: LANGUAGE
+    - keyword: SQL
+    - keyword: AS
+    - scripting_block_statement:
+      - keyword: BEGIN
+      - statement:
+          select_statement:
+            select_clause:
+              keyword: select
+              select_clause_element:
+                numeric_literal: '1'
+      - statement_terminator: ;
+      - statement:
+          select_statement:
+            select_clause:
+              keyword: select
+              select_clause_element:
+                numeric_literal: '2'
+      - statement_terminator: ;
+      - statement:
+          select_statement:
+            select_clause:
+              keyword: select
+              select_clause_element:
+                numeric_literal: '3'
+      - statement_terminator: ;
+      - statement:
+          select_statement:
+            select_clause:
+              keyword: select
+              select_clause_element:
+                numeric_literal: '4'
+      - statement_terminator: ;
+      - statement:
+          return_statement:
+            keyword: return
+            expression:
+              numeric_literal: '5'
+      - statement_terminator: ;
+      - keyword: END
+- statement_terminator: ;
+- statement:
+    create_procedure_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: PROCEDURE
+    - function_name:
+        function_name_identifier: MY_PROCEDURE
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          parameter: hello_world
+          data_type:
+            data_type_identifier: VARCHAR
+            bracketed_arguments:
+              bracketed:
+                start_bracket: (
+                numeric_literal: '10000'
+                end_bracket: )
+          end_bracket: )
+    - keyword: COPY
+    - keyword: GRANTS
+    - keyword: RETURNS
+    - data_type:
+        data_type_identifier: TABLE
+        bracketed_arguments:
+          bracketed:
+            start_bracket: (
+            end_bracket: )
+    - keyword: LANGUAGE
+    - keyword: PYTHON
+    - keyword: RUNTIME_VERSION
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'3.11'"
+    - keyword: PACKAGES
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - bracketed:
+        start_bracket: (
+        quoted_literal: "'snowflake-snowpark-python'"
+        end_bracket: )
+    - keyword: HANDLER
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'my.path.func_formula_parser_test_script_runner_proc'"
+    - keyword: IMPORTS
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - bracketed:
+        start_bracket: (
+        quoted_literal: "'@MIRROR.PYTHON_SCRIPTS/script.py'"
+        end_bracket: )
+    - keyword: EXECUTE
+    - keyword: AS
+    - keyword: OWNER
+- statement_terminator: ;
+- statement:
+    create_procedure_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: PROCEDURE
+    - function_name:
+        naked_identifier: DATA_STAGE
+        dot: .
+        function_name_identifier: INGEST_DATA_FROM_GS
+    - function_parameter_list:
+        bracketed:
+        - start_bracket: (
+        - parameter: P_GOOGLE_SPREADSHEET_ID
+        - data_type:
+            data_type_identifier: VARCHAR
+            bracketed_arguments:
+              bracketed:
+                start_bracket: (
+                numeric_literal: '16777216'
+                end_bracket: )
+        - comma: ','
+        - parameter: P_SHEET_NAME
+        - data_type:
+            data_type_identifier: VARCHAR
+            bracketed_arguments:
+              bracketed:
+                start_bracket: (
+                numeric_literal: '16777216'
+                end_bracket: )
+        - comma: ','
+        - parameter: P_STAGING_TABLE
+        - data_type:
+            data_type_identifier: VARCHAR
+            bracketed_arguments:
+              bracketed:
+                start_bracket: (
+                numeric_literal: '16777216'
+                end_bracket: )
+        - end_bracket: )
+    - keyword: COPY
+    - keyword: GRANTS
+    - keyword: RETURNS
+    - data_type:
+        data_type_identifier: VARCHAR
+        bracketed_arguments:
+          bracketed:
+            start_bracket: (
+            numeric_literal: '16777216'
+            end_bracket: )
+    - keyword: LANGUAGE
+    - keyword: PYTHON
+    - keyword: RUNTIME_VERSION
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'3.11'"
+    - keyword: PACKAGES
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - bracketed:
+      - start_bracket: (
+      - quoted_literal: "'snowflake-snowpark-python'"
+      - comma: ','
+      - quoted_literal: "'requests'"
+      - end_bracket: )
+    - keyword: HANDLER
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'SF_GOOGLE_SHEET_LOADER.ingest_gs_to_staging_table'"
+    - keyword: IMPORTS
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - bracketed:
+        start_bracket: (
+        quoted_literal: "'@DATA_STAGE.PYTHON_SCRIPTS/SF_GOOGLE_SHEET_LOADER.py'"
+        end_bracket: )
+    - keyword: EXTERNAL_ACCESS_INTEGRATIONS
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - bracketed:
+        start_bracket: (
+        naked_identifier: GOOGLESHEET_APIS_ACCESS_INTEGRATION
+        end_bracket: )
+    - keyword: SECRETS
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - bracketed:
+      - start_bracket: (
+      - quoted_literal: "'cred'"
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - naked_identifier: DATA_STAGE
+      - dot: .
+      - naked_identifier: GS_OAUTH_TOKEN
+      - comma: ','
+      - quoted_literal: "'cred2'"
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - naked_identifier: my_cred
+      - end_bracket: )
+    - keyword: EXECUTE
+    - keyword: AS
+    - keyword: CALLER
+- statement_terminator: ;

@@ -3,60 +3,62 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 36637b9aafb36b617d6652c0873162f40f248b4213159cac25bf2ba431e2c3e8
+_hash: 224d06e8d35e55927c093e397084485a36d7cdf2f67f972db87effd738945841
 file:
   statement:
     create_table_statement:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-      - identifier: db
+      - naked_identifier: db
       - dot: .
-      - identifier: foo
+      - naked_identifier: foo
     - bracketed:
       - start_bracket: (
       - column_definition:
-          identifier: col1
+          naked_identifier: col1
           data_type:
             primitive_type:
               keyword: string
       - comma: ','
       - column_definition:
-          identifier: col2
+          naked_identifier: col2
           data_type:
             primitive_type:
               keyword: int
       - comma: ','
       - column_definition:
-          identifier: col3
+          naked_identifier: col3
           data_type:
             primitive_type:
               keyword: decimal
       - comma: ','
       - column_definition:
-          identifier: col4
+          naked_identifier: col4
           data_type:
             primitive_type:
               keyword: decimal
-              bracketed:
-              - start_bracket: (
-              - literal: '10'
-              - comma: ','
-              - literal: '2'
-              - end_bracket: )
+              bracketed_arguments:
+                bracketed:
+                - start_bracket: (
+                - numeric_literal: '10'
+                - comma: ','
+                - numeric_literal: '2'
+                - end_bracket: )
       - comma: ','
       - column_definition:
-          identifier: col5
+          naked_identifier: col5
           data_type:
-            keyword: ARRAY
-            start_angle_bracket: <
-            data_type:
-              primitive_type:
-                keyword: double
-            end_angle_bracket: '>'
+            array_type:
+              keyword: ARRAY
+              start_angle_bracket: <
+              data_type:
+                primitive_type:
+                  keyword: double
+              end_angle_bracket: '>'
       - comma: ','
       - column_definition:
-          identifier: col6
+          naked_identifier: col6
           data_type:
             keyword: MAP
             start_angle_bracket: <
@@ -69,50 +71,54 @@ file:
             end_angle_bracket: '>'
       - comma: ','
       - column_definition:
-          identifier: col7
+          naked_identifier: col7
           data_type:
-          - keyword: STRUCT
-          - start_angle_bracket: <
-          - identifier: field1
-          - colon: ':'
-          - data_type:
-              primitive_type:
-                keyword: boolean
-          - comma: ','
-          - identifier: field2
-          - colon: ':'
-          - data_type:
-              keyword: ARRAY
-              start_angle_bracket: <
-              data_type:
-                primitive_type:
-                - keyword: double
-                - keyword: precision
-              end_angle_bracket: '>'
-          - comma: ','
-          - identifier: field3
-          - colon: ':'
-          - data_type:
-            - keyword: UNIONTYPE
-            - start_angle_bracket: <
-            - data_type:
-                primitive_type:
-                  keyword: string
-            - comma: ','
-            - data_type:
-                primitive_type:
-                  keyword: decimal
-                  bracketed:
-                  - start_bracket: (
-                  - literal: '10'
-                  - comma: ','
-                  - literal: '2'
-                  - end_bracket: )
-            - end_angle_bracket: '>'
-          - end_angle_bracket: '>'
+            struct_type:
+              keyword: STRUCT
+              struct_type_schema:
+              - start_angle_bracket: <
+              - naked_identifier: field1
+              - colon: ':'
+              - data_type:
+                  primitive_type:
+                    keyword: boolean
+              - comma: ','
+              - naked_identifier: field2
+              - colon: ':'
+              - data_type:
+                  array_type:
+                    keyword: ARRAY
+                    start_angle_bracket: <
+                    data_type:
+                      primitive_type:
+                      - keyword: double
+                      - keyword: precision
+                    end_angle_bracket: '>'
+              - comma: ','
+              - naked_identifier: field3
+              - colon: ':'
+              - data_type:
+                - keyword: UNIONTYPE
+                - start_angle_bracket: <
+                - data_type:
+                    primitive_type:
+                      keyword: string
+                - comma: ','
+                - data_type:
+                    primitive_type:
+                      keyword: decimal
+                      bracketed_arguments:
+                        bracketed:
+                        - start_bracket: (
+                        - numeric_literal: '10'
+                        - comma: ','
+                        - numeric_literal: '2'
+                        - end_bracket: )
+                - end_angle_bracket: '>'
+              - end_angle_bracket: '>'
       - comma: ','
       - column_definition:
-          identifier: col8
+          naked_identifier: col8
           data_type:
           - keyword: UNIONTYPE
           - start_angle_bracket: <
@@ -121,12 +127,13 @@ file:
                 keyword: string
           - comma: ','
           - data_type:
-              keyword: ARRAY
-              start_angle_bracket: <
-              data_type:
-                primitive_type:
-                  keyword: char
-              end_angle_bracket: '>'
+              array_type:
+                keyword: ARRAY
+                start_angle_bracket: <
+                data_type:
+                  primitive_type:
+                    keyword: char
+                end_angle_bracket: '>'
           - end_angle_bracket: '>'
       - end_bracket: )
   statement_terminator: ;

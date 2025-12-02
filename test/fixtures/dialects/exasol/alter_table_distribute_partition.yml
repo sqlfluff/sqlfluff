@@ -1,0 +1,99 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 70378d3650e57431fc47fb48dc6e68eae04241f3a5e101bc929d22134e967574
+file:
+- statement:
+    alter_table_statement:
+      alter_table_distribute_partition_statement:
+      - keyword: ALTER
+      - keyword: TABLE
+      - table_reference:
+          naked_identifier: my_table
+      - keyword: DROP
+      - keyword: DISTRIBUTION
+      - keyword: KEYS
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+      alter_table_distribute_partition_statement:
+      - keyword: ALTER
+      - keyword: TABLE
+      - table_reference:
+          naked_identifier: my_table
+      - keyword: DROP
+      - keyword: DISTRIBUTION
+      - keyword: AND
+      - keyword: PARTITION
+      - keyword: KEYS
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+      alter_table_distribute_partition_statement:
+      - keyword: ALTER
+      - keyword: TABLE
+      - table_reference:
+          naked_identifier: my_table
+      - table_distribution_partition_clause:
+        - keyword: DISTRIBUTE
+        - keyword: BY
+        - column_reference:
+            naked_identifier: shop_id
+        - comma: ','
+        - keyword: PARTITION
+        - keyword: BY
+        - column_reference:
+            naked_identifier: order_date
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+      alter_table_distribute_partition_statement:
+      - keyword: ALTER
+      - keyword: TABLE
+      - table_reference:
+          naked_identifier: my_table
+      - table_distribution_partition_clause:
+        - keyword: PARTITION
+        - keyword: BY
+        - column_reference:
+            naked_identifier: order_date
+        - comma: ','
+        - keyword: DISTRIBUTE
+        - keyword: BY
+        - column_reference:
+            naked_identifier: shop_id
+        - comma: ','
+        - column_reference:
+            naked_identifier: branch_no
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+      alter_table_distribute_partition_statement:
+      - keyword: ALTER
+      - keyword: TABLE
+      - table_reference:
+          naked_identifier: my_table
+      - table_distribution_partition_clause:
+        - keyword: PARTITION
+        - keyword: BY
+        - column_reference:
+            naked_identifier: order_date
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+      alter_table_distribute_partition_statement:
+      - keyword: ALTER
+      - keyword: TABLE
+      - table_reference:
+          naked_identifier: my_table
+      - table_distribution_partition_clause:
+        - keyword: DISTRIBUTE
+        - keyword: BY
+        - column_reference:
+            naked_identifier: shop_id
+        - comma: ','
+        - column_reference:
+            naked_identifier: branch_no
+- statement_terminator: ;

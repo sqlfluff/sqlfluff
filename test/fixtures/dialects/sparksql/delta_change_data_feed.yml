@@ -1,0 +1,86 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 58818cf3ad6aa778426e618fb04ce906ea04b50191cfb3754008291b9e06c0f0
+file:
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: student
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          column_reference:
+            naked_identifier: id
+          data_type:
+            primitive_type:
+              keyword: INT
+      - comma: ','
+      - column_definition:
+          column_reference:
+            naked_identifier: student_name
+          data_type:
+            primitive_type:
+              keyword: STRING
+      - comma: ','
+      - column_definition:
+          column_reference:
+            naked_identifier: age
+          data_type:
+            primitive_type:
+              keyword: INT
+      - end_bracket: )
+    - keyword: TBLPROPERTIES
+    - bracketed:
+        start_bracket: (
+        property_name_identifier:
+        - properties_naked_identifier: delta
+        - dot: .
+        - properties_naked_identifier: enableChangeDataFeed
+        comparison_operator:
+          raw_comparison_operator: '='
+        boolean_literal: 'true'
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: my_delta_table
+    - keyword: SET
+    - keyword: TBLPROPERTIES
+    - bracketed:
+        start_bracket: (
+        property_name_identifier:
+        - properties_naked_identifier: delta
+        - dot: .
+        - properties_naked_identifier: enableChangeDataFeed
+        comparison_operator:
+          raw_comparison_operator: '='
+        boolean_literal: 'true'
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    set_statement:
+      keyword: SET
+      property_name_identifier:
+      - properties_naked_identifier: spark
+      - dot: .
+      - properties_naked_identifier: databricks
+      - dot: .
+      - properties_naked_identifier: delta
+      - dot: .
+      - properties_naked_identifier: properties
+      - dot: .
+      - properties_naked_identifier: defaults
+      - dot: .
+      - properties_naked_identifier: enableChangeDataFeed
+      comparison_operator:
+        raw_comparison_operator: '='
+      boolean_literal: 'true'
+- statement_terminator: ;

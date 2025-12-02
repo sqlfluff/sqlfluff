@@ -1,0 +1,36 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 89c3b0043561c04b1c690ba8ce291af5883281c4757f714acf7d2ecabba21a67
+file:
+- statement:
+    desc_datashare_statement:
+    - keyword: DESC
+    - keyword: DATASHARE
+    - object_reference:
+        naked_identifier: salesshare
+- statement_terminator: ;
+- statement:
+    desc_datashare_statement:
+    - keyword: DESC
+    - keyword: DATASHARE
+    - object_reference:
+        naked_identifier: salesshare
+    - keyword: of
+    - keyword: ACCOUNT
+    - quoted_literal: "'123456789012'"
+    - keyword: NAMESPACE
+    - quoted_literal: "'13b8833d-17c6-4f16-8fe4-1a018f5ed00d'"
+- statement_terminator: ;
+- statement:
+    desc_datashare_statement:
+    - keyword: DESC
+    - keyword: DATASHARE
+    - object_reference:
+        naked_identifier: salesshare
+    - keyword: of
+    - keyword: NAMESPACE
+    - quoted_literal: "'13b8833d-17c6-4f16-8fe4-1a018f5ed00d'"
+- statement_terminator: ;

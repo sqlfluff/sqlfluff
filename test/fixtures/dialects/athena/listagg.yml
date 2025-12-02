@@ -1,0 +1,343 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: f42c3532ac9e21473d48ac1b81e8c867135e4517e7e04202778ea746e4fd39fa
+file:
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+          - naked_identifier: composition
+          - dot: .
+          - naked_identifier: material_number
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: material_number_composition
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: LISTAGG
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                  - naked_identifier: composition
+                  - dot: .
+                  - naked_identifier: composition
+              - comma: ','
+              - expression:
+                  quoted_literal: "' || '"
+              - listagg_overflow_clause:
+                - keyword: 'ON'
+                - keyword: OVERFLOW
+                - keyword: ERROR
+              - end_bracket: )
+            withingroup_clause:
+            - keyword: WITHIN
+            - keyword: GROUP
+            - bracketed:
+                start_bracket: (
+                orderby_clause:
+                - keyword: ORDER
+                - keyword: BY
+                - column_reference:
+                    naked_identifier: composition
+                - keyword: ASC
+                end_bracket: )
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: composition
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: article_composition
+            alias_expression:
+              alias_operator:
+                keyword: AS
+              naked_identifier: composition
+      groupby_clause:
+      - keyword: GROUP
+      - keyword: BY
+      - column_reference:
+        - naked_identifier: composition
+        - dot: .
+        - naked_identifier: material_number
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+            naked_identifier: country
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: LISTAGG
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                    naked_identifier: city
+              - comma: ','
+              - expression:
+                  quoted_literal: "','"
+              - end_bracket: )
+            withingroup_clause:
+            - keyword: WITHIN
+            - keyword: GROUP
+            - bracketed:
+                start_bracket: (
+                orderby_clause:
+                - keyword: ORDER
+                - keyword: BY
+                - column_reference:
+                    naked_identifier: population
+                - keyword: DESC
+                end_bracket: )
+            - keyword: FILTER
+            - bracketed:
+                start_bracket: (
+                keyword: WHERE
+                expression:
+                - column_reference:
+                    naked_identifier: population
+                - comparison_operator:
+                  - raw_comparison_operator: '>'
+                  - raw_comparison_operator: '='
+                - column_reference:
+                    naked_identifier: '10_000_000'
+                end_bracket: )
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: megacities
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            bracketed:
+              start_bracket: (
+              table_expression:
+                values_clause:
+                - keyword: VALUES
+                - expression:
+                    bracketed:
+                    - start_bracket: (
+                    - quoted_literal: "'India'"
+                    - comma: ','
+                    - quoted_literal: "'Bangalore'"
+                    - comma: ','
+                    - column_reference:
+                        naked_identifier: '13_700_000'
+                    - end_bracket: )
+                - comma: ','
+                - expression:
+                    bracketed:
+                    - start_bracket: (
+                    - quoted_literal: "'India'"
+                    - comma: ','
+                    - quoted_literal: "'Chennai'"
+                    - comma: ','
+                    - column_reference:
+                        naked_identifier: '12_200_000'
+                    - end_bracket: )
+                - comma: ','
+                - expression:
+                    bracketed:
+                    - start_bracket: (
+                    - quoted_literal: "'India'"
+                    - comma: ','
+                    - quoted_literal: "'Ranchi'"
+                    - comma: ','
+                    - column_reference:
+                        naked_identifier: '1_547_000'
+                    - end_bracket: )
+                - comma: ','
+                - expression:
+                    bracketed:
+                    - start_bracket: (
+                    - quoted_literal: "'Austria'"
+                    - comma: ','
+                    - quoted_literal: "'Vienna'"
+                    - comma: ','
+                    - column_reference:
+                        naked_identifier: '1_897_000'
+                    - end_bracket: )
+                - comma: ','
+                - expression:
+                    bracketed:
+                    - start_bracket: (
+                    - quoted_literal: "'Poland'"
+                    - comma: ','
+                    - quoted_literal: "'Warsaw'"
+                    - comma: ','
+                    - column_reference:
+                        naked_identifier: '1_765_000'
+                    - end_bracket: )
+              end_bracket: )
+            alias_expression:
+              alias_operator:
+                keyword: AS
+              naked_identifier: t
+              bracketed:
+                start_bracket: (
+                identifier_list:
+                - naked_identifier: country
+                - comma: ','
+                - naked_identifier: city
+                - comma: ','
+                - naked_identifier: population
+                end_bracket: )
+      groupby_clause:
+      - keyword: GROUP
+      - keyword: BY
+      - column_reference:
+          naked_identifier: country
+      orderby_clause:
+      - keyword: ORDER
+      - keyword: BY
+      - column_reference:
+          naked_identifier: country
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: LISTAGG
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                    naked_identifier: value
+              - comma: ','
+              - expression:
+                  quoted_literal: "','"
+              - listagg_overflow_clause:
+                - keyword: 'ON'
+                - keyword: OVERFLOW
+                - keyword: TRUNCATE
+                - quoted_literal: "'.....'"
+                - keyword: WITH
+                - keyword: COUNT
+              - end_bracket: )
+            withingroup_clause:
+            - keyword: WITHIN
+            - keyword: GROUP
+            - bracketed:
+                start_bracket: (
+                orderby_clause:
+                - keyword: ORDER
+                - keyword: BY
+                - column_reference:
+                    naked_identifier: value
+                end_bracket: )
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            bracketed:
+              start_bracket: (
+              table_expression:
+                values_clause:
+                - keyword: VALUES
+                - expression:
+                    quoted_literal: "'a'"
+                - comma: ','
+                - expression:
+                    quoted_literal: "'b'"
+                - comma: ','
+                - expression:
+                    quoted_literal: "'c'"
+              end_bracket: )
+            alias_expression:
+              alias_operator:
+                keyword: AS
+              naked_identifier: t
+              bracketed:
+                start_bracket: (
+                identifier_list:
+                  naked_identifier: value
+                end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: LISTAGG
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                    naked_identifier: value
+              - comma: ','
+              - expression:
+                  quoted_literal: "','"
+              - listagg_overflow_clause:
+                - keyword: 'ON'
+                - keyword: OVERFLOW
+                - keyword: TRUNCATE
+                - quoted_literal: "'.....'"
+                - keyword: WITHOUT
+                - keyword: COUNT
+              - end_bracket: )
+            withingroup_clause:
+            - keyword: WITHIN
+            - keyword: GROUP
+            - bracketed:
+                start_bracket: (
+                orderby_clause:
+                - keyword: ORDER
+                - keyword: BY
+                - column_reference:
+                    naked_identifier: value
+                end_bracket: )
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            bracketed:
+              start_bracket: (
+              table_expression:
+                values_clause:
+                - keyword: VALUES
+                - expression:
+                    quoted_literal: "'a'"
+                - comma: ','
+                - expression:
+                    quoted_literal: "'b'"
+                - comma: ','
+                - expression:
+                    quoted_literal: "'c'"
+              end_bracket: )
+            alias_expression:
+              alias_operator:
+                keyword: AS
+              naked_identifier: t
+              bracketed:
+                start_bracket: (
+                identifier_list:
+                  naked_identifier: value
+                end_bracket: )
+- statement_terminator: ;

@@ -1,0 +1,21 @@
+rule: LT06
+
+passing_example:
+  pass_str: SELECT SUM(1)
+
+passing_example_window_function:
+  pass_str: SELECT AVG(c) OVER (PARTITION BY a)
+
+simple_fail:
+  fail_str: SELECT SUM (1)
+  fix_str: SELECT SUM(1)
+
+complex_fail_1:
+  fail_str: SELECT SUM /* SOMETHING */ (1)
+
+complex_fail_2:
+  fail_str: |
+    SELECT
+      SUM
+      -- COMMENT
+      (1)

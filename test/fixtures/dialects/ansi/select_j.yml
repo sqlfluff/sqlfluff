@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: bf0419eb155b4c20542f0e1ab165842230c83141de675fac2adaf76e071c0820
+_hash: 6d0d616d431d59cdba64b181a682b7c62e757aa1530d4ff7d9abe9109b06345e
 file:
 - statement:
     select_statement:
@@ -17,64 +17,68 @@ file:
               - function:
                   function_name:
                     function_name_identifier: POW
-                  bracketed:
-                  - start_bracket: (
-                  - expression:
-                      column_reference:
-                        identifier: sd2
-                  - comma: ','
-                  - expression:
-                      literal: '2'
-                  - end_bracket: )
+                  function_contents:
+                    bracketed:
+                    - start_bracket: (
+                    - expression:
+                        column_reference:
+                          naked_identifier: sd2
+                    - comma: ','
+                    - expression:
+                        numeric_literal: '2'
+                    - end_bracket: )
               - binary_operator: +
               - function:
                   function_name:
                     function_name_identifier: POW
-                  bracketed:
-                  - start_bracket: (
-                  - expression:
-                      column_reference:
-                        identifier: sd3
-                  - comma: ','
-                  - expression:
-                      literal: '2'
-                  - end_bracket: )
+                  function_contents:
+                    bracketed:
+                    - start_bracket: (
+                    - expression:
+                        column_reference:
+                          naked_identifier: sd3
+                    - comma: ','
+                    - expression:
+                        numeric_literal: '2'
+                    - end_bracket: )
               - binary_operator: +
               - function:
                   function_name:
                     function_name_identifier: POW
-                  bracketed:
-                  - start_bracket: (
-                  - expression:
-                      column_reference:
-                        identifier: sd4
-                  - comma: ','
-                  - expression:
-                      literal: '2'
-                  - end_bracket: )
+                  function_contents:
+                    bracketed:
+                    - start_bracket: (
+                    - expression:
+                        column_reference:
+                          naked_identifier: sd4
+                    - comma: ','
+                    - expression:
+                        numeric_literal: '2'
+                    - end_bracket: )
               - binary_operator: +
               - function:
                   function_name:
                     function_name_identifier: POW
-                  bracketed:
-                  - start_bracket: (
-                  - expression:
-                      column_reference:
-                        identifier: sd4
-                  - comma: ','
-                  - expression:
-                      literal: '2'
-                  - end_bracket: )
+                  function_contents:
+                    bracketed:
+                    - start_bracket: (
+                    - expression:
+                        column_reference:
+                          naked_identifier: sd4
+                    - comma: ','
+                    - expression:
+                        numeric_literal: '2'
+                    - end_bracket: )
               end_bracket: )
           alias_expression:
-            identifier: w1
+            naked_identifier: w1
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: dat
+                naked_identifier: dat
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -84,19 +88,22 @@ file:
           expression:
             case_expression:
             - keyword: CASE
-            - keyword: WHEN
-            - expression:
-              - column_reference:
-                  identifier: order_month
-              - comparison_operator: '='
-              - column_reference:
-                  identifier: max_month
-            - keyword: THEN
-            - expression:
-                literal: '1'
-            - keyword: ELSE
-            - expression:
-                literal: '0'
+            - when_clause:
+              - keyword: WHEN
+              - expression:
+                - column_reference:
+                    naked_identifier: order_month
+                - comparison_operator:
+                    raw_comparison_operator: '='
+                - column_reference:
+                    naked_identifier: max_month
+              - keyword: THEN
+              - expression:
+                  numeric_literal: '1'
+            - else_clause:
+                keyword: ELSE
+                expression:
+                  numeric_literal: '0'
             - keyword: END
           alias_expression:
-            identifier: churn
+            naked_identifier: churn

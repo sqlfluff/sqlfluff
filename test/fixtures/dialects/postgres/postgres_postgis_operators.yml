@@ -1,0 +1,1786 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 12f503c0d1bc6b05ad3d58352ef3abc3ce719bb0670ba5dc109facbc7cf15f40
+file:
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+          - naked_identifier: tbl1
+          - dot: .
+          - naked_identifier: column1
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+          - naked_identifier: tbl2
+          - dot: .
+          - naked_identifier: column1
+      - comma: ','
+      - select_clause_element:
+          expression:
+          - column_reference:
+            - naked_identifier: tbl1
+            - dot: .
+            - naked_identifier: column2
+          - comparison_operator:
+            - ampersand: '&'
+            - ampersand: '&'
+          - column_reference:
+            - naked_identifier: tbl2
+            - dot: .
+            - naked_identifier: column2
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: overlap
+      from_clause:
+      - keyword: FROM
+      - from_expression:
+          from_expression_element:
+            bracketed:
+              start_bracket: (
+              table_expression:
+                values_clause:
+                - keyword: VALUES
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                      numeric_literal: '1'
+                  - comma: ','
+                  - expression:
+                      cast_expression:
+                        quoted_literal: "'LINESTRING(0 0, 3 3)'"
+                        casting_operator: '::'
+                        data_type:
+                          data_type_identifier: geometry
+                  - end_bracket: )
+                - comma: ','
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                      numeric_literal: '2'
+                  - comma: ','
+                  - expression:
+                      cast_expression:
+                        quoted_literal: "'LINESTRING(0 1, 0 5)'"
+                        casting_operator: '::'
+                        data_type:
+                          data_type_identifier: geometry
+                  - end_bracket: )
+              end_bracket: )
+            alias_expression:
+              alias_operator:
+                keyword: AS
+              naked_identifier: tbl1
+      - comma: ','
+      - from_expression:
+          from_expression_element:
+            bracketed:
+              start_bracket: (
+              table_expression:
+                values_clause:
+                  keyword: VALUES
+                  bracketed:
+                  - start_bracket: (
+                  - expression:
+                      numeric_literal: '3'
+                  - comma: ','
+                  - expression:
+                      cast_expression:
+                        quoted_literal: "'LINESTRING(1 2, 4 6)'"
+                        casting_operator: '::'
+                        data_type:
+                          data_type_identifier: geometry
+                  - end_bracket: )
+              end_bracket: )
+            alias_expression:
+              alias_operator:
+                keyword: AS
+              naked_identifier: tbl2
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+          - naked_identifier: tbl1
+          - dot: .
+          - naked_identifier: column1
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+          - naked_identifier: tbl2
+          - dot: .
+          - naked_identifier: column1
+      - comma: ','
+      - select_clause_element:
+          expression:
+          - column_reference:
+            - naked_identifier: tbl1
+            - dot: .
+            - naked_identifier: column2
+          - binary_operator: '&&&'
+          - column_reference:
+            - naked_identifier: tbl2
+            - dot: .
+            - naked_identifier: column2
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: overlaps_3d
+      - comma: ','
+      - select_clause_element:
+          expression:
+          - column_reference:
+            - naked_identifier: tbl1
+            - dot: .
+            - naked_identifier: column2
+          - comparison_operator:
+            - ampersand: '&'
+            - ampersand: '&'
+          - column_reference:
+            - naked_identifier: tbl2
+            - dot: .
+            - naked_identifier: column2
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: overlaps_2d
+      from_clause:
+      - keyword: FROM
+      - from_expression:
+          from_expression_element:
+            bracketed:
+              start_bracket: (
+              table_expression:
+                values_clause:
+                - keyword: VALUES
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                      numeric_literal: '1'
+                  - comma: ','
+                  - expression:
+                      cast_expression:
+                        quoted_literal: "'LINESTRING Z(0 0 1, 3 3 2)'"
+                        casting_operator: '::'
+                        data_type:
+                          data_type_identifier: geometry
+                  - end_bracket: )
+                - comma: ','
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                      numeric_literal: '2'
+                  - comma: ','
+                  - expression:
+                      cast_expression:
+                        quoted_literal: "'LINESTRING Z(1 2 0, 0 5 -1)'"
+                        casting_operator: '::'
+                        data_type:
+                          data_type_identifier: geometry
+                  - end_bracket: )
+              end_bracket: )
+            alias_expression:
+              alias_operator:
+                keyword: AS
+              naked_identifier: tbl1
+      - comma: ','
+      - from_expression:
+          from_expression_element:
+            bracketed:
+              start_bracket: (
+              table_expression:
+                values_clause:
+                  keyword: VALUES
+                  bracketed:
+                  - start_bracket: (
+                  - expression:
+                      numeric_literal: '3'
+                  - comma: ','
+                  - expression:
+                      cast_expression:
+                        quoted_literal: "'LINESTRING Z(1 2 1, 4 6 1)'"
+                        casting_operator: '::'
+                        data_type:
+                          data_type_identifier: geometry
+                  - end_bracket: )
+              end_bracket: )
+            alias_expression:
+              alias_operator:
+                keyword: AS
+              naked_identifier: tbl2
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+          - naked_identifier: tbl1
+          - dot: .
+          - naked_identifier: column1
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+          - naked_identifier: tbl2
+          - dot: .
+          - naked_identifier: column1
+      - comma: ','
+      - select_clause_element:
+          expression:
+          - column_reference:
+            - naked_identifier: tbl1
+            - dot: .
+            - naked_identifier: column2
+          - comparison_operator:
+              ampersand: '&'
+              raw_comparison_operator: <
+          - column_reference:
+            - naked_identifier: tbl2
+            - dot: .
+            - naked_identifier: column2
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: overleft
+      from_clause:
+      - keyword: FROM
+      - from_expression:
+          from_expression_element:
+            bracketed:
+              start_bracket: (
+              table_expression:
+                values_clause:
+                  keyword: VALUES
+                  bracketed:
+                  - start_bracket: (
+                  - expression:
+                      numeric_literal: '1'
+                  - comma: ','
+                  - expression:
+                      cast_expression:
+                        quoted_literal: "'LINESTRING(1 2, 4 6)'"
+                        casting_operator: '::'
+                        data_type:
+                          data_type_identifier: geometry
+                  - end_bracket: )
+              end_bracket: )
+            alias_expression:
+              alias_operator:
+                keyword: AS
+              naked_identifier: tbl1
+      - comma: ','
+      - from_expression:
+          from_expression_element:
+            bracketed:
+              start_bracket: (
+              table_expression:
+                values_clause:
+                - keyword: VALUES
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                      numeric_literal: '2'
+                  - comma: ','
+                  - expression:
+                      cast_expression:
+                        quoted_literal: "'LINESTRING(0 0, 3 3)'"
+                        casting_operator: '::'
+                        data_type:
+                          data_type_identifier: geometry
+                  - end_bracket: )
+                - comma: ','
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                      numeric_literal: '3'
+                  - comma: ','
+                  - expression:
+                      cast_expression:
+                        quoted_literal: "'LINESTRING(0 1, 0 5)'"
+                        casting_operator: '::'
+                        data_type:
+                          data_type_identifier: geometry
+                  - end_bracket: )
+                - comma: ','
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                      numeric_literal: '4'
+                  - comma: ','
+                  - expression:
+                      cast_expression:
+                        quoted_literal: "'LINESTRING(6 0, 6 1)'"
+                        casting_operator: '::'
+                        data_type:
+                          data_type_identifier: geometry
+                  - end_bracket: )
+              end_bracket: )
+            alias_expression:
+              alias_operator:
+                keyword: AS
+              naked_identifier: tbl2
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+          - naked_identifier: tbl1
+          - dot: .
+          - naked_identifier: column1
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+          - naked_identifier: tbl2
+          - dot: .
+          - naked_identifier: column1
+      - comma: ','
+      - select_clause_element:
+          expression:
+          - column_reference:
+            - naked_identifier: tbl1
+            - dot: .
+            - naked_identifier: column2
+          - binary_operator: '&<|'
+          - column_reference:
+            - naked_identifier: tbl2
+            - dot: .
+            - naked_identifier: column2
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: overbelow
+      from_clause:
+      - keyword: FROM
+      - from_expression:
+          from_expression_element:
+            bracketed:
+              start_bracket: (
+              table_expression:
+                values_clause:
+                  keyword: VALUES
+                  bracketed:
+                  - start_bracket: (
+                  - expression:
+                      numeric_literal: '1'
+                  - comma: ','
+                  - expression:
+                      cast_expression:
+                        quoted_literal: "'LINESTRING(6 0, 6 4)'"
+                        casting_operator: '::'
+                        data_type:
+                          data_type_identifier: geometry
+                  - end_bracket: )
+              end_bracket: )
+            alias_expression:
+              alias_operator:
+                keyword: AS
+              naked_identifier: tbl1
+      - comma: ','
+      - from_expression:
+          from_expression_element:
+            bracketed:
+              start_bracket: (
+              table_expression:
+                values_clause:
+                - keyword: VALUES
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                      numeric_literal: '2'
+                  - comma: ','
+                  - expression:
+                      cast_expression:
+                        quoted_literal: "'LINESTRING(0 0, 3 3)'"
+                        casting_operator: '::'
+                        data_type:
+                          data_type_identifier: geometry
+                  - end_bracket: )
+                - comma: ','
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                      numeric_literal: '3'
+                  - comma: ','
+                  - expression:
+                      cast_expression:
+                        quoted_literal: "'LINESTRING(0 1, 0 5)'"
+                        casting_operator: '::'
+                        data_type:
+                          data_type_identifier: geometry
+                  - end_bracket: )
+                - comma: ','
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                      numeric_literal: '4'
+                  - comma: ','
+                  - expression:
+                      cast_expression:
+                        quoted_literal: "'LINESTRING(1 2, 4 6)'"
+                        casting_operator: '::'
+                        data_type:
+                          data_type_identifier: geometry
+                  - end_bracket: )
+              end_bracket: )
+            alias_expression:
+              alias_operator:
+                keyword: AS
+              naked_identifier: tbl2
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+          - naked_identifier: tbl1
+          - dot: .
+          - naked_identifier: column1
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+          - naked_identifier: tbl2
+          - dot: .
+          - naked_identifier: column1
+      - comma: ','
+      - select_clause_element:
+          expression:
+          - column_reference:
+            - naked_identifier: tbl1
+            - dot: .
+            - naked_identifier: column2
+          - comparison_operator:
+              ampersand: '&'
+              raw_comparison_operator: '>'
+          - column_reference:
+            - naked_identifier: tbl2
+            - dot: .
+            - naked_identifier: column2
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: overright
+      from_clause:
+      - keyword: FROM
+      - from_expression:
+          from_expression_element:
+            bracketed:
+              start_bracket: (
+              table_expression:
+                values_clause:
+                  keyword: VALUES
+                  bracketed:
+                  - start_bracket: (
+                  - expression:
+                      numeric_literal: '1'
+                  - comma: ','
+                  - expression:
+                      cast_expression:
+                        quoted_literal: "'LINESTRING(1 2, 4 6)'"
+                        casting_operator: '::'
+                        data_type:
+                          data_type_identifier: geometry
+                  - end_bracket: )
+              end_bracket: )
+            alias_expression:
+              alias_operator:
+                keyword: AS
+              naked_identifier: tbl1
+      - comma: ','
+      - from_expression:
+          from_expression_element:
+            bracketed:
+              start_bracket: (
+              table_expression:
+                values_clause:
+                - keyword: VALUES
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                      numeric_literal: '2'
+                  - comma: ','
+                  - expression:
+                      cast_expression:
+                        quoted_literal: "'LINESTRING(0 0, 3 3)'"
+                        casting_operator: '::'
+                        data_type:
+                          data_type_identifier: geometry
+                  - end_bracket: )
+                - comma: ','
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                      numeric_literal: '3'
+                  - comma: ','
+                  - expression:
+                      cast_expression:
+                        quoted_literal: "'LINESTRING(0 1, 0 5)'"
+                        casting_operator: '::'
+                        data_type:
+                          data_type_identifier: geometry
+                  - end_bracket: )
+                - comma: ','
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                      numeric_literal: '4'
+                  - comma: ','
+                  - expression:
+                      cast_expression:
+                        quoted_literal: "'LINESTRING(6 0, 6 1)'"
+                        casting_operator: '::'
+                        data_type:
+                          data_type_identifier: geometry
+                  - end_bracket: )
+              end_bracket: )
+            alias_expression:
+              alias_operator:
+                keyword: AS
+              naked_identifier: tbl2
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+          - naked_identifier: tbl1
+          - dot: .
+          - naked_identifier: column1
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+          - naked_identifier: tbl2
+          - dot: .
+          - naked_identifier: column1
+      - comma: ','
+      - select_clause_element:
+          expression:
+          - column_reference:
+            - naked_identifier: tbl1
+            - dot: .
+            - naked_identifier: column2
+          - binary_operator:
+            - raw_comparison_operator: <
+            - raw_comparison_operator: <
+          - column_reference:
+            - naked_identifier: tbl2
+            - dot: .
+            - naked_identifier: column2
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: strict_left
+      from_clause:
+      - keyword: FROM
+      - from_expression:
+          from_expression_element:
+            bracketed:
+              start_bracket: (
+              table_expression:
+                values_clause:
+                  keyword: VALUES
+                  bracketed:
+                  - start_bracket: (
+                  - expression:
+                      numeric_literal: '1'
+                  - comma: ','
+                  - expression:
+                      cast_expression:
+                        quoted_literal: "'LINESTRING (1 2, 1 5)'"
+                        casting_operator: '::'
+                        data_type:
+                          data_type_identifier: geometry
+                  - end_bracket: )
+              end_bracket: )
+            alias_expression:
+              alias_operator:
+                keyword: AS
+              naked_identifier: tbl1
+      - comma: ','
+      - from_expression:
+          from_expression_element:
+            bracketed:
+              start_bracket: (
+              table_expression:
+                values_clause:
+                - keyword: VALUES
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                      numeric_literal: '2'
+                  - comma: ','
+                  - expression:
+                      cast_expression:
+                        quoted_literal: "'LINESTRING (0 0, 4 3)'"
+                        casting_operator: '::'
+                        data_type:
+                          data_type_identifier: geometry
+                  - end_bracket: )
+                - comma: ','
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                      numeric_literal: '3'
+                  - comma: ','
+                  - expression:
+                      cast_expression:
+                        quoted_literal: "'LINESTRING (6 0, 6 5)'"
+                        casting_operator: '::'
+                        data_type:
+                          data_type_identifier: geometry
+                  - end_bracket: )
+                - comma: ','
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                      numeric_literal: '4'
+                  - comma: ','
+                  - expression:
+                      cast_expression:
+                        quoted_literal: "'LINESTRING (2 2, 5 6)'"
+                        casting_operator: '::'
+                        data_type:
+                          data_type_identifier: geometry
+                  - end_bracket: )
+              end_bracket: )
+            alias_expression:
+              alias_operator:
+                keyword: AS
+              naked_identifier: tbl2
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+          - naked_identifier: tbl1
+          - dot: .
+          - naked_identifier: column1
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+          - naked_identifier: tbl2
+          - dot: .
+          - naked_identifier: column1
+      - comma: ','
+      - select_clause_element:
+          expression:
+          - column_reference:
+            - naked_identifier: tbl1
+            - dot: .
+            - naked_identifier: column2
+          - binary_operator: <<|
+          - column_reference:
+            - naked_identifier: tbl2
+            - dot: .
+            - naked_identifier: column2
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: below
+      from_clause:
+      - keyword: FROM
+      - from_expression:
+          from_expression_element:
+            bracketed:
+              start_bracket: (
+              table_expression:
+                values_clause:
+                  keyword: VALUES
+                  bracketed:
+                  - start_bracket: (
+                  - expression:
+                      numeric_literal: '1'
+                  - comma: ','
+                  - expression:
+                      cast_expression:
+                        quoted_literal: "'LINESTRING (0 0, 4 3)'"
+                        casting_operator: '::'
+                        data_type:
+                          data_type_identifier: geometry
+                  - end_bracket: )
+              end_bracket: )
+            alias_expression:
+              alias_operator:
+                keyword: AS
+              naked_identifier: tbl1
+      - comma: ','
+      - from_expression:
+          from_expression_element:
+            bracketed:
+              start_bracket: (
+              table_expression:
+                values_clause:
+                - keyword: VALUES
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                      numeric_literal: '2'
+                  - comma: ','
+                  - expression:
+                      cast_expression:
+                        quoted_literal: "'LINESTRING (1 4, 1 7)'"
+                        casting_operator: '::'
+                        data_type:
+                          data_type_identifier: geometry
+                  - end_bracket: )
+                - comma: ','
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                      numeric_literal: '3'
+                  - comma: ','
+                  - expression:
+                      cast_expression:
+                        quoted_literal: "'LINESTRING (6 1, 6 5)'"
+                        casting_operator: '::'
+                        data_type:
+                          data_type_identifier: geometry
+                  - end_bracket: )
+                - comma: ','
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                      numeric_literal: '4'
+                  - comma: ','
+                  - expression:
+                      cast_expression:
+                        quoted_literal: "'LINESTRING (2 3, 5 6)'"
+                        casting_operator: '::'
+                        data_type:
+                          data_type_identifier: geometry
+                  - end_bracket: )
+              end_bracket: )
+            alias_expression:
+              alias_operator:
+                keyword: AS
+              naked_identifier: tbl2
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+          - cast_expression:
+              quoted_literal: "'LINESTRING(0 0, 0 1, 1 0)'"
+              casting_operator: '::'
+              data_type:
+                data_type_identifier: geometry
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - cast_expression:
+              quoted_literal: "'LINESTRING(1 1, 0 0)'"
+              casting_operator: '::'
+              data_type:
+                data_type_identifier: geometry
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+          - naked_identifier: tbl1
+          - dot: .
+          - naked_identifier: column1
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+          - naked_identifier: tbl2
+          - dot: .
+          - naked_identifier: column1
+      - comma: ','
+      - select_clause_element:
+          expression:
+          - column_reference:
+            - naked_identifier: tbl1
+            - dot: .
+            - naked_identifier: column2
+          - binary_operator:
+            - raw_comparison_operator: '>'
+            - raw_comparison_operator: '>'
+          - column_reference:
+            - naked_identifier: tbl2
+            - dot: .
+            - naked_identifier: column2
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: strict_right
+      from_clause:
+      - keyword: FROM
+      - from_expression:
+          from_expression_element:
+            bracketed:
+              start_bracket: (
+              table_expression:
+                values_clause:
+                  keyword: VALUES
+                  bracketed:
+                  - start_bracket: (
+                  - expression:
+                      numeric_literal: '1'
+                  - comma: ','
+                  - expression:
+                      cast_expression:
+                        quoted_literal: "'LINESTRING (2 3, 5 6)'"
+                        casting_operator: '::'
+                        data_type:
+                          data_type_identifier: geometry
+                  - end_bracket: )
+              end_bracket: )
+            alias_expression:
+              alias_operator:
+                keyword: AS
+              naked_identifier: tbl1
+      - comma: ','
+      - from_expression:
+          from_expression_element:
+            bracketed:
+              start_bracket: (
+              table_expression:
+                values_clause:
+                - keyword: VALUES
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                      numeric_literal: '2'
+                  - comma: ','
+                  - expression:
+                      cast_expression:
+                        quoted_literal: "'LINESTRING (1 4, 1 7)'"
+                        casting_operator: '::'
+                        data_type:
+                          data_type_identifier: geometry
+                  - end_bracket: )
+                - comma: ','
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                      numeric_literal: '3'
+                  - comma: ','
+                  - expression:
+                      cast_expression:
+                        quoted_literal: "'LINESTRING (6 1, 6 5)'"
+                        casting_operator: '::'
+                        data_type:
+                          data_type_identifier: geometry
+                  - end_bracket: )
+                - comma: ','
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                      numeric_literal: '4'
+                  - comma: ','
+                  - expression:
+                      cast_expression:
+                        quoted_literal: "'LINESTRING (0 0, 4 3)'"
+                        casting_operator: '::'
+                        data_type:
+                          data_type_identifier: geometry
+                  - end_bracket: )
+              end_bracket: )
+            alias_expression:
+              alias_operator:
+                keyword: AS
+              naked_identifier: tbl2
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+          - naked_identifier: tbl1
+          - dot: .
+          - naked_identifier: column1
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+          - naked_identifier: tbl2
+          - dot: .
+          - naked_identifier: column1
+      - comma: ','
+      - select_clause_element:
+          expression:
+          - column_reference:
+            - naked_identifier: tbl1
+            - dot: .
+            - naked_identifier: column2
+          - binary_operator: '@'
+          - column_reference:
+            - naked_identifier: tbl2
+            - dot: .
+            - naked_identifier: column2
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: contained
+      from_clause:
+      - keyword: FROM
+      - from_expression:
+          from_expression_element:
+            bracketed:
+              start_bracket: (
+              table_expression:
+                values_clause:
+                  keyword: VALUES
+                  bracketed:
+                  - start_bracket: (
+                  - expression:
+                      numeric_literal: '1'
+                  - comma: ','
+                  - expression:
+                      cast_expression:
+                        quoted_literal: "'LINESTRING (1 1, 3 3)'"
+                        casting_operator: '::'
+                        data_type:
+                          data_type_identifier: geometry
+                  - end_bracket: )
+              end_bracket: )
+            alias_expression:
+              alias_operator:
+                keyword: AS
+              naked_identifier: tbl1
+      - comma: ','
+      - from_expression:
+          from_expression_element:
+            bracketed:
+              start_bracket: (
+              table_expression:
+                values_clause:
+                - keyword: VALUES
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                      numeric_literal: '2'
+                  - comma: ','
+                  - expression:
+                      cast_expression:
+                        quoted_literal: "'LINESTRING (0 0, 4 4)'"
+                        casting_operator: '::'
+                        data_type:
+                          data_type_identifier: geometry
+                  - end_bracket: )
+                - comma: ','
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                      numeric_literal: '3'
+                  - comma: ','
+                  - expression:
+                      cast_expression:
+                        quoted_literal: "'LINESTRING (2 2, 4 4)'"
+                        casting_operator: '::'
+                        data_type:
+                          data_type_identifier: geometry
+                  - end_bracket: )
+                - comma: ','
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                      numeric_literal: '4'
+                  - comma: ','
+                  - expression:
+                      cast_expression:
+                        quoted_literal: "'LINESTRING (1 1, 3 3)'"
+                        casting_operator: '::'
+                        data_type:
+                          data_type_identifier: geometry
+                  - end_bracket: )
+              end_bracket: )
+            alias_expression:
+              alias_operator:
+                keyword: AS
+              naked_identifier: tbl2
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+          - naked_identifier: tbl1
+          - dot: .
+          - naked_identifier: column1
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+          - naked_identifier: tbl2
+          - dot: .
+          - naked_identifier: column1
+      - comma: ','
+      - select_clause_element:
+          expression:
+          - column_reference:
+            - naked_identifier: tbl1
+            - dot: .
+            - naked_identifier: column2
+          - binary_operator: '|&>'
+          - column_reference:
+            - naked_identifier: tbl2
+            - dot: .
+            - naked_identifier: column2
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: overabove
+      from_clause:
+      - keyword: FROM
+      - from_expression:
+          from_expression_element:
+            bracketed:
+              start_bracket: (
+              table_expression:
+                values_clause:
+                  keyword: VALUES
+                  bracketed:
+                  - start_bracket: (
+                  - expression:
+                      numeric_literal: '1'
+                  - comma: ','
+                  - expression:
+                      cast_expression:
+                        quoted_literal: "'LINESTRING(6 0, 6 4)'"
+                        casting_operator: '::'
+                        data_type:
+                          data_type_identifier: geometry
+                  - end_bracket: )
+              end_bracket: )
+            alias_expression:
+              alias_operator:
+                keyword: AS
+              naked_identifier: tbl1
+      - comma: ','
+      - from_expression:
+          from_expression_element:
+            bracketed:
+              start_bracket: (
+              table_expression:
+                values_clause:
+                - keyword: VALUES
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                      numeric_literal: '2'
+                  - comma: ','
+                  - expression:
+                      cast_expression:
+                        quoted_literal: "'LINESTRING(0 0, 3 3)'"
+                        casting_operator: '::'
+                        data_type:
+                          data_type_identifier: geometry
+                  - end_bracket: )
+                - comma: ','
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                      numeric_literal: '3'
+                  - comma: ','
+                  - expression:
+                      cast_expression:
+                        quoted_literal: "'LINESTRING(0 1, 0 5)'"
+                        casting_operator: '::'
+                        data_type:
+                          data_type_identifier: geometry
+                  - end_bracket: )
+                - comma: ','
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                      numeric_literal: '4'
+                  - comma: ','
+                  - expression:
+                      cast_expression:
+                        quoted_literal: "'LINESTRING(1 2, 4 6)'"
+                        casting_operator: '::'
+                        data_type:
+                          data_type_identifier: geometry
+                  - end_bracket: )
+              end_bracket: )
+            alias_expression:
+              alias_operator:
+                keyword: AS
+              naked_identifier: tbl2
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+          - naked_identifier: tbl1
+          - dot: .
+          - naked_identifier: column1
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+          - naked_identifier: tbl2
+          - dot: .
+          - naked_identifier: column1
+      - comma: ','
+      - select_clause_element:
+          expression:
+          - column_reference:
+            - naked_identifier: tbl1
+            - dot: .
+            - naked_identifier: column2
+          - binary_operator: '|>>'
+          - column_reference:
+            - naked_identifier: tbl2
+            - dot: .
+            - naked_identifier: column2
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: above
+      from_clause:
+      - keyword: FROM
+      - from_expression:
+          from_expression_element:
+            bracketed:
+              start_bracket: (
+              table_expression:
+                values_clause:
+                  keyword: VALUES
+                  bracketed:
+                  - start_bracket: (
+                  - expression:
+                      numeric_literal: '1'
+                  - comma: ','
+                  - expression:
+                      cast_expression:
+                        quoted_literal: "'LINESTRING (1 4, 1 7)'"
+                        casting_operator: '::'
+                        data_type:
+                          data_type_identifier: geometry
+                  - end_bracket: )
+              end_bracket: )
+            alias_expression:
+              alias_operator:
+                keyword: AS
+              naked_identifier: tbl1
+      - comma: ','
+      - from_expression:
+          from_expression_element:
+            bracketed:
+              start_bracket: (
+              table_expression:
+                values_clause:
+                - keyword: VALUES
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                      numeric_literal: '2'
+                  - comma: ','
+                  - expression:
+                      cast_expression:
+                        quoted_literal: "'LINESTRING (0 0, 4 2)'"
+                        casting_operator: '::'
+                        data_type:
+                          data_type_identifier: geometry
+                  - end_bracket: )
+                - comma: ','
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                      numeric_literal: '3'
+                  - comma: ','
+                  - expression:
+                      cast_expression:
+                        quoted_literal: "'LINESTRING (6 1, 6 5)'"
+                        casting_operator: '::'
+                        data_type:
+                          data_type_identifier: geometry
+                  - end_bracket: )
+                - comma: ','
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                      numeric_literal: '4'
+                  - comma: ','
+                  - expression:
+                      cast_expression:
+                        quoted_literal: "'LINESTRING (2 3, 5 6)'"
+                        casting_operator: '::'
+                        data_type:
+                          data_type_identifier: geometry
+                  - end_bracket: )
+              end_bracket: )
+            alias_expression:
+              alias_operator:
+                keyword: AS
+              naked_identifier: tbl2
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+          - naked_identifier: tbl1
+          - dot: .
+          - naked_identifier: column1
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+          - naked_identifier: tbl2
+          - dot: .
+          - naked_identifier: column1
+      - comma: ','
+      - select_clause_element:
+          expression:
+          - column_reference:
+            - naked_identifier: tbl1
+            - dot: .
+            - naked_identifier: column2
+          - like_operator: '~'
+          - column_reference:
+            - naked_identifier: tbl2
+            - dot: .
+            - naked_identifier: column2
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: contains
+      from_clause:
+      - keyword: FROM
+      - from_expression:
+          from_expression_element:
+            bracketed:
+              start_bracket: (
+              table_expression:
+                values_clause:
+                  keyword: VALUES
+                  bracketed:
+                  - start_bracket: (
+                  - expression:
+                      numeric_literal: '1'
+                  - comma: ','
+                  - expression:
+                      cast_expression:
+                        quoted_literal: "'LINESTRING (0 0, 3 3)'"
+                        casting_operator: '::'
+                        data_type:
+                          data_type_identifier: geometry
+                  - end_bracket: )
+              end_bracket: )
+            alias_expression:
+              alias_operator:
+                keyword: AS
+              naked_identifier: tbl1
+      - comma: ','
+      - from_expression:
+          from_expression_element:
+            bracketed:
+              start_bracket: (
+              table_expression:
+                values_clause:
+                - keyword: VALUES
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                      numeric_literal: '2'
+                  - comma: ','
+                  - expression:
+                      cast_expression:
+                        quoted_literal: "'LINESTRING (0 0, 4 4)'"
+                        casting_operator: '::'
+                        data_type:
+                          data_type_identifier: geometry
+                  - end_bracket: )
+                - comma: ','
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                      numeric_literal: '3'
+                  - comma: ','
+                  - expression:
+                      cast_expression:
+                        quoted_literal: "'LINESTRING (1 1, 2 2)'"
+                        casting_operator: '::'
+                        data_type:
+                          data_type_identifier: geometry
+                  - end_bracket: )
+                - comma: ','
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                      numeric_literal: '4'
+                  - comma: ','
+                  - expression:
+                      cast_expression:
+                        quoted_literal: "'LINESTRING (0 0, 3 3)'"
+                        casting_operator: '::'
+                        data_type:
+                          data_type_identifier: geometry
+                  - end_bracket: )
+              end_bracket: )
+            alias_expression:
+              alias_operator:
+                keyword: AS
+              naked_identifier: tbl2
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_clause_element:
+          expression:
+          - cast_expression:
+              quoted_literal: "'LINESTRING(0 0, 1 1)'"
+              casting_operator: '::'
+              data_type:
+                data_type_identifier: geometry
+          - binary_operator: ~=
+          - cast_expression:
+              quoted_literal: "'LINESTRING(0 1, 1 0)'"
+              casting_operator: '::'
+              data_type:
+                data_type_identifier: geometry
+          alias_expression:
+            alias_operator:
+              keyword: as
+            naked_identifier: equality
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: st_distance
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                    naked_identifier: geom
+              - comma: ','
+              - expression:
+                  cast_expression:
+                    quoted_literal: "'SRID=3005;POINT(1011102 450541)'"
+                    casting_operator: '::'
+                    data_type:
+                      data_type_identifier: geometry
+              - end_bracket: )
+          alias_expression:
+            alias_operator:
+              keyword: as
+            naked_identifier: d
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: edabbr
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: vaabbr
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: va2005
+      orderby_clause:
+      - keyword: ORDER
+      - keyword: BY
+      - expression:
+          column_reference:
+            naked_identifier: geom
+          binary_operator: <->
+          cast_expression:
+            quoted_literal: "'SRID=3005;POINT(1011102 450541)'"
+            casting_operator: '::'
+            data_type:
+              data_type_identifier: geometry
+      limit_clause:
+        keyword: limit
+        numeric_literal: '10'
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+            naked_identifier: track_id
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: dist
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              bracketed:
+                start_bracket: (
+                select_statement:
+                  select_clause:
+                  - keyword: SELECT
+                  - select_clause_element:
+                      column_reference:
+                        naked_identifier: track_id
+                  - comma: ','
+                  - select_clause_element:
+                      function:
+                        function_name:
+                          function_name_identifier: ST_DistanceCPA
+                        function_contents:
+                          bracketed:
+                          - start_bracket: (
+                          - expression:
+                              column_reference:
+                                naked_identifier: tr
+                          - comma: ','
+                          - expression:
+                              psql_variable:
+                                colon: ':'
+                                parameter: qt
+                          - end_bracket: )
+                      alias_expression:
+                        naked_identifier: dist
+                  from_clause:
+                    keyword: FROM
+                    from_expression:
+                      from_expression_element:
+                        table_expression:
+                          table_reference:
+                            naked_identifier: trajectories
+                  orderby_clause:
+                  - keyword: ORDER
+                  - keyword: BY
+                  - expression:
+                      column_reference:
+                        naked_identifier: tr
+                      binary_operator: '|=|'
+                      psql_variable:
+                        colon: ':'
+                        parameter: qt
+                  limit_clause:
+                    keyword: LIMIT
+                    numeric_literal: '5'
+                end_bracket: )
+            alias_expression:
+              naked_identifier: foo
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              bracketed:
+                start_bracket: (
+                select_statement:
+                  select_clause:
+                  - keyword: SELECT
+                  - select_clause_element:
+                      column_reference:
+                      - naked_identifier: b
+                      - dot: .
+                      - naked_identifier: tlid
+                  - comma: ','
+                  - select_clause_element:
+                      column_reference:
+                      - naked_identifier: b
+                      - dot: .
+                      - naked_identifier: mtfcc
+                  - comma: ','
+                  - select_clause_element:
+                      expression:
+                        column_reference:
+                        - naked_identifier: b
+                        - dot: .
+                        - naked_identifier: geom
+                        binary_operator: <#>
+                        function:
+                          function_name:
+                            function_name_identifier: ST_GeomFromText
+                          function_contents:
+                            bracketed:
+                            - start_bracket: (
+                            - expression:
+                                quoted_literal: "'LINESTRING(746149 2948672,745954\
+                                  \ 2948576,\n\t\t745787 2948499,745740 2948468,745712\
+                                  \ 2948438,\n\t\t745690 2948384,745677 2948319)'"
+                            - comma: ','
+                            - expression:
+                                numeric_literal: '2249'
+                            - end_bracket: )
+                      alias_expression:
+                        alias_operator:
+                          keyword: As
+                        naked_identifier: b_dist
+                  - comma: ','
+                  - select_clause_element:
+                      function:
+                        function_name:
+                          function_name_identifier: ST_Distance
+                        function_contents:
+                          bracketed:
+                          - start_bracket: (
+                          - expression:
+                              column_reference:
+                              - naked_identifier: b
+                              - dot: .
+                              - naked_identifier: geom
+                          - comma: ','
+                          - expression:
+                              function:
+                                function_name:
+                                  function_name_identifier: ST_GeomFromText
+                                function_contents:
+                                  bracketed:
+                                  - start_bracket: (
+                                  - expression:
+                                      quoted_literal: "'LINESTRING(746149 2948672,745954\
+                                        \ 2948576,\n\t\t745787 2948499,745740 2948468,745712\
+                                        \ 2948438,\n\t\t745690 2948384,745677 2948319)'"
+                                  - comma: ','
+                                  - expression:
+                                      numeric_literal: '2249'
+                                  - end_bracket: )
+                          - end_bracket: )
+                      alias_expression:
+                        alias_operator:
+                          keyword: As
+                        naked_identifier: act_dist
+                  from_clause:
+                    keyword: FROM
+                    from_expression:
+                      from_expression_element:
+                        table_expression:
+                          table_reference:
+                            naked_identifier: bos_roads
+                        alias_expression:
+                          alias_operator:
+                            keyword: As
+                          naked_identifier: b
+                  orderby_clause:
+                  - keyword: ORDER
+                  - keyword: BY
+                  - column_reference:
+                      naked_identifier: b_dist
+                  - comma: ','
+                  - column_reference:
+                    - naked_identifier: b
+                    - dot: .
+                    - naked_identifier: tlid
+                  limit_clause:
+                    keyword: LIMIT
+                    numeric_literal: '100'
+                end_bracket: )
+            alias_expression:
+              alias_operator:
+                keyword: As
+              naked_identifier: foo
+      orderby_clause:
+      - keyword: ORDER
+      - keyword: BY
+      - column_reference:
+          naked_identifier: act_dist
+      - comma: ','
+      - column_reference:
+          naked_identifier: tlid
+      limit_clause:
+        keyword: LIMIT
+        numeric_literal: '10'
+- statement_terminator: ;
+- statement:
+    with_compound_statement:
+      keyword: WITH
+      common_table_expression:
+        naked_identifier: index_query
+        keyword: AS
+        bracketed:
+          start_bracket: (
+          select_statement:
+            select_clause:
+            - keyword: SELECT
+            - select_clause_element:
+                function:
+                  function_name:
+                    function_name_identifier: ST_Distance
+                  function_contents:
+                    bracketed:
+                    - start_bracket: (
+                    - expression:
+                        column_reference:
+                          naked_identifier: geom
+                    - comma: ','
+                    - expression:
+                        cast_expression:
+                          quoted_literal: "'SRID=3005;POINT(1011102 450541)'"
+                          casting_operator: '::'
+                          data_type:
+                            data_type_identifier: geometry
+                    - end_bracket: )
+                alias_expression:
+                  alias_operator:
+                    keyword: as
+                  naked_identifier: d
+            - comma: ','
+            - select_clause_element:
+                column_reference:
+                  naked_identifier: edabbr
+            - comma: ','
+            - select_clause_element:
+                column_reference:
+                  naked_identifier: vaabbr
+            from_clause:
+              keyword: FROM
+              from_expression:
+                from_expression_element:
+                  table_expression:
+                    table_reference:
+                      naked_identifier: va2005
+            orderby_clause:
+            - keyword: ORDER
+            - keyword: BY
+            - expression:
+                column_reference:
+                  naked_identifier: geom
+                binary_operator: <<->>
+                cast_expression:
+                  quoted_literal: "'SRID=3005;POINT(1011102 450541)'"
+                  casting_operator: '::'
+                  data_type:
+                    data_type_identifier: geometry
+            limit_clause:
+              keyword: LIMIT
+              numeric_literal: '100'
+          end_bracket: )
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: index_query
+        orderby_clause:
+        - keyword: ORDER
+        - keyword: BY
+        - column_reference:
+            naked_identifier: d
+        limit_clause:
+          keyword: limit
+          numeric_literal: '10'
+- statement_terminator: ;
+- statement:
+    with_compound_statement:
+      keyword: WITH
+      common_table_expression:
+        naked_identifier: index_query
+        keyword: AS
+        bracketed:
+          start_bracket: (
+          select_statement:
+            select_clause:
+            - keyword: SELECT
+            - select_clause_element:
+                function:
+                  function_name:
+                    function_name_identifier: ST_Distance
+                  function_contents:
+                    bracketed:
+                    - start_bracket: (
+                    - expression:
+                        column_reference:
+                          naked_identifier: geom
+                    - comma: ','
+                    - expression:
+                        cast_expression:
+                          quoted_literal: "'SRID=3005;POINT(1011102 450541)'"
+                          casting_operator: '::'
+                          data_type:
+                            data_type_identifier: geometry
+                    - end_bracket: )
+                alias_expression:
+                  alias_operator:
+                    keyword: as
+                  naked_identifier: d
+            - comma: ','
+            - select_clause_element:
+                column_reference:
+                  naked_identifier: edabbr
+            - comma: ','
+            - select_clause_element:
+                column_reference:
+                  naked_identifier: vaabbr
+            from_clause:
+              keyword: FROM
+              from_expression:
+                from_expression_element:
+                  table_expression:
+                    table_reference:
+                      naked_identifier: va2005
+            orderby_clause:
+            - keyword: ORDER
+            - keyword: BY
+            - expression:
+                column_reference:
+                  naked_identifier: geom
+                binary_operator: <<#>>
+                cast_expression:
+                  quoted_literal: "'SRID=3005;POINT(1011102 450541)'"
+                  casting_operator: '::'
+                  data_type:
+                    data_type_identifier: geometry
+            limit_clause:
+              keyword: LIMIT
+              numeric_literal: '100'
+          end_bracket: )
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: index_query
+        orderby_clause:
+        - keyword: ORDER
+        - keyword: BY
+        - column_reference:
+            naked_identifier: d
+        limit_clause:
+          keyword: limit
+          numeric_literal: '10'
+- statement_terminator: ;

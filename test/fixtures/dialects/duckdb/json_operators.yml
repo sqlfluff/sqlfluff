@@ -1,0 +1,63 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 45b917bc77b364642e00e43cb21f3bcfe12e8ab5818b48241d16133dce780bf0
+file:
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+            cast_expression:
+              quoted_literal: "'[{\"a\":\"foo\"},{\"b\":\"bar\"},{\"c\":\"baz\"}]'"
+              casting_operator: '::'
+              data_type:
+                keyword: json
+            binary_operator: ->
+            numeric_literal: '2'
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+            cast_expression:
+              quoted_literal: "'{\"a\": {\"b\":\"foo\"}}'"
+              casting_operator: '::'
+              data_type:
+                keyword: json
+            binary_operator: ->
+            quoted_literal: "'a'"
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+            cast_expression:
+              quoted_literal: "'[1,2,3]'"
+              casting_operator: '::'
+              data_type:
+                keyword: json
+            binary_operator: ->>
+            numeric_literal: '2'
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+            cast_expression:
+              quoted_literal: "'{\"a\":1,\"b\":2}'"
+              casting_operator: '::'
+              data_type:
+                keyword: json
+            binary_operator: ->>
+            quoted_literal: "'b'"
+- statement_terminator: ;

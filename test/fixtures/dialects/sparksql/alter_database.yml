@@ -1,0 +1,107 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: a8aafb289a530d36bd48e8ddfaac798d58e539a2b74f5fa586873092693017ae
+file:
+- statement:
+    alter_database_statement:
+    - keyword: ALTER
+    - keyword: DATABASE
+    - database_reference:
+        naked_identifier: inventory
+    - keyword: SET
+    - keyword: DBPROPERTIES
+    - bracketed:
+        start_bracket: (
+        property_name_identifier:
+          quoted_identifier: "'Edited-by'"
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'John'"
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_database_statement:
+    - keyword: ALTER
+    - keyword: DATABASE
+    - database_reference:
+        naked_identifier: inventory
+    - keyword: SET
+    - keyword: DBPROPERTIES
+    - bracketed:
+      - start_bracket: (
+      - property_name_identifier:
+          quoted_identifier: "'Edited-by'"
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'John'"
+      - comma: ','
+      - property_name_identifier:
+          quoted_identifier: "'Edit-date'"
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'01/01/2001'"
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_database_statement:
+    - keyword: ALTER
+    - keyword: SCHEMA
+    - database_reference:
+        naked_identifier: inventory
+    - keyword: SET
+    - keyword: DBPROPERTIES
+    - bracketed:
+        start_bracket: (
+        property_name_identifier:
+          quoted_identifier: "'Edited-by'"
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'John'"
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_database_statement:
+    - keyword: ALTER
+    - keyword: SCHEMA
+    - database_reference:
+        naked_identifier: inventory
+    - keyword: SET
+    - keyword: DBPROPERTIES
+    - bracketed:
+      - start_bracket: (
+      - property_name_identifier:
+          quoted_identifier: "'Edited-by'"
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'John'"
+      - comma: ','
+      - property_name_identifier:
+          quoted_identifier: "'Edit-date'"
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'01/01/2001'"
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_database_statement:
+    - keyword: ALTER
+    - keyword: DATABASE
+    - database_reference:
+        naked_identifier: inventory
+    - keyword: SET
+    - keyword: LOCATION
+    - quoted_literal: "'file:/temp/spark-warehouse/new_inventory.db'"
+- statement_terminator: ;
+- statement:
+    alter_database_statement:
+    - keyword: ALTER
+    - keyword: SCHEMA
+    - database_reference:
+        naked_identifier: inventory
+    - keyword: SET
+    - keyword: LOCATION
+    - quoted_literal: "'file:/temp/spark-warehouse/new_inventory.db'"
+- statement_terminator: ;

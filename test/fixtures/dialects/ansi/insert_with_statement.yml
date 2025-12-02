@@ -3,29 +3,29 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 99c45c475a1848dd2bacc4d30513c0aeece9add81e8e8945a5e1cb8a5dfe508d
+_hash: aa63e81316e7735b7b77672357284c7905d78729e2ec8fec5c205a1544fd459b
 file:
   statement:
     insert_statement:
     - keyword: INSERT
     - keyword: INTO
     - table_reference:
-        identifier: table2
+        naked_identifier: table2
     - bracketed:
       - start_bracket: (
       - column_reference:
-          identifier: column1
+          naked_identifier: column1
       - comma: ','
       - column_reference:
-          identifier: column2
+          naked_identifier: column2
       - comma: ','
       - column_reference:
-          identifier: column3
+          naked_identifier: column3
       - end_bracket: )
     - with_compound_statement:
         keyword: WITH
         common_table_expression:
-          identifier: mycte
+          naked_identifier: mycte
           keyword: AS
           bracketed:
             start_bracket: (
@@ -34,38 +34,38 @@ file:
               - keyword: SELECT
               - select_clause_element:
                   column_reference:
-                    identifier: foo
+                    naked_identifier: foo
               - comma: ','
               - select_clause_element:
                   column_reference:
-                    identifier: bar
+                    naked_identifier: bar
               from_clause:
                 keyword: FROM
                 from_expression:
                   from_expression_element:
                     table_expression:
                       table_reference:
-                        identifier: mytable1
+                        naked_identifier: mytable1
             end_bracket: )
         select_statement:
           select_clause:
           - keyword: SELECT
           - select_clause_element:
               column_reference:
-                identifier: foo
+                naked_identifier: foo
           - comma: ','
           - select_clause_element:
               column_reference:
-                identifier: bar
+                naked_identifier: bar
           - comma: ','
           - select_clause_element:
               column_reference:
-                identifier: baz
+                naked_identifier: baz
           from_clause:
             keyword: FROM
             from_expression:
               from_expression_element:
                 table_expression:
                   table_reference:
-                    identifier: mycte
+                    naked_identifier: mycte
   statement_terminator: ;

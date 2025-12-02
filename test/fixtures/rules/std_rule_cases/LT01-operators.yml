@@ -1,0 +1,143 @@
+rule: LT01
+
+test_pass_brackets:
+  # Test that we don't fail * operators in brackets
+  pass_str: "SELECT COUNT(*) FROM tbl\n\n"
+
+test_pass_expression:
+  # Github Bug #207
+  pass_str: |
+    select
+        field,
+        date(field_1) - date(field_2) as diff
+    from table
+
+test_fail_expression:
+  # Github Bug #207
+  fail_str: |
+    select
+        field,
+        date(field_1)-date(field_2) as diff
+    from table
+  fix_str: |
+    select
+        field,
+        date(field_1) - date(field_2) as diff
+    from table
+
+
+# Check we don't get false alarms with newlines, or sign indicators
+# -------------------
+
+test_pass_newline_1:
+  pass_str: |
+    SELECT 1
+
+    + 2
+
+test_pass_newline_2:
+  pass_str: |
+    SELECT 1
+    	+ 2
+
+test_pass_newline_£:
+  pass_str: |
+    SELECT 1
+        + 2
+
+test_pass_sign_indicators:
+  pass_str: SELECT 1, +2, -4
+
+test_pass_tilde:
+  pass_str: SELECT ~1
+
+# -------------------
+
+fail_simple:
+  fail_str: "SELECT 1+2"
+  fix_str: "SELECT 1 + 2"
+
+pass_bigquery_hyphen:
+  # hyphenated table reference should not fail
+  pass_str: SELECT col_foo FROM foo-bar.foo.bar
+  configs:
+    core:
+      dialect: bigquery
+
+
+pass_sparksql_ansi_interval_minus:
+  pass_str: SELECT INTERVAL -'20 15:40:32.99899999' DAY TO SECOND AS col;
+  configs:
+    core:
+      dialect: sparksql
+
+test_pass_sparksql_multi_units_interval_minus:
+  pass_str: SELECT INTERVAL -2 HOUR '3' MINUTE AS col;
+  configs:
+    core:
+      dialect: sparksql
+
+pass_tsql_assignment_operator:
+  # Test that we fix the outer whitespace but don't add any in between + and =.
+  fail_str: SET @param1+=1
+  fix_str: SET @param1 += 1
+  configs:
+    core:
+      dialect: tsql
+
+pass_concat_string:
+  pass_str: SELECT 'barry' || 'pollard'
+
+test_pass_placeholder_spacing:
+  # Test for spacing issues around placeholders
+  # https://github.com/sqlfluff/sqlfluff/issues/4253
+  pass_str: |
+    {% set is_dev_environment = true %}
+
+    SELECT *
+    FROM table
+    WHERE
+        some_col IS TRUE
+        {% if is_dev_environment %}
+            AND created_at >= DATE_SUB(CURRENT_DATE, INTERVAL 7 DAY)
+        {% else %}
+            AND created_at >= DATE_SUB(CURRENT_DATE, INTERVAL 30 DAY)
+        {% endif %}
+        AND TRUE
+    ;
+
+fail_bigquery_whitespaces_in_function_reference:
+  fail_str: SELECT dataset    .    AddFourAndDivide(5, 10)
+  fix_str: SELECT dataset.AddFourAndDivide(5, 10)
+  configs:
+    core:
+      dialect: bigquery
+
+pass_bigquery_safe_prefix_function:
+  # SAFE prefix to function calls should not fail
+  pass_str: SELECT SAFE.STRING(JSON '1')
+  configs:
+    core:
+      dialect: bigquery
+
+fail_bigquery_safe_prefix_function:
+  # Check that additional whitespaces introduced by
+  # https://github.com/sqlfluff/sqlfluff/issues/4645
+  # get fixed.
+  fail_str: SELECT SAFE . STRING(JSON '1')
+  fix_str: SELECT SAFE.STRING(JSON '1')
+  configs:
+    core:
+      dialect: bigquery
+
+pass_sparksql_file_literal:
+  pass_str: ADD JAR path/to/some.jar;
+  configs:
+    core:
+      dialect: sparksql
+
+pass_sqlite_column_path_operator:
+  pass_str: SELECT a -> 'b';
+  configs:
+    core:
+      dialect: sqlite

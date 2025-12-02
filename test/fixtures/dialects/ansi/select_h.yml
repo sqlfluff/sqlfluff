@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 4ad8399122fee0c883182459d0d818eb17ed0859da120c3415187dc3c94b94c5
+_hash: bb6cdaa9b29e62d36093086e3b53e65eea9d9c74d1a4c65d24dd12c0089bc014
 file:
   statement:
     select_statement:
@@ -13,57 +13,62 @@ file:
           function:
             function_name:
               function_name_identifier: DATE
-            bracketed:
-            - start_bracket: (
-            - expression:
-                column_reference:
-                - identifier: zendesk
-                - dot: .
-                - identifier: created_at
-            - comma: ','
-            - expression:
-                literal: "'America/New_York'"
-            - end_bracket: )
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                  - naked_identifier: zendesk
+                  - dot: .
+                  - naked_identifier: created_at
+              - comma: ','
+              - expression:
+                  quoted_literal: "'America/New_York'"
+              - end_bracket: )
           alias_expression:
-            keyword: AS
-            identifier: date
+            alias_operator:
+              keyword: AS
+            naked_identifier: date
       - comma: ','
       - select_clause_element:
           function:
             function_name:
               function_name_identifier: COUNT
-            bracketed:
-              start_bracket: (
-              expression:
-                case_expression:
-                - keyword: CASE
-                - keyword: WHEN
-                - expression:
-                    column_reference:
-                    - identifier: zendesk
-                    - dot: .
-                    - identifier: support_team
-                    keyword: IN
-                    bracketed:
-                    - start_bracket: (
-                    - literal: "'tech support'"
-                    - comma: ','
-                    - literal: "'taskus'"
-                    - comma: ','
-                    - literal: "'onc'"
-                    - end_bracket: )
-                - keyword: THEN
-                - expression:
-                    literal: '1'
-                - keyword: END
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  case_expression:
+                  - keyword: CASE
+                  - when_clause:
+                    - keyword: WHEN
+                    - expression:
+                        column_reference:
+                        - naked_identifier: zendesk
+                        - dot: .
+                        - naked_identifier: support_team
+                        keyword: IN
+                        bracketed:
+                        - start_bracket: (
+                        - quoted_literal: "'tech support'"
+                        - comma: ','
+                        - quoted_literal: "'taskus'"
+                        - comma: ','
+                        - quoted_literal: "'onc'"
+                        - end_bracket: )
+                    - keyword: THEN
+                    - expression:
+                        numeric_literal: '1'
+                  - keyword: END
+                end_bracket: )
           alias_expression:
-            keyword: AS
-            identifier: tech_support
+            alias_operator:
+              keyword: AS
+            naked_identifier: tech_support
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: zendesk
+                naked_identifier: zendesk

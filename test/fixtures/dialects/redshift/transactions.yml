@@ -1,0 +1,74 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 9aac8a199f0aa4375d5da5c433f6ec048d0294798c1a9ab7de0894885939dd1e
+file:
+- statement:
+    transaction_statement:
+      keyword: begin
+- statement_terminator: ;
+- statement:
+    transaction_statement:
+    - keyword: start
+    - keyword: transaction
+- statement_terminator: ;
+- statement:
+    transaction_statement:
+    - keyword: begin
+    - keyword: work
+- statement_terminator: ;
+- statement:
+    transaction_statement:
+    - keyword: begin
+    - keyword: transaction
+    - keyword: isolation
+    - keyword: level
+    - keyword: serializable
+- statement_terminator: ;
+- statement:
+    transaction_statement:
+    - keyword: begin
+    - keyword: transaction
+    - keyword: isolation
+    - keyword: level
+    - keyword: serializable
+    - keyword: read
+    - keyword: only
+- statement_terminator: ;
+- statement:
+    transaction_statement:
+    - keyword: start
+    - keyword: transaction
+    - keyword: read
+    - keyword: write
+- statement_terminator: ;
+- statement:
+    transaction_statement:
+      keyword: commit
+- statement_terminator: ;
+- statement:
+    transaction_statement:
+    - keyword: end
+    - keyword: work
+- statement_terminator: ;
+- statement:
+    transaction_statement:
+    - keyword: commit
+    - keyword: transaction
+- statement_terminator: ;
+- statement:
+    transaction_statement:
+      keyword: rollback
+- statement_terminator: ;
+- statement:
+    transaction_statement:
+    - keyword: abort
+    - keyword: work
+- statement_terminator: ;
+- statement:
+    transaction_statement:
+    - keyword: rollback
+    - keyword: transaction
+- statement_terminator: ;

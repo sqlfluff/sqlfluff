@@ -3,41 +3,43 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 136264cf5258471f9dde02799e9e509e14326e29af64b0eca10c4b5006977471
+_hash: c5d4563686f1cda32dd215be7a532e24aa7f86300c59bf96319b1f4247a4419d
 file:
   statement:
     update_statement:
       keyword: UPDATE
       table_reference:
-        identifier: my_table
+        naked_identifier: my_table
       set_clause_list:
         keyword: SET
         set_clause:
         - column_reference:
-          - identifier: my_table
+          - naked_identifier: my_table
           - dot: .
-          - identifier: days
-        - comparison_operator: '='
+          - naked_identifier: days
+        - comparison_operator:
+            raw_comparison_operator: '='
         - column_reference:
-          - identifier: other_table
+          - naked_identifier: other_table
           - dot: .
-          - identifier: days
+          - naked_identifier: days
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: other_table
+                naked_identifier: other_table
       where_clause:
         keyword: WHERE
         expression:
         - column_reference:
-          - identifier: my_table
+          - naked_identifier: my_table
           - dot: .
-          - identifier: po_number
-        - comparison_operator: '='
+          - naked_identifier: po_number
+        - comparison_operator:
+            raw_comparison_operator: '='
         - column_reference:
-          - identifier: other_table
+          - naked_identifier: other_table
           - dot: .
-          - identifier: po_number
+          - naked_identifier: po_number

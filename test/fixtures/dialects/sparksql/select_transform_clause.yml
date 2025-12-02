@@ -1,0 +1,258 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 7d7b9702f08ab837c631adcbeadb71b03f4cec3bb98cf3b22314abf81532de51
+file:
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        transform_clause:
+        - keyword: TRANSFORM
+        - bracketed:
+          - start_bracket: (
+          - naked_identifier: zip_code
+          - comma: ','
+          - naked_identifier: name
+          - comma: ','
+          - naked_identifier: age
+          - end_bracket: )
+        - keyword: USING
+        - quoted_literal: "'cat'"
+        - keyword: AS
+        - bracketed:
+          - start_bracket: (
+          - naked_identifier: a
+          - comma: ','
+          - naked_identifier: b
+          - comma: ','
+          - naked_identifier: c
+          - end_bracket: )
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: person
+      where_clause:
+        keyword: WHERE
+        expression:
+          column_reference:
+            naked_identifier: zip_code
+          comparison_operator:
+            raw_comparison_operator: '>'
+          numeric_literal: '94511'
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        transform_clause:
+        - keyword: TRANSFORM
+        - bracketed:
+          - start_bracket: (
+          - naked_identifier: zip_code
+          - comma: ','
+          - naked_identifier: name
+          - comma: ','
+          - naked_identifier: age
+          - end_bracket: )
+        - keyword: USING
+        - quoted_literal: "'cat'"
+        - keyword: AS
+        - bracketed:
+          - start_bracket: (
+          - naked_identifier: a
+          - naked_identifier: string
+          - comma: ','
+          - naked_identifier: b
+          - naked_identifier: string
+          - comma: ','
+          - naked_identifier: c
+          - naked_identifier: string
+          - end_bracket: )
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: person
+      where_clause:
+        keyword: WHERE
+        expression:
+          column_reference:
+            naked_identifier: zip_code
+          comparison_operator:
+            raw_comparison_operator: '>'
+          numeric_literal: '94511'
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        transform_clause:
+        - keyword: TRANSFORM
+        - bracketed:
+          - start_bracket: (
+          - naked_identifier: name
+          - comma: ','
+          - naked_identifier: age
+          - end_bracket: )
+        - row_format_clause:
+          - keyword: ROW
+          - keyword: FORMAT
+          - keyword: DELIMITED
+          - keyword: FIELDS
+          - keyword: TERMINATED
+          - keyword: BY
+          - quoted_literal: "','"
+          - keyword: LINES
+          - keyword: TERMINATED
+          - keyword: BY
+          - quoted_literal: "'\\n'"
+          - keyword: 'NULL'
+          - keyword: DEFINED
+          - keyword: AS
+          - quoted_literal: "'NULL'"
+        - keyword: USING
+        - quoted_literal: "'cat'"
+        - keyword: AS
+        - bracketed:
+          - start_bracket: (
+          - naked_identifier: name_age
+          - naked_identifier: string
+          - end_bracket: )
+        - row_format_clause:
+          - keyword: ROW
+          - keyword: FORMAT
+          - keyword: DELIMITED
+          - keyword: FIELDS
+          - keyword: TERMINATED
+          - keyword: BY
+          - quoted_literal: "'@'"
+          - keyword: LINES
+          - keyword: TERMINATED
+          - keyword: BY
+          - quoted_literal: "'\\n'"
+          - keyword: 'NULL'
+          - keyword: DEFINED
+          - keyword: AS
+          - quoted_literal: "'NULL'"
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: person
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        transform_clause:
+        - keyword: TRANSFORM
+        - bracketed:
+          - start_bracket: (
+          - naked_identifier: zip_code
+          - comma: ','
+          - naked_identifier: name
+          - comma: ','
+          - naked_identifier: age
+          - end_bracket: )
+        - row_format_clause:
+          - keyword: ROW
+          - keyword: FORMAT
+          - keyword: SERDE
+          - quoted_literal: "'org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe'"
+          - keyword: WITH
+          - keyword: SERDEPROPERTIES
+          - bracketed:
+              start_bracket: (
+              property_name_identifier:
+                quoted_identifier: "'field.delim'"
+              comparison_operator:
+                raw_comparison_operator: '='
+              quoted_literal: "'\\t'"
+              end_bracket: )
+        - keyword: USING
+        - quoted_literal: "'cat'"
+        - keyword: AS
+        - bracketed:
+          - start_bracket: (
+          - naked_identifier: a
+          - naked_identifier: string
+          - comma: ','
+          - naked_identifier: b
+          - naked_identifier: string
+          - comma: ','
+          - naked_identifier: c
+          - naked_identifier: string
+          - end_bracket: )
+        - row_format_clause:
+          - keyword: ROW
+          - keyword: FORMAT
+          - keyword: SERDE
+          - quoted_literal: "'org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe'"
+          - keyword: WITH
+          - keyword: SERDEPROPERTIES
+          - bracketed:
+              start_bracket: (
+              property_name_identifier:
+                quoted_identifier: "'field.delim'"
+              comparison_operator:
+                raw_comparison_operator: '='
+              quoted_literal: "'\\t'"
+              end_bracket: )
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: person
+      where_clause:
+        keyword: WHERE
+        expression:
+          column_reference:
+            naked_identifier: zip_code
+          comparison_operator:
+            raw_comparison_operator: '>'
+          numeric_literal: '94511'
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        transform_clause:
+        - keyword: TRANSFORM
+        - bracketed:
+          - start_bracket: (
+          - naked_identifier: zip_code
+          - comma: ','
+          - naked_identifier: name
+          - comma: ','
+          - naked_identifier: age
+          - end_bracket: )
+        - keyword: USING
+        - quoted_literal: "'cat'"
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: person
+      where_clause:
+        keyword: WHERE
+        expression:
+          column_reference:
+            naked_identifier: zip_code
+          comparison_operator:
+            raw_comparison_operator: '>'
+          numeric_literal: '94500'
+- statement_terminator: ;

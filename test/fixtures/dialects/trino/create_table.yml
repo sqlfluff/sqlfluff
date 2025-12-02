@@ -1,0 +1,477 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: d9ca4dc383cba48d778cc47b22712e45171aaf27ad6e37fa56d7979c2744c317
+file:
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: a
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          naked_identifier: str
+          data_type:
+            primitive_type:
+              keyword: varchar
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: create
+    - keyword: table
+    - keyword: if
+    - keyword: not
+    - keyword: exists
+    - table_reference:
+      - naked_identifier: foo
+      - dot: .
+      - naked_identifier: bar
+      - dot: .
+      - naked_identifier: baz
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          naked_identifier: date_nk
+          data_type:
+            primitive_type:
+              keyword: date
+      - comma: ','
+      - column_definition:
+          naked_identifier: date_ts
+          data_type:
+            primitive_type:
+              keyword: timestamp
+      - comma: ','
+      - column_definition:
+          naked_identifier: site
+          data_type:
+            primitive_type:
+              keyword: varchar
+              bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  numeric_literal: '30'
+                  end_bracket: )
+      - comma: ','
+      - column_definition:
+          naked_identifier: partition_date
+          data_type:
+            primitive_type:
+              keyword: date
+      - end_bracket: )
+    - keyword: with
+    - bracketed:
+      - start_bracket: (
+      - expression:
+          column_reference:
+            naked_identifier: format
+          comparison_operator:
+            raw_comparison_operator: '='
+          quoted_literal: "'parquet'"
+      - comma: ','
+      - expression:
+          column_reference:
+            naked_identifier: partitioned_by
+          comparison_operator:
+            raw_comparison_operator: '='
+          typed_array_literal:
+            array_type:
+              keyword: array
+            array_literal:
+              start_square_bracket: '['
+              quoted_literal: "'partition_date'"
+              end_square_bracket: ']'
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: orders
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          naked_identifier: orderkey
+          data_type:
+            primitive_type:
+              keyword: bigint
+      - comma: ','
+      - column_definition:
+          naked_identifier: orderstatus
+          data_type:
+            primitive_type:
+              keyword: varchar
+      - comma: ','
+      - column_definition:
+          naked_identifier: totalprice
+          data_type:
+            primitive_type:
+              keyword: double
+      - comma: ','
+      - column_definition:
+          naked_identifier: orderdate
+          data_type:
+            primitive_type:
+              keyword: date
+      - end_bracket: )
+    - keyword: WITH
+    - bracketed:
+        start_bracket: (
+        expression:
+          column_reference:
+            naked_identifier: format
+          comparison_operator:
+            raw_comparison_operator: '='
+          quoted_literal: "'ORC'"
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - table_reference:
+        naked_identifier: orders
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          naked_identifier: orderkey
+          data_type:
+            primitive_type:
+              keyword: bigint
+      - comma: ','
+      - column_definition:
+          naked_identifier: orderstatus
+          data_type:
+            primitive_type:
+              keyword: varchar
+      - comma: ','
+      - column_definition:
+          naked_identifier: totalprice
+          data_type:
+            primitive_type:
+              keyword: double
+          comment_clause:
+            keyword: COMMENT
+            quoted_literal: "'Price in cents.'"
+      - comma: ','
+      - column_definition:
+        - naked_identifier: shipmentstatus
+        - data_type:
+            primitive_type:
+              keyword: varchar
+        - keyword: not
+        - keyword: 'null'
+      - comma: ','
+      - column_definition:
+          naked_identifier: orderdate
+          data_type:
+            primitive_type:
+              keyword: date
+      - end_bracket: )
+    - comment_clause:
+        keyword: COMMENT
+        quoted_literal: "'A table to keep track of orders.'"
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: bigger_orders
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          naked_identifier: another_orderkey
+          data_type:
+            primitive_type:
+              keyword: bigint
+      - comma: ','
+      - keyword: LIKE
+      - table_reference:
+          naked_identifier: orders
+      - comma: ','
+      - column_definition:
+          naked_identifier: another_orderdate
+          data_type:
+            primitive_type:
+              keyword: date
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: orders_column_aliased
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: order_date
+      - comma: ','
+      - column_reference:
+          naked_identifier: total_price
+      - end_bracket: )
+    - keyword: AS
+    - select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+              naked_identifier: orderdate
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: totalprice
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: orders
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: orders_by_date
+    - comment_clause:
+        keyword: COMMENT
+        quoted_literal: "'Summary of orders by date'"
+    - keyword: WITH
+    - bracketed:
+        start_bracket: (
+        expression:
+          column_reference:
+            naked_identifier: format
+          comparison_operator:
+            raw_comparison_operator: '='
+          quoted_literal: "'ORC'"
+        end_bracket: )
+    - keyword: AS
+    - select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+              naked_identifier: orderdate
+        - comma: ','
+        - select_clause_element:
+            function:
+              function_name:
+                function_name_identifier: sum
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                      naked_identifier: totalprice
+                  end_bracket: )
+            alias_expression:
+              alias_operator:
+                keyword: AS
+              naked_identifier: price
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: orders
+        groupby_clause:
+        - keyword: GROUP
+        - keyword: BY
+        - column_reference:
+            naked_identifier: orderdate
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - table_reference:
+        naked_identifier: orders_by_date
+    - keyword: AS
+    - select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+              naked_identifier: orderdate
+        - comma: ','
+        - select_clause_element:
+            function:
+              function_name:
+                function_name_identifier: sum
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                      naked_identifier: totalprice
+                  end_bracket: )
+            alias_expression:
+              alias_operator:
+                keyword: AS
+              naked_identifier: price
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: orders
+        groupby_clause:
+        - keyword: GROUP
+        - keyword: BY
+        - column_reference:
+            naked_identifier: orderdate
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: empty_nation
+    - keyword: AS
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: nation
+    - keyword: WITH
+    - keyword: 'NO'
+    - keyword: DATA
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: structural_types
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          naked_identifier: array_type_1
+          data_type:
+            array_type:
+              keyword: array
+              array_type_schema:
+                bracketed:
+                  start_bracket: (
+                  data_type:
+                    primitive_type:
+                      keyword: integer
+                  end_bracket: )
+      - comma: ','
+      - column_definition:
+          naked_identifier: array_type_2
+          data_type:
+            array_type:
+              keyword: array
+              array_type_schema:
+                start_angle_bracket: <
+                data_type:
+                  primitive_type:
+                    keyword: integer
+                end_angle_bracket: '>'
+      - comma: ','
+      - column_definition:
+          naked_identifier: map_type_1
+          data_type:
+            map_type:
+              keyword: map
+              map_type_schema:
+                bracketed:
+                  start_bracket: (
+                  primitive_type:
+                    keyword: varchar
+                    bracketed_arguments:
+                      bracketed:
+                        start_bracket: (
+                        numeric_literal: '20'
+                        end_bracket: )
+                  comma: ','
+                  data_type:
+                    primitive_type:
+                      keyword: integer
+                  end_bracket: )
+      - comma: ','
+      - column_definition:
+          naked_identifier: map_type_2
+          data_type:
+            map_type:
+              keyword: map
+              map_type_schema:
+                start_angle_bracket: <
+                primitive_type:
+                  keyword: varchar
+                  bracketed_arguments:
+                    bracketed:
+                      start_bracket: (
+                      numeric_literal: '20'
+                      end_bracket: )
+                comma: ','
+                data_type:
+                  primitive_type:
+                    keyword: integer
+                end_angle_bracket: '>'
+      - comma: ','
+      - column_definition:
+          naked_identifier: row_type
+          data_type:
+            struct_type:
+              keyword: row
+              struct_type_schema:
+                bracketed:
+                - start_bracket: (
+                - parameter: a
+                - data_type:
+                    primitive_type:
+                      keyword: integer
+                - comma: ','
+                - parameter: b
+                - data_type:
+                    primitive_type:
+                      keyword: varchar
+                      bracketed_arguments:
+                        bracketed:
+                          start_bracket: (
+                          numeric_literal: '20'
+                          end_bracket: )
+                - comma: ','
+                - parameter: c
+                - data_type:
+                    array_type:
+                      keyword: array
+                      array_type_schema:
+                        bracketed:
+                          start_bracket: (
+                          data_type:
+                            primitive_type:
+                              keyword: real
+                          end_bracket: )
+                - end_bracket: )
+      - end_bracket: )
+- statement_terminator: ;

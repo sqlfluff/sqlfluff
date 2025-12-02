@@ -1,0 +1,133 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 4e7a5512b8fb4e3a9e2cc3c7ddef7ab9cfaf65a29d1bc6b7064a9764403c6bfc
+file:
+- statement:
+    alter_text_search_configuration_statement:
+    - keyword: ALTER
+    - keyword: TEXT
+    - keyword: SEARCH
+    - keyword: CONFIGURATION
+    - object_reference:
+        naked_identifier: my_config
+    - keyword: ADD
+    - keyword: MAPPING
+    - keyword: FOR
+    - object_reference:
+        naked_identifier: asciiword
+    - keyword: WITH
+    - object_reference:
+        naked_identifier: english_stem
+- statement_terminator: ;
+- statement:
+    alter_text_search_configuration_statement:
+    - keyword: ALTER
+    - keyword: TEXT
+    - keyword: SEARCH
+    - keyword: CONFIGURATION
+    - object_reference:
+        naked_identifier: my_config
+    - keyword: ALTER
+    - keyword: MAPPING
+    - keyword: FOR
+    - object_reference:
+        naked_identifier: word
+    - keyword: WITH
+    - object_reference:
+        naked_identifier: french_stem
+- statement_terminator: ;
+- statement:
+    alter_text_search_configuration_statement:
+    - keyword: ALTER
+    - keyword: TEXT
+    - keyword: SEARCH
+    - keyword: CONFIGURATION
+    - object_reference:
+        naked_identifier: my_config
+    - keyword: ALTER
+    - keyword: MAPPING
+    - keyword: REPLACE
+    - object_reference:
+        naked_identifier: english
+    - keyword: WITH
+    - object_reference:
+        naked_identifier: french
+- statement_terminator: ;
+- statement:
+    alter_text_search_configuration_statement:
+    - keyword: ALTER
+    - keyword: TEXT
+    - keyword: SEARCH
+    - keyword: CONFIGURATION
+    - object_reference:
+        naked_identifier: my_config
+    - keyword: ALTER
+    - keyword: MAPPING
+    - keyword: FOR
+    - object_reference:
+        naked_identifier: asciiword
+    - keyword: REPLACE
+    - object_reference:
+        naked_identifier: english_stem
+    - keyword: WITH
+    - object_reference:
+        naked_identifier: french_stem
+- statement_terminator: ;
+- statement:
+    alter_text_search_configuration_statement:
+    - keyword: ALTER
+    - keyword: TEXT
+    - keyword: SEARCH
+    - keyword: CONFIGURATION
+    - object_reference:
+        naked_identifier: my_config
+    - keyword: DROP
+    - keyword: MAPPING
+    - keyword: IF
+    - keyword: EXISTS
+    - keyword: FOR
+    - object_reference:
+        naked_identifier: email
+- statement_terminator: ;
+- statement:
+    alter_text_search_configuration_statement:
+    - keyword: ALTER
+    - keyword: TEXT
+    - keyword: SEARCH
+    - keyword: CONFIGURATION
+    - object_reference:
+        naked_identifier: my_config
+    - keyword: RENAME
+    - keyword: TO
+    - object_reference:
+        naked_identifier: new_config
+- statement_terminator: ;
+- statement:
+    alter_text_search_configuration_statement:
+    - keyword: ALTER
+    - keyword: TEXT
+    - keyword: SEARCH
+    - keyword: CONFIGURATION
+    - object_reference:
+        naked_identifier: my_config
+    - keyword: OWNER
+    - keyword: TO
+    - object_reference:
+        naked_identifier: new_owner
+- statement_terminator: ;
+- statement:
+    alter_text_search_configuration_statement:
+    - keyword: ALTER
+    - keyword: TEXT
+    - keyword: SEARCH
+    - keyword: CONFIGURATION
+    - object_reference:
+        naked_identifier: my_config
+    - keyword: SET
+    - keyword: SCHEMA
+    - object_reference:
+        naked_identifier: new_schema
+- statement_terminator: ;

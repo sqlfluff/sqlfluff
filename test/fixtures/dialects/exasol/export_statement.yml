@@ -1,0 +1,285 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 9c961da0bce1e2ea88c7c2c6b701f1016f38f93aa7b6b1d03642ae7e5b87d034
+file:
+- statement:
+    export_statement:
+      keyword: EXPORT
+      table_reference:
+        naked_identifier: tab1
+      export_into_clause:
+        keyword: INTO
+        import_file:
+        - keyword: CSV
+        - keyword: AT
+        - connection_definition:
+          - quoted_literal: "'ftp://192.168.1.1/'"
+          - keyword: USER
+          - quoted_literal: "'agent_007'"
+          - keyword: IDENTIFIED
+          - keyword: BY
+          - quoted_literal: "'secret'"
+        - keyword: FILE
+        - quoted_literal: "'tab1.csv'"
+        - file_opts:
+          - keyword: COLUMN
+          - keyword: SEPARATOR
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - quoted_literal: "';'"
+          - keyword: ENCODING
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - quoted_literal: "'Latin1'"
+          - keyword: WITH
+          - keyword: COLUMN
+          - keyword: NAMES
+- statement_terminator: ;
+- statement:
+    export_statement:
+      keyword: EXPORT
+      table_reference:
+        naked_identifier: tab1
+      export_into_clause:
+        keyword: INTO
+        import_file:
+        - keyword: CSV
+        - keyword: AT
+        - connection_definition:
+          - quoted_literal: "'ftp://192.168.1.1/'"
+          - keyword: USER
+          - quoted_literal: "'agent_007'"
+          - keyword: IDENTIFIED
+          - keyword: BY
+          - quoted_literal: "'secret'"
+        - keyword: FILE
+        - quoted_literal: "'tab1.csv'"
+        - csv_cols:
+            bracketed:
+            - start_bracket: (
+            - numeric_literal: '1'
+            - keyword: FORMAT
+            - comparison_operator:
+                raw_comparison_operator: '='
+            - quoted_literal: "'DD.MM.YYYY'"
+            - comma: ','
+            - numeric_literal: '2'
+            - range_operator: ..
+            - numeric_literal: '3'
+            - keyword: DELIMIT
+            - comparison_operator:
+                raw_comparison_operator: '='
+            - keyword: NEVER
+            - end_bracket: )
+        - file_opts:
+          - keyword: COLUMN
+          - keyword: SEPARATOR
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - quoted_literal: "';'"
+          - keyword: ENCODING
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - quoted_literal: "'Latin1'"
+          - keyword: WITH
+          - keyword: COLUMN
+          - keyword: NAMES
+- statement_terminator: ;
+- statement:
+    export_statement:
+      keyword: EXPORT
+      bracketed:
+        start_bracket: (
+        select_statement:
+          select_clause:
+            keyword: SELECT
+            select_clause_element:
+              wildcard_expression:
+                wildcard_identifier:
+                  star: '*'
+          from_clause:
+            keyword: FROM
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                    naked_identifier: T
+          where_clause:
+            keyword: WHERE
+            expression:
+              column_reference:
+                naked_identifier: id
+              comparison_operator:
+                raw_comparison_operator: '='
+              numeric_literal: '3295'
+        end_bracket: )
+      export_into_clause:
+        keyword: INTO
+        import_file:
+        - keyword: FBV
+        - keyword: AT
+        - connection_definition:
+            naked_identifier: my_connection
+        - keyword: FILE
+        - quoted_literal: "'t1.fbv'"
+        - keyword: FILE
+        - quoted_literal: "'t2.fbv'"
+        - file_opts:
+            keyword: REPLACE
+- statement_terminator: ;
+- statement:
+    export_statement:
+      keyword: EXPORT
+      bracketed:
+        start_bracket: (
+        select_statement:
+          select_clause:
+            keyword: SELECT
+            select_clause_element:
+              wildcard_expression:
+                wildcard_identifier:
+                  star: '*'
+          from_clause:
+            keyword: FROM
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                    naked_identifier: my_view
+        end_bracket: )
+      export_into_clause:
+        keyword: INTO
+        import_export_dbsrc:
+        - keyword: EXA
+        - keyword: AT
+        - connection_definition:
+          - quoted_literal: "'192.168.6.11..14:8563'"
+          - keyword: USER
+          - quoted_literal: "'my_user'"
+          - keyword: IDENTIFIED
+          - keyword: BY
+          - quoted_literal: "'my_secret'"
+        - keyword: TABLE
+        - table_reference:
+          - naked_identifier: my_schema
+          - dot: .
+          - naked_identifier: my_table
+        - keyword: CREATED
+        - keyword: BY
+        - quoted_literal: "'CREATE TABLE my_table(order_id INT, price DEC(18,2))'"
+- statement_terminator: ;
+- statement:
+    export_statement:
+      keyword: EXPORT
+      table_reference:
+        naked_identifier: tab1
+      export_into_clause:
+        keyword: INTO
+        import_export_dbsrc:
+        - keyword: JDBC
+        - keyword: DRIVER
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - quoted_literal: "'MSSQL'"
+        - keyword: AT
+        - connection_definition:
+          - quoted_literal: "'jdbc:sqlserver://dbserver;databaseName=testdb'"
+          - keyword: USER
+          - quoted_literal: "'agent_007'"
+          - keyword: IDENTIFIED
+          - keyword: BY
+          - quoted_literal: "'secret'"
+        - keyword: TABLE
+        - table_reference:
+          - naked_identifier: my_schema
+          - dot: .
+          - naked_identifier: tab1
+- statement_terminator: ;
+- statement:
+    export_statement:
+      keyword: EXPORT
+      table_reference:
+        naked_identifier: tab1
+      export_into_clause:
+        keyword: INTO
+        import_file:
+        - keyword: CSV
+        - keyword: AT
+        - connection_definition:
+            quoted_literal: "'http://HadoopNode:50070/webhdfs/v1/tmp'"
+        - keyword: FILE
+        - quoted_literal: "'file.csv?op=CREATE&user.name=user'"
+- statement_terminator: ;
+- statement:
+    export_statement:
+      keyword: EXPORT
+      table_reference:
+        naked_identifier: tab1
+      export_into_clause:
+        keyword: INTO
+        import_file:
+        - keyword: CSV
+        - keyword: AT
+        - connection_definition:
+          - quoted_literal: "'https://testbucket.s3.amazonaws.com'"
+          - keyword: USER
+          - quoted_literal: "'<AccessKeyID>'"
+          - keyword: IDENTIFIED
+          - keyword: BY
+          - quoted_literal: "'<SecretAccessKey>'"
+        - keyword: FILE
+        - quoted_literal: "'file.csv'"
+- statement_terminator: ;
+- statement:
+    export_statement:
+      keyword: EXPORT
+      table_reference:
+        naked_identifier: tab1
+      export_into_clause:
+        keyword: INTO
+        import_script:
+        - keyword: SCRIPT
+        - object_reference:
+          - naked_identifier: etl
+          - dot: .
+          - naked_identifier: export_hcat_table
+        - keyword: WITH
+        - parameter: HCAT_DB
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - quoted_literal: "'default'"
+        - parameter: HCAT_TABLE
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - quoted_literal: "'my_hcat_table'"
+        - parameter: HCAT_ADDRESS
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - quoted_literal: "'hcatalog-server:50111'"
+        - parameter: HDFS_USER
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - quoted_literal: "'hdfs'"
+- statement_terminator: ;
+- statement:
+    export_statement:
+      keyword: EXPORT
+      table_reference:
+        naked_identifier: tab1
+      export_into_clause:
+        keyword: INTO
+        import_file:
+        - keyword: LOCAL
+        - keyword: CSV
+        - keyword: FILE
+        - quoted_literal: "'/tmp/my_table.csv'"
+        - file_opts:
+          - keyword: COLUMN
+          - keyword: SEPARATOR
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - quoted_literal: "';'"
+- statement_terminator: ;

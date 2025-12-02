@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 3dbd13529c08d7d1bb92aec59f5dbf066c4bb04c29a48787cd4ca5d392b13337
+_hash: 74ac6db224086dd7e8d316b209ff2d8a6f453c1cfa18a4c00d7bfd0ecd8fcfef
 file:
   statement:
     select_statement:
@@ -11,11 +11,11 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-            identifier: user_id
+            naked_identifier: user_id
       - comma: ','
       - select_clause_element:
           column_reference:
-            identifier: list_id
+            naked_identifier: list_id
       - comma: ','
       - select_clause_element:
           expression:
@@ -23,127 +23,134 @@ file:
               start_bracket: (
               expression:
               - column_reference:
-                  identifier: count_18_24
+                  naked_identifier: count_18_24
               - binary_operator: '*'
               - column_reference:
-                  identifier: bits
+                  naked_identifier: bits
               - array_accessor:
                   start_square_bracket: '['
                   expression:
                     function:
                       function_name:
                         function_name_identifier: OFFSET
-                      bracketed:
-                        start_bracket: (
-                        expression:
-                          literal: '0'
-                        end_bracket: )
+                      function_contents:
+                        bracketed:
+                          start_bracket: (
+                          expression:
+                            numeric_literal: '0'
+                          end_bracket: )
                   end_square_bracket: ']'
               - binary_operator: +
               - column_reference:
-                  identifier: count_25_34
+                  naked_identifier: count_25_34
               - binary_operator: '*'
               - column_reference:
-                  identifier: bits
+                  naked_identifier: bits
               - array_accessor:
                   start_square_bracket: '['
                   expression:
                     function:
                       function_name:
                         function_name_identifier: OFFSET
-                      bracketed:
-                        start_bracket: (
-                        expression:
-                          literal: '1'
-                        end_bracket: )
+                      function_contents:
+                        bracketed:
+                          start_bracket: (
+                          expression:
+                            numeric_literal: '1'
+                          end_bracket: )
                   end_square_bracket: ']'
               - binary_operator: +
               - column_reference:
-                  identifier: count_35_44
+                  naked_identifier: count_35_44
               - binary_operator: '*'
               - column_reference:
-                  identifier: bits
+                  naked_identifier: bits
               - array_accessor:
                   start_square_bracket: '['
                   expression:
                     function:
                       function_name:
                         function_name_identifier: OFFSET
-                      bracketed:
-                        start_bracket: (
-                        expression:
-                          literal: '2'
-                        end_bracket: )
+                      function_contents:
+                        bracketed:
+                          start_bracket: (
+                          expression:
+                            numeric_literal: '2'
+                          end_bracket: )
                   end_square_bracket: ']'
               - binary_operator: +
               - column_reference:
-                  identifier: count_45_54
+                  naked_identifier: count_45_54
               - binary_operator: '*'
               - column_reference:
-                  identifier: bits
+                  naked_identifier: bits
               - array_accessor:
                   start_square_bracket: '['
                   expression:
                     function:
                       function_name:
                         function_name_identifier: OFFSET
-                      bracketed:
-                        start_bracket: (
-                        expression:
-                          literal: '3'
-                        end_bracket: )
+                      function_contents:
+                        bracketed:
+                          start_bracket: (
+                          expression:
+                            numeric_literal: '3'
+                          end_bracket: )
                   end_square_bracket: ']'
               - binary_operator: +
               - column_reference:
-                  identifier: count_55_64
+                  naked_identifier: count_55_64
               - binary_operator: '*'
               - column_reference:
-                  identifier: bits
+                  naked_identifier: bits
               - array_accessor:
                   start_square_bracket: '['
                   expression:
                     function:
                       function_name:
                         function_name_identifier: OFFSET
-                      bracketed:
-                        start_bracket: (
-                        expression:
-                          literal: '4'
-                        end_bracket: )
+                      function_contents:
+                        bracketed:
+                          start_bracket: (
+                          expression:
+                            numeric_literal: '4'
+                          end_bracket: )
                   end_square_bracket: ']'
               - binary_operator: +
               - column_reference:
-                  identifier: count_65_plus
+                  naked_identifier: count_65_plus
               - binary_operator: '*'
               - column_reference:
-                  identifier: bits
+                  naked_identifier: bits
               - array_accessor:
                   start_square_bracket: '['
                   expression:
                     function:
                       function_name:
                         function_name_identifier: OFFSET
-                      bracketed:
-                        start_bracket: (
-                        expression:
-                          literal: '5'
-                        end_bracket: )
+                      function_contents:
+                        bracketed:
+                          start_bracket: (
+                          expression:
+                            numeric_literal: '5'
+                          end_bracket: )
                   end_square_bracket: ']'
               end_bracket: )
             binary_operator: /
             column_reference:
-              identifier: audience_size
+              naked_identifier: audience_size
           alias_expression:
-            keyword: AS
-            identifier: relative_abundance
+            alias_operator:
+              keyword: AS
+            naked_identifier: relative_abundance
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-              - identifier: gcp_project
+              - naked_identifier: gcp_project
               - dot: .
-              - identifier: dataset
+              - naked_identifier: dataset
               - dot: .
-              - identifier: audience_counts_gender_age
+              - naked_identifier: audience_counts_gender_age

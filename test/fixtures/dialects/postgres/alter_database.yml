@@ -1,0 +1,332 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: ebe9b3efe68efa22841747ec417e0a3edf9a574f5a1f0a29ae65a070a14437ec
+file:
+- statement:
+    alter_database_statement:
+    - keyword: ALTER
+    - keyword: DATABASE
+    - database_reference:
+        naked_identifier: db
+- statement_terminator: ;
+- statement:
+    alter_database_statement:
+    - keyword: ALTER
+    - keyword: DATABASE
+    - database_reference:
+        naked_identifier: db
+    - keyword: ALLOW_CONNECTIONS
+    - boolean_literal: 'true'
+- statement_terminator: ;
+- statement:
+    alter_database_statement:
+    - keyword: ALTER
+    - keyword: DATABASE
+    - database_reference:
+        naked_identifier: db
+    - keyword: WITH
+    - keyword: ALLOW_CONNECTIONS
+    - boolean_literal: 'true'
+- statement_terminator: ;
+- statement:
+    alter_database_statement:
+    - keyword: ALTER
+    - keyword: DATABASE
+    - database_reference:
+        naked_identifier: db
+    - keyword: CONNECTION
+    - keyword: LIMIT
+    - numeric_literal: '10'
+- statement_terminator: ;
+- statement:
+    alter_database_statement:
+    - keyword: ALTER
+    - keyword: DATABASE
+    - database_reference:
+        naked_identifier: db
+    - keyword: WITH
+    - keyword: CONNECTION
+    - keyword: LIMIT
+    - numeric_literal: '10'
+- statement_terminator: ;
+- statement:
+    alter_database_statement:
+    - keyword: ALTER
+    - keyword: DATABASE
+    - database_reference:
+        naked_identifier: db
+    - keyword: IS_TEMPLATE
+    - boolean_literal: 'true'
+- statement_terminator: ;
+- statement:
+    alter_database_statement:
+    - keyword: ALTER
+    - keyword: DATABASE
+    - database_reference:
+        naked_identifier: db
+    - keyword: WITH
+    - keyword: IS_TEMPLATE
+    - boolean_literal: 'true'
+- statement_terminator: ;
+- statement:
+    alter_database_statement:
+    - keyword: ALTER
+    - keyword: DATABASE
+    - database_reference:
+        naked_identifier: db
+    - keyword: IS_TEMPLATE
+    - boolean_literal: 'true'
+    - keyword: ALLOW_CONNECTIONS
+    - boolean_literal: 'true'
+- statement_terminator: ;
+- statement:
+    alter_database_statement:
+    - keyword: ALTER
+    - keyword: DATABASE
+    - database_reference:
+        naked_identifier: db
+    - keyword: WITH
+    - keyword: IS_TEMPLATE
+    - boolean_literal: 'true'
+    - keyword: ALLOW_CONNECTIONS
+    - boolean_literal: 'true'
+- statement_terminator: ;
+- statement:
+    alter_database_statement:
+    - keyword: ALTER
+    - keyword: DATABASE
+    - database_reference:
+        naked_identifier: db
+    - keyword: CONNECTION
+    - keyword: LIMIT
+    - numeric_literal: '10'
+    - keyword: IS_TEMPLATE
+    - boolean_literal: 'true'
+    - keyword: ALLOW_CONNECTIONS
+    - boolean_literal: 'true'
+- statement_terminator: ;
+- statement:
+    alter_database_statement:
+    - keyword: ALTER
+    - keyword: DATABASE
+    - database_reference:
+        naked_identifier: db
+    - keyword: WITH
+    - keyword: CONNECTION
+    - keyword: LIMIT
+    - numeric_literal: '10'
+    - keyword: IS_TEMPLATE
+    - boolean_literal: 'true'
+    - keyword: ALLOW_CONNECTIONS
+    - boolean_literal: 'true'
+- statement_terminator: ;
+- statement:
+    alter_database_statement:
+    - keyword: ALTER
+    - keyword: DATABASE
+    - database_reference:
+        naked_identifier: db
+    - keyword: RENAME
+    - keyword: TO
+    - database_reference:
+        naked_identifier: new_db
+- statement_terminator: ;
+- statement:
+    alter_database_statement:
+    - keyword: ALTER
+    - keyword: DATABASE
+    - database_reference:
+        naked_identifier: db
+    - keyword: OWNER
+    - keyword: TO
+    - object_reference:
+        naked_identifier: other_role
+- statement_terminator: ;
+- statement:
+    alter_database_statement:
+    - keyword: ALTER
+    - keyword: DATABASE
+    - database_reference:
+        naked_identifier: db
+    - keyword: OWNER
+    - keyword: TO
+    - keyword: CURRENT_ROLE
+- statement_terminator: ;
+- statement:
+    alter_database_statement:
+    - keyword: ALTER
+    - keyword: DATABASE
+    - database_reference:
+        naked_identifier: db
+    - keyword: OWNER
+    - keyword: TO
+    - object_reference:
+        naked_identifier: CURRENT_USER
+- statement_terminator: ;
+- statement:
+    alter_database_statement:
+    - keyword: ALTER
+    - keyword: DATABASE
+    - database_reference:
+        naked_identifier: db
+    - keyword: OWNER
+    - keyword: TO
+    - keyword: SESSION_USER
+- statement_terminator: ;
+- statement:
+    alter_database_statement:
+    - keyword: ALTER
+    - keyword: DATABASE
+    - database_reference:
+        naked_identifier: postgres
+    - keyword: SET
+    - parameter: password_encryption
+    - keyword: TO
+    - quoted_literal: "'scram-sha-256'"
+- statement_terminator: ;
+- statement:
+    alter_database_statement:
+    - keyword: ALTER
+    - keyword: DATABASE
+    - database_reference:
+        naked_identifier: db
+    - keyword: SET
+    - keyword: TABLESPACE
+    - tablespace_reference:
+        naked_identifier: new_tablespace
+- statement_terminator: ;
+- statement:
+    alter_database_statement:
+    - keyword: ALTER
+    - keyword: DATABASE
+    - database_reference:
+        naked_identifier: db
+    - keyword: SET
+    - parameter: parameter1
+    - keyword: TO
+    - numeric_literal: '1'
+- statement_terminator: ;
+- statement:
+    alter_database_statement:
+    - keyword: ALTER
+    - keyword: DATABASE
+    - database_reference:
+        naked_identifier: db
+    - keyword: SET
+    - parameter: parameter1
+    - keyword: TO
+    - quoted_literal: "'some_value'"
+- statement_terminator: ;
+- statement:
+    alter_database_statement:
+    - keyword: ALTER
+    - keyword: DATABASE
+    - database_reference:
+        naked_identifier: db
+    - keyword: SET
+    - parameter: parameter1
+    - keyword: TO
+    - keyword: DEFAULT
+- statement_terminator: ;
+- statement:
+    alter_database_statement:
+    - keyword: ALTER
+    - keyword: DATABASE
+    - database_reference:
+        naked_identifier: db
+    - keyword: SET
+    - parameter: parameter1
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - numeric_literal: '1'
+- statement_terminator: ;
+- statement:
+    alter_database_statement:
+    - keyword: ALTER
+    - keyword: DATABASE
+    - database_reference:
+        naked_identifier: db
+    - keyword: SET
+    - parameter: parameter1
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'some_value'"
+- statement_terminator: ;
+- statement:
+    alter_database_statement:
+    - keyword: ALTER
+    - keyword: DATABASE
+    - database_reference:
+        naked_identifier: db
+    - keyword: SET
+    - parameter: parameter1
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - keyword: DEFAULT
+- statement_terminator: ;
+- statement:
+    alter_database_statement:
+    - keyword: ALTER
+    - keyword: DATABASE
+    - database_reference:
+        naked_identifier: db
+    - keyword: SET
+    - parameter: parameter1
+    - keyword: FROM
+    - keyword: CURRENT
+- statement_terminator: ;
+- statement:
+    alter_database_statement:
+    - keyword: ALTER
+    - keyword: DATABASE
+    - database_reference:
+        naked_identifier: db
+    - keyword: SET
+    - parameter: search_path
+    - keyword: TO
+    - naked_identifier: my_schema
+- statement_terminator: ;
+- statement:
+    alter_database_statement:
+    - keyword: ALTER
+    - keyword: DATABASE
+    - database_reference:
+        naked_identifier: db
+    - keyword: SET
+    - parameter: search_path
+    - keyword: TO
+    - quoted_identifier: '"my_schema"'
+- statement_terminator: ;
+- statement:
+    alter_role_statement:
+    - keyword: ALTER
+    - keyword: USER
+    - role_reference:
+        naked_identifier: some_user
+    - keyword: SET
+    - parameter: default_transaction_read_only
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - naked_identifier: 'ON'
+- statement_terminator: ;
+- statement:
+    alter_database_statement:
+    - keyword: ALTER
+    - keyword: DATABASE
+    - database_reference:
+        naked_identifier: db
+    - keyword: RESET
+    - parameter: parameter1
+- statement_terminator: ;
+- statement:
+    alter_database_statement:
+    - keyword: ALTER
+    - keyword: DATABASE
+    - database_reference:
+        naked_identifier: db
+    - keyword: RESET
+    - keyword: ALL
+- statement_terminator: ;

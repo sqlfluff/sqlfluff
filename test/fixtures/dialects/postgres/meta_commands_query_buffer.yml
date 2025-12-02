@@ -1,0 +1,229 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: dd92c9922ca49c12d367a27af59354a4b304093756bd24c4a391acfbb9e97b4d
+file:
+- statement:
+    meta_command_statement:
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            function:
+              function_name:
+                function_name_identifier: format
+              function_contents:
+                bracketed:
+                - start_bracket: (
+                - expression:
+                    quoted_literal: "'create index on my_table(%I)'"
+                - comma: ','
+                - expression:
+                    column_reference:
+                      naked_identifier: attname
+                - end_bracket: )
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: pg_attribute
+        where_clause:
+          keyword: WHERE
+          expression:
+          - column_reference:
+              naked_identifier: attrelid
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - cast_expression:
+              quoted_literal: "'my_table'"
+              casting_operator: '::'
+              data_type:
+                data_type_identifier: regclass
+          - binary_operator: AND
+          - column_reference:
+              naked_identifier: attnum
+          - comparison_operator:
+              raw_comparison_operator: '>'
+          - numeric_literal: '0'
+        orderby_clause:
+        - keyword: ORDER
+        - keyword: BY
+        - column_reference:
+            naked_identifier: attnum
+    - meta_command: \gexec
+    - select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            quoted_literal: "'hello'"
+            alias_expression:
+              alias_operator:
+                keyword: AS
+              naked_identifier: var1
+        - comma: ','
+        - select_clause_element:
+            numeric_literal: '10'
+            alias_expression:
+              alias_operator:
+                keyword: AS
+              naked_identifier: var2
+    - meta_command: \gset
+    - select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            quoted_literal: "'hello'"
+            alias_expression:
+              alias_operator:
+                keyword: AS
+              naked_identifier: var1
+        - comma: ','
+        - select_clause_element:
+            numeric_literal: '10'
+            alias_expression:
+              alias_operator:
+                keyword: AS
+              naked_identifier: var2
+    - meta_command: \gset result_
+    - select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            function:
+              function_name:
+                function_name_identifier: EXISTS
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    select_statement:
+                      select_clause:
+                        keyword: SELECT
+                        select_clause_element:
+                          numeric_literal: '1'
+                      from_clause:
+                        keyword: FROM
+                        from_expression:
+                          from_expression_element:
+                            table_expression:
+                              table_reference:
+                                naked_identifier: customer
+                      where_clause:
+                        keyword: WHERE
+                        expression:
+                          column_reference:
+                            naked_identifier: customer_id
+                          comparison_operator:
+                            raw_comparison_operator: '='
+                          numeric_literal: '123'
+                  end_bracket: )
+            alias_expression:
+              alias_operator:
+                keyword: as
+              naked_identifier: is_customer
+        - comma: ','
+        - select_clause_element:
+            function:
+              function_name:
+                function_name_identifier: EXISTS
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    select_statement:
+                      select_clause:
+                        keyword: SELECT
+                        select_clause_element:
+                          numeric_literal: '1'
+                      from_clause:
+                        keyword: FROM
+                        from_expression:
+                          from_expression_element:
+                            table_expression:
+                              table_reference:
+                                naked_identifier: employee
+                      where_clause:
+                        keyword: WHERE
+                        expression:
+                          column_reference:
+                            naked_identifier: employee_id
+                          comparison_operator:
+                            raw_comparison_operator: '='
+                          numeric_literal: '456'
+                  end_bracket: )
+            alias_expression:
+              alias_operator:
+                keyword: as
+              naked_identifier: is_employee
+    - meta_command: \gset
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            quoted_literal: "'hello'"
+            alias_expression:
+              alias_operator:
+                keyword: AS
+              naked_identifier: my_psql_var
+    - meta_command: \gset
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            psql_variable:
+              colon: ':'
+              quoted_literal: "'my_psql_var'"
+- statement_terminator: ;
+- statement:
+    meta_command_statement:
+    - select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+              naked_identifier: relname
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: relkind
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: pg_class
+        limit_clause:
+          keyword: LIMIT
+          numeric_literal: '1'
+    - meta_command: \gset
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            column_reference:
+              naked_identifier: i
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                function:
+                  function_name:
+                    function_name_identifier: generate_series
+                  function_contents:
+                    bracketed:
+                    - start_bracket: (
+                    - expression:
+                        numeric_literal: '1'
+                    - comma: ','
+                    - expression:
+                        numeric_literal: '2'
+                    - end_bracket: )
+              alias_expression:
+                naked_identifier: i
+    - meta_command: \gset prefix

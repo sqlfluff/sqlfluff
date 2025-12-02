@@ -1,0 +1,61 @@
+name: Documentation Issue
+description: Report an issue or a suggestion with our documentation to help improve SQLFluff
+labels: [ "documentation" ]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this documentation template to report issues with SQLFluff documentation,
+        on [our website](https://docs.sqlfluff.com/en/stable/), GitHub, or within our command line.
+
+  - type: checkboxes
+    attributes:
+      label: Search before asking
+      description: >
+        Please make sure to search in the [issues](https://github.com/sqlfluff/sqlfluff/issues) first to see
+        whether the same issue was reported already.
+      options:
+        - label: >
+            I searched the [issues](https://github.com/sqlfluff/sqlfluff/issues) and found
+            no similar issues.
+          required: true
+
+  - type: textarea
+    attributes:
+      label: Links or command line
+      description: What do you want to happen?
+      placeholder: >
+        * If you found in our website, the link may start with `https://docs.sqlfluff.com/en/stable/`.
+        * If you found in CLI components, your command may start with `sqlfluff <subcommand>`.
+
+  - type: textarea
+    attributes:
+      label: Issue/Suggested Improvement
+      description: The issue you found or the improvement you suggest.
+    validations:
+      required: true
+
+  - type: checkboxes
+    attributes:
+      label: Are you willing to work on and submit a PR to address the issue?
+      description: >
+        This is absolutely not required, but we are happy to guide you in the contribution process,
+        especially if you already have a good understanding of how to implement the fix.
+        SQLFluff is a totally community-driven project and we love to bring new contributors in.
+      options:
+        - label: Yes I am willing to submit a PR!
+
+  - type: checkboxes
+    attributes:
+      label: Code of Conduct
+      description: |
+        The Code of Conduct helps create a safe space for everyone. We require that everyone agrees to it.
+      options:
+        - label: >
+            I agree to follow this project's
+            [Code of Conduct](https://github.com/sqlfluff/sqlfluff/blob/main/CODE_OF_CONDUCT.md)
+          required: true
+
+  - type: markdown
+    attributes:
+      value: "Thanks for completing our form!"

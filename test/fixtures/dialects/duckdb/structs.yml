@@ -1,0 +1,55 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: dd51a5c24f787c35216072bc3fa03be92be30588bb2c23d01e33bdfb2d56934d
+file:
+  statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+            cast_expression:
+              column_reference:
+                naked_identifier: a
+              casting_operator: '::'
+              data_type:
+                struct_type:
+                  keyword: STRUCT
+                  struct_type_schema:
+                    bracketed:
+                      start_bracket: (
+                      parameter: y
+                      data_type:
+                        keyword: INTEGER
+                      end_bracket: )
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: b
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              bracketed:
+                start_bracket: (
+                select_statement:
+                  select_clause:
+                    keyword: SELECT
+                    select_clause_element:
+                      object_literal:
+                        start_curly_bracket: '{'
+                        object_literal_element:
+                          quoted_literal: "'x'"
+                          colon: ':'
+                          numeric_literal: '42'
+                        end_curly_bracket: '}'
+                      alias_expression:
+                        alias_operator:
+                          keyword: AS
+                        naked_identifier: a
+                end_bracket: )
+  statement_terminator: ;

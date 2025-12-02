@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: f7b71f70448f7b8279216ada6012a8cc9a48f5eb6dd0dc3c5398c95ea2ca8c8a
+_hash: b8d293e9a5291804e22108e9862a1832a4a92dce82c84efadf59d77bdcd5fe03
 file:
   statement:
     select_statement:
@@ -11,22 +11,22 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-          - identifier: a
+          - naked_identifier: a
           - dot: .
-          - identifier: key
+          - naked_identifier: key
       - comma: ','
       - select_clause_element:
           column_reference:
-          - identifier: a
+          - naked_identifier: a
           - dot: .
-          - identifier: val
+          - naked_identifier: val
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: a
+                naked_identifier: a
           join_clause:
           - keyword: LEFT
           - keyword: SEMI
@@ -34,19 +34,20 @@ file:
           - from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: b
+                  naked_identifier: b
           - join_on_condition:
               keyword: 'ON'
               bracketed:
                 start_bracket: (
                 expression:
                 - column_reference:
-                  - identifier: a
+                  - naked_identifier: a
                   - dot: .
-                  - identifier: key
-                - comparison_operator: '='
+                  - naked_identifier: key
+                - comparison_operator:
+                    raw_comparison_operator: '='
                 - column_reference:
-                  - identifier: b
+                  - naked_identifier: b
                   - dot: .
-                  - identifier: key
+                  - naked_identifier: key
                 end_bracket: )

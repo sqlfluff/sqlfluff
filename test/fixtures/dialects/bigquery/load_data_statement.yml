@@ -1,0 +1,560 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: dac77d355d4ada518bfd8897bcd5df2ca46f5ac07a31af105120f67734ccc9f8
+file:
+- statement:
+    load_data_statement:
+    - keyword: LOAD
+    - keyword: DATA
+    - keyword: INTO
+    - table_reference:
+      - naked_identifier: mydataset
+      - dot: .
+      - naked_identifier: table1
+    - keyword: FROM
+    - keyword: FILES
+    - bracketed:
+      - start_bracket: (
+      - parameter: format
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'AVRO'"
+      - comma: ','
+      - parameter: uris
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - array_literal:
+          start_square_bracket: '['
+          quoted_literal: "'gs://bucket/path/file.avro'"
+          end_square_bracket: ']'
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    load_data_statement:
+    - keyword: LOAD
+    - keyword: DATA
+    - keyword: INTO
+    - table_reference:
+        quoted_identifier: '`myproject.mydataset.table1`'
+    - keyword: FROM
+    - keyword: FILES
+    - bracketed:
+      - start_bracket: (
+      - parameter: format
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'CSV'"
+      - comma: ','
+      - parameter: uris
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - array_literal:
+        - start_square_bracket: '['
+        - quoted_literal: "'gs://bucket/path/file1.csv'"
+        - comma: ','
+        - quoted_literal: "'gs://bucket/path/file2.csv'"
+        - end_square_bracket: ']'
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    load_data_statement:
+    - keyword: LOAD
+    - keyword: DATA
+    - keyword: INTO
+    - table_reference:
+      - naked_identifier: mydataset
+      - dot: .
+      - naked_identifier: table1
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          naked_identifier: x
+          data_type:
+            data_type_identifier: INT64
+      - comma: ','
+      - column_definition:
+          naked_identifier: y
+          data_type:
+            data_type_identifier: STRING
+      - end_bracket: )
+    - keyword: FROM
+    - keyword: FILES
+    - bracketed:
+      - start_bracket: (
+      - parameter: skip_leading_rows
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - numeric_literal: '1'
+      - comma: ','
+      - parameter: format
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'CSV'"
+      - comma: ','
+      - parameter: uris
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - array_literal:
+          start_square_bracket: '['
+          quoted_literal: "'gs://bucket/path/file.csv'"
+          end_square_bracket: ']'
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    load_data_statement:
+    - keyword: LOAD
+    - keyword: DATA
+    - keyword: INTO
+    - table_reference:
+      - naked_identifier: mydataset
+      - dot: .
+      - naked_identifier: table1
+    - options_segment:
+        keyword: OPTIONS
+        bracketed:
+        - start_bracket: (
+        - parameter: description
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - quoted_literal: '"my table"'
+        - comma: ','
+        - parameter: expiration_timestamp
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - quoted_literal: '"2025-01-01 00:00:00 UTC"'
+        - end_bracket: )
+    - keyword: FROM
+    - keyword: FILES
+    - bracketed:
+      - start_bracket: (
+      - parameter: format
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'AVRO'"
+      - comma: ','
+      - parameter: uris
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - array_literal:
+          start_square_bracket: '['
+          quoted_literal: "'gs://bucket/path/file.avro'"
+          end_square_bracket: ']'
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    load_data_statement:
+    - keyword: LOAD
+    - keyword: DATA
+    - keyword: OVERWRITE
+    - table_reference:
+      - naked_identifier: mydataset
+      - dot: .
+      - naked_identifier: table1
+    - keyword: FROM
+    - keyword: FILES
+    - bracketed:
+      - start_bracket: (
+      - parameter: format
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'AVRO'"
+      - comma: ','
+      - parameter: uris
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - array_literal:
+          start_square_bracket: '['
+          quoted_literal: "'gs://bucket/path/file.avro'"
+          end_square_bracket: ']'
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    load_data_statement:
+    - keyword: LOAD
+    - keyword: DATA
+    - keyword: INTO
+    - keyword: TEMP
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: mydataset
+      - dot: .
+      - naked_identifier: table1
+    - keyword: FROM
+    - keyword: FILES
+    - bracketed:
+      - start_bracket: (
+      - parameter: format
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'AVRO'"
+      - comma: ','
+      - parameter: uris
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - array_literal:
+          start_square_bracket: '['
+          quoted_literal: "'gs://bucket/path/file.avro'"
+          end_square_bracket: ']'
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    load_data_statement:
+    - keyword: LOAD
+    - keyword: DATA
+    - keyword: INTO
+    - keyword: TEMP
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: my_tmp_table
+    - keyword: FROM
+    - keyword: FILES
+    - bracketed:
+      - start_bracket: (
+      - parameter: format
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'AVRO'"
+      - comma: ','
+      - parameter: uris
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - array_literal:
+          start_square_bracket: '['
+          quoted_literal: "'gs://bucket/path/file.avro'"
+          end_square_bracket: ']'
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    load_data_statement:
+    - keyword: LOAD
+    - keyword: DATA
+    - keyword: INTO
+    - table_reference:
+      - naked_identifier: mydataset
+      - dot: .
+      - naked_identifier: table1
+    - partition_by_segment:
+      - keyword: PARTITION
+      - keyword: BY
+      - expression:
+          column_reference:
+            naked_identifier: transaction_date
+    - cluster_by_segment:
+      - keyword: CLUSTER
+      - keyword: BY
+      - expression:
+          column_reference:
+            naked_identifier: customer_id
+    - options_segment:
+        keyword: OPTIONS
+        bracketed:
+          start_bracket: (
+          parameter: partition_expiration_days
+          comparison_operator:
+            raw_comparison_operator: '='
+          numeric_literal: '3'
+          end_bracket: )
+    - keyword: FROM
+    - keyword: FILES
+    - bracketed:
+      - start_bracket: (
+      - parameter: format
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'AVRO'"
+      - comma: ','
+      - parameter: uris
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - array_literal:
+          start_square_bracket: '['
+          quoted_literal: "'gs://bucket/path/file.avro'"
+          end_square_bracket: ']'
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    load_data_statement:
+    - keyword: LOAD
+    - keyword: DATA
+    - keyword: INTO
+    - table_reference:
+      - naked_identifier: mydataset
+      - dot: .
+      - naked_identifier: table1
+    - keyword: PARTITIONS
+    - bracketed:
+        start_bracket: (
+        parameter: _PARTITIONTIME
+        comparison_operator:
+          raw_comparison_operator: '='
+        keyword: TIMESTAMP
+        date_constructor_literal: "'2016-01-01'"
+        end_bracket: )
+    - partition_by_segment:
+      - keyword: PARTITION
+      - keyword: BY
+      - expression:
+          column_reference:
+            naked_identifier: _PARTITIONTIME
+    - keyword: FROM
+    - keyword: FILES
+    - bracketed:
+      - start_bracket: (
+      - parameter: format
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'AVRO'"
+      - comma: ','
+      - parameter: uris
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - array_literal:
+          start_square_bracket: '['
+          quoted_literal: "'gs://bucket/path/file.avro'"
+          end_square_bracket: ']'
+      - end_bracket: )
+- statement:
+    load_data_statement:
+    - keyword: LOAD
+    - keyword: DATA
+    - keyword: INTO
+    - table_reference:
+      - naked_identifier: mydataset
+      - dot: .
+      - naked_identifier: table1
+    - keyword: FROM
+    - keyword: FILES
+    - bracketed:
+      - start_bracket: (
+      - parameter: format
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'AVRO'"
+      - comma: ','
+      - parameter: uris
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - array_literal:
+          start_square_bracket: '['
+          quoted_literal: "'gs://bucket/path/*'"
+          end_square_bracket: ']'
+      - comma: ','
+      - parameter: hive_partition_uri_prefix
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'gs://bucket/path'"
+      - end_bracket: )
+    - keyword: WITH
+    - keyword: PARTITION
+    - keyword: COLUMNS
+    - bracketed:
+      - start_bracket: (
+      - naked_identifier: field_1
+      - data_type:
+          data_type_identifier: STRING
+      - comma: ','
+      - naked_identifier: field_2
+      - data_type:
+          data_type_identifier: INT64
+      - end_bracket: )
+- statement:
+    load_data_statement:
+    - keyword: LOAD
+    - keyword: DATA
+    - keyword: INTO
+    - table_reference:
+      - naked_identifier: mydataset
+      - dot: .
+      - naked_identifier: table1
+    - keyword: FROM
+    - keyword: FILES
+    - bracketed:
+      - start_bracket: (
+      - parameter: format
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'AVRO'"
+      - comma: ','
+      - parameter: uris
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - array_literal:
+          start_square_bracket: '['
+          quoted_literal: "'gs://bucket/path/*'"
+          end_square_bracket: ']'
+      - comma: ','
+      - parameter: hive_partition_uri_prefix
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'gs://bucket/path'"
+      - end_bracket: )
+    - keyword: WITH
+    - keyword: PARTITION
+    - keyword: COLUMNS
+- statement:
+    load_data_statement:
+    - keyword: LOAD
+    - keyword: DATA
+    - keyword: INTO
+    - table_reference:
+      - naked_identifier: mydataset
+      - dot: .
+      - naked_identifier: table1
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          naked_identifier: x
+          data_type:
+            data_type_identifier: INT64
+      - comma: ','
+      - column_definition:
+          naked_identifier: y
+          data_type:
+            data_type_identifier: STRING
+      - end_bracket: )
+    - keyword: FROM
+    - keyword: FILES
+    - bracketed:
+      - start_bracket: (
+      - parameter: format
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'AVRO'"
+      - comma: ','
+      - parameter: uris
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - array_literal:
+          start_square_bracket: '['
+          quoted_literal: "'gs://bucket/path/*'"
+          end_square_bracket: ']'
+      - comma: ','
+      - parameter: hive_partition_uri_prefix
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'gs://bucket/path'"
+      - end_bracket: )
+    - keyword: WITH
+    - keyword: PARTITION
+    - keyword: COLUMNS
+- statement:
+    load_data_statement:
+    - keyword: LOAD
+    - keyword: DATA
+    - keyword: INTO
+    - table_reference:
+      - naked_identifier: mydataset
+      - dot: .
+      - naked_identifier: testparquet
+    - keyword: FROM
+    - keyword: FILES
+    - bracketed:
+      - start_bracket: (
+      - parameter: uris
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - array_literal:
+          start_square_bracket: '['
+          quoted_literal: "'s3://test-bucket/sample.parquet'"
+          end_square_bracket: ']'
+      - comma: ','
+      - parameter: format
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'PARQUET'"
+      - end_bracket: )
+    - keyword: WITH
+    - keyword: CONNECTION
+    - object_reference:
+        quoted_identifier: '`aws-us-east-1.test-connection`'
+- statement:
+    load_data_statement:
+    - keyword: LOAD
+    - keyword: DATA
+    - keyword: INTO
+    - table_reference:
+      - naked_identifier: mydataset
+      - dot: .
+      - naked_identifier: test_csv
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          naked_identifier: Number
+          data_type:
+            data_type_identifier: INT64
+      - comma: ','
+      - column_definition:
+          naked_identifier: Name
+          data_type:
+            data_type_identifier: STRING
+      - comma: ','
+      - column_definition:
+          naked_identifier: Time
+          data_type:
+            data_type_identifier: DATE
+      - end_bracket: )
+    - partition_by_segment:
+      - keyword: PARTITION
+      - keyword: BY
+      - expression:
+          column_reference:
+            naked_identifier: Time
+    - keyword: FROM
+    - keyword: FILES
+    - bracketed:
+      - start_bracket: (
+      - parameter: format
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'CSV'"
+      - comma: ','
+      - parameter: uris
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - array_literal:
+          start_square_bracket: '['
+          quoted_literal: "'azure://test.blob.core.windows.net/container/sampled*'"
+          end_square_bracket: ']'
+      - comma: ','
+      - parameter: skip_leading_rows
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - numeric_literal: '1'
+      - end_bracket: )
+    - keyword: WITH
+    - keyword: CONNECTION
+    - object_reference:
+        quoted_identifier: '`azure-eastus2.test-connection`'
+- statement:
+    load_data_statement:
+    - keyword: LOAD
+    - keyword: DATA
+    - keyword: OVERWRITE
+    - table_reference:
+      - naked_identifier: mydataset
+      - dot: .
+      - naked_identifier: testparquet
+    - keyword: FROM
+    - keyword: FILES
+    - bracketed:
+      - start_bracket: (
+      - parameter: uris
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - array_literal:
+          start_square_bracket: '['
+          quoted_literal: "'s3://test-bucket/sample.parquet'"
+          end_square_bracket: ']'
+      - comma: ','
+      - parameter: format
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'PARQUET'"
+      - end_bracket: )
+    - keyword: WITH
+    - keyword: CONNECTION
+    - object_reference:
+        quoted_identifier: '`aws-us-east-1.test-connection`'

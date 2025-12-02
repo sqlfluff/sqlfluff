@@ -1,0 +1,800 @@
+rule: LT05
+
+test_pass_line_too_long_config_override:
+  # Long lines (with config override)
+  pass_str: "SELECT COUNT(*) FROM tbl\n"
+  configs:
+    core:
+      max_line_length: 30
+
+test_fail_line_too_long_with_comments_1:
+  # Check we move comments correctly
+  fail_str: "SELECT 1 -- Some Comment\n"
+  fix_str: "-- Some Comment\nSELECT 1\n"
+  configs:
+    core:
+      max_line_length: 18
+
+test_fail_line_too_long_with_comments_1_after:
+  # Check we move comments correctly
+  fail_str: "SELECT 1 -- Some Comment\n"
+  fix_str: "SELECT 1\n-- Some Comment\n"
+  configs:
+    core:
+      max_line_length: 18
+    indentation:
+      trailing_comments: after
+
+test_fail_line_too_long_with_comments_1_no_newline:
+  # Check we move comments correctly, and that it
+  # still works when there isn't a trailing newline.
+  # https://github.com/sqlfluff/sqlfluff/issues/4386
+  fail_str: "SELECT 1 -- Some Comment"
+  fix_str: "-- Some Comment\nSELECT 1"
+  configs:
+    core:
+      max_line_length: 18
+
+test_fail_line_too_long_with_comments_2:
+  # Check we can add newlines after dedents (with an indent).
+  # NOTE: That for LT05, we don't repair the initial indent
+  # but that the following lines will be fixed as though it
+  # has been corrected. Ideally LT02 would have been run _first_
+  # on this file.
+  fail_str: "    SELECT COUNT(*) FROM tbl\n"
+  fix_str: "    SELECT COUNT(*)\nFROM tbl\n"
+  configs:
+    core:
+      max_line_length: 20
+
+test_fail_line_too_long_with_comments_3:
+  # Check priority of fixes
+  fail_str: "SELECT COUNT(*) FROM tbl -- Some Comment\n"
+  fix_str: "-- Some Comment\nSELECT COUNT(*)\nFROM tbl\n"
+  configs:
+    core:
+      max_line_length: 18
+
+test_fail_line_too_long_with_comments_4:
+  # In this case, the inline comment is NOT on a line by itself (note the
+  # leading comma), but even if we move it onto a line by itself, it's still
+  # too long. In this case, the rule should do nothing, otherwise it triggers
+  # an endless cycle of "fixes" that simply keeps adding blank lines.
+  fail_str: |
+    SELECT
+    c1
+    ,--  the "y variable" and uses_small_subject_line to be the "x variable" in terms of the regression line.
+    c2
+  configs:
+    core:
+      max_line_length: 80
+
+test_pass_line_too_long_with_comments_ignore_comment_lines:
+  # Same case as above, but should pass as ignore_comment_lines is set to true
+  pass_str: |
+    SELECT
+    c1
+    ,--  the "y variable" and uses_small_subject_line to be the "x variable" in terms of the regression line.
+    c2
+  configs:
+    core:
+      max_line_length: 80
+    rules:
+      layout.long_lines:
+        ignore_comment_lines: true
+
+test_fail_line_too_long_only_comments:
+  # Check long lines that are only comments are linted correctly
+  fail_str: "-- Some really long comments on their own line\n\nSELECT 1"
+  configs:
+    core:
+      max_line_length: 18
+
+test_fail_line_too_long_handling_indents:
+  # Check we handle indents nicely
+  fail_str: "SELECT 12345\n"
+  fix_str: "SELECT\n    12345\n"
+  configs:
+    core:
+      max_line_length: 10
+
+test_pass_line_too_long_ignore_comments_true:
+  # Check we can ignore comments if we want
+  pass_str: "SELECT 1\n-- Some long comment over 10 characters\n"
+  configs:
+    core:
+      max_line_length: 10
+    rules:
+      layout.long_lines:
+        ignore_comment_lines: true
+
+test_pass_line_too_long_ignore_comments_false:
+  # Check we still pick up long comments if we don't want to ignore
+  fail_str: "SELECT 1\n-- Some long comment over 10 characters\n"
+  configs:
+    core:
+      max_line_length: 10
+    rules:
+      layout.long_lines:
+        ignore_comment_lines: false
+
+test_compute_line_length_before_template_expansion_1:
+  # Line 3 is fine before expansion. Too long after expansion is NOT considered
+  # a violation.
+  pass_str: |
+    SELECT user_id
+    FROM
+        `{{bi_ecommerce_orders}}` {{table_at_job_start}}
+  configs:
+    core:
+      dialect: bigquery
+    templater:
+      jinja:
+        context:
+          table_at_job_start: FOR SYSTEM_TIME AS OF CAST('2021-03-02T01:22:59+00:00' AS TIMESTAMP)
+          bi_ecommerce_orders: bq-business-intelligence.user.ecommerce_orders
+
+
+test_compute_line_length_before_template_expansion_2:
+  # Line 3 is too long before expansion. It's fine after expansion, but the rule
+  # does not look at that.
+  fail_str: |
+    SELECT user_id
+    FROM
+        `{{bi_ecommerce_orders_bi_ecommerce_orders}}` AS {{table_alias_table_alias_table_alias_table_alias_table_alias_table_alias}}
+  fix_str: |
+    SELECT user_id
+    FROM
+        `{{bi_ecommerce_orders_bi_ecommerce_orders}}`
+            AS {{table_alias_table_alias_table_alias_table_alias_table_alias_table_alias}}
+  violations_after_fix:
+    # Even after fixing, the final line is still too long.
+    - description: Line is too long (86 > 80).
+      name: layout.long_lines
+      warning: false
+      fixes: []
+      start_line_no: 4
+      start_line_pos: 9
+      start_file_pos: 78
+      end_line_no: 4
+      end_line_pos: 11
+      end_file_pos: 80
+  configs:
+    core:
+      dialect: bigquery
+    templater:
+      jinja:
+        context:
+          bi_ecommerce_orders_bi_ecommerce_orders: bq-business-intelligence.user.ecommerce_orders
+          table_alias_table_alias_table_alias_table_alias_table_alias_table_alias: t
+
+
+test_long_jinja_comment:
+  fail_str: |
+    SELECT *
+    {# comment #}
+    {# ........................................................................... #}
+    FROM table
+  configs:
+    core:
+      max_line_length: 80
+    rules:
+      layout.long_lines:
+        ignore_comment_lines: false
+
+
+test_long_jinja_comment_ignore:
+  # A Jinja comment is a comment.
+  pass_str: |
+    SELECT *
+    {# comment #}
+    {# ........................................................................... #}
+    FROM table
+  configs:
+    core:
+      max_line_length: 80
+    rules:
+      layout.long_lines:
+        ignore_comment_lines: true
+
+
+test_for_loop:
+  # A Jinja for loop
+  pass_str: |
+    {% for elem in 'foo' %}
+    SELECT '{{ elem }}' FROM table1;
+    SELECT '{{ elem }}' FROM table2;
+    {% endfor %}
+
+
+test_for_loop_repeating_elements_starts_with_literal:
+  # A Jinja for loop with repeating elements (that are difficult to match)
+  # but starting with a literal that can be used to match
+  pass_str: |
+    {% set elements = 'foo' %}
+    SELECT
+        CASE
+            {% for elem in elements %}
+            WHEN '{{ elem }}' = '' THEN 1
+            WHEN '{{ elem }}' = '' THEN 1
+            {% endfor %}
+        END
+
+
+test_for_loop_starting_with_templated_piece:
+  # A Jinja for loop starting with non-literals
+  # But unique parts can be used to match
+  pass_str: |
+    {% set elements = 'foo' %}
+    {% set when = 'WHEN' %}
+    SELECT
+        CASE
+            {% for elem in elements %}
+            {{ when }} '{{ elem }}' = '' THEN 1
+            {{ when }} '{{ elem }}' = '' THEN 2
+            {% endfor %}
+        END
+
+test_for_loop_fail_complex_match:
+  # A Jinja for loop starting with non-literals
+  # But non-unique parts which therefore cannot
+  # be used to match
+  pass_str: |
+    {% set elements = 'foo' %}
+    {% set when = 'WHEN' %}
+    SELECT
+        CASE
+            {% for elem in elements %}
+            {{ when }} '{{ elem }}' = '' THEN 1
+            {{ when }} '{{ elem }}' = '' THEN 1
+            {% endfor %}
+        END
+
+test_for_loop_fail_simple_match:
+  # If for loop only contains literals it should still pass
+  pass_str: |
+    {% set elements = 'foo' %}
+    SELECT
+        CASE
+            {% for elem in elements %}
+            WHEN 'f' THEN a
+            {% endfor %}
+        END
+
+
+test_set_statement:
+  # A Jinja set statement
+  pass_str: |
+    {% set statement = "SELECT 1 from table1;" %}
+    {{ statement }}{{ statement }}
+  configs:
+    core:
+      max_line_length: 80
+
+
+test_issue_1666_line_too_long_unfixable_jinja:
+  # Note the trailing space at the end of line 1. This is a necessary part of
+  # the test, because the space (which is passed through to the output) was
+  # "tricking" LT05 into trying to split the line, then encountering an internal
+  # error.
+  fail_str: "{{ config (schema='bronze', materialized='view', sort =['id','number'], dist = 'all', tags =['longlonglonglonglong']) }} \n\nselect 1\n"
+
+test_fail_ignore_comment_clauses_1:
+  # Too long, comment clause not ignored
+  fail_str: |
+    CREATE OR REPLACE TABLE mytable (
+        col1 NUMBER COMMENT 'col1 comment',
+        col2 BOOLEAN COMMENT 'very long comment line, exceeding max_line_lengthvery long comment line, exceeding max_line_length very long comment line, exceeding max_line_length very long comment line, exceeding max_line_length',
+        col3 NUMBER COMMENT 'col3 comment'
+    )
+
+test_fail_ignore_comment_clauses_2:
+  # Too long even after ignoring comment clause
+  fail_str: |
+    CREATE OR REPLACE TABLE mytable (
+        col1 NUMBER COMMENT 'col1 comment',
+        colaaaaaaaaaaaaaaaaaaaaaaaaaaabbbbbbbbbbbbbbbbbcccccccccccccccddddddddddddddddeeeeeeeeeeeeeee2 BOOLEAN COMMENT 'very long comment line, exceeding max_line_lengthvery long comment line, exceeding max_line_length very long comment line, exceeding max_line_length very long comment line, exceeding max_line_length',
+        col3 NUMBER COMMENT 'col3 comment'
+    )
+  configs:
+    rules:
+      layout.long_lines:
+        ignore_comment_clauses: true
+
+test_pass_ignore_comment_clauses:
+  pass_str: |
+    CREATE OR REPLACE TABLE mytable (
+        col1 NUMBER COMMENT 'col1 comment',
+        col2 BOOLEAN COMMENT 'very long comment line, exceeding max_line_lengthvery long comment line, exceeding max_line_length very long comment line, exceeding max_line_length very long comment line, exceeding max_line_length',
+        col3 NUMBER COMMENT 'col3 comment'
+    )
+  configs:
+    rules:
+      layout.long_lines:
+        ignore_comment_clauses: true
+
+test_pass_ignore_comment_clauses_teradata:
+  pass_str: |
+    comment on table sandbox_db.Org_Descendant is 'very long comment line, exceeding max_line_lengthvery long comment line, exceeding max_line_length very long comment line, exceeding max_line_length very long comment line, exceeding max_line_length';
+  configs:
+    core:
+      dialect: teradata
+    rules:
+      layout.long_lines:
+        ignore_comment_clauses: true
+
+test_pass_ignore_comment_clauses_exasol:
+  pass_str: |
+    CREATE TABLE IF NOT EXISTS SCHEM.TAB (
+        ID DECIMAL(18, 0) IDENTITY CONSTRAINT PRIMARY KEY DISABLE COMMENT IS 'without constraint name'
+    ) COMMENT IS 'very long comment line, exceeding max_line_lengthvery long comment line, exceeding max_line_length very long comment line, exceeding max_line_length very long comment line, exceeding max_line_length';
+  configs:
+    core:
+      dialect: exasol
+    rules:
+      layout.long_lines:
+        ignore_comment_clauses: true
+
+test_pass_ignore_comment_clauses_snowflake:
+  pass_str: |
+    CREATE TABLE foo_table (bar INTEGER) COMMENT = 'very long comment line, exceeding max_line_lengthvery long comment line, exceeding max_line_length very long comment line, exceeding max_line_length very long comment line, exceeding max_line_length'
+  configs:
+    core:
+      dialect: snowflake
+    rules:
+      layout.long_lines:
+        ignore_comment_clauses: true
+
+test_pass_ignore_comment_clauses_postgres:
+  pass_str: |
+    CREATE TABLE IF NOT EXISTS foo
+    ( id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+      name TEXT NOT NULL
+    );
+
+    COMMENT ON TABLE foo IS 'Windows Phone 8, however, was never able to overcome a long string of disappointments for Microsoft. ';
+  configs:
+    core:
+      dialect: postgres
+    rules:
+      layout.long_lines:
+        ignore_comment_clauses: true
+
+test_fail_templated_comment_line:
+  fail_str: |
+    SELECT *
+        {# ........................................................................... #}
+    FROM table
+  configs:
+    templater:
+      jinja:
+        context: {}
+
+test_pass_ignore_templated_comment_lines:
+  # NOTE: This is potentially a behaviour change in 2.0.0.
+  # This was erroneously using the `ignore_comment_clauses`
+  # config when this query contains no comment clauses.
+  pass_str: |
+    SELECT *
+        {# ........................................................................... #}
+    FROM table
+  configs:
+    rules:
+      layout.long_lines:
+        ignore_comment_lines: true
+    templater:
+      jinja:
+        context: {}
+
+test_fail_operator_precedence_1:
+  # Make sure we split at the + operator.
+  fail_str: |
+    select
+        ISNULL(count, '0') * 10000 + ISNULL(planned, 100)
+    from blah
+  fix_str: |
+    select
+        ISNULL(count, '0') * 10000
+        + ISNULL(planned, 100)
+    from blah
+  configs:
+    core:
+      max_line_length: 30
+
+test_fail_operator_precedence_2:
+  # Make sure we split at the AND operator.
+  fail_str: |
+    select
+        recommendation_list[ORDINAL(1)] = 'uses_small_subject_line' AND uses_small_subject_line != CAST(effect_size_list[ORDINAL(1)] AS FLOAT64)
+    from blah
+  fix_str: |
+    select
+        recommendation_list[ORDINAL(1)] = 'uses_small_subject_line'
+        AND uses_small_subject_line != CAST(effect_size_list[ORDINAL(1)] AS FLOAT64)
+    from blah
+  configs:
+    core:
+      max_line_length: 120
+
+test_fail_operator_precedence_3:
+  # Stretching cases for operators and comma
+  fail_str: |
+    select
+        a, b + c, long_name + long_name * long_name - long_name as foo, long_name AND long_name OR long_name OR long_name as bar
+    from blah
+  fix_str: |
+    select
+        a,
+        b + c,
+        long_name
+        + long_name * long_name
+        - long_name as foo,
+        long_name AND long_name
+        OR long_name
+        OR long_name as bar
+    from blah
+  configs:
+    core:
+      max_line_length: 30
+
+test_pass_long_multiline_jinja:
+  # None of the lines are longer than 30
+  # but the whole tag is. It shouldn't
+  # cause issues.
+  pass_str: |
+    select
+        {{
+          1 + 2 + 3 + 4 + 5
+          + 6 + 7 + 8 + 9 + 10
+        }}
+    from blah
+  configs:
+    core:
+      max_line_length: 30
+
+test_fail_long_inline_statement:
+  # Tests that breaks happen between clauses properly
+  fail_str: |
+    select distinct a + b from c join d using (e) where f = g and h = i order by j
+  fix_str: |
+    select distinct a + b
+    from c
+    join d using (e)
+    where f = g and h = i
+    order by j
+  configs:
+    core:
+      max_line_length: 50
+
+test_pass_check_off_1:
+  # Tests that we can disable the check (using 0).
+  pass_str: |
+    select my_really_really_really_really_really_really_really_really_really_really_really_long_var from tbl
+  configs:
+    core:
+      max_line_length: 0
+
+test_pass_check_off_2:
+  # Tests that we can disable the check (using -1).
+  pass_str: |
+    select my_really_really_really_really_really_really_really_really_really_really_really_long_var from tbl
+  configs:
+    core:
+      max_line_length: -1
+
+test_comment_move_mid_query:
+  fail_str: |
+    select
+        my_long_long_line as foo -- with some comment
+    from foo
+  fix_str: |
+    select
+        -- with some comment
+        my_long_long_line as foo
+    from foo
+  configs:
+    core:
+      max_line_length: 40
+
+test_fix_implicit_indent:
+  # Test for ImplicitIndent.
+  # The theoretical indent between WHERE and "a" is implicit.
+  fail_str: |
+    SELECT
+        CASE
+            WHEN longer_and_longer AND much_much_much_longer
+                THEN longer_and_longer AND much_much_much_longer
+            ELSE longer_and_longer AND much_much_much_longer
+        END as foobar,
+        CASE WHEN a THEN b END as bar
+    FROM foo
+    WHERE a_really_long_field AND a_nother_really_long_field
+    HAVING a_really_long_field AND a_nother_really_long_field
+  fix_str: |
+    SELECT
+        CASE
+            WHEN longer_and_longer
+                AND much_much_much_longer
+                THEN longer_and_longer
+                    AND much_much_much_longer
+            ELSE longer_and_longer
+                AND much_much_much_longer
+        END as foobar,
+        CASE WHEN a THEN b END as bar
+    FROM foo
+    WHERE a_really_long_field
+        AND a_nother_really_long_field
+    HAVING a_really_long_field
+        AND a_nother_really_long_field
+  configs:
+    core:
+      max_line_length: 45
+    indentation:
+      implicit_indents: allow
+
+test_fix_no_implicit_indent:
+  # Test explicitly preventing implicit indents.
+  fail_str: |
+    SELECT
+        CASE
+            WHEN longer_and_longer AND much_much_much_longer
+                THEN longer_and_longer AND much_much_much_longer
+            ELSE longer_and_longer AND much_much_much_longer
+        END as foobar,
+        CASE WHEN a THEN b END as bar
+    FROM foo
+    WHERE a_really_long_field AND a_nother_really_long_field
+    HAVING a_really_long_field AND a_nother_really_long_field
+  fix_str: |
+    SELECT
+        CASE
+            WHEN
+                longer_and_longer
+                AND much_much_much_longer
+                THEN
+                    longer_and_longer
+                    AND much_much_much_longer
+            ELSE
+                longer_and_longer
+                AND much_much_much_longer
+        END as foobar,
+        CASE WHEN a THEN b END as bar
+    FROM foo
+    WHERE
+        a_really_long_field
+        AND a_nother_really_long_field
+    HAVING
+        a_really_long_field
+        AND a_nother_really_long_field
+  configs:
+    core:
+      max_line_length: 45
+    indentation:
+      implicit_indents: forbid
+
+test_fix_window_function:
+  # https://github.com/sqlfluff/sqlfluff/issues/4292
+  fail_str: |
+    select *
+    from t
+    qualify a = coalesce(
+        first_value(iff(b = 'none', null, a)) ignore nulls over (partition by c order by d desc),
+        first_value(a) respect nulls over (partition by c order by d desc)
+    )
+  fix_str: |
+    select *
+    from t
+    qualify a = coalesce(
+        first_value(
+            iff(b = 'none', null, a)
+        ) ignore nulls
+            over (partition by c order by d desc),
+        first_value(a) respect nulls
+            over (partition by c order by d desc)
+    )
+  configs:
+    core:
+      max_line_length: 50
+      dialect: snowflake
+
+test_fail_do_not_fix_noqa:
+  # https://github.com/sqlfluff/sqlfluff/issues/4248
+  # NOTE: No fix_str, because this should be unfixable.
+  fail_str: |
+    SELECT
+        col1,
+        col2,
+        col3
+    FROM
+        really_really_really_really_really_really_long_schema_name.TABLE1 -- noqa: L014
+
+test_block_comment_single_line_noqa:
+  # Ignore long line in block comment
+  pass_str: |
+    /* A very long single-line block comment which is ignored --noqa: LT05 */
+    /* Another single-line block comment which is also ignored. I'm too lazy to specify which rule to ignore though. -- noqa */
+    /*
+    A very long multi-line block comment which is ignored -- noqa: LT05
+    */
+    /* noqa: disable=all */
+    -- A noqa by itself in a block comment is followed
+    /* noqa: enable=all */
+    /* -- noqa: disable=all */
+    -- A noqa in a block comment preceded by a single line comment marker (--) is followed
+    /* noqa: enable=all */
+    /* Ignore warnings for a bit! -- noqa: disable=all */
+    -- If the noqa is accompanied by preceding text in a block comment it
+    -- must be preceded by a single-line comment marker, and it must be
+    -- the last part of the line.
+    /* noqa: enable=all */
+    select 1
+  configs:
+    core:
+      max_line_length: 30
+
+test_fail_block_comment_single_line_noqa:
+  # Don't ignore long line in single-line block comment
+  fail_str: |
+    /* A very long single-line block comment which is not ignored */
+  configs:
+    core:
+      max_line_length: 30
+
+test_fail_block_comment_multi_line_noqa:
+  # Don't ignore long line in multi-line block comment
+  fail_str: |
+    /*
+    A very long multi-line block comment which is not ignored
+    */
+  configs:
+    core:
+      max_line_length: 30
+
+test_fail_block_comment_noqa_following_preceding_text_noqa:
+  # Don't follow noqa if it follows preceding text and is not
+  # immediately preceded by a single line comment marker (--)
+  fail_str: |
+    /* This won't work: noqa: disable=all */
+    -- A noqa will NOT be followed if it follows preceding text, and is
+    -- not immediately preceded by a single-line comment marker (--).
+    /* noqa: enable=all */
+  configs:
+    core:
+      max_line_length: 30
+
+test_fail_block_comment_noqa_not_at_end_of_line_noqa:
+  # Don't follow noqa if it is not at the end of the line
+  fail_str: |
+    /* -- noqa: disable=all Invalid noqa declaration */
+    -- A noqa will NOT be followed if it is not the last part of the line.
+    /* noqa: enable=all */
+    select 1
+  configs:
+    core:
+      max_line_length: 55
+
+test_operator_precedence:
+  fail_str: |
+    SELECT *
+    FROM foo
+    left join abcdef_abcd_details
+        on foo.abcdefgh_id = abcdef_abcd_details.abcdefgh_id and abcdef_abcd_details.abcdef_abcdef_abcdef_abcdef = 1
+  fix_str: |
+    SELECT *
+    FROM foo
+    left join abcdef_abcd_details
+        on
+            foo.abcdefgh_id = abcdef_abcd_details.abcdefgh_id
+            and abcdef_abcd_details.abcdef_abcdef_abcdef_abcdef = 1
+  configs:
+    core:
+      max_line_length: 100
+      dialect: snowflake
+
+test_long_functions_and_aliases:
+  # https://github.com/sqlfluff/sqlfluff/issues/4033
+  fail_str: |
+    SELECT
+        my_function(col1 + col2, arg2, arg3) over (partition by col3, col4 order by col5 rows between unbounded preceding and current row) as my_relatively_long_alias,
+        my_other_function(col6, col7 + col8, arg4) as my_other_relatively_long_alias,
+        my_expression_function(col6, col7 + col8, arg4) = col9 + col10 as another_relatively_long_alias
+    FROM my_table
+  fix_str: |
+    SELECT
+        my_function(col1 + col2, arg2, arg3)
+            over (
+                partition by col3, col4
+                order by col5 rows between unbounded preceding and current row
+            )
+            as my_relatively_long_alias,
+        my_other_function(col6, col7 + col8, arg4)
+            as my_other_relatively_long_alias,
+        my_expression_function(col6, col7 + col8, arg4)
+        = col9 + col10 as another_relatively_long_alias
+    FROM my_table
+
+test_order_by_rebreak_span:
+  # This tests that we can correctly rebreak an "order by" expressions.
+  fail_str: |
+    select * from
+        (
+            select
+                tbl1.*,
+                row_number() over (
+                    partition by tbl1.the_name,  {{ ['a', 'b', 'c', 'd'] | join(', ') }} order by created_at desc
+                ) rnk
+            from foo
+            inner join tbl2
+                on tbl1.the_name = tbl2.the_name
+        )
+  fix_str: |
+    select * from
+        (
+            select
+                tbl1.*,
+                row_number() over (
+                    partition by
+                        tbl1.the_name,  {{ ['a', 'b', 'c', 'd'] | join(', ') }}
+                    order by created_at desc
+                ) rnk
+            from foo
+            inner join tbl2
+                on tbl1.the_name = tbl2.the_name
+        )
+
+test_trailing_semicolon_moves:
+  # The checks that we don't move the semicolon or the comma.
+  fail_str: |
+    SELECT my_very_long_field,
+    FROM foo
+    ORDER BY my_very_long_field;
+  fix_str: |
+    SELECT
+        my_very_long_field,
+    FROM foo
+    ORDER BY
+        my_very_long_field;
+  configs:
+    core:
+      dialect: bigquery
+      max_line_length: 20
+  # After fixing there are still issues, but we're still keeping
+  # the comma and semicolon where they are.
+  violations_after_fix:
+    - description: Line is too long (23 > 20).
+      name: layout.long_lines
+      warning: false
+      fixes: []
+      start_line_no: 2
+      start_line_pos: 5
+      start_file_pos: 11
+      end_line_no: 2
+      end_line_pos: 23
+      end_file_pos: 29
+    - description: Line is too long (23 > 20).
+      name: layout.long_lines
+      warning: false
+      fixes: []
+      start_line_no: 5
+      start_line_pos: 5
+      start_file_pos: 53
+      end_line_no: 5
+      end_line_pos: 23
+      end_file_pos: 71
+
+test_pass_window_function:
+  # Test that we don't flag too eagerly on window functions.
+  pass_str: |
+    select
+        col,
+        rank() over (
+            partition by a, b, c
+            order by d desc
+        ) as rnk
+    from foo
+
+test_fail_no_fix_long_templated:
+  # Test we fail but don't try and fix a long templated line
+  fail_str: |
+    select
+        '{{ "', '".join(["foo", "bar", "whatever", "whatever", "whatever", "whatever"]) }}'

@@ -1,0 +1,865 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: e48d313c611a5c62fe32a3b2687b0858ccd9529ccd25acfc0eeeafc4cfadfae5
+file:
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+            naked_identifier: id
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: sum
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: quantity
+                end_bracket: )
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: sum_quantity
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: dealer
+      groupby_clause:
+      - keyword: GROUP
+      - keyword: BY
+      - column_reference:
+          naked_identifier: id
+      orderby_clause:
+      - keyword: ORDER
+      - keyword: BY
+      - column_reference:
+          naked_identifier: id
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+            naked_identifier: id
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: sum
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: quantity
+                end_bracket: )
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: sum_quantity
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: dealer
+      groupby_clause:
+      - keyword: GROUP
+      - keyword: BY
+      - numeric_literal: '1'
+      orderby_clause:
+      - keyword: ORDER
+      - keyword: BY
+      - numeric_literal: '1'
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+            naked_identifier: id
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: sum
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: quantity
+                end_bracket: )
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: sum_quantity
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: max
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: quantity
+                end_bracket: )
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: max_quantity
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: dealer
+      groupby_clause:
+      - keyword: GROUP
+      - keyword: BY
+      - column_reference:
+          naked_identifier: id
+      orderby_clause:
+      - keyword: ORDER
+      - keyword: BY
+      - column_reference:
+          naked_identifier: id
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+            naked_identifier: car_model
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: count
+            function_contents:
+              bracketed:
+                start_bracket: (
+                keyword: DISTINCT
+                expression:
+                  column_reference:
+                    naked_identifier: city
+                end_bracket: )
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: count_distinct_city
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: dealer
+      groupby_clause:
+      - keyword: GROUP
+      - keyword: BY
+      - column_reference:
+          naked_identifier: car_model
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+            naked_identifier: id
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: sum
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: quantity
+                end_bracket: )
+            keyword: FILTER
+            bracketed:
+              start_bracket: (
+              keyword: WHERE
+              expression:
+                column_reference:
+                  naked_identifier: car_model
+                keyword: IN
+                bracketed:
+                - start_bracket: (
+                - quoted_literal: "'Honda Civic'"
+                - comma: ','
+                - quoted_literal: "'Honda CRV'"
+                - end_bracket: )
+              end_bracket: )
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            quoted_identifier: '`sum(quantity)`'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: dealer
+      groupby_clause:
+      - keyword: GROUP
+      - keyword: BY
+      - column_reference:
+          naked_identifier: id
+      orderby_clause:
+      - keyword: ORDER
+      - keyword: BY
+      - column_reference:
+          naked_identifier: id
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+            naked_identifier: city
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: car_model
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: sum
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: quantity
+                end_bracket: )
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: sum_quantity
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: dealer
+      groupby_clause:
+      - keyword: GROUP
+      - keyword: BY
+      - grouping_sets_clause:
+        - keyword: GROUPING
+        - keyword: SETS
+        - bracketed:
+            start_bracket: (
+            grouping_expression_list:
+            - expression:
+                bracketed:
+                - start_bracket: (
+                - column_reference:
+                    naked_identifier: city
+                - comma: ','
+                - column_reference:
+                    naked_identifier: car_model
+                - end_bracket: )
+            - comma: ','
+            - expression:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                      naked_identifier: city
+                  end_bracket: )
+            - comma: ','
+            - expression:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                      naked_identifier: car_model
+                  end_bracket: )
+            - comma: ','
+            - expression:
+                bracketed:
+                  start_bracket: (
+                  end_bracket: )
+            end_bracket: )
+      orderby_clause:
+      - keyword: ORDER
+      - keyword: BY
+      - column_reference:
+          naked_identifier: city
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+            naked_identifier: city
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: car_model
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: sum
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: quantity
+                end_bracket: )
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: sum_quantity
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: dealer
+      groupby_clause:
+      - keyword: GROUP
+      - keyword: BY
+      - column_reference:
+          naked_identifier: city
+      - comma: ','
+      - column_reference:
+          naked_identifier: car_model
+      - grouping_sets_clause:
+        - keyword: GROUPING
+        - keyword: SETS
+        - bracketed:
+            start_bracket: (
+            grouping_expression_list:
+            - expression:
+                bracketed:
+                - start_bracket: (
+                - column_reference:
+                    naked_identifier: city
+                - comma: ','
+                - column_reference:
+                    naked_identifier: car_model
+                - end_bracket: )
+            - comma: ','
+            - expression:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                      naked_identifier: city
+                  end_bracket: )
+            - comma: ','
+            - expression:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                      naked_identifier: car_model
+                  end_bracket: )
+            - comma: ','
+            - expression:
+                bracketed:
+                  start_bracket: (
+                  end_bracket: )
+            end_bracket: )
+      orderby_clause:
+      - keyword: ORDER
+      - keyword: BY
+      - column_reference:
+          naked_identifier: city
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+            naked_identifier: city
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: car_model
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: sum
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: quantity
+                end_bracket: )
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: sum_quantity
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: dealer
+      groupby_clause:
+      - keyword: GROUP
+      - keyword: BY
+      - column_reference:
+          naked_identifier: city
+      - comma: ','
+      - column_reference:
+          naked_identifier: car_model
+      - comma: ','
+      - grouping_sets_clause:
+        - keyword: GROUPING
+        - keyword: SETS
+        - bracketed:
+            start_bracket: (
+            grouping_expression_list:
+            - expression:
+                bracketed:
+                - start_bracket: (
+                - column_reference:
+                    naked_identifier: city
+                - comma: ','
+                - column_reference:
+                    naked_identifier: car_model
+                - end_bracket: )
+            - comma: ','
+            - expression:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                      naked_identifier: city
+                  end_bracket: )
+            - comma: ','
+            - expression:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                      naked_identifier: car_model
+                  end_bracket: )
+            - comma: ','
+            - expression:
+                bracketed:
+                  start_bracket: (
+                  end_bracket: )
+            end_bracket: )
+      orderby_clause:
+      - keyword: ORDER
+      - keyword: BY
+      - column_reference:
+          naked_identifier: city
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+            naked_identifier: city
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: car_model
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: sum
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: quantity
+                end_bracket: )
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: sum_quantity
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: dealer
+      groupby_clause:
+      - keyword: GROUP
+      - keyword: BY
+      - column_reference:
+          naked_identifier: city
+      - comma: ','
+      - column_reference:
+          naked_identifier: car_model
+      - with_cube_rollup_clause:
+        - keyword: WITH
+        - keyword: ROLLUP
+      orderby_clause:
+      - keyword: ORDER
+      - keyword: BY
+      - column_reference:
+          naked_identifier: city
+      - comma: ','
+      - column_reference:
+          naked_identifier: car_model
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+            naked_identifier: city
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: car_model
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: sum
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: quantity
+                end_bracket: )
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: sum_quantity
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: dealer
+      groupby_clause:
+      - keyword: GROUP
+      - keyword: BY
+      - column_reference:
+          naked_identifier: city
+      - comma: ','
+      - column_reference:
+          naked_identifier: car_model
+      - with_cube_rollup_clause:
+        - keyword: WITH
+        - keyword: CUBE
+      orderby_clause:
+      - keyword: ORDER
+      - keyword: BY
+      - column_reference:
+          naked_identifier: city
+      - comma: ','
+      - column_reference:
+          naked_identifier: car_model
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: first
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: age
+                end_bracket: )
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: person
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: first
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                    naked_identifier: age
+              - keyword: IGNORE
+              - keyword: NULLS
+              - end_bracket: )
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: first_age
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: last
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: id
+                end_bracket: )
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: last_id
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: sum
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: id
+                end_bracket: )
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: sum_id
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: person
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+            naked_identifier: name
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: age
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: count
+            function_contents:
+              bracketed:
+                start_bracket: (
+                star: '*'
+                end_bracket: )
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: record_count
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: people
+      groupby_clause:
+      - keyword: GROUP
+      - keyword: BY
+      - cube_rollup_clause:
+          function_name:
+            function_name_identifier: cube
+          bracketed:
+            start_bracket: (
+            grouping_expression_list:
+            - column_reference:
+                naked_identifier: name
+            - comma: ','
+            - column_reference:
+                naked_identifier: age
+            end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+            naked_identifier: name
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: count
+            function_contents:
+              bracketed:
+                start_bracket: (
+                star: '*'
+                end_bracket: )
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: record_count
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: people
+      groupby_clause:
+      - keyword: GROUP
+      - keyword: BY
+      - cube_rollup_clause:
+          function_name:
+            function_name_identifier: cube
+          bracketed:
+            start_bracket: (
+            grouping_expression_list:
+              column_reference:
+                naked_identifier: name
+            end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+            naked_identifier: name
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: age
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: count
+            function_contents:
+              bracketed:
+                start_bracket: (
+                star: '*'
+                end_bracket: )
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: record_count
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: people
+      groupby_clause:
+      - keyword: GROUP
+      - keyword: BY
+      - cube_rollup_clause:
+          function_name:
+            function_name_identifier: cube
+          bracketed:
+            start_bracket: (
+            grouping_expression_list:
+            - column_reference:
+                naked_identifier: name
+            - comma: ','
+            - column_reference:
+                naked_identifier: age
+            end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+            naked_identifier: name
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: age
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: count
+            function_contents:
+              bracketed:
+                start_bracket: (
+                star: '*'
+                end_bracket: )
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: record_count
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: people
+      groupby_clause:
+      - keyword: GROUP
+      - keyword: BY
+      - cube_rollup_clause:
+          function_name:
+            function_name_identifier: rollup
+          bracketed:
+            start_bracket: (
+            grouping_expression_list:
+            - column_reference:
+                naked_identifier: name
+            - comma: ','
+            - column_reference:
+                naked_identifier: age
+            end_bracket: )
+- statement_terminator: ;

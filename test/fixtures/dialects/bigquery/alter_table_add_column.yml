@@ -1,0 +1,111 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: ffe6d536e3610d1f3824d02d296744076d6c5722b8b430224ec78db50d09ddf6
+file:
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: mydataset
+      - dot: .
+      - naked_identifier: mytable
+    - keyword: ADD
+    - keyword: COLUMN
+    - column_definition:
+        naked_identifier: A
+        data_type:
+          data_type_identifier: STRING
+    - comma: ','
+    - keyword: ADD
+    - keyword: COLUMN
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - column_definition:
+        naked_identifier: B
+        data_type:
+          data_type_identifier: GEOGRAPHY
+    - comma: ','
+    - keyword: ADD
+    - keyword: COLUMN
+    - column_definition:
+        naked_identifier: C
+        data_type:
+          data_type:
+            keyword: ARRAY
+            start_angle_bracket: <
+            data_type:
+              data_type_identifier: NUMERIC
+            end_angle_bracket: '>'
+    - comma: ','
+    - keyword: ADD
+    - keyword: COLUMN
+    - column_definition:
+        naked_identifier: D
+        data_type:
+          data_type_identifier: DATE
+        options_segment:
+          keyword: OPTIONS
+          bracketed:
+            start_bracket: (
+            parameter: description
+            comparison_operator:
+              raw_comparison_operator: '='
+            quoted_literal: '"my description"'
+            end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: mydataset
+      - dot: .
+      - naked_identifier: mytable
+    - keyword: ADD
+    - keyword: COLUMN
+    - column_definition:
+        naked_identifier: A
+        data_type:
+          data_type:
+            keyword: STRUCT
+            struct_type_schema:
+            - start_angle_bracket: <
+            - parameter: B
+            - data_type:
+                data_type_identifier: GEOGRAPHY
+            - comma: ','
+            - parameter: C
+            - data_type:
+                data_type:
+                  keyword: ARRAY
+                  start_angle_bracket: <
+                  data_type:
+                    data_type_identifier: INT64
+                  end_angle_bracket: '>'
+            - comma: ','
+            - parameter: D
+            - data_type:
+                data_type_identifier: INT64
+            - column_constraint_segment:
+              - keyword: NOT
+              - keyword: 'NULL'
+            - comma: ','
+            - parameter: E
+            - data_type:
+                data_type_identifier: TIMESTAMP
+            - options_segment:
+                keyword: OPTIONS
+                bracketed:
+                  start_bracket: (
+                  parameter: description
+                  comparison_operator:
+                    raw_comparison_operator: '='
+                  quoted_literal: '"creation time"'
+                  end_bracket: )
+            - end_angle_bracket: '>'
+- statement_terminator: ;

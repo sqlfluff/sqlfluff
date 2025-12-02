@@ -1,0 +1,157 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 7679aad86bf7581f023ca7e74c2ce3ec2ba9a8477f1a4f8241a6897881cce731
+file:
+- statement:
+    alter_external_table_statement:
+    - keyword: alter
+    - keyword: external
+    - keyword: table
+    - table_reference:
+        naked_identifier: foo
+    - keyword: refresh
+- statement_terminator: ;
+- statement:
+    alter_external_table_statement:
+    - keyword: alter
+    - keyword: external
+    - keyword: table
+    - table_reference:
+        naked_identifier: foo
+    - keyword: refresh
+    - quoted_literal: "'2018/08/05/'"
+- statement_terminator: ;
+- statement:
+    alter_external_table_statement:
+    - keyword: alter
+    - keyword: external
+    - keyword: table
+    - table_reference:
+        naked_identifier: foo
+    - keyword: add
+    - keyword: files
+    - bracketed:
+      - start_bracket: (
+      - quoted_literal: "'foo/bar.json.gz'"
+      - comma: ','
+      - quoted_literal: "'bar/foo.json.gz'"
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_external_table_statement:
+    - keyword: alter
+    - keyword: external
+    - keyword: table
+    - table_reference:
+        naked_identifier: foo
+    - keyword: remove
+    - keyword: files
+    - bracketed:
+      - start_bracket: (
+      - quoted_literal: "'foo/bar.json.gz'"
+      - comma: ','
+      - quoted_literal: "'bar/foo.json.gz'"
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_external_table_statement:
+    - keyword: alter
+    - keyword: external
+    - keyword: table
+    - table_reference:
+        naked_identifier: foo
+    - keyword: add
+    - keyword: partition
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: foo
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'baz'"
+      - comma: ','
+      - column_reference:
+          naked_identifier: bar
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'bar'"
+      - comma: ','
+      - column_reference:
+          naked_identifier: baz
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'foo'"
+      - end_bracket: )
+    - keyword: location
+    - quoted_literal: "'2022/01'"
+- statement_terminator: ;
+- statement:
+    alter_external_table_statement:
+    - keyword: alter
+    - keyword: external
+    - keyword: table
+    - table_reference:
+        naked_identifier: foo
+    - keyword: drop
+    - keyword: partition
+    - keyword: location
+    - quoted_literal: "'2022/01'"
+- statement_terminator: ;
+- statement:
+    alter_external_table_statement:
+    - keyword: alter
+    - keyword: external
+    - keyword: table
+    - keyword: if
+    - keyword: exists
+    - table_reference:
+        naked_identifier: foo
+    - keyword: set
+    - keyword: auto_refresh
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - boolean_literal: 'true'
+- statement_terminator: ;
+- statement:
+    alter_external_table_statement:
+    - keyword: alter
+    - keyword: external
+    - keyword: table
+    - keyword: if
+    - keyword: exists
+    - table_reference:
+        naked_identifier: foo
+    - keyword: set
+    - tag_equals:
+      - keyword: tag
+      - tag_reference:
+          naked_identifier: foo
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'foo'"
+      - comma: ','
+      - tag_reference:
+          naked_identifier: bar
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'bar'"
+- statement_terminator: ;
+- statement:
+    alter_external_table_statement:
+    - keyword: alter
+    - keyword: external
+    - keyword: table
+    - table_reference:
+        naked_identifier: foo
+    - keyword: unset
+    - tag_equals:
+        keyword: tag
+        tag_reference:
+          naked_identifier: foo
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'foo'"
+- statement_terminator: ;

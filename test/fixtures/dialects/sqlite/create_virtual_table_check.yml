@@ -1,0 +1,119 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: a5d5c7202136c306e6a940f7bc582106d93cd8b02bac94fcb888c5efbcbf7d32
+file:
+- statement:
+    create_virtual_table_statement:
+    - keyword: CREATE
+    - keyword: VIRTUAL
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: email
+    - keyword: USING
+    - naked_identifier: fts5
+- statement_terminator: ;
+- statement:
+    create_virtual_table_statement:
+    - keyword: CREATE
+    - keyword: VIRTUAL
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: email
+    - keyword: USING
+    - naked_identifier: fts5
+    - bracketed:
+      - start_bracket: (
+      - naked_identifier: sender
+      - comma: ','
+      - naked_identifier: title
+      - comma: ','
+      - naked_identifier: body
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_virtual_table_statement:
+    - keyword: CREATE
+    - keyword: VIRTUAL
+    - keyword: TABLE
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - table_reference:
+        naked_identifier: email
+    - keyword: USING
+    - naked_identifier: fts5
+    - bracketed:
+      - start_bracket: (
+      - naked_identifier: name
+      - comma: ','
+      - naked_identifier: phone
+      - comma: ','
+      - naked_identifier: email
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_virtual_table_statement:
+    - keyword: CREATE
+    - keyword: VIRTUAL
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: sample_schema
+      - dot: .
+      - naked_identifier: email
+    - keyword: USING
+    - naked_identifier: fts3
+    - bracketed:
+      - start_bracket: (
+      - naked_identifier: content
+      - comma: ','
+      - naked_identifier: date
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_virtual_table_statement:
+    - keyword: CREATE
+    - keyword: VIRTUAL
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: email
+    - keyword: USING
+    - naked_identifier: fts5
+    - bracketed:
+      - start_bracket: (
+      - quoted_literal: "'email text'"
+      - comma: ','
+      - naked_identifier: user_id
+      - comma: ','
+      - numeric_literal: '100'
+      - comma: ','
+      - quoted_identifier: '"complex-field@!#"'
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_virtual_table_statement:
+    - keyword: CREATE
+    - keyword: VIRTUAL
+    - keyword: TABLE
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - table_reference:
+      - naked_identifier: sample_schema
+      - dot: .
+      - naked_identifier: email
+    - keyword: USING
+    - naked_identifier: fts5
+    - bracketed:
+      - start_bracket: (
+      - quoted_literal: "'email text'"
+      - comma: ','
+      - naked_identifier: user_id
+      - comma: ','
+      - numeric_literal: '0'
+      - comma: ','
+      - quoted_identifier: '"complex-field@!#"'
+      - end_bracket: )
+- statement_terminator: ;

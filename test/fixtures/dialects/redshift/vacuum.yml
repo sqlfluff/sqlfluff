@@ -1,0 +1,82 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: ffe0de2c6413a5f57b2ad950d92a11bbfd256c6a19ee29b6db333c5d27eb17f0
+file:
+- statement:
+    vacuum_statement:
+      keyword: vacuum
+- statement_terminator: ;
+- statement:
+    vacuum_statement:
+      keyword: vacuum
+      table_reference:
+        naked_identifier: sales
+- statement_terminator: ;
+- statement:
+    vacuum_statement:
+    - keyword: vacuum
+    - table_reference:
+        naked_identifier: sales
+    - keyword: to
+    - numeric_literal: '100'
+    - keyword: percent
+- statement_terminator: ;
+- statement:
+    vacuum_statement:
+    - keyword: vacuum
+    - keyword: recluster
+    - table_reference:
+        naked_identifier: sales
+- statement_terminator: ;
+- statement:
+    vacuum_statement:
+    - keyword: vacuum
+    - keyword: sort
+    - keyword: only
+    - table_reference:
+        naked_identifier: sales
+    - keyword: to
+    - numeric_literal: '75'
+    - keyword: percent
+- statement_terminator: ;
+- statement:
+    vacuum_statement:
+    - keyword: vacuum
+    - keyword: delete
+    - keyword: only
+    - table_reference:
+        naked_identifier: sales
+    - keyword: to
+    - numeric_literal: '75'
+    - keyword: percent
+- statement_terminator: ;
+- statement:
+    vacuum_statement:
+    - keyword: vacuum
+    - keyword: reindex
+    - table_reference:
+        naked_identifier: listing
+- statement_terminator: ;
+- statement:
+    vacuum_statement:
+    - keyword: vacuum
+    - keyword: reindex
+    - table_reference:
+        naked_identifier: listing
+    - keyword: to
+    - numeric_literal: '75'
+    - keyword: percent
+- statement_terminator: ;
+- statement:
+    vacuum_statement:
+    - keyword: vacuum
+    - table_reference:
+        naked_identifier: listing
+    - keyword: to
+    - numeric_literal: '75'
+    - keyword: percent
+    - keyword: BOOST
+- statement_terminator: ;

@@ -3,71 +3,71 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 48272d4ca5460b20ad1ff37d03736352fe144111868352c2b6bd7eedb6b4aacc
+_hash: b3b030f95d03b4e596d31d6c865d1aa67ac01dd005d0a5929bd77ba56946c7d6
 file:
   statement:
     create_table_statement:
     - keyword: create
     - keyword: table
     - table_reference:
-        identifier: table1
+        naked_identifier: table1
     - bracketed:
       - start_bracket: (
       - column_definition:
-          identifier: c1
+          naked_identifier: c1
           data_type:
             data_type_identifier: INT
       - comma: ','
       - column_definition:
-          identifier: c2
+          naked_identifier: c2
           data_type:
             data_type_identifier: INT
       - comma: ','
       - column_definition:
-          identifier: c3
+          naked_identifier: c3
           data_type:
             data_type_identifier: INT
       - comma: ','
-      - table_constraint_segment:
+      - table_constraint:
         - keyword: PRIMARY
         - keyword: KEY
         - bracketed:
             start_bracket: (
             column_reference:
-              identifier: c1
+              naked_identifier: c1
             end_bracket: )
       - comma: ','
-      - table_constraint_segment:
+      - table_constraint:
           keyword: UNIQUE
           bracketed:
           - start_bracket: (
           - column_reference:
-              identifier: c2
+              naked_identifier: c2
           - comma: ','
           - column_reference:
-              identifier: c3
+              naked_identifier: c3
           - end_bracket: )
       - comma: ','
-      - table_constraint_segment:
+      - table_constraint:
         - keyword: FOREIGN
         - keyword: KEY
         - bracketed:
           - start_bracket: (
           - column_reference:
-              identifier: c2
+              naked_identifier: c2
           - comma: ','
           - column_reference:
-              identifier: c3
+              naked_identifier: c3
           - end_bracket: )
         - keyword: REFERENCES
-        - column_reference:
-            identifier: table2
+        - table_reference:
+            naked_identifier: table2
         - bracketed:
           - start_bracket: (
           - column_reference:
-              identifier: c2_
+              naked_identifier: c2_
           - comma: ','
           - column_reference:
-              identifier: c3_
+              naked_identifier: c3_
           - end_bracket: )
       - end_bracket: )

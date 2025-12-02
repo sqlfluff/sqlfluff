@@ -1,0 +1,77 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 7722a31bfc9f742c5b8b69b5a9367643a55c50ed3f859466be81fd9d8408536c
+file:
+  statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+          - naked_identifier: j
+          - dot: .
+          - naked_identifier: key
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+          - naked_identifier: j
+          - dot: .
+          - naked_identifier: value
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+          - naked_identifier: j
+          - dot: .
+          - naked_identifier: type
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+          - naked_identifier: j
+          - dot: .
+          - naked_identifier: atom
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+          - naked_identifier: j
+          - dot: .
+          - naked_identifier: id
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+          - naked_identifier: j
+          - dot: .
+          - naked_identifier: parent
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+          - naked_identifier: j
+          - dot: .
+          - naked_identifier: fullkey
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+          - naked_identifier: j
+          - dot: .
+          - naked_identifier: path
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              function:
+                function_name:
+                  function_name_identifier: json_tree
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      quoted_literal: "'{}'"
+                    end_bracket: )
+            alias_expression:
+              alias_operator:
+                keyword: AS
+              naked_identifier: j
+  statement_terminator: ;

@@ -3,75 +3,81 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 39cb26283b2b0a6c616e448985191047bdbe96083d2ae4c209013f4acb77d9f6
+_hash: 20a079e8c2c658cced513e1214677d3729d549f0662c02625daf180e0ce7f1b0
 file:
   batch:
-    statement:
+  - statement:
       if_then_statement:
-      - keyword: IF
-      - expression:
-          literal: '1'
-          comparison_operator: <=
-          bracketed:
-            start_bracket: (
-            expression:
-              select_statement:
-                select_clause:
-                  keyword: SELECT
-                  select_clause_element:
-                    column_reference:
-                      identifier: Weight
-                from_clause:
-                  keyword: from
-                  from_expression:
-                    from_expression_element:
-                      table_expression:
-                        table_reference:
-                          identifier: DimProduct
-                where_clause:
-                  keyword: WHERE
-                  expression:
-                    column_reference:
-                      identifier: ProductKey
-                    comparison_operator: '='
-                    literal: '1'
-            end_bracket: )
+      - if_clause:
+          keyword: IF
+          expression:
+            integer_literal: '1'
+            comparison_operator:
+            - raw_comparison_operator: <
+            - raw_comparison_operator: '='
+            bracketed:
+              start_bracket: (
+              expression:
+                select_statement:
+                  select_clause:
+                    keyword: SELECT
+                    select_clause_element:
+                      column_reference:
+                        naked_identifier: Weight
+                  from_clause:
+                    keyword: from
+                    from_expression:
+                      from_expression_element:
+                        table_expression:
+                          table_reference:
+                            naked_identifier: DimProduct
+                  where_clause:
+                    keyword: WHERE
+                    expression:
+                      column_reference:
+                        naked_identifier: ProductKey
+                      comparison_operator:
+                        raw_comparison_operator: '='
+                      integer_literal: '1'
+              end_bracket: )
       - statement:
           select_statement:
             select_clause:
             - keyword: SELECT
             - select_clause_element:
                 column_reference:
-                  identifier: ProductKey
+                  naked_identifier: ProductKey
             - comma: ','
             - select_clause_element:
                 column_reference:
-                  identifier: EnglishDescription
+                  naked_identifier: EnglishDescription
             - comma: ','
             - select_clause_element:
                 column_reference:
-                  identifier: Weight
+                  naked_identifier: Weight
             - comma: ','
             - select_clause_element:
-                literal: "'This product is too heavy to ship and is only available\
+                quoted_literal: "'This product is too heavy to ship and is only available\
                   \ for pickup.'"
                 alias_expression:
-                  keyword: AS
-                  identifier: ShippingStatus
+                  alias_operator:
+                    keyword: AS
+                  naked_identifier: ShippingStatus
             from_clause:
               keyword: FROM
               from_expression:
                 from_expression_element:
                   table_expression:
                     table_reference:
-                      identifier: DimProduct
+                      naked_identifier: DimProduct
             where_clause:
               keyword: WHERE
               expression:
                 column_reference:
-                  identifier: ProductKey
-                comparison_operator: '='
-                literal: '1'
+                  naked_identifier: ProductKey
+                comparison_operator:
+                  raw_comparison_operator: '='
+                integer_literal: '1'
       - keyword: ELSE
       - statement:
           select_statement:
@@ -79,32 +85,84 @@ file:
             - keyword: SELECT
             - select_clause_element:
                 column_reference:
-                  identifier: ProductKey
+                  naked_identifier: ProductKey
             - comma: ','
             - select_clause_element:
                 column_reference:
-                  identifier: EnglishDescription
+                  naked_identifier: EnglishDescription
             - comma: ','
             - select_clause_element:
                 column_reference:
-                  identifier: Weight
+                  naked_identifier: Weight
             - comma: ','
             - select_clause_element:
-                literal: "'This product is available for shipping or pickup.'"
+                quoted_literal: "'This product is available for shipping or pickup.'"
                 alias_expression:
-                  keyword: AS
-                  identifier: ShippingStatus
+                  alias_operator:
+                    keyword: AS
+                  naked_identifier: ShippingStatus
             from_clause:
               keyword: FROM
               from_expression:
                 from_expression_element:
                   table_expression:
                     table_reference:
-                      identifier: DimProduct
+                      naked_identifier: DimProduct
             where_clause:
               keyword: WHERE
               expression:
                 column_reference:
-                  identifier: ProductKey
-                comparison_operator: '='
-                literal: '1'
+                  naked_identifier: ProductKey
+                comparison_operator:
+                  raw_comparison_operator: '='
+                integer_literal: '1'
+  - statement:
+      if_then_statement:
+        if_clause:
+          keyword: if
+          expression:
+            keyword: exists
+            bracketed:
+              start_bracket: (
+              set_expression:
+              - select_statement:
+                  select_clause:
+                    keyword: select
+                    select_clause_element:
+                      wildcard_expression:
+                        wildcard_identifier:
+                          star: '*'
+                  from_clause:
+                    keyword: from
+                    from_expression:
+                      from_expression_element:
+                        table_expression:
+                          table_reference:
+                            hash_identifier: '#a'
+              - set_operator:
+                - keyword: union
+                - keyword: all
+              - select_statement:
+                  select_clause:
+                    keyword: select
+                    select_clause_element:
+                      wildcard_expression:
+                        wildcard_identifier:
+                          star: '*'
+                  from_clause:
+                    keyword: from
+                    from_expression:
+                      from_expression_element:
+                        table_expression:
+                          table_reference:
+                            hash_identifier: '#b'
+              end_bracket: )
+        statement:
+          set_local_variable_segment:
+            keyword: set
+            parameter: '@var'
+            assignment_operator:
+              raw_comparison_operator: '='
+            expression:
+              integer_literal: '1'
+        statement_terminator: ;

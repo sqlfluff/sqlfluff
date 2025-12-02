@@ -3,19 +3,19 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: c3505a8882802ab7db86cbc5ce32950c387cba21e15c6a50b92a456aaa01c119
+_hash: 14b630222252bb4882c7cd41f7fe954a96dd5c3ba5f809961cdf4778b6673758
 file:
   statement:
     create_table_statement:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-        identifier: new_foo
+        naked_identifier: new_foo
     - row_format_clause:
       - keyword: ROW
       - keyword: FORMAT
       - keyword: SERDE
-      - literal: '"org.apache.hadoop.hive.serde2.columnar.ColumnarSerDe"'
+      - quoted_literal: '"org.apache.hadoop.hive.serde2.columnar.ColumnarSerDe"'
     - keyword: STORED
     - keyword: AS
     - file_format: RCFile
@@ -29,34 +29,35 @@ file:
                 start_bracket: (
                 expression:
                   column_reference:
-                    identifier: col1
+                    naked_identifier: col1
                   binary_operator: '%'
-                  literal: '1024'
+                  numeric_literal: '1024'
                 end_bracket: )
             alias_expression:
-              identifier: col
+              naked_identifier: col
         - comma: ','
         - select_clause_element:
             function:
               function_name:
                 function_name_identifier: concat
-              bracketed:
-              - start_bracket: (
-              - expression:
-                  column_reference:
-                    identifier: col1
-              - comma: ','
-              - expression:
-                  column_reference:
-                    identifier: col2
-              - end_bracket: )
+              function_contents:
+                bracketed:
+                - start_bracket: (
+                - expression:
+                    column_reference:
+                      naked_identifier: col1
+                - comma: ','
+                - expression:
+                    column_reference:
+                      naked_identifier: col2
+                - end_bracket: )
             alias_expression:
-              identifier: col12
+              naked_identifier: col12
         from_clause:
           keyword: FROM
           from_expression:
             from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: foo
+                  naked_identifier: foo
   statement_terminator: ;

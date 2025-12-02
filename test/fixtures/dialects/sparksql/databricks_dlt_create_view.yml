@@ -1,0 +1,368 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 555cf4e02736d842de63f822a3855bd54d969e2fb17a88186d4b53e039aa3241
+file:
+- statement:
+    create_view_statement:
+    - keyword: CREATE
+    - keyword: TEMPORARY
+    - keyword: LIVE
+    - keyword: VIEW
+    - table_reference:
+        naked_identifier: filtered_data
+    - keyword: AS
+    - select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+              naked_identifier: a
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: b
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                - naked_identifier: live
+                - dot: .
+                - naked_identifier: taxi_raw
+- statement_terminator: ;
+- statement:
+    create_view_statement:
+    - keyword: CREATE
+    - keyword: TEMPORARY
+    - keyword: STREAMING
+    - keyword: LIVE
+    - keyword: VIEW
+    - table_reference:
+        naked_identifier: customers_silver
+    - keyword: AS
+    - select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+              naked_identifier: a
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: b
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                function:
+                  function_name:
+                    function_name_identifier: stream
+                  function_contents:
+                    bracketed:
+                      start_bracket: (
+                      expression:
+                        column_reference:
+                        - naked_identifier: live
+                        - dot: .
+                        - naked_identifier: customers_bronze
+                      end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_view_statement:
+    - keyword: CREATE
+    - keyword: TEMPORARY
+    - keyword: LIVE
+    - keyword: VIEW
+    - table_reference:
+        naked_identifier: filtered_data
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: a
+      - keyword: COMMENT
+      - quoted_literal: "'a'"
+      - comma: ','
+      - column_reference:
+          naked_identifier: b
+      - keyword: COMMENT
+      - quoted_literal: "'b'"
+      - comma: ','
+      - constraint_statement:
+        - keyword: CONSTRAINT
+        - object_reference:
+            naked_identifier: valid_a
+        - keyword: EXPECT
+        - bracketed:
+            start_bracket: (
+            expression:
+            - column_reference:
+                naked_identifier: a
+            - keyword: IS
+            - keyword: NOT
+            - null_literal: 'NULL'
+            end_bracket: )
+      - comma: ','
+      - constraint_statement:
+        - keyword: CONSTRAINT
+        - object_reference:
+            naked_identifier: valid_b
+        - keyword: EXPECT
+        - bracketed:
+            start_bracket: (
+            expression:
+              column_reference:
+                naked_identifier: b
+              comparison_operator:
+                raw_comparison_operator: '>'
+              numeric_literal: '0'
+            end_bracket: )
+      - end_bracket: )
+    - keyword: AS
+    - select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+              naked_identifier: a
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: b
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                - naked_identifier: live
+                - dot: .
+                - naked_identifier: taxi_raw
+- statement_terminator: ;
+- statement:
+    create_view_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REFRESH
+    - keyword: MATERIALIZED
+    - keyword: VIEW
+    - table_reference:
+        naked_identifier: temp_table
+    - keyword: AS
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            numeric_literal: '1'
+            alias_expression:
+              alias_operator:
+                keyword: AS
+              naked_identifier: ID
+- statement_terminator: ;
+- statement:
+    create_view_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REFRESH
+    - keyword: MATERIALIZED
+    - keyword: VIEW
+    - table_reference:
+        naked_identifier: dlt_view
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: a
+      - data_type:
+          primitive_type:
+            keyword: STRING
+      - keyword: COMMENT
+      - quoted_literal: "'a'"
+      - comma: ','
+      - column_reference:
+          naked_identifier: b
+      - data_type:
+          primitive_type:
+            keyword: TIMESTAMP
+      - keyword: COMMENT
+      - quoted_literal: "'b'"
+      - end_bracket: )
+    - keyword: COMMENT
+    - quoted_literal: "'DLT materialized view'"
+    - keyword: AS
+    - select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+              naked_identifier: a
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: b
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                - naked_identifier: live
+                - dot: .
+                - naked_identifier: dlt_bronze
+- statement_terminator: ;
+- statement:
+    create_view_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REFRESH
+    - keyword: MATERIALIZED
+    - keyword: VIEW
+    - table_reference:
+        naked_identifier: my_dlt_mat_view
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: col1
+      - data_type:
+          primitive_type:
+            keyword: STRING
+      - keyword: COMMENT
+      - quoted_literal: "'Dummy column 1'"
+      - comma: ','
+      - column_reference:
+          naked_identifier: col2
+      - data_type:
+          primitive_type:
+            keyword: BIGINT
+      - keyword: COMMENT
+      - quoted_literal: "'Dummy column 2'"
+      - comma: ','
+      - column_reference:
+          naked_identifier: col3
+      - data_type:
+          primitive_type:
+            keyword: BOOLEAN
+      - keyword: COMMENT
+      - quoted_literal: "'Dummy column 3'"
+      - end_bracket: )
+    - keyword: PARTITIONED
+    - keyword: BY
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          naked_identifier: col1
+        end_bracket: )
+    - keyword: COMMENT
+    - quoted_literal: "'Example simplified materialized view with dummy fields.'"
+    - keyword: TBLPROPERTIES
+    - bracketed:
+        start_bracket: (
+        property_name_identifier:
+          quoted_identifier: "'quality'"
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'gold'"
+        end_bracket: )
+    - keyword: AS
+    - select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+              naked_identifier: col1
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: col2
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: col3
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: my_source_table
+- statement_terminator: ;
+- statement:
+    create_view_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REFRESH
+    - keyword: MATERIALIZED
+    - keyword: VIEW
+    - table_reference:
+        naked_identifier: my_dlt_mat_view
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: col1
+      - data_type:
+          primitive_type:
+            keyword: STRING
+      - keyword: COMMENT
+      - quoted_literal: "'Dummy column 1'"
+      - comma: ','
+      - column_reference:
+          naked_identifier: col2
+      - data_type:
+          primitive_type:
+            keyword: BIGINT
+      - keyword: COMMENT
+      - quoted_literal: "'Dummy column 2'"
+      - comma: ','
+      - column_reference:
+          naked_identifier: col3
+      - data_type:
+          primitive_type:
+            keyword: BOOLEAN
+      - keyword: COMMENT
+      - quoted_literal: "'Dummy column 3'"
+      - end_bracket: )
+    - table_cluster_by_clause:
+      - keyword: CLUSTER
+      - keyword: BY
+      - bracketed:
+          start_bracket: (
+          column_reference:
+            naked_identifier: col1
+          end_bracket: )
+    - keyword: COMMENT
+    - quoted_literal: "'Example simplified materialized view with dummy fields.'"
+    - keyword: TBLPROPERTIES
+    - bracketed:
+        start_bracket: (
+        property_name_identifier:
+          quoted_identifier: "'quality'"
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'gold'"
+        end_bracket: )
+    - keyword: AS
+    - select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+              naked_identifier: col1
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: col2
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: col3
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: my_source_table
+- statement_terminator: ;

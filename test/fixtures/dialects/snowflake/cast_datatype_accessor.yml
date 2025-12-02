@@ -1,0 +1,252 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: b18f7a4178447a6fc1c0cc5965aa1cd332b0835ca06a7675ff84c6e2f26d5621
+file:
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          expression:
+            cast_expression:
+              column_reference:
+                naked_identifier: bar
+              casting_operator: '::'
+              data_type:
+                data_type_identifier: array
+              array_accessor:
+                start_square_bracket: '['
+                numeric_literal: '0'
+                end_square_bracket: ']'
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: channel
+      - comma: ','
+      - select_clause_element:
+          expression:
+            cast_expression:
+              column_reference:
+                naked_identifier: foo
+              semi_structured_expression:
+                colon: ':'
+                semi_structured_element: bar
+              casting_operator: '::'
+              data_type:
+                data_type_identifier: array
+              array_accessor:
+                start_square_bracket: '['
+                numeric_literal: '2'
+                end_square_bracket: ']'
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: channel2
+      - comma: ','
+      - select_clause_element:
+          expression:
+            cast_expression:
+            - column_reference:
+                naked_identifier: bar
+            - casting_operator: '::'
+            - data_type:
+                data_type_identifier: array
+            - array_accessor:
+                start_square_bracket: '['
+                numeric_literal: '0'
+                end_square_bracket: ']'
+            - array_accessor:
+                start_square_bracket: '['
+                numeric_literal: '1'
+                end_square_bracket: ']'
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: channel3
+      - comma: ','
+      - select_clause_element:
+          expression:
+            cast_expression:
+            - column_reference:
+                naked_identifier: raw
+            - semi_structured_expression:
+                colon: ':'
+                semi_structured_element: foo
+            - casting_operator: '::'
+            - data_type:
+                data_type_identifier: array
+            - array_accessor:
+                start_square_bracket: '['
+                numeric_literal: '0'
+                end_square_bracket: ']'
+            - casting_operator: '::'
+            - data_type:
+                data_type_identifier: string
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: channel4
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: my_table
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+            cast_expression:
+            - column_reference:
+                naked_identifier: foo
+            - casting_operator: '::'
+            - data_type:
+                data_type_identifier: variant
+            - semi_structured_expression:
+                colon: ':'
+                semi_structured_element: field
+            - casting_operator: '::'
+            - data_type:
+                data_type_identifier: array
+            - array_accessor:
+                start_square_bracket: '['
+                numeric_literal: '0'
+                end_square_bracket: ']'
+            - casting_operator: '::'
+            - data_type:
+                data_type_identifier: string
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: name
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: my_table
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_modifier:
+          keyword: DISTINCT
+      - select_clause_element:
+          expression:
+            cast_expression:
+            - column_reference:
+                naked_identifier: payload
+            - casting_operator: '::'
+            - data_type:
+                data_type_identifier: variant
+            - casting_operator: '::'
+            - data_type:
+                data_type_identifier: object
+            - semi_structured_expression:
+                colon: ':'
+                semi_structured_element: name
+            - casting_operator: '::'
+            - data_type:
+                data_type_identifier: text
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: name
+      - comma: ','
+      - select_clause_element:
+          expression:
+            cast_expression:
+            - column_reference:
+                naked_identifier: payload
+            - casting_operator: '::'
+            - data_type:
+                data_type_identifier: variant
+            - casting_operator: '::'
+            - data_type:
+                data_type_identifier: object
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: details
+      - comma: ','
+      - select_clause_element:
+          expression:
+            cast_expression:
+            - column_reference:
+                naked_identifier: payload
+            - casting_operator: '::'
+            - data_type:
+                data_type_identifier: variant
+            - casting_operator: '::'
+            - data_type:
+                data_type_identifier: object
+            - semi_structured_expression:
+                colon: ':'
+                semi_structured_element: createdAt
+            - casting_operator: '::'
+            - data_type:
+                data_type_identifier: timestamp_ntz
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: created
+      - comma: ','
+      - select_clause_element:
+          expression:
+            cast_expression:
+            - column_reference:
+                naked_identifier: payload
+            - casting_operator: '::'
+            - data_type:
+                data_type_identifier: variant
+            - casting_operator: '::'
+            - data_type:
+                data_type_identifier: object
+            - semi_structured_expression:
+                colon: ':'
+                semi_structured_element: updatedAt
+            - casting_operator: '::'
+            - data_type:
+                data_type_identifier: timestamp_ntz
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: updated
+      - comma: ','
+      - select_clause_element:
+          expression:
+            cast_expression:
+            - column_reference:
+                naked_identifier: payload
+            - casting_operator: '::'
+            - data_type:
+                data_type_identifier: variant
+            - casting_operator: '::'
+            - data_type:
+                data_type_identifier: object
+            - semi_structured_expression:
+                colon: ':'
+                semi_structured_element: id
+            - casting_operator: '::'
+            - data_type:
+                data_type_identifier: number
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: id
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: raw_source_table

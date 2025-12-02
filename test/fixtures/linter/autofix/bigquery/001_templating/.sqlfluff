@@ -2,3 +2,6 @@
 project=marketing_segmentation
 dataset=dataset
 label_prob_threshold=0.8
+
+[sqlfluff:indentation]
+implicit_indents=allow

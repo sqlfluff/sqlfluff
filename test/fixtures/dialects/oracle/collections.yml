@@ -1,0 +1,826 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 4699ead08fa070b0eada379fb27af50b081adca4963fa918da87b206d7516b08
+file:
+- statement:
+    begin_end_block:
+    - declare_segment:
+      - keyword: DECLARE
+      - collection_type:
+        - keyword: TYPE
+        - naked_identifier: population
+        - keyword: IS
+        - keyword: TABLE
+        - keyword: OF
+        - data_type:
+            data_type_identifier: NUMBER
+        - keyword: INDEX
+        - keyword: BY
+        - data_type:
+            data_type_identifier: VARCHAR2
+            bracketed_arguments:
+              bracketed:
+                start_bracket: (
+                numeric_literal: '64'
+                end_bracket: )
+      - statement_terminator: ;
+      - naked_identifier: city_population
+      - data_type:
+          data_type_identifier: population
+      - statement_terminator: ;
+      - naked_identifier: i
+      - data_type:
+          data_type_identifier: VARCHAR2
+          bracketed_arguments:
+            bracketed:
+              start_bracket: (
+              numeric_literal: '64'
+              end_bracket: )
+      - statement_terminator: ;
+    - keyword: BEGIN
+    - statement:
+        function:
+          function_name:
+            function_name_identifier: city_population
+          function_contents:
+            bracketed:
+              start_bracket: (
+              expression:
+                quoted_literal: "'Smallville'"
+              end_bracket: )
+    - statement:
+        assignment_segment_statement:
+          assignment_operator: :=
+          expression:
+            numeric_literal: '2000'
+    - statement_terminator: ;
+    - statement:
+        function:
+          function_name:
+            function_name_identifier: city_population
+          function_contents:
+            bracketed:
+              start_bracket: (
+              expression:
+                quoted_literal: "'Midland'"
+              end_bracket: )
+    - statement:
+        assignment_segment_statement:
+          assignment_operator: :=
+          expression:
+            numeric_literal: '750000'
+    - statement_terminator: ;
+    - statement:
+        function:
+          function_name:
+            function_name_identifier: city_population
+          function_contents:
+            bracketed:
+              start_bracket: (
+              expression:
+                quoted_literal: "'Megalopolis'"
+              end_bracket: )
+    - statement:
+        assignment_segment_statement:
+          assignment_operator: :=
+          expression:
+            numeric_literal: '1000000'
+    - statement_terminator: ;
+    - statement:
+        function:
+          function_name:
+            function_name_identifier: city_population
+          function_contents:
+            bracketed:
+              start_bracket: (
+              expression:
+                quoted_literal: "'Smallville'"
+              end_bracket: )
+    - statement:
+        assignment_segment_statement:
+          assignment_operator: :=
+          expression:
+            numeric_literal: '2001'
+    - statement_terminator: ;
+    - statement:
+        assignment_segment_statement:
+          object_reference:
+            naked_identifier: i
+          assignment_operator: :=
+          expression:
+            column_reference:
+            - naked_identifier: city_population
+            - dot: .
+            - naked_identifier: FIRST
+    - statement_terminator: ;
+    - statement:
+        while_loop_statement:
+          keyword: WHILE
+          expression:
+          - column_reference:
+              naked_identifier: i
+          - keyword: IS
+          - keyword: NOT
+          - null_literal: 'NULL'
+          loop_statement:
+          - keyword: LOOP
+          - statement:
+              function:
+                function_name:
+                  naked_identifier: DBMS_Output
+                  dot: .
+                  function_name_identifier: PUT_LINE
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                    - quoted_literal: "'Population of '"
+                    - binary_operator:
+                      - pipe: '|'
+                      - pipe: '|'
+                    - column_reference:
+                        naked_identifier: i
+                    - binary_operator:
+                      - pipe: '|'
+                      - pipe: '|'
+                    - quoted_literal: "' is '"
+                    - binary_operator:
+                      - pipe: '|'
+                      - pipe: '|'
+                    - function:
+                        function_name:
+                          function_name_identifier: city_population
+                        function_contents:
+                          bracketed:
+                            start_bracket: (
+                            expression:
+                              column_reference:
+                                naked_identifier: i
+                            end_bracket: )
+                    end_bracket: )
+          - statement_terminator: ;
+          - statement:
+              assignment_segment_statement:
+                object_reference:
+                  naked_identifier: i
+                assignment_operator: :=
+                expression:
+                  function:
+                    function_name:
+                      naked_identifier: city_population
+                      dot: .
+                      function_name_identifier: NEXT
+                    function_contents:
+                      bracketed:
+                        start_bracket: (
+                        expression:
+                          column_reference:
+                            naked_identifier: i
+                        end_bracket: )
+          - statement_terminator: ;
+          - keyword: END
+          - keyword: LOOP
+    - statement_terminator: ;
+    - keyword: END
+- statement_terminator: ;
+- statement_terminator: /
+- statement:
+    begin_end_block:
+    - declare_segment:
+      - keyword: DECLARE
+      - collection_type:
+        - keyword: TYPE
+        - naked_identifier: sum_multiples
+        - keyword: IS
+        - keyword: TABLE
+        - keyword: OF
+        - data_type:
+            data_type_identifier: PLS_INTEGER
+        - keyword: INDEX
+        - keyword: BY
+        - data_type:
+            data_type_identifier: PLS_INTEGER
+      - statement_terminator: ;
+      - naked_identifier: n
+      - data_type:
+          data_type_identifier: PLS_INTEGER
+      - assignment_operator: :=
+      - expression:
+          numeric_literal: '5'
+      - statement_terminator: ;
+      - naked_identifier: sn
+      - data_type:
+          data_type_identifier: PLS_INTEGER
+      - assignment_operator: :=
+      - expression:
+          numeric_literal: '10'
+      - statement_terminator: ;
+      - naked_identifier: m
+      - data_type:
+          data_type_identifier: PLS_INTEGER
+      - assignment_operator: :=
+      - expression:
+          numeric_literal: '3'
+      - statement_terminator: ;
+      - create_function_statement:
+        - keyword: FUNCTION
+        - function_name:
+            function_name_identifier: get_sum_multiples
+        - function_parameter_list:
+            bracketed:
+            - start_bracket: (
+            - parameter: multiple
+            - keyword: IN
+            - data_type:
+                data_type_identifier: PLS_INTEGER
+            - comma: ','
+            - parameter: num
+            - keyword: IN
+            - data_type:
+                data_type_identifier: PLS_INTEGER
+            - end_bracket: )
+        - keyword: RETURN
+        - data_type:
+            data_type_identifier: sum_multiples
+        - keyword: IS
+        - declare_segment:
+            naked_identifier: s
+            data_type:
+              data_type_identifier: sum_multiples
+            statement_terminator: ;
+        - begin_end_block:
+          - keyword: BEGIN
+          - statement:
+              for_loop_statement:
+              - keyword: FOR
+              - naked_identifier: i
+              - keyword: IN
+              - numeric_literal: '1'
+              - dot: .
+              - dot: .
+              - naked_identifier: num
+              - loop_statement:
+                - keyword: LOOP
+                - statement:
+                    assignment_segment_statement:
+                      object_reference:
+                        naked_identifier: s
+                      bracketed:
+                        start_bracket: (
+                        object_reference:
+                          naked_identifier: i
+                        end_bracket: )
+                      assignment_operator: :=
+                      expression:
+                        column_reference:
+                          naked_identifier: multiple
+                        binary_operator: '*'
+                        bracketed:
+                          start_bracket: (
+                          expression:
+                            bracketed:
+                              start_bracket: (
+                              expression:
+                                column_reference:
+                                  naked_identifier: i
+                                binary_operator: '*'
+                                bracketed:
+                                  start_bracket: (
+                                  expression:
+                                    column_reference:
+                                      naked_identifier: i
+                                    binary_operator: +
+                                    numeric_literal: '1'
+                                  end_bracket: )
+                              end_bracket: )
+                            binary_operator: /
+                            numeric_literal: '2'
+                          end_bracket: )
+                - statement_terminator: ;
+                - keyword: END
+                - keyword: LOOP
+          - statement_terminator: ;
+          - statement:
+              return_statement:
+                keyword: RETURN
+                expression:
+                  column_reference:
+                    naked_identifier: s
+          - statement_terminator: ;
+          - keyword: END
+          - object_reference:
+              naked_identifier: get_sum_multiples
+        - statement_terminator: ;
+    - keyword: BEGIN
+    - statement:
+        function:
+          function_name:
+            naked_identifier: DBMS_OUTPUT
+            dot: .
+            function_name_identifier: PUT_LINE
+          function_contents:
+            bracketed:
+              start_bracket: (
+              expression:
+              - quoted_literal: "'Sum of the first '"
+              - binary_operator:
+                - pipe: '|'
+                - pipe: '|'
+              - function:
+                  function_name:
+                    function_name_identifier: TO_CHAR
+                  function_contents:
+                    bracketed:
+                      start_bracket: (
+                      expression:
+                        column_reference:
+                          naked_identifier: n
+                      end_bracket: )
+              - binary_operator:
+                - pipe: '|'
+                - pipe: '|'
+              - quoted_literal: "' multiples of '"
+              - binary_operator:
+                - pipe: '|'
+                - pipe: '|'
+              - function:
+                  function_name:
+                    function_name_identifier: TO_CHAR
+                  function_contents:
+                    bracketed:
+                      start_bracket: (
+                      expression:
+                        column_reference:
+                          naked_identifier: m
+                      end_bracket: )
+              - binary_operator:
+                - pipe: '|'
+                - pipe: '|'
+              - quoted_literal: "' is '"
+              - binary_operator:
+                - pipe: '|'
+                - pipe: '|'
+              - function:
+                  function_name:
+                    function_name_identifier: TO_CHAR
+                  function_contents:
+                    bracketed:
+                    - start_bracket: (
+                    - expression:
+                        function:
+                          function_name:
+                            function_name_identifier: get_sum_multiples
+                          function_contents:
+                            bracketed:
+                            - start_bracket: (
+                            - expression:
+                                column_reference:
+                                  naked_identifier: m
+                            - comma: ','
+                            - expression:
+                                column_reference:
+                                  naked_identifier: sn
+                            - end_bracket: )
+                    - expression:
+                        bracketed:
+                          start_bracket: (
+                          expression:
+                            column_reference:
+                              naked_identifier: n
+                          end_bracket: )
+                    - end_bracket: )
+              end_bracket: )
+    - statement_terminator: ;
+    - keyword: END
+- statement_terminator: ;
+- statement_terminator: /
+- statement:
+    begin_end_block:
+    - declare_segment:
+      - keyword: DECLARE
+      - collection_type:
+        - keyword: TYPE
+        - naked_identifier: Foursome
+        - keyword: IS
+        - data_type:
+            data_type_identifier: VARRAY
+            bracketed_arguments:
+              bracketed:
+                start_bracket: (
+                numeric_literal: '4'
+                end_bracket: )
+        - keyword: OF
+        - data_type:
+            data_type_identifier: VARCHAR2
+            bracketed_arguments:
+              bracketed:
+                start_bracket: (
+                numeric_literal: '15'
+                end_bracket: )
+      - statement_terminator: ;
+      - naked_identifier: team
+      - data_type:
+          data_type_identifier: Foursome
+      - assignment_operator: :=
+      - expression:
+          function:
+            function_name:
+              function_name_identifier: Foursome
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  quoted_literal: "'John'"
+              - comma: ','
+              - expression:
+                  quoted_literal: "'Mary'"
+              - comma: ','
+              - expression:
+                  quoted_literal: "'Alberto'"
+              - comma: ','
+              - expression:
+                  quoted_literal: "'Juanita'"
+              - end_bracket: )
+      - statement_terminator: ;
+      - create_procedure_statement:
+        - keyword: PROCEDURE
+        - function_name:
+            function_name_identifier: print_team
+        - function_parameter_list:
+            bracketed:
+              start_bracket: (
+              parameter: heading
+              data_type:
+                data_type_identifier: VARCHAR2
+              end_bracket: )
+        - keyword: IS
+        - begin_end_block:
+          - keyword: BEGIN
+          - statement:
+              function:
+                function_name:
+                  naked_identifier: DBMS_OUTPUT
+                  dot: .
+                  function_name_identifier: PUT_LINE
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      column_reference:
+                        naked_identifier: heading
+                    end_bracket: )
+          - statement_terminator: ;
+          - statement:
+              for_loop_statement:
+              - keyword: FOR
+              - naked_identifier: i
+              - keyword: IN
+              - numeric_literal: '1'
+              - dot: .
+              - dot: .
+              - numeric_literal: '4'
+              - loop_statement:
+                - keyword: LOOP
+                - statement:
+                    function:
+                      function_name:
+                        naked_identifier: DBMS_OUTPUT
+                        dot: .
+                        function_name_identifier: PUT_LINE
+                      function_contents:
+                        bracketed:
+                          start_bracket: (
+                          expression:
+                          - column_reference:
+                              naked_identifier: i
+                          - binary_operator:
+                            - pipe: '|'
+                            - pipe: '|'
+                          - quoted_literal: "'.'"
+                          - binary_operator:
+                            - pipe: '|'
+                            - pipe: '|'
+                          - function:
+                              function_name:
+                                function_name_identifier: team
+                              function_contents:
+                                bracketed:
+                                  start_bracket: (
+                                  expression:
+                                    column_reference:
+                                      naked_identifier: i
+                                  end_bracket: )
+                          end_bracket: )
+                - statement_terminator: ;
+                - keyword: END
+                - keyword: LOOP
+          - statement_terminator: ;
+          - statement:
+              function:
+                function_name:
+                  naked_identifier: DBMS_OUTPUT
+                  dot: .
+                  function_name_identifier: PUT_LINE
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      quoted_literal: "'---'"
+                    end_bracket: )
+          - statement_terminator: ;
+          - keyword: END
+        - statement_terminator: ;
+    - keyword: BEGIN
+    - statement:
+        function:
+          function_name:
+            function_name_identifier: print_team
+          function_contents:
+            bracketed:
+              start_bracket: (
+              expression:
+                quoted_literal: "'2001 Team:'"
+              end_bracket: )
+    - statement_terminator: ;
+    - statement:
+        function:
+          function_name:
+            function_name_identifier: team
+          function_contents:
+            bracketed:
+              start_bracket: (
+              expression:
+                numeric_literal: '3'
+              end_bracket: )
+    - statement:
+        assignment_segment_statement:
+          assignment_operator: :=
+          expression:
+            quoted_literal: "'Pierre'"
+    - statement_terminator: ;
+    - statement:
+        function:
+          function_name:
+            function_name_identifier: team
+          function_contents:
+            bracketed:
+              start_bracket: (
+              expression:
+                numeric_literal: '4'
+              end_bracket: )
+    - statement:
+        assignment_segment_statement:
+          assignment_operator: :=
+          expression:
+            quoted_literal: "'Yvonne'"
+    - statement_terminator: ;
+    - statement:
+        function:
+          function_name:
+            function_name_identifier: print_team
+          function_contents:
+            bracketed:
+              start_bracket: (
+              expression:
+                quoted_literal: "'2005 Team:'"
+              end_bracket: )
+    - statement_terminator: ;
+    - statement:
+        assignment_segment_statement:
+          object_reference:
+            naked_identifier: team
+          assignment_operator: :=
+          expression:
+            function:
+              function_name:
+                function_name_identifier: Foursome
+              function_contents:
+                bracketed:
+                - start_bracket: (
+                - expression:
+                    quoted_literal: "'Arun'"
+                - comma: ','
+                - expression:
+                    quoted_literal: "'Amitha'"
+                - comma: ','
+                - expression:
+                    quoted_literal: "'Allan'"
+                - comma: ','
+                - expression:
+                    quoted_literal: "'Mae'"
+                - end_bracket: )
+    - statement_terminator: ;
+    - statement:
+        function:
+          function_name:
+            function_name_identifier: print_team
+          function_contents:
+            bracketed:
+              start_bracket: (
+              expression:
+                quoted_literal: "'2009 Team:'"
+              end_bracket: )
+    - statement_terminator: ;
+    - keyword: END
+- statement_terminator: ;
+- statement_terminator: /
+- statement:
+    begin_end_block:
+    - declare_segment:
+      - keyword: DECLARE
+      - collection_type:
+        - keyword: TYPE
+        - naked_identifier: Roster
+        - keyword: IS
+        - keyword: TABLE
+        - keyword: OF
+        - data_type:
+            data_type_identifier: VARCHAR2
+            bracketed_arguments:
+              bracketed:
+                start_bracket: (
+                numeric_literal: '15'
+                end_bracket: )
+      - statement_terminator: ;
+      - naked_identifier: names
+      - data_type:
+          data_type_identifier: Roster
+      - assignment_operator: :=
+      - expression:
+          function:
+            function_name:
+              function_name_identifier: Roster
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  quoted_literal: "'D Caruso'"
+              - comma: ','
+              - expression:
+                  quoted_literal: "'J Hamil'"
+              - comma: ','
+              - expression:
+                  quoted_literal: "'D Piro'"
+              - comma: ','
+              - expression:
+                  quoted_literal: "'R Singh'"
+              - end_bracket: )
+      - statement_terminator: ;
+      - create_procedure_statement:
+        - keyword: PROCEDURE
+        - function_name:
+            function_name_identifier: print_names
+        - function_parameter_list:
+            bracketed:
+              start_bracket: (
+              parameter: heading
+              data_type:
+                data_type_identifier: VARCHAR2
+              end_bracket: )
+        - keyword: IS
+        - begin_end_block:
+          - keyword: BEGIN
+          - statement:
+              function:
+                function_name:
+                  naked_identifier: DBMS_OUTPUT
+                  dot: .
+                  function_name_identifier: PUT_LINE
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      column_reference:
+                        naked_identifier: heading
+                    end_bracket: )
+          - statement_terminator: ;
+          - statement:
+              for_loop_statement:
+              - keyword: FOR
+              - naked_identifier: i
+              - keyword: IN
+              - naked_identifier: names
+              - dot: .
+              - naked_identifier: FIRST
+              - dot: .
+              - dot: .
+              - naked_identifier: names
+              - dot: .
+              - naked_identifier: LAST
+              - loop_statement:
+                - keyword: LOOP
+                - statement:
+                    function:
+                      function_name:
+                        naked_identifier: DBMS_OUTPUT
+                        dot: .
+                        function_name_identifier: PUT_LINE
+                      function_contents:
+                        bracketed:
+                          start_bracket: (
+                          expression:
+                            function:
+                              function_name:
+                                function_name_identifier: names
+                              function_contents:
+                                bracketed:
+                                  start_bracket: (
+                                  expression:
+                                    column_reference:
+                                      naked_identifier: i
+                                  end_bracket: )
+                          end_bracket: )
+                - statement_terminator: ;
+                - keyword: END
+                - keyword: LOOP
+          - statement_terminator: ;
+          - statement:
+              function:
+                function_name:
+                  naked_identifier: DBMS_OUTPUT
+                  dot: .
+                  function_name_identifier: PUT_LINE
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      quoted_literal: "'---'"
+                    end_bracket: )
+          - statement_terminator: ;
+          - keyword: END
+        - statement_terminator: ;
+    - keyword: BEGIN
+    - statement:
+        function:
+          function_name:
+            function_name_identifier: print_names
+          function_contents:
+            bracketed:
+              start_bracket: (
+              expression:
+                quoted_literal: "'Initial Values:'"
+              end_bracket: )
+    - statement_terminator: ;
+    - statement:
+        function:
+          function_name:
+            function_name_identifier: names
+          function_contents:
+            bracketed:
+              start_bracket: (
+              expression:
+                numeric_literal: '3'
+              end_bracket: )
+    - statement:
+        assignment_segment_statement:
+          assignment_operator: :=
+          expression:
+            quoted_literal: "'P Perez'"
+    - statement_terminator: ;
+    - statement:
+        function:
+          function_name:
+            function_name_identifier: print_names
+          function_contents:
+            bracketed:
+              start_bracket: (
+              expression:
+                quoted_literal: "'Current Values:'"
+              end_bracket: )
+    - statement_terminator: ;
+    - statement:
+        assignment_segment_statement:
+          object_reference:
+            naked_identifier: names
+          assignment_operator: :=
+          expression:
+            function:
+              function_name:
+                function_name_identifier: Roster
+              function_contents:
+                bracketed:
+                - start_bracket: (
+                - expression:
+                    quoted_literal: "'A Jansen'"
+                - comma: ','
+                - expression:
+                    quoted_literal: "'B Gupta'"
+                - end_bracket: )
+    - statement_terminator: ;
+    - statement:
+        function:
+          function_name:
+            function_name_identifier: print_names
+          function_contents:
+            bracketed:
+              start_bracket: (
+              expression:
+                quoted_literal: "'Current Values:'"
+              end_bracket: )
+    - statement_terminator: ;
+    - keyword: END
+- statement_terminator: ;
+- statement_terminator: /

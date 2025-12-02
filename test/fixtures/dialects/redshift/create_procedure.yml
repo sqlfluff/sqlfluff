@@ -1,0 +1,159 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: ee354884f73a976bdc9bbcbbf2c7a58b131c2c98bb4bbd33190081ec5542ea09
+file:
+- statement:
+    create_procedure_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: PROCEDURE
+    - function_name:
+        function_name_identifier: test_sp1
+    - procedure_parameter_list:
+        bracketed:
+        - start_bracket: (
+        - parameter: f1
+        - data_type:
+            keyword: int
+        - comma: ','
+        - parameter: f2
+        - data_type:
+            keyword: varchar
+            bracketed_arguments:
+              bracketed:
+                start_bracket: (
+                numeric_literal: '20'
+                end_bracket: )
+        - end_bracket: )
+    - function_definition:
+      - keyword: AS
+      - quoted_literal: "$$\nDECLARE\n  min_val int;\nBEGIN\n  DROP TABLE IF EXISTS\
+          \ tmp_tbl;\n  CREATE TEMP TABLE tmp_tbl(id int);\n  INSERT INTO tmp_tbl\
+          \ values (f1),(10001),(10002);\n  SELECT INTO min_val MIN(id) FROM tmp_tbl;\n\
+          \  RAISE INFO 'min_val = %, f2 = %', min_val, f2;\nEND;\n$$"
+      - language_clause:
+          keyword: LANGUAGE
+          naked_identifier: plpgsql
+      - keyword: SECURITY
+      - keyword: INVOKER
+- statement_terminator: ;
+- statement:
+    create_procedure_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: PROCEDURE
+    - function_name:
+        function_name_identifier: test_sp2
+    - procedure_parameter_list:
+        bracketed:
+        - start_bracket: (
+        - parameter: f1
+        - keyword: IN
+        - data_type:
+            keyword: int
+        - comma: ','
+        - parameter: f2
+        - keyword: INOUT
+        - data_type:
+            keyword: varchar
+            bracketed_arguments:
+              bracketed:
+                start_bracket: (
+                numeric_literal: '256'
+                end_bracket: )
+        - comma: ','
+        - parameter: out_var
+        - keyword: OUT
+        - data_type:
+            keyword: varchar
+            bracketed_arguments:
+              bracketed:
+                start_bracket: (
+                numeric_literal: '256'
+                end_bracket: )
+        - end_bracket: )
+    - function_definition:
+        keyword: AS
+        quoted_literal: "$$\nDECLARE\n  loop_var int;\nBEGIN\n  IF f1 is null OR f2\
+          \ is null THEN\n    RAISE EXCEPTION 'input cannot be null';\n  END IF;\n\
+          \  DROP TABLE if exists my_etl;\n  CREATE TEMP TABLE my_etl(a int, b varchar);\n\
+          \    FOR loop_var IN 1..f1 LOOP\n        insert into my_etl values (loop_var,\
+          \ f2);\n        f2 := f2 || '+' || f2;\n    END LOOP;\n  SELECT INTO out_var\
+          \ count(*) from my_etl;\nEND;\n$$"
+        language_clause:
+          keyword: LANGUAGE
+          naked_identifier: plpgsql
+- statement_terminator: ;
+- statement:
+    create_procedure_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: PROCEDURE
+    - function_name:
+        function_name_identifier: test_sp_nonatomic
+    - procedure_parameter_list:
+        bracketed:
+          start_bracket: (
+          end_bracket: )
+    - keyword: NONATOMIC
+    - function_definition:
+      - keyword: AS
+      - quoted_literal: "$$\nBEGIN\n    SELECT 1;\nEND;\n$$"
+      - language_clause:
+          keyword: LANGUAGE
+          naked_identifier: plpgsql
+      - keyword: SECURITY
+      - keyword: INVOKER
+- statement_terminator: ;
+- statement:
+    create_procedure_statement:
+    - keyword: CREATE
+    - keyword: PROCEDURE
+    - function_name:
+        naked_identifier: etl
+        dot: .
+        function_name_identifier: test_sp_na
+    - procedure_parameter_list:
+        bracketed:
+          start_bracket: (
+          parameter: param1
+          data_type:
+            keyword: int
+          end_bracket: )
+    - keyword: NONATOMIC
+    - function_definition:
+        keyword: AS
+        quoted_literal: "$$\nBEGIN\n    INSERT INTO test_table VALUES (param1);\n\
+          \    COMMIT;\n    SELECT param1;\nEND;\n$$"
+        language_clause:
+          keyword: LANGUAGE
+          naked_identifier: plpgsql
+- statement_terminator: ;
+- statement:
+    create_procedure_statement:
+    - keyword: CREATE
+    - keyword: PROCEDURE
+    - function_name:
+        function_name_identifier: test_set_config
+    - procedure_parameter_list:
+        bracketed:
+          start_bracket: (
+          end_bracket: )
+    - function_definition:
+      - keyword: AS
+      - quoted_literal: "$$\nBEGIN\n    SELECT 1;\nEND;\n$$"
+      - language_clause:
+          keyword: LANGUAGE
+          naked_identifier: plpgsql
+      - keyword: SET
+      - parameter: work_mem
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'256MB'"
+- statement_terminator: ;

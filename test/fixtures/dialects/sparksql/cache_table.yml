@@ -1,0 +1,131 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 95f34ac1be5768ab605eec92c82499535d67bf28559d8e9462549b9eef6bfd85
+file:
+- statement:
+    cache_table:
+    - keyword: CACHE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: TESTCACHE
+    - keyword: OPTIONS
+    - bracketed:
+        start_bracket: (
+        property_name_identifier:
+          quoted_identifier: "'storageLevel'"
+        quoted_literal: "'DISK_ONLY'"
+        end_bracket: )
+    - select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+              naked_identifier: A
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: B
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: TESTDATA
+- statement_terminator: ;
+- statement:
+    cache_table:
+    - keyword: CACHE
+    - keyword: LAZY
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: TESTCACHE
+    - keyword: OPTIONS
+    - bracketed:
+        start_bracket: (
+        property_name_identifier:
+          quoted_identifier: "'storageLevel'"
+        quoted_literal: "'DISK_ONLY'"
+        end_bracket: )
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            column_reference:
+              naked_identifier: A
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: TESTDATA
+- statement_terminator: ;
+- statement:
+    cache_table:
+    - keyword: CACHE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: TESTCACHE
+    - keyword: OPTIONS
+    - bracketed:
+        start_bracket: (
+        property_name_identifier:
+          quoted_identifier: "'storageLevel'"
+        quoted_literal: "'DISK_ONLY'"
+        end_bracket: )
+    - keyword: AS
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            column_reference:
+              naked_identifier: A
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: TESTDATA
+- statement_terminator: ;
+- statement:
+    cache_table:
+    - keyword: CACHE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: TESTCACHE
+    - keyword: OPTIONS
+    - bracketed:
+        start_bracket: (
+        property_name_identifier:
+          quoted_identifier: "'storageLevel'"
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'DISK_ONLY'"
+        end_bracket: )
+    - keyword: AS
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            column_reference:
+              naked_identifier: A
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: TESTDATA
+- statement_terminator: ;
+- statement:
+    cache_table:
+    - keyword: CACHE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: TESTCACHE
+- statement_terminator: ;

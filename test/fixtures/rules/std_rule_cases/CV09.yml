@@ -1,0 +1,247 @@
+rule: CV09
+
+test_pass_default_none:
+  pass_str: |
+    SELECT col1 FROM None
+
+test_fail_deny_word:
+  fail_str: |
+    SELECT col1 FROM deprecated_table
+  configs:
+    rules:
+      convention.blocked_words:
+        blocked_words: deprecated_table
+
+test_fail_deny_word_case_difference1:
+  fail_str: |
+    SELECT col1 FROM deprecated_table
+  configs:
+    rules:
+      convention.blocked_words:
+        blocked_words: Deprecated_Table
+
+test_fail_deny_word_case_difference2:
+  fail_str: |
+    SELECT col1 FROM Deprecated_Table
+  configs:
+    rules:
+      convention.blocked_words:
+        blocked_words: deprecated_table
+
+test_fail_multiple_deny_words1:
+  fail_str: |
+    SELECT myOldFunction(col1) FROM table1
+  configs:
+    rules:
+      convention.blocked_words:
+        blocked_words: deprecated_table,myoldFunction
+
+test_fail_multiple_deny_words2:
+  fail_str: |
+    SELECT col1 FROM deprecated_table
+  configs:
+    rules:
+      convention.blocked_words:
+        blocked_words: deprecated_table,myoldFunction
+
+test_pass_not_complete_match:
+  pass_str: |
+    SELECT col1 FROM deprecated_table1
+  configs:
+    rules:
+      convention.blocked_words:
+        blocked_words: deprecated_table
+
+test_pass_is_comment:
+  pass_str: |
+    -- deprecated_table
+    SELECT col1 FROM new_table
+  configs:
+    rules:
+      convention.blocked_words:
+        blocked_words: deprecated_table
+
+test_pass_in_comment:
+  pass_str: |
+    -- This used to use the deprecated_table
+    SELECT col1 FROM new_table
+  configs:
+    rules:
+      convention.blocked_words:
+        blocked_words: deprecated_table
+
+test_fail_bool:
+  fail_str: |
+    CREATE TABLE myschema.t1 (a BOOL);
+  configs:
+    core:
+      dialect: exasol
+    rules:
+      convention.blocked_words:
+        blocked_words: bool
+
+test_pass_bool:
+  pass_str: |
+    CREATE TABLE myschema.t1 (a BOOLEAN);
+  configs:
+    core:
+      dialect: exasol
+    rules:
+      convention.blocked_words:
+        blocked_words: bool
+
+test_pass_bigquery:
+  pass_str: |
+    SELECT *
+    FROM `owner.schema.table_2022_07_01_desktop`
+  configs:
+    core:
+      dialect: bigquery
+    rules:
+      convention.blocked_words:
+        blocked_regex: ^.*(2022_06_01|2022_05_01).*$
+
+test_fail_bigquery:
+  fail_str: |
+    SELECT *
+    FROM `owner.schema.table_2022_06_01_desktop`
+  configs:
+    core:
+      dialect: bigquery
+    rules:
+      convention.blocked_words:
+        blocked_regex: ^.*(2022_06_01|2022_05_01).*$
+
+test_fail_bigquery2:
+  fail_str: |
+    SELECT *
+    FROM `owner.schema.table_2022_06_01_desktop`
+  configs:
+    core:
+      dialect: bigquery
+    rules:
+      convention.blocked_words:
+        blocked_regex: .*(2022_06_01|2022_05_01).*
+
+test_fail_bigquery3:
+  fail_str: |
+    SELECT *
+    FROM `owner.schema.table_2022_06_01_desktop`
+  configs:
+    core:
+      dialect: bigquery
+    rules:
+      convention.blocked_words:
+        blocked_regex: (2022_06_01|2022_05_01)
+
+test_pass_comment_word1:
+  pass_str: |
+    SELECT *
+    FROM table1
+    -- TABLESAMPLE SYSTEM (.05 PERCENT)
+  configs:
+    core:
+      dialect: bigquery
+    rules:
+      convention.blocked_words:
+        blocked_words: TABLESAMPLE
+
+test_pass_comment_word2:
+  pass_str: |
+    SELECT *
+    FROM table1
+    # TABLESAMPLE SYSTEM (.05 PERCENT)
+  configs:
+    core:
+      dialect: bigquery
+    rules:
+      convention.blocked_words:
+        blocked_words: TABLESAMPLE
+
+test_pass_comment_word3:
+  pass_str: |
+    SELECT *
+    FROM table1
+    /*
+    TABLESAMPLE SYSTEM (.05 PERCENT)
+    */
+  configs:
+    core:
+      dialect: bigquery
+    rules:
+      convention.blocked_words:
+        blocked_words: TABLESAMPLE
+
+test_pass_comment_regex1:
+  pass_str: |
+    SELECT *
+    FROM table1
+    -- TABLESAMPLE SYSTEM (.05 PERCENT)
+  configs:
+    core:
+      dialect: bigquery
+    rules:
+      convention.blocked_words:
+        blocked_regex: (TABLESAMPLE)
+
+test_pass_comment_regex2:
+  pass_str: |
+    SELECT *
+    FROM table1
+    # TABLESAMPLE SYSTEM (.05 PERCENT)
+  configs:
+    core:
+      dialect: bigquery
+    rules:
+      convention.blocked_words:
+        blocked_regex: (TABLESAMPLE)
+
+test_pass_comment_regex3:
+  pass_str: |
+    SELECT *
+    FROM table1
+    /*
+    TABLESAMPLE SYSTEM (.05 PERCENT)
+    */
+  configs:
+    core:
+      dialect: bigquery
+    rules:
+      convention.blocked_words:
+        blocked_regex: (TABLESAMPLE)
+
+test_pass_match_source1:
+  pass_str: |
+    SELECT * FROM {{ ref('deprecated_table') }}
+  configs:
+    core:
+      templater: jinja
+      ignore_templated_areas: true
+    rules:
+      convention.blocked_words:
+        blocked_regex: ref\('deprecated_
+        match_source: true
+
+test_pass_match_source2:
+  pass_str: |
+    SELECT * FROM {{ ref('deprecated_table') }}
+  configs:
+    core:
+      templater: jinja
+      ignore_templated_areas: false
+    rules:
+      convention.blocked_words:
+        blocked_regex: ref\('deprecated_
+        match_source: false
+
+test_fail_match_source1:
+  fail_str: |
+    SELECT * FROM {{ ref('deprecated_table') }}
+  configs:
+    core:
+      templater: jinja
+      ignore_templated_areas: false
+    rules:
+      convention.blocked_words:
+        blocked_regex: ref\('deprecated_
+        match_source: true

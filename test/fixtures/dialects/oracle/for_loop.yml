@@ -1,0 +1,773 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 4c472d3c67cc77e0aeff8c8c0cf119727f347828cc9990246bb2ee364c66f66c
+file:
+- statement:
+    begin_end_block:
+    - keyword: BEGIN
+    - statement:
+        for_loop_statement:
+        - keyword: FOR
+        - naked_identifier: i
+        - keyword: IN
+        - numeric_literal: '1'
+        - dot: .
+        - dot: .
+        - numeric_literal: '3'
+        - loop_statement:
+          - keyword: LOOP
+          - statement:
+              function:
+                function_name:
+                  naked_identifier: DBMS_OUTPUT
+                  dot: .
+                  function_name_identifier: PUT_LINE
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      column_reference:
+                        naked_identifier: i
+                    end_bracket: )
+          - statement_terminator: ;
+          - keyword: END
+          - keyword: LOOP
+    - statement_terminator: ;
+    - keyword: END
+- statement_terminator: ;
+- statement_terminator: /
+- statement:
+    begin_end_block:
+    - keyword: BEGIN
+    - statement:
+        for_loop_statement:
+        - keyword: FOR
+        - naked_identifier: i
+        - keyword: IN
+        - keyword: REVERSE
+        - numeric_literal: '1'
+        - dot: .
+        - dot: .
+        - numeric_literal: '3'
+        - loop_statement:
+          - keyword: LOOP
+          - statement:
+              function:
+                function_name:
+                  naked_identifier: DBMS_OUTPUT
+                  dot: .
+                  function_name_identifier: PUT_LINE
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      column_reference:
+                        naked_identifier: i
+                    end_bracket: )
+          - statement_terminator: ;
+          - keyword: END
+          - keyword: LOOP
+    - statement_terminator: ;
+    - keyword: END
+- statement_terminator: ;
+- statement_terminator: /
+- statement:
+    begin_end_block:
+    - keyword: BEGIN
+    - statement:
+        for_loop_statement:
+        - keyword: FOR
+        - naked_identifier: power
+        - keyword: IN
+        - expression:
+            numeric_literal: '1'
+        - comma: ','
+        - keyword: REPEAT
+        - expression:
+            column_reference:
+              naked_identifier: power
+            binary_operator: '*'
+            numeric_literal: '2'
+        - keyword: WHILE
+        - expression:
+            column_reference:
+              naked_identifier: power
+            comparison_operator:
+            - raw_comparison_operator: <
+            - raw_comparison_operator: '='
+            numeric_literal: '64'
+        - loop_statement:
+          - keyword: LOOP
+          - statement:
+              function:
+                function_name:
+                  naked_identifier: DBMS_OUTPUT
+                  dot: .
+                  function_name_identifier: PUT_LINE
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      column_reference:
+                        naked_identifier: power
+                    end_bracket: )
+          - statement_terminator: ;
+          - keyword: END
+          - keyword: LOOP
+    - statement_terminator: ;
+    - keyword: END
+- statement_terminator: ;
+- statement_terminator: /
+- statement:
+    begin_end_block:
+    - keyword: BEGIN
+    - statement:
+        for_loop_statement:
+        - keyword: FOR
+        - naked_identifier: power
+        - keyword: IN
+        - expression:
+            numeric_literal: '2'
+        - comma: ','
+        - keyword: REPEAT
+        - expression:
+            column_reference:
+              naked_identifier: power
+            binary_operator: '*'
+            numeric_literal: '2'
+        - keyword: WHILE
+        - expression:
+            column_reference:
+              naked_identifier: power
+            comparison_operator:
+            - raw_comparison_operator: <
+            - raw_comparison_operator: '='
+            numeric_literal: '64'
+        - keyword: WHEN
+        - expression:
+            function:
+              function_name:
+                function_name_identifier: MOD
+              function_contents:
+                bracketed:
+                - start_bracket: (
+                - expression:
+                    column_reference:
+                      naked_identifier: power
+                - comma: ','
+                - expression:
+                    numeric_literal: '32'
+                - end_bracket: )
+            comparison_operator:
+              raw_comparison_operator: '='
+            numeric_literal: '0'
+        - loop_statement:
+          - keyword: LOOP
+          - statement:
+              function:
+                function_name:
+                  naked_identifier: DBMS_OUTPUT
+                  dot: .
+                  function_name_identifier: PUT_LINE
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      column_reference:
+                        naked_identifier: power
+                    end_bracket: )
+          - statement_terminator: ;
+          - keyword: END
+          - keyword: LOOP
+    - statement_terminator: ;
+    - keyword: END
+- statement_terminator: ;
+- statement_terminator: /
+- statement:
+    begin_end_block:
+    - keyword: BEGIN
+    - statement:
+        for_loop_statement:
+        - keyword: FOR
+        - naked_identifier: i
+        - keyword: IN
+        - numeric_literal: '1'
+        - dot: .
+        - dot: .
+        - numeric_literal: '3'
+        - loop_statement:
+          - keyword: LOOP
+          - statement:
+              function:
+                function_name:
+                  naked_identifier: DBMS_OUTPUT
+                  dot: .
+                  function_name_identifier: PUT_LINE
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      quoted_literal: "'Inside loop, i is '"
+                      binary_operator:
+                      - pipe: '|'
+                      - pipe: '|'
+                      function:
+                        function_name:
+                          function_name_identifier: TO_CHAR
+                        function_contents:
+                          bracketed:
+                            start_bracket: (
+                            expression:
+                              column_reference:
+                                naked_identifier: i
+                            end_bracket: )
+                    end_bracket: )
+          - statement_terminator: ;
+          - keyword: END
+          - keyword: LOOP
+    - statement_terminator: ;
+    - statement:
+        function:
+          function_name:
+            naked_identifier: DBMS_OUTPUT
+            dot: .
+            function_name_identifier: PUT_LINE
+          function_contents:
+            bracketed:
+              start_bracket: (
+              expression:
+                quoted_literal: "'Outside loop, i is '"
+                binary_operator:
+                - pipe: '|'
+                - pipe: '|'
+                function:
+                  function_name:
+                    function_name_identifier: TO_CHAR
+                  function_contents:
+                    bracketed:
+                      start_bracket: (
+                      expression:
+                        column_reference:
+                          naked_identifier: i
+                      end_bracket: )
+              end_bracket: )
+    - statement_terminator: ;
+    - keyword: END
+- statement_terminator: ;
+- statement_terminator: /
+- statement:
+    begin_end_block:
+    - declare_segment:
+        keyword: DECLARE
+        naked_identifier: i
+        data_type:
+          data_type_identifier: NUMBER
+        assignment_operator: :=
+        expression:
+          numeric_literal: '5'
+        statement_terminator: ;
+    - keyword: BEGIN
+    - statement:
+        for_loop_statement:
+        - keyword: FOR
+        - naked_identifier: i
+        - keyword: IN
+        - numeric_literal: '1'
+        - dot: .
+        - dot: .
+        - numeric_literal: '3'
+        - loop_statement:
+          - keyword: LOOP
+          - statement:
+              function:
+                function_name:
+                  naked_identifier: DBMS_OUTPUT
+                  dot: .
+                  function_name_identifier: PUT_LINE
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      quoted_literal: "'Inside loop, i is '"
+                      binary_operator:
+                      - pipe: '|'
+                      - pipe: '|'
+                      function:
+                        function_name:
+                          function_name_identifier: TO_CHAR
+                        function_contents:
+                          bracketed:
+                            start_bracket: (
+                            expression:
+                              column_reference:
+                                naked_identifier: i
+                            end_bracket: )
+                    end_bracket: )
+          - statement_terminator: ;
+          - keyword: END
+          - keyword: LOOP
+    - statement_terminator: ;
+    - statement:
+        function:
+          function_name:
+            naked_identifier: DBMS_OUTPUT
+            dot: .
+            function_name_identifier: PUT_LINE
+          function_contents:
+            bracketed:
+              start_bracket: (
+              expression:
+                quoted_literal: "'Outside loop, i is '"
+                binary_operator:
+                - pipe: '|'
+                - pipe: '|'
+                function:
+                  function_name:
+                    function_name_identifier: TO_CHAR
+                  function_contents:
+                    bracketed:
+                      start_bracket: (
+                      expression:
+                        column_reference:
+                          naked_identifier: i
+                      end_bracket: )
+              end_bracket: )
+    - statement_terminator: ;
+    - keyword: END
+- statement_terminator: ;
+- statement_terminator: /
+- statement:
+    begin_end_block:
+    - declare_segment:
+        keyword: DECLARE
+        naked_identifier: i
+        data_type:
+          data_type_identifier: NUMBER
+        assignment_operator: :=
+        expression:
+          numeric_literal: '5'
+        statement_terminator: ;
+    - keyword: BEGIN
+    - statement:
+        for_loop_statement:
+        - keyword: FOR
+        - naked_identifier: i
+        - keyword: IN
+        - numeric_literal: '1'
+        - dot: .
+        - dot: .
+        - numeric_literal: '3'
+        - loop_statement:
+          - keyword: LOOP
+          - statement:
+              function:
+                function_name:
+                  naked_identifier: DBMS_OUTPUT
+                  dot: .
+                  function_name_identifier: PUT_LINE
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                    - quoted_literal: "'local: '"
+                    - binary_operator:
+                      - pipe: '|'
+                      - pipe: '|'
+                    - function:
+                        function_name:
+                          function_name_identifier: TO_CHAR
+                        function_contents:
+                          bracketed:
+                            start_bracket: (
+                            expression:
+                              column_reference:
+                                naked_identifier: i
+                            end_bracket: )
+                    - binary_operator:
+                      - pipe: '|'
+                      - pipe: '|'
+                    - quoted_literal: "', global: '"
+                    - binary_operator:
+                      - pipe: '|'
+                      - pipe: '|'
+                    - function:
+                        function_name:
+                          function_name_identifier: TO_CHAR
+                        function_contents:
+                          bracketed:
+                            start_bracket: (
+                            expression:
+                              column_reference:
+                              - naked_identifier: main
+                              - dot: .
+                              - naked_identifier: i
+                            end_bracket: )
+                    end_bracket: )
+          - statement_terminator: ;
+          - keyword: END
+          - keyword: LOOP
+    - statement_terminator: ;
+    - keyword: END
+    - object_reference:
+        naked_identifier: main
+- statement_terminator: ;
+- statement_terminator: /
+- statement:
+    begin_end_block:
+    - keyword: BEGIN
+    - statement:
+        for_loop_statement:
+        - keyword: FOR
+        - naked_identifier: i
+        - keyword: IN
+        - numeric_literal: '1'
+        - dot: .
+        - dot: .
+        - numeric_literal: '3'
+        - loop_statement:
+          - keyword: LOOP
+          - statement:
+              for_loop_statement:
+              - keyword: FOR
+              - naked_identifier: i
+              - keyword: IN
+              - numeric_literal: '1'
+              - dot: .
+              - dot: .
+              - numeric_literal: '3'
+              - loop_statement:
+                - keyword: LOOP
+                - statement:
+                    if_then_statement:
+                    - if_clause:
+                      - keyword: IF
+                      - expression:
+                          column_reference:
+                          - naked_identifier: outer_loop
+                          - dot: .
+                          - naked_identifier: i
+                          comparison_operator:
+                            raw_comparison_operator: '='
+                          numeric_literal: '2'
+                      - keyword: THEN
+                    - statement:
+                        function:
+                          function_name:
+                            naked_identifier: DBMS_OUTPUT
+                            dot: .
+                            function_name_identifier: PUT_LINE
+                          function_contents:
+                            bracketed:
+                              start_bracket: (
+                              expression:
+                              - quoted_literal: "'outer: '"
+                              - binary_operator:
+                                - pipe: '|'
+                                - pipe: '|'
+                              - function:
+                                  function_name:
+                                    function_name_identifier: TO_CHAR
+                                  function_contents:
+                                    bracketed:
+                                      start_bracket: (
+                                      expression:
+                                        column_reference:
+                                        - naked_identifier: outer_loop
+                                        - dot: .
+                                        - naked_identifier: i
+                                      end_bracket: )
+                              - binary_operator:
+                                - pipe: '|'
+                                - pipe: '|'
+                              - quoted_literal: "' inner: '"
+                              - binary_operator:
+                                - pipe: '|'
+                                - pipe: '|'
+                              - function:
+                                  function_name:
+                                    function_name_identifier: TO_CHAR
+                                  function_contents:
+                                    bracketed:
+                                      start_bracket: (
+                                      expression:
+                                        column_reference:
+                                        - naked_identifier: inner_loop
+                                        - dot: .
+                                        - naked_identifier: i
+                                      end_bracket: )
+                              end_bracket: )
+                    - statement_terminator: ;
+                    - keyword: END
+                    - keyword: IF
+                - statement_terminator: ;
+                - keyword: END
+                - keyword: LOOP
+                - naked_identifier: inner_loop
+          - statement_terminator: ;
+          - keyword: END
+          - keyword: LOOP
+          - naked_identifier: outer_loop
+    - statement_terminator: ;
+    - keyword: END
+- statement_terminator: ;
+- statement_terminator: /
+- statement:
+    begin_end_block:
+    - declare_segment:
+        keyword: DECLARE
+        naked_identifier: v_employees
+        row_type_reference:
+          table_reference:
+            naked_identifier: employees
+          binary_operator: '%'
+          keyword: ROWTYPE
+        statement_terminator: ;
+        cursor_variable:
+        - keyword: CURSOR
+        - naked_identifier: c1
+        - keyword: is
+        - select_statement:
+            select_clause:
+              keyword: SELECT
+              select_clause_element:
+                wildcard_expression:
+                  wildcard_identifier:
+                    star: '*'
+            from_clause:
+              keyword: FROM
+              from_expression:
+                from_expression_element:
+                  table_expression:
+                    table_reference:
+                      naked_identifier: employees
+        - statement_terminator: ;
+    - keyword: BEGIN
+    - statement:
+        open_statement:
+          keyword: OPEN
+          naked_identifier: c1
+    - statement_terminator: ;
+    - statement:
+        for_loop_statement:
+        - keyword: FOR
+        - naked_identifier: i
+        - keyword: IN
+        - numeric_literal: '1'
+        - dot: .
+        - dot: .
+        - numeric_literal: '10'
+        - loop_statement:
+          - keyword: LOOP
+          - statement:
+              fetch_statement:
+                keyword: FETCH
+                naked_identifier: c1
+                into_clause:
+                  keyword: INTO
+                  naked_identifier: v_employees
+          - statement_terminator: ;
+          - statement:
+              exit_statement:
+              - keyword: EXIT
+              - keyword: WHEN
+              - expression:
+                  naked_identifier: c1
+                  binary_operator: '%'
+                  keyword: NOTFOUND
+          - statement_terminator: ;
+          - keyword: END
+          - keyword: LOOP
+    - statement_terminator: ;
+    - statement:
+        close_statement:
+          keyword: CLOSE
+          naked_identifier: c1
+    - statement_terminator: ;
+    - keyword: END
+- statement_terminator: ;
+- statement_terminator: /
+- statement:
+    begin_end_block:
+    - declare_segment:
+        keyword: DECLARE
+        naked_identifier: v_employees
+        row_type_reference:
+          table_reference:
+            naked_identifier: employees
+          binary_operator: '%'
+          keyword: ROWTYPE
+        statement_terminator: ;
+        cursor_variable:
+        - keyword: CURSOR
+        - naked_identifier: c1
+        - keyword: is
+        - select_statement:
+            select_clause:
+              keyword: SELECT
+              select_clause_element:
+                wildcard_expression:
+                  wildcard_identifier:
+                    star: '*'
+            from_clause:
+              keyword: FROM
+              from_expression:
+                from_expression_element:
+                  table_expression:
+                    table_reference:
+                      naked_identifier: employees
+        - statement_terminator: ;
+    - keyword: BEGIN
+    - statement:
+        open_statement:
+          keyword: OPEN
+          naked_identifier: c1
+    - statement_terminator: ;
+    - statement:
+        for_loop_statement:
+        - keyword: FOR
+        - naked_identifier: i
+        - keyword: IN
+        - numeric_literal: '1'
+        - dot: .
+        - dot: .
+        - numeric_literal: '10'
+        - loop_statement:
+          - keyword: LOOP
+          - statement:
+              for_loop_statement:
+              - keyword: FOR
+              - naked_identifier: j
+              - keyword: IN
+              - numeric_literal: '1'
+              - dot: .
+              - dot: .
+              - numeric_literal: '10'
+              - loop_statement:
+                - keyword: LOOP
+                - statement:
+                    fetch_statement:
+                      keyword: FETCH
+                      naked_identifier: c1
+                      into_clause:
+                        keyword: INTO
+                        naked_identifier: v_employees
+                - statement_terminator: ;
+                - statement:
+                    exit_statement:
+                    - keyword: EXIT
+                    - naked_identifier: outer_loop
+                    - keyword: WHEN
+                    - expression:
+                        naked_identifier: c1
+                        binary_operator: '%'
+                        keyword: NOTFOUND
+                - statement_terminator: ;
+                - keyword: END
+                - keyword: LOOP
+          - statement_terminator: ;
+          - keyword: END
+          - keyword: LOOP
+          - naked_identifier: outer_loop
+    - statement_terminator: ;
+    - statement:
+        close_statement:
+          keyword: CLOSE
+          naked_identifier: c1
+    - statement_terminator: ;
+    - keyword: END
+- statement_terminator: ;
+- statement_terminator: /
+- statement:
+    begin_end_block:
+    - declare_segment:
+        keyword: DECLARE
+        naked_identifier: v_employees
+        row_type_reference:
+          table_reference:
+            naked_identifier: employees
+          binary_operator: '%'
+          keyword: ROWTYPE
+        statement_terminator: ;
+        cursor_variable:
+        - keyword: CURSOR
+        - naked_identifier: c1
+        - keyword: is
+        - select_statement:
+            select_clause:
+              keyword: SELECT
+              select_clause_element:
+                wildcard_expression:
+                  wildcard_identifier:
+                    star: '*'
+            from_clause:
+              keyword: FROM
+              from_expression:
+                from_expression_element:
+                  table_expression:
+                    table_reference:
+                      naked_identifier: employees
+        - statement_terminator: ;
+    - keyword: BEGIN
+    - statement:
+        open_statement:
+          keyword: OPEN
+          naked_identifier: c1
+    - statement_terminator: ;
+    - statement:
+        for_loop_statement:
+        - keyword: FOR
+        - naked_identifier: i
+        - keyword: IN
+        - numeric_literal: '1'
+        - dot: .
+        - dot: .
+        - numeric_literal: '10'
+        - loop_statement:
+          - keyword: LOOP
+          - statement:
+              for_loop_statement:
+              - keyword: FOR
+              - naked_identifier: j
+              - keyword: IN
+              - numeric_literal: '1'
+              - dot: .
+              - dot: .
+              - numeric_literal: '10'
+              - loop_statement:
+                - keyword: LOOP
+                - statement:
+                    fetch_statement:
+                      keyword: FETCH
+                      naked_identifier: c1
+                      into_clause:
+                        keyword: INTO
+                        naked_identifier: v_employees
+                - statement_terminator: ;
+                - statement:
+                    continue_statement:
+                    - keyword: CONTINUE
+                    - naked_identifier: outer_loop
+                    - keyword: WHEN
+                    - expression:
+                        naked_identifier: c1
+                        binary_operator: '%'
+                        keyword: NOTFOUND
+                - statement_terminator: ;
+                - keyword: END
+                - keyword: LOOP
+          - statement_terminator: ;
+          - keyword: END
+          - keyword: LOOP
+          - naked_identifier: outer_loop
+    - statement_terminator: ;
+    - statement:
+        close_statement:
+          keyword: CLOSE
+          naked_identifier: c1
+    - statement_terminator: ;
+    - keyword: END
+- statement_terminator: ;
+- statement_terminator: /

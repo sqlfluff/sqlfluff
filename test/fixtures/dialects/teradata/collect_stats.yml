@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: b447cc55b4535f32f5a4312c0f61d92d27c203a8159c6518bfa6660b9049c03c
+_hash: 08c47cf906873922a007a611f8d281d26a16f4c732d317c923e868c1b9014c79
 file:
 - statement:
     collect_statistics_statement:
@@ -13,13 +13,13 @@ file:
     - bracketed:
         start_bracket: (
         column_reference:
-          identifier: IND_TIPO_TARJETA
+          naked_identifier: IND_TIPO_TARJETA
         end_bracket: )
     - keyword: 'ON'
     - table_reference:
-      - identifier: DB_1
+      - naked_identifier: DB_1
       - dot: .
-      - identifier: TABLE_1
+      - naked_identifier: TABLE_1
 - statement_terminator: ;
 - statement:
     collect_statistics_statement:
@@ -29,20 +29,252 @@ file:
     - bracketed:
       - start_bracket: (
       - column_reference:
-          identifier: COD_TARJETA
+          naked_identifier: COD_TARJETA
       - comma: ','
       - column_reference:
-          identifier: COD_EST
+          naked_identifier: COD_EST
       - comma: ','
       - column_reference:
-          identifier: IND_TIPO_TARJETA
+          naked_identifier: IND_TIPO_TARJETA
       - comma: ','
       - column_reference:
-          identifier: FEC_ANIO_MES
+          naked_identifier: FEC_ANIO_MES
       - end_bracket: )
     - keyword: 'ON'
     - table_reference:
-      - identifier: DB_1
+      - naked_identifier: DB_1
       - dot: .
-      - identifier: TABLE_1
+      - naked_identifier: TABLE_1
+- statement_terminator: ;
+- statement:
+    collect_statistics_statement:
+    - keyword: COLLECT
+    - keyword: STATISTICS
+    - keyword: COLUMN
+    - column_reference:
+        naked_identifier: o_orderstatus
+    - keyword: 'ON'
+    - table_reference:
+        naked_identifier: orders
+- statement_terminator: ;
+- statement:
+    collect_statistics_statement:
+    - keyword: COLLECT
+    - keyword: STATISTICS
+    - keyword: USING
+    - collect_stat_using_option_clause:
+      - keyword: SYSTEM
+      - keyword: THRESHOLD
+      - keyword: FOR
+      - keyword: CURRENT
+    - keyword: COLUMN
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: o_orderstatus
+      - comma: ','
+      - column_reference:
+          naked_identifier: o_orderkey
+      - end_bracket: )
+    - keyword: 'ON'
+    - table_reference:
+        naked_identifier: orders
+- statement_terminator: ;
+- statement:
+    collect_statistics_statement:
+    - keyword: COLLECT
+    - keyword: STATS
+    - keyword: COLUMN
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          naked_identifier: IND_TIPO_TARJETA
+        end_bracket: )
+    - keyword: 'ON'
+    - table_reference:
+      - naked_identifier: DB_1
+      - dot: .
+      - naked_identifier: TABLE_1
+- statement_terminator: ;
+- statement:
+    collect_statistics_statement:
+    - keyword: COLLECT
+    - keyword: STAT
+    - keyword: COLUMN
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          naked_identifier: IND_TIPO_TARJETA
+        end_bracket: )
+    - keyword: 'ON'
+    - table_reference:
+      - naked_identifier: DB_1
+      - dot: .
+      - naked_identifier: TABLE_1
+- statement_terminator: ;
+- statement:
+    collect_statistics_statement:
+    - keyword: COLLECT
+    - keyword: STATS
+    - keyword: COLUMN
+    - column_reference:
+        naked_identifier: IND_TIPO_TARJETA
+    - keyword: 'ON'
+    - table_reference:
+      - naked_identifier: DB_1
+      - dot: .
+      - naked_identifier: TABLE_1
+- statement_terminator: ;
+- statement:
+    collect_statistics_statement:
+    - keyword: COLLECT
+    - keyword: STATS
+    - keyword: INDEX
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: COD_TARJETA
+      - comma: ','
+      - column_reference:
+          naked_identifier: COD_EST
+      - comma: ','
+      - column_reference:
+          naked_identifier: IND_TIPO_TARJETA
+      - comma: ','
+      - column_reference:
+          naked_identifier: FEC_ANIO_MES
+      - end_bracket: )
+    - keyword: 'ON'
+    - table_reference:
+      - naked_identifier: DB_1
+      - dot: .
+      - naked_identifier: TABLE_1
+- statement_terminator: ;
+- statement:
+    collect_statistics_statement:
+    - keyword: collect
+    - keyword: statistics
+    - keyword: column
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: Org_Unit_Code
+      - comma: ','
+      - column_reference:
+          naked_identifier: Org_Unit_Type
+      - comma: ','
+      - column_reference:
+          naked_identifier: Entity_Code
+      - end_bracket: )
+    - keyword: as
+    - object_reference:
+        naked_identifier: Org_Descendant_NUPI
+    - comma: ','
+    - keyword: column
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          naked_identifier: Org_Unit_Type
+        end_bracket: )
+    - comma: ','
+    - keyword: column
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          naked_identifier: Entity_Code
+        end_bracket: )
+    - comma: ','
+    - keyword: column
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: Org_Unit_Code
+      - comma: ','
+      - column_reference:
+          naked_identifier: Entity_Code
+      - end_bracket: )
+    - comma: ','
+    - keyword: column
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: Entity_Code
+      - comma: ','
+      - column_reference:
+          naked_identifier: Parent_Org_Unit_Code
+      - comma: ','
+      - column_reference:
+          naked_identifier: Parent_Org_Unit_Type
+      - end_bracket: )
+    - comma: ','
+    - keyword: column
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          naked_identifier: Org_Unit_Code
+        end_bracket: )
+    - comma: ','
+    - keyword: column
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: Parent_Org_Unit_Code
+      - comma: ','
+      - column_reference:
+          naked_identifier: Parent_Org_Unit_Type
+      - comma: ','
+      - column_reference:
+          naked_identifier: Parent_Entity_Code
+      - end_bracket: )
+    - keyword: 'on'
+    - table_reference:
+      - naked_identifier: sandbox_db
+      - dot: .
+      - naked_identifier: Org_Descendant
+- statement_terminator: ;
+- statement:
+    collect_statistics_statement:
+    - keyword: COLLECT
+    - keyword: STATISTICS
+    - keyword: 'ON'
+    - table_reference:
+        naked_identifier: table_1
+    - keyword: COLUMN
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: column_1
+      - comma: ','
+      - column_reference:
+          naked_identifier: column_2
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    collect_statistics_statement:
+    - keyword: COLLECT
+    - keyword: STATISTICS
+    - keyword: 'ON'
+    - table_reference:
+        naked_identifier: orders
+    - keyword: COLUMN
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: quant_ord
+      - comma: ','
+      - keyword: PARTITION
+      - comma: ','
+      - column_reference:
+          naked_identifier: quant_shpd
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    collect_statistics_statement:
+    - keyword: COLLECT
+    - keyword: STATISTICS
+    - keyword: 'ON'
+    - table_reference:
+        naked_identifier: table_1
+    - keyword: COLUMN
+    - keyword: PARTITION
 - statement_terminator: ;

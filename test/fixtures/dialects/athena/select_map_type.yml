@@ -1,0 +1,125 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 1a34fc6e064ef4478f41bfed0c5d6079dd62b82372af971371e70a0ab2d152d5
+file:
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: CAST
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  function:
+                    function_name:
+                      function_name_identifier: JSON_PARSE
+                    function_contents:
+                      bracketed:
+                        start_bracket: (
+                        expression:
+                          column_reference:
+                          - naked_identifier: table_name
+                          - dot: .
+                          - naked_identifier: column_name
+                        end_bracket: )
+                keyword: AS
+                data_type:
+                  map_type:
+                    keyword: MAP
+                    map_type_schema:
+                      start_angle_bracket: <
+                      primitive_type:
+                        keyword: VARCHAR
+                      comma: ','
+                      data_type:
+                        primitive_type:
+                          keyword: VARCHAR
+                      end_angle_bracket: '>'
+                end_bracket: )
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: json_map
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: table_name
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: map_table
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          naked_identifier: c1
+          data_type:
+            map_type:
+              keyword: map
+              map_type_schema:
+                start_angle_bracket: <
+                primitive_type:
+                  keyword: string
+                comma: ','
+                data_type:
+                  primitive_type:
+                    keyword: integer
+                end_angle_bracket: '>'
+        end_bracket: )
+    - keyword: LOCATION
+    - quoted_literal: "'...'"
+- statement_terminator: ;
+- statement:
+    insert_statement:
+    - keyword: INSERT
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: map_table
+    - values_clause:
+        keyword: values
+        expression:
+          bracketed:
+            start_bracket: (
+            expression:
+              function:
+                function_name:
+                  function_name_identifier: MAP
+                function_contents:
+                  bracketed:
+                  - start_bracket: (
+                  - expression:
+                      typed_array_literal:
+                        array_type:
+                          keyword: ARRAY
+                        array_literal:
+                        - start_square_bracket: '['
+                        - quoted_literal: "'foo'"
+                        - comma: ','
+                        - quoted_literal: "'bar'"
+                        - end_square_bracket: ']'
+                  - comma: ','
+                  - expression:
+                      typed_array_literal:
+                        array_type:
+                          keyword: ARRAY
+                        array_literal:
+                        - start_square_bracket: '['
+                        - numeric_literal: '1'
+                        - comma: ','
+                        - numeric_literal: '2'
+                        - end_square_bracket: ']'
+                  - end_bracket: )
+            end_bracket: )
+- statement_terminator: ;

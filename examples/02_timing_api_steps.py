@@ -2,7 +2,7 @@
 
 import timeit
 
-from sqlfluff.core import Lexer, Parser, Linter
+from sqlfluff.core import Lexer, Linter, Parser
 
 # Set up and output the query
 sql = "SeLEct  *, 1, blah as  fOO  from myTable"
@@ -24,9 +24,10 @@ def time_function(func, name, iterations=20):
 
 
 # Set up some classes to process the data
-lexer = Lexer()
-parser = Parser()
-linter = Linter()
+kwargs = dict(dialect="ansi")
+lexer = Lexer(**kwargs)
+parser = Parser(**kwargs)
+linter = Linter(**kwargs)
 
 # Pre-process the lexing step for the parsing step
 tokens, _ = lexer.lex(sql)
@@ -35,7 +36,6 @@ parsed = parser.parse(tokens)
 
 # Time the steps
 time_function(lambda: lexer.lex(sql), name="lex")
-time_function(lambda: parser.parse(tokens, recurse=0), name="parse (one level only)")
-time_function(lambda: parser.parse(tokens), name="parse (recursive)")
+time_function(lambda: parser.parse(tokens), name="parse")
 time_function(lambda: linter.lint(parsed), name="lint")
 time_function(lambda: linter.fix(parsed), name="fix")

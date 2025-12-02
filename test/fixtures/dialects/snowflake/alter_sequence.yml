@@ -1,0 +1,119 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: b36f427279f544c665da0a8d52bf8ad5ec94768f3936e445a1ffb9f460fa6792
+file:
+- statement:
+    alter_sequence_statement:
+    - keyword: ALTER
+    - keyword: SEQUENCE
+    - sequence_reference:
+        naked_identifier: seq
+    - keyword: RENAME
+    - keyword: TO
+    - sequence_reference:
+        naked_identifier: seq2
+- statement_terminator: ;
+- statement:
+    alter_sequence_statement:
+    - keyword: ALTER
+    - keyword: SEQUENCE
+    - sequence_reference:
+        naked_identifier: seq
+    - keyword: SET
+    - keyword: INCREMENT
+    - keyword: BY
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - integer_literal: '2'
+- statement_terminator: ;
+- statement:
+    alter_sequence_statement:
+    - keyword: ALTER
+    - keyword: SEQUENCE
+    - sequence_reference:
+        naked_identifier: seq
+    - keyword: INCREMENT
+    - keyword: BY
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - integer_literal: '2'
+- statement_terminator: ;
+- statement:
+    alter_sequence_statement:
+    - keyword: ALTER
+    - keyword: SEQUENCE
+    - sequence_reference:
+        naked_identifier: seq
+    - keyword: INCREMENT
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - integer_literal: '2'
+- statement_terminator: ;
+- statement:
+    alter_sequence_statement:
+    - keyword: ALTER
+    - keyword: SEQUENCE
+    - sequence_reference:
+        naked_identifier: seq
+    - keyword: INCREMENT
+    - integer_literal: '2'
+- statement_terminator: ;
+- statement:
+    alter_sequence_statement:
+    - keyword: ALTER
+    - keyword: SEQUENCE
+    - sequence_reference:
+        naked_identifier: seq
+    - keyword: SET
+    - keyword: ORDER
+    - comment_equals_clause:
+        keyword: COMMENT
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'comment'"
+- statement_terminator: ;
+- statement:
+    alter_sequence_statement:
+    - keyword: ALTER
+    - keyword: SEQUENCE
+    - sequence_reference:
+        naked_identifier: seq
+    - keyword: SET
+    - keyword: NOORDER
+    - comment_equals_clause:
+        keyword: COMMENT
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'comment'"
+- statement_terminator: ;
+- statement:
+    alter_sequence_statement:
+    - keyword: ALTER
+    - keyword: SEQUENCE
+    - sequence_reference:
+        naked_identifier: seq
+    - keyword: UNSET
+    - keyword: COMMENT
+- statement_terminator: ;
+- statement:
+    alter_sequence_statement:
+    - keyword: ALTER
+    - keyword: SEQUENCE
+    - sequence_reference:
+        naked_identifier: seq
+    - keyword: SET
+    - keyword: INCREMENT
+    - keyword: BY
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - integer_literal: '2'
+    - keyword: ORDER
+    - comment_equals_clause:
+        keyword: COMMENT
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'comment'"
+- statement_terminator: ;

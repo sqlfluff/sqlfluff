@@ -1,25 +1,12 @@
 """CLI helper utilities."""
 
-from io import StringIO
 import sys
 import textwrap
-from typing import Optional, List, Dict, Tuple
-
-from colorama import Style
+from collections import abc
+from functools import cached_property
+from typing import Any, Callable
 
 from sqlfluff import __version__ as pkg_version
-from sqlfluff.core.enums import Color
-
-
-def colorize(s: str, color: Optional[Color] = None) -> str:
-    """Use ANSI colour codes to colour a string.
-
-    The name of this function is in American. I'm sorry :(.
-    """
-    if color:
-        return f"{color.value}{s}{Style.RESET_ALL}"
-    else:
-        return s
 
 
 def get_python_version() -> str:
@@ -40,14 +27,14 @@ def get_package_version() -> str:
     return pkg_version
 
 
-def wrap_elem(s: str, width: int) -> List[str]:
-    """Take a string, and attempt to wrap into a list of strings all less than <width>."""
+def wrap_elem(s: str, width: int) -> list[str]:
+    """Wrap a string into a list of strings all less than <width>."""
     return textwrap.wrap(s, width=width)
 
 
 def wrap_field(
     label: str, val: str, width: int, max_label_width: int = 10, sep_char: str = ": "
-) -> Dict:
+) -> dict[str, Any]:
     """Wrap a field (label, val).
 
     Returns:
@@ -62,7 +49,10 @@ def wrap_field(
         label_list = [label]
 
     max_val_width = width - len(sep_char) - label_width
-    val_list = wrap_elem(val, width=max_val_width)
+    val_list = []
+    for v in val.split("\n"):
+        val_list.extend(wrap_elem(v, width=max_val_width))
+
     return dict(
         label_list=label_list,
         val_list=val_list,
@@ -86,105 +76,23 @@ def pad_line(s: str, width: int, align: str = "left") -> str:
         raise ValueError(f"Unknown alignment: {align}")  # pragma: no cover
 
 
-def cli_table_row(
-    fields: List[Tuple[str, str]],
-    col_width,
-    max_label_width=10,
-    sep_char=": ",
-    divider_char=" ",
-    label_color=Color.lightgrey,
-    val_align="right",
-) -> str:
-    """Make a row of a CLI table, using wrapped values."""
-    # Do some intel first
-    cols = len(fields)
-    last_col_idx = cols - 1
-    wrapped_fields = [
-        wrap_field(
-            field[0],
-            field[1],
-            width=col_width,
-            max_label_width=max_label_width,
-            sep_char=sep_char,
-        )
-        for field in fields
-    ]
-    max_lines = max(fld["lines"] for fld in wrapped_fields)
-    last_line_idx = max_lines - 1
-    # Make some text
-    buff = StringIO()
-    for line_idx in range(max_lines):
-        for col_idx in range(cols):
-            # Assume we pad labels left and values right
-            fld = wrapped_fields[col_idx]
-            ll = fld["label_list"]
-            vl = fld["val_list"]
-            buff.write(
-                colorize(
-                    pad_line(
-                        ll[line_idx] if line_idx < len(ll) else "",
-                        width=fld["label_width"],
-                    ),
-                    color=label_color,
-                )
-            )
-            if line_idx == 0:
-                buff.write(sep_char)
-            else:
-                buff.write(" " * len(sep_char))
-            buff.write(
-                pad_line(
-                    vl[line_idx] if line_idx < len(vl) else "",
-                    width=fld["val_width"],
-                    align=val_align,
-                )
-            )
-            if col_idx != last_col_idx:
-                buff.write(divider_char)
-            elif line_idx != last_line_idx:
-                buff.write("\n")
-    return buff.getvalue()
+class LazySequence(abc.Sequence):
+    """A Sequence which only populates on the first access.
 
+    This is useful for being able to define sequences within
+    the click cli decorators, but that don't trigger their
+    contents until first called.
+    """
 
-def cli_table(
-    fields,
-    col_width=20,
-    cols=2,
-    divider_char=" ",
-    sep_char=": ",
-    label_color=Color.lightgrey,
-    float_format="{0:.2f}",
-    max_label_width=10,
-    val_align="right",
-) -> str:
-    """Make a crude ascii table, assuming that `fields` is an iterable of (label, value) pairs."""
-    # First format all the values into strings
-    formatted_fields = []
-    for label, value in fields:
-        label = str(label)
-        if isinstance(value, float):
-            value = float_format.format(value)
-        else:
-            value = str(value)
-        formatted_fields.append((label, value))
+    def __init__(self, getter=Callable[[], abc.Sequence]):
+        self._getter = getter
 
-    # Set up a buffer to hold the whole table
-    buff = StringIO()
-    while len(formatted_fields) > 0:
-        row_buff: List[Tuple[str, str]] = []
-        while len(row_buff) < cols and len(formatted_fields) > 0:
-            row_buff.append(formatted_fields.pop(0))
-        buff.write(
-            cli_table_row(
-                row_buff,
-                col_width=col_width,
-                max_label_width=max_label_width,
-                sep_char=sep_char,
-                divider_char=divider_char,
-                label_color=label_color,
-                val_align=val_align,
-            )
-        )
-        if len(formatted_fields) > 0:
-            buff.write("\n")
-    return buff.getvalue()
+    @cached_property
+    def _sequence(self) -> abc.Sequence:
+        return self._getter()
+
+    def __getitem__(self, key):
+        return self._sequence[key]
+
+    def __len__(self):
+        return len(self._sequence)

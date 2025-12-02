@@ -1,29 +1,30 @@
-FROM python:3.9-slim-bullseye
+FROM python:3.12-slim-bullseye
 
 # Set separate working directory for easier debugging.
 WORKDIR /app
 
 # Create virtual environment.
-ENV VIRTUAL_ENV /app/.venv
+ENV VIRTUAL_ENV=/app/.venv
 RUN python -m venv $VIRTUAL_ENV
-ENV PATH $VIRTUAL_ENV/bin:$PATH
-RUN pip install --upgrade pip setuptools wheel
+ENV PATH=$VIRTUAL_ENV/bin:$PATH
+RUN pip install --no-cache-dir --upgrade pip setuptools wheel pip-tools
 
-# Install requirements seperately
+# Install requirements separately
 # to take advantage of layer caching.
-# N.B. we extract the requirements from setup.cfg
-COPY setup.cfg .
-RUN python -c "import configparser; c = configparser.ConfigParser(); c.read('setup.cfg'); print(c['options']['install_requires'])" > requirements.txt
-RUN pip install --upgrade -r requirements.txt
+# N.B. we extract the requirements from pyproject.toml
+COPY pyproject.toml .
+# Use piptools to extract requirements from pyproject.toml as described in
+# https://github.com/pypa/pip/issues/11584
+RUN pip-compile -o requirements.txt pyproject.toml -v --strip-extras
+RUN pip install --no-cache-dir --upgrade -r requirements.txt
 
 # Copy minimal set of SQLFluff package files.
 COPY MANIFEST.in .
 COPY README.md .
-COPY setup.py .
 COPY src ./src
 
 # Install sqlfluff package.
-RUN pip install --no-dependencies .
+RUN pip install --no-cache-dir --no-dependencies .
 
 # Switch to non-root user.
 USER 5000

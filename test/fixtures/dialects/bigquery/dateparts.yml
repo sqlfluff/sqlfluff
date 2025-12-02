@@ -1,0 +1,342 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: ced353a83fea5af92f6ac7677f723672e5a6bcef2b9ffacb4d236e0c31f05b69
+file:
+  statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+            naked_identifier: col1
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: EXTRACT
+            function_contents:
+              bracketed:
+                start_bracket: (
+                date_part: MICROSECOND
+                keyword: FROM
+                expression:
+                  column_reference:
+                    naked_identifier: col1
+                end_bracket: )
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: EXTRACT
+            function_contents:
+              bracketed:
+                start_bracket: (
+                date_part: MILLISECOND
+                keyword: FROM
+                expression:
+                  column_reference:
+                    naked_identifier: col1
+                end_bracket: )
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: EXTRACT
+            function_contents:
+              bracketed:
+                start_bracket: (
+                date_part: SECOND
+                keyword: FROM
+                expression:
+                  column_reference:
+                    naked_identifier: col1
+                end_bracket: )
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: EXTRACT
+            function_contents:
+              bracketed:
+                start_bracket: (
+                date_part: MINUTE
+                keyword: FROM
+                expression:
+                  column_reference:
+                    naked_identifier: col1
+                end_bracket: )
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: EXTRACT
+            function_contents:
+              bracketed:
+                start_bracket: (
+                date_part: HOUR
+                keyword: FROM
+                expression:
+                  column_reference:
+                    naked_identifier: col1
+                end_bracket: )
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: EXTRACT
+            function_contents:
+              bracketed:
+                start_bracket: (
+                date_part: DAY
+                keyword: FROM
+                expression:
+                  column_reference:
+                    naked_identifier: col1
+                end_bracket: )
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: EXTRACT
+            function_contents:
+              bracketed:
+                start_bracket: (
+                date_part: DAYOFWEEK
+                keyword: FROM
+                expression:
+                  column_reference:
+                    naked_identifier: col1
+                end_bracket: )
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: EXTRACT
+            function_contents:
+              bracketed:
+                start_bracket: (
+                date_part: DAYOFYEAR
+                keyword: FROM
+                expression:
+                  column_reference:
+                    naked_identifier: col1
+                end_bracket: )
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: EXTRACT
+            function_contents:
+              bracketed:
+                start_bracket: (
+                date_part: WEEK
+                keyword: FROM
+                expression:
+                  column_reference:
+                    naked_identifier: col1
+                end_bracket: )
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: EXTRACT
+            function_contents:
+              bracketed:
+                start_bracket: (
+                date_part: ISOWEEK
+                keyword: FROM
+                expression:
+                  column_reference:
+                    naked_identifier: col1
+                end_bracket: )
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: EXTRACT
+            function_contents:
+              bracketed:
+                start_bracket: (
+                date_part: MONTH
+                keyword: FROM
+                expression:
+                  column_reference:
+                    naked_identifier: col1
+                end_bracket: )
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: EXTRACT
+            function_contents:
+              bracketed:
+                start_bracket: (
+                date_part: QUARTER
+                keyword: FROM
+                expression:
+                  column_reference:
+                    naked_identifier: col1
+                end_bracket: )
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: EXTRACT
+            function_contents:
+              bracketed:
+                start_bracket: (
+                date_part: YEAR
+                keyword: FROM
+                expression:
+                  column_reference:
+                    naked_identifier: col1
+                end_bracket: )
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: EXTRACT
+            function_contents:
+              bracketed:
+                start_bracket: (
+                date_part: ISOYEAR
+                keyword: FROM
+                expression:
+                  column_reference:
+                    naked_identifier: col1
+                end_bracket: )
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: EXTRACT
+            function_contents:
+              bracketed:
+                start_bracket: (
+                date_part_week:
+                  keyword: WEEK
+                  bracketed:
+                    start_bracket: (
+                    keyword: SUNDAY
+                    end_bracket: )
+                keyword: FROM
+                expression:
+                  column_reference:
+                    naked_identifier: col1
+                end_bracket: )
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: EXTRACT
+            function_contents:
+              bracketed:
+                start_bracket: (
+                date_part: WEEK
+                keyword: FROM
+                expression:
+                  column_reference:
+                    naked_identifier: col1
+                end_bracket: )
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: week
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: EXTRACT
+            function_contents:
+              bracketed:
+                start_bracket: (
+                date_part: DATE
+                keyword: FROM
+                expression:
+                  column_reference:
+                    naked_identifier: col1
+                end_bracket: )
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: week
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: EXTRACT
+            function_contents:
+              bracketed:
+                start_bracket: (
+                date_part: DATE
+                keyword: FROM
+                expression:
+                  function:
+                    function_name:
+                      function_name_identifier: TIMESTAMP_SECONDS
+                    function_contents:
+                      bracketed:
+                        start_bracket: (
+                        expression:
+                          numeric_literal: '1651135778'
+                        end_bracket: )
+                end_bracket: )
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: LAST_DAY
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: col1
+                comma: ','
+                date_part: MONTH
+                end_bracket: )
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: LAST_DAY
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: col1
+                comma: ','
+                date_part: WEEK
+                end_bracket: )
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: LAST_DAY
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: col1
+                comma: ','
+                date_part_week:
+                  keyword: WEEK
+                  bracketed:
+                    start_bracket: (
+                    keyword: SUNDAY
+                    end_bracket: )
+                end_bracket: )
+      - comma: ','
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: tbl1
+  statement_terminator: ;

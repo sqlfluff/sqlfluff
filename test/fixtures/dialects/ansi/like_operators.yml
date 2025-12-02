@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: bea4bf5bfc197765d3e5566acd6d69f314f419db113b2eaaf65ec2a022e2345b
+_hash: 186842fd07c44c4d6d6dbc939d992e74dbf1096b3d6022a705bc27557c97c4ae
 file:
   statement:
     select_statement:
@@ -19,26 +19,26 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: my_tbl
+                naked_identifier: my_tbl
       where_clause:
         keyword: WHERE
         expression:
         - column_reference:
-            identifier: a
-        - comparison_operator: '!~'
-        - literal: "'[a-z]'"
+            naked_identifier: a
+        - like_operator: '!~'
+        - quoted_literal: "'[a-z]'"
         - binary_operator: AND
         - column_reference:
-            identifier: d
-        - comparison_operator: '!~~*'
-        - literal: "'[a-z]'"
+            naked_identifier: d
+        - like_operator: '!~~*'
+        - quoted_literal: "'[a-z]'"
         - binary_operator: AND
         - column_reference:
-            identifier: b
+            naked_identifier: b
         - keyword: LIKE
-        - literal: "'Spec\\'s%'"
+        - quoted_literal: "'Spec\\'s%'"
         - binary_operator: AND
         - column_reference:
-            identifier: c
-        - comparison_operator: '!~*'
-        - literal: "'^([0-9]){1,}(\\.)([0-9]{1,})$'"
+            naked_identifier: c
+        - like_operator: '!~*'
+        - quoted_literal: "'^([0-9]){1,}(\\.)([0-9]{1,})$'"

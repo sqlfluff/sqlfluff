@@ -1,26 +1,26 @@
 """The core elements of sqlfluff."""
 
-import tblib.pickling_support  # type: ignore
+import tblib.pickling_support
 
 # Config objects
 from sqlfluff.core.config import FluffConfig
 
-# Public classes
-from sqlfluff.core.linter import Linter
-from sqlfluff.core.parser import Lexer, Parser
-
 # Dialect introspection
-from sqlfluff.core.dialects import dialect_selector, dialect_readout
+from sqlfluff.core.dialects import dialect_readout, dialect_selector
 
 # All of the errors.
 from sqlfluff.core.errors import (
     SQLBaseError,
-    SQLTemplaterError,
-    SQLLexError,
-    SQLParseError,
-    SQLLintError,
     SQLFluffUserError,
+    SQLLexError,
+    SQLLintError,
+    SQLParseError,
+    SQLTemplaterError,
 )
+
+# Public classes
+from sqlfluff.core.linter import Linter
+from sqlfluff.core.parser import Lexer, Parser
 
 # Timing objects
 from sqlfluff.core.timing import TimingSummary
@@ -49,6 +49,6 @@ __all__ = (
 # objects cannot be pickled. The tblib package addresses this limitation; we
 # simply need to install it before creating the worker pool. See these links for
 # additional context:
-# * https://pypi.org/project/tblib/
-# * https://stackoverflow.com/questions/6126007/python-getting-a-traceback-from-a-multiprocessing-process
+# https://pypi.org/project/tblib/
+# https://stackoverflow.com/questions/6126007/python-getting-a-traceback-from-a-multiprocessing-process
 tblib.pickling_support.install()

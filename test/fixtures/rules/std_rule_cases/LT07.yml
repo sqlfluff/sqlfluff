@@ -1,0 +1,134 @@
+rule: LT07
+
+test_pass_with_clause_closing_aligned:
+  # with statement indentation
+  pass_str: |
+    with cte as (
+        select 1
+    ) select * from cte
+
+test_pass_with_clause_closing_aligned_whitespace_consumption_a:
+  pass_str: |
+    with cte as (
+        select 1
+        {{- ' from i_consume_whitespace ' -}}
+    ) select * from cte
+
+test_pass_with_clause_closing_aligned_whitespace_consumption_b:
+  pass_str: |
+    with cte as (
+        select 1
+        {#- I'm a comment which consumes whitespace -#}
+    ) select * from cte
+
+test_pass_with_clause_closing_aligned_whitespace_consumption_c:
+  pass_str: |
+    with cte as (
+        select 1
+        {%- if False -%}{%- endif -%}
+    ) select * from cte
+
+test_fix_with_clause_closing_aligned_whitespace_consumption_d:
+  fail_str: |
+    with cte as (
+        select 1
+        {%- if False -%}{%- endif -%}) select * from cte
+  fix_str: |
+    with cte as (
+        select 1
+        {%- if False -%}{%- endif -%}
+    ) select * from cte
+
+test_pass_with_clause_closing_oneline:
+  # with statement oneline
+  pass_str: with cte as (select 1) select * from cte
+
+test_pass_with_clause_closing_misaligned_indentation:
+  # Fix with statement indentation
+  pass_str: |
+    with cte as (
+        select 1
+        ) select * from cte
+
+test_pass_with_clause_closing_misaligned_negative_indentation:
+  # Fix with statement that has negative indentation
+  pass_str: |2
+        with cte as (
+        select 1
+    ) select * from cte
+
+test_move_parenthesis_to_next_line:
+  fail_str: |
+    with cte_1 as (
+        select foo
+        from tbl_1) -- Foobar
+
+    select cte_1.foo
+    from cte_1
+  fix_str: |
+    with cte_1 as (
+        select foo
+        from tbl_1
+    ) -- Foobar
+
+    select cte_1.foo
+    from cte_1
+
+test_pass_cte_with_column_list:
+  # Issue 2851: Ignore the CTE column list, only check the query.
+  pass_str: |
+    with
+    search_path (node_ids, total_time) as (
+        select 1
+    )
+    select * from search_path
+
+test_pass_with_clause_closing_misaligned_indentation_in_templated_block:
+  pass_str: |
+    with
+    {% if true %}
+      cte as (
+          select 1
+      )
+    {% else %}
+      cte as (
+          select 2
+      )
+    {% endif %}
+    select * from cte
+
+test_move_parenthesis_to_next_line_in_templated_block:
+  fail_str: |
+    with
+    {% if true %}
+      cte as (
+          select 1)
+    {% endif %}
+    select * from cte
+
+  fix_str: |
+    with
+    {% if true %}
+      cte as (
+          select 1
+    )
+    {% endif %}
+    select * from cte
+
+test_pass_templated_clauses:
+  pass_str: |
+    with
+
+    {% for tbl in ['a', 'b'] %}
+        {{ tbl }} as (
+            SELECT 1
+        ),
+    {% endfor %}
+
+    final as (
+        SELECT 1
+    )
+
+    select * from final
+    join a using (x)
+    join b using (x)

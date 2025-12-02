@@ -1,0 +1,113 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 2cab5a10b6c4d69777e2d5041e104a2b2679b209b69193b9eb3904fff44fef97
+file:
+- statement:
+    load_data_statement:
+    - keyword: LOAD
+    - keyword: DATA
+    - keyword: LOCAL
+    - keyword: INPATH
+    - quoted_literal: "'/user/hive/warehouse/students'"
+    - keyword: OVERWRITE
+    - keyword: INTO
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: test_load
+- statement_terminator: ;
+- statement:
+    load_data_statement:
+    - keyword: LOAD
+    - keyword: DATA
+    - keyword: LOCAL
+    - keyword: INPATH
+    - quoted_literal: "'/user/hive/warehouse/test_partition/c2=2/c3=3'"
+    - keyword: OVERWRITE
+    - keyword: INTO
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: test_load_partition
+    - keyword: PARTITION
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: c2
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - numeric_literal: '2'
+      - comma: ','
+      - column_reference:
+          naked_identifier: c3
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - numeric_literal: '3'
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    load_data_statement:
+    - keyword: LOAD
+    - keyword: DATA
+    - keyword: INPATH
+    - quoted_literal: "'/user/hive/warehouse/students'"
+    - keyword: OVERWRITE
+    - keyword: INTO
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: test_load
+- statement_terminator: ;
+- statement:
+    load_data_statement:
+    - keyword: LOAD
+    - keyword: DATA
+    - keyword: LOCAL
+    - keyword: INPATH
+    - quoted_literal: "'/user/hive/warehouse/test_partition/c2=2/c3=3'"
+    - keyword: INTO
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: test_load_partition
+    - keyword: PARTITION
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: c2
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - numeric_literal: '2'
+      - comma: ','
+      - column_reference:
+          naked_identifier: c3
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - numeric_literal: '3'
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    load_data_statement:
+    - keyword: LOAD
+    - keyword: DATA
+    - keyword: INPATH
+    - quoted_literal: "'/user/hive/warehouse/test_partition/c2=2/c3=3'"
+    - keyword: INTO
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: test_load_partition
+    - keyword: PARTITION
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: c2
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - numeric_literal: '2'
+      - comma: ','
+      - column_reference:
+          naked_identifier: c3
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - numeric_literal: '3'
+      - end_bracket: )
+- statement_terminator: ;

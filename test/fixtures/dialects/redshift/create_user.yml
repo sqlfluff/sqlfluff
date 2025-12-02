@@ -1,0 +1,198 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 993241b899f5f3de25f2160e705de0f0a92da0808d450598c0e58d14703c8245
+file:
+- statement:
+    create_user_statement:
+    - keyword: CREATE
+    - keyword: USER
+    - role_reference:
+        naked_identifier: user1
+    - keyword: PASSWORD
+    - quoted_literal: "'md5153c434b4b77c89e6b94f12c5393af5b'"
+- statement_terminator: ;
+- statement:
+    create_user_statement:
+    - keyword: CREATE
+    - keyword: USER
+    - role_reference:
+        naked_identifier: admin
+    - keyword: WITH
+    - keyword: PASSWORD
+    - quoted_literal: "'sha256|Mypassword1'"
+- statement_terminator: ;
+- statement:
+    create_user_statement:
+    - keyword: CREATE
+    - keyword: USER
+    - role_reference:
+        naked_identifier: lazy
+    - keyword: PASSWORD
+    - keyword: DISABLE
+- statement_terminator: ;
+- statement:
+    create_user_statement:
+    - keyword: CREATE
+    - keyword: USER
+    - role_reference:
+        naked_identifier: lazy
+    - keyword: WITH
+    - keyword: PASSWORD
+    - keyword: DISABLE
+- statement_terminator: ;
+- statement:
+    create_user_statement:
+    - keyword: CREATE
+    - keyword: USER
+    - role_reference:
+        quoted_identifier: '"lazy"'
+    - keyword: WITH
+    - keyword: PASSWORD
+    - keyword: DISABLE
+- statement_terminator: ;
+- statement:
+    create_user_statement:
+    - keyword: CREATE
+    - keyword: USER
+    - role_reference:
+        naked_identifier: user1
+    - keyword: PASSWORD
+    - quoted_literal: "'md5153c434b4b77c89e6b94f12c5393af5b'"
+    - keyword: CREATEDB
+- statement_terminator: ;
+- statement:
+    create_user_statement:
+    - keyword: CREATE
+    - keyword: USER
+    - role_reference:
+        naked_identifier: user1
+    - keyword: PASSWORD
+    - quoted_literal: "'md5153c434b4b77c89e6b94f12c5393af5b'"
+    - keyword: NOCREATEDB
+- statement_terminator: ;
+- statement:
+    create_user_statement:
+    - keyword: CREATE
+    - keyword: USER
+    - role_reference:
+        naked_identifier: user1
+    - keyword: PASSWORD
+    - quoted_literal: "'md5153c434b4b77c89e6b94f12c5393af5b'"
+    - keyword: CREATEUSER
+- statement_terminator: ;
+- statement:
+    create_user_statement:
+    - keyword: CREATE
+    - keyword: USER
+    - role_reference:
+        naked_identifier: user1
+    - keyword: PASSWORD
+    - quoted_literal: "'md5153c434b4b77c89e6b94f12c5393af5b'"
+    - keyword: NOCREATEUSER
+- statement_terminator: ;
+- statement:
+    create_user_statement:
+    - keyword: CREATE
+    - keyword: USER
+    - role_reference:
+        naked_identifier: user1
+    - keyword: PASSWORD
+    - quoted_literal: "'md5153c434b4b77c89e6b94f12c5393af5b'"
+    - keyword: SYSLOG
+    - keyword: ACCESS
+    - keyword: RESTRICTED
+- statement_terminator: ;
+- statement:
+    create_user_statement:
+    - keyword: CREATE
+    - keyword: USER
+    - role_reference:
+        naked_identifier: user1
+    - keyword: PASSWORD
+    - quoted_literal: "'md5153c434b4b77c89e6b94f12c5393af5b'"
+    - keyword: SYSLOG
+    - keyword: ACCESS
+    - keyword: UNRESTRICTED
+- statement_terminator: ;
+- statement:
+    create_user_statement:
+    - keyword: CREATE
+    - keyword: USER
+    - role_reference:
+        naked_identifier: user1
+    - keyword: PASSWORD
+    - quoted_literal: "'md5153c434b4b77c89e6b94f12c5393af5b'"
+    - keyword: IN
+    - keyword: GROUP
+    - object_reference:
+        naked_identifier: group_1
+- statement_terminator: ;
+- statement:
+    create_user_statement:
+    - keyword: CREATE
+    - keyword: USER
+    - role_reference:
+        naked_identifier: user1
+    - keyword: PASSWORD
+    - quoted_literal: "'md5153c434b4b77c89e6b94f12c5393af5b'"
+    - keyword: IN
+    - keyword: GROUP
+    - object_reference:
+        naked_identifier: group_1
+    - comma: ','
+    - object_reference:
+        naked_identifier: group_2
+- statement_terminator: ;
+- statement:
+    create_user_statement:
+    - keyword: CREATE
+    - keyword: USER
+    - role_reference:
+        naked_identifier: user1
+    - keyword: PASSWORD
+    - quoted_literal: "'md5153c434b4b77c89e6b94f12c5393af5b'"
+    - keyword: VALID
+    - keyword: UNTIL
+    - quoted_literal: "'2017-06-10'"
+- statement_terminator: ;
+- statement:
+    create_user_statement:
+    - keyword: CREATE
+    - keyword: USER
+    - role_reference:
+        naked_identifier: user1
+    - keyword: PASSWORD
+    - quoted_literal: "'md5153c434b4b77c89e6b94f12c5393af5b'"
+    - connection_limit_segment:
+      - keyword: CONNECTION
+      - keyword: LIMIT
+      - numeric_literal: '30'
+- statement_terminator: ;
+- statement:
+    create_user_statement:
+    - keyword: CREATE
+    - keyword: USER
+    - role_reference:
+        naked_identifier: user1
+    - keyword: PASSWORD
+    - quoted_literal: "'md5153c434b4b77c89e6b94f12c5393af5b'"
+    - connection_limit_segment:
+      - keyword: CONNECTION
+      - keyword: LIMIT
+      - keyword: UNLIMITED
+- statement_terminator: ;
+- statement:
+    create_user_statement:
+    - keyword: CREATE
+    - keyword: USER
+    - role_reference:
+        naked_identifier: user1
+    - keyword: PASSWORD
+    - quoted_literal: "'md5153c434b4b77c89e6b94f12c5393af5b'"
+    - keyword: SESSION
+    - keyword: TIMEOUT
+    - numeric_literal: '120'
+- statement_terminator: ;

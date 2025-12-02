@@ -1,0 +1,604 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 4cfacc5f961f683b2ce39ebb46725ef077de9a28e53e748eb50e7589daae3ab8
+file:
+- statement:
+    create_external_table_statement:
+    - keyword: create
+    - keyword: or
+    - keyword: replace
+    - keyword: external
+    - keyword: table
+    - table_reference:
+        naked_identifier: ext_table
+    - keyword: with
+    - keyword: location
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - stage_path: '@mystage/path1/'
+    - keyword: file_format
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - file_format_segment:
+        bracketed:
+          start_bracket: (
+          json_file_format_type_parameters:
+            keyword: type
+            comparison_operator:
+              raw_comparison_operator: '='
+            file_type: json
+          end_bracket: )
+    - keyword: aws_sns_topic
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'arn:aws:sns:us-west-2:001234567890:s3_mybucket'"
+- statement_terminator: ;
+- statement:
+    create_external_table_statement:
+    - keyword: create
+    - keyword: or
+    - keyword: replace
+    - keyword: external
+    - keyword: table
+    - table_reference:
+        quoted_identifier: '"_p08"'
+    - keyword: with
+    - keyword: location
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - stage_path: '@carpe_datastore_commercial/p08'
+    - keyword: auto_refresh
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - boolean_literal: 'true'
+    - keyword: file_format
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - file_format_segment:
+        bracketed:
+          start_bracket: (
+          parquet_file_format_type_parameters:
+            keyword: type
+            comparison_operator:
+              raw_comparison_operator: '='
+            file_type: parquet
+          end_bracket: )
+    - keyword: pattern
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'.*[.]parquet.*'"
+- statement_terminator: ;
+- statement:
+    create_external_table_statement:
+    - keyword: CREATE
+    - keyword: EXTERNAL
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: EXTERNAL_TABLES
+      - dot: .
+      - naked_identifier: TRIPS
+    - bracketed:
+      - start_bracket: (
+      - naked_identifier: tripduration
+      - data_type:
+          data_type_identifier: integer
+      - keyword: as
+      - expression:
+          function:
+            function_name:
+              function_name_identifier: try_cast
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  cast_expression:
+                    column_reference:
+                      naked_identifier: VALUE
+                    semi_structured_expression:
+                      colon: ':'
+                      semi_structured_element: c1
+                    casting_operator: '::'
+                    data_type:
+                      data_type_identifier: varchar
+                keyword: as
+                data_type:
+                  data_type_identifier: integer
+                end_bracket: )
+      - keyword: not
+      - keyword: 'null'
+      - comma: ','
+      - naked_identifier: starttime
+      - data_type:
+          keyword: timestamp
+      - keyword: as
+      - expression:
+          function:
+            function_name:
+              function_name_identifier: try_cast
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  cast_expression:
+                    column_reference:
+                      naked_identifier: VALUE
+                    semi_structured_expression:
+                      colon: ':'
+                      semi_structured_element: c2
+                    casting_operator: '::'
+                    data_type:
+                      data_type_identifier: varchar
+                keyword: as
+                data_type:
+                  keyword: timestamp
+                end_bracket: )
+      - comma: ','
+      - naked_identifier: stoptime
+      - data_type:
+          keyword: timestamp
+      - keyword: as
+      - expression:
+          function:
+            function_name:
+              function_name_identifier: try_cast
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  cast_expression:
+                    column_reference:
+                      naked_identifier: VALUE
+                    semi_structured_expression:
+                      colon: ':'
+                      semi_structured_element: c3
+                    casting_operator: '::'
+                    data_type:
+                      data_type_identifier: varchar
+                keyword: as
+                data_type:
+                  keyword: timestamp
+                end_bracket: )
+      - comma: ','
+      - naked_identifier: start_station_id
+      - data_type:
+          data_type_identifier: integer
+      - keyword: as
+      - expression:
+          function:
+            function_name:
+              function_name_identifier: try_cast
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  cast_expression:
+                    column_reference:
+                      naked_identifier: VALUE
+                    semi_structured_expression:
+                      colon: ':'
+                      semi_structured_element: c4
+                    casting_operator: '::'
+                    data_type:
+                      data_type_identifier: varchar
+                keyword: as
+                data_type:
+                  data_type_identifier: integer
+                end_bracket: )
+      - keyword: 'null'
+      - comma: ','
+      - naked_identifier: start_station_name
+      - data_type:
+          data_type_identifier: varchar
+      - keyword: as
+      - bracketed:
+          start_bracket: (
+          expression:
+            cast_expression:
+              column_reference:
+                naked_identifier: VALUE
+              semi_structured_expression:
+                colon: ':'
+                semi_structured_element: c5
+              casting_operator: '::'
+              data_type:
+                data_type_identifier: varchar
+          end_bracket: )
+      - comma: ','
+      - naked_identifier: start_station_latitude
+      - data_type:
+          data_type_identifier: float
+      - keyword: as
+      - expression:
+          function:
+            function_name:
+              function_name_identifier: try_cast
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  cast_expression:
+                    column_reference:
+                      naked_identifier: VALUE
+                    semi_structured_expression:
+                      colon: ':'
+                      semi_structured_element: c6
+                    casting_operator: '::'
+                    data_type:
+                      data_type_identifier: varchar
+                keyword: as
+                data_type:
+                  data_type_identifier: float
+                end_bracket: )
+      - comma: ','
+      - naked_identifier: start_station_longitude
+      - data_type:
+          data_type_identifier: float
+      - keyword: as
+      - expression:
+          function:
+            function_name:
+              function_name_identifier: try_cast
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  cast_expression:
+                    column_reference:
+                      naked_identifier: VALUE
+                    semi_structured_expression:
+                      colon: ':'
+                      semi_structured_element: c7
+                    casting_operator: '::'
+                    data_type:
+                      data_type_identifier: varchar
+                keyword: as
+                data_type:
+                  data_type_identifier: float
+                end_bracket: )
+      - comma: ','
+      - naked_identifier: end_station_id
+      - data_type:
+          data_type_identifier: integer
+      - keyword: as
+      - expression:
+          function:
+            function_name:
+              function_name_identifier: try_cast
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  cast_expression:
+                    column_reference:
+                      naked_identifier: VALUE
+                    semi_structured_expression:
+                      colon: ':'
+                      semi_structured_element: c8
+                    casting_operator: '::'
+                    data_type:
+                      data_type_identifier: varchar
+                keyword: as
+                data_type:
+                  data_type_identifier: integer
+                end_bracket: )
+      - comma: ','
+      - naked_identifier: end_station_name
+      - data_type:
+          data_type_identifier: varchar
+      - keyword: as
+      - bracketed:
+          start_bracket: (
+          expression:
+            cast_expression:
+              column_reference:
+                naked_identifier: VALUE
+              semi_structured_expression:
+                colon: ':'
+                semi_structured_element: c9
+              casting_operator: '::'
+              data_type:
+                data_type_identifier: varchar
+          end_bracket: )
+      - comma: ','
+      - naked_identifier: end_station_latitude
+      - data_type:
+          data_type_identifier: float
+      - keyword: as
+      - expression:
+          function:
+            function_name:
+              function_name_identifier: try_cast
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  cast_expression:
+                    column_reference:
+                      naked_identifier: VALUE
+                    semi_structured_expression:
+                      colon: ':'
+                      semi_structured_element: c10
+                    casting_operator: '::'
+                    data_type:
+                      data_type_identifier: varchar
+                keyword: as
+                data_type:
+                  data_type_identifier: float
+                end_bracket: )
+      - comma: ','
+      - naked_identifier: end_station_longitude
+      - data_type:
+          data_type_identifier: float
+      - keyword: as
+      - expression:
+          function:
+            function_name:
+              function_name_identifier: try_cast
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  cast_expression:
+                    column_reference:
+                      naked_identifier: VALUE
+                    semi_structured_expression:
+                      colon: ':'
+                      semi_structured_element: c11
+                    casting_operator: '::'
+                    data_type:
+                      data_type_identifier: varchar
+                keyword: as
+                data_type:
+                  data_type_identifier: float
+                end_bracket: )
+      - comma: ','
+      - naked_identifier: bikeid
+      - data_type:
+          data_type_identifier: integer
+      - keyword: as
+      - expression:
+          function:
+            function_name:
+              function_name_identifier: try_cast
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  cast_expression:
+                    column_reference:
+                      naked_identifier: VALUE
+                    semi_structured_expression:
+                      colon: ':'
+                      semi_structured_element: c12
+                    casting_operator: '::'
+                    data_type:
+                      data_type_identifier: varchar
+                keyword: as
+                data_type:
+                  data_type_identifier: integer
+                end_bracket: )
+      - comma: ','
+      - naked_identifier: membership_type
+      - data_type:
+          data_type_identifier: varchar
+      - keyword: as
+      - bracketed:
+          start_bracket: (
+          expression:
+            cast_expression:
+              column_reference:
+                naked_identifier: VALUE
+              semi_structured_expression:
+                colon: ':'
+                semi_structured_element: c13
+              casting_operator: '::'
+              data_type:
+                data_type_identifier: varchar
+          end_bracket: )
+      - comma: ','
+      - naked_identifier: usertype
+      - data_type:
+          data_type_identifier: varchar
+      - keyword: as
+      - bracketed:
+          start_bracket: (
+          expression:
+            cast_expression:
+              column_reference:
+                naked_identifier: VALUE
+              semi_structured_expression:
+                colon: ':'
+                semi_structured_element: c14
+              casting_operator: '::'
+              data_type:
+                data_type_identifier: varchar
+          end_bracket: )
+      - comma: ','
+      - naked_identifier: birth_year
+      - data_type:
+          data_type_identifier: integer
+      - keyword: as
+      - expression:
+          function:
+            function_name:
+              function_name_identifier: try_cast
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  cast_expression:
+                    column_reference:
+                      naked_identifier: VALUE
+                    semi_structured_expression:
+                      colon: ':'
+                      semi_structured_element: c15
+                    casting_operator: '::'
+                    data_type:
+                      data_type_identifier: varchar
+                keyword: as
+                data_type:
+                  data_type_identifier: integer
+                end_bracket: )
+      - comma: ','
+      - naked_identifier: gender
+      - data_type:
+          data_type_identifier: integer
+      - keyword: as
+      - expression:
+          function:
+            function_name:
+              function_name_identifier: try_cast
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  cast_expression:
+                    column_reference:
+                      naked_identifier: VALUE
+                    semi_structured_expression:
+                      colon: ':'
+                      semi_structured_element: c16
+                    casting_operator: '::'
+                    data_type:
+                      data_type_identifier: varchar
+                keyword: as
+                data_type:
+                  data_type_identifier: integer
+                end_bracket: )
+      - comma: ','
+      - naked_identifier: year
+      - data_type:
+          data_type_identifier: integer
+      - keyword: as
+      - bracketed:
+          start_bracket: (
+          expression:
+            cast_expression:
+              function:
+                function_name:
+                  function_name_identifier: substr
+                function_contents:
+                  bracketed:
+                  - start_bracket: (
+                  - expression:
+                      column_reference:
+                        naked_identifier: metadata$filename
+                  - comma: ','
+                  - expression:
+                      numeric_literal: '22'
+                  - comma: ','
+                  - expression:
+                      numeric_literal: '4'
+                  - end_bracket: )
+              casting_operator: '::'
+              data_type:
+                data_type_identifier: integer
+          end_bracket: )
+      - end_bracket: )
+    - keyword: PARTITION
+    - keyword: BY
+    - bracketed:
+        start_bracket: (
+        naked_identifier: year
+        end_bracket: )
+    - keyword: LOCATION
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - stage_path: '@external_tables.citibike_trips'
+    - keyword: FILE_FORMAT
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - file_format_segment:
+        bracketed:
+          start_bracket: (
+          csv_file_format_type_parameters:
+          - keyword: TYPE
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - file_type: "'CSV'"
+          - keyword: FIELD_OPTIONALLY_ENCLOSED_BY
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - quoted_literal: "'\"'"
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_external_table_statement:
+    - keyword: CREATE
+    - keyword: EXTERNAL
+    - keyword: TABLE
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - table_reference:
+      - naked_identifier: source_test
+      - dot: .
+      - naked_identifier: test
+    - bracketed:
+      - start_bracket: (
+      - naked_identifier: yyyymmdd
+      - data_type:
+          data_type_identifier: TEXT
+      - keyword: AS
+      - bracketed:
+          start_bracket: (
+          expression:
+            cast_expression:
+              column_reference:
+                naked_identifier: value
+              semi_structured_expression:
+                colon: ':'
+                semi_structured_element: YYYYMMDD
+              casting_operator: '::'
+              data_type:
+                data_type_identifier: TEXT
+          end_bracket: )
+      - comma: ','
+      - naked_identifier: product
+      - data_type:
+          data_type_identifier: TEXT
+      - keyword: AS
+      - bracketed:
+          start_bracket: (
+          expression:
+            cast_expression:
+              column_reference:
+                naked_identifier: value
+              semi_structured_expression:
+                colon: ':'
+                semi_structured_element: product
+              casting_operator: '::'
+              data_type:
+                data_type_identifier: TEXT
+          end_bracket: )
+      - end_bracket: )
+    - keyword: PARTITION
+    - keyword: BY
+    - bracketed:
+        start_bracket: (
+        naked_identifier: yyyymmdd
+        end_bracket: )
+    - keyword: PARTITION_TYPE
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - keyword: user_specified
+    - keyword: LOCATION
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - stage_path: '@public.test_stage'
+    - keyword: FILE_FORMAT
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - file_format_segment:
+        object_reference:
+        - naked_identifier: public
+        - dot: .
+        - naked_identifier: parquet_format_convert_binary
+    - keyword: AUTO_REFRESH
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - boolean_literal: 'false'
+- statement_terminator: ;

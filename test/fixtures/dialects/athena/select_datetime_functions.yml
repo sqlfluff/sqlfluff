@@ -1,0 +1,355 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: b8b4aa43d196d9687ef2b428cb602f8c77af196cbc18fe01f300724d86ae6fe6
+file:
+- statement:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_clause_element:
+          expression:
+            keyword: date
+            date_constructor_literal: "'2012-08-08'"
+            binary_operator: +
+            interval_expression:
+              keyword: interval
+              quoted_literal: "'2'"
+              date_part: day
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_clause_element:
+          expression:
+            keyword: time
+            date_constructor_literal: "'01:00'"
+            binary_operator: +
+            interval_expression:
+              keyword: interval
+              quoted_literal: "'3'"
+              date_part: hour
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_clause_element:
+          expression:
+            keyword: timestamp
+            date_constructor_literal: "'2012-08-08 01:00'"
+            binary_operator: +
+            interval_expression:
+              keyword: interval
+              quoted_literal: "'29'"
+              date_part: hour
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_clause_element:
+          expression:
+            keyword: timestamp
+            date_constructor_literal: "'2012-10-31 01:00'"
+            binary_operator: +
+            interval_expression:
+              keyword: interval
+              quoted_literal: "'1'"
+              date_part: month
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_clause_element:
+          expression:
+          - interval_expression:
+              keyword: interval
+              quoted_literal: "'2'"
+              date_part: day
+          - binary_operator: +
+          - interval_expression:
+              keyword: interval
+              quoted_literal: "'3'"
+              date_part: hour
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_clause_element:
+          expression:
+          - interval_expression:
+              keyword: interval
+              quoted_literal: "'3'"
+              date_part: year
+          - binary_operator: +
+          - interval_expression:
+              keyword: interval
+              quoted_literal: "'5'"
+              date_part: month
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_clause_element:
+          expression:
+            keyword: date
+            date_constructor_literal: "'2012-08-08'"
+            binary_operator: '-'
+            interval_expression:
+              keyword: interval
+              quoted_literal: "'2'"
+              date_part: day
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_clause_element:
+          expression:
+            keyword: time
+            date_constructor_literal: "'01:00'"
+            binary_operator: '-'
+            interval_expression:
+              keyword: interval
+              quoted_literal: "'3'"
+              date_part: hour
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_clause_element:
+          expression:
+            keyword: timestamp
+            date_constructor_literal: "'2012-08-08 01:00'"
+            binary_operator: '-'
+            interval_expression:
+              keyword: interval
+              quoted_literal: "'29'"
+              date_part: hour
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_clause_element:
+          expression:
+            keyword: timestamp
+            date_constructor_literal: "'2012-10-31 01:00'"
+            binary_operator: '-'
+            interval_expression:
+              keyword: interval
+              quoted_literal: "'1'"
+              date_part: month
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_clause_element:
+          expression:
+          - interval_expression:
+              keyword: interval
+              quoted_literal: "'2'"
+              date_part: day
+          - binary_operator: '-'
+          - interval_expression:
+              keyword: interval
+              quoted_literal: "'3'"
+              date_part: hour
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_clause_element:
+          expression:
+          - interval_expression:
+              keyword: interval
+              quoted_literal: "'3'"
+              date_part: year
+          - binary_operator: '-'
+          - interval_expression:
+              keyword: interval
+              quoted_literal: "'5'"
+              date_part: month
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_clause_element:
+          bare_function: current_time
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_clause_element:
+          bare_function: current_date
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_clause_element:
+          bare_function: current_timestamp
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: current_timezone
+            function_contents:
+              bracketed:
+                start_bracket: (
+                end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: date
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  quoted_literal: "'1970-01-01'"
+                end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: cast
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  quoted_literal: "'1970-01-01'"
+                keyword: as
+                data_type:
+                  primitive_type:
+                    keyword: date
+                end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: from_iso8601_timestamp
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  quoted_literal: "'2019-09-07T-15:50+00'"
+                end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: from_iso8601_date
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  quoted_literal: "'2019-09-07T-15:50+00'"
+                end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: from_unixtime
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  numeric_literal: '1556285138'
+                end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_clause_element:
+          column_reference:
+            naked_identifier: localtime
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_clause_element:
+          column_reference:
+            naked_identifier: localtimestamp
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: now
+            function_contents:
+              bracketed:
+                start_bracket: (
+                end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: to_iso8601
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  quoted_literal: "'1970-01-01'"
+                end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: to_unixtime
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  bare_function: current_timestamp
+                end_bracket: )
+- statement_terminator: ;

@@ -1,0 +1,89 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 6b3e6afb2ee17a7d0c7b9a419102e42e652d0d4c57d13d0172c7bcc342b4416b
+file:
+- statement:
+    create_type_statement:
+    - keyword: CREATE
+    - keyword: TYPE
+    - object_reference:
+        naked_identifier: foo
+- statement_terminator: ;
+- statement:
+    create_type_statement:
+    - keyword: CREATE
+    - keyword: TYPE
+    - object_reference:
+        naked_identifier: bar
+    - keyword: AS
+    - keyword: ENUM
+    - bracketed:
+        start_bracket: (
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_type_statement:
+    - keyword: CREATE
+    - keyword: TYPE
+    - object_reference:
+        naked_identifier: bar
+    - keyword: AS
+    - keyword: ENUM
+    - bracketed:
+      - start_bracket: (
+      - single_quote: "'foo'"
+      - comma: ','
+      - single_quote: "'bar'"
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_type_statement:
+    - keyword: CREATE
+    - keyword: TYPE
+    - object_reference:
+        naked_identifier: foobar
+    - keyword: AS
+    - keyword: RANGE
+    - bracketed:
+      - start_bracket: (
+      - word: SUBTYPE
+      - equals: '='
+      - word: FLOAT
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_type_statement:
+    - keyword: CREATE
+    - keyword: TYPE
+    - object_reference:
+        naked_identifier: barbar
+    - keyword: AS
+    - bracketed:
+      - start_bracket: (
+      - word: INPUT
+      - equals: '='
+      - word: foo
+      - comma: ','
+      - word: OUTPUT
+      - equals: '='
+      - word: bar
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_type_statement:
+    - keyword: CREATE
+    - keyword: TYPE
+    - object_reference:
+        naked_identifier: foofoo
+    - keyword: AS
+    - bracketed:
+      - start_bracket: (
+      - word: foo
+      - word: varchar
+      - word: collate
+      - word: utf8
+      - end_bracket: )
+- statement_terminator: ;

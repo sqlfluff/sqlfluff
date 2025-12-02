@@ -1,0 +1,166 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 6af381138c77c33c9a0d66b5cba1c4f3677e9f8bc00efce29a1c90d48d7e4284
+file:
+- statement:
+    create_statement:
+    - keyword: create
+    - keyword: resource
+    - keyword: monitor
+    - keyword: if
+    - keyword: not
+    - keyword: exists
+    - object_reference:
+        naked_identifier: test
+- statement_terminator: ;
+- statement:
+    create_resource_monitor_statement:
+    - keyword: create
+    - keyword: or
+    - keyword: replace
+    - keyword: resource
+    - keyword: monitor
+    - object_reference:
+        naked_identifier: limiter
+    - keyword: with
+    - resource_monitor_options:
+        keyword: credit_quota
+        comparison_operator:
+          raw_comparison_operator: '='
+        integer_literal: '1'
+- statement_terminator: ;
+- statement:
+    create_resource_monitor_statement:
+    - keyword: create
+    - keyword: or
+    - keyword: replace
+    - keyword: resource
+    - keyword: monitor
+    - object_reference:
+        naked_identifier: test
+    - keyword: with
+    - resource_monitor_options:
+      - keyword: frequency
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - keyword: monthly
+- statement_terminator: ;
+- statement:
+    create_resource_monitor_statement:
+    - keyword: create
+    - keyword: or
+    - keyword: replace
+    - keyword: resource
+    - keyword: monitor
+    - object_reference:
+        naked_identifier: limiter
+    - keyword: with
+    - resource_monitor_options:
+      - keyword: start_timestamp
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - keyword: immediately
+- statement_terminator: ;
+- statement:
+    create_resource_monitor_statement:
+    - keyword: create
+    - keyword: or
+    - keyword: replace
+    - keyword: resource
+    - keyword: monitor
+    - object_reference:
+        naked_identifier: limiter
+    - keyword: with
+    - resource_monitor_options:
+        keyword: start_timestamp
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'2038-01-19 03:14:07'"
+- statement_terminator: ;
+- statement:
+    create_resource_monitor_statement:
+    - keyword: create
+    - keyword: or
+    - keyword: replace
+    - keyword: resource
+    - keyword: monitor
+    - object_reference:
+        naked_identifier: limiter
+    - keyword: with
+    - resource_monitor_options:
+      - keyword: credit_quota
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - integer_literal: '100'
+      - keyword: NOTIFY_USERS
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - bracketed:
+        - start_bracket: (
+        - object_reference:
+            naked_identifier: joe
+        - comma: ','
+        - object_reference:
+            quoted_identifier: '"sara"'
+        - comma: ','
+        - object_reference:
+            quoted_identifier: '"ashlee"'
+        - end_bracket: )
+      - keyword: start_timestamp
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - keyword: immediately
+      - keyword: end_timestamp
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'2038-01-19 03:14:07'"
+- statement_terminator: ;
+- statement:
+    create_resource_monitor_statement:
+    - keyword: create
+    - keyword: or
+    - keyword: replace
+    - keyword: resource
+    - keyword: monitor
+    - object_reference:
+        naked_identifier: limiter
+    - keyword: with
+    - resource_monitor_options:
+      - keyword: credit_quota
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - integer_literal: '5000'
+      - keyword: notify_users
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - bracketed:
+        - start_bracket: (
+        - object_reference:
+            naked_identifier: jdoe
+        - comma: ','
+        - object_reference:
+            quoted_identifier: '"jane smith"'
+        - comma: ','
+        - object_reference:
+            quoted_identifier: '"john doe"'
+        - end_bracket: )
+      - keyword: triggers
+      - keyword: 'on'
+      - integer_literal: '75'
+      - keyword: percent
+      - keyword: do
+      - keyword: notify
+      - keyword: 'on'
+      - integer_literal: '100'
+      - keyword: percent
+      - keyword: do
+      - keyword: suspend
+      - keyword: 'on'
+      - integer_literal: '110'
+      - keyword: percent
+      - keyword: do
+      - keyword: suspend_immediate
+- statement_terminator: ;

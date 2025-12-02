@@ -1,0 +1,620 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: dcd4d6cdf4a9460b035a9d350b079ee7f039806e160aa15bfd12554ccce351a4
+file:
+- statement:
+    create_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: MASKING
+    - keyword: POLICY
+    - object_reference:
+      - naked_identifier: XXXX
+      - dot: .
+      - naked_identifier: XX
+      - dot: .
+      - naked_identifier: example_MASKING_POLICY
+    - keyword: AS
+    - function_contents:
+        bracketed:
+        - start_bracket: (
+        - expression:
+            column_reference:
+              naked_identifier: val
+        - expression:
+            column_reference:
+              naked_identifier: VARCHAR
+        - end_bracket: )
+    - keyword: RETURNS
+    - data_type:
+        data_type_identifier: VARCHAR
+    - function_assigner: ->
+    - expression:
+        case_expression:
+        - keyword: CASE
+        - when_clause:
+          - keyword: WHEN
+          - expression:
+              function:
+                function_name:
+                  function_name_identifier: is_role_in_session
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      quoted_literal: "'SNOWFLAKE_PII'"
+                    end_bracket: )
+          - keyword: THEN
+          - expression:
+              column_reference:
+                naked_identifier: val
+        - else_clause:
+            keyword: ELSE
+            expression:
+              quoted_literal: "'*** masked ***'"
+        - keyword: END
+    - comment_equals_clause:
+        keyword: COMMENT
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'Applied 2021-07-13T03:12:16+0000'"
+- statement_terminator: ;
+- statement:
+    create_statement:
+    - keyword: create
+    - keyword: or
+    - keyword: replace
+    - keyword: masking
+    - keyword: policy
+    - object_reference:
+        naked_identifier: email_mask
+    - keyword: as
+    - function_contents:
+        bracketed:
+        - start_bracket: (
+        - expression:
+            column_reference:
+              naked_identifier: val
+        - expression:
+            column_reference:
+              naked_identifier: string
+        - end_bracket: )
+    - keyword: returns
+    - data_type:
+        data_type_identifier: string
+    - function_assigner: ->
+    - expression:
+        case_expression:
+        - keyword: case
+        - when_clause:
+          - keyword: when
+          - expression:
+              function:
+                function_name:
+                  function_name_identifier: current_role
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    end_bracket: )
+              keyword: in
+              bracketed:
+                start_bracket: (
+                quoted_literal: "'ANALYST'"
+                end_bracket: )
+          - keyword: then
+          - expression:
+              column_reference:
+                naked_identifier: val
+        - else_clause:
+            keyword: else
+            expression:
+              quoted_literal: "'*********'"
+        - keyword: end
+- statement_terminator: ;
+- statement:
+    create_statement:
+    - keyword: create
+    - keyword: or
+    - keyword: replace
+    - keyword: masking
+    - keyword: policy
+    - object_reference:
+        naked_identifier: email_mask
+    - keyword: as
+    - function_contents:
+        bracketed:
+        - start_bracket: (
+        - expression:
+            column_reference:
+              naked_identifier: val
+        - expression:
+            column_reference:
+              naked_identifier: string
+        - end_bracket: )
+    - keyword: returns
+    - data_type:
+        data_type_identifier: string
+    - function_assigner: ->
+    - expression:
+        case_expression:
+        - keyword: case
+        - when_clause:
+          - keyword: when
+          - expression:
+              function:
+                function_name:
+                  function_name_identifier: current_account
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    end_bracket: )
+              keyword: in
+              bracketed:
+                start_bracket: (
+                quoted_literal: "'<prod_account_identifier>'"
+                end_bracket: )
+          - keyword: then
+          - expression:
+              column_reference:
+                naked_identifier: val
+        - else_clause:
+            keyword: else
+            expression:
+              quoted_literal: "'*********'"
+        - keyword: end
+- statement_terminator: ;
+- statement:
+    create_statement:
+    - keyword: create
+    - keyword: or
+    - keyword: replace
+    - keyword: masking
+    - keyword: policy
+    - object_reference:
+        naked_identifier: email_mask
+    - keyword: as
+    - function_contents:
+        bracketed:
+        - start_bracket: (
+        - expression:
+            column_reference:
+              naked_identifier: val
+        - expression:
+            column_reference:
+              naked_identifier: string
+        - end_bracket: )
+    - keyword: returns
+    - data_type:
+        data_type_identifier: string
+    - function_assigner: ->
+    - expression:
+        case_expression:
+        - keyword: case
+        - when_clause:
+          - keyword: when
+          - expression:
+              function:
+                function_name:
+                  function_name_identifier: current_role
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    end_bracket: )
+              keyword: IN
+              bracketed:
+                start_bracket: (
+                quoted_literal: "'ANALYST'"
+                end_bracket: )
+          - keyword: then
+          - expression:
+              column_reference:
+                naked_identifier: val
+        - else_clause:
+            keyword: else
+            expression:
+              null_literal: 'NULL'
+        - keyword: end
+- statement_terminator: ;
+- statement:
+    create_statement:
+    - keyword: create
+    - keyword: or
+    - keyword: replace
+    - keyword: masking
+    - keyword: policy
+    - object_reference:
+        naked_identifier: email_mask
+    - keyword: as
+    - function_contents:
+        bracketed:
+        - start_bracket: (
+        - expression:
+            column_reference:
+              naked_identifier: val
+        - expression:
+            column_reference:
+              naked_identifier: string
+        - end_bracket: )
+    - keyword: returns
+    - data_type:
+        data_type_identifier: string
+    - function_assigner: ->
+    - expression:
+        case_expression:
+        - keyword: case
+        - when_clause:
+          - keyword: when
+          - expression:
+              function:
+                function_name:
+                  function_name_identifier: current_role
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    end_bracket: )
+              keyword: in
+              bracketed:
+                start_bracket: (
+                quoted_literal: "'ANALYST'"
+                end_bracket: )
+          - keyword: then
+          - expression:
+              column_reference:
+                naked_identifier: val
+        - else_clause:
+            keyword: else
+            expression:
+              quoted_literal: "'********'"
+        - keyword: end
+- statement_terminator: ;
+- statement:
+    create_statement:
+    - keyword: create
+    - keyword: or
+    - keyword: replace
+    - keyword: masking
+    - keyword: policy
+    - object_reference:
+        naked_identifier: email_mask
+    - keyword: as
+    - function_contents:
+        bracketed:
+        - start_bracket: (
+        - expression:
+            column_reference:
+              naked_identifier: val
+        - expression:
+            column_reference:
+              naked_identifier: string
+        - end_bracket: )
+    - keyword: returns
+    - data_type:
+        data_type_identifier: string
+    - function_assigner: ->
+    - expression:
+        case_expression:
+        - keyword: case
+        - when_clause:
+          - keyword: when
+          - expression:
+              function:
+                function_name:
+                  function_name_identifier: current_role
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    end_bracket: )
+              keyword: in
+              bracketed:
+                start_bracket: (
+                quoted_literal: "'ANALYST'"
+                end_bracket: )
+          - keyword: then
+          - expression:
+              column_reference:
+                naked_identifier: val
+        - else_clause:
+            keyword: else
+            expression:
+              function:
+                function_name:
+                  function_name_identifier: sha2
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      column_reference:
+                        naked_identifier: val
+                    end_bracket: )
+        - keyword: end
+- statement_terminator: ;
+- statement:
+    create_statement:
+    - keyword: create
+    - keyword: or
+    - keyword: replace
+    - keyword: masking
+    - keyword: policy
+    - object_reference:
+        naked_identifier: email_mask
+    - keyword: as
+    - function_contents:
+        bracketed:
+        - start_bracket: (
+        - expression:
+            column_reference:
+              naked_identifier: val
+        - expression:
+            column_reference:
+              naked_identifier: string
+        - end_bracket: )
+    - keyword: returns
+    - data_type:
+        data_type_identifier: string
+    - function_assigner: ->
+    - expression:
+        case_expression:
+        - keyword: case
+        - when_clause:
+          - keyword: when
+          - expression:
+              function:
+                function_name:
+                  function_name_identifier: current_role
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    end_bracket: )
+              keyword: in
+              bracketed:
+                start_bracket: (
+                quoted_literal: "'ANALYST'"
+                end_bracket: )
+          - keyword: then
+          - expression:
+              column_reference:
+                naked_identifier: val
+        - when_clause:
+          - keyword: when
+          - expression:
+              function:
+                function_name:
+                  function_name_identifier: current_role
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    end_bracket: )
+              keyword: in
+              bracketed:
+                start_bracket: (
+                quoted_literal: "'SUPPORT'"
+                end_bracket: )
+          - keyword: then
+          - expression:
+              function:
+                function_name:
+                  function_name_identifier: regexp_replace
+                function_contents:
+                  bracketed:
+                  - start_bracket: (
+                  - expression:
+                      column_reference:
+                        naked_identifier: val
+                  - comma: ','
+                  - expression:
+                      quoted_literal: "'.+\\@'"
+                  - comma: ','
+                  - expression:
+                      quoted_literal: "'*****@'"
+                  - end_bracket: )
+        - else_clause:
+            keyword: else
+            expression:
+              quoted_literal: "'********'"
+        - keyword: end
+- statement_terminator: ;
+- statement:
+    create_statement:
+    - keyword: create
+    - keyword: or
+    - keyword: replace
+    - keyword: masking
+    - keyword: policy
+    - object_reference:
+        naked_identifier: email_mask
+    - keyword: as
+    - function_contents:
+        bracketed:
+        - start_bracket: (
+        - expression:
+            column_reference:
+              naked_identifier: val
+        - expression:
+            column_reference:
+              naked_identifier: string
+        - end_bracket: )
+    - keyword: returns
+    - data_type:
+        data_type_identifier: string
+    - function_assigner: ->
+    - expression:
+        case_expression:
+        - keyword: case
+        - when_clause:
+          - keyword: when
+          - expression:
+              function:
+                function_name:
+                  function_name_identifier: current_role
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    end_bracket: )
+              keyword: in
+              bracketed:
+                start_bracket: (
+                quoted_literal: "'SUPPORT'"
+                end_bracket: )
+          - keyword: then
+          - expression:
+              column_reference:
+                naked_identifier: val
+        - else_clause:
+            keyword: else
+            expression:
+              cast_expression:
+                function:
+                  function_name:
+                    function_name_identifier: date_from_parts
+                  function_contents:
+                    bracketed:
+                    - start_bracket: (
+                    - expression:
+                        numeric_literal: '0001'
+                    - comma: ','
+                    - expression:
+                        numeric_literal: '01'
+                    - comma: ','
+                    - expression:
+                        numeric_literal: '01'
+                    - end_bracket: )
+                casting_operator: '::'
+                data_type:
+                  data_type_identifier: timestamp_ntz
+        - keyword: end
+- statement_terminator: ;
+- statement:
+    create_statement:
+    - keyword: create
+    - keyword: or
+    - keyword: replace
+    - keyword: masking
+    - keyword: policy
+    - object_reference:
+        naked_identifier: email_mask
+    - keyword: as
+    - function_contents:
+        bracketed:
+        - start_bracket: (
+        - expression:
+            column_reference:
+              naked_identifier: val
+        - expression:
+            column_reference:
+              naked_identifier: string
+        - end_bracket: )
+    - keyword: returns
+    - data_type:
+        data_type_identifier: string
+    - function_assigner: ->
+    - expression:
+        case_expression:
+        - keyword: case
+        - when_clause:
+          - keyword: when
+          - expression:
+              function:
+                function_name:
+                  function_name_identifier: current_role
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    end_bracket: )
+              keyword: in
+              bracketed:
+                start_bracket: (
+                quoted_literal: "'ANALYST'"
+                end_bracket: )
+          - keyword: then
+          - expression:
+              column_reference:
+                naked_identifier: val
+        - else_clause:
+            keyword: else
+            expression:
+              function:
+                function_name:
+                  function_name_identifier: mask_udf
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      column_reference:
+                        naked_identifier: val
+                    end_bracket: )
+        - keyword: end
+- statement_terminator: ;
+- statement:
+    create_statement:
+    - keyword: create
+    - keyword: or
+    - keyword: replace
+    - keyword: masking
+    - keyword: policy
+    - object_reference:
+        naked_identifier: email_mask
+    - keyword: as
+    - function_contents:
+        bracketed:
+        - start_bracket: (
+        - expression:
+            column_reference:
+              naked_identifier: val
+        - expression:
+            column_reference:
+              naked_identifier: string
+        - end_bracket: )
+    - keyword: returns
+    - data_type:
+        data_type_identifier: string
+    - function_assigner: ->
+    - expression:
+        case_expression:
+        - keyword: case
+        - when_clause:
+          - keyword: when
+          - expression:
+              function:
+                function_name:
+                  function_name_identifier: current_role
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    end_bracket: )
+              keyword: in
+              bracketed:
+                start_bracket: (
+                quoted_literal: "'ANALYST'"
+                end_bracket: )
+          - keyword: then
+          - expression:
+              column_reference:
+                naked_identifier: val
+        - else_clause:
+            keyword: else
+            expression:
+              function:
+                function_name:
+                  function_name_identifier: object_insert
+                function_contents:
+                  bracketed:
+                  - start_bracket: (
+                  - expression:
+                      column_reference:
+                        naked_identifier: val
+                  - comma: ','
+                  - expression:
+                      quoted_literal: "'USER_IPADDRESS'"
+                  - comma: ','
+                  - expression:
+                      quoted_literal: "'****'"
+                  - comma: ','
+                  - expression:
+                      boolean_literal: 'true'
+                  - end_bracket: )
+        - keyword: end
+- statement_terminator: ;

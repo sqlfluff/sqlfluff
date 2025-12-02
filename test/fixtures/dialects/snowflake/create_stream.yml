@@ -1,0 +1,262 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: d6b9b17076a4d8fdb468ba44e454e9d10855d7e3d71365942f1f5af97d13ebf0
+file:
+- statement:
+    create_stream_statement:
+    - keyword: create
+    - keyword: stream
+    - object_reference:
+        naked_identifier: new_stream
+    - keyword: 'on'
+    - keyword: table
+    - object_reference:
+        naked_identifier: table_name
+- statement_terminator: ;
+- statement:
+    create_stream_statement:
+    - keyword: create
+    - keyword: stream
+    - object_reference:
+        naked_identifier: mystream
+    - keyword: 'on'
+    - keyword: table
+    - object_reference:
+        naked_identifier: mytable
+    - from_before_expression:
+        keyword: before
+        bracketed:
+          start_bracket: (
+          keyword: timestamp
+          parameter_assigner: =>
+          expression:
+            function:
+              function_name:
+                function_name_identifier: to_timestamp
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                  - numeric_literal: '40'
+                  - binary_operator: '*'
+                  - numeric_literal: '365'
+                  - binary_operator: '*'
+                  - numeric_literal: '86400'
+                  end_bracket: )
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_stream_statement:
+    - keyword: create
+    - keyword: stream
+    - object_reference:
+        naked_identifier: mystream
+    - keyword: 'on'
+    - keyword: table
+    - object_reference:
+        naked_identifier: mytable
+    - from_at_expression:
+        keyword: at
+        bracketed:
+          start_bracket: (
+          keyword: offset
+          parameter_assigner: =>
+          expression:
+          - numeric_literal:
+              sign_indicator: '-'
+              numeric_literal: '60'
+          - binary_operator: '*'
+          - numeric_literal: '5'
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_stream_statement:
+    - keyword: create
+    - keyword: stream
+    - object_reference:
+        naked_identifier: mystream
+    - keyword: 'on'
+    - keyword: table
+    - object_reference:
+        naked_identifier: mytable
+    - from_before_expression:
+        keyword: before
+        bracketed:
+          start_bracket: (
+          keyword: statement
+          parameter_assigner: =>
+          expression:
+            quoted_literal: "'8e5d0ca9-005e-44e6-b858-a8f5b37c5726'"
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_stream_statement:
+    - keyword: create
+    - keyword: stream
+    - object_reference:
+        naked_identifier: new_stream
+    - keyword: 'on'
+    - keyword: external
+    - keyword: table
+    - object_reference:
+        naked_identifier: table_name
+- statement_terminator: ;
+- statement:
+    create_stream_statement:
+    - keyword: create
+    - keyword: stream
+    - object_reference:
+        naked_identifier: new_stream
+    - keyword: 'on'
+    - keyword: stage
+    - object_reference:
+        naked_identifier: stage_name
+- statement_terminator: ;
+- statement:
+    create_stream_statement:
+    - keyword: create
+    - keyword: stream
+    - object_reference:
+        naked_identifier: new_stream
+    - keyword: 'on'
+    - keyword: view
+    - object_reference:
+        naked_identifier: view_name
+- statement_terminator: ;
+- statement:
+    create_clone_statement:
+    - keyword: create
+    - keyword: stream
+    - object_reference:
+        naked_identifier: new_stream
+    - keyword: clone
+    - object_reference:
+        naked_identifier: source_stream
+- statement_terminator: ;
+- statement:
+    create_stream_statement:
+    - keyword: create
+    - keyword: or
+    - keyword: replace
+    - keyword: stream
+    - object_reference:
+        naked_identifier: new_stream
+    - keyword: 'on'
+    - keyword: table
+    - object_reference:
+        naked_identifier: table_name
+- statement_terminator: ;
+- statement:
+    create_stream_statement:
+    - keyword: create
+    - keyword: stream
+    - keyword: if
+    - keyword: not
+    - keyword: exists
+    - object_reference:
+        naked_identifier: new_stream
+    - keyword: 'on'
+    - keyword: table
+    - object_reference:
+        naked_identifier: table_name
+- statement_terminator: ;
+- statement:
+    create_stream_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: STREAM
+    - object_reference:
+        naked_identifier: new_stream
+    - keyword: COPY
+    - keyword: GRANTS
+    - keyword: 'ON'
+    - keyword: TABLE
+    - object_reference:
+        naked_identifier: table_name
+    - keyword: APPEND_ONLY
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - boolean_literal: 'TRUE'
+    - keyword: SHOW_INITIAL_ROWS
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - boolean_literal: 'TRUE'
+    - comment_equals_clause:
+        keyword: COMMENT
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'amazing comment'"
+- statement_terminator: ;
+- statement:
+    create_stream_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: STREAM
+    - object_reference:
+        naked_identifier: new_stream
+    - keyword: 'ON'
+    - keyword: EXTERNAL
+    - keyword: TABLE
+    - object_reference:
+        naked_identifier: table_name
+    - keyword: INSERT_ONLY
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - boolean_literal: 'TRUE'
+    - comment_equals_clause:
+        keyword: COMMENT
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'amazing comment'"
+- statement_terminator: ;
+- statement:
+    create_stream_statement:
+    - keyword: CREATE
+    - keyword: STREAM
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - object_reference:
+        naked_identifier: new_stream
+    - keyword: 'ON'
+    - keyword: STAGE
+    - object_reference:
+        naked_identifier: stage_name
+    - comment_equals_clause:
+        keyword: COMMENT
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'amazing comment'"
+- statement_terminator: ;
+- statement:
+    create_stream_statement:
+    - keyword: CREATE
+    - keyword: STREAM
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - object_reference:
+        naked_identifier: new_stream
+    - keyword: 'ON'
+    - keyword: VIEW
+    - object_reference:
+        naked_identifier: view_name
+    - keyword: APPEND_ONLY
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - boolean_literal: 'FALSE'
+    - keyword: SHOW_INITIAL_ROWS
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - boolean_literal: 'FALSE'
+    - comment_equals_clause:
+        keyword: COMMENT
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'amazing comment'"
+- statement_terminator: ;

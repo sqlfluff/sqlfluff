@@ -10,27 +10,28 @@ file:
           - start_bracket: (
           - expression:
               column_reference:
-                identifier: id
+                naked_identifier: id
           - end_bracket: )
       - select_clause_element:
           expression:
-            bracketed:
-              start_bracket: (
-              expression:
-              - column_reference:
-                  identifier: json
-              - binary_operator: ->
-              - literal: "'type'"
-              - binary_operator: ->>
-              - literal: "'id'"
-              end_bracket: )
             cast_expression:
+              bracketed:
+                start_bracket: (
+                expression:
+                - column_reference:
+                    naked_identifier: json
+                - binary_operator: ->
+                - quoted_literal: "'type'"
+                - binary_operator: ->>
+                - quoted_literal: "'id'"
+                end_bracket: )
               casting_operator: '::'
               data_type:
-                data_type_identifier: int
+                keyword: int
           alias_expression:
-            keyword: as
-            identifier: id
+            alias_operator:
+              keyword: as
+            naked_identifier: id
       - comma: ','
       - select_clause_element:
           expression:
@@ -38,15 +39,16 @@ file:
               start_bracket: (
               expression:
               - column_reference:
-                  identifier: json
+                  naked_identifier: json
               - binary_operator: ->
-              - literal: "'type'"
+              - quoted_literal: "'type'"
               - binary_operator: ->>
-              - literal: "'name'"
+              - quoted_literal: "'name'"
               end_bracket: )
           alias_expression:
-            keyword: as
-            identifier: name
+            alias_operator:
+              keyword: as
+            naked_identifier: name
       from_clause:
         keyword: from
         from_expression:
@@ -67,19 +69,20 @@ file:
                       from_expression_element:
                         table_expression:
                           table_reference:
-                            identifier: sb_route_events
+                            naked_identifier: sb_route_events
                         alias_expression:
-                          keyword: as
-                          identifier: s
+                          alias_operator:
+                            keyword: as
+                          naked_identifier: s
                   where_clause:
                     keyword: where
                     bracketed:
                       start_bracket: (
                       expression:
                       - column_reference:
-                        - identifier: s
+                        - naked_identifier: s
                         - dot: .
-                        - identifier: match_id
+                        - naked_identifier: match_id
                       - keyword: not
                       - keyword: in
                       - bracketed:
@@ -91,17 +94,18 @@ file:
                                 keyword: distinct
                               select_clause_element:
                                 column_reference:
-                                  identifier: match_id
+                                  naked_identifier: match_id
                             from_clause:
                               keyword: from
                               from_expression:
                                 from_expression_element:
                                   table_expression:
                                     table_reference:
-                                      identifier: this_model
+                                      naked_identifier: this_model
                         - end_bracket: )
                       end_bracket: )
                 end_bracket: )
             alias_expression:
-              keyword: as
-              identifier: e
+              alias_operator:
+                keyword: as
+              naked_identifier: e

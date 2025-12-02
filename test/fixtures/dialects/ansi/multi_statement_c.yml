@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: e31020d6c4d5a1ab86c35fd365c20fb25ba3a38c3aadd4de9d318773a702e7bf
+_hash: 8b80ac837c1d2f5e4dede56754cabd62664e3d88e0359515f5f0e4ae7a5f4431
 file:
 - statement:
     select_statement:
@@ -19,13 +19,13 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: boo
+                naked_identifier: boo
 - statement_terminator: ;
 - statement:
     with_compound_statement:
       keyword: WITH
       common_table_expression:
-        identifier: blah
+        naked_identifier: blah
         keyword: AS
         bracketed:
           start_bracket: (
@@ -34,41 +34,41 @@ file:
             - keyword: select
             - select_clause_element:
                 column_reference:
-                  identifier: x
+                  naked_identifier: x
             - comma: ','
             - select_clause_element:
                 column_reference:
-                  identifier: y
+                  naked_identifier: y
             - comma: ','
             - select_clause_element:
-                literal: '4.567'
+                numeric_literal: '4.567'
             from_clause:
               keyword: FROM
               from_expression:
                 from_expression_element:
                   table_expression:
                     table_reference:
-                      identifier: foo
+                      naked_identifier: foo
           end_bracket: )
       select_statement:
         select_clause:
         - keyword: select
         - select_clause_element:
             column_reference:
-              identifier: z
+              naked_identifier: z
         - comma: ','
         - select_clause_element:
             column_reference:
-              identifier: y
+              naked_identifier: y
         - comma: ','
         - select_clause_element:
             column_reference:
-              identifier: x
+              naked_identifier: x
         from_clause:
           keyword: from
           from_expression:
             from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: blah
+                  naked_identifier: blah
 - statement_terminator: ;

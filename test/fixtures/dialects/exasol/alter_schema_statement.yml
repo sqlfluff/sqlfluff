@@ -1,0 +1,53 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 6caef570ecdf6ec635d22eccd23434c239efca88596bf79cd99ab8f7db1be3ba
+file:
+- statement:
+    alter_schema_statement:
+    - keyword: ALTER
+    - keyword: SCHEMA
+    - schema_reference:
+        naked_identifier: s1
+    - keyword: CHANGE
+    - keyword: OWNER
+    - naked_identifier: user1
+- statement_terminator: ;
+- statement:
+    alter_schema_statement:
+    - keyword: ALTER
+    - keyword: SCHEMA
+    - schema_reference:
+        naked_identifier: s1
+    - keyword: CHANGE
+    - keyword: OWNER
+    - naked_identifier: role1
+- statement_terminator: ;
+- statement:
+    alter_schema_statement:
+    - keyword: ALTER
+    - keyword: SCHEMA
+    - schema_reference:
+        naked_identifier: s1
+    - keyword: SET
+    - keyword: RAW_SIZE_LIMIT
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - numeric_literal: '128'
+    - star: '*'
+    - numeric_literal: '1024'
+    - star: '*'
+    - numeric_literal: '1024'
+- statement_terminator: ;
+- statement:
+    alter_schema_statement:
+    - keyword: ALTER
+    - keyword: SCHEMA
+    - schema_reference:
+        naked_identifier: s1
+    - keyword: CHANGE
+    - keyword: OWNER
+    - quoted_identifier: '"role1"'
+- statement_terminator: ;

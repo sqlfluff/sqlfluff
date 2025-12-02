@@ -1,0 +1,67 @@
+rule: ST01
+
+no_redundant_else_null:
+  pass_str: |
+    select
+        case
+            when name = 'cat' then 'meow'
+            when name = 'dog' then 'woof'
+        end
+    from x
+
+redundant_else_null:
+  fail_str: |
+    select
+        case
+            when name = 'cat' then 'meow'
+            when name = 'dog' then 'woof'
+            else null
+        end
+    from x
+
+  fix_str: |
+    select
+        case
+            when name = 'cat' then 'meow'
+            when name = 'dog' then 'woof'
+        end
+    from x
+
+alternate_case_when_syntax:
+
+  fail_str: |
+    select
+        case name
+            when 'cat' then 'meow'
+            when 'dog' then 'woof'
+            else null
+        end
+    from x
+
+  fix_str: |
+    select
+        case name
+            when 'cat' then 'meow'
+            when 'dog' then 'woof'
+        end
+    from x
+
+alternate_case_when_syntax_boolean:
+  pass_str: |
+    select
+        case name
+            when 'cat' then true
+            when 'dog' then true
+            else name is null
+        end
+    from x
+
+else_expression:
+  pass_str: |
+    select
+        case name
+            when 'cat' then 'meow'
+            when 'dog' then 'woof'
+            else iff(wing_type is not null, 'tweet', 'invalid')
+        end
+    from x

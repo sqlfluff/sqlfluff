@@ -1,0 +1,11 @@
+begin;
+begin work;
+begin transaction;
+begin name t4;
+begin work name t4;
+begin transaction name t4;
+start transaction;
+start transaction name t4;
+rollback;
+commit;
+commit work;

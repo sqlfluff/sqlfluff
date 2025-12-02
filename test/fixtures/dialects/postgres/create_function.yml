@@ -1,0 +1,1503 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: e6229c7ba24fc50cad903cc46910c65c736371d9afaa5ff0847217eca4d6d165
+file:
+- statement:
+    create_function_statement:
+    - keyword: CREATE
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: add
+    - function_parameter_list:
+        bracketed:
+        - start_bracket: (
+        - data_type:
+            keyword: integer
+        - comma: ','
+        - data_type:
+            keyword: integer
+        - end_bracket: )
+    - keyword: RETURNS
+    - data_type:
+        keyword: integer
+    - function_definition:
+        keyword: AS
+        quoted_literal: "'select $1 + $2;'"
+        language_clause:
+          keyword: LANGUAGE
+          naked_identifier: SQL
+- statement_terminator: ;
+- statement:
+    create_function_statement:
+    - keyword: CREATE
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: add
+    - function_parameter_list:
+        bracketed:
+        - start_bracket: (
+        - data_type:
+            keyword: integer
+        - comma: ','
+        - data_type:
+            keyword: integer
+        - end_bracket: )
+    - keyword: RETURNS
+    - data_type:
+        keyword: integer
+    - function_definition:
+        keyword: AS
+        quoted_literal: "'select $1 + $2;'"
+        language_clause:
+          keyword: LANGUAGE
+          quoted_identifier: "'sql'"
+- statement_terminator: ;
+- statement:
+    create_function_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: increment
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          parameter: i
+          data_type:
+            keyword: integer
+          end_bracket: )
+    - keyword: RETURNS
+    - data_type:
+        keyword: integer
+    - function_definition:
+      - keyword: AS
+      - quoted_literal: "'\n    BEGIN\n        RETURN i + 1;\n    END;\n'"
+      - language_clause:
+          keyword: LANGUAGE
+          naked_identifier: plpgsql
+      - keyword: VOLATILE
+- statement_terminator: ;
+- statement:
+    create_function_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: increment
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          parameter: i
+          data_type:
+            keyword: integer
+          end_bracket: )
+    - keyword: RETURNS
+    - data_type:
+        keyword: integer
+    - function_definition:
+      - keyword: AS
+      - quoted_literal: "'\n    BEGIN\n        RETURN i + 1;\n    END;\n'"
+      - language_clause:
+          keyword: LANGUAGE
+          naked_identifier: plpgsql
+      - keyword: WINDOW
+      - keyword: IMMUTABLE
+      - keyword: STABLE
+      - keyword: LEAKPROOF
+      - keyword: RETURNS
+      - keyword: 'NULL'
+      - keyword: 'ON'
+      - keyword: 'NULL'
+      - keyword: INPUT
+      - keyword: EXTERNAL
+      - keyword: SECURITY
+      - keyword: DEFINER
+      - keyword: ROWS
+      - numeric_literal: '5'
+      - keyword: SET
+      - parameter: test_param
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - numeric_literal: '3'
+- statement_terminator: ;
+- statement:
+    create_function_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: increment
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          parameter: i
+          data_type:
+            keyword: integer
+          end_bracket: )
+    - keyword: RETURNS
+    - data_type:
+        keyword: integer
+    - function_definition:
+      - keyword: AS
+      - quoted_literal: "'C:\\\\my_file.c'"
+      - comma: ','
+      - quoted_literal: "'symlink_c'"
+      - language_clause:
+          keyword: LANGUAGE
+          naked_identifier: plpgsql
+      - keyword: WINDOW
+      - keyword: IMMUTABLE
+      - keyword: STABLE
+      - keyword: NOT
+      - keyword: LEAKPROOF
+      - keyword: CALLED
+      - keyword: 'ON'
+      - keyword: 'NULL'
+      - keyword: INPUT
+      - keyword: EXTERNAL
+      - keyword: SECURITY
+      - keyword: DEFINER
+      - keyword: COST
+      - numeric_literal: '123'
+      - keyword: ROWS
+      - numeric_literal: '5'
+      - keyword: SET
+      - parameter: test_param
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - numeric_literal: '3'
+      - keyword: WITH
+      - bracketed:
+          start_bracket: (
+          parameter: isStrict
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_function_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: increment
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          parameter: i
+          data_type:
+            keyword: integer
+          end_bracket: )
+    - keyword: RETURNS
+    - data_type:
+        keyword: integer
+    - function_definition:
+      - keyword: PARALLEL
+      - keyword: UNSAFE
+      - keyword: AS
+      - quoted_literal: "$$\n    BEGIN\n        RETURN i + 1;\n    END;\n$$"
+      - language_clause:
+          keyword: LANGUAGE
+          naked_identifier: plpgsql
+      - keyword: SUPPORT
+      - parameter: my_function
+- statement_terminator: ;
+- statement:
+    create_function_statement:
+    - keyword: CREATE
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: add
+    - function_parameter_list:
+        bracketed:
+        - start_bracket: (
+        - data_type:
+            keyword: integer
+        - comma: ','
+        - data_type:
+            keyword: integer
+        - end_bracket: )
+    - keyword: RETURNS
+    - data_type:
+        keyword: integer
+    - function_definition:
+      - keyword: AS
+      - quoted_literal: "'select $1 + $2;'"
+      - language_clause:
+          keyword: LANGUAGE
+          naked_identifier: SQL
+      - keyword: IMMUTABLE
+      - keyword: RETURNS
+      - keyword: 'NULL'
+      - keyword: 'ON'
+      - keyword: 'NULL'
+      - keyword: INPUT
+- statement_terminator: ;
+- statement:
+    create_function_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: increment
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          parameter: i
+          data_type:
+            keyword: integer
+          end_bracket: )
+    - keyword: RETURNS
+    - data_type:
+        keyword: integer
+    - function_definition:
+        keyword: AS
+        quoted_literal: "$$\n        BEGIN\n                RETURN i + 1;\n      \
+          \  END;\n$$"
+        language_clause:
+          keyword: LANGUAGE
+          naked_identifier: plpgsql
+- statement_terminator: ;
+- statement:
+    create_function_statement:
+    - keyword: CREATE
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: dup
+    - function_parameter_list:
+        bracketed:
+        - start_bracket: (
+        - keyword: in
+        - data_type:
+            keyword: int
+        - comma: ','
+        - keyword: out
+        - parameter: f1
+        - data_type:
+            keyword: int
+        - comma: ','
+        - keyword: out
+        - parameter: f2
+        - data_type:
+            keyword: text
+        - end_bracket: )
+    - function_definition:
+        keyword: AS
+        quoted_literal: "$$ SELECT $1, CAST($1 AS text) || ' is text' $$"
+        language_clause:
+          keyword: LANGUAGE
+          naked_identifier: SQL
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              function:
+                function_name:
+                  function_name_identifier: dup
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      numeric_literal: '42'
+                    end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_type_statement:
+    - keyword: CREATE
+    - keyword: TYPE
+    - object_reference:
+        naked_identifier: dup_result
+    - keyword: AS
+    - bracketed:
+      - start_bracket: (
+      - word: f1
+      - word: int
+      - comma: ','
+      - word: f2
+      - word: text
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_function_statement:
+    - keyword: CREATE
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: dup
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          data_type:
+            keyword: int
+          end_bracket: )
+    - keyword: RETURNS
+    - data_type:
+        data_type_identifier: dup_result
+    - function_definition:
+        keyword: AS
+        quoted_literal: "$$ SELECT $1, CAST($1 AS text) || ' is text' $$"
+        language_clause:
+          keyword: LANGUAGE
+          naked_identifier: SQL
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              function:
+                function_name:
+                  function_name_identifier: dup
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      numeric_literal: '42'
+                    end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_function_statement:
+    - keyword: CREATE
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: dup
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          data_type:
+            keyword: int
+          end_bracket: )
+    - keyword: RETURNS
+    - keyword: TABLE
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: f1
+      - data_type:
+          keyword: int
+      - comma: ','
+      - column_reference:
+          naked_identifier: f2
+      - data_type:
+          keyword: text
+      - end_bracket: )
+    - function_definition:
+        keyword: AS
+        quoted_literal: "$$ SELECT $1, CAST($1 AS text) || ' is text' $$"
+        language_clause:
+          keyword: LANGUAGE
+          naked_identifier: SQL
+- statement_terminator: ;
+- statement:
+    create_function_statement:
+    - keyword: CREATE
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: dup
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          data_type:
+            keyword: int
+          end_bracket: )
+    - keyword: RETURNS
+    - keyword: TABLE
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          quoted_identifier: '"f1"'
+      - data_type:
+          keyword: int
+      - comma: ','
+      - column_reference:
+          quoted_identifier: '"f2"'
+      - data_type:
+          keyword: text
+      - end_bracket: )
+    - function_definition:
+        keyword: AS
+        quoted_literal: "$$ SELECT $1, CAST($1 AS text) || ' is text' $$"
+        language_clause:
+          keyword: LANGUAGE
+          naked_identifier: SQL
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              function:
+                function_name:
+                  function_name_identifier: dup
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      numeric_literal: '42'
+                    end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_function_statement:
+    - keyword: CREATE
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: check_password
+    - function_parameter_list:
+        bracketed:
+        - start_bracket: (
+        - parameter: uname
+        - data_type:
+            keyword: TEXT
+        - comma: ','
+        - parameter: pass
+        - data_type:
+            keyword: TEXT
+        - end_bracket: )
+    - keyword: RETURNS
+    - data_type:
+        keyword: BOOLEAN
+    - function_definition:
+      - keyword: AS
+      - quoted_literal: "$$\nDECLARE passed BOOLEAN;\nBEGIN\n        SELECT  (pwd\
+          \ = $2) INTO passed\n        FROM    pwds\n        WHERE   username = $1;\n\
+          \n        RETURN passed;\nEND;\n$$"
+      - language_clause:
+          keyword: LANGUAGE
+          naked_identifier: plpgsql
+      - keyword: SECURITY
+      - keyword: DEFINER
+      - keyword: SET
+      - parameter: search_path
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - parameter: admin
+      - comma: ','
+      - parameter: pg_temp
+- statement_terminator: ;
+- statement:
+    transaction_statement:
+      keyword: BEGIN
+- statement_terminator: ;
+- statement:
+    create_function_statement:
+    - keyword: CREATE
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: check_password
+    - function_parameter_list:
+        bracketed:
+        - start_bracket: (
+        - parameter: uname
+        - data_type:
+            keyword: TEXT
+        - comma: ','
+        - parameter: pass
+        - data_type:
+            keyword: TEXT
+        - end_bracket: )
+    - keyword: RETURNS
+    - data_type:
+        keyword: BOOLEAN
+    - function_definition:
+      - keyword: AS
+      - quoted_literal: "$$\nDECLARE passed BOOLEAN;\nBEGIN\n        SELECT  (pwd\
+          \ = $2) INTO passed\n        FROM    pwds\n        WHERE   username = $1;\n\
+          \n        RETURN passed;\nEND;\n$$"
+      - language_clause:
+          keyword: LANGUAGE
+          naked_identifier: plpgsql
+      - keyword: SECURITY
+      - keyword: DEFINER
+- statement_terminator: ;
+- statement:
+    access_statement:
+    - keyword: REVOKE
+    - keyword: ALL
+    - keyword: 'ON'
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: check_password
+    - function_parameter_list:
+        bracketed:
+        - start_bracket: (
+        - parameter: uname
+        - data_type:
+            keyword: TEXT
+        - comma: ','
+        - parameter: pass
+        - data_type:
+            keyword: TEXT
+        - end_bracket: )
+    - keyword: FROM
+    - object_reference:
+        naked_identifier: PUBLIC
+- statement_terminator: ;
+- statement:
+    access_statement:
+    - keyword: GRANT
+    - keyword: EXECUTE
+    - keyword: 'ON'
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: check_password
+    - function_parameter_list:
+        bracketed:
+        - start_bracket: (
+        - parameter: uname
+        - data_type:
+            keyword: TEXT
+        - comma: ','
+        - parameter: pass
+        - data_type:
+            keyword: TEXT
+        - end_bracket: )
+    - keyword: TO
+    - role_reference:
+        naked_identifier: admins
+- statement_terminator: ;
+- statement:
+    transaction_statement:
+      keyword: COMMIT
+- statement_terminator: ;
+- statement:
+    create_function_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: FUNCTION
+    - function_name:
+        naked_identifier: public
+        dot: .
+        function_name_identifier: setof_test
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          end_bracket: )
+    - keyword: RETURNS
+    - keyword: SETOF
+    - data_type:
+        keyword: text
+    - function_definition:
+      - language_clause:
+          keyword: LANGUAGE
+          naked_identifier: sql
+      - keyword: STABLE
+      - keyword: STRICT
+      - keyword: AS
+      - quoted_literal: "$function$\nselect unnest(array['hi', 'test'])\n$function$"
+- statement_terminator: ;
+- statement:
+    create_function_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: FUNCTION
+    - function_name:
+        naked_identifier: public
+        dot: .
+        function_name_identifier: foo
+    - function_parameter_list:
+        bracketed:
+        - start_bracket: (
+        - parameter: _a
+        - data_type:
+            keyword: TEXT
+        - comma: ','
+        - parameter: _$b
+        - data_type:
+            keyword: INT
+        - end_bracket: )
+    - keyword: RETURNS
+    - data_type:
+        keyword: FLOAT
+    - function_definition:
+      - keyword: AS
+      - quoted_literal: "$$\n  RETURN 0.0\n$$"
+      - language_clause:
+          keyword: LANGUAGE
+          naked_identifier: plpgsql
+      - keyword: STABLE
+      - keyword: PARALLEL
+      - keyword: SAFE
+- statement_terminator: ;
+- statement:
+    create_function_statement:
+    - keyword: CREATE
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: _add
+    - function_parameter_list:
+        bracketed:
+        - start_bracket: (
+        - data_type:
+            keyword: integer
+        - comma: ','
+        - data_type:
+            keyword: integer
+        - end_bracket: )
+    - keyword: RETURNS
+    - data_type:
+        keyword: integer
+    - function_definition:
+        keyword: AS
+        quoted_literal: "'select $1 + $2;'"
+        language_clause:
+          keyword: LANGUAGE
+          naked_identifier: SQL
+- statement_terminator: ;
+- statement:
+    create_function_statement:
+    - keyword: CREATE
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: _$add
+    - function_parameter_list:
+        bracketed:
+        - start_bracket: (
+        - data_type:
+            keyword: integer
+        - comma: ','
+        - data_type:
+            keyword: integer
+        - end_bracket: )
+    - keyword: RETURNS
+    - data_type:
+        keyword: integer
+    - function_definition:
+        keyword: AS
+        quoted_literal: "'select $1 + $2;'"
+        language_clause:
+          keyword: LANGUAGE
+          naked_identifier: SQL
+- statement_terminator: ;
+- statement:
+    create_function_statement:
+    - keyword: create
+    - keyword: function
+    - function_name:
+        function_name_identifier: test2
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          parameter: x
+          data_type:
+            datetime_type_identifier:
+              keyword: date
+          comparison_operator:
+            raw_comparison_operator: '='
+          expression:
+            bare_function: current_date
+          end_bracket: )
+    - keyword: returns
+    - data_type:
+        datetime_type_identifier:
+          keyword: date
+    - function_definition:
+        keyword: as
+        quoted_literal: "$$\n  begin\n    return x;\n  end;\n$$"
+- statement_terminator: ;
+- statement:
+    create_function_statement:
+    - keyword: create
+    - keyword: function
+    - function_name:
+        function_name_identifier: test3
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          parameter: x
+          data_type:
+            datetime_type_identifier:
+              keyword: date
+          keyword: default
+          expression:
+            bare_function: current_date
+          end_bracket: )
+    - keyword: returns
+    - data_type:
+        datetime_type_identifier:
+          keyword: date
+    - function_definition:
+        keyword: as
+        quoted_literal: "$$\n  begin\n    return x;\n  end;\n$$"
+- statement_terminator: ;
+- statement:
+    create_function_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: data_wrapper
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          end_bracket: )
+    - keyword: RETURNS
+    - keyword: SETOF
+    - data_type:
+        data_type_identifier: data
+    - function_definition:
+      - keyword: STABLE
+      - keyword: PARALLEL
+      - keyword: SAFE
+      - keyword: LEAKPROOF
+      - keyword: BEGIN
+      - keyword: ATOMIC
+      - select_statement:
+          select_clause:
+            keyword: SELECT
+            select_clause_element:
+              wildcard_expression:
+                wildcard_identifier:
+                  star: '*'
+          from_clause:
+            keyword: FROM
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                    naked_identifier: data
+      - statement_terminator: ;
+      - keyword: END
+- statement_terminator: ;
+- statement:
+    create_function_statement:
+    - keyword: create
+    - keyword: or
+    - keyword: replace
+    - keyword: function
+    - function_name:
+        function_name_identifier: tz_date
+    - function_parameter_list:
+        bracketed:
+        - start_bracket: (
+        - data_type:
+            datetime_type_identifier:
+            - keyword: timestamp
+            - keyword: with
+            - keyword: time
+            - keyword: zone
+        - comma: ','
+        - data_type:
+            keyword: text
+        - end_bracket: )
+    - keyword: returns
+    - data_type:
+        datetime_type_identifier:
+          keyword: date
+    - function_definition:
+      - language_clause:
+          keyword: language
+          naked_identifier: sql
+      - keyword: immutable
+      - keyword: strict
+      - keyword: return
+      - expression:
+          cast_expression:
+            bracketed:
+              start_bracket: (
+              expression:
+                dollar_numeric_literal: $1
+                time_zone_grammar:
+                - keyword: at
+                - keyword: time
+                - keyword: zone
+                - expression:
+                    dollar_numeric_literal: $2
+              end_bracket: )
+            casting_operator: '::'
+            data_type:
+              datetime_type_identifier:
+                keyword: date
+- statement_terminator: ;
+- statement:
+    create_function_statement:
+    - keyword: CREATE
+    - keyword: FUNCTION
+    - function_name:
+        naked_identifier: storage
+        dot: .
+        function_name_identifier: insert_dimension
+    - function_parameter_list:
+        bracketed:
+        - start_bracket: (
+        - parameter: in_ordinality
+        - data_type:
+            keyword: int
+        - comma: ','
+        - parameter: in_fieldname
+        - data_type:
+            keyword: varchar
+        - comma: ','
+        - parameter: in_default_val
+        - data_type:
+            keyword: varchar
+        - comma: ','
+        - parameter: in_valid_from
+        - data_type:
+            datetime_type_identifier:
+              keyword: timestamp
+        - comma: ','
+        - parameter: in_valid_until
+        - data_type:
+            datetime_type_identifier:
+              keyword: timestamp
+        - end_bracket: )
+    - keyword: returns
+    - data_type:
+        naked_identifier: storage
+        dot: .
+        data_type_identifier: dimensions
+    - function_definition:
+      - language_clause:
+          keyword: language
+          naked_identifier: sql
+      - keyword: BEGIN
+      - keyword: ATOMIC
+      - update_statement:
+          keyword: UPDATE
+          table_reference:
+          - naked_identifier: storage
+          - dot: .
+          - naked_identifier: dimensions
+          set_clause_list:
+            keyword: SET
+            set_clause:
+              column_reference:
+                naked_identifier: ordinality
+              comparison_operator:
+                raw_comparison_operator: '='
+              expression:
+                column_reference:
+                  naked_identifier: ordinality
+                binary_operator: +
+                numeric_literal: '1'
+          where_clause:
+            keyword: WHERE
+            expression:
+            - column_reference:
+                naked_identifier: ordinality
+            - comparison_operator:
+              - raw_comparison_operator: '>'
+              - raw_comparison_operator: '='
+            - column_reference:
+                naked_identifier: in_ordinality
+      - statement_terminator: ;
+      - insert_statement:
+        - keyword: INSERT
+        - keyword: INTO
+        - table_reference:
+          - naked_identifier: storage
+          - dot: .
+          - naked_identifier: dimensions
+        - bracketed:
+          - start_bracket: (
+          - column_reference:
+              naked_identifier: ordinality
+          - comma: ','
+          - column_reference:
+              naked_identifier: fieldname
+          - comma: ','
+          - column_reference:
+              naked_identifier: default_val
+          - comma: ','
+          - column_reference:
+              naked_identifier: valid_from
+          - comma: ','
+          - column_reference:
+              naked_identifier: valid_until
+          - end_bracket: )
+        - values_clause:
+            keyword: VALUES
+            bracketed:
+            - start_bracket: (
+            - expression:
+                column_reference:
+                  naked_identifier: in_ordinality
+            - comma: ','
+            - expression:
+                column_reference:
+                  naked_identifier: in_fieldname
+            - comma: ','
+            - expression:
+                function:
+                  function_name:
+                    function_name_identifier: coalesce
+                  function_contents:
+                    bracketed:
+                    - start_bracket: (
+                    - expression:
+                        column_reference:
+                          naked_identifier: in_default_val
+                    - comma: ','
+                    - expression:
+                        quoted_literal: "'notexist'"
+                    - end_bracket: )
+            - comma: ','
+            - expression:
+                function:
+                  function_name:
+                    function_name_identifier: coalesce
+                  function_contents:
+                    bracketed:
+                    - start_bracket: (
+                    - expression:
+                        column_reference:
+                          naked_identifier: in_valid_from
+                    - comma: ','
+                    - expression:
+                        quoted_literal: "'-infinity'"
+                    - end_bracket: )
+            - comma: ','
+            - expression:
+                function:
+                  function_name:
+                    function_name_identifier: coalesce
+                  function_contents:
+                    bracketed:
+                    - start_bracket: (
+                    - expression:
+                        column_reference:
+                          naked_identifier: in_valid_until
+                    - comma: ','
+                    - expression:
+                        quoted_literal: "'infinity'"
+                    - end_bracket: )
+            - end_bracket: )
+        - keyword: RETURNING
+        - star: '*'
+      - statement_terminator: ;
+      - keyword: END
+- statement_terminator: ;
+- statement:
+    create_function_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: time_bucket
+    - function_parameter_list:
+        bracketed:
+        - start_bracket: (
+        - parameter: _time
+        - data_type:
+            datetime_type_identifier:
+            - keyword: timestamp
+            - keyword: without
+            - keyword: time
+            - keyword: zone
+        - comma: ','
+        - parameter: _from
+        - data_type:
+            datetime_type_identifier:
+            - keyword: timestamp
+            - keyword: without
+            - keyword: time
+            - keyword: zone
+        - comma: ','
+        - parameter: _to
+        - data_type:
+            datetime_type_identifier:
+            - keyword: timestamp
+            - keyword: without
+            - keyword: time
+            - keyword: zone
+        - comma: ','
+        - parameter: _buckets
+        - data_type:
+            keyword: integer
+        - keyword: DEFAULT
+        - expression:
+            numeric_literal: '200'
+        - comma: ','
+        - parameter: _offset
+        - data_type:
+            keyword: integer
+        - keyword: DEFAULT
+        - expression:
+            numeric_literal: '0'
+        - end_bracket: )
+    - keyword: RETURNS
+    - data_type:
+        datetime_type_identifier:
+        - keyword: timestamp
+        - keyword: without
+        - keyword: time
+        - keyword: zone
+    - function_definition:
+      - keyword: IMMUTABLE
+      - keyword: PARALLEL
+      - keyword: SAFE
+      - keyword: BEGIN
+      - keyword: ATOMIC
+      - select_statement:
+          select_clause:
+            keyword: SELECT
+            select_clause_element:
+              expression:
+              - function:
+                  function_name:
+                    function_name_identifier: date_bin
+                  function_contents:
+                    bracketed:
+                    - start_bracket: (
+                    - expression:
+                        bracketed:
+                          start_bracket: (
+                          expression:
+                            bracketed:
+                              start_bracket: (
+                              expression:
+                              - column_reference:
+                                  naked_identifier: _to
+                              - binary_operator: '-'
+                              - column_reference:
+                                  naked_identifier: _from
+                              end_bracket: )
+                            binary_operator: /
+                            function:
+                              function_name:
+                                function_name_identifier: greatest
+                              function_contents:
+                                bracketed:
+                                - start_bracket: (
+                                - expression:
+                                    bracketed:
+                                      start_bracket: (
+                                      expression:
+                                        column_reference:
+                                          naked_identifier: _buckets
+                                        binary_operator: '-'
+                                        numeric_literal: '1'
+                                      end_bracket: )
+                                - comma: ','
+                                - expression:
+                                    numeric_literal: '1'
+                                - end_bracket: )
+                          end_bracket: )
+                    - comma: ','
+                    - expression:
+                        column_reference:
+                          naked_identifier: _time
+                    - comma: ','
+                    - expression:
+                        column_reference:
+                          naked_identifier: _from
+                    - end_bracket: )
+              - binary_operator: +
+              - bracketed:
+                  start_bracket: (
+                  expression:
+                    bracketed:
+                      start_bracket: (
+                      expression:
+                      - column_reference:
+                          naked_identifier: _to
+                      - binary_operator: '-'
+                      - column_reference:
+                          naked_identifier: _from
+                      end_bracket: )
+                    binary_operator: /
+                    function:
+                      function_name:
+                        function_name_identifier: greatest
+                      function_contents:
+                        bracketed:
+                        - start_bracket: (
+                        - expression:
+                            bracketed:
+                              start_bracket: (
+                              expression:
+                                column_reference:
+                                  naked_identifier: _buckets
+                                binary_operator: '-'
+                                numeric_literal: '1'
+                              end_bracket: )
+                        - comma: ','
+                        - expression:
+                            numeric_literal: '1'
+                        - end_bracket: )
+                  end_bracket: )
+              - binary_operator: '*'
+              - bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                      naked_identifier: _offset
+                    binary_operator: +
+                    numeric_literal: '1'
+                  end_bracket: )
+      - statement_terminator: ;
+      - keyword: END
+- statement_terminator: ;
+- statement:
+    create_function_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: time_bucket_limited
+    - function_parameter_list:
+        bracketed:
+        - start_bracket: (
+        - parameter: _time
+        - data_type:
+            datetime_type_identifier:
+              keyword: timestamp
+        - comma: ','
+        - parameter: _from
+        - data_type:
+            datetime_type_identifier:
+              keyword: timestamp
+        - comma: ','
+        - parameter: _to
+        - data_type:
+            datetime_type_identifier:
+              keyword: timestamp
+        - comma: ','
+        - parameter: _buckets
+        - data_type:
+            keyword: int
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - expression:
+            numeric_literal: '200'
+        - end_bracket: )
+    - keyword: RETURNS
+    - data_type:
+        datetime_type_identifier:
+          keyword: timestamp
+    - function_definition:
+      - keyword: IMMUTABLE
+      - keyword: PARALLEL
+      - keyword: SAFE
+      - keyword: BEGIN
+      - keyword: ATOMIC
+      - keyword: RETURN
+      - expression:
+          case_expression:
+          - keyword: CASE
+          - when_clause:
+            - keyword: WHEN
+            - expression:
+              - column_reference:
+                  naked_identifier: _time
+              - comparison_operator:
+                - raw_comparison_operator: <
+                - raw_comparison_operator: '='
+              - column_reference:
+                  naked_identifier: _from
+            - keyword: THEN
+            - expression:
+                column_reference:
+                  naked_identifier: _from
+          - when_clause:
+            - keyword: WHEN
+            - expression:
+              - column_reference:
+                  naked_identifier: _time
+              - comparison_operator:
+                - raw_comparison_operator: '>'
+                - raw_comparison_operator: '='
+              - column_reference:
+                  naked_identifier: _to
+            - keyword: THEN
+            - expression:
+                column_reference:
+                  naked_identifier: _to
+          - else_clause:
+              keyword: ELSE
+              expression:
+                function:
+                  function_name:
+                    function_name_identifier: DATE_BIN
+                  function_contents:
+                    bracketed:
+                    - start_bracket: (
+                    - expression:
+                        bracketed:
+                          start_bracket: (
+                          expression:
+                          - column_reference:
+                              naked_identifier: _to
+                          - binary_operator: '-'
+                          - column_reference:
+                              naked_identifier: _from
+                          end_bracket: )
+                        binary_operator: /
+                        function:
+                          function_name:
+                            function_name_identifier: GREATEST
+                          function_contents:
+                            bracketed:
+                            - start_bracket: (
+                            - expression:
+                                column_reference:
+                                  naked_identifier: _buckets
+                                binary_operator: '-'
+                                numeric_literal: '1'
+                            - comma: ','
+                            - expression:
+                                numeric_literal: '1'
+                            - end_bracket: )
+                    - comma: ','
+                    - expression:
+                        column_reference:
+                          naked_identifier: _time
+                    - comma: ','
+                    - expression:
+                        column_reference:
+                          naked_identifier: _from
+                    - end_bracket: )
+                binary_operator: +
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    bracketed:
+                      start_bracket: (
+                      expression:
+                      - column_reference:
+                          naked_identifier: _to
+                      - binary_operator: '-'
+                      - column_reference:
+                          naked_identifier: _from
+                      end_bracket: )
+                    binary_operator: /
+                    function:
+                      function_name:
+                        function_name_identifier: GREATEST
+                      function_contents:
+                        bracketed:
+                        - start_bracket: (
+                        - expression:
+                            column_reference:
+                              naked_identifier: _buckets
+                            binary_operator: '-'
+                            numeric_literal: '1'
+                        - comma: ','
+                        - expression:
+                            numeric_literal: '1'
+                        - end_bracket: )
+                  end_bracket: )
+          - keyword: end
+      - statement_terminator: ;
+      - keyword: END
+- statement_terminator: ;
+- statement:
+    create_function_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: time_series
+    - function_parameter_list:
+        bracketed:
+        - start_bracket: (
+        - parameter: _from
+        - data_type:
+            datetime_type_identifier:
+            - keyword: timestamp
+            - keyword: without
+            - keyword: time
+            - keyword: zone
+        - comma: ','
+        - parameter: _to
+        - data_type:
+            datetime_type_identifier:
+            - keyword: timestamp
+            - keyword: without
+            - keyword: time
+            - keyword: zone
+        - comma: ','
+        - parameter: _buckets
+        - data_type:
+            keyword: integer
+        - keyword: DEFAULT
+        - expression:
+            numeric_literal: '200'
+        - end_bracket: )
+    - keyword: RETURNS
+    - keyword: TABLE
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          quoted_identifier: '"time"'
+        data_type:
+          datetime_type_identifier:
+          - keyword: timestamp
+          - keyword: without
+          - keyword: time
+          - keyword: zone
+        end_bracket: )
+    - function_definition:
+      - keyword: IMMUTABLE
+      - keyword: PARALLEL
+      - keyword: SAFE
+      - keyword: BEGIN
+      - keyword: ATOMIC
+      - select_statement:
+          select_clause:
+            keyword: SELECT
+            select_clause_element:
+              function:
+                function_name:
+                  function_name_identifier: time_bucket
+                function_contents:
+                  bracketed:
+                  - start_bracket: (
+                  - expression:
+                      column_reference:
+                        naked_identifier: _from
+                  - comma: ','
+                  - expression:
+                      column_reference:
+                        naked_identifier: _from
+                  - comma: ','
+                  - expression:
+                      column_reference:
+                        naked_identifier: _to
+                  - comma: ','
+                  - expression:
+                      column_reference:
+                        naked_identifier: _buckets
+                  - comma: ','
+                  - expression:
+                      column_reference:
+                      - naked_identifier: g
+                      - dot: .
+                      - naked_identifier: ofs
+                      binary_operator: '-'
+                      numeric_literal: '1'
+                  - end_bracket: )
+          from_clause:
+            keyword: FROM
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  function:
+                    function_name:
+                      function_name_identifier: generate_series
+                    function_contents:
+                      bracketed:
+                      - start_bracket: (
+                      - expression:
+                          numeric_literal: '0'
+                      - comma: ','
+                      - expression:
+                          function:
+                            function_name:
+                              function_name_identifier: greatest
+                            function_contents:
+                              bracketed:
+                              - start_bracket: (
+                              - expression:
+                                  bracketed:
+                                    start_bracket: (
+                                    expression:
+                                      column_reference:
+                                        naked_identifier: _buckets
+                                      binary_operator: '-'
+                                      numeric_literal: '1'
+                                    end_bracket: )
+                              - comma: ','
+                              - expression:
+                                  numeric_literal: '1'
+                              - end_bracket: )
+                      - end_bracket: )
+                alias_expression:
+                  alias_operator:
+                    keyword: AS
+                  naked_identifier: g
+                  bracketed:
+                    start_bracket: (
+                    identifier_list:
+                      naked_identifier: ofs
+                    end_bracket: )
+      - statement_terminator: ;
+      - keyword: END
+- statement_terminator: ;
+- statement:
+    create_function_statement:
+    - keyword: create
+    - keyword: or
+    - keyword: replace
+    - keyword: function
+    - function_name:
+        function_name_identifier: test
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          parameter: _pt
+          data_type:
+            wkt_geometry_type:
+              keyword: geography
+              bracketed:
+                start_bracket: (
+                keyword: point
+                end_bracket: )
+          end_bracket: )
+    - keyword: returns
+    - data_type:
+        keyword: numeric
+    - function_definition:
+      - language_clause:
+          keyword: language
+          naked_identifier: sql
+      - keyword: begin
+      - keyword: atomic
+      - select_statement:
+          select_clause:
+            keyword: select
+            select_clause_element:
+              function:
+                function_name:
+                  function_name_identifier: st_x
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      cast_expression:
+                        column_reference:
+                          naked_identifier: _pt
+                        casting_operator: '::'
+                        data_type:
+                          data_type_identifier: geometry
+                    end_bracket: )
+      - statement_terminator: ;
+      - keyword: end
+- statement_terminator: ;

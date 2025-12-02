@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: bd969666e6e2415a9f49056f8869f4b8977bba43d852a45a89a2b7e68ba5e16b
+_hash: 065f3a2bc27f072d327a253ac7202a42b84ed4c883bc7828f7786816b7a45ca6
 file:
   batch:
   - statement:
@@ -11,14 +11,15 @@ file:
       - keyword: CREATE
       - keyword: TABLE
       - table_reference:
-          identifier: '#n'
+          hash_identifier: '#n'
       - table_distribution_index_clause:
           keyword: WITH
           bracketed:
             start_bracket: (
             table_distribution_clause:
             - keyword: DISTRIBUTION
-            - comparison_operator: '='
+            - comparison_operator:
+                raw_comparison_operator: '='
             - keyword: ROUND_ROBIN
             end_bracket: )
       - keyword: AS
@@ -29,18 +30,18 @@ file:
               keyword: Select
               select_clause_element:
                 column_reference:
-                - identifier: acto
+                - naked_identifier: acto
                 - dot: .
-                - identifier: ActionDTS
+                - naked_identifier: ActionDTS
             from_clause:
               keyword: FROM
               from_expression:
                 from_expression_element:
                   table_expression:
                     table_reference:
-                      identifier: Orders_Action
+                      naked_identifier: Orders_Action
                   alias_expression:
-                    identifier: acto
+                    naked_identifier: acto
           end_bracket: )
   - statement:
       select_statement:
@@ -48,30 +49,76 @@ file:
           keyword: SELECT
           select_clause_element:
             column_reference:
-            - identifier: t
+            - naked_identifier: t
             - dot: .
-            - identifier: actiondts
+            - naked_identifier: actiondts
         from_clause:
           keyword: FROM
           from_expression:
             from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: '#n'
+                  hash_identifier: '#n'
               alias_expression:
-                identifier: t
+                naked_identifier: t
         groupby_clause:
         - keyword: GROUP
         - keyword: BY
         - column_reference:
-          - identifier: t
+          - naked_identifier: t
           - dot: .
-          - identifier: ActionDTS
-        statement_terminator: ;
+          - naked_identifier: ActionDTS
+  - statement_terminator: ;
   - statement:
-      drop_statement:
+      drop_table_statement:
       - keyword: DROP
       - keyword: TABLE
       - table_reference:
-          identifier: '#n'
-      - statement_terminator: ;
+          hash_identifier: '#n'
+  - statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+              naked_identifier: st
+        - comma: ','
+        - select_clause_element:
+            function:
+              function_name:
+                function_name_identifier: count
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  star: '*'
+                  end_bracket: )
+        - comma: ','
+        - select_clause_element:
+            function:
+              function_name:
+                function_name_identifier: count
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  keyword: DISTINCT
+                  expression:
+                    column_reference:
+                      naked_identifier: id
+                  end_bracket: )
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  hash_identifier: '#3'
+        groupby_clause:
+        - keyword: GROUP
+        - keyword: BY
+        - column_reference:
+            naked_identifier: st
+        - with_rollup_clause:
+          - keyword: WITH
+          - keyword: ROLLUP
+  - statement_terminator: ;

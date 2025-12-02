@@ -1,0 +1,84 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: fc26094109f498162ebd6326dce20aca48378060b1ad46e1c9d0a719ed828f76
+file:
+  statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          boolean_literal: 'TRUE'
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: col1
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              keyword: SAFE
+              dot: .
+              function_name_identifier: SUBSTR
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  quoted_literal: "'foo'"
+              - comma: ','
+              - expression:
+                  numeric_literal: '0'
+              - comma: ','
+              - expression:
+                  numeric_literal:
+                    sign_indicator: '-'
+                    numeric_literal: '2'
+              - end_bracket: )
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: col2
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              keyword: SAFE
+              dot: .
+              function_name_identifier: DATEADD
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - date_part: DAY
+              - comma: ','
+              - expression:
+                  numeric_literal:
+                    sign_indicator: '-'
+                    numeric_literal: '2'
+              - comma: ','
+              - expression:
+                  bare_function: CURRENT_DATE
+              - end_bracket: )
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              keyword: SAFE
+              dot: .
+              function_name_identifier: MY_FUNCTION
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: column1
+                end_bracket: )
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: table1
+  statement_terminator: ;

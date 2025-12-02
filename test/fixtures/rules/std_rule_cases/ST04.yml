@@ -1,0 +1,370 @@
+rule: ST04
+
+test_pass_1:
+  # The nested CASE is under a "WHEN", not an "ELSE".
+  pass_str: |
+    SELECT
+        c1,
+        CASE
+            WHEN species = 'Rat' THEN
+              CASE
+                  WHEN colour = 'Black' THEN 'Growl'
+                  WHEN colour = 'Grey' THEN 'Squeak'
+              END
+        END AS sound
+    FROM mytable
+
+test_pass_2:
+  # Issue 3110. The nested CASE is part of a larger expression. Cannot flatten.
+  pass_str: |
+    SELECT CASE 'b'
+            WHEN 'a' THEN
+                TRUE
+            ELSE
+                '2022-01-01'::date > CURRENT_DATE + CASE 'b'
+                    WHEN 'b' THEN
+                        8
+                    WHEN 'c' THEN
+                        9
+                END
+                AND (c > 10)
+        END AS test
+
+test_fail_1:
+  # Simple case.
+  fail_str: |
+    SELECT
+        c1,
+        CASE
+            WHEN species = 'Rat' THEN 'Squeak'
+            ELSE
+                CASE
+                    WHEN species = 'Dog' THEN 'Woof'
+                END
+        END AS sound
+    FROM mytable
+  fix_str: |
+    SELECT
+        c1,
+        CASE
+            WHEN species = 'Rat' THEN 'Squeak'
+            WHEN species = 'Dog' THEN 'Woof'
+        END AS sound
+    FROM mytable
+
+test_fail_2:
+  # The nested "CASE" has two "WHEN" clauses. Getting
+  # reasonable indentation is tricky.
+  fail_str: |
+    SELECT
+        c1,
+        CASE
+            WHEN species = 'Rat' THEN 'Squeak'
+            ELSE
+                CASE
+                    WHEN species = 'Dog' THEN 'Woof'
+                    WHEN species = 'Mouse' THEN 'Squeak'
+                END
+        END AS sound
+    FROM mytable
+  fix_str: |
+    SELECT
+        c1,
+        CASE
+            WHEN species = 'Rat' THEN 'Squeak'
+            WHEN species = 'Dog' THEN 'Woof'
+            WHEN species = 'Mouse' THEN 'Squeak'
+        END AS sound
+    FROM mytable
+
+test_fail_3:
+  fail_str: |
+    SELECT
+        c1,
+        CASE
+            WHEN species = 'Rat' THEN 'Squeak'
+            ELSE
+                CASE
+                    WHEN species = 'Dog' THEN 'Woof'
+                    WHEN species = 'Mouse' THEN 'Squeak'
+                    ELSE "Whaa"
+                END
+        END AS sound
+    FROM mytable
+  fix_str: |
+    SELECT
+        c1,
+        CASE
+            WHEN species = 'Rat' THEN 'Squeak'
+            WHEN species = 'Dog' THEN 'Woof'
+            WHEN species = 'Mouse' THEN 'Squeak'
+            ELSE "Whaa"
+        END AS sound
+    FROM mytable
+
+test_fail_4:
+  fail_str: |
+    SELECT
+        c1,
+        CASE
+            WHEN species = 'Rat' THEN 'Squeak'
+            ELSE
+                CASE
+                    ELSE "Whaa"
+                END
+        END AS sound
+    FROM mytable
+  fix_str: |
+    SELECT
+        c1,
+        CASE
+            WHEN species = 'Rat' THEN 'Squeak'
+            ELSE "Whaa"
+        END AS sound
+    FROM mytable
+
+test_fail_5:
+  # The nested "CASE" is a one-liner.
+  fail_str: |
+    SELECT
+        c1,
+        CASE
+            WHEN species = 'Rat' THEN 'Squeak'
+            ELSE
+                CASE WHEN species = 'Dog' THEN 'Woof' END
+        END AS sound
+    FROM mytable
+  fix_str: |
+    SELECT
+        c1,
+        CASE
+            WHEN species = 'Rat' THEN 'Squeak'
+            WHEN species = 'Dog' THEN 'Woof'
+        END AS sound
+    FROM mytable
+
+test_double_nesting_1:
+  fail_str: |
+    SELECT
+        c1,
+        CASE
+            WHEN species = 'Rat' THEN
+                CASE
+                    WHEN species = 'Dog' THEN 'Woof'
+                    ELSE
+                        CASE
+                            WHEN species = 'Bird' THEN 'tweet'
+                        END
+                END
+        END AS sound
+    FROM mytable
+  fix_str: |
+    SELECT
+        c1,
+        CASE
+            WHEN species = 'Rat' THEN
+                CASE
+                    WHEN species = 'Dog' THEN 'Woof'
+                    WHEN species = 'Bird' THEN 'tweet'
+                END
+        END AS sound
+    FROM mytable
+
+test_double_nesting_2:
+  # NOTE: This could be simplified more, but the current version of the rule
+  # only unnests "ELSE" statements. To do this safely, it'd have to verify
+  # that the various "WHEN" clauses are mutually exclusive.
+  fail_str: |
+    SELECT
+        c1,
+        CASE
+            WHEN species = 'Rat' THEN
+                CASE
+                    WHEN species = 'Dog' THEN 'Woof'
+                    ELSE
+                        CASE
+                            WHEN species = 'Bird' THEN 'tweet'
+                        END
+                END
+           ELSE
+                CASE
+                    WHEN species = 'Hyena' THEN 'Cackle'
+                END
+        END AS sound
+    FROM mytable
+  fix_str: |
+    SELECT
+        c1,
+        CASE
+            WHEN species = 'Rat' THEN
+                CASE
+                    WHEN species = 'Dog' THEN 'Woof'
+                    WHEN species = 'Bird' THEN 'tweet'
+                END
+            WHEN species = 'Hyena' THEN 'Cackle'
+        END AS sound
+    FROM mytable
+
+test_fail_no_copy_code_out_of_template:
+  # The rule wants to replace the case statement with coalesce(), but
+  # LintFix.has_template_conflicts() correctly prevents it copying code out
+  # of the templated region. Hence, the query is not modified.
+  fail_str: |
+    SELECT
+        c1,
+        CASE
+            WHEN species = 'Rat' THEN 'Squeak'
+            ELSE
+                CASE
+                    {{ inner_when }}
+                END
+        END AS sound
+    FROM mytable
+  configs:
+    core:
+      ignore_templated_areas: false
+    templater:
+      jinja:
+        context:
+          inner_when: "WHEN species = 'Dog' THEN 'Woof'"
+
+test_pass_different_case_expressions1:
+  pass_str: |
+    SELECT
+        CASE
+            WHEN DayOfMonth IN (11, 12, 13) THEN 'TH'
+            ELSE
+                CASE MOD(DayOfMonth, 10)
+                    WHEN 1 THEN 'ST'
+                    WHEN 2 THEN 'ND'
+                    WHEN 3 THEN 'RD'
+                    ELSE 'TH'
+                END
+        END AS OrdinalSuffix
+    FROM Calendar;
+
+test_pass_different_case_expressions2:
+  pass_str: |
+    SELECT
+        CASE DayOfMonth
+            WHEN 11 THEN 'TH'
+            WHEN 12 THEN 'TH'
+            WHEN 13 THEN 'TH'
+            ELSE
+                CASE MOD(DayOfMonth, 10)
+                    WHEN 1 THEN 'ST'
+                    WHEN 2 THEN 'ND'
+                    WHEN 3 THEN 'RD'
+                    ELSE 'TH'
+                END
+        END AS OrdinalSuffix
+    FROM Calendar;
+
+test_fail_nested_same_case:
+  fail_str: |
+    SELECT
+        CASE x
+            WHEN 0 THEN 'zero'
+            WHEN 5 THEN 'five'
+            ELSE
+                CASE x
+                    WHEN 10 THEN 'ten'
+                    WHEN 20 THEN 'twenty'
+                    ELSE 'other'
+                END
+        END
+    FROM tab_a;
+  fix_str: |
+    SELECT
+        CASE x
+            WHEN 0 THEN 'zero'
+            WHEN 5 THEN 'five'
+            WHEN 10 THEN 'ten'
+            WHEN 20 THEN 'twenty'
+            ELSE 'other'
+        END
+    FROM tab_a;
+
+test_fail_retain_comments:
+  fail_str: |
+    SELECT
+      CASE
+          WHEN FALSE
+            THEN "value1"  -- a comment
+          ELSE
+            CASE
+                -- another comment
+              WHEN TRUE   -- and here
+                THEN "value2" -- but also here
+            END
+        END
+    FROM table;
+  fix_str: |
+    SELECT
+      CASE
+          WHEN FALSE
+            THEN "value1"  -- a comment
+          -- another comment
+          WHEN TRUE   -- and here
+                THEN "value2" -- but also here
+        END
+    FROM table;
+
+test_fail_retain_comments_after_end:
+  fail_str: |
+    SELECT
+    CASE -- no spaces here
+        WHEN FALSE
+          THEN "value1"  -- a comment
+        ELSE
+          CASE -- after case
+              -- another comment
+        /* before the when */   WHEN TRUE   -- and here
+              THEN "value2" -- but also here
+        END /* after the end */    /* but wait there's more! */
+       -- but here too
+      END
+    FROM table;
+  fix_str: |
+    SELECT
+    CASE -- no spaces here
+        WHEN FALSE
+          THEN "value1"  -- a comment
+        -- after case
+        -- another comment
+        /* before the when */
+        WHEN TRUE   -- and here
+              THEN "value2" -- but also here
+        /* after the end */    /* but wait there's more! */
+       -- but here too
+      END
+    FROM table;
+
+test_fail_retain_comments_after_else:
+  fail_str: |
+    SELECT
+      CASE
+          WHEN FALSE
+            THEN "value1"  -- a comment
+          /* before else*/ ELSE --after else
+            /*before case*/ CASE -- else case
+                -- another comment
+              WHEN TRUE   -- and here
+                THEN "value2" -- but also here
+            END
+        END
+    FROM table;
+  fix_str: |
+    SELECT
+      CASE
+          WHEN FALSE
+            THEN "value1"  -- a comment
+          /* before else*/
+          --after else
+          /*before case*/
+          -- else case
+          -- another comment
+          WHEN TRUE   -- and here
+                THEN "value2" -- but also here
+        END
+    FROM table;

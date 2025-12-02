@@ -1,0 +1,610 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 22cb784e9c27d8bfa7926e3509a3f79e05b85abd94fcb69b6d4f4ef4f76e16f6
+file:
+- statement:
+    delete_statement:
+    - keyword: DELETE
+    - keyword: FROM
+    - table_reference:
+        naked_identifier: films
+- statement_terminator: ;
+- statement:
+    delete_statement:
+    - keyword: DELETE
+    - keyword: FROM
+    - keyword: ONLY
+    - table_reference:
+        naked_identifier: films
+- statement_terminator: ;
+- statement:
+    delete_statement:
+    - keyword: DELETE
+    - keyword: FROM
+    - table_reference:
+        naked_identifier: films
+    - star: '*'
+- statement_terminator: ;
+- statement:
+    delete_statement:
+    - keyword: DELETE
+    - keyword: FROM
+    - table_reference:
+        naked_identifier: films
+    - alias_expression:
+        alias_operator:
+          keyword: AS
+        naked_identifier: f
+- statement_terminator: ;
+- statement:
+    delete_statement:
+    - keyword: DELETE
+    - keyword: FROM
+    - table_reference:
+        naked_identifier: films
+    - alias_expression:
+        naked_identifier: f
+- statement_terminator: ;
+- statement:
+    delete_statement:
+    - keyword: DELETE
+    - keyword: FROM
+    - table_reference:
+        naked_identifier: films
+    - keyword: USING
+    - table_expression:
+        table_reference:
+          naked_identifier: producers
+    - where_clause:
+        keyword: WHERE
+        expression:
+        - column_reference:
+            naked_identifier: producer_id
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - column_reference:
+          - naked_identifier: producers
+          - dot: .
+          - naked_identifier: id
+        - binary_operator: AND
+        - column_reference:
+          - naked_identifier: producers
+          - dot: .
+          - naked_identifier: name
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - quoted_literal: "'foo'"
+- statement_terminator: ;
+- statement:
+    delete_statement:
+    - keyword: DELETE
+    - keyword: FROM
+    - table_reference:
+        naked_identifier: films
+    - alias_expression:
+        alias_operator:
+          keyword: AS
+        naked_identifier: f
+    - keyword: USING
+    - table_expression:
+        table_reference:
+          naked_identifier: producers
+    - alias_expression:
+        alias_operator:
+          keyword: AS
+        naked_identifier: p
+    - where_clause:
+        keyword: WHERE
+        expression:
+        - column_reference:
+          - naked_identifier: f
+          - dot: .
+          - naked_identifier: producer_id
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - column_reference:
+          - naked_identifier: p
+          - dot: .
+          - naked_identifier: id
+        - binary_operator: AND
+        - column_reference:
+          - naked_identifier: p
+          - dot: .
+          - naked_identifier: name
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - quoted_literal: "'foo'"
+- statement_terminator: ;
+- statement:
+    delete_statement:
+    - keyword: DELETE
+    - keyword: FROM
+    - table_reference:
+        naked_identifier: films
+    - alias_expression:
+        alias_operator:
+          keyword: AS
+        naked_identifier: f
+    - keyword: USING
+    - table_expression:
+        table_reference:
+          naked_identifier: producers
+    - alias_expression:
+        alias_operator:
+          keyword: AS
+        naked_identifier: p
+    - comma: ','
+    - table_expression:
+        table_reference:
+          naked_identifier: actors
+    - alias_expression:
+        alias_operator:
+          keyword: AS
+        naked_identifier: a
+    - where_clause:
+        keyword: WHERE
+        expression:
+        - column_reference:
+          - naked_identifier: f
+          - dot: .
+          - naked_identifier: producer_id
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - column_reference:
+          - naked_identifier: p
+          - dot: .
+          - naked_identifier: id
+        - binary_operator: AND
+        - column_reference:
+          - naked_identifier: p
+          - dot: .
+          - naked_identifier: name
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - quoted_literal: "'foo'"
+        - binary_operator: AND
+        - column_reference:
+          - naked_identifier: f
+          - dot: .
+          - naked_identifier: actor_id
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - column_reference:
+          - naked_identifier: a
+          - dot: .
+          - naked_identifier: id
+        - binary_operator: AND
+        - column_reference:
+          - naked_identifier: a
+          - dot: .
+          - naked_identifier: name
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - quoted_literal: "'joe cool'"
+- statement_terminator: ;
+- statement:
+    delete_statement:
+    - keyword: DELETE
+    - keyword: FROM
+    - table_reference:
+        naked_identifier: films
+    - alias_expression:
+        naked_identifier: f
+    - keyword: USING
+    - table_expression:
+        table_reference:
+          naked_identifier: producers
+    - alias_expression:
+        naked_identifier: p
+    - where_clause:
+        keyword: WHERE
+        expression:
+        - column_reference:
+          - naked_identifier: f
+          - dot: .
+          - naked_identifier: producer_id
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - column_reference:
+          - naked_identifier: p
+          - dot: .
+          - naked_identifier: id
+        - binary_operator: AND
+        - column_reference:
+          - naked_identifier: p
+          - dot: .
+          - naked_identifier: name
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - quoted_literal: "'foo'"
+- statement_terminator: ;
+- statement:
+    delete_statement:
+    - keyword: DELETE
+    - keyword: FROM
+    - table_reference:
+        naked_identifier: films
+    - alias_expression:
+        naked_identifier: f
+    - keyword: USING
+    - table_expression:
+        table_reference:
+          naked_identifier: producers
+    - alias_expression:
+        naked_identifier: p
+    - comma: ','
+    - table_expression:
+        table_reference:
+          naked_identifier: actors
+    - alias_expression:
+        naked_identifier: a
+    - where_clause:
+        keyword: WHERE
+        expression:
+        - column_reference:
+          - naked_identifier: f
+          - dot: .
+          - naked_identifier: producer_id
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - column_reference:
+          - naked_identifier: p
+          - dot: .
+          - naked_identifier: id
+        - binary_operator: AND
+        - column_reference:
+          - naked_identifier: p
+          - dot: .
+          - naked_identifier: name
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - quoted_literal: "'foo'"
+        - binary_operator: AND
+        - column_reference:
+          - naked_identifier: f
+          - dot: .
+          - naked_identifier: actor_id
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - column_reference:
+          - naked_identifier: a
+          - dot: .
+          - naked_identifier: id
+        - binary_operator: AND
+        - column_reference:
+          - naked_identifier: a
+          - dot: .
+          - naked_identifier: name
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - quoted_literal: "'joe cool'"
+- statement_terminator: ;
+- statement:
+    delete_statement:
+    - keyword: DELETE
+    - keyword: FROM
+    - table_reference:
+        naked_identifier: tasks
+    - keyword: WHERE
+    - keyword: CURRENT
+    - keyword: OF
+    - object_reference:
+        naked_identifier: c_tasks
+- statement_terminator: ;
+- statement:
+    delete_statement:
+    - keyword: DELETE
+    - keyword: FROM
+    - table_reference:
+        naked_identifier: films
+    - where_clause:
+        keyword: WHERE
+        expression:
+          column_reference:
+            naked_identifier: kind
+          comparison_operator:
+          - raw_comparison_operator: <
+          - raw_comparison_operator: '>'
+          quoted_literal: "'Musical'"
+- statement_terminator: ;
+- statement:
+    delete_statement:
+    - keyword: DELETE
+    - keyword: FROM
+    - table_reference:
+        naked_identifier: tasks
+    - where_clause:
+        keyword: WHERE
+        expression:
+          column_reference:
+            naked_identifier: status
+          comparison_operator:
+            raw_comparison_operator: '='
+          quoted_literal: "'DONE'"
+    - keyword: RETURNING
+    - star: '*'
+- statement_terminator: ;
+- statement:
+    delete_statement:
+    - keyword: DELETE
+    - keyword: FROM
+    - table_reference:
+        naked_identifier: tasks
+    - where_clause:
+        keyword: WHERE
+        expression:
+          column_reference:
+            naked_identifier: status
+          comparison_operator:
+            raw_comparison_operator: '='
+          quoted_literal: "'DONE'"
+    - keyword: RETURNING
+    - expression:
+        column_reference:
+          naked_identifier: actor_id
+- statement_terminator: ;
+- statement:
+    delete_statement:
+    - keyword: DELETE
+    - keyword: FROM
+    - table_reference:
+        naked_identifier: tasks
+    - where_clause:
+        keyword: WHERE
+        expression:
+          column_reference:
+            naked_identifier: status
+          comparison_operator:
+            raw_comparison_operator: '='
+          quoted_literal: "'DONE'"
+    - keyword: RETURNING
+    - expression:
+        column_reference:
+          naked_identifier: actor_id
+    - alias_expression:
+        alias_operator:
+          keyword: as
+        naked_identifier: a_id
+- statement_terminator: ;
+- statement:
+    delete_statement:
+    - keyword: DELETE
+    - keyword: FROM
+    - table_reference:
+        naked_identifier: tasks
+    - where_clause:
+        keyword: WHERE
+        expression:
+          column_reference:
+            naked_identifier: status
+          comparison_operator:
+            raw_comparison_operator: '='
+          quoted_literal: "'DONE'"
+    - keyword: RETURNING
+    - expression:
+        column_reference:
+          naked_identifier: actor_id
+    - alias_expression:
+        naked_identifier: a_id
+- statement_terminator: ;
+- statement:
+    delete_statement:
+    - keyword: DELETE
+    - keyword: FROM
+    - table_reference:
+        naked_identifier: tasks
+    - where_clause:
+        keyword: WHERE
+        expression:
+          column_reference:
+            naked_identifier: status
+          comparison_operator:
+            raw_comparison_operator: '='
+          quoted_literal: "'DONE'"
+    - keyword: RETURNING
+    - expression:
+        column_reference:
+          naked_identifier: actor_id
+    - comma: ','
+    - expression:
+        column_reference:
+          naked_identifier: producer_id
+- statement_terminator: ;
+- statement:
+    delete_statement:
+    - keyword: DELETE
+    - keyword: FROM
+    - table_reference:
+        naked_identifier: tasks
+    - where_clause:
+        keyword: WHERE
+        expression:
+          column_reference:
+            naked_identifier: status
+          comparison_operator:
+            raw_comparison_operator: '='
+          quoted_literal: "'DONE'"
+    - keyword: RETURNING
+    - expression:
+        column_reference:
+          naked_identifier: actor_id
+    - alias_expression:
+        alias_operator:
+          keyword: as
+        naked_identifier: a_id
+    - comma: ','
+    - expression:
+        column_reference:
+          naked_identifier: producer_id
+    - alias_expression:
+        alias_operator:
+          keyword: as
+        naked_identifier: p_id
+- statement_terminator: ;
+- statement:
+    delete_statement:
+    - keyword: DELETE
+    - keyword: FROM
+    - table_reference:
+        naked_identifier: tasks
+    - where_clause:
+        keyword: WHERE
+        expression:
+          column_reference:
+            naked_identifier: status
+          comparison_operator:
+            raw_comparison_operator: '='
+          quoted_literal: "'DONE'"
+    - keyword: RETURNING
+    - expression:
+        column_reference:
+          naked_identifier: actor_id
+    - alias_expression:
+        naked_identifier: a_id
+    - comma: ','
+    - expression:
+        column_reference:
+          naked_identifier: producer_id
+    - alias_expression:
+        naked_identifier: p_id
+- statement_terminator: ;
+- statement:
+    with_compound_statement:
+      keyword: WITH
+      common_table_expression:
+        naked_identifier: test
+        keyword: as
+        bracketed:
+          start_bracket: (
+          select_statement:
+            select_clause:
+              keyword: select
+              select_clause_element:
+                column_reference:
+                  naked_identifier: foo
+            from_clause:
+              keyword: from
+              from_expression:
+                from_expression_element:
+                  table_expression:
+                    table_reference:
+                      naked_identifier: bar
+          end_bracket: )
+      delete_statement:
+      - keyword: DELETE
+      - keyword: FROM
+      - table_reference:
+          naked_identifier: films
+- statement_terminator: ;
+- statement:
+    with_compound_statement:
+    - keyword: WITH
+    - keyword: RECURSIVE
+    - common_table_expression:
+        naked_identifier: t
+        cte_column_list:
+          bracketed:
+            start_bracket: (
+            identifier_list:
+              naked_identifier: n
+            end_bracket: )
+        keyword: AS
+        bracketed:
+          start_bracket: (
+          set_expression:
+            values_clause:
+              keyword: VALUES
+              bracketed:
+                start_bracket: (
+                expression:
+                  numeric_literal: '1'
+                end_bracket: )
+            set_operator:
+            - keyword: UNION
+            - keyword: ALL
+            select_statement:
+              select_clause:
+                keyword: SELECT
+                select_clause_element:
+                  expression:
+                    column_reference:
+                      naked_identifier: n
+                    binary_operator: +
+                    numeric_literal: '1'
+              from_clause:
+                keyword: FROM
+                from_expression:
+                  from_expression_element:
+                    table_expression:
+                      table_reference:
+                        naked_identifier: t
+              where_clause:
+                keyword: WHERE
+                expression:
+                  column_reference:
+                    naked_identifier: n
+                  comparison_operator:
+                    raw_comparison_operator: <
+                  numeric_literal: '100'
+          end_bracket: )
+    - delete_statement:
+      - keyword: DELETE
+      - keyword: FROM
+      - table_reference:
+          naked_identifier: films
+- statement_terminator: ;
+- statement:
+    delete_statement:
+    - keyword: DELETE
+    - keyword: FROM
+    - table_reference:
+        naked_identifier: foo
+    - keyword: USING
+    - table_expression:
+        table_reference:
+          naked_identifier: baz
+    - join_clause:
+      - keyword: LEFT
+      - keyword: JOIN
+      - from_expression_element:
+          table_expression:
+            table_reference:
+              naked_identifier: bar
+      - join_on_condition:
+          keyword: 'ON'
+          expression:
+          - column_reference:
+            - naked_identifier: baz
+            - dot: .
+            - naked_identifier: bar_id
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - column_reference:
+            - naked_identifier: bar
+            - dot: .
+            - naked_identifier: id
+    - where_clause:
+        keyword: WHERE
+        expression:
+        - column_reference:
+          - naked_identifier: foo
+          - dot: .
+          - naked_identifier: id
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - column_reference:
+          - naked_identifier: bar
+          - dot: .
+          - naked_identifier: foo_id
+        - binary_operator: AND
+        - column_reference:
+          - naked_identifier: baz
+          - dot: .
+          - naked_identifier: id
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - quoted_literal: "'c'"
+- statement_terminator: ;

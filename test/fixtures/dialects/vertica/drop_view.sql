@@ -1,0 +1,3 @@
+DROP VIEW myview;
+
+DROP VIEW IF EXISTS myview;

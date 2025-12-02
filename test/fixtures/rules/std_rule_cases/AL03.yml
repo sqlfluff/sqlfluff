@@ -1,0 +1,151 @@
+rule: AL03
+
+test_pass_column_exp_without_alias_1:
+  pass_str: SELECT *, foo from blah
+
+test_pass_column_exp_without_alias_2:
+  # AL03 fix with https://github.com/sqlfluff/sqlfluff/issues/449
+  pass_str: select ps.*, pandgs.blah from ps join pandgs using(moo)
+
+test_pass_column_exp_without_alias_allow_scalar_true:
+  # Don't expect alias if allow_scalar = True (default)
+  pass_str: SELECT 1 from blah
+
+test_fail_column_exp_without_alias:
+  fail_str: SELECT upper(foo), bar from blah
+
+# Casting (via "::TYPE" syntax) has no effect on column output naming
+# and AL03 therefore shouldn't be applied
+test_pass_column_exp_without_alias_if_only_cast:
+  pass_str: SELECT foo_col::VARCHAR(28) , bar from blah
+
+test_pass_column_exp_without_alias_if_only_cast_inc_double_cast:
+  pass_str: SELECT foo_col::INT::VARCHAR , bar from blah
+
+# No catch useless brackets
+# output column name is unchanged
+test_pass_column_exp_without_alias_if_bracketed:
+  pass_str: SELECT (foo_col::INT)::VARCHAR , bar from blah
+
+
+test_fail_column_exp_without_alias_and_cast_fn:
+  fail_str: SELECT CAST(foo_col AS INT)::VARCHAR , bar from blah
+
+test_fail_column_exp_without_alias_allow_scalar_false:
+  # Expect alias if allow_scalar = False
+  fail_str: SELECT 1 from blah
+  configs:
+    rules:
+      allow_scalar: false
+
+test_pass_column_exp_with_alias:
+  pass_str: SELECT upper(foo) as foo_up, bar from blah
+
+test_pass_function_emits:
+  # Don't expect alias if allow_scalar = True (default)
+  pass_str: SELECT json_extract(json_str, '$.AFIELD', '$.BFIELD') emits (cola char(1), colb char(1)) FROM table1
+  configs:
+    core:
+      dialect: exasol
+
+test_fail_cte_no_column_list:
+  fail_str: |
+    WITH cte AS (
+        SELECT
+            col_a,
+            min(col_b)
+        FROM my_table
+        GROUP BY 1
+    )
+
+    SELECT
+        a,
+        b
+    FROM cte
+
+test_pass_cte_column_list:
+  pass_str: |
+    WITH cte(a, b) AS (
+        SELECT
+            col_a,
+            min(col_b)
+        FROM my_table
+        GROUP BY 1
+    )
+
+    SELECT
+        a,
+        b
+    FROM cte
+
+test_pass_duckdb_columns_expression:
+  pass_str: |
+    SELECT COLUMNS(c -> c LIKE '%num%'), 1 AS x FROM numbers;
+  configs:
+    core:
+      dialect: duckdb
+
+test_pass_duckdb_nested_columns_expression:
+  pass_str: |
+    SELECT MIN(COLUMNS(c -> c LIKE '%num%')), 1 AS x FROM numbers;
+  configs:
+    core:
+      dialect: duckdb
+
+test_pass_duckdb_exclude_expression:
+  pass_str: |
+    select * exclude (y), 6 as z from tabx;
+  configs:
+    core:
+      dialect: duckdb
+
+test_pass_duckdb_replace_expression:
+  pass_str: |
+    select * replace (3 as x), 6 as z from tabx;
+  configs:
+    core:
+      dialect: duckdb
+
+test_fail_subquery_without_alias:
+  fail_str: |
+    SELECT
+        (SELECT MAX(t.col) AS m FROM t),
+        (SELECT MAX(t.col2) AS m FROM t)
+    FROM tbl;
+
+test_pass_subquery_with_alias:
+  pass_str: |
+    SELECT
+        (SELECT MAX(t.col) AS m FROM t) AS a,
+        (SELECT MAX(t.col2) AS m FROM t) AS b
+    FROM tbl;
+
+test_pass_tsql_variable_assignment:
+  # T-SQL SELECT @variable = expression doesn't need alias
+  pass_str: |
+    SELECT @userid = id
+    FROM users
+    WHERE name = 'test';
+  configs:
+    core:
+      dialect: tsql
+
+test_pass_tsql_multiple_variable_assignments:
+  # Multiple variable assignments in one SELECT
+  pass_str: |
+    SELECT TOP 1
+        @potential_match = id,
+        @full_name = CONCAT(first_name, ' ', surname)
+    FROM authors;
+  configs:
+    core:
+      dialect: tsql
+
+test_pass_tsql_compound_assignment_operators:
+  # T-SQL compound assignment operators
+  pass_str: |
+    SELECT @counter += 1, @sum += amount
+    FROM transactions;
+  configs:
+    core:
+      dialect: tsql

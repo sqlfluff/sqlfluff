@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 0542922c0f23b3994d1068635810a4fefeee5036c5feb00bf0f5ddda08e6fc20
+_hash: fc504ed5338e04504d85d297cc78f92d545af232dfdf6675c6a277c6f48f14a9
 file:
   statement:
     set_expression:
@@ -12,15 +12,16 @@ file:
         - keyword: SELECT
         - select_clause_element:
             column_reference:
-              identifier: item
+              naked_identifier: item
         - comma: ','
         - select_clause_element:
             function:
               function_name:
                 function_name_identifier: RANK
-              bracketed:
-                start_bracket: (
-                end_bracket: )
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  end_bracket: )
               over_clause:
                 keyword: OVER
                 bracketed:
@@ -31,40 +32,44 @@ file:
                     - keyword: BY
                     - expression:
                         column_reference:
-                          identifier: category
+                          naked_identifier: category
                     orderby_clause:
                     - keyword: ORDER
                     - keyword: BY
                     - column_reference:
-                        identifier: purchases
+                        naked_identifier: purchases
                     - keyword: DESC
                   end_bracket: )
             alias_expression:
-              keyword: AS
-              identifier: rank
+              alias_operator:
+                keyword: AS
+              naked_identifier: rank
         from_clause:
           keyword: FROM
           from_expression:
             from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: Produce
+                  naked_identifier: Produce
         where_clause:
           keyword: WHERE
           expression:
             column_reference:
-            - identifier: Produce
+            - naked_identifier: Produce
             - dot: .
-            - identifier: category
-            comparison_operator: '='
-            literal: "'vegetable'"
+            - naked_identifier: category
+            comparison_operator:
+              raw_comparison_operator: '='
+            quoted_literal: "'vegetable'"
         qualify_clause:
           keyword: QUALIFY
           expression:
             column_reference:
-              identifier: rank
-            comparison_operator: <=
-            literal: '3'
+              naked_identifier: rank
+            comparison_operator:
+            - raw_comparison_operator: <
+            - raw_comparison_operator: '='
+            numeric_literal: '3'
     - set_operator:
       - keyword: UNION
       - keyword: ALL
@@ -73,15 +78,16 @@ file:
         - keyword: SELECT
         - select_clause_element:
             column_reference:
-              identifier: item
+              naked_identifier: item
         - comma: ','
         - select_clause_element:
             function:
               function_name:
                 function_name_identifier: RANK
-              bracketed:
-                start_bracket: (
-                end_bracket: )
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  end_bracket: )
               over_clause:
                 keyword: OVER
                 bracketed:
@@ -92,37 +98,41 @@ file:
                     - keyword: BY
                     - expression:
                         column_reference:
-                          identifier: category
+                          naked_identifier: category
                     orderby_clause:
                     - keyword: ORDER
                     - keyword: BY
                     - column_reference:
-                        identifier: purchases
+                        naked_identifier: purchases
                     - keyword: DESC
                   end_bracket: )
             alias_expression:
-              keyword: AS
-              identifier: rank
+              alias_operator:
+                keyword: AS
+              naked_identifier: rank
         from_clause:
           keyword: FROM
           from_expression:
             from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: Produce
+                  naked_identifier: Produce
         where_clause:
           keyword: WHERE
           expression:
             column_reference:
-            - identifier: Produce
+            - naked_identifier: Produce
             - dot: .
-            - identifier: category
-            comparison_operator: '='
-            literal: "'vegetable'"
+            - naked_identifier: category
+            comparison_operator:
+              raw_comparison_operator: '='
+            quoted_literal: "'vegetable'"
         qualify_clause:
           keyword: QUALIFY
           expression:
             column_reference:
-              identifier: rank
-            comparison_operator: <=
-            literal: '3'
+              naked_identifier: rank
+            comparison_operator:
+            - raw_comparison_operator: <
+            - raw_comparison_operator: '='
+            numeric_literal: '3'

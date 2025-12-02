@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: a70b2187383021670cb3d18d029294bda1d9652b38d34fc2a2fefb47072e0fe3
+_hash: b22b883762728785773d171e47ff361c1dcee8b637459c4375fd5659263eafe3
 file:
   batch:
   - statement:
@@ -11,79 +11,119 @@ file:
         keyword: DECLARE
         parameter: '@DateNow'
         data_type:
-          identifier: date
-        comparison_operator: '='
+          keyword: date
+        comparison_operator:
+          raw_comparison_operator: '='
         expression:
           function:
             function_name:
               function_name_identifier: ISNULL
-            bracketed:
-            - start_bracket: (
-            - expression:
-                function:
-                  function_name:
-                    identifier: Shared
-                    dot: .
-                    function_name_identifier: GetESTDateTime
-                  bracketed:
-                    start_bracket: (
-                    expression:
-                      function:
-                        function_name:
-                          function_name_identifier: GETDATE
-                        bracketed:
-                          start_bracket: (
-                          end_bracket: )
-                    end_bracket: )
-            - comma: ','
-            - expression:
-                function:
-                  function_name:
-                    function_name_identifier: GETDATE
-                  bracketed:
-                    start_bracket: (
-                    end_bracket: )
-            - end_bracket: )
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  function:
+                    function_name:
+                      naked_identifier: Shared
+                      dot: .
+                      function_name_identifier: GetESTDateTime
+                    function_contents:
+                      bracketed:
+                        start_bracket: (
+                        expression:
+                          function:
+                            function_name:
+                              function_name_identifier: GETDATE
+                            function_contents:
+                              bracketed:
+                                start_bracket: (
+                                end_bracket: )
+                        end_bracket: )
+              - comma: ','
+              - expression:
+                  function:
+                    function_name:
+                      function_name_identifier: GETDATE
+                    function_contents:
+                      bracketed:
+                        start_bracket: (
+                        end_bracket: )
+              - end_bracket: )
   - statement:
       select_statement:
         select_clause:
         - keyword: select
         - select_clause_element:
             column_reference:
-            - identifier: enc
+            - naked_identifier: enc
             - dot: .
-            - identifier: personid
+            - naked_identifier: personid
             alias_expression:
-              keyword: as
-              identifier: personid
+              alias_operator:
+                keyword: as
+              naked_identifier: personid
         - comma: ','
         - select_clause_element:
             function:
               function_name:
                 keyword: cast
-              bracketed:
-                start_bracket: (
-                expression:
-                  literal: "'1900-01-01'"
-                keyword: as
-                data_type:
-                  identifier: datetime2
-                  bracketed:
-                    start_bracket: (
-                    expression:
-                      literal: '7'
-                    end_bracket: )
-                end_bracket: )
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    quoted_literal: "'1900-01-01'"
+                  keyword: as
+                  data_type:
+                    keyword: datetime2
+                    bracketed_arguments:
+                      bracketed:
+                        start_bracket: (
+                        expression:
+                          integer_literal: '7'
+                        end_bracket: )
+                  end_bracket: )
             alias_expression:
-              keyword: as
-              identifier: DataRefreshDate
+              alias_operator:
+                keyword: as
+              naked_identifier: DataRefreshDate
         from_clause:
           keyword: from
           from_expression:
             from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: encounter
+                  naked_identifier: encounter
               alias_expression:
-                identifier: enc
-          statement_terminator: ;
+                naked_identifier: enc
+  - statement_terminator: ;
+  - statement:
+      declare_segment:
+        keyword: declare
+        parameter: '@sample'
+        data_type:
+          keyword: nvarchar
+          bracketed_arguments:
+            bracketed:
+              start_bracket: (
+              keyword: max
+              end_bracket: )
+        comparison_operator:
+          raw_comparison_operator: '='
+        expression:
+          function:
+            function_name:
+              keyword: cast
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  integer_literal: '100'
+                keyword: as
+                data_type:
+                  keyword: nvarchar
+                  bracketed_arguments:
+                    bracketed:
+                      start_bracket: (
+                      keyword: max
+                      end_bracket: )
+                end_bracket: )

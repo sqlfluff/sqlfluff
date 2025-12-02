@@ -1,0 +1,149 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: c628b3819952808793e5bb6b35858ed6e21342eafbb251c9d063b3c7c3869d26
+file:
+- statement:
+    create_function_statement:
+    - keyword: CREATE
+    - keyword: FUNCTION
+    - function_name:
+        naked_identifier: example_dataset
+        dot: .
+        function_name_identifier: exampleFunction
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          parameter: x
+          data_type:
+            data_type_identifier: FLOAT64
+          end_bracket: )
+    - keyword: RETURNS
+    - data_type:
+        data_type_identifier: FLOAT64
+    - function_definition:
+        keyword: AS
+        bracketed:
+          start_bracket: (
+          expression:
+          - column_reference:
+              naked_identifier: x
+          - binary_operator: '*'
+          - column_reference:
+              naked_identifier: x
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_function_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: '`example-project.example_dataset.exampleFunction`'
+    - function_parameter_list:
+        bracketed:
+        - start_bracket: (
+        - parameter: x
+        - data_type:
+            data_type_identifier: INTEGER
+        - comma: ','
+        - parameter: y
+        - data_type:
+            data_type_identifier: INTEGER
+        - end_bracket: )
+    - keyword: RETURNS
+    - data_type:
+        data_type_identifier: INTEGER
+    - function_definition:
+        keyword: AS
+        bracketed:
+          start_bracket: (
+          expression:
+          - column_reference:
+              naked_identifier: x
+          - binary_operator: '*'
+          - column_reference:
+              naked_identifier: y
+          end_bracket: )
+        options_segment:
+          keyword: OPTIONS
+          bracketed:
+            start_bracket: (
+            parameter: description
+            comparison_operator:
+              raw_comparison_operator: '='
+            quoted_literal: '"foo"'
+            end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_function_statement:
+    - keyword: CREATE
+    - keyword: TEMPORARY
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: exampleFunction
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          parameter: x
+          data_type:
+            data_type_identifier: BIGNUMERIC
+          end_bracket: )
+    - function_definition:
+        keyword: AS
+        bracketed:
+          start_bracket: (
+          expression:
+          - column_reference:
+              naked_identifier: x
+          - binary_operator: +
+          - column_reference:
+              naked_identifier: x
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_function_statement:
+    - keyword: CREATE
+    - keyword: TEMP
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: exampleFunction
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          parameter: x
+          data_type:
+            data_type_identifier: STRING
+          end_bracket: )
+    - keyword: RETURNS
+    - data_type:
+        data_type_identifier: STRING
+    - function_definition:
+        keyword: AS
+        bracketed:
+          start_bracket: (
+          expression:
+            function:
+              function_name:
+                function_name_identifier: CONCAT
+              function_contents:
+                bracketed:
+                - start_bracket: (
+                - expression:
+                    column_reference:
+                      naked_identifier: x
+                - comma: ','
+                - expression:
+                    column_reference:
+                      naked_identifier: x
+                - end_bracket: )
+          end_bracket: )
+        options_segment:
+          keyword: OPTIONS
+          bracketed:
+            start_bracket: (
+            end_bracket: )
+- statement_terminator: ;

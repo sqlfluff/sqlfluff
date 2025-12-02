@@ -1,0 +1,117 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 27b5381a102cf1c4db57b068256acbff4094243c5e397c00942e2e19852b9a6c
+file:
+- statement:
+    create_clone_statement:
+    - keyword: CREATE
+    - keyword: DATABASE
+    - object_reference:
+        naked_identifier: mytestdb_clone
+    - keyword: CLONE
+    - object_reference:
+        naked_identifier: mytestdb
+- statement_terminator: ;
+- statement:
+    create_clone_statement:
+    - keyword: CREATE
+    - keyword: SCHEMA
+    - object_reference:
+        naked_identifier: mytestschema_clone
+    - keyword: CLONE
+    - object_reference:
+        naked_identifier: testschema
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: orders_clone
+    - keyword: CLONE
+    - table_reference:
+        naked_identifier: orders
+- statement_terminator: ;
+- statement:
+    create_clone_statement:
+    - keyword: CREATE
+    - keyword: SCHEMA
+    - object_reference:
+        naked_identifier: mytestschema_clone_restore
+    - keyword: CLONE
+    - object_reference:
+        naked_identifier: testschema
+    - from_before_expression:
+        keyword: BEFORE
+        bracketed:
+          start_bracket: (
+          keyword: TIMESTAMP
+          parameter_assigner: =>
+          expression:
+            function:
+              function_name:
+                function_name_identifier: TO_TIMESTAMP
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                  - numeric_literal: '40'
+                  - binary_operator: '*'
+                  - numeric_literal: '365'
+                  - binary_operator: '*'
+                  - numeric_literal: '86400'
+                  end_bracket: )
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_clone_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - object_reference:
+        naked_identifier: orders_clone_restore
+    - keyword: CLONE
+    - object_reference:
+        naked_identifier: orders
+    - from_at_expression:
+        keyword: AT
+        bracketed:
+          start_bracket: (
+          keyword: TIMESTAMP
+          parameter_assigner: =>
+          expression:
+            function:
+              function_name:
+                function_name_identifier: TO_TIMESTAMP_TZ
+              function_contents:
+                bracketed:
+                - start_bracket: (
+                - expression:
+                    quoted_literal: "'04/05/2013 01:02:03'"
+                - comma: ','
+                - expression:
+                    quoted_literal: "'mm/dd/yyyy hh24:mi:ss'"
+                - end_bracket: )
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_clone_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - object_reference:
+        naked_identifier: orders_clone_restore
+    - keyword: CLONE
+    - object_reference:
+        naked_identifier: orders
+    - from_before_expression:
+        keyword: BEFORE
+        bracketed:
+          start_bracket: (
+          keyword: STATEMENT
+          parameter_assigner: =>
+          expression:
+            quoted_literal: "'8e5d0ca9-005e-44e6-b858-a8f5b37c5726'"
+          end_bracket: )
+- statement_terminator: ;

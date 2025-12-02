@@ -1,0 +1,135 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: aff533944535794084991dae851dba8db83a6ee96991f242e5ec14f51bd765a6
+file:
+  statement:
+    create_table_statement:
+    - keyword: create
+    - keyword: table
+    - table_reference:
+        naked_identifier: users
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          naked_identifier: user_id
+          data_type:
+            data_type_identifier: bigint
+          column_constraint_segment:
+          - keyword: NOT
+          - keyword: 'NULL'
+      - comma: ','
+      - column_definition:
+          naked_identifier: name
+          data_type:
+            data_type_identifier: string
+          column_constraint_segment:
+          - keyword: NOT
+          - keyword: 'NULL'
+      - comma: ','
+      - column_definition:
+          naked_identifier: email
+          data_type:
+            data_type_identifier: string
+          column_constraint_segment:
+            keyword: 'NULL'
+      - comma: ','
+      - column_definition:
+          naked_identifier: address
+          data_type:
+            data_type_identifier: string
+          column_constraint_segment:
+            keyword: 'NULL'
+      - comma: ','
+      - column_definition:
+          naked_identifier: age
+          data_type:
+            data_type_identifier: tinyint
+          column_constraint_segment:
+            keyword: 'NULL'
+      - comma: ','
+      - column_definition:
+          naked_identifier: sex
+          data_type:
+            data_type_identifier: tinyint
+          column_constraint_segment:
+            keyword: 'NULL'
+      - comma: ','
+      - column_definition:
+          naked_identifier: last_active
+          keyword: datetime
+      - comma: ','
+      - column_definition:
+          naked_identifier: property0
+          data_type:
+            data_type_identifier: tinyint
+          column_constraint_segment:
+          - keyword: NOT
+          - keyword: 'NULL'
+      - comma: ','
+      - column_definition:
+          naked_identifier: property1
+          data_type:
+            data_type_identifier: tinyint
+          column_constraint_segment:
+          - keyword: NOT
+          - keyword: 'NULL'
+      - comma: ','
+      - column_definition:
+          naked_identifier: property2
+          data_type:
+            data_type_identifier: tinyint
+          column_constraint_segment:
+          - keyword: NOT
+          - keyword: 'NULL'
+      - comma: ','
+      - column_definition:
+          naked_identifier: property3
+          data_type:
+            data_type_identifier: tinyint
+          column_constraint_segment:
+          - keyword: NOT
+          - keyword: 'NULL'
+      - end_bracket: )
+    - keyword: PRIMARY
+    - keyword: KEY
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          quoted_identifier: '`user_id`'
+        end_bracket: )
+    - distribution_segment:
+      - keyword: DISTRIBUTED
+      - keyword: BY
+      - keyword: HASH
+      - bracketed:
+          start_bracket: (
+          column_reference:
+            quoted_identifier: '`user_id`'
+          end_bracket: )
+    - keyword: ORDER
+    - keyword: BY
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          quoted_identifier: '`address`'
+      - comma: ','
+      - column_reference:
+          quoted_identifier: '`last_active`'
+      - end_bracket: )
+    - keyword: PROPERTIES
+    - bracketed:
+      - start_bracket: (
+      - quoted_literal: '"replication_num"'
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: '"3"'
+      - comma: ','
+      - quoted_literal: '"enable_persistent_index"'
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: '"true"'
+      - end_bracket: )
+  statement_terminator: ;

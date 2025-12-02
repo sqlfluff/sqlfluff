@@ -1,0 +1,78 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: deac0f7076a50c434b37acd68ecc449ad30920e19cd822fe5675f3f20f5fb8eb
+file:
+- statement:
+    create_widget_statement:
+    - keyword: CREATE
+    - keyword: WIDGET
+    - keyword: DROPDOWN
+    - widget_name_identifier: state
+    - keyword: DEFAULT
+    - quoted_literal: '"CA"'
+    - keyword: CHOICES
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            bracketed:
+              start_bracket: (
+              from_expression_element:
+                table_expression:
+                  values_clause:
+                  - keyword: VALUES
+                  - bracketed:
+                      start_bracket: (
+                      expression:
+                        quoted_literal: '"CA"'
+                      end_bracket: )
+                  - comma: ','
+                  - bracketed:
+                      start_bracket: (
+                      expression:
+                        quoted_literal: '"IL"'
+                      end_bracket: )
+                  - comma: ','
+                  - bracketed:
+                      start_bracket: (
+                      expression:
+                        quoted_literal: '"MI"'
+                      end_bracket: )
+                  - comma: ','
+                  - bracketed:
+                      start_bracket: (
+                      expression:
+                        quoted_literal: '"NY"'
+                      end_bracket: )
+                  - comma: ','
+                  - bracketed:
+                      start_bracket: (
+                      expression:
+                        quoted_literal: '"OR"'
+                      end_bracket: )
+                  - comma: ','
+                  - bracketed:
+                      start_bracket: (
+                      expression:
+                        quoted_literal: '"VA"'
+                      end_bracket: )
+              end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_widget_statement:
+    - keyword: CREATE
+    - keyword: WIDGET
+    - keyword: TEXT
+    - widget_name_identifier: database
+    - keyword: DEFAULT
+    - quoted_literal: '"customers_dev"'
+- statement_terminator: ;

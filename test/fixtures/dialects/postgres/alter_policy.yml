@@ -1,0 +1,193 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: e78af7a252b3bef96469b1a43141d16eeccc9304424d52eb076f718ed1a814cd
+file:
+- statement:
+    alter_policy_statement:
+    - keyword: ALTER
+    - keyword: POLICY
+    - object_reference:
+        naked_identifier: account_managers
+    - keyword: 'ON'
+    - table_reference:
+        naked_identifier: accounts
+    - keyword: RENAME
+    - keyword: TO
+    - object_reference:
+        naked_identifier: account_users
+- statement_terminator: ;
+- statement:
+    alter_policy_statement:
+    - keyword: ALTER
+    - keyword: POLICY
+    - object_reference:
+        naked_identifier: account_managers
+    - keyword: 'ON'
+    - table_reference:
+        naked_identifier: accounts
+    - keyword: TO
+    - role_reference:
+        naked_identifier: current_user
+- statement_terminator: ;
+- statement:
+    alter_policy_statement:
+    - keyword: ALTER
+    - keyword: POLICY
+    - object_reference:
+        naked_identifier: account_managers
+    - keyword: 'ON'
+    - table_reference:
+        naked_identifier: accounts
+    - keyword: TO
+    - role_reference:
+        naked_identifier: public
+    - comma: ','
+    - keyword: session_user
+- statement_terminator: ;
+- statement:
+    alter_policy_statement:
+    - keyword: ALTER
+    - keyword: POLICY
+    - object_reference:
+        naked_identifier: account_managers
+    - keyword: 'ON'
+    - table_reference:
+        naked_identifier: accounts
+    - keyword: WITH
+    - keyword: CHECK
+    - bracketed:
+        start_bracket: (
+        expression:
+          keyword: NOT
+          function:
+            function_name:
+              function_name_identifier: accounts_is_excluded_full_name
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: full_name
+                end_bracket: )
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_policy_statement:
+    - keyword: ALTER
+    - keyword: POLICY
+    - object_reference:
+        naked_identifier: account_managers
+    - keyword: 'ON'
+    - table_reference:
+        naked_identifier: accounts
+    - keyword: WITH
+    - keyword: CHECK
+    - bracketed:
+        start_bracket: (
+        expression:
+          column_reference:
+            naked_identifier: col
+          comparison_operator:
+            raw_comparison_operator: '>'
+          numeric_literal: '10'
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_policy_statement:
+    - keyword: ALTER
+    - keyword: POLICY
+    - object_reference:
+        naked_identifier: account_managers
+    - keyword: 'ON'
+    - table_reference:
+        naked_identifier: accounts
+    - keyword: USING
+    - bracketed:
+        start_bracket: (
+        expression:
+          column_reference:
+            naked_identifier: username
+          comparison_operator:
+            raw_comparison_operator: '='
+          bare_function: current_user
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_policy_statement:
+    - keyword: ALTER
+    - keyword: POLICY
+    - object_reference:
+        naked_identifier: sales_rep_is_self
+    - keyword: 'ON'
+    - table_reference:
+        naked_identifier: invoices
+    - keyword: WITH
+    - keyword: CHECK
+    - bracketed:
+        start_bracket: (
+        expression:
+        - column_reference:
+            naked_identifier: sales_rep
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - bare_function: CURRENT_USER
+        - binary_operator: AND
+        - bare_function: CURRENT_USER
+        - keyword: IN
+        - bracketed:
+            start_bracket: (
+            select_statement:
+              select_clause:
+                keyword: SELECT
+                select_clause_element:
+                  column_reference:
+                    naked_identifier: user_id
+              from_clause:
+                keyword: FROM
+                from_expression:
+                  from_expression_element:
+                    table_expression:
+                      table_reference:
+                        naked_identifier: allowed_users
+            end_bracket: )
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_policy_statement:
+    - keyword: ALTER
+    - keyword: POLICY
+    - object_reference:
+        naked_identifier: test_policy
+    - keyword: 'ON'
+    - table_reference:
+        naked_identifier: test_table
+    - keyword: TO
+    - role_reference:
+        naked_identifier: public
+    - comma: ','
+    - keyword: session_user
+    - keyword: USING
+    - bracketed:
+        start_bracket: (
+        expression:
+          column_reference:
+            naked_identifier: username
+          comparison_operator:
+            raw_comparison_operator: '='
+          bare_function: current_user
+        end_bracket: )
+    - keyword: WITH
+    - keyword: CHECK
+    - bracketed:
+        start_bracket: (
+        expression:
+          column_reference:
+            naked_identifier: col
+          comparison_operator:
+            raw_comparison_operator: '>'
+          numeric_literal: '10'
+        end_bracket: )
+- statement_terminator: ;

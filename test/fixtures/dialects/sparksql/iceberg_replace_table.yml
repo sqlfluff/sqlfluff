@@ -1,0 +1,70 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 30aed909021d9a27f017ab07cbb50a8b9fc6ef1a2552fbba657455b43ddebaaf
+file:
+- statement:
+    replace_table_statement:
+    - keyword: REPLACE
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: prod
+      - dot: .
+      - naked_identifier: db
+      - dot: .
+      - naked_identifier: sample
+    - using_clause:
+        keyword: USING
+        data_source_format:
+          keyword: iceberg
+- statement_terminator: ;
+- statement:
+    replace_table_statement:
+    - keyword: REPLACE
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: prod
+      - dot: .
+      - naked_identifier: db
+      - dot: .
+      - naked_identifier: sample
+    - using_clause:
+        keyword: USING
+        data_source_format:
+          keyword: iceberg
+    - keyword: PARTITIONED
+    - keyword: BY
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          naked_identifier: part
+        end_bracket: )
+    - keyword: TBLPROPERTIES
+    - bracketed:
+        start_bracket: (
+        property_name_identifier:
+          quoted_identifier: "'key'"
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'value'"
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: prod
+      - dot: .
+      - naked_identifier: db
+      - dot: .
+      - naked_identifier: sample
+    - using_clause:
+        keyword: USING
+        data_source_format:
+          keyword: iceberg
+- statement_terminator: ;

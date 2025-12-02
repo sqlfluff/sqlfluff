@@ -1,0 +1,67 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: dd712e00e905964fff249bd96878cc3008d776d7a6192bbec01a12b353109633
+file:
+- statement:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_clause_element:
+          sqlplus_variable:
+            colon: ':'
+            parameter: abc
+      from_clause:
+        keyword: from
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: dual
+- statement_terminator: ;
+- statement:
+    insert_statement:
+    - keyword: insert
+    - keyword: into
+    - table_reference:
+        naked_identifier: mytab
+    - values_clause:
+        keyword: values
+        bracketed:
+        - start_bracket: (
+        - sqlplus_variable:
+            colon: ':'
+            parameter: abc
+        - comma: ','
+        - sqlplus_variable:
+            colon: ':'
+            parameter: xyz
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_clause_element:
+          column_reference:
+            naked_identifier: column_name
+      from_clause:
+        keyword: from
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: table_name
+      where_clause:
+        keyword: where
+        expression:
+          column_reference:
+            naked_identifier: column_name
+          comparison_operator:
+            raw_comparison_operator: '='
+          sqlplus_variable:
+            colon: ':'
+            parameter: column_name_filter
+- statement_terminator: ;

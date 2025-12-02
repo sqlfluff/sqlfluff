@@ -1,4 +1,5 @@
 [sqlfluff]
+dialect=mysql
 testing_val=foobar
 testing_int=4
 

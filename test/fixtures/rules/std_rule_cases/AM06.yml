@@ -1,0 +1,703 @@
+rule: AM06
+
+test_pass_explicit_group_by_default:
+  pass_str: |
+    SELECT
+        foo,
+        bar,
+        sum(baz) AS sum_value
+    FROM fake_table
+    GROUP BY
+        1, 2;
+
+test_pass_implicit_group_by_default:
+  pass_str: |
+    SELECT
+        foo,
+        bar,
+        sum(baz) AS sum_value
+    FROM fake_table
+    GROUP BY
+        foo, bar;
+
+test_pass_explicit_order_by_default:
+  pass_str: |
+    SELECT
+        foo,
+        bar
+    FROM fake_table
+    ORDER BY
+        1, 2;
+
+test_fail_implicit_order_by_default:
+  pass_str: |
+    SELECT
+        foo,
+        bar
+    FROM fake_table
+    ORDER BY
+        foo, bar;
+
+test_fail_mix_group_by_default:
+  fail_str: |
+    SELECT
+        foo,
+        bar,
+        sum(baz) AS sum_value
+    FROM fake_table
+    GROUP BY
+        1, bar;
+
+test_pass_implicit_group_by_and_order_by_default:
+  pass_str: |
+    SELECT
+        foo,
+        bar,
+        sum(baz) AS sum_value
+    FROM fake_table
+    GROUP BY
+        1, 2
+    ORDER BY
+        1, 2;
+
+test_pass_explicit_group_by_and_order_by_default:
+  pass_str: |
+    SELECT
+        foo,
+        bar,
+        sum(baz) AS sum_value
+    FROM fake_table
+    GROUP BY
+        foo, bar
+    ORDER BY
+        foo, bar;
+
+test_fail_within_line_mix_group_by_and_order_by_default:
+  fail_str: |
+    SELECT
+        foo,
+        bar,
+        sum(baz) AS sum_value
+    FROM fake_table
+    GROUP BY
+        1, bar
+    ORDER BY
+        foo, 2;
+
+test_fail_across_line_mix_group_by_and_order_by_default:
+  fail_str: |
+    SELECT
+        foo,
+        bar,
+        sum(baz) AS sum_value
+    FROM fake_table
+    GROUP BY
+        1, 2
+    ORDER BY
+        foo, bar;
+
+test_pass_explicit_expression_order_by_default:
+  pass_str: |
+    SELECT
+        foo,
+        bar,
+        sum(baz) AS sum_value
+    FROM fake_table
+    ORDER BY
+        foo, power(bar, 2)
+
+test_fail_implicit_expression_order_by_default:
+  fail_str: |
+    SELECT
+        foo,
+        bar,
+        sum(baz) AS sum_value
+    FROM fake_table
+    ORDER BY
+        1, power(bar, 2)
+
+test_pass_explicit_group_by_custom_explicit:
+  pass_str: |
+    SELECT
+        foo,
+        bar,
+        sum(baz) AS sum_value
+    FROM fake_table
+    GROUP BY
+        foo, bar;
+  configs:
+    rules:
+      ambiguous.column_references:
+        group_by_and_order_by_style: explicit
+
+test_fail_implicit_group_by_custom_explicit:
+  fail_str: |
+    SELECT
+        foo,
+        bar,
+        sum(baz) AS sum_value
+    FROM fake_table
+    GROUP BY
+        1, 2;
+  configs:
+    rules:
+      ambiguous.column_references:
+        group_by_and_order_by_style: explicit
+
+test_fail_mix_group_by_custom_explicit:
+  fail_str: |
+    SELECT
+        foo,
+        bar,
+        sum(baz) AS sum_value
+    FROM fake_table
+    GROUP BY
+        1, bar;
+  configs:
+    rules:
+      ambiguous.column_references:
+        group_by_and_order_by_style: explicit
+
+test_pass_explicit_order_by_custom_explicit:
+  pass_str: |
+    SELECT
+        foo,
+        bar
+    FROM fake_table
+    ORDER BY
+        foo, bar;
+  configs:
+    rules:
+      ambiguous.column_references:
+        group_by_and_order_by_style: explicit
+
+test_fail_implicit_order_by_custom_explicit:
+  fail_str: |
+    SELECT
+        foo,
+        bar
+    FROM fake_table
+    ORDER BY
+        1, 2;
+  configs:
+    rules:
+      ambiguous.column_references:
+        group_by_and_order_by_style: explicit
+
+test_pass_explicit_group_by_and_order_by_custom_explicit:
+  pass_str: |
+    SELECT
+        foo,
+        bar,
+        sum(baz) AS sum_value
+    FROM fake_table
+    GROUP BY
+        foo, bar
+    ORDER BY
+        foo, bar;
+  configs:
+    rules:
+      ambiguous.column_references:
+        group_by_and_order_by_style: explicit
+
+test_fail_implicit_group_by_and_order_by_custom_explicit:
+  fail_str: |
+    SELECT
+        foo,
+        bar,
+        sum(baz) AS sum_value
+    FROM fake_table
+    GROUP BY
+        1, 2
+    ORDER BY
+        1, 2;
+  configs:
+    rules:
+      ambiguous.column_references:
+        group_by_and_order_by_style: explicit
+
+test_fail_within_line_mix_group_by_and_order_by_custom_explicit:
+  fail_str: |
+    SELECT
+        foo,
+        bar,
+        sum(baz) AS sum_value
+    FROM fake_table
+    GROUP BY
+        1, bar
+    ORDER BY
+        foo, 2;
+  configs:
+    rules:
+      ambiguous.column_references:
+        group_by_and_order_by_style: explicit
+
+test_fail_across_line_mix_group_by_and_order_by_custom_explicit:
+  fail_str: |
+    SELECT
+        foo,
+        bar,
+        sum(baz) AS sum_value
+    FROM fake_table
+    GROUP BY
+        1, 2
+    ORDER BY
+        foo, bar;
+  configs:
+    rules:
+      ambiguous.column_references:
+        group_by_and_order_by_style: explicit
+
+test_pass_explicit_expression_order_by_custom_explicit:
+  pass_str: |
+    SELECT
+        foo,
+        bar,
+        sum(baz) AS sum_value
+    FROM fake_table
+    ORDER BY
+        foo, power(bar, 2)
+  configs:
+    rules:
+      ambiguous.column_references:
+        group_by_and_order_by_style: explicit
+
+test_fail_implicit_expression_order_by_custom_explicit:
+  fail_str: |
+    SELECT
+        foo,
+        bar,
+        sum(baz) AS sum_value
+    FROM fake_table
+    ORDER BY
+        1, power(bar, 2)
+  configs:
+    rules:
+      ambiguous.column_references:
+        group_by_and_order_by_style: explicit
+
+test_pass_explicit_group_by_custom_implicit:
+  pass_str: |
+    SELECT
+        foo,
+        bar,
+        sum(baz) AS sum_value
+    FROM fake_table
+    GROUP BY
+        1, 2;
+  configs:
+    rules:
+      ambiguous.column_references:
+        group_by_and_order_by_style: implicit
+
+test_fail_implicit_group_by_custom_implicit:
+  fail_str: |
+    SELECT
+        foo,
+        bar,
+        sum(baz) AS sum_value
+    FROM fake_table
+    GROUP BY
+        foo, bar;
+  configs:
+    rules:
+      ambiguous.column_references:
+        group_by_and_order_by_style: implicit
+
+test_pass_explicit_order_by_custom_implicit:
+  pass_str: |
+    SELECT
+        foo,
+        bar
+    FROM fake_table
+    ORDER BY
+        1, 2;
+  configs:
+    rules:
+      ambiguous.column_references:
+        group_by_and_order_by_style: implicit
+
+test_fail_implicit_order_by_custom_implicit:
+  fail_str: |
+    SELECT
+        foo,
+        bar
+    FROM fake_table
+    ORDER BY
+        foo, bar;
+  configs:
+    rules:
+      ambiguous.column_references:
+        group_by_and_order_by_style: implicit
+
+test_fail_mix_group_by_custom_implicit:
+  fail_str: |
+    SELECT
+        foo,
+        bar,
+        sum(baz) AS sum_value
+    FROM fake_table
+    GROUP BY
+        1, bar;
+  configs:
+    rules:
+      ambiguous.column_references:
+        group_by_and_order_by_style: implicit
+
+test_pass_implicit_group_by_and_order_by_custom_implicit:
+  pass_str: |
+    SELECT
+        foo,
+        bar,
+        sum(baz) AS sum_value
+    FROM fake_table
+    GROUP BY
+        1, 2
+    ORDER BY
+        1, 2;
+  configs:
+    rules:
+      ambiguous.column_references:
+        group_by_and_order_by_style: implicit
+
+test_fail_explicit_group_by_and_order_by_custom_implicit:
+  fail_str: |
+    SELECT
+        foo,
+        bar,
+        sum(baz) AS sum_value
+    FROM fake_table
+    GROUP BY
+        foo, bar
+    ORDER BY
+        foo, bar;
+  configs:
+    rules:
+      ambiguous.column_references:
+        group_by_and_order_by_style: implicit
+
+test_fail_within_line_mix_group_by_and_order_by_custom_implicit:
+  fail_str: |
+    SELECT
+        foo,
+        bar,
+        sum(baz) AS sum_value
+    FROM fake_table
+    GROUP BY
+        1, bar
+    ORDER BY
+        foo, 2;
+  configs:
+    rules:
+      ambiguous.column_references:
+        group_by_and_order_by_style: implicit
+
+test_fail_across_line_mix_group_by_and_order_by_custom_implicit:
+  fail_str: |
+    SELECT
+        foo,
+        bar,
+        sum(baz) AS sum_value
+    FROM fake_table
+    GROUP BY
+        1, 2
+    ORDER BY
+        foo, bar;
+  configs:
+    rules:
+      ambiguous.column_references:
+        group_by_and_order_by_style: implicit
+
+test_fail_explicit_expression_order_by_custom_implicit:
+  fail_str: |
+    SELECT
+        foo,
+        bar,
+        sum(baz) AS sum_value
+    FROM fake_table
+    ORDER BY
+        foo, power(bar, 2)
+  configs:
+    rules:
+      ambiguous.column_references:
+        group_by_and_order_by_style: implicit
+
+test_fail_implicit_expression_order_by_custom_implicit:
+  fail_str: |
+    SELECT
+        foo,
+        bar,
+        sum(baz) AS sum_value
+    FROM fake_table
+    ORDER BY
+        1, power(bar, 2)
+  configs:
+    rules:
+      ambiguous.column_references:
+        group_by_and_order_by_style: implicit
+
+test_fail_consistent_snowflake:
+  fail_str: |
+    select
+      a,
+      b,
+      c
+    from test_table
+    group by 1, b
+    order by 1, 2
+  configs:
+    core:
+      dialect: snowflake
+    rules:
+      ambiguous.column_references:
+        group_by_and_order_by_style: consistent
+
+test_fail_consistent_exasol:
+  fail_str: |
+    select
+      a,
+      b,
+      c
+    from test_table
+    group by 1, b
+    order by 1, 2
+  configs:
+    core:
+      dialect: exasol
+    rules:
+      ambiguous.column_references:
+        group_by_and_order_by_style: consistent
+
+test_pass_window:
+  pass_str: |
+    SELECT
+        field_1
+        , field_2
+        , SUM(field_3) as field_3_total
+        , SUM(field_3) OVER (ORDER BY field_1) AS field_3_window_sum
+    FROM table1
+    GROUP BY 1, 2
+    ORDER BY 1, 2
+
+test_pass_window_snowflake:
+  pass_str: |
+    SELECT
+        field_1
+        , field_2
+        , SUM(field_3) as field_3_total
+        , SUM(field_3) OVER (ORDER BY field_1) AS field_3_window_sum
+    FROM table1
+    GROUP BY 1, 2
+    ORDER BY 1, 2
+  configs:
+    core:
+      dialect: snowflake
+
+test_pass_withingroup_snowflake:
+  pass_str: |
+    SELECT LISTAGG(x) WITHIN GROUP (ORDER BY list_order) AS my_list
+    FROM main
+    GROUP BY 1
+  configs:
+    core:
+      dialect: snowflake
+
+test_pass_groupby_rollup_bigquery:
+  pass_str: |
+    SELECT
+        column1,
+        column2
+    FROM table_name
+    GROUP BY 1, 2
+    UNION ALL
+    SELECT
+        column1,
+        column2
+    FROM table_name2
+    GROUP BY ROLLUP(1, 2)
+  configs:
+    core:
+      dialect: bigquery
+
+test_fail_groupby_rollup_bigquery:
+  fail_str: |
+    SELECT
+        column1,
+        column2
+    FROM table_name
+    GROUP BY column1, column2
+    UNION ALL
+    SELECT
+        column1,
+        column2
+    FROM table_name2
+    GROUP BY ROLLUP(1, 2)
+  configs:
+    core:
+      dialect: bigquery
+
+test_pass_groupby_rollup_postgres:
+  pass_str: |
+    SELECT
+        column1,
+        column2
+    FROM table_name
+    GROUP BY 1, 2
+    UNION ALL
+    SELECT
+        column1,
+        column2
+    FROM table_name2
+    GROUP BY ROLLUP(1, 2)
+  configs:
+    core:
+      dialect: postgres
+
+test_fail_groupby_rollup_postgres:
+  fail_str: |
+    SELECT
+        column1,
+        column2
+    FROM table_name
+    GROUP BY column1, column2
+    UNION ALL
+    SELECT
+        column1,
+        column2
+    FROM table_name2
+    GROUP BY ROLLUP(1, 2)
+  configs:
+    core:
+      dialect: postgres
+
+test_pass_groupby_rollup_exasol:
+  pass_str: |
+    SELECT
+        column1,
+        column2
+    FROM table_name
+    GROUP BY 1, 2
+    UNION ALL
+    SELECT
+        column1,
+        column2
+    FROM table_name2
+    GROUP BY ROLLUP(1, 2)
+  configs:
+    core:
+      dialect: exasol
+
+test_fail_groupby_rollup_exasol:
+  fail_str: |
+    SELECT
+        column1,
+        column2
+    FROM table_name
+    GROUP BY column1, column2
+    UNION ALL
+    SELECT
+        column1,
+        column2
+    FROM table_name2
+    GROUP BY ROLLUP(1, 2)
+  configs:
+    core:
+      dialect: exasol
+
+test_pass_groupby_rollup_athena:
+  pass_str: |
+    SELECT
+        column1,
+        column2
+    FROM table_name
+    GROUP BY 1, 2
+    UNION ALL
+    SELECT
+        column1,
+        column2
+    FROM table_name2
+    GROUP BY ROLLUP(1, 2)
+  configs:
+    core:
+      dialect: athena
+
+test_fail_groupby_rollup_athena:
+  fail_str: |
+    SELECT
+        column1,
+        column2
+    FROM table_name
+    GROUP BY column1, column2
+    UNION ALL
+    SELECT
+        column1,
+        column2
+    FROM table_name2
+    GROUP BY ROLLUP(1, 2)
+  configs:
+    core:
+      dialect: athena
+
+test_pass_groupby_rollup_sparksql:
+  pass_str: |
+    SELECT
+        column1,
+        column2
+    FROM table_name
+    GROUP BY 1, 2
+    UNION ALL
+    SELECT
+        column1,
+        column2
+    FROM table_name2
+    GROUP BY ROLLUP(1, 2)
+  configs:
+    core:
+      dialect: sparksql
+
+test_fail_groupby_rollup_sparksql:
+  fail_str: |
+    SELECT
+        column1,
+        column2
+    FROM table_name
+    GROUP BY column1, column2
+    UNION ALL
+    SELECT
+        column1,
+        column2
+    FROM table_name2
+    GROUP BY ROLLUP(1, 2)
+  configs:
+    core:
+      dialect: sparksql
+
+test_pass_array_agg_bigquery:
+  pass_str: |
+    SELECT
+        to_json_string(array_agg(product_id order by started_at desc)) AS products
+    FROM purchased
+    GROUP by 1
+
+  configs:
+    core:
+      dialect: bigquery
+
+test_pass_array_expression_bigquery:
+  pass_str: |
+    SELECT
+      poi.country_code
+      , poi.po_id
+      , ARRAY(
+          SELECT STRUCT(
+              p.product_name
+              , p.sku_id
+              , p.created_at
+            ) AS products_purchased
+          FROM UNNEST(poi.products_purchased) AS p
+          ORDER BY p.created_at
+        ) AS products_purchased
+    FROM `my_project.my_dataset.purchase_orders_products` AS poi
+  configs:
+    core:
+      dialect: bigquery

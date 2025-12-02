@@ -1,0 +1,177 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: c975d954bb2a045924b2c4f0fdf128579b324ffe86e3087b527a452c230be6cd
+file:
+- statement:
+    create_statement:
+    - keyword: create
+    - keyword: or
+    - keyword: replace
+    - keyword: pipe
+    - object_reference:
+        naked_identifier: mypipe_s3
+    - keyword: auto_ingest
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - boolean_literal: 'true'
+    - keyword: error_integration
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - object_reference:
+        naked_identifier: my_error
+    - keyword: aws_sns_topic
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'arn:aws:blablabla..0:s3_mybucket'"
+    - keyword: as
+    - copy_into_table_statement:
+      - keyword: copy
+      - keyword: into
+      - table_reference:
+        - naked_identifier: snowpipe_db
+        - dot: .
+        - naked_identifier: public
+        - dot: .
+        - naked_identifier: mytable
+      - keyword: from
+      - storage_location:
+          stage_path: '@snowpipe_db.public.mystage'
+      - keyword: file_format
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - file_format_segment:
+          bracketed:
+            start_bracket: (
+            json_file_format_type_parameters:
+              keyword: type
+              comparison_operator:
+                raw_comparison_operator: '='
+              file_type: "'JSON'"
+            end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_statement:
+    - keyword: create
+    - keyword: or
+    - keyword: replace
+    - keyword: pipe
+    - object_reference:
+        naked_identifier: test_pipe
+    - keyword: auto_ingest
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - boolean_literal: 'true'
+    - keyword: integration
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - object_reference:
+        naked_identifier: notification_integration
+    - keyword: as
+    - copy_into_table_statement:
+      - keyword: copy
+      - keyword: into
+      - table_reference:
+          naked_identifier: table_name
+      - bracketed:
+        - start_bracket: (
+        - column_reference:
+            naked_identifier: column1
+        - comma: ','
+        - column_reference:
+            naked_identifier: column2
+        - end_bracket: )
+      - keyword: from
+      - bracketed:
+          start_bracket: (
+          select_statement:
+            select_clause:
+            - keyword: select
+            - select_clause_element:
+                column_reference:
+                  column_index_identifier_segment: $1
+            - comma: ','
+            - select_clause_element:
+                function:
+                  function_name:
+                    function_name_identifier: current_timestamp
+                  function_contents:
+                    bracketed:
+                      start_bracket: (
+                      end_bracket: )
+                alias_expression:
+                  alias_operator:
+                    keyword: as
+                  naked_identifier: column2
+            from_clause:
+              keyword: from
+              from_expression:
+                from_expression_element:
+                  table_expression:
+                    table_reference:
+                      stage_path: '@stage_name/folder'
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_statement:
+    - keyword: create
+    - keyword: or
+    - keyword: replace
+    - keyword: pipe
+    - object_reference:
+        naked_identifier: test_pipe
+    - keyword: auto_ingest
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - boolean_literal: 'true'
+    - keyword: integration
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'notification_integration'"
+    - keyword: as
+    - copy_into_table_statement:
+      - keyword: copy
+      - keyword: into
+      - table_reference:
+          naked_identifier: table_name
+      - bracketed:
+        - start_bracket: (
+        - column_reference:
+            naked_identifier: column1
+        - comma: ','
+        - column_reference:
+            naked_identifier: column2
+        - end_bracket: )
+      - keyword: from
+      - bracketed:
+          start_bracket: (
+          select_statement:
+            select_clause:
+            - keyword: select
+            - select_clause_element:
+                column_reference:
+                  column_index_identifier_segment: $1
+            - comma: ','
+            - select_clause_element:
+                function:
+                  function_name:
+                    function_name_identifier: current_timestamp
+                  function_contents:
+                    bracketed:
+                      start_bracket: (
+                      end_bracket: )
+                alias_expression:
+                  alias_operator:
+                    keyword: as
+                  naked_identifier: column2
+            from_clause:
+              keyword: from
+              from_expression:
+                from_expression_element:
+                  table_expression:
+                    table_reference:
+                      stage_path: '@stage_name/folder'
+          end_bracket: )
+- statement_terminator: ;

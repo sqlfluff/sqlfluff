@@ -1,0 +1,3 @@
+RESET timezone;
+RESET ALL;
+RESET ROLE;

@@ -1,0 +1,464 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: ff46dbbfa00e6b1b6358493fcd387bade51d7cf0cb7fe826125f44d984f3cb32
+file:
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: example_table
+    - alter_table_action_segment:
+        keyword: ADD
+        table_constraint:
+        - keyword: CONSTRAINT
+        - object_reference:
+            naked_identifier: example_name
+        - keyword: PRIMARY
+        - keyword: KEY
+        - bracketed:
+            start_bracket: (
+            column_reference:
+              naked_identifier: example_sk
+            end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: alter
+    - keyword: table
+    - table_reference:
+        naked_identifier: users
+    - alter_table_action_segment:
+      - keyword: rename
+      - keyword: to
+      - parameter: users_bkup
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: alter
+    - keyword: table
+    - table_reference:
+        naked_identifier: venue
+    - alter_table_action_segment:
+      - keyword: owner
+      - keyword: to
+      - parameter: dwuser
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: alter
+    - keyword: table
+    - table_reference:
+        naked_identifier: vdate
+    - alter_table_action_segment:
+      - keyword: owner
+      - keyword: to
+      - parameter: vuser
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: alter
+    - keyword: table
+    - table_reference:
+        naked_identifier: venue
+    - keyword: rename
+    - keyword: column
+    - column_reference:
+        naked_identifier: venueseats
+    - keyword: to
+    - column_reference:
+        naked_identifier: venuesize
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: alter
+    - keyword: table
+    - table_reference:
+        naked_identifier: category
+    - alter_table_action_segment:
+      - keyword: drop
+      - keyword: constraint
+      - parameter: category_pkey
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: alter
+    - keyword: table
+    - table_reference:
+        naked_identifier: event
+    - alter_table_action_segment:
+      - keyword: alter
+      - keyword: column
+      - column_reference:
+          naked_identifier: eventname
+      - keyword: type
+      - data_type:
+          keyword: varchar
+          bracketed_arguments:
+            bracketed:
+              start_bracket: (
+              numeric_literal: '300'
+              end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: create
+    - keyword: table
+    - table_reference:
+        naked_identifier: t1
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: c0
+      - data_type:
+          keyword: int
+      - column_attribute_segment:
+        - keyword: encode
+        - keyword: lzo
+      - comma: ','
+      - column_reference:
+          naked_identifier: c1
+      - data_type:
+          keyword: bigint
+      - column_attribute_segment:
+        - keyword: encode
+        - keyword: zstd
+      - comma: ','
+      - column_reference:
+          naked_identifier: c2
+      - data_type:
+          keyword: varchar
+          bracketed_arguments:
+            bracketed:
+              start_bracket: (
+              numeric_literal: '16'
+              end_bracket: )
+      - column_attribute_segment:
+        - keyword: encode
+        - keyword: lzo
+      - comma: ','
+      - column_reference:
+          naked_identifier: c3
+      - data_type:
+          keyword: varchar
+          bracketed_arguments:
+            bracketed:
+              start_bracket: (
+              numeric_literal: '32'
+              end_bracket: )
+      - column_attribute_segment:
+        - keyword: encode
+        - keyword: zstd
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: alter
+    - keyword: table
+    - table_reference:
+        naked_identifier: t1
+    - alter_table_action_segment:
+      - keyword: alter
+      - keyword: column
+      - column_reference:
+          naked_identifier: c0
+      - keyword: encode
+      - keyword: az64
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: alter
+    - keyword: table
+    - table_reference:
+        naked_identifier: t1
+    - alter_table_action_segment:
+      - keyword: alter
+      - keyword: column
+      - column_reference:
+          naked_identifier: c1
+      - keyword: encode
+      - keyword: az64
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: alter
+    - keyword: table
+    - table_reference:
+        naked_identifier: t1
+    - alter_table_action_segment:
+      - keyword: alter
+      - keyword: column
+      - column_reference:
+          naked_identifier: c2
+      - keyword: encode
+      - keyword: bytedict
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: alter
+    - keyword: table
+    - table_reference:
+        naked_identifier: t1
+    - alter_table_action_segment:
+      - keyword: alter
+      - keyword: column
+      - column_reference:
+          naked_identifier: c3
+      - keyword: encode
+      - keyword: runlength
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: alter
+    - keyword: table
+    - table_reference:
+        naked_identifier: inventory
+    - alter_table_action_segment:
+      - keyword: alter
+      - keyword: diststyle
+      - keyword: key
+      - keyword: distkey
+      - column_reference:
+          naked_identifier: inv_warehouse_sk
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: alter
+    - keyword: table
+    - table_reference:
+        naked_identifier: inventory
+    - alter_table_action_segment:
+      - keyword: alter
+      - keyword: distkey
+      - column_reference:
+          naked_identifier: inv_item_sk
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: alter
+    - keyword: table
+    - table_reference:
+        naked_identifier: inventory
+    - alter_table_action_segment:
+      - keyword: alter
+      - keyword: diststyle
+      - keyword: all
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: alter
+    - keyword: table
+    - table_reference:
+        naked_identifier: t1
+    - alter_table_action_segment:
+      - keyword: alter
+      - keyword: sortkey
+      - bracketed:
+        - start_bracket: (
+        - column_reference:
+            naked_identifier: c0
+        - comma: ','
+        - column_reference:
+            naked_identifier: c1
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: alter
+    - keyword: table
+    - table_reference:
+        naked_identifier: t1
+    - alter_table_action_segment:
+      - keyword: alter
+      - keyword: sortkey
+      - keyword: none
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: alter
+    - keyword: table
+    - table_reference:
+        naked_identifier: t1
+    - alter_table_action_segment:
+      - keyword: alter
+      - keyword: sortkey
+      - bracketed:
+        - start_bracket: (
+        - column_reference:
+            naked_identifier: c0
+        - comma: ','
+        - column_reference:
+            naked_identifier: c1
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: alter
+    - keyword: table
+    - table_reference:
+        naked_identifier: t1
+    - alter_table_action_segment:
+      - keyword: alter
+      - keyword: encode
+      - keyword: auto
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: alter
+    - keyword: table
+    - table_reference:
+        naked_identifier: t2
+    - alter_table_action_segment:
+      - keyword: alter
+      - keyword: column
+      - column_reference:
+          naked_identifier: c0
+      - keyword: encode
+      - keyword: lzo
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: the_schema
+      - dot: .
+      - naked_identifier: the_table
+    - alter_table_action_segment:
+      - keyword: ADD
+      - keyword: COLUMN
+      - column_reference:
+          naked_identifier: the_timestamp
+      - data_type:
+          datetime_type_identifier:
+            keyword: TIMESTAMP
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: the_schema
+      - dot: .
+      - naked_identifier: the_table
+    - alter_table_action_segment:
+      - keyword: ADD
+      - keyword: COLUMN
+      - column_reference:
+          naked_identifier: the_boolean
+      - data_type:
+          keyword: BOOLEAN
+      - keyword: DEFAULT
+      - expression:
+          boolean_literal: 'FALSE'
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: alter
+    - keyword: table
+    - table_reference:
+        naked_identifier: users
+    - alter_table_action_segment:
+      - keyword: add
+      - keyword: column
+      - column_reference:
+          naked_identifier: feedback_score
+      - data_type:
+          keyword: int
+      - keyword: default
+      - expression:
+          null_literal: 'NULL'
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: alter
+    - keyword: table
+    - table_reference:
+        naked_identifier: users
+    - alter_table_action_segment:
+      - keyword: drop
+      - keyword: column
+      - column_reference:
+          naked_identifier: feedback_score
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: alter
+    - keyword: table
+    - table_reference:
+        naked_identifier: users
+    - alter_table_action_segment:
+      - keyword: drop
+      - keyword: column
+      - column_reference:
+          naked_identifier: feedback_score
+      - keyword: cascade
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: the_schema
+      - dot: .
+      - naked_identifier: the_table
+    - alter_table_action_segment:
+      - keyword: APPEND
+      - keyword: FROM
+      - table_reference:
+        - naked_identifier: the_schema
+        - dot: .
+        - naked_identifier: the_temp_table
+      - keyword: IGNOREEXTRA
+      - keyword: FILLTARGET
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: the_schema
+      - dot: .
+      - naked_identifier: the_table
+    - alter_table_action_segment:
+      - keyword: APPEND
+      - keyword: FROM
+      - table_reference:
+        - naked_identifier: the_schema
+        - dot: .
+        - naked_identifier: the_temp_table
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: the_schema
+      - dot: .
+      - naked_identifier: the_table
+    - alter_table_action_segment:
+      - keyword: SET
+      - keyword: LOCATION
+      - quoted_literal: "'s3://bucket/folder/'"
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - naked_identifier: my_schema
+      - dot: .
+      - naked_identifier: my_table
+    - alter_table_action_segment:
+      - keyword: ADD
+      - keyword: COLUMN
+      - column_reference:
+          naked_identifier: my_column
+      - data_type:
+          keyword: BIGINT
+      - keyword: ENCODE
+      - keyword: ZSTD
+- statement_terminator: ;

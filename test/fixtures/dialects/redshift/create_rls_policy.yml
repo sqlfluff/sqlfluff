@@ -1,0 +1,91 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: d5992076e54d3bc15cf54e4af1ec8468d24bb9616c68c394de8b58f31036df4e
+file:
+- statement:
+    create_rls_policy_statement:
+    - keyword: CREATE
+    - keyword: RLS
+    - keyword: POLICY
+    - object_reference:
+        naked_identifier: policy_concerts
+    - keyword: WITH
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          naked_identifier: catgroup
+        data_type:
+          keyword: VARCHAR
+          bracketed_arguments:
+            bracketed:
+              start_bracket: (
+              numeric_literal: '10'
+              end_bracket: )
+        end_bracket: )
+    - keyword: USING
+    - bracketed:
+        start_bracket: (
+        expression:
+          column_reference:
+            naked_identifier: catgroup
+          comparison_operator:
+            raw_comparison_operator: '='
+          quoted_literal: "'Concerts'"
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_rls_policy_statement:
+    - keyword: CREATE
+    - keyword: RLS
+    - keyword: POLICY
+    - object_reference:
+        naked_identifier: policy_name
+    - keyword: WITH
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: foo
+      - data_type:
+          keyword: VARCHAR
+          bracketed_arguments:
+            bracketed:
+              start_bracket: (
+              numeric_literal: '10'
+              end_bracket: )
+      - comma: ','
+      - column_reference:
+          naked_identifier: bar
+      - data_type:
+          keyword: DECIMAL
+          bracketed_arguments:
+            bracketed:
+            - start_bracket: (
+            - numeric_literal: '10'
+            - comma: ','
+            - numeric_literal: '2'
+            - end_bracket: )
+      - end_bracket: )
+    - keyword: AS
+    - alias_expression:
+        naked_identifier: relation_alias
+    - keyword: USING
+    - bracketed:
+        start_bracket: (
+        expression:
+        - column_reference:
+            naked_identifier: bar
+        - comparison_operator:
+          - raw_comparison_operator: '>'
+          - raw_comparison_operator: '='
+        - numeric_literal: '12'
+        - binary_operator: AND
+        - column_reference:
+            naked_identifier: foo
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - quoted_literal: "'user1'"
+        end_bracket: )
+- statement_terminator: ;

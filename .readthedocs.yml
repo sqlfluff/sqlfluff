@@ -15,9 +15,16 @@ formats: []
 # Optionally set the version of Python and requirements required to build your docs.
 # In our case we need both the docs requirements and the package itself.
 python:
-  version: 3.7
   install:
-    - requirements: requirements.txt
     - requirements: docs/requirements.txt
-    - method: setuptools
+    - method: pip
       path: .
+
+build:
+  os: ubuntu-22.04
+  tools:
+    python: "3.11"
+  jobs:
+    # Before building, generate the rule & dialect docs
+    pre_build:
+      - python docs/generate-auto-docs.py

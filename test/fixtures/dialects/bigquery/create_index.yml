@@ -1,0 +1,139 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 966bba35384f04776e0d8d472c460fdb0fd8fe0043d3a79e78b0314efc98a066
+file:
+- statement:
+    create_search_index_statement:
+    - keyword: CREATE
+    - keyword: SEARCH
+    - keyword: INDEX
+    - index_reference:
+        naked_identifier: my_index
+    - keyword: 'ON'
+    - table_reference:
+      - naked_identifier: example_dataset
+      - dot: .
+      - naked_identifier: example_table
+    - bracketed:
+      - start_bracket: (
+      - keyword: ALL
+      - keyword: COLUMNS
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_search_index_statement:
+    - keyword: CREATE
+    - keyword: SEARCH
+    - keyword: INDEX
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - index_reference:
+        naked_identifier: my_index
+    - keyword: 'ON'
+    - table_reference:
+      - naked_identifier: example_dataset
+      - dot: .
+      - naked_identifier: example_table
+    - bracketed:
+      - start_bracket: (
+      - index_column_definition:
+          naked_identifier: x
+      - comma: ','
+      - index_column_definition:
+          naked_identifier: y
+      - comma: ','
+      - index_column_definition:
+          naked_identifier: z
+      - end_bracket: )
+    - options_segment:
+        keyword: OPTIONS
+        bracketed:
+          start_bracket: (
+          parameter: analyzer
+          comparison_operator:
+            raw_comparison_operator: '='
+          quoted_literal: "'NO_OP_ANALYZER'"
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_vector_index_statement:
+    - keyword: CREATE
+    - keyword: VECTOR
+    - keyword: INDEX
+    - index_reference:
+        naked_identifier: my_index
+    - keyword: 'ON'
+    - table_reference:
+      - naked_identifier: example_dataset
+      - dot: .
+      - naked_identifier: example_table
+    - bracketed:
+        start_bracket: (
+        index_column_definition:
+          naked_identifier: example_column
+        end_bracket: )
+    - storing_segment:
+        keyword: STORING
+        bracketed:
+        - start_bracket: (
+        - naked_identifier: stored_column1
+        - comma: ','
+        - naked_identifier: stored_column2
+        - end_bracket: )
+    - options_segment:
+        keyword: OPTIONS
+        bracketed:
+          start_bracket: (
+          parameter: index_type
+          comparison_operator:
+            raw_comparison_operator: '='
+          quoted_literal: "'IVF'"
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_vector_index_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: VECTOR
+    - keyword: INDEX
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - index_reference:
+        naked_identifier: my_index
+    - keyword: 'ON'
+    - table_reference:
+      - naked_identifier: example_dataset
+      - dot: .
+      - naked_identifier: example_table
+    - bracketed:
+      - start_bracket: (
+      - index_column_definition:
+          naked_identifier: x
+      - comma: ','
+      - index_column_definition:
+          naked_identifier: y
+      - comma: ','
+      - index_column_definition:
+          naked_identifier: z
+      - end_bracket: )
+    - options_segment:
+        keyword: OPTIONS
+        bracketed:
+        - start_bracket: (
+        - parameter: index_type
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - quoted_literal: "'IVF'"
+        - comma: ','
+        - parameter: distance_type
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - quoted_literal: "'COSINE'"
+        - end_bracket: )
+- statement_terminator: ;

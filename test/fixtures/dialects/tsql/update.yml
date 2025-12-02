@@ -1,0 +1,140 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 6d62a6e47f69786555c5a63245a740a6365419b856c2f19f9bfdd12bbdd59734
+file:
+  batch:
+  - statement:
+      update_statement:
+        keyword: update
+        table_reference:
+        - naked_identifier: dbo
+        - dot: .
+        - naked_identifier: Cases
+        set_clause_list:
+          keyword: set
+          set_clause:
+            column_reference:
+              quoted_identifier: '[Flg]'
+            assignment_operator:
+              raw_comparison_operator: '='
+            expression:
+              integer_literal: '1'
+        where_clause:
+          keyword: where
+          expression:
+            column_reference:
+              naked_identifier: ID
+            keyword: in
+            bracketed:
+              start_bracket: (
+              select_statement:
+                select_clause:
+                  keyword: select
+                  select_clause_modifier:
+                    keyword: distinct
+                  select_clause_element:
+                    column_reference:
+                      quoted_identifier: '[ID]'
+                from_clause:
+                  keyword: from
+                  from_expression:
+                    from_expression_element:
+                      table_expression:
+                        table_reference:
+                        - naked_identifier: dbo
+                        - dot: .
+                        - naked_identifier: CX
+              end_bracket: )
+        option_clause:
+          keyword: OPTION
+          bracketed:
+            start_bracket: (
+            query_hint_segment:
+              keyword: Label
+              comparison_operator:
+                raw_comparison_operator: '='
+              quoted_literal: "'Cases'"
+            end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      update_statement:
+        keyword: update
+        table_reference:
+          naked_identifier: tt
+        set_clause_list:
+          keyword: set
+          set_clause:
+            column_reference:
+            - naked_identifier: tt
+            - dot: .
+            - naked_identifier: rn
+            assignment_operator:
+              binary_operator: +
+              raw_comparison_operator: '='
+            expression:
+              integer_literal: '1'
+        from_clause:
+          keyword: from
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: table1
+              alias_expression:
+                alias_operator:
+                  keyword: as
+                naked_identifier: tt
+            join_clause:
+              keyword: join
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                    naked_identifier: src
+              join_on_condition:
+                keyword: 'on'
+                expression:
+                - column_reference:
+                  - naked_identifier: tt
+                  - dot: .
+                  - naked_identifier: _id
+                - comparison_operator:
+                    raw_comparison_operator: '='
+                - column_reference:
+                  - naked_identifier: src
+                  - dot: .
+                  - naked_identifier: _id
+  - statement_terminator: ;
+  - statement:
+      update_statement:
+        keyword: UPDATE
+        table_reference:
+          naked_identifier: stuff
+        set_clause_list:
+          keyword: SET
+          set_clause:
+            column_reference:
+              naked_identifier: deleted
+            assignment_operator:
+              raw_comparison_operator: '='
+            expression:
+              integer_literal: '1'
+        output_clause:
+        - keyword: OUTPUT
+        - keyword: DELETED
+        - dot: .
+        - wildcard_identifier:
+            star: '*'
+        - keyword: INTO
+        - table_reference:
+            naked_identifier: trash
+        where_clause:
+          keyword: WHERE
+          expression:
+            column_reference:
+              naked_identifier: useless
+            comparison_operator:
+              raw_comparison_operator: '='
+            integer_literal: '1'

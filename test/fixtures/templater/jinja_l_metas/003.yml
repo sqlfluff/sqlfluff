@@ -1,0 +1,19 @@
+file:
+  - statement:
+      select_statement:
+        select_clause:
+          keyword: select
+          indent: ""
+          newline: "\n"
+          whitespace: '  '
+          select_clause_element:
+            numeric_literal: '1'
+          dedent: ""
+  - newline: "\n"
+  - whitespace: '  '
+  - placeholder: '{% if false %}'
+  - indent: ""
+  - placeholder: "\n    + 2\n  "
+  - dedent: ""
+  - placeholder: '{% endif %}'
+  - end_of_file: ""

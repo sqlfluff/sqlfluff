@@ -1,0 +1,216 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 8921156b6951ee4c4821b361bff5a53c5c7b13acb992653a2c3210b5e896846c
+file:
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+            bare_function: current_date
+            binary_operator: +
+            interval_expression:
+              keyword: INTERVAL
+              quoted_literal: "'2'"
+              date_part: DAY
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+            bare_function: current_date
+            binary_operator: '-'
+            interval_expression:
+              keyword: INTERVAL
+              quoted_literal: "'1'"
+              date_part: DAY
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: yesterday
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+            bare_function: current_date
+            binary_operator: +
+            interval_expression:
+              keyword: INTERVAL
+              quoted_literal: "'12'"
+              date_part: HOUR
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          interval_expression:
+            keyword: INTERVAL
+            quoted_literal: "'1'"
+            date_part: DAY
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          interval_expression:
+          - keyword: INTERVAL
+          - quoted_literal: "'1-2'"
+          - date_part: YEAR
+          - keyword: TO
+          - date_part: MONTH
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+          - interval_expression:
+              keyword: INTERVAL
+              quoted_literal: "'1'"
+              date_part: YEAR
+          - binary_operator: +
+          - interval_expression:
+              keyword: INTERVAL
+              quoted_literal: "'2'"
+              date_part: MONTH
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          interval_expression:
+            keyword: INTERVAL
+            quoted_literal: "'1 2:3:4.000005'"
+            date_part: DAY
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+          - interval_expression:
+              keyword: INTERVAL
+              quoted_literal: "'1'"
+              date_part: DAY
+          - binary_operator: +
+          - interval_expression:
+              keyword: INTERVAL
+              quoted_literal: "'2'"
+              date_part: HOUR
+          - binary_operator: +
+          - interval_expression:
+              keyword: INTERVAL
+              quoted_literal: "'3'"
+              date_part: MINUTE
+          - binary_operator: +
+          - interval_expression:
+              keyword: INTERVAL
+              quoted_literal: "'4'"
+              date_part: SECOND
+          - binary_operator: +
+          - interval_expression:
+              keyword: INTERVAL
+              quoted_literal: "'5'"
+              date_part: NANO
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          interval_expression:
+            keyword: INTERVAL
+            numeric_literal: '1'
+            date_part: DAY
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          interval_expression:
+            keyword: INTERVAL
+            bracketed:
+              start_bracket: (
+              expression:
+                numeric_literal: '1'
+                binary_operator: +
+                column_reference:
+                  naked_identifier: dt
+              end_bracket: )
+            date_part: DAY
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          interval_expression:
+            numeric_literal: '1'
+            date_part: DAY
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          interval_expression:
+            keyword: INTERVAL
+            numeric_literal: '1'
+            date_part: DAY
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          interval_expression:
+          - quoted_literal: "'1-2'"
+          - date_part: YEAR
+          - keyword: TO
+          - date_part: MONTH
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          interval_expression:
+          - keyword: INTERVAL
+          - quoted_literal: "'1-2'"
+          - date_part: YEARS
+          - keyword: TO
+          - date_part: MONTH
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          interval_expression:
+            numeric_literal: '2'
+            date_part: SECONDS
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          interval_expression:
+            numeric_literal: '2'
+            date_part: SECOND
+- statement_terminator: ;

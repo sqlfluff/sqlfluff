@@ -1,0 +1,475 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: a5f145a268db45a6932b6b5736fcad3a78175fe0125ed665112c362765909abc
+file:
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+            naked_identifier: col1
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: NORMALIZE
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  quoted_literal: "'\\u00ea'"
+                comma: ','
+                keyword: NFD
+                end_bracket: )
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: a
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: NORMALIZE
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  quoted_literal: "'\\u0065\\u0302'"
+                comma: ','
+                keyword: NFD
+                end_bracket: )
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: b
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: NORMALIZE_AND_CASEFOLD
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  quoted_literal: "'\\u00ea'"
+                comma: ','
+                keyword: NFD
+                end_bracket: )
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: c
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: NORMALIZE_AND_CASEFOLD
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  quoted_literal: "'\\u0065\\u0302'"
+                comma: ','
+                keyword: NFD
+                end_bracket: )
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: d
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+            naked_identifier: a
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: b
+      - comma: ','
+      - select_clause_element:
+          expression:
+          - column_reference:
+              naked_identifier: a
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - column_reference:
+              naked_identifier: b
+          alias_expression:
+            alias_operator:
+              keyword: as
+            naked_identifier: normalized
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              bracketed:
+                start_bracket: (
+                select_statement:
+                  select_clause:
+                  - keyword: SELECT
+                  - select_clause_element:
+                      function:
+                        function_name:
+                          function_name_identifier: NORMALIZE
+                        function_contents:
+                          bracketed:
+                            start_bracket: (
+                            expression:
+                              quoted_literal: "'\\u00ea'"
+                            end_bracket: )
+                      alias_expression:
+                        alias_operator:
+                          keyword: as
+                        naked_identifier: a
+                  - comma: ','
+                  - select_clause_element:
+                      function:
+                        function_name:
+                          function_name_identifier: NORMALIZE
+                        function_contents:
+                          bracketed:
+                            start_bracket: (
+                            expression:
+                              quoted_literal: "'\\u0065\\u0302'"
+                            end_bracket: )
+                      alias_expression:
+                        alias_operator:
+                          keyword: as
+                        naked_identifier: b
+                end_bracket: )
+- statement_terminator: ;
+- statement:
+    with_compound_statement:
+      keyword: WITH
+      common_table_expression:
+        naked_identifier: EquivalentNames
+        keyword: AS
+        bracketed:
+          start_bracket: (
+          select_statement:
+            select_clause:
+              keyword: SELECT
+              select_clause_element:
+                column_reference:
+                  naked_identifier: name
+            from_clause:
+              keyword: FROM
+              from_expression:
+                from_expression_element:
+                  table_expression:
+                    function:
+                      function_name:
+                        function_name_identifier: UNNEST
+                      function_contents:
+                        bracketed:
+                          start_bracket: (
+                          expression:
+                            array_literal:
+                            - start_square_bracket: '['
+                            - quoted_literal: "'Jane\\u2004Doe'"
+                            - comma: ','
+                            - quoted_literal: "'John\\u2004Smith'"
+                            - comma: ','
+                            - quoted_literal: "'Jane\\u2005Doe'"
+                            - comma: ','
+                            - quoted_literal: "'Jane\\u2006Doe'"
+                            - comma: ','
+                            - quoted_literal: "'John Smith'"
+                            - end_square_bracket: ']'
+                          end_bracket: )
+                  alias_expression:
+                    alias_operator:
+                      keyword: AS
+                    naked_identifier: name
+          end_bracket: )
+      select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            function:
+              function_name:
+                function_name_identifier: NORMALIZE
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                      naked_identifier: name
+                  comma: ','
+                  keyword: NFKC
+                  end_bracket: )
+            alias_expression:
+              alias_operator:
+                keyword: AS
+              naked_identifier: normalized_name
+        - comma: ','
+        - select_clause_element:
+            function:
+              function_name:
+                function_name_identifier: COUNT
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  star: '*'
+                  end_bracket: )
+            alias_expression:
+              alias_operator:
+                keyword: AS
+              naked_identifier: name_count
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: EquivalentNames
+        groupby_clause:
+        - keyword: GROUP
+        - keyword: BY
+        - numeric_literal: '1'
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+            naked_identifier: a
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: b
+      - comma: ','
+      - select_clause_element:
+          expression:
+          - function:
+              function_name:
+                function_name_identifier: NORMALIZE
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                      naked_identifier: a
+                  end_bracket: )
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - function:
+              function_name:
+                function_name_identifier: NORMALIZE
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                      naked_identifier: b
+                  end_bracket: )
+          alias_expression:
+            alias_operator:
+              keyword: as
+            naked_identifier: normalized
+      - comma: ','
+      - select_clause_element:
+          expression:
+          - function:
+              function_name:
+                function_name_identifier: NORMALIZE_AND_CASEFOLD
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                      naked_identifier: a
+                  end_bracket: )
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - function:
+              function_name:
+                function_name_identifier: NORMALIZE_AND_CASEFOLD
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                      naked_identifier: b
+                  end_bracket: )
+          alias_expression:
+            alias_operator:
+              keyword: as
+            naked_identifier: normalized_with_case_folding
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              bracketed:
+                start_bracket: (
+                select_statement:
+                  select_clause:
+                  - keyword: SELECT
+                  - select_clause_element:
+                      quoted_literal: "'The red barn'"
+                      alias_expression:
+                        alias_operator:
+                          keyword: AS
+                        naked_identifier: a
+                  - comma: ','
+                  - select_clause_element:
+                      quoted_literal: "'The Red Barn'"
+                      alias_expression:
+                        alias_operator:
+                          keyword: AS
+                        naked_identifier: b
+                end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+            naked_identifier: a
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: b
+      - comma: ','
+      - select_clause_element:
+          expression:
+          - function:
+              function_name:
+                function_name_identifier: NORMALIZE_AND_CASEFOLD
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                      naked_identifier: a
+                  comma: ','
+                  keyword: NFD
+                  end_bracket: )
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - function:
+              function_name:
+                function_name_identifier: NORMALIZE_AND_CASEFOLD
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                      naked_identifier: b
+                  comma: ','
+                  keyword: NFD
+                  end_bracket: )
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: nfd
+      - comma: ','
+      - select_clause_element:
+          expression:
+          - function:
+              function_name:
+                function_name_identifier: NORMALIZE_AND_CASEFOLD
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                      naked_identifier: a
+                  comma: ','
+                  keyword: NFC
+                  end_bracket: )
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - function:
+              function_name:
+                function_name_identifier: NORMALIZE_AND_CASEFOLD
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                      naked_identifier: b
+                  comma: ','
+                  keyword: NFC
+                  end_bracket: )
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: nfc
+      - comma: ','
+      - select_clause_element:
+          expression:
+          - function:
+              function_name:
+                function_name_identifier: NORMALIZE_AND_CASEFOLD
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                      naked_identifier: a
+                  comma: ','
+                  keyword: NFKD
+                  end_bracket: )
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - function:
+              function_name:
+                function_name_identifier: NORMALIZE_AND_CASEFOLD
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                      naked_identifier: b
+                  comma: ','
+                  keyword: NFKD
+                  end_bracket: )
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: nkfd
+      - comma: ','
+      - select_clause_element:
+          expression:
+          - function:
+              function_name:
+                function_name_identifier: NORMALIZE_AND_CASEFOLD
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                      naked_identifier: a
+                  comma: ','
+                  keyword: NFKC
+                  end_bracket: )
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - function:
+              function_name:
+                function_name_identifier: NORMALIZE_AND_CASEFOLD
+              function_contents:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                      naked_identifier: b
+                  comma: ','
+                  keyword: NFKC
+                  end_bracket: )
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: nkfc

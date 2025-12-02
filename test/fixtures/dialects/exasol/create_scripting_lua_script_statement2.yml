@@ -1,0 +1,26 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 65c1bbceecda9d10ec0f3fd093c6960d53987b947bf61e047e730d0c564d2370
+file:
+  statement:
+    create_scripting_lua_script:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: LUA
+    - keyword: SCRIPT
+    - script_reference:
+      - naked_identifier: aschema
+      - dot: .
+      - naked_identifier: hello
+    - bracketed:
+        start_bracket: (
+        end_bracket: )
+    - keyword: AS
+    - script_content:
+        word: return
+        single_quote: "'HELLO'"
+  function_script_terminator: /

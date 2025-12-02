@@ -1,0 +1,470 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: b97c860b46d977ac6f8bd9c7b9c467436770b9cf6f4c22a0e02cb83ae05426d2
+file:
+- statement:
+    alter_storage_integration_statement:
+    - keyword: alter
+    - keyword: storage
+    - keyword: integration
+    - object_reference:
+        naked_identifier: test_integration
+    - keyword: set
+    - tag_equals:
+        keyword: tag
+        tag_reference:
+          naked_identifier: tag1
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'value1'"
+- statement_terminator: ;
+- statement:
+    alter_storage_integration_statement:
+    - keyword: alter
+    - keyword: storage
+    - keyword: integration
+    - object_reference:
+        naked_identifier: test_integration
+    - keyword: set
+    - tag_equals:
+      - keyword: tag
+      - tag_reference:
+          naked_identifier: tag1
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'value1'"
+      - comma: ','
+      - tag_reference:
+          naked_identifier: tag2
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'value2'"
+- statement_terminator: ;
+- statement:
+    alter_storage_integration_statement:
+    - keyword: alter
+    - keyword: storage
+    - keyword: integration
+    - object_reference:
+        naked_identifier: test_integration
+    - keyword: set
+    - comment_equals_clause:
+        keyword: comment
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'test comment'"
+- statement_terminator: ;
+- statement:
+    alter_storage_integration_statement:
+    - keyword: alter
+    - keyword: storage
+    - keyword: integration
+    - object_reference:
+        naked_identifier: test_integration
+    - keyword: unset
+    - keyword: comment
+- statement_terminator: ;
+- statement:
+    alter_storage_integration_statement:
+    - keyword: alter
+    - keyword: storage
+    - keyword: integration
+    - object_reference:
+        naked_identifier: test_integration
+    - keyword: unset
+    - keyword: tag
+    - tag_reference:
+        naked_identifier: tag1
+    - comma: ','
+    - tag_reference:
+        naked_identifier: tag2
+- statement_terminator: ;
+- statement:
+    alter_storage_integration_statement:
+    - keyword: alter
+    - keyword: storage
+    - keyword: integration
+    - keyword: if
+    - keyword: exists
+    - object_reference:
+        naked_identifier: test_integration
+    - keyword: unset
+    - keyword: tag
+    - tag_reference:
+        naked_identifier: tag1
+    - comma: ','
+    - tag_reference:
+        naked_identifier: tag2
+- statement_terminator: ;
+- statement:
+    alter_storage_integration_statement:
+    - keyword: alter
+    - keyword: storage
+    - keyword: integration
+    - object_reference:
+        naked_identifier: test_integration
+    - keyword: unset
+    - keyword: enabled
+- statement_terminator: ;
+- statement:
+    alter_storage_integration_statement:
+    - keyword: alter
+    - keyword: storage
+    - keyword: integration
+    - object_reference:
+        naked_identifier: test_integration
+    - keyword: unset
+    - keyword: comment
+- statement_terminator: ;
+- statement:
+    alter_storage_integration_statement:
+    - keyword: alter
+    - keyword: storage
+    - keyword: integration
+    - object_reference:
+        naked_identifier: test_integration
+    - keyword: unset
+    - keyword: storage_blocked_locations
+- statement_terminator: ;
+- statement:
+    alter_storage_integration_statement:
+    - keyword: alter
+    - keyword: storage
+    - keyword: integration
+    - object_reference:
+        naked_identifier: test_integration
+    - keyword: set
+    - keyword: enabled
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - boolean_literal: 'true'
+- statement_terminator: ;
+- statement:
+    alter_storage_integration_statement:
+    - keyword: alter
+    - keyword: storage
+    - keyword: integration
+    - object_reference:
+        naked_identifier: test_integration
+    - keyword: set
+    - keyword: enabled
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - boolean_literal: 'false'
+    - comment_equals_clause:
+        keyword: comment
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'test comment'"
+- statement_terminator: ;
+- statement:
+    alter_storage_integration_statement:
+    - keyword: alter
+    - keyword: storage
+    - keyword: integration
+    - object_reference:
+        naked_identifier: test_integration
+    - keyword: set
+    - comment_equals_clause:
+        keyword: comment
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'test comment'"
+    - keyword: enabled
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - boolean_literal: 'false'
+- statement_terminator: ;
+- statement:
+    alter_storage_integration_statement:
+    - keyword: alter
+    - keyword: storage
+    - keyword: integration
+    - object_reference:
+        naked_identifier: test_integration
+    - keyword: set
+    - keyword: storage_aws_role_arn
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'test_role_arn'"
+- statement_terminator: ;
+- statement:
+    alter_storage_integration_statement:
+    - keyword: alter
+    - keyword: storage
+    - keyword: integration
+    - object_reference:
+        naked_identifier: test_integration
+    - keyword: set
+    - keyword: storage_aws_object_acl
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'test_object_acl'"
+- statement_terminator: ;
+- statement:
+    alter_storage_integration_statement:
+    - keyword: alter
+    - keyword: storage
+    - keyword: integration
+    - object_reference:
+        naked_identifier: test_integration
+    - keyword: set
+    - keyword: azure_tenant_id
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'test_azure_tenant_id'"
+- statement_terminator: ;
+- statement:
+    alter_storage_integration_statement:
+    - keyword: alter
+    - keyword: storage
+    - keyword: integration
+    - object_reference:
+        naked_identifier: s3_int
+    - keyword: set
+    - keyword: storage_aws_role_arn
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'arn:aws:iam::001234567890:role/myrole'"
+    - keyword: enabled
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - boolean_literal: 'true'
+    - keyword: storage_allowed_locations
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - bracketed:
+      - start_bracket: (
+      - bucket_path: "'s3://mybucket1'"
+      - comma: ','
+      - bucket_path: "'s3://mybucket2/'"
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_storage_integration_statement:
+    - keyword: alter
+    - keyword: storage
+    - keyword: integration
+    - object_reference:
+        naked_identifier: gcs_int
+    - keyword: set
+    - keyword: enabled
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - boolean_literal: 'true'
+    - keyword: storage_allowed_locations
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - bracketed:
+      - start_bracket: (
+      - bucket_path: "'gcs://mybucket1/path1/'"
+      - comma: ','
+      - bucket_path: "'gcs://mybucket2/path2/'"
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_storage_integration_statement:
+    - keyword: alter
+    - keyword: storage
+    - keyword: integration
+    - object_reference:
+        naked_identifier: azure_int
+    - keyword: set
+    - keyword: enabled
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - boolean_literal: 'true'
+    - keyword: azure_tenant_id
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'a123b4c5-1234-123a-a12b-1a23b45678c9'"
+    - keyword: storage_allowed_locations
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - bracketed:
+      - start_bracket: (
+      - bucket_path: "'azure://myaccount.blob.core.windows.net/mycontainer/path1/'"
+      - comma: ','
+      - bucket_path: "'azure://myaccount.blob.core.windows.net/mycontainer/path2/'"
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_storage_integration_statement:
+    - keyword: alter
+    - keyword: storage
+    - keyword: integration
+    - object_reference:
+        naked_identifier: s3_int
+    - keyword: set
+    - keyword: storage_aws_role_arn
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'arn:aws:iam::001234567890:role/myrole'"
+    - keyword: enabled
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - boolean_literal: 'true'
+    - keyword: storage_allowed_locations
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - bracketed:
+        start_bracket: (
+        quoted_star: "'*'"
+        end_bracket: )
+    - keyword: storage_blocked_locations
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - bracketed:
+      - start_bracket: (
+      - bucket_path: "'s3://mybucket3/path3/'"
+      - comma: ','
+      - bucket_path: "'s3://mybucket4/path4/'"
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_storage_integration_statement:
+    - keyword: alter
+    - keyword: storage
+    - keyword: integration
+    - object_reference:
+        naked_identifier: gcs_int
+    - keyword: set
+    - keyword: enabled
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - boolean_literal: 'true'
+    - keyword: storage_allowed_locations
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - bracketed:
+        start_bracket: (
+        quoted_star: "'*'"
+        end_bracket: )
+    - keyword: storage_blocked_locations
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - bracketed:
+      - start_bracket: (
+      - bucket_path: "'gcs://mybucket3/path3/'"
+      - comma: ','
+      - bucket_path: "'gcs://mybucket4/path4/'"
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_storage_integration_statement:
+    - keyword: alter
+    - keyword: storage
+    - keyword: integration
+    - object_reference:
+        naked_identifier: azure_int
+    - keyword: set
+    - keyword: enabled
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - boolean_literal: 'true'
+    - keyword: azure_tenant_id
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'a123b4c5-1234-123a-a12b-1a23b45678c9'"
+    - keyword: storage_allowed_locations
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - bracketed:
+        start_bracket: (
+        quoted_star: "'*'"
+        end_bracket: )
+    - keyword: storage_blocked_locations
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - bracketed:
+      - start_bracket: (
+      - bucket_path: "'azure://myaccount.blob.core.windows.net/mycontainer/path3/'"
+      - comma: ','
+      - bucket_path: "'azure://myaccount.blob.core.windows.net/mycontainer/path4/'"
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_storage_integration_statement:
+    - keyword: alter
+    - keyword: storage
+    - keyword: integration
+    - object_reference:
+        naked_identifier: azure_int
+    - keyword: set
+    - keyword: enabled
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - boolean_literal: 'true'
+    - comment_equals_clause:
+        keyword: comment
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'test_comment'"
+    - keyword: azure_tenant_id
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'a123b4c5-1234-123a-a12b-1a23b45678c9'"
+    - keyword: storage_allowed_locations
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - bracketed:
+        start_bracket: (
+        quoted_star: "'*'"
+        end_bracket: )
+    - keyword: storage_blocked_locations
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - bracketed:
+      - start_bracket: (
+      - bucket_path: "'azure://myaccount.blob.core.windows.net/mycontainer/path3/'"
+      - comma: ','
+      - bucket_path: "'azure://myaccount.blob.core.windows.net/mycontainer/path4/'"
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_storage_integration_statement:
+    - keyword: alter
+    - keyword: storage
+    - keyword: integration
+    - keyword: if
+    - keyword: exists
+    - object_reference:
+        naked_identifier: azure_int
+    - keyword: set
+    - keyword: enabled
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - boolean_literal: 'true'
+    - comment_equals_clause:
+        keyword: comment
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'test_comment'"
+    - keyword: azure_tenant_id
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'a123b4c5-1234-123a-a12b-1a23b45678c9'"
+    - keyword: storage_allowed_locations
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - bracketed:
+        start_bracket: (
+        quoted_star: "'*'"
+        end_bracket: )
+    - keyword: storage_blocked_locations
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - bracketed:
+      - start_bracket: (
+      - bucket_path: "'azure://myaccount.blob.core.windows.net/mycontainer/path3/'"
+      - comma: ','
+      - bucket_path: "'azure://myaccount.blob.core.windows.net/mycontainer/path4/'"
+      - end_bracket: )
+    - keyword: use_privatelink_endpoint
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - boolean_literal: 'true'
+- statement_terminator: ;

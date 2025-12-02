@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 3dc3d6083c8e1bebb925a36ada4420b2b6a304f7d0b16e1ba9eda0cc39ed7e85
+_hash: 71dca941f86bf8ba3aac81e95eab24273aac6c958b5f9276e4cd2fd7c080ded8
 file:
   statement:
     select_statement:
@@ -14,19 +14,19 @@ file:
             bracketed:
             - start_bracket: (
             - keyword: DATE
-            - literal: "'2001-02-16'"
+            - date_constructor_literal: "'2001-02-16'"
             - comma: ','
             - keyword: DATE
-            - literal: "'2001-12-21'"
+            - date_constructor_literal: "'2001-12-21'"
             - end_bracket: )
       overlaps_clause:
         keyword: OVERLAPS
         bracketed:
         - start_bracket: (
         - keyword: DATE
-        - literal: "'2001-10-30'"
+        - date_constructor_literal: "'2001-10-30'"
         - comma: ','
         - keyword: DATE
-        - literal: "'2002-10-30'"
+        - date_constructor_literal: "'2002-10-30'"
         - end_bracket: )
   statement_terminator: ;

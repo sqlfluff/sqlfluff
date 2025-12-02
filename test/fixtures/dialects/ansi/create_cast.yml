@@ -1,0 +1,316 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 54848c7eae3e3c3c50ab04feca39d8798be72e8e24009c02366c2b4083750362
+file:
+- statement:
+    create_cast_statement:
+    - keyword: CREATE
+    - keyword: CAST
+    - bracketed:
+      - start_bracket: (
+      - data_type:
+          data_type_identifier: int
+      - keyword: AS
+      - data_type:
+          data_type_identifier: bool
+      - end_bracket: )
+    - keyword: WITH
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: fname
+- statement_terminator: ;
+- statement:
+    create_cast_statement:
+    - keyword: CREATE
+    - keyword: CAST
+    - bracketed:
+      - start_bracket: (
+      - data_type:
+          data_type_identifier: int
+      - keyword: AS
+      - data_type:
+          data_type_identifier: bool
+      - end_bracket: )
+    - keyword: WITH
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: fname
+    - keyword: AS
+    - keyword: ASSIGNMENT
+- statement_terminator: ;
+- statement:
+    create_cast_statement:
+    - keyword: CREATE
+    - keyword: CAST
+    - bracketed:
+      - start_bracket: (
+      - data_type:
+          data_type_identifier: int
+      - keyword: AS
+      - data_type:
+          data_type_identifier: bool
+      - end_bracket: )
+    - keyword: WITH
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: fname
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_cast_statement:
+    - keyword: CREATE
+    - keyword: CAST
+    - bracketed:
+      - start_bracket: (
+      - data_type:
+          data_type_identifier: int
+      - keyword: AS
+      - data_type:
+          data_type_identifier: bool
+      - end_bracket: )
+    - keyword: WITH
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: fname
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          data_type:
+            data_type_identifier: bool
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_cast_statement:
+    - keyword: CREATE
+    - keyword: CAST
+    - bracketed:
+      - start_bracket: (
+      - data_type:
+          data_type_identifier: int
+      - keyword: AS
+      - data_type:
+          data_type_identifier: bool
+      - end_bracket: )
+    - keyword: WITH
+    - keyword: FUNCTION
+    - function_name:
+        naked_identifier: sch
+        dot: .
+        function_name_identifier: fname
+    - function_parameter_list:
+        bracketed:
+        - start_bracket: (
+        - data_type:
+            data_type_identifier: int
+        - comma: ','
+        - data_type:
+            data_type_identifier: bool
+        - end_bracket: )
+    - keyword: AS
+    - keyword: ASSIGNMENT
+- statement_terminator: ;
+- statement:
+    create_cast_statement:
+    - keyword: CREATE
+    - keyword: CAST
+    - bracketed:
+      - start_bracket: (
+      - data_type:
+          data_type_identifier: udt_1
+      - keyword: AS
+      - data_type:
+          data_type_identifier: udt_2
+      - end_bracket: )
+    - keyword: WITH
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: fname
+    - function_parameter_list:
+        bracketed:
+        - start_bracket: (
+        - data_type:
+            data_type_identifier: udt_1
+        - comma: ','
+        - data_type:
+            data_type_identifier: udt_2
+        - end_bracket: )
+    - keyword: FOR
+    - object_reference:
+        naked_identifier: udt_3
+- statement_terminator: ;
+- statement:
+    create_cast_statement:
+    - keyword: CREATE
+    - keyword: CAST
+    - bracketed:
+      - start_bracket: (
+      - data_type:
+          naked_identifier: sch
+          dot: .
+          data_type_identifier: udt_1
+      - keyword: AS
+      - data_type:
+          naked_identifier: sch
+          dot: .
+          data_type_identifier: udt_2
+      - end_bracket: )
+    - keyword: WITH
+    - keyword: FUNCTION
+    - function_name:
+        naked_identifier: sch
+        dot: .
+        function_name_identifier: fname
+    - function_parameter_list:
+        bracketed:
+        - start_bracket: (
+        - data_type:
+            naked_identifier: sch
+            dot: .
+            data_type_identifier: udt_1
+        - comma: ','
+        - data_type:
+            naked_identifier: sch
+            dot: .
+            data_type_identifier: udt_2
+        - end_bracket: )
+    - keyword: FOR
+    - object_reference:
+      - naked_identifier: sch
+      - dot: .
+      - naked_identifier: udt_3
+- statement_terminator: ;
+- statement:
+    create_cast_statement:
+    - keyword: CREATE
+    - keyword: CAST
+    - bracketed:
+      - start_bracket: (
+      - data_type:
+          data_type_identifier: int
+      - keyword: AS
+      - data_type:
+          data_type_identifier: bool
+      - end_bracket: )
+    - keyword: WITH
+    - keyword: ROUTINE
+    - function_name:
+        function_name_identifier: fname
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_cast_statement:
+    - keyword: CREATE
+    - keyword: CAST
+    - bracketed:
+      - start_bracket: (
+      - data_type:
+          data_type_identifier: int
+      - keyword: AS
+      - data_type:
+          data_type_identifier: bool
+      - end_bracket: )
+    - keyword: WITH
+    - keyword: PROCEDURE
+    - function_name:
+        function_name_identifier: fname
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_cast_statement:
+    - keyword: CREATE
+    - keyword: CAST
+    - bracketed:
+      - start_bracket: (
+      - data_type:
+          data_type_identifier: int
+      - keyword: AS
+      - data_type:
+          data_type_identifier: bool
+      - end_bracket: )
+    - keyword: WITH
+    - keyword: METHOD
+    - function_name:
+        function_name_identifier: fname
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_cast_statement:
+    - keyword: CREATE
+    - keyword: CAST
+    - bracketed:
+      - start_bracket: (
+      - data_type:
+          data_type_identifier: int
+      - keyword: AS
+      - data_type:
+          data_type_identifier: bool
+      - end_bracket: )
+    - keyword: WITH
+    - keyword: INSTANCE
+    - keyword: METHOD
+    - function_name:
+        function_name_identifier: fname
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_cast_statement:
+    - keyword: CREATE
+    - keyword: CAST
+    - bracketed:
+      - start_bracket: (
+      - data_type:
+          data_type_identifier: int
+      - keyword: AS
+      - data_type:
+          data_type_identifier: bool
+      - end_bracket: )
+    - keyword: WITH
+    - keyword: STATIC
+    - keyword: METHOD
+    - function_name:
+        function_name_identifier: fname
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_cast_statement:
+    - keyword: CREATE
+    - keyword: CAST
+    - bracketed:
+      - start_bracket: (
+      - data_type:
+          data_type_identifier: int
+      - keyword: AS
+      - data_type:
+          data_type_identifier: bool
+      - end_bracket: )
+    - keyword: WITH
+    - keyword: CONSTRUCTOR
+    - keyword: METHOD
+    - function_name:
+        function_name_identifier: fname
+    - function_parameter_list:
+        bracketed:
+          start_bracket: (
+          end_bracket: )
+- statement_terminator: ;

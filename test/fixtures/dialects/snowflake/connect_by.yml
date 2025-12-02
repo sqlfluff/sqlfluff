@@ -1,0 +1,423 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 2fbb45c59285bbac72e07da978ebe44633acab3eca46ee36a6c83f9a3cb2cfde
+file:
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: select
+      - select_clause_element:
+          column_reference:
+            naked_identifier: employee_id
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: manager_id
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: title
+      from_clause:
+        keyword: from
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: employees
+          connectby_clause:
+          - keyword: start
+          - keyword: with
+          - expression:
+              column_reference:
+                naked_identifier: title
+              comparison_operator:
+                raw_comparison_operator: '='
+              quoted_literal: "'President'"
+          - keyword: connect
+          - keyword: by
+          - expression:
+            - column_reference:
+                naked_identifier: manager_id
+            - comparison_operator:
+                raw_comparison_operator: '='
+            - keyword: prior
+            - column_reference:
+                naked_identifier: employee_id
+      orderby_clause:
+      - keyword: order
+      - keyword: by
+      - column_reference:
+          naked_identifier: employee_id
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: select
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: sys_connect_by_path
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                    naked_identifier: title
+              - comma: ','
+              - expression:
+                  quoted_literal: "' -> '"
+              - end_bracket: )
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: employee_id
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: manager_id
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: title
+      from_clause:
+        keyword: from
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: employees
+          connectby_clause:
+          - keyword: start
+          - keyword: with
+          - expression:
+              column_reference:
+                naked_identifier: title
+              comparison_operator:
+                raw_comparison_operator: '='
+              quoted_literal: "'President'"
+          - keyword: connect
+          - keyword: by
+          - expression:
+            - column_reference:
+                naked_identifier: manager_id
+            - comparison_operator:
+                raw_comparison_operator: '='
+            - keyword: prior
+            - column_reference:
+                naked_identifier: employee_id
+      orderby_clause:
+      - keyword: order
+      - keyword: by
+      - column_reference:
+          naked_identifier: employee_id
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: select
+      - select_clause_element:
+          column_reference:
+            naked_identifier: description
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: quantity
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: component_id
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: parent_component_id
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: sys_connect_by_path
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                    naked_identifier: component_id
+              - comma: ','
+              - expression:
+                  quoted_literal: "' -> '"
+              - end_bracket: )
+          alias_expression:
+            alias_operator:
+              keyword: as
+            naked_identifier: path
+      from_clause:
+        keyword: from
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: components
+          connectby_clause:
+          - keyword: start
+          - keyword: with
+          - expression:
+              column_reference:
+                naked_identifier: component_id
+              comparison_operator:
+                raw_comparison_operator: '='
+              numeric_literal: '1'
+          - keyword: connect
+          - keyword: by
+          - expression:
+            - column_reference:
+                naked_identifier: parent_component_id
+            - comparison_operator:
+                raw_comparison_operator: '='
+            - keyword: prior
+            - column_reference:
+                naked_identifier: component_id
+      orderby_clause:
+      - keyword: order
+      - keyword: by
+      - column_reference:
+          naked_identifier: path
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: select
+      - select_clause_element:
+          column_reference:
+            naked_identifier: employee_id
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: manager_id
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: title
+      - comma: ','
+      - select_clause_element:
+          keyword: connect_by_root
+          column_reference:
+            naked_identifier: title
+          alias_expression:
+            alias_operator:
+              keyword: as
+            naked_identifier: root_title
+      from_clause:
+        keyword: from
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: employees
+          connectby_clause:
+          - keyword: start
+          - keyword: with
+          - expression:
+              column_reference:
+                naked_identifier: title
+              comparison_operator:
+                raw_comparison_operator: '='
+              quoted_literal: "'President'"
+          - keyword: connect
+          - keyword: by
+          - expression:
+            - column_reference:
+                naked_identifier: manager_id
+            - comparison_operator:
+                raw_comparison_operator: '='
+            - keyword: prior
+            - column_reference:
+                naked_identifier: employee_id
+      orderby_clause:
+      - keyword: order
+      - keyword: by
+      - column_reference:
+          naked_identifier: employee_id
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: select
+      - select_clause_element:
+          column_reference:
+            naked_identifier: description
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: quantity
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: component_id
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: parent_component_id
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            naked_identifier: component_type
+      from_clause:
+        keyword: from
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: components
+            alias_expression:
+              naked_identifier: c
+          connectby_clause:
+          - keyword: connect
+          - keyword: by
+          - expression:
+            - keyword: prior
+            - column_reference:
+              - naked_identifier: c
+              - dot: .
+              - naked_identifier: parent_component_id
+            - comparison_operator:
+                raw_comparison_operator: '='
+            - column_reference:
+              - naked_identifier: c
+              - dot: .
+              - naked_identifier: component_id
+            - binary_operator: AND
+            - keyword: PRIOR
+            - column_reference:
+              - naked_identifier: c
+              - dot: .
+              - naked_identifier: component_type
+            - comparison_operator:
+                raw_comparison_operator: '='
+            - column_reference:
+              - naked_identifier: c
+              - dot: .
+              - naked_identifier: component_type
+      orderby_clause:
+      - keyword: order
+      - keyword: by
+      - column_reference:
+          naked_identifier: quantity
+- statement_terminator: ;
+- statement:
+    with_compound_statement:
+      keyword: with
+      common_table_expression:
+        naked_identifier: tbl
+        keyword: as
+        bracketed:
+          start_bracket: (
+          set_expression:
+          - select_statement:
+              select_clause:
+              - keyword: select
+              - select_clause_element:
+                  quoted_literal: "'A'"
+                  alias_expression:
+                    alias_operator:
+                      keyword: as
+                    naked_identifier: foo
+              - comma: ','
+              - select_clause_element:
+                  quoted_literal: "'B'"
+                  alias_expression:
+                    alias_operator:
+                      keyword: as
+                    naked_identifier: bar
+          - set_operator:
+            - keyword: union
+            - keyword: all
+          - select_statement:
+              select_clause:
+              - keyword: select
+              - select_clause_element:
+                  quoted_literal: "'B'"
+                  alias_expression:
+                    alias_operator:
+                      keyword: as
+                    naked_identifier: foo
+              - comma: ','
+              - select_clause_element:
+                  quoted_literal: "'C'"
+                  alias_expression:
+                    alias_operator:
+                      keyword: as
+                    naked_identifier: bar
+          end_bracket: )
+      select_statement:
+        select_clause:
+        - keyword: select
+        - select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        - comma: ','
+        - select_clause_element:
+            keyword: connect_by_root
+            column_reference:
+              naked_identifier: bar
+            alias_expression:
+              alias_operator:
+                keyword: as
+              naked_identifier: connect_by_root
+        - comma: ','
+        - select_clause_element:
+            function:
+              function_name:
+                function_name_identifier: sys_connect_by_path
+              function_contents:
+                bracketed:
+                - start_bracket: (
+                - expression:
+                    column_reference:
+                      naked_identifier: bar
+                - comma: ','
+                - expression:
+                    quoted_literal: "''"
+                - end_bracket: )
+            alias_expression:
+              alias_operator:
+                keyword: as
+              naked_identifier: path
+        from_clause:
+          keyword: from
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: tbl
+            connectby_clause:
+            - keyword: connect
+            - keyword: by
+            - expression:
+              - keyword: prior
+              - column_reference:
+                  naked_identifier: foo
+              - comparison_operator:
+                  raw_comparison_operator: '='
+              - column_reference:
+                  naked_identifier: bar
+              - binary_operator: and
+              - keyword: not
+              - function:
+                  function_name:
+                    function_name_identifier: contains
+                  function_contents:
+                    bracketed:
+                    - start_bracket: (
+                    - expression:
+                        keyword: prior
+                        column_reference:
+                          naked_identifier: path
+                    - comma: ','
+                    - expression:
+                        column_reference:
+                          naked_identifier: bar
+                    - end_bracket: )
+- statement_terminator: ;

@@ -1,6 +1,6 @@
 {% macro sb_incremental(tbl, source, tbl_id='match_id', source_id='match_id') %}
 
-  {% if not is_incremental() %}
+  {% if is_incremental() %}
 
     (
       select

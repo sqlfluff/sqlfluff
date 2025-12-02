@@ -1,0 +1,96 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: a75275444ffaddd17351f61933b8914d8fb837cc111032d2ee00bb2d40920a86
+file:
+- statement:
+    create_subscription:
+    - keyword: CREATE
+    - keyword: SUBSCRIPTION
+    - subscription_reference:
+        naked_identifier: my_subscription
+    - keyword: CONNECTION
+    - quoted_literal: "'publishers_uri'"
+    - keyword: PUBLICATION
+    - publication_reference:
+        naked_identifier: my_publication
+    - keyword: WITH
+    - definition_parameters:
+        bracketed:
+        - start_bracket: (
+        - definition_parameter:
+            properties_naked_identifier: binary
+            comparison_operator:
+              raw_comparison_operator: '='
+            boolean_literal: 'true'
+        - comma: ','
+        - definition_parameter:
+            properties_naked_identifier: copy_data
+            comparison_operator:
+              raw_comparison_operator: '='
+            boolean_literal: 'true'
+        - comma: ','
+        - definition_parameter:
+            properties_naked_identifier: create_slot
+            comparison_operator:
+              raw_comparison_operator: '='
+            boolean_literal: 'true'
+        - comma: ','
+        - definition_parameter:
+            properties_naked_identifier: run_as_owner
+            comparison_operator:
+              raw_comparison_operator: '='
+            boolean_literal: 'false'
+        - comma: ','
+        - definition_parameter:
+            properties_naked_identifier: slot_name
+            comparison_operator:
+              raw_comparison_operator: '='
+            quoted_literal: "'my_slot_name'"
+        - comma: ','
+        - definition_parameter:
+            properties_naked_identifier: streaming
+            comparison_operator:
+              raw_comparison_operator: '='
+            quoted_literal: "'parallel'"
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_subscription:
+    - keyword: CREATE
+    - keyword: SUBSCRIPTION
+    - subscription_reference:
+        naked_identifier: mysub
+    - keyword: CONNECTION
+    - quoted_literal: "'host=192.168.1.50 port=5432 user=foo dbname=foodb'"
+    - keyword: PUBLICATION
+    - publication_reference:
+        naked_identifier: mypublication
+    - comma: ','
+    - publication_reference:
+        naked_identifier: insert_only
+- statement_terminator: ;
+- statement:
+    create_subscription:
+    - keyword: CREATE
+    - keyword: SUBSCRIPTION
+    - subscription_reference:
+        naked_identifier: mysub
+    - keyword: CONNECTION
+    - quoted_literal: "'host=192.168.1.50 port=5432 user=foo dbname=foodb'"
+    - keyword: PUBLICATION
+    - publication_reference:
+        naked_identifier: insert_only
+    - keyword: WITH
+    - definition_parameters:
+        bracketed:
+          start_bracket: (
+          definition_parameter:
+            properties_naked_identifier: enabled
+            comparison_operator:
+              raw_comparison_operator: '='
+            boolean_literal: 'false'
+          end_bracket: )
+- statement_terminator: ;

@@ -2,7 +2,7 @@
 
 The logos, both as png and svg files are available here for use when referencing the project.
 
-Contributions are welcome to these files in addition to contibutions to the codebase
+Contributions are welcome to these files in addition to contributions to the codebase
 of the project. This is especially useful if you have graphic design skills, but before
 planning any large scale changes, do raise an issue for discussion on GitHub to ensure
 that your planned changes are likely to be accepted.
@@ -21,4 +21,3 @@ Unless otherwise noted, these works are licensed under the Creative Commons
 Attribution-ShareAlike 4.0 International License. To view a copy of this license,
 visit http://creativecommons.org/licenses/by-sa/4.0/ or send a letter to Creative
 Commons, PO Box 1866, Mountain View, CA 94042, USA.
-

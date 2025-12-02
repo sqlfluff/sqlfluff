@@ -1,0 +1,281 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: edd66b8fab160cd1a515f49438695c53d8a66e019801dc01adf7228a3298048a
+file:
+- statement:
+    unload_statement:
+    - keyword: unload
+    - bracketed:
+        start_bracket: (
+        quoted_literal: "'select * from venue'"
+        end_bracket: )
+    - keyword: to
+    - quoted_literal: "'s3://mybucket/unload/'"
+    - authorization_segment:
+        keyword: iam_role
+        quoted_literal: "'arn:aws:iam::0123456789012:role/MyRedshiftRole'"
+- statement_terminator: ;
+- statement:
+    unload_statement:
+    - keyword: unload
+    - bracketed:
+        start_bracket: (
+        quoted_literal: "'select * from lineitem'"
+        end_bracket: )
+    - keyword: to
+    - quoted_literal: "'s3://mybucket/lineitem/'"
+    - authorization_segment:
+        keyword: iam_role
+        quoted_literal: "'arn:aws:iam::0123456789012:role/MyRedshiftRole'"
+    - keyword: PARQUET
+    - keyword: PARTITION
+    - keyword: BY
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          naked_identifier: l_shipdate
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    unload_statement:
+    - keyword: unload
+    - bracketed:
+        start_bracket: (
+        quoted_literal: "'select * from venue'"
+        end_bracket: )
+    - keyword: to
+    - quoted_literal: "'s3://mybucket/unload/'"
+    - authorization_segment:
+        keyword: iam_role
+        quoted_literal: "'arn:aws:iam::0123456789012:role/MyRedshiftRole'"
+    - keyword: JSON
+- statement_terminator: ;
+- statement:
+    unload_statement:
+    - keyword: unload
+    - bracketed:
+        start_bracket: (
+        quoted_literal: "'select * from venue'"
+        end_bracket: )
+    - keyword: to
+    - quoted_literal: "'s3://mybucket/unload/'"
+    - authorization_segment:
+        keyword: iam_role
+        quoted_literal: "'arn:aws:iam::0123456789012:role/MyRedshiftRole'"
+    - keyword: CSV
+- statement_terminator: ;
+- statement:
+    unload_statement:
+    - keyword: unload
+    - bracketed:
+        start_bracket: (
+        quoted_literal: "'select * from venue'"
+        end_bracket: )
+    - keyword: to
+    - quoted_literal: "'s3://mybucket/unload/'"
+    - authorization_segment:
+        keyword: iam_role
+        quoted_literal: "'arn:aws:iam::0123456789012:role/MyRedshiftRole'"
+    - keyword: CSV
+    - keyword: DELIMITER
+    - keyword: AS
+    - quoted_literal: "'|'"
+- statement_terminator: ;
+- statement:
+    unload_statement:
+    - keyword: unload
+    - bracketed:
+        start_bracket: (
+        quoted_literal: "'select * from venue'"
+        end_bracket: )
+    - keyword: to
+    - quoted_literal: "'s3://mybucket/venue_pipe_'"
+    - authorization_segment:
+        keyword: iam_role
+        quoted_literal: "'arn:aws:iam::0123456789012:role/MyRedshiftRole'"
+    - keyword: manifest
+- statement_terminator: ;
+- statement:
+    unload_statement:
+    - keyword: unload
+    - bracketed:
+        start_bracket: (
+        quoted_literal: "'select * from venue'"
+        end_bracket: )
+    - keyword: to
+    - quoted_literal: "'s3://mybucket/unload_venue_folder/'"
+    - authorization_segment:
+        keyword: iam_role
+        quoted_literal: "'arn:aws:iam::0123456789012:role/MyRedshiftRole'"
+    - keyword: manifest
+    - keyword: verbose
+- statement_terminator: ;
+- statement:
+    unload_statement:
+    - keyword: unload
+    - bracketed:
+        start_bracket: (
+        quoted_literal: "'select * from venue where venueseats > 75000'"
+        end_bracket: )
+    - keyword: to
+    - quoted_literal: "'s3://mybucket/unload/'"
+    - authorization_segment:
+        keyword: iam_role
+        quoted_literal: "'arn:aws:iam::0123456789012:role/MyRedshiftRole'"
+    - keyword: header
+    - keyword: parallel
+    - keyword: 'off'
+- statement_terminator: ;
+- statement:
+    unload_statement:
+    - keyword: unload
+    - bracketed:
+        start_bracket: (
+        quoted_literal: "'select * from venue'"
+        end_bracket: )
+    - keyword: to
+    - quoted_literal: "'s3://mybucket/unload/'"
+    - authorization_segment:
+        keyword: iam_role
+        quoted_literal: "'arn:aws:iam::0123456789012:role/MyRedshiftRole'"
+    - keyword: maxfilesize
+    - numeric_literal: '1'
+    - keyword: gb
+- statement_terminator: ;
+- statement:
+    unload_statement:
+    - keyword: unload
+    - bracketed:
+        start_bracket: (
+        quoted_literal: "'select * from venue'"
+        end_bracket: )
+    - keyword: to
+    - quoted_literal: "'s3://mybucket/venue_encrypt_kms'"
+    - authorization_segment:
+      - keyword: iam_role
+      - quoted_literal: "'arn:aws:iam::0123456789012:role/MyRedshiftRole'"
+      - keyword: kms_key_id
+      - quoted_literal: "'1234abcd-12ab-34cd-56ef-1234567890ab'"
+    - keyword: manifest
+    - keyword: encrypted
+- statement_terminator: ;
+- statement:
+    unload_statement:
+    - keyword: unload
+    - bracketed:
+        start_bracket: (
+        quoted_literal: "'select * from venue'"
+        end_bracket: )
+    - keyword: to
+    - quoted_literal: "'s3://mybucket/venue_encrypt_cmk'"
+    - authorization_segment:
+      - keyword: iam_role
+      - quoted_literal: "'arn:aws:iam::0123456789012:role/MyRedshiftRole'"
+      - keyword: master_symmetric_key
+      - quoted_literal: "'EXAMPLEMASTERKEYtkbjk/OpCwtYSx/M4/t7DMCDIK722'"
+    - keyword: encrypted
+- statement_terminator: ;
+- statement:
+    unload_statement:
+    - keyword: unload
+    - bracketed:
+        start_bracket: (
+        quoted_literal: "'select * from venue'"
+        end_bracket: )
+    - keyword: to
+    - quoted_literal: "'s3://mybucket/venue_fw_'"
+    - authorization_segment:
+        keyword: iam_role
+        quoted_literal: "'arn:aws:iam::0123456789012:role/MyRedshiftRole'"
+    - keyword: fixedwidth
+    - keyword: as
+    - quoted_literal: "'venueid:3,venuename:39,venuecity:16,venuestate:2,venueseats:6'"
+- statement_terminator: ;
+- statement:
+    unload_statement:
+    - keyword: unload
+    - bracketed:
+        start_bracket: (
+        quoted_literal: "'select * from venue'"
+        end_bracket: )
+    - keyword: to
+    - quoted_literal: "'s3://mybucket/venue_tab_'"
+    - authorization_segment:
+        keyword: iam_role
+        quoted_literal: "'arn:aws:iam::0123456789012:role/MyRedshiftRole'"
+    - keyword: delimiter
+    - keyword: as
+    - quoted_literal: "'\\t'"
+    - keyword: gzip
+- statement_terminator: ;
+- statement:
+    unload_statement:
+    - keyword: unload
+    - bracketed:
+        start_bracket: (
+        quoted_literal: "'select id, location from location'"
+        end_bracket: )
+    - keyword: to
+    - quoted_literal: "'s3://mybucket/location_'"
+    - authorization_segment:
+        keyword: iam_role
+        quoted_literal: "'arn:aws:iam::0123456789012:role/MyRedshiftRole'"
+    - keyword: delimiter
+    - quoted_literal: "','"
+    - keyword: addquotes
+- statement_terminator: ;
+- statement:
+    unload_statement:
+    - keyword: unload
+    - bracketed:
+        start_bracket: (
+        quoted_literal: "'select venuecity, venuestate, caldate, pricepaid,\nsum(pricepaid)\
+          \ over(partition by venuecity, venuestate\norder by caldate rows between\
+          \ 3 preceding and 3 following) as winsum\nfrom sales join date on sales.dateid=date.dateid\n\
+          join event on event.eventid=sales.eventid\njoin venue on event.venueid=venue.venueid\n\
+          order by 1,2'"
+        end_bracket: )
+    - keyword: to
+    - quoted_literal: "'s3://mybucket/tickit/winsum'"
+    - authorization_segment:
+        keyword: iam_role
+        quoted_literal: "'arn:aws:iam::0123456789012:role/MyRedshiftRole'"
+- statement_terminator: ;
+- statement:
+    unload_statement:
+    - keyword: unload
+    - bracketed:
+        start_bracket: (
+        quoted_literal: "'select * from venue'"
+        end_bracket: )
+    - keyword: to
+    - quoted_literal: "'s3://mybucket/nulls/'"
+    - authorization_segment:
+        keyword: iam_role
+        quoted_literal: "'arn:aws:iam::0123456789012:role/MyRedshiftRole'"
+    - keyword: 'null'
+    - keyword: as
+    - quoted_literal: "'fred'"
+- statement_terminator: ;
+- statement:
+    unload_statement:
+    - keyword: unload
+    - bracketed:
+        start_bracket: (
+        quoted_literal: "'select * from tbl'"
+        end_bracket: )
+    - keyword: to
+    - quoted_literal: "'s3://mybucket/unload/'"
+    - keyword: csv
+    - keyword: header
+    - authorization_segment:
+        keyword: credentials
+        quoted_literal: "'aws_access_key_id=abc;aws_secret_access_key=def'"
+    - keyword: extension
+    - quoted_literal: "'csv'"
+    - keyword: parallel
+    - keyword: 'false'
+- statement_terminator: ;

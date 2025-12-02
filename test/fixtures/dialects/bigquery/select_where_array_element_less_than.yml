@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 09b9fd51ff369d07b6d31b59633c197a34955267ec2bad29cdb0999b6366ea57
+_hash: c2ca5862162f30fc6e8999a5b968455b12c79981fa0c434a1d587a730e9a64ee
 file:
   statement:
     select_statement:
@@ -19,38 +19,41 @@ file:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: '`project.dataset.table_1`'
+                quoted_identifier: '`project.dataset.table_1`'
       where_clause:
         keyword: WHERE
         expression:
         - column_reference:
-            identifier: effect_size_list
+            naked_identifier: effect_size_list
         - array_accessor:
             start_square_bracket: '['
             expression:
               function:
                 function_name:
                   function_name_identifier: ORDINAL
-                bracketed:
-                  start_bracket: (
-                  expression:
-                    literal: '1'
-                  end_bracket: )
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      numeric_literal: '1'
+                    end_bracket: )
             end_square_bracket: ']'
-        - comparison_operator: <
+        - comparison_operator:
+            raw_comparison_operator: <
         - column_reference:
-            identifier: effect_size_list
+            naked_identifier: effect_size_list
         - array_accessor:
             start_square_bracket: '['
             expression:
               function:
                 function_name:
                   function_name_identifier: ORDINAL
-                bracketed:
-                  start_bracket: (
-                  expression:
-                  - literal: '1'
-                  - binary_operator: +
-                  - literal: '1'
-                  end_bracket: )
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                    - numeric_literal: '1'
+                    - binary_operator: +
+                    - numeric_literal: '1'
+                    end_bracket: )
             end_square_bracket: ']'

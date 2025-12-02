@@ -1,0 +1,69 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 3d65668c4738f96a0ac7dbcf556d5b2370c89aff6094acfbf485aa44b1d9fc22
+file:
+- statement:
+    constraint_statement:
+    - keyword: CONSTRAINT
+    - object_reference:
+        naked_identifier: valid_timestamp
+    - keyword: EXPECT
+    - bracketed:
+        start_bracket: (
+        expression:
+          column_reference:
+            naked_identifier: event_ts
+          comparison_operator:
+            raw_comparison_operator: '>'
+          quoted_literal: "'2012-01-01'"
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    constraint_statement:
+    - keyword: CONSTRAINT
+    - object_reference:
+        naked_identifier: valid_current_page
+    - keyword: EXPECT
+    - bracketed:
+        start_bracket: (
+        expression:
+        - column_reference:
+            naked_identifier: current_page_id
+        - keyword: IS
+        - keyword: NOT
+        - null_literal: 'NULL'
+        - binary_operator: AND
+        - column_reference:
+            naked_identifier: current_page_title
+        - keyword: IS
+        - keyword: NOT
+        - null_literal: 'NULL'
+        end_bracket: )
+    - keyword: 'ON'
+    - keyword: VIOLATION
+    - keyword: DROP
+    - keyword: ROW
+- statement_terminator: ;
+- statement:
+    constraint_statement:
+    - keyword: CONSTRAINT
+    - object_reference:
+        naked_identifier: valid_count
+    - keyword: EXPECT
+    - bracketed:
+        start_bracket: (
+        expression:
+          column_reference:
+            naked_identifier: count
+          comparison_operator:
+            raw_comparison_operator: '>'
+          numeric_literal: '0'
+        end_bracket: )
+    - keyword: 'ON'
+    - keyword: VIOLATION
+    - keyword: FAIL
+    - keyword: UPDATE
+- statement_terminator: ;

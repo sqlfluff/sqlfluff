@@ -1,0 +1,11 @@
+alter materialized view table1_mv rename to my_mv;
+alter materialized view my_mv cluster by(i);
+alter materialized view my_mv suspend recluster;
+alter materialized view my_mv resume recluster;
+alter materialized view my_mv suspend;
+alter materialized view my_mv resume;
+alter materialized view my_mv drop clustering key;
+alter materialized view mv1 set secure;
+alter materialized view mv1 set comment = 'Sample view';
+alter materialized view mv1 set tag my_tag = 'my tag';
+alter materialized view mv1 unset tag my_tag = 'not my tag anymore';

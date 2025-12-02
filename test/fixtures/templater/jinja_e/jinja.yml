@@ -1,34 +1,39 @@
 file:
-    statement:
-      select_statement:
-        select_clause:
-        - keyword: select
-        - select_clause_element:
-            literal: '2'
-            alias_expression:
+  statement:
+    select_statement:
+      select_clause:
+      - keyword: select
+      - select_clause_element:
+          numeric_literal: '2'
+          alias_expression:
+            alias_operator:
               keyword: as
-              identifier: col2
-        - comma: ','
-        - select_clause_element:
-            literal: '4'
-            alias_expression:
+            naked_identifier: col2
+      - comma: ','
+      - select_clause_element:
+          numeric_literal: '4'
+          alias_expression:
+            alias_operator:
               keyword: as
-              identifier: col4
-        - comma: ','
-        - select_clause_element:
-            literal: '6'
-            alias_expression:
+            naked_identifier: col4
+      - comma: ','
+      - select_clause_element:
+          numeric_literal: '6'
+          alias_expression:
+            alias_operator:
               keyword: as
-              identifier: col6
-        - comma: ','
-        - select_clause_element:
-            literal: '8'
-            alias_expression:
+            naked_identifier: col6
+      - comma: ','
+      - select_clause_element:
+          numeric_literal: '8'
+          alias_expression:
+            alias_operator:
               keyword: as
-              identifier: col8
-        - comma: ','
-        - select_clause_element:
-            literal: '10'
-            alias_expression:
+            naked_identifier: col8
+      - comma: ','
+      - select_clause_element:
+          numeric_literal: '10'
+          alias_expression:
+            alias_operator:
               keyword: as
-              identifier: col10
+            naked_identifier: col10

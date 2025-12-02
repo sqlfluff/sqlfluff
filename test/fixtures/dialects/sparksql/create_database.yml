@@ -1,0 +1,111 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 8c9b4502cfb54af63e849c29e0f20e55006fd531b18889c055e1cc02eb821983
+file:
+- statement:
+    create_database_statement:
+    - keyword: CREATE
+    - keyword: DATABASE
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - database_reference:
+        naked_identifier: database_name
+    - keyword: COMMENT
+    - quoted_literal: '"database_comment"'
+    - keyword: LOCATION
+    - quoted_literal: '"root/database_directory"'
+    - keyword: WITH
+    - keyword: DBPROPERTIES
+    - bracketed:
+        start_bracket: (
+        property_name_identifier:
+          quoted_identifier: '"property_name"'
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: '"property_value"'
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_database_statement:
+    - keyword: CREATE
+    - keyword: SCHEMA
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - database_reference:
+        naked_identifier: database_name
+    - keyword: COMMENT
+    - quoted_literal: '"database_comment"'
+    - keyword: LOCATION
+    - quoted_literal: '"root/database_directory"'
+    - keyword: WITH
+    - keyword: DBPROPERTIES
+    - bracketed:
+        start_bracket: (
+        property_name_identifier:
+          quoted_identifier: '"property_name"'
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: '"property_value"'
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_database_statement:
+    - keyword: CREATE
+    - keyword: DATABASE
+    - database_reference:
+        naked_identifier: customer_db
+- statement_terminator: ;
+- statement:
+    create_database_statement:
+    - keyword: CREATE
+    - keyword: DATABASE
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - database_reference:
+        naked_identifier: customer_db
+- statement_terminator: ;
+- statement:
+    create_database_statement:
+    - keyword: CREATE
+    - keyword: DATABASE
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - database_reference:
+        naked_identifier: customer_db
+    - keyword: COMMENT
+    - quoted_literal: "'This is customer database'"
+    - keyword: LOCATION
+    - quoted_literal: "'/user'"
+    - keyword: WITH
+    - keyword: DBPROPERTIES
+    - bracketed:
+      - start_bracket: (
+      - property_name_identifier:
+          quoted_identifier: '"ID"'
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: '"001"'
+      - comma: ','
+      - property_name_identifier:
+          quoted_identifier: '"Name"'
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'John'"
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_database_statement:
+    - keyword: CREATE
+    - keyword: DATABASE
+    - database_reference:
+        naked_identifier: inventory_db
+    - keyword: COMMENT
+    - quoted_literal: "'This database is used to maintain Inventory'"
+- statement_terminator: ;

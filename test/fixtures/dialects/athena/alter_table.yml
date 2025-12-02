@@ -1,0 +1,517 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 81a7dff25a9da66b298f67163d8054100d9d721f046adfe4fd8160f71f3d30da
+file:
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: x
+    - keyword: DROP
+    - keyword: COLUMN
+    - naked_identifier: y
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: x
+    - parameter: DROP
+    - naked_identifier: y
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: table_name
+    - keyword: ADD
+    - keyword: COLUMNS
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          naked_identifier: col_name
+          data_type:
+            primitive_type:
+              keyword: int
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: table_name
+    - keyword: ADD
+    - keyword: COLUMNS
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          naked_identifier: col1
+          data_type:
+            primitive_type:
+              keyword: varchar
+              bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  numeric_literal: '50'
+                  end_bracket: )
+      - comma: ','
+      - column_definition:
+          naked_identifier: col2
+          data_type:
+            primitive_type:
+              keyword: int
+      - comma: ','
+      - column_definition:
+          naked_identifier: col3
+          data_type:
+            primitive_type:
+              keyword: boolean
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: table_name
+    - keyword: PARTITION
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          naked_identifier: partition_col1_name
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'value1'"
+        end_bracket: )
+    - keyword: ADD
+    - keyword: COLUMNS
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          naked_identifier: col_name
+          data_type:
+            primitive_type:
+              keyword: int
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: table_name
+    - keyword: PARTITION
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: partition_col1_name
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'value1'"
+      - comma: ','
+      - column_reference:
+          naked_identifier: partition_col2_name
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'value2'"
+      - end_bracket: )
+    - keyword: ADD
+    - keyword: COLUMNS
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          naked_identifier: col1
+          data_type:
+            primitive_type:
+              keyword: varchar
+              bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  numeric_literal: '50'
+                  end_bracket: )
+      - comma: ','
+      - column_definition:
+          naked_identifier: col2
+          data_type:
+            primitive_type:
+              keyword: int
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: orders
+    - keyword: ADD
+    - keyword: PARTITION
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: dt
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'2016-05-14'"
+      - comma: ','
+      - column_reference:
+          naked_identifier: country
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'IN'"
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: orders
+    - keyword: ADD
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - keyword: PARTITION
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: dt
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'2016-05-31'"
+      - comma: ','
+      - column_reference:
+          naked_identifier: country
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'IN'"
+      - end_bracket: )
+    - keyword: LOCATION
+    - quoted_literal: "'s3://amzn-s3-demo-bucket/path/to/INDIA_31_May_2016/'"
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: orders
+    - keyword: ADD
+    - keyword: PARTITION
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: dt
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'2016-05-31'"
+      - comma: ','
+      - column_reference:
+          naked_identifier: country
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'IN'"
+      - end_bracket: )
+    - keyword: PARTITION
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: dt
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'2016-06-01'"
+      - comma: ','
+      - column_reference:
+          naked_identifier: country
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'IN'"
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: example_table
+    - keyword: CHANGE
+    - keyword: COLUMN
+    - column_reference:
+        naked_identifier: area
+    - column_reference:
+        naked_identifier: zip
+    - data_type:
+        primitive_type:
+          keyword: int
+    - keyword: AFTER
+    - column_reference:
+        naked_identifier: id
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: example_table
+    - keyword: CHANGE
+    - column_reference:
+        naked_identifier: zip
+    - column_reference:
+        naked_identifier: zip
+    - data_type:
+        primitive_type:
+          keyword: int
+    - keyword: COMMENT
+    - quoted_literal: "'USA zipcode'"
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: my_table
+    - keyword: CHANGE
+    - column_reference:
+        naked_identifier: old_col
+    - column_reference:
+        naked_identifier: new_col
+    - data_type:
+        primitive_type:
+          keyword: string
+    - keyword: FIRST
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: orders
+    - keyword: DROP
+    - keyword: PARTITION
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: dt
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'2014-05-14'"
+      - comma: ','
+      - column_reference:
+          naked_identifier: country
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'IN'"
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: orders
+    - keyword: DROP
+    - keyword: IF
+    - keyword: EXISTS
+    - keyword: PARTITION
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: dt
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'2014-05-14'"
+      - comma: ','
+      - column_reference:
+          naked_identifier: country
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'IN'"
+      - end_bracket: )
+    - comma: ','
+    - keyword: PARTITION
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: dt
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'2014-05-15'"
+      - comma: ','
+      - column_reference:
+          naked_identifier: country
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'IN'"
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: orders
+    - keyword: PARTITION
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: dt
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'2014-05-14'"
+      - comma: ','
+      - column_reference:
+          naked_identifier: country
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'IN'"
+      - end_bracket: )
+    - keyword: RENAME
+    - keyword: TO
+    - keyword: PARTITION
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: dt
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'2014-05-15'"
+      - comma: ','
+      - column_reference:
+          naked_identifier: country
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'IN'"
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: names_cities
+    - keyword: REPLACE
+    - keyword: COLUMNS
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          naked_identifier: first_name
+          data_type:
+            primitive_type:
+              keyword: string
+      - comma: ','
+      - column_definition:
+          naked_identifier: last_name
+          data_type:
+            primitive_type:
+              keyword: string
+      - comma: ','
+      - column_definition:
+          naked_identifier: city
+          data_type:
+            primitive_type:
+              keyword: string
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: partitioned_table
+    - keyword: PARTITION
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          naked_identifier: year
+        comparison_operator:
+          raw_comparison_operator: '='
+        numeric_literal: '2023'
+        end_bracket: )
+    - keyword: REPLACE
+    - keyword: COLUMNS
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          naked_identifier: new_col1
+          data_type:
+            primitive_type:
+              keyword: int
+      - comma: ','
+      - column_definition:
+          naked_identifier: new_col2
+          data_type:
+            primitive_type:
+              keyword: string
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: my_table
+    - keyword: SET
+    - keyword: LOCATION
+    - quoted_literal: "'s3://my-bucket/new-location/'"
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: my_table
+    - keyword: PARTITION
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          naked_identifier: dt
+        comparison_operator:
+          raw_comparison_operator: '='
+        quoted_literal: "'2023-01-01'"
+        end_bracket: )
+    - keyword: SET
+    - keyword: LOCATION
+    - quoted_literal: "'s3://my-bucket/partition-location/'"
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: my_table
+    - keyword: SET
+    - keyword: TBLPROPERTIES
+    - bracketed:
+      - start_bracket: (
+      - quoted_literal: "'property_name'"
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'property_value'"
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: my_table
+    - keyword: SET
+    - keyword: TBLPROPERTIES
+    - bracketed:
+      - start_bracket: (
+      - quoted_literal: "'property_name'"
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'property_value'"
+      - comma: ','
+      - quoted_literal: "'another_prop'"
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: "'another_value'"
+      - end_bracket: )
+- statement_terminator: ;

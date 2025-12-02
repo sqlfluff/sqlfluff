@@ -13,6 +13,11 @@ env:
 jobs:
   docker:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+      attestations: write
+      id-token: write
     steps:
       # Get the version of latest release in
       # order to tag published Docker image.
@@ -25,23 +30,31 @@ jobs:
       # Setup QEMU and Buildx to allow for multi-platform builds.
       - name: Set up QEMU
         id: docker_qemu
-        uses: docker/setup-qemu-action@v1
+        uses: docker/setup-qemu-action@v3
       - name: Set up Docker Buildx
         id: docker_buildx
-        uses: docker/setup-buildx-action@v1
+        uses: docker/setup-buildx-action@v3
 
       # Authenticate with DockerHub.
       - name: Login to DockerHub
         id: docker_login
-        uses: docker/login-action@v1 
+        uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-      
+
+      # Authenticate with Container registry
+      - name: Login to Container registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
       # Build amd64 image to use in the integration test.
       - name: Build and export to Docker
         id: docker_build
-        uses: docker/build-push-action@v2
+        uses: docker/build-push-action@v5
         with:
           load: true
           tags: ${{ env.TEST_TAG }}
@@ -53,18 +66,28 @@ jobs:
         id: docker_test
         run: |
           echo "SELECT 1" > test.sql
-          docker run --rm -i -v $PWD:/sql ${{ env.TEST_TAG }} lint /sql/test.sql
+          docker run --rm -i -v $PWD:/sql ${{ env.TEST_TAG }} lint --dialect ansi /sql/test.sql
 
-      # Build arm64 image (amd64 is cached from docker_build step) and export to DockerHub.
+      # Build arm64 image (amd64 is cached from docker_build step) and export to DockerHub and GHCR.
       # N.B. We tag this image as both latest and with its version number.
       - name: Build and push
         id: docker_build_push
-        uses: docker/build-push-action@v2
+        uses: docker/build-push-action@v5
         with:
           push: true
           platforms: linux/amd64,linux/arm64
           tags: |
             ${{ secrets.DOCKERHUB_USERNAME }}/sqlfluff:latest
             ${{ secrets.DOCKERHUB_USERNAME }}/sqlfluff:${{ steps.latest_release.outputs.release }}
+            ghcr.io/${{ github.repository }}:latest
+            ghcr.io/${{ github.repository }}:${{ steps.latest_release.outputs.release }}
           cache-from: type=registry,ref=${{ secrets.DOCKERHUB_USERNAME }}/sqlfluff:latest
           cache-to: type=inline
+
+      # Add artifact attestation for GHCR
+      - name: Generate artifact attestation
+        uses: actions/attest-build-provenance@v2
+        with:
+          subject-name: ghcr.io/${{ github.repository }}
+          subject-digest: ${{ steps.docker_build_push.outputs.digest }}
+          push-to-registry: true

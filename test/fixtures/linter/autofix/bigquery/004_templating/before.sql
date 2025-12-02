@@ -18,13 +18,13 @@ WITH
   GROUP BY
     {{corr_states}}
   ),
-  
+
   {% for action in considered_actions %}
   {{action}}_raw_effect_sizes AS (
   SELECT
     COUNT(1) AS campaign_count_{{action}},
     {{corr_states}}
-    -- NOTE: The L003 fix routine behaves a little strangely here around the templated
+    -- NOTE: The LT02 fix routine behaves a little strangely here around the templated
     -- code, specifically the indentation of STDDEV_POP and preceding comments. This
     -- is a bug currently with no obvious solution.
     ,SAFE_DIVIDE(SAFE_MULTIPLY(CORR({{metric}}_rate_su, {{action}}), STDDEV_POP({{metric}}_rate_su)),
@@ -37,7 +37,7 @@ WITH
     {{corr_states}}
   ),
   {% endfor %}
-  
+
   new_raw_effect_sizes AS (
   SELECT
     {{corr_states}}
@@ -76,7 +76,7 @@ WITH
   ),
 
   action_states AS (
-  SELECT 
+  SELECT
     {{action_states}}
   FROM `{{gcp_project}}.{{dataset}}.global_state_space`
   GROUP BY {{action_states}})

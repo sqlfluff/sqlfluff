@@ -1,0 +1,90 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: b1e70457ff1c5cb4148fdf5c1508ca843e899206e54ce96645df3a7082f04c8a
+file:
+  statement:
+    create_udf_script:
+    - keyword: CREATE
+    - keyword: LUA
+    - keyword: SCALAR
+    - keyword: SCRIPT
+    - script_reference:
+        naked_identifier: map_words
+    - bracketed:
+        start_bracket: (
+        column_datatype_definition:
+          naked_identifier: w
+          data_type:
+            keyword: varchar
+            bracketed_arguments:
+              bracketed:
+                start_bracket: (
+                numeric_literal: '10000'
+                end_bracket: )
+        end_bracket: )
+    - emits_segment:
+        keyword: EMITS
+        bracketed:
+          start_bracket: (
+          column_datatype_definition:
+            naked_identifier: words
+            data_type:
+              keyword: varchar
+              bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  numeric_literal: '100'
+                  end_bracket: )
+          end_bracket: )
+    - keyword: AS
+    - script_content:
+      - word: function
+      - word: run
+      - bracketed:
+          start_bracket: (
+          word: ctx
+          end_bracket: )
+      - word: local
+      - word: word
+      - equals: '='
+      - word: ctx
+      - dot: .
+      - word: w
+      - word: if
+      - bracketed:
+        - start_bracket: (
+        - word: word
+        - like_operator: '~'
+        - equals: '='
+        - word: 'null'
+        - end_bracket: )
+      - word: then
+      - word: for
+      - word: i
+      - word: in
+      - word: unicode
+      - dot: .
+      - word: utf8
+      - dot: .
+      - word: gmatch
+      - bracketed:
+          start_bracket: (
+          word: word
+          comma: ','
+          single_quote: "'([%w%p]+)'"
+          end_bracket: )
+      - word: do
+      - word: ctx
+      - dot: .
+      - word: emit
+      - bracketed:
+          start_bracket: (
+          word: i
+          end_bracket: )
+      - word: end
+      - word: end
+      - word: end
+  function_script_terminator: /

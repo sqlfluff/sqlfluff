@@ -2,21 +2,7 @@
 
 import pytest
 
-from sqlfluff.cli.helpers import colorize, cli_table, wrap_elem, wrap_field, pad_line
-from sqlfluff.core.enums import Color
-
-
-def test__cli__helpers__colorize():
-    """Test ANSI colouring."""
-    assert colorize("foo", Color.red) == "\u001b[31mfoo\u001b[0m"
-
-
-def test__cli__helpers__cli_table():
-    """Test making tables."""
-    vals = [("a", 3), ("b", "c"), ("d", 4.7654), ("e", 9)]
-    txt = cli_table(vals, col_width=7, divider_char="|", label_color=None)
-    # NB: No trailing newline
-    assert txt == "a:    3|b:    c\nd: 4.77|e:    9"
+from sqlfluff.cli.helpers import LazySequence, pad_line, wrap_elem, wrap_field
 
 
 @pytest.mark.parametrize(
@@ -68,3 +54,24 @@ def test__cli__helpers__pad_line():
     """Test line padding."""
     assert pad_line("abc", 5) == "abc  "
     assert pad_line("abcdef", 10, align="right") == "    abcdef"
+
+
+def test_cli__helpers__lazy_sequence():
+    """Test the LazySequence."""
+    getter_run = False
+
+    def _get_sequence():
+        nonlocal getter_run
+        getter_run = True
+        return [1, 2, 3]
+
+    seq = LazySequence(_get_sequence)
+    # Check the sequence isn't called on instantiation.
+    assert not getter_run
+    # Fetch an item...
+    assert seq[2] == 3
+    # .. and that now it has run.
+    assert getter_run
+
+    # Check other methods work
+    assert len(seq) == 3

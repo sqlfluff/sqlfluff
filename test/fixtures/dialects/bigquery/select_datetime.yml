@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 7af2ae425ce98abe713b808a25a382d475f11f1e20a0fa65b0c2d15f1fa6855f
+_hash: e36e8a48b09b527a5e82f21b9e5975e81bee0424bda07deb38b46f35e3a9d789
 file:
   statement:
     select_statement:
@@ -11,80 +11,88 @@ file:
       - keyword: SELECT
       - select_clause_element:
           column_reference:
-          - identifier: gmv
+          - naked_identifier: gmv
           - dot: .
-          - identifier: _merchant_key
+          - naked_identifier: _merchant_key
       - comma: ','
       - select_clause_element:
           column_reference:
-          - identifier: gmv
+          - naked_identifier: gmv
           - dot: .
-          - identifier: order_created_at
+          - naked_identifier: order_created_at
       - comma: ','
       - select_clause_element:
           function:
             function_name:
               function_name_identifier: EXTRACT
-            bracketed:
-              start_bracket: (
-              date_part: DATE
-              keyword: FROM
-              expression:
-                column_reference:
-                - identifier: gmv
-                - dot: .
-                - identifier: order_created_at
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                date_part: DAY
+                keyword: FROM
+                expression:
+                  column_reference:
+                  - naked_identifier: gmv
+                  - dot: .
+                  - naked_identifier: order_created_at
+                end_bracket: )
           alias_expression:
-            keyword: AS
-            identifier: order_dt
+            alias_operator:
+              keyword: AS
+            naked_identifier: order_day
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                identifier: my_table
+                naked_identifier: my_table
             alias_expression:
-              keyword: as
-              identifier: gmv
+              alias_operator:
+                keyword: as
+              naked_identifier: gmv
       where_clause:
         keyword: WHERE
         expression:
           column_reference:
-          - identifier: gmv
+          - naked_identifier: gmv
           - dot: .
-          - identifier: datetime
-          comparison_operator: '>='
+          - naked_identifier: datetime
+          comparison_operator:
+          - raw_comparison_operator: '>'
+          - raw_comparison_operator: '='
           function:
             function_name:
               function_name_identifier: DATE_TRUNC
-            bracketed:
-              start_bracket: (
-              expression:
-                function:
-                  function_name:
-                    function_name_identifier: DATE_SUB
-                  bracketed:
-                  - start_bracket: (
-                  - expression:
-                      function:
-                        function_name:
-                          function_name_identifier: CURRENT_DATE
-                        bracketed:
-                          start_bracket: (
-                          end_bracket: )
-                  - comma: ','
-                  - expression:
-                      interval_expression:
-                        keyword: INTERVAL
-                        expression:
-                          literal: '2'
-                        date_part: YEAR
-                  - end_bracket: )
-              comma: ','
-              date_part: year
-              end_bracket: )
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  function:
+                    function_name:
+                      function_name_identifier: DATE_SUB
+                    function_contents:
+                      bracketed:
+                      - start_bracket: (
+                      - expression:
+                          function:
+                            function_name:
+                              function_name_identifier: CURRENT_DATE
+                            function_contents:
+                              bracketed:
+                                start_bracket: (
+                                end_bracket: )
+                      - comma: ','
+                      - expression:
+                          interval_expression:
+                            keyword: INTERVAL
+                            expression:
+                              numeric_literal: '2'
+                            date_part: YEAR
+                      - end_bracket: )
+                comma: ','
+                date_part: year
+                end_bracket: )
       limit_clause:
         keyword: LIMIT
-        literal: '1'
+        numeric_literal: '1'

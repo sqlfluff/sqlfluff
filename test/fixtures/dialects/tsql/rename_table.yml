@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 54a11d198487c12b30d4d94780f9a586c745e3da636e5acc81bceaed78fdd365
+_hash: e33dae3bfca9d4bcee9cdef1b2be5b73a60d9c83b4fcd19ea1479155a3a0d1e4
 file:
   batch:
     statement:
@@ -11,9 +11,9 @@ file:
       - keyword: RENAME
       - keyword: OBJECT
       - object_reference:
-        - identifier: '[Reporting]'
+        - quoted_identifier: '[Reporting]'
         - dot: .
-        - identifier: '[TABLE_NEW]'
+        - quoted_identifier: '[TABLE_NEW]'
       - keyword: to
-      - identifier: '[TABLE_BASE]'
-      - statement_terminator: ;
+      - quoted_identifier: '[TABLE_BASE]'
+    statement_terminator: ;

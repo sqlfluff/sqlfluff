@@ -1,0 +1,564 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 19ee3a44e0810323ecff24de553c563195970ba643356896f0c48d2aae2ac6dc
+file:
+- statement:
+    with_compound_statement:
+      keyword: with
+      common_table_expression:
+        naked_identifier: favourite_fruits
+        keyword: as
+        bracketed:
+          start_bracket: (
+          select_statement:
+            select_clause:
+            - keyword: select
+            - select_clause_element:
+                column_reference:
+                  naked_identifier: column1
+                alias_expression:
+                  alias_operator:
+                    keyword: as
+                  naked_identifier: name
+            - comma: ','
+            - select_clause_element:
+                column_reference:
+                  naked_identifier: column2
+                alias_expression:
+                  alias_operator:
+                    keyword: as
+                  naked_identifier: colour
+            from_clause:
+              keyword: from
+              from_expression:
+                bracketed:
+                  start_bracket: (
+                  from_expression_element:
+                    table_expression:
+                      values_clause:
+                      - keyword: values
+                      - bracketed:
+                        - start_bracket: (
+                        - expression:
+                            quoted_literal: "'apple'"
+                        - comma: ','
+                        - expression:
+                            quoted_literal: "'green'"
+                        - end_bracket: )
+                      - comma: ','
+                      - bracketed:
+                        - start_bracket: (
+                        - expression:
+                            quoted_literal: "'unripe banana'"
+                        - comma: ','
+                        - expression:
+                            quoted_literal: "'green'"
+                        - end_bracket: )
+                      - comma: ','
+                      - bracketed:
+                        - start_bracket: (
+                        - expression:
+                            quoted_literal: "'kiwi'"
+                        - comma: ','
+                        - expression:
+                            quoted_literal: "'green'"
+                        - end_bracket: )
+                      - comma: ','
+                      - bracketed:
+                        - start_bracket: (
+                        - expression:
+                            quoted_literal: "'blueberry'"
+                        - comma: ','
+                        - expression:
+                            quoted_literal: "'blue'"
+                        - end_bracket: )
+                      - comma: ','
+                      - bracketed:
+                        - start_bracket: (
+                        - expression:
+                            quoted_literal: "'strawberry'"
+                        - comma: ','
+                        - expression:
+                            quoted_literal: "'red'"
+                        - end_bracket: )
+                      - comma: ','
+                      - bracketed:
+                        - start_bracket: (
+                        - expression:
+                            quoted_literal: "'grape'"
+                        - comma: ','
+                        - expression:
+                            quoted_literal: "'red'"
+                        - end_bracket: )
+                  end_bracket: )
+          end_bracket: )
+      select_statement:
+        select_clause:
+        - keyword: select
+        - select_clause_element:
+            column_reference:
+              naked_identifier: colour
+        - comma: ','
+        - select_clause_element:
+            function:
+              function_name:
+                function_name_identifier: listagg
+              function_contents:
+                bracketed:
+                - start_bracket: (
+                - expression:
+                    column_reference:
+                      naked_identifier: name
+                - comma: ','
+                - expression:
+                    quoted_literal: "', '"
+                - end_bracket: )
+              withingroup_clause:
+              - keyword: within
+              - keyword: group
+              - bracketed:
+                  start_bracket: (
+                  orderby_clause:
+                  - keyword: order
+                  - keyword: by
+                  - column_reference:
+                      naked_identifier: name
+                  end_bracket: )
+            alias_expression:
+              alias_operator:
+                keyword: as
+              naked_identifier: fruits
+        from_clause:
+          keyword: from
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: favourite_fruits
+        groupby_clause:
+        - keyword: group
+        - keyword: by
+        - column_reference:
+            naked_identifier: colour
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: ARRAY_AGG
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: o_orderkey
+                end_bracket: )
+            withingroup_clause:
+            - keyword: WITHIN
+            - keyword: GROUP
+            - bracketed:
+                start_bracket: (
+                orderby_clause:
+                - keyword: ORDER
+                - keyword: BY
+                - column_reference:
+                    naked_identifier: o_orderkey
+                - keyword: ASC
+                end_bracket: )
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: orders
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: array_agg
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: o_orderkey
+                end_bracket: )
+            withingroup_clause:
+            - keyword: within
+            - keyword: group
+            - bracketed:
+                start_bracket: (
+                orderby_clause:
+                - keyword: order
+                - keyword: by
+                - column_reference:
+                    naked_identifier: o_orderkey
+                - keyword: asc
+                end_bracket: )
+      from_clause:
+        keyword: from
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: orders
+      where_clause:
+        keyword: where
+        expression:
+          column_reference:
+            naked_identifier: o_totalprice
+          comparison_operator:
+            raw_comparison_operator: '>'
+          numeric_literal: '450000'
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: array_agg
+            function_contents:
+              bracketed:
+                start_bracket: (
+                keyword: distinct
+                expression:
+                  column_reference:
+                    naked_identifier: o_orderstatus
+                end_bracket: )
+            withingroup_clause:
+            - keyword: within
+            - keyword: group
+            - bracketed:
+                start_bracket: (
+                orderby_clause:
+                - keyword: order
+                - keyword: by
+                - column_reference:
+                    naked_identifier: o_orderstatus
+                - keyword: asc
+                end_bracket: )
+      from_clause:
+        keyword: from
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: orders
+      where_clause:
+        keyword: where
+        expression:
+          column_reference:
+            naked_identifier: o_totalprice
+          comparison_operator:
+            raw_comparison_operator: '>'
+          numeric_literal: '450000'
+      orderby_clause:
+      - keyword: order
+      - keyword: by
+      - column_reference:
+          naked_identifier: o_orderstatus
+      - keyword: asc
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: select
+      - select_clause_element:
+          column_reference:
+            naked_identifier: o_orderstatus
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: array_agg
+            function_contents:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: o_clerk
+                end_bracket: )
+            withingroup_clause:
+            - keyword: within
+            - keyword: group
+            - bracketed:
+                start_bracket: (
+                orderby_clause:
+                - keyword: order
+                - keyword: by
+                - column_reference:
+                    naked_identifier: o_totalprice
+                - keyword: desc
+                end_bracket: )
+      from_clause:
+        keyword: from
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: orders
+      where_clause:
+        keyword: where
+        expression:
+          column_reference:
+            naked_identifier: o_totalprice
+          comparison_operator:
+            raw_comparison_operator: '>'
+          numeric_literal: '450000'
+      groupby_clause:
+      - keyword: group
+      - keyword: by
+      - column_reference:
+          naked_identifier: o_orderstatus
+      orderby_clause:
+      - keyword: order
+      - keyword: by
+      - column_reference:
+          naked_identifier: o_orderstatus
+      - keyword: desc
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: listagg
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                    naked_identifier: o_orderkey
+              - comma: ','
+              - expression:
+                  quoted_literal: "' '"
+              - end_bracket: )
+      from_clause:
+        keyword: from
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: orders
+      where_clause:
+        keyword: where
+        expression:
+          column_reference:
+            naked_identifier: o_totalprice
+          comparison_operator:
+            raw_comparison_operator: '>'
+          numeric_literal: '450000'
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: listagg
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - keyword: distinct
+              - expression:
+                  column_reference:
+                    naked_identifier: o_orderstatus
+              - comma: ','
+              - expression:
+                  quoted_literal: "'|'"
+              - end_bracket: )
+      from_clause:
+        keyword: from
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: orders
+      where_clause:
+        keyword: where
+        expression:
+          column_reference:
+            naked_identifier: o_totalprice
+          comparison_operator:
+            raw_comparison_operator: '>'
+          numeric_literal: '450000'
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: select
+      - select_clause_element:
+          column_reference:
+            naked_identifier: o_orderstatus
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: listagg
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                    naked_identifier: o_clerk
+              - comma: ','
+              - expression:
+                  quoted_literal: "', '"
+              - end_bracket: )
+            withingroup_clause:
+            - keyword: within
+            - keyword: group
+            - bracketed:
+                start_bracket: (
+                orderby_clause:
+                - keyword: order
+                - keyword: by
+                - column_reference:
+                    naked_identifier: o_totalprice
+                - keyword: desc
+                end_bracket: )
+      from_clause:
+        keyword: from
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: orders
+      where_clause:
+        keyword: where
+        expression:
+          column_reference:
+            naked_identifier: o_totalprice
+          comparison_operator:
+            raw_comparison_operator: '>'
+          numeric_literal: '450000'
+      groupby_clause:
+      - keyword: group
+      - keyword: by
+      - column_reference:
+          naked_identifier: o_orderstatus
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: listagg
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                    naked_identifier: spanish_phrase
+              - comma: ','
+              - expression:
+                  quoted_literal: "'|'"
+              - end_bracket: )
+            withingroup_clause:
+            - keyword: within
+            - keyword: group
+            - bracketed:
+                start_bracket: (
+                orderby_clause:
+                - keyword: order
+                - keyword: by
+                - expression:
+                    function:
+                      function_name:
+                        function_name_identifier: collate
+                      function_contents:
+                        bracketed:
+                        - start_bracket: (
+                        - expression:
+                            column_reference:
+                              naked_identifier: spanish_phrase
+                        - comma: ','
+                        - expression:
+                            quoted_literal: "'sp'"
+                        - end_bracket: )
+                end_bracket: )
+      from_clause:
+        keyword: from
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: collation_demo
+      groupby_clause:
+      - keyword: group
+      - keyword: by
+      - column_reference:
+          naked_identifier: english_phrase
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: listagg
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                    naked_identifier: spanish_phrase
+              - comma: ','
+              - expression:
+                  quoted_literal: "'|'"
+              - end_bracket: )
+            withingroup_clause:
+            - keyword: within
+            - keyword: group
+            - bracketed:
+                start_bracket: (
+                orderby_clause:
+                - keyword: order
+                - keyword: by
+                - expression:
+                    function:
+                      function_name:
+                        function_name_identifier: collate
+                      function_contents:
+                        bracketed:
+                        - start_bracket: (
+                        - expression:
+                            column_reference:
+                              naked_identifier: spanish_phrase
+                        - comma: ','
+                        - expression:
+                            quoted_literal: "'utf8'"
+                        - end_bracket: )
+                end_bracket: )
+      from_clause:
+        keyword: from
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: collation_demo
+      groupby_clause:
+      - keyword: group
+      - keyword: by
+      - column_reference:
+          naked_identifier: english_phrase
+- statement_terminator: ;

@@ -1,0 +1,71 @@
+{
+    "file": {
+        "statement": {
+            "select_statement": {
+                "select_clause": [
+                    {
+                        "keyword": "SeLEct"
+                    },
+                    {
+                        "whitespace": "  "
+                    },
+                    {
+                        "select_clause_element": {
+                            "wildcard_expression": {
+                                "wildcard_identifier": {
+                                    "star": "*"
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "comma": ","
+                    },
+                    {
+                        "whitespace": " "
+                    },
+                    {
+                        "select_clause_element": {
+                            "numeric_literal": "1"
+                        }
+                    },
+                    {
+                        "comma": ","
+                    },
+                    {
+                        "whitespace": " "
+                    },
+                    {
+                        "select_clause_element": {
+                            "column_reference": {
+                                "naked_identifier": "blah"
+                            },
+                            "whitespace": " ",
+                            "alias_expression": {
+                                "alias_operator": {
+                                  "keyword": "as"
+                                },
+                                "whitespace": "  ",
+                                "naked_identifier": "fOO"
+                            }
+                        }
+                    }
+                ],
+                "whitespace": "  ",
+                "from_clause": {
+                    "keyword": "from",
+                    "whitespace": " ",
+                    "from_expression": {
+                        "from_expression_element": {
+                            "table_expression": {
+                                "table_reference": {
+                                    "naked_identifier": "myTable"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

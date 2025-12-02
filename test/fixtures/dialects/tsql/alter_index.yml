@@ -1,0 +1,623 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: ae559c6095a99da7a6eaa94388edbca341d6980ecac15a47f886246db5ce0e8e
+file:
+  batch:
+  - statement:
+      alter_index_statement:
+      - keyword: ALTER
+      - keyword: INDEX
+      - object_reference:
+          naked_identifier: index1
+      - keyword: 'ON'
+      - table_reference:
+          naked_identifier: table1
+      - keyword: REBUILD
+  - statement_terminator: ;
+  - statement:
+      alter_index_statement:
+      - keyword: ALTER
+      - keyword: INDEX
+      - keyword: ALL
+      - keyword: 'ON'
+      - table_reference:
+          naked_identifier: table1
+      - keyword: REBUILD
+  - statement_terminator: ;
+  - statement:
+      alter_index_statement:
+      - keyword: ALTER
+      - keyword: INDEX
+      - object_reference:
+          naked_identifier: idxcci_cci_target
+      - keyword: 'ON'
+      - table_reference:
+          naked_identifier: cci_target
+      - keyword: REORGANIZE
+      - keyword: WITH
+      - bracketed:
+        - start_bracket: (
+        - keyword: COMPRESS_ALL_ROW_GROUPS
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - keyword: 'ON'
+        - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      alter_index_statement:
+      - keyword: ALTER
+      - keyword: INDEX
+      - object_reference:
+          naked_identifier: cci_FactInternetSales2
+      - keyword: 'ON'
+      - table_reference:
+          naked_identifier: FactInternetSales2
+      - keyword: REORGANIZE
+  - statement_terminator: ;
+  - statement:
+      alter_index_statement:
+      - keyword: ALTER
+      - keyword: INDEX
+      - object_reference:
+          naked_identifier: cci_FactInternetSales2
+      - keyword: 'ON'
+      - table_reference:
+          naked_identifier: FactInternetSales2
+      - keyword: REORGANIZE
+      - keyword: PARTITION
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - numeric_literal: '0'
+  - statement_terminator: ;
+  - statement:
+      alter_index_statement:
+      - keyword: ALTER
+      - keyword: INDEX
+      - object_reference:
+          naked_identifier: cci_FactInternetSales2
+      - keyword: 'ON'
+      - table_reference:
+          naked_identifier: FactInternetSales2
+      - keyword: REORGANIZE
+      - keyword: WITH
+      - bracketed:
+        - start_bracket: (
+        - keyword: COMPRESS_ALL_ROW_GROUPS
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - keyword: 'ON'
+        - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      alter_index_statement:
+      - keyword: ALTER
+      - keyword: INDEX
+      - object_reference:
+          naked_identifier: cci_FactInternetSales2
+      - keyword: 'ON'
+      - table_reference:
+          naked_identifier: FactInternetSales2
+      - keyword: REORGANIZE
+      - keyword: PARTITION
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - numeric_literal: '0'
+      - keyword: WITH
+      - bracketed:
+        - start_bracket: (
+        - keyword: COMPRESS_ALL_ROW_GROUPS
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - keyword: 'ON'
+        - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      alter_index_statement:
+      - keyword: ALTER
+      - keyword: INDEX
+      - object_reference:
+          naked_identifier: cci_FactInternetSales2
+      - keyword: 'ON'
+      - table_reference:
+          naked_identifier: FactInternetSales2
+      - keyword: REORGANIZE
+  - statement_terminator: ;
+  - statement:
+      alter_index_statement:
+      - keyword: ALTER
+      - keyword: INDEX
+      - object_reference:
+          naked_identifier: cci_fact3ON
+      - keyword: 'ON'
+      - table_reference:
+          naked_identifier: fact3
+      - keyword: REBUILD
+      - keyword: PARTITION
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - numeric_literal: '12'
+  - statement_terminator: ;
+  - statement:
+      alter_index_statement:
+      - keyword: ALTER
+      - keyword: INDEX
+      - object_reference:
+          naked_identifier: cci_SimpleTable
+      - keyword: 'ON'
+      - table_reference:
+          naked_identifier: SimpleTable
+      - keyword: REBUILD
+      - keyword: WITH
+      - bracketed:
+        - start_bracket: (
+        - keyword: DATA_COMPRESSION
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - keyword: COLUMNSTORE_ARCHIVE
+        - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      alter_index_statement:
+      - keyword: ALTER
+      - keyword: INDEX
+      - object_reference:
+          naked_identifier: cci_SimpleTable
+      - keyword: 'ON'
+      - table_reference:
+          naked_identifier: SimpleTable
+      - keyword: REBUILD
+      - keyword: WITH
+      - bracketed:
+        - start_bracket: (
+        - keyword: DATA_COMPRESSION
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - keyword: COLUMNSTORE
+        - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      alter_index_statement:
+      - keyword: ALTER
+      - keyword: INDEX
+      - object_reference:
+          naked_identifier: PK_ProductPhoto_ProductPhotoID
+      - keyword: 'ON'
+      - table_reference:
+        - naked_identifier: Production
+        - dot: .
+        - naked_identifier: ProductPhoto
+      - keyword: REORGANIZE
+      - keyword: WITH
+      - bracketed:
+        - start_bracket: (
+        - keyword: LOB_COMPACTION
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - keyword: 'ON'
+        - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      alter_index_statement:
+      - keyword: ALTER
+      - keyword: INDEX
+      - object_reference:
+          naked_identifier: IX_Employee_ManagerID
+      - keyword: 'ON'
+      - table_reference:
+        - naked_identifier: HumanResources
+        - dot: .
+        - naked_identifier: Employee
+      - keyword: DISABLE
+  - statement_terminator: ;
+  - statement:
+      alter_index_statement:
+      - keyword: ALTER
+      - keyword: INDEX
+      - object_reference:
+          naked_identifier: IX_INDEX1
+      - keyword: 'ON'
+      - table_reference:
+          naked_identifier: T1
+      - keyword: REBUILD
+      - keyword: WITH
+      - bracketed:
+        - start_bracket: (
+        - keyword: XML_COMPRESSION
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - keyword: 'ON'
+        - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      alter_index_statement:
+      - keyword: ALTER
+      - keyword: INDEX
+      - keyword: ALL
+      - keyword: 'ON'
+      - table_reference:
+        - naked_identifier: Production
+        - dot: .
+        - naked_identifier: Product
+      - keyword: REBUILD
+      - keyword: WITH
+      - bracketed:
+        - start_bracket: (
+        - keyword: FILLFACTOR
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - numeric_literal: '80'
+        - comma: ','
+        - keyword: SORT_IN_TEMPDB
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - keyword: 'ON'
+        - comma: ','
+        - keyword: STATISTICS_NORECOMPUTE
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - keyword: 'ON'
+        - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      alter_index_statement:
+      - keyword: ALTER
+      - keyword: INDEX
+      - object_reference:
+          naked_identifier: test_idx
+      - keyword: 'on'
+      - table_reference:
+          naked_identifier: test_table
+      - keyword: REBUILD
+      - keyword: WITH
+      - bracketed:
+        - start_bracket: (
+        - keyword: ONLINE
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - keyword: 'ON'
+        - comma: ','
+        - keyword: MAXDOP
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - numeric_literal: '1'
+        - comma: ','
+        - keyword: RESUMABLE
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - keyword: 'ON'
+        - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      alter_index_statement:
+      - keyword: ALTER
+      - keyword: INDEX
+      - object_reference:
+          naked_identifier: test_idx
+      - keyword: 'on'
+      - table_reference:
+          naked_identifier: test_table
+      - keyword: PAUSE
+  - statement_terminator: ;
+  - statement:
+      alter_index_statement:
+      - keyword: ALTER
+      - keyword: INDEX
+      - object_reference:
+          naked_identifier: test_idx
+      - keyword: 'on'
+      - table_reference:
+          naked_identifier: test_table
+      - keyword: ABORT
+  - statement_terminator: ;
+  - statement:
+      alter_index_statement:
+      - keyword: ALTER
+      - keyword: INDEX
+      - object_reference:
+          naked_identifier: test_idx
+      - keyword: 'on'
+      - table_reference:
+          naked_identifier: test_table
+      - keyword: REBUILD
+      - keyword: WITH
+      - bracketed:
+        - start_bracket: (
+        - keyword: XML_COMPRESSION
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - keyword: 'ON'
+        - keyword: 'ON'
+        - keyword: PARTITIONS
+        - bracketed:
+          - start_bracket: (
+          - numeric_literal: '2'
+          - comma: ','
+          - numeric_literal: '4'
+          - comma: ','
+          - numeric_literal: '6'
+          - keyword: TO
+          - numeric_literal: '8'
+          - end_bracket: )
+        - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      alter_index_statement:
+      - keyword: ALTER
+      - keyword: INDEX
+      - object_reference:
+          naked_identifier: test_idx
+      - keyword: 'on'
+      - table_reference:
+          naked_identifier: test_table
+      - keyword: REBUILD
+      - keyword: WITH
+      - bracketed:
+        - start_bracket: (
+        - keyword: DATA_COMPRESSION
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - keyword: PAGE
+        - keyword: 'ON'
+        - keyword: PARTITIONS
+        - bracketed:
+          - start_bracket: (
+          - numeric_literal: '3'
+          - comma: ','
+          - numeric_literal: '5'
+          - end_bracket: )
+        - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      alter_index_statement:
+      - keyword: ALTER
+      - keyword: INDEX
+      - object_reference:
+          naked_identifier: test_idx
+      - keyword: 'on'
+      - table_reference:
+          naked_identifier: test_table
+      - keyword: REBUILD
+      - keyword: WITH
+      - bracketed:
+        - start_bracket: (
+        - keyword: DATA_COMPRESSION
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - keyword: NONE
+        - keyword: 'ON'
+        - keyword: PARTITIONS
+        - bracketed:
+            start_bracket: (
+            numeric_literal: '1'
+            end_bracket: )
+        - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      alter_index_statement:
+      - keyword: ALTER
+      - keyword: INDEX
+      - object_reference:
+          naked_identifier: IX_TransactionHistory_TransactionDate
+      - keyword: 'ON'
+      - table_reference:
+        - naked_identifier: Production
+        - dot: .
+        - naked_identifier: TransactionHistory
+      - keyword: REBUILD
+      - keyword: Partition
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - numeric_literal: '5'
+      - keyword: WITH
+      - bracketed:
+        - start_bracket: (
+        - keyword: ONLINE
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - keyword: 'ON'
+        - bracketed:
+            start_bracket: (
+            keyword: WAIT_AT_LOW_PRIORITY
+            bracketed:
+            - start_bracket: (
+            - keyword: MAX_DURATION
+            - comparison_operator:
+                raw_comparison_operator: '='
+            - numeric_literal: '10'
+            - comma: ','
+            - keyword: ABORT_AFTER_WAIT
+            - comparison_operator:
+                raw_comparison_operator: '='
+            - keyword: SELF
+            - end_bracket: )
+            end_bracket: )
+        - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      alter_index_statement:
+      - keyword: ALTER
+      - keyword: INDEX
+      - object_reference:
+          naked_identifier: cci_FactInternetSales2
+      - keyword: 'ON'
+      - table_reference:
+          naked_identifier: FactInternetSales2
+      - keyword: SET
+      - bracketed:
+        - start_bracket: (
+        - keyword: ALLOW_ROW_LOCKS
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - keyword: 'ON'
+        - comma: ','
+        - keyword: ALLOW_PAGE_LOCKS
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - keyword: 'OFF'
+        - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      alter_index_statement:
+      - keyword: ALTER
+      - keyword: INDEX
+      - object_reference:
+          naked_identifier: cci_FactInternetSales2
+      - keyword: 'ON'
+      - table_reference:
+          naked_identifier: FactInternetSales2
+      - keyword: SET
+      - bracketed:
+        - start_bracket: (
+        - keyword: OPTIMIZE_FOR_SEQUENTIAL_KEY
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - keyword: 'ON'
+        - comma: ','
+        - keyword: IGNORE_DUP_KEY
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - keyword: 'OFF'
+        - comma: ','
+        - keyword: STATISTICS_NORECOMPUTE
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - keyword: 'ON'
+        - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      alter_index_statement:
+      - keyword: ALTER
+      - keyword: INDEX
+      - object_reference:
+          naked_identifier: cci_FactInternetSales2
+      - keyword: 'ON'
+      - table_reference:
+          naked_identifier: FactInternetSales2
+      - keyword: SET
+      - bracketed:
+          start_bracket: (
+          keyword: COMPRESSION_DELAY
+          comparison_operator:
+            raw_comparison_operator: '='
+          numeric_literal: '0'
+          end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      alter_index_statement:
+      - keyword: ALTER
+      - keyword: INDEX
+      - object_reference:
+          naked_identifier: cci_FactInternetSales2
+      - keyword: 'ON'
+      - table_reference:
+          naked_identifier: FactInternetSales2
+      - keyword: SET
+      - bracketed:
+        - start_bracket: (
+        - keyword: COMPRESSION_DELAY
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - numeric_literal: '100'
+        - keyword: minutes
+        - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      alter_index_statement:
+      - keyword: ALTER
+      - keyword: INDEX
+      - object_reference:
+          naked_identifier: cci_FactInternetSales2
+      - keyword: 'ON'
+      - table_reference:
+          naked_identifier: FactInternetSales2
+      - keyword: RESUME
+  - statement_terminator: ;
+  - statement:
+      alter_index_statement:
+      - keyword: ALTER
+      - keyword: INDEX
+      - object_reference:
+          naked_identifier: cci_FactInternetSales2
+      - keyword: 'ON'
+      - table_reference:
+          naked_identifier: FactInternetSales2
+      - keyword: RESUME
+      - keyword: WITH
+      - bracketed:
+        - start_bracket: (
+        - keyword: MAXDOP
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - numeric_literal: '100'
+        - comma: ','
+        - keyword: MAX_DURATION
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - numeric_literal: '500'
+        - keyword: minutes
+        - comma: ','
+        - keyword: WAIT_AT_LOW_PRIORITY
+        - bracketed:
+          - start_bracket: (
+          - keyword: MAX_DURATION
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - numeric_literal: '10'
+          - comma: ','
+          - keyword: ABORT_AFTER_WAIT
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - keyword: SELF
+          - end_bracket: )
+        - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      alter_index_statement:
+      - keyword: ALTER
+      - keyword: INDEX
+      - object_reference:
+          naked_identifier: cci_FactInternetSales2
+      - keyword: 'ON'
+      - table_reference:
+          naked_identifier: FactInternetSales2
+      - keyword: RESUME
+      - keyword: WITH
+      - bracketed:
+          start_bracket: (
+          keyword: MAX_DURATION
+          comparison_operator:
+            raw_comparison_operator: '='
+          numeric_literal: '500'
+          end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      alter_index_statement:
+      - keyword: ALTER
+      - keyword: INDEX
+      - object_reference:
+          naked_identifier: cci_FactInternetSales2
+      - keyword: 'ON'
+      - table_reference:
+          naked_identifier: FactInternetSales2
+      - keyword: RESUME
+      - keyword: WITH
+      - bracketed:
+          start_bracket: (
+          keyword: WAIT_AT_LOW_PRIORITY
+          bracketed:
+          - start_bracket: (
+          - keyword: MAX_DURATION
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - numeric_literal: '10'
+          - comma: ','
+          - keyword: ABORT_AFTER_WAIT
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - keyword: SELF
+          - end_bracket: )
+          end_bracket: )
+  - statement_terminator: ;

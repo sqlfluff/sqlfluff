@@ -1,0 +1,73 @@
+rule: LT01
+
+test_pass_parenthesis_block_isolated:
+  pass_str: |
+    SELECT * FROM (SELECT 1 AS C1) AS T1;
+
+test_pass_parenthesis_block_isolated_template:
+  pass_str: |
+    {{ 'SELECT * FROM (SELECT 1 AS C1) AS T1;' }}
+  configs:
+    core:
+      ignore_templated_areas: false
+
+test_fail_parenthesis_block_not_isolated:
+  fail_str: |
+    SELECT * FROM(SELECT 1 AS C1)AS T1;
+  fix_str: |
+    SELECT * FROM (SELECT 1 AS C1) AS T1;
+
+test_fail_parenthesis_block_not_isolated_templated:
+  fail_str: |
+    {{ 'SELECT * FROM(SELECT 1 AS C1)AS T1;' }}
+  configs:
+    core:
+      ignore_templated_areas: false
+
+test_pass_parenthesis_function:
+  pass_str: |
+    SELECT foo(5) FROM T1;
+
+test_pass_snowflake_match_condition:
+  pass_str: |
+    select *
+    from table1
+    asof join table2 match_condition(t1 > t2) on pk1 = pk2;
+  configs:
+    core:
+      dialect: snowflake
+
+test_fail_snowflake_match_condition:
+  fail_str: |
+    select
+        table1.pk1,
+        table1.t1
+    from table1
+        asof join
+        table2
+        match_condition
+        (t1 > t2)
+        on table1.pk1 = table2.pk2;
+  fix_str: |
+    select
+        table1.pk1,
+        table1.t1
+    from table1
+        asof join
+        table2
+        match_condition(t1 > t2)
+        on table1.pk1 = table2.pk2;
+  configs:
+    core:
+      dialect: snowflake
+
+test_pass_ansi_bracketed_data_types:
+  pass_str: |
+    CREATE TABLE fractest (c1 TIME(2), c2 DATETIME(2), c3 TIMESTAMP(2));
+
+test_pass_mysql_bracketed_data_types:
+  pass_str: |
+    CREATE TABLE fractest (c1 TIME(2), c2 DATETIME(2), c3 TIMESTAMP(2));
+  configs:
+    core:
+      dialect: mysql

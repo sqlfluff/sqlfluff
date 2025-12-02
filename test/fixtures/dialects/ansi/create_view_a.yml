@@ -3,47 +3,111 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 562305b0193b045d4ab3f8626922b82de0a2515fa411a2dd45a4ce1b3de9f879
+_hash: 828d3386d75173425688561ed663eaed5b254a2b06a3288cafd28f329128f049
 file:
-  statement:
+- statement:
     create_view_statement:
     - keyword: CREATE
     - keyword: VIEW
     - table_reference:
-        identifier: a
+        naked_identifier: a
     - keyword: AS
     - select_statement:
         select_clause:
           keyword: SELECT
           select_clause_element:
             column_reference:
-              identifier: c
+              naked_identifier: c
         from_clause:
           keyword: FROM
           from_expression:
             from_expression_element:
               table_expression:
                 table_reference:
-                  identifier: table1
+                  naked_identifier: table1
             join_clause:
             - keyword: INNER
             - keyword: JOIN
             - from_expression_element:
                 table_expression:
                   table_reference:
-                    identifier: table2
+                    naked_identifier: table2
             - join_on_condition:
                 keyword: 'ON'
                 bracketed:
                   start_bracket: (
                   expression:
                   - column_reference:
-                    - identifier: table1
+                    - naked_identifier: table1
                     - dot: .
-                    - identifier: id
-                  - comparison_operator: '='
+                    - naked_identifier: id
+                  - comparison_operator:
+                      raw_comparison_operator: '='
                   - column_reference:
-                    - identifier: table2
+                    - naked_identifier: table2
                     - dot: .
-                    - identifier: id
+                    - naked_identifier: id
                   end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_view_statement:
+    - keyword: CREATE
+    - keyword: OR
+    - keyword: REPLACE
+    - keyword: VIEW
+    - table_reference:
+        naked_identifier: vw_appt_latest
+    - keyword: AS
+    - bracketed:
+        start_bracket: (
+        with_compound_statement:
+          keyword: WITH
+          common_table_expression:
+            naked_identifier: most_current
+            keyword: as
+            bracketed:
+              start_bracket: (
+              select_statement:
+                select_clause:
+                  keyword: SELECT
+                  select_clause_element:
+                    wildcard_expression:
+                      wildcard_identifier:
+                        naked_identifier: da
+                        dot: .
+                        star: '*'
+                from_clause:
+                  keyword: FROM
+                  from_expression:
+                    from_expression_element:
+                      table_expression:
+                        table_reference:
+                          naked_identifier: dim_appt
+                      alias_expression:
+                        naked_identifier: da
+                where_clause:
+                  keyword: WHERE
+                  expression:
+                    column_reference:
+                    - naked_identifier: da
+                    - dot: .
+                    - naked_identifier: current_appt_id
+                    keyword: IS
+                    null_literal: 'NULL'
+              end_bracket: )
+          select_statement:
+            select_clause:
+              keyword: SELECT
+              select_clause_element:
+                wildcard_expression:
+                  wildcard_identifier:
+                    star: '*'
+            from_clause:
+              keyword: from
+              from_expression:
+                from_expression_element:
+                  table_expression:
+                    table_reference:
+                      naked_identifier: most_current
+        end_bracket: )
+- statement_terminator: ;

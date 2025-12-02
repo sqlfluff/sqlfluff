@@ -1,0 +1,107 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: f30947e3b468c099a73640d9924d061e48b1c3df0bfbdbef07c4f22810c3ca42
+file:
+- statement:
+    drop_owned_statement:
+    - keyword: DROP
+    - keyword: OWNED
+    - keyword: BY
+    - role_reference:
+        naked_identifier: bob
+- statement_terminator: ;
+- statement:
+    drop_owned_statement:
+    - keyword: DROP
+    - keyword: OWNED
+    - keyword: BY
+    - role_reference:
+        naked_identifier: bob
+    - comma: ','
+    - role_reference:
+        naked_identifier: alice
+- statement_terminator: ;
+- statement:
+    drop_owned_statement:
+    - keyword: DROP
+    - keyword: OWNED
+    - keyword: BY
+    - keyword: CURRENT_ROLE
+- statement_terminator: ;
+- statement:
+    drop_owned_statement:
+    - keyword: DROP
+    - keyword: OWNED
+    - keyword: BY
+    - keyword: CURRENT_USER
+- statement_terminator: ;
+- statement:
+    drop_owned_statement:
+    - keyword: DROP
+    - keyword: OWNED
+    - keyword: BY
+    - keyword: SESSION_USER
+- statement_terminator: ;
+- statement:
+    drop_owned_statement:
+    - keyword: DROP
+    - keyword: OWNED
+    - keyword: BY
+    - role_reference:
+        naked_identifier: bob
+    - comma: ','
+    - keyword: CURRENT_ROLE
+    - comma: ','
+    - role_reference:
+        naked_identifier: alice
+    - comma: ','
+    - keyword: CURRENT_USER
+    - comma: ','
+    - role_reference:
+        naked_identifier: ted
+- statement_terminator: ;
+- statement:
+    drop_owned_statement:
+    - keyword: DROP
+    - keyword: OWNED
+    - keyword: BY
+    - role_reference:
+        naked_identifier: bob
+    - keyword: CASCADE
+- statement_terminator: ;
+- statement:
+    drop_owned_statement:
+    - keyword: DROP
+    - keyword: OWNED
+    - keyword: BY
+    - role_reference:
+        naked_identifier: bob
+    - keyword: RESTRICT
+- statement_terminator: ;
+- statement:
+    drop_owned_statement:
+    - keyword: DROP
+    - keyword: OWNED
+    - keyword: BY
+    - role_reference:
+        naked_identifier: bob
+    - comma: ','
+    - role_reference:
+        naked_identifier: alice
+    - keyword: CASCADE
+- statement_terminator: ;
+- statement:
+    drop_owned_statement:
+    - keyword: DROP
+    - keyword: OWNED
+    - keyword: BY
+    - role_reference:
+        naked_identifier: bob
+    - comma: ','
+    - role_reference:
+        naked_identifier: alice
+    - keyword: RESTRICT
+- statement_terminator: ;
