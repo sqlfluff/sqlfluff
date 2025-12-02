@@ -90,7 +90,7 @@ impl Parser<'_> {
         });
 
         let mut iteration_count = 0_usize;
-        let max_iterations = 1500000_usize; // Higher limit for complex grammars
+        let max_iterations = 1_750_000_usize; // Higher limit for complex grammars
 
         while let Some(frame_from_stack) = stack.pop() {
             iteration_count += 1;

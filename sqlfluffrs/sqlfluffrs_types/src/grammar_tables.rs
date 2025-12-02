@@ -99,8 +99,20 @@ pub struct GrammarTables {
     /// Simple hint storage (optional optimization)
     ///
     /// Contains pre-computed simple hints for fast pruning of OneOf alternatives.
-    /// Indexed via aux_data when HAS_SIMPLE_HINT flag is set.
+    /// SimpleHintData entries reference spans in hint_string_indices.
     pub simple_hints: &'static [SimpleHintData],
+
+    /// Indices into strings table for hint values.
+    ///
+    /// SimpleHintData stores start/count into this array.
+    /// Each entry is an index into the strings table.
+    pub hint_string_indices: &'static [u32],
+
+    /// Per-instruction simple hint index (indexed by GrammarId).
+    ///
+    /// 0 means no hint available. Non-zero indices into simple_hints array.
+    pub simple_hint_indices: &'static [u32],
+
     /// Per-instruction segment type offsets into the strings table (or 0xFFFFFFFF)
     pub segment_type_offsets: &'static [u32],
 }
@@ -116,6 +128,8 @@ impl GrammarTables {
         aux_data_offsets: &'static [u32],
         regex_patterns: &'static [&'static str],
         simple_hints: &'static [SimpleHintData],
+        hint_string_indices: &'static [u32],
+        simple_hint_indices: &'static [u32],
         segment_type_offsets: &'static [u32],
     ) -> Self {
         Self {
@@ -127,6 +141,8 @@ impl GrammarTables {
             aux_data_offsets,
             regex_patterns,
             simple_hints,
+            hint_string_indices,
+            simple_hint_indices,
             segment_type_offsets,
         }
     }
@@ -191,6 +207,63 @@ impl GrammarTables {
     #[inline]
     pub fn get_simple_hint(&self, idx: u32) -> &SimpleHintData {
         &self.simple_hints[idx as usize]
+    }
+
+    /// Get simple hint for a grammar by its ID
+    ///
+    /// Returns None if the grammar has no hint (hint_idx = 0).
+    #[inline]
+    pub fn get_simple_hint_for_grammar(&self, id: GrammarId) -> Option<&SimpleHintData> {
+        if id.get() as usize >= self.simple_hint_indices.len() {
+            return None;
+        }
+        let hint_idx = self.simple_hint_indices[id.get() as usize];
+        if hint_idx == 0 {
+            None
+        } else {
+            Some(&self.simple_hints[hint_idx as usize])
+        }
+    }
+
+    /// Check if a hint can match a token
+    ///
+    /// Returns true if:
+    /// - The hint is empty (complex grammar, must try)
+    /// - The token's raw_upper matches any of the hint's raw values
+    /// - The token's types intersect with the hint's token types
+    #[inline]
+    pub fn hint_can_match(
+        &self,
+        hint: &SimpleHintData,
+        raw_upper: &str,
+        token_types: &hashbrown::HashSet<String>,
+    ) -> bool {
+        // Empty hint means "complex - can't determine", so return true (must try it)
+        if hint.is_empty() {
+            return true;
+        }
+
+        // Check raw values (indices into hint_string_indices -> strings)
+        let raw_start = hint.raw_values_start as usize;
+        let raw_end = raw_start + hint.raw_values_count as usize;
+        for i in raw_start..raw_end {
+            let str_idx = self.hint_string_indices[i] as usize;
+            if self.strings[str_idx] == raw_upper {
+                return true;
+            }
+        }
+
+        // Check token types intersection
+        let types_start = hint.token_types_start as usize;
+        let types_end = types_start + hint.token_types_count as usize;
+        for i in types_start..types_end {
+            let str_idx = self.hint_string_indices[i] as usize;
+            if token_types.contains(self.strings[str_idx]) {
+                return true;
+            }
+        }
+
+        false
     }
 
     /// Get memory usage statistics
@@ -478,6 +551,8 @@ mod tests {
         static AUX_DATA_OFFSETS: &[u32] = &[0, 0, 0]; // One per instruction
         static REGEX_PATTERNS: &[&str] = &[];
         static SIMPLE_HINTS: &[SimpleHintData] = &[];
+        static HINT_STRING_INDICES: &[u32] = &[];
+        static SIMPLE_HINT_INDICES: &[u32] = &[0, 0, 0]; // One per instruction
 
         let tables = GrammarTables::new(
             INSTRUCTIONS,
@@ -488,7 +563,9 @@ mod tests {
             AUX_DATA_OFFSETS,
             REGEX_PATTERNS,
             SIMPLE_HINTS,
-            &[],
+            HINT_STRING_INDICES,
+            SIMPLE_HINT_INDICES,
+            &[], // segment_type_offsets
         );
 
         assert_eq!(tables.instructions.len(), 3);
@@ -534,6 +611,8 @@ mod tests {
         static AUX_DATA_OFFSETS: &[u32] = &[0, 0]; // One per instruction
         static REGEX_PATTERNS: &[&str] = &[];
         static SIMPLE_HINTS: &[SimpleHintData] = &[];
+        static HINT_STRING_INDICES: &[u32] = &[];
+        static SIMPLE_HINT_INDICES: &[u32] = &[0, 0]; // One per instruction
 
         let tables = GrammarTables::new(
             INSTRUCTIONS,
@@ -544,7 +623,9 @@ mod tests {
             AUX_DATA_OFFSETS,
             REGEX_PATTERNS,
             SIMPLE_HINTS,
-            &[],
+            HINT_STRING_INDICES,
+            SIMPLE_HINT_INDICES,
+            &[], // segment_type_offsets
         );
 
         let stats = tables.memory_stats();

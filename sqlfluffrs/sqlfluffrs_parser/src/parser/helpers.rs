@@ -1146,12 +1146,32 @@ impl<'a> Parser<'a> {
 
         let mut available_options = Vec::new();
 
+        // Get grammar tables if available
+        let tables = self.grammar_ctx.map(|ctx| ctx.tables());
+
         for &opt_id in options {
-            // Try to get simple hint for this grammar
-            // TODO: Implement simple_hint access from table
-            // For now, keep all options (conservative approach)
-            self.pruning_complex.set(self.pruning_complex.get() + 1);
-            available_options.push(opt_id);
+            // Try to get simple hint for this grammar from tables
+            if let Some(tables) = tables {
+                if let Some(hint) = tables.get_simple_hint_for_grammar(opt_id) {
+                    // We have a hint - track it
+                    self.pruning_hinted.set(self.pruning_hinted.get() + 1);
+                    // Use hint to filter
+                    if tables.hint_can_match(hint, &first_raw, &first_types) {
+                        available_options.push(opt_id);
+                    } else {
+                        // Hint says no match possible - skip this option
+                        continue;
+                    }
+                } else {
+                    // No hint = complex grammar, must try it
+                    self.pruning_complex.set(self.pruning_complex.get() + 1);
+                    available_options.push(opt_id);
+                }
+            } else {
+                // No tables available - keep all options (conservative)
+                self.pruning_complex.set(self.pruning_complex.get() + 1);
+                available_options.push(opt_id);
+            }
         }
 
         // Compute human-readable names for kept and dropped options for debugging
@@ -1278,20 +1298,8 @@ impl<'a> Parser<'a> {
     ///
     /// This is the table-driven equivalent of prune_terminators().
     fn prune_terminators_table_driven(&mut self, terminators: &[GrammarId]) -> Vec<GrammarId> {
-        let first_token = self.tokens.get(self.pos);
-        if let Some(tok) = first_token {
-            if !tok.is_code() {
-                // Next token is not code, so don't prune
-                return terminators.to_vec();
-            }
-        } else {
-            // No token at all (EOF), can't prune
-            return terminators.to_vec();
-        }
-
-        // TODO: Implement simple hint based pruning from table
-        // For now, return all terminators (conservative approach)
-        terminators.to_vec()
+        // Reuse the same pruning logic as prune_options_table_driven
+        self.prune_options_table_driven(terminators)
     }
 
     /// Trim to first terminator position for table-driven parsing.

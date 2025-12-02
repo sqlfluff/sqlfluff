@@ -490,5 +490,8 @@ mod tests {
 
         let mut parser = Parser::new_with_tables(&tokens, dialect);
         let _ast = parser.call_rule_as_root().expect("Parse failed");
+
+        // Print pruning statistics
+        parser.print_cache_stats();
     }
 }

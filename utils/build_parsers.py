@@ -55,10 +55,12 @@ class GrammarInstData:
 
 @dataclass
 class SimpleHintData:
-    """Data for a simple hint."""
+    """Data for a simple hint (indices into hint_string_indices table)."""
 
-    raw_values: List[str]
-    token_types: List[str]
+    raw_values_start: int  # Start index into hint_string_indices
+    raw_values_count: int  # Number of raw value indices
+    token_types_start: int  # Start index into hint_string_indices
+    token_types_count: int  # Number of token type indices
 
 
 class TableBuilder:
@@ -83,6 +85,7 @@ class TableBuilder:
         self.aux_data: List[int] = []
         self.regex_patterns: List[str] = []
         self.simple_hints: List[SimpleHintData] = []
+        self.hint_string_indices: List[int] = []  # Indices into strings for hints
         # Per-instruction segment type index (into strings) or 0xFFFFFFFF if none
         self.segment_type_offsets: List[int] = []
 
@@ -117,7 +120,7 @@ class TableBuilder:
             if hint is None:
                 return 0  # 0 means no hint
 
-            # Create hashable key
+            # Create hashable key for deduplication
             raw_tuple = tuple(sorted(hint[0]))
             types_tuple = tuple(sorted(hint[1]))
             key = (raw_tuple, types_tuple)
@@ -125,9 +128,31 @@ class TableBuilder:
             if key in self.hint_to_id:
                 return self.hint_to_id[key]
 
+            # Store raw values in strings table (reusing existing deduplication)
+            raw_indices = [self._add_string(raw) for raw in raw_tuple]
+            type_indices = [self._add_string(typ) for typ in types_tuple]
+
+            # Record positions in hint_string_indices array
+            raw_values_start = len(self.hint_string_indices)
+            for idx in raw_indices:
+                self.hint_string_indices.append(idx)
+            raw_values_count = len(raw_indices)
+
+            token_types_start = len(self.hint_string_indices)
+            for idx in type_indices:
+                self.hint_string_indices.append(idx)
+            token_types_count = len(type_indices)
+
             # Add new hint (index 0 reserved for None)
             hint_id = len(self.simple_hints) + 1
-            self.simple_hints.append(SimpleHintData(list(raw_tuple), list(types_tuple)))
+            self.simple_hints.append(
+                SimpleHintData(
+                    raw_values_start=raw_values_start,
+                    raw_values_count=raw_values_count,
+                    token_types_start=token_types_start,
+                    token_types_count=token_types_count,
+                )
+            )
             self.hint_to_id[key] = hint_id
             return hint_id
         except (RuntimeError, AttributeError):
@@ -327,9 +352,6 @@ class TableBuilder:
             and isinstance(grammar, SegmentMetaclass)
             and hasattr(grammar, "match_grammar")
         ):
-            # Recurse into match_grammar
-            child_id = self.flatten_grammar(grammar.match_grammar, parse_context)
-
             # Return a forwarding instruction (use Ref variant)
             comment = f"Forward to {grammar.__name__}"
             name_id = self._add_string(grammar.__name__)
@@ -1133,16 +1155,34 @@ class TableBuilder:
         lines.append("];")
         lines.append("")
 
-        # Simple hints - generate as SimpleHintData with string indices
+        # Hint string indices - indices into STRINGS table for hints
+        lines.append("pub static HINT_STRING_INDICES: &[u32] = &[")
+        for i, idx in enumerate(self.hint_string_indices):
+            lines.append(f"    {idx}, // [{i}]")
+        lines.append("];")
+        lines.append("")
+
+        # Simple hints - generate SimpleHintData with offsets into HINT_STRING_INDICES
         lines.append("pub static SIMPLE_HINTS: &[SimpleHintData] = &[")
         lines.append("    SimpleHintData::empty(), // [0] reserved for no hint")
         for i, hint in enumerate(self.simple_hints):
-            # For now, generate empty hints - we'll implement proper hint storage later
-            # TODO: Store hint strings in a separate table and reference by index
             lines.append(
-                "    SimpleHintData::empty(), // "
-                f"[{i + 1}] TODO: implement hint strings"
+                f"    SimpleHintData {{ "
+                f"raw_values_start: {hint.raw_values_start}, "
+                f"raw_values_count: {hint.raw_values_count}, "
+                f"token_types_start: {hint.token_types_start}, "
+                f"token_types_count: {hint.token_types_count} "
+                f"}}, // [{i + 1}]"
             )
+        lines.append("];")
+        lines.append("")
+
+        # Simple hint indices per instruction (indexed by GrammarId)
+        lines.append("pub static SIMPLE_HINT_INDICES: &[u32] = &[")
+        for i in range(0, len(self.instructions), 16):
+            chunk = [inst.simple_hint_idx for inst in self.instructions[i : i + 16]]
+            line = "    " + ", ".join(str(x) for x in chunk) + ","
+            lines.append(line)
         lines.append("];")
         lines.append("")
 
@@ -1185,13 +1225,17 @@ class TableBuilder:
             f"= {regex_bytes:8} bytes"
         )
 
-        hint_bytes = (
-            sum(len(v) for h in self.simple_hints for v in h.raw_values + h.token_types)
-            * 16
-        )  # rough estimate
+        # Hint bytes: 16 bytes per SimpleHintData (4 u32 fields) + hint_string_indices
+        hint_data_bytes = len(self.simple_hints) * 16
+        hint_indices_bytes = len(self.hint_string_indices) * 4
+        hint_bytes = hint_data_bytes + hint_indices_bytes
         print(
             f"//   Simple Hints:    {len(self.simple_hints):6} hints        "
-            f"≈ {hint_bytes:8} bytes"
+            f"= {hint_data_bytes:8} bytes"
+        )
+        print(
+            f"//   Hint Indices:    {len(self.hint_string_indices):6} ×  4 bytes "
+            f"= {hint_indices_bytes:8} bytes"
         )
 
         total = (
@@ -1424,6 +1468,8 @@ def generate_parser_table_driven(dialect: str):
     aux_data_offsets: AUX_DATA_OFFSETS,
     regex_patterns: REGEX_PATTERNS,
     simple_hints: SIMPLE_HINTS,
+    hint_string_indices: HINT_STRING_INDICES,
+    simple_hint_indices: SIMPLE_HINT_INDICES,
     segment_type_offsets: SEGMENT_TYPE_OFFSETS,
 }};
 """

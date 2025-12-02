@@ -138,8 +138,7 @@ impl<'a> Parser<'_> {
                         let mut insert_pos = parent_frame.accumulated.len();
                         while insert_pos > 0 {
                             match &parent_frame.accumulated[insert_pos - 1] {
-                                Node::Whitespace { .. }
-                                | Node::Newline { .. } => {
+                                Node::Whitespace { .. } | Node::Newline { .. } => {
                                     insert_pos -= 1;
                                 }
                                 _ => break,
@@ -601,7 +600,11 @@ impl<'a> Parser<'_> {
                 if !already_in_frame {
                     match &*tok_type {
                         "whitespace" => {
-                            log::debug!("COLLECTING whitespace at {}: {:?}", collect_pos, tok.raw());
+                            log::debug!(
+                                "COLLECTING whitespace at {}: {:?}",
+                                collect_pos,
+                                tok.raw()
+                            );
                             accumulated.push(Node::Whitespace {
                                 raw: tok.raw().to_string(),
                                 token_idx: collect_pos,

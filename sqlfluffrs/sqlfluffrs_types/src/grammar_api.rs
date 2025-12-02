@@ -432,6 +432,8 @@ mod tests {
         static AUX_DATA_OFFSETS: &[u32] = &[0, 0, 0]; // One per instruction
         static REGEX_PATTERNS: &[&str] = &[];
         static SIMPLE_HINTS: &[SimpleHintData] = &[];
+        static HINT_STRING_INDICES: &[u32] = &[];
+        static SIMPLE_HINT_INDICES: &[u32] = &[0, 0, 0]; // One per instruction
 
         let tables = GrammarTables::new(
             INSTRUCTIONS,
@@ -442,7 +444,9 @@ mod tests {
             AUX_DATA_OFFSETS,
             REGEX_PATTERNS,
             SIMPLE_HINTS,
-            &[],
+            HINT_STRING_INDICES,
+            SIMPLE_HINT_INDICES,
+            &[], // segment_type_offsets
         );
 
         let ctx = GrammarContext::new(&tables);
@@ -474,6 +478,8 @@ mod tests {
         static AUX_DATA_OFFSETS: &[u32] = &[0, 0, 0, 0]; // One per instruction
         static REGEX_PATTERNS: &[&str] = &[];
         static SIMPLE_HINTS: &[SimpleHintData] = &[];
+        static HINT_STRING_INDICES: &[u32] = &[];
+        static SIMPLE_HINT_INDICES: &[u32] = &[0, 0, 0, 0]; // One per instruction
 
         let tables = GrammarTables::new(
             INSTRUCTIONS,
@@ -484,7 +490,9 @@ mod tests {
             AUX_DATA_OFFSETS,
             REGEX_PATTERNS,
             SIMPLE_HINTS,
-            &[],
+            HINT_STRING_INDICES,
+            SIMPLE_HINT_INDICES,
+            &[], // segment_type_offsets
         );
 
         let ctx = GrammarContext::new(&tables);

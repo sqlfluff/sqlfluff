@@ -36,13 +36,7 @@ impl<'a> Parser<'_> {
         // Debug: map children to readable names for diagnostics
         let child_names: Vec<String> = all_children
             .iter()
-            .map(|gid| match ctx.variant(*gid) {
-                sqlfluffrs_types::GrammarVariant::Ref => ctx.ref_name(*gid).to_string(),
-                sqlfluffrs_types::GrammarVariant::StringParser
-                | sqlfluffrs_types::GrammarVariant::TypedParser
-                | sqlfluffrs_types::GrammarVariant::RegexParser => ctx.template(*gid).to_string(),
-                other => format!("{:?}", other),
-            })
+            .map(|gid| ctx.grammar_id_name(*gid))
             .collect();
         log::debug!(
             "Delimited[table] children ids={:?} names={:?}",
@@ -128,6 +122,35 @@ impl<'a> Parser<'_> {
             frame.parent_max_idx,
         );
 
+        // Prune element options based on current token
+        let pruned_elements = self.prune_options_table_driven(&element_ids);
+        log::debug!(
+            "Delimited[table]: Pruned elements from {} to {} options",
+            element_ids.len(),
+            pruned_elements.len()
+        );
+
+        // If all elements were pruned, we can't match anything
+        if pruned_elements.is_empty() {
+            log::debug!("Delimited[table]: All elements pruned, returning empty");
+            frame.end_pos = Some(start_pos);
+            frame.state = FrameState::Combining;
+            frame.context = FrameContext::DelimitedTableDriven {
+                grammar_id,
+                delimiter_count: 0,
+                matched_idx: start_pos,
+                working_idx: start_pos,
+                max_idx,
+                state: DelimitedState::MatchingElement,
+                last_child_frame_id: None,
+                delimiter_match: None,
+                pos_before_delimiter: None,
+                element_children: vec![],
+            };
+            stack.push(&mut frame);
+            return Ok(TableFrameResult::Done);
+        }
+
         // Store context
         frame.context = FrameContext::DelimitedTableDriven {
             grammar_id,
@@ -139,17 +162,17 @@ impl<'a> Parser<'_> {
             last_child_frame_id: Some(stack.frame_id_counter),
             delimiter_match: None,
             pos_before_delimiter: None,
-            element_children: element_ids.clone(),
+            element_children: pruned_elements.clone(),
         };
 
         frame.state = FrameState::WaitingForChild {
             child_index: 0,
-            total_children: element_ids.len(),
+            total_children: pruned_elements.len(),
         };
 
         // Create OneOf child with all element options
         // TODO: Create proper OneOf with all elements (not just first)
-        let first_element = element_ids[0];
+        let first_element = pruned_elements[0];
         let child_frame = TableParseFrame::new_child(
             stack.frame_id_counter,
             first_element,
@@ -311,8 +334,46 @@ impl<'a> Parser<'_> {
                     *delim_state = DelimitedState::MatchingElement;
                     self.pos = *working_idx;
 
+                    // Get configuration to rebuild element_ids
+                    let (delimiter_child_idx, _) = ctx.delimited_config(*grammar_id);
+
+                    // Rebuild element_ids from all_children (excluding delimiter)
+                    let original_element_ids: Vec<GrammarId> = all_children
+                        .iter()
+                        .enumerate()
+                        .filter_map(|(i, &gid)| {
+                            if i != delimiter_child_idx {
+                                Some(gid)
+                            } else {
+                                None
+                            }
+                        })
+                        .collect();
+
+                    // Re-prune at the new position
+                    let repruned_elements = self.prune_options_table_driven(&original_element_ids);
+                    log::debug!(
+                        "Delimited[table]: After delimiter, re-pruned elements from {} to {}",
+                        original_element_ids.len(),
+                        repruned_elements.len()
+                    );
+
+                    // If all elements pruned, finalize (successful if we have delimiters)
+                    if repruned_elements.is_empty() {
+                        log::debug!(
+                            "Delimited[table]: All elements pruned after delimiter, finalizing"
+                        );
+                        frame.end_pos = Some(*matched_idx);
+                        frame.state = FrameState::Combining;
+                        stack.push(&mut frame);
+                        return Ok(TableFrameResult::Done);
+                    }
+
+                    // Update element_children in context
+                    *element_children = repruned_elements.clone();
+
                     // After a delimiter matched, try the first element candidate again
-                    let first_element = element_children[0];
+                    let first_element = repruned_elements[0];
                     let element_frame = TableParseFrame::new_child(
                         stack.frame_id_counter,
                         first_element,
@@ -323,7 +384,7 @@ impl<'a> Parser<'_> {
 
                     frame.state = FrameState::WaitingForChild {
                         child_index: 0,
-                        total_children: element_children.len(),
+                        total_children: repruned_elements.len(),
                     };
 
                     // Push parent and element child while updating parent's last_child_frame_id

@@ -83,18 +83,19 @@ impl<'a> Parser<'_> {
 
         // Get all element children (excludes exclude grammar via element_children)
         let element_ids: Vec<GrammarId> = ctx.element_children(grammar_id).collect();
+        let pruned_children = self.prune_options_table_driven(&element_ids);
         // Debug element names for easier tracing
-        let element_names: Vec<String> = element_ids
+        let element_names: Vec<String> = pruned_children
             .iter()
             .map(|gid| ctx.grammar_id_name(*gid))
             .collect();
         log::debug!(
             "AnyNumberOf[table] element_ids_count={} names={:?}",
-            element_ids.len(),
+            pruned_children.len(),
             element_names
         );
         // (will log terminators after they are combined below)
-        if element_ids.is_empty() {
+        if pruned_children.is_empty() {
             log::debug!("AnyNumberOf[table]: No elements to match after filtering");
             stack
                 .results
@@ -104,7 +105,6 @@ impl<'a> Parser<'_> {
 
         // Initialize option counter for max_times_per_element tracking
         // TODO: actually prune element_ids
-        let pruned_children = element_ids;
         let pruned_children_count = pruned_children.len();
         let first_element = pruned_children[0];
         let option_counter: hashbrown::HashMap<u64, usize> =
@@ -436,7 +436,29 @@ impl<'a> Parser<'_> {
         // next repetition we should start again trying all element
         // candidates from index 0.
         self.pos = *working_idx;
-        let next_element = pruned_children[0];
+
+        // Re-prune at the new position for better efficiency
+        let element_ids: Vec<GrammarId> = ctx.element_children(*grammar_id).collect();
+        let repruned_children = self.prune_options_table_driven(&element_ids);
+        log::debug!(
+            "AnyNumberOf[table]: After match, re-pruned elements from {} to {}",
+            element_ids.len(),
+            repruned_children.len()
+        );
+
+        // If all elements pruned, finalize
+        if repruned_children.is_empty() {
+            log::debug!("AnyNumberOf[table]: All elements pruned after match, finalizing");
+            frame.end_pos = Some(*matched_idx);
+            frame.state = FrameState::Combining;
+            stack.push(&mut frame);
+            return Ok(TableFrameResult::Done);
+        }
+
+        // Update pruned_children in context
+        *pruned_children = repruned_children.clone();
+
+        let next_element = repruned_children[0];
         let mut next_child_frame = TableParseFrame::new_child(
             stack.frame_id_counter,
             next_element,
@@ -448,7 +470,7 @@ impl<'a> Parser<'_> {
         // Reset child_index to 0 and total_children to number of candidates
         frame.state = FrameState::WaitingForChild {
             child_index: 0,
-            total_children: pruned_children.len(),
+            total_children: repruned_children.len(),
         };
 
         stack.increment_frame_id_counter();
