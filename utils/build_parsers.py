@@ -143,19 +143,7 @@ class TableBuilder:
         """Flatten list of grammars. Returns list of GrammarIds."""
         result = []
         for i, g in enumerate(grammars):
-            # DEBUG
-            if hasattr(g, "_ref") and "SelectKeyword" in g._ref:
-                print(
-                    f"// DEBUG _flatten_list: Processing child {i}, "
-                    f"type={type(g).__name__}, ref={g._ref}",
-                    file=sys.stderr,
-                )
             child_id = self.flatten_grammar(g, parse_context)
-            if hasattr(g, "_ref") and "SelectKeyword" in g._ref:
-                print(
-                    f"// DEBUG _flatten_list: Child {i} got grammar_id={child_id}",
-                    file=sys.stderr,
-                )
             result.append(child_id)
         return result
 
@@ -251,6 +239,14 @@ class TableBuilder:
                 except Exception:
                     # Be conservative: if lookup fails, leave as NONE
                     pass
+            # If this grammar is Conditional, use its _meta type for segment_type_offset
+            elif grammar.__class__ is Conditional:
+                meta_type = getattr(grammar, "_meta", None)
+                if meta_type:
+                    seg_type = getattr(meta_type, "type", None)
+                    if seg_type:
+                        type_id = self._add_string(seg_type)
+                        self.segment_type_offsets[grammar_id] = type_id
         except Exception:
             # Be conservative: if any introspection fails, leave as NONE
             pass
@@ -331,31 +327,8 @@ class TableBuilder:
             and isinstance(grammar, SegmentMetaclass)
             and hasattr(grammar, "match_grammar")
         ):
-            # DEBUG
-            if "SelectClause" in grammar.__name__:
-                import traceback
-
-                caller = traceback.extract_stack()[-3]
-                print(
-                    "// DEBUG SegmentMetaclass handler: "
-                    f"{grammar.__name__}, caller={caller.filename}:{caller.lineno}",
-                    file=sys.stderr,
-                )
-
             # Recurse into match_grammar
             child_id = self.flatten_grammar(grammar.match_grammar, parse_context)
-
-            # DEBUG
-            if "SelectClause" in grammar.__name__:
-                print(
-                    "// DEBUG SegmentMetaclass handler: "
-                    f"{grammar.__name__} match_grammar got ID {child_id}",
-                    file=sys.stderr,
-                )
-                print(
-                    "// DEBUG SegmentMetaclass handler: Will return forwarding Ref",
-                    file=sys.stderr,
-                )
 
             # Return a forwarding instruction (use Ref variant)
             comment = f"Forward to {grammar.__name__}"
@@ -459,19 +432,6 @@ class TableBuilder:
         terminators_count = len(terminator_ids)
 
         comment = f"Sequence({children_count} elements)"
-
-        # DEBUG
-        if children_count == 5 and children_start == 1629:
-            print(
-                "// DEBUG _handle_sequence RETURN: "
-                f"first_child_idx={children_start}, child_count={children_count}",
-                file=sys.stderr,
-            )
-            print(
-                f"//   CHILD_IDS[{children_start}:{children_start + children_count}] "
-                f"= {self.child_ids[children_start : children_start + children_count]}",
-                file=sys.stderr,
-            )
 
         return GrammarInstData(
             variant="Sequence",
@@ -650,7 +610,8 @@ class TableBuilder:
         comment = f"AnySetOf({len(element_ids)} elements)"
 
         return GrammarInstData(
-            variant="AnySetOf",
+            # Delegated to AnyNumberOf to reduce required logic
+            variant="AnyNumberOf",
             flags=flags,
             parse_mode=parse_mode,
             first_child_idx=children_start,
@@ -963,6 +924,7 @@ class TableBuilder:
         self, grammar: Conditional, parse_context
     ) -> GrammarInstData:
         """Convert Conditional to Meta (not implemented in parser yet)."""
+        type_id = self._add_string("conditional")
         return GrammarInstData(
             variant="Meta",
             flags=0,
@@ -972,7 +934,7 @@ class TableBuilder:
             min_times=0,
             first_terminator_idx=len(self.terminators),
             terminator_count=0,
-            aux_data_offset=self._add_string("conditional"),
+            aux_data_offset=type_id,
             simple_hint_idx=0,
             comment="Meta(conditional)",
         )

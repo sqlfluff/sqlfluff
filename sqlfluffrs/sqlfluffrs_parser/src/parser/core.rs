@@ -389,16 +389,16 @@ impl<'a> Parser<'a> {
         // Obtain the root grammar for this dialect and dispatch based on its
         // variant (table-driven vs Arc-based). Clone to avoid holding borrows.
         let root_grammar = self.dialect.get_root_grammar().clone();
-        let mut last_non_code_pos = self.tokens.len();
+        let mut last_code_pos = self.tokens.len();
         for (i, token) in self.tokens.iter().enumerate().rev() {
-            if !token.is_code() {
-                last_non_code_pos = i;
+            if token.is_code() {
+                last_code_pos = i + 1;
                 break;
             }
         }
         let token_slice_orig = self.tokens;
-        let token_slice = &self.tokens[..last_non_code_pos];
-        let end_nodes = self.end_children_nodes(last_non_code_pos);
+        let token_slice = &self.tokens[..last_code_pos];
+        let end_nodes = self.end_children_nodes(last_code_pos);
 
         if token_slice.is_empty() {
             // Wrap in a Ref node for type clarity

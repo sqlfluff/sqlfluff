@@ -1,4 +1,4 @@
-use sqlfluffrs_types::{GrammarId, ParseMode};
+use sqlfluffrs_types::{GrammarId, GrammarInstExt, ParseMode};
 
 use crate::parser::{
     table_driven::frame::{TableFrameResult, TableParseFrame, TableParseFrameStack},
@@ -138,14 +138,8 @@ impl<'a> Parser<'_> {
                         let mut insert_pos = parent_frame.accumulated.len();
                         while insert_pos > 0 {
                             match &parent_frame.accumulated[insert_pos - 1] {
-                                Node::Whitespace {
-                                    raw: _,
-                                    token_idx: _,
-                                }
-                                | Node::Newline {
-                                    raw: _,
-                                    token_idx: _,
-                                } => {
+                                Node::Whitespace { .. }
+                                | Node::Newline { .. } => {
                                     insert_pos -= 1;
                                 }
                                 _ => break,
@@ -600,24 +594,37 @@ impl<'a> Parser<'_> {
                 // Only check if already in THIS frame's accumulated to avoid duplicating within the same frame
                 let already_in_frame = accumulated.iter().any(|node| match node {
                     Node::Whitespace { token_idx: pos, .. }
-                    | Node::Newline { token_idx: pos, .. } => *pos == collect_pos,
+                    | Node::Newline { token_idx: pos, .. }
+                    | Node::EndOfFile { token_idx: pos, .. } => *pos == collect_pos,
                     _ => false,
                 });
                 if !already_in_frame {
-                    if tok_type == "whitespace" {
-                        log::debug!("COLLECTING whitespace at {}: {:?}", collect_pos, tok.raw());
-                        accumulated.push(Node::Whitespace {
-                            raw: tok.raw().to_string(),
-                            token_idx: collect_pos,
-                        });
-                        tentatively_collected.push(collect_pos);
-                    } else if tok_type == "newline" {
-                        log::debug!("COLLECTING newline at {}: {:?}", collect_pos, tok.raw());
-                        accumulated.push(Node::Newline {
-                            raw: tok.raw().to_string(),
-                            token_idx: collect_pos,
-                        });
-                        tentatively_collected.push(collect_pos);
+                    match &*tok_type {
+                        "whitespace" => {
+                            log::debug!("COLLECTING whitespace at {}: {:?}", collect_pos, tok.raw());
+                            accumulated.push(Node::Whitespace {
+                                raw: tok.raw().to_string(),
+                                token_idx: collect_pos,
+                            });
+                            tentatively_collected.push(collect_pos);
+                        }
+                        "newline" => {
+                            log::debug!("COLLECTING newline at {}: {:?}", collect_pos, tok.raw());
+                            accumulated.push(Node::Newline {
+                                raw: tok.raw().to_string(),
+                                token_idx: collect_pos,
+                            });
+                            tentatively_collected.push(collect_pos);
+                        }
+                        "end_of_file" => {
+                            log::debug!("COLLECTING EOF at {}: {:?}", collect_pos, tok.raw());
+                            accumulated.push(Node::EndOfFile {
+                                raw: tok.raw().to_string(),
+                                token_idx: collect_pos,
+                            });
+                            tentatively_collected.push(collect_pos);
+                        }
+                        _ => {}
                     }
                 }
             }
