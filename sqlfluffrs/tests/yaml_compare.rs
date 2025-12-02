@@ -60,9 +60,18 @@ fn compare_yaml_files(expected_path: &PathBuf, generated_yaml: &str) -> Result<(
     let normalized_expected = normalize_yaml_through_serde(&expected_yaml)?;
     let normalized_generated = normalize_yaml_through_serde(generated_yaml)?;
 
-    // Calculate hashes
-    let expected_hash = calculate_hash(&normalized_expected);
-    let generated_hash = calculate_hash(&normalized_generated);
+    // Calculate hashes (excluding the _hash line for comparison purposes)
+    fn filter_hash_line(yaml: &str) -> String {
+        yaml.lines()
+            .filter(|line| !line.starts_with("_hash:"))
+            .collect::<Vec<_>>()
+            .join("\n")
+    }
+
+    let expected_without_hash = filter_hash_line(&normalized_expected);
+    let generated_without_hash = filter_hash_line(&normalized_generated);
+    let expected_hash = calculate_hash(&expected_without_hash);
+    let generated_hash = calculate_hash(&generated_without_hash);
 
     println!("=== YAML Comparison ===");
     println!("Expected hash:  {:016x}", expected_hash);
@@ -145,6 +154,9 @@ fn test_yaml_comparison_ansi_arithmetic_a() {
 
     let mut parser = sqlfluffrs_parser::parser::Parser::new_with_tables(&tokens, dialect);
     let ast = parser.call_rule_as_root().expect("Parse error");
+
+    println!("\n=== AST ===");
+    println!("{:#?}", ast);
 
     // Generate YAML
     let generated_yaml = node_to_yaml(&ast, &tokens).expect("YAML conversion error");

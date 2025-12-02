@@ -216,7 +216,7 @@ impl<'a> Parser<'_> {
             working_idx,
             option_counter,
             max_idx,
-            ..
+            last_child_frame_id,
         } = &mut frame.context
         else {
             unreachable!("Expected AnyNumberOfTableDriven context");
@@ -287,13 +287,17 @@ impl<'a> Parser<'_> {
                 };
 
                 // Push parent and next candidate child
+                let new_child_frame_id = stack.frame_id_counter;
                 let mut next_child_frame = TableParseFrame::new_child(
-                    stack.frame_id_counter,
+                    new_child_frame_id,
                     next_candidate,
                     *working_idx,
                     frame.table_terminators.clone(),
                     Some(*max_idx),
                 );
+
+                // Update last_child_frame_id so the parent knows which result to look up
+                *last_child_frame_id = Some(new_child_frame_id);
 
                 stack.increment_frame_id_counter();
                 stack.push(&mut frame);
@@ -459,13 +463,17 @@ impl<'a> Parser<'_> {
         *pruned_children = repruned_children.clone();
 
         let next_element = repruned_children[0];
+        let new_child_frame_id = stack.frame_id_counter;
         let mut next_child_frame = TableParseFrame::new_child(
-            stack.frame_id_counter,
+            new_child_frame_id,
             next_element,
             *working_idx,
             frame.table_terminators.clone(),
             Some(*max_idx),
         );
+
+        // Update last_child_frame_id so the parent knows which result to look up
+        *last_child_frame_id = Some(new_child_frame_id);
 
         // Reset child_index to 0 and total_children to number of candidates
         frame.state = FrameState::WaitingForChild {

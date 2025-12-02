@@ -439,7 +439,7 @@ impl<'a> Parser<'_> {
                     } else {
                         // In GREEDY mode, not finding a closing bracket is an error
                         // But we still need to store SOME result so the parent doesn't wait forever
-                        log::error!(
+                        log::debug!(
                             "Bracketed[table] GREEDY mode: Couldn't find closing bracket for opening bracket at pos {}, frame_id={}",
                             frame.pos,
                             frame.frame_id
