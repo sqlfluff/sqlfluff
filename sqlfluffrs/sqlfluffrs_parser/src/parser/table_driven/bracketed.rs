@@ -130,16 +130,18 @@ impl<'a> Parser<'_> {
 
                 frame.accumulated.push(child_node.clone());
                 let content_start_idx = *child_end_pos;
-                // TODO: do we need to recompute bracket_max_idx here, does the context not provide this?
-                let bracket_max_idx = child_node
+                // Compute and UPDATE the frame context's bracket_max_idx from the opening bracket
+                let computed_bracket_max_idx = child_node
                     .get_token_idx()
                     .and_then(|i| self.get_matching_bracket_idx(i));
-                if let Some(close_idx) = bracket_max_idx {
+                if let Some(close_idx) = computed_bracket_max_idx {
                     log::debug!(
                         "Bracketed: Using pre-computed closing bracket at idx={} as max_idx",
                         close_idx
                     );
                 }
+                // CRITICAL: Update the frame context's bracket_max_idx field!
+                *bracket_max_idx = computed_bracket_max_idx;
 
                 // If allow_gaps is false and there's whitespace after opening bracket, fail in STRICT mode
                 if !allow_gaps && parse_mode == ParseMode::Strict {
@@ -225,11 +227,15 @@ impl<'a> Parser<'_> {
                 };
 
                 // Push content frame
+                // NOTE: We do NOT pass close_bracket_id as a terminator!
+                // This is important because nested brackets (like COUNT(*)) would
+                // incorrectly match the terminator and cause early termination.
+                // Instead, we rely on bracket_max_idx to constrain parsing via parent_max_idx.
                 let context = FrameContext::BracketedTableDriven {
                     grammar_id: *grammar_id,
                     state: BracketedState::MatchingContent,
                     last_child_frame_id: *last_child_frame_id,
-                    bracket_max_idx,
+                    bracket_max_idx: *bracket_max_idx,
                     content_ids: content_ids.clone(),
                     content_idx: *content_idx,
                 };
@@ -237,9 +243,9 @@ impl<'a> Parser<'_> {
                     stack.frame_id_counter,
                     content_grammar_id,
                     self.pos,
-                    &[close_bracket_id],
+                    &[], // Don't pass close bracket as terminator - use bracket_max_idx instead
                     context,
-                    bracket_max_idx,
+                    *bracket_max_idx,
                 );
                 *last_child_frame_id = Some(stack.frame_id_counter);
                 stack.increment_frame_id_counter();
@@ -248,9 +254,6 @@ impl<'a> Parser<'_> {
                 Ok(TableFrameResult::Done)
             }
             BracketedState::MatchingContent => {
-                let mut check_pos = *child_end_pos;
-                check_pos = self.skip_start_index_forward_to_code(check_pos, self.tokens.len());
-
                 // Python reference: sequence.py Bracketed.match() lines ~530-570
                 // In Python, Bracketed doesn't pre-compute the closing bracket position.
                 // Instead, it lets Sequence.match() handle the content (which may return
@@ -263,24 +266,6 @@ impl<'a> Parser<'_> {
                 let allow_gaps = grammar_inst.flags.allow_gaps();
                 let (_start_bracket_idx, end_bracket_idx) = ctx.bracketed_config(*grammar_id);
                 let close_bracket_id = all_children[end_bracket_idx];
-
-                if let Some(expected_close_pos) = *bracket_max_idx {
-                    if check_pos != expected_close_pos {
-                        if parse_mode == ParseMode::Strict {
-                            log::debug!("Bracketed[table] STRICT mode: content did not end at closing bracket, returning Empty for retry. frame_id={}, frame.pos={}", frame.frame_id, frame.pos);
-                            self.pos = frame.pos;
-                            // Transition to Combining to finalize Empty result
-                            frame.end_pos = Some(frame.pos);
-                            frame.state = FrameState::Combining;
-                            stack.push(&mut frame);
-                            return Ok(TableFrameResult::Done);
-                        } else {
-                            log::debug!("Bracketed[table] GREEDY mode: content did not end at closing bracket, but continuing (may contain unparsable). check_pos={}, expected_close_pos={}", check_pos, expected_close_pos);
-                        }
-                    } else {
-                        log::debug!("[BRACKET-DEBUG] Bracketed content ends at expected closing bracket (check_pos == expected_close_pos)");
-                    }
-                }
 
                 // Replace deep-clone traversal with a reference-based flattening.
                 // Only clone the nodes that actually get pushed into `frame.accumulated`.
@@ -397,6 +382,28 @@ impl<'a> Parser<'_> {
                         panic!("Couldn't find closing bracket for opening bracket");
                     }
                 } else {
+                    // STRICT mode check: All content elements must end at the closing bracket position
+                    // This check should only happen AFTER all content elements have been processed.
+                    let check_pos =
+                        self.skip_start_index_forward_to_code(self.pos, self.tokens.len());
+                    if let Some(expected_close_pos) = *bracket_max_idx {
+                        if check_pos != expected_close_pos {
+                            if parse_mode == ParseMode::Strict {
+                                log::debug!("Bracketed[table] STRICT mode: content did not end at closing bracket (check_pos={}, expected={}), returning Empty for retry. frame_id={}, frame.pos={}", check_pos, expected_close_pos, frame.frame_id, frame.pos);
+                                self.pos = frame.pos;
+                                // Transition to Combining to finalize Empty result
+                                frame.end_pos = Some(frame.pos);
+                                frame.state = FrameState::Combining;
+                                stack.push(&mut frame);
+                                return Ok(TableFrameResult::Done);
+                            } else {
+                                log::debug!("Bracketed[table] GREEDY mode: content did not end at closing bracket, but continuing (may contain unparsable). check_pos={}, expected_close_pos={}", check_pos, expected_close_pos);
+                            }
+                        } else {
+                            log::debug!("[BRACKET-DEBUG] Bracketed content ends at expected closing bracket (check_pos == expected_close_pos)");
+                        }
+                    }
+
                     log::debug!(
                         "DEBUG: All content elements parsed, transitioning to MatchingClose!"
                     );

@@ -486,6 +486,11 @@ pub enum FrameContext {
         option_counter: HashMap<u64, usize>,
         max_idx: usize,
         last_child_frame_id: Option<usize>,
+        /// Track longest match among element candidates for current repetition
+        /// (node, end_pos, matched_grammar_id)
+        longest_match: Option<(Node, usize, GrammarId)>,
+        /// Number of elements tried for current repetition
+        tried_elements: usize,
     },
 }
 

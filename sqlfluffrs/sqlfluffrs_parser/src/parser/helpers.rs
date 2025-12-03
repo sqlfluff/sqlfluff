@@ -1441,6 +1441,23 @@ impl<'a> Parser<'a> {
 
         let mut idx = start_idx;
         while idx < self.tokens.len() {
+            // IMPORTANT: Check for opening brackets FIRST and skip over them.
+            // This prevents nested brackets from being incorrectly matched as terminators.
+            // For example, in `ASSERT ( (SELECT COUNT(*) ...) )`, the `)` from COUNT(*)
+            // should not be matched as a terminator - we skip the entire `(...)` section.
+            if let Some(tok) = self.tokens.get(idx) {
+                let tok_type = tok.get_type();
+                if tok_type == "start_bracket"
+                    || tok_type == "start_square_bracket"
+                    || tok_type == "start_angle_bracket"
+                {
+                    if let Some(end_idx) = self.find_matching_bracket(idx) {
+                        idx = end_idx + 1;
+                        continue;
+                    }
+                }
+            }
+
             let saved_pos = self.pos;
             self.pos = idx;
 
@@ -1456,17 +1473,7 @@ impl<'a> Parser<'a> {
                 }
             }
 
-            // Skip brackets to avoid false positives
-            if let Some(tok) = self.tokens.get(idx) {
-                let tok_type = tok.get_type();
-                if tok_type == "start_bracket" || tok_type == "start_square_bracket" {
-                    if let Some(end_idx) = self.find_matching_bracket(idx) {
-                        idx = end_idx + 1;
-                        continue;
-                    }
-                }
-            }
-
+            self.pos = saved_pos;
             idx += 1;
         }
 

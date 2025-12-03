@@ -18,6 +18,10 @@ pub struct GrammarContext<'a> {
 impl<'a> GrammarContext<'a> {
     /// Get a human-readable name for a GrammarId (Ref, StringParser, TypedParser, RegexParser)
     pub fn grammar_id_name(&self, id: GrammarId) -> String {
+        // Handle sentinel values that are not real grammar IDs
+        if id == GrammarId::NONCODE {
+            return "NONCODE".to_string();
+        }
         match self.variant(id) {
             GrammarVariant::Ref => self.ref_name(id).to_string(),
             GrammarVariant::StringParser
@@ -133,7 +137,6 @@ impl<'a> GrammarContext<'a> {
     /// Get string template (for StringParser/TypedParser/Token variants)
     #[inline]
     pub fn template(&self, id: GrammarId) -> &'static str {
-        let inst = self.inst(id);
         // Template index is stored in aux_data at the aux_data_offsets entry.
         let aux_offset = self.tables.aux_data_offsets[id.get() as usize] as usize;
         let template_idx = self.tables.aux_data[aux_offset];

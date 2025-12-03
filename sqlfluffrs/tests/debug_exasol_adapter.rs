@@ -4,7 +4,7 @@ use sqlfluffrs_parser::parser::Parser;
 use std::str::FromStr;
 
 // TODO: Enable this test when the Exasol adapter script is ready
-// #[test]
+#[test]
 fn test_exasol_adapter_script() {
     env_logger::Builder::from_env(env_logger::Env::default().default_filter_or("info"))
         .is_test(true)

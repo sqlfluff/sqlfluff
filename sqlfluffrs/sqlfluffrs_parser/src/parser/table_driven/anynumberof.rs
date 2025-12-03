@@ -159,6 +159,8 @@ impl<'a> Parser<'_> {
             option_counter,
             max_idx,
             last_child_frame_id: Some(stack.frame_id_counter),
+            longest_match: None,
+            tried_elements: 0,
         };
 
         // Persist the combined terminators on the parent frame so subsequent
@@ -217,6 +219,8 @@ impl<'a> Parser<'_> {
             option_counter,
             max_idx,
             last_child_frame_id,
+            longest_match,
+            tried_elements,
         } = &mut frame.context
         else {
             unreachable!("Expected AnyNumberOfTableDriven context");
@@ -236,13 +240,14 @@ impl<'a> Parser<'_> {
         };
 
         log::debug!(
-            "AnyNumberOf[table] WaitingForChild: frame_id={}, child_empty={}, count={}, matched_idx={}, trying_idx={}/{}",
+            "AnyNumberOf[table] WaitingForChild: frame_id={}, child_empty={}, count={}, matched_idx={}, trying_idx={}/{}, tried_elements={}",
             frame.frame_id,
             child_node.is_empty(),
             count,
             matched_idx,
             current_element_idx,
-            total_candidates
+            total_candidates,
+            tried_elements
         );
 
         // Extra debug: show pruned_children and parent table_terminators for this frame
@@ -259,231 +264,240 @@ impl<'a> Parser<'_> {
             table_term_names
         );
 
-        if child_node.is_empty() {
-            // Child failed - check if there are more element candidates to try
-            log::debug!(
-                "AnyNumberOf[table]: Child failed at candidate_idx={}, count={}, min_times={}",
-                current_element_idx,
-                count,
-                inst.min_times
-            );
-
-            // If there are remaining element candidates for this repetition,
-            // try the next one instead of finalizing immediately.
-            if current_element_idx + 1 < pruned_children.len() {
-                let next_element_idx = current_element_idx + 1;
-                let next_candidate = pruned_children[next_element_idx];
-
-                log::debug!(
-                    "AnyNumberOf[table]: Trying next element candidate idx={} gid={}",
-                    next_element_idx,
-                    next_candidate.0
-                );
-
-                // Update frame to indicate which candidate we're trying next
-                frame.state = FrameState::WaitingForChild {
-                    child_index: next_element_idx,
-                    total_children: pruned_children.len(),
-                };
-
-                // Push parent and next candidate child
-                let new_child_frame_id = stack.frame_id_counter;
-                let mut next_child_frame = TableParseFrame::new_child(
-                    new_child_frame_id,
-                    next_candidate,
-                    *working_idx,
-                    frame.table_terminators.clone(),
-                    Some(*max_idx),
-                );
-
-                // Update last_child_frame_id so the parent knows which result to look up
-                *last_child_frame_id = Some(new_child_frame_id);
-
-                stack.increment_frame_id_counter();
-                stack.push(&mut frame);
-                stack.push(&mut next_child_frame);
-                return Ok(TableFrameResult::Done);
-            }
-
-            // No more candidates for this repetition - finalize based on min_times
-            log::debug!(
-                "AnyNumberOf[table]: No more element candidates, finalizing with count={}, min_times={}",
-                count,
-                inst.min_times
-            );
-            frame.state = FrameState::Combining;
-            stack.push(&mut frame);
-            return Ok(TableFrameResult::Done);
-        }
-        // Child succeeded
-
-        // Check for zero-width match to prevent infinite loops
-        if *child_end_pos == *working_idx {
-            log::warn!(
-                "AnyNumberOf[table]: zero-width match at {}, stopping to prevent infinite loop",
-                working_idx
-            );
-            // frame.end_pos = Some(*matched_idx);
-            frame.state = FrameState::Combining;
-            stack.push(&mut frame);
-            return Ok(TableFrameResult::Done);
-        }
-
-        if *child_end_pos > *max_idx {
-            log::debug!(
-                "AnyNumberOf[table]: child_end_pos={} exceeds max_idx={}, stopping without accumulating this match",
-                child_end_pos,
-                max_idx
-            );
-            frame.end_pos = Some(*matched_idx);
-            frame.state = FrameState::Combining;
-            stack.push(&mut frame);
-            return Ok(TableFrameResult::Done);
-        }
-
-        let allow_gaps = inst.flags.allow_gaps();
-        if allow_gaps && *matched_idx < *working_idx {
-            self.tokens[*matched_idx..*working_idx]
-                .iter()
-                .enumerate()
-                .for_each(|(offset, tok)| match tok.get_type().as_str() {
-                    "whitespace" => frame.accumulated.push(Node::Whitespace {
-                        raw: tok.raw().to_string(),
-                        token_idx: *matched_idx + offset,
-                    }),
-                    "newline" => frame.accumulated.push(Node::Newline {
-                        raw: tok.raw().to_string(),
-                        token_idx: *matched_idx + offset,
-                    }),
-                    _ => {}
-                });
-            *matched_idx = *working_idx;
-        }
-
-        // Get max_times config from aux_data
-        let (_min_times, max_times, max_times_per_element, _has_exclude) =
-            ctx.anynumberof_config(*grammar_id);
-
-        if *child_end_pos > *max_idx {
-            log::debug!(
-                "AnyNumberOf[table]: child_end_pos={} exceeds max_idx={}, returning early",
-                child_end_pos,
-                max_idx
-            );
-            frame.end_pos = Some(*matched_idx);
-            frame.state = FrameState::Combining;
-            stack.push(&mut frame);
-            return Ok(TableFrameResult::Done);
-        }
-
-        // Check max_times constraint (total matches across all elements)
-        if let Some(max) = max_times {
-            if *count >= max {
-                log::debug!("AnyNumberOf[table]: Reached max_times={}, finalizing", max);
-                frame.end_pos = Some(*matched_idx);
-                frame.state = FrameState::Combining;
-                stack.push(&mut frame);
-                return Ok(TableFrameResult::Done);
-            }
-        }
-
-        let matched_element = pruned_children
+        // Get the current candidate's grammar_id for longest_match tracking
+        let current_candidate = pruned_children
             .get(current_element_idx)
             .copied()
             .unwrap_or(pruned_children[0]);
-        let element_key = matched_element.0 as u64;
-        let count_for_element = option_counter.entry(element_key).or_insert(0);
-        *count_for_element += 1;
 
-        if let Some(max_per) = max_times_per_element {
-            if *count_for_element > max_per {
+        // Update longest_match if this child is better (like OneOf does)
+        if !child_node.is_empty() && *child_end_pos <= *max_idx {
+            let is_better = if let Some((_, current_end_pos, _)) = longest_match {
+                *child_end_pos > *current_end_pos
+            } else {
+                true
+            };
+
+            if is_better {
+                *longest_match = Some((child_node.clone(), *child_end_pos, current_candidate));
                 log::debug!(
-                    "AnyNumberOf[table]: Element {} exceeded max_times_per_element={}, count={}",
-                    element_key,
-                    max_per,
-                    count_for_element
+                    "AnyNumberOf[table]: Updated longest_match: child_id={}, end_pos={}",
+                    current_candidate.0,
+                    child_end_pos
                 );
-                // Return early, do not add match
+            }
+        }
+
+        *tried_elements += 1;
+
+        // Try next element candidate if there are more
+        if current_element_idx + 1 < pruned_children.len() {
+            let next_element_idx = current_element_idx + 1;
+            let next_candidate = pruned_children[next_element_idx];
+
+            log::debug!(
+                "AnyNumberOf[table]: Trying next element candidate idx={} gid={} (for longest_match)",
+                next_element_idx,
+                next_candidate.0
+            );
+
+            // Update frame to indicate which candidate we're trying next
+            frame.state = FrameState::WaitingForChild {
+                child_index: next_element_idx,
+                total_children: pruned_children.len(),
+            };
+
+            // Push parent and next candidate child
+            let new_child_frame_id = stack.frame_id_counter;
+            let mut next_child_frame = TableParseFrame::new_child(
+                new_child_frame_id,
+                next_candidate,
+                *working_idx,
+                frame.table_terminators.clone(),
+                Some(*max_idx),
+            );
+
+            // Update last_child_frame_id so the parent knows which result to look up
+            *last_child_frame_id = Some(new_child_frame_id);
+
+            stack.increment_frame_id_counter();
+            stack.push(&mut frame);
+            stack.push(&mut next_child_frame);
+            return Ok(TableFrameResult::Done);
+        }
+
+        // All element candidates tried for this repetition - use longest_match if any
+        log::debug!(
+            "AnyNumberOf[table]: All candidates tried, longest_match={:?}, count={}, min_times={}",
+            longest_match.as_ref().map(|(_, end, gid)| (end, gid.0)),
+            count,
+            inst.min_times
+        );
+
+        if let Some((best_node, best_end_pos, best_gid)) = longest_match.take() {
+            // Check for zero-width match to prevent infinite loops
+            if best_end_pos == *working_idx {
+                log::warn!(
+                    "AnyNumberOf[table]: zero-width match at {}, stopping to prevent infinite loop",
+                    working_idx
+                );
+                frame.state = FrameState::Combining;
+                stack.push(&mut frame);
+                return Ok(TableFrameResult::Done);
+            }
+
+            // Collect whitespace before the match if allow_gaps is true
+            let allow_gaps = inst.flags.allow_gaps();
+            if allow_gaps && *matched_idx < *working_idx {
+                self.tokens[*matched_idx..*working_idx]
+                    .iter()
+                    .enumerate()
+                    .for_each(|(offset, tok)| match tok.get_type().as_str() {
+                        "whitespace" => frame.accumulated.push(Node::Whitespace {
+                            raw: tok.raw().to_string(),
+                            token_idx: *matched_idx + offset,
+                        }),
+                        "newline" => frame.accumulated.push(Node::Newline {
+                            raw: tok.raw().to_string(),
+                            token_idx: *matched_idx + offset,
+                        }),
+                        _ => {}
+                    });
+                *matched_idx = *working_idx;
+            }
+
+            // Get max_times config from aux_data
+            let (_min_times, max_times, max_times_per_element, _has_exclude) =
+                ctx.anynumberof_config(*grammar_id);
+
+            // Check max_times constraint (total matches across all elements)
+            if let Some(max) = max_times {
+                if *count >= max {
+                    log::debug!("AnyNumberOf[table]: Reached max_times={}, finalizing", max);
+                    frame.end_pos = Some(*matched_idx);
+                    frame.state = FrameState::Combining;
+                    stack.push(&mut frame);
+                    return Ok(TableFrameResult::Done);
+                }
+            }
+
+            // Update option counter for max_times_per_element
+            let element_key = best_gid.0 as u64;
+            let count_for_element = option_counter.entry(element_key).or_insert(0);
+            *count_for_element += 1;
+
+            if let Some(max_per) = max_times_per_element {
+                if *count_for_element > max_per {
+                    log::debug!(
+                        "AnyNumberOf[table]: Element {} exceeded max_times_per_element={}, count={}",
+                        element_key,
+                        max_per,
+                        count_for_element
+                    );
+                    // Return early, do not add match
+                    frame.end_pos = Some(*matched_idx);
+                    frame.state = FrameState::Combining;
+                    stack.push(&mut frame);
+                    return Ok(TableFrameResult::Done);
+                }
+            }
+
+            // Match succeeded - accumulate and increment count
+            frame.accumulated.push(best_node);
+            *matched_idx = best_end_pos;
+            *working_idx = *matched_idx;
+            *count += 1;
+
+            // Skip whitespace for next iteration if allow_gaps is true (Python behavior)
+            // This matches Python's AnyNumberOf.match which calls
+            // skip_start_index_forward_to_code after each successful match.
+            let allow_gaps = inst.flags.allow_gaps();
+            if allow_gaps {
+                *working_idx = self.skip_start_index_forward_to_code(*matched_idx, *max_idx);
+            }
+
+            log::debug!(
+                "AnyNumberOf[table]: Match #{} (longest), element_key={}, matched_idx={}, working_idx={}",
+                count,
+                element_key,
+                matched_idx,
+                working_idx
+            );
+
+            // Check if we've reached max_idx
+            if *matched_idx >= *max_idx {
+                log::debug!(
+                    "AnyNumberOf[table]: Reached max_idx={}, finalizing",
+                    max_idx
+                );
                 frame.end_pos = Some(*matched_idx);
                 frame.state = FrameState::Combining;
                 stack.push(&mut frame);
                 return Ok(TableFrameResult::Done);
             }
-        }
 
-        // Match succeeded - accumulate and increment count
-        frame.accumulated.push(child_node.clone());
-        *matched_idx = *child_end_pos;
-        *working_idx = *matched_idx;
-        *count += 1;
+            // Continue matching - prepare to match the next repetition
+            // Reset for next repetition: try all element candidates from index 0
+            self.pos = *working_idx;
 
-        log::debug!(
-            "AnyNumberOf[table]: Match #{}, element_key={}, matched_idx={}",
-            count,
-            element_key,
-            matched_idx
-        );
-
-        // Check if we've reached max_idx
-        if *matched_idx >= *max_idx {
+            // Re-prune at the new position for better efficiency
+            let element_ids: Vec<GrammarId> = ctx.element_children(*grammar_id).collect();
+            let repruned_children = self.prune_options_table_driven(&element_ids);
             log::debug!(
-                "AnyNumberOf[table]: Reached max_idx={}, finalizing",
-                max_idx
+                "AnyNumberOf[table]: After match, re-pruned elements from {} to {}",
+                element_ids.len(),
+                repruned_children.len()
             );
-            frame.end_pos = Some(*matched_idx);
-            frame.state = FrameState::Combining;
+
+            // If all elements pruned, finalize
+            if repruned_children.is_empty() {
+                log::debug!("AnyNumberOf[table]: All elements pruned after match, finalizing");
+                frame.end_pos = Some(*matched_idx);
+                frame.state = FrameState::Combining;
+                stack.push(&mut frame);
+                return Ok(TableFrameResult::Done);
+            }
+
+            // Update pruned_children in context
+            *pruned_children = repruned_children.clone();
+
+            // Reset longest_match and tried_elements for next repetition
+            *longest_match = None;
+            *tried_elements = 0;
+
+            let next_element = repruned_children[0];
+            let new_child_frame_id = stack.frame_id_counter;
+            let mut next_child_frame = TableParseFrame::new_child(
+                new_child_frame_id,
+                next_element,
+                *working_idx,
+                frame.table_terminators.clone(),
+                Some(*max_idx),
+            );
+
+            // Update last_child_frame_id so the parent knows which result to look up
+            *last_child_frame_id = Some(new_child_frame_id);
+
+            // Reset child_index to 0 and total_children to number of candidates
+            frame.state = FrameState::WaitingForChild {
+                child_index: 0,
+                total_children: repruned_children.len(),
+            };
+
+            stack.increment_frame_id_counter();
             stack.push(&mut frame);
+            stack.push(&mut next_child_frame);
             return Ok(TableFrameResult::Done);
         }
 
-        // Continue matching - prepare to match the next repetition. For the
-        // next repetition we should start again trying all element
-        // candidates from index 0.
-        self.pos = *working_idx;
-
-        // Re-prune at the new position for better efficiency
-        let element_ids: Vec<GrammarId> = ctx.element_children(*grammar_id).collect();
-        let repruned_children = self.prune_options_table_driven(&element_ids);
+        // No match found - finalize based on min_times
         log::debug!(
-            "AnyNumberOf[table]: After match, re-pruned elements from {} to {}",
-            element_ids.len(),
-            repruned_children.len()
+            "AnyNumberOf[table]: No match found, finalizing with count={}, min_times={}",
+            count,
+            inst.min_times
         );
-
-        // If all elements pruned, finalize
-        if repruned_children.is_empty() {
-            log::debug!("AnyNumberOf[table]: All elements pruned after match, finalizing");
-            frame.end_pos = Some(*matched_idx);
-            frame.state = FrameState::Combining;
-            stack.push(&mut frame);
-            return Ok(TableFrameResult::Done);
-        }
-
-        // Update pruned_children in context
-        *pruned_children = repruned_children.clone();
-
-        let next_element = repruned_children[0];
-        let new_child_frame_id = stack.frame_id_counter;
-        let mut next_child_frame = TableParseFrame::new_child(
-            new_child_frame_id,
-            next_element,
-            *working_idx,
-            frame.table_terminators.clone(),
-            Some(*max_idx),
-        );
-
-        // Update last_child_frame_id so the parent knows which result to look up
-        *last_child_frame_id = Some(new_child_frame_id);
-
-        // Reset child_index to 0 and total_children to number of candidates
-        frame.state = FrameState::WaitingForChild {
-            child_index: 0,
-            total_children: repruned_children.len(),
-        };
-
-        stack.increment_frame_id_counter();
+        frame.state = FrameState::Combining;
         stack.push(&mut frame);
-        stack.push(&mut next_child_frame);
         Ok(TableFrameResult::Done)
     }
 

@@ -769,12 +769,11 @@ impl<'a> Parser<'a> {
         ctx: &GrammarContext,
     ) -> Result<Node, ParseError> {
         // Extract all data from tables first (before any self methods)
-        let inst = ctx.inst(grammar_id);
         let tables = ctx.tables();
 
         // MultiStringParser stores: [templates_start, templates_count, token_type_id, raw_class_id] in aux_data
-        // first_child_idx holds the aux_data offset
-        let aux_start = inst.first_child_idx as usize;
+        // The aux_data offset is stored in the separate AUX_DATA_OFFSETS table, NOT in first_child_idx
+        let aux_start = tables.aux_data_offsets[grammar_id.get() as usize] as usize;
         let templates_start = tables.aux_data[aux_start] as usize;
         let templates_count = tables.aux_data[aux_start + 1] as usize;
         let token_type_id = tables.aux_data[aux_start + 2];

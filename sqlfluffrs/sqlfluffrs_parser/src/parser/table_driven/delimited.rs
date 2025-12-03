@@ -334,6 +334,36 @@ impl<'a> Parser<'_> {
                     *delim_state = DelimitedState::MatchingElement;
                     self.pos = *working_idx;
 
+                    // Get the grammar instruction to check allow_gaps
+                    let inst = ctx.inst(*grammar_id);
+
+                    // If allow_gaps is set, skip whitespace and collect transparent tokens
+                    // between the delimiter and the next element (Python parity)
+                    if inst.flags.allow_gaps() {
+                        let max_idx = frame.parent_max_idx.unwrap_or(self.tokens.len());
+                        let next_code_pos =
+                            self.skip_start_index_forward_to_code(*working_idx, max_idx);
+                        // Collect whitespace/newlines between delimiter and next element
+                        for idx in *working_idx..next_code_pos {
+                            if idx < self.tokens.len() {
+                                let tok = &self.tokens[idx];
+                                let tok_type = tok.get_type();
+                                if tok_type == "whitespace" {
+                                    frame.accumulated.push(Node::Whitespace {
+                                        raw: tok.raw().to_string(),
+                                        token_idx: idx,
+                                    });
+                                } else if tok_type == "newline" {
+                                    frame.accumulated.push(Node::Newline {
+                                        raw: tok.raw().to_string(),
+                                        token_idx: idx,
+                                    });
+                                }
+                            }
+                        }
+                        *working_idx = next_code_pos;
+                    }
+
                     // Get configuration to rebuild element_ids
                     let (delimiter_child_idx, _) = ctx.delimited_config(*grammar_id);
 

@@ -352,6 +352,9 @@ class TableBuilder:
             and isinstance(grammar, SegmentMetaclass)
             and hasattr(grammar, "match_grammar")
         ):
+            # Recurse into match_grammar to ensure it's flattened into the tables
+            self.flatten_grammar(grammar.match_grammar, parse_context)
+
             # Return a forwarding instruction (use Ref variant)
             comment = f"Forward to {grammar.__name__}"
             name_id = self._add_string(grammar.__name__)
@@ -481,8 +484,10 @@ class TableBuilder:
         # resulting first_child_idx will point at the wrong slice.
         children_start = len(self.child_ids)
         num_children = len(grammar._elements)
-        # Reserve placeholder slots
-        self.child_ids.extend([0] * num_children)
+        has_exclude = grammar.exclude is not None
+        # Reserve placeholder slots - include one extra slot for exclude if present
+        slots_to_reserve = num_children + (1 if has_exclude else 0)
+        self.child_ids.extend([0] * slots_to_reserve)
 
         # Now flatten children - they may append MORE child_ids, but our slots are safe
         element_ids = self._flatten_list(grammar._elements, parse_context)
@@ -493,7 +498,8 @@ class TableBuilder:
 
         exclude_id = self._flatten_optional(grammar.exclude, parse_context)
         if exclude_id is not None:
-            self.child_ids.append(exclude_id)
+            # Place exclude in its reserved slot (last slot)
+            self.child_ids[children_start + len(element_ids)] = exclude_id
 
         children_count = len(element_ids) + (1 if exclude_id is not None else 0)
 
@@ -1280,40 +1286,40 @@ def generate_parser_table_driven(dialect: str):
     # Only generate full table-driven code for `ansi`. For other dialects emit
     # simple stubs so the generated files compile while the dialects are
     # implemented incrementally.
-    if dialect not in ("ansi",):
-        # For non-table-driven dialects, emit minimal stubs. Ensure the
-        # minimal types are imported so signatures compile (RootGrammar,
-        # GrammarId). Keep imports tight to avoid unused-import warnings.
-        print("use sqlfluffrs_types::{ RootGrammar, GrammarId };")
-        print("")
-        print(
-            f"pub fn get_{dialect.lower()}_segment_grammar(name: &str) ->"
-            " Option<RootGrammar> {"
-        )
-        print("    // This dialect has no table-driven tables generated yet.")
-        print("    // Keep this function minimal to avoid unused import warnings.")
-        print("    unimplemented!()")
-        print("}")
-        print()
+    # if dialect not in ("ansi",):
+    #     # For non-table-driven dialects, emit minimal stubs. Ensure the
+    #     # minimal types are imported so signatures compile (RootGrammar,
+    #     # GrammarId). Keep imports tight to avoid unused-import warnings.
+    #     print("use sqlfluffrs_types::{ RootGrammar, GrammarId };")
+    #     print("")
+    #     print(
+    #         f"pub fn get_{dialect.lower()}_segment_grammar(name: &str) ->"
+    #         " Option<RootGrammar> {"
+    #     )
+    #     print("    // This dialect has no table-driven tables generated yet.")
+    #     print("    // Keep this function minimal to avoid unused import warnings.")
+    #     print("    unimplemented!()")
+    #     print("}")
+    #     print()
 
-        print(
-            f"pub fn get_{dialect.lower()}_segment_type(name: &str) ->"
-            " Option<&'static str> {"
-        )
-        print("    unimplemented!()")
-        print("}")
-        print()
+    #     print(
+    #         f"pub fn get_{dialect.lower()}_segment_type(name: &str) ->"
+    #         " Option<&'static str> {"
+    #     )
+    #     print("    unimplemented!()")
+    #     print("}")
+    #     print()
 
-        print(f"pub fn get_{dialect.lower()}_root_grammar_id() -> GrammarId {{")
-        print("    unimplemented!()")
-        print("}")
-        print()
+    #     print(f"pub fn get_{dialect.lower()}_root_grammar_id() -> GrammarId {{")
+    #     print("    unimplemented!()")
+    #     print("}")
+    #     print()
 
-        print(f"pub fn get_{dialect.lower()}_root_grammar_table() -> RootGrammar {{")
-        print("    unimplemented!()")
-        print("}")
-        print()
-        return
+    #     print(f"pub fn get_{dialect.lower()}_root_grammar_table() -> RootGrammar {{")
+    #     print("    unimplemented!()")
+    #     print("}")
+    #     print()
+    #     return
 
     # For table-driven (ansi) generation, emit only the precise imports needed
     # at the top of the generated module. This keeps generated files clean and
@@ -1324,7 +1330,6 @@ def generate_parser_table_driven(dialect: str):
     print("    SimpleHint, SimpleHintData, Grammar, RootGrammar")
     print("};")
     print("use hashbrown;")
-    print("use std::sync::Arc;")
 
     # Build tables
     builder = TableBuilder()
@@ -1332,134 +1337,131 @@ def generate_parser_table_driven(dialect: str):
     segment_types = []
 
     # TODO: remove this if
-    if dialect in ("ansi",):
-        # Phase 1: Flatten all segment grammars
-        print("// Flattening grammar tree...")
-        for name, match_grammar in sorted(loaded_dialect._library.items()):
-            name = name.replace(" ", "_")
+    # if dialect in ("ansi",):
+    # Phase 1: Flatten all segment grammars
+    print("// Flattening grammar tree...")
+    for name, match_grammar in sorted(loaded_dialect._library.items()):
+        name = name.replace(" ", "_")
 
-            # DEBUG
-            if name == "SelectClauseSegment":
-                print(f"// DEBUG: Processing {name}", file=sys.stderr)
-                print(
-                    f"// DEBUG:   match_grammar type: {type(match_grammar).__name__}",
-                    file=sys.stderr,
-                )
-                print(
-                    "// DEBUG:   isinstance(match_grammar, type): "
-                    f"{isinstance(match_grammar, type)}",
-                    file=sys.stderr,
-                )
-                if isinstance(match_grammar, type):
-                    print(
-                        "// DEBUG:   issubclass(match_grammar, BaseSegment): "
-                        f"{issubclass(match_grammar, BaseSegment)}",
-                        file=sys.stderr,
-                    )
-                    print(
-                        "// DEBUG:   hasattr(match_grammar, 'match_grammar'): "
-                        f"{hasattr(match_grammar, 'match_grammar')}",
-                        file=sys.stderr,
-                    )
-
-            # Flatten grammar
-            # If this is a Segment class (SegmentMetaclass), the builder will
-            # emit a forwarding Ref instruction for the class itself and a
-            # separate instruction for the actual match_grammar. For RootGrammar
-            # mappings we want the underlying grammar id (the real implementation),
-            # not the forwarding Ref. Detect and handle that here.
-            if (
-                isinstance(match_grammar, type)
-                and issubclass(match_grammar, BaseSegment)
-                and hasattr(match_grammar, "match_grammar")
-            ):
-                # Flatten the concrete match_grammar and use its id
-                if name == "SelectClauseSegment":
-                    print(
-                        "// DEBUG: SelectClauseSegment TAKING SPECIAL PATH",
-                        file=sys.stderr,
-                    )
-                root_id = builder.flatten_grammar(
-                    match_grammar.match_grammar, parse_context
-                )
-                if name == "SelectClauseSegment":
-                    print(
-                        f"// DEBUG: SelectClauseSegment mapped to grammar_id {root_id}",
-                        file=sys.stderr,
-                    )
-                    # Check what instruction this ID points to
-                    if root_id < len(builder.instructions):
-                        inst = builder.instructions[root_id]
-                        print(
-                            f"// DEBUG: Instruction at {root_id}: "
-                            f"variant={inst.variant}",
-                            file=sys.stderr,
-                        )
-                    else:
-                        print(f"// DEBUG: ID {root_id} out of range!", file=sys.stderr)
-            else:
-                if name == "SelectClauseSegment":
-                    print(
-                        "// DEBUG: SelectClauseSegment TAKING ELSE PATH",
-                        file=sys.stderr,
-                    )
-                root_id = builder.flatten_grammar(match_grammar, parse_context)
-
-            segment_to_id[name] = root_id
-
-            # Check if this is a Segment class (has a 'type' attribute)
-            if isinstance(match_grammar, type) and issubclass(
-                match_grammar, BaseSegment
-            ):
-                segment_type = getattr(match_grammar, "type", None)
-                if segment_type:
-                    segment_types.append((name, segment_type))
-
-        # Validate tables
-        print("// Validating tables...")
-        builder.validate()
-        print("// Validation passed!")
-        print()
-
-        # Print statistics
-        builder.print_statistics()
-
-        # Phase 2: Generate Rust code
-        print(builder.generate_rust_tables())
-
-        # Phase 3: Generate accessor functions
-        print(
-            f"pub fn get_{dialect.lower()}_segment_grammar(name: &str) "
-            "-> Option<RootGrammar> {"
-        )
-        print("    match name {")
-        for name, grammar_id in sorted(segment_to_id.items()):
+        # DEBUG
+        if name == "SelectClauseSegment":
+            print(f"// DEBUG: Processing {name}", file=sys.stderr)
             print(
-                f'        "{name}" => Some(RootGrammar::TableDriven {{ '
-                f"grammar_id: GrammarId({grammar_id}), "
-                f"tables: &{dialect.upper()}_TABLES }}),"
+                f"// DEBUG:   match_grammar type: {type(match_grammar).__name__}",
+                file=sys.stderr,
             )
-        print("        _ => None,")
-        print("    }")
-        print("}")
-        print()
+            print(
+                "// DEBUG:   isinstance(match_grammar, type): "
+                f"{isinstance(match_grammar, type)}",
+                file=sys.stderr,
+            )
+            if isinstance(match_grammar, type):
+                print(
+                    "// DEBUG:   issubclass(match_grammar, BaseSegment): "
+                    f"{issubclass(match_grammar, BaseSegment)}",
+                    file=sys.stderr,
+                )
+                print(
+                    "// DEBUG:   hasattr(match_grammar, 'match_grammar'): "
+                    f"{hasattr(match_grammar, 'match_grammar')}",
+                    file=sys.stderr,
+                )
 
-        # Generate type mapping function
+        # Flatten grammar
+        # If this is a Segment class (SegmentMetaclass), the builder will
+        # emit a forwarding Ref instruction for the class itself and a
+        # separate instruction for the actual match_grammar. For RootGrammar
+        # mappings we want the underlying grammar id (the real implementation),
+        # not the forwarding Ref. Detect and handle that here.
+        if (
+            isinstance(match_grammar, type)
+            and issubclass(match_grammar, BaseSegment)
+            and hasattr(match_grammar, "match_grammar")
+        ):
+            # Flatten the concrete match_grammar and use its id
+            if name == "SelectClauseSegment":
+                print(
+                    "// DEBUG: SelectClauseSegment TAKING SPECIAL PATH",
+                    file=sys.stderr,
+                )
+            root_id = builder.flatten_grammar(
+                match_grammar.match_grammar, parse_context
+            )
+            if name == "SelectClauseSegment":
+                print(
+                    f"// DEBUG: SelectClauseSegment mapped to grammar_id {root_id}",
+                    file=sys.stderr,
+                )
+                # Check what instruction this ID points to
+                if root_id < len(builder.instructions):
+                    inst = builder.instructions[root_id]
+                    print(
+                        f"// DEBUG: Instruction at {root_id}: variant={inst.variant}",
+                        file=sys.stderr,
+                    )
+                else:
+                    print(f"// DEBUG: ID {root_id} out of range!", file=sys.stderr)
+        else:
+            if name == "SelectClauseSegment":
+                print(
+                    "// DEBUG: SelectClauseSegment TAKING ELSE PATH",
+                    file=sys.stderr,
+                )
+            root_id = builder.flatten_grammar(match_grammar, parse_context)
+
+        segment_to_id[name] = root_id
+
+        # Check if this is a Segment class (has a 'type' attribute)
+        if isinstance(match_grammar, type) and issubclass(match_grammar, BaseSegment):
+            segment_type = getattr(match_grammar, "type", None)
+            if segment_type:
+                segment_types.append((name, segment_type))
+
+    # Validate tables
+    print("// Validating tables...")
+    builder.validate()
+    print("// Validation passed!")
+    print()
+
+    # Print statistics
+    builder.print_statistics()
+
+    # Phase 2: Generate Rust code
+    print(builder.generate_rust_tables())
+
+    # Phase 3: Generate accessor functions
+    print(
+        f"pub fn get_{dialect.lower()}_segment_grammar(name: &str) "
+        "-> Option<RootGrammar> {"
+    )
+    print("    match name {")
+    for name, grammar_id in sorted(segment_to_id.items()):
         print(
-            f"pub fn get_{dialect.lower()}_segment_type(name: &str) "
-            "-> Option<&'static str> {"
+            f'        "{name}" => Some(RootGrammar::TableDriven {{ '
+            f"grammar_id: GrammarId({grammar_id}), "
+            f"tables: &{dialect.upper()}_TABLES }}),"
         )
-        print("    match name {")
-        for name, segment_type in sorted(segment_types):
-            print(f'        "{name}" => Some("{segment_type}"),')
-        print("        _ => None,")
-        print("    }")
-        print("}")
-        print()
+    print("        _ => None,")
+    print("    }")
+    print("}")
+    print()
 
-        # Phase 4: Generate GrammarTables instance
-        print(
-            f"""pub static {dialect.upper()}_TABLES: GrammarTables = GrammarTables {{
+    # Generate type mapping function
+    print(
+        f"pub fn get_{dialect.lower()}_segment_type(name: &str) "
+        "-> Option<&'static str> {"
+    )
+    print("    match name {")
+    for name, segment_type in sorted(segment_types):
+        print(f'        "{name}" => Some("{segment_type}"),')
+    print("        _ => None,")
+    print("    }")
+    print("}")
+    print()
+
+    # Phase 4: Generate GrammarTables instance
+    print(
+        f"""pub static {dialect.upper()}_TABLES: GrammarTables = GrammarTables {{
     instructions: INSTRUCTIONS,
     child_ids: CHILD_IDS,
     terminators: TERMINATORS,
@@ -1473,30 +1475,30 @@ def generate_parser_table_driven(dialect: str):
     segment_type_offsets: SEGMENT_TYPE_OFFSETS,
 }};
 """
-        )
+    )
 
-        # Generate root grammar accessor
-        root_name = loaded_dialect.get_root_segment().__name__
-        root_id = segment_to_id.get(root_name, 0)
-        print(
-            f"""pub fn get_{dialect.lower()}_root_grammar_id() -> GrammarId {{
+    # Generate root grammar accessor
+    root_name = loaded_dialect.get_root_segment().__name__
+    root_id = segment_to_id.get(root_name, 0)
+    print(
+        f"""pub fn get_{dialect.lower()}_root_grammar_id() -> GrammarId {{
     GrammarId({root_id})
 }}"""
-        )
+    )
 
-        # Emit RootGrammar constructor for table-driven dialect (named _table)
-        print(
-            f"""pub fn get_{dialect.lower()}_root_grammar_table() -> RootGrammar {{
+    # Emit RootGrammar constructor for table-driven dialect (named _table)
+    print(
+        f"""pub fn get_{dialect.lower()}_root_grammar_table() -> RootGrammar {{
     RootGrammar::TableDriven {{
         grammar_id: get_{dialect.lower()}_root_grammar_id(),
         tables: &{dialect.upper()}_TABLES,
     }}
 }}"""
-        )
-        # Wrapper so callers can call get_<dialect>_root_grammar()
-        print(f"pub fn get_{dialect.lower()}_root_grammar() -> RootGrammar {{")
-        print(f"    get_{dialect.lower()}_root_grammar_table()")
-        print("}")
+    )
+    # Wrapper so callers can call get_<dialect>_root_grammar()
+    print(f"pub fn get_{dialect.lower()}_root_grammar() -> RootGrammar {{")
+    print(f"    get_{dialect.lower()}_root_grammar_table()")
+    print("}")
 
 
 def generate_parser(dialect: str):
@@ -1508,78 +1510,75 @@ def generate_parser(dialect: str):
 
     # Only fully generate for ansi. For other dialects emit simple stubs
     # returning Option<RootGrammar> so the dialect glue compiles.
-    if dialect not in ("ansi",):
-        # Minimal stub for non-ansi dialects; ensure minimal imports for
-        # RootGrammar and GrammarId so signatures compile.
-        print("use sqlfluffrs_types::{ RootGrammar, GrammarId };")
-        print("")
-        print(
-            f"pub fn get_{dialect.lower()}_segment_grammar(name: &str) ->"
-            " Option<RootGrammar> {"
-        )
-        print("    // Not generated yet for this dialect")
-        print("    unimplemented!()")
-        print("}")
-        print()
+    # if dialect not in ("ansi",):
+    #     # Minimal stub for non-ansi dialects; ensure minimal imports for
+    #     # RootGrammar and GrammarId so signatures compile.
+    #     print("use sqlfluffrs_types::{ RootGrammar, GrammarId };")
+    #     print("")
+    #     print(
+    #         f"pub fn get_{dialect.lower()}_segment_grammar(name: &str) ->"
+    #         " Option<RootGrammar> {"
+    #     )
+    #     print("    // Not generated yet for this dialect")
+    #     print("    unimplemented!()")
+    #     print("}")
+    #     print()
 
-        print(
-            f"pub fn get_{dialect.lower()}_segment_type(name: &str) ->"
-            " Option<&'static str> {"
-        )
-        print("    unimplemented!()")
-        print("}")
-        print()
+    #     print(
+    #         f"pub fn get_{dialect.lower()}_segment_type(name: &str) ->"
+    #         " Option<&'static str> {"
+    #     )
+    #     print("    unimplemented!()")
+    #     print("}")
+    #     print()
 
-        print(f"pub fn get_{dialect.lower()}_root_grammar_arc() -> RootGrammar {{")
-        print("    unimplemented!()")
-        print("}")
-        print()
+    #     print(f"pub fn get_{dialect.lower()}_root_grammar_arc() -> RootGrammar {{")
+    #     print("    unimplemented!()")
+    #     print("}")
+    #     print()
 
-        print(f"pub fn get_{dialect.lower()}_root_grammar() -> RootGrammar {{")
-        print("    unimplemented!()")
-        print("}")
-        print()
-        return
+    #     print(f"pub fn get_{dialect.lower()}_root_grammar() -> RootGrammar {{")
+    #     print("    unimplemented!()")
+    #     print("}")
+    #     print()
+    #     return
 
     # TODO: remove this if
-    if dialect in ("ansi"):
-        # Emit only the imports needed for Arc-based grammars (Arc<Grammar> path)
-        print("use sqlfluffrs_types::{")
-        print("    Grammar, RootGrammar, RootGrammar::Arc,")
-        print("};")
-        print("use std::sync::OnceLock;")
-        print("use std::sync::Arc;")
-        # if dialect not in ("snowflake", "tsql"):
-        # if True:
-        # We'll emit an init function + OnceLock static for each grammar
-        for name, match_grammar in sorted(loaded_dialect._library.items()):
-            name = name.replace(" ", "_")
-            const_name = matchable_to_const_name(name)
+    # if dialect in ("ansi"):
+    # Emit only the imports needed for Arc-based grammars (Arc<Grammar> path)
+    print("use sqlfluffrs_types::{")
+    print("    Grammar, RootGrammar")
+    print("};")
+    print("use std::sync::OnceLock;")
+    # if dialect not in ("snowflake", "tsql"):
+    # if True:
+    # We'll emit an init function + OnceLock static for each grammar
+    for name, match_grammar in sorted(loaded_dialect._library.items()):
+        name = name.replace(" ", "_")
+        const_name = matchable_to_const_name(name)
 
-            # The match arm will lazily initialize via OnceLock::get_or_init
-            # Wrap the Arc<Grammar> into RootGrammar::Arc here so the
-            # accessor uniformly returns Option<RootGrammar>.
-            segment_grammars.append(
-                f'"{name}" => Some(RootGrammar::Arc({const_name}.get_or_init(||'
-                f" init_{const_name.lower()}()).clone())),"
-            )
+        # The match arm will lazily initialize via OnceLock::get_or_init
+        # Wrap the Arc<Grammar> into RootGrammar::Arc here so the
+        # accessor uniformly returns Option<RootGrammar>.
+        segment_grammars.append(
+            f'"{name}" => Some(RootGrammar::Arc({const_name}.get_or_init(||'
+            f" init_{const_name.lower()}()).clone())),"
+        )
 
-            # Check if this is a Segment class (has a 'type' attribute)
-            if isinstance(match_grammar, type) and issubclass(
-                match_grammar, BaseSegment
-            ):
-                segment_type = getattr(match_grammar, "type", None)
-                if segment_type:
-                    segment_types.append(f'"{name}" => Some("{segment_type}"),')
+        # Check if this is a Segment class (has a 'type' attribute)
+        if isinstance(match_grammar, type) and issubclass(match_grammar, BaseSegment):
+            segment_type = getattr(match_grammar, "type", None)
+            if segment_type:
+                segment_types.append(f'"{name}" => Some("{segment_type}"),')
 
-            # Emit an initializer function and a OnceLock static
-            print(f"// {name=}")
-            print(f"fn init_{const_name.lower()}() -> Arc<Grammar> {{")
-            _to_rust_parser_grammar(match_grammar, parse_context)
-            print("}")
-            print()
-            print(f"pub static {const_name}: OnceLock<Arc<Grammar>> = OnceLock::new();")
-            print()
+        # Emit an initializer function and a OnceLock static
+        print(f"// {name=}")
+        print(f"fn init_{const_name.lower()}() -> Arc<Grammar> {{")
+        _to_rust_parser_grammar(match_grammar, parse_context)
+        print("}")
+        print()
+        print(f"pub static {const_name}: OnceLock<Arc<Grammar>> = OnceLock::new();")
+        print()
     segment_grammars.append("_ => None,")
     segment_types.append("_ => None,")
 

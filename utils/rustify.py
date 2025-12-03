@@ -56,11 +56,7 @@ if __name__ == "__main__":
             (
                 "build_parsers",
                 "parser",
-                (
-                    [dialect.label.lower(), "--table-driven"]
-                    if dialect.label.lower() == "ansi"
-                    else [dialect.label.lower()]
-                ),
+                ([dialect.label.lower(), "--table-driven"]),
             ),
         ]
     ]

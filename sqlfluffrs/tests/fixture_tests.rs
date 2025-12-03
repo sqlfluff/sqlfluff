@@ -179,137 +179,137 @@ fn test_yaml_output_matches_python_ansi() {
     check_yaml_output_matches_python_for_dialect("ansi");
 }
 
-// #[test]
+#[test]
 fn test_yaml_output_matches_python_athena() {
     check_yaml_output_matches_python_for_dialect("athena");
 }
 
-// #[test]
+#[test]
 fn test_yaml_output_matches_python_bigquery() {
     check_yaml_output_matches_python_for_dialect("bigquery");
 }
 
-// #[test]
+#[test]
 fn test_yaml_output_matches_python_clickhouse() {
     check_yaml_output_matches_python_for_dialect("clickhouse");
 }
 
-// #[test]
+#[test]
 fn test_yaml_output_matches_python_databricks() {
     check_yaml_output_matches_python_for_dialect("databricks");
 }
 
-// #[test]
+#[test]
 fn test_yaml_output_matches_python_db2() {
     check_yaml_output_matches_python_for_dialect("db2");
 }
 
-// #[test]
+#[test]
 fn test_yaml_output_matches_python_doris() {
     check_yaml_output_matches_python_for_dialect("doris");
 }
 
-// #[test]
+#[test]
 fn test_yaml_output_matches_python_duckdb() {
     check_yaml_output_matches_python_for_dialect("duckdb");
 }
 
-// #[test]
+#[test]
 fn test_yaml_output_matches_python_exasol() {
     check_yaml_output_matches_python_for_dialect("exasol");
 }
 
-// #[test]
+#[test]
 fn test_yaml_output_matches_python_flink() {
     check_yaml_output_matches_python_for_dialect("flink");
 }
 
-// #[test]
+#[test]
 fn test_yaml_output_matches_python_greenplum() {
     check_yaml_output_matches_python_for_dialect("greenplum");
 }
 
-// #[test]
+#[test]
 fn test_yaml_output_matches_python_hive() {
     check_yaml_output_matches_python_for_dialect("hive");
 }
 
-// #[test]
+#[test]
 fn test_yaml_output_matches_python_impala() {
     check_yaml_output_matches_python_for_dialect("impala");
 }
 
-// #[test]
+#[test]
 fn test_yaml_output_matches_python_mariadb() {
     check_yaml_output_matches_python_for_dialect("mariadb");
 }
 
-// #[test]
+#[test]
 fn test_yaml_output_matches_python_materialize() {
     check_yaml_output_matches_python_for_dialect("materialize");
 }
 
-// #[test]
+#[test]
 fn test_yaml_output_matches_python_mysql() {
     check_yaml_output_matches_python_for_dialect("mysql");
 }
 
-// #[test]
+#[test]
 fn test_yaml_output_matches_python_oracle() {
     check_yaml_output_matches_python_for_dialect("oracle");
 }
 
-// #[test]
+#[test]
 fn test_yaml_output_matches_python_postgres() {
     check_yaml_output_matches_python_for_dialect("postgres");
 }
 
-// #[test]
+#[test]
 fn test_yaml_output_matches_python_redshift() {
     check_yaml_output_matches_python_for_dialect("redshift");
 }
 
-// #[test]
+#[test]
 fn test_yaml_output_matches_python_snowflake() {
     check_yaml_output_matches_python_for_dialect("snowflake");
 }
 
-// #[test]
+#[test]
 fn test_yaml_output_matches_python_soql() {
     check_yaml_output_matches_python_for_dialect("soql");
 }
 
-// #[test]
+#[test]
 fn test_yaml_output_matches_python_sparksql() {
     check_yaml_output_matches_python_for_dialect("sparksql");
 }
 
-// #[test]
+#[test]
 fn test_yaml_output_matches_python_sqlite() {
     check_yaml_output_matches_python_for_dialect("sqlite");
 }
 
-// #[test]
+#[test]
 fn test_yaml_output_matches_python_starrocks() {
     check_yaml_output_matches_python_for_dialect("starrocks");
 }
 
-// #[test]
+#[test]
 fn test_yaml_output_matches_python_teradata() {
     check_yaml_output_matches_python_for_dialect("teradata");
 }
 
-// #[test]
+#[test]
 fn test_yaml_output_matches_python_trino() {
     check_yaml_output_matches_python_for_dialect("trino");
 }
 
-// #[test]
+#[test]
 fn test_yaml_output_matches_python_tsql() {
     check_yaml_output_matches_python_for_dialect("tsql");
 }
 
-// #[test]
+#[test]
 fn test_yaml_output_matches_python_vertica() {
     check_yaml_output_matches_python_for_dialect("vertica");
 }
@@ -430,7 +430,7 @@ fn test_yaml_output_matches_python() {
         panic!("YAML output does not match expected Python YAML");
     }
 }
-// #[test]
+#[test]
 fn test_all_dialect_fixtures() {
     env_logger::try_init().ok();
 

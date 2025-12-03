@@ -1,4 +1,4 @@
-use sqlfluffrs_dialects::dialect::ansi::matcher::ANSI_LEXERS;
+use sqlfluffrs_dialects::dialect::{self, ansi::matcher::ANSI_LEXERS};
 use sqlfluffrs_dialects::Dialect;
 use sqlfluffrs_lexer::{LexInput, Lexer};
 use sqlfluffrs_parser::parser::Parser;
@@ -136,11 +136,11 @@ fn test_select_from_debug() {
     );
 }
 
-fn run_sql_debug(sql: &str) {
+fn run_sql_debug(sql: &str, dialect: Dialect) {
     env_logger::try_init().ok();
 
     let input = LexInput::String(sql.to_string());
-    let lexer = Lexer::new(None, ANSI_LEXERS.to_vec());
+    let lexer = Lexer::new(None, dialect.get_lexers().to_vec());
     let (tokens, _lex_errors) = lexer.lex(input, false);
 
     println!("\n=== Total tokens: {} ===", tokens.len());
@@ -148,7 +148,6 @@ fn run_sql_debug(sql: &str) {
         println!("{:3}: {:20} {:?}", i, tok.token_type, tok.raw);
     }
 
-    let dialect = Dialect::Ansi;
     let mut parser = Parser::new(&tokens, dialect);
     let ast = parser.call_rule_as_root();
 
@@ -193,11 +192,89 @@ fn run_sql_debug(sql: &str) {
 }
 
 #[test]
-fn test_cast_with_select_b_context_debug() {
+fn test_select_b_context_debug() {
     let path = format!(
         "{}/../test/fixtures/dialects/ansi/select_b.sql",
         env!("CARGO_MANIFEST_DIR")
     );
     let sql = std::fs::read_to_string(&path).unwrap_or_else(|_| panic!("Failed to read {}", path));
-    run_sql_debug(&sql);
+    let dialect = Dialect::Ansi;
+    run_sql_debug(&sql, dialect);
+}
+
+#[test]
+fn test_bigquery_alter_table_add_column_context_debug() {
+    let path = format!(
+        "{}/../test/fixtures/dialects/bigquery/alter_table_add_column.sql",
+        env!("CARGO_MANIFEST_DIR")
+    );
+    let sql = std::fs::read_to_string(&path).unwrap_or_else(|_| panic!("Failed to read {}", path));
+    let dialect = Dialect::Bigquery;
+    run_sql_debug(&sql, dialect);
+}
+
+#[test]
+fn test_bigquery_assert_context_debug() {
+    let path = format!(
+        "{}/../test/fixtures/dialects/bigquery/assert.sql",
+        env!("CARGO_MANIFEST_DIR")
+    );
+    let sql = std::fs::read_to_string(&path).unwrap_or_else(|_| panic!("Failed to read {}", path));
+    let dialect = Dialect::Bigquery;
+    run_sql_debug(&sql, dialect);
+}
+
+#[test]
+fn test_ansi_functions_a_debug() {
+    let path = format!(
+        "{}/../test/fixtures/dialects/ansi/functions_a.sql",
+        env!("CARGO_MANIFEST_DIR")
+    );
+    let sql = std::fs::read_to_string(&path).unwrap_or_else(|_| panic!("Failed to read {}", path));
+    let dialect = Dialect::Ansi;
+    run_sql_debug(&sql, dialect);
+}
+
+#[test]
+fn test_ansi_select_j_debug() {
+    let path = format!(
+        "{}/../test/fixtures/dialects/ansi/select_j.sql",
+        env!("CARGO_MANIFEST_DIR")
+    );
+    let sql = std::fs::read_to_string(&path).unwrap_or_else(|_| panic!("Failed to read {}", path));
+    let dialect = Dialect::Ansi;
+    run_sql_debug(&sql, dialect);
+}
+
+#[test]
+fn test_bigquery_select_extract_debug() {
+    let path = format!(
+        "{}/../test/fixtures/dialects/bigquery/select_extract.sql",
+        env!("CARGO_MANIFEST_DIR")
+    );
+    let sql = std::fs::read_to_string(&path).unwrap_or_else(|_| panic!("Failed to read {}", path));
+    let dialect = Dialect::Bigquery;
+    run_sql_debug(&sql, dialect);
+}
+
+#[test]
+fn test_ansi_create_trigger_debug() {
+    let path = format!(
+        "{}/../test/fixtures/dialects/ansi/create_trigger.sql",
+        env!("CARGO_MANIFEST_DIR")
+    );
+    let sql = std::fs::read_to_string(&path).unwrap_or_else(|_| panic!("Failed to read {}", path));
+    let dialect = Dialect::Ansi;
+    run_sql_debug(&sql, dialect);
+}
+
+#[test]
+fn test_ansi_select_except_debug() {
+    let path = format!(
+        "{}/../test/fixtures/dialects/ansi/select_except.sql",
+        env!("CARGO_MANIFEST_DIR")
+    );
+    let sql = std::fs::read_to_string(&path).unwrap_or_else(|_| panic!("Failed to read {}", path));
+    let dialect = Dialect::Ansi;
+    run_sql_debug(&sql, dialect);
 }
