@@ -258,6 +258,17 @@ fn test_bigquery_select_extract_debug() {
 }
 
 #[test]
+fn test_bigquery_dateparts_debug() {
+    let path = format!(
+        "{}/../test/fixtures/dialects/bigquery/dateparts.sql",
+        env!("CARGO_MANIFEST_DIR")
+    );
+    let sql = std::fs::read_to_string(&path).unwrap_or_else(|_| panic!("Failed to read {}", path));
+    let dialect = Dialect::Bigquery;
+    run_sql_debug(&sql, dialect);
+}
+
+#[test]
 fn test_ansi_create_trigger_debug() {
     let path = format!(
         "{}/../test/fixtures/dialects/ansi/create_trigger.sql",
@@ -306,6 +317,17 @@ SELECT trim(LEADING FROM 'c');
 fn test_ansi_select_many_join_debug() {
     let path = format!(
         "{}/../test/fixtures/dialects/ansi/select_many_join.sql",
+        env!("CARGO_MANIFEST_DIR")
+    );
+    let sql = std::fs::read_to_string(&path).unwrap_or_else(|_| panic!("Failed to read {}", path));
+    let dialect = Dialect::Ansi;
+    run_sql_debug(&sql, dialect);
+}
+
+#[test]
+fn test_ansi_merge_into_debug() {
+    let path = format!(
+        "{}/../test/fixtures/dialects/ansi/merge_into.sql",
         env!("CARGO_MANIFEST_DIR")
     );
     let sql = std::fs::read_to_string(&path).unwrap_or_else(|_| panic!("Failed to read {}", path));

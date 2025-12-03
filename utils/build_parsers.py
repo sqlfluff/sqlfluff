@@ -653,30 +653,53 @@ class TableBuilder:
         )
 
     def _handle_delimited(self, grammar: Delimited, parse_context) -> GrammarInstData:
-        """Convert Delimited to GrammarInst."""
+        """Convert Delimited to GrammarInst.
+
+        When there are multiple elements, wraps them in a OneOf to match
+        Python's behavior where Delimited inherits from OneOf.
+        Structure:
+        - Child 0: OneOf(elements) if multiple elements, or single element
+        - Child 1: delimiter
+        """
         flags = self._build_flags(grammar)
         parse_mode = self._get_parse_mode(grammar)
         hint_id = self._add_simple_hint(grammar, parse_context)
 
         # Flatten elements + delimiter
+        # Structure: [elements_oneof_or_single, delimiter]
         children_start = len(self.child_ids)
-        num_children = len(grammar._elements) + 1
-        # Reserve placeholders for elements + delimiter
+        # Always 2 children: elements (wrapped in OneOf if >1) + delimiter
+        num_children = 2
         self.child_ids.extend([0] * num_children)
 
-        element_ids = self._flatten_list(grammar._elements, parse_context)
-        for i, eid in enumerate(element_ids):
-            self.child_ids[children_start + i] = eid
+        # If multiple elements, wrap them in a OneOf
+        # This matches Python's Delimited which inherits from OneOf
+        if len(grammar._elements) > 1:
+            # Create a synthetic OneOf for the elements
+            # Use the same allow_gaps and parse_mode as the Delimited
+            elements_oneof = OneOf(
+                *grammar._elements,
+                allow_gaps=grammar.allow_gaps,
+                optional=True,  # Elements in Delimited are implicitly optional
+            )
+            elements_id = self.flatten_grammar(elements_oneof, parse_context)
+            comment = f"Delimited({len(grammar._elements)} elements via OneOf)"
+        else:
+            # Single element - add it directly
+            elements_id = self.flatten_grammar(grammar._elements[0], parse_context)
+            comment = "Delimited(1 element)"
 
-        # Add delimiter as last child (place into reserved slot)
+        self.child_ids[children_start] = elements_id
+
+        # Add delimiter as second child
         delimiter_id = self.flatten_grammar(grammar.delimiter, parse_context)
-        self.child_ids[children_start + len(element_ids)] = delimiter_id
+        self.child_ids[children_start + 1] = delimiter_id
 
-        children_count = len(element_ids) + 1
+        children_count = 2
 
-        # Store delimiter index + min_delimiters in aux_data
+        # Store delimiter index (always 1 now) + min_delimiters in aux_data
         aux_offset = len(self.aux_data)
-        self.aux_data.append(len(element_ids))  # delimiter_child_index
+        self.aux_data.append(1)  # delimiter_child_index (always child 1)
         self.aux_data.append(grammar.min_delimiters)
 
         # Flatten terminators
@@ -684,8 +707,6 @@ class TableBuilder:
         terminator_ids = self._flatten_list(grammar.terminators, parse_context)
         self.terminators.extend(terminator_ids)
         terminators_count = len(terminator_ids)
-
-        comment = f"Delimited({len(element_ids)} elements)"
 
         return GrammarInstData(
             variant="Delimited",
