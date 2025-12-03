@@ -278,3 +278,37 @@ fn test_ansi_select_except_debug() {
     let dialect = Dialect::Ansi;
     run_sql_debug(&sql, dialect);
 }
+
+#[test]
+fn test_ansi_trim_functions_debug() {
+    let path = format!(
+        "{}/../test/fixtures/dialects/ansi/trim_functions.sql",
+        env!("CARGO_MANIFEST_DIR")
+    );
+    let sql = std::fs::read_to_string(&path).unwrap_or_else(|_| panic!("Failed to read {}", path));
+    let dialect = Dialect::Ansi;
+    run_sql_debug(&sql, dialect);
+}
+
+#[test]
+fn test_ansi_trim_3stmts_debug() {
+    let sql = r#"SELECT trim('a');
+
+SELECT trim(BOTH FROM 'b');
+
+SELECT trim(LEADING FROM 'c');
+"#;
+    let dialect = Dialect::Ansi;
+    run_sql_debug(sql, dialect);
+}
+
+#[test]
+fn test_ansi_select_many_join_debug() {
+    let path = format!(
+        "{}/../test/fixtures/dialects/ansi/select_many_join.sql",
+        env!("CARGO_MANIFEST_DIR")
+    );
+    let sql = std::fs::read_to_string(&path).unwrap_or_else(|_| panic!("Failed to read {}", path));
+    let dialect = Dialect::Ansi;
+    run_sql_debug(&sql, dialect);
+}

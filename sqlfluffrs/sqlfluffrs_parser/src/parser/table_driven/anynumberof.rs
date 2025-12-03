@@ -408,6 +408,19 @@ impl<'a> Parser<'_> {
             *working_idx = *matched_idx;
             *count += 1;
 
+            // If child consumed past current max_idx, update max_idx to allow
+            // transparent token collection and subsequent children to continue
+            // from the correct position. This handles cases where a child
+            // (like Bracketed) legitimately consumed past the terminator-based
+            // max_idx constraint.
+            if *matched_idx > *max_idx {
+                log::debug!(
+                    "AnyNumberOf[table]: Child consumed past max_idx ({}->{}), updating max_idx to matched_idx",
+                    *max_idx, *matched_idx
+                );
+                *max_idx = *matched_idx;
+            }
+
             // Skip whitespace for next iteration if allow_gaps is true (Python behavior)
             // This matches Python's AnyNumberOf.match which calls
             // skip_start_index_forward_to_code after each successful match.

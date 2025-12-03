@@ -280,6 +280,21 @@ impl<'a> Parser<'_> {
             {
                 *matched_idx = *child_end_pos;
                 *current_element_idx += 1;
+
+                // If child consumed past current max_idx, update max_idx to allow
+                // transparent token collection and subsequent children to continue
+                // from the correct position. This handles cases where a child
+                // (like Bracketed/Delimited) legitimately consumed past the
+                // terminator-based max_idx constraint (e.g., TRIM(BOTH FROM 'x')
+                // where FROM inside brackets isn't a terminator).
+                if *matched_idx > *max_idx {
+                    log::debug!(
+                        "Sequence[table]: Child consumed past max_idx ({}->{}), updating max_idx to matched_idx",
+                        *max_idx, *matched_idx
+                    );
+                    *max_idx = *matched_idx;
+                }
+
                 if *first_match && inst.parse_mode == ParseMode::GreedyOnceStarted {
                     *first_match = false;
                     // Use element-aware trimming so we don't treat terminators that are

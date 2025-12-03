@@ -209,7 +209,7 @@ impl<'a> Parser<'_> {
             delimiter_count,
             matched_idx,
             working_idx,
-            max_idx: _,
+            max_idx,
             state: delim_state,
             element_children,
             ..
@@ -245,16 +245,63 @@ impl<'a> Parser<'_> {
                     *matched_idx = *child_end_pos;
                     *working_idx = *child_end_pos;
 
+                    // If child consumed past current max_idx, update max_idx to allow
+                    // transparent token collection and subsequent children to continue
+                    // from the correct position. This handles cases where a child
+                    // (like Bracketed) legitimately consumed past the terminator-based
+                    // max_idx constraint.
+                    if *matched_idx > *max_idx {
+                        log::debug!(
+                            "Delimited[table]: Child consumed past max_idx ({}->{}), updating max_idx to matched_idx",
+                            *max_idx, *matched_idx
+                        );
+                        *max_idx = *matched_idx;
+                    }
+
                     // Try to match delimiter next
                     *delim_state = DelimitedState::MatchingDelimiter;
                     self.pos = *working_idx;
+
+                    // Get the grammar instruction to check allow_gaps
+                    let inst = ctx.inst(*grammar_id);
+
+                    // If allow_gaps is set, skip whitespace BEFORE trying to match delimiter
+                    // This matches Python's behavior where skip_start_index_forward_to_code
+                    // is called at the START of each loop iteration, before matching
+                    // either content OR delimiter.
+                    if inst.flags.allow_gaps() {
+                        let next_code_pos =
+                            self.skip_start_index_forward_to_code(*working_idx, *max_idx);
+                        // Collect whitespace/newlines between element and delimiter
+                        for idx in *working_idx..next_code_pos {
+                            if idx < self.tokens.len() {
+                                let tok = &self.tokens[idx];
+                                let tok_type = tok.get_type();
+                                if tok_type == "whitespace" {
+                                    frame.accumulated.push(Node::Whitespace {
+                                        raw: tok.raw().to_string(),
+                                        token_idx: idx,
+                                    });
+                                } else if tok_type == "newline" {
+                                    frame.accumulated.push(Node::Newline {
+                                        raw: tok.raw().to_string(),
+                                        token_idx: idx,
+                                    });
+                                }
+                            }
+                        }
+                        *working_idx = next_code_pos;
+                    }
+
+                    // Store the current max_idx value before the borrow ends
+                    let current_max_idx = *max_idx;
 
                     let delimiter_frame = TableParseFrame::new_child(
                         stack.frame_id_counter,
                         delimiter_id,
                         *working_idx,
                         frame.table_terminators.clone(),
-                        frame.parent_max_idx,
+                        Some(current_max_idx),
                     );
 
                     frame.state = FrameState::WaitingForChild {
@@ -296,7 +343,7 @@ impl<'a> Parser<'_> {
                             next_gid,
                             *working_idx,
                             frame.table_terminators.clone(),
-                            frame.parent_max_idx,
+                            Some(*max_idx),
                         );
 
                         frame.state = FrameState::WaitingForChild {
@@ -330,6 +377,15 @@ impl<'a> Parser<'_> {
                     *matched_idx = *child_end_pos;
                     *working_idx = *child_end_pos;
 
+                    // If child consumed past current max_idx, update max_idx
+                    if *matched_idx > *max_idx {
+                        log::debug!(
+                            "Delimited[table]: Delimiter consumed past max_idx ({}->{}), updating max_idx to matched_idx",
+                            *max_idx, *matched_idx
+                        );
+                        *max_idx = *matched_idx;
+                    }
+
                     // Try to match next element
                     *delim_state = DelimitedState::MatchingElement;
                     self.pos = *working_idx;
@@ -340,9 +396,8 @@ impl<'a> Parser<'_> {
                     // If allow_gaps is set, skip whitespace and collect transparent tokens
                     // between the delimiter and the next element (Python parity)
                     if inst.flags.allow_gaps() {
-                        let max_idx = frame.parent_max_idx.unwrap_or(self.tokens.len());
                         let next_code_pos =
-                            self.skip_start_index_forward_to_code(*working_idx, max_idx);
+                            self.skip_start_index_forward_to_code(*working_idx, *max_idx);
                         // Collect whitespace/newlines between delimiter and next element
                         for idx in *working_idx..next_code_pos {
                             if idx < self.tokens.len() {
@@ -402,6 +457,9 @@ impl<'a> Parser<'_> {
                     // Update element_children in context
                     *element_children = repruned_elements.clone();
 
+                    // Store current max_idx value for child frame creation
+                    let current_max_idx = *max_idx;
+
                     // After a delimiter matched, try the first element candidate again
                     let first_element = repruned_elements[0];
                     let element_frame = TableParseFrame::new_child(
@@ -409,7 +467,7 @@ impl<'a> Parser<'_> {
                         first_element,
                         *working_idx,
                         frame.table_terminators.clone(),
-                        frame.parent_max_idx,
+                        Some(current_max_idx),
                     );
 
                     frame.state = FrameState::WaitingForChild {
