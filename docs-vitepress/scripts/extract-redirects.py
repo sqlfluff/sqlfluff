@@ -149,6 +149,10 @@ def main():
         json.dump(vitepress_rewrites, f, indent=2)
     print(f"✅ Generated JSON: {json_output}")
 
+    # add a new line at the end of the file
+    with open(json_output, "a") as f:
+        f.write("\n")
+
     # Print summary
     print("\n" + "=" * 60)
     print("REDIRECT SUMMARY")
