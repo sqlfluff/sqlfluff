@@ -10,6 +10,7 @@
         "docs:preview": "vitepress preview"
     },
     "devDependencies": {
+        "@azure/static-web-apps-cli": "^2.0.7",
         "vitepress": "^1.0.0",
         "vue": "^3.4.0"
     },

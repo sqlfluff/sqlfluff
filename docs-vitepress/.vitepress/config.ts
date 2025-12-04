@@ -5,15 +5,43 @@ import type { DefaultTheme } from 'vitepress'
 import sidebarRules from './sidebar-rules.json'
 import redirects from './redirects.json'
 
-const GUIDES: DefaultTheme.NavItemWithLink[] = [
-    { text: 'Getting Started', link: '/guide/' },
+const GUIDE: DefaultTheme.NavItemWithLink[] = [
+    { text: 'Introduction', link: '/guide/' },
     { text: 'Installation', link: '/guide/install' },
+    { text: 'Quick Start', link: '/guide/quickstart' },
+    { text: 'Why SQLFluff?', link: '/guide/why' },
+]
+
+const CONFIGURATION: DefaultTheme.NavItemWithLink[] = [
+    { text: 'Overview', link: '/configuration/' },
+    { text: 'Rules', link: '/configuration/rules' },
+    { text: 'Layout & Formatting', link: '/configuration/layout' },
+    { text: 'Templating', link: '/configuration/templating' },
+    { text: 'Ignoring Errors', link: '/configuration/ignoring' },
+]
+
+const USAGE_GUIDES: DefaultTheme.NavItemWithLink[] = [
+    { text: 'Production Usage', link: '/usage/production' },
+    { text: 'CI/CD Integration', link: '/usage/ci-cd' },
+    { text: 'Pre-commit', link: '/usage/pre-commit' },
+    { text: 'Diff Quality', link: '/usage/diff-quality' },
+    { text: 'Team Rollout', link: '/usage/team-rollout' },
+    { text: 'Troubleshooting', link: '/usage/troubleshooting' },
+]
+
+const DEVELOPMENT: DefaultTheme.NavItemWithLink[] = [
+    { text: 'Architecture', link: '/development/architecture' },
+    { text: 'Custom Rules', link: '/development/custom-rules' },
+    { text: 'Plugins', link: '/development/plugins' },
+    { text: 'Contributing', link: '/development/contributing' },
 ]
 
 const REFERENCES: DefaultTheme.NavItemWithLink[] = [
-    { text: 'Dialects', link: '/reference/dialects' },
-    { text: 'Rules', link: '/reference/rules' },
     { text: 'CLI', link: '/reference/cli' },
+    { text: 'Rules', link: '/reference/rules' },
+    { text: 'Dialects', link: '/reference/dialects' },
+    { text: 'Python API', link: '/reference/api' },
+    { text: 'Release Notes', link: '/reference/release-notes' },
 ]
 
 export default defineConfig({
@@ -23,39 +51,24 @@ export default defineConfig({
     head: [
         ['link', { rel: 'icon', href: '/favicon.ico' }]
     ],
+    ignoreDeadLinks: true,
 
     themeConfig: {
         logo: '/logo.svg',
 
         nav: [
-            { text: 'Home', link: '/' },
-            {
-                text: 'Guide',
-
-                items: [
-                    {
-                        items: GUIDES,
-                    }
-                ]
-            },
-            { text: 'Reference', link: '/reference/rules/' },
-            { text: 'Configuration', link: '/configuration/' },
+            { text: 'Guide', items: GUIDE },
+            { text: 'Configuration', items: CONFIGURATION },
+            { text: 'Reference', items: REFERENCES },
         ],
 
-        sidebar: Object.assign(
-            {},
-            {
-                '/': [
-                    {
-                        text: 'Guide',
-                        items: GUIDES,
-                    },
-                    {
-                        text: 'References',
-                        items: REFERENCES,
-                    },
-                ]
-            }),
+        sidebar: [
+            { text: 'Getting Started', items: GUIDE },
+            { text: 'Usage Guides', items: USAGE_GUIDES },
+            { text: 'Development', items: DEVELOPMENT },
+            { text: 'Configuration', items: CONFIGURATION },
+            { text: 'Reference', items: REFERENCES },
+        ],
 
         search: {
             provider: 'local',
@@ -65,7 +78,9 @@ export default defineConfig({
         },
 
         socialLinks: [
-            { icon: 'github', link: 'https://github.com/sqlfluff/sqlfluff' }
+            { icon: 'github', link: 'https://github.com/sqlfluff/sqlfluff' },
+            { icon: 'twitter', link: 'https://twitter.com/sqlfluff' },
+            { icon: 'slack', link: 'https://join.slack.com/t/sqlfluff/shared_invite/zt-2qtu36kdt-OS4iONPbQ3aCz2DIbYJdWg' },
         ],
 
         editLink: {

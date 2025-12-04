@@ -166,6 +166,11 @@ def generate_dialects_documentation(output_dir: Path) -> dict[str, Any]:
 
     sidebar_file = output_dir.parent.parent / ".vitepress" / "sidebar-dialects.json"
     sidebar_file.write_text(json.dumps(sidebar_config, indent=2))
+
+    # add a new line at the end of the file
+    with open(sidebar_file, "a") as f:
+        f.write("\n")
+
     print(f"Generated sidebar config: {sidebar_file}")
 
     print("✅ Dialect documentation generation complete!")
