@@ -365,13 +365,16 @@ impl<'a> Parser<'_> {
                 // Transition to MatchingDelimiter
                 *delim_state = DelimitedState::MatchingDelimiter;
 
-                let current_max_idx = *max_idx;
+                // IMPORTANT: Don't pass max_idx to delimiter frame!
+                // The delimiter should be matchable at the current position even if
+                // max_idx was computed based on terminators. The delimiter itself
+                // is filtered from terminators, so it should always be matchable.
                 let delimiter_frame = TableParseFrame::new_child(
                     stack.frame_id_counter,
                     delimiter_id,
                     *working_idx,
                     frame.table_terminators.clone(),
-                    Some(current_max_idx),
+                    None, // Don't constrain delimiter by max_idx
                 );
 
                 frame.state = FrameState::WaitingForChild {
@@ -530,9 +533,10 @@ impl<'a> Parser<'_> {
                 *delim_state = DelimitedState::MatchingElement;
 
                 // Skip whitespace after delimiter if allow_gaps
+                // NOTE: Don't constrain by max_idx - whitespace should be skippable unconditionally
                 if allow_gaps {
                     let next_code_pos =
-                        self.skip_start_index_forward_to_code(*working_idx, *max_idx);
+                        self.skip_start_index_forward_to_code(*working_idx, self.tokens.len());
                     // Collect whitespace between delimiter and next element
                     for idx in *working_idx..next_code_pos {
                         if idx < self.tokens.len() {
@@ -586,19 +590,50 @@ impl<'a> Parser<'_> {
 
                 // Re-try elements at new position
                 // With the new structure, just use elements_id directly (OneOf or single element)
+
+                // CRITICAL: After matching a delimiter, we must recalculate max_idx from the
+                // new working position. The original max_idx was computed from the start position
+                // and may point to THIS delimiter, which is now behind us.
+                //
+                // For Strict parse mode (which Delimited uses), we allow parsing to the end
+                // of the token stream, BUT we must respect the parent_max_idx constraint.
+                // This is important because:
+                // 1. For cases like DATEPART(YEAR, col1), there's no parent constraint, so we
+                //    allow parsing to tokens.len() after the comma.
+                // 2. For cases like "SELECT a, b FROM ..." where the parent Sequence (with
+                //    GreedyOnceStarted mode) set a max_idx based on FROM, we respect that.
+                //
+                // The parent_max_idx already accounts for terminators - the parent grammar
+                // would have computed it via calculate_max_idx_table_driven which does
+                // trim_to_terminator for Greedy mode.
+                let new_max_idx = if let Some(parent_limit) = frame.parent_max_idx {
+                    parent_limit
+                } else {
+                    self.tokens.len()
+                };
+
                 log::debug!(
-                    "Delimited[table]: After delimiter, trying elements_id={} at pos {}",
+                    "Delimited[table]: Recalculated max_idx from {} to {} at working_idx={}",
+                    *max_idx,
+                    new_max_idx,
+                    *working_idx
+                );
+                *max_idx = new_max_idx;
+
+                log::debug!(
+                    "Delimited[table]: After delimiter, trying elements_id={} at pos {}, max_idx={}, working_idx={}",
                     elements_id.0,
+                    *working_idx,
+                    *max_idx,
                     *working_idx
                 );
 
-                let current_max_idx = *max_idx;
                 let element_frame = TableParseFrame::new_child(
                     stack.frame_id_counter,
                     elements_id,
                     *working_idx,
                     frame.table_terminators.clone(),
-                    Some(current_max_idx),
+                    Some(*max_idx), // Use recalculated max_idx
                 );
 
                 frame.state = FrameState::WaitingForChild {

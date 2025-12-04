@@ -596,6 +596,8 @@ impl<'a> Parser<'a> {
         let open_raw = open_tok.raw();
 
         // Determine which closing bracket we're looking for based on the opening bracket
+        // Note: Angle brackets (<>) are handled as comparison operators by the lexer
+        // (less_than/greater_than), so they won't reach this function.
         let (is_matching_open, is_matching_close): (fn(&str) -> bool, fn(&str) -> bool) =
             match open_raw.as_str() {
                 "(" => (|s| s == "(", |s| s == ")"),
@@ -1443,14 +1445,23 @@ impl<'a> Parser<'a> {
         while idx < self.tokens.len() {
             // IMPORTANT: Check for opening brackets FIRST and skip over them.
             // This prevents nested brackets from being incorrectly matched as terminators.
-            // For example, in `ASSERT ( (SELECT COUNT(*) ...) )`, the `)` from COUNT(*)
+            // For example, in `EXTRACT(MICROSECOND FROM col1)`, the `FROM` inside the brackets
             // should not be matched as a terminator - we skip the entire `(...)` section.
             if let Some(tok) = self.tokens.get(idx) {
                 let tok_type = tok.get_type();
-                if tok_type == "start_bracket"
+                let tok_raw = tok.raw();
+
+                // Check both by type AND by raw value, since some lexers use "raw" type for brackets
+                // instead of "start_bracket"/"start_square_bracket"/"start_angle_bracket"
+                // Note: We don't check for "<" here because angle brackets are tokenized as
+                // "less_than"/"greater_than" and the parser handles them differently than brackets.
+                // Treating "<" as a bracket would break comparisons like `WHERE a < b AND c > d`.
+                let is_open_bracket = tok_type == "start_bracket"
                     || tok_type == "start_square_bracket"
                     || tok_type == "start_angle_bracket"
-                {
+                    || (tok_type == "raw" && (tok_raw == "(" || tok_raw == "[" || tok_raw == "{"));
+
+                if is_open_bracket {
                     if let Some(end_idx) = self.find_matching_bracket(idx) {
                         idx = end_idx + 1;
                         continue;
