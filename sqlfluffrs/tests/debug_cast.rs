@@ -336,6 +336,13 @@ fn test_ansi_merge_into_debug() {
 }
 
 #[test]
+fn test_bigquery_select_pivot_simple_debug() {
+    let sql = r#"SELECT * FROM t PIVOT(SUM(a) FOR b IN ('x'))"#;
+    let dialect = Dialect::Bigquery;
+    run_sql_debug(sql, dialect);
+}
+
+#[test]
 fn test_bigquery_select_pivot_debug() {
     let path = format!(
         "{}/../test/fixtures/dialects/bigquery/select_pivot.sql",

@@ -99,6 +99,19 @@ impl<'a> Parser<'_> {
                     .insert(current_frame_id, (Node::Empty, start_idx, None));
                 return Ok(TableFrameResult::Done);
             } else {
+                // If start_idx == max_idx, there are no tokens to wrap - return Empty
+                // This happens when terminators are found immediately at the start position
+                if start_idx >= max_idx {
+                    log::debug!(
+                        "Sequence[table]: GREEDY mode with no tokens to consume (start_idx={}, max_idx={}), returning Empty",
+                        start_idx, max_idx
+                    );
+                    stack
+                        .results
+                        .insert(current_frame_id, (Node::Empty, start_idx, None));
+                    return Ok(TableFrameResult::Done);
+                }
+
                 // Wrap remaining content as an Unparsable node (table-driven variant)
                 let element_desc = format!("GrammarId({})", elements[0]);
                 let unparsable_children: Vec<Node> = (start_idx..max_idx)

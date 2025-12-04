@@ -139,7 +139,9 @@ where
                         term_id, i
                     );
                     let last_code_idx = skip_stop_index_backward_to_code(tokens, i, start_idx);
-                    return (i, last_code_idx);
+                    // Return last_code_idx + 1 because max_idx is used as an EXCLUSIVE bound
+                    // We want to include the token at last_code_idx in the match range
+                    return (i, last_code_idx + 1);
                 }
             }
         }
