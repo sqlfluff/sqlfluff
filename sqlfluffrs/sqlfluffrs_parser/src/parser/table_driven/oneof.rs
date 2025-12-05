@@ -164,6 +164,9 @@ impl<'a> Parser<'_> {
             total_children: 1,
         };
 
+        // CRITICAL: Store terminators in frame for use when trying subsequent children
+        frame.table_terminators = all_terminators.clone();
+
         // Create table-driven child frame with filtered terminators
         let mut child_frame = TableParseFrame::new_child(
             stack.frame_id_counter,

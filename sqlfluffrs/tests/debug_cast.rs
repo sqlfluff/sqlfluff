@@ -343,6 +343,48 @@ fn test_bigquery_select_pivot_simple_debug() {
 }
 
 #[test]
+fn test_db2_create_index_simple_debug() {
+    let sql = r#"CREATE UNIQUE INDEX SESSION.FOO_IDX ON SESSION.FOO(column1)
+COMPRESS YES
+ALLOW REVERSE SCANS;"#;
+    let dialect = Dialect::Db2;
+    run_sql_debug(sql, dialect);
+}
+
+#[test]
+fn test_oracle_temporary_table_debug() {
+    let path = format!(
+        "{}/../test/fixtures/dialects/oracle/temporary_table.sql",
+        env!("CARGO_MANIFEST_DIR")
+    );
+    let sql = std::fs::read_to_string(&path).unwrap_or_else(|_| panic!("Failed to read {}", path));
+    let dialect = Dialect::Oracle;
+    run_sql_debug(&sql, dialect);
+}
+
+#[test]
+fn test_postgres_alter_publication_debug() {
+    let path = format!(
+        "{}/../test/fixtures/dialects/postgres/alter_publication.sql",
+        env!("CARGO_MANIFEST_DIR")
+    );
+    let sql = std::fs::read_to_string(&path).unwrap_or_else(|_| panic!("Failed to read {}", path));
+    let dialect = Dialect::Postgres;
+    run_sql_debug(&sql, dialect);
+}
+
+#[test]
+fn test_postgres_drop_aggregate_debug() {
+    let path = format!(
+        "{}/../test/fixtures/dialects/postgres/drop_aggregate.sql",
+        env!("CARGO_MANIFEST_DIR")
+    );
+    let sql = std::fs::read_to_string(&path).unwrap_or_else(|_| panic!("Failed to read {}", path));
+    let dialect = Dialect::Postgres;
+    run_sql_debug(&sql, dialect);
+}
+
+#[test]
 fn test_bigquery_select_pivot_debug() {
     let path = format!(
         "{}/../test/fixtures/dialects/bigquery/select_pivot.sql",

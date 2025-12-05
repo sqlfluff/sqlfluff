@@ -188,13 +188,15 @@ impl Parser<'_> {
         grammar_id: GrammarId,
         ctx: &GrammarContext,
         parent_terminators: &[GrammarId],
+        parent_max_idx: Option<usize>,
     ) -> Result<FrameResult, ParseError> {
         let start_pos = self.pos;
         let mut anything_tokens = vec![];
         log::debug!(
-            "Anything[table]: pos={}, parent_terminators={}",
+            "Anything[table]: pos={}, parent_terminators={}, parent_max_idx={:?}",
             start_pos,
-            parent_terminators.len()
+            parent_terminators.len(),
+            parent_max_idx
         );
 
         let mut terminators_vec: Vec<GrammarId> = ctx.terminators(grammar_id).collect();
@@ -206,6 +208,18 @@ impl Parser<'_> {
         // For now, just consume until EOF
 
         loop {
+            // Check if we've reached our parent_max_idx boundary
+            if let Some(max_idx) = parent_max_idx {
+                if self.pos >= max_idx {
+                    log::debug!(
+                        "Anything[table]: reached parent_max_idx={}, stopping at pos={}",
+                        max_idx,
+                        self.pos
+                    );
+                    break;
+                }
+            }
+
             if self.is_terminated_with_elements_table_driven(&terminators_vec, &[])
                 || self.is_at_end()
             {
@@ -307,6 +321,7 @@ impl Parser<'_> {
         grammar_id: GrammarId,
         ctx: &GrammarContext,
         parent_terminators: &[GrammarId],
+        parent_max_idx: Option<usize>,
     ) -> Result<Node, ParseError> {
         // Create a temporary table-driven frame to use the initial handler and then extract the Node
         let frame = ParseFrame::new_table_driven_child(
@@ -317,7 +332,13 @@ impl Parser<'_> {
             None,
         );
 
-        match self.handle_anything_table_initial(frame, grammar_id, ctx, parent_terminators)? {
+        match self.handle_anything_table_initial(
+            frame,
+            grammar_id,
+            ctx,
+            parent_terminators,
+            parent_max_idx,
+        )? {
             FrameResult::Push(f) => {
                 if let FrameState::Complete(node) = f.state {
                     return Ok(node);

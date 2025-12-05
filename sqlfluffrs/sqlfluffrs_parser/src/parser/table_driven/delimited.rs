@@ -95,6 +95,10 @@ impl<'a> Parser<'_> {
             min_delimiters
         );
 
+        // CRITICAL: Update frame's table_terminators to include local terminators!
+        // Otherwise WaitingForChild will use the old parent terminators.
+        frame.table_terminators = all_terminators.clone();
+
         // Calculate max_idx with terminators
         let grammar_parse_mode = match inst.parse_mode {
             ParseMode::Strict => sqlfluffrs_types::ParseMode::Strict,
@@ -228,6 +232,7 @@ impl<'a> Parser<'_> {
                 } else {
                     self.pos
                 };
+
                 let saved_pos = self.pos;
                 self.pos = check_pos;
                 let is_terminated =
@@ -560,8 +565,15 @@ impl<'a> Parser<'_> {
                 self.pos = *working_idx;
 
                 // Check termination again after skipping whitespace
+                // CRITICAL: Check from pos_before_delimiter, not self.pos!
+                // The terminator may include the delimiter itself (e.g., ", TABLE")
+                let term_check_pos = pos_before_delimiter.unwrap_or(*working_idx);
+                let saved_pos = self.pos;
+                self.pos = term_check_pos;
                 let is_term2 = self.is_at_end()
                     || self.is_terminated_with_elements_table_driven(&frame_terminators, &[]);
+                self.pos = saved_pos;
+
                 if is_term2 {
                     log::debug!("Delimited[table]: terminated after delimiter+whitespace");
 

@@ -506,7 +506,12 @@ impl Parser<'_> {
                 }
             }
             GrammarVariant::Anything => {
-                let res = self.handle_anything_table_driven(grammar_id, ctx, &table_terminators);
+                let res = self.handle_anything_table_driven(
+                    grammar_id,
+                    ctx,
+                    &table_terminators,
+                    frame.parent_max_idx,
+                );
                 match res {
                     Ok(node) => {
                         log::debug!(

@@ -14,16 +14,16 @@ use hashbrown;
 // Validation passed!
 
 // Table Statistics:
-//   Instructions:      4150 × 20 bytes =    83000 bytes
-//   Child IDs:         3112 ×  4 bytes =    12448 bytes
+//   Instructions:      4147 × 20 bytes =    82940 bytes
+//   Child IDs:         3110 ×  4 bytes =    12440 bytes
 //   Terminators:         61 ×  4 bytes =      244 bytes
 //   Strings:           1881 strings      =    27052 bytes
 //   Aux Data:          3731 ×  4 bytes =    14924 bytes
-//   Aux Offsets:       4150 ×  4 bytes =    16600 bytes
+//   Aux Offsets:       4147 ×  4 bytes =    16588 bytes
 //   Regex Patterns:       6 patterns     =     4073 bytes
 //   Simple Hints:       550 hints        =     8800 bytes
 //   Hint Indices:      1202 ×  4 bytes =     4808 bytes
-//   TOTAL:                                    ≈   171949 bytes
+//   TOTAL:                                    ≈   171869 bytes
 
 pub static INSTRUCTIONS: &[GrammarInst] = &[
     // [0] StringParser("ABS")
@@ -8040,292 +8040,286 @@ pub static INSTRUCTIONS: &[GrammarInst] = &[
     GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3007, child_count: 0, min_times: 0, first_terminator_idx: 59, terminator_count: 0, _padding: 0 },
     // [4006] Delimited(2 elements via OneOf)
     GrammarInst { variant: GrammarVariant::Delimited, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3007, child_count: 2, min_times: 0, first_terminator_idx: 59, terminator_count: 0, _padding: 0 },
-    // [4007] OneOf(2 options)
-    GrammarInst { variant: GrammarVariant::OneOf, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(5), first_child_idx: 3009, child_count: 2, min_times: 0, first_terminator_idx: 59, terminator_count: 0, _padding: 0 },
-    // [4008] Ref(DefaultKeywordSegment)
-    GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3011, child_count: 0, min_times: 0, first_terminator_idx: 59, terminator_count: 0, _padding: 0 },
-    // [4009] Ref(ExpressionSegment)
-    GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3011, child_count: 0, min_times: 0, first_terminator_idx: 59, terminator_count: 0, _padding: 0 },
-    // [4010] Ref(AliasExpressionSegment)
-    GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(5), first_child_idx: 3011, child_count: 0, min_times: 0, first_terminator_idx: 59, terminator_count: 0, _padding: 0 },
-    // [4011] StringParser("VALUES")
-    GrammarInst { variant: GrammarVariant::StringParser, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(0), first_child_idx: 3011, child_count: 0, min_times: 0, first_terminator_idx: 59, terminator_count: 0, _padding: 0 },
-    // [4012] Sequence(6 elements)
-    GrammarInst { variant: GrammarVariant::Sequence, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3011, child_count: 6, min_times: 0, first_terminator_idx: 59, terminator_count: 0, _padding: 0 },
-    // [4013] Ref(ValuesKeywordSegment)
-    GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3017, child_count: 0, min_times: 0, first_terminator_idx: 59, terminator_count: 0, _padding: 0 },
-    // [4014] Ref(BetweenKeywordSegment)
-    GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3017, child_count: 0, min_times: 0, first_terminator_idx: 59, terminator_count: 0, _padding: 0 },
-    // [4015] OneOf(3 options)
-    GrammarInst { variant: GrammarVariant::OneOf, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3017, child_count: 3, min_times: 0, first_terminator_idx: 59, terminator_count: 0, _padding: 0 },
-    // [4016] Ref(NumericLiteralSegment)
-    GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3020, child_count: 0, min_times: 0, first_terminator_idx: 59, terminator_count: 0, _padding: 0 },
-    // [4017] Ref(BareFunctionSegment)
-    GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3020, child_count: 0, min_times: 0, first_terminator_idx: 59, terminator_count: 0, _padding: 0 },
-    // [4018] Ref(FunctionSegment)
-    GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3020, child_count: 0, min_times: 0, first_terminator_idx: 59, terminator_count: 0, _padding: 0 },
-    // [4019] Ref(AndKeywordSegment)
-    GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3020, child_count: 0, min_times: 0, first_terminator_idx: 59, terminator_count: 0, _padding: 0 },
-    // [4020] OneOf(3 options)
-    GrammarInst { variant: GrammarVariant::OneOf, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3020, child_count: 3, min_times: 0, first_terminator_idx: 59, terminator_count: 0, _padding: 0 },
-    // [4021] Ref(NumericLiteralSegment)
-    GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3023, child_count: 0, min_times: 0, first_terminator_idx: 59, terminator_count: 0, _padding: 0 },
-    // [4022] Ref(BareFunctionSegment)
-    GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3023, child_count: 0, min_times: 0, first_terminator_idx: 59, terminator_count: 0, _padding: 0 },
-    // [4023] Ref(FunctionSegment)
-    GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3023, child_count: 0, min_times: 0, first_terminator_idx: 59, terminator_count: 0, _padding: 0 },
-    // [4024] Sequence(3 elements)
-    GrammarInst { variant: GrammarVariant::Sequence, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(5), first_child_idx: 3023, child_count: 3, min_times: 0, first_terminator_idx: 59, terminator_count: 0, _padding: 0 },
-    // [4025] Ref(WithKeywordSegment)
-    GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3026, child_count: 0, min_times: 0, first_terminator_idx: 59, terminator_count: 0, _padding: 0 },
-    // [4026] Ref(StepKeywordSegment)
-    GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3026, child_count: 0, min_times: 0, first_terminator_idx: 59, terminator_count: 0, _padding: 0 },
-    // [4027] Ref(NumericLiteralSegment)
-    GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3026, child_count: 0, min_times: 0, first_terminator_idx: 59, terminator_count: 0, _padding: 0 },
-    // [4028] StringParser("VAR_POP")
-    GrammarInst { variant: GrammarVariant::StringParser, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(0), first_child_idx: 3026, child_count: 0, min_times: 0, first_terminator_idx: 59, terminator_count: 0, _padding: 0 },
-    // [4029] StringParser("VAR_SAMP")
-    GrammarInst { variant: GrammarVariant::StringParser, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(0), first_child_idx: 3026, child_count: 0, min_times: 0, first_terminator_idx: 59, terminator_count: 0, _padding: 0 },
-    // [4030] StringParser("VARCHAR2")
-    GrammarInst { variant: GrammarVariant::StringParser, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(0), first_child_idx: 3026, child_count: 0, min_times: 0, first_terminator_idx: 59, terminator_count: 0, _padding: 0 },
-    // [4031] StringParser("VARCHAR")
-    GrammarInst { variant: GrammarVariant::StringParser, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(0), first_child_idx: 3026, child_count: 0, min_times: 0, first_terminator_idx: 59, terminator_count: 0, _padding: 0 },
-    // [4032] RegexParser
-    GrammarInst { variant: GrammarVariant::RegexParser, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(0), first_child_idx: 3026, child_count: 0, min_times: 0, first_terminator_idx: 59, terminator_count: 0, _padding: 0 },
-    // [4033] StringParser("VARIANCE")
-    GrammarInst { variant: GrammarVariant::StringParser, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(0), first_child_idx: 3026, child_count: 0, min_times: 0, first_terminator_idx: 59, terminator_count: 0, _padding: 0 },
-    // [4034] StringParser("VARRAY")
-    GrammarInst { variant: GrammarVariant::StringParser, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(0), first_child_idx: 3026, child_count: 0, min_times: 0, first_terminator_idx: 59, terminator_count: 0, _padding: 0 },
-    // [4035] StringParser("VARYING")
-    GrammarInst { variant: GrammarVariant::StringParser, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(0), first_child_idx: 3026, child_count: 0, min_times: 0, first_terminator_idx: 59, terminator_count: 0, _padding: 0 },
-    // [4036] StringParser("VERIFY")
-    GrammarInst { variant: GrammarVariant::StringParser, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(0), first_child_idx: 3026, child_count: 0, min_times: 0, first_terminator_idx: 59, terminator_count: 0, _padding: 0 },
-    // [4037] StringParser("VIEW")
-    GrammarInst { variant: GrammarVariant::StringParser, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(0), first_child_idx: 3026, child_count: 0, min_times: 0, first_terminator_idx: 59, terminator_count: 0, _padding: 0 },
-    // [4038] StringParser("VIRTUAL")
-    GrammarInst { variant: GrammarVariant::StringParser, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(0), first_child_idx: 3026, child_count: 0, min_times: 0, first_terminator_idx: 59, terminator_count: 0, _padding: 0 },
-    // [4039] StringParser(":=")
-    GrammarInst { variant: GrammarVariant::StringParser, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(0), first_child_idx: 3026, child_count: 0, min_times: 0, first_terminator_idx: 59, terminator_count: 0, _padding: 0 },
-    // [4040] StringParser("WEEK")
-    GrammarInst { variant: GrammarVariant::StringParser, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(0), first_child_idx: 3026, child_count: 0, min_times: 0, first_terminator_idx: 59, terminator_count: 0, _padding: 0 },
-    // [4041] Sequence(8 elements)
-    GrammarInst { variant: GrammarVariant::Sequence, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3026, child_count: 8, min_times: 0, first_terminator_idx: 59, terminator_count: 0, _padding: 0 },
-    // [4042] Ref(WhenKeywordSegment)
-    GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3034, child_count: 0, min_times: 0, first_terminator_idx: 59, terminator_count: 0, _padding: 0 },
-    // [4043] Sequence(3 elements)
-    GrammarInst { variant: GrammarVariant::Sequence, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3034, child_count: 3, min_times: 0, first_terminator_idx: 59, terminator_count: 0, _padding: 0 },
-    // [4044] Ref(ExpressionSegment)
-    GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3037, child_count: 0, min_times: 0, first_terminator_idx: 59, terminator_count: 0, _padding: 0 },
-    // [4045] Meta(conditional)
-    GrammarInst { variant: GrammarVariant::Meta, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(0), first_child_idx: 3037, child_count: 0, min_times: 0, first_terminator_idx: 59, terminator_count: 0, _padding: 0 },
-    // [4046] Ref(ThenKeywordSegment)
-    GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3037, child_count: 0, min_times: 0, first_terminator_idx: 59, terminator_count: 0, _padding: 0 },
+    // [4007] Ref(AliasExpressionSegment)
+    GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(5), first_child_idx: 3009, child_count: 0, min_times: 0, first_terminator_idx: 59, terminator_count: 0, _padding: 0 },
+    // [4008] StringParser("VALUES")
+    GrammarInst { variant: GrammarVariant::StringParser, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(0), first_child_idx: 3009, child_count: 0, min_times: 0, first_terminator_idx: 59, terminator_count: 0, _padding: 0 },
+    // [4009] Sequence(6 elements)
+    GrammarInst { variant: GrammarVariant::Sequence, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3009, child_count: 6, min_times: 0, first_terminator_idx: 59, terminator_count: 0, _padding: 0 },
+    // [4010] Ref(ValuesKeywordSegment)
+    GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3015, child_count: 0, min_times: 0, first_terminator_idx: 59, terminator_count: 0, _padding: 0 },
+    // [4011] Ref(BetweenKeywordSegment)
+    GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3015, child_count: 0, min_times: 0, first_terminator_idx: 59, terminator_count: 0, _padding: 0 },
+    // [4012] OneOf(3 options)
+    GrammarInst { variant: GrammarVariant::OneOf, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3015, child_count: 3, min_times: 0, first_terminator_idx: 59, terminator_count: 0, _padding: 0 },
+    // [4013] Ref(NumericLiteralSegment)
+    GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3018, child_count: 0, min_times: 0, first_terminator_idx: 59, terminator_count: 0, _padding: 0 },
+    // [4014] Ref(BareFunctionSegment)
+    GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3018, child_count: 0, min_times: 0, first_terminator_idx: 59, terminator_count: 0, _padding: 0 },
+    // [4015] Ref(FunctionSegment)
+    GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3018, child_count: 0, min_times: 0, first_terminator_idx: 59, terminator_count: 0, _padding: 0 },
+    // [4016] Ref(AndKeywordSegment)
+    GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3018, child_count: 0, min_times: 0, first_terminator_idx: 59, terminator_count: 0, _padding: 0 },
+    // [4017] OneOf(3 options)
+    GrammarInst { variant: GrammarVariant::OneOf, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3018, child_count: 3, min_times: 0, first_terminator_idx: 59, terminator_count: 0, _padding: 0 },
+    // [4018] Ref(NumericLiteralSegment)
+    GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3021, child_count: 0, min_times: 0, first_terminator_idx: 59, terminator_count: 0, _padding: 0 },
+    // [4019] Ref(BareFunctionSegment)
+    GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3021, child_count: 0, min_times: 0, first_terminator_idx: 59, terminator_count: 0, _padding: 0 },
+    // [4020] Ref(FunctionSegment)
+    GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3021, child_count: 0, min_times: 0, first_terminator_idx: 59, terminator_count: 0, _padding: 0 },
+    // [4021] Sequence(3 elements)
+    GrammarInst { variant: GrammarVariant::Sequence, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(5), first_child_idx: 3021, child_count: 3, min_times: 0, first_terminator_idx: 59, terminator_count: 0, _padding: 0 },
+    // [4022] Ref(WithKeywordSegment)
+    GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3024, child_count: 0, min_times: 0, first_terminator_idx: 59, terminator_count: 0, _padding: 0 },
+    // [4023] Ref(StepKeywordSegment)
+    GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3024, child_count: 0, min_times: 0, first_terminator_idx: 59, terminator_count: 0, _padding: 0 },
+    // [4024] Ref(NumericLiteralSegment)
+    GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3024, child_count: 0, min_times: 0, first_terminator_idx: 59, terminator_count: 0, _padding: 0 },
+    // [4025] StringParser("VAR_POP")
+    GrammarInst { variant: GrammarVariant::StringParser, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(0), first_child_idx: 3024, child_count: 0, min_times: 0, first_terminator_idx: 59, terminator_count: 0, _padding: 0 },
+    // [4026] StringParser("VAR_SAMP")
+    GrammarInst { variant: GrammarVariant::StringParser, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(0), first_child_idx: 3024, child_count: 0, min_times: 0, first_terminator_idx: 59, terminator_count: 0, _padding: 0 },
+    // [4027] StringParser("VARCHAR2")
+    GrammarInst { variant: GrammarVariant::StringParser, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(0), first_child_idx: 3024, child_count: 0, min_times: 0, first_terminator_idx: 59, terminator_count: 0, _padding: 0 },
+    // [4028] StringParser("VARCHAR")
+    GrammarInst { variant: GrammarVariant::StringParser, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(0), first_child_idx: 3024, child_count: 0, min_times: 0, first_terminator_idx: 59, terminator_count: 0, _padding: 0 },
+    // [4029] RegexParser
+    GrammarInst { variant: GrammarVariant::RegexParser, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(0), first_child_idx: 3024, child_count: 0, min_times: 0, first_terminator_idx: 59, terminator_count: 0, _padding: 0 },
+    // [4030] StringParser("VARIANCE")
+    GrammarInst { variant: GrammarVariant::StringParser, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(0), first_child_idx: 3024, child_count: 0, min_times: 0, first_terminator_idx: 59, terminator_count: 0, _padding: 0 },
+    // [4031] StringParser("VARRAY")
+    GrammarInst { variant: GrammarVariant::StringParser, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(0), first_child_idx: 3024, child_count: 0, min_times: 0, first_terminator_idx: 59, terminator_count: 0, _padding: 0 },
+    // [4032] StringParser("VARYING")
+    GrammarInst { variant: GrammarVariant::StringParser, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(0), first_child_idx: 3024, child_count: 0, min_times: 0, first_terminator_idx: 59, terminator_count: 0, _padding: 0 },
+    // [4033] StringParser("VERIFY")
+    GrammarInst { variant: GrammarVariant::StringParser, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(0), first_child_idx: 3024, child_count: 0, min_times: 0, first_terminator_idx: 59, terminator_count: 0, _padding: 0 },
+    // [4034] StringParser("VIEW")
+    GrammarInst { variant: GrammarVariant::StringParser, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(0), first_child_idx: 3024, child_count: 0, min_times: 0, first_terminator_idx: 59, terminator_count: 0, _padding: 0 },
+    // [4035] StringParser("VIRTUAL")
+    GrammarInst { variant: GrammarVariant::StringParser, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(0), first_child_idx: 3024, child_count: 0, min_times: 0, first_terminator_idx: 59, terminator_count: 0, _padding: 0 },
+    // [4036] StringParser(":=")
+    GrammarInst { variant: GrammarVariant::StringParser, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(0), first_child_idx: 3024, child_count: 0, min_times: 0, first_terminator_idx: 59, terminator_count: 0, _padding: 0 },
+    // [4037] StringParser("WEEK")
+    GrammarInst { variant: GrammarVariant::StringParser, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(0), first_child_idx: 3024, child_count: 0, min_times: 0, first_terminator_idx: 59, terminator_count: 0, _padding: 0 },
+    // [4038] Sequence(8 elements)
+    GrammarInst { variant: GrammarVariant::Sequence, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3024, child_count: 8, min_times: 0, first_terminator_idx: 59, terminator_count: 0, _padding: 0 },
+    // [4039] Ref(WhenKeywordSegment)
+    GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3032, child_count: 0, min_times: 0, first_terminator_idx: 59, terminator_count: 0, _padding: 0 },
+    // [4040] Sequence(3 elements)
+    GrammarInst { variant: GrammarVariant::Sequence, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3032, child_count: 3, min_times: 0, first_terminator_idx: 59, terminator_count: 0, _padding: 0 },
+    // [4041] Ref(ExpressionSegment)
+    GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3035, child_count: 0, min_times: 0, first_terminator_idx: 59, terminator_count: 0, _padding: 0 },
+    // [4042] Meta(conditional)
+    GrammarInst { variant: GrammarVariant::Meta, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(0), first_child_idx: 3035, child_count: 0, min_times: 0, first_terminator_idx: 59, terminator_count: 0, _padding: 0 },
+    // [4043] Ref(ThenKeywordSegment)
+    GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3035, child_count: 0, min_times: 0, first_terminator_idx: 59, terminator_count: 0, _padding: 0 },
+    // [4044] Meta(conditional)
+    GrammarInst { variant: GrammarVariant::Meta, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(0), first_child_idx: 3035, child_count: 0, min_times: 0, first_terminator_idx: 59, terminator_count: 0, _padding: 0 },
+    // [4045] Ref(ExpressionSegment)
+    GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3035, child_count: 0, min_times: 0, first_terminator_idx: 59, terminator_count: 0, _padding: 0 },
+    // [4046] Meta(conditional)
+    GrammarInst { variant: GrammarVariant::Meta, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(0), first_child_idx: 3035, child_count: 0, min_times: 0, first_terminator_idx: 59, terminator_count: 0, _padding: 0 },
     // [4047] Meta(conditional)
-    GrammarInst { variant: GrammarVariant::Meta, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(0), first_child_idx: 3037, child_count: 0, min_times: 0, first_terminator_idx: 59, terminator_count: 0, _padding: 0 },
-    // [4048] Ref(ExpressionSegment)
-    GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3037, child_count: 0, min_times: 0, first_terminator_idx: 59, terminator_count: 0, _padding: 0 },
-    // [4049] Meta(conditional)
-    GrammarInst { variant: GrammarVariant::Meta, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(0), first_child_idx: 3037, child_count: 0, min_times: 0, first_terminator_idx: 59, terminator_count: 0, _padding: 0 },
-    // [4050] Meta(conditional)
-    GrammarInst { variant: GrammarVariant::Meta, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(0), first_child_idx: 3037, child_count: 0, min_times: 0, first_terminator_idx: 59, terminator_count: 0, _padding: 0 },
-    // [4051] StringParser("WHEN")
-    GrammarInst { variant: GrammarVariant::StringParser, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(0), first_child_idx: 3037, child_count: 0, min_times: 0, first_terminator_idx: 59, terminator_count: 0, _padding: 0 },
-    // [4052] StringParser("WHENEVER")
-    GrammarInst { variant: GrammarVariant::StringParser, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(0), first_child_idx: 3037, child_count: 0, min_times: 0, first_terminator_idx: 59, terminator_count: 0, _padding: 0 },
-    // [4053] Sequence(4 elements)
-    GrammarInst { variant: GrammarVariant::Sequence, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3037, child_count: 4, min_times: 0, first_terminator_idx: 59, terminator_count: 0, _padding: 0 },
-    // [4054] Ref(WhereKeywordSegment)
-    GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3041, child_count: 0, min_times: 0, first_terminator_idx: 59, terminator_count: 0, _padding: 0 },
-    // [4055] OneOf(2 options)
-    GrammarInst { variant: GrammarVariant::OneOf, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3041, child_count: 2, min_times: 0, first_terminator_idx: 59, terminator_count: 0, _padding: 0 },
-    // [4056] Bracketed(1 elements -> 1 child)
-    GrammarInst { variant: GrammarVariant::Bracketed, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3043, child_count: 3, min_times: 0, first_terminator_idx: 59, terminator_count: 0, _padding: 0 },
-    // [4057] Ref(ExpressionSegment)
-    GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3046, child_count: 0, min_times: 0, first_terminator_idx: 59, terminator_count: 0, _padding: 0 },
-    // [4058] OneOf(11 options)
-    GrammarInst { variant: GrammarVariant::OneOf, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3046, child_count: 11, min_times: 0, first_terminator_idx: 59, terminator_count: 0, _padding: 0 },
-    // [4059] Ref(ConnectKeywordSegment)
+    GrammarInst { variant: GrammarVariant::Meta, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(0), first_child_idx: 3035, child_count: 0, min_times: 0, first_terminator_idx: 59, terminator_count: 0, _padding: 0 },
+    // [4048] StringParser("WHEN")
+    GrammarInst { variant: GrammarVariant::StringParser, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(0), first_child_idx: 3035, child_count: 0, min_times: 0, first_terminator_idx: 59, terminator_count: 0, _padding: 0 },
+    // [4049] StringParser("WHENEVER")
+    GrammarInst { variant: GrammarVariant::StringParser, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(0), first_child_idx: 3035, child_count: 0, min_times: 0, first_terminator_idx: 59, terminator_count: 0, _padding: 0 },
+    // [4050] Sequence(4 elements)
+    GrammarInst { variant: GrammarVariant::Sequence, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3035, child_count: 4, min_times: 0, first_terminator_idx: 59, terminator_count: 0, _padding: 0 },
+    // [4051] Ref(WhereKeywordSegment)
+    GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3039, child_count: 0, min_times: 0, first_terminator_idx: 59, terminator_count: 0, _padding: 0 },
+    // [4052] OneOf(2 options)
+    GrammarInst { variant: GrammarVariant::OneOf, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3039, child_count: 2, min_times: 0, first_terminator_idx: 59, terminator_count: 0, _padding: 0 },
+    // [4053] Bracketed(1 elements -> 1 child)
+    GrammarInst { variant: GrammarVariant::Bracketed, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3041, child_count: 3, min_times: 0, first_terminator_idx: 59, terminator_count: 0, _padding: 0 },
+    // [4054] Ref(ExpressionSegment)
+    GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3044, child_count: 0, min_times: 0, first_terminator_idx: 59, terminator_count: 0, _padding: 0 },
+    // [4055] OneOf(11 options)
+    GrammarInst { variant: GrammarVariant::OneOf, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3044, child_count: 11, min_times: 0, first_terminator_idx: 59, terminator_count: 0, _padding: 0 },
+    // [4056] Ref(ConnectKeywordSegment)
+    GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3055, child_count: 0, min_times: 0, first_terminator_idx: 59, terminator_count: 0, _padding: 0 },
+    // [4057] Ref(StartKeywordSegment)
+    GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3055, child_count: 0, min_times: 0, first_terminator_idx: 59, terminator_count: 0, _padding: 0 },
+    // [4058] Ref(PreferringKeywordSegment)
+    GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3055, child_count: 0, min_times: 0, first_terminator_idx: 59, terminator_count: 0, _padding: 0 },
+    // [4059] Ref(LimitKeywordSegment)
+    GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3055, child_count: 0, min_times: 0, first_terminator_idx: 59, terminator_count: 0, _padding: 0 },
+    // [4060] Sequence(2 elements)
+    GrammarInst { variant: GrammarVariant::Sequence, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3055, child_count: 2, min_times: 0, first_terminator_idx: 59, terminator_count: 0, _padding: 0 },
+    // [4061] Ref(GroupKeywordSegment)
     GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3057, child_count: 0, min_times: 0, first_terminator_idx: 59, terminator_count: 0, _padding: 0 },
-    // [4060] Ref(StartKeywordSegment)
-    GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3057, child_count: 0, min_times: 0, first_terminator_idx: 59, terminator_count: 0, _padding: 0 },
-    // [4061] Ref(PreferringKeywordSegment)
-    GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3057, child_count: 0, min_times: 0, first_terminator_idx: 59, terminator_count: 0, _padding: 0 },
-    // [4062] Ref(LimitKeywordSegment)
+    // [4062] Ref(ByKeywordSegment)
     GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3057, child_count: 0, min_times: 0, first_terminator_idx: 59, terminator_count: 0, _padding: 0 },
     // [4063] Sequence(2 elements)
     GrammarInst { variant: GrammarVariant::Sequence, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3057, child_count: 2, min_times: 0, first_terminator_idx: 59, terminator_count: 0, _padding: 0 },
-    // [4064] Ref(GroupKeywordSegment)
+    // [4064] Ref(OrderKeywordSegment)
     GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3059, child_count: 0, min_times: 0, first_terminator_idx: 59, terminator_count: 0, _padding: 0 },
     // [4065] Ref(ByKeywordSegment)
     GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3059, child_count: 0, min_times: 0, first_terminator_idx: 59, terminator_count: 0, _padding: 0 },
-    // [4066] Sequence(2 elements)
-    GrammarInst { variant: GrammarVariant::Sequence, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3059, child_count: 2, min_times: 0, first_terminator_idx: 59, terminator_count: 0, _padding: 0 },
-    // [4067] Ref(OrderKeywordSegment)
-    GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3061, child_count: 0, min_times: 0, first_terminator_idx: 59, terminator_count: 0, _padding: 0 },
-    // [4068] Ref(ByKeywordSegment)
-    GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3061, child_count: 0, min_times: 0, first_terminator_idx: 59, terminator_count: 0, _padding: 0 },
-    // [4069] Ref(HavingKeywordSegment)
-    GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3061, child_count: 0, min_times: 0, first_terminator_idx: 59, terminator_count: 0, _padding: 0 },
-    // [4070] Ref(QualifyKeywordSegment)
-    GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3061, child_count: 0, min_times: 0, first_terminator_idx: 59, terminator_count: 0, _padding: 0 },
-    // [4071] Ref(SetOperatorSegment)
-    GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3061, child_count: 0, min_times: 0, first_terminator_idx: 59, terminator_count: 0, _padding: 0 },
-    // [4072] Ref(WithDataClauseSegment)
-    GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3061, child_count: 0, min_times: 0, first_terminator_idx: 59, terminator_count: 0, _padding: 0 },
-    // [4073] Ref(CommentClauseSegment)
-    GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3061, child_count: 0, min_times: 0, first_terminator_idx: 59, terminator_count: 0, _padding: 0 },
-    // [4074] StringParser("WHERE")
-    GrammarInst { variant: GrammarVariant::StringParser, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(0), first_child_idx: 3061, child_count: 0, min_times: 0, first_terminator_idx: 59, terminator_count: 0, _padding: 0 },
-    // [4075] StringParser("WHILE")
-    GrammarInst { variant: GrammarVariant::StringParser, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(0), first_child_idx: 3061, child_count: 0, min_times: 0, first_terminator_idx: 59, terminator_count: 0, _padding: 0 },
-    // [4076] Token("whitespace")
-    GrammarInst { variant: GrammarVariant::Token, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(0), first_child_idx: 3061, child_count: 0, min_times: 0, first_terminator_idx: 59, terminator_count: 0, _padding: 0 },
-    // [4077] Sequence(1 elements)
-    GrammarInst { variant: GrammarVariant::Sequence, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3061, child_count: 1, min_times: 0, first_terminator_idx: 59, terminator_count: 0, _padding: 0 },
-    // [4078] Ref(WildcardIdentifierSegment)
-    GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3062, child_count: 0, min_times: 0, first_terminator_idx: 59, terminator_count: 0, _padding: 0 },
+    // [4066] Ref(HavingKeywordSegment)
+    GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3059, child_count: 0, min_times: 0, first_terminator_idx: 59, terminator_count: 0, _padding: 0 },
+    // [4067] Ref(QualifyKeywordSegment)
+    GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3059, child_count: 0, min_times: 0, first_terminator_idx: 59, terminator_count: 0, _padding: 0 },
+    // [4068] Ref(SetOperatorSegment)
+    GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3059, child_count: 0, min_times: 0, first_terminator_idx: 59, terminator_count: 0, _padding: 0 },
+    // [4069] Ref(WithDataClauseSegment)
+    GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3059, child_count: 0, min_times: 0, first_terminator_idx: 59, terminator_count: 0, _padding: 0 },
+    // [4070] Ref(CommentClauseSegment)
+    GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3059, child_count: 0, min_times: 0, first_terminator_idx: 59, terminator_count: 0, _padding: 0 },
+    // [4071] StringParser("WHERE")
+    GrammarInst { variant: GrammarVariant::StringParser, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(0), first_child_idx: 3059, child_count: 0, min_times: 0, first_terminator_idx: 59, terminator_count: 0, _padding: 0 },
+    // [4072] StringParser("WHILE")
+    GrammarInst { variant: GrammarVariant::StringParser, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(0), first_child_idx: 3059, child_count: 0, min_times: 0, first_terminator_idx: 59, terminator_count: 0, _padding: 0 },
+    // [4073] Token("whitespace")
+    GrammarInst { variant: GrammarVariant::Token, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(0), first_child_idx: 3059, child_count: 0, min_times: 0, first_terminator_idx: 59, terminator_count: 0, _padding: 0 },
+    // [4074] Sequence(1 elements)
+    GrammarInst { variant: GrammarVariant::Sequence, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3059, child_count: 1, min_times: 0, first_terminator_idx: 59, terminator_count: 0, _padding: 0 },
+    // [4075] Ref(WildcardIdentifierSegment)
+    GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3060, child_count: 0, min_times: 0, first_terminator_idx: 59, terminator_count: 0, _padding: 0 },
+    // [4076] Sequence(2 elements)
+    GrammarInst { variant: GrammarVariant::Sequence, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(0), first_child_idx: 3060, child_count: 2, min_times: 0, first_terminator_idx: 59, terminator_count: 0, _padding: 0 },
+    // [4077] AnyNumberOf(1 elements, min=0)
+    GrammarInst { variant: GrammarVariant::AnyNumberOf, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(5), first_child_idx: 3062, child_count: 1, min_times: 0, first_terminator_idx: 59, terminator_count: 0, _padding: 0 },
+    // [4078] OneOf(2 options)
+    GrammarInst { variant: GrammarVariant::OneOf, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3063, child_count: 2, min_times: 0, first_terminator_idx: 59, terminator_count: 0, _padding: 0 },
     // [4079] Sequence(2 elements)
-    GrammarInst { variant: GrammarVariant::Sequence, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(0), first_child_idx: 3062, child_count: 2, min_times: 0, first_terminator_idx: 59, terminator_count: 0, _padding: 0 },
-    // [4080] AnyNumberOf(1 elements, min=0)
-    GrammarInst { variant: GrammarVariant::AnyNumberOf, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(5), first_child_idx: 3064, child_count: 1, min_times: 0, first_terminator_idx: 59, terminator_count: 0, _padding: 0 },
-    // [4081] OneOf(2 options)
-    GrammarInst { variant: GrammarVariant::OneOf, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3065, child_count: 2, min_times: 0, first_terminator_idx: 59, terminator_count: 0, _padding: 0 },
+    GrammarInst { variant: GrammarVariant::Sequence, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3065, child_count: 2, min_times: 0, first_terminator_idx: 59, terminator_count: 0, _padding: 0 },
+    // [4080] Ref(SingleIdentifierGrammar)
+    GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3067, child_count: 0, min_times: 0, first_terminator_idx: 59, terminator_count: 0, _padding: 0 },
+    // [4081] Ref(ObjectReferenceDelimiterGrammar)
+    GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3067, child_count: 0, min_times: 0, first_terminator_idx: 59, terminator_count: 0, _padding: 0 },
     // [4082] Sequence(2 elements)
     GrammarInst { variant: GrammarVariant::Sequence, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3067, child_count: 2, min_times: 0, first_terminator_idx: 59, terminator_count: 0, _padding: 0 },
-    // [4083] Ref(SingleIdentifierGrammar)
+    // [4083] Ref(StarSegment)
     GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3069, child_count: 0, min_times: 0, first_terminator_idx: 59, terminator_count: 0, _padding: 0 },
-    // [4084] Ref(ObjectReferenceDelimiterGrammar)
+    // [4084] Ref(DotSegment)
     GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3069, child_count: 0, min_times: 0, first_terminator_idx: 59, terminator_count: 0, _padding: 0 },
-    // [4085] Sequence(2 elements)
-    GrammarInst { variant: GrammarVariant::Sequence, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3069, child_count: 2, min_times: 0, first_terminator_idx: 59, terminator_count: 0, _padding: 0 },
-    // [4086] Ref(StarSegment)
-    GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3071, child_count: 0, min_times: 0, first_terminator_idx: 59, terminator_count: 0, _padding: 0 },
-    // [4087] Ref(DotSegment)
-    GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3071, child_count: 0, min_times: 0, first_terminator_idx: 59, terminator_count: 0, _padding: 0 },
-    // [4088] Ref(StarSegment)
-    GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3071, child_count: 0, min_times: 0, first_terminator_idx: 59, terminator_count: 0, _padding: 0 },
-    // [4089] StringParser("WINDOW")
-    GrammarInst { variant: GrammarVariant::StringParser, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(0), first_child_idx: 3071, child_count: 0, min_times: 0, first_terminator_idx: 59, terminator_count: 0, _padding: 0 },
-    // [4090] Sequence(4 elements)
-    GrammarInst { variant: GrammarVariant::Sequence, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(5), first_child_idx: 3071, child_count: 4, min_times: 0, first_terminator_idx: 59, terminator_count: 0, _padding: 0 },
-    // [4091] Ref(SingleIdentifierGrammar)
-    GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(69), first_child_idx: 3075, child_count: 1, min_times: 0, first_terminator_idx: 59, terminator_count: 0, _padding: 0 },
-    // [4092] OneOf(2 options)
-    GrammarInst { variant: GrammarVariant::OneOf, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3076, child_count: 2, min_times: 0, first_terminator_idx: 59, terminator_count: 0, _padding: 0 },
-    // [4093] Ref(PartitionKeywordSegment)
-    GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3078, child_count: 0, min_times: 0, first_terminator_idx: 59, terminator_count: 0, _padding: 0 },
-    // [4094] Ref(OrderKeywordSegment)
-    GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3078, child_count: 0, min_times: 0, first_terminator_idx: 59, terminator_count: 0, _padding: 0 },
-    // [4095] Ref(PartitionClauseSegment)
-    GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(5), first_child_idx: 3078, child_count: 0, min_times: 0, first_terminator_idx: 59, terminator_count: 0, _padding: 0 },
-    // [4096] Ref(OrderByClauseSegment)
-    GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(5), first_child_idx: 3078, child_count: 0, min_times: 0, first_terminator_idx: 59, terminator_count: 0, _padding: 0 },
-    // [4097] Ref(FrameClauseSegment)
-    GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(5), first_child_idx: 3078, child_count: 0, min_times: 0, first_terminator_idx: 59, terminator_count: 0, _padding: 0 },
-    // [4098] Sequence(6 elements)
-    GrammarInst { variant: GrammarVariant::Sequence, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3078, child_count: 6, min_times: 0, first_terminator_idx: 60, terminator_count: 0, _padding: 0 },
-    // [4099] Ref(WithKeywordSegment)
+    // [4085] Ref(StarSegment)
+    GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3069, child_count: 0, min_times: 0, first_terminator_idx: 59, terminator_count: 0, _padding: 0 },
+    // [4086] StringParser("WINDOW")
+    GrammarInst { variant: GrammarVariant::StringParser, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(0), first_child_idx: 3069, child_count: 0, min_times: 0, first_terminator_idx: 59, terminator_count: 0, _padding: 0 },
+    // [4087] Sequence(4 elements)
+    GrammarInst { variant: GrammarVariant::Sequence, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(5), first_child_idx: 3069, child_count: 4, min_times: 0, first_terminator_idx: 59, terminator_count: 0, _padding: 0 },
+    // [4088] Ref(SingleIdentifierGrammar)
+    GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(69), first_child_idx: 3073, child_count: 1, min_times: 0, first_terminator_idx: 59, terminator_count: 0, _padding: 0 },
+    // [4089] OneOf(2 options)
+    GrammarInst { variant: GrammarVariant::OneOf, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3074, child_count: 2, min_times: 0, first_terminator_idx: 59, terminator_count: 0, _padding: 0 },
+    // [4090] Ref(PartitionKeywordSegment)
+    GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3076, child_count: 0, min_times: 0, first_terminator_idx: 59, terminator_count: 0, _padding: 0 },
+    // [4091] Ref(OrderKeywordSegment)
+    GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3076, child_count: 0, min_times: 0, first_terminator_idx: 59, terminator_count: 0, _padding: 0 },
+    // [4092] Ref(PartitionClauseSegment)
+    GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(5), first_child_idx: 3076, child_count: 0, min_times: 0, first_terminator_idx: 59, terminator_count: 0, _padding: 0 },
+    // [4093] Ref(OrderByClauseSegment)
+    GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(5), first_child_idx: 3076, child_count: 0, min_times: 0, first_terminator_idx: 59, terminator_count: 0, _padding: 0 },
+    // [4094] Ref(FrameClauseSegment)
+    GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(5), first_child_idx: 3076, child_count: 0, min_times: 0, first_terminator_idx: 59, terminator_count: 0, _padding: 0 },
+    // [4095] Sequence(6 elements)
+    GrammarInst { variant: GrammarVariant::Sequence, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3076, child_count: 6, min_times: 0, first_terminator_idx: 60, terminator_count: 0, _padding: 0 },
+    // [4096] Ref(WithKeywordSegment)
+    GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3082, child_count: 0, min_times: 0, first_terminator_idx: 59, terminator_count: 0, _padding: 0 },
+    // [4097] Ref(RecursiveKeywordSegment)
+    GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(5), first_child_idx: 3082, child_count: 0, min_times: 0, first_terminator_idx: 59, terminator_count: 0, _padding: 0 },
+    // [4098] Meta(conditional)
+    GrammarInst { variant: GrammarVariant::Meta, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(0), first_child_idx: 3082, child_count: 0, min_times: 0, first_terminator_idx: 59, terminator_count: 0, _padding: 0 },
+    // [4099] Delimited(1 element)
+    GrammarInst { variant: GrammarVariant::Delimited, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(12), first_child_idx: 3082, child_count: 2, min_times: 0, first_terminator_idx: 59, terminator_count: 1, _padding: 0 },
+    // [4100] Ref(CTEDefinitionSegment)
     GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3084, child_count: 0, min_times: 0, first_terminator_idx: 59, terminator_count: 0, _padding: 0 },
-    // [4100] Ref(RecursiveKeywordSegment)
-    GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(5), first_child_idx: 3084, child_count: 0, min_times: 0, first_terminator_idx: 59, terminator_count: 0, _padding: 0 },
-    // [4101] Meta(conditional)
-    GrammarInst { variant: GrammarVariant::Meta, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(0), first_child_idx: 3084, child_count: 0, min_times: 0, first_terminator_idx: 59, terminator_count: 0, _padding: 0 },
-    // [4102] Delimited(1 element)
-    GrammarInst { variant: GrammarVariant::Delimited, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(12), first_child_idx: 3084, child_count: 2, min_times: 0, first_terminator_idx: 59, terminator_count: 1, _padding: 0 },
-    // [4103] Ref(CTEDefinitionSegment)
-    GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3086, child_count: 0, min_times: 0, first_terminator_idx: 59, terminator_count: 0, _padding: 0 },
-    // [4104] Ref(SelectKeywordSegment)
-    GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3086, child_count: 0, min_times: 0, first_terminator_idx: 59, terminator_count: 0, _padding: 0 },
-    // [4105] Meta(conditional)
-    GrammarInst { variant: GrammarVariant::Meta, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(0), first_child_idx: 3086, child_count: 0, min_times: 0, first_terminator_idx: 60, terminator_count: 0, _padding: 0 },
-    // [4106] Ref(NonWithNonSelectableGrammar)
-    GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3086, child_count: 0, min_times: 0, first_terminator_idx: 60, terminator_count: 0, _padding: 0 },
-    // [4107] Sequence(6 elements)
-    GrammarInst { variant: GrammarVariant::Sequence, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3086, child_count: 6, min_times: 0, first_terminator_idx: 61, terminator_count: 0, _padding: 0 },
-    // [4108] Ref(WithKeywordSegment)
+    // [4101] Ref(SelectKeywordSegment)
+    GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3084, child_count: 0, min_times: 0, first_terminator_idx: 59, terminator_count: 0, _padding: 0 },
+    // [4102] Meta(conditional)
+    GrammarInst { variant: GrammarVariant::Meta, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(0), first_child_idx: 3084, child_count: 0, min_times: 0, first_terminator_idx: 60, terminator_count: 0, _padding: 0 },
+    // [4103] Ref(NonWithNonSelectableGrammar)
+    GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3084, child_count: 0, min_times: 0, first_terminator_idx: 60, terminator_count: 0, _padding: 0 },
+    // [4104] Sequence(6 elements)
+    GrammarInst { variant: GrammarVariant::Sequence, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3084, child_count: 6, min_times: 0, first_terminator_idx: 61, terminator_count: 0, _padding: 0 },
+    // [4105] Ref(WithKeywordSegment)
+    GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3090, child_count: 0, min_times: 0, first_terminator_idx: 60, terminator_count: 0, _padding: 0 },
+    // [4106] Ref(RecursiveKeywordSegment)
+    GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(5), first_child_idx: 3090, child_count: 0, min_times: 0, first_terminator_idx: 60, terminator_count: 0, _padding: 0 },
+    // [4107] Meta(conditional)
+    GrammarInst { variant: GrammarVariant::Meta, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(0), first_child_idx: 3090, child_count: 0, min_times: 0, first_terminator_idx: 60, terminator_count: 0, _padding: 0 },
+    // [4108] Delimited(1 element)
+    GrammarInst { variant: GrammarVariant::Delimited, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(12), first_child_idx: 3090, child_count: 2, min_times: 0, first_terminator_idx: 60, terminator_count: 1, _padding: 0 },
+    // [4109] Ref(CTEDefinitionSegment)
     GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3092, child_count: 0, min_times: 0, first_terminator_idx: 60, terminator_count: 0, _padding: 0 },
-    // [4109] Ref(RecursiveKeywordSegment)
-    GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(5), first_child_idx: 3092, child_count: 0, min_times: 0, first_terminator_idx: 60, terminator_count: 0, _padding: 0 },
-    // [4110] Meta(conditional)
-    GrammarInst { variant: GrammarVariant::Meta, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(0), first_child_idx: 3092, child_count: 0, min_times: 0, first_terminator_idx: 60, terminator_count: 0, _padding: 0 },
-    // [4111] Delimited(1 element)
-    GrammarInst { variant: GrammarVariant::Delimited, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(12), first_child_idx: 3092, child_count: 2, min_times: 0, first_terminator_idx: 60, terminator_count: 1, _padding: 0 },
-    // [4112] Ref(CTEDefinitionSegment)
-    GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3094, child_count: 0, min_times: 0, first_terminator_idx: 60, terminator_count: 0, _padding: 0 },
-    // [4113] Ref(SelectKeywordSegment)
-    GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3094, child_count: 0, min_times: 0, first_terminator_idx: 60, terminator_count: 0, _padding: 0 },
-    // [4114] Meta(conditional)
-    GrammarInst { variant: GrammarVariant::Meta, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(0), first_child_idx: 3094, child_count: 0, min_times: 0, first_terminator_idx: 61, terminator_count: 0, _padding: 0 },
-    // [4115] Ref(NonWithSelectableGrammar)
-    GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3094, child_count: 0, min_times: 0, first_terminator_idx: 61, terminator_count: 0, _padding: 0 },
-    // [4116] Sequence(3 elements)
-    GrammarInst { variant: GrammarVariant::Sequence, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3094, child_count: 3, min_times: 0, first_terminator_idx: 61, terminator_count: 0, _padding: 0 },
-    // [4117] Ref(WithKeywordSegment)
-    GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3097, child_count: 0, min_times: 0, first_terminator_idx: 61, terminator_count: 0, _padding: 0 },
-    // [4118] Sequence(1 elements)
-    GrammarInst { variant: GrammarVariant::Sequence, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(5), first_child_idx: 3097, child_count: 1, min_times: 0, first_terminator_idx: 61, terminator_count: 0, _padding: 0 },
-    // [4119] Ref(NoKeywordSegment)
-    GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3098, child_count: 0, min_times: 0, first_terminator_idx: 61, terminator_count: 0, _padding: 0 },
-    // [4120] Ref(DataKeywordSegment)
-    GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3098, child_count: 0, min_times: 0, first_terminator_idx: 61, terminator_count: 0, _padding: 0 },
-    // [4121] Nothing
-    GrammarInst { variant: GrammarVariant::Nothing, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(0), first_child_idx: 3098, child_count: 0, min_times: 0, first_terminator_idx: 61, terminator_count: 0, _padding: 0 },
-    // [4122] Sequence(4 elements)
-    GrammarInst { variant: GrammarVariant::Sequence, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3098, child_count: 4, min_times: 0, first_terminator_idx: 61, terminator_count: 0, _padding: 0 },
-    // [4123] Ref(WithKeywordSegment)
-    GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(5), first_child_idx: 3102, child_count: 0, min_times: 0, first_terminator_idx: 61, terminator_count: 0, _padding: 0 },
-    // [4124] Ref(InvalidKeywordSegment)
-    GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3102, child_count: 0, min_times: 0, first_terminator_idx: 61, terminator_count: 0, _padding: 0 },
-    // [4125] Ref(ForeignKeyGrammar)
-    GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3102, child_count: 0, min_times: 0, first_terminator_idx: 61, terminator_count: 0, _padding: 0 },
-    // [4126] Ref(BracketedColumnReferenceListGrammar)
-    GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3102, child_count: 0, min_times: 0, first_terminator_idx: 61, terminator_count: 0, _padding: 0 },
-    // [4127] Sequence(4 elements)
-    GrammarInst { variant: GrammarVariant::Sequence, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3102, child_count: 4, min_times: 0, first_terminator_idx: 61, terminator_count: 0, _padding: 0 },
-    // [4128] Ref(WithKeywordSegment)
-    GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(5), first_child_idx: 3106, child_count: 0, min_times: 0, first_terminator_idx: 61, terminator_count: 0, _padding: 0 },
-    // [4129] Ref(InvalidKeywordSegment)
+    // [4110] Ref(SelectKeywordSegment)
+    GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3092, child_count: 0, min_times: 0, first_terminator_idx: 60, terminator_count: 0, _padding: 0 },
+    // [4111] Meta(conditional)
+    GrammarInst { variant: GrammarVariant::Meta, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(0), first_child_idx: 3092, child_count: 0, min_times: 0, first_terminator_idx: 61, terminator_count: 0, _padding: 0 },
+    // [4112] Ref(NonWithSelectableGrammar)
+    GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3092, child_count: 0, min_times: 0, first_terminator_idx: 61, terminator_count: 0, _padding: 0 },
+    // [4113] Sequence(3 elements)
+    GrammarInst { variant: GrammarVariant::Sequence, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3092, child_count: 3, min_times: 0, first_terminator_idx: 61, terminator_count: 0, _padding: 0 },
+    // [4114] Ref(WithKeywordSegment)
+    GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3095, child_count: 0, min_times: 0, first_terminator_idx: 61, terminator_count: 0, _padding: 0 },
+    // [4115] Sequence(1 elements)
+    GrammarInst { variant: GrammarVariant::Sequence, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(5), first_child_idx: 3095, child_count: 1, min_times: 0, first_terminator_idx: 61, terminator_count: 0, _padding: 0 },
+    // [4116] Ref(NoKeywordSegment)
+    GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3096, child_count: 0, min_times: 0, first_terminator_idx: 61, terminator_count: 0, _padding: 0 },
+    // [4117] Ref(DataKeywordSegment)
+    GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3096, child_count: 0, min_times: 0, first_terminator_idx: 61, terminator_count: 0, _padding: 0 },
+    // [4118] Nothing
+    GrammarInst { variant: GrammarVariant::Nothing, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(0), first_child_idx: 3096, child_count: 0, min_times: 0, first_terminator_idx: 61, terminator_count: 0, _padding: 0 },
+    // [4119] Sequence(4 elements)
+    GrammarInst { variant: GrammarVariant::Sequence, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3096, child_count: 4, min_times: 0, first_terminator_idx: 61, terminator_count: 0, _padding: 0 },
+    // [4120] Ref(WithKeywordSegment)
+    GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(5), first_child_idx: 3100, child_count: 0, min_times: 0, first_terminator_idx: 61, terminator_count: 0, _padding: 0 },
+    // [4121] Ref(InvalidKeywordSegment)
+    GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3100, child_count: 0, min_times: 0, first_terminator_idx: 61, terminator_count: 0, _padding: 0 },
+    // [4122] Ref(ForeignKeyGrammar)
+    GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3100, child_count: 0, min_times: 0, first_terminator_idx: 61, terminator_count: 0, _padding: 0 },
+    // [4123] Ref(BracketedColumnReferenceListGrammar)
+    GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3100, child_count: 0, min_times: 0, first_terminator_idx: 61, terminator_count: 0, _padding: 0 },
+    // [4124] Sequence(4 elements)
+    GrammarInst { variant: GrammarVariant::Sequence, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3100, child_count: 4, min_times: 0, first_terminator_idx: 61, terminator_count: 0, _padding: 0 },
+    // [4125] Ref(WithKeywordSegment)
+    GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(5), first_child_idx: 3104, child_count: 0, min_times: 0, first_terminator_idx: 61, terminator_count: 0, _padding: 0 },
+    // [4126] Ref(InvalidKeywordSegment)
+    GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3104, child_count: 0, min_times: 0, first_terminator_idx: 61, terminator_count: 0, _padding: 0 },
+    // [4127] OneOf(2 options)
+    GrammarInst { variant: GrammarVariant::OneOf, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3104, child_count: 2, min_times: 0, first_terminator_idx: 61, terminator_count: 0, _padding: 0 },
+    // [4128] Ref(UniqueKeywordSegment)
     GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3106, child_count: 0, min_times: 0, first_terminator_idx: 61, terminator_count: 0, _padding: 0 },
-    // [4130] OneOf(2 options)
-    GrammarInst { variant: GrammarVariant::OneOf, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3106, child_count: 2, min_times: 0, first_terminator_idx: 61, terminator_count: 0, _padding: 0 },
-    // [4131] Ref(UniqueKeywordSegment)
-    GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3108, child_count: 0, min_times: 0, first_terminator_idx: 61, terminator_count: 0, _padding: 0 },
-    // [4132] Ref(PrimaryKeyGrammar)
-    GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3108, child_count: 0, min_times: 0, first_terminator_idx: 61, terminator_count: 0, _padding: 0 },
-    // [4133] Ref(BracketedColumnReferenceListGrammar)
-    GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3108, child_count: 0, min_times: 0, first_terminator_idx: 61, terminator_count: 0, _padding: 0 },
-    // [4134] StringParser("WITH")
-    GrammarInst { variant: GrammarVariant::StringParser, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(0), first_child_idx: 3108, child_count: 0, min_times: 0, first_terminator_idx: 61, terminator_count: 0, _padding: 0 },
-    // [4135] Sequence(4 elements)
-    GrammarInst { variant: GrammarVariant::Sequence, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3108, child_count: 4, min_times: 0, first_terminator_idx: 61, terminator_count: 0, _padding: 0 },
-    // [4136] Ref(WithKeywordSegment)
-    GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3112, child_count: 0, min_times: 0, first_terminator_idx: 61, terminator_count: 0, _padding: 0 },
-    // [4137] Ref(NoKeywordSegment)
-    GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3112, child_count: 0, min_times: 0, first_terminator_idx: 61, terminator_count: 0, _padding: 0 },
-    // [4138] Ref(SchemaKeywordSegment)
-    GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3112, child_count: 0, min_times: 0, first_terminator_idx: 61, terminator_count: 0, _padding: 0 },
-    // [4139] Ref(BindingKeywordSegment)
-    GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3112, child_count: 0, min_times: 0, first_terminator_idx: 61, terminator_count: 0, _padding: 0 },
-    // [4140] StringParser("WITHIN")
-    GrammarInst { variant: GrammarVariant::StringParser, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(0), first_child_idx: 3112, child_count: 0, min_times: 0, first_terminator_idx: 61, terminator_count: 0, _padding: 0 },
-    // [4141] StringParser("WITHOUT")
-    GrammarInst { variant: GrammarVariant::StringParser, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(0), first_child_idx: 3112, child_count: 0, min_times: 0, first_terminator_idx: 61, terminator_count: 0, _padding: 0 },
-    // [4142] Token("word")
-    GrammarInst { variant: GrammarVariant::Token, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(0), first_child_idx: 3112, child_count: 0, min_times: 0, first_terminator_idx: 61, terminator_count: 0, _padding: 0 },
-    // [4143] StringParser("WORK")
-    GrammarInst { variant: GrammarVariant::StringParser, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(0), first_child_idx: 3112, child_count: 0, min_times: 0, first_terminator_idx: 61, terminator_count: 0, _padding: 0 },
-    // [4144] StringParser("WRITE")
-    GrammarInst { variant: GrammarVariant::StringParser, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(0), first_child_idx: 3112, child_count: 0, min_times: 0, first_terminator_idx: 61, terminator_count: 0, _padding: 0 },
-    // [4145] StringParser("YEAR")
-    GrammarInst { variant: GrammarVariant::StringParser, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(0), first_child_idx: 3112, child_count: 0, min_times: 0, first_terminator_idx: 61, terminator_count: 0, _padding: 0 },
-    // [4146] StringParser("YEARS_BETWEEN")
-    GrammarInst { variant: GrammarVariant::StringParser, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(0), first_child_idx: 3112, child_count: 0, min_times: 0, first_terminator_idx: 61, terminator_count: 0, _padding: 0 },
-    // [4147] StringParser("YES")
-    GrammarInst { variant: GrammarVariant::StringParser, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(0), first_child_idx: 3112, child_count: 0, min_times: 0, first_terminator_idx: 61, terminator_count: 0, _padding: 0 },
-    // [4148] StringParser("ZEROIFNULL")
-    GrammarInst { variant: GrammarVariant::StringParser, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(0), first_child_idx: 3112, child_count: 0, min_times: 0, first_terminator_idx: 61, terminator_count: 0, _padding: 0 },
-    // [4149] StringParser("ZONE")
-    GrammarInst { variant: GrammarVariant::StringParser, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(0), first_child_idx: 3112, child_count: 0, min_times: 0, first_terminator_idx: 61, terminator_count: 0, _padding: 0 },
+    // [4129] Ref(PrimaryKeyGrammar)
+    GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3106, child_count: 0, min_times: 0, first_terminator_idx: 61, terminator_count: 0, _padding: 0 },
+    // [4130] Ref(BracketedColumnReferenceListGrammar)
+    GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3106, child_count: 0, min_times: 0, first_terminator_idx: 61, terminator_count: 0, _padding: 0 },
+    // [4131] StringParser("WITH")
+    GrammarInst { variant: GrammarVariant::StringParser, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(0), first_child_idx: 3106, child_count: 0, min_times: 0, first_terminator_idx: 61, terminator_count: 0, _padding: 0 },
+    // [4132] Sequence(4 elements)
+    GrammarInst { variant: GrammarVariant::Sequence, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3106, child_count: 4, min_times: 0, first_terminator_idx: 61, terminator_count: 0, _padding: 0 },
+    // [4133] Ref(WithKeywordSegment)
+    GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3110, child_count: 0, min_times: 0, first_terminator_idx: 61, terminator_count: 0, _padding: 0 },
+    // [4134] Ref(NoKeywordSegment)
+    GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3110, child_count: 0, min_times: 0, first_terminator_idx: 61, terminator_count: 0, _padding: 0 },
+    // [4135] Ref(SchemaKeywordSegment)
+    GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3110, child_count: 0, min_times: 0, first_terminator_idx: 61, terminator_count: 0, _padding: 0 },
+    // [4136] Ref(BindingKeywordSegment)
+    GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3110, child_count: 0, min_times: 0, first_terminator_idx: 61, terminator_count: 0, _padding: 0 },
+    // [4137] StringParser("WITHIN")
+    GrammarInst { variant: GrammarVariant::StringParser, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(0), first_child_idx: 3110, child_count: 0, min_times: 0, first_terminator_idx: 61, terminator_count: 0, _padding: 0 },
+    // [4138] StringParser("WITHOUT")
+    GrammarInst { variant: GrammarVariant::StringParser, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(0), first_child_idx: 3110, child_count: 0, min_times: 0, first_terminator_idx: 61, terminator_count: 0, _padding: 0 },
+    // [4139] Token("word")
+    GrammarInst { variant: GrammarVariant::Token, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(0), first_child_idx: 3110, child_count: 0, min_times: 0, first_terminator_idx: 61, terminator_count: 0, _padding: 0 },
+    // [4140] StringParser("WORK")
+    GrammarInst { variant: GrammarVariant::StringParser, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(0), first_child_idx: 3110, child_count: 0, min_times: 0, first_terminator_idx: 61, terminator_count: 0, _padding: 0 },
+    // [4141] StringParser("WRITE")
+    GrammarInst { variant: GrammarVariant::StringParser, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(0), first_child_idx: 3110, child_count: 0, min_times: 0, first_terminator_idx: 61, terminator_count: 0, _padding: 0 },
+    // [4142] StringParser("YEAR")
+    GrammarInst { variant: GrammarVariant::StringParser, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(0), first_child_idx: 3110, child_count: 0, min_times: 0, first_terminator_idx: 61, terminator_count: 0, _padding: 0 },
+    // [4143] StringParser("YEARS_BETWEEN")
+    GrammarInst { variant: GrammarVariant::StringParser, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(0), first_child_idx: 3110, child_count: 0, min_times: 0, first_terminator_idx: 61, terminator_count: 0, _padding: 0 },
+    // [4144] StringParser("YES")
+    GrammarInst { variant: GrammarVariant::StringParser, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(0), first_child_idx: 3110, child_count: 0, min_times: 0, first_terminator_idx: 61, terminator_count: 0, _padding: 0 },
+    // [4145] StringParser("ZEROIFNULL")
+    GrammarInst { variant: GrammarVariant::StringParser, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(0), first_child_idx: 3110, child_count: 0, min_times: 0, first_terminator_idx: 61, terminator_count: 0, _padding: 0 },
+    // [4146] StringParser("ZONE")
+    GrammarInst { variant: GrammarVariant::StringParser, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(0), first_child_idx: 3110, child_count: 0, min_times: 0, first_terminator_idx: 61, terminator_count: 0, _padding: 0 },
 ];
 
 pub static CHILD_IDS: &[u32] = &[
@@ -8516,21 +8510,21 @@ pub static CHILD_IDS: &[u32] = &[
     3912, 3913, 3919, 3920, 3921, 3922, 3925, 3934, 3935, 3936, 3937, 3938, 3939, 3940, 3941, 3942,
     3949, 3950, 3951, 3952, 3953, 3957, 31, 3958, 41, 3961, 3962, 3963, 3964, 3959, 3960, 3969,
     3970, 3972, 3973, 3974, 3975, 3978, 3979, 3980, 3981, 3982, 3984, 3985, 3986, 3987, 3989, 3990,
-    3997, 3998, 4010, 3999, 62, 4000, 4006, 4001, 38, 39, 4002, 62, 4003, 4004, 4005, 4007,
-    62, 4008, 4009, 4013, 4014, 4015, 4019, 4020, 4024, 4016, 4017, 4018, 4021, 4022, 4023, 4025,
-    4026, 4027, 4042, 4043, 4045, 4046, 4047, 4048, 4049, 4050, 509, 4044, 41, 4054, 509, 4055,
-    41, 4056, 4057, 4057, 38, 39, 4059, 4060, 4061, 4062, 4063, 4066, 4069, 4070, 4071, 4072,
-    4073, 4064, 4065, 4067, 4068, 4078, 4080, 4088, 4081, 4082, 4085, 4083, 4084, 4086, 4087, 4091,
-    4095, 4096, 4097, 4092, 4093, 4094, 4099, 4100, 4101, 4102, 4105, 4106, 4103, 62, 4108, 4109,
-    4110, 4111, 4114, 4115, 4112, 62, 4117, 4118, 4120, 4119, 4123, 4124, 4125, 4126, 4128, 4129,
-    4130, 4133, 4131, 4132, 4136, 4137, 4138, 4139,
+    3997, 3998, 4007, 3999, 62, 4000, 4006, 4001, 38, 39, 4002, 62, 4003, 4004, 4005, 4002,
+    62, 4010, 4011, 4012, 4016, 4017, 4021, 4013, 4014, 4015, 4018, 4019, 4020, 4022, 4023, 4024,
+    4039, 4040, 4042, 4043, 4044, 4045, 4046, 4047, 509, 4041, 41, 4051, 509, 4052, 41, 4053,
+    4054, 4054, 38, 39, 4056, 4057, 4058, 4059, 4060, 4063, 4066, 4067, 4068, 4069, 4070, 4061,
+    4062, 4064, 4065, 4075, 4077, 4085, 4078, 4079, 4082, 4080, 4081, 4083, 4084, 4088, 4092, 4093,
+    4094, 4089, 4090, 4091, 4096, 4097, 4098, 4099, 4102, 4103, 4100, 62, 4105, 4106, 4107, 4108,
+    4111, 4112, 4109, 62, 4114, 4115, 4117, 4116, 4120, 4121, 4122, 4123, 4125, 4126, 4127, 4130,
+    4128, 4129, 4133, 4134, 4135, 4136,
 ];
 
 pub static TERMINATORS: &[u32] = &[
     407, 408, 512, 513, 515, 522, 523, 525, 527, 528, 529, 570, 610, 686, 989, 990,
     992, 1559, 1597, 1807, 1810, 1819, 1822, 1951, 1955, 2030, 2031, 2046, 2047, 2060, 2092, 2093,
     2110, 2111, 2139, 2142, 2143, 2144, 2145, 2165, 2899, 2900, 3261, 3298, 3322, 3323, 3324, 3366,
-    3560, 3724, 3725, 3786, 3787, 3793, 3943, 3944, 3945, 3946, 3947, 4104, 4113,
+    3560, 3724, 3725, 3786, 3787, 3793, 3943, 3944, 3945, 3946, 3947, 4101, 4110,
 ];
 
 pub static STRINGS: &[&str] = &[
@@ -10583,68 +10577,68 @@ pub static AUX_DATA: &[u32] = &[
     1482, 1, 2, 1045, 1, 2, 453, 453, 68, 1483, 1, 2, 1484, 1, 2, 110,
     1485, 68, 353, 1485, 68, 352, 1485, 68, 407, 1485, 68, 120, 1, 2, 1486, 1,
     2, 1487, 1, 2, 275, 1, 2, 1020, 1, 2, 0, 1, 0, 1, 0, 0,
-    1491, 1, 2, 1492, 1, 2, 1493, 1, 2, 1494, 1, 2, 0, 4294967295, 0, 0,
-    28, 1, 2, 688, 1, 2, 0, 333, 1, 2, 1503, 1, 2, 936, 1, 2,
-    1504, 1, 2, 1505, 1, 2, 1506, 1, 2, 1507, 1, 2, 1508, 1, 2, 1509,
-    1, 2, 1510, 1, 2, 1511, 1, 2, 1512, 1, 2, 1513, 1, 2, 1514, 1,
-    2, 0, 925, 1, 2, 1518, 1, 2, 1519, 1, 2, 213, 1, 2, 0, 1021,
-    1, 2, 1520, 1, 2, 1521, 1, 2, 310, 1, 2, 305, 1, 2, 1111, 1,
-    2, 1522, 1, 2, 861, 1, 2, 1523, 1, 2, 631, 1, 2, 1524, 1, 2,
-    1525, 1, 2, 1526, 1, 2, 652, 1, 2, 1527, 1, 2, 6, 1, 2, 558,
-    1, 2, 104, 1, 2, 1166, 1, 2, 1022, 1, 2, 735, 734, 395, 735, 1,
-    2, 1528, 1, 2, 607, 1, 2, 693, 1, 2, 1529, 1, 2, 654, 1, 2,
-    203, 1, 2, 993, 1, 2, 1530, 1, 2, 1531, 1, 2, 1001, 1, 2, 0,
-    1, 2, 1, 0, 1, 2, 1, 1535, 1, 2, 716, 1, 2, 115, 1, 2,
-    1469, 1, 2, 1536, 1, 2, 1537, 1, 2, 1538, 1, 2, 535, 1, 2, 160,
-    1, 2, 161, 1, 2, 1539, 1, 2, 1540, 1, 2, 783, 1, 2, 1541, 1,
-    2, 1542, 1, 2, 1218, 1, 2, 1543, 1, 2, 0, 0, 0, 0, 1, 0,
-    0, 22, 1, 2, 1, 2, 1, 0, 1, 2, 1, 0, 1, 2, 1, 0,
-    1574, 1, 2, 1575, 1, 2, 634, 1576, 68, 1577, 1, 2, 1007, 1, 2, 141,
-    1, 2, 0, 0, 1580, 1, 2, 147, 1, 2, 149, 150, 151, 94, 152, 153,
-    154, 155, 156, 157, 158, 159, 96, 160, 161, 97, 162, 163, 164, 165, 166, 167,
-    2922, 22, 1581, 395, 1582, 1, 2, 97, 1, 2, 1583, 1, 2, 205, 1, 2,
-    1, 0, 0, 1, 4294967295, 4294967295, 0, 23, 1, 2, 0, 0, 1185, 1, 2, 0,
-    1, 4294967295, 4294967295, 0, 276, 1, 2, 1592, 1, 2, 1593, 1, 2, 0, 1596, 1,
-    2, 1498, 1, 2, 1597, 1, 2, 0, 1, 0, 72, 1478, 1369, 1599, 1, 2,
-    981, 1, 2, 1002, 1, 2, 351, 1602, 68, 369, 1603, 68, 277, 1, 2, 162,
-    1, 2, 1604, 1, 2, 1605, 1, 2, 1606, 1, 2, 1607, 1, 2, 603, 1,
-    2, 1608, 1, 2, 1609, 1, 2, 1610, 1, 2, 1611, 1, 2, 1612, 1, 2,
-    1613, 1, 2, 1614, 1, 2, 1615, 1, 2, 1616, 1, 2, 1617, 1, 2, 1618,
-    1, 2, 1619, 1, 2, 163, 1, 2, 1620, 1, 2, 1621, 1, 2, 1622, 1,
-    2, 1623, 1, 2, 1624, 1, 2, 1625, 1, 2, 1626, 1, 2, 1627, 1, 2,
-    1628, 1, 2, 1629, 1, 2, 1630, 1, 2, 1631, 1, 2, 1632, 1, 2, 1633,
-    1, 2, 1634, 1, 2, 1635, 1, 2, 1636, 1, 2, 1637, 1, 2, 1638, 1,
-    2, 1639, 1, 2, 1640, 1, 2, 1641, 1, 2, 1642, 1, 2, 1643, 1, 2,
-    1644, 1, 2, 1645, 1, 2, 1646, 1, 2, 1647, 1, 2, 1648, 1, 2, 1649,
-    1, 2, 1650, 1, 2, 1651, 1, 2, 1652, 1, 2, 1653, 1, 2, 1654, 1,
-    2, 1655, 1, 2, 1656, 1, 2, 164, 1, 2, 1657, 1, 2, 1658, 1, 2,
-    1659, 1, 2, 1660, 1, 2, 1661, 1, 2, 1662, 1, 2, 1663, 1, 2, 1664,
-    1, 2, 1665, 1, 2, 1666, 1, 2, 1667, 1, 2, 1668, 1, 2, 1669, 1,
-    2, 1670, 1, 2, 121, 1671, 68, 562, 1, 2, 1672, 1, 2, 706, 1, 2,
-    0, 608, 1, 2, 1036, 1, 2, 1759, 1, 2, 1760, 1, 2, 1761, 1, 2,
-    1762, 1, 2, 0, 1, 0, 1, 2, 1, 1764, 1, 2, 1765, 1, 2, 1766,
-    1, 2, 1767, 1, 2, 1768, 1, 2, 1769, 1, 2, 1770, 1, 2, 1772, 1,
-    2, 1773, 1, 2, 1774, 1, 2, 206, 1, 2, 170, 1, 2, 149, 172, 150,
-    151, 94, 153, 154, 155, 156, 157, 173, 174, 158, 159, 96, 160, 161, 97, 162,
-    163, 164, 175, 165, 166, 167, 98, 3309, 26, 1775, 395, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 1781, 1, 2, 207, 1, 2, 0, 0, 0, 1, 0,
-    0, 1, 2, 1, 0, 0, 0, 211, 1, 2, 0, 0, 1, 0, 335, 1,
-    2, 1077, 1, 2, 0, 4294967295, 4294967295, 0, 0, 4294967295, 4294967295, 0, 1793, 1, 2, 1794,
-    1, 2, 1795, 1, 2, 175, 1, 2, 0, 1798, 1, 2, 0, 1801, 1, 2,
-    1120, 1, 2, 998, 1, 2, 946, 1802, 68, 772, 1, 2, 0, 0, 0, 4294967295,
-    4294967295, 0, 166, 1, 2, 167, 1, 2, 278, 1, 2, 165, 1, 2, 1805, 1,
-    2, 1806, 1, 2, 279, 1, 2, 84, 1, 2, 1807, 1, 2, 1808, 1, 2,
-    1809, 1, 2, 1810, 1, 2, 1811, 1, 2, 1812, 1, 2, 1813, 1, 2, 1104,
-    1, 2, 1814, 1, 2, 0, 1819, 1, 2, 1820, 1, 2, 1821, 1, 2, 1822,
-    1, 2, 1823, 1, 2, 674, 1, 2, 1003, 1, 2, 0, 437, 1, 2, 437,
-    987, 988, 1827, 1, 2, 0, 0, 1004, 1, 2, 1, 0, 1, 2, 1, 865,
-    1, 2, 1832, 1, 2, 1833, 892, 68, 1, 0, 0, 1835, 1, 2, 1049, 1,
-    2, 1836, 1, 2, 0, 1840, 1, 2, 1841, 1, 2, 1842, 1, 2, 1843, 1,
-    2, 0, 1062, 1, 2, 641, 1, 2, 438, 1, 2, 438, 987, 988, 1516, 1,
-    2, 1844, 1, 2, 1845, 1, 2, 1, 4294967295, 4294967295, 0, 1846, 1, 2, 24, 1,
-    2, 0, 1847, 1, 2, 1848, 1, 2, 25, 1, 2, 208, 1, 2, 98, 1,
-    2, 729, 1, 2, 490, 1, 2, 1854, 1, 2, 1855, 1, 2, 0, 1, 0,
-    1, 2, 1, 0, 1, 0, 0, 1, 0, 449, 1, 2, 0, 0, 1857, 1,
+    1491, 1, 2, 1492, 1, 2, 1493, 1, 2, 1494, 1, 2, 0, 4294967295, 1, 0,
+    0, 28, 1, 2, 688, 1, 2, 0, 333, 1, 2, 1503, 1, 2, 936, 1,
+    2, 1504, 1, 2, 1505, 1, 2, 1506, 1, 2, 1507, 1, 2, 1508, 1, 2,
+    1509, 1, 2, 1510, 1, 2, 1511, 1, 2, 1512, 1, 2, 1513, 1, 2, 1514,
+    1, 2, 0, 925, 1, 2, 1518, 1, 2, 1519, 1, 2, 213, 1, 2, 0,
+    1021, 1, 2, 1520, 1, 2, 1521, 1, 2, 310, 1, 2, 305, 1, 2, 1111,
+    1, 2, 1522, 1, 2, 861, 1, 2, 1523, 1, 2, 631, 1, 2, 1524, 1,
+    2, 1525, 1, 2, 1526, 1, 2, 652, 1, 2, 1527, 1, 2, 6, 1, 2,
+    558, 1, 2, 104, 1, 2, 1166, 1, 2, 1022, 1, 2, 735, 734, 395, 735,
+    1, 2, 1528, 1, 2, 607, 1, 2, 693, 1, 2, 1529, 1, 2, 654, 1,
+    2, 203, 1, 2, 993, 1, 2, 1530, 1, 2, 1531, 1, 2, 1001, 1, 2,
+    0, 1, 2, 1, 0, 1, 2, 1, 1535, 1, 2, 716, 1, 2, 115, 1,
+    2, 1469, 1, 2, 1536, 1, 2, 1537, 1, 2, 1538, 1, 2, 535, 1, 2,
+    160, 1, 2, 161, 1, 2, 1539, 1, 2, 1540, 1, 2, 783, 1, 2, 1541,
+    1, 2, 1542, 1, 2, 1218, 1, 2, 1543, 1, 2, 0, 0, 0, 0, 1,
+    0, 0, 22, 1, 2, 1, 2, 1, 0, 1, 2, 1, 0, 1, 2, 1,
+    0, 1574, 1, 2, 1575, 1, 2, 634, 1576, 68, 1577, 1, 2, 1007, 1, 2,
+    141, 1, 2, 0, 0, 1580, 1, 2, 147, 1, 2, 149, 150, 151, 94, 152,
+    153, 154, 155, 156, 157, 158, 159, 96, 160, 161, 97, 162, 163, 164, 165, 166,
+    167, 2923, 22, 1581, 395, 1582, 1, 2, 97, 1, 2, 1583, 1, 2, 205, 1,
+    2, 1, 0, 0, 1, 4294967295, 4294967295, 0, 23, 1, 2, 0, 0, 1185, 1, 2,
+    0, 1, 4294967295, 4294967295, 0, 276, 1, 2, 1592, 1, 2, 1593, 1, 2, 0, 1596,
+    1, 2, 1498, 1, 2, 1597, 1, 2, 0, 1, 0, 72, 1478, 1369, 1599, 1,
+    2, 981, 1, 2, 1002, 1, 2, 351, 1602, 68, 369, 1603, 68, 277, 1, 2,
+    162, 1, 2, 1604, 1, 2, 1605, 1, 2, 1606, 1, 2, 1607, 1, 2, 603,
+    1, 2, 1608, 1, 2, 1609, 1, 2, 1610, 1, 2, 1611, 1, 2, 1612, 1,
+    2, 1613, 1, 2, 1614, 1, 2, 1615, 1, 2, 1616, 1, 2, 1617, 1, 2,
+    1618, 1, 2, 1619, 1, 2, 163, 1, 2, 1620, 1, 2, 1621, 1, 2, 1622,
+    1, 2, 1623, 1, 2, 1624, 1, 2, 1625, 1, 2, 1626, 1, 2, 1627, 1,
+    2, 1628, 1, 2, 1629, 1, 2, 1630, 1, 2, 1631, 1, 2, 1632, 1, 2,
+    1633, 1, 2, 1634, 1, 2, 1635, 1, 2, 1636, 1, 2, 1637, 1, 2, 1638,
+    1, 2, 1639, 1, 2, 1640, 1, 2, 1641, 1, 2, 1642, 1, 2, 1643, 1,
+    2, 1644, 1, 2, 1645, 1, 2, 1646, 1, 2, 1647, 1, 2, 1648, 1, 2,
+    1649, 1, 2, 1650, 1, 2, 1651, 1, 2, 1652, 1, 2, 1653, 1, 2, 1654,
+    1, 2, 1655, 1, 2, 1656, 1, 2, 164, 1, 2, 1657, 1, 2, 1658, 1,
+    2, 1659, 1, 2, 1660, 1, 2, 1661, 1, 2, 1662, 1, 2, 1663, 1, 2,
+    1664, 1, 2, 1665, 1, 2, 1666, 1, 2, 1667, 1, 2, 1668, 1, 2, 1669,
+    1, 2, 1670, 1, 2, 121, 1671, 68, 562, 1, 2, 1672, 1, 2, 706, 1,
+    2, 0, 608, 1, 2, 1036, 1, 2, 1759, 1, 2, 1760, 1, 2, 1761, 1,
+    2, 1762, 1, 2, 0, 1, 0, 1, 2, 1, 1764, 1, 2, 1765, 1, 2,
+    1766, 1, 2, 1767, 1, 2, 1768, 1, 2, 1769, 1, 2, 1770, 1, 2, 1772,
+    1, 2, 1773, 1, 2, 1774, 1, 2, 206, 1, 2, 170, 1, 2, 149, 172,
+    150, 151, 94, 153, 154, 155, 156, 157, 173, 174, 158, 159, 96, 160, 161, 97,
+    162, 163, 164, 175, 165, 166, 167, 98, 3310, 26, 1775, 395, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 1781, 1, 2, 207, 1, 2, 0, 0, 0, 1,
+    0, 0, 1, 2, 1, 0, 0, 0, 211, 1, 2, 0, 0, 1, 0, 335,
+    1, 2, 1077, 1, 2, 0, 4294967295, 4294967295, 0, 0, 4294967295, 4294967295, 0, 1793, 1, 2,
+    1794, 1, 2, 1795, 1, 2, 175, 1, 2, 0, 1798, 1, 2, 0, 1801, 1,
+    2, 1120, 1, 2, 998, 1, 2, 946, 1802, 68, 772, 1, 2, 0, 0, 0,
+    4294967295, 4294967295, 0, 166, 1, 2, 167, 1, 2, 278, 1, 2, 165, 1, 2, 1805,
+    1, 2, 1806, 1, 2, 279, 1, 2, 84, 1, 2, 1807, 1, 2, 1808, 1,
+    2, 1809, 1, 2, 1810, 1, 2, 1811, 1, 2, 1812, 1, 2, 1813, 1, 2,
+    1104, 1, 2, 1814, 1, 2, 0, 1819, 1, 2, 1820, 1, 2, 1821, 1, 2,
+    1822, 1, 2, 1823, 1, 2, 674, 1, 2, 1003, 1, 2, 0, 437, 1, 2,
+    437, 987, 988, 1827, 1, 2, 0, 0, 1004, 1, 2, 1, 0, 1, 2, 1,
+    865, 1, 2, 1832, 1, 2, 1833, 892, 68, 1, 0, 0, 1835, 1, 2, 1049,
+    1, 2, 1836, 1, 2, 0, 1840, 1, 2, 1841, 1, 2, 1842, 1, 2, 1843,
+    1, 2, 0, 1062, 1, 2, 641, 1, 2, 438, 1, 2, 438, 987, 988, 1516,
+    1, 2, 1844, 1, 2, 1845, 1, 2, 1, 4294967295, 4294967295, 0, 1846, 1, 2, 24,
+    1, 2, 0, 1847, 1, 2, 1848, 1, 2, 25, 1, 2, 208, 1, 2, 98,
+    1, 2, 729, 1, 2, 490, 1, 2, 1854, 1, 2, 1855, 1, 2, 0, 1,
+    0, 1, 2, 1, 1, 0, 0, 1, 0, 449, 1, 2, 0, 0, 1857, 1,
     2, 1858, 1, 2, 281, 1, 2, 280, 1, 2, 5, 4294967295, 1859, 395, 1860, 1,
     2, 1861, 1, 2, 787, 1, 2, 1862, 1, 2, 725, 1, 2, 332, 1, 2,
     1093, 1863, 68, 808, 1, 2, 472, 1, 2, 1864, 1, 2, 1, 2, 1, 0,
@@ -10851,70 +10845,70 @@ pub static AUX_DATA_OFFSETS: &[u32] = &[
     2595, 2598, 2601, 2604, 2607, 2610, 2613, 2616, 507, 2619, 2622, 2625, 2628, 2631, 0, 2634,
     1488, 1489, 2639, 0, 210, 74, 293, 0, 336, 2635, 74, 0, 114, 116, 0, 1470,
     2637, 116, 622, 1490, 2640, 2643, 2646, 2649, 0, 1042, 74, 293, 1495, 2652, 0, 532,
-    682, 1496, 0, 532, 683, 1496, 0, 1497, 2655, 1284, 1499, 1500, 2656, 0, 689, 74,
-    293, 2659, 2662, 862, 249, 0, 91, 112, 0, 1501, 1502, 0, 91, 186, 2663, 2666,
-    2669, 2672, 2675, 2678, 2681, 2684, 2687, 2690, 2693, 2696, 2699, 2702, 0, 1515, 1064, 2705,
-    123, 1517, 1219, 2706, 2709, 2712, 2715, 0, 236, 2718, 114, 210, 724, 536, 537, 302,
-    103, 81, 0, 87, 89, 538, 83, 538, 2719, 2722, 2725, 2728, 2731, 2734, 2737, 2740,
-    2743, 2746, 2749, 2752, 2755, 2758, 2761, 2764, 2767, 2770, 63, 2773, 2776, 2779, 2782, 2785,
-    2788, 2791, 2794, 2797, 2800, 2803, 2806, 2809, 2812, 0, 1532, 2815, 1533, 169, 2816, 123,
-    0, 2819, 1534, 2820, 123, 2823, 2826, 2829, 2832, 2835, 2838, 2841, 0, 1027, 2844, 2847,
-    2850, 2853, 2856, 2859, 2862, 2865, 2868, 2871, 2874, 1544, 0, 374, 76, 2875, 1106, 1158,
-    0, 1406, 1546, 2878, 1548, 2877, 0, 565, 1549, 2876, 1039, 1473, 0, 916, 210, 1551,
-    1553, 1555, 1557, 2880, 696, 1030, 0, 1065, 129, 1064, 1068, 669, 523, 2881, 0, 1558,
-    1560, 1562, 827, 1564, 830, 1566, 1568, 1570, 56, 1178, 1068, 669, 523, 2895, 2887, 2884,
-    1383, 2891, 2888, 1572, 1573, 2892, 464, 2896, 2899, 2902, 2905, 2908, 2911, 2914, 0, 1578,
-    123, 0, 1501, 1578, 2915, 0, 1579, 123, 0, 1501, 1579, 2916, 2919, 2944, 2948, 2951,
-    2954, 2957, 0, 91, 2960, 1584, 696, 0, 291, 109, 2962, 366, 187, 188, 398, 291,
-    112, 186, 0, 1385, 2963, 0, 1068, 1385, 56, 1178, 1586, 2967, 2971, 0, 1588, 1158,
-    1589, 2970, 1590, 1591, 0, 91, 114, 179, 116, 2972, 0, 2975, 954, 955, 2976, 0,
-    1407, 252, 957, 2980, 2983, 2986, 2989, 1594, 1595, 2990, 2993, 2996, 2999, 82, 1126, 1598,
-    3000, 63, 3002, 3005, 3008, 0, 1600, 41, 3011, 3014, 3017, 3020, 3023, 3026, 3029, 3032,
-    3035, 3038, 3041, 3044, 3047, 3050, 3053, 3056, 3059, 3062, 3065, 3068, 3071, 3074, 3077, 3080,
-    3083, 3086, 3089, 3092, 3095, 3098, 3101, 3104, 3107, 3110, 3113, 3116, 3119, 3122, 3125, 3128,
-    3131, 3134, 3137, 3140, 3143, 3146, 3149, 3152, 3155, 3158, 3161, 3164, 3167, 3170, 3173, 3176,
-    3179, 3182, 3185, 3188, 3191, 3194, 3197, 3200, 3203, 3206, 3209, 3212, 3215, 3218, 3221, 3224,
-    3227, 3230, 3233, 3236, 3239, 3242, 3245, 3248, 464, 913, 1673, 1675, 909, 1387, 1677, 911,
+    682, 1496, 0, 532, 683, 1496, 0, 1497, 2656, 1284, 1499, 1500, 2657, 0, 689, 74,
+    293, 2660, 2663, 862, 249, 0, 91, 112, 0, 1501, 1502, 0, 91, 186, 2664, 2667,
+    2670, 2673, 2676, 2679, 2682, 2685, 2688, 2691, 2694, 2697, 2700, 2703, 0, 1515, 1064, 2706,
+    123, 1517, 1219, 2707, 2710, 2713, 2716, 0, 236, 2719, 114, 210, 724, 536, 537, 302,
+    103, 81, 0, 87, 89, 538, 83, 538, 2720, 2723, 2726, 2729, 2732, 2735, 2738, 2741,
+    2744, 2747, 2750, 2753, 2756, 2759, 2762, 2765, 2768, 2771, 63, 2774, 2777, 2780, 2783, 2786,
+    2789, 2792, 2795, 2798, 2801, 2804, 2807, 2810, 2813, 0, 1532, 2816, 1533, 169, 2817, 123,
+    0, 2820, 1534, 2821, 123, 2824, 2827, 2830, 2833, 2836, 2839, 2842, 0, 1027, 2845, 2848,
+    2851, 2854, 2857, 2860, 2863, 2866, 2869, 2872, 2875, 1544, 0, 374, 76, 2876, 1106, 1158,
+    0, 1406, 1546, 2879, 1548, 2878, 0, 565, 1549, 2877, 1039, 1473, 0, 916, 210, 1551,
+    1553, 1555, 1557, 2881, 696, 1030, 0, 1065, 129, 1064, 1068, 669, 523, 2882, 0, 1558,
+    1560, 1562, 827, 1564, 830, 1566, 1568, 1570, 56, 1178, 1068, 669, 523, 2896, 2888, 2885,
+    1383, 2892, 2889, 1572, 1573, 2893, 464, 2897, 2900, 2903, 2906, 2909, 2912, 2915, 0, 1578,
+    123, 0, 1501, 1578, 2916, 0, 1579, 123, 0, 1501, 1579, 2917, 2920, 2945, 2949, 2952,
+    2955, 2958, 0, 91, 2961, 1584, 696, 0, 291, 109, 2963, 366, 187, 188, 398, 291,
+    112, 186, 0, 1385, 2964, 0, 1068, 1385, 56, 1178, 1586, 2968, 2972, 0, 1588, 1158,
+    1589, 2971, 1590, 1591, 0, 91, 114, 179, 116, 2973, 0, 2976, 954, 955, 2977, 0,
+    1407, 252, 957, 2981, 2984, 2987, 2990, 1594, 1595, 2991, 2994, 2997, 3000, 82, 1126, 1598,
+    3001, 63, 3003, 3006, 3009, 0, 1600, 41, 3012, 3015, 3018, 3021, 3024, 3027, 3030, 3033,
+    3036, 3039, 3042, 3045, 3048, 3051, 3054, 3057, 3060, 3063, 3066, 3069, 3072, 3075, 3078, 3081,
+    3084, 3087, 3090, 3093, 3096, 3099, 3102, 3105, 3108, 3111, 3114, 3117, 3120, 3123, 3126, 3129,
+    3132, 3135, 3138, 3141, 3144, 3147, 3150, 3153, 3156, 3159, 3162, 3165, 3168, 3171, 3174, 3177,
+    3180, 3183, 3186, 3189, 3192, 3195, 3198, 3201, 3204, 3207, 3210, 3213, 3216, 3219, 3222, 3225,
+    3228, 3231, 3234, 3237, 3240, 3243, 3246, 3249, 464, 913, 1673, 1675, 909, 1387, 1677, 911,
     1679, 1681, 1683, 1685, 1687, 1689, 1691, 1693, 1695, 1697, 1699, 1701, 1703, 1705, 1707, 1709,
     1711, 1713, 1715, 1717, 1719, 1721, 1723, 1725, 1727, 1729, 1731, 1733, 1735, 1737, 1739, 1741,
-    1743, 1745, 1747, 1749, 1751, 1753, 1755, 1757, 633, 3249, 3252, 3255, 3258, 3261, 3264, 3267,
-    1763, 3270, 3268, 0, 374, 76, 0, 3273, 3276, 3279, 3282, 3285, 3288, 3291, 1771, 3294,
-    3297, 3300, 3303, 3306, 3335, 3348, 0, 7, 1127, 797, 1776, 0, 7, 1127, 1776, 0,
+    1743, 1745, 1747, 1749, 1751, 1753, 1755, 1757, 633, 3250, 3253, 3256, 3259, 3262, 3265, 3268,
+    1763, 3271, 3269, 0, 374, 76, 0, 3274, 3277, 3280, 3283, 3286, 3289, 3292, 1771, 3295,
+    3298, 3301, 3304, 3307, 3336, 3349, 0, 7, 1127, 797, 1776, 0, 7, 1127, 1776, 0,
     91, 1127, 87, 89, 0, 1777, 87, 1778, 0, 1294, 1127, 146, 0, 80, 169, 0,
-    3339, 588, 80, 209, 302, 0, 1212, 1127, 302, 0, 3340, 209, 7, 1127, 103, 0,
-    3341, 80, 209, 7, 1779, 1153, 1127, 81, 0, 588, 331, 114, 0, 3342, 80, 209,
-    1779, 1127, 331, 114, 334, 0, 588, 3343, 210, 724, 81, 103, 146, 536, 537, 0,
-    3344, 588, 80, 682, 209, 681, 1406, 683, 1127, 210, 0, 1406, 1127, 1780, 0, 3345,
-    588, 209, 1127, 724, 0, 3346, 588, 209, 709, 1127, 3347, 537, 536, 1236, 929, 3349,
-    3352, 3355, 1782, 1783, 0, 0, 230, 538, 3356, 0, 640, 293, 0, 231, 293, 0,
-    1784, 293, 1785, 3357, 181, 224, 671, 0, 1786, 129, 3358, 291, 1787, 633, 3360, 0,
-    1788, 101, 1787, 0, 1787, 101, 1788, 0, 3364, 188, 398, 74, 3361, 464, 1248, 1141,
-    1675, 1753, 0, 0, 230, 63, 3365, 697, 112, 1473, 1039, 3366, 0, 697, 112, 231,
-    1789, 232, 3367, 0, 0, 230, 63, 3370, 697, 112, 1473, 1039, 3371, 0, 231, 293,
-    0, 1784, 293, 1789, 232, 0, 245, 129, 3372, 291, 1788, 633, 3374, 3377, 0, 3380,
-    1790, 481, 1791, 0, 3384, 1792, 1791, 3388, 3391, 3394, 3397, 0, 3400, 1796, 1797, 3401,
-    3404, 1799, 1800, 3405, 3408, 3411, 3414, 3417, 0, 3420, 771, 768, 752, 0, 3421, 565,
-    1804, 771, 773, 3422, 0, 1215, 771, 773, 366, 3426, 3429, 3432, 3435, 3438, 3441, 3444,
-    3447, 3450, 3453, 3456, 3459, 3462, 3465, 3468, 3471, 3474, 0, 3477, 1815, 1816, 1817, 3478,
-    3481, 3484, 3487, 3490, 3493, 3496, 3499, 1824, 1825, 1826, 3500, 3503, 3506, 0, 1013, 1828,
-    1829, 0, 1830, 3510, 0, 1417, 3509, 780, 778, 776, 0, 696, 168, 3511, 0, 1013,
-    210, 74, 3516, 3514, 374, 3519, 0, 1600, 1313, 0, 875, 1831, 3522, 3525, 3530, 3528,
-    525, 1834, 3531, 3534, 3537, 0, 3540, 1837, 1838, 1839, 3541, 3544, 3547, 3550, 0, 1588,
-    3553, 1106, 1158, 3554, 0, 640, 3557, 3560, 0, 3563, 3566, 3569, 3572, 0, 1558, 1560,
-    1562, 827, 1564, 830, 1566, 1568, 1570, 1068, 669, 523, 56, 1178, 0, 1385, 3575, 0,
-    1068, 1385, 3579, 3582, 0, 683, 3585, 74, 826, 1355, 1560, 827, 830, 3586, 3589, 3592,
-    0, 1779, 624, 0, 129, 1849, 1850, 168, 3595, 0, 1215, 1851, 295, 168, 722, 0,
-    129, 1852, 1853, 168, 0, 129, 312, 3598, 3601, 3604, 3607, 3610, 0, 822, 3623, 3622,
-    3616, 3614, 3613, 186, 187, 366, 3620, 3619, 186, 366, 76, 3625, 0, 822, 942, 3628,
-    123, 188, 398, 243, 3629, 123, 188, 398, 0, 565, 1856, 123, 3630, 3633, 3636, 3639,
-    3642, 3646, 3649, 3652, 3655, 3658, 3661, 3664, 3667, 0, 708, 0, 366, 1089, 1119, 1089,
-    366, 1089, 1089, 3670, 3673, 0, 1030, 3679, 3676, 366, 3680, 563, 564, 1063, 1064, 0,
-    89, 129, 0, 1065, 129, 1066, 1067, 1068, 669, 523, 3681, 3684, 1865, 0, 1866, 0,
-    3688, 3687, 0, 63, 510, 0, 124, 1124, 124, 3692, 0, 63, 3695, 245, 1065, 1460,
-    56, 1868, 0, 565, 1870, 1089, 3696, 1871, 1406, 1089, 1873, 0, 565, 1870, 1089, 3698,
-    1871, 1406, 1089, 1573, 0, 565, 0, 1501, 1874, 0, 0, 565, 1549, 1784, 293, 0,
-    565, 1549, 3700, 640, 231, 293, 3701, 0, 565, 1501, 114, 1875, 3704, 3707, 711, 3710,
-    3713, 3716, 3719, 3722, 3725, 3728,
+    3340, 588, 80, 209, 302, 0, 1212, 1127, 302, 0, 3341, 209, 7, 1127, 103, 0,
+    3342, 80, 209, 7, 1779, 1153, 1127, 81, 0, 588, 331, 114, 0, 3343, 80, 209,
+    1779, 1127, 331, 114, 334, 0, 588, 3344, 210, 724, 81, 103, 146, 536, 537, 0,
+    3345, 588, 80, 682, 209, 681, 1406, 683, 1127, 210, 0, 1406, 1127, 1780, 0, 3346,
+    588, 209, 1127, 724, 0, 3347, 588, 209, 709, 1127, 3348, 537, 536, 1236, 929, 3350,
+    3353, 3356, 1782, 1783, 0, 0, 230, 538, 3357, 0, 640, 293, 0, 231, 293, 0,
+    1784, 293, 1785, 3358, 181, 224, 671, 0, 1786, 129, 3359, 291, 1787, 633, 3361, 0,
+    1788, 101, 1787, 0, 1787, 101, 1788, 0, 3365, 188, 398, 74, 3362, 464, 1248, 1141,
+    1675, 1753, 0, 0, 230, 63, 3366, 697, 112, 1473, 1039, 3367, 0, 697, 112, 231,
+    1789, 232, 3368, 0, 0, 230, 63, 3371, 697, 112, 1473, 1039, 3372, 0, 231, 293,
+    0, 1784, 293, 1789, 232, 0, 245, 129, 3373, 291, 1788, 633, 3375, 3378, 0, 3381,
+    1790, 481, 1791, 0, 3385, 1792, 1791, 3389, 3392, 3395, 3398, 0, 3401, 1796, 1797, 3402,
+    3405, 1799, 1800, 3406, 3409, 3412, 3415, 3418, 0, 3421, 771, 768, 752, 0, 3422, 565,
+    1804, 771, 773, 3423, 0, 1215, 771, 773, 366, 3427, 3430, 3433, 3436, 3439, 3442, 3445,
+    3448, 3451, 3454, 3457, 3460, 3463, 3466, 3469, 3472, 3475, 0, 3478, 1815, 1816, 1817, 3479,
+    3482, 3485, 3488, 3491, 3494, 3497, 3500, 1824, 1825, 1826, 3501, 3504, 3507, 0, 1013, 1828,
+    1829, 0, 1830, 3511, 0, 1417, 3510, 780, 778, 776, 0, 696, 168, 3512, 0, 1013,
+    210, 74, 3517, 3515, 374, 3520, 0, 1600, 1313, 0, 875, 1831, 3523, 3526, 3531, 3529,
+    525, 1834, 3532, 3535, 3538, 0, 3541, 1837, 1838, 1839, 3542, 3545, 3548, 3551, 0, 1588,
+    3554, 1106, 1158, 3555, 0, 640, 3558, 3561, 0, 3564, 3567, 3570, 3573, 0, 1558, 1560,
+    1562, 827, 1564, 830, 1566, 1568, 1570, 1068, 669, 523, 56, 1178, 0, 1385, 3576, 0,
+    1068, 1385, 3580, 3583, 0, 683, 3586, 74, 826, 1355, 1560, 827, 830, 3587, 3590, 3593,
+    0, 1779, 624, 0, 129, 1849, 1850, 168, 3596, 0, 1215, 1851, 295, 168, 722, 0,
+    129, 1852, 1853, 168, 0, 129, 312, 3599, 3602, 3605, 3608, 3611, 0, 822, 3623, 3622,
+    3617, 3615, 3614, 186, 187, 366, 3620, 76, 3625, 0, 822, 942, 3628, 123, 188, 398,
+    243, 3629, 123, 188, 398, 0, 565, 1856, 123, 3630, 3633, 3636, 3639, 3642, 3646, 3649,
+    3652, 3655, 3658, 3661, 3664, 3667, 0, 708, 0, 366, 1089, 1119, 1089, 366, 1089, 1089,
+    3670, 3673, 0, 1030, 3679, 3676, 366, 3680, 563, 564, 1063, 1064, 0, 89, 129, 0,
+    1065, 129, 1066, 1067, 1068, 669, 523, 3681, 3684, 1865, 0, 1866, 0, 3688, 3687, 0,
+    63, 510, 0, 124, 1124, 124, 3692, 0, 63, 3695, 245, 1065, 1460, 56, 1868, 0,
+    565, 1870, 1089, 3696, 1871, 1406, 1089, 1873, 0, 565, 1870, 1089, 3698, 1871, 1406, 1089,
+    1573, 0, 565, 0, 1501, 1874, 0, 0, 565, 1549, 1784, 293, 0, 565, 1549, 3700,
+    640, 231, 293, 3701, 0, 565, 1501, 114, 1875, 3704, 3707, 711, 3710, 3713, 3716, 3719,
+    3722, 3725, 3728,
 ];
 
 pub static SEGMENT_TYPE_OFFSETS: &[u32] = &[
@@ -11168,23 +11162,23 @@ pub static SEGMENT_TYPE_OFFSETS: &[u32] = &[
     1069, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 75, 4294967295, 1356, 1561, 829, 832, 4294967295, 4294967295, 4294967295,
     4294967295, 4294967295, 625, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295,
     4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295,
-    4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 367, 4294967295, 4294967295, 4294967295, 367, 77, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295,
-    4294967295, 4294967295, 399, 4294967295, 4294967295, 4294967295, 4294967295, 399, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295,
-    4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 367, 59, 4294967295, 59,
-    367, 73, 73, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 367, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295,
-    4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 1069, 670, 524, 4294967295, 4294967295, 1865, 4294967295, 1867, 4294967295,
-    4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 1461,
-    58, 1869, 4294967295, 4294967295, 4294967295, 59, 4294967295, 1872, 4294967295, 73, 4294967295, 4294967295, 4294967295, 4294967295, 59, 4294967295,
-    1872, 4294967295, 73, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295,
-    4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 711, 4294967295,
-    4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295,
+    4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 367, 4294967295, 77, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 399,
+    4294967295, 4294967295, 4294967295, 4294967295, 399, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295,
+    4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 367, 59, 4294967295, 59, 367, 73, 73,
+    4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 367, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295,
+    4294967295, 4294967295, 4294967295, 4294967295, 1069, 670, 524, 4294967295, 4294967295, 1865, 4294967295, 1867, 4294967295, 4294967295, 4294967295, 4294967295,
+    4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 1461, 58, 1869, 4294967295,
+    4294967295, 4294967295, 59, 4294967295, 1872, 4294967295, 73, 4294967295, 4294967295, 4294967295, 4294967295, 59, 4294967295, 1872, 4294967295, 73,
+    4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295,
+    4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 711, 4294967295, 4294967295, 4294967295, 4294967295,
+    4294967295, 4294967295, 4294967295,
 ];
 
 pub static REGEX_PATTERNS: &[&str] = &[
     r#"[A-Z_][A-Z0-9_]*"#, // [0]
     r#"^(NOT)$"#, // [1]
     r#"[A-Z0-9_]*[A-Z][A-Z0-9_]*"#, // [2]
-    r#"^(UNNEST|INTO|DOUBLE|PREPARE|CONSTRAINT_STATE_DEFAULT|SQL_DECIMAL|CONDITION|SET|ARE|SQL_NUMERIC|SMALLINT|SPECIFIC|LONGVARCHAR|DERIVED|INTERVAL|GRANT|MODULE|COMMIT|OUTER|DLURLSCHEME|ACTION|BEGIN|NCLOB|DLURLPATHONLY|WITHIN|PAD|ASC|OUTPUT|SEPARATOR|PRECEDING|HASHTYPE_FORMAT|NOCYCLE|FLOAT|ROWS|TO|GENERAL|OBJECT|KEY_MEMBER|SYSTIMESTAMP|RESTRICT|ATTRIBUTE|ON|SCROLL|CUBE|SAVEPOINT|IS|DEFAULT|LOCAL|LARGE|STATEMENT|UPDATE|POSITION|FOR|DEFERRED|IFNULL|PERMISSION|SECTION|SQL_VARCHAR|FIRST|NUMERIC|SQL_SMALLINT|HOUR|NULL|NONE|CS|TEXT|CURRENT_SESSION|NVARCHAR2|DBTIMEZONE|RETURNS|GLOBAL|DISTINCT|AUTHID|COLLATION_CATALOG|GROUP_CONCAT|ALL|ENFORCE|DYNAMIC|READ|WHEN|WHENEVER|SUBSTRING|COLLATE|CONVERT|SCRIPT|STRUCTURE|TRIGGER|TRANSFORM|SELECTIVE|ONLY|GOTO|COLUMN|TIMEZONE_HOUR|NVARCHAR|SQL_TINYINT|FETCH|PROCEDURE|LOCATOR|COLLATION_NAME|IMPERSONATE|CASCADE|EXISTS|DLURLPATH|ASENSITIVE|END-EXEC|CONSTRUCTOR|SQL_TYPE_DATE|STATE|WITHOUT|THEN|EXCEPTION|LOCALTIMESTAMP|CALLED|DEALLOCATE|DEC|QUALIFY|LEADING|MODIFY|WORK|OPTION|CORRESPONDING|MATCH|GRANTED|DATALINK|DESCRIBE|DESCRIPTOR|CHARACTER_SET_NAME|RECOVERY|FORCE|DEFERRABLE|BIT|REPEAT|TIMESTAMP|DAY|LISTAGG|LEVEL|DISCONNECT|IMPLEMENTATION|USING|REF|SOME|INVERSE|ABSOLUTE|INSERT|NO|ALTER|RANDOM|GENERATED|READS|INSTANTIABLE|USER|SPECIFICTYPE|CHARACTER_SET_CATALOG|DATA|ERRORS|TRANSLATION|CURRENT_ROLE|MAP|DROP|CASESPECIFIC|EQUALS|STATIC|ENABLED|GROUP|SQL_REAL|ALLOCATE|ESCAPE|HOLD|ORDER|RECURSIVE|IF|SCHEMA|CHECK|SQL_DATE|LAST|ORDINALITY|VARRAY|ZONE|SQL_LONGVARCHAR|ROLLUP|TEMPORARY|LEAVE|OTHERS|TRAILING|SELF|UNIQUE|HIGH|MERGE|REFERENCING|CONNECT_BY_ISLEAF|BOOL|RETURN|ELSE|PATH|NATURAL|UNION|NEW|WITH|BOOLEAN|NOT|LDAP|CHECKED|LEFT|CURRENT_STATEMENT|PRIVILEGES|SECOND|DEREF|CHAIN|INOUT|INSTANCE|PARTITION|DLURLCOMPLETE|BOTH|NLS_FIRST_DAY_OF_WEEK|AT|CROSS|ROW|INTERSECT|SYSTEM_USER|ELSEIF|OR|NLS_DATE_FORMAT|PLACING|CONSTANT|FILE|REGEXP_LIKE|LOG|OVERLAPS|DOMAIN|EXTERNAL|AFTER|NOLOGGING|RETURNED_LENGTH|REVOKE|PARALLEL_ENABLE|CONNECT_BY_ROOT|SQL_DOUBLE|VALUE|GROUPS|IMPORT|BY|MODIFIES|ELSIF|SIMILAR|OF|EXIT|DLURLSERVER|SPACE|CURRENT_USER|CONNECTION|SOURCE|MATCHED|BYTE|PARAMETER_SPECIFIC_NAME|OVERRIDING|VIEW|MONTH|TRUE|LIKE|SQL_PREPROCESSOR_SCRIPT|LIMIT|ITERATE|NUMBER|BINARY|EXCEPT|HASHTYPE|RESULT|CONNECT_BY_ISCYCLE|YES|CURRENT_SCHEMA|OPEN|ARRAY|NLS_NUMERIC_CHARACTERS|NLS_TIMESTAMP_FORMAT|SQL_TYPE_TIMESTAMP|UNDER|DECIMAL|INTEGRITY|DEFINED|FINAL|ANY|PREFERRING|DYNAMIC_FUNCTION_CODE|FUNCTION|ROWTYPE|COLLATION|SQL_INTEGER|EXTRACT|HAVING|TIMEZONE_MINUTE|FREE|CURRENT|CASCADED|OFF|BLOB|FS|SECURITY|AUTHORIZATION|FOUND|TRIM|BLOCKED|LOOP|DATETIME_INTERVAL_CODE|INTEGER|CURRENT_DATE|DISPATCH|FBV|TRANSFORMS|COALESCE|SESSION|SCOPE|ADD|CLOB|CLOSE|DEFINER|RANGE|SQL_BIT|RETURNED_OCTET_LENGTH|VARCHAR|INDEX|SQLSTATE|ROLLBACK|WHILE|STYLE|CHARACTERISTICS|OVERLAY|NULLIF|DISABLE|INSENSITIVE|PROFILE|TINYINT|SETS|DISABLED|INVOKER|SQL_CHAR|PARTIAL|SESSIONTIMEZONE|TRUNCATE|EXECUTE|CONSTRAINT|CURRENT_TIME|CURSOR|REFRESH|AS|SEQUENCE|CURRENT_PATH|ENDIF|UNLINK|RIGHT|GEOMETRY|IDENTITY|SEARCH|INNER|NATIONAL|OPTIONS|IMMEDIATE|MINUTE|INDICATOR|LOCALTIME|ENABLE|ORDERING|EXEC|MINUS|SENSITIVE|RENAME|UNKNOWN|EXPORT|SQL_FLOAT|FORALL|SQLEXCEPTION|SQL_TIMESTAMP|SQL_BIGINT|TABLE|VERIFY|RELATIVE|DATE|CYCLE|GROUPING|CONTROL|EMITS|RESTORE|PLUS|SQLWARNING|SYSDATE|DELETE|YEAR|TRANSACTION|TREAT|UNTIL|IN|SELECT|NCHAR|VALUES|DESC|CAST|SUBTYPE|OLD|DYNAMIC_FUNCTION|CONSTRAINTS|FULL|CURRENT_TIMESTAMP|JOIN|KEY_TYPE|AND|BEFORE|TIME|GO|OUT|NAMES|PRIOR|APPEND|PARAMETER|USAGE|FALSE|ASSERTION|BIGINT|CALL|CHARACTER_SET_SCHEMA|DATETIME_INTERVAL_PRECISION|DEFAULT_LIKE_ESCAPE_CHARACTER|FORMAT|SCOPE_USER|CONTAINS|REPLACE|DLVALUE|DECLARE|BETWEEN|PARAMETER_SPECIFIC_CATALOG|PRESERVE|CARDINALITY|END|RELEASE|EACH|CHAR|SESSION_USER|VARCHAR2|REFERENCES|CASE|COLLATION_SCHEMA|CONTINUE|INT|METHOD|LATERAL|LOW|PARAMETER_SPECIFIC_SCHEMA|CHARACTER|ROUTINE|START|CATALOG|INPUT|MOD|NEXT|SHORTINT|DETERMINISTIC|REAL|NLS_DATE_LANGUAGE|CSV|FOLLOWING|WINDOW|DO|FROM|SYSTEM|OVER|SQL|WHERE|CREATE|GET)$"#, // [3]
+    r#"^(BINARY|SCHEMA|RESTRICT|DESCRIPTOR|IF|CAST|INNER|IMMEDIATE|OUTPUT|CARDINALITY|CURRENT_DATE|NEXT|LEAVE|ELSE|RETURNED_OCTET_LENGTH|KEY_MEMBER|NLS_NUMERIC_CHARACTERS|SCRIPT|SQL_DECIMAL|NOLOGGING|START|DISCONNECT|OF|WORK|CONNECT_BY_ISLEAF|MAP|STRUCTURE|WHENEVER|NLS_DATE_LANGUAGE|CROSS|UNIQUE|DETERMINISTIC|UNTIL|TRIM|NAMES|BIT|BETWEEN|SET|OLD|SQL_DATE|TRIGGER|FORALL|SELF|UNION|DEFERRED|ASC|REFERENCES|GOTO|FULL|FREE|AT|INVOKER|HASHTYPE_FORMAT|NCLOB|LOCALTIMESTAMP|REPLACE|KEY_TYPE|EXTERNAL|PROFILE|UPDATE|SMALLINT|TEXT|CURRENT_ROLE|PREFERRING|PARTITION|SQL_CHAR|DISABLE|FS|AFTER|LISTAGG|DESC|VARCHAR|PRESERVE|AUTHID|DESCRIBE|IMPERSONATE|LAST|CATALOG|SQL_SMALLINT|UNDER|COLLATION_SCHEMA|DLURLPATH|SQL_NUMERIC|COLLATION|DAY|PARAMETER_SPECIFIC_NAME|METHOD|CORRESPONDING|COLUMN|GROUP_CONCAT|FILE|CURRENT_TIMESTAMP|ON|ACTION|TABLE|GEOMETRY|CALL|NONE|EXCEPTION|ENABLED|SUBTYPE|SPECIFICTYPE|GET|SHORTINT|WHERE|NLS_DATE_FORMAT|DEFINER|MONTH|CYCLE|SQL_VARCHAR|RELATIVE|DOMAIN|NVARCHAR|GENERAL|BOTH|INPUT|ROW|INTEGER|UNKNOWN|NUMERIC|RANDOM|SQL_DOUBLE|LOCATOR|READS|DERIVED|TRAILING|ADD|CUBE|PROCEDURE|FOUND|SECURITY|JOIN|INSERT|SQLSTATE|DYNAMIC_FUNCTION|ABSOLUTE|INVERSE|IMPLEMENTATION|ROWTYPE|MODIFIES|NUMBER|VARCHAR2|UNNEST|ERRORS|TRANSACTION|ROUTINE|INSTANCE|SESSION_USER|REF|FINAL|SPACE|ALL|MODULE|CONSTANT|HAVING|RETURNS|ITERATE|CONTAINS|DBTIMEZONE|LOG|SEARCH|SUBSTRING|HASHTYPE|CONDITION|UNLINK|RETURN|CONSTRUCTOR|TRUNCATE|NCHAR|FBV|GRANTED|LEADING|NLS_TIMESTAMP_FORMAT|CASESPECIFIC|NATURAL|OVER|TRANSLATION|OPTION|COLLATE|SELECTIVE|INTERSECT|CURRENT_STATEMENT|DLURLSERVER|DLVALUE|INOUT|ELSIF|DLURLCOMPLETE|GROUPS|FOLLOWING|SETS|RIGHT|IS|RECURSIVE|CALLED|TINYINT|LONGVARCHAR|FALSE|SQL|DEALLOCATE|ARE|DLURLSCHEME|CHARACTER|SQL_REAL|SESSION|VALUE|BLOCKED|FIRST|DEFAULT_LIKE_ESCAPE_CHARACTER|LIMIT|SQL_BIGINT|SQL_LONGVARCHAR|ELSEIF|CHARACTER_SET_CATALOG|DISABLED|USING|CS|ONLY|RANGE|ALTER|CHECK|CLOSE|INDEX|DOUBLE|COMMIT|ROWS|SCOPE|DEFINED|ASENSITIVE|MERGE|FORMAT|REGEXP_LIKE|DEFAULT|NATIONAL|SESSIONTIMEZONE|DATALINK|BIGINT|TREAT|LOCALTIME|EXIT|OVERLAPS|STATE|DEC|CURRENT_SCHEMA|CONTROL|ORDER|GO|REFRESH|ENFORCE|STATEMENT|FETCH|OR|POSITION|WINDOW|ANY|ESCAPE|STATIC|NOCYCLE|IN|READ|INTERVAL|CASE|NEW|OTHERS|EXEC|NLS_FIRST_DAY_OF_WEEK|EXTRACT|TIMEZONE_HOUR|VARRAY|END-EXEC|TIMEZONE_MINUTE|OFF|DYNAMIC|EXISTS|RESULT|INSTANTIABLE|FOR|CURRENT_TIME|SEQUENCE|ZONE|HOLD|DATE|DLURLPATHONLY|NULL|REAL|REVOKE|CHARACTER_SET_SCHEMA|TIMESTAMP|DISTINCT|EXECUTE|MINUTE|INTO|SQL_TYPE_TIMESTAMP|CURSOR|BY|WITHIN|VIEW|SYSDATE|SPECIFIC|PRECEDING|DECLARE|AS|BYTE|WITH|SQL_INTEGER|AND|CHAR|ROLLUP|TO|LIKE|COALESCE|EMITS|SELECT|TRANSFORMS|CHECKED|FROM|DATETIME_INTERVAL_PRECISION|DEREF|OVERLAY|NVARCHAR2|SEPARATOR|SQL_TYPE_DATE|CONTINUE|LOOP|WITHOUT|HIGH|SCROLL|OPTIONS|CASCADE|TRUE|INSENSITIVE|CURRENT_SESSION|OUT|CONSTRAINT|DYNAMIC_FUNCTION_CODE|SCOPE_USER|CHAIN|REPEAT|CLOB|PLUS|QUALIFY|LARGE|SYSTEM_USER|FORCE|DEFERRABLE|ENDIF|YES|DELETE|RESTORE|SOME|BOOLEAN|NO|ENABLE|SECTION|DISPATCH|MINUS|PRIOR|HOUR|CONVERT|NOT|PLACING|GENERATED|WHILE|GRANT|MATCH|CONSTRAINTS|END|PARAMETER_SPECIFIC_SCHEMA|LOCAL|PATH|VALUES|GROUP|ARRAY|MOD|OUTER|VERIFY|COLLATION_NAME|TRANSFORM|CREATE|SQL_FLOAT|SIMILAR|RELEASE|SQL_TIMESTAMP|USER|PRIVILEGES|RECOVERY|DATA|CONNECTION|CHARACTERISTICS|PERMISSION|LOW|COLLATION_CATALOG|SECOND|YEAR|GLOBAL|CURRENT_USER|SYSTEM|CURRENT|DROP|ALLOCATE|DECIMAL|SAVEPOINT|ORDERING|REFERENCING|PREPARE|IDENTITY|EXCEPT|GROUPING|APPEND|SENSITIVE|SQL_BIT|LDAP|OPEN|FLOAT|WHEN|RETURNED_LENGTH|BOOL|LEFT|LEVEL|MATCHED|ORDINALITY|CONNECT_BY_ISCYCLE|ASSERTION|SQLWARNING|CSV|BEFORE|USAGE|BLOB|TIME|PARAMETER|RENAME|EQUALS|PARAMETER_SPECIFIC_CATALOG|OVERRIDING|PARALLEL_ENABLE|ROLLBACK|NULLIF|SOURCE|ATTRIBUTE|IMPORT|PARTIAL|SQLEXCEPTION|AUTHORIZATION|TEMPORARY|CASCADED|CONNECT_BY_ROOT|INDICATOR|DATETIME_INTERVAL_CODE|CONSTRAINT_STATE_DEFAULT|SQL_TINYINT|DO|BEGIN|EXPORT|SYSTIMESTAMP|PAD|INT|IFNULL|LATERAL|OBJECT|INTEGRITY|SQL_PREPROCESSOR_SCRIPT|THEN|CHARACTER_SET_NAME|FUNCTION|EACH|MODIFY|STYLE|CURRENT_PATH)$"#, // [3]
     r#"\"?[A-Z][A-Z0-9_]*\"?"#, // [4]
     r#"[A-Z][A-Z0-9_]*"#, // [5]
 ];
@@ -13199,16 +13193,16 @@ pub static SIMPLE_HINT_INDICES: &[u32] = &[
     365, 122, 0, 0, 206, 206, 0, 0, 0, 18, 212, 284, 285, 0, 0, 0,
     508, 508, 0, 33, 33, 540, 541, 13, 0, 86, 86, 542, 11, 13, 230, 33,
     33, 543, 544, 13, 33, 33, 85, 0, 0, 0, 0, 0, 283, 283, 0, 0,
-    12, 0, 0, 50, 0, 0, 0, 0, 50, 0, 0, 0, 283, 283, 304, 0,
-    29, 51, 0, 67, 0, 29, 51, 0, 154, 154, 545, 29, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 132, 132, 0, 0, 0, 377, 0,
-    0, 0, 0, 0, 0, 284, 284, 0, 12, 0, 546, 152, 153, 285, 362, 17,
-    17, 33, 10, 10, 33, 363, 364, 365, 154, 141, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 139, 30, 30, 139, 30, 0, 0, 0, 547, 68, 10, 68,
-    10, 354, 154, 154, 548, 0, 0, 0, 313, 0, 451, 154, 154, 548, 0, 0,
-    0, 313, 0, 122, 154, 154, 480, 480, 549, 0, 490, 154, 491, 351, 12, 490,
-    154, 491, 550, 186, 61, 12, 0, 154, 154, 480, 25, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0,
+    12, 0, 0, 50, 0, 0, 0, 0, 0, 283, 283, 304, 0, 29, 51, 0,
+    67, 0, 29, 51, 0, 154, 154, 545, 29, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 132, 132, 0, 0, 0, 377, 0, 0, 0, 0,
+    0, 0, 284, 284, 0, 12, 0, 546, 152, 153, 285, 362, 17, 17, 33, 10,
+    10, 33, 363, 364, 365, 154, 141, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 139, 30, 30, 139, 30, 0, 0, 0, 547, 68, 10, 68, 10, 354, 154,
+    154, 548, 0, 0, 0, 313, 0, 451, 154, 154, 548, 0, 0, 0, 313, 0,
+    122, 154, 154, 480, 480, 549, 0, 490, 154, 491, 351, 12, 490, 154, 491, 550,
+    186, 61, 12, 0, 154, 154, 480, 25, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0,
 ];
 
 pub fn get_exasol_segment_grammar(name: &str) -> Option<RootGrammar> {
@@ -14471,52 +14465,52 @@ pub fn get_exasol_segment_grammar(name: &str) -> Option<RootGrammar> {
         "Value2procKeywordSegment" => Some(RootGrammar::TableDriven { grammar_id: GrammarId(3994), tables: &EXASOL_TABLES }),
         "ValueKeywordSegment" => Some(RootGrammar::TableDriven { grammar_id: GrammarId(3995), tables: &EXASOL_TABLES }),
         "ValuesClauseSegment" => Some(RootGrammar::TableDriven { grammar_id: GrammarId(3996), tables: &EXASOL_TABLES }),
-        "ValuesKeywordSegment" => Some(RootGrammar::TableDriven { grammar_id: GrammarId(4011), tables: &EXASOL_TABLES }),
-        "ValuesRangeClauseSegment" => Some(RootGrammar::TableDriven { grammar_id: GrammarId(4012), tables: &EXASOL_TABLES }),
-        "Var_popKeywordSegment" => Some(RootGrammar::TableDriven { grammar_id: GrammarId(4028), tables: &EXASOL_TABLES }),
-        "Var_sampKeywordSegment" => Some(RootGrammar::TableDriven { grammar_id: GrammarId(4029), tables: &EXASOL_TABLES }),
-        "Varchar2KeywordSegment" => Some(RootGrammar::TableDriven { grammar_id: GrammarId(4030), tables: &EXASOL_TABLES }),
-        "VarcharKeywordSegment" => Some(RootGrammar::TableDriven { grammar_id: GrammarId(4031), tables: &EXASOL_TABLES }),
-        "VariableNameSegment" => Some(RootGrammar::TableDriven { grammar_id: GrammarId(4032), tables: &EXASOL_TABLES }),
-        "VarianceKeywordSegment" => Some(RootGrammar::TableDriven { grammar_id: GrammarId(4033), tables: &EXASOL_TABLES }),
-        "VarrayKeywordSegment" => Some(RootGrammar::TableDriven { grammar_id: GrammarId(4034), tables: &EXASOL_TABLES }),
-        "VaryingKeywordSegment" => Some(RootGrammar::TableDriven { grammar_id: GrammarId(4035), tables: &EXASOL_TABLES }),
-        "VerifyKeywordSegment" => Some(RootGrammar::TableDriven { grammar_id: GrammarId(4036), tables: &EXASOL_TABLES }),
-        "ViewKeywordSegment" => Some(RootGrammar::TableDriven { grammar_id: GrammarId(4037), tables: &EXASOL_TABLES }),
+        "ValuesKeywordSegment" => Some(RootGrammar::TableDriven { grammar_id: GrammarId(4008), tables: &EXASOL_TABLES }),
+        "ValuesRangeClauseSegment" => Some(RootGrammar::TableDriven { grammar_id: GrammarId(4009), tables: &EXASOL_TABLES }),
+        "Var_popKeywordSegment" => Some(RootGrammar::TableDriven { grammar_id: GrammarId(4025), tables: &EXASOL_TABLES }),
+        "Var_sampKeywordSegment" => Some(RootGrammar::TableDriven { grammar_id: GrammarId(4026), tables: &EXASOL_TABLES }),
+        "Varchar2KeywordSegment" => Some(RootGrammar::TableDriven { grammar_id: GrammarId(4027), tables: &EXASOL_TABLES }),
+        "VarcharKeywordSegment" => Some(RootGrammar::TableDriven { grammar_id: GrammarId(4028), tables: &EXASOL_TABLES }),
+        "VariableNameSegment" => Some(RootGrammar::TableDriven { grammar_id: GrammarId(4029), tables: &EXASOL_TABLES }),
+        "VarianceKeywordSegment" => Some(RootGrammar::TableDriven { grammar_id: GrammarId(4030), tables: &EXASOL_TABLES }),
+        "VarrayKeywordSegment" => Some(RootGrammar::TableDriven { grammar_id: GrammarId(4031), tables: &EXASOL_TABLES }),
+        "VaryingKeywordSegment" => Some(RootGrammar::TableDriven { grammar_id: GrammarId(4032), tables: &EXASOL_TABLES }),
+        "VerifyKeywordSegment" => Some(RootGrammar::TableDriven { grammar_id: GrammarId(4033), tables: &EXASOL_TABLES }),
+        "ViewKeywordSegment" => Some(RootGrammar::TableDriven { grammar_id: GrammarId(4034), tables: &EXASOL_TABLES }),
         "ViewReferenceSegment" => Some(RootGrammar::TableDriven { grammar_id: GrammarId(607), tables: &EXASOL_TABLES }),
-        "VirtualKeywordSegment" => Some(RootGrammar::TableDriven { grammar_id: GrammarId(4038), tables: &EXASOL_TABLES }),
-        "WalrusOperatorSegment" => Some(RootGrammar::TableDriven { grammar_id: GrammarId(4039), tables: &EXASOL_TABLES }),
-        "WeekKeywordSegment" => Some(RootGrammar::TableDriven { grammar_id: GrammarId(4040), tables: &EXASOL_TABLES }),
-        "WhenClauseSegment" => Some(RootGrammar::TableDriven { grammar_id: GrammarId(4041), tables: &EXASOL_TABLES }),
-        "WhenKeywordSegment" => Some(RootGrammar::TableDriven { grammar_id: GrammarId(4051), tables: &EXASOL_TABLES }),
-        "WheneverKeywordSegment" => Some(RootGrammar::TableDriven { grammar_id: GrammarId(4052), tables: &EXASOL_TABLES }),
-        "WhereClauseSegment" => Some(RootGrammar::TableDriven { grammar_id: GrammarId(4053), tables: &EXASOL_TABLES }),
-        "WhereClauseTerminatorGrammar" => Some(RootGrammar::TableDriven { grammar_id: GrammarId(4058), tables: &EXASOL_TABLES }),
-        "WhereKeywordSegment" => Some(RootGrammar::TableDriven { grammar_id: GrammarId(4074), tables: &EXASOL_TABLES }),
-        "WhileKeywordSegment" => Some(RootGrammar::TableDriven { grammar_id: GrammarId(4075), tables: &EXASOL_TABLES }),
-        "WhitespaceSegment" => Some(RootGrammar::TableDriven { grammar_id: GrammarId(4076), tables: &EXASOL_TABLES }),
-        "WildcardExpressionSegment" => Some(RootGrammar::TableDriven { grammar_id: GrammarId(4077), tables: &EXASOL_TABLES }),
-        "WildcardIdentifierSegment" => Some(RootGrammar::TableDriven { grammar_id: GrammarId(4079), tables: &EXASOL_TABLES }),
-        "WindowKeywordSegment" => Some(RootGrammar::TableDriven { grammar_id: GrammarId(4089), tables: &EXASOL_TABLES }),
-        "WindowSpecificationSegment" => Some(RootGrammar::TableDriven { grammar_id: GrammarId(4090), tables: &EXASOL_TABLES }),
-        "WithCompoundNonSelectStatementSegment" => Some(RootGrammar::TableDriven { grammar_id: GrammarId(4098), tables: &EXASOL_TABLES }),
-        "WithCompoundStatementSegment" => Some(RootGrammar::TableDriven { grammar_id: GrammarId(4107), tables: &EXASOL_TABLES }),
-        "WithDataClauseSegment" => Some(RootGrammar::TableDriven { grammar_id: GrammarId(4116), tables: &EXASOL_TABLES }),
-        "WithFillSegment" => Some(RootGrammar::TableDriven { grammar_id: GrammarId(4121), tables: &EXASOL_TABLES }),
-        "WithInvalidForeignKeySegment" => Some(RootGrammar::TableDriven { grammar_id: GrammarId(4122), tables: &EXASOL_TABLES }),
-        "WithInvalidUniquePKSegment" => Some(RootGrammar::TableDriven { grammar_id: GrammarId(4127), tables: &EXASOL_TABLES }),
-        "WithKeywordSegment" => Some(RootGrammar::TableDriven { grammar_id: GrammarId(4134), tables: &EXASOL_TABLES }),
-        "WithNoSchemaBindingClauseSegment" => Some(RootGrammar::TableDriven { grammar_id: GrammarId(4135), tables: &EXASOL_TABLES }),
-        "WithinKeywordSegment" => Some(RootGrammar::TableDriven { grammar_id: GrammarId(4140), tables: &EXASOL_TABLES }),
-        "WithoutKeywordSegment" => Some(RootGrammar::TableDriven { grammar_id: GrammarId(4141), tables: &EXASOL_TABLES }),
-        "WordSegment" => Some(RootGrammar::TableDriven { grammar_id: GrammarId(4142), tables: &EXASOL_TABLES }),
-        "WorkKeywordSegment" => Some(RootGrammar::TableDriven { grammar_id: GrammarId(4143), tables: &EXASOL_TABLES }),
-        "WriteKeywordSegment" => Some(RootGrammar::TableDriven { grammar_id: GrammarId(4144), tables: &EXASOL_TABLES }),
-        "YearKeywordSegment" => Some(RootGrammar::TableDriven { grammar_id: GrammarId(4145), tables: &EXASOL_TABLES }),
-        "Years_betweenKeywordSegment" => Some(RootGrammar::TableDriven { grammar_id: GrammarId(4146), tables: &EXASOL_TABLES }),
-        "YesKeywordSegment" => Some(RootGrammar::TableDriven { grammar_id: GrammarId(4147), tables: &EXASOL_TABLES }),
-        "ZeroifnullKeywordSegment" => Some(RootGrammar::TableDriven { grammar_id: GrammarId(4148), tables: &EXASOL_TABLES }),
-        "ZoneKeywordSegment" => Some(RootGrammar::TableDriven { grammar_id: GrammarId(4149), tables: &EXASOL_TABLES }),
+        "VirtualKeywordSegment" => Some(RootGrammar::TableDriven { grammar_id: GrammarId(4035), tables: &EXASOL_TABLES }),
+        "WalrusOperatorSegment" => Some(RootGrammar::TableDriven { grammar_id: GrammarId(4036), tables: &EXASOL_TABLES }),
+        "WeekKeywordSegment" => Some(RootGrammar::TableDriven { grammar_id: GrammarId(4037), tables: &EXASOL_TABLES }),
+        "WhenClauseSegment" => Some(RootGrammar::TableDriven { grammar_id: GrammarId(4038), tables: &EXASOL_TABLES }),
+        "WhenKeywordSegment" => Some(RootGrammar::TableDriven { grammar_id: GrammarId(4048), tables: &EXASOL_TABLES }),
+        "WheneverKeywordSegment" => Some(RootGrammar::TableDriven { grammar_id: GrammarId(4049), tables: &EXASOL_TABLES }),
+        "WhereClauseSegment" => Some(RootGrammar::TableDriven { grammar_id: GrammarId(4050), tables: &EXASOL_TABLES }),
+        "WhereClauseTerminatorGrammar" => Some(RootGrammar::TableDriven { grammar_id: GrammarId(4055), tables: &EXASOL_TABLES }),
+        "WhereKeywordSegment" => Some(RootGrammar::TableDriven { grammar_id: GrammarId(4071), tables: &EXASOL_TABLES }),
+        "WhileKeywordSegment" => Some(RootGrammar::TableDriven { grammar_id: GrammarId(4072), tables: &EXASOL_TABLES }),
+        "WhitespaceSegment" => Some(RootGrammar::TableDriven { grammar_id: GrammarId(4073), tables: &EXASOL_TABLES }),
+        "WildcardExpressionSegment" => Some(RootGrammar::TableDriven { grammar_id: GrammarId(4074), tables: &EXASOL_TABLES }),
+        "WildcardIdentifierSegment" => Some(RootGrammar::TableDriven { grammar_id: GrammarId(4076), tables: &EXASOL_TABLES }),
+        "WindowKeywordSegment" => Some(RootGrammar::TableDriven { grammar_id: GrammarId(4086), tables: &EXASOL_TABLES }),
+        "WindowSpecificationSegment" => Some(RootGrammar::TableDriven { grammar_id: GrammarId(4087), tables: &EXASOL_TABLES }),
+        "WithCompoundNonSelectStatementSegment" => Some(RootGrammar::TableDriven { grammar_id: GrammarId(4095), tables: &EXASOL_TABLES }),
+        "WithCompoundStatementSegment" => Some(RootGrammar::TableDriven { grammar_id: GrammarId(4104), tables: &EXASOL_TABLES }),
+        "WithDataClauseSegment" => Some(RootGrammar::TableDriven { grammar_id: GrammarId(4113), tables: &EXASOL_TABLES }),
+        "WithFillSegment" => Some(RootGrammar::TableDriven { grammar_id: GrammarId(4118), tables: &EXASOL_TABLES }),
+        "WithInvalidForeignKeySegment" => Some(RootGrammar::TableDriven { grammar_id: GrammarId(4119), tables: &EXASOL_TABLES }),
+        "WithInvalidUniquePKSegment" => Some(RootGrammar::TableDriven { grammar_id: GrammarId(4124), tables: &EXASOL_TABLES }),
+        "WithKeywordSegment" => Some(RootGrammar::TableDriven { grammar_id: GrammarId(4131), tables: &EXASOL_TABLES }),
+        "WithNoSchemaBindingClauseSegment" => Some(RootGrammar::TableDriven { grammar_id: GrammarId(4132), tables: &EXASOL_TABLES }),
+        "WithinKeywordSegment" => Some(RootGrammar::TableDriven { grammar_id: GrammarId(4137), tables: &EXASOL_TABLES }),
+        "WithoutKeywordSegment" => Some(RootGrammar::TableDriven { grammar_id: GrammarId(4138), tables: &EXASOL_TABLES }),
+        "WordSegment" => Some(RootGrammar::TableDriven { grammar_id: GrammarId(4139), tables: &EXASOL_TABLES }),
+        "WorkKeywordSegment" => Some(RootGrammar::TableDriven { grammar_id: GrammarId(4140), tables: &EXASOL_TABLES }),
+        "WriteKeywordSegment" => Some(RootGrammar::TableDriven { grammar_id: GrammarId(4141), tables: &EXASOL_TABLES }),
+        "YearKeywordSegment" => Some(RootGrammar::TableDriven { grammar_id: GrammarId(4142), tables: &EXASOL_TABLES }),
+        "Years_betweenKeywordSegment" => Some(RootGrammar::TableDriven { grammar_id: GrammarId(4143), tables: &EXASOL_TABLES }),
+        "YesKeywordSegment" => Some(RootGrammar::TableDriven { grammar_id: GrammarId(4144), tables: &EXASOL_TABLES }),
+        "ZeroifnullKeywordSegment" => Some(RootGrammar::TableDriven { grammar_id: GrammarId(4145), tables: &EXASOL_TABLES }),
+        "ZoneKeywordSegment" => Some(RootGrammar::TableDriven { grammar_id: GrammarId(4146), tables: &EXASOL_TABLES }),
         _ => None,
     }
 }

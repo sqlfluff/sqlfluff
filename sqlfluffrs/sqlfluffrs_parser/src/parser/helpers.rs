@@ -1233,6 +1233,43 @@ impl<'a> Parser<'a> {
         elements: &[GrammarId],
     ) -> bool {
         let init_pos = self.pos;
+
+        // CRITICAL: Check for GrammarId::NONCODE BEFORE skipping transparent tokens!
+        // NONCODE should match non-code tokens at the CURRENT position,
+        // not after skipping them. This is essential for allow_gaps=false behavior.
+        let has_noncode_terminator = terminators.contains(&GrammarId::NONCODE);
+        log::debug!(
+            "  is_terminated_table_driven at pos {}: has_noncode_terminator={}",
+            init_pos,
+            has_noncode_terminator
+        );
+        if has_noncode_terminator {
+            if let Some(tok) = self.peek() {
+                let is_code = tok.is_code();
+                log::debug!(
+                    "  is_terminated_table_driven: current token is_code={}, type={}",
+                    is_code,
+                    tok.get_type()
+                );
+                if !is_code {
+                    log::debug!("  TERMED NONCODE found non-code token at current position");
+                    return true;
+                }
+            }
+        }
+
+        // Filter out NONCODE from terminators for the rest of the check
+        // We've already checked it at the current position above
+        let terminators_without_noncode: Vec<GrammarId> = if has_noncode_terminator {
+            terminators
+                .iter()
+                .filter(|&t| *t != GrammarId::NONCODE)
+                .copied()
+                .collect()
+        } else {
+            terminators.to_vec()
+        };
+
         self.skip_transparent(true);
         let saved_pos = self.pos;
 
@@ -1253,7 +1290,13 @@ impl<'a> Parser<'a> {
         }
 
         // Prune terminators before checking
-        let pruned_terminators = self.prune_terminators_table_driven(terminators);
+        log::debug!(
+            "  TERM Before prune: {} terminators at pos {}: {:?}",
+            terminators_without_noncode.len(),
+            self.pos,
+            terminators_without_noncode
+        );
+        let pruned_terminators = self.prune_terminators_table_driven(&terminators_without_noncode);
         log::debug!(
             "  TERM Checking {} pruned terminators at pos {}",
             pruned_terminators.len(),
@@ -1271,6 +1314,11 @@ impl<'a> Parser<'a> {
 
         // Check all terminators - use full parse for multi-token terminators
         for term_id in pruned_terminators.iter() {
+            // Skip NONCODE - already handled above
+            if *term_id == GrammarId::NONCODE {
+                continue;
+            }
+
             // TODO: Implement simple_hint check from table
             // TODO: Implement needs_full_parse check (Sequence with multiple elements)
 

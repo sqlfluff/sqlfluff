@@ -621,13 +621,16 @@ class TableBuilder:
 
         children_count = len(element_ids) + (1 if exclude_id is not None else 0)
 
-        # Store min/max in aux_data (max_per_element implicitly 1)
+        # Store min/max in aux_data with max_per_element=1 for AnySetOf
+        # This matches the 4-entry format expected by anynumberof_config:
+        # [min_times, max_times, max_times_per_element, has_exclude]
         aux_offset = len(self.aux_data)
         self.aux_data.append(grammar.min_times)
         self.aux_data.append(
             grammar.max_times if grammar.max_times is not None else 0xFFFFFFFF
         )
-        self.aux_data.append(1 if exclude_id is not None else 0)
+        self.aux_data.append(1)  # max_times_per_element=1 for AnySetOf
+        self.aux_data.append(1 if exclude_id is not None else 0)  # has_exclude
 
         # Flatten terminators
         terminators_start = len(self.terminators)
