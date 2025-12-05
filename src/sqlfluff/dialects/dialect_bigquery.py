@@ -290,6 +290,27 @@ bigquery_dialect.replace(
             casefold=str.upper,
         )
     ),
+    DatatypeIdentifierSegment=SegmentGenerator(
+        lambda dialect: MultiStringParser([
+            "INT64", "INT", "SMALLINT", "INTEGER", "BIGINT", "TINYINT", "BYTEINT",
+            "FLOAT64",
+            "NUMERIC", "DECIMAL",
+            "BIGNUMERIC", "BIGDECIMAL",
+            "BOOL", "BOOLEAN",
+            "STRING",
+            "BYTES",
+            "DATE",
+            "DATETIME",
+            "TIME",
+            "TIMESTAMP",
+            "GEOGRAPHY",
+            "INTERVAL",
+            "JSON",
+            "RANGE",
+            "ARRAY",
+            "STRUCT",
+        ], CodeSegment, type="data_type_identifier")
+    ),
     FunctionContentsExpressionGrammar=OneOf(
         Ref("DatetimeUnitSegment"),
         Ref("DatePartWeekSegment"),
