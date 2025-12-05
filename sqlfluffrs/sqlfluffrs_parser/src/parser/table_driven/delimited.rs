@@ -262,6 +262,8 @@ impl<'a> Parser<'_> {
                     };
 
                     self.pos = final_pos;
+                    // CRITICAL: Update matched_idx so Combining uses the correct position
+                    *matched_idx = final_pos;
 
                     // Check min_delimiters requirement
                     if *delimiter_count < min_delimiters {
@@ -298,6 +300,8 @@ impl<'a> Parser<'_> {
                     };
 
                     self.pos = final_pos;
+                    // CRITICAL: Update matched_idx so Combining uses the correct position
+                    *matched_idx = final_pos;
 
                     if *delimiter_count < min_delimiters {
                         frame.end_pos = Some(frame.pos);

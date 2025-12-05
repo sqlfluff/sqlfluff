@@ -385,6 +385,17 @@ fn test_postgres_drop_aggregate_debug() {
 }
 
 #[test]
+fn test_mysql_insert_debug() {
+    let path = format!(
+        "{}/../test/fixtures/dialects/mysql/insert.sql",
+        env!("CARGO_MANIFEST_DIR")
+    );
+    let sql = std::fs::read_to_string(&path).unwrap_or_else(|_| panic!("Failed to read {}", path));
+    let dialect = Dialect::Mysql;
+    run_sql_debug(&sql, dialect);
+}
+
+#[test]
 fn test_bigquery_select_pivot_debug() {
     let path = format!(
         "{}/../test/fixtures/dialects/bigquery/select_pivot.sql",
