@@ -331,18 +331,24 @@ impl<'a> Parser<'_> {
                 );
 
                 // CRITICAL: Check if there are more content elements to parse
-                if !child_node.is_empty() && *content_idx + 1 < content_ids.len() {
+                // Continue parsing even if current element returned Empty (optional elements)
+                if *content_idx + 1 < content_ids.len() {
                     // More content elements remain - parse the next one
                     *content_idx += 1;
                     let next_content_id = content_ids[*content_idx];
                     log::debug!(
-                        "Bracketed[table]: Parsed content element {}/{}, pushing next element grammar_id={}",
+                        "Bracketed[table]: Parsed content element {}/{} (empty={}), pushing next element grammar_id={}",
                         *content_idx,
                         content_ids.len(),
+                        child_node.is_empty(),
                         next_content_id.0
                     );
 
                     // Stay in MatchingContent state and push next content child
+                    // NOTE: We do NOT pass close_bracket_id as a terminator!
+                    // This is important because nested brackets (like convert(varchar, col, 23))
+                    // would incorrectly match the terminator and cause early termination.
+                    // Instead, we rely on bracket_max_idx to constrain parsing via parent_max_idx.
                     let context = FrameContext::BracketedTableDriven {
                         grammar_id: *grammar_id,
                         state: BracketedState::MatchingContent,
@@ -355,7 +361,7 @@ impl<'a> Parser<'_> {
                         stack.frame_id_counter,
                         next_content_id,
                         self.pos,
-                        &[close_bracket_id],
+                        &[], // Don't pass close bracket as terminator - use bracket_max_idx instead
                         context,
                         *bracket_max_idx,
                     );

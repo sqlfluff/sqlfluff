@@ -522,3 +522,15 @@ fn test_bigquery_select_pivot_debug() {
     let dialect = Dialect::Bigquery;
     run_sql_debug(&sql, dialect);
 }
+
+#[test]
+fn test_tsql_functions_a_debug() {
+    let path = format!(
+        "{}/../test/fixtures/dialects/tsql/functions_a.sql",
+        env!("CARGO_MANIFEST_DIR")
+    );
+    println!("Running test for {}", path);
+    let sql = std::fs::read_to_string(&path).unwrap_or_else(|_| panic!("Failed to read {}", path));
+    let dialect = Dialect::Tsql;
+    run_sql_debug(&sql, dialect);
+}
