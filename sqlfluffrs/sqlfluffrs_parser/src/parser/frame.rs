@@ -468,6 +468,10 @@ pub enum FrameContext {
         delimiter_match: Option<Node>,
         pos_before_delimiter: Option<usize>,
         element_children: Vec<GrammarId>,
+        /// Terminators to pass to child element frames (excludes local terminators)
+        /// Python parity: local terminators (e.g., ObjectReferenceTerminatorGrammar)
+        /// are checked at Delimited level, not passed to longest_match
+        child_terminators: Vec<GrammarId>,
     },
     BracketedTableDriven {
         grammar_id: GrammarId,

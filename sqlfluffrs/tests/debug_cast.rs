@@ -534,3 +534,15 @@ fn test_tsql_functions_a_debug() {
     let dialect = Dialect::Tsql;
     run_sql_debug(&sql, dialect);
 }
+
+#[test]
+fn test_sqlite_json_operators_debug() {
+    let path = format!(
+        "{}/../test/fixtures/dialects/sqlite/json_operators.sql",
+        env!("CARGO_MANIFEST_DIR")
+    );
+    println!("Running test for {}", path);
+    let sql = std::fs::read_to_string(&path).unwrap_or_else(|_| panic!("Failed to read {}", path));
+    let dialect = Dialect::Sqlite;
+    run_sql_debug(&sql, dialect);
+}

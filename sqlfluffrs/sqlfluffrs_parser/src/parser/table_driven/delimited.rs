@@ -64,13 +64,13 @@ impl<'a> Parser<'_> {
         );
 
         // CRITICAL: Filter delimiter from terminators to prevent infinite loops!
-        let filtered_terminators: Vec<GrammarId> = parent_terminators
+        let filtered_parent_terminators: Vec<GrammarId> = parent_terminators
             .iter()
             .filter(|&term_id| *term_id != delimiter_id)
             .copied()
             .collect();
 
-        // Get local terminators and filter them too
+        // Get local terminators (e.g., ObjectReferenceTerminatorGrammar)
         let local_terminators: Vec<GrammarId> = ctx.terminators(grammar_id).collect();
         let filtered_local: Vec<GrammarId> = local_terminators
             .iter()
@@ -78,25 +78,42 @@ impl<'a> Parser<'_> {
             .copied()
             .collect();
 
-        // Delimited does NOT respect reset_terminators - always combines
+        // PYTHON PARITY: Two sets of terminators!
+        // 1. all_terminators: Used for terminator checks at Delimited level (includes local)
+        // 2. child_terminators: Passed to child element matcher (EXCLUDES local, only delimiter + parent)
+        //
+        // In Python's Delimited.match():
+        // - terminator_matchers includes self.terminators (local) + parse_context.terminators
+        // - But when calling longest_match, only delimiter is pushed as terminator
+        // - The local terminators (ObjectReferenceTerminatorGrammar) are NOT passed to longest_match
+        // - This allows longest_match to try ALL element options without early termination
+
+        // Terminators for Delimited-level checks (includes local)
         let mut all_terminators: Vec<GrammarId> = filtered_local
+            .clone()
             .into_iter()
-            .chain(filtered_terminators)
+            .chain(filtered_parent_terminators.clone())
             .collect();
+
+        // Terminators for child element matching (EXCLUDES local, only delimiter + parent)
+        // This matches Python's deeper_match(push_terminators=delimiter_matchers)
+        let mut child_terminators: Vec<GrammarId> = vec![delimiter_id];
+        child_terminators.extend(filtered_parent_terminators);
 
         // If allow_gaps is false, add a special terminator for noncode tokens.
         if !inst.flags.allow_gaps() {
             all_terminators.push(GrammarId::NONCODE);
+            child_terminators.push(GrammarId::NONCODE);
         }
 
         log::debug!(
-            "Delimited[table]: {} terminators (min_delimiters={})",
+            "Delimited[table]: {} all_terminators, {} child_terminators (min_delimiters={})",
             all_terminators.len(),
+            child_terminators.len(),
             min_delimiters
         );
 
-        // CRITICAL: Update frame's table_terminators to include local terminators!
-        // Otherwise WaitingForChild will use the old parent terminators.
+        // Store local terminators for terminator checks at Delimited level
         frame.table_terminators = all_terminators.clone();
 
         // Calculate max_idx with terminators
@@ -125,6 +142,7 @@ impl<'a> Parser<'_> {
             delimiter_match: None,
             pos_before_delimiter: None,
             element_children: vec![elements_id], // Single entry: the OneOf or single element
+            child_terminators: child_terminators.clone(), // Python parity: terminators for element matching
         };
 
         frame.state = FrameState::WaitingForChild {
@@ -134,18 +152,19 @@ impl<'a> Parser<'_> {
 
         // Push child to match element(s)
         // The OneOf handler will handle trying multiple options if needed
+        // PYTHON PARITY: Pass child_terminators (excludes local), NOT all_terminators
         let child_frame = TableParseFrame::new_child(
             stack.frame_id_counter,
             elements_id,
             start_pos,
-            all_terminators.clone(),
+            child_terminators.clone(),
             Some(max_idx),
         );
 
         log::debug!(
-            "Delimited[table]: Trying elements grammar_id={} with {} terminators",
+            "Delimited[table]: Trying elements grammar_id={} with {} child_terminators",
             elements_id.0,
-            all_terminators.len()
+            child_terminators.len()
         );
 
         stack.increment_frame_id_counter();
@@ -179,11 +198,15 @@ impl<'a> Parser<'_> {
             element_children: _, // No longer used - OneOf handles element selection
             delimiter_match,
             pos_before_delimiter,
+            child_terminators,
             ..
         } = &mut frame.context
         else {
             unreachable!("Expected DelimitedTableDriven context");
         };
+
+        // Clone child_terminators before mutable borrow to use later
+        let child_terminators_clone = child_terminators.clone();
 
         let frame_terminators = frame.table_terminators.clone();
 
@@ -415,11 +438,12 @@ impl<'a> Parser<'_> {
                         // Just push it to try matching elements again
                         let current_max_idx = *max_idx;
 
+                        // PYTHON PARITY: Use child_terminators (excludes local terminators)
                         let element_frame = TableParseFrame::new_child(
                             stack.frame_id_counter,
                             elements_id,
                             *working_idx,
-                            frame.table_terminators.clone(),
+                            child_terminators_clone.clone(),
                             Some(current_max_idx),
                         );
 
@@ -644,11 +668,12 @@ impl<'a> Parser<'_> {
                     *working_idx
                 );
 
+                // PYTHON PARITY: Use child_terminators (excludes local terminators)
                 let element_frame = TableParseFrame::new_child(
                     stack.frame_id_counter,
                     elements_id,
                     *working_idx,
-                    frame.table_terminators.clone(),
+                    child_terminators_clone.clone(),
                     Some(*max_idx), // Use recalculated max_idx
                 );
 
