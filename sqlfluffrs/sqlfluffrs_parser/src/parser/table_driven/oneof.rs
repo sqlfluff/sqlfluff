@@ -263,6 +263,7 @@ impl<'a> Parser<'_> {
         );
 
         // Update longest match if this is better
+        let mut should_early_terminate = false;
         if !child_node.is_empty() {
             let is_better = if let Some((ref current_best, current_consumed, _)) = longest_match {
                 let current_is_clean = Self::is_node_clean(current_best);
@@ -286,12 +287,78 @@ impl<'a> Parser<'_> {
                     consumed,
                     child_node
                 );
+
+                // Python parity: Check for early termination with terminators
+                // If we have a match and there's a terminator at the next position,
+                // we can stop trying other options (significant performance improvement)
+                let next_pos_after_match = child_end_pos_val;
+
+                // Skip to next code position to check for terminators
+                let next_code_pos =
+                    self.skip_start_index_forward_to_code(next_pos_after_match, *max_idx);
+
+                // If we've reached the end, consider it terminated
+                if next_code_pos >= self.tokens.len() {
+                    log::debug!("OneOf[table]: Early termination - reached end of tokens");
+                    should_early_terminate = true;
+                } else if !frame.table_terminators.is_empty() {
+                    // Check if any terminator matches at this position
+                    for terminator_id in &frame.table_terminators {
+                        // Skip NONCODE sentinel value - it's handled separately in is_terminated
+                        if *terminator_id == sqlfluffrs_types::GrammarId::NONCODE {
+                            // Check if there's a non-code token at the current position
+                            if next_code_pos < self.tokens.len() {
+                                let tok = &self.tokens[next_code_pos];
+                                if !tok.is_code() {
+                                    log::debug!(
+                                        "OneOf[table]: Early termination - NONCODE terminator matched non-code token at pos {}",
+                                        next_code_pos
+                                    );
+                                    should_early_terminate = true;
+                                    break;
+                                }
+                            }
+                            continue;
+                        }
+
+                        self.pos = next_code_pos;
+                        if let Ok(term_result) = self.parse_table_iterative(*terminator_id, &[]) {
+                            if !term_result.is_empty() {
+                                log::debug!(
+                                    "OneOf[table]: Early termination - terminator {} matched at pos {}",
+                                    terminator_id.0,
+                                    next_code_pos
+                                );
+                                should_early_terminate = true;
+                                break;
+                            }
+                        }
+                    }
+                }
             }
         }
 
         *tried_elements += 1;
 
-        // Try next child or finalize
+        // Early termination: If last option OR terminated by terminators, go straight to Combining
+        let is_last_option = *tried_elements >= pruned_children.len();
+        if should_early_terminate || is_last_option {
+            log::debug!(
+                "OneOf[table]: {} - transitioning to Combining (tried {}/{})",
+                if should_early_terminate {
+                    "Early termination"
+                } else {
+                    "Last option"
+                },
+                tried_elements,
+                pruned_children.len()
+            );
+            frame.state = FrameState::Combining;
+            stack.push(&mut frame);
+            return Ok(TableFrameResult::Done);
+        }
+
+        // Try next child
         if *tried_elements < pruned_children.len() {
             // Try next child
             self.pos = *post_skip_pos;
@@ -318,16 +385,10 @@ impl<'a> Parser<'_> {
             );
 
             TableParseFrame::push_child_and_update_parent(stack, &mut frame, child_frame, "OneOf");
-            return Ok(TableFrameResult::Done);
+            Ok(TableFrameResult::Done)
         } else {
-            // All children tried - transition to Combining
-            log::debug!(
-                "OneOf[table]: All {} children tried, transitioning to Combining",
-                pruned_children.len()
-            );
-            frame.state = FrameState::Combining;
-            stack.push(&mut frame);
-            return Ok(TableFrameResult::Done);
+            // Should never reach here due to early termination logic above
+            unreachable!("OneOf should have terminated in early termination check")
         }
     }
 
@@ -335,7 +396,7 @@ impl<'a> Parser<'_> {
     pub(crate) fn handle_oneof_table_driven_combining(
         &mut self,
         mut frame: TableParseFrame,
-        stack: &mut TableParseFrameStack,
+        _stack: &mut TableParseFrameStack,
     ) -> Result<TableFrameResult, ParseError> {
         let ctx = self.grammar_ctx.expect("GrammarContext required");
 

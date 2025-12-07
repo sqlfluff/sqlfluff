@@ -363,6 +363,122 @@ fn test_oracle_temporary_table_debug() {
 }
 
 #[test]
+fn test_oracle_case_expressions_debug() {
+    let path = format!(
+        "{}/../test/fixtures/dialects/oracle/case_expressions.sql",
+        env!("CARGO_MANIFEST_DIR")
+    );
+    let sql = std::fs::read_to_string(&path).unwrap_or_else(|_| panic!("Failed to read {}", path));
+    let dialect = Dialect::Oracle;
+    run_sql_debug(&sql, dialect);
+}
+
+#[test]
+fn test_nested_case_simple_debug() {
+    // Test 3: Searched CASE expression with nested CASE - the simplest nested case
+    let sql = r#"SELECT
+    CASE
+        WHEN x = 5 THEN
+            CASE
+                WHEN y = 6 THEN 999
+            END
+    END AS hi
+FROM abc;"#;
+    let dialect = Dialect::Ansi;
+    run_sql_debug(sql, dialect);
+}
+
+#[test]
+fn test_three_statements_debug() {
+    // Test multiple statements separated properly
+    let sql = r#"-- Test 1
+SELECT 1;
+
+-- Test 2
+SELECT 2;
+
+-- Test 3
+SELECT 3;
+"#;
+    let dialect = Dialect::Ansi;
+    run_sql_debug(sql, dialect);
+}
+
+#[test]
+fn test_oracle_three_case_debug() {
+    // Test 1, 2, 3 from oracle case_expressions.sql
+    let sql = r#"-- Test 1: Simple CASE expression (CASE WHEN)
+SELECT
+    CASE
+        WHEN x = 5 THEN 1
+        WHEN x = 10 THEN 2
+        ELSE 0
+    END AS result
+FROM abc;
+
+-- Test 2: Simple CASE expression without ELSE
+SELECT
+    CASE
+        WHEN x = 5 THEN 1
+        WHEN x = 10 THEN 2
+    END AS result
+FROM abc;
+
+-- Test 3: Searched CASE expression with nested CASE
+SELECT
+    CASE
+        WHEN x = 5 THEN
+            CASE
+                WHEN y = 6 THEN 999
+            END
+    END AS hi
+FROM abc;
+"#;
+    let dialect = Dialect::Oracle;
+    run_sql_debug(sql, dialect);
+}
+
+#[test]
+fn test_oracle_nested_case_alone_debug() {
+    // Test 3 alone with Oracle
+    let sql = r#"SELECT
+    CASE
+        WHEN x = 5 THEN
+            CASE
+                WHEN y = 6 THEN 999
+            END
+    END AS hi
+FROM abc;
+"#;
+    let dialect = Dialect::Oracle;
+    run_sql_debug(sql, dialect);
+}
+
+#[test]
+fn test_oracle_simple_case_debug() {
+    // Simple Oracle CASE
+    let sql = r#"SELECT CASE WHEN x = 5 THEN 1 END FROM abc;"#;
+    let dialect = Dialect::Oracle;
+    run_sql_debug(sql, dialect);
+}
+
+#[test]
+fn test_oracle_nested_case_inline_debug() {
+    // Nested Oracle CASE on one line
+    let sql = r#"SELECT CASE WHEN x = 5 THEN CASE WHEN y = 6 THEN 999 END END AS hi FROM abc;"#;
+    let dialect = Dialect::Oracle;
+    run_sql_debug(sql, dialect);
+}
+
+#[test]
+fn test_ansi_nested_case_inline_debug() {
+    // Nested ANSI CASE on one line (should work)
+    let sql = r#"SELECT CASE WHEN x = 5 THEN CASE WHEN y = 6 THEN 999 END END AS hi FROM abc;"#;
+    let dialect = Dialect::Ansi;
+    run_sql_debug(sql, dialect);
+}
+
+#[test]
 fn test_postgres_alter_publication_debug() {
     let path = format!(
         "{}/../test/fixtures/dialects/postgres/alter_publication.sql",

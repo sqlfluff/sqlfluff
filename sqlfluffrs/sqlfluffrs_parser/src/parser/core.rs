@@ -1027,9 +1027,10 @@ impl<'a> Parser<'a> {
         };
 
         log::debug!(
-            "RegexParser[table]: pos={}, pattern='{}', token_type='{}'",
+            "RegexParser[table]: pos={}, pattern='{}', anti='{}', token_type='{}'",
             self.pos,
             pattern_str,
+            anti_opt.as_deref().unwrap_or("<none>"),
             token_type_opt.as_deref().unwrap_or("")
         );
 
@@ -1039,6 +1040,7 @@ impl<'a> Parser<'a> {
 
                 // Check anti-pattern first (if present, should NOT match)
                 if let Some(ref anti) = anti_pattern {
+                    log::debug!("RegexParser[table] checking anti-pattern against '{}'", raw);
                     if anti.is_match(&raw) {
                         log::debug!("RegexParser[table] anti-pattern matched, returning Empty");
                         return Ok(Node::Empty);
