@@ -546,3 +546,15 @@ fn test_sqlite_json_operators_debug() {
     let dialect = Dialect::Sqlite;
     run_sql_debug(&sql, dialect);
 }
+
+#[test]
+fn test_snowflake_semi_structured_debug() {
+    let path = format!(
+        "{}/../test/fixtures/dialects/snowflake/semi_structured.sql",
+        env!("CARGO_MANIFEST_DIR")
+    );
+    println!("Running test for {}", path);
+    let sql = std::fs::read_to_string(&path).unwrap_or_else(|_| panic!("Failed to read {}", path));
+    let dialect = Dialect::Snowflake;
+    run_sql_debug(&sql, dialect);
+}

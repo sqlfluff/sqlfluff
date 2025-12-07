@@ -318,6 +318,18 @@ impl<'a> Parser<'_> {
                         .cloned()
                         .collect();
 
+                    let ctx = self.grammar_ctx.expect("GrammarContext required");
+                    let grammar_name = ctx.grammar_id_name(grammar_id);
+                    log::debug!(
+                        "Sequence[table]: About to trim at matched_idx={}, grammar='{}', grammar_id={}, parse_mode={:?}, terminators.len()={}, remaining_children.len()={}",
+                        *matched_idx,
+                        grammar_name,
+                        grammar_id.0,
+                        inst.parse_mode,
+                        frame.table_terminators.len(),
+                        remaining_children.len()
+                    );
+
                     let new_max_idx = self.trim_to_terminator_with_elements_table_driven(
                         *matched_idx,
                         &frame.table_terminators,
@@ -325,7 +337,11 @@ impl<'a> Parser<'_> {
                     );
                     // Respect original parent max constraint
                     *max_idx = new_max_idx.min(*original_max_idx);
-                    log::debug!("Sequence[table]: Trimmed max_idx to {}", *max_idx);
+                    log::debug!(
+                        "Sequence[table]: Trimmed max_idx from {} to {}",
+                        new_max_idx,
+                        *max_idx
+                    );
                 }
             }
 

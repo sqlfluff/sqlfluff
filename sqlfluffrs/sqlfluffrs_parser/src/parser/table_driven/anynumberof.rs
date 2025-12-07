@@ -144,6 +144,15 @@ impl<'a> Parser<'_> {
             frame.parent_max_idx,
         );
 
+        log::debug!(
+            "AnyNumberOf[table] Initial handler: grammar_id={}, start_pos={}, max_idx={}, parse_mode={:?}, parent_max_idx={:?}",
+            grammar_id.0,
+            start_pos,
+            max_idx,
+            grammar_parse_mode,
+            frame.parent_max_idx
+        );
+
         frame.state = FrameState::WaitingForChild {
             child_index: 0,
             total_children: pruned_children_count,
@@ -328,10 +337,12 @@ impl<'a> Parser<'_> {
 
         // All element candidates tried for this repetition - use longest_match if any
         log::debug!(
-            "AnyNumberOf[table]: All candidates tried, longest_match={:?}, count={}, min_times={}",
+            "AnyNumberOf[table]: All candidates tried at pos={}, longest_match={:?}, count={}, min_times={}, max_idx={}",
+            working_idx,
             longest_match.as_ref().map(|(_, end, gid)| (end, gid.0)),
             count,
-            inst.min_times
+            inst.min_times,
+            max_idx
         );
 
         if let Some((best_node, best_end_pos, best_gid)) = longest_match.take() {
@@ -440,8 +451,11 @@ impl<'a> Parser<'_> {
             // Check if we've reached max_idx
             if *matched_idx >= *max_idx {
                 log::debug!(
-                    "AnyNumberOf[table]: Reached max_idx={}, finalizing",
-                    max_idx
+                    "AnyNumberOf[table]: Reached max_idx={}, matched_idx={}, parent_max_idx={:?}, parse_mode={:?}, finalizing",
+                    max_idx,
+                    matched_idx,
+                    frame.parent_max_idx,
+                    inst.parse_mode
                 );
                 frame.end_pos = Some(*matched_idx);
                 frame.state = FrameState::Combining;

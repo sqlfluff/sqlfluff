@@ -1484,13 +1484,14 @@ impl<'a> Parser<'a> {
         terminators: &[GrammarId],
         _elements: &[GrammarId],
     ) -> usize {
-        // Python version: trim at the first position where a terminator matches, ignoring element-aware checks.
+        // Python version: trim at the first position where a terminator matches.
+        // For keyword terminators (all alphabetical), require whitespace before them.
         if terminators.is_empty() {
             return self.tokens.len();
         }
 
         let mut idx = start_idx;
-        while idx < self.tokens.len() {
+        'outer: while idx < self.tokens.len() {
             // IMPORTANT: Check for opening brackets FIRST and skip over them.
             // This prevents nested brackets from being incorrectly matched as terminators.
             // For example, in `EXTRACT(MICROSECOND FROM col1)`, the `FROM` inside the brackets
@@ -1522,10 +1523,64 @@ impl<'a> Parser<'a> {
 
             // Skip transparent tokens before matching
             self.skip_transparent(true);
+            let match_pos = self.pos; // Position after skipping transparent tokens
 
             for term_id in terminators {
                 if let Ok(node) = self.parse_table_iterative(*term_id, &[]) {
                     if !node.is_empty() {
+                        let match_end_pos = self.pos; // Position after match
+
+                        // Check if this terminator is a keyword (all alphabetical).
+                        // If so, require whitespace before it (Python behavior from greedy_match).
+                        // Instead of checking the grammar structure, check the token that matched.
+                        // If the token at match_pos is all alphabetical, it's a keyword.
+                        let requires_whitespace = if let Some(tok) = self.tokens.get(match_pos) {
+                            let raw = tok.raw();
+                            !raw.is_empty() && raw.chars().all(|c| c.is_alphabetic())
+                        } else {
+                            false
+                        };
+
+                        if requires_whitespace {
+                            // Edge case: if matching at start_idx, allow it (Python behavior)
+                            if match_pos == start_idx {
+                                self.pos = saved_pos;
+                                return idx;
+                            }
+
+                            // Check for whitespace before this position
+                            // Look backward from match_pos for whitespace (skip meta/transparent)
+                            let mut has_whitespace = false;
+                            let mut check_idx = match_pos;
+                            while check_idx > 0 {
+                                check_idx -= 1;
+                                if let Some(prev_tok) = self.tokens.get(check_idx) {
+                                    let prev_type = prev_tok.get_type();
+                                    // Skip meta/transparent tokens (indent, dedent, comment, etc.)
+                                    if prev_tok.is_meta {
+                                        continue;
+                                    }
+                                    // Found whitespace - keyword is preceded by whitespace
+                                    if prev_type == "whitespace" || prev_type == "newline" {
+                                        has_whitespace = true;
+                                        break;
+                                    }
+                                    // Found something other than meta/whitespace - stop looking
+                                    break;
+                                }
+                            }
+
+                            if !has_whitespace {
+                                // Keyword terminator without preceding whitespace.
+                                // Skip past this match and continue looking for next terminator.
+                                // (Python: working_idx = _stop_idx; continue)
+                                self.pos = saved_pos;
+                                idx = match_end_pos;
+                                continue 'outer;
+                            }
+                        }
+
+                        // Terminator is valid - return the position
                         self.pos = saved_pos;
                         return idx;
                     }

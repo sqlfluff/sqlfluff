@@ -628,7 +628,7 @@ impl<'a> Parser<'a> {
         );
 
         match self.peek() {
-            Some(tok) if tok.raw().eq_ignore_ascii_case(&template) => {
+            Some(tok) if tok.raw().eq_ignore_ascii_case(&template) && tok.is_code() => {
                 let token_pos = self.pos;
                 let raw = tok.raw().to_string();
                 self.bump();
