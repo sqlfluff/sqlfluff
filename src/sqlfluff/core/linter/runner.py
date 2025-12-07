@@ -135,7 +135,7 @@ class ParallelRunner(BaseRunner):
     @staticmethod
     def _render_file_static(
         args: tuple[str, Linter, FluffConfig],
-    ) -> tuple[str, RenderedFile] | None:
+    ) -> Union[tuple[str, RenderedFile], None]:
         """Static helper for multiprocessing."""
         fname, linter, config = args
         try:
