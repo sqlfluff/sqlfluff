@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 5303ae428c3bcfa482737288523a9a49371bc9a2be0776eba5e6fa452fc42d77
+_hash: 57e25204852edd1d9a21b0ddaf21f7fbb91299bdf4d2c64a88281d589c464d81
 file:
 - statement:
     select_statement:
@@ -87,8 +87,7 @@ file:
               - data_type:
                   data_type_identifier: STRING
               - keyword: FORMAT
-              - expression:
-                  quoted_literal: "'ASCII'"
+              - quoted_literal: "'ASCII'"
               - end_bracket: )
           alias_expression:
             alias_operator:
@@ -113,8 +112,7 @@ file:
               - data_type:
                   data_type_identifier: STRING
               - keyword: FORMAT
-              - expression:
-                  quoted_literal: "'YYYY-MM-DD HH24:MI:SS TZH:TZM'"
+              - quoted_literal: "'YYYY-MM-DD HH24:MI:SS TZH:TZM'"
               - end_bracket: )
           alias_expression:
             alias_operator:
@@ -138,8 +136,7 @@ file:
               - data_type:
                   data_type_identifier: BYTES
               - keyword: FORMAT
-              - expression:
-                  quoted_literal: "'ASCII'"
+              - quoted_literal: "'ASCII'"
               - end_bracket: )
           alias_expression:
             alias_operator:
@@ -164,8 +161,7 @@ file:
               - data_type:
                   data_type_identifier: STRING
               - keyword: FORMAT
-              - expression:
-                  quoted_literal: "'YYYY'"
+              - quoted_literal: "'YYYY'"
               - end_bracket: )
           alias_expression:
             alias_operator:
@@ -190,8 +186,7 @@ file:
               - data_type:
                   data_type_identifier: STRING
               - keyword: FORMAT
-              - expression:
-                  quoted_literal: "'HH24'"
+              - quoted_literal: "'HH24'"
               - end_bracket: )
           alias_expression:
             alias_operator:
@@ -216,14 +211,13 @@ file:
               - data_type:
                   data_type_identifier: STRING
               - keyword: FORMAT
-              - expression:
-                  quoted_literal: "'TZH'"
-                  time_zone_grammar:
-                  - keyword: AT
-                  - keyword: TIME
-                  - keyword: ZONE
-                  - expression:
-                      quoted_literal: "'Asia/Kolkata'"
+              - quoted_literal: "'TZH'"
+              - time_zone_grammar:
+                - keyword: AT
+                - keyword: TIME
+                - keyword: ZONE
+                - expression:
+                    quoted_literal: "'Asia/Kolkata'"
               - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -243,8 +237,7 @@ file:
               - data_type:
                   data_type_identifier: TIME
               - keyword: FORMAT
-              - expression:
-                  quoted_literal: "'HH:MI P.M.'"
+              - quoted_literal: "'HH:MI P.M.'"
               - end_bracket: )
           alias_expression:
             alias_operator:
@@ -273,8 +266,7 @@ file:
               - data_type:
                   data_type_identifier: STRING
               - keyword: FORMAT
-              - expression:
-                  quoted_literal: "'$999,999.999'"
+              - quoted_literal: "'$999,999.999'"
               - end_bracket: )
           alias_expression:
             alias_operator:
@@ -331,8 +323,7 @@ file:
               - data_type:
                   data_type_identifier: STRING
               - keyword: FORMAT
-              - expression:
-                  quoted_literal: "'99.99'"
+              - quoted_literal: "'99.99'"
               - end_bracket: )
           alias_expression:
             alias_operator:
@@ -358,8 +349,7 @@ file:
               - data_type:
                   data_type_identifier: STRING
               - keyword: FORMAT
-              - expression:
-                  quoted_literal: "'9.999EEEE'"
+              - quoted_literal: "'9.999EEEE'"
               - end_bracket: )
           alias_expression:
             alias_operator:
