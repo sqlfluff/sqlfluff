@@ -17,10 +17,11 @@ impl Parser<'_> {
         stack: &mut TableParseFrameStack,
     ) -> Result<TableFrameResult, ParseError> {
         self.pos = frame.pos;
-        let ctx = self.grammar_ctx.expect("GrammarContext required");
         let grammar_id = frame.grammar_id;
 
-        let inst = ctx.inst(grammar_id);
+        let child_count = self.grammar_ctx.inst(grammar_id).child_count;
+        let reset_terminators = self.grammar_ctx.inst(grammar_id).flags.reset_terminators();
+        let parse_mode = self.grammar_ctx.inst(grammar_id).parse_mode;
         let start_pos = frame.pos;
 
         log::debug!(
@@ -28,11 +29,11 @@ impl Parser<'_> {
             frame.frame_id,
             start_pos,
             grammar_id.0,
-            inst.child_count
+            child_count
         );
 
         // Extra debug: build a readable grammar name (works for Ref/String/Regex variants)
-        let grammar_name = ctx.grammar_id_name(grammar_id);
+        let grammar_name = self.grammar_ctx.grammar_id_name(grammar_id);
 
         if start_pos < self.tokens.len() {
             let tok = &self.tokens[start_pos];
@@ -52,7 +53,7 @@ impl Parser<'_> {
 
         // Get config from aux_data
         let (min_times, max_times, max_times_per_element, has_exclude) =
-            ctx.anynumberof_config(grammar_id);
+            self.grammar_ctx.anynumberof_config(grammar_id);
 
         log::debug!(
             "AnyNumberOf[table]: min_times={}, max_times={:?}, max_times_per_element={:?}, has_exclude={}",
@@ -64,7 +65,7 @@ impl Parser<'_> {
 
         // Check exclude grammar if present
         if has_exclude {
-            if let Some(exclude_id) = ctx.exclude(grammar_id) {
+            if let Some(exclude_id) = self.grammar_ctx.exclude(grammar_id) {
                 self.pos = start_pos;
                 if let Ok(exclude_result) =
                     self.parse_table_iterative(exclude_id, parent_terminators)
@@ -82,12 +83,12 @@ impl Parser<'_> {
         }
 
         // Get all element children (excludes exclude grammar via element_children)
-        let element_ids: Vec<GrammarId> = ctx.element_children(grammar_id).collect();
+        let element_ids: Vec<GrammarId> = self.grammar_ctx.element_children(grammar_id).collect();
         let pruned_children = self.prune_options_table_driven(&element_ids);
         // Debug element names for easier tracing
         let element_names: Vec<String> = pruned_children
             .iter()
-            .map(|gid| ctx.grammar_id_name(*gid))
+            .map(|gid| self.grammar_ctx.grammar_id_name(*gid))
             .collect();
         log::debug!(
             "AnyNumberOf[table] element_ids_count={} names={:?}",
@@ -111,18 +112,18 @@ impl Parser<'_> {
             pruned_children.iter().map(|id| (id.0 as u64, 0)).collect();
 
         // Combine terminators
-        let local_terminators: Vec<GrammarId> = ctx.terminators(grammar_id).collect();
+        let local_terminators: Vec<GrammarId> = self.grammar_ctx.terminators(grammar_id).collect();
         let all_terminators = crate::parser::core::Parser::combine_terminators_table_driven(
             &local_terminators,
             parent_terminators,
-            inst.flags.reset_terminators(),
+            reset_terminators,
         );
-        let grammar_parse_mode = inst.parse_mode;
+        let grammar_parse_mode = parse_mode;
 
         // Debug: log pruned_children ids and the combined terminators
         let term_names: Vec<String> = all_terminators
             .iter()
-            .map(|gid| ctx.grammar_id_name(*gid))
+            .map(|gid| self.grammar_ctx.grammar_id_name(*gid))
             .collect();
         log::debug!(
             "AnyNumberOf[table] pruned_children_ids={:?} all_terminators_count={} names={:?}",
@@ -195,7 +196,7 @@ impl Parser<'_> {
             pruned_children_count
         );
         // Debug pushed element name
-        let first_name = ctx.grammar_id_name(first_element);
+        let first_name = self.grammar_ctx.grammar_id_name(first_element);
         log::debug!(
             "AnyNumberOf[table]: pushing first_element name='{}' gid={}",
             first_name,
@@ -217,8 +218,6 @@ impl Parser<'_> {
         child_end_pos: &usize,
         stack: &mut TableParseFrameStack,
     ) -> Result<TableFrameResult, ParseError> {
-        let ctx = self.grammar_ctx.expect("GrammarContext required");
-
         let FrameContext::AnyNumberOfTableDriven {
             grammar_id,
             pruned_children,
@@ -235,7 +234,7 @@ impl Parser<'_> {
             unreachable!("Expected AnyNumberOfTableDriven context");
         };
 
-        let inst = ctx.inst(*grammar_id);
+        let inst = self.grammar_ctx.inst(*grammar_id);
 
         // Determine which element candidate index we last attempted (stored in
         // the parent's FrameState::WaitingForChild). If not present, default
@@ -264,7 +263,7 @@ impl Parser<'_> {
         let table_term_names: Vec<String> = frame
             .table_terminators
             .iter()
-            .map(|gid| ctx.grammar_id_name(*gid))
+            .map(|gid| self.grammar_ctx.grammar_id_name(*gid))
             .collect();
         log::debug!(
             "AnyNumberOf[table] WaitingForChild DEBUG: pruned_children_ids={:?} table_terminators_count={} names={:?}",
@@ -379,7 +378,7 @@ impl Parser<'_> {
 
             // Get max_times config from aux_data
             let (_min_times, max_times, max_times_per_element, _has_exclude) =
-                ctx.anynumberof_config(*grammar_id);
+                self.grammar_ctx.anynumberof_config(*grammar_id);
 
             // Check max_times constraint (total matches across all elements)
             if let Some(max) = max_times {
@@ -468,7 +467,8 @@ impl Parser<'_> {
             self.pos = *working_idx;
 
             // Re-prune at the new position for better efficiency
-            let element_ids: Vec<GrammarId> = ctx.element_children(*grammar_id).collect();
+            let element_ids: Vec<GrammarId> =
+                self.grammar_ctx.element_children(*grammar_id).collect();
             let repruned_children = self.prune_options_table_driven(&element_ids);
             log::debug!(
                 "AnyNumberOf[table]: After match, re-pruned elements from {} to {}",
@@ -533,8 +533,6 @@ impl Parser<'_> {
         &mut self,
         mut frame: TableParseFrame,
     ) -> Result<TableFrameResult, ParseError> {
-        let ctx = self.grammar_ctx.expect("GrammarContext required");
-
         let FrameContext::AnyNumberOfTableDriven {
             grammar_id,
             count,
@@ -547,7 +545,7 @@ impl Parser<'_> {
             ));
         };
 
-        let inst = ctx.inst(*grammar_id);
+        let inst = self.grammar_ctx.inst(*grammar_id);
 
         log::debug!(
             "AnyNumberOf[table] Combining: frame_id={}, accumulated={}, count={}",

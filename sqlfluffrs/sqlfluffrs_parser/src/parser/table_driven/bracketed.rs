@@ -19,16 +19,18 @@ impl Parser<'_> {
             frame.frame_id,
             frame.pos
         );
-        let ctx = self.grammar_ctx.expect("GrammarContext required");
         let start_idx = frame.pos;
-        let local_terminators = ctx.terminators(grammar_id).collect::<Vec<GrammarId>>();
-        let reset_terminators = ctx.inst(grammar_id).flags.reset_terminators();
+        let local_terminators = self
+            .grammar_ctx
+            .terminators(grammar_id)
+            .collect::<Vec<GrammarId>>();
+        let reset_terminators = self.grammar_ctx.inst(grammar_id).flags.reset_terminators();
         let all_terminators = self.combine_table_terminators(
             &local_terminators,
             parent_terminators,
             reset_terminators,
         );
-        let all_children: Vec<GrammarId> = ctx.children(grammar_id).collect();
+        let all_children: Vec<GrammarId> = self.grammar_ctx.children(grammar_id).collect();
         log::debug!(
             "Bracketed[table] children count={}, children={:?}",
             all_children.len(),
@@ -41,7 +43,7 @@ impl Parser<'_> {
                 .insert(frame.frame_id, (Node::Empty, start_idx, None));
             return Ok(TableFrameResult::Done);
         }
-        let (start_bracket_idx, _end_bracket_idx) = ctx.bracketed_config(grammar_id);
+        let (start_bracket_idx, _end_bracket_idx) = self.grammar_ctx.bracketed_config(grammar_id);
         let open_bracket_id = all_children[start_bracket_idx];
         initialize_table_driven_bracketed_frame(grammar_id, frame, stack, &all_terminators);
         let parent_max_idx = stack.last_mut().unwrap().parent_max_idx;
@@ -74,7 +76,6 @@ impl Parser<'_> {
         child_end_pos: &usize,
         stack: &mut TableParseFrameStack,
     ) -> Result<TableFrameResult, ParseError> {
-        let ctx = self.grammar_ctx.expect("GrammarContext required");
         // Extract needed fields from frame.context
         let FrameContext::BracketedTableDriven {
             grammar_id,
@@ -88,8 +89,8 @@ impl Parser<'_> {
             unreachable!("Expected BracketedTableDriven context");
         };
 
-        let all_children: Vec<GrammarId> = ctx.children(*grammar_id).collect();
-        let (start_bracket_idx, end_bracket_idx) = ctx.bracketed_config(*grammar_id);
+        let all_children: Vec<GrammarId> = self.grammar_ctx.children(*grammar_id).collect();
+        let (start_bracket_idx, end_bracket_idx) = self.grammar_ctx.bracketed_config(*grammar_id);
         let close_bracket_id = all_children[end_bracket_idx];
         let content_ids_local = all_children
             .iter()
@@ -123,8 +124,7 @@ impl Parser<'_> {
                     return Ok(TableFrameResult::Done);
                 }
 
-                let ctx = self.grammar_ctx.expect("GrammarContext required");
-                let grammar_inst = ctx.inst(frame.grammar_id);
+                let grammar_inst = self.grammar_ctx.inst(frame.grammar_id);
                 let allow_gaps = grammar_inst.flags.allow_gaps();
                 let parse_mode = grammar_inst.parse_mode;
 
@@ -260,11 +260,11 @@ impl Parser<'_> {
                 // unparsable segments in GREEDY mode), then matches the closing bracket.
                 // This Rust logic optimizes by pre-computing the bracket position, but
                 // must still respect GREEDY mode semantics.
-                let ctx = self.grammar_ctx.expect("GrammarContext required");
-                let grammar_inst = ctx.inst(frame.grammar_id);
+                let grammar_inst = self.grammar_ctx.inst(frame.grammar_id);
                 let parse_mode = grammar_inst.parse_mode;
                 let allow_gaps = grammar_inst.flags.allow_gaps();
-                let (_start_bracket_idx, end_bracket_idx) = ctx.bracketed_config(*grammar_id);
+                let (_start_bracket_idx, end_bracket_idx) =
+                    self.grammar_ctx.bracketed_config(*grammar_id);
                 let close_bracket_id = all_children[end_bracket_idx];
 
                 // Replace deep-clone traversal with a reference-based flattening.
@@ -441,8 +441,7 @@ impl Parser<'_> {
                     child_node.is_empty(),
                     child_end_pos
                 );
-                let ctx = self.grammar_ctx.expect("GrammarContext required");
-                let grammar_inst = ctx.inst(frame.grammar_id);
+                let grammar_inst = self.grammar_ctx.inst(frame.grammar_id);
                 let parse_mode = grammar_inst.parse_mode;
 
                 if child_node.is_empty() {
@@ -511,8 +510,7 @@ impl Parser<'_> {
                 let complete = matches!(state, BracketedState::Complete);
 
                 // Determine bracket_persists using the GrammarInst for this GrammarId
-                let ctx = self.grammar_ctx.expect("GrammarContext required");
-                let persists = ctx.bracketed_persists(*grammar_id);
+                let persists = self.grammar_ctx.bracketed_persists(*grammar_id);
 
                 (complete, persists)
             } else {

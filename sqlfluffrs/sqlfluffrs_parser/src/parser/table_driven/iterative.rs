@@ -177,31 +177,37 @@ impl Parser<'_> {
             initial_frame_id
         );
 
-        let ctx = self.grammar_ctx.ok_or_else(|| {
-            ParseError::new("Table-driven parsing requires GrammarContext".to_string())
-        })?;
-
         // Debug: Show what frames are left on the stack
         for (i, frame) in stack.iter().enumerate() {
-            let grammar_desc = match ctx.variant(frame.grammar_id) {
-                GrammarVariant::Ref => format!("Ref({})", ctx.ref_name(frame.grammar_id)),
+            let grammar_desc = match self.grammar_ctx.variant(frame.grammar_id) {
+                GrammarVariant::Ref => {
+                    format!("Ref({})", self.grammar_ctx.ref_name(frame.grammar_id))
+                }
                 GrammarVariant::Bracketed => "Bracketed".to_string(),
                 GrammarVariant::Delimited => "Delimited".to_string(),
                 GrammarVariant::OneOf => {
-                    format!("OneOf({} elements)", ctx.children_count(frame.grammar_id))
+                    format!(
+                        "OneOf({} elements)",
+                        self.grammar_ctx.children_count(frame.grammar_id)
+                    )
                 }
                 GrammarVariant::Sequence => {
                     format!(
                         "Sequence({} elements)",
-                        ctx.children_count(frame.grammar_id)
+                        self.grammar_ctx.children_count(frame.grammar_id)
                     )
                 }
                 GrammarVariant::AnyNumberOf => "AnyNumberOf".to_string(),
                 GrammarVariant::AnySetOf => "AnySetOf".to_string(),
                 GrammarVariant::StringParser => {
-                    format!("StringParser('{}')", ctx.template(frame.grammar_id))
+                    format!(
+                        "StringParser('{}')",
+                        self.grammar_ctx.template(frame.grammar_id)
+                    )
                 }
-                GrammarVariant::Token => format!("Token({})", ctx.template(frame.grammar_id)),
+                GrammarVariant::Token => {
+                    format!("Token({})", self.grammar_ctx.template(frame.grammar_id))
+                }
                 _ => "Other".to_string(),
             };
 
@@ -312,12 +318,8 @@ impl Parser<'_> {
     ) -> Result<TableFrameResult, ParseError> {
         use sqlfluffrs_types::GrammarVariant;
 
-        let ctx = self.grammar_ctx.ok_or_else(|| {
-            ParseError::new("Table-driven parsing requires GrammarContext".to_string())
-        })?;
-
         let grammar_id = frame.grammar_id;
-        let inst = ctx.inst(grammar_id);
+        let inst = self.grammar_ctx.inst(grammar_id);
         let variant = inst.variant;
         let table_terminators = frame.table_terminators.clone();
 
@@ -360,7 +362,7 @@ impl Parser<'_> {
             // Terminal/simple variants should be handled synchronously here
             GrammarVariant::StringParser => {
                 // Synchronous match: call the table-driven string parser and store result for parent
-                let res = self.handle_string_parser_table_driven(grammar_id, ctx);
+                let res = self.handle_string_parser_table_driven(grammar_id);
                 match res {
                     Ok(node) => {
                         // Insert result directly so parent frames can pick it up
@@ -378,7 +380,7 @@ impl Parser<'_> {
             }
             GrammarVariant::TypedParser => self.handle_typed_parser_table_driven(frame),
             GrammarVariant::MultiStringParser => {
-                let res = self.handle_multi_string_parser_table_driven(grammar_id, ctx);
+                let res = self.handle_multi_string_parser_table_driven(grammar_id);
                 match res {
                     Ok(node) => {
                         log::debug!(
@@ -458,7 +460,7 @@ impl Parser<'_> {
                 }
             }
             GrammarVariant::Token => {
-                let res = self.handle_token_table_driven(grammar_id, ctx);
+                let res = self.handle_token_table_driven(grammar_id);
                 match res {
                     Ok(node) => {
                         log::debug!(
@@ -474,7 +476,7 @@ impl Parser<'_> {
                 }
             }
             GrammarVariant::Meta => {
-                let res = self.handle_meta_table_driven(grammar_id, ctx);
+                let res = self.handle_meta_table_driven(grammar_id);
                 match res {
                     Ok(node) => {
                         log::debug!(
@@ -508,7 +510,6 @@ impl Parser<'_> {
             GrammarVariant::Anything => {
                 let res = self.handle_anything_table_driven(
                     grammar_id,
-                    ctx,
                     &table_terminators,
                     frame.parent_max_idx,
                 );
@@ -758,12 +759,8 @@ impl Parser<'_> {
     ) -> Result<TableFrameResult, ParseError> {
         use sqlfluffrs_types::GrammarVariant;
 
-        let ctx = self.grammar_ctx.ok_or_else(|| {
-            ParseError::new("Table-driven parsing requires GrammarContext".to_string())
-        })?;
-
         let grammar_id = frame.grammar_id;
-        let inst = ctx.inst(grammar_id);
+        let inst = self.grammar_ctx.inst(grammar_id);
         let variant = inst.variant;
 
         log::debug!(
@@ -837,10 +834,7 @@ impl Parser<'_> {
             let should_cache_success = !node.is_empty();
 
             if should_cache_empty || should_cache_success {
-                let ctx = self
-                    .grammar_ctx
-                    .expect("GrammarContext required for caching");
-                let variant = ctx.variant(frame.grammar_id);
+                let variant = self.grammar_ctx.variant(frame.grammar_id);
 
                 // Only cache compound grammars that are expensive to re-parse
                 // Skip simple terminals (StringParser, TypedParser, etc.) - they're fast
@@ -932,21 +926,25 @@ impl Parser<'_> {
 
         // Print last 20 frames on stack for diagnosis
         log::debug!("\n=== Last 20 frames on stack ===");
-        let ctx = self.grammar_ctx.unwrap();
         for (i, f) in stack.iter().rev().take(20).enumerate() {
             log::debug!(
                 "  [{}] state={:?}, pos={}, grammar={}",
                 i,
                 f.state,
                 f.pos,
-                match ctx.variant(f.grammar_id) {
-                    GrammarVariant::Ref => format!("Ref({})", ctx.ref_name(f.grammar_id)),
+                match self.grammar_ctx.variant(f.grammar_id) {
+                    GrammarVariant::Ref =>
+                        format!("Ref({})", self.grammar_ctx.ref_name(f.grammar_id)),
                     GrammarVariant::Bracketed => "Bracketed".to_string(),
                     GrammarVariant::Delimited => "Delimited".to_string(),
-                    GrammarVariant::OneOf =>
-                        format!("OneOf({} elements)", ctx.children_count(f.grammar_id)),
-                    GrammarVariant::Sequence =>
-                        format!("Sequence({} elements)", ctx.children_count(f.grammar_id)),
+                    GrammarVariant::OneOf => format!(
+                        "OneOf({} elements)",
+                        self.grammar_ctx.children_count(f.grammar_id)
+                    ),
+                    GrammarVariant::Sequence => format!(
+                        "Sequence({} elements)",
+                        self.grammar_ctx.children_count(f.grammar_id)
+                    ),
                     GrammarVariant::AnyNumberOf => "AnyNumberOf".to_string(),
                     GrammarVariant::AnySetOf => "AnySetOf".to_string(),
                     _ => "Other".to_string(),
@@ -991,21 +989,16 @@ impl Parser<'_> {
         // Helper to get a name for either Grammar or GrammarId
         fn grammar_id_name(parser: &Parser, frame: &TableParseFrame) -> String {
             // Table-driven: show grammar_id and its name if available
-            if let Some(ctx) = parser.grammar_ctx.as_ref() {
-                let name = match ctx.variant(frame.grammar_id) {
-                    sqlfluffrs_types::GrammarVariant::Ref => ctx.ref_name(frame.grammar_id),
-                    sqlfluffrs_types::GrammarVariant::StringParser
-                    | sqlfluffrs_types::GrammarVariant::TypedParser
-                    | sqlfluffrs_types::GrammarVariant::MultiStringParser
-                    | sqlfluffrs_types::GrammarVariant::RegexParser => {
-                        ctx.template(frame.grammar_id)
-                    }
-                    _ => &format!("{:?}", ctx.variant(frame.grammar_id)),
-                };
-                format!("id[{}:{:?}]", frame.grammar_id.0, name)
-            } else {
-                format!("id[{}]", frame.grammar_id.0)
-            }
+            let ctx = &parser.grammar_ctx;
+            let name = match ctx.variant(frame.grammar_id) {
+                sqlfluffrs_types::GrammarVariant::Ref => ctx.ref_name(frame.grammar_id),
+                sqlfluffrs_types::GrammarVariant::StringParser
+                | sqlfluffrs_types::GrammarVariant::TypedParser
+                | sqlfluffrs_types::GrammarVariant::MultiStringParser
+                | sqlfluffrs_types::GrammarVariant::RegexParser => ctx.template(frame.grammar_id),
+                _ => &format!("{:?}", ctx.variant(frame.grammar_id)),
+            };
+            format!("id[{}:{:?}]", frame.grammar_id.0, name)
         }
 
         // Add the current frame's grammar first (most specific)

@@ -19,14 +19,13 @@ impl Parser<'_> {
         stack: &mut TableParseFrameStack,
     ) -> Result<TableFrameResult, ParseError> {
         self.pos = frame.pos;
-        let ctx = self.grammar_ctx.expect("GrammarContext required");
 
-        let inst = ctx.inst(grammar_id);
+        let reset_terminators = self.grammar_ctx.inst(grammar_id).flags.reset_terminators();
         let start_pos = frame.pos;
 
         // Get rule name via GrammarContext helper which knows how names are
         // stored in aux_data (generator packs ref names into aux_data).
-        let rule_name = ctx.ref_name(grammar_id).to_string();
+        let rule_name = self.grammar_ctx.ref_name(grammar_id).to_string();
 
         log::debug!(
             "Ref[table] Initial: frame_id={}, pos={}, grammar_id={}, rule={}",
@@ -54,7 +53,8 @@ impl Parser<'_> {
         }
 
         // Check exclude grammar first (table-driven exclude id if present).
-        if let Some(exclude_id) = ctx.exclude(grammar_id) {
+        let exclude_id_opt = self.grammar_ctx.exclude(grammar_id);
+        if let Some(exclude_id) = exclude_id_opt {
             if let Ok(exclude_node) = self.parse_table_iterative(exclude_id, parent_terminators) {
                 if !exclude_node.is_empty() {
                     log::debug!(
@@ -74,7 +74,8 @@ impl Parser<'_> {
 
         // Get element children (excludes the exclude grammar if present).
         // For a Ref with only an exclude (no explicit match_grammar child), this will be empty.
-        let element_children: Vec<GrammarId> = ctx.element_children(grammar_id).collect();
+        let element_children: Vec<GrammarId> =
+            self.grammar_ctx.element_children(grammar_id).collect();
 
         // Use first element child if present, otherwise resolve by name via dialect mapping.
         // CRITICAL: For Ref grammars with an exclude, the `children` list contains ONLY the
@@ -100,8 +101,8 @@ impl Parser<'_> {
         // If the explicit child grammar allows gaps, collect leading transparent
         // tokens so child parsing starts at the next non-transparent token.
         let mut leading_transparent: Vec<Node> = Vec::new();
-        let child_inst = ctx.inst(child_grammar_id);
-        if child_inst.flags.allow_gaps() {
+        let child_allows_gaps = self.grammar_ctx.inst(child_grammar_id).flags.allow_gaps();
+        if child_allows_gaps {
             let ws = self.collect_transparent(true);
             if !ws.is_empty() {
                 log::debug!(
@@ -114,7 +115,10 @@ impl Parser<'_> {
 
         // Determine the segment_type from tables if available, otherwise use rule_name
         // let table_segment_type = self.dialect.get_segment_type(&rule_name).map(|s| s.to_string());
-        let table_segment_type = ctx.segment_type(grammar_id).map(|s| s.to_string());
+        let table_segment_type = self
+            .grammar_ctx
+            .segment_type(grammar_id)
+            .map(|s| s.to_string());
 
         // Store context with collected leading transparent tokens
         frame.context = FrameContext::RefTableDriven {
@@ -135,11 +139,11 @@ impl Parser<'_> {
 
         // Combine the Ref's local terminators with the parent terminators so
         // the referenced child parsing respects both sets (parity with Arc path)
-        let local_terminators: Vec<GrammarId> = ctx.terminators(grammar_id).collect();
+        let local_terminators: Vec<GrammarId> = self.grammar_ctx.terminators(grammar_id).collect();
         let child_terminators = Self::combine_terminators_table_driven(
             &local_terminators,
             parent_terminators,
-            inst.flags.reset_terminators(),
+            reset_terminators,
         );
 
         let child_frame = TableParseFrame::new_child(
@@ -172,8 +176,6 @@ impl Parser<'_> {
         child_node: &Node,
         child_end_pos: &usize,
     ) -> Result<TableFrameResult, ParseError> {
-        let _ctx = self.grammar_ctx.expect("GrammarContext required");
-
         let FrameContext::RefTableDriven { .. } = &frame.context else {
             unreachable!("Expected RefTableDriven context");
         };

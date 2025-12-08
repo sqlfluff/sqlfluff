@@ -18,12 +18,13 @@ impl Parser<'_> {
     ) -> Result<TableFrameResult, ParseError> {
         // CRITICAL: Restore parser position from frame
         self.pos = frame.pos;
-        let ctx = self
-            .grammar_ctx
-            .expect("GrammarContext required for table-driven parsing");
 
         let grammar_id = frame.grammar_id;
-        let inst = ctx.inst(grammar_id);
+        let child_count = self.grammar_ctx.inst(grammar_id).child_count;
+        let allow_gaps = self.grammar_ctx.inst(grammar_id).flags.allow_gaps();
+        let reset_terminators = self.grammar_ctx.inst(grammar_id).flags.reset_terminators();
+        let parse_mode = self.grammar_ctx.inst(grammar_id).parse_mode;
+        let optional = self.grammar_ctx.inst(grammar_id).flags.optional();
         let start_pos = frame.pos;
 
         log::debug!(
@@ -31,11 +32,11 @@ impl Parser<'_> {
             frame.frame_id,
             start_pos,
             grammar_id.0,
-            inst.child_count
+            child_count
         );
 
         // Check exclude grammar first (before any other logic)
-        if let Some(exclude_id) = ctx.exclude(grammar_id) {
+        if let Some(exclude_id) = self.grammar_ctx.exclude(grammar_id) {
             // Try matching exclude grammar
             if let Ok(exclude_result) = self.parse_table_iterative(exclude_id, parent_terminators) {
                 if !exclude_result.is_empty() {
@@ -54,7 +55,7 @@ impl Parser<'_> {
         }
 
         // Collect leading transparent tokens if allow_gaps
-        let leading_ws = if inst.flags.allow_gaps() {
+        let leading_ws = if allow_gaps {
             self.collect_transparent(true)
         } else {
             Vec::new()
@@ -62,20 +63,19 @@ impl Parser<'_> {
         let post_skip_pos = self.pos;
 
         // Combine terminators
-        let local_terminators: Vec<GrammarId> = ctx.terminators(grammar_id).collect();
+        let local_terminators: Vec<GrammarId> = self.grammar_ctx.terminators(grammar_id).collect();
         let all_terminators = crate::parser::core::Parser::combine_terminators_table_driven(
             &local_terminators,
             parent_terminators,
-            inst.flags.reset_terminators(),
+            reset_terminators,
         );
 
         // Calculate max_idx with terminators
-        let grammar_parse_mode = inst.parse_mode;
         let max_idx = self.calculate_max_idx_with_elements_table_driven(
             post_skip_pos,
             &all_terminators,
             &[],
-            grammar_parse_mode,
+            parse_mode,
             frame.parent_max_idx,
         );
 
@@ -87,11 +87,11 @@ impl Parser<'_> {
         );
 
         // Early termination check for GREEDY mode
-        if grammar_parse_mode == sqlfluffrs_types::ParseMode::Greedy
+        if parse_mode == sqlfluffrs_types::ParseMode::Greedy
             && self.is_terminated_table_driven(&all_terminators)
         {
             log::debug!("OneOf[table]: Early termination - at terminator position");
-            if inst.flags.optional() {
+            if optional {
                 stack.results.insert(
                     frame.frame_id,
                     (crate::parser::Node::Empty, post_skip_pos, None),
@@ -101,7 +101,7 @@ impl Parser<'_> {
         }
 
         // Get element children (excluding exclude grammar if present)
-        let all_children: Vec<GrammarId> = ctx.element_children(grammar_id).collect();
+        let all_children: Vec<GrammarId> = self.grammar_ctx.element_children(grammar_id).collect();
 
         // Prune options based on simple hints (conservative - keeps all for now)
         let pruned_children = self.prune_options_table_driven(&all_children);
@@ -109,12 +109,16 @@ impl Parser<'_> {
         // Debug: list kept children names
         let mut kept_names: Vec<String> = Vec::new();
         for gid in &pruned_children {
-            let var = ctx.variant(*gid);
+            let var = self.grammar_ctx.variant(*gid);
             let name = match var {
-                sqlfluffrs_types::GrammarVariant::Ref => ctx.ref_name(*gid).to_string(),
+                sqlfluffrs_types::GrammarVariant::Ref => {
+                    self.grammar_ctx.ref_name(*gid).to_string()
+                }
                 sqlfluffrs_types::GrammarVariant::StringParser
                 | sqlfluffrs_types::GrammarVariant::TypedParser
-                | sqlfluffrs_types::GrammarVariant::RegexParser => ctx.template(*gid).to_string(),
+                | sqlfluffrs_types::GrammarVariant::RegexParser => {
+                    self.grammar_ctx.template(*gid).to_string()
+                }
                 other => format!("{:?}", other),
             };
             kept_names.push(name);
@@ -194,8 +198,6 @@ impl Parser<'_> {
         child_end_pos: &usize,
         stack: &mut TableParseFrameStack,
     ) -> Result<TableFrameResult, ParseError> {
-        let ctx = self.grammar_ctx.expect("GrammarContext required");
-
         let FrameContext::OneOfTableDriven {
             pruned_children,
             post_skip_pos,
@@ -215,12 +217,14 @@ impl Parser<'_> {
         // Compute values for per-candidate logging
         let child_end_pos_val = *child_end_pos;
         let child_consumed = consumed;
-        let child_name = match ctx.variant(current_child) {
-            sqlfluffrs_types::GrammarVariant::Ref => ctx.ref_name(current_child).to_string(),
+        let child_name = match self.grammar_ctx.variant(current_child) {
+            sqlfluffrs_types::GrammarVariant::Ref => {
+                self.grammar_ctx.ref_name(current_child).to_string()
+            }
             sqlfluffrs_types::GrammarVariant::StringParser
             | sqlfluffrs_types::GrammarVariant::TypedParser
             | sqlfluffrs_types::GrammarVariant::RegexParser => {
-                ctx.template(current_child).to_string()
+                self.grammar_ctx.template(current_child).to_string()
             }
             other => format!("{:?}", other),
         };
@@ -393,8 +397,6 @@ impl Parser<'_> {
         mut frame: TableParseFrame,
         _stack: &mut TableParseFrameStack,
     ) -> Result<TableFrameResult, ParseError> {
-        let ctx = self.grammar_ctx.expect("GrammarContext required");
-
         let FrameContext::OneOfTableDriven {
             grammar_id,
             leading_ws,
@@ -409,7 +411,7 @@ impl Parser<'_> {
             ));
         };
 
-        let inst = ctx.inst(*grammar_id);
+        let inst = self.grammar_ctx.inst(*grammar_id);
 
         log::debug!(
             "OneOf[table] Combining: frame_id={}, has_match={}",

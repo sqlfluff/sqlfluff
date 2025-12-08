@@ -404,7 +404,7 @@ impl<'a> Parser<'a> {
         let mut available_options = Vec::new();
 
         // Get grammar tables if available
-        let tables = self.grammar_ctx.map(|ctx| ctx.tables());
+        let tables = Some(self.grammar_ctx.tables());
 
         for &opt_id in options {
             // Try to get simple hint for this grammar from tables
@@ -432,7 +432,8 @@ impl<'a> Parser<'a> {
         }
 
         // Compute human-readable names for kept and dropped options for debugging
-        if let Some(ctx) = self.grammar_ctx {
+        {
+            let ctx = &self.grammar_ctx;
             let mut kept_names: Vec<String> = Vec::new();
             let mut dropped_names: Vec<String> = Vec::new();
             for &opt_id in options {
@@ -462,12 +463,6 @@ impl<'a> Parser<'a> {
                 options.len() - available_options.len(),
                 kept_names,
                 dropped_names
-            );
-        } else {
-            log::debug!(
-                "Prune result: kept={} dropped={} (grammar context not available for names)",
-                available_options.len(),
-                options.len() - available_options.len()
             );
         }
 
@@ -627,11 +622,7 @@ impl<'a> Parser<'a> {
             pruned_terms
         );
         for term in pruned_terms.iter() {
-            let grammar_name = if let Some(ctx) = self.grammar_ctx {
-                ctx.grammar_id_name(*term)
-            } else {
-                "<no_ctx>".to_string()
-            };
+            let grammar_name = self.grammar_ctx.grammar_id_name(*term);
             log::debug!(
                 "[TRIM_TO_TERM_TABLE] Trying terminator {:?} (name: {}) at idx={}",
                 term,

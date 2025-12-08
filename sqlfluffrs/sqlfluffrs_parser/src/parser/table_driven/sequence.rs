@@ -19,13 +19,11 @@ impl Parser<'_> {
     ) -> Result<TableFrameResult, ParseError> {
         self.pos = frame.pos;
         let start_idx = self.pos;
-        let ctx = self.grammar_ctx.expect("Grammar Context");
         let grammar_id = frame.grammar_id;
-        let grammar_inst = ctx.inst(grammar_id);
-        let local_terminators = ctx.terminators(grammar_id).collect::<Vec<_>>();
-        let reset_terminators = grammar_inst.flags.reset_terminators();
-        let parse_mode = grammar_inst.parse_mode;
-        let elements = ctx.children(grammar_id).collect::<Vec<_>>();
+        let reset_terminators = self.grammar_ctx.inst(grammar_id).flags.reset_terminators();
+        let parse_mode = self.grammar_ctx.inst(grammar_id).parse_mode;
+        let local_terminators = self.grammar_ctx.terminators(grammar_id).collect::<Vec<_>>();
+        let elements = self.grammar_ctx.children(grammar_id).collect::<Vec<_>>();
 
         // combine parent and local terminators
         let all_terminators = self.combine_table_terminators(
@@ -59,9 +57,9 @@ impl Parser<'_> {
             max_idx,
             original_max_idx: max_idx, // Store original before any GREEDY_ONCE_STARTED trimming
             last_child_frame_id: None,
-            current_element_idx: 0,                  // Start at first element
-            first_match: true,                       // For GREEDY_ONCE_STARTED trimming
-            optional: grammar_inst.flags.optional(), // Store Sequence-level optional flag
+            current_element_idx: 0, // Start at first element
+            first_match: true,      // For GREEDY_ONCE_STARTED trimming
+            optional: self.grammar_ctx.inst(grammar_id).flags.optional(), // Store Sequence-level optional flag
         };
         frame.table_terminators = all_terminators;
         let current_frame_id = frame.frame_id; // Save before moving frame
@@ -93,7 +91,7 @@ impl Parser<'_> {
             }
 
             // In greedy modes, check if first element is optional
-            if ctx.is_optional(elements[0]) {
+            if self.grammar_ctx.is_optional(elements[0]) {
                 stack
                     .results
                     .insert(current_frame_id, (Node::Empty, start_idx, None));
@@ -143,10 +141,17 @@ impl Parser<'_> {
 
         let mut child_idx = 0;
         while child_idx < elements.len() {
-            if ctx.variant(elements[child_idx]) == sqlfluffrs_types::GrammarVariant::Meta {
+            if self.grammar_ctx.variant(elements[child_idx])
+                == sqlfluffrs_types::GrammarVariant::Meta
+            {
                 // Meta doesn't need parsing - just add to accumulated
                 if let Some(ref mut parent_frame) = stack.last_mut() {
-                    if ctx.segment_type(elements[child_idx]).expect("meta type") == "indent" {
+                    if self
+                        .grammar_ctx
+                        .segment_type(elements[child_idx])
+                        .expect("meta type")
+                        == "indent"
+                    {
                         // Indent goes before whitespace
                         let mut insert_pos = parent_frame.accumulated.len();
                         while insert_pos > 0 {
@@ -166,7 +171,8 @@ impl Parser<'_> {
                         );
                     } else {
                         parent_frame.accumulated.push(Node::Meta {
-                            token_type: ctx
+                            token_type: self
+                                .grammar_ctx
                                 .segment_type(elements[child_idx])
                                 .expect("meta type")
                                 .to_string(),
@@ -246,16 +252,15 @@ impl Parser<'_> {
         child_end_pos: &usize,
         stack: &mut TableParseFrameStack,
     ) -> Result<TableFrameResult, ParseError> {
-        let ctx = self.grammar_ctx.expect("Grammar Context");
-
         // Extract grammar id and instance for table-driven logic
         let grammar_id = match &frame.context {
             FrameContext::SequenceTableDriven { grammar_id, .. } => *grammar_id,
             _ => unreachable!("Expected SequenceTableDriven context"),
         };
 
-        let inst = ctx.inst(grammar_id);
-        let all_children: Vec<GrammarId> = ctx.children(grammar_id).collect();
+        let parse_mode = self.grammar_ctx.inst(grammar_id).parse_mode;
+        let allow_gaps = self.grammar_ctx.inst(grammar_id).flags.allow_gaps();
+        let all_children: Vec<GrammarId> = self.grammar_ctx.children(grammar_id).collect();
 
         // Read current index and first_match for logging (immutable borrow)
         let (current_element_idx_val, first_match_val) = match &frame.context {
@@ -307,7 +312,7 @@ impl Parser<'_> {
                     *max_idx = *matched_idx;
                 }
 
-                if *first_match && inst.parse_mode == ParseMode::GreedyOnceStarted {
+                if *first_match && parse_mode == ParseMode::GreedyOnceStarted {
                     *first_match = false;
                     // Use element-aware trimming so we don't treat terminators that are
                     // actually the start of upcoming elements (e.g., FROM) as terminators.
@@ -317,14 +322,13 @@ impl Parser<'_> {
                         .cloned()
                         .collect();
 
-                    let ctx = self.grammar_ctx.expect("GrammarContext required");
-                    let grammar_name = ctx.grammar_id_name(grammar_id);
+                    let grammar_name = self.grammar_ctx.grammar_id_name(grammar_id);
                     log::debug!(
                         "Sequence[table]: About to trim at matched_idx={}, grammar='{}', grammar_id={}, parse_mode={:?}, terminators.len()={}, remaining_children.len()={}",
                         *matched_idx,
                         grammar_name,
                         grammar_id.0,
-                        inst.parse_mode,
+                        parse_mode,
                         frame.table_terminators.len(),
                         remaining_children.len()
                     );
@@ -362,7 +366,7 @@ impl Parser<'_> {
                 // attempting to parse the next element (Python parity).
                 // Also collect any transparent tokens between the child end and
                 // the next code token into the accumulated list (tentatively).
-                let next_start_pos = if inst.flags.allow_gaps() {
+                let next_start_pos = if allow_gaps {
                     let ns = self.skip_start_index_forward_to_code(matched_idx_val, max_idx_val);
                     // collect transparent tokens between matched_idx and ns into accumulated
                     if ns > matched_idx_val {
@@ -443,7 +447,7 @@ impl Parser<'_> {
         // Child failed (Empty)
         let failed_idx = current_element_idx_val;
         let failed_child = all_children[failed_idx];
-        let failed_inst = ctx.inst(failed_child);
+        let failed_inst = self.grammar_ctx.inst(failed_child);
 
         // Determine element_start (where this element began) from frame context
         let element_start = match &frame.context {
@@ -492,7 +496,7 @@ impl Parser<'_> {
 
                 // Respect allow_gaps: if allowed, advance to next code token and
                 // collect transparent tokens between base_matched_idx and that pos.
-                let next_start_pos = if inst.flags.allow_gaps() {
+                let next_start_pos = if allow_gaps {
                     let ns = self.skip_start_index_forward_to_code(base_matched_idx, base_max_idx);
                     if ns > base_matched_idx {
                         if let FrameContext::SequenceTableDriven {

@@ -42,8 +42,8 @@ pub struct Parser<'a> {
     pub pruning_kept: std::cell::Cell<usize>,  // Options kept after pruning
     pub pruning_hinted: std::cell::Cell<usize>, // Options that had hints
     pub pruning_complex: std::cell::Cell<usize>, // Options that returned None (complex)
-    // NEW: Table-driven grammar support (optional, for gradual migration)
-    pub grammar_ctx: Option<&'a GrammarContext<'a>>,
+    // Table-driven grammar support
+    pub grammar_ctx: GrammarContext<'static>,
     /// Optional owned RootGrammar. When present, callers can use `parse_root`
     /// to parse starting from this root without having to pass grammar ids
     /// or contexts manually.
@@ -56,14 +56,7 @@ impl<'a> Parser<'a> {
     /// Create a new Parser instance with table-driven grammar support
     pub fn new(tokens: &'a [Token], dialect: Dialect) -> Parser<'a> {
         let root = dialect.get_root_grammar();
-        let grammar_ctx = {
-            // Create a static GrammarContext from the static tables by leaking a Box.
-            // The tables are generated as `&'static GrammarTables`, so this leak
-            // is acceptable for the lifetime of the program.
-            let boxed = Box::new(GrammarContext::new(root.tables));
-            let static_ctx: &'static GrammarContext<'static> = Box::leak(boxed);
-            static_ctx
-        };
+        let grammar_ctx = GrammarContext::new(root.tables);
         Parser {
             tokens,
             pos: 0,
@@ -78,7 +71,7 @@ impl<'a> Parser<'a> {
             pruning_complex: std::cell::Cell::new(0),
             simple_hint_cache: hashbrown::HashMap::new(),
             cache_enabled: true,
-            grammar_ctx: Some(grammar_ctx), // NEW: Table-driven grammar enabled
+            grammar_ctx,
             root: None,
             regex_cache: std::cell::RefCell::new(hashbrown::HashMap::new()),
         }
@@ -359,10 +352,8 @@ impl<'a> Parser<'a> {
         // Parse using the root grammar.
         let grammar_id = root_grammar.grammar_id;
         let tables = root_grammar.tables;
-        // Set grammar context and use iterative table-driven entry
-        let boxed = Box::new(GrammarContext::new(tables));
-        let static_ctx: &'static GrammarContext<'static> = Box::leak(boxed);
-        self.grammar_ctx = Some(static_ctx);
+        // Update grammar context if needed
+        self.grammar_ctx = GrammarContext::new(tables);
         let nodes = self.parse_table_iterative(grammar_id, &[]);
         self.tokens = token_slice_orig;
         match nodes {
@@ -517,10 +508,9 @@ impl<'a> Parser<'a> {
     pub(crate) fn handle_string_parser_table_driven(
         &mut self,
         grammar_id: GrammarId,
-        ctx: &GrammarContext,
     ) -> Result<Node, ParseError> {
         // Extract all data from tables first (before any self methods)
-        let tables = ctx.tables();
+        let tables = self.grammar_ctx.tables();
 
         // StringParser stores: [template_id, token_type_id, raw_class_id] in aux_data
         // aux_data_offsets maps instruction -> aux_data start for variable-length aux
@@ -581,11 +571,7 @@ impl<'a> Parser<'a> {
         &mut self,
         mut frame: TableParseFrame,
     ) -> Result<TableFrameResult, ParseError> {
-        let ctx = self.grammar_ctx.ok_or_else(|| {
-            ParseError::new(
-                "TypedParser requires GrammarContext for table-driven parsing".to_string(),
-            )
-        })?;
+        let ctx = &self.grammar_ctx;
         let grammar_id = frame.grammar_id;
         log::debug!(
             "START TypedParser: frame_id={}, pos={}, grammar_id={:?}",
@@ -685,10 +671,9 @@ impl<'a> Parser<'a> {
     pub(crate) fn handle_multi_string_parser_table_driven(
         &mut self,
         grammar_id: GrammarId,
-        ctx: &GrammarContext,
     ) -> Result<Node, ParseError> {
         // Extract all data from tables first (before any self methods)
-        let tables = ctx.tables();
+        let tables = self.grammar_ctx.tables();
 
         // MultiStringParser stores: [templates_start, templates_count, token_type_id, raw_class_id] in aux_data
         // The aux_data offset is stored in the separate AUX_DATA_OFFSETS table, NOT in first_child_idx
@@ -761,10 +746,7 @@ impl<'a> Parser<'a> {
         &self,
         grammar_id: Option<GrammarId>,
     ) -> Result<String, ParseError> {
-        let ctx = self
-            .grammar_ctx
-            .ok_or_else(|| ParseError::new("GrammarContext required".to_string()))?;
-
+        let ctx = &self.grammar_ctx;
         let tables = ctx.tables();
 
         // Use aux_data_offsets length as the number of instructions
@@ -852,7 +834,7 @@ impl<'a> Parser<'a> {
         &self,
         grammar_id: GrammarId,
     ) -> Option<(String, Option<String>, Option<String>)> {
-        let ctx = self.grammar_ctx?;
+        let ctx = &self.grammar_ctx;
         let tables = ctx.tables();
 
         let aux_start = tables.aux_data_offsets[grammar_id.get() as usize] as usize;
@@ -1024,10 +1006,9 @@ impl<'a> Parser<'a> {
     pub(crate) fn handle_token_table_driven(
         &mut self,
         grammar_id: GrammarId,
-        ctx: &GrammarContext,
     ) -> Result<Node, ParseError> {
         // Extract token_type from tables
-        let tables = ctx.tables();
+        let tables = self.grammar_ctx.tables();
 
         // Token stores token_type string id in aux_data at the instruction's
         // aux_data_offsets index (the generator emits the type id there).
@@ -1087,10 +1068,9 @@ impl<'a> Parser<'a> {
     pub(crate) fn handle_meta_table_driven(
         &mut self,
         grammar_id: GrammarId,
-        ctx: &GrammarContext,
     ) -> Result<Node, ParseError> {
         // Extract token_type from tables
-        let tables = ctx.tables();
+        let tables = self.grammar_ctx.tables();
 
         // Meta stores token_type string id in aux_data at the instruction's aux offset
         // (generator encodes it there). Read via aux_data_offsets to get the string id.
@@ -1154,7 +1134,6 @@ impl<'a> Parser<'a> {
         &mut self,
         mut frame: TableParseFrame,
         grammar_id: GrammarId,
-        ctx: &GrammarContext,
         parent_terminators: &[GrammarId],
         parent_max_idx: Option<usize>,
     ) -> Result<TableFrameResult, ParseError> {
@@ -1167,8 +1146,9 @@ impl<'a> Parser<'a> {
             parent_max_idx
         );
 
-        let mut terminators_vec: Vec<GrammarId> = ctx.terminators(grammar_id).collect();
-        if !ctx.inst(grammar_id).flags.reset_terminators() {
+        let mut terminators_vec: Vec<GrammarId> =
+            self.grammar_ctx.terminators(grammar_id).collect();
+        if !self.grammar_ctx.inst(grammar_id).flags.reset_terminators() {
             terminators_vec.extend(parent_terminators.iter().cloned());
         }
 
@@ -1282,7 +1262,6 @@ impl<'a> Parser<'a> {
     pub(crate) fn handle_anything_table_driven(
         &mut self,
         grammar_id: GrammarId,
-        ctx: &GrammarContext,
         parent_terminators: &[GrammarId],
         parent_max_idx: Option<usize>,
     ) -> Result<Node, ParseError> {
@@ -1293,7 +1272,6 @@ impl<'a> Parser<'a> {
         match self.handle_anything_table_initial(
             frame,
             grammar_id,
-            ctx,
             parent_terminators,
             parent_max_idx,
         )? {

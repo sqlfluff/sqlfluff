@@ -1,4 +1,4 @@
-use sqlfluffrs_types::{GrammarContext, GrammarId, Token};
+use sqlfluffrs_types::{GrammarId, Token};
 
 use crate::parser::{ParseError, Parser};
 
@@ -89,7 +89,6 @@ pub(crate) fn greedy_match_table_driven<F>(
     start_idx: usize,
     terminators: &[GrammarId],
     max_idx: usize,
-    grammar_ctx: Option<&GrammarContext>,
     try_match: &mut F,
 ) -> (usize, usize)
 where
@@ -99,11 +98,6 @@ where
     // If no tokens left, return tokens_len
     if start_idx >= tokens_len {
         return (tokens_len, tokens_len);
-    }
-
-    // If no grammar context, just return start_idx
-    if grammar_ctx.is_none() {
-        panic!("greedy_match_table_driven called without grammar context");
     }
 
     // If a terminator matches immediately, return start_idx and its end_pos
@@ -171,17 +165,9 @@ impl Parser<'_> {
         max_idx: usize,
     ) -> (usize, usize) {
         let tokens = self.tokens;
-        let grammar_ctx = self.grammar_ctx; // copy the Option reference before borrowing self mutably
         let mut try_match = |g: GrammarId, pos: usize, terms: &[GrammarId]| {
             self.try_match_grammar_table_driven(g, pos, terms)
         };
-        greedy_match_table_driven(
-            tokens,
-            start_idx,
-            terminators,
-            max_idx,
-            grammar_ctx,
-            &mut try_match,
-        )
+        greedy_match_table_driven(tokens, start_idx, terminators, max_idx, &mut try_match)
     }
 }

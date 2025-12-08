@@ -22,9 +22,8 @@ impl<'a> Parser<'_> {
         stack: &mut TableParseFrameStack,
     ) -> Result<TableFrameResult, ParseError> {
         self.pos = frame.pos;
-        let ctx = self.grammar_ctx.expect("GrammarContext required");
         let grammar_id = frame.grammar_id;
-        let inst = ctx.inst(grammar_id);
+        let inst = self.grammar_ctx.inst(grammar_id);
         let start_pos = frame.pos;
 
         log::debug!(
@@ -36,7 +35,7 @@ impl<'a> Parser<'_> {
         );
 
         // Get children: [elements_or_oneof, delimiter]
-        let all_children: Vec<GrammarId> = ctx.children(grammar_id).collect();
+        let all_children: Vec<GrammarId> = self.grammar_ctx.children(grammar_id).collect();
         if all_children.len() != 2 {
             log::debug!(
                 "Delimited[table]: Expected exactly 2 children (elements + delimiter), got {}",
@@ -54,7 +53,7 @@ impl<'a> Parser<'_> {
         let delimiter_id = all_children[1];
 
         // Get min_delimiters from aux_data
-        let (_delimiter_child_idx, min_delimiters) = ctx.delimited_config(grammar_id);
+        let (_delimiter_child_idx, min_delimiters) = self.grammar_ctx.delimited_config(grammar_id);
 
         log::debug!(
             "Delimited[table] elements_id={}, delimiter_id={}, min_delimiters={}",
@@ -71,7 +70,7 @@ impl<'a> Parser<'_> {
             .collect();
 
         // Get local terminators (e.g., ObjectReferenceTerminatorGrammar)
-        let local_terminators: Vec<GrammarId> = ctx.terminators(grammar_id).collect();
+        let local_terminators: Vec<GrammarId> = self.grammar_ctx.terminators(grammar_id).collect();
         let filtered_local: Vec<GrammarId> = local_terminators
             .iter()
             .filter(|&term_id| *term_id != delimiter_id)
@@ -186,8 +185,6 @@ impl<'a> Parser<'_> {
         child_end_pos: &usize,
         stack: &mut TableParseFrameStack,
     ) -> Result<TableFrameResult, ParseError> {
-        let ctx = self.grammar_ctx.expect("GrammarContext required");
-
         let FrameContext::DelimitedTableDriven {
             grammar_id,
             delimiter_count,
@@ -211,20 +208,20 @@ impl<'a> Parser<'_> {
         let frame_terminators = frame.table_terminators.clone();
 
         // Get children: [elements_or_oneof, delimiter]
-        let all_children: Vec<GrammarId> = ctx.children(*grammar_id).collect();
+        let all_children: Vec<GrammarId> = self.grammar_ctx.children(*grammar_id).collect();
         if all_children.len() != 2 {
             log::debug!("Delimited[table]: Expected 2 children (elements + delimiter)");
             panic!();
         }
 
         // Get configuration from aux_data
-        let (_delimiter_child_idx, min_delimiters) = ctx.delimited_config(*grammar_id);
+        let (_delimiter_child_idx, min_delimiters) = self.grammar_ctx.delimited_config(*grammar_id);
         // Child 0 is elements (single or OneOf), Child 1 is delimiter
         let elements_id = all_children[0];
         let delimiter_id = all_children[1];
 
         // Get the grammar instruction for flags
-        let inst = ctx.inst(*grammar_id);
+        let inst = self.grammar_ctx.inst(*grammar_id);
         let allow_gaps = inst.flags.allow_gaps();
         let allow_trailing = inst.flags.allow_trailing();
         let optional_delimiter = inst.flags.optional_delimiter();
@@ -696,8 +693,6 @@ impl<'a> Parser<'_> {
         &mut self,
         mut frame: TableParseFrame,
     ) -> Result<TableFrameResult, ParseError> {
-        let ctx = self.grammar_ctx.expect("GrammarContext required");
-
         let FrameContext::DelimitedTableDriven {
             grammar_id,
             delimiter_count,
@@ -718,7 +713,7 @@ impl<'a> Parser<'_> {
         );
 
         // Get min_delimiters from aux_data
-        let (_delimiter_child_idx, min_delimiters) = ctx.delimited_config(*grammar_id);
+        let (_delimiter_child_idx, min_delimiters) = self.grammar_ctx.delimited_config(*grammar_id);
 
         // Build final result
         let (result_node, final_pos) = if frame.accumulated.is_empty() {
