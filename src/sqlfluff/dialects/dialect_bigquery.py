@@ -300,6 +300,24 @@ bigquery_dialect.replace(
         Sequence(Ref("ExpressionSegment"), "HAVING", OneOf("MIN", "MAX")),
         Ref("NamedArgumentSegment"),
     ),
+    # Extend the ANSI FunctionContentsGrammar to allow a FORMAT clause
+    # after the CAST-style "AS <datatype>" pattern, e.g.:
+    #   CAST(x AS STRING FORMAT 'ASCII')
+    FunctionContentsGrammar=ansi_dialect.get_grammar("FunctionContentsGrammar").copy(
+        insert=[
+            Sequence(
+                Ref("ExpressionSegment"),
+                "AS",
+                Ref("DatatypeSegment"),
+                Sequence(
+                    Ref.keyword("FORMAT"),
+                    Ref("QuotedLiteralSegment"),
+                    Ref("TimeZoneGrammar", optional=True),
+                    optional=True,
+                ),
+            )
+        ]
+    ),
     TrimParametersGrammar=Nothing(),
     # BigQuery allows underscore in parameter names, and also anything if quoted in
     # backticks
