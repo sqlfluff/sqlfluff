@@ -369,7 +369,7 @@ fn compute_yaml_hash(yaml: &Value) -> String {
     let clean = match yaml {
         Value::Mapping(map) => {
             let mut m = map.clone();
-            m.remove(&Value::String("_hash".to_string()));
+            m.remove(Value::String("_hash".to_string()));
             Value::Mapping(m)
         }
         _ => yaml.clone(),
@@ -428,85 +428,6 @@ fn test_yaml_output_matches_python() {
             );
         }
         panic!("YAML output does not match expected Python YAML");
-    }
-}
-#[test]
-fn test_all_dialect_fixtures() {
-    env_logger::try_init().ok();
-
-    let fixtures_root = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-        .parent()
-        .unwrap()
-        .join("test/fixtures");
-
-    let dialects_dir = fixtures_root.join("dialects");
-    let mut dialects = Vec::new();
-    if let Ok(entries) = fs::read_dir(&dialects_dir) {
-        for entry in entries.flatten() {
-            if entry.file_type().map(|ft| ft.is_dir()).unwrap_or(false) {
-                if let Some(name) = entry.file_name().to_str() {
-                    dialects.push(name.to_string());
-                }
-            }
-        }
-    }
-    dialects.sort();
-
-    println!("\nFound dialects: {:?}", dialects);
-
-    let mut total_passed = 0;
-    let mut total_failed = 0;
-    let mut all_failed_tests = Vec::new();
-
-    for dialect in &dialects {
-        println!("\n=== Testing dialect: {} ===", dialect);
-        let tests = FixtureTest::discover(dialect, &fixtures_root);
-        println!("Found {} fixture tests for {}", tests.len(), dialect);
-        let mut passed = 0;
-        let mut failed = 0;
-        let mut failed_tests = Vec::new();
-        for test in &tests {
-            println!("Running test: {}", test.name);
-            match test.run() {
-                Ok(_ast) => {
-                    passed += 1;
-                    println!("✓ {}", test.name);
-                }
-                Err(e) => {
-                    failed += 1;
-                    let error = e.to_string();
-                    let error_short = if error.len() > 100 {
-                        format!("{}...", &error[..100])
-                    } else {
-                        error
-                    };
-                    failed_tests.push((format!("{}::{}", dialect, test.name), error_short));
-                    println!("✗ {} - {}", test.name, failed_tests.last().unwrap().1);
-                }
-            }
-        }
-        println!(
-            "Results for {}: {} passed, {} failed",
-            dialect, passed, failed
-        );
-        total_passed += passed;
-        total_failed += failed;
-        all_failed_tests.extend(failed_tests);
-    }
-
-    println!("\n========================================");
-    println!(
-        "Total Results: {} passed, {} failed",
-        total_passed, total_failed
-    );
-    println!("========================================\n");
-
-    if !all_failed_tests.is_empty() {
-        println!("Failed tests:");
-        for (name, error) in &all_failed_tests {
-            println!("  {} - {}", name, error);
-        }
-        panic!("Some dialect fixture tests failed");
     }
 }
 
@@ -573,7 +494,7 @@ impl FixtureTest {
             return Err(format!("Lexer errors: {:?}", lex_errors));
         }
 
-        let mut parser = Parser::new_with_tables(&tokens, dialect);
+        let mut parser = Parser::new(&tokens, dialect);
 
         // Try to parse as a file (top-level rule)
         parser

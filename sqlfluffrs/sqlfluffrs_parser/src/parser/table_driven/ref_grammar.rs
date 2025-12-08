@@ -1,11 +1,11 @@
-use sqlfluffrs_types::{GrammarId, ParseMode, RootGrammar};
+use sqlfluffrs_types::GrammarId;
 
 use crate::parser::{
     table_driven::frame::{TableFrameResult, TableParseFrame, TableParseFrameStack},
     FrameContext, FrameState, Node, ParseError, Parser,
 };
 
-impl<'a> Parser<'_> {
+impl Parser<'_> {
     // ========================================================================
     // Table-Driven Ref Handlers
     // ========================================================================
@@ -38,7 +38,7 @@ impl<'a> Parser<'_> {
 
         // Python parity: If parent's max_idx is set and we're beyond it,
         // return Empty rather than error so parents (OneOf etc.) can try
-        // other options. This mirrors the Arc-based Ref behavior.
+        // other options. This matches the Python Ref behavior.
         if let Some(parent_max) = frame.parent_max_idx {
             if frame.pos >= parent_max {
                 log::debug!(
@@ -83,11 +83,8 @@ impl<'a> Parser<'_> {
             element_children[0]
         } else {
             match self.dialect.get_segment_grammar(&rule_name) {
-                Some(RootGrammar::TableDriven {
-                    grammar_id: target_gid,
-                    ..
-                }) => target_gid,
-                _ => {
+                Some(root) => root.grammar_id,
+                None => {
                     log::debug!(
                 "Ref[table]: No element children and no dialect mapping for '{}', returning Empty",
                 rule_name
@@ -174,7 +171,6 @@ impl<'a> Parser<'_> {
         mut frame: TableParseFrame,
         child_node: &Node,
         child_end_pos: &usize,
-        stack: &mut TableParseFrameStack,
     ) -> Result<TableFrameResult, ParseError> {
         let _ctx = self.grammar_ctx.expect("GrammarContext required");
 
@@ -225,10 +221,7 @@ impl<'a> Parser<'_> {
         &mut self,
         mut frame: TableParseFrame,
     ) -> Result<TableFrameResult, ParseError> {
-        let ctx = self.grammar_ctx.expect("GrammarContext required");
-
         let FrameContext::RefTableDriven {
-            grammar_id,
             name,
             segment_type,
             leading_transparent,

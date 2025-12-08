@@ -12,7 +12,7 @@ fn test_simple_cast() {
 
     let input = LexInput::String(sql.to_string());
     let lexer = Lexer::new(None, ANSI_LEXERS.to_vec());
-    let (tokens, lex_errors) = lexer.lex(input, false);
+    let (tokens, _lex_errors) = lexer.lex(input, false);
 
     println!("\n=== SQL: {} ===", sql);
     println!("\n=== Total tokens: {} ===", tokens.len());

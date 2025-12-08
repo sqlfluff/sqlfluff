@@ -5,11 +5,6 @@ from sqlfluff.core.dialects import dialect_readout
 
 def generate_use():
     """Generates the `use` statements."""
-    # print("#[allow(clippy::needless_raw_string_hashes)]")
-    # print("pub mod matcher;")
-    # print("pub mod parser;")
-    print("use std::sync::Arc;")
-    print()
     print("/* dialect mods */")
     for dialect in dialect_readout():
         print(f"pub mod {dialect.label.lower()};")
@@ -19,7 +14,7 @@ def generate_use():
             f"{dialect.label.upper()}_LEXERS}};"
         )
     print()
-    print("use sqlfluffrs_types::{Grammar, RootGrammar};")
+    print("use sqlfluffrs_types::RootGrammar;")
     print("use sqlfluffrs_types::LexMatcher;")
     print("use std::str::FromStr;")
 

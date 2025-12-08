@@ -1,23 +1,15 @@
 //! Core types for the parser: Grammar, Node, ParseMode
 
 use std::collections::HashSet;
-use std::sync::Arc;
 
 use serde_yaml_ng::{Mapping, Value};
-use sqlfluffrs_dialects::Dialect;
-use sqlfluffrs_types::{Grammar, Token};
+use sqlfluffrs_types::{GrammarId, Token};
 
 /// Helper enum for tuple serialization, similar to Python's TupleSerialisedSegment.
 #[derive(Debug, Clone, PartialEq)]
 pub enum NodeTupleValue {
     Raw(String, String),
     Tuple(String, Vec<NodeTupleValue>),
-}
-
-pub struct SegmentDef {
-    pub name: &'static str,
-    pub segment_type: Option<&'static str>,
-    pub grammar: Grammar,
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -44,7 +36,7 @@ pub enum Node {
         children: Vec<Node>,
     }, // (expected message, children)
 
-    /// A sequence of child nodes (used for Grammar::Sequence)
+    /// A sequence of child nodes (used for Sequence grammars)
     Sequence { children: Vec<Node> },
 
     /// A list of elements separated by commas
@@ -74,42 +66,6 @@ pub enum Node {
 }
 
 impl Node {
-    /// Merge or list logic matching Python's structural_simplify.
-    fn merge_or_list(key: String, contents: Vec<serde_yaml_ng::Value>) -> serde_yaml_ng::Value {
-        use std::collections::HashSet;
-        let mut all_keys = HashSet::new();
-        let mut has_duplicates = false;
-        for child in &contents {
-            if let Value::Mapping(map) = child {
-                for k in map.keys() {
-                    if !all_keys.insert(k.clone()) {
-                        has_duplicates = true;
-                    }
-                }
-            }
-        }
-        if has_duplicates {
-            // Return as a list of dicts
-            let seq = contents;
-            let mut map = Mapping::new();
-            map.insert(Value::String(key), Value::Sequence(seq));
-            Value::Mapping(map)
-        } else {
-            // Merge all dicts into one
-            let mut merged = Mapping::new();
-            for child in contents {
-                if let Value::Mapping(map) = child {
-                    for (k, v) in map {
-                        merged.insert(k, v);
-                    }
-                }
-            }
-            let mut map = Mapping::new();
-            map.insert(Value::String(key), Value::Mapping(merged));
-            Value::Mapping(map)
-        }
-    }
-
     /// Return a tuple structure from this node, similar to Python BaseSegment::to_tuple.
     /// This is useful for serialization to YAML/JSON and for parity with Python tests.
     pub fn to_tuple(&self, code_only: bool, show_raw: bool, include_meta: bool) -> NodeTupleValue {
@@ -887,9 +843,9 @@ fn simplify_segment_name(name: &str) -> String {
 
 fn camel_to_snake(s: &str) -> String {
     let mut result = String::new();
-    let mut chars = s.chars().peekable();
+    let chars = s.chars().peekable();
 
-    while let Some(c) = chars.next() {
+    for c in chars {
         if c.is_uppercase() {
             if !result.is_empty() {
                 result.push('_');
@@ -907,7 +863,7 @@ fn camel_to_snake(s: &str) -> String {
 pub struct ParseError {
     pub message: String,
     pub pos: Option<usize>,
-    pub grammar: Option<Arc<Grammar>>,
+    pub grammar: Option<GrammarId>,
     pub children: Vec<ParseError>,
 }
 
@@ -921,11 +877,7 @@ impl ParseError {
         }
     }
 
-    pub fn with_context(
-        message: String,
-        pos: Option<usize>,
-        grammar: Option<Arc<Grammar>>,
-    ) -> Self {
+    pub fn with_context(message: String, pos: Option<usize>, grammar: Option<GrammarId>) -> Self {
         ParseError {
             message,
             pos,
@@ -962,30 +914,11 @@ pub enum ParseErrorType {
     UnknownSegment,
 }
 
-/// Context for parsing operations
-pub struct ParseContext {
-    dialect: Dialect,
-    uuid: uuid::Uuid,
-    match_segment: String,
-}
-
-impl ParseContext {
-    pub fn new(dialect: Dialect) -> Self {
-        let uuid = uuid::Uuid::new_v4();
-        ParseContext {
-            dialect,
-            uuid,
-            match_segment: String::from("File"),
-        }
-    }
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
 
     use serde_yaml_ng::Value;
-    use sqlfluffrs_types::SimpleHint;
 
     #[test]
     fn test_sequence_node_as_record_empty() {

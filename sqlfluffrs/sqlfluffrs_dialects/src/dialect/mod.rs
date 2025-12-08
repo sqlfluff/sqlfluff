@@ -3,8 +3,6 @@
 /* This process can be run via tox: `tox -e generate-rs` */
 #![cfg_attr(rustfmt, rustfmt_skip)]
 
-use std::sync::Arc;
-
 /* dialect mods */
 pub mod ansi;
 use crate::dialect::ansi::matcher::{ANSI_KEYWORDS, ANSI_LEXERS};
@@ -63,7 +61,7 @@ use crate::dialect::tsql::matcher::{TSQL_KEYWORDS, TSQL_LEXERS};
 pub mod vertica;
 use crate::dialect::vertica::matcher::{VERTICA_KEYWORDS, VERTICA_LEXERS};
 
-use sqlfluffrs_types::{Grammar, RootGrammar};
+use sqlfluffrs_types::RootGrammar;
 use sqlfluffrs_types::LexMatcher;
 use std::str::FromStr;
 

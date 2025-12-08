@@ -9,34 +9,6 @@ mod delimited_terminator_tests {
     use sqlfluffrs_lexer::Lexer;
     use sqlfluffrs_parser::parser::Parser;
 
-    /// Test case 1: Simple comma-delimited list terminated by keyword
-    /// SQL: "SELECT a, b, c FROM table"
-    ///
-    /// Expected behavior:
-    /// - Match elements: a, b, c (separated by commas)
-    /// - Stop at FROM keyword (terminator)
-    ///
-    /// Potential issue with post-check:
-    /// - Could attempt to match FROM as an element before checking terminators
-    /// - Should still work because FROM won't match element grammar
-    #[test]
-    fn test_delimited_with_keyword_terminator() {
-        let dialect = Dialect::Ansi;
-        let sql = "a, b, c FROM";
-
-        let lexer = Lexer::new(None, dialect.get_lexers().clone());
-        let (tokens, _) = lexer.lex(sqlfluffrs_lexer::LexInput::String(sql.to_string()), false);
-
-        // Parse as a simple delimited list (simulating column list)
-        let mut parser = Parser::new(&tokens, dialect);
-
-        // We'd need to set up a test grammar that matches:
-        // Delimited(Ref("NakedIdentifier"), delimiter=",", terminators=[Ref("FROM")])
-
-        // This test would verify that we stop at FROM and don't try to match it
-        // TODO: Need to expose test helper to create custom grammars
-    }
-
     /// Test case 2: Comma-delimited list where terminator looks like element
     /// SQL: "1, 2, 3, 4"
     ///

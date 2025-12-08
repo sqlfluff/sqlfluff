@@ -11,10 +11,7 @@ fn parse_and_find(sql: &str, grammar_name: &str, expected: &str) -> bool {
 
     // Prepare dialect and root grammar
     let dialect = Dialect::Ansi;
-    let root = dialect.get_root_grammar();
-    // Lookup the specific segment grammar by name. This helper is intended
-    // to exercise table-driven grammars only and will error if the segment
-    // grammar is Arc-based (the Arc-based path is tested elsewhere).
+    // Lookup the specific segment grammar by name.
     let segment_grammar = dialect
         .get_segment_grammar(grammar_name)
         .unwrap_or_else(|| panic!("segment grammar '{}' not found", grammar_name));
@@ -29,18 +26,11 @@ fn parse_and_find(sql: &str, grammar_name: &str, expected: &str) -> bool {
         eprintln!("TOK[{}]: '{}' ({})", i, t.raw(), t.get_type());
     }
 
-    // Parse starting from the requested segment grammar and require it be
-    // table-driven.
-    let mut parser = Parser::new_with_root(&tokens, dialect, root);
-    let node = match segment_grammar {
-        RootGrammar::TableDriven { grammar_id, .. } => parser
-            .parse_table_iterative(grammar_id, &[])
-            .expect("parse_table_driven_iterative should not error"),
-        _ => panic!(
-            "table_driven_small tests must be run against table-driven grammars; '{}' is Arc-based",
-            grammar_name
-        ),
-    };
+    // Parse starting from the requested segment grammar.
+    let mut parser = Parser::new(&tokens, dialect);
+    let node = parser
+        .parse_table_iterative(segment_grammar.grammar_id, &[])
+        .expect("parse_table_driven_iterative should not error");
 
     println!("PARSE_RESULT for '{}': {:?}", sql, node);
 

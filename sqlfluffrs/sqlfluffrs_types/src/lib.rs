@@ -25,7 +25,7 @@ pub use grammar_tables::{
 pub use marker::python::PyPositionMarker;
 pub use marker::PositionMarker;
 pub use matcher::LexMatcher;
-pub use parser::{Grammar, ParseMode, RootGrammar, SimpleHint};
+pub use parser::{ParseMode, RootGrammar, SimpleHint};
 pub use regex::{RegexMode, RegexModeGroup};
 pub use slice::Slice;
 #[cfg(feature = "python")]

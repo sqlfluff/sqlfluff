@@ -1,10 +1,10 @@
 use crate::parser::{
     table_driven::frame::{TableFrameResult, TableParseFrame, TableParseFrameStack},
-    FrameContext, FrameState, ParseError, Parser,
+    FrameContext, FrameState, Node, ParseError, Parser,
 };
 use sqlfluffrs_types::GrammarId;
 
-impl<'a> Parser<'_> {
+impl Parser<'_> {
     // ========================================================================
     // Table-driven OneOf Handlers (migrated from core.rs)
     // ========================================================================
@@ -87,19 +87,16 @@ impl<'a> Parser<'_> {
         );
 
         // Early termination check for GREEDY mode
-        if grammar_parse_mode == sqlfluffrs_types::ParseMode::Greedy {
-            // Get element children (excluding exclude grammar)
-            let element_children: Vec<GrammarId> = ctx.element_children(grammar_id).collect();
-
-            if self.is_terminated_with_elements_table_driven(&all_terminators, &element_children) {
-                log::debug!("OneOf[table]: Early termination - at terminator position");
-                if inst.flags.optional() {
-                    stack.results.insert(
-                        frame.frame_id,
-                        (crate::parser::Node::Empty, post_skip_pos, None),
-                    );
-                    return Ok(TableFrameResult::Done);
-                }
+        if grammar_parse_mode == sqlfluffrs_types::ParseMode::Greedy
+            && self.is_terminated_table_driven(&all_terminators)
+        {
+            log::debug!("OneOf[table]: Early termination - at terminator position");
+            if inst.flags.optional() {
+                stack.results.insert(
+                    frame.frame_id,
+                    (crate::parser::Node::Empty, post_skip_pos, None),
+                );
+                return Ok(TableFrameResult::Done);
             }
         }
 
@@ -195,13 +192,11 @@ impl<'a> Parser<'_> {
         mut frame: TableParseFrame,
         child_node: &crate::parser::Node,
         child_end_pos: &usize,
-        _child_element_key: &Option<u64>,
         stack: &mut TableParseFrameStack,
     ) -> Result<TableFrameResult, ParseError> {
         let ctx = self.grammar_ctx.expect("GrammarContext required");
 
         let FrameContext::OneOfTableDriven {
-            grammar_id,
             pruned_children,
             post_skip_pos,
             longest_match,
@@ -470,5 +465,16 @@ impl<'a> Parser<'_> {
         frame.state = FrameState::Complete(result_node);
 
         Ok(TableFrameResult::Push(frame))
+    }
+
+    /// Check if a node is "clean" (doesn't contain Unparsable segments).
+    /// Python's longest_match prioritizes clean matches over unclean ones.
+    fn is_node_clean(node: &Node) -> bool {
+        match node {
+            Node::Unparsable { .. } => false,
+            Node::Sequence { children } => children.iter().all(Self::is_node_clean),
+            Node::Ref { child, .. } => Self::is_node_clean(child),
+            _ => true, // Token, Whitespace, Newline, Empty, etc. are all clean
+        }
     }
 }

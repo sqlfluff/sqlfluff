@@ -1,15 +1,15 @@
-use sqlfluffrs_types::{GrammarId, GrammarVariant, ParseMode};
+use sqlfluffrs_types::{GrammarId, ParseMode};
 
 use crate::parser::{
     table_driven::frame::{TableFrameResult, TableParseFrame, TableParseFrameStack},
-    BracketedState, DelimitedState, FrameContext, FrameState, Node, ParseError, Parser,
+    BracketedState, FrameContext, FrameState, Node, ParseError, Parser,
 };
 
-impl<'a> Parser<'_> {
+impl Parser<'_> {
     pub(crate) fn handle_bracketed_table_driven_initial(
         &mut self,
         grammar_id: GrammarId,
-        mut frame: TableParseFrame,
+        frame: TableParseFrame,
         parent_terminators: &[GrammarId],
         stack: &mut TableParseFrameStack,
     ) -> Result<TableFrameResult, ParseError> {
@@ -535,7 +535,8 @@ impl<'a> Parser<'_> {
             }
         } else {
             // Log the actual state for debugging
-            let state_str = if let FrameContext::Bracketed { state, .. } = &frame.context {
+            let state_str = if let FrameContext::BracketedTableDriven { state, .. } = &frame.context
+            {
                 format!("{:?}", state)
             } else {
                 "Unknown".to_string()

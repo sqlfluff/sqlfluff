@@ -35,7 +35,7 @@ fn main() {
             lexer.lex(sqlfluffrs_lexer::LexInput::String(sql.to_string()), true);
 
         // Create parser instance
-        let mut parser = Parser::new_with_tables(&tokens, dialect);
+        let mut parser = Parser::new(&tokens, dialect);
 
         // If we have a table-driven grammar, set grammar context and parse by id.
         match parser.parse_table_iterative(dialect.get_root_grammar().as_table_driven().0, &[]) {

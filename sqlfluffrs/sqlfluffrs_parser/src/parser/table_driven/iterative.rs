@@ -371,9 +371,9 @@ impl Parser<'_> {
                             node
                         );
                         stack.results.insert(frame.frame_id, (node, self.pos, None));
-                        return Ok(TableFrameResult::Done);
+                        Ok(TableFrameResult::Done)
                     }
-                    Err(e) => return Err(e),
+                    Err(e) => Err(e),
                 }
             }
             GrammarVariant::TypedParser => self.handle_typed_parser_table_driven(frame),
@@ -388,13 +388,13 @@ impl Parser<'_> {
                             node
                         );
                         stack.results.insert(frame.frame_id, (node, self.pos, None));
-                        return Ok(TableFrameResult::Done);
+                        Ok(TableFrameResult::Done)
                     }
-                    Err(e) => return Err(e),
+                    Err(e) => Err(e),
                 }
             }
             GrammarVariant::RegexParser => {
-                let res = self.handle_regex_parser_table_driven(grammar_id, ctx);
+                let res = self.handle_regex_parser_table_driven(grammar_id);
                 match res {
                     Ok(node) => {
                         log::debug!(
@@ -404,9 +404,9 @@ impl Parser<'_> {
                             node
                         );
                         stack.results.insert(frame.frame_id, (node, self.pos, None));
-                        return Ok(TableFrameResult::Done);
+                        Ok(TableFrameResult::Done)
                     }
-                    Err(e) => return Err(e),
+                    Err(e) => Err(e),
                 }
             }
             GrammarVariant::Nothing => {
@@ -420,9 +420,9 @@ impl Parser<'_> {
                             node
                         );
                         stack.results.insert(frame.frame_id, (node, self.pos, None));
-                        return Ok(TableFrameResult::Done);
+                        Ok(TableFrameResult::Done)
                     }
-                    Err(e) => return Err(e),
+                    Err(e) => Err(e),
                 }
             }
             GrammarVariant::Empty => {
@@ -436,9 +436,9 @@ impl Parser<'_> {
                             node
                         );
                         stack.results.insert(frame.frame_id, (node, self.pos, None));
-                        return Ok(TableFrameResult::Done);
+                        Ok(TableFrameResult::Done)
                     }
-                    Err(e) => return Err(e),
+                    Err(e) => Err(e),
                 }
             }
             GrammarVariant::Missing => {
@@ -452,9 +452,9 @@ impl Parser<'_> {
                             node
                         );
                         stack.results.insert(frame.frame_id, (node, self.pos, None));
-                        return Ok(TableFrameResult::Done);
+                        Ok(TableFrameResult::Done)
                     }
-                    Err(e) => return Err(e),
+                    Err(e) => Err(e),
                 }
             }
             GrammarVariant::Token => {
@@ -468,9 +468,9 @@ impl Parser<'_> {
                             node
                         );
                         stack.results.insert(frame.frame_id, (node, self.pos, None));
-                        return Ok(TableFrameResult::Done);
+                        Ok(TableFrameResult::Done)
                     }
-                    Err(e) => return Err(e),
+                    Err(e) => Err(e),
                 }
             }
             GrammarVariant::Meta => {
@@ -484,9 +484,9 @@ impl Parser<'_> {
                             node
                         );
                         stack.results.insert(frame.frame_id, (node, self.pos, None));
-                        return Ok(TableFrameResult::Done);
+                        Ok(TableFrameResult::Done)
                     }
-                    Err(e) => return Err(e),
+                    Err(e) => Err(e),
                 }
             }
             GrammarVariant::NonCodeMatcher => {
@@ -500,9 +500,9 @@ impl Parser<'_> {
                             node
                         );
                         stack.results.insert(frame.frame_id, (node, self.pos, None));
-                        return Ok(TableFrameResult::Done);
+                        Ok(TableFrameResult::Done)
                     }
-                    Err(e) => return Err(e),
+                    Err(e) => Err(e),
                 }
             }
             GrammarVariant::Anything => {
@@ -521,9 +521,9 @@ impl Parser<'_> {
                             node
                         );
                         stack.results.insert(frame.frame_id, (node, self.pos, None));
-                        return Ok(TableFrameResult::Done);
+                        Ok(TableFrameResult::Done)
                     }
-                    Err(e) => return Err(e),
+                    Err(e) => Err(e),
                 }
             }
         }
@@ -540,23 +540,7 @@ impl Parser<'_> {
     ) -> Result<TableFrameResult, ParseError> {
         // A child parse just completed - get its result
         let child_frame_id = match &frame.context {
-            FrameContext::Ref {
-                last_child_frame_id,
-                ..
-            }
-            | FrameContext::Sequence {
-                last_child_frame_id,
-                ..
-            }
-            | FrameContext::AnyNumberOf {
-                last_child_frame_id,
-                ..
-            }
-            | FrameContext::OneOf {
-                last_child_frame_id,
-                ..
-            }
-            | FrameContext::OneOfTableDriven {
+            FrameContext::OneOfTableDriven {
                 last_child_frame_id,
                 ..
             }
@@ -565,18 +549,6 @@ impl Parser<'_> {
                 ..
             }
             | FrameContext::RefTableDriven {
-                last_child_frame_id,
-                ..
-            }
-            | FrameContext::Bracketed {
-                last_child_frame_id,
-                ..
-            }
-            | FrameContext::AnySetOf {
-                last_child_frame_id,
-                ..
-            }
-            | FrameContext::Delimited {
                 last_child_frame_id,
                 ..
             }
@@ -606,7 +578,7 @@ impl Parser<'_> {
             child.is_some()
         );
 
-        if let Some((child_node, child_end_pos, child_element_key)) = &child {
+        if let Some((child_node, child_end_pos, _child_element_key)) = &child {
             log::debug!(
                 "[RESULT FOUND] parent_frame_id={}, child_frame_id={}, child_end_pos={}",
                 frame.frame_id,
@@ -627,16 +599,12 @@ impl Parser<'_> {
             // This prevents interference between speculative parses while still preventing duplicates
             // in the final committed AST.
 
-            // Extract frame data we'll need before borrowing
-            let frame_terminators = frame.table_terminators.clone();
-
             match &mut frame.context {
                 FrameContext::OneOfTableDriven { .. } => {
                     match self.handle_oneof_table_driven_waiting_for_child(
                         frame,
                         child_node,
                         child_end_pos,
-                        child_element_key,
                         stack,
                     )? {
                         TableFrameResult::Done => {}
@@ -651,7 +619,6 @@ impl Parser<'_> {
                         frame,
                         child_node,
                         child_end_pos,
-                        child_element_key,
                         stack,
                     )? {
                         TableFrameResult::Done => {}
@@ -666,7 +633,6 @@ impl Parser<'_> {
                         frame,
                         child_node,
                         child_end_pos,
-                        stack,
                     )? {
                         TableFrameResult::Done => {}
                         TableFrameResult::Push(mut updated_frame) => {
@@ -725,23 +691,7 @@ impl Parser<'_> {
         } else {
             // Child result not found yet - push frame back onto stack and continue
             let last_child_frame_id = match &frame.context {
-                FrameContext::Ref {
-                    last_child_frame_id,
-                    ..
-                }
-                | FrameContext::Sequence {
-                    last_child_frame_id,
-                    ..
-                }
-                | FrameContext::AnyNumberOf {
-                    last_child_frame_id,
-                    ..
-                }
-                | FrameContext::OneOf {
-                    last_child_frame_id,
-                    ..
-                }
-                | FrameContext::OneOfTableDriven {
+                FrameContext::OneOfTableDriven {
                     last_child_frame_id,
                     ..
                 }
@@ -762,18 +712,6 @@ impl Parser<'_> {
                     ..
                 }
                 | FrameContext::AnyNumberOfTableDriven {
-                    last_child_frame_id,
-                    ..
-                }
-                | FrameContext::Bracketed {
-                    last_child_frame_id,
-                    ..
-                }
-                | FrameContext::AnySetOf {
-                    last_child_frame_id,
-                    ..
-                }
-                | FrameContext::Delimited {
                     last_child_frame_id,
                     ..
                 } => *last_child_frame_id,
@@ -815,7 +753,7 @@ impl Parser<'_> {
 
     fn handle_table_driven_combining(
         &mut self,
-        mut frame: TableParseFrame,
+        frame: TableParseFrame,
         stack: &mut TableParseFrameStack,
     ) -> Result<TableFrameResult, ParseError> {
         use sqlfluffrs_types::GrammarVariant;
@@ -840,12 +778,8 @@ impl Parser<'_> {
             GrammarVariant::Sequence => self.handle_sequence_table_driven_combining(frame, stack),
             GrammarVariant::Delimited => self.handle_delimited_table_driven_combining(frame),
             GrammarVariant::Bracketed => self.handle_bracketed_table_driven_combining(frame),
-            GrammarVariant::AnyNumberOf => {
-                self.handle_anynumberof_table_driven_combining(frame, stack)
-            }
-            GrammarVariant::AnySetOf => {
-                self.handle_anynumberof_table_driven_combining(frame, stack)
-            }
+            GrammarVariant::AnyNumberOf => self.handle_anynumberof_table_driven_combining(frame),
+            GrammarVariant::AnySetOf => self.handle_anynumberof_table_driven_combining(frame),
             GrammarVariant::Ref => self.handle_ref_table_driven_combining(frame),
             _ => {
                 // Combining should not be reached for terminal/simple variants
@@ -1089,55 +1023,27 @@ impl Parser<'_> {
 
 fn get_waiting_for_frame_id(frame: &TableParseFrame) -> String {
     let waiting_for = match &frame.context {
-        FrameContext::Ref {
-            last_child_frame_id,
-            ..
-        } => format!("{:?}", last_child_frame_id),
-        FrameContext::Sequence {
-            last_child_frame_id,
-            ..
-        } => format!("{:?}", last_child_frame_id),
-        FrameContext::OneOf {
-            last_child_frame_id,
-            ..
-        } => format!("{:?}", last_child_frame_id),
         FrameContext::OneOfTableDriven {
             last_child_frame_id,
             ..
-        } => format!("{:?}", last_child_frame_id),
-        FrameContext::SequenceTableDriven {
+        }
+        | FrameContext::SequenceTableDriven {
             last_child_frame_id,
             ..
-        } => format!("{:?}", last_child_frame_id),
-        FrameContext::RefTableDriven {
+        }
+        | FrameContext::RefTableDriven {
             last_child_frame_id,
             ..
-        } => format!("{:?}", last_child_frame_id),
-        FrameContext::DelimitedTableDriven {
+        }
+        | FrameContext::DelimitedTableDriven {
             last_child_frame_id,
             ..
-        } => format!("{:?}", last_child_frame_id),
-        FrameContext::BracketedTableDriven {
+        }
+        | FrameContext::BracketedTableDriven {
             last_child_frame_id,
             ..
-        } => format!("{:?}", last_child_frame_id),
-        FrameContext::AnyNumberOfTableDriven {
-            last_child_frame_id,
-            ..
-        } => format!("{:?}", last_child_frame_id),
-        FrameContext::Delimited {
-            last_child_frame_id,
-            ..
-        } => format!("{:?}", last_child_frame_id),
-        FrameContext::Bracketed {
-            last_child_frame_id,
-            ..
-        } => format!("{:?}", last_child_frame_id),
-        FrameContext::AnySetOf {
-            last_child_frame_id,
-            ..
-        } => format!("{:?}", last_child_frame_id),
-        FrameContext::AnyNumberOf {
+        }
+        | FrameContext::AnyNumberOfTableDriven {
             last_child_frame_id,
             ..
         } => format!("{:?}", last_child_frame_id),

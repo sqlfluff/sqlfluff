@@ -1,11 +1,11 @@
-use sqlfluffrs_types::{GrammarId, GrammarInstExt, ParseMode};
+use sqlfluffrs_types::{GrammarId, ParseMode};
 
 use crate::parser::{
     table_driven::frame::{TableFrameResult, TableParseFrame, TableParseFrameStack},
     FrameContext, FrameState, Node, ParseError, Parser,
 };
 
-impl<'a> Parser<'_> {
+impl Parser<'_> {
     // ========================================================================
     // Table-Driven Sequence Handlers
     // ========================================================================
@@ -244,7 +244,6 @@ impl<'a> Parser<'_> {
         mut frame: TableParseFrame,
         child_node: &Node,
         child_end_pos: &usize,
-        child_element_key: &Option<u64>,
         stack: &mut TableParseFrameStack,
     ) -> Result<TableFrameResult, ParseError> {
         let ctx = self.grammar_ctx.expect("Grammar Context");
@@ -375,7 +374,6 @@ impl<'a> Parser<'_> {
                             self.table_collect_transparent_between_into_accum(
                                 &mut frame.accumulated,
                                 tentatively_collected,
-                                frame.frame_id,
                                 matched_idx_val,
                                 ns,
                             );
@@ -505,7 +503,6 @@ impl<'a> Parser<'_> {
                             self.table_collect_transparent_between_into_accum(
                                 &mut frame.accumulated,
                                 tentatively_collected,
-                                frame.frame_id,
                                 base_matched_idx,
                                 ns,
                             );
@@ -540,7 +537,7 @@ impl<'a> Parser<'_> {
                     next_index,
                 );
 
-                return Ok(TableFrameResult::Done);
+                Ok(TableFrameResult::Done)
             } else {
                 // Child failure at end of sequence: ensure parser position is restored
                 // to the sequence's starting position before completing with Empty.
@@ -549,7 +546,7 @@ impl<'a> Parser<'_> {
                 frame.end_pos = Some(frame.pos);
                 frame.state = FrameState::Combining;
                 stack.push(&mut frame);
-                return Ok(TableFrameResult::Done);
+                Ok(TableFrameResult::Done)
             }
         } else {
             // Required child failed: restore parser position to sequence start
@@ -569,7 +566,7 @@ impl<'a> Parser<'_> {
             stack
                 .results
                 .insert(frame.frame_id, (Node::Empty, frame.pos, None));
-            return Ok(TableFrameResult::Done);
+            Ok(TableFrameResult::Done)
         }
     }
 
@@ -626,7 +623,6 @@ impl<'a> Parser<'_> {
         &mut self,
         accumulated: &mut Vec<Node>,
         tentatively_collected: &mut Vec<usize>,
-        frame_id: usize,
         from: usize,
         to: usize,
     ) {

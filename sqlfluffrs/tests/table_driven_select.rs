@@ -11,10 +11,6 @@ fn table_driven_select_parses() {
     let sql = "SELECT 1";
     let dialect = Dialect::Ansi;
 
-    // Use the table-driven root grammar so parsing is started from the top-level
-    // table-driven grammar (this exercises the table-driven parser path).
-    let root = dialect.get_root_grammar();
-
     // Build a lexer for the dialect
     let lexer = Lexer::new(None, dialect.get_lexers().to_vec());
     let (tokens, _violations) =
@@ -26,7 +22,7 @@ fn table_driven_select_parses() {
     }
 
     // Create parser using the RootGrammar
-    let mut parser = Parser::new_with_root(&tokens, dialect, root);
+    let mut parser = Parser::new(&tokens, dialect);
 
     // Parse starting from the root
     let node = parser

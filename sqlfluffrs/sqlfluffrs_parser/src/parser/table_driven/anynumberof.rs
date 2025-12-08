@@ -4,7 +4,7 @@ use crate::parser::{
 };
 use sqlfluffrs_types::GrammarId;
 
-impl<'a> Parser<'_> {
+impl Parser<'_> {
     // ========================================================================
     // Table-Driven AnyNumberOf Handlers (migrated from core.rs)
     // ========================================================================
@@ -532,7 +532,6 @@ impl<'a> Parser<'_> {
     pub(crate) fn handle_anynumberof_table_driven_combining(
         &mut self,
         mut frame: TableParseFrame,
-        stack: &mut TableParseFrameStack,
     ) -> Result<TableFrameResult, ParseError> {
         let ctx = self.grammar_ctx.expect("GrammarContext required");
 

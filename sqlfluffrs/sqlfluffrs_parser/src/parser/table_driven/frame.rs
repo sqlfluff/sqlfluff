@@ -82,7 +82,7 @@ pub struct TableParseFrame {
     pub grammar_id: GrammarId,
     /// Position in token stream
     pub pos: usize,
-    /// When Some, this frame uses table-driven parsing instead of Arc<Grammar>
+    /// When Some, this frame uses table-driven parsing
     /// Table-driven terminators (parallel to terminators field)
     pub table_terminators: Vec<GrammarId>,
     /// Current state of this frame
@@ -137,41 +137,11 @@ impl TableParseFrame {
         if let Some(parent_frame) = stack.last_mut() {
             match (&mut parent_frame.context, context_type) {
                 (
-                    FrameContext::Sequence {
-                        last_child_frame_id,
-                        ..
-                    },
-                    "Sequence",
-                ) => {
-                    *last_child_frame_id = Some(child_frame_id);
-                    true
-                }
-                (
                     FrameContext::SequenceTableDriven {
                         last_child_frame_id,
                         ..
                     },
                     "Sequence",
-                ) => {
-                    *last_child_frame_id = Some(child_frame_id);
-                    true
-                }
-                (
-                    FrameContext::AnyNumberOf {
-                        last_child_frame_id,
-                        ..
-                    },
-                    "AnyNumberOf",
-                ) => {
-                    *last_child_frame_id = Some(child_frame_id);
-                    true
-                }
-                (
-                    FrameContext::OneOf {
-                        last_child_frame_id,
-                        ..
-                    },
-                    "OneOf",
                 ) => {
                     *last_child_frame_id = Some(child_frame_id);
                     true
@@ -187,16 +157,6 @@ impl TableParseFrame {
                     true
                 }
                 (
-                    FrameContext::Bracketed {
-                        last_child_frame_id,
-                        ..
-                    },
-                    "Bracketed",
-                ) => {
-                    *last_child_frame_id = Some(child_frame_id);
-                    true
-                }
-                (
                     FrameContext::BracketedTableDriven {
                         last_child_frame_id,
                         ..
@@ -207,41 +167,11 @@ impl TableParseFrame {
                     true
                 }
                 (
-                    FrameContext::AnySetOf {
-                        last_child_frame_id,
-                        ..
-                    },
-                    "AnySetOf",
-                ) => {
-                    *last_child_frame_id = Some(child_frame_id);
-                    true
-                }
-                (
-                    FrameContext::Delimited {
-                        last_child_frame_id,
-                        ..
-                    },
-                    "Delimited",
-                ) => {
-                    *last_child_frame_id = Some(child_frame_id);
-                    true
-                }
-                (
                     FrameContext::DelimitedTableDriven {
                         last_child_frame_id,
                         ..
                     },
                     "Delimited",
-                ) => {
-                    *last_child_frame_id = Some(child_frame_id);
-                    true
-                }
-                (
-                    FrameContext::Ref {
-                        last_child_frame_id,
-                        ..
-                    },
-                    "Ref",
                 ) => {
                     *last_child_frame_id = Some(child_frame_id);
                     true
@@ -301,16 +231,6 @@ impl TableParseFrame {
         // Update parent's last_child_frame_id AND current_element_idx
         if let Some(parent_frame) = stack.last_mut() {
             match &mut parent_frame.context {
-                FrameContext::Sequence {
-                    last_child_frame_id,
-                    current_element_idx,
-                    ..
-                } => {
-                    log::debug!("DEBUG: push_sequence_child_and_update_parent - parent {}, child {}, setting last_child_frame_id to {}",
-                        parent_id, child_id, child_id);
-                    *last_child_frame_id = Some(child_id);
-                    *current_element_idx = next_element_idx;
-                }
                 FrameContext::SequenceTableDriven {
                     last_child_frame_id,
                     current_element_idx,
@@ -342,14 +262,6 @@ impl TableParseFrame {
         // Update parent's last_child_frame_id AND current_element_idx
         if let Some(parent_frame) = stack.last_mut() {
             match &mut parent_frame.context {
-                FrameContext::Sequence {
-                    last_child_frame_id,
-                    current_element_idx,
-                    ..
-                } => {
-                    *last_child_frame_id = Some(child_id);
-                    *current_element_idx = element_idx;
-                }
                 FrameContext::SequenceTableDriven {
                     last_child_frame_id,
                     current_element_idx,

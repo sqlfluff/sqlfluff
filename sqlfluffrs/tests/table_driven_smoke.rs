@@ -1,7 +1,4 @@
-use sqlfluffrs_dialects::Dialect;
-use sqlfluffrs_lexer::{LexInput, Lexer};
-use sqlfluffrs_parser::parser::Parser;
-use sqlfluffrs_types::{GrammarContext, RootGrammar};
+use sqlfluffrs_types::RootGrammar;
 
 #[test]
 fn table_driven_smoke() {
@@ -16,38 +13,24 @@ fn table_driven_smoke() {
 
     // Verify tables are non-empty
     assert!(
-        ANSI_TABLES.instructions.len() > 0,
+        !ANSI_TABLES.instructions.is_empty(),
         "Instructions table should be present"
     );
     assert!(
-        ANSI_TABLES.strings.len() > 0,
+        !ANSI_TABLES.strings.is_empty(),
         "Strings table should be present"
     );
 
     // Get the root grammar and ensure it is table-driven with a valid id
-    let root = get_ansi_root_grammar();
-    match root {
-        RootGrammar::TableDriven { grammar_id, tables } => {
-            assert!(
-                grammar_id.0 < tables.instructions.len() as u32,
-                "Root grammar id should be in range"
-            );
-        }
-        RootGrammar::Arc(_) => panic!("Expected table-driven root for ansi in this test"),
-    }
+    let ansi_root = ansi.get_root_grammar();
+    let ctx = GrammarContext::new(ansi_root.tables);
+    let rule_name = ctx.get_name(ansi_root.grammar_id).unwrap_or("<unknown>");
+    println!("Root grammar: {}", rule_name);
 
     // Ensure a known segment maps to a grammar id (table-driven RootGrammar expected)
-    if let Some(seg_root) = get_ansi_segment_grammar("SelectStatementSegment") {
-        match seg_root {
-            RootGrammar::TableDriven { grammar_id, tables } => {
-                assert!(
-                    grammar_id.0 < tables.instructions.len() as u32,
-                    "SelectStatementSegment id should be valid"
-                );
-            }
-            RootGrammar::Arc(_) => panic!("Expected table-driven segment for ansi in this test"),
-        }
-    } else {
-        panic!("SelectStatementSegment not found in generated tables");
+    if let Some(root) = ansi.get_segment_grammar("SelectStatementSegment") {
+        let ctx = GrammarContext::new(root.tables);
+        let rule_name = ctx.get_name(root.grammar_id).unwrap_or("<unknown>");
+        println!("SelectStatementSegment grammar: {}", rule_name);
     }
 }

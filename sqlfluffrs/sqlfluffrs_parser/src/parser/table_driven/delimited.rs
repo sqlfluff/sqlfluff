@@ -176,7 +176,7 @@ impl<'a> Parser<'_> {
 
     /// Handle Delimited WaitingForChild state using table-driven approach
     ///
-    /// This mirrors the Arc-based handler logic:
+    /// This matches the Python handler logic:
     /// - MatchingElement: handles termination/end/empty uniformly, then processes match
     /// - MatchingDelimiter: stores delimiter_match (doesn't push immediately), checks termination
     pub(crate) fn handle_delimited_table_driven_waiting_for_child(
@@ -258,8 +258,7 @@ impl<'a> Parser<'_> {
 
                 let saved_pos = self.pos;
                 self.pos = check_pos;
-                let is_terminated =
-                    self.is_terminated_with_elements_table_driven(&frame_terminators, &[]);
+                let is_terminated = self.is_terminated_table_driven(&frame_terminators);
                 self.pos = saved_pos;
 
                 // Handle termination or end of input
@@ -531,8 +530,7 @@ impl<'a> Parser<'_> {
                 }
 
                 // Check for termination after delimiter
-                let is_terminated =
-                    self.is_terminated_with_elements_table_driven(&frame_terminators, &[]);
+                let is_terminated = self.is_terminated_table_driven(&frame_terminators);
 
                 if is_terminated {
                     log::debug!("Delimited[table]: terminated after delimiter");
@@ -598,8 +596,8 @@ impl<'a> Parser<'_> {
                 let term_check_pos = pos_before_delimiter.unwrap_or(*working_idx);
                 let saved_pos = self.pos;
                 self.pos = term_check_pos;
-                let is_term2 = self.is_at_end()
-                    || self.is_terminated_with_elements_table_driven(&frame_terminators, &[]);
+                let is_term2 =
+                    self.is_at_end() || self.is_terminated_table_driven(&frame_terminators);
                 self.pos = saved_pos;
 
                 if is_term2 {
