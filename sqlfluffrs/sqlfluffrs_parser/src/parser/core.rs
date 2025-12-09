@@ -457,46 +457,66 @@ impl<'a> Parser<'a> {
 
     /// Pop a checkpoint and commit its collections (keep them marked).
     /// This is called when a grammar successfully produces a result that will be used.
+    /// If the frame_id doesn't match the checkpoint on top of the stack, it means
+    /// this grammar type (e.g., OneOf, Delimited) doesn't use checkpoints - this is OK.
     pub fn commit_collection_checkpoint(&mut self, frame_id: usize) {
-        if let Some(checkpoint) = self.collection_stack.pop() {
-            if checkpoint.frame_id != frame_id {
-                log::warn!(
-                    "Checkpoint frame_id mismatch: expected {}, got {}",
+        if let Some(checkpoint) = self.collection_stack.last() {
+            if checkpoint.frame_id == frame_id {
+                // This frame owns the checkpoint - pop and commit it
+                let checkpoint = self.collection_stack.pop().unwrap();
+                log::debug!(
+                    "Committed {} collected positions for frame_id={}, stack depth now={}",
+                    checkpoint.positions.len(),
+                    frame_id,
+                    self.collection_stack.len()
+                );
+                // Positions remain in collected_transparent_positions - they're committed
+            } else {
+                // This frame doesn't own a checkpoint (e.g., OneOf, Delimited, Ref)
+                // This is normal - only Sequence creates checkpoints
+                log::trace!(
+                    "No checkpoint to commit for frame_id={} (top checkpoint is {})",
                     frame_id,
                     checkpoint.frame_id
                 );
             }
-            log::debug!(
-                "Committed {} collected positions for frame_id={}, stack depth now={}",
-                checkpoint.positions.len(),
-                frame_id,
-                self.collection_stack.len()
-            );
-            // Positions remain in collected_transparent_positions - they're committed
+        } else {
+            // No checkpoints exist - this is fine for non-Sequence grammars
+            log::trace!("No checkpoint to commit for frame_id={} (stack empty)", frame_id);
         }
     }
 
     /// Pop a checkpoint and rollback its collections (unmark them).
     /// This is called when a grammar fails or is abandoned during backtracking.
+    /// If the frame_id doesn't match the checkpoint on top of the stack, it means
+    /// this grammar type (e.g., OneOf, Delimited) doesn't use checkpoints - this is OK.
     pub fn rollback_collection_checkpoint(&mut self, frame_id: usize) {
-        if let Some(checkpoint) = self.collection_stack.pop() {
-            if checkpoint.frame_id != frame_id {
-                log::warn!(
-                    "Checkpoint frame_id mismatch during rollback: expected {}, got {}",
+        if let Some(checkpoint) = self.collection_stack.last() {
+            if checkpoint.frame_id == frame_id {
+                // This frame owns the checkpoint - pop and rollback it
+                let checkpoint = self.collection_stack.pop().unwrap();
+                log::debug!(
+                    "Rolling back {} collected positions for frame_id={}, stack depth now={}",
+                    checkpoint.positions.len(),
+                    frame_id,
+                    self.collection_stack.len()
+                );
+                // Remove all positions that were marked during this checkpoint
+                for pos in checkpoint.positions {
+                    self.collected_transparent_positions.remove(&pos);
+                }
+            } else {
+                // This frame doesn't own a checkpoint (e.g., OneOf, Delimited, Ref)
+                // This is normal - only Sequence creates checkpoints
+                log::trace!(
+                    "No checkpoint to rollback for frame_id={} (top checkpoint is {})",
                     frame_id,
                     checkpoint.frame_id
                 );
             }
-            log::debug!(
-                "Rolling back {} collected positions for frame_id={}, stack depth now={}",
-                checkpoint.positions.len(),
-                frame_id,
-                self.collection_stack.len()
-            );
-            // Remove all positions that were marked during this checkpoint
-            for pos in checkpoint.positions {
-                self.collected_transparent_positions.remove(&pos);
-            }
+        } else {
+            // No checkpoints exist - this is fine for non-Sequence grammars
+            log::trace!("No checkpoint to rollback for frame_id={} (stack empty)", frame_id);
         }
     }
 
