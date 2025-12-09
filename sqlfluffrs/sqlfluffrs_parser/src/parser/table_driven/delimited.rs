@@ -342,6 +342,13 @@ impl<'a> Parser<'_> {
                     child_end_pos
                 );
 
+                // CRITICAL: Push the delimiter FIRST (if we have one), then whitespace, then element.
+                // This ensures correct ordering: element1 → delimiter → whitespace → element2
+                if let Some(dm) = delimiter_match.take() {
+                    frame.accumulated.push(dm);
+                    *delimiter_count += 1;
+                }
+
                 // Collect whitespace between matched_idx and working_idx (Python parity)
                 if allow_gaps {
                     for idx in *matched_idx..*working_idx {
@@ -361,12 +368,6 @@ impl<'a> Parser<'_> {
                             }
                         }
                     }
-                }
-
-                // If there was a pending delimiter match, append it now
-                if let Some(dm) = delimiter_match.take() {
-                    frame.accumulated.push(dm);
-                    *delimiter_count += 1;
                 }
 
                 // Add the matched element
@@ -488,26 +489,11 @@ impl<'a> Parser<'_> {
                     child_end_pos
                 );
 
-                // Collect whitespace between matched_idx and working_idx
-                if allow_gaps {
-                    for idx in *matched_idx..*working_idx {
-                        if idx < self.tokens.len() {
-                            let tok = &self.tokens[idx];
-                            let tok_type = tok.get_type();
-                            if tok_type == "whitespace" {
-                                frame.accumulated.push(Node::Whitespace {
-                                    raw: tok.raw().to_string(),
-                                    token_idx: idx,
-                                });
-                            } else if tok_type == "newline" {
-                                frame.accumulated.push(Node::Newline {
-                                    raw: tok.raw().to_string(),
-                                    token_idx: idx,
-                                });
-                            }
-                        }
-                    }
-                }
+                // NOTE: We do NOT collect whitespace here between matched_idx and working_idx.
+                // That whitespace (if any) will be collected when the NEXT element matches,
+                // ensuring correct ordering: element → delimiter → whitespace → next_element.
+                // Previously, collecting whitespace here caused misordering where whitespace
+                // appeared before the delimiter in the output.
 
                 // Store delimiter match for later (will be added when next element matches)
                 *delimiter_match = Some(child_node.clone());
@@ -562,27 +548,12 @@ impl<'a> Parser<'_> {
 
                 // Skip whitespace after delimiter if allow_gaps
                 // NOTE: Don't constrain by max_idx - whitespace should be skippable unconditionally
+                // CRITICAL: We only SKIP whitespace here, we DON'T collect it into accumulated.
+                // The whitespace will be collected when the NEXT element matches, ensuring correct
+                // ordering: element1 → delimiter → whitespace → element2
                 if allow_gaps {
                     let next_code_pos =
                         self.skip_start_index_forward_to_code(*working_idx, self.tokens.len());
-                    // Collect whitespace between delimiter and next element
-                    for idx in *working_idx..next_code_pos {
-                        if idx < self.tokens.len() {
-                            let tok = &self.tokens[idx];
-                            let tok_type = tok.get_type();
-                            if tok_type == "whitespace" {
-                                frame.accumulated.push(Node::Whitespace {
-                                    raw: tok.raw().to_string(),
-                                    token_idx: idx,
-                                });
-                            } else if tok_type == "newline" {
-                                frame.accumulated.push(Node::Newline {
-                                    raw: tok.raw().to_string(),
-                                    token_idx: idx,
-                                });
-                            }
-                        }
-                    }
                     *working_idx = next_code_pos;
                 }
                 self.pos = *working_idx;
