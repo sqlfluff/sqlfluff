@@ -12,3 +12,7 @@ sqlfluffrs_lexer = { path = "../sqlfluffrs_lexer" }
 uuid = { version = "1.18.1", features = ["v4"] }
 serde_yaml_ng = "0.10.0"
 regex = { version = "1.11.2", features = ["perf"] }
+pyo3 = { version = "0.26.0", optional = true }
+
+[features]
+python = ["pyo3", "sqlfluffrs_types/python", "sqlfluffrs_lexer/python"]

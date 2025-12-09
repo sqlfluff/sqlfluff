@@ -2040,6 +2040,7 @@ dependencies = [
  "env_logger",
  "hashbrown 0.15.5",
  "log",
+ "pyo3",
  "regex",
  "serde_yaml_ng",
  "sqlfluffrs_dialects",

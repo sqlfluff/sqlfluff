@@ -142,11 +142,7 @@ impl<'a> Parser<'a> {
                     token_idx: token_pos,
                 }
             } else {
-                Node::Token {
-                    token_type: tok.token_type.clone(),
-                    raw: tok.raw(),
-                    token_idx: token_pos,
-                } // Fallback for other non-code tokens
+                Node::new_token(tok.token_type.clone(), tok.raw(), token_pos) // Fallback for other non-code tokens
             };
 
             log::debug!(

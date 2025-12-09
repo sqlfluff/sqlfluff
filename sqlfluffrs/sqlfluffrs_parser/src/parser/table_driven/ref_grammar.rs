@@ -259,15 +259,15 @@ impl Parser<'_> {
             let mut children = leading_transparent.clone();
             children.extend(frame.accumulated.clone());
 
-            Node::Ref {
-                name: name.clone(),
-                segment_type: segment_type.clone(),
-                child: Box::new(if children.len() == 1 {
+            Node::new_ref(
+                name.clone(),
+                segment_type.clone(),
+                if children.len() == 1 {
                     children[0].clone()
                 } else {
                     Node::Sequence { children }
-                }),
-            }
+                },
+            )
         };
 
         self.pos = final_pos;

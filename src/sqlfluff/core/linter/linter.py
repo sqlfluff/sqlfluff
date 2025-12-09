@@ -234,7 +234,23 @@ class Linter:
         fname: Optional[str] = None,
         parse_statistics: bool = False,
     ) -> tuple[Optional[BaseSegment], list[SQLParseError]]:
-        parser = Parser(config=config)
+        # Use Rust parser if configured (experimental)
+        use_rust = config.get_section(["core", "use_rust_parser"])
+        if use_rust in (True, "True", "true", 1):
+            try:
+                from sqlfluff.core.parser.rust_parser import RustParser
+
+                parser = RustParser(config=config)
+                linter_logger.info("Using Rust parser (experimental)")
+            except ImportError:
+                linter_logger.warning(
+                    "use_rust_parser=True but sqlfluffrs not available. "
+                    "Falling back to Python parser. Build with: "
+                    "cd sqlfluffrs && maturin develop --features python"
+                )
+                parser = Parser(config=config)
+        else:
+            parser = Parser(config=config)
         violations = []
         # Parse the file and log any problems
         try:

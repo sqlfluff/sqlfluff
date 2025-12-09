@@ -303,6 +303,7 @@ impl<'a> Parser<'a> {
         let final_segment_type = match &node {
             Node::Token {
                 token_type: t,
+                segment_type: _,
                 raw: _,
                 token_idx: _,
             } => Some(t.clone()),
@@ -310,11 +311,7 @@ impl<'a> Parser<'a> {
         };
 
         // Wrap in a Ref node for type clarity
-        let result = Node::Ref {
-            name: name.to_string(),
-            segment_type: final_segment_type,
-            child: Box::new(node),
-        };
+        let result = Node::new_ref(name.to_string(), final_segment_type, node);
 
         // Deduplicate whitespace/newline nodes to handle cases where both
         // parent and child grammars collected the same tokens
@@ -338,13 +335,13 @@ impl<'a> Parser<'a> {
 
         if token_slice.is_empty() {
             // Wrap in a Ref node for type clarity
-            let result = Node::Ref {
-                name: "Root".to_string(),
-                segment_type: Some("file".to_string()),
-                child: Box::new(Node::Sequence {
+            let result = Node::new_ref(
+                "Root".to_string(),
+                Some("file".to_string()),
+                Node::Sequence {
                     children: end_nodes,
-                }),
-            };
+                },
+            );
             return Ok(result.deduplicate());
         }
 
@@ -366,11 +363,7 @@ impl<'a> Parser<'a> {
                     n = Node::Sequence { children };
                     self.pos += end_len;
                 }
-                let result = Node::Ref {
-                    name: "Root".to_string(),
-                    segment_type: Some("file".to_string()),
-                    child: Box::new(n),
-                };
+                let result = Node::new_ref("Root".to_string(), Some("file".to_string()), n);
                 Ok(result.deduplicate())
             }
             Err(e) => Err(e),
@@ -405,11 +398,7 @@ impl<'a> Parser<'a> {
                     raw: token.raw().to_string(),
                     token_idx: start_idx + i,
                 },
-                other => Node::Token {
-                    token_type: other.to_string(),
-                    raw: token.raw().to_string(),
-                    token_idx: start_idx + i,
-                },
+                other => Node::new_token(other.to_string(), token.raw().to_string(), start_idx + i),
             };
             children.push(node);
         }
@@ -482,7 +471,10 @@ impl<'a> Parser<'a> {
             }
         } else {
             // No checkpoints exist - this is fine for non-Sequence grammars
-            log::trace!("No checkpoint to commit for frame_id={} (stack empty)", frame_id);
+            log::trace!(
+                "No checkpoint to commit for frame_id={} (stack empty)",
+                frame_id
+            );
         }
     }
 
@@ -516,7 +508,10 @@ impl<'a> Parser<'a> {
             }
         } else {
             // No checkpoints exist - this is fine for non-Sequence grammars
-            log::trace!("No checkpoint to rollback for frame_id={} (stack empty)", frame_id);
+            log::trace!(
+                "No checkpoint to rollback for frame_id={} (stack empty)",
+                frame_id
+            );
         }
     }
 
@@ -569,11 +564,7 @@ impl<'a> Parser<'a> {
                     token_pos
                 );
 
-                Ok(Node::Token {
-                    token_type,
-                    raw,
-                    token_idx: token_pos,
-                })
+                Ok(Node::new_token(token_type, raw, token_pos))
             }
             _ => {
                 log::debug!(
@@ -649,11 +640,7 @@ impl<'a> Parser<'a> {
                     class_types
                 );
 
-                let node = Node::Token {
-                    token_type,
-                    raw,
-                    token_idx: token_pos,
-                };
+                let node = Node::new_token(token_type, raw, token_pos);
 
                 frame.state = FrameState::Complete(node);
                 frame.end_pos = Some(self.pos);
@@ -742,11 +729,7 @@ impl<'a> Parser<'a> {
                     token_pos
                 );
 
-                Ok(Node::Token {
-                    token_type,
-                    raw,
-                    token_idx: token_pos,
-                })
+                Ok(Node::new_token(token_type, raw, token_pos))
             }
             _ => {
                 log::debug!(
@@ -975,11 +958,11 @@ impl<'a> Parser<'a> {
                         token_pos
                     );
 
-                    Ok(Node::Token {
-                        token_type: token_type_opt.unwrap_or_default(),
+                    Ok(Node::new_token(
+                        token_type_opt.unwrap_or_default(),
                         raw,
-                        token_idx: token_pos,
-                    })
+                        token_pos,
+                    ))
                 } else {
                     log::debug!(
                         "RegexParser[table] NOMATCH: pattern '{}' didn't match token='{}'",
@@ -1055,11 +1038,7 @@ impl<'a> Parser<'a> {
                     token_pos
                 );
 
-                Ok(Node::Token {
-                    token_type,
-                    raw,
-                    token_idx: token_pos,
-                })
+                Ok(Node::new_token(token_type, raw, token_pos))
             }
             Some(tok) => {
                 // Don't return an Err here; return Empty so the table-driven
@@ -1124,11 +1103,7 @@ impl<'a> Parser<'a> {
                         token_pos
                     );
 
-                    Ok(Node::Token {
-                        token_type: typ.to_string(),
-                        raw,
-                        token_idx: token_pos,
-                    })
+                    Ok(Node::new_token(typ.to_string(), raw, token_pos))
                 } else {
                     log::debug!(
                         "NonCodeMatcher[table] NOMATCH: found code token type='{}'",
@@ -1206,11 +1181,11 @@ impl<'a> Parser<'a> {
                     let mut bracket_tokens = vec![];
 
                     // Add start bracket
-                    bracket_tokens.push(Node::Token {
-                        token_type: "start_bracket".to_string(),
-                        raw: tok_raw.to_string(),
-                        token_idx: self.pos,
-                    });
+                    bracket_tokens.push(Node::new_token(
+                        "start_bracket".to_string(),
+                        tok_raw.to_string(),
+                        self.pos,
+                    ));
                     bracket_depth += 1;
                     self.bump();
 
@@ -1231,11 +1206,11 @@ impl<'a> Parser<'a> {
                                 inner_tok.get_type().to_string()
                             };
 
-                            bracket_tokens.push(Node::Token {
-                                token_type: node_type,
-                                raw: inner_raw.to_string(),
-                                token_idx: self.pos,
-                            });
+                            bracket_tokens.push(Node::new_token(
+                                node_type,
+                                inner_raw.to_string(),
+                                self.pos,
+                            ));
                             self.bump();
                         } else {
                             break;
@@ -1251,11 +1226,11 @@ impl<'a> Parser<'a> {
                     });
                 } else {
                     // Regular token - preserve type as-is
-                    anything_tokens.push(Node::Token {
-                        token_type: tok_type.to_string(),
-                        raw: tok_raw.to_string(),
-                        token_idx: self.pos,
-                    });
+                    anything_tokens.push(Node::new_token(
+                        tok_type.to_string(),
+                        tok_raw.to_string(),
+                        self.pos,
+                    ));
                     self.bump();
                 }
             }

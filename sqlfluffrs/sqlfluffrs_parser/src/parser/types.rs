@@ -24,11 +24,16 @@ pub enum Node {
     EndOfFile { raw: String, token_idx: usize },
 
     /// Generic token
+    /// - token_type: The semantic token type from lexer (e.g., "naked_identifier", "keyword")
+    /// - segment_type: The base segment type for class lookup (e.g., "identifier", "keyword")
+    /// - raw: The actual text content
+    /// - token_idx: Position in token array
     Token {
         token_type: String,
+        segment_type: String,
         raw: String,
         token_idx: usize,
-    }, // (type, raw, position)
+    },
 
     /// Unparsable segment (in GREEDY mode when tokens don't match)
     Unparsable {
@@ -51,9 +56,14 @@ pub enum Node {
     },
 
     /// A reference to another segment (wraps its AST)
+    /// - name: The grammar/segment name from the dialect (e.g., "SelectStatementSegment" or "SelectableGrammar")
+    /// - segment_type: The segment's type attribute (e.g., "select_statement")
+    /// - segment_class_name: The Python class name to use (e.g., "SelectStatementSegment"), None if grammar-only
+    /// - child: The wrapped AST node
     Ref {
         name: String,
         segment_type: Option<String>,
+        segment_class_name: Option<String>,
         child: Box<Node>,
     },
 
@@ -66,6 +76,36 @@ pub enum Node {
 }
 
 impl Node {
+    /// Create a Token node with automatic segment_type mapping.
+    ///
+    /// This helper ensures token_type and segment_type are properly set based
+    /// on the semantic token type from the lexer.
+    pub fn new_token(token_type: String, raw: String, token_idx: usize) -> Self {
+        use crate::parser::type_mapping::get_base_segment_type;
+        let segment_type = get_base_segment_type(&token_type);
+        Node::Token {
+            token_type,
+            segment_type,
+            raw,
+            token_idx,
+        }
+    }
+
+    /// Create a Ref node with automatic segment_class_name determination.
+    ///
+    /// This helper determines whether the name refers to a grammar or segment
+    /// and sets segment_class_name accordingly.
+    pub fn new_ref(name: String, segment_type: Option<String>, child: Node) -> Self {
+        use crate::parser::type_mapping::get_segment_class_name;
+        let segment_class_name = get_segment_class_name(&name);
+        Node::Ref {
+            name,
+            segment_type,
+            segment_class_name,
+            child: Box::new(child),
+        }
+    }
+
     /// Return a tuple structure from this node, similar to Python BaseSegment::to_tuple.
     /// This is useful for serialization to YAML/JSON and for parity with Python tests.
     pub fn to_tuple(&self, code_only: bool, show_raw: bool, include_meta: bool) -> NodeTupleValue {
@@ -73,6 +113,7 @@ impl Node {
             Node::Token {
                 token_type, raw, ..
             } => {
+                // Use token_type (semantic type) for tuple output
                 if show_raw {
                     NodeTupleValue::Raw(token_type.clone(), raw.clone())
                 } else {
@@ -101,6 +142,7 @@ impl Node {
             }
             Node::Ref {
                 segment_type,
+                segment_class_name: _,
                 child,
                 ..
             } => {
@@ -321,6 +363,7 @@ impl Node {
         match self {
             Node::Token {
                 token_type: _,
+                segment_type: _,
                 raw: _,
                 token_idx: idx,
             }
@@ -346,7 +389,11 @@ impl Node {
     pub fn get_end_token_idx(&self) -> Option<usize> {
         match self {
             // Leaf nodes - return their token index
-            Node::Token { token_idx: idx, .. }
+            Node::Token {
+                token_idx: idx,
+                segment_type: _,
+                ..
+            }
             | Node::Whitespace { token_idx: idx, .. }
             | Node::Newline { token_idx: idx, .. }
             | Node::EndOfFile { token_idx: idx, .. } => Some(*idx),
@@ -410,11 +457,7 @@ impl Node {
                 raw: _,
                 token_idx: idx,
             }
-            | Node::Token {
-                token_type: _,
-                raw: _,
-                token_idx: idx,
-            } => {
+            | Node::Token { token_idx: idx, .. } => {
                 if let Some(token) = tokens.get(*idx) {
                     output.push_str(&token.stringify(depth, 4, false));
                 }
@@ -477,6 +520,7 @@ impl Node {
             Node::Ref {
                 name,
                 segment_type,
+                segment_class_name: _,
                 child,
             } => {
                 let is_grammar_rule = name.ends_with("Grammar");
@@ -571,11 +615,7 @@ impl Node {
                 raw: _,
                 token_idx: idx,
             }
-            | Node::Token {
-                token_type: _,
-                raw: _,
-                token_idx: idx,
-            } => Some(*idx),
+            | Node::Token { token_idx: idx, .. } => Some(*idx),
 
             Node::Ref { child, .. } => child.find_first_token_idx(),
 
@@ -634,6 +674,7 @@ impl Node {
             } => true,
             Node::Token {
                 token_type,
+                segment_type: _,
                 raw: _,
                 token_idx: _,
             } => {
@@ -672,6 +713,7 @@ impl Node {
             } => Some("end_of_file".to_string()),
             Node::Token {
                 token_type,
+                segment_type: _,
                 raw: _,
                 token_idx: _,
             } => Some(token_type.clone()),
@@ -679,7 +721,11 @@ impl Node {
                 expected_message: _,
                 children: _,
             } => Some("unparsable".to_string()),
-            Node::Ref { segment_type, .. } => segment_type.clone(),
+            Node::Ref {
+                segment_type,
+                segment_class_name: _,
+                ..
+            } => segment_type.clone(),
             Node::Sequence { children: _ } => Some("sequence".to_string()),
             Node::DelimitedList { children: _ } => Some("delimited".to_string()),
             Node::Bracketed { .. } => Some("bracketed".to_string()),
@@ -695,8 +741,8 @@ impl Node {
         match self {
             Node::Token {
                 token_type,
-                raw: _,
                 token_idx: idx,
+                ..
             } => {
                 if let Some(token) = tokens.get(*idx) {
                     let mut v = vec![token_type.clone()];
@@ -797,10 +843,12 @@ impl Node {
             Node::Ref {
                 name,
                 segment_type,
+                segment_class_name,
                 child,
             } => Node::Ref {
                 name,
                 segment_type,
+                segment_class_name,
                 child: Box::new(child.deduplicate_impl(seen)),
             },
             Node::Unparsable {
@@ -938,11 +986,13 @@ mod tests {
             children: vec![
                 Node::Token {
                     token_type: "keyword".to_string(),
+                    segment_type: "keyword".to_string(),
                     raw: "SELECT".to_string(),
                     token_idx: 0,
                 },
                 Node::Token {
                     token_type: "naked_identifier".to_string(),
+                    segment_type: "identifier".to_string(),
                     raw: "foo".to_string(),
                     token_idx: 1,
                 },
@@ -973,12 +1023,14 @@ mod tests {
     fn test_ref_node_as_record() {
         let child = Node::Token {
             token_type: "keyword".to_string(),
+            segment_type: "keyword".to_string(),
             raw: "SELECT".to_string(),
             token_idx: 0,
         };
         let node = Node::Ref {
             name: "SelectKeywordSegment".to_string(),
             segment_type: Some("keyword".to_string()),
+            segment_class_name: Some("KeywordSegment".to_string()),
             child: Box::new(child),
         };
         let record = node.as_record(false, true, false).unwrap();
@@ -1022,11 +1074,13 @@ mod tests {
             children: vec![
                 Node::Token {
                     token_type: "keyword".to_string(),
+                    segment_type: "keyword".to_string(),
                     raw: "SELECT".to_string(),
                     token_idx: 0,
                 },
                 Node::Token {
                     token_type: "naked_identifier".to_string(),
+                    segment_type: "identifier".to_string(),
                     raw: "foo".to_string(),
                     token_idx: 1,
                 },
@@ -1057,6 +1111,7 @@ mod tests {
     fn test_token_node_to_tuple_show_raw() {
         let node = Node::Token {
             token_type: "keyword".to_string(),
+            segment_type: "keyword".to_string(),
             raw: "SELECT".to_string(),
             token_idx: 0,
         };
@@ -1071,6 +1126,7 @@ mod tests {
     fn test_token_node_to_tuple_no_raw() {
         let node = Node::Token {
             token_type: "keyword".to_string(),
+            segment_type: "keyword".to_string(),
             raw: "SELECT".to_string(),
             token_idx: 0,
         };
@@ -1082,11 +1138,13 @@ mod tests {
     fn test_sequence_node_to_tuple() {
         let child1 = Node::Token {
             token_type: "keyword".to_string(),
+            segment_type: "keyword".to_string(),
             raw: "SELECT".to_string(),
             token_idx: 0,
         };
         let child2 = Node::Token {
             token_type: "keyword".to_string(),
+            segment_type: "keyword".to_string(),
             raw: "FROM".to_string(),
             token_idx: 1,
         };
@@ -1110,12 +1168,14 @@ mod tests {
     fn test_ref_node_to_tuple() {
         let child = Node::Token {
             token_type: "keyword".to_string(),
+            segment_type: "keyword".to_string(),
             raw: "SELECT".to_string(),
             token_idx: 0,
         };
         let node = Node::Ref {
             name: "SelectKeywordSegment".to_string(),
             segment_type: None,
+            segment_class_name: Some("KeywordSegment".to_string()),
             child: Box::new(child),
         };
         let val = node.to_tuple(false, true, false);

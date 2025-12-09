@@ -1,5 +1,6 @@
 use pyo3::prelude::*;
 use sqlfluffrs_lexer::{PyLexer, PySQLLexError};
+use sqlfluffrs_parser::{PyNode, PyParseError, PyParser};
 use sqlfluffrs_types::templater::{
     fileslice::python::{PyRawFileSlice, PyTemplatedFileSlice},
     templatefile::python::PyTemplatedFile,
@@ -21,5 +22,9 @@ fn sqlfluffrs(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<PySQLLexError>()?;
     m.add_class::<PyLexer>()?;
     m.add_class::<PyPositionMarker>()?;
+    // Parser classes
+    m.add_class::<PyNode>()?;
+    m.add_class::<PyParser>()?;
+    m.add_class::<PyParseError>()?;
     Ok(())
 }

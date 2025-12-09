@@ -25,6 +25,7 @@ python = [
     "unicode",
     "pyo3",
     "sqlfluffrs_lexer/python",
+    "sqlfluffrs_parser/python",
     "sqlfluffrs_types/python",
 ]
 

@@ -94,6 +94,8 @@ class MetaSegment(RawSegment):
             pos_marker=PositionMarker.from_rs_position_marker(token.pos_marker, tf),
             block_uuid=token.block_uuid,
         )
+        # Cache the original RsToken for efficient round-trip to Rust parser
+        segment._rstoken = token  # type: ignore[attr-defined]
         return segment
 
 

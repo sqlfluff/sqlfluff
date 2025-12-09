@@ -116,11 +116,7 @@ impl Parser<'_> {
                     .filter_map(|pos| {
                         if pos < self.tokens.len() {
                             let tok = &self.tokens[pos];
-                            Some(Node::Token {
-                                token_type: tok.get_type(),
-                                raw: tok.raw().to_string(),
-                                token_idx: pos,
-                            })
+                            Some(Node::new_token(tok.get_type(), tok.raw().to_string(), pos))
                         } else {
                             None
                         }

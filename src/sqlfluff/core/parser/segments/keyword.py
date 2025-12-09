@@ -1,10 +1,14 @@
 """The KeywordSegment class."""
 
-from typing import Callable, Optional, Union
+from typing import TYPE_CHECKING, Callable, Optional, Union
 
 from sqlfluff.core.parser.markers import PositionMarker
 from sqlfluff.core.parser.segments.base import SourceFix
 from sqlfluff.core.parser.segments.common import WordSegment
+
+if TYPE_CHECKING:  # pragma: no cover
+    from sqlfluff.core.templaters.base import TemplatedFile
+    from sqlfluffrs import RsToken
 
 
 class KeywordSegment(WordSegment):
@@ -39,6 +43,36 @@ class KeywordSegment(WordSegment):
             escape_replacements=escape_replacements,
             casefold=casefold,
         )
+
+    @classmethod
+    def from_rstoken(
+        cls,
+        token: "RsToken",
+        tf: "TemplatedFile",
+        type_override: Optional[str] = None,
+    ) -> "KeywordSegment":
+        """Create a KeywordSegment from an RSQL token.
+
+        KeywordSegment has a restricted __init__ without trim_start,
+        so we override from_rstoken to handle this.
+        """
+        # Build instance_types, prepending the override type if provided
+        instance_types = tuple(token.instance_types)
+        if type_override and type_override not in instance_types:
+            instance_types = (type_override,) + instance_types
+
+        segment = cls(
+            raw=token.raw,
+            pos_marker=PositionMarker.from_rs_position_marker(token.pos_marker, tf),
+            instance_types=instance_types,
+            source_fixes=token.source_fixes,
+            trim_chars=token.trim_chars,
+            quoted_value=token.quoted_value,
+            escape_replacements=token.escape_replacements,
+        )
+        # Cache the original RsToken for efficient round-trip to Rust parser
+        segment._rstoken = token
+        return segment
 
     def edit(
         self, raw: Optional[str] = None, source_fixes: Optional[list[SourceFix]] = None
