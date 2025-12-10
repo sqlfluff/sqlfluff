@@ -20,6 +20,9 @@ pub enum Node {
     /// Newline tokens
     Newline { raw: String, token_idx: usize },
 
+    /// Comment tokens (e.g., -- comment or /* comment */)
+    Comment { raw: String, token_idx: usize },
+
     /// End of file marker
     EndOfFile { raw: String, token_idx: usize },
 
@@ -122,9 +125,10 @@ impl Node {
             }
             Node::Whitespace { raw, .. }
             | Node::Newline { raw, .. }
+            | Node::Comment { raw, .. }
             | Node::EndOfFile { raw, .. } => {
-                // These are filtered in code_only mode
-                if code_only {
+                // These are filtered in code_only mode (except comments which stay)
+                if code_only && !matches!(self, Node::Comment { .. }) {
                     NodeTupleValue::Tuple(self.get_type().unwrap(), vec![])
                 } else {
                     NodeTupleValue::Raw(self.get_type().unwrap(), raw.to_string())
@@ -396,6 +400,7 @@ impl Node {
             }
             | Node::Whitespace { token_idx: idx, .. }
             | Node::Newline { token_idx: idx, .. }
+            | Node::Comment { token_idx: idx, .. }
             | Node::EndOfFile { token_idx: idx, .. } => Some(*idx),
 
             // Container nodes - find last token in children
@@ -454,6 +459,10 @@ impl Node {
                 token_idx: idx,
             }
             | Node::Newline {
+                raw: _,
+                token_idx: idx,
+            }
+            | Node::Comment {
                 raw: _,
                 token_idx: idx,
             }
@@ -611,6 +620,10 @@ impl Node {
                 raw: _,
                 token_idx: idx,
             }
+            | Node::Comment {
+                raw: _,
+                token_idx: idx,
+            }
             | Node::EndOfFile {
                 raw: _,
                 token_idx: idx,
@@ -634,10 +647,11 @@ impl Node {
     /// Check if this node represents code (not whitespace or meta)
     pub fn is_code(&self) -> bool {
         match self {
-            // Whitespace and newlines are not code
+            // Whitespace, newlines, and comments are not code
             // Empty is not code
             Node::Whitespace { .. }
             | Node::Newline { .. }
+            | Node::Comment { .. }
             | Node::EndOfFile { .. }
             | Node::Meta { .. }
             | Node::Empty => false,
@@ -707,6 +721,10 @@ impl Node {
                 raw: _,
                 token_idx: _,
             } => Some("newline".to_string()),
+            Node::Comment {
+                raw: _,
+                token_idx: _,
+            } => Some("comment".to_string()),
             Node::EndOfFile {
                 raw: _,
                 token_idx: _,
@@ -786,8 +804,8 @@ impl Node {
                     .into_iter()
                     .filter_map(|child| {
                         match &child {
-                            Node::Whitespace { token_idx: pos, .. }
-                            | Node::Newline { token_idx: pos, .. } => {
+                            Node::Comment { token_idx: pos, .. } => {
+                                // Deduplicate comments by token_idx
                                 if seen.insert(*pos) {
                                     Some(child.deduplicate_impl(seen))
                                 } else {
@@ -804,8 +822,8 @@ impl Node {
                 let deduped = children
                     .into_iter()
                     .filter_map(|child| match &child {
-                        Node::Whitespace { token_idx: pos, .. }
-                        | Node::Newline { token_idx: pos, .. } => {
+                        Node::Comment { token_idx: pos, .. } => {
+                            // Deduplicate comments by token_idx
                             if seen.insert(*pos) {
                                 Some(child.deduplicate_impl(seen))
                             } else {
@@ -824,8 +842,8 @@ impl Node {
                 let deduped = children
                     .into_iter()
                     .filter_map(|child| match &child {
-                        Node::Whitespace { token_idx: pos, .. }
-                        | Node::Newline { token_idx: pos, .. } => {
+                        Node::Comment { token_idx: pos, .. } => {
+                            // Deduplicate comments by token_idx
                             if seen.insert(*pos) {
                                 Some(child.deduplicate_impl(seen))
                             } else {
@@ -858,8 +876,8 @@ impl Node {
                 let deduped = children
                     .into_iter()
                     .filter_map(|child| match &child {
-                        Node::Whitespace { token_idx: pos, .. }
-                        | Node::Newline { token_idx: pos, .. } => {
+                        Node::Comment { token_idx: pos, .. } => {
+                            // Deduplicate comments by token_idx
                             if seen.insert(*pos) {
                                 Some(child.deduplicate_impl(seen))
                             } else {

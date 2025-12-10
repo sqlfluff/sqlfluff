@@ -322,6 +322,8 @@ impl<'a> Parser<'a> {
         // Obtain the root grammar for this dialect and dispatch based on its
         // variant (table-driven vs Arc-based). Clone to avoid holding borrows.
         let root_grammar = self.dialect.get_root_grammar().clone();
+        
+        // Find the last code token position (for trailing non-code tokens)
         let mut last_code_pos = self.tokens.len();
         for (i, token) in self.tokens.iter().enumerate().rev() {
             if token.is_code() {
@@ -329,6 +331,7 @@ impl<'a> Parser<'a> {
                 break;
             }
         }
+        
         let token_slice_orig = self.tokens;
         let token_slice = &self.tokens[..last_code_pos];
         let end_nodes = self.end_children_nodes(last_code_pos);
@@ -346,6 +349,11 @@ impl<'a> Parser<'a> {
         }
 
         self.tokens = token_slice;
+        
+        // Collect any leading transparent tokens (whitespace, newlines, COMMENTS)
+        // before parsing starts. This ensures leading comments are included in the AST.
+        let leading_transparent = self.collect_transparent(true);
+        
         // Parse using the root grammar.
         let grammar_id = root_grammar.grammar_id;
         let tables = root_grammar.tables;
@@ -355,8 +363,17 @@ impl<'a> Parser<'a> {
         self.tokens = token_slice_orig;
         match nodes {
             Ok(mut n) => {
-                // If we have end nodes, wrap in File
-                if !end_nodes.is_empty() {
+                // Prepend leading transparent tokens and append trailing tokens
+                if !leading_transparent.is_empty() || !end_nodes.is_empty() {
+                    let mut all_children = leading_transparent;
+                    all_children.push(n);
+                    all_children.extend(end_nodes);
+                    let len = all_children.len();
+                    n = Node::Sequence {
+                        children: all_children,
+                    };
+                    self.pos += len - 1; // -1 because n is included
+                } else if !end_nodes.is_empty() {
                     let mut children = vec![n];
                     let end_len = end_nodes.len();
                     children.extend(end_nodes);
@@ -395,6 +412,10 @@ impl<'a> Parser<'a> {
                     token_idx: start_idx + i,
                 },
                 "end_of_file" => Node::EndOfFile {
+                    raw: token.raw().to_string(),
+                    token_idx: start_idx + i,
+                },
+                "comment" => Node::Comment {
                     raw: token.raw().to_string(),
                     token_idx: start_idx + i,
                 },

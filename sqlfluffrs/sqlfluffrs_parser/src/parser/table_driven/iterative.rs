@@ -26,6 +26,14 @@ impl Parser<'_> {
             self.pos
         );
 
+        // Save and clear checkpoint stack state at the start of this parse session.
+        // This is critical for proper whitespace collection when OneOf tries multiple children.
+        // Each child parse via parse_table_iterative should start with a clean checkpoint slate
+        // to avoid interference from failed sibling parses.
+        let saved_checkpoint_stack = std::mem::take(&mut self.collection_stack);
+        // Also save collected_transparent_positions so nested parses don't pollute it
+        let saved_collected_positions = self.collected_transparent_positions.clone();
+
         // Check table cache first, unless disabled
         let start_pos = self.pos;
         let max_idx = self.tokens.len();
@@ -40,14 +48,32 @@ impl Parser<'_> {
                     end_pos
                 );
 
-                // Restore parser position and transparent positions
+                // Restore parser position
                 self.pos = *end_pos;
+                
+                // CRITICAL FIX: Do NOT blindly insert positions from cache.
+                // The cached positions were collected in a specific parse context.
+                // If we're in a different context (e.g., OneOf trying multiple children),
+                // blindly reinserting positions can cause whitespace to be marked as
+                // collected when it shouldn't be, leading to missing whitespace in the final AST.
+                //
+                // The correct approach is: positions should be derived from the AST node,
+                // or we should only mark positions that aren't already collected.
+                // For now, we'll skip the position insertion entirely and let the
+                // deduplication in collection handle it.
                 if let Some(positions) = transparent_positions {
-                    for &pos in positions {
-                        self.collected_transparent_positions.insert(pos);
-                    }
+                    log::debug!(
+                        "TableCache HIT: Would have inserted {} positions, but skipping for grammar {}",
+                        positions.len(),
+                        grammar.0
+                    );
+                    // Skip inserting - the parent's collection will handle deduplication
                 }
 
+                // Restore checkpoint stack and collected positions before returning
+                self.collection_stack = saved_checkpoint_stack;
+                // Don't restore collected_positions for cache hit - the positions should be merged
+                // (cache hit already handles this via the transparent_positions in cache entry)
                 return Ok(node.clone());
             }
         }
@@ -238,15 +264,7 @@ impl Parser<'_> {
             );
             self.pos = *end_pos;
 
-            // Mark transparent tokens as globally collected now that we're using this result
-            if let Some(transparent_positions) = stack.transparent_positions.get(&initial_frame_id)
-            {
-                for &pos in transparent_positions {
-                    if !self.collected_transparent_positions.insert(pos) {
-                        log::warn!("WARNING (initial): Position {} was already collected! Duplicate marking.", pos);
-                    }
-                }
-            }
+            // Transparent positions already marked by checkpoint system during parsing
 
             // If the parse failed (returned Empty), provide diagnostic information
             if node.is_empty() {
@@ -297,6 +315,23 @@ impl Parser<'_> {
                     .put(cache_key, (node.clone(), *end_pos, transparent_opt));
             }
 
+            // Restore checkpoint stack before returning
+            self.collection_stack = saved_checkpoint_stack;
+            
+            // For Empty results (no match), restore collected_transparent_positions too.
+            // Empty results didn't actually consume anything, so any whitespace they
+            // "collected" while skipping should be available for other parsers.
+            // Only non-Empty successful parses should keep their collected positions.
+            if node.is_empty() {
+                log::debug!(
+                    "parse_table_iterative: Restoring collected_transparent_positions for Empty result (grammar {})",
+                    grammar.0
+                );
+                self.collected_transparent_positions = saved_collected_positions;
+            }
+            // For non-Empty results, positions collected during this parse remain 
+            // in collected_transparent_positions (they're part of the successful parse result)
+            
             Ok(node.clone())
         } else {
             // Parse error - don't cache errors for now (to keep it simple)
@@ -305,6 +340,10 @@ impl Parser<'_> {
                 initial_frame_id,
                 stack.results.len()
             ));
+            // Restore checkpoint stack and collected positions before returning
+            // For failed parses, we need to restore to the state before this parse
+            self.collection_stack = saved_checkpoint_stack;
+            self.collected_transparent_positions = saved_collected_positions;
             Err(error)
         }
     }

@@ -39,11 +39,11 @@ pub enum FrameContext {
         max_idx: usize,
         last_child_frame_id: Option<usize>,
         current_child_id: Option<GrammarId>, // Child currently being tried
+        initial_collected_positions: hashbrown::HashSet<usize>, // Snapshot for rollback between children
     },
     SequenceTableDriven {
         grammar_id: GrammarId,
         matched_idx: usize,
-        tentatively_collected: Vec<usize>,
         max_idx: usize,
         original_max_idx: usize, // Max_idx before GREEDY_ONCE_STARTED trimming
         last_child_frame_id: Option<usize>,

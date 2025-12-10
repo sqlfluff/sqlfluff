@@ -424,6 +424,24 @@ def rsnode_to_segment(
 
         return _SegmentTuple(children_segments)
 
+    # Handle basic transparent node types (whitespace, newlines, comments)
+    # These are produced by collect_transparent() and need to be converted to segments
+    if node_type in ("whitespace", "newline", "comment", "end_of_file"):
+        token_info = node.token_info()
+        if token_info is None:
+            raise ValueError(f"{node_type} node has no token_info")
+        
+        _token_type, _segment_type, _raw, token_idx = token_info
+        
+        if token_idx >= len(tokens):
+            raise ValueError(
+                f"Token index {token_idx} out of range (max {len(tokens) - 1})"
+            )
+        
+        original_token = tokens[token_idx]
+        segment_class = _SEGMENT_TYPES.get(node_type, RawSegment)
+        return segment_class.from_rstoken(original_token, tf)
+
     # Handle meta nodes (indent, dedent, etc.)
     if node_type == "meta":
         # Meta nodes don't produce segments in the tree

@@ -105,6 +105,8 @@ impl<'a> Parser<'a> {
     }
 
     /// Collect all transparent tokens (whitespace, newlines) as nodes
+    /// Collect transparent tokens (whitespace, newlines, comments) between code tokens.
+    /// IMPORTANT: Comments are collected here, not skipped! They're part of the AST.
     pub fn collect_transparent(&mut self, allow_gaps: bool) -> Vec<Node> {
         let mut transparent_nodes = Vec::new();
 
@@ -113,6 +115,7 @@ impl<'a> Parser<'a> {
         }
 
         while let Some(tok) = self.peek() {
+            // Stop at actual code tokens (but collect comments!)
             if tok.is_code() {
                 break;
             }
@@ -136,6 +139,12 @@ impl<'a> Parser<'a> {
                     raw: tok.raw(),
                     token_idx: token_pos,
                 }
+            } else if tok_type == "comment" {
+                // Comments should be collected as nodes, not skipped!
+                Node::Comment {
+                    raw: tok.raw(),
+                    token_idx: token_pos,
+                }
             } else if tok_type == "end_of_file" {
                 Node::EndOfFile {
                     raw: tok.raw(),
@@ -151,7 +160,8 @@ impl<'a> Parser<'a> {
                 tok
             );
             transparent_nodes.push(node);
-            self.collected_transparent_positions.insert(token_pos);
+            // Use mark_position_collected to integrate with checkpoint system
+            self.mark_position_collected(token_pos);
             self.bump();
         }
 
@@ -159,13 +169,15 @@ impl<'a> Parser<'a> {
     }
 
     /// Skip all transparent tokens (whitespace, newlines) without collecting them
+    /// IMPORTANT: Comments are NOT transparent - they should be collected, not skipped!
     pub fn skip_transparent(&mut self, allow_gaps: bool) {
         if !allow_gaps {
             return;
         }
         while let Some(tok) = self.peek() {
             match tok {
-                tok if !tok.is_code() => {
+                // Skip only whitespace/newlines, NOT comments
+                tok if !tok.is_code() && !tok.is_comment() => {
                     log::debug!("NOCODE skipping token: {:?}", tok);
                     self.bump() // bump() handles bracket depth tracking
                 }
@@ -174,7 +186,9 @@ impl<'a> Parser<'a> {
         }
     }
 
-    /// Move an index forward through tokens until tokens[index] is code.
+    /// Skip forward through non-code tokens (whitespace, newlines, comments) to the next code token.
+    /// This matches Python's skip_start_index_forward_to_code which only checks is_code.
+    /// Comments have is_code=False, so they ARE skipped (to be collected elsewhere).
     /// Returns the index of the first code token, or max_idx if none found.
     pub(crate) fn skip_start_index_forward_to_code(
         &self,
@@ -182,23 +196,26 @@ impl<'a> Parser<'a> {
         max_idx: usize,
     ) -> usize {
         for _idx in start_idx..max_idx {
-            if self.tokens[_idx].is_code() {
+            let tok = &self.tokens[_idx];
+            if tok.is_code() {
                 return _idx;
             }
         }
         max_idx
     }
 
-    /// Move an index backward through tokens until tokens[index - 1] is code.
-    /// Returns the index after the last code token, or min_idx if none found.
+    /// Move an index backward through tokens until tokens[index - 1] is code or comment.
+    /// Returns the index after the last code/comment token, or min_idx if none found.
+    /// IMPORTANT: Comments are NOT skipped - they should be collected like code tokens!
     pub(crate) fn skip_stop_index_backward_to_code(
         &self,
         stop_idx: usize,
         min_idx: usize,
     ) -> usize {
-        for _idx in (min_idx + 1..=stop_idx).rev() {
-            if self.tokens[_idx - 1].is_code() {
-                return _idx;
+        for _idx in (min_idx..stop_idx).rev() {
+            let tok = &self.tokens[_idx];
+            if tok.is_code() || tok.is_comment() {
+                return _idx + 1;
             }
         }
         min_idx

@@ -147,6 +147,10 @@ impl Parser<'_> {
             first_child.0
         );
 
+        // Save initial collected positions to restore between child attempts
+        // This ensures each child gets a fresh view of which whitespace to collect
+        let initial_collected_positions = self.collected_transparent_positions.clone();
+
         // Store context for WaitingForChild state
         frame.context = FrameContext::OneOfTableDriven {
             grammar_id,
@@ -158,6 +162,7 @@ impl Parser<'_> {
             max_idx,
             last_child_frame_id: Some(stack.frame_id_counter),
             current_child_id: Some(first_child),
+            initial_collected_positions,
         };
 
         frame.state = FrameState::WaitingForChild {
@@ -205,6 +210,7 @@ impl Parser<'_> {
             tried_elements,
             max_idx,
             current_child_id,
+            initial_collected_positions,
             ..
         } = &mut frame.context
         else {
@@ -359,6 +365,17 @@ impl Parser<'_> {
 
         // Try next child
         if *tried_elements < pruned_children.len() {
+            // CRITICAL: Restore collected positions before trying next child
+            // This ensures each child gets a fresh view of which whitespace to collect.
+            // Without this, the first child collects whitespace, marks it collected,
+            // and subsequent children skip that whitespace - leading to missing whitespace
+            // in the final AST if a later child wins.
+            self.collected_transparent_positions = initial_collected_positions.clone();
+            log::debug!(
+                "OneOf[table]: Restored collected_transparent_positions to initial state ({} positions)",
+                self.collected_transparent_positions.len()
+            );
+
             // Try next child
             self.pos = *post_skip_pos;
             let next_child = pruned_children[*tried_elements];

@@ -165,15 +165,25 @@ impl Parser<'_> {
                         self.skip_start_index_forward_to_code(content_start_idx, self.tokens.len());
                     for pos in content_start_idx..code_idx {
                         if let Some(tok) = self.tokens.get(pos) {
+                            // Check if already collected globally
+                            if self.collected_transparent_positions.contains(&pos) {
+                                continue;
+                            }
                             match &*tok.get_type() {
-                                "whitespace" => frame.accumulated.push(Node::Whitespace {
-                                    raw: tok.raw().to_string(),
-                                    token_idx: pos,
-                                }),
-                                "newline" => frame.accumulated.push(Node::Newline {
-                                    raw: tok.raw().to_string(),
-                                    token_idx: pos,
-                                }),
+                                "whitespace" => {
+                                    frame.accumulated.push(Node::Whitespace {
+                                        raw: tok.raw().to_string(),
+                                        token_idx: pos,
+                                    });
+                                    self.mark_position_collected(pos);
+                                }
+                                "newline" => {
+                                    frame.accumulated.push(Node::Newline {
+                                        raw: tok.raw().to_string(),
+                                        token_idx: pos,
+                                    });
+                                    self.mark_position_collected(pos);
+                                }
                                 _ => {}
                             }
                         }
@@ -306,17 +316,23 @@ impl Parser<'_> {
                     );
                     for pos in self.pos..code_idx {
                         if let Some(tok) = self.tokens.get(pos) {
+                            // Check if already collected globally
+                            if self.collected_transparent_positions.contains(&pos) {
+                                continue;
+                            }
                             let tok_type = tok.get_type();
                             if tok_type == "whitespace" {
                                 frame.accumulated.push(Node::Whitespace {
                                     raw: tok.raw().to_string(),
                                     token_idx: pos,
                                 });
+                                self.mark_position_collected(pos);
                             } else if tok_type == "newline" {
                                 frame.accumulated.push(Node::Newline {
                                     raw: tok.raw().to_string(),
                                     token_idx: pos,
                                 });
+                                self.mark_position_collected(pos);
                             }
                         }
                     }

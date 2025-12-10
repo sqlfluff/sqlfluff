@@ -342,35 +342,9 @@ impl<'a> Parser<'_> {
                     child_end_pos
                 );
 
-                // CRITICAL: Push the delimiter FIRST (if we have one), then whitespace, then element.
-                // This ensures correct ordering: element1 → delimiter → whitespace → element2
-                if let Some(dm) = delimiter_match.take() {
-                    frame.accumulated.push(dm);
-                    *delimiter_count += 1;
-                }
-
-                // Collect whitespace between matched_idx and working_idx (Python parity)
-                if allow_gaps {
-                    for idx in *matched_idx..*working_idx {
-                        if idx < self.tokens.len() {
-                            let tok = &self.tokens[idx];
-                            let tok_type = tok.get_type();
-                            if tok_type == "whitespace" {
-                                frame.accumulated.push(Node::Whitespace {
-                                    raw: tok.raw().to_string(),
-                                    token_idx: idx,
-                                });
-                            } else if tok_type == "newline" {
-                                frame.accumulated.push(Node::Newline {
-                                    raw: tok.raw().to_string(),
-                                    token_idx: idx,
-                                });
-                            }
-                        }
-                    }
-                }
-
                 // Add the matched element
+                // The delimiter and transparent tokens were already pushed when transitioning
+                // from MatchingDelimiter to MatchingElement state.
                 frame.accumulated.push(child_node.clone());
                 *matched_idx = *child_end_pos;
                 *working_idx = *matched_idx;
@@ -546,14 +520,61 @@ impl<'a> Parser<'_> {
                 // Transition to MatchingElement
                 *delim_state = DelimitedState::MatchingElement;
 
-                // Skip whitespace after delimiter if allow_gaps
-                // NOTE: Don't constrain by max_idx - whitespace should be skippable unconditionally
-                // CRITICAL: We only SKIP whitespace here, we DON'T collect it into accumulated.
-                // The whitespace will be collected when the NEXT element matches, ensuring correct
-                // ordering: element1 → delimiter → whitespace → element2
+                // Push the delimiter NOW (not when the next element matches)
+                // This ensures correct ordering: element1 → delimiter → transparent → element2
+                if let Some(dm) = delimiter_match.take() {
+                    frame.accumulated.push(dm);
+                    *delimiter_count += 1;
+                }
+
+                // Collect and skip transparent tokens (whitespace, newlines, comments) after delimiter if allow_gaps
+                // NOTE: Don't constrain by max_idx - transparent tokens should be collected unconditionally
                 if allow_gaps {
-                    let next_code_pos =
-                        self.skip_start_index_forward_to_code(*working_idx, self.tokens.len());
+                    let start_pos = *working_idx;
+                    // Skip to next code token (skips through comments) so we can collect all transparent tokens
+                    let next_code_pos = self.skip_start_index_forward_to_code(start_pos, self.tokens.len());
+                    
+                    // Collect transparent tokens (whitespace, newlines, comments) in the skipped range
+                    log::debug!(
+                        "Delimited[table]: collecting transparent after delimiter from {} to {}",
+                        start_pos,
+                        next_code_pos
+                    );
+                    for idx in start_pos..next_code_pos {
+                        if idx < self.tokens.len() {
+                            let tok = &self.tokens[idx];
+                            // Skip if already collected IN THIS BRANCH
+                            // Note: We use mark_position_collected() which integrates with the checkpoint system
+                            if self.collected_transparent_positions.contains(&idx) {
+                                log::debug!("Delimited[table]: SKIPPING already collected idx={}", idx);
+                                continue;
+                            }
+                            let tok_type = tok.get_type();
+                            log::debug!("Delimited[table]: CHECKING transparent at idx={}, tok_type='{}', raw='{}'", idx, tok_type, tok.raw());
+                            if tok_type == "whitespace" {
+                                log::debug!("Delimited[table]: PUSHING whitespace at idx={}", idx);
+                                frame.accumulated.push(Node::Whitespace {
+                                    raw: tok.raw().to_string(),
+                                    token_idx: idx,
+                                });
+                                self.mark_position_collected(idx);
+                            } else if tok_type == "newline" {
+                                frame.accumulated.push(Node::Newline {
+                                    raw: tok.raw().to_string(),
+                                    token_idx: idx,
+                                });
+                                self.mark_position_collected(idx);
+                            } else if tok_type == "comment" {
+                                log::debug!("Delimited[table]: COLLECTED COMMENT after delimiter at {}: {:?}", idx, tok.raw());
+                                frame.accumulated.push(Node::Comment {
+                                    raw: tok.raw().to_string(),
+                                    token_idx: idx,
+                                });
+                                self.mark_position_collected(idx);
+                            }
+                        }
+                    }
+                    
                     *working_idx = next_code_pos;
                 }
                 self.pos = *working_idx;

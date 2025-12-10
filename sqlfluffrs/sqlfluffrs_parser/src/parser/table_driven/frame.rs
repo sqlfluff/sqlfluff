@@ -14,10 +14,6 @@ pub enum TableFrameResult {
 pub struct TableParseFrameStack {
     stack: Vec<TableParseFrame>,
     pub results: hashbrown::HashMap<usize, (Node, usize, Option<u64>)>,
-    /// Transparent token positions collected by each result.
-    /// Key is frame_id, value is list of token positions.
-    /// These positions should only be marked as globally collected when the result is actually used.
-    pub transparent_positions: hashbrown::HashMap<usize, Vec<usize>>,
     pub frame_id_counter: usize,
     // Add any additional state fields here as needed
 }
@@ -33,7 +29,6 @@ impl TableParseFrameStack {
         TableParseFrameStack {
             stack: Vec::new(),
             results: hashbrown::HashMap::new(),
-            transparent_positions: hashbrown::HashMap::new(),
             frame_id_counter: 0,
         }
     }

@@ -35,6 +35,11 @@ impl Parser<'_> {
             rule_name
         );
 
+        // Push checkpoint for transparent token collection.
+        // If this Ref fails, we'll rollback to release collected positions.
+        // If it succeeds, we'll commit to keep them marked.
+        self.push_collection_checkpoint(frame.frame_id);
+
         // Python parity: If parent's max_idx is set and we're beyond it,
         // return Empty rather than error so parents (OneOf etc.) can try
         // other options. This matches the Python Ref behavior.
@@ -45,6 +50,8 @@ impl Parser<'_> {
                     frame.pos,
                     parent_max
                 );
+                // Rollback checkpoint before returning Empty
+                self.rollback_collection_checkpoint(frame.frame_id);
                 stack
                     .results
                     .insert(frame.frame_id, (Node::Empty, frame.pos, None));
@@ -61,6 +68,8 @@ impl Parser<'_> {
                         "Ref[table]: exclude grammar matched at pos {}, returning Empty",
                         frame.pos
                     );
+                    // Rollback checkpoint before returning Empty
+                    self.rollback_collection_checkpoint(frame.frame_id);
                     stack
                         .results
                         .insert(frame.frame_id, (Node::Empty, frame.pos, None));
@@ -90,6 +99,8 @@ impl Parser<'_> {
                 "Ref[table]: No element children and no dialect mapping for '{}', returning Empty",
                 rule_name
                 );
+                    // Rollback checkpoint before returning Empty
+                    self.rollback_collection_checkpoint(frame.frame_id);
                     stack
                         .results
                         .insert(frame.frame_id, (Node::Empty, start_pos, None));
@@ -252,13 +263,17 @@ impl Parser<'_> {
         // Build final result
         let final_pos = frame.end_pos.unwrap_or(frame.pos);
         let result_node = if frame.accumulated.is_empty() {
-            // Child didn't match
+            // Child didn't match - rollback any collected positions
+            self.rollback_collection_checkpoint(frame.frame_id);
             Node::Empty
         } else {
             // Wrap child in Ref node with segment type/name from the tables
             let mut children = leading_transparent.clone();
             children.extend(frame.accumulated.clone());
 
+            // Commit collected positions since Ref succeeded
+            self.commit_collection_checkpoint(frame.frame_id);
+            
             Node::new_ref(
                 name.clone(),
                 segment_type.clone(),

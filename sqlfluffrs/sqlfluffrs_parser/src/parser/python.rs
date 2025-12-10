@@ -30,6 +30,7 @@ impl PyNode {
             Node::Empty => "empty".to_string(),
             Node::Whitespace { .. } => "whitespace".to_string(),
             Node::Newline { .. } => "newline".to_string(),
+            Node::Comment { .. } => "comment".to_string(),
             Node::EndOfFile { .. } => "end_of_file".to_string(),
             Node::Unparsable { .. } => "unparsable".to_string(),
         }
@@ -82,6 +83,12 @@ impl PyNode {
             Node::Newline { raw, token_idx } => Some((
                 "newline".to_string(),
                 "newline".to_string(),
+                raw.clone(),
+                *token_idx,
+            )),
+            Node::Comment { raw, token_idx } => Some((
+                "comment".to_string(),
+                "comment".to_string(),
                 raw.clone(),
                 *token_idx,
             )),
@@ -207,6 +214,7 @@ impl PyNode {
             }
             Node::Whitespace { raw, token_idx }
             | Node::Newline { raw, token_idx }
+            | Node::Comment { raw, token_idx }
             | Node::EndOfFile { raw, token_idx } => {
                 dict.set_item("raw", raw)?;
                 dict.set_item("token_idx", token_idx)?;

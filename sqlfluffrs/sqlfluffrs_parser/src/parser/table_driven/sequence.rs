@@ -40,9 +40,9 @@ impl Parser<'_> {
             frame.parent_max_idx,
         );
 
-        // Push a collection checkpoint for this sequence
-        // This allows us to rollback transparent token collections if we backtrack
-        // TODO: Do we still need this?
+        // Push a checkpoint for transparent token collection.
+        // If this Sequence fails, we'll rollback to release collected positions.
+        // If it succeeds, we'll commit to keep them marked.
         self.push_collection_checkpoint(frame.frame_id);
 
         // Update frame with Sequence context
@@ -53,7 +53,6 @@ impl Parser<'_> {
         frame.context = FrameContext::SequenceTableDriven {
             grammar_id,
             matched_idx: start_idx,
-            tentatively_collected: vec![],
             max_idx,
             original_max_idx: max_idx, // Store original before any GREEDY_ONCE_STARTED trimming
             last_child_frame_id: None,
@@ -81,9 +80,10 @@ impl Parser<'_> {
 
         if first_child_pos >= max_idx {
             stack.pop();
-            self.rollback_collection_checkpoint(current_frame_id);
 
             if parse_mode == ParseMode::Strict {
+                // Rollback checkpoint before returning Empty
+                self.rollback_collection_checkpoint(current_frame_id);
                 stack
                     .results
                     .insert(current_frame_id, (Node::Empty, start_idx, None));
@@ -92,6 +92,8 @@ impl Parser<'_> {
 
             // In greedy modes, check if first element is optional
             if self.grammar_ctx.is_optional(elements[0]) {
+                // Rollback checkpoint before returning Empty
+                self.rollback_collection_checkpoint(current_frame_id);
                 stack
                     .results
                     .insert(current_frame_id, (Node::Empty, start_idx, None));
@@ -104,6 +106,8 @@ impl Parser<'_> {
                         "Sequence[table]: GREEDY mode with no tokens to consume (start_idx={}, max_idx={}), returning Empty",
                         start_idx, max_idx
                     );
+                    // Rollback checkpoint before returning Empty
+                    self.rollback_collection_checkpoint(current_frame_id);
                     stack
                         .results
                         .insert(current_frame_id, (Node::Empty, start_idx, None));
@@ -128,6 +132,8 @@ impl Parser<'_> {
                     expected_message: element_desc,
                 };
 
+                // Commit checkpoint since we're producing a result (even if unparsable)
+                self.commit_collection_checkpoint(current_frame_id);
                 stack
                     .results
                     .insert(current_frame_id, (unparsable_node, max_idx, None));
@@ -366,18 +372,11 @@ impl Parser<'_> {
                     let ns = self.skip_start_index_forward_to_code(matched_idx_val, max_idx_val);
                     // collect transparent tokens between matched_idx and ns into accumulated
                     if ns > matched_idx_val {
-                        if let FrameContext::SequenceTableDriven {
-                            tentatively_collected,
-                            ..
-                        } = &mut frame.context
-                        {
-                            self.table_collect_transparent_between_into_accum(
-                                &mut frame.accumulated,
-                                tentatively_collected,
-                                matched_idx_val,
-                                ns,
-                            );
-                        }
+                        self.table_collect_transparent_between_into_accum(
+                            &mut frame.accumulated,
+                            matched_idx_val,
+                            ns,
+                        );
                     }
                     ns
                 } else {
@@ -495,18 +494,11 @@ impl Parser<'_> {
                 let next_start_pos = if allow_gaps {
                     let ns = self.skip_start_index_forward_to_code(base_matched_idx, base_max_idx);
                     if ns > base_matched_idx {
-                        if let FrameContext::SequenceTableDriven {
-                            tentatively_collected,
-                            ..
-                        } = &mut frame.context
-                        {
-                            self.table_collect_transparent_between_into_accum(
-                                &mut frame.accumulated,
-                                tentatively_collected,
-                                base_matched_idx,
-                                ns,
-                            );
-                        }
+                        self.table_collect_transparent_between_into_accum(
+                            &mut frame.accumulated,
+                            base_matched_idx,
+                            ns,
+                        );
                     }
                     ns
                 } else {
@@ -542,7 +534,6 @@ impl Parser<'_> {
                 // Child failure at end of sequence: ensure parser position is restored
                 // to the sequence's starting position before completing with Empty.
                 self.pos = frame.pos;
-                self.rollback_collection_checkpoint(frame.frame_id);
                 frame.end_pos = Some(frame.pos);
                 frame.state = FrameState::Combining;
                 stack.push(&mut frame);
@@ -551,7 +542,6 @@ impl Parser<'_> {
         } else {
             // Required child failed: restore parser position to sequence start
             self.pos = frame.pos;
-            self.rollback_collection_checkpoint(frame.frame_id);
 
             // CRITICAL FIX: When a required element fails, the Sequence must fail completely.
             // This is true regardless of whether the Sequence itself is optional.
@@ -563,6 +553,10 @@ impl Parser<'_> {
                 "Sequence[table]: Required element {} returned Empty - Sequence fails completely",
                 failed_idx
             );
+
+            // Rollback collected positions since we're failing
+            self.rollback_collection_checkpoint(frame.frame_id);
+
             stack
                 .results
                 .insert(frame.frame_id, (Node::Empty, frame.pos, None));
@@ -574,10 +568,9 @@ impl Parser<'_> {
     pub(crate) fn handle_sequence_table_driven_combining(
         &mut self,
         mut frame: TableParseFrame,
-        stack: &mut TableParseFrameStack,
+        _stack: &mut TableParseFrameStack,
     ) -> Result<TableFrameResult, ParseError> {
         let FrameContext::SequenceTableDriven {
-            tentatively_collected,
             matched_idx,
             ..
         } = &frame.context
@@ -593,11 +586,16 @@ impl Parser<'_> {
             frame.accumulated.len(),
             matched_idx
         );
+        for (i, child) in frame.accumulated.iter().enumerate() {
+            log::debug!("  Combining accumulated[{}]: {:?}", i, child);
+        }
 
         let (result_node, final_pos) = if frame.accumulated.is_empty() {
+            // Empty result - rollback collected positions
             self.rollback_collection_checkpoint(frame.frame_id);
             (Node::Empty, frame.pos)
         } else {
+            // Successful match - commit collected positions
             self.commit_collection_checkpoint(frame.frame_id);
             (
                 Node::Sequence {
@@ -606,10 +604,6 @@ impl Parser<'_> {
                 *matched_idx,
             )
         };
-
-        stack
-            .transparent_positions
-            .insert(frame.frame_id, tentatively_collected.clone());
 
         self.pos = final_pos;
         frame.end_pos = Some(final_pos);
@@ -622,53 +616,64 @@ impl Parser<'_> {
     fn table_collect_transparent_between_into_accum(
         &mut self,
         accumulated: &mut Vec<Node>,
-        tentatively_collected: &mut Vec<usize>,
         from: usize,
         to: usize,
     ) {
+        // Collect transparent tokens in range [from, to).
+        // Use global deduplication to prevent ancestor Sequences from re-collecting
+        // tokens that child Sequences have already collected.
+        // The checkpoint system handles rollback for failed branches.
         for collect_pos in from..to {
             if collect_pos < self.tokens.len() && !self.tokens[collect_pos].is_code() {
+                // Skip if already collected (by a child or ancestor)
+                if self.collected_transparent_positions.contains(&collect_pos) {
+                    log::debug!(
+                        "SKIPPING already collected position {} in table_collect_transparent_between_into_accum",
+                        collect_pos
+                    );
+                    continue;
+                }
+
                 let tok = &self.tokens[collect_pos];
                 let tok_type = tok.get_type();
-                // Only check if already in THIS frame's accumulated to avoid duplicating within the same frame
-                let already_in_frame = accumulated.iter().any(|node| match node {
-                    Node::Whitespace { token_idx: pos, .. }
-                    | Node::Newline { token_idx: pos, .. }
-                    | Node::EndOfFile { token_idx: pos, .. } => *pos == collect_pos,
-                    _ => false,
-                });
-                if !already_in_frame {
-                    match &*tok_type {
-                        "whitespace" => {
-                            log::debug!(
-                                "COLLECTING whitespace at {}: {:?}",
-                                collect_pos,
-                                tok.raw()
-                            );
-                            accumulated.push(Node::Whitespace {
-                                raw: tok.raw().to_string(),
-                                token_idx: collect_pos,
-                            });
-                            tentatively_collected.push(collect_pos);
-                        }
-                        "newline" => {
-                            log::debug!("COLLECTING newline at {}: {:?}", collect_pos, tok.raw());
-                            accumulated.push(Node::Newline {
-                                raw: tok.raw().to_string(),
-                                token_idx: collect_pos,
-                            });
-                            tentatively_collected.push(collect_pos);
-                        }
-                        "end_of_file" => {
-                            log::debug!("COLLECTING EOF at {}: {:?}", collect_pos, tok.raw());
-                            accumulated.push(Node::EndOfFile {
-                                raw: tok.raw().to_string(),
-                                token_idx: collect_pos,
-                            });
-                            tentatively_collected.push(collect_pos);
-                        }
-                        _ => {}
+                match &*tok_type {
+                    "whitespace" => {
+                        log::debug!(
+                            "COLLECTING whitespace at {}: {:?}",
+                            collect_pos,
+                            tok.raw()
+                        );
+                        accumulated.push(Node::Whitespace {
+                            raw: tok.raw().to_string(),
+                            token_idx: collect_pos,
+                        });
+                        self.mark_position_collected(collect_pos);
                     }
+                    "newline" => {
+                        log::debug!("COLLECTING newline at {}: {:?}", collect_pos, tok.raw());
+                        accumulated.push(Node::Newline {
+                            raw: tok.raw().to_string(),
+                            token_idx: collect_pos,
+                        });
+                        self.mark_position_collected(collect_pos);
+                    }
+                    "comment" => {
+                        log::debug!("COLLECTING comment at {}: {:?}", collect_pos, tok.raw());
+                        accumulated.push(Node::Comment {
+                            raw: tok.raw().to_string(),
+                            token_idx: collect_pos,
+                        });
+                        self.mark_position_collected(collect_pos);
+                    }
+                    "end_of_file" => {
+                        log::debug!("COLLECTING EOF at {}: {:?}", collect_pos, tok.raw());
+                        accumulated.push(Node::EndOfFile {
+                            raw: tok.raw().to_string(),
+                            token_idx: collect_pos,
+                        });
+                        self.mark_position_collected(collect_pos);
+                    }
+                    _ => {}
                 }
             }
         }

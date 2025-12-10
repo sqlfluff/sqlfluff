@@ -235,6 +235,9 @@ impl Parser<'_> {
         };
 
         let inst = self.grammar_ctx.inst(*grammar_id);
+        // Extract flags early to avoid borrow checker issues with self later
+        let allow_gaps = inst.flags.allow_gaps();
+        let parse_mode = inst.parse_mode;
 
         // Determine which element candidate index we last attempted (stored in
         // the parent's FrameState::WaitingForChild). If not present, default
@@ -356,23 +359,41 @@ impl Parser<'_> {
                 return Ok(TableFrameResult::Done);
             }
 
-            // Collect whitespace before the match if allow_gaps is true
+            // Collect transparent tokens (whitespace, newlines, comments) before the match if allow_gaps is true
             let allow_gaps = inst.flags.allow_gaps();
             if allow_gaps && *matched_idx < *working_idx {
-                self.tokens[*matched_idx..*working_idx]
-                    .iter()
-                    .enumerate()
-                    .for_each(|(offset, tok)| match tok.get_type().as_str() {
-                        "whitespace" => frame.accumulated.push(Node::Whitespace {
-                            raw: tok.raw().to_string(),
-                            token_idx: *matched_idx + offset,
-                        }),
-                        "newline" => frame.accumulated.push(Node::Newline {
-                            raw: tok.raw().to_string(),
-                            token_idx: *matched_idx + offset,
-                        }),
+                for offset in 0..(*working_idx - *matched_idx) {
+                    let token_idx = *matched_idx + offset;
+                    let tok = &self.tokens[token_idx];
+                    // Skip if already collected IN THIS BRANCH
+                    if self.collected_transparent_positions.contains(&token_idx) {
+                        continue;
+                    }
+                    match tok.get_type().as_str() {
+                        "whitespace" => {
+                            frame.accumulated.push(Node::Whitespace {
+                                raw: tok.raw().to_string(),
+                                token_idx,
+                            });
+                            self.mark_position_collected(token_idx);
+                        }
+                        "newline" => {
+                            frame.accumulated.push(Node::Newline {
+                                raw: tok.raw().to_string(),
+                                token_idx,
+                            });
+                            self.mark_position_collected(token_idx);
+                        }
+                        "comment" => {
+                            frame.accumulated.push(Node::Comment {
+                                raw: tok.raw().to_string(),
+                                token_idx,
+                            });
+                            self.mark_position_collected(token_idx);
+                        }
                         _ => {}
-                    });
+                    }
+                }
                 *matched_idx = *working_idx;
             }
 
@@ -431,10 +452,9 @@ impl Parser<'_> {
                 *max_idx = *matched_idx;
             }
 
-            // Skip whitespace for next iteration if allow_gaps is true (Python behavior)
+            // Skip transparent tokens (including comments) for next iteration if allow_gaps is true (Python behavior)
             // This matches Python's AnyNumberOf.match which calls
             // skip_start_index_forward_to_code after each successful match.
-            let allow_gaps = inst.flags.allow_gaps();
             if allow_gaps {
                 *working_idx = self.skip_start_index_forward_to_code(*matched_idx, *max_idx);
             }
@@ -454,7 +474,7 @@ impl Parser<'_> {
                     max_idx,
                     matched_idx,
                     frame.parent_max_idx,
-                    inst.parse_mode
+                    parse_mode
                 );
                 frame.end_pos = Some(*matched_idx);
                 frame.state = FrameState::Combining;
