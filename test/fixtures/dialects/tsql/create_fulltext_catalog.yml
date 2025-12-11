@@ -1,0 +1,85 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 22d518dae0d5e917ef02cb35a30f1c96c743e074e3a430bc05f40b122bcf7b9f
+file:
+- batch:
+  - statement:
+      create_fulltext_catalog_statement:
+      - keyword: CREATE
+      - keyword: FULLTEXT
+      - keyword: CATALOG
+      - object_reference:
+          quoted_identifier: '[ftCatalog]'
+      - keyword: WITH
+      - keyword: ACCENT_SENSITIVITY
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - keyword: 'OFF'
+      - keyword: AS
+      - keyword: DEFAULT
+  - statement_terminator: ;
+  - statement:
+      create_fulltext_catalog_statement:
+      - keyword: CREATE
+      - keyword: FULLTEXT
+      - keyword: CATALOG
+      - object_reference:
+          naked_identifier: ftCatalog
+      - keyword: AS
+      - keyword: DEFAULT
+  - statement_terminator: ;
+  - go_statement:
+      keyword: GO
+- batch:
+    statement:
+      create_fulltext_index_statement:
+      - keyword: CREATE
+      - keyword: FULLTEXT
+      - keyword: INDEX
+      - keyword: 'ON'
+      - table_reference:
+        - naked_identifier: HumanResources
+        - dot: .
+        - naked_identifier: JobCandidate
+      - bracketed:
+          start_bracket: (
+          column_reference:
+            naked_identifier: Resume
+          end_bracket: )
+      - keyword: KEY
+      - keyword: INDEX
+      - object_reference:
+          naked_identifier: PK_JobCandidate_JobCandidateID
+    statement_terminator: ;
+    go_statement:
+      keyword: GO
+- batch:
+  - statement:
+      create_fulltext_catalog_statement:
+      - keyword: CREATE
+      - keyword: FULLTEXT
+      - keyword: CATALOG
+      - object_reference:
+          naked_identifier: ftCatalog
+      - keyword: AUTHORIZATION
+      - role_reference:
+          quoted_identifier: '[dbo]'
+  - statement_terminator: ;
+  - statement:
+      create_fulltext_catalog_statement:
+      - keyword: CREATE
+      - keyword: FULLTEXT
+      - keyword: CATALOG
+      - object_reference:
+          naked_identifier: ftCatalog
+      - keyword: 'ON'
+      - keyword: FILEGROUP
+      - filegroup_name:
+          quoted_identifier: '[filegroup]'
+      - keyword: IN
+      - keyword: PATH
+      - quoted_literal: "'rootpath'"
+  - statement_terminator: ;

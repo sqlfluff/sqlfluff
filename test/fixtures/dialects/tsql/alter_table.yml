@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 7cd57536784a7e25f797c84f119bad4adfa89bc17286dd69fb4f44dc67d6841e
+_hash: 1c4adcff8d2426fa5c6f4fa3e5a6ce8ef67a1a084dc0377fc94c88071ebf71e2
 file:
 - batch:
     statement:
@@ -390,6 +390,37 @@ file:
       - keyword: ALTER
       - keyword: TABLE
       - table_reference:
+        - naked_identifier: Purchasing
+        - dot: .
+        - naked_identifier: PurchaseOrderHeader
+      - keyword: NOCHECK
+      - keyword: CONSTRAINT
+      - object_reference:
+          naked_identifier: FK_PurchaseOrderHeader_Employee_EmployeeID
+    statement_terminator: ;
+    go_statement:
+      keyword: GO
+- batch:
+  - statement:
+      alter_table_statement:
+      - keyword: ALTER
+      - keyword: TABLE
+      - table_reference:
+        - quoted_identifier: '[dbo]'
+        - dot: .
+        - quoted_identifier: '[Attachment]'
+      - keyword: WITH
+      - keyword: CHECK
+      - keyword: CHECK
+      - keyword: CONSTRAINT
+      - object_reference:
+          quoted_identifier: '[FK_Attachment_EmailMessage]'
+  - statement_terminator: ;
+  - statement:
+      alter_table_statement:
+      - keyword: ALTER
+      - keyword: TABLE
+      - table_reference:
           naked_identifier: my_table
       - keyword: ADD
       - column_definition:
@@ -401,7 +432,7 @@ file:
           naked_identifier: my_col_2
           data_type:
             keyword: INT
-    go_statement:
+  - go_statement:
       keyword: GO
 - batch:
     statement:
