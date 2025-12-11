@@ -6270,7 +6270,7 @@ class AlterTypeStatementSegment(BaseSegment):
     match_grammar: Matchable = Sequence(
         "ALTER",
         "TYPE",
-        Ref("ObjectReferenceSegment"),
+        OneOf(Ref("DatatypeIdentifierSegment"), Ref("ObjectReferenceSegment")),
         OneOf(
             Sequence(
                 "OWNER",
