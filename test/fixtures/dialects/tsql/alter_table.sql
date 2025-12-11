@@ -53,12 +53,26 @@ ALTER TABLE [Production].[ProductCostHistory]
 CHECK CONSTRAINT [FK_ProductCostHistory_Product_ProductID]
 GO
 
+ALTER TABLE [Production].[ProductCostHistory]
+CHECK CONSTRAINT [FK_ProductCostHistory_Product_ProductID]
+
 ALTER TABLE Purchasing.PurchaseOrderHeader
 NOCHECK CONSTRAINT FK_PurchaseOrderHeader_Employee_EmployeeID;
-GO
 
 ALTER TABLE [dbo].[Attachment]
 WITH CHECK
+CHECK CONSTRAINT [FK_Attachment_EmailMessage];
+
+ALTER TABLE [dbo].[Attachment]
+WITH CHECK
+NOCHECK CONSTRAINT [FK_Attachment_EmailMessage];
+
+ALTER TABLE [dbo].[Attachment]
+WITH NOCHECK
+NOCHECK CONSTRAINT [FK_Attachment_EmailMessage];
+
+ALTER TABLE [dbo].[Attachment]
+WITH NOCHECK
 CHECK CONSTRAINT [FK_Attachment_EmailMessage];
 
 ALTER TABLE my_table

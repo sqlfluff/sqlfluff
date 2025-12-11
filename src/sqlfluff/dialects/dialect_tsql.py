@@ -7,6 +7,7 @@ from sqlfluff.core.dialects import load_raw_dialect
 from sqlfluff.core.parser import (
     AnyNumberOf,
     AnySetOf,
+    Anything,
     BaseFileSegment,
     BaseSegment,
     Bracketed,
@@ -4467,7 +4468,7 @@ class AlterTableStatementSegment(BaseSegment):
                 # See for details on check/nocheck constraints
                 # https://learn.microsoft.com/en-us/sql/relational-databases/tables/disable-foreign-key-constraints-with-insert-and-update-statements
                 Sequence(
-                    Sequence("WITH", "CHECK", optional=True),
+                    Sequence("WITH", OneOf("CHECK", "NOCHECK"), optional=True),
                     OneOf("CHECK", "NOCHECK"),
                     "CONSTRAINT",
                     Ref("ObjectReferenceSegment"),
@@ -4692,37 +4693,37 @@ class CreateFullTextCatalogStatementSegment(BaseSegment):
         "FULLTEXT",
         "CATALOG",
         Ref("ObjectReferenceSegment"),
-        AnyNumberOf(
+        Sequence(
             Sequence(
                 "ON",
                 "FILEGROUP",
                 Ref("FilegroupNameSegment"),
+                optional=True,
             ),
-            Sequence("IN", "PATH", Ref("QuotedLiteralSegment")),
             Sequence(
-                "WITH", "ACCENT_SENSITIVITY", Ref("EqualsSegment"), OneOf("ON", "OFF")
+                "IN",
+                "PATH",
+                Ref("QuotedLiteralSegment"),
+                optional=True,
             ),
-            Sequence("AS", "DEFAULT"),
-            Sequence("AUTHORIZATION", Ref("RoleReferenceSegment")),
+            Sequence(
+                "WITH",
+                "ACCENT_SENSITIVITY",
+                Ref("EqualsSegment"),
+                OneOf("ON", "OFF"),
+                optional=True,
+            ),
+            Sequence(
+                "AS",
+                "DEFAULT",
+                optional=True,
+            ),
+            Sequence(
+                "AUTHORIZATION",
+                Ref("RoleReferenceSegment"),
+                optional=True,
+            ),
             optional=True,
-        ),
-    )
-
-
-class OpenXmlWithClauseSegment(BaseSegment):
-    """OPENXML WITH Clause segment.
-
-    https://learn.microsoft.com/en-us/sql/t-sql/functions/openxml-transact-sql
-    """
-
-    type = "openxml_with_clause"
-    match_grammar = Sequence(
-        "WITH",
-        Bracketed(
-            OneOf(
-                Delimited(Ref("ColumnDefinitionSegment")),
-                Ref("TableReferenceSegment"),
-            )
         ),
     )
 
@@ -4734,6 +4735,23 @@ class OpenXmlSegment(BaseSegment):
     """
 
     type = "openxml_segment"
+
+    _xml_schema_declaration = Sequence(
+        Ref("SingleIdentifierGrammar"),  # Column name
+        Ref("DatatypeSegment"),  # Column type
+        Bracketed(Anything(), optional=True),  # For types like VARCHAR(100)
+        Ref("QuotedLiteralSegment", optional=True),
+    )
+
+    _with_clause = Sequence(
+        "WITH",
+        OneOf(
+            Bracketed(Delimited(_xml_schema_declaration)),
+            Ref("TableReferenceSegment"),
+        ),
+        optional=True,
+    )
+
     match_grammar = Sequence(
         "OPENXML",
         Bracketed(
@@ -4745,7 +4763,7 @@ class OpenXmlSegment(BaseSegment):
                 )
             )
         ),
-        Ref("OpenXmlWithClauseSegment", optional=True),
+        _with_clause,
     )
 
 

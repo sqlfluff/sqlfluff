@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 1c4adcff8d2426fa5c6f4fa3e5a6ce8ef67a1a084dc0377fc94c88071ebf71e2
+_hash: 5eda5a07300cd682fb037f8410d65c6540a88b15c1dfe4ac51b2bf40dc257444
 file:
 - batch:
     statement:
@@ -385,7 +385,19 @@ file:
     go_statement:
       keyword: GO
 - batch:
-    statement:
+  - statement:
+      alter_table_statement:
+      - keyword: ALTER
+      - keyword: TABLE
+      - table_reference:
+        - quoted_identifier: '[Production]'
+        - dot: .
+        - quoted_identifier: '[ProductCostHistory]'
+      - keyword: CHECK
+      - keyword: CONSTRAINT
+      - object_reference:
+          quoted_identifier: '[FK_ProductCostHistory_Product_ProductID]'
+  - statement:
       alter_table_statement:
       - keyword: ALTER
       - keyword: TABLE
@@ -397,10 +409,7 @@ file:
       - keyword: CONSTRAINT
       - object_reference:
           naked_identifier: FK_PurchaseOrderHeader_Employee_EmployeeID
-    statement_terminator: ;
-    go_statement:
-      keyword: GO
-- batch:
+  - statement_terminator: ;
   - statement:
       alter_table_statement:
       - keyword: ALTER
@@ -411,6 +420,51 @@ file:
         - quoted_identifier: '[Attachment]'
       - keyword: WITH
       - keyword: CHECK
+      - keyword: CHECK
+      - keyword: CONSTRAINT
+      - object_reference:
+          quoted_identifier: '[FK_Attachment_EmailMessage]'
+  - statement_terminator: ;
+  - statement:
+      alter_table_statement:
+      - keyword: ALTER
+      - keyword: TABLE
+      - table_reference:
+        - quoted_identifier: '[dbo]'
+        - dot: .
+        - quoted_identifier: '[Attachment]'
+      - keyword: WITH
+      - keyword: CHECK
+      - keyword: NOCHECK
+      - keyword: CONSTRAINT
+      - object_reference:
+          quoted_identifier: '[FK_Attachment_EmailMessage]'
+  - statement_terminator: ;
+  - statement:
+      alter_table_statement:
+      - keyword: ALTER
+      - keyword: TABLE
+      - table_reference:
+        - quoted_identifier: '[dbo]'
+        - dot: .
+        - quoted_identifier: '[Attachment]'
+      - keyword: WITH
+      - keyword: NOCHECK
+      - keyword: NOCHECK
+      - keyword: CONSTRAINT
+      - object_reference:
+          quoted_identifier: '[FK_Attachment_EmailMessage]'
+  - statement_terminator: ;
+  - statement:
+      alter_table_statement:
+      - keyword: ALTER
+      - keyword: TABLE
+      - table_reference:
+        - quoted_identifier: '[dbo]'
+        - dot: .
+        - quoted_identifier: '[Attachment]'
+      - keyword: WITH
+      - keyword: NOCHECK
       - keyword: CHECK
       - keyword: CONSTRAINT
       - object_reference:
