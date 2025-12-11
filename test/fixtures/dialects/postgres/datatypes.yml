@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 273d8f6968ebba5d069390bd6f3ab32f63f86b75274a1e2c0425e45394daa534
+_hash: ac7d385267507a41f816851b217259cdedc7b84d131357ec18212ee70633a14b
 file:
 - statement:
     create_table_statement:
@@ -709,8 +709,7 @@ file:
     create_type_statement:
     - keyword: CREATE
     - keyword: TYPE
-    - object_reference:
-        naked_identifier: bar
+    - data_type_identifier: bar
     - keyword: AS
     - keyword: ENUM
     - bracketed:
