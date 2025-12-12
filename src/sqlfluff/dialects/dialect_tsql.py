@@ -7,7 +7,6 @@ from sqlfluff.core.dialects import load_raw_dialect
 from sqlfluff.core.parser import (
     AnyNumberOf,
     AnySetOf,
-    Anything,
     BaseFileSegment,
     BaseSegment,
     Bracketed,
@@ -4737,9 +4736,8 @@ class OpenXmlSegment(BaseSegment):
     type = "openxml_segment"
 
     _xml_schema_declaration = Sequence(
-        Ref("SingleIdentifierGrammar"),  # Column name
-        Ref("DatatypeSegment"),  # Column type
-        Bracketed(Anything(), optional=True),  # For types like VARCHAR(100)
+        Ref("SingleIdentifierGrammar"),
+        Ref("DatatypeSegment"),
         Ref("QuotedLiteralSegment", optional=True),
     )
 
