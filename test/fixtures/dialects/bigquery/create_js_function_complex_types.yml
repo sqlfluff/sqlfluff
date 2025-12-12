@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: d1fa0d72cc2af0530c5f21c4cea3da882175a110632f386d1752c6136a1bb15f
+_hash: 09fea1147a6721122baff61b940cabd21edd638edb25e3829479fea628e1b460
 file:
   statement:
     create_function_statement:
@@ -66,7 +66,7 @@ file:
                     keyword: ARRAY
                     start_angle_bracket: <
                     data_type:
-                      data_type_identifier: FLOAT
+                      data_type_identifier: FLOAT64
                     end_angle_bracket: '>'
               - comma: ','
               - parameter: b
