@@ -1,0 +1,137 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 5b2099288567e24fd0fe9d0f067fcecb1050c24f84bcf80077971e0b0ce50dc4
+file:
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: json_value
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                    naked_identifier: raw_data
+              - comma: ','
+              - expression:
+                  quoted_literal: "'$.\"action_type\"'"
+              - keyword: RETURNING
+              - data_type:
+                  keyword: smallint
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: json_value
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                    naked_identifier: raw_data
+              - comma: ','
+              - expression:
+                  quoted_literal: "'$.\"name\"'"
+              - keyword: RETURNING
+              - data_type:
+                  keyword: text
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: json_value
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                    naked_identifier: raw_data
+              - comma: ','
+              - expression:
+                  quoted_literal: "'$.\"price\"'"
+              - keyword: RETURNING
+              - data_type:
+                  keyword: numeric
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: json_value
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                    naked_identifier: raw_data
+              - comma: ','
+              - expression:
+                  quoted_literal: "'$.\"active\"'"
+              - keyword: RETURNING
+              - data_type:
+                  keyword: boolean
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: json_value
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                    naked_identifier: raw_data
+              - comma: ','
+              - expression:
+                  quoted_literal: "'$.\"timestamp\"'"
+              - keyword: RETURNING
+              - data_type:
+                  datetime_type_identifier:
+                    keyword: timestamp
+              - end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: json_value
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                    naked_identifier: raw_data
+              - comma: ','
+              - expression:
+                  quoted_literal: "'$.\"id\"'"
+              - end_bracket: )
+- statement_terminator: ;

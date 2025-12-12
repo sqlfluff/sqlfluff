@@ -421,6 +421,7 @@ postgres_docs_keywords = [
     ("JSON_OBJECT", "not-keyword"),
     ("JSON_OBJECTAGG", "not-keyword"),
     ("JSON_QUERY", "not-keyword"),
+    ("JSON_SERIALIZE", "not-keyword"),
     ("JSON_TABLE", "not-keyword"),
     ("JSON_TABLE_PRIMITIVE", "not-keyword"),
     ("JSON_VALUE", "not-keyword"),
