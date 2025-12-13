@@ -462,6 +462,10 @@ postgres_dialect.add(
 postgres_dialect.replace(
     LikeGrammar=OneOf("LIKE", "ILIKE", Sequence("SIMILAR", "TO")),
     StringBinaryOperatorGrammar=OneOf(Ref("ConcatSegment"), "COLLATE"),
+    BaseExpressionElementGrammar=OneOf(
+        ansi_dialect.get_grammar("BaseExpressionElementGrammar"),
+        Ref("FunctionExpansionSegment"),
+    ),
     IsClauseGrammar=OneOf(
         Ref("NullLiteralSegment"),
         Ref("NanLiteralSegment"),
@@ -1972,6 +1976,27 @@ class GroupByClauseSegment(BaseSegment):
             ],
         ),
         Dedent,
+    )
+
+
+class FunctionExpansionSegment(BaseSegment):
+    """A PostgreSQL-specific function expansion segment (e.g., (function()).*).
+
+    This handles the PostgreSQL syntax where you can expand all columns
+    from a set-returning function using the .* syntax.
+    
+    Example: (JSONB_EACH_TEXT(w.inventory_events)).*
+    
+    See: https://www.postgresql.org/docs/current/functions-json.html
+    """
+
+    type = "function_expansion"
+    match_grammar = Sequence(
+        # A bracketed expression (typically a function call)
+        Bracketed(Ref("ExpressionSegment")),
+        # The expansion operator .*
+        Ref("DotSegment"),
+        Ref("StarSegment"),
     )
 
 
