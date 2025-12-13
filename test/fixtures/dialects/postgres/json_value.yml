@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 5b2099288567e24fd0fe9d0f067fcecb1050c24f84bcf80077971e0b0ce50dc4
+_hash: b2736a250bfb8d0c167f41e321b12cd16f3f6fcc8b29794fc625fc339cf5a8f8
 file:
 - statement:
     select_statement:
@@ -134,4 +134,86 @@ file:
               - expression:
                   quoted_literal: "'$.\"id\"'"
               - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: audit_log_entries
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          naked_identifier: id
+          data_type:
+            keyword: bigint
+          column_constraint_segment:
+          - keyword: NOT
+          - keyword: 'NULL'
+      - comma: ','
+      - column_definition:
+        - naked_identifier: action_type
+        - data_type:
+            keyword: smallint
+        - column_constraint_segment:
+          - keyword: GENERATED
+          - keyword: ALWAYS
+          - keyword: AS
+          - expression:
+              bracketed:
+                start_bracket: (
+                expression:
+                  function:
+                    function_name:
+                      function_name_identifier: json_value
+                    function_contents:
+                      bracketed:
+                      - start_bracket: (
+                      - expression:
+                          column_reference:
+                            naked_identifier: raw_data
+                      - comma: ','
+                      - expression:
+                          quoted_literal: "'$.\"action_type\"'"
+                      - keyword: RETURNING
+                      - data_type:
+                          keyword: smallint
+                      - end_bracket: )
+                end_bracket: )
+          - keyword: STORED
+        - column_constraint_segment:
+          - keyword: NOT
+          - keyword: 'NULL'
+      - comma: ','
+      - column_definition:
+          naked_identifier: target_id
+          data_type:
+            keyword: bigint
+          column_constraint_segment:
+          - keyword: GENERATED
+          - keyword: ALWAYS
+          - keyword: AS
+          - expression:
+              bracketed:
+                start_bracket: (
+                expression:
+                  function:
+                    function_name:
+                      function_name_identifier: json_value
+                    function_contents:
+                      bracketed:
+                      - start_bracket: (
+                      - expression:
+                          column_reference:
+                            naked_identifier: raw_data
+                      - comma: ','
+                      - expression:
+                          quoted_literal: "'$.\"target_id\"'"
+                      - keyword: RETURNING
+                      - data_type:
+                          keyword: bigint
+                      - end_bracket: )
+                end_bracket: )
+          - keyword: STORED
+      - end_bracket: )
 - statement_terminator: ;
