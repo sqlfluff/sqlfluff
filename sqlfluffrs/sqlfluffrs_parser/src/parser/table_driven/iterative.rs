@@ -3,7 +3,7 @@ use sqlfluffrs_types::{GrammarId, GrammarVariant};
 use crate::parser::{
     cache::TableCacheKey,
     table_driven::frame::{TableFrameResult, TableParseFrame, TableParseFrameStack},
-    FrameContext, FrameState, Node, ParseError, Parser,
+    FrameContext, FrameState, MatchResult, Node, ParseError, Parser,
 };
 
 impl Parser<'_> {
@@ -11,36 +11,79 @@ impl Parser<'_> {
     // Main Iterative Parser
     // ========================================================================
 
-    /// Fully iterative parser using explicit stack
+    /// Fully iterative parser using explicit stack - returns Node
     ///
-    /// This replaces recursive `parse_with_grammar` calls with an explicit
-    /// stack-based state machine to avoid stack overflow on deeply nested grammars.
+    /// This is a convenience wrapper around `parse_table_iterative_match_result`
+    /// that materializes the AST by calling `apply()` on the MatchResult.
+    ///
+    /// For Python interop where Python handles apply(), use
+    /// `parse_table_iterative_match_result` directly.
     pub fn parse_table_iterative(
         &mut self,
         grammar: GrammarId,
         parent_terminators: &[GrammarId],
     ) -> Result<Node, ParseError> {
         log::debug!(
-            "Starting iterative parse for grammar: {} at pos {}",
+            "parse_table_iterative: delegating to match_result version for grammar {} at pos {}",
+            grammar,
+            self.pos
+        );
+
+        // Delegate to the MatchResult version
+        let match_result = self.parse_table_iterative_match_result(grammar, parent_terminators)?;
+
+        // Materialize the AST by calling apply()
+        let nodes = match_result.apply(self.tokens);
+        let node = if nodes.is_empty() {
+            Node::Empty
+        } else if nodes.len() == 1 {
+            nodes.into_iter().next().unwrap()
+        } else {
+            Node::Sequence { children: nodes }
+        };
+
+        Ok(node)
+    }
+
+    /// Primary iterative parser - returns MatchResult for lazy AST construction
+    ///
+    /// This is the main entry point for table-driven parsing. It returns a
+    /// MatchResult which describes what matched without materializing the full
+    /// AST. This allows:
+    ///
+    /// 1. Python to call its own apply() method for Python-native segment construction
+    /// 2. Rust to call apply() when a Node is needed
+    /// 3. Efficient caching of parse results (MatchResult is lighter than Node)
+    ///
+    /// The MatchResult follows Python's match() semantics:
+    /// - matched_slice: Range of token indices that matched
+    /// - matched_class: The segment class to construct (Ref, Sequence, etc.)
+    /// - child_matches: Nested MatchResults for compound grammars
+    pub fn parse_table_iterative_match_result(
+        &mut self,
+        grammar: GrammarId,
+        parent_terminators: &[GrammarId],
+    ) -> Result<MatchResult, ParseError> {
+        log::debug!(
+            "Starting iterative parse (match_result mode) for grammar: {} at pos {}",
             grammar,
             self.pos
         );
 
         // Save and clear checkpoint stack state at the start of this parse session.
         // This is critical for proper whitespace collection when OneOf tries multiple children.
-        // Each child parse via parse_table_iterative should start with a clean checkpoint slate
-        // to avoid interference from failed sibling parses.
         let saved_checkpoint_stack = std::mem::take(&mut self.collection_stack);
-        // Also save collected_transparent_positions so nested parses don't pollute it
         let saved_collected_positions = self.collected_transparent_positions.clone();
 
-        // Check table cache first, unless disabled
         let start_pos = self.pos;
         let max_idx = self.tokens.len();
 
+        // Check cache first
         if self.cache_enabled {
             let cache_key = TableCacheKey::new(start_pos, grammar, max_idx, parent_terminators);
-            if let Some((node, end_pos, transparent_positions)) = self.table_cache.get(&cache_key) {
+            if let Some((match_result, end_pos, transparent_positions)) =
+                self.table_cache.get(&cache_key)
+            {
                 log::debug!(
                     "TableCache HIT for grammar {} at pos {} -> end_pos {}",
                     grammar,
@@ -50,31 +93,20 @@ impl Parser<'_> {
 
                 // Restore parser position
                 self.pos = *end_pos;
-                
-                // CRITICAL FIX: Do NOT blindly insert positions from cache.
-                // The cached positions were collected in a specific parse context.
-                // If we're in a different context (e.g., OneOf trying multiple children),
-                // blindly reinserting positions can cause whitespace to be marked as
-                // collected when it shouldn't be, leading to missing whitespace in the final AST.
-                //
-                // The correct approach is: positions should be derived from the AST node,
-                // or we should only mark positions that aren't already collected.
-                // For now, we'll skip the position insertion entirely and let the
-                // deduplication in collection handle it.
+
+                // Handle transparent positions from cache
                 if let Some(positions) = transparent_positions {
                     log::debug!(
-                        "TableCache HIT: Would have inserted {} positions, but skipping for grammar {}",
+                        "TableCache HIT: {} transparent positions for grammar {}",
                         positions.len(),
                         grammar.0
                     );
-                    // Skip inserting - the parent's collection will handle deduplication
                 }
 
-                // Restore checkpoint stack and collected positions before returning
+                // Restore checkpoint stack before returning
                 self.collection_stack = saved_checkpoint_stack;
-                // Don't restore collected_positions for cache hit - the positions should be merged
-                // (cache hit already handles this via the transparent_positions in cache entry)
-                return Ok(node.clone());
+                // Apply global deduplication to remove sibling duplicates
+                return Ok(match_result.clone());
             }
         }
 
@@ -185,13 +217,13 @@ impl Parser<'_> {
                     }
                 }
 
-                FrameState::Complete(ref node) => {
+                FrameState::Complete(ref match_result) => {
                     // This state is reached when a handler has finished producing a result.
-                    // The handler transitions the frame to Complete(node) and returns Push(frame).
+                    // The handler transitions the frame to Complete(match_result) and returns Push(frame).
                     // The main loop then stores the result in stack.results for parent frames to access.
                     // This separation keeps handlers focused on producing results, while the main
                     // loop coordinates result storage.
-                    self.commit_table_frame_result(&mut stack, &frame, node);
+                    self.commit_table_frame_result(&mut stack, &frame, match_result);
                 }
             }
         }
@@ -256,7 +288,7 @@ impl Parser<'_> {
             stack.results.len(),
             initial_frame_id
         );
-        if let Some((node, end_pos, _element_key)) = stack.results.get(&initial_frame_id) {
+        if let Some((match_result, end_pos, _element_key)) = stack.results.get(&initial_frame_id) {
             log::debug!(
                 "DEBUG: Found result for frame_id={}, end_pos={}",
                 initial_frame_id,
@@ -264,10 +296,8 @@ impl Parser<'_> {
             );
             self.pos = *end_pos;
 
-            // Transparent positions already marked by checkpoint system during parsing
-
             // If the parse failed (returned Empty), provide diagnostic information
-            if node.is_empty() {
+            if match_result.is_empty() {
                 log::debug!("\n=== PARSE FAILED ===");
                 log::debug!("Parser stopped at position: {}", end_pos);
                 log::debug!("Total tokens: {}", self.tokens.len());
@@ -303,7 +333,7 @@ impl Parser<'_> {
                 .copied()
                 .collect();
 
-            // Store successful parse in table cache
+            // Store successful parse in table cache (as MatchResult)
             if self.cache_enabled {
                 let cache_key = TableCacheKey::new(start_pos, grammar, max_idx, parent_terminators);
                 let transparent_opt = if transparent_positions.is_empty() {
@@ -312,27 +342,25 @@ impl Parser<'_> {
                     Some(transparent_positions)
                 };
                 self.table_cache
-                    .put(cache_key, (node.clone(), *end_pos, transparent_opt));
+                    .put(cache_key, (match_result.clone(), *end_pos, transparent_opt));
             }
 
             // Restore checkpoint stack before returning
             self.collection_stack = saved_checkpoint_stack;
-            
+
             // For Empty results (no match), restore collected_transparent_positions too.
             // Empty results didn't actually consume anything, so any whitespace they
             // "collected" while skipping should be available for other parsers.
-            // Only non-Empty successful parses should keep their collected positions.
-            if node.is_empty() {
+            if match_result.is_empty() {
                 log::debug!(
-                    "parse_table_iterative: Restoring collected_transparent_positions for Empty result (grammar {})",
+                    "parse_table_iterative_match_result: Restoring collected_transparent_positions for Empty result (grammar {})",
                     grammar.0
                 );
                 self.collected_transparent_positions = saved_collected_positions;
             }
-            // For non-Empty results, positions collected during this parse remain 
-            // in collected_transparent_positions (they're part of the successful parse result)
-            
-            Ok(node.clone())
+
+            // Apply global deduplication to remove sibling duplicates
+            Ok(match_result.clone())
         } else {
             // Parse error - don't cache errors for now (to keep it simple)
             let error = ParseError::new(format!(
@@ -341,7 +369,6 @@ impl Parser<'_> {
                 stack.results.len()
             ));
             // Restore checkpoint stack and collected positions before returning
-            // For failed parses, we need to restore to the state before this parse
             self.collection_stack = saved_checkpoint_stack;
             self.collected_transparent_positions = saved_collected_positions;
             Err(error)
@@ -403,15 +430,17 @@ impl Parser<'_> {
                 // Synchronous match: call the table-driven string parser and store result for parent
                 let res = self.handle_string_parser_table_driven(grammar_id);
                 match res {
-                    Ok(node) => {
+                    Ok(match_result) => {
                         // Insert result directly so parent frames can pick it up
                         log::debug!(
-                            "[SYNC INSERT] frame_id={} StringParser result at pos {} -> node={:?}",
+                            "[SYNC INSERT] frame_id={} StringParser result at pos {} -> match={:?}",
                             frame.frame_id,
                             self.pos,
-                            node
+                            match_result
                         );
-                        stack.results.insert(frame.frame_id, (node, self.pos, None));
+                        stack
+                            .results
+                            .insert(frame.frame_id, (match_result, self.pos, None));
                         Ok(TableFrameResult::Done)
                     }
                     Err(e) => Err(e),
@@ -421,14 +450,15 @@ impl Parser<'_> {
             GrammarVariant::MultiStringParser => {
                 let res = self.handle_multi_string_parser_table_driven(grammar_id);
                 match res {
-                    Ok(node) => {
+                    Ok(match_result) => {
                         log::debug!(
-                            "[SYNC INSERT] frame_id={} MultiStringParser result at pos {} -> node={:?}",
+                            "[SYNC INSERT] frame_id={} MultiStringParser result at pos {}",
                             frame.frame_id,
-                            self.pos,
-                            node
+                            self.pos
                         );
-                        stack.results.insert(frame.frame_id, (node, self.pos, None));
+                        stack
+                            .results
+                            .insert(frame.frame_id, (match_result, self.pos, None));
                         Ok(TableFrameResult::Done)
                     }
                     Err(e) => Err(e),
@@ -437,14 +467,16 @@ impl Parser<'_> {
             GrammarVariant::RegexParser => {
                 let res = self.handle_regex_parser_table_driven(grammar_id);
                 match res {
-                    Ok(node) => {
+                    Ok(match_result) => {
                         log::debug!(
-                            "[SYNC INSERT] frame_id={} RegexParser result at pos {} -> node={:?}",
+                            "[SYNC INSERT] frame_id={} RegexParser result at pos {} -> match={:?}",
                             frame.frame_id,
                             self.pos,
-                            node
+                            match_result
                         );
-                        stack.results.insert(frame.frame_id, (node, self.pos, None));
+                        stack
+                            .results
+                            .insert(frame.frame_id, (match_result, self.pos, None));
                         Ok(TableFrameResult::Done)
                     }
                     Err(e) => Err(e),
@@ -453,14 +485,15 @@ impl Parser<'_> {
             GrammarVariant::Nothing => {
                 let res = self.handle_nothing_table_driven();
                 match res {
-                    Ok(node) => {
+                    Ok(match_result) => {
                         log::debug!(
-                            "[SYNC INSERT] frame_id={} Nothing result at pos {} -> node={:?}",
+                            "[SYNC INSERT] frame_id={} Nothing result at pos {} -> MatchResult",
                             frame.frame_id,
-                            self.pos,
-                            node
+                            self.pos
                         );
-                        stack.results.insert(frame.frame_id, (node, self.pos, None));
+                        stack
+                            .results
+                            .insert(frame.frame_id, (match_result, self.pos, None));
                         Ok(TableFrameResult::Done)
                     }
                     Err(e) => Err(e),
@@ -469,14 +502,15 @@ impl Parser<'_> {
             GrammarVariant::Empty => {
                 let res = self.handle_empty_table_driven();
                 match res {
-                    Ok(node) => {
+                    Ok(match_result) => {
                         log::debug!(
-                            "[SYNC INSERT] frame_id={} Empty result at pos {} -> node={:?}",
+                            "[SYNC INSERT] frame_id={} Empty result at pos {} -> MatchResult",
                             frame.frame_id,
-                            self.pos,
-                            node
+                            self.pos
                         );
-                        stack.results.insert(frame.frame_id, (node, self.pos, None));
+                        stack
+                            .results
+                            .insert(frame.frame_id, (match_result, self.pos, None));
                         Ok(TableFrameResult::Done)
                     }
                     Err(e) => Err(e),
@@ -485,14 +519,15 @@ impl Parser<'_> {
             GrammarVariant::Missing => {
                 let res = self.handle_missing_table_driven();
                 match res {
-                    Ok(node) => {
+                    Ok(match_result) => {
                         log::debug!(
-                            "[SYNC INSERT] frame_id={} Missing result at pos {} -> node={:?}",
+                            "[SYNC INSERT] frame_id={} Missing result at pos {} -> MatchResult",
                             frame.frame_id,
-                            self.pos,
-                            node
+                            self.pos
                         );
-                        stack.results.insert(frame.frame_id, (node, self.pos, None));
+                        stack
+                            .results
+                            .insert(frame.frame_id, (match_result, self.pos, None));
                         Ok(TableFrameResult::Done)
                     }
                     Err(e) => Err(e),
@@ -501,14 +536,15 @@ impl Parser<'_> {
             GrammarVariant::Token => {
                 let res = self.handle_token_table_driven(grammar_id);
                 match res {
-                    Ok(node) => {
+                    Ok(match_result) => {
                         log::debug!(
-                            "[SYNC INSERT] frame_id={} Token result at pos {} -> node={:?}",
+                            "[SYNC INSERT] frame_id={} Token result at pos {} -> MatchResult",
                             frame.frame_id,
-                            self.pos,
-                            node
+                            self.pos
                         );
-                        stack.results.insert(frame.frame_id, (node, self.pos, None));
+                        stack
+                            .results
+                            .insert(frame.frame_id, (match_result, self.pos, None));
                         Ok(TableFrameResult::Done)
                     }
                     Err(e) => Err(e),
@@ -517,14 +553,15 @@ impl Parser<'_> {
             GrammarVariant::Meta => {
                 let res = self.handle_meta_table_driven(grammar_id);
                 match res {
-                    Ok(node) => {
+                    Ok(match_result) => {
                         log::debug!(
-                            "[SYNC INSERT] frame_id={} Meta result at pos {} -> node={:?}",
+                            "[SYNC INSERT] frame_id={} Meta result at pos {} -> MatchResult",
                             frame.frame_id,
-                            self.pos,
-                            node
+                            self.pos
                         );
-                        stack.results.insert(frame.frame_id, (node, self.pos, None));
+                        stack
+                            .results
+                            .insert(frame.frame_id, (match_result, self.pos, None));
                         Ok(TableFrameResult::Done)
                     }
                     Err(e) => Err(e),
@@ -533,14 +570,15 @@ impl Parser<'_> {
             GrammarVariant::NonCodeMatcher => {
                 let res = self.handle_noncode_matcher_table_driven();
                 match res {
-                    Ok(node) => {
+                    Ok(match_result) => {
                         log::debug!(
-                            "[SYNC INSERT] frame_id={} NonCodeMatcher result at pos {} -> node={:?}",
+                            "[SYNC INSERT] frame_id={} NonCodeMatcher result at pos {} -> MatchResult",
                             frame.frame_id,
-                            self.pos,
-                            node
+                            self.pos
                         );
-                        stack.results.insert(frame.frame_id, (node, self.pos, None));
+                        stack
+                            .results
+                            .insert(frame.frame_id, (match_result, self.pos, None));
                         Ok(TableFrameResult::Done)
                     }
                     Err(e) => Err(e),
@@ -553,14 +591,15 @@ impl Parser<'_> {
                     frame.parent_max_idx,
                 );
                 match res {
-                    Ok(node) => {
+                    Ok(match_result) => {
                         log::debug!(
-                            "[SYNC INSERT] frame_id={} Anything result at pos {} -> node={:?}",
+                            "[SYNC INSERT] frame_id={} Anything result at pos {} -> MatchResult",
                             frame.frame_id,
-                            self.pos,
-                            node
+                            self.pos
                         );
-                        stack.results.insert(frame.frame_id, (node, self.pos, None));
+                        stack
+                            .results
+                            .insert(frame.frame_id, (match_result, self.pos, None));
                         Ok(TableFrameResult::Done)
                     }
                     Err(e) => Err(e),
@@ -831,26 +870,23 @@ impl Parser<'_> {
         &mut self,
         stack: &mut TableParseFrameStack,
         frame: &TableParseFrame,
-        node: &Node,
+        match_result: &MatchResult,
     ) {
         // Log grammar path - different indicator for Empty vs matched nodes
         let end_pos = frame.end_pos.unwrap_or(self.pos);
-        match node {
-            Node::Empty => {
-                log::debug!(
-                    "❌ No match at pos {}: {}",
-                    frame.pos,
-                    self.build_table_grammar_path(frame, stack)
-                );
-            }
-            _ => {
-                log::debug!(
-                    "✅ Match at pos {}-{}: {}",
-                    frame.pos,
-                    end_pos.saturating_sub(1),
-                    self.build_table_grammar_path(frame, stack)
-                );
-            }
+        if match_result.is_empty() {
+            log::debug!(
+                "❌ No match at pos {}: {}",
+                frame.pos,
+                self.build_table_grammar_path(frame, stack)
+            );
+        } else {
+            log::debug!(
+                "✅ Match at pos {}-{}: {}",
+                frame.pos,
+                end_pos.saturating_sub(1),
+                self.build_table_grammar_path(frame, stack)
+            );
         }
 
         // Use the end_pos stored in the frame (or fall back to self.pos)
@@ -862,15 +898,15 @@ impl Parser<'_> {
         // This frame is done - insert result
         stack
             .results
-            .insert(frame.frame_id, (node.clone(), end_pos, element_key));
+            .insert(frame.frame_id, (match_result.clone(), end_pos, element_key));
 
         // Cache the result for future reuse
         // Cache non-empty results always, but only cache Empty results when
         // terminators are empty (otherwise the Empty might become non-Empty
         // with different terminator context)
         if self.cache_enabled {
-            let should_cache_empty = node.is_empty() && frame.table_terminators.is_empty();
-            let should_cache_success = !node.is_empty();
+            let should_cache_empty = match_result.is_empty() && frame.table_terminators.is_empty();
+            let should_cache_success = !match_result.is_empty();
 
             if should_cache_empty || should_cache_success {
                 let variant = self.grammar_ctx.variant(frame.grammar_id);
@@ -898,8 +934,9 @@ impl Parser<'_> {
                     );
                     // Get transparent positions for this frame
                     let transparent_opt = frame.transparent_positions.clone();
+                    // Cache as MatchResult (lazy - no Node materialization needed)
                     self.table_cache
-                        .put(cache_key, (node.clone(), end_pos, transparent_opt));
+                        .put(cache_key, (match_result.clone(), end_pos, transparent_opt));
                 }
             }
         }
@@ -927,7 +964,9 @@ impl Parser<'_> {
                 max_idx,
                 &frame.table_terminators,
             );
-            if let Some((node, end_pos, transparent_positions)) = self.table_cache.get(&cache_key) {
+            if let Some((match_result, end_pos, transparent_positions)) =
+                self.table_cache.get(&cache_key)
+            {
                 log::debug!(
                     "[LOOP] TableCache HIT for grammar {} at pos {} -> end_pos {} (frame_id={})",
                     frame.grammar_id,
@@ -941,10 +980,10 @@ impl Parser<'_> {
                         self.collected_transparent_positions.insert(pos);
                     }
                 }
-                // Clone values before inserting (since we only have reference from cache)
+                // Insert cached MatchResult directly (no conversion needed)
                 stack
                     .results
-                    .insert(frame.frame_id, (node.clone(), *end_pos, None));
+                    .insert(frame.frame_id, (match_result.clone(), *end_pos, None));
                 return Ok(TableFrameResult::Done);
             }
         }

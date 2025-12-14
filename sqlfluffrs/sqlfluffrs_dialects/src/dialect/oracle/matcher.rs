@@ -4,7 +4,8 @@
 #![cfg_attr(rustfmt, rustfmt_skip)]
 use once_cell::sync::Lazy;
 use sqlfluffrs_types::LexMatcher;
-use sqlfluffrs_types::{Token, TokenConfig, RegexModeGroup};
+use sqlfluffrs_types::{Token, RegexModeGroup};
+use sqlfluffrs_types::token::CaseFold;
 
 pub static ORACLE_KEYWORDS: Lazy<Vec<String>> = Lazy::new(|| { vec![
     "ACCESS".to_string(),
@@ -170,10 +171,9 @@ pub static ORACLE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         r#"[^\S\r\n]+"#,
         |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
          quoted_value, escape_replacement, casefold| {
-            Token::whitespace_token(raw, pos_marker, TokenConfig {
-                class_types, instance_types, trim_start, trim_chars,
-                quoted_value, escape_replacement, casefold,
-            })
+            Token::whitespace_token_compat(raw, pos_marker, class_types,
+                instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold)
         },
         None,
         None,
@@ -181,7 +181,7 @@ pub static ORACLE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         None,
         None,
         None,
-        None,
+        CaseFold::None,
         None,
         |_| true,
         None,
@@ -192,10 +192,9 @@ pub static ORACLE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         r#"(--|#)[^\n]*"#,
         |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
          quoted_value, escape_replacement, casefold| {
-            Token::comment_token(raw, pos_marker, TokenConfig {
-                class_types, instance_types, trim_start, trim_chars,
-                quoted_value, escape_replacement, casefold,
-            })
+            Token::comment_token_compat(raw, pos_marker, class_types,
+                instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold)
         },
         None,
         None,
@@ -203,7 +202,7 @@ pub static ORACLE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         None,
         None,
         None,
-        None,
+        CaseFold::None,
         None,
         |input| input.starts_with(['#','-','/']),
         None,
@@ -214,10 +213,9 @@ pub static ORACLE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         r#"\/\*([^\*]|\*(?!\/))*\*\/"#,
         |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
          quoted_value, escape_replacement, casefold| {
-            Token::comment_token(raw, pos_marker, TokenConfig {
-                class_types, instance_types, trim_start, trim_chars,
-                quoted_value, escape_replacement, casefold,
-            })
+            Token::comment_token_compat(raw, pos_marker, class_types,
+                instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold)
         },
         Some(Box::new(
     LexMatcher::regex_subdivider(
@@ -225,10 +223,9 @@ pub static ORACLE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         r#"\r\n|\n"#,
         |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
          quoted_value, escape_replacement, casefold| {
-            Token::newline_token(raw, pos_marker, TokenConfig {
-                class_types, instance_types, trim_start, trim_chars,
-                quoted_value, escape_replacement, casefold,
-            })
+            Token::newline_token_compat(raw, pos_marker, class_types,
+                instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold)
         },
         None,
         None,
@@ -236,7 +233,7 @@ pub static ORACLE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         None,
         None,
         None,
-        None,
+        CaseFold::None,
         None,
         |_| true,
         None,
@@ -247,10 +244,9 @@ pub static ORACLE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         r#"[^\S\r\n]+"#,
         |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
          quoted_value, escape_replacement, casefold| {
-            Token::whitespace_token(raw, pos_marker, TokenConfig {
-                class_types, instance_types, trim_start, trim_chars,
-                quoted_value, escape_replacement, casefold,
-            })
+            Token::whitespace_token_compat(raw, pos_marker, class_types,
+                instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold)
         },
         None,
         None,
@@ -258,7 +254,7 @@ pub static ORACLE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         None,
         None,
         None,
-        None,
+        CaseFold::None,
         None,
         |_| true,
         None,
@@ -267,7 +263,7 @@ pub static ORACLE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         None,
         None,
         None,
-        None,
+        CaseFold::None,
         Some(extract_nested_block_comment),
         |input| input.starts_with("/"),
         None,
@@ -278,10 +274,9 @@ pub static ORACLE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         r#"'([^'\\]|\\|\\.|'')*'"#,
         |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
          quoted_value, escape_replacement, casefold| {
-            Token::code_token(raw, pos_marker, TokenConfig {
-                class_types, instance_types, trim_start, trim_chars,
-                quoted_value, escape_replacement, casefold,
-            })
+            Token::code_token_compat(raw, pos_marker, class_types,
+                instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold)
         },
         None,
         None,
@@ -289,7 +284,7 @@ pub static ORACLE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         None,
         Some((r#"'((?:[^'\\]|\\|\\.|'')*)'"#.to_string(), RegexModeGroup::Index(1))),
         Some((r#"''"#.to_string(), r#"'"#.to_string())),
-        None,
+        CaseFold::None,
         None,
         |input| match input.as_bytes() {
         [b'\'', ..] => true,                     // Single quote case
@@ -307,10 +302,9 @@ pub static ORACLE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         r#""([^"]|"")*""#,
         |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
          quoted_value, escape_replacement, casefold| {
-            Token::code_token(raw, pos_marker, TokenConfig {
-                class_types, instance_types, trim_start, trim_chars,
-                quoted_value, escape_replacement, casefold,
-            })
+            Token::code_token_compat(raw, pos_marker, class_types,
+                instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold)
         },
         None,
         None,
@@ -318,7 +312,7 @@ pub static ORACLE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         None,
         Some((r#""((?:[^"]|"")*)""#.to_string(), RegexModeGroup::Index(1))),
         Some((r#""""#.to_string(), r#"""#.to_string())),
-        None,
+        CaseFold::None,
         None,
         |input| match input.as_bytes() {
         [b'"', ..] => true,                     // Just a double quote
@@ -336,10 +330,9 @@ pub static ORACLE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         r#"`(?:[^`\\]|\\.)*`"#,
         |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
          quoted_value, escape_replacement, casefold| {
-            Token::code_token(raw, pos_marker, TokenConfig {
-                class_types, instance_types, trim_start, trim_chars,
-                quoted_value, escape_replacement, casefold,
-            })
+            Token::code_token_compat(raw, pos_marker, class_types,
+                instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold)
         },
         None,
         None,
@@ -347,7 +340,7 @@ pub static ORACLE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         None,
         Some((r#"`((?:[^`\\]|\\.)*)`"#.to_string(), RegexModeGroup::Index(1))),
         Some((r#"\\`"#.to_string(), r#"`"#.to_string())),
-        None,
+        CaseFold::None,
         None,
         |_| true,
         None,
@@ -358,10 +351,9 @@ pub static ORACLE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         r#"\$(\w*)\$(.*?)\$\1\$"#,
         |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
          quoted_value, escape_replacement, casefold| {
-            Token::code_token(raw, pos_marker, TokenConfig {
-                class_types, instance_types, trim_start, trim_chars,
-                quoted_value, escape_replacement, casefold,
-            })
+            Token::code_token_compat(raw, pos_marker, class_types,
+                instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold)
         },
         None,
         None,
@@ -369,7 +361,7 @@ pub static ORACLE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         None,
         Some((r#"\$(\w*)\$(.*?)\$\1\$"#.to_string(), RegexModeGroup::Index(2))),
         None,
-        None,
+        CaseFold::None,
         None,
         |input| input.starts_with("$"),
         None,
@@ -380,10 +372,9 @@ pub static ORACLE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         r#"(?>\d+\.\d+|\d+\.(?![\.\w])|\d+)(\.?[eE][+-]?\d+)?((?<!\.)|(?=\b))"#,
         |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
          quoted_value, escape_replacement, casefold| {
-            Token::literal_token(raw, pos_marker, TokenConfig {
-                class_types, instance_types, trim_start, trim_chars,
-                quoted_value, escape_replacement, casefold,
-            })
+            Token::literal_token_compat(raw, pos_marker, class_types,
+                instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold)
         },
         None,
         None,
@@ -391,7 +382,7 @@ pub static ORACLE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         None,
         None,
         None,
-        None,
+        CaseFold::None,
         None,
         |input| input.starts_with(['x','X','.','0','1','2','3','4','5','6','7','8','9']),
         None,
@@ -402,10 +393,9 @@ pub static ORACLE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         r#"////\s*(CHANGE|BODY|METADATA)[^\n]*"#,
         |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
          quoted_value, escape_replacement, casefold| {
-            Token::comment_token(raw, pos_marker, TokenConfig {
-                class_types, instance_types, trim_start, trim_chars,
-                quoted_value, escape_replacement, casefold,
-            })
+            Token::comment_token_compat(raw, pos_marker, class_types,
+                instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold)
         },
         None,
         None,
@@ -413,7 +403,7 @@ pub static ORACLE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         None,
         None,
         None,
-        None,
+        CaseFold::None,
         None,
         |_| true,
         None,
@@ -424,10 +414,9 @@ pub static ORACLE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         "~~~",
         |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
          quoted_value, escape_replacement, casefold| {
-            Token::comparison_operator_token(raw, pos_marker, TokenConfig {
-                class_types, instance_types, trim_start, trim_chars,
-                quoted_value, escape_replacement, casefold,
-            })
+            Token::comparison_operator_token_compat(raw, pos_marker, class_types,
+                instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold)
         },
         None,
         None,
@@ -435,7 +424,7 @@ pub static ORACLE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         None,
         None,
         None,
-        None,
+        CaseFold::None,
         None,
     ),
 
@@ -444,10 +433,9 @@ pub static ORACLE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         r#"!?~~?\*?"#,
         |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
          quoted_value, escape_replacement, casefold| {
-            Token::comparison_operator_token(raw, pos_marker, TokenConfig {
-                class_types, instance_types, trim_start, trim_chars,
-                quoted_value, escape_replacement, casefold,
-            })
+            Token::comparison_operator_token_compat(raw, pos_marker, class_types,
+                instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold)
         },
         None,
         None,
@@ -455,7 +443,7 @@ pub static ORACLE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         None,
         None,
         None,
-        None,
+        CaseFold::None,
         None,
         |_| true,
         None,
@@ -466,10 +454,9 @@ pub static ORACLE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         r#"\r\n|\n"#,
         |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
          quoted_value, escape_replacement, casefold| {
-            Token::newline_token(raw, pos_marker, TokenConfig {
-                class_types, instance_types, trim_start, trim_chars,
-                quoted_value, escape_replacement, casefold,
-            })
+            Token::newline_token_compat(raw, pos_marker, class_types,
+                instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold)
         },
         None,
         None,
@@ -477,7 +464,7 @@ pub static ORACLE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         None,
         None,
         None,
-        None,
+        CaseFold::None,
         None,
         |_| true,
         None,
@@ -488,10 +475,9 @@ pub static ORACLE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         "::",
         |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
          quoted_value, escape_replacement, casefold| {
-            Token::code_token(raw, pos_marker, TokenConfig {
-                class_types, instance_types, trim_start, trim_chars,
-                quoted_value, escape_replacement, casefold,
-            })
+            Token::code_token_compat(raw, pos_marker, class_types,
+                instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold)
         },
         None,
         None,
@@ -499,7 +485,7 @@ pub static ORACLE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         None,
         None,
         None,
-        None,
+        CaseFold::None,
         None,
     ),
 
@@ -508,10 +494,9 @@ pub static ORACLE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         "=>",
         |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
          quoted_value, escape_replacement, casefold| {
-            Token::code_token(raw, pos_marker, TokenConfig {
-                class_types, instance_types, trim_start, trim_chars,
-                quoted_value, escape_replacement, casefold,
-            })
+            Token::code_token_compat(raw, pos_marker, class_types,
+                instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold)
         },
         None,
         None,
@@ -519,7 +504,7 @@ pub static ORACLE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         None,
         None,
         None,
-        None,
+        CaseFold::None,
         None,
     ),
 
@@ -528,10 +513,9 @@ pub static ORACLE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         ":=",
         |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
          quoted_value, escape_replacement, casefold| {
-            Token::code_token(raw, pos_marker, TokenConfig {
-                class_types, instance_types, trim_start, trim_chars,
-                quoted_value, escape_replacement, casefold,
-            })
+            Token::code_token_compat(raw, pos_marker, class_types,
+                instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold)
         },
         None,
         None,
@@ -539,7 +523,7 @@ pub static ORACLE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         None,
         None,
         None,
-        None,
+        CaseFold::None,
         None,
     ),
 
@@ -548,10 +532,9 @@ pub static ORACLE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         "=",
         |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
          quoted_value, escape_replacement, casefold| {
-            Token::code_token(raw, pos_marker, TokenConfig {
-                class_types, instance_types, trim_start, trim_chars,
-                quoted_value, escape_replacement, casefold,
-            })
+            Token::code_token_compat(raw, pos_marker, class_types,
+                instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold)
         },
         None,
         None,
@@ -559,7 +542,7 @@ pub static ORACLE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         None,
         None,
         None,
-        None,
+        CaseFold::None,
         None,
     ),
 
@@ -568,10 +551,9 @@ pub static ORACLE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         ">",
         |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
          quoted_value, escape_replacement, casefold| {
-            Token::code_token(raw, pos_marker, TokenConfig {
-                class_types, instance_types, trim_start, trim_chars,
-                quoted_value, escape_replacement, casefold,
-            })
+            Token::code_token_compat(raw, pos_marker, class_types,
+                instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold)
         },
         None,
         None,
@@ -579,7 +561,7 @@ pub static ORACLE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         None,
         None,
         None,
-        None,
+        CaseFold::None,
         None,
     ),
 
@@ -588,10 +570,9 @@ pub static ORACLE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         "<",
         |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
          quoted_value, escape_replacement, casefold| {
-            Token::code_token(raw, pos_marker, TokenConfig {
-                class_types, instance_types, trim_start, trim_chars,
-                quoted_value, escape_replacement, casefold,
-            })
+            Token::code_token_compat(raw, pos_marker, class_types,
+                instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold)
         },
         None,
         None,
@@ -599,7 +580,7 @@ pub static ORACLE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         None,
         None,
         None,
-        None,
+        CaseFold::None,
         None,
     ),
 
@@ -608,10 +589,9 @@ pub static ORACLE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         "!",
         |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
          quoted_value, escape_replacement, casefold| {
-            Token::code_token(raw, pos_marker, TokenConfig {
-                class_types, instance_types, trim_start, trim_chars,
-                quoted_value, escape_replacement, casefold,
-            })
+            Token::code_token_compat(raw, pos_marker, class_types,
+                instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold)
         },
         None,
         None,
@@ -619,7 +599,7 @@ pub static ORACLE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         None,
         None,
         None,
-        None,
+        CaseFold::None,
         None,
     ),
 
@@ -628,10 +608,9 @@ pub static ORACLE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         ".",
         |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
          quoted_value, escape_replacement, casefold| {
-            Token::code_token(raw, pos_marker, TokenConfig {
-                class_types, instance_types, trim_start, trim_chars,
-                quoted_value, escape_replacement, casefold,
-            })
+            Token::code_token_compat(raw, pos_marker, class_types,
+                instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold)
         },
         None,
         None,
@@ -639,7 +618,7 @@ pub static ORACLE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         None,
         None,
         None,
-        None,
+        CaseFold::None,
         None,
     ),
 
@@ -648,10 +627,9 @@ pub static ORACLE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         ",",
         |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
          quoted_value, escape_replacement, casefold| {
-            Token::code_token(raw, pos_marker, TokenConfig {
-                class_types, instance_types, trim_start, trim_chars,
-                quoted_value, escape_replacement, casefold,
-            })
+            Token::code_token_compat(raw, pos_marker, class_types,
+                instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold)
         },
         None,
         None,
@@ -659,7 +637,7 @@ pub static ORACLE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         None,
         None,
         None,
-        None,
+        CaseFold::None,
         None,
     ),
 
@@ -668,10 +646,9 @@ pub static ORACLE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         "+",
         |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
          quoted_value, escape_replacement, casefold| {
-            Token::code_token(raw, pos_marker, TokenConfig {
-                class_types, instance_types, trim_start, trim_chars,
-                quoted_value, escape_replacement, casefold,
-            })
+            Token::code_token_compat(raw, pos_marker, class_types,
+                instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold)
         },
         None,
         None,
@@ -679,7 +656,7 @@ pub static ORACLE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         None,
         None,
         None,
-        None,
+        CaseFold::None,
         None,
     ),
 
@@ -688,10 +665,9 @@ pub static ORACLE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         "-",
         |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
          quoted_value, escape_replacement, casefold| {
-            Token::code_token(raw, pos_marker, TokenConfig {
-                class_types, instance_types, trim_start, trim_chars,
-                quoted_value, escape_replacement, casefold,
-            })
+            Token::code_token_compat(raw, pos_marker, class_types,
+                instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold)
         },
         None,
         None,
@@ -699,7 +675,7 @@ pub static ORACLE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         None,
         None,
         None,
-        None,
+        CaseFold::None,
         None,
     ),
 
@@ -708,10 +684,9 @@ pub static ORACLE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         "/",
         |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
          quoted_value, escape_replacement, casefold| {
-            Token::code_token(raw, pos_marker, TokenConfig {
-                class_types, instance_types, trim_start, trim_chars,
-                quoted_value, escape_replacement, casefold,
-            })
+            Token::code_token_compat(raw, pos_marker, class_types,
+                instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold)
         },
         None,
         None,
@@ -719,7 +694,7 @@ pub static ORACLE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         None,
         None,
         None,
-        None,
+        CaseFold::None,
         None,
     ),
 
@@ -728,10 +703,9 @@ pub static ORACLE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         "%",
         |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
          quoted_value, escape_replacement, casefold| {
-            Token::code_token(raw, pos_marker, TokenConfig {
-                class_types, instance_types, trim_start, trim_chars,
-                quoted_value, escape_replacement, casefold,
-            })
+            Token::code_token_compat(raw, pos_marker, class_types,
+                instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold)
         },
         None,
         None,
@@ -739,7 +713,7 @@ pub static ORACLE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         None,
         None,
         None,
-        None,
+        CaseFold::None,
         None,
     ),
 
@@ -748,10 +722,9 @@ pub static ORACLE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         "?",
         |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
          quoted_value, escape_replacement, casefold| {
-            Token::code_token(raw, pos_marker, TokenConfig {
-                class_types, instance_types, trim_start, trim_chars,
-                quoted_value, escape_replacement, casefold,
-            })
+            Token::code_token_compat(raw, pos_marker, class_types,
+                instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold)
         },
         None,
         None,
@@ -759,7 +732,7 @@ pub static ORACLE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         None,
         None,
         None,
-        None,
+        CaseFold::None,
         None,
     ),
 
@@ -768,10 +741,9 @@ pub static ORACLE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         "&",
         |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
          quoted_value, escape_replacement, casefold| {
-            Token::code_token(raw, pos_marker, TokenConfig {
-                class_types, instance_types, trim_start, trim_chars,
-                quoted_value, escape_replacement, casefold,
-            })
+            Token::code_token_compat(raw, pos_marker, class_types,
+                instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold)
         },
         None,
         None,
@@ -779,7 +751,7 @@ pub static ORACLE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         None,
         None,
         None,
-        None,
+        CaseFold::None,
         None,
     ),
 
@@ -788,10 +760,9 @@ pub static ORACLE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         "|",
         |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
          quoted_value, escape_replacement, casefold| {
-            Token::code_token(raw, pos_marker, TokenConfig {
-                class_types, instance_types, trim_start, trim_chars,
-                quoted_value, escape_replacement, casefold,
-            })
+            Token::code_token_compat(raw, pos_marker, class_types,
+                instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold)
         },
         None,
         None,
@@ -799,7 +770,7 @@ pub static ORACLE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         None,
         None,
         None,
-        None,
+        CaseFold::None,
         None,
     ),
 
@@ -808,10 +779,9 @@ pub static ORACLE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         "^",
         |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
          quoted_value, escape_replacement, casefold| {
-            Token::code_token(raw, pos_marker, TokenConfig {
-                class_types, instance_types, trim_start, trim_chars,
-                quoted_value, escape_replacement, casefold,
-            })
+            Token::code_token_compat(raw, pos_marker, class_types,
+                instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold)
         },
         None,
         None,
@@ -819,7 +789,7 @@ pub static ORACLE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         None,
         None,
         None,
-        None,
+        CaseFold::None,
         None,
     ),
 
@@ -828,10 +798,9 @@ pub static ORACLE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         "**",
         |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
          quoted_value, escape_replacement, casefold| {
-            Token::code_token(raw, pos_marker, TokenConfig {
-                class_types, instance_types, trim_start, trim_chars,
-                quoted_value, escape_replacement, casefold,
-            })
+            Token::code_token_compat(raw, pos_marker, class_types,
+                instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold)
         },
         None,
         None,
@@ -839,7 +808,7 @@ pub static ORACLE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         None,
         None,
         None,
-        None,
+        CaseFold::None,
         None,
     ),
 
@@ -848,10 +817,9 @@ pub static ORACLE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         "*",
         |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
          quoted_value, escape_replacement, casefold| {
-            Token::code_token(raw, pos_marker, TokenConfig {
-                class_types, instance_types, trim_start, trim_chars,
-                quoted_value, escape_replacement, casefold,
-            })
+            Token::code_token_compat(raw, pos_marker, class_types,
+                instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold)
         },
         None,
         None,
@@ -859,7 +827,7 @@ pub static ORACLE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         None,
         None,
         None,
-        None,
+        CaseFold::None,
         None,
     ),
 
@@ -868,10 +836,9 @@ pub static ORACLE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         "(",
         |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
          quoted_value, escape_replacement, casefold| {
-            Token::code_token(raw, pos_marker, TokenConfig {
-                class_types, instance_types, trim_start, trim_chars,
-                quoted_value, escape_replacement, casefold,
-            })
+            Token::code_token_compat(raw, pos_marker, class_types,
+                instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold)
         },
         None,
         None,
@@ -879,7 +846,7 @@ pub static ORACLE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         None,
         None,
         None,
-        None,
+        CaseFold::None,
         None,
     ),
 
@@ -888,10 +855,9 @@ pub static ORACLE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         ")",
         |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
          quoted_value, escape_replacement, casefold| {
-            Token::code_token(raw, pos_marker, TokenConfig {
-                class_types, instance_types, trim_start, trim_chars,
-                quoted_value, escape_replacement, casefold,
-            })
+            Token::code_token_compat(raw, pos_marker, class_types,
+                instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold)
         },
         None,
         None,
@@ -899,7 +865,7 @@ pub static ORACLE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         None,
         None,
         None,
-        None,
+        CaseFold::None,
         None,
     ),
 
@@ -908,10 +874,9 @@ pub static ORACLE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         "[",
         |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
          quoted_value, escape_replacement, casefold| {
-            Token::code_token(raw, pos_marker, TokenConfig {
-                class_types, instance_types, trim_start, trim_chars,
-                quoted_value, escape_replacement, casefold,
-            })
+            Token::code_token_compat(raw, pos_marker, class_types,
+                instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold)
         },
         None,
         None,
@@ -919,7 +884,7 @@ pub static ORACLE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         None,
         None,
         None,
-        None,
+        CaseFold::None,
         None,
     ),
 
@@ -928,10 +893,9 @@ pub static ORACLE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         "]",
         |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
          quoted_value, escape_replacement, casefold| {
-            Token::code_token(raw, pos_marker, TokenConfig {
-                class_types, instance_types, trim_start, trim_chars,
-                quoted_value, escape_replacement, casefold,
-            })
+            Token::code_token_compat(raw, pos_marker, class_types,
+                instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold)
         },
         None,
         None,
@@ -939,7 +903,7 @@ pub static ORACLE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         None,
         None,
         None,
-        None,
+        CaseFold::None,
         None,
     ),
 
@@ -948,10 +912,9 @@ pub static ORACLE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         "{",
         |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
          quoted_value, escape_replacement, casefold| {
-            Token::code_token(raw, pos_marker, TokenConfig {
-                class_types, instance_types, trim_start, trim_chars,
-                quoted_value, escape_replacement, casefold,
-            })
+            Token::code_token_compat(raw, pos_marker, class_types,
+                instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold)
         },
         None,
         None,
@@ -959,7 +922,7 @@ pub static ORACLE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         None,
         None,
         None,
-        None,
+        CaseFold::None,
         None,
     ),
 
@@ -968,10 +931,9 @@ pub static ORACLE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         "}",
         |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
          quoted_value, escape_replacement, casefold| {
-            Token::code_token(raw, pos_marker, TokenConfig {
-                class_types, instance_types, trim_start, trim_chars,
-                quoted_value, escape_replacement, casefold,
-            })
+            Token::code_token_compat(raw, pos_marker, class_types,
+                instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold)
         },
         None,
         None,
@@ -979,7 +941,7 @@ pub static ORACLE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         None,
         None,
         None,
-        None,
+        CaseFold::None,
         None,
     ),
 
@@ -988,10 +950,9 @@ pub static ORACLE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         ":",
         |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
          quoted_value, escape_replacement, casefold| {
-            Token::code_token(raw, pos_marker, TokenConfig {
-                class_types, instance_types, trim_start, trim_chars,
-                quoted_value, escape_replacement, casefold,
-            })
+            Token::code_token_compat(raw, pos_marker, class_types,
+                instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold)
         },
         None,
         None,
@@ -999,7 +960,7 @@ pub static ORACLE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         None,
         None,
         None,
-        None,
+        CaseFold::None,
         None,
     ),
 
@@ -1008,10 +969,9 @@ pub static ORACLE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         ";",
         |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
          quoted_value, escape_replacement, casefold| {
-            Token::code_token(raw, pos_marker, TokenConfig {
-                class_types, instance_types, trim_start, trim_chars,
-                quoted_value, escape_replacement, casefold,
-            })
+            Token::code_token_compat(raw, pos_marker, class_types,
+                instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold)
         },
         None,
         None,
@@ -1019,7 +979,7 @@ pub static ORACLE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         None,
         None,
         None,
-        None,
+        CaseFold::None,
         None,
     ),
 
@@ -1028,10 +988,9 @@ pub static ORACLE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         r#"PROMPT([^(\r\n)])*((?=\n)|(?=\r\n))?"#,
         |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
          quoted_value, escape_replacement, casefold| {
-            Token::comment_token(raw, pos_marker, TokenConfig {
-                class_types, instance_types, trim_start, trim_chars,
-                quoted_value, escape_replacement, casefold,
-            })
+            Token::comment_token_compat(raw, pos_marker, class_types,
+                instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold)
         },
         None,
         None,
@@ -1039,7 +998,7 @@ pub static ORACLE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         None,
         None,
         None,
-        None,
+        CaseFold::None,
         None,
         |input| input.starts_with("PROMPT"),
         None,
@@ -1050,10 +1009,9 @@ pub static ORACLE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         "@",
         |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
          quoted_value, escape_replacement, casefold| {
-            Token::code_token(raw, pos_marker, TokenConfig {
-                class_types, instance_types, trim_start, trim_chars,
-                quoted_value, escape_replacement, casefold,
-            })
+            Token::code_token_compat(raw, pos_marker, class_types,
+                instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold)
         },
         None,
         None,
@@ -1061,7 +1019,7 @@ pub static ORACLE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         None,
         None,
         None,
-        None,
+        CaseFold::None,
         None,
     ),
 
@@ -1070,10 +1028,9 @@ pub static ORACLE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         r#"[\p{L}][\p{L}\p{N}_$#]*"#,
         |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
          quoted_value, escape_replacement, casefold| {
-            Token::word_token(raw, pos_marker, TokenConfig {
-                class_types, instance_types, trim_start, trim_chars,
-                quoted_value, escape_replacement, casefold,
-            })
+            Token::word_token_compat(raw, pos_marker, class_types,
+                instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold)
         },
         None,
         None,
@@ -1081,7 +1038,7 @@ pub static ORACLE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
         None,
         None,
         None,
-        None,
+        CaseFold::None,
         None,
         |_| true,
         None,

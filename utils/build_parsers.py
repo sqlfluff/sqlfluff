@@ -88,6 +88,8 @@ class TableBuilder:
         self.hint_string_indices: List[int] = []  # Indices into strings for hints
         # Per-instruction segment type index (into strings) or 0xFFFFFFFF if none
         self.segment_type_offsets: List[int] = []
+        # Per-instruction segment class name index (into strings) or 0xFFFFFFFF if none
+        self.segment_class_offsets: List[int] = []
 
         # Deduplication maps
         self.string_to_id: Dict[str, int] = {}
@@ -223,6 +225,8 @@ class TableBuilder:
         self.instructions.append(None)  # Reserve slot - will be replaced below
         # Reserve a slot for the segment_type offset (default: no type)
         self.segment_type_offsets.append(0xFFFFFFFF)
+        # Reserve a slot for the segment_class offset (default: no class)
+        self.segment_class_offsets.append(0xFFFFFFFF)
 
         # Convert to GrammarInst (variant-specific logic)
         inst_data = self._convert_to_inst(grammar, parse_context)
@@ -236,18 +240,22 @@ class TableBuilder:
         # the textual type (e.g., "keyword", "file", etc.). Use 0xFFFFFFFF
         # to indicate "no type".
         try:
-            # If this grammar is a Segment class itself, use its `type` attr
+            # If this grammar is a Segment class itself, use its `type` and `__name__` attrs
             if isinstance(grammar, type) and issubclass(grammar, BaseSegment):
                 seg_type = getattr(grammar, "type", None)
                 if seg_type:
                     type_id = self._add_string(seg_type)
                     self.segment_type_offsets[grammar_id] = type_id
+                # Also store the class name
+                class_name = grammar.__name__
+                class_id = self._add_string(class_name)
+                self.segment_class_offsets[grammar_id] = class_id
             # If this grammar is a Ref to a named segment, attempt to resolve
             # the referenced name to a Segment class in the dialect library
-            # and use that class's `type` attribute. This covers the case
-            # where the generator special-circuits Segment classes by
-            # flattening their `match_grammar` instead of emitting a
-            # forwarding Ref instruction for the class itself.
+            # and use that class's `type` and `__name__` attributes. This covers
+            # the case where the generator special-circuits Segment classes by
+            # flattening their `match_grammar` instead of emitting a forwarding
+            # Ref instruction for the class itself.
             elif grammar.__class__ is Ref and isinstance(grammar, Ref):
                 try:
                     ref_name = grammar._ref.replace(" ", "_")
@@ -261,10 +269,14 @@ class TableBuilder:
                             if seg_type:
                                 type_id = self._add_string(seg_type)
                                 self.segment_type_offsets[grammar_id] = type_id
+                            # Also store the class name
+                            class_name = target.__name__
+                            class_id = self._add_string(class_name)
+                            self.segment_class_offsets[grammar_id] = class_id
                 except Exception:
                     # Be conservative: if lookup fails, leave as NONE
                     pass
-            # If this grammar is Conditional, use its _meta type for segment_type_offset
+            # If this grammar is Conditional, use its _meta type and class for segment_type_offset
             elif grammar.__class__ is Conditional:
                 meta_type = getattr(grammar, "_meta", None)
                 if meta_type:
@@ -272,6 +284,19 @@ class TableBuilder:
                     if seg_type:
                         type_id = self._add_string(seg_type)
                         self.segment_type_offsets[grammar_id] = type_id
+                    # Also store the class name if it's a segment class
+                    if isinstance(meta_type, type) and issubclass(
+                        meta_type, BaseSegment
+                    ):
+                        class_name = meta_type.__name__
+                        class_id = self._add_string(class_name)
+                        self.segment_class_offsets[grammar_id] = class_id
+                    if isinstance(meta_type, type) and issubclass(
+                        meta_type, BaseSegment
+                    ):
+                        class_name = meta_type.__name__
+                        class_id = self._add_string(class_name)
+                        self.segment_class_offsets[grammar_id] = class_id
         except Exception:
             # Be conservative: if any introspection fails, leave as NONE
             pass
@@ -1177,6 +1202,15 @@ class TableBuilder:
         lines.append("];")
         lines.append("")
 
+        # Segment class name offsets (indexed by GrammarId) - index into STRINGS or 0xFFFFFFFF
+        lines.append("pub static SEGMENT_CLASS_OFFSETS: &[u32] = &[")
+        for i in range(0, len(self.segment_class_offsets), 16):
+            chunk = self.segment_class_offsets[i : i + 16]
+            line = "    " + ", ".join(str(x) for x in chunk) + ","
+            lines.append(line)
+        lines.append("];")
+        lines.append("")
+
         # Regex patterns
         lines.append("pub static REGEX_PATTERNS: &[&str] = &[")
         for i, pattern in enumerate(self.regex_patterns):
@@ -1421,6 +1455,7 @@ def generate_parser_table_driven(dialect: str):
     hint_string_indices: HINT_STRING_INDICES,
     simple_hint_indices: SIMPLE_HINT_INDICES,
     segment_type_offsets: SEGMENT_TYPE_OFFSETS,
+    segment_class_offsets: SEGMENT_CLASS_OFFSETS,
 }};
 """
     )

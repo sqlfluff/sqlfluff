@@ -7,7 +7,7 @@ use sqlfluffrs_types::{
     matcher::{LexMatcher, LexedElement},
     slice::Slice,
     templater::{fileslice::TemplatedFileSlice, templatefile::TemplatedFile},
-    token::Token,
+    token::{CaseFold, Token},
 };
 
 use hashbrown::{HashMap, HashSet};
@@ -235,7 +235,7 @@ impl Lexer {
                 None,
                 None,
                 None,
-                None,
+                CaseFold::None,
                 None,
                 |_| true,
                 None,

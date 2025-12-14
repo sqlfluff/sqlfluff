@@ -6,7 +6,7 @@
 use hashbrown::HashMap;
 use std::hash::{Hash, Hasher};
 
-use crate::parser::Node;
+use crate::parser::{MatchResult, Node};
 
 // ============================================================================
 // Table-Driven Parse Cache
@@ -67,10 +67,10 @@ fn hash_table_terminators(terminators: &[GrammarId]) -> u64 {
 }
 
 /// Cache value for table-driven parser
-/// - Node: The parsed result
+/// - MatchResult: The lazy parse result (can be converted to Node via apply())
 /// - usize: End position after parsing
 /// - Option<Vec<usize>>: Transparent token positions collected during parse
-pub type TableCacheValue = (Node, usize, Option<Vec<usize>>);
+pub type TableCacheValue = (MatchResult, usize, Option<Vec<usize>>);
 
 /// Parse result cache for table-driven parser
 ///

@@ -542,7 +542,7 @@ mod whitespace_tests {
             Node::Ref { child, .. } => {
                 collect_token_positions(child, positions);
             }
-            Node::Sequence { children, .. } 
+            Node::Sequence { children, .. }
             | Node::DelimitedList { children, .. }
             | Node::Bracketed { children, .. } => {
                 for c in children {
@@ -561,7 +561,7 @@ mod whitespace_tests {
     #[test]
     fn test_select_from_alias() {
         let _ = env_logger::builder().is_test(true).try_init();
-        
+
         let sql = "SELECT x FROM foo AS t";
         let input = LexInput::String(sql.to_string());
         let dialect = Dialect::Ansi;
@@ -570,7 +570,12 @@ mod whitespace_tests {
 
         println!("\n=== TOKENS ===");
         for (idx, token) in tokens.iter().enumerate() {
-            println!("Token {}: {:?} (type: {})", idx, token.raw(), token.get_type());
+            println!(
+                "Token {}: {:?} (type: {})",
+                idx,
+                token.raw(),
+                token.get_type()
+            );
         }
 
         let mut parser = Parser::new(&tokens, dialect);
@@ -590,7 +595,12 @@ mod whitespace_tests {
         println!("\n=== MISSING POSITIONS ===");
         for (idx, token) in tokens.iter().enumerate() {
             if !ast_positions.contains(&idx) && token.get_type() != "end_of_file" {
-                println!("Missing {}: {:?} (type: {})", idx, token.raw(), token.get_type());
+                println!(
+                    "Missing {}: {:?} (type: {})",
+                    idx,
+                    token.raw(),
+                    token.get_type()
+                );
             }
         }
 
@@ -601,17 +611,17 @@ mod whitespace_tests {
         }
         raw_parts.sort_by_key(|(idx, _)| *idx);
         let raw_text: String = raw_parts.iter().map(|(_, s)| s.as_str()).collect();
-        
+
         println!("\nReconstructed: {:?}", raw_text);
         println!("Original: {:?}", sql);
-        
+
         assert_eq!(raw_text, sql, "Whitespace mismatch in reconstructed SQL");
     }
 
     #[test]
     fn test_select_function_alias() {
         let _ = env_logger::builder().is_test(true).try_init();
-        
+
         let sql = "SELECT a (x) AS y";
         let input = LexInput::String(sql.to_string());
         let dialect = Dialect::Ansi;
@@ -620,7 +630,12 @@ mod whitespace_tests {
 
         println!("\n=== TOKENS ===");
         for (idx, token) in tokens.iter().enumerate() {
-            println!("Token {}: {:?} (type: {})", idx, token.raw(), token.get_type());
+            println!(
+                "Token {}: {:?} (type: {})",
+                idx,
+                token.raw(),
+                token.get_type()
+            );
         }
 
         let mut parser = Parser::new(&tokens, dialect);
@@ -637,7 +652,12 @@ mod whitespace_tests {
         println!("\n=== MISSING POSITIONS ===");
         for (idx, token) in tokens.iter().enumerate() {
             if !ast_positions.contains(&idx) && token.get_type() != "end_of_file" {
-                println!("Missing {}: {:?} (type: {})", idx, token.raw(), token.get_type());
+                println!(
+                    "Missing {}: {:?} (type: {})",
+                    idx,
+                    token.raw(),
+                    token.get_type()
+                );
             }
         }
 
@@ -648,10 +668,10 @@ mod whitespace_tests {
         }
         raw_parts.sort_by_key(|(idx, _)| *idx);
         let raw_text: String = raw_parts.iter().map(|(_, s)| s.as_str()).collect();
-        
+
         println!("\nReconstructed: {:?}", raw_text);
         println!("Original: {:?}", sql);
-        
+
         assert_eq!(raw_text, sql, "Whitespace mismatch in reconstructed SQL");
     }
 }

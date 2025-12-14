@@ -5,6 +5,7 @@
 
 use hashbrown::HashMap;
 
+use super::match_result::MatchResult;
 use super::types::Node;
 use sqlfluffrs_types::GrammarId;
 
@@ -21,7 +22,7 @@ pub enum FrameState {
     /// Processing results after all children complete
     Combining,
     /// Ready to return result
-    Complete(Node),
+    Complete(MatchResult),
 }
 
 /// Additional context data for specific grammar types
@@ -32,9 +33,9 @@ pub enum FrameContext {
     OneOfTableDriven {
         grammar_id: GrammarId,
         pruned_children: Vec<GrammarId>, // Children after simple_hint pruning
-        leading_ws: Vec<Node>,
+        leading_ws: Vec<MatchResult>,
         post_skip_pos: usize,
-        longest_match: Option<(Node, usize, GrammarId)>, // (node, consumed, child_grammar_id)
+        longest_match: Option<(MatchResult, usize, GrammarId)>, // (match_result, consumed, child_grammar_id)
         tried_elements: usize,
         max_idx: usize,
         last_child_frame_id: Option<usize>,
@@ -57,7 +58,7 @@ pub enum FrameContext {
         segment_type: Option<String>,
         saved_pos: usize, // Position before skipping transparent tokens
         last_child_frame_id: Option<usize>,
-        leading_transparent: Vec<Node>,
+        leading_transparent: Vec<MatchResult>,
     },
     DelimitedTableDriven {
         grammar_id: GrammarId,
@@ -67,7 +68,7 @@ pub enum FrameContext {
         max_idx: usize,
         state: DelimitedState,
         last_child_frame_id: Option<usize>,
-        delimiter_match: Option<Node>,
+        delimiter_match: Option<MatchResult>,
         pos_before_delimiter: Option<usize>,
         element_children: Vec<GrammarId>,
         /// Terminators to pass to child element frames (excludes local terminators)
@@ -93,8 +94,8 @@ pub enum FrameContext {
         max_idx: usize,
         last_child_frame_id: Option<usize>,
         /// Track longest match among element candidates for current repetition
-        /// (node, end_pos, matched_grammar_id)
-        longest_match: Option<(Node, usize, GrammarId)>,
+        /// (match_result, end_pos, matched_grammar_id)
+        longest_match: Option<(MatchResult, usize, GrammarId)>,
         /// Number of elements tried for current repetition
         tried_elements: usize,
     },

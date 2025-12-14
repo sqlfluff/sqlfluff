@@ -15,7 +15,63 @@ use crate::{
     regex::RegexModeGroup,
 };
 
-use super::{path::PathStep, SourceFix, Token, TupleSerialisedSegment};
+use super::{path::PathStep, CaseFold, SourceFix, Token, TupleSerialisedSegment};
+
+/// Python wrapper for the CaseFold enum
+#[pyclass(name = "RsCaseFold", module = "sqlfluffrs")]
+#[derive(Debug, Clone, PartialEq)]
+pub struct PyCaseFold(pub CaseFold);
+
+#[pymethods]
+impl PyCaseFold {
+    #[new]
+    fn new() -> Self {
+        PyCaseFold(CaseFold::None)
+    }
+
+    #[staticmethod]
+    fn none() -> Self {
+        PyCaseFold(CaseFold::None)
+    }
+
+    #[staticmethod]
+    fn upper() -> Self {
+        PyCaseFold(CaseFold::Upper)
+    }
+
+    #[staticmethod]
+    fn lower() -> Self {
+        PyCaseFold(CaseFold::Lower)
+    }
+
+    fn __repr__(&self) -> String {
+        match self.0 {
+            CaseFold::None => "RsCaseFold.None".to_string(),
+            CaseFold::Upper => "RsCaseFold.Upper".to_string(),
+            CaseFold::Lower => "RsCaseFold.Lower".to_string(),
+        }
+    }
+
+    fn __str__(&self) -> String {
+        self.__repr__()
+    }
+
+    fn __eq__(&self, other: &Self) -> bool {
+        self.0 == other.0
+    }
+}
+
+impl From<CaseFold> for PyCaseFold {
+    fn from(value: CaseFold) -> Self {
+        PyCaseFold(value)
+    }
+}
+
+impl From<PyCaseFold> for CaseFold {
+    fn from(value: PyCaseFold) -> Self {
+        value.0
+    }
+}
 
 #[pyclass(name = "RsSourceFix")]
 #[repr(transparent)]

@@ -2,7 +2,7 @@ use sqlfluffrs_types::GrammarId;
 
 use crate::parser::{
     table_driven::frame::{TableFrameResult, TableParseFrame, TableParseFrameStack},
-    FrameContext, FrameState, Node, ParseError, Parser,
+    FrameContext, FrameState, MatchResult, ParseError, Parser,
 };
 
 impl Parser<'_> {
@@ -52,9 +52,10 @@ impl Parser<'_> {
                 );
                 // Rollback checkpoint before returning Empty
                 self.rollback_collection_checkpoint(frame.frame_id);
-                stack
-                    .results
-                    .insert(frame.frame_id, (Node::Empty, frame.pos, None));
+                stack.results.insert(
+                    frame.frame_id,
+                    (MatchResult::empty_at(frame.pos), frame.pos, None),
+                );
                 return Ok(TableFrameResult::Done);
             }
         }
@@ -70,9 +71,10 @@ impl Parser<'_> {
                     );
                     // Rollback checkpoint before returning Empty
                     self.rollback_collection_checkpoint(frame.frame_id);
-                    stack
-                        .results
-                        .insert(frame.frame_id, (Node::Empty, frame.pos, None));
+                    stack.results.insert(
+                        frame.frame_id,
+                        (MatchResult::empty_at(frame.pos), frame.pos, None),
+                    );
                     return Ok(TableFrameResult::Done);
                 }
             }
@@ -101,9 +103,10 @@ impl Parser<'_> {
                 );
                     // Rollback checkpoint before returning Empty
                     self.rollback_collection_checkpoint(frame.frame_id);
-                    stack
-                        .results
-                        .insert(frame.frame_id, (Node::Empty, start_pos, None));
+                    stack.results.insert(
+                        frame.frame_id,
+                        (MatchResult::empty_at(start_pos), start_pos, None),
+                    );
                     return Ok(TableFrameResult::Done);
                 }
             }
@@ -111,7 +114,7 @@ impl Parser<'_> {
 
         // If the explicit child grammar allows gaps, collect leading transparent
         // tokens so child parsing starts at the next non-transparent token.
-        let mut leading_transparent: Vec<Node> = Vec::new();
+        let mut leading_transparent: Vec<MatchResult> = Vec::new();
         let child_allows_gaps = self.grammar_ctx.inst(child_grammar_id).flags.allow_gaps();
         if child_allows_gaps {
             let ws = self.collect_transparent(true);
@@ -124,18 +127,18 @@ impl Parser<'_> {
             }
         }
 
-        // Determine the segment_type from tables if available, otherwise use rule_name
-        // let table_segment_type = self.dialect.get_segment_type(&rule_name).map(|s| s.to_string());
-        let table_segment_type = self
+        // Determine the segment_class from tables if available, otherwise None
+        // This is the actual Python class name (e.g., "SelectStatementSegment")
+        let table_segment_class = self
             .grammar_ctx
-            .segment_type(grammar_id)
+            .segment_class(grammar_id)
             .map(|s| s.to_string());
 
         // Store context with collected leading transparent tokens
         frame.context = FrameContext::RefTableDriven {
             grammar_id,
             name: rule_name,
-            segment_type: table_segment_type,
+            segment_type: table_segment_class,
             saved_pos,
             last_child_frame_id: Some(stack.frame_id_counter),
             leading_transparent,
@@ -184,45 +187,49 @@ impl Parser<'_> {
     pub(crate) fn handle_ref_table_driven_waiting_for_child(
         &mut self,
         mut frame: TableParseFrame,
-        child_node: &Node,
+        child_match: &MatchResult,
         child_end_pos: &usize,
     ) -> Result<TableFrameResult, ParseError> {
-        let FrameContext::RefTableDriven { .. } = &frame.context else {
+        let FrameContext::RefTableDriven { saved_pos, .. } = &frame.context else {
             unreachable!("Expected RefTableDriven context");
         };
+        let original_pos = *saved_pos;
 
         log::debug!(
             "Ref[table] WaitingForChild: frame_id={}, child_empty={}, child_end_pos={}",
             frame.frame_id,
-            child_node.is_empty(),
+            child_match.is_empty(),
             child_end_pos
         );
 
         // Store child result and transition to Combining
-        if !child_node.is_empty() {
+        if !child_match.is_empty() {
             log::debug!(
                 "Ref[table]: frame_id={} child matched, accumulated_before={}, setting pos to {}",
                 frame.frame_id,
                 frame.accumulated.len(),
                 child_end_pos
             );
-            frame.accumulated.push(child_node.clone());
+            frame.accumulated.push(child_match.clone());
             self.pos = *child_end_pos;
             frame.end_pos = Some(*child_end_pos);
         } else {
             log::debug!(
-                "Ref[table]: frame_id={} child was Empty, reverting pos {} -> {} and setting end_pos to {}",
+                "Ref[table]: frame_id={} child was Empty, reverting pos {} -> {} and setting end_pos to {} (original_pos)",
                 frame.frame_id,
                 self.pos,
-                frame.pos,
-                frame.pos
+                original_pos,
+                original_pos
             );
             // CRITICAL: Revert parser position when child returns Empty.
             // The Ref may have collected leading transparent tokens via collect_transparent
             // which advanced self.pos, but if the child fails, we must restore the original
-            // position so the parent can try alternative grammars from the correct location.
-            self.pos = frame.pos;
-            frame.end_pos = Some(frame.pos);
+            // position (saved_pos from before transparent collection) so the parent can try
+            // alternative grammars from the correct location.
+            // ALSO CRITICAL: Set frame.end_pos to original_pos, not frame.pos, because
+            // frame.pos might still be at the advanced position after transparent collection.
+            self.pos = original_pos;
+            frame.end_pos = Some(original_pos);
         }
 
         frame.state = FrameState::Combining;
@@ -262,32 +269,32 @@ impl Parser<'_> {
 
         // Build final result
         let final_pos = frame.end_pos.unwrap_or(frame.pos);
-        let result_node = if frame.accumulated.is_empty() {
+        let result_match = if frame.accumulated.is_empty() {
             // Child didn't match - rollback any collected positions
             self.rollback_collection_checkpoint(frame.frame_id);
-            Node::Empty
+            MatchResult::empty_at(frame.pos)
         } else {
-            // Wrap child in Ref node with segment type/name from the tables
-            let mut children = leading_transparent.clone();
-            children.extend(frame.accumulated.clone());
+            // Wrap child in Ref with lazy evaluation - store child_matches
+            // Prepend leading transparent matches to accumulated
+            let mut children: Vec<MatchResult> = leading_transparent.clone();
+            let accumulated = std::mem::take(&mut frame.accumulated);
+            children.extend(accumulated);
 
             // Commit collected positions since Ref succeeded
             self.commit_collection_checkpoint(frame.frame_id);
-            
-            Node::new_ref(
+
+            MatchResult::ref_match(
                 name.clone(),
                 segment_type.clone(),
-                if children.len() == 1 {
-                    children[0].clone()
-                } else {
-                    Node::Sequence { children }
-                },
+                frame.pos,
+                final_pos,
+                children,
             )
         };
 
         self.pos = final_pos;
         frame.end_pos = Some(final_pos);
-        frame.state = FrameState::Complete(result_node);
+        frame.state = FrameState::Complete(result_match);
 
         Ok(TableFrameResult::Push(frame))
     }

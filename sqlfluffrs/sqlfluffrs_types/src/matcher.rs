@@ -4,7 +4,7 @@ use fancy_regex::{Regex as FancyRegex, RegexBuilder as FancyRegexBuilder};
 use hashbrown::HashSet;
 use regex::{Regex, RegexBuilder};
 
-use crate::{PositionMarker, RegexModeGroup, Token};
+use crate::{token::CaseFold, PositionMarker, RegexModeGroup, Token};
 
 // use sqlfluffrs_dialects::Dialect;
 
@@ -19,7 +19,7 @@ pub type TokenGenerator = fn(
     Option<Vec<String>>,              // trim_chars
     Option<(String, RegexModeGroup)>, // quoted_value
     Option<(String, String)>,         // escape_replacement
-    Option<fn(&str) -> str>,          // casefold
+    CaseFold,                         // casefold
 ) -> Token;
 
 #[derive(Debug, Clone)]
@@ -64,7 +64,7 @@ pub struct LexMatcher {
     pub trim_chars: Option<Vec<String>>,
     pub quoted_value: Option<(String, RegexModeGroup)>,
     pub escape_replacements: Option<(String, String)>,
-    pub casefold: Option<fn(&str) -> str>,
+    pub casefold: CaseFold,
     pub kwarg_type: Option<String>,
 }
 
@@ -86,7 +86,7 @@ impl LexMatcher {
         trim_chars: Option<Vec<String>>,
         quoted_value: Option<(String, RegexModeGroup)>,
         escape_replacements: Option<(String, String)>,
-        casefold: Option<fn(&str) -> str>,
+        casefold: CaseFold,
         kwarg_type: Option<String>,
     ) -> Self {
         Self {
@@ -116,7 +116,7 @@ impl LexMatcher {
         trim_chars: Option<Vec<String>>,
         quoted_value: Option<(String, RegexModeGroup)>,
         escape_replacements: Option<(String, String)>,
-        casefold: Option<fn(&str) -> str>,
+        casefold: CaseFold,
         fallback_lexer: Option<fn(&str) -> Option<&str>>,
         precheck: fn(&str) -> bool,
         kwarg_type: Option<String>,
@@ -165,7 +165,7 @@ impl LexMatcher {
         trim_chars: Option<Vec<String>>,
         quoted_value: Option<(String, RegexModeGroup)>,
         escape_replacements: Option<(String, String)>,
-        casefold: Option<fn(&str) -> str>,
+        casefold: CaseFold,
         fallback_lexer: Option<fn(&str) -> Option<&str>>,
         precheck: fn(&str) -> bool,
         kwarg_type: Option<String>,
@@ -200,7 +200,7 @@ impl LexMatcher {
         trim_chars: Option<Vec<String>>,
         quoted_value: Option<(String, RegexModeGroup)>,
         escape_replacements: Option<(String, String)>,
-        casefold: Option<fn(&str) -> str>,
+        casefold: CaseFold,
         fallback_lexer: Option<fn(&str) -> Option<&str>>,
         precheck: fn(&str) -> bool,
         kwarg_type: Option<String>,
@@ -356,7 +356,6 @@ impl LexMatcher {
             Some(t) => vec![t],
             None => vec![self.name.clone()],
         };
-
         (self.token_class_func)(
             raw.to_string(),
             pos_marker,
@@ -366,7 +365,7 @@ impl LexMatcher {
             self.trim_chars.clone(),
             self.quoted_value.clone(),
             self.escape_replacements.clone(),
-            self.casefold,
+            self.casefold.clone(),
         )
     }
 }

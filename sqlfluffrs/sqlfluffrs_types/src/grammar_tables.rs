@@ -115,6 +115,9 @@ pub struct GrammarTables {
 
     /// Per-instruction segment type offsets into the strings table (or 0xFFFFFFFF)
     pub segment_type_offsets: &'static [u32],
+
+    /// Per-instruction segment class name offsets into the strings table (or 0xFFFFFFFF)
+    pub segment_class_offsets: &'static [u32],
 }
 
 impl GrammarTables {
@@ -131,6 +134,7 @@ impl GrammarTables {
         hint_string_indices: &'static [u32],
         simple_hint_indices: &'static [u32],
         segment_type_offsets: &'static [u32],
+        segment_class_offsets: &'static [u32],
     ) -> Self {
         Self {
             instructions,
@@ -144,6 +148,7 @@ impl GrammarTables {
             hint_string_indices,
             simple_hint_indices,
             segment_type_offsets,
+            segment_class_offsets,
         }
     }
 
@@ -566,6 +571,7 @@ mod tests {
             HINT_STRING_INDICES,
             SIMPLE_HINT_INDICES,
             &[], // segment_type_offsets
+            &[], // segment_class_offsets
         );
 
         assert_eq!(tables.instructions.len(), 3);
@@ -626,6 +632,7 @@ mod tests {
             HINT_STRING_INDICES,
             SIMPLE_HINT_INDICES,
             &[], // segment_type_offsets
+            &[], // segment_class_offsets
         );
 
         let stats = tables.memory_stats();

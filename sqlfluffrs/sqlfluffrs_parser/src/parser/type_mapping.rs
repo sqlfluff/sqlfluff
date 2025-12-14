@@ -26,15 +26,24 @@ pub fn get_base_segment_type(token_type: &str) -> String {
         "less_than_or_equal" | "greater_than_or_equal" => "comparison_operator",
 
         // Already base types - return as-is
-        "keyword" | "word" | "whitespace" | "newline" | "literal" | "symbol" |
-        "comment" | "end_of_file" | "identifier" | "comparison_operator" => token_type,
+        "keyword"
+        | "word"
+        | "whitespace"
+        | "newline"
+        | "literal"
+        | "symbol"
+        | "comment"
+        | "end_of_file"
+        | "identifier"
+        | "comparison_operator" => token_type,
 
         // Unknown - return as-is with warning
         _ => {
             log::trace!("Unknown token type for mapping: {}", token_type);
             token_type
         }
-    }.to_string()
+    }
+    .to_string()
 }
 
 /// Determine if a name refers to a grammar (not a segment class).

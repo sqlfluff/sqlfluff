@@ -65,9 +65,6 @@ fn try_match_grammar_table_driven(
     }
 }
 
-/// Move an index backward through tokens until tokens[index] is code or comment.
-/// Returns the index of the last code/comment token, or min_idx if none found.
-/// IMPORTANT: Comments are NOT skipped - they should be collected like code tokens!
 pub(crate) fn skip_stop_index_backward_to_code(
     tokens: &[Token],
     start_idx: usize,

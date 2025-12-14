@@ -1,6 +1,6 @@
 use sqlfluffrs_types::GrammarId;
 
-use crate::parser::{FrameContext, FrameState, Node};
+use crate::parser::{FrameContext, FrameState, MatchResult};
 
 /// Result of frame processing - either finished or needs to push frame back
 pub enum TableFrameResult {
@@ -13,7 +13,9 @@ pub enum TableFrameResult {
 /// Stack structure for managing ParseFrames and related state
 pub struct TableParseFrameStack {
     stack: Vec<TableParseFrame>,
-    pub results: hashbrown::HashMap<usize, (Node, usize, Option<u64>)>,
+    /// Results map: frame_id -> (MatchResult, end_pos, element_key)
+    /// MatchResult replaces Node for functional result composition
+    pub results: hashbrown::HashMap<usize, (MatchResult, usize, Option<u64>)>,
     pub frame_id_counter: usize,
     // Add any additional state fields here as needed
 }
@@ -82,8 +84,8 @@ pub struct TableParseFrame {
     pub table_terminators: Vec<GrammarId>,
     /// Current state of this frame
     pub state: FrameState,
-    /// Accumulated results so far
-    pub accumulated: Vec<Node>,
+    /// Accumulated results (Python parity - stores MatchResult for lazy evaluation)
+    pub accumulated: Vec<MatchResult>,
     /// Additional context depending on grammar type
     pub context: FrameContext,
     /// Parent's max_idx limit (simulates Python's segments[:max_idx] slicing)

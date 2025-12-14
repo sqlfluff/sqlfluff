@@ -134,6 +134,21 @@ impl<'a> GrammarContext<'a> {
         }
     }
 
+    /// Get segment class name for an instruction, if present
+    #[inline]
+    pub fn segment_class(&self, id: GrammarId) -> Option<&'static str> {
+        let idx = id.get() as usize;
+        if idx >= self.tables.segment_class_offsets.len() {
+            return None;
+        }
+        let off = self.tables.segment_class_offsets[idx];
+        if off == 0xFFFFFFFF {
+            None
+        } else {
+            Some(self.tables.get_string(off))
+        }
+    }
+
     /// Get string template (for StringParser/TypedParser/Token variants)
     #[inline]
     pub fn template(&self, id: GrammarId) -> &'static str {
@@ -450,6 +465,7 @@ mod tests {
             HINT_STRING_INDICES,
             SIMPLE_HINT_INDICES,
             &[], // segment_type_offsets
+            &[], // segment_class_offsets
         );
 
         let ctx = GrammarContext::new(&tables);
@@ -496,6 +512,7 @@ mod tests {
             HINT_STRING_INDICES,
             SIMPLE_HINT_INDICES,
             &[], // segment_type_offsets
+            &[], // segment_class_offsets
         );
 
         let ctx = GrammarContext::new(&tables);

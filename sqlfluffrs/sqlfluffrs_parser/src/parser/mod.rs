@@ -7,6 +7,7 @@ mod cache;
 mod core;
 mod frame;
 mod helpers; // Utility methods for Parser
+mod match_result;
 mod table_driven;
 pub(crate) mod type_mapping;
 pub(crate) mod types;
@@ -16,6 +17,7 @@ pub mod python;
 
 // Re-export public types
 pub use core::Parser;
+pub use match_result::{MatchResult, MetaSegmentType, TransparentInsert, TransparentType};
 pub use sqlfluffrs_types::ParseMode;
 pub use types::{Node, ParseError, ParseErrorType};
 
@@ -24,4 +26,4 @@ pub(crate) use frame::{BracketedState, DelimitedState, FrameContext, FrameState}
 
 // Re-export Python bindings when feature is enabled
 #[cfg(feature = "python")]
-pub use python::{PyNode, PyParseError, PyParser};
+pub use python::{PyMatchResult, PyNode, PyParseError, PyParser};

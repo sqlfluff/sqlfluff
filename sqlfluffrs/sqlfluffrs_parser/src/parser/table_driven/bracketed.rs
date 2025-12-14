@@ -2,7 +2,7 @@ use sqlfluffrs_types::{GrammarId, ParseMode};
 
 use crate::parser::{
     table_driven::frame::{TableFrameResult, TableParseFrame, TableParseFrameStack},
-    BracketedState, FrameContext, FrameState, Node, ParseError, Parser,
+    BracketedState, FrameContext, FrameState, MatchResult, ParseError, Parser,
 };
 
 impl Parser<'_> {
@@ -38,9 +38,10 @@ impl Parser<'_> {
         );
         if all_children.len() < 2 {
             log::debug!("Bracketed[table]: Not enough children (need bracket_pairs + elements)");
-            stack
-                .results
-                .insert(frame.frame_id, (Node::Empty, start_idx, None));
+            stack.results.insert(
+                frame.frame_id,
+                (MatchResult::empty_at(start_idx), start_idx, None),
+            );
             return Ok(TableFrameResult::Done);
         }
         let (start_bracket_idx, _end_bracket_idx) = self.grammar_ctx.bracketed_config(grammar_id);
@@ -72,10 +73,13 @@ impl Parser<'_> {
     pub(crate) fn handle_bracketed_table_driven_waiting_for_child(
         &mut self,
         mut frame: TableParseFrame,
-        child_node: &Node,
+        child_match: &MatchResult,
         child_end_pos: &usize,
         stack: &mut TableParseFrameStack,
     ) -> Result<TableFrameResult, ParseError> {
+        // Work with MatchResult directly (Python parity)
+        let child_is_empty = child_match.is_empty();
+
         // Extract needed fields from frame.context
         let FrameContext::BracketedTableDriven {
             grammar_id,
@@ -103,7 +107,7 @@ impl Parser<'_> {
         log::debug!(
             "Bracketed[table] WaitingForChild: frame_id={}, child_empty={}, state={:?}, bracket_max_idx={:?}, content_ids_local={:?}, content_ids_frame={:?}, content_idx={}, last_child_frame_id={:?}",
             frame.frame_id,
-            child_node.is_empty(),
+            child_is_empty,
             bracket_state,
             bracket_max_idx,
             content_ids_local,
@@ -114,7 +118,7 @@ impl Parser<'_> {
 
         match bracket_state {
             BracketedState::MatchingOpen => {
-                if child_node.is_empty() {
+                if child_is_empty {
                     self.pos = frame.pos;
                     log::debug!("Bracketed[table] returning Empty (no opening bracket)",);
                     // Transition to Combining to finalize Empty result
@@ -128,12 +132,15 @@ impl Parser<'_> {
                 let allow_gaps = grammar_inst.flags.allow_gaps();
                 let parse_mode = grammar_inst.parse_mode;
 
-                frame.accumulated.push(child_node.clone());
+                frame.accumulated.push(child_match.clone());
                 let content_start_idx = *child_end_pos;
-                // Compute and UPDATE the frame context's bracket_max_idx from the opening bracket
-                let computed_bracket_max_idx = child_node
-                    .get_token_idx()
-                    .and_then(|i| self.get_matching_bracket_idx(i));
+                // Compute bracket_max_idx from the opening bracket's token position
+                let computed_bracket_max_idx = if !child_match.matched_slice.is_empty() {
+                    let token_idx = child_match.matched_slice.start;
+                    self.get_matching_bracket_idx(token_idx)
+                } else {
+                    None
+                };
                 if let Some(close_idx) = computed_bracket_max_idx {
                     log::debug!(
                         "Bracketed: Using pre-computed closing bracket at idx={} as max_idx",
@@ -169,20 +176,23 @@ impl Parser<'_> {
                             if self.collected_transparent_positions.contains(&pos) {
                                 continue;
                             }
+                            // PYTHON PARITY: Only collect end_of_file explicitly
+                            // Whitespace, newlines, comments captured implicitly by apply()
                             match &*tok.get_type() {
-                                "whitespace" => {
-                                    frame.accumulated.push(Node::Whitespace {
-                                        raw: tok.raw().to_string(),
-                                        token_idx: pos,
+                                "end_of_file" => {
+                                    frame.accumulated.push(MatchResult {
+                                        matched_slice: pos..pos + 1,
+                                        matched_class: None, // Inferred from token type
+                                        ..Default::default()
                                     });
                                     self.mark_position_collected(pos);
                                 }
-                                "newline" => {
-                                    frame.accumulated.push(Node::Newline {
-                                        raw: tok.raw().to_string(),
-                                        token_idx: pos,
-                                    });
-                                    self.mark_position_collected(pos);
+                                "whitespace" | "newline" | "comment" => {
+                                    log::debug!(
+                                        "Bracketed[table]: Skipping explicit collection of {} at {} - will be captured as trailing",
+                                        tok.get_type(),
+                                        pos
+                                    );
                                 }
                                 _ => {}
                             }
@@ -277,23 +287,21 @@ impl Parser<'_> {
                     self.grammar_ctx.bracketed_config(*grammar_id);
                 let close_bracket_id = all_children[end_bracket_idx];
 
-                // Replace deep-clone traversal with a reference-based flattening.
-                // Only clone the nodes that actually get pushed into `frame.accumulated`.
-                if !child_node.is_empty() {
-                    let mut to_process: Vec<&Node> = vec![child_node];
-                    while let Some(node) = to_process.pop() {
-                        match node {
-                            Node::Sequence { children } | Node::DelimitedList { children } => {
-                                // push children as references (reverse order to preserve original order)
-                                for child in children.iter().rev() {
-                                    to_process.push(child);
-                                }
-                            }
-                            _ => {
-                                // clone only the leaf node we actually keep
-                                frame.accumulated.push(node.clone());
-                            }
-                        }
+                // Python parity: If child_match has child_matches, flatten them into accumulated.
+                // If it's a wrapper (Ref, Sequence), we want the children, not the wrapper.
+                if !child_is_empty {
+                    if child_match.matched_class.is_some() && !child_match.child_matches.is_empty()
+                    {
+                        // Has a matched_class and children - add the whole match
+                        frame.accumulated.push(child_match.clone());
+                    } else if !child_match.child_matches.is_empty() {
+                        // No matched_class but has children - flatten the children
+                        frame
+                            .accumulated
+                            .extend(child_match.child_matches.iter().cloned());
+                    } else {
+                        // Leaf match - add it directly
+                        frame.accumulated.push(child_match.clone());
                     }
                 }
 
@@ -321,18 +329,24 @@ impl Parser<'_> {
                                 continue;
                             }
                             let tok_type = tok.get_type();
-                            if tok_type == "whitespace" {
-                                frame.accumulated.push(Node::Whitespace {
-                                    raw: tok.raw().to_string(),
-                                    token_idx: pos,
+                            // PYTHON PARITY: Only collect end_of_file explicitly
+                            // Whitespace, newlines, comments captured implicitly by apply()
+                            if tok_type == "end_of_file" {
+                                frame.accumulated.push(MatchResult {
+                                    matched_slice: pos..pos + 1,
+                                    matched_class: None, // Inferred from token type
+                                    ..Default::default()
                                 });
                                 self.mark_position_collected(pos);
-                            } else if tok_type == "newline" {
-                                frame.accumulated.push(Node::Newline {
-                                    raw: tok.raw().to_string(),
-                                    token_idx: pos,
-                                });
-                                self.mark_position_collected(pos);
+                            } else if tok_type == "whitespace"
+                                || tok_type == "newline"
+                                || tok_type == "comment"
+                            {
+                                log::debug!(
+                                    "Bracketed[table]: Skipping explicit collection of {} at {} - will be captured as trailing",
+                                    tok_type,
+                                    pos
+                                );
                             }
                         }
                     }
@@ -353,10 +367,10 @@ impl Parser<'_> {
                     *content_idx += 1;
                     let next_content_id = content_ids[*content_idx];
                     log::debug!(
-                        "Bracketed[table]: Parsed content element {}/{} (empty={}), pushing next element grammar_id={}",
+                        "Attempting MatchingContent: content_idx={}, content_ids.len()={}, child_empty={}, next_content_id={:?}",
                         *content_idx,
                         content_ids.len(),
-                        child_node.is_empty(),
+                        child_is_empty,
                         next_content_id.0
                     );
 
@@ -453,14 +467,14 @@ impl Parser<'_> {
             }
             BracketedState::MatchingClose => {
                 log::debug!(
-                    "DEBUG: Bracketed[table] MatchingClose - child_node.is_empty={}, child_end_pos={}",
-                    child_node.is_empty(),
+                    "DEBUG: Bracketed[table] MatchingClose - child_is_empty={}, child_end_pos={}",
+                    child_is_empty,
                     child_end_pos
                 );
                 let grammar_inst = self.grammar_ctx.inst(frame.grammar_id);
                 let parse_mode = grammar_inst.parse_mode;
 
-                if child_node.is_empty() {
+                if child_is_empty {
                     if parse_mode == ParseMode::Strict {
                         self.pos = frame.pos;
                         frame.end_pos = Some(frame.pos);
@@ -476,7 +490,7 @@ impl Parser<'_> {
                         frame.end_pos = Some(frame.pos);
                     }
                 } else {
-                    frame.accumulated.push(child_node.clone());
+                    frame.accumulated.push(child_match.clone());
                     self.pos = *child_end_pos;
                     log::debug!(
                         "Bracketed[table] SUCCESS: {} children, transitioning to Combining at frame_id={}",
@@ -537,16 +551,16 @@ impl Parser<'_> {
         // - If state is Complete, we successfully matched all parts (open + content + close)
         // - Otherwise, the match failed at some point and we return Empty
 
-        let result_node = if is_complete {
+        let end_pos = frame.end_pos.unwrap_or(frame.pos);
+        let result_match = if is_complete {
             log::debug!(
-                "Bracketed combining with COMPLETE state → building Node::Bracketed, frame_id={}, bracket_persists={}",
+                "Bracketed combining with COMPLETE state → building MatchResult::bracketed, frame_id={}, bracket_persists={}",
                 frame.frame_id,
                 bracket_persists
             );
-            Node::Bracketed {
-                children: frame.accumulated.clone(),
-                bracket_persists,
-            }
+            // Use lazy evaluation - store child_matches instead of building Node
+            let accumulated = std::mem::take(&mut frame.accumulated);
+            MatchResult::bracketed(frame.pos, end_pos, accumulated, bracket_persists)
         } else {
             // Log the actual state for debugging
             let state_str = if let FrameContext::BracketedTableDriven { state, .. } = &frame.context
@@ -556,17 +570,16 @@ impl Parser<'_> {
                 "Unknown".to_string()
             };
             log::debug!(
-                "Bracketed combining with INCOMPLETE state ({}) → returning Node::Empty, frame_id={}, accumulated={}",
+                "Bracketed combining with INCOMPLETE state ({}) → returning Empty, frame_id={}, accumulated={}",
                 state_str,
                 frame.frame_id,
                 frame.accumulated.len()
             );
-            Node::Empty
+            MatchResult::empty_at(frame.pos)
         };
 
         // Transition to Complete state with the final result
-        let end_pos = frame.end_pos.unwrap_or(frame.pos);
-        frame.state = FrameState::Complete(result_node);
+        frame.state = FrameState::Complete(result_match);
         frame.end_pos = Some(end_pos);
 
         Ok(TableFrameResult::Push(frame))

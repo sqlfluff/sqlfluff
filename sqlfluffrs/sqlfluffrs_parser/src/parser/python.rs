@@ -2,6 +2,7 @@ use pyo3::exceptions::PyException;
 use pyo3::prelude::*;
 use pyo3::types::{PyDict, PyList, PyTuple};
 
+use super::match_result::MatchResult;
 use super::types::NodeTupleValue;
 use super::{Node, ParseError, Parser};
 use sqlfluffrs_dialects::Dialect;
@@ -378,6 +379,103 @@ impl From<ParseError> for PyParseError {
     }
 }
 
+/// Python-wrapped MatchResult for deferred AST construction
+///
+/// This allows Python code to receive match results and apply them using
+/// Python's existing apply() logic, avoiding double-counting issues in Rust.
+#[pyclass(name = "RsMatchResult", module = "sqlfluffrs")]
+#[derive(Clone)]
+pub struct PyMatchResult(pub MatchResult);
+
+#[pymethods]
+impl PyMatchResult {
+    /// Get the matched slice as a Python tuple (start, stop)
+    #[getter]
+    fn matched_slice(&self) -> (usize, usize) {
+        (self.0.matched_slice.start, self.0.matched_slice.end)
+    }
+
+    /// Get the matched class type as a string (or None)
+    #[getter]
+    fn matched_class(&self) -> Option<String> {
+        self.0.matched_class.clone()
+    }
+
+    /// Get child matches as a list of PyMatchResult objects
+    #[getter]
+    fn child_matches(&self) -> Vec<PyMatchResult> {
+        self.0
+            .child_matches
+            .iter()
+            .map(|m| PyMatchResult(m.clone()))
+            .collect()
+    }
+
+    /// Get instance_types (semantic type markers like "keyword", "star")
+    #[getter]
+    fn instance_types(&self) -> Option<Vec<String>> {
+        self.0.instance_types.clone()
+    }
+
+    /// Get trim_chars for the segment
+    #[getter]
+    fn trim_chars(&self) -> Option<Vec<String>> {
+        self.0.trim_chars.clone()
+    }
+
+    /// Get casefold mode (for case-insensitive matching)
+    #[getter]
+    fn casefold(&self) -> Option<String> {
+        match self.0.casefold {
+            sqlfluffrs_types::token::CaseFold::None => None,
+            sqlfluffrs_types::token::CaseFold::Upper => Some("upper".to_string()),
+            sqlfluffrs_types::token::CaseFold::Lower => Some("lower".to_string()),
+        }
+    }
+
+    /// Get insert_segments (meta segments like Indent/Dedent to insert)
+    #[getter]
+    fn insert_segments(&self) -> Vec<(usize, String)> {
+        self.0
+            .insert_segments
+            .iter()
+            .map(|(idx, seg_type)| {
+                let type_name = match seg_type {
+                    crate::parser::MetaSegmentType::Indent => "indent",
+                    crate::parser::MetaSegmentType::Dedent => "dedent",
+                };
+                (*idx, type_name.to_string())
+            })
+            .collect()
+    }
+
+    /// Check if this is an empty match
+    fn is_empty(&self) -> bool {
+        self.0.matched_slice.is_empty()
+    }
+
+    /// Get length of matched slice
+    fn __len__(&self) -> usize {
+        self.0.matched_slice.end - self.0.matched_slice.start
+    }
+
+    /// Boolean conversion - truthy if has length
+    fn __bool__(&self) -> bool {
+        !self.0.matched_slice.is_empty() || !self.0.insert_segments.is_empty()
+    }
+
+    /// String representation for debugging
+    fn __repr__(&self) -> String {
+        format!(
+            "RsMatchResult(slice={}..{}, class={:?}, {} children)",
+            self.0.matched_slice.start,
+            self.0.matched_slice.end,
+            self.0.matched_class,
+            self.0.child_matches.len()
+        )
+    }
+}
+
 /// Python-wrapped Parser
 #[pyclass(name = "RsParser", module = "sqlfluffrs")]
 pub struct PyParser {
@@ -450,5 +548,25 @@ impl PyParser {
     #[getter]
     fn dialect(&self) -> String {
         format!("{:?}", self.dialect).to_lowercase()
+    }
+
+    /// Parse SQL from tokens and return MatchResult (deferred AST construction)
+    ///
+    /// This returns a MatchResult that Python can apply using its own apply() logic,
+    /// avoiding double-counting issues and allowing Python to maintain control over
+    /// the AST construction process.
+    pub fn parse_match_result_from_tokens(&self, tokens: Vec<PyToken>) -> PyResult<PyMatchResult> {
+        // Convert PyToken to internal Token
+        let rust_tokens: Vec<Token> = tokens.into_iter().map(|t| t.into()).collect();
+
+        // Create parser
+        let mut parser = Parser::new(&rust_tokens, self.dialect);
+
+        // Parse and get the MatchResult directly
+        let match_result = parser
+            .call_rule_as_root_match_result()
+            .map_err(|e| PyErr::new::<pyo3::exceptions::PyRuntimeError, _>(e.message))?;
+
+        Ok(PyMatchResult(match_result))
     }
 }

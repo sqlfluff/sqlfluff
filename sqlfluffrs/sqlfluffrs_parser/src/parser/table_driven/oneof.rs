@@ -1,6 +1,6 @@
 use crate::parser::{
     table_driven::frame::{TableFrameResult, TableParseFrame, TableParseFrameStack},
-    FrameContext, FrameState, Node, ParseError, Parser,
+    FrameContext, FrameState, MatchResult, ParseError, Parser,
 };
 use sqlfluffrs_types::GrammarId;
 
@@ -46,7 +46,7 @@ impl Parser<'_> {
                     );
                     stack.results.insert(
                         frame.frame_id,
-                        (crate::parser::Node::Empty, start_pos, None),
+                        (MatchResult::empty_at(start_pos), start_pos, None),
                     );
                     return Ok(TableFrameResult::Done);
                 }
@@ -94,7 +94,7 @@ impl Parser<'_> {
             if optional {
                 stack.results.insert(
                     frame.frame_id,
-                    (crate::parser::Node::Empty, post_skip_pos, None),
+                    (MatchResult::empty_at(post_skip_pos), post_skip_pos, None),
                 );
                 return Ok(TableFrameResult::Done);
             }
@@ -133,7 +133,7 @@ impl Parser<'_> {
             log::debug!("OneOf[table]: No children after pruning, returning Empty");
             stack.results.insert(
                 frame.frame_id,
-                (crate::parser::Node::Empty, post_skip_pos, None),
+                (MatchResult::empty_at(post_skip_pos), post_skip_pos, None),
             );
             return Ok(TableFrameResult::Done);
         }
@@ -199,7 +199,7 @@ impl Parser<'_> {
     pub(crate) fn handle_oneof_table_driven_waiting_for_child(
         &mut self,
         mut frame: TableParseFrame,
-        child_node: &crate::parser::Node,
+        child_match: &MatchResult,
         child_end_pos: &usize,
         stack: &mut TableParseFrameStack,
     ) -> Result<TableFrameResult, ParseError> {
@@ -235,10 +235,10 @@ impl Parser<'_> {
             other => format!("{:?}", other),
         };
 
-        let child_is_clean = if child_node.is_empty() {
+        let child_is_clean = if child_match.is_empty() {
             false
         } else {
-            Self::is_node_clean(child_node)
+            !child_match.contains_unparsable()
         };
         // Collect the raw tokens consumed by this candidate for debugging (bounded)
         let mut candidate_tokens: Vec<String> = Vec::new();
@@ -255,7 +255,7 @@ impl Parser<'_> {
         log::debug!(
             "OneOf[table] WaitingForChild: frame_id={}, child_empty={}, consumed={}, tried={}/{}, candidate_id={}, candidate_name={}, candidate_end_pos={}, candidate_consumed={}, candidate_clean={}, candidate_tokens={:?}",
             frame.frame_id,
-            child_node.is_empty(),
+            child_match.is_empty(),
             consumed,
             tried_elements,
             pruned_children.len(),
@@ -269,9 +269,10 @@ impl Parser<'_> {
 
         // Update longest match if this is better
         let mut should_early_terminate = false;
-        if !child_node.is_empty() {
+        if !child_match.is_empty() {
             let is_better = if let Some((ref current_best, current_consumed, _)) = longest_match {
-                let current_is_clean = Self::is_node_clean(current_best);
+                // Use MatchResult's contains_unparsable instead of is_node_clean
+                let current_is_clean = !current_best.contains_unparsable();
 
                 if child_is_clean && !current_is_clean {
                     true
@@ -285,12 +286,12 @@ impl Parser<'_> {
             };
 
             if is_better {
-                *longest_match = Some((child_node.clone(), consumed, current_child));
+                *longest_match = Some((child_match.clone(), consumed, current_child));
                 log::debug!(
-                    "OneOf[table]: longest_match set: child_id={}, consumed={}, node={:?}",
+                    "OneOf[table]: longest_match set: child_id={}, consumed={}, match={:?}",
                     current_child.0,
                     consumed,
-                    child_node
+                    child_match
                 );
 
                 // Python parity: Check for early termination with terminators
@@ -451,49 +452,33 @@ impl Parser<'_> {
         }
 
         // Build final result
-        let (result_node, final_pos, _child_id) =
-            if let Some((best_node, best_consumed, best_child_id)) = longest_match {
+        let (result_match, final_pos, _child_id) =
+            if let Some((best_match, best_consumed, best_child_id)) = longest_match {
                 let final_pos = *post_skip_pos + *best_consumed;
                 self.pos = final_pos;
 
                 let result = if !leading_ws.is_empty() {
-                    let mut children = leading_ws.clone();
-                    children.push(best_node.clone());
-                    crate::parser::Node::Sequence { children }
+                    // Prepend leading whitespace as MatchResults
+                    let mut children: Vec<MatchResult> = leading_ws.clone();
+                    children.push(best_match.clone());
+                    MatchResult::sequence(frame.pos, final_pos, children)
                 } else {
-                    best_node.clone()
+                    best_match.clone()
                 };
 
                 (result, final_pos, Some(*best_child_id))
             } else {
                 // No match found
-                let result_node = if inst.flags.optional() {
-                    crate::parser::Node::Empty
-                } else {
-                    // TODO: Apply parse_mode (Greedy vs Strict)
-                    crate::parser::Node::Empty
-                };
                 let final_pos = frame.pos;
                 self.pos = final_pos;
 
-                (result_node, final_pos, None)
+                (MatchResult::empty_at(frame.pos), final_pos, None)
             };
 
         // Transition to Complete
         frame.end_pos = Some(final_pos);
-        frame.state = FrameState::Complete(result_node);
+        frame.state = FrameState::Complete(result_match);
 
         Ok(TableFrameResult::Push(frame))
-    }
-
-    /// Check if a node is "clean" (doesn't contain Unparsable segments).
-    /// Python's longest_match prioritizes clean matches over unclean ones.
-    fn is_node_clean(node: &Node) -> bool {
-        match node {
-            Node::Unparsable { .. } => false,
-            Node::Sequence { children } => children.iter().all(Self::is_node_clean),
-            Node::Ref { child, .. } => Self::is_node_clean(child),
-            _ => true, // Token, Whitespace, Newline, Empty, etc. are all clean
-        }
     }
 }

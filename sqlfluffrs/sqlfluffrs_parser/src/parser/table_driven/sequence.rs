@@ -2,7 +2,7 @@ use sqlfluffrs_types::{GrammarId, ParseMode};
 
 use crate::parser::{
     table_driven::frame::{TableFrameResult, TableParseFrame, TableParseFrameStack},
-    FrameContext, FrameState, Node, ParseError, Parser,
+    FrameContext, FrameState, MatchResult, ParseError, Parser,
 };
 
 impl Parser<'_> {
@@ -84,9 +84,10 @@ impl Parser<'_> {
             if parse_mode == ParseMode::Strict {
                 // Rollback checkpoint before returning Empty
                 self.rollback_collection_checkpoint(current_frame_id);
-                stack
-                    .results
-                    .insert(current_frame_id, (Node::Empty, start_idx, None));
+                stack.results.insert(
+                    current_frame_id,
+                    (MatchResult::empty_at(start_idx), start_idx, None),
+                );
                 return Ok(TableFrameResult::Done);
             }
 
@@ -94,9 +95,10 @@ impl Parser<'_> {
             if self.grammar_ctx.is_optional(elements[0]) {
                 // Rollback checkpoint before returning Empty
                 self.rollback_collection_checkpoint(current_frame_id);
-                stack
-                    .results
-                    .insert(current_frame_id, (Node::Empty, start_idx, None));
+                stack.results.insert(
+                    current_frame_id,
+                    (MatchResult::empty_at(start_idx), start_idx, None),
+                );
                 return Ok(TableFrameResult::Done);
             } else {
                 // If start_idx == max_idx, there are no tokens to wrap - return Empty
@@ -108,35 +110,33 @@ impl Parser<'_> {
                     );
                     // Rollback checkpoint before returning Empty
                     self.rollback_collection_checkpoint(current_frame_id);
-                    stack
-                        .results
-                        .insert(current_frame_id, (Node::Empty, start_idx, None));
+                    stack.results.insert(
+                        current_frame_id,
+                        (MatchResult::empty_at(start_idx), start_idx, None),
+                    );
                     return Ok(TableFrameResult::Done);
                 }
 
-                // Wrap remaining content as an Unparsable node (table-driven variant)
+                // Wrap remaining content as an Unparsable segment (Python parity)
                 let element_desc = format!("GrammarId({})", elements[0]);
-                let unparsable_children: Vec<Node> = (start_idx..max_idx)
-                    .filter_map(|pos| {
-                        if pos < self.tokens.len() {
-                            let tok = &self.tokens[pos];
-                            Some(Node::new_token(tok.get_type(), tok.raw().to_string(), pos))
-                        } else {
-                            None
-                        }
-                    })
-                    .collect();
 
-                let unparsable_node = Node::Unparsable {
-                    children: unparsable_children,
-                    expected_message: element_desc,
+                // Create segment_kwargs for the Unparsable segment
+                let mut segment_kwargs = hashbrown::HashMap::new();
+                segment_kwargs.insert("expected".to_string(), element_desc);
+
+                // Create MatchResult with matched_class="UnparsableSegment" and segment_kwargs
+                let unparsable_match = MatchResult {
+                    matched_slice: start_idx..max_idx,
+                    matched_class: Some("UnparsableSegment".to_string()),
+                    segment_kwargs,
+                    ..Default::default()
                 };
 
                 // Commit checkpoint since we're producing a result (even if unparsable)
                 self.commit_collection_checkpoint(current_frame_id);
                 stack
                     .results
-                    .insert(current_frame_id, (unparsable_node, max_idx, None));
+                    .insert(current_frame_id, (unparsable_match, max_idx, None));
                 return Ok(TableFrameResult::Done);
             }
         }
@@ -157,28 +157,53 @@ impl Parser<'_> {
                         // Indent goes before whitespace
                         let mut insert_pos = parent_frame.accumulated.len();
                         while insert_pos > 0 {
-                            match &parent_frame.accumulated[insert_pos - 1] {
-                                Node::Whitespace { .. } | Node::Newline { .. } => {
-                                    insert_pos -= 1;
+                            // Check if previous accumulated item is whitespace/newline
+                            let prev_match = &parent_frame.accumulated[insert_pos - 1];
+                            let is_whitespace = if !prev_match.matched_slice.is_empty() {
+                                let token_idx = prev_match.matched_slice.start;
+                                if token_idx < self.tokens.len() {
+                                    let tok_type = self.tokens[token_idx].get_type();
+                                    tok_type == "whitespace" || tok_type == "newline"
+                                } else {
+                                    false
                                 }
-                                _ => break,
+                            } else {
+                                false
+                            };
+                            if is_whitespace {
+                                insert_pos -= 1;
+                            } else {
+                                break;
                             }
                         }
                         parent_frame.accumulated.insert(
                             insert_pos,
-                            Node::Meta {
-                                token_type: "indent".to_string(),
-                                token_idx: None,
+                            MatchResult {
+                                matched_slice: parent_frame.pos..parent_frame.pos,
+                                insert_segments: vec![(
+                                    parent_frame.pos,
+                                    crate::parser::MetaSegmentType::Indent,
+                                )],
+                                ..Default::default()
                             },
                         );
                     } else {
-                        parent_frame.accumulated.push(Node::Meta {
-                            token_type: self
-                                .grammar_ctx
-                                .segment_type(elements[child_idx])
-                                .expect("meta type")
-                                .to_string(),
-                            token_idx: None,
+                        let meta_type_str = self
+                            .grammar_ctx
+                            .segment_type(elements[child_idx])
+                            .expect("meta type");
+                        let meta_type = match meta_type_str {
+                            "indent" => crate::parser::MetaSegmentType::Indent,
+                            "dedent" => crate::parser::MetaSegmentType::Dedent,
+                            _ => {
+                                log::warn!("Unknown meta type: {}", meta_type_str);
+                                continue;
+                            }
+                        };
+                        parent_frame.accumulated.push(MatchResult {
+                            matched_slice: parent_frame.pos..parent_frame.pos,
+                            insert_segments: vec![(parent_frame.pos, meta_type)],
+                            ..Default::default()
                         });
                     }
 
@@ -243,14 +268,14 @@ impl Parser<'_> {
     }
 
     /// Handle Sequence grammar Waiting for child state
-    /// child_node,
+    /// child_match - the MatchResult from the child parse
     /// child_end_pos,
     /// child_element_key,
     /// stack,
     pub(crate) fn handle_sequence_table_driven_waiting_for_child(
         &mut self,
         mut frame: TableParseFrame,
-        child_node: &Node,
+        child_match: &MatchResult,
         child_end_pos: &usize,
         stack: &mut TableParseFrameStack,
     ) -> Result<TableFrameResult, ParseError> {
@@ -277,7 +302,7 @@ impl Parser<'_> {
         log::debug!(
             "Sequence[table] WaitingForChild: frame_id={}, child_empty={}, child_end_pos={}, current_idx={}/{}, first_match={}",
             frame.frame_id,
-            child_node.is_empty(),
+            child_match.is_empty(),
             child_end_pos,
             current_element_idx_val,
             all_children.len(),
@@ -285,8 +310,8 @@ impl Parser<'_> {
         );
 
         // Child matched
-        if !child_node.is_empty() {
-            frame.accumulated.push(child_node.clone());
+        if !child_match.is_empty() {
+            frame.accumulated.push(child_match.clone());
 
             if let FrameContext::SequenceTableDriven {
                 matched_idx,
@@ -347,6 +372,77 @@ impl Parser<'_> {
                         new_max_idx,
                         *max_idx
                     );
+                }
+            }
+
+            // Skip any META children and insert them directly into accumulated
+            // META grammars (Indent, Dedent, etc.) don't need parsing - they're
+            // inserted as META segments at the current position.
+            if let FrameContext::SequenceTableDriven {
+                current_element_idx,
+                ..
+            } = &mut frame.context
+            {
+                while *current_element_idx < all_children.len() {
+                    let child_id = all_children[*current_element_idx];
+                    if self.grammar_ctx.variant(child_id) == sqlfluffrs_types::GrammarVariant::Meta
+                    {
+                        // Insert META segment
+                        let meta_type_str =
+                            self.grammar_ctx.segment_type(child_id).expect("meta type");
+                        if meta_type_str == "indent" {
+                            // Indent goes before whitespace
+                            let mut insert_pos = frame.accumulated.len();
+                            while insert_pos > 0 {
+                                let prev_match = &frame.accumulated[insert_pos - 1];
+                                let is_whitespace = if !prev_match.matched_slice.is_empty() {
+                                    let token_idx = prev_match.matched_slice.start;
+                                    if token_idx < self.tokens.len() {
+                                        let tok_type = self.tokens[token_idx].get_type();
+                                        tok_type == "whitespace" || tok_type == "newline"
+                                    } else {
+                                        false
+                                    }
+                                } else {
+                                    false
+                                };
+                                if is_whitespace {
+                                    insert_pos -= 1;
+                                } else {
+                                    break;
+                                }
+                            }
+                            frame.accumulated.insert(
+                                insert_pos,
+                                MatchResult {
+                                    matched_slice: frame.pos..frame.pos,
+                                    insert_segments: vec![(
+                                        frame.pos,
+                                        crate::parser::MetaSegmentType::Indent,
+                                    )],
+                                    ..Default::default()
+                                },
+                            );
+                        } else {
+                            let meta_type = match meta_type_str {
+                                "dedent" => crate::parser::MetaSegmentType::Dedent,
+                                _ => {
+                                    log::warn!("Unknown meta type: {}", meta_type_str);
+                                    *current_element_idx += 1;
+                                    continue;
+                                }
+                            };
+                            frame.accumulated.push(MatchResult {
+                                matched_slice: frame.pos..frame.pos,
+                                insert_segments: vec![(frame.pos, meta_type)],
+                                ..Default::default()
+                            });
+                        }
+                        *current_element_idx += 1;
+                    } else {
+                        // Non-META child - stop skipping
+                        break;
+                    }
                 }
             }
 
@@ -444,29 +540,18 @@ impl Parser<'_> {
         let failed_child = all_children[failed_idx];
         let failed_inst = self.grammar_ctx.inst(failed_child);
 
-        // Determine element_start (where this element began) from frame context
-        let element_start = match &frame.context {
-            FrameContext::SequenceTableDriven { matched_idx, .. } => *matched_idx,
-            _ => frame.pos,
-        };
+        // REMOVED: The "TABLE FIX" that was resetting position based on element_start.
+        // After fixing Ref (and other grammars) to properly set end_pos when returning Empty,
+        // we should trust the child's end_pos directly. The child is responsible for ensuring
+        // that if it returns Empty, its end_pos reflects where parsing should continue from
+        // (typically the position it started at, before any speculative token collection).
 
-        // If child returned Empty but advanced the parser (child_end_pos != element_start),
-        // correct the live parser position to respect the Empty contract.
-        let corrected_child_end_pos = if *child_end_pos != element_start {
-            log::debug!(
-                "[SEQUENCE TABLE FIX] Child returned Empty but child_end_pos={} > element_start={}. Correcting and resetting self.pos.",
-                child_end_pos,
-                element_start
-            );
-            element_start
-        } else {
-            *child_end_pos
-        };
+        // Simply use the child_end_pos as reported by the child
+        let corrected_child_end_pos = *child_end_pos;
 
         if self.pos != corrected_child_end_pos {
             log::debug!(
-                "[SEQUENCE TABLE FIX] frame_id={} resetting self.pos {} -> {}",
-                frame.frame_id,
+                "[SEQUENCE] Adjusting self.pos from {} to child_end_pos {}",
                 self.pos,
                 corrected_child_end_pos
             );
@@ -474,7 +559,71 @@ impl Parser<'_> {
         }
 
         if failed_inst.flags.optional() {
-            let next_index = failed_idx + 1;
+            let mut next_index = failed_idx + 1;
+
+            // Skip any META children and insert them directly into accumulated
+            // META grammars (Indent, Dedent, etc.) don't need parsing - they're
+            // inserted as META segments at the current position.
+            while next_index < all_children.len() {
+                let child_id = all_children[next_index];
+                if self.grammar_ctx.variant(child_id) == sqlfluffrs_types::GrammarVariant::Meta {
+                    // Insert META segment
+                    let meta_type_str = self.grammar_ctx.segment_type(child_id).expect("meta type");
+                    if meta_type_str == "indent" {
+                        // Indent goes before whitespace
+                        let mut insert_pos = frame.accumulated.len();
+                        while insert_pos > 0 {
+                            let prev_match = &frame.accumulated[insert_pos - 1];
+                            let is_whitespace = if !prev_match.matched_slice.is_empty() {
+                                let token_idx = prev_match.matched_slice.start;
+                                if token_idx < self.tokens.len() {
+                                    let tok_type = self.tokens[token_idx].get_type();
+                                    tok_type == "whitespace" || tok_type == "newline"
+                                } else {
+                                    false
+                                }
+                            } else {
+                                false
+                            };
+                            if is_whitespace {
+                                insert_pos -= 1;
+                            } else {
+                                break;
+                            }
+                        }
+                        frame.accumulated.insert(
+                            insert_pos,
+                            MatchResult {
+                                matched_slice: frame.pos..frame.pos,
+                                insert_segments: vec![(
+                                    frame.pos,
+                                    crate::parser::MetaSegmentType::Indent,
+                                )],
+                                ..Default::default()
+                            },
+                        );
+                    } else {
+                        let meta_type = match meta_type_str {
+                            "dedent" => crate::parser::MetaSegmentType::Dedent,
+                            _ => {
+                                log::warn!("Unknown meta type: {}", meta_type_str);
+                                next_index += 1;
+                                continue;
+                            }
+                        };
+                        frame.accumulated.push(MatchResult {
+                            matched_slice: frame.pos..frame.pos,
+                            insert_segments: vec![(frame.pos, meta_type)],
+                            ..Default::default()
+                        });
+                    }
+                    next_index += 1;
+                } else {
+                    // Non-META child - stop skipping
+                    break;
+                }
+            }
+
             if next_index < all_children.len() {
                 // Determine a sensible start position for the next child.
                 // Use the sequence's matched_idx (last successful match) as the base
@@ -557,9 +706,10 @@ impl Parser<'_> {
             // Rollback collected positions since we're failing
             self.rollback_collection_checkpoint(frame.frame_id);
 
-            stack
-                .results
-                .insert(frame.frame_id, (Node::Empty, frame.pos, None));
+            stack.results.insert(
+                frame.frame_id,
+                (MatchResult::empty_at(frame.pos), frame.pos, None),
+            );
             Ok(TableFrameResult::Done)
         }
     }
@@ -570,11 +720,7 @@ impl Parser<'_> {
         mut frame: TableParseFrame,
         _stack: &mut TableParseFrameStack,
     ) -> Result<TableFrameResult, ParseError> {
-        let FrameContext::SequenceTableDriven {
-            matched_idx,
-            ..
-        } = &frame.context
-        else {
+        let FrameContext::SequenceTableDriven { matched_idx, .. } = &frame.context else {
             return Err(ParseError::new(
                 "Expected SequenceTableDriven context in combining".to_string(),
             ));
@@ -590,39 +736,40 @@ impl Parser<'_> {
             log::debug!("  Combining accumulated[{}]: {:?}", i, child);
         }
 
-        let (result_node, final_pos) = if frame.accumulated.is_empty() {
+        let (result_match, final_pos) = if frame.accumulated.is_empty() {
             // Empty result - rollback collected positions
             self.rollback_collection_checkpoint(frame.frame_id);
-            (Node::Empty, frame.pos)
+            (MatchResult::empty_at(frame.pos), frame.pos)
         } else {
             // Successful match - commit collected positions
             self.commit_collection_checkpoint(frame.frame_id);
+            // Use lazy evaluation - store child_matches instead of building Node
+            let accumulated = std::mem::take(&mut frame.accumulated);
             (
-                Node::Sequence {
-                    children: frame.accumulated.clone(),
-                },
+                MatchResult::sequence(frame.pos, *matched_idx, accumulated),
                 *matched_idx,
             )
         };
 
         self.pos = final_pos;
         frame.end_pos = Some(final_pos);
-        frame.state = FrameState::Complete(result_node);
+        frame.state = FrameState::Complete(result_match);
 
         Ok(TableFrameResult::Push(frame))
     }
 
     /// Helper: Collect transparent tokens between two positions (from .. to), used when allow_gaps==true.
+    ///
+    /// PYTHON PARITY: Only explicitly collect end_of_file tokens. Whitespace, newlines, and comments
+    /// are captured implicitly as trailing segments by apply(), aligning with Python's design.
     fn table_collect_transparent_between_into_accum(
         &mut self,
-        accumulated: &mut Vec<Node>,
+        accumulated: &mut Vec<MatchResult>,
         from: usize,
         to: usize,
     ) {
-        // Collect transparent tokens in range [from, to).
-        // Use global deduplication to prevent ancestor Sequences from re-collecting
-        // tokens that child Sequences have already collected.
-        // The checkpoint system handles rollback for failed branches.
+        // Only collect end_of_file explicitly. Other transparent tokens (whitespace, newlines, comments)
+        // will be captured implicitly as trailing segments when apply() is called.
         for collect_pos in from..to {
             if collect_pos < self.tokens.len() && !self.tokens[collect_pos].is_code() {
                 // Skip if already collected (by a child or ancestor)
@@ -637,41 +784,23 @@ impl Parser<'_> {
                 let tok = &self.tokens[collect_pos];
                 let tok_type = tok.get_type();
                 match &*tok_type {
-                    "whitespace" => {
-                        log::debug!(
-                            "COLLECTING whitespace at {}: {:?}",
-                            collect_pos,
-                            tok.raw()
-                        );
-                        accumulated.push(Node::Whitespace {
-                            raw: tok.raw().to_string(),
-                            token_idx: collect_pos,
-                        });
-                        self.mark_position_collected(collect_pos);
-                    }
-                    "newline" => {
-                        log::debug!("COLLECTING newline at {}: {:?}", collect_pos, tok.raw());
-                        accumulated.push(Node::Newline {
-                            raw: tok.raw().to_string(),
-                            token_idx: collect_pos,
-                        });
-                        self.mark_position_collected(collect_pos);
-                    }
-                    "comment" => {
-                        log::debug!("COLLECTING comment at {}: {:?}", collect_pos, tok.raw());
-                        accumulated.push(Node::Comment {
-                            raw: tok.raw().to_string(),
-                            token_idx: collect_pos,
-                        });
-                        self.mark_position_collected(collect_pos);
-                    }
                     "end_of_file" => {
                         log::debug!("COLLECTING EOF at {}: {:?}", collect_pos, tok.raw());
-                        accumulated.push(Node::EndOfFile {
-                            raw: tok.raw().to_string(),
-                            token_idx: collect_pos,
+                        accumulated.push(MatchResult {
+                            matched_slice: collect_pos..collect_pos + 1,
+                            matched_class: None, // Inferred from token type
+                            ..Default::default()
                         });
                         self.mark_position_collected(collect_pos);
+                    }
+                    "whitespace" | "newline" | "comment" => {
+                        // PYTHON PARITY: Don't explicitly collect these - they'll be captured
+                        // implicitly as trailing segments by apply()
+                        log::debug!(
+                            "Skipping explicit collection of {} at {} - will be captured as trailing",
+                            tok_type,
+                            collect_pos
+                        );
                     }
                     _ => {}
                 }

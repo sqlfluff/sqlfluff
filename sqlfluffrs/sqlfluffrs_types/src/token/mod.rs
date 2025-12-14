@@ -23,6 +23,14 @@ use crate::{
     regex::{RegexMode, RegexModeGroup},
 };
 
+#[derive(Debug, Clone, PartialEq, Default)]
+pub enum CaseFold {
+    #[default]
+    None,
+    Upper,
+    Lower,
+}
+
 #[derive(Debug, Clone, PartialEq)]
 pub enum TupleSerialisedSegment {
     Str(String, String),
@@ -59,7 +67,7 @@ pub struct Token {
     pub trim_chars: Option<Vec<String>>,
     quoted_value: Option<(String, RegexModeGroup)>,
     escape_replacement: Option<(String, String)>,
-    casefold: Option<fn(&str) -> str>,
+    pub casefold: CaseFold,
     raw_value: String,
     /// Pre-computed index of matching bracket for O(1) lookup during parsing.
     /// For opening brackets like '(', '[', '{', this points to the matching closing bracket.

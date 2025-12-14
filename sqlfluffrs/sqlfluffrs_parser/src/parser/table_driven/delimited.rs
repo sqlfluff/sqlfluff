@@ -2,7 +2,7 @@ use sqlfluffrs_types::{GrammarId, ParseMode};
 
 use crate::parser::{
     table_driven::frame::{TableFrameResult, TableParseFrame, TableParseFrameStack},
-    DelimitedState, FrameContext, FrameState, Node, ParseError, Parser,
+    DelimitedState, FrameContext, FrameState, MatchResult, ParseError, Parser,
 };
 
 impl<'a> Parser<'_> {
@@ -41,9 +41,10 @@ impl<'a> Parser<'_> {
                 "Delimited[table]: Expected exactly 2 children (elements + delimiter), got {}",
                 all_children.len()
             );
-            stack
-                .results
-                .insert(frame.frame_id, (Node::Empty, start_pos, None));
+            stack.results.insert(
+                frame.frame_id,
+                (MatchResult::empty_at(start_pos), start_pos, None),
+            );
             return Ok(TableFrameResult::Done);
         }
 
@@ -181,7 +182,7 @@ impl<'a> Parser<'_> {
     pub(crate) fn handle_delimited_table_driven_waiting_for_child(
         &mut self,
         mut frame: TableParseFrame,
-        child_node: &Node,
+        child_match: &MatchResult,
         child_end_pos: &usize,
         stack: &mut TableParseFrameStack,
     ) -> Result<TableFrameResult, ParseError> {
@@ -229,7 +230,7 @@ impl<'a> Parser<'_> {
         log::debug!(
             "Delimited[table] WaitingForChild: frame_id={}, child_empty={}, state={:?}, delim_count={}, allow_trailing={}, optional_delimiter={}",
             frame.frame_id,
-            child_node.is_empty(),
+            child_match.is_empty(),
             delim_state,
             delimiter_count,
             allow_trailing,
@@ -300,8 +301,8 @@ impl<'a> Parser<'_> {
 
                 // Handle element match failure
                 // With the new structure, OneOf handles trying multiple element candidates,
-                // so if child_node is empty, all element options have failed
-                if child_node.is_empty() {
+                // so if child_match is empty, all element options have failed
+                if child_match.is_empty() {
                     log::debug!(
                         "Delimited[table]: element match failed (all candidates exhausted by OneOf), finalizing at pos {}",
                         matched_idx
@@ -345,7 +346,7 @@ impl<'a> Parser<'_> {
                 // Add the matched element
                 // The delimiter and transparent tokens were already pushed when transitioning
                 // from MatchingDelimiter to MatchingElement state.
-                frame.accumulated.push(child_node.clone());
+                frame.accumulated.push(child_match.clone());
                 *matched_idx = *child_end_pos;
                 *working_idx = *matched_idx;
 
@@ -395,7 +396,7 @@ impl<'a> Parser<'_> {
             }
 
             DelimitedState::MatchingDelimiter => {
-                if child_node.is_empty() {
+                if child_match.is_empty() {
                     // Delimiter failed to match
                     if optional_delimiter {
                         // Python lines 157-162: If delimiter is optional and failed,
@@ -470,7 +471,7 @@ impl<'a> Parser<'_> {
                 // appeared before the delimiter in the output.
 
                 // Store delimiter match for later (will be added when next element matches)
-                *delimiter_match = Some(child_node.clone());
+                *delimiter_match = Some(child_match.clone());
                 *pos_before_delimiter = Some(*matched_idx);
                 *matched_idx = *child_end_pos;
                 *working_idx = *matched_idx;
@@ -532,8 +533,9 @@ impl<'a> Parser<'_> {
                 if allow_gaps {
                     let start_pos = *working_idx;
                     // Skip to next code token (skips through comments) so we can collect all transparent tokens
-                    let next_code_pos = self.skip_start_index_forward_to_code(start_pos, self.tokens.len());
-                    
+                    let next_code_pos =
+                        self.skip_start_index_forward_to_code(start_pos, self.tokens.len());
+
                     // Collect transparent tokens (whitespace, newlines, comments) in the skipped range
                     log::debug!(
                         "Delimited[table]: collecting transparent after delimiter from {} to {}",
@@ -546,35 +548,37 @@ impl<'a> Parser<'_> {
                             // Skip if already collected IN THIS BRANCH
                             // Note: We use mark_position_collected() which integrates with the checkpoint system
                             if self.collected_transparent_positions.contains(&idx) {
-                                log::debug!("Delimited[table]: SKIPPING already collected idx={}", idx);
+                                log::debug!(
+                                    "Delimited[table]: SKIPPING already collected idx={}",
+                                    idx
+                                );
                                 continue;
                             }
                             let tok_type = tok.get_type();
                             log::debug!("Delimited[table]: CHECKING transparent at idx={}, tok_type='{}', raw='{}'", idx, tok_type, tok.raw());
-                            if tok_type == "whitespace" {
-                                log::debug!("Delimited[table]: PUSHING whitespace at idx={}", idx);
-                                frame.accumulated.push(Node::Whitespace {
-                                    raw: tok.raw().to_string(),
-                                    token_idx: idx,
+                            // PYTHON PARITY: Only collect end_of_file explicitly
+                            // Whitespace, newlines, comments captured implicitly by apply()
+                            if tok_type == "end_of_file" {
+                                log::debug!("Delimited[table]: COLLECTING EOF at idx={}", idx);
+                                frame.accumulated.push(MatchResult {
+                                    matched_slice: idx..idx + 1,
+                                    matched_class: None, // Inferred from token type
+                                    ..Default::default()
                                 });
                                 self.mark_position_collected(idx);
-                            } else if tok_type == "newline" {
-                                frame.accumulated.push(Node::Newline {
-                                    raw: tok.raw().to_string(),
-                                    token_idx: idx,
-                                });
-                                self.mark_position_collected(idx);
-                            } else if tok_type == "comment" {
-                                log::debug!("Delimited[table]: COLLECTED COMMENT after delimiter at {}: {:?}", idx, tok.raw());
-                                frame.accumulated.push(Node::Comment {
-                                    raw: tok.raw().to_string(),
-                                    token_idx: idx,
-                                });
-                                self.mark_position_collected(idx);
+                            } else if tok_type == "whitespace"
+                                || tok_type == "newline"
+                                || tok_type == "comment"
+                            {
+                                log::debug!(
+                                    "Delimited[table]: Skipping explicit collection of {} at {} - will be captured as trailing",
+                                    tok_type,
+                                    idx
+                                );
                             }
                         }
                     }
-                    
+
                     *working_idx = next_code_pos;
                 }
                 self.pos = *working_idx;
@@ -708,9 +712,9 @@ impl<'a> Parser<'_> {
         let (_delimiter_child_idx, min_delimiters) = self.grammar_ctx.delimited_config(*grammar_id);
 
         // Build final result
-        let (result_node, final_pos) = if frame.accumulated.is_empty() {
+        let (result_match, final_pos) = if frame.accumulated.is_empty() {
             // No matches
-            (Node::Empty, frame.pos)
+            (MatchResult::empty_at(frame.pos), frame.pos)
         } else if *delimiter_count < min_delimiters {
             // Not enough delimiters - fail
             log::debug!(
@@ -718,20 +722,19 @@ impl<'a> Parser<'_> {
                 delimiter_count,
                 min_delimiters
             );
-            (Node::Empty, frame.pos)
+            (MatchResult::empty_at(frame.pos), frame.pos)
         } else {
-            // Success - enough matches and delimiters
+            // Success - use lazy evaluation - store child_matches
+            let accumulated = std::mem::take(&mut frame.accumulated);
             (
-                Node::DelimitedList {
-                    children: frame.accumulated.clone(),
-                },
+                MatchResult::delimited(frame.pos, *matched_idx, accumulated),
                 *matched_idx,
             )
         };
 
         self.pos = final_pos;
         frame.end_pos = Some(final_pos);
-        frame.state = FrameState::Complete(result_node);
+        frame.state = FrameState::Complete(result_match);
 
         Ok(TableFrameResult::Push(frame))
     }

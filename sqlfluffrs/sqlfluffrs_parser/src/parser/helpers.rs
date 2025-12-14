@@ -6,7 +6,7 @@
 use hashbrown::HashSet;
 
 use super::core::Parser;
-use super::Node;
+use super::{MatchResult, Node};
 use sqlfluffrs_types::{GrammarId, ParseMode, Token};
 
 impl<'a> Parser<'a> {
@@ -104,10 +104,60 @@ impl<'a> Parser<'a> {
         self.pos >= self.tokens.len()
     }
 
-    /// Collect all transparent tokens (whitespace, newlines) as nodes
-    /// Collect transparent tokens (whitespace, newlines, comments) between code tokens.
+    /// Collect all transparent tokens (whitespace, newlines, comments) between code tokens.
+    /// Returns a Vec<MatchResult> with child_matches for each transparent token.
     /// IMPORTANT: Comments are collected here, not skipped! They're part of the AST.
-    pub fn collect_transparent(&mut self, allow_gaps: bool) -> Vec<Node> {
+    pub fn collect_transparent(&mut self, allow_gaps: bool) -> Vec<MatchResult> {
+        let mut transparent_matches = Vec::new();
+
+        if !allow_gaps {
+            return transparent_matches;
+        }
+
+        let start_pos = self.pos;
+
+        while let Some(tok) = self.peek() {
+            // Stop at actual code tokens (but collect comments!)
+            if tok.is_code() {
+                break;
+            }
+
+            let token_pos = self.pos;
+
+            // Skip if already collected
+            if self.collected_transparent_positions.contains(&token_pos) {
+                self.bump();
+                continue;
+            }
+
+            log::debug!(
+                "TRANSPARENT collecting token at pos {}: type={}, raw={:?}",
+                token_pos,
+                tok.get_type(),
+                tok.raw()
+            );
+
+            // Create MatchResult for this token (slice only, data retrieved in apply())
+            let match_result = MatchResult {
+                matched_slice: token_pos..token_pos + 1,
+                matched_class: None, // Inferred from token type in apply()
+                ..Default::default()
+            };
+
+            transparent_matches.push(match_result);
+
+            // Use mark_position_collected to integrate with checkpoint system
+            self.mark_position_collected(token_pos);
+            self.bump();
+        }
+
+        transparent_matches
+    }
+
+    /// Collect all transparent tokens (whitespace, newlines, comments) as Nodes.
+    /// DEPRECATED: Use collect_transparent() instead. This is kept for backward compatibility
+    /// with code that hasn't been converted to MatchResult yet.
+    pub fn collect_transparent_nodes(&mut self, allow_gaps: bool) -> Vec<Node> {
         let mut transparent_nodes = Vec::new();
 
         if !allow_gaps {
@@ -140,7 +190,6 @@ impl<'a> Parser<'a> {
                     token_idx: token_pos,
                 }
             } else if tok_type == "comment" {
-                // Comments should be collected as nodes, not skipped!
                 Node::Comment {
                     raw: tok.raw(),
                     token_idx: token_pos,
@@ -151,7 +200,7 @@ impl<'a> Parser<'a> {
                     token_idx: token_pos,
                 }
             } else {
-                Node::new_token(tok.token_type.clone(), tok.raw(), token_pos) // Fallback for other non-code tokens
+                Node::new_token(tok.token_type.clone(), tok.raw(), token_pos)
             };
 
             log::debug!(
@@ -160,7 +209,6 @@ impl<'a> Parser<'a> {
                 tok
             );
             transparent_nodes.push(node);
-            // Use mark_position_collected to integrate with checkpoint system
             self.mark_position_collected(token_pos);
             self.bump();
         }

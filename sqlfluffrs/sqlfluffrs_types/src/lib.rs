@@ -35,5 +35,5 @@ pub use templater::fileslice::{RawFileSlice, TemplatedFileSlice};
 pub use templater::templatefile::python::PyTemplatedFile;
 pub use templater::templatefile::TemplatedFile;
 #[cfg(feature = "python")]
-pub use token::python::PyToken;
+pub use token::python::{PyCaseFold, PyToken};
 pub use token::{config::TokenConfig, Token};

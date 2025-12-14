@@ -13,7 +13,8 @@ def generate_use():
     """Generates the `use` statements."""
     print("use once_cell::sync::Lazy;")
     print("use sqlfluffrs_types::LexMatcher;")
-    print("use sqlfluffrs_types::{Token, TokenConfig, RegexModeGroup};")
+    print("use sqlfluffrs_types::{Token, RegexModeGroup};")
+    print("use sqlfluffrs_types::token::CaseFold;")
 
 
 def segment_to_token_name(s: str):
@@ -122,6 +123,17 @@ def _as_rust_lexer_matcher(lexer_matcher: LexerType, dialect: str, is_subdivide=
         "casefold"
     )
 
+    # Convert Python casefold function to Rust CaseFold enum
+    if casefold is None:
+        casefold_rust = "CaseFold::None"
+    elif casefold == str.upper:
+        casefold_rust = "CaseFold::Upper"
+    elif casefold == str.lower:
+        casefold_rust = "CaseFold::Lower"
+    else:
+        # Unknown casefold function, default to None
+        casefold_rust = "CaseFold::None"
+
     if lexer_class == "StringLexer":
         rust_fn = "string_lexer"
         template = f'"{lexer_matcher.template}"'
@@ -192,7 +204,7 @@ def _as_rust_lexer_matcher(lexer_matcher: LexerType, dialect: str, is_subdivide=
         {trim_chars},
         {quoted_value},
         {escape_replacement},
-        {casefold},{fallback}{is_match_valid}
+        {casefold_rust},{fallback}{is_match_valid}
         {kwarg_type},
     )"""
 
@@ -206,14 +218,17 @@ def _generate_token_closure(
     internally uses the new TokenConfig-based API.
 
     Uses Rust's struct field shorthand syntax for cleaner code generation.
+
+    Note: The closure still accepts Option<fn(&str) -> str> for casefold
+    to maintain compatibility with the compat layer, which converts it to
+    the CaseFold enum internally.
     """
     return f"""
         |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
          quoted_value, escape_replacement, casefold| {{
-            Token::{segment_name}(raw, pos_marker, TokenConfig {{
-                class_types, instance_types, trim_start, trim_chars,
-                quoted_value, escape_replacement, casefold,
-            }})
+            Token::{segment_name}_compat(raw, pos_marker, class_types,
+                instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold)
         }}"""
 
 

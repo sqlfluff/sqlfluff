@@ -4,13 +4,16 @@
 //! including the main entry point for parsing with grammar.
 
 use hashbrown::HashSet;
+use regex::Match;
 
 use crate::parser::table_driven::frame::{TableFrameResult, TableParseFrame};
 use crate::parser::FrameState;
+use crate::parser::{MatchResult, MetaSegmentType};
 
 use super::{cache::TableParseCache, Node, ParseError};
 use sqlfluffrs_dialects::Dialect;
 use sqlfluffrs_types::regex::RegexMode;
+use sqlfluffrs_types::token::CaseFold;
 use sqlfluffrs_types::{SimpleHint, Token};
 // NEW: Table-driven grammar support
 use sqlfluffrs_types::{GrammarContext, GrammarId, GrammarVariant, RootGrammar};
@@ -322,7 +325,7 @@ impl<'a> Parser<'a> {
         // Obtain the root grammar for this dialect and dispatch based on its
         // variant (table-driven vs Arc-based). Clone to avoid holding borrows.
         let root_grammar = self.dialect.get_root_grammar().clone();
-        
+
         // Find the last code token position (for trailing non-code tokens)
         let mut last_code_pos = self.tokens.len();
         for (i, token) in self.tokens.iter().enumerate().rev() {
@@ -331,7 +334,7 @@ impl<'a> Parser<'a> {
                 break;
             }
         }
-        
+
         let token_slice_orig = self.tokens;
         let token_slice = &self.tokens[..last_code_pos];
         let end_nodes = self.end_children_nodes(last_code_pos);
@@ -349,11 +352,11 @@ impl<'a> Parser<'a> {
         }
 
         self.tokens = token_slice;
-        
+
         // Collect any leading transparent tokens (whitespace, newlines, COMMENTS)
         // before parsing starts. This ensures leading comments are included in the AST.
-        let leading_transparent = self.collect_transparent(true);
-        
+        let leading_transparent = self.collect_transparent_nodes(true);
+
         // Parse using the root grammar.
         let grammar_id = root_grammar.grammar_id;
         let tables = root_grammar.tables;
@@ -385,6 +388,45 @@ impl<'a> Parser<'a> {
             }
             Err(e) => Err(e),
         }
+    }
+
+    /// Parse and return MatchResult instead of Node
+    ///
+    /// This allows Python to apply the match result using its own apply() logic,
+    /// avoiding double-counting issues in Rust's apply() implementation.
+    pub fn call_rule_as_root_match_result(&mut self) -> Result<MatchResult, ParseError> {
+        use crate::parser::match_result::MatchResult;
+
+        // Obtain the root grammar for this dialect
+        let root_grammar = self.dialect.get_root_grammar().clone();
+
+        // Find the last code token position (for trailing non-code tokens)
+        let mut last_code_pos = self.tokens.len();
+        for (i, token) in self.tokens.iter().enumerate().rev() {
+            if token.is_code() {
+                last_code_pos = i + 1;
+                break;
+            }
+        }
+
+        let token_slice_orig = self.tokens;
+        let token_slice = &self.tokens[..last_code_pos];
+
+        if token_slice.is_empty() {
+            // Return empty match result
+            return Ok(MatchResult::empty_at(0));
+        }
+
+        self.tokens = token_slice;
+
+        // Parse using the root grammar
+        let grammar_id = root_grammar.grammar_id;
+        let tables = root_grammar.tables;
+        self.grammar_ctx = GrammarContext::new(tables);
+        let result = self.parse_table_iterative_match_result(grammar_id, &[]);
+        self.tokens = token_slice_orig;
+
+        result
     }
 
     fn end_children_nodes(&mut self, start_idx: usize) -> Vec<Node> {
@@ -544,7 +586,7 @@ impl<'a> Parser<'a> {
     pub(crate) fn handle_string_parser_table_driven(
         &mut self,
         grammar_id: GrammarId,
-    ) -> Result<Node, ParseError> {
+    ) -> Result<MatchResult, ParseError> {
         // Extract all data from tables first (before any self methods)
         let tables = self.grammar_ctx.tables();
 
@@ -553,24 +595,18 @@ impl<'a> Parser<'a> {
         let aux_start = tables.aux_data_offsets[grammar_id.get() as usize] as usize;
         let template_id = tables.aux_data[aux_start];
         let token_type_id = tables.aux_data[aux_start + 1];
+        let raw_class_id = tables.aux_data[aux_start + 2];
 
         let template = tables.get_string(template_id).to_string();
         let token_type = tables.get_string(token_type_id).to_string();
+        let raw_class = tables.get_string(raw_class_id).to_string();
 
-        // Ensure parser position reflects the frame's start position
-        // (some table-driven handlers set `self.pos = frame.pos`; keep parity)
-        // Note: the caller (iterative engine) expects handlers to operate
-        // based on the current parser `self.pos` for consistency.
-        // For string parsers we don't have `frame` here, so rely on the
-        // iterative loop to set `self.pos` before invoking this method.
-        // However, in some call sites the parser's `self.pos` may still
-        // reflect a previous frame; set defensively to the current
-        // value (no-op) to make intent explicit.
         log::debug!(
-            "StringParser[table]: pos={}, template='{}', token_type='{}'",
+            "StringParser[table]: pos={}, template='{}', token_type='{}', raw_class='{}'",
             self.pos,
             template,
-            token_type
+            token_type,
+            raw_class
         );
 
         match self.peek() {
@@ -580,12 +616,27 @@ impl<'a> Parser<'a> {
                 self.bump();
 
                 log::debug!(
-                    "StringParser[table] MATCHED: token='{}' at pos={}",
+                    "StringParser[table] MATCHED: token='{}' as {} (type={}) at pos={}",
                     raw,
+                    raw_class,
+                    token_type,
                     token_pos
                 );
 
-                Ok(Node::new_token(token_type, raw, token_pos))
+                // PYTHON PARITY: matched_class is the raw_class (segment class name)
+                // and instance_types contains the token_type from the parser
+                // This matches Python's _match_at() which sets:
+                // - matched_class=self.raw_class
+                // - segment_kwargs with instance_types from segment_kwargs()
+                Ok(MatchResult {
+                    matched_slice: token_pos..token_pos + 1,
+                    matched_class: Some(raw_class),
+                    instance_types: Some(vec![token_type]),
+                    // TODO: Add trim_chars and casefold from grammar when available
+                    trim_chars: None,
+                    casefold: CaseFold::None,
+                    ..Default::default()
+                })
             }
             _ => {
                 log::debug!(
@@ -593,7 +644,7 @@ impl<'a> Parser<'a> {
                     template,
                     self.peek().map(|t| t.raw())
                 );
-                Ok(Node::Empty)
+                Ok(MatchResult::empty_at(self.pos))
             }
         }
     }
@@ -619,9 +670,11 @@ impl<'a> Parser<'a> {
         let aux_start = tables.aux_data_offsets[grammar_id.get() as usize] as usize;
         let template_id = tables.aux_data[aux_start];
         let token_type_id = tables.aux_data[aux_start + 1];
+        let raw_class_id = tables.aux_data[aux_start + 2];
 
         let template = tables.get_string(template_id).to_string();
         let token_type = tables.get_string(token_type_id).to_string();
+        let raw_class = tables.get_string(raw_class_id).to_string();
 
         self.pos = frame.pos;
 
@@ -661,9 +714,18 @@ impl<'a> Parser<'a> {
                     class_types
                 );
 
-                let node = Node::new_token(token_type, raw, token_pos);
+                // Return MatchResult with raw_class as matched_class (segment class)
+                // and token_type as instance_types (semantic type)
+                let match_result = MatchResult {
+                    matched_slice: token_pos..token_pos + 1,
+                    matched_class: Some(raw_class),
+                    instance_types: Some(vec![token_type]),
+                    trim_chars: None, // TODO: Add trim_chars support from grammar
+                    casefold: CaseFold::None, // TODO: Add casefold support from grammar
+                    ..Default::default()
+                };
 
-                frame.state = FrameState::Complete(node);
+                frame.state = FrameState::Complete(match_result);
                 frame.end_pos = Some(self.pos);
                 Ok(TableFrameResult::Push(frame))
             }
@@ -681,14 +743,14 @@ impl<'a> Parser<'a> {
                     inst_types,
                     class_types
                 );
-                frame.state = FrameState::Complete(Node::Empty);
+                frame.state = FrameState::Complete(MatchResult::empty_at(frame.pos));
                 frame.end_pos = Some(frame.pos);
                 Ok(TableFrameResult::Push(frame))
             }
 
             None => {
                 log::debug!("TypedParser[table] NOMATCH: EOF at pos={}", self.pos);
-                frame.state = FrameState::Complete(Node::Empty);
+                frame.state = FrameState::Complete(MatchResult::empty_at(frame.pos));
                 frame.end_pos = Some(frame.pos);
                 Ok(TableFrameResult::Push(frame))
             }
@@ -699,7 +761,7 @@ impl<'a> Parser<'a> {
     pub(crate) fn handle_multi_string_parser_table_driven(
         &mut self,
         grammar_id: GrammarId,
-    ) -> Result<Node, ParseError> {
+    ) -> Result<MatchResult, ParseError> {
         // Extract all data from tables first (before any self methods)
         let tables = self.grammar_ctx.tables();
 
@@ -709,6 +771,7 @@ impl<'a> Parser<'a> {
         let templates_start = tables.aux_data[aux_start] as usize;
         let templates_count = tables.aux_data[aux_start + 1] as usize;
         let token_type_id = tables.aux_data[aux_start + 2];
+        let raw_class_id = tables.aux_data[aux_start + 3];
 
         // Guard against sentinel value 0xFFFFFFFF in aux data entries which
         // indicates "no value" in the tables. Skip sentinel entries and
@@ -731,26 +794,47 @@ impl<'a> Parser<'a> {
             tables.get_string(token_type_id).to_string()
         };
 
+        let raw_class = if raw_class_id == 0xFFFFFFFF {
+            "RawSegment".to_string()
+        } else {
+            tables.get_string(raw_class_id).to_string()
+        };
+
         log::debug!(
-            "MultiStringParser[table]: pos={}, templates={:?}, token_type='{}'",
+            "MultiStringParser[table]: pos={}, templates={:?}, token_type='{}', raw_class='{}'",
             self.pos,
             templates,
-            token_type
+            token_type,
+            raw_class
         );
 
         match self.peek() {
-            Some(tok) if templates.iter().any(|t| tok.raw().eq_ignore_ascii_case(t)) => {
+            Some(tok)
+                if tok.is_code() && templates.iter().any(|t| tok.raw().eq_ignore_ascii_case(t)) =>
+            {
                 let token_pos = self.pos;
                 let raw = tok.raw().to_string();
                 self.bump();
 
                 log::debug!(
-                    "MultiStringParser[table] MATCHED: token='{}' at pos={}",
+                    "MultiStringParser[table] MATCHED: token='{}' as {} (type={}) at pos={}",
                     raw,
+                    raw_class,
+                    token_type,
                     token_pos
                 );
 
-                Ok(Node::new_token(token_type, raw, token_pos))
+                // PYTHON PARITY: matched_class is the raw_class (segment class name)
+                // and instance_types contains the token_type from the parser
+                Ok(MatchResult {
+                    matched_slice: token_pos..token_pos + 1,
+                    matched_class: Some(raw_class),
+                    instance_types: Some(vec![token_type]),
+                    // TODO: Add trim_chars and casefold from grammar when available
+                    trim_chars: None,
+                    casefold: CaseFold::None,
+                    ..Default::default()
+                })
             }
             _ => {
                 log::debug!(
@@ -758,7 +842,7 @@ impl<'a> Parser<'a> {
                     templates,
                     self.peek().map(|t| t.raw())
                 );
-                Ok(Node::Empty)
+                Ok(MatchResult::empty_at(self.pos))
             }
         }
     }
@@ -824,9 +908,10 @@ impl<'a> Parser<'a> {
 
                     // If RegexParser, attempt to resolve regex/anti ids to patterns
                     if let GrammarVariant::RegexParser = ctx.variant(*gid) {
-                        // Resolve pattern / anti-pattern / token_type using helper to
+                        // Resolve pattern / anti-pattern / token_type / raw_class using helper to
                         // ensure aux_data_offsets logic is centralized and correct.
-                        if let Some((pattern, anti_opt, token_type_opt)) = self.regex_pair_for(*gid)
+                        if let Some((pattern, anti_opt, token_type_opt, raw_class)) =
+                            self.regex_quad_for(*gid)
                         {
                             out.push_str(&format!("  regex_aux_resolved: pattern='{}'\n", pattern));
                             if let Some(anti) = anti_opt {
@@ -835,6 +920,7 @@ impl<'a> Parser<'a> {
                             if let Some(tt) = token_type_opt {
                                 out.push_str(&format!("  token_type: {}\n", tt));
                             }
+                            out.push_str(&format!("  raw_class: {}\n", raw_class));
                         }
                     }
                 }
@@ -851,24 +937,25 @@ impl<'a> Parser<'a> {
         Ok(out)
     }
 
-    /// Helper to resolve regex pattern, optional anti-pattern and optional token_type
-    /// for a given table-driven grammar id. Returns None if context missing or
-    /// aux data invalid.
-    pub fn regex_pair_for(
+    /// Helper to resolve regex pattern, optional anti-pattern, optional token_type,
+    /// and raw_class for a given table-driven grammar id. Returns None if context
+    /// missing or aux data invalid.
+    pub fn regex_quad_for(
         &self,
         grammar_id: GrammarId,
-    ) -> Option<(String, Option<String>, Option<String>)> {
+    ) -> Option<(String, Option<String>, Option<String>, String)> {
         let ctx = &self.grammar_ctx;
         let tables = ctx.tables();
 
         let aux_start = tables.aux_data_offsets[grammar_id.get() as usize] as usize;
-        if aux_start + 2 >= tables.aux_data.len() {
+        if aux_start + 3 >= tables.aux_data.len() {
             return None;
         }
 
         let regex_id_raw = tables.aux_data[aux_start];
         let anti_raw = tables.aux_data[aux_start + 1];
         let token_type_raw = tables.aux_data[aux_start + 2];
+        let raw_class_raw = tables.aux_data[aux_start + 3];
 
         if regex_id_raw == 0xFFFFFFFF || (regex_id_raw as usize) >= tables.regex_patterns.len() {
             return None;
@@ -889,25 +976,28 @@ impl<'a> Parser<'a> {
             None
         };
 
-        Some((pattern, anti_opt, token_type_opt))
+        let raw_class = tables.get_string(raw_class_raw).to_string();
+
+        Some((pattern, anti_opt, token_type_opt, raw_class))
     }
 
     /// Handle RegexParser using table-driven approach
     pub(crate) fn handle_regex_parser_table_driven(
         &mut self,
         grammar_id: GrammarId,
-    ) -> Result<Node, ParseError> {
-        // Use helper to resolve pattern/anti/token_type to centralize aux indexing
-        let (pattern_str, anti_opt, token_type_opt) = match self.regex_pair_for(grammar_id) {
-            Some((p, a, t)) => (p, a, t),
-            None => {
-                log::warn!(
-                    "RegexParser[table]: invalid aux for grammar_id={} when resolving pattern",
-                    grammar_id
-                );
-                return Ok(Node::Empty);
-            }
-        };
+    ) -> Result<MatchResult, ParseError> {
+        // Use helper to resolve pattern/anti/token_type/raw_class to centralize aux indexing
+        let (pattern_str, anti_opt, token_type_opt, raw_class) =
+            match self.regex_quad_for(grammar_id) {
+                Some((p, a, t, r)) => (p, a, t, r),
+                None => {
+                    log::warn!(
+                        "RegexParser[table]: invalid aux for grammar_id={} when resolving pattern",
+                        grammar_id
+                    );
+                    return Ok(MatchResult::empty_at(self.pos));
+                }
+            };
 
         // Compile regex patterns (with caching). Normalize patterns by
         // stripping a single pair of leading '^' and trailing '$' if present
@@ -963,14 +1053,13 @@ impl<'a> Parser<'a> {
                     log::debug!("RegexParser[table] checking anti-pattern against '{}'", raw);
                     if anti.is_match(&raw) {
                         log::debug!("RegexParser[table] anti-pattern matched, returning Empty");
-                        return Ok(Node::Empty);
+                        return Ok(MatchResult::empty_at(self.pos));
                     }
                 }
 
                 // Check main pattern
                 if pattern.is_match(&raw) {
                     let token_pos = self.pos;
-                    let raw = raw.to_string();
                     self.bump();
 
                     log::debug!(
@@ -979,23 +1068,28 @@ impl<'a> Parser<'a> {
                         token_pos
                     );
 
-                    Ok(Node::new_token(
-                        token_type_opt.unwrap_or_default(),
-                        raw,
-                        token_pos,
-                    ))
+                    // Return MatchResult with raw_class as matched_class
+                    let token_type = token_type_opt.unwrap_or_default();
+                    Ok(MatchResult {
+                        matched_slice: token_pos..token_pos + 1,
+                        matched_class: Some(raw_class),
+                        instance_types: Some(vec![token_type]),
+                        trim_chars: None, // TODO: Add trim_chars support from grammar
+                        casefold: CaseFold::None, // TODO: Add casefold support from grammar
+                        ..Default::default()
+                    })
                 } else {
                     log::debug!(
                         "RegexParser[table] NOMATCH: pattern '{}' didn't match token='{}'",
                         pattern_str,
                         raw
                     );
-                    Ok(Node::Empty)
+                    Ok(MatchResult::empty_at(self.pos))
                 }
             }
             None => {
                 log::debug!("RegexParser[table] NOMATCH: EOF at pos={}", self.pos);
-                Ok(Node::Empty)
+                Ok(MatchResult::empty_at(self.pos))
             }
         }
     }
@@ -1005,19 +1099,19 @@ impl<'a> Parser<'a> {
     // ============================================================================
 
     /// Handle Nothing using table-driven approach
-    pub(crate) fn handle_nothing_table_driven(&mut self) -> Result<Node, ParseError> {
+    pub(crate) fn handle_nothing_table_driven(&mut self) -> Result<MatchResult, ParseError> {
         log::debug!("Nothing[table]: pos={}, returning Empty", self.pos);
-        Ok(Node::Empty)
+        Ok(MatchResult::empty_at(self.pos))
     }
 
     /// Handle Empty using table-driven approach
-    pub(crate) fn handle_empty_table_driven(&mut self) -> Result<Node, ParseError> {
+    pub(crate) fn handle_empty_table_driven(&mut self) -> Result<MatchResult, ParseError> {
         log::debug!("Empty[table]: pos={}, returning Empty", self.pos);
-        Ok(Node::Empty)
+        Ok(MatchResult::empty_at(self.pos))
     }
 
     /// Handle Missing using table-driven approach
-    pub(crate) fn handle_missing_table_driven(&mut self) -> Result<Node, ParseError> {
+    pub(crate) fn handle_missing_table_driven(&mut self) -> Result<MatchResult, ParseError> {
         log::debug!("Missing[table]: encountered at pos={}", self.pos);
         Err(ParseError::with_context(
             "Encountered Missing grammar".into(),
@@ -1030,7 +1124,7 @@ impl<'a> Parser<'a> {
     pub(crate) fn handle_token_table_driven(
         &mut self,
         grammar_id: GrammarId,
-    ) -> Result<Node, ParseError> {
+    ) -> Result<MatchResult, ParseError> {
         // Extract token_type from tables
         let tables = self.grammar_ctx.tables();
 
@@ -1059,7 +1153,12 @@ impl<'a> Parser<'a> {
                     token_pos
                 );
 
-                Ok(Node::new_token(token_type, raw, token_pos))
+                // Return MatchResult spanning this single token
+                // The apply() method will retrieve token data from the tokens array
+                Ok(MatchResult {
+                    matched_slice: token_pos..token_pos + 1,
+                    ..Default::default()
+                })
             }
             Some(tok) => {
                 // Don't return an Err here; return Empty so the table-driven
@@ -1075,11 +1174,11 @@ impl<'a> Parser<'a> {
                     inst_types,
                     class_types
                 );
-                Ok(Node::Empty)
+                Ok(MatchResult::empty_at(self.pos))
             }
             None => {
                 log::debug!("Token[table] NOMATCH: EOF at pos={}", self.pos);
-                Ok(Node::Empty)
+                Ok(MatchResult::empty_at(self.pos))
             }
         }
     }
@@ -1088,7 +1187,7 @@ impl<'a> Parser<'a> {
     pub(crate) fn handle_meta_table_driven(
         &mut self,
         grammar_id: GrammarId,
-    ) -> Result<Node, ParseError> {
+    ) -> Result<MatchResult, ParseError> {
         // Extract token_type from tables
         let tables = self.grammar_ctx.tables();
 
@@ -1099,44 +1198,83 @@ impl<'a> Parser<'a> {
 
         log::debug!("Meta[table]: pos={}, token_type='{}'", self.pos, token_type);
 
-        Ok(Node::Meta {
-            token_type,
-            token_idx: None,
+        // Meta creates zero-length inserts. Map token_type to MetaSegmentType.
+        let meta_type = match token_type.as_str() {
+            "indent" => MetaSegmentType::Indent,
+            "dedent" => MetaSegmentType::Dedent,
+            _ => {
+                log::warn!("Unknown meta token_type: {}", token_type);
+                return Ok(MatchResult::empty_at(self.pos));
+            }
+        };
+
+        // Return MatchResult with insert_segments
+        Ok(MatchResult {
+            matched_slice: self.pos..self.pos,
+            insert_segments: vec![(self.pos, meta_type)],
+            ..Default::default()
         })
     }
 
     /// Handle NonCodeMatcher using table-driven approach
-    pub(crate) fn handle_noncode_matcher_table_driven(&mut self) -> Result<Node, ParseError> {
-        log::debug!("NonCodeMatcher[table]: pos={}", self.pos);
+    ///
+    /// Matches ALL consecutive non-code segments (whitespace, newline, comment, EOF).
+    /// This implements Python parity with NonCodeMatcher.match() which loops through
+    /// segments until finding a code token, returning MatchResult with the full slice.
+    pub(crate) fn handle_noncode_matcher_table_driven(
+        &mut self,
+    ) -> Result<MatchResult, ParseError> {
+        let start_pos = self.pos;
+        log::debug!("NonCodeMatcher[table]: pos={}", start_pos);
 
-        match self.peek() {
-            Some(tok) => {
-                let typ = tok.get_type();
-                if typ == "whitespace" || typ == "newline" {
-                    let token_pos = self.pos;
-                    let raw = tok.raw().to_string();
-                    self.bump();
+        // Count consecutive non-code tokens
+        let mut count = 0;
 
-                    log::debug!(
-                        "NonCodeMatcher[table] MATCHED: type='{}', raw='{}' at pos={}",
-                        typ,
-                        raw,
-                        token_pos
-                    );
-
-                    Ok(Node::new_token(typ.to_string(), raw, token_pos))
-                } else {
-                    log::debug!(
-                        "NonCodeMatcher[table] NOMATCH: found code token type='{}'",
-                        typ
-                    );
-                    Ok(Node::Empty)
-                }
+        while let Some(tok) = self.peek() {
+            // Check if this is a code token
+            if tok.is_code() {
+                log::debug!(
+                    "NonCodeMatcher[table]: stopped at code token type='{}' at pos={}",
+                    tok.get_type(),
+                    self.pos
+                );
+                break;
             }
-            None => {
-                log::debug!("NonCodeMatcher[table] NOMATCH: EOF at pos={}", self.pos);
-                Ok(Node::Empty)
-            }
+
+            // This is a non-code token - skip it
+            let typ = tok.get_type();
+            let raw = tok.raw();
+            self.bump();
+            count += 1;
+
+            log::debug!(
+                "NonCodeMatcher[table]: matched non-code type='{}', raw='{}' at pos={}",
+                typ,
+                raw,
+                self.pos - 1
+            );
+        }
+
+        if count == 0 {
+            log::debug!(
+                "NonCodeMatcher[table] NOMATCH: no non-code tokens at pos={}",
+                start_pos
+            );
+            Ok(MatchResult::empty_at(start_pos))
+        } else {
+            log::debug!(
+                "NonCodeMatcher[table] MATCHED: {} non-code tokens from pos {} to {}",
+                count,
+                start_pos,
+                self.pos
+            );
+
+            // Return MatchResult with slice spanning all non-code tokens
+            // apply() will retrieve token data using the slice
+            Ok(MatchResult {
+                matched_slice: start_pos..self.pos,
+                ..Default::default()
+            })
         }
     }
 
@@ -1264,9 +1402,11 @@ impl<'a> Parser<'a> {
             self.pos
         );
 
-        frame.state = FrameState::Complete(Node::Sequence {
+        let result_node = Node::Sequence {
             children: anything_tokens,
-        });
+        };
+        frame.state =
+            FrameState::Complete(MatchResult::from_node(result_node, start_pos, self.pos));
         frame.end_pos = Some(self.pos);
 
         Ok(TableFrameResult::Push(frame))
@@ -1280,8 +1420,8 @@ impl<'a> Parser<'a> {
         grammar_id: GrammarId,
         parent_terminators: &[GrammarId],
         parent_max_idx: Option<usize>,
-    ) -> Result<Node, ParseError> {
-        // Create a temporary table-driven frame to use the initial handler and then extract the Node
+    ) -> Result<MatchResult, ParseError> {
+        // Create a temporary table-driven frame to use the initial handler and then extract MatchResult
         let frame =
             TableParseFrame::new_child(0, grammar_id, self.pos, parent_terminators.to_vec(), None);
 
@@ -1292,12 +1432,12 @@ impl<'a> Parser<'a> {
             parent_max_idx,
         )? {
             TableFrameResult::Push(f) => {
-                if let FrameState::Complete(node) = f.state {
-                    return Ok(node);
+                if let FrameState::Complete(match_result) = f.state {
+                    return Ok(match_result);
                 }
-                Ok(Node::Empty)
+                Ok(MatchResult::empty_at(self.pos))
             }
-            TableFrameResult::Done => Ok(Node::Empty),
+            TableFrameResult::Done => Ok(MatchResult::empty_at(self.pos)),
         }
     }
 }

@@ -1,6 +1,6 @@
 use crate::parser::{
     table_driven::frame::{TableFrameResult, TableParseFrame, TableParseFrameStack},
-    FrameContext, FrameState, Node, ParseError, Parser,
+    FrameContext, FrameState, MatchResult, ParseError, Parser,
 };
 use sqlfluffrs_types::GrammarId;
 
@@ -72,9 +72,10 @@ impl Parser<'_> {
                 {
                     if !exclude_result.is_empty() {
                         log::debug!("AnyNumberOf[table]: Exclude grammar matched, returning Empty");
-                        stack
-                            .results
-                            .insert(frame.frame_id, (Node::Empty, start_pos, None));
+                        stack.results.insert(
+                            frame.frame_id,
+                            (MatchResult::empty_at(start_pos), start_pos, None),
+                        );
                         return Ok(TableFrameResult::Done);
                     }
                 }
@@ -98,9 +99,10 @@ impl Parser<'_> {
         // (will log terminators after they are combined below)
         if pruned_children.is_empty() {
             log::debug!("AnyNumberOf[table]: No elements to match after filtering");
-            stack
-                .results
-                .insert(frame.frame_id, (Node::Empty, start_pos, None));
+            stack.results.insert(
+                frame.frame_id,
+                (MatchResult::empty_at(start_pos), start_pos, None),
+            );
             return Ok(TableFrameResult::Done);
         }
 
@@ -214,7 +216,7 @@ impl Parser<'_> {
     pub(crate) fn handle_anynumberof_table_driven_waiting_for_child(
         &mut self,
         mut frame: TableParseFrame,
-        child_node: &Node,
+        child_match: &MatchResult,
         child_end_pos: &usize,
         stack: &mut TableParseFrameStack,
     ) -> Result<TableFrameResult, ParseError> {
@@ -253,7 +255,7 @@ impl Parser<'_> {
         log::debug!(
             "AnyNumberOf[table] WaitingForChild: frame_id={}, child_empty={}, count={}, matched_idx={}, trying_idx={}/{}, tried_elements={}",
             frame.frame_id,
-            child_node.is_empty(),
+            child_match.is_empty(),
             count,
             matched_idx,
             current_element_idx,
@@ -282,7 +284,7 @@ impl Parser<'_> {
             .unwrap_or(pruned_children[0]);
 
         // Update longest_match if this child is better (like OneOf does)
-        if !child_node.is_empty() && *child_end_pos <= *max_idx {
+        if !child_match.is_empty() && *child_end_pos <= *max_idx {
             let is_better = if let Some((_, current_end_pos, _)) = longest_match {
                 *child_end_pos > *current_end_pos
             } else {
@@ -290,7 +292,7 @@ impl Parser<'_> {
             };
 
             if is_better {
-                *longest_match = Some((child_node.clone(), *child_end_pos, current_candidate));
+                *longest_match = Some((child_match.clone(), *child_end_pos, current_candidate));
                 log::debug!(
                     "AnyNumberOf[table]: Updated longest_match: child_id={}, end_pos={}",
                     current_candidate.0,
@@ -347,7 +349,7 @@ impl Parser<'_> {
             max_idx
         );
 
-        if let Some((best_node, best_end_pos, best_gid)) = longest_match.take() {
+        if let Some((best_match, best_end_pos, best_gid)) = longest_match.take() {
             // Check for zero-width match to prevent infinite loops
             if best_end_pos == *working_idx {
                 log::warn!(
@@ -369,27 +371,23 @@ impl Parser<'_> {
                     if self.collected_transparent_positions.contains(&token_idx) {
                         continue;
                     }
+                    // PYTHON PARITY: Only collect end_of_file explicitly
+                    // Whitespace, newlines, comments captured implicitly by apply()
                     match tok.get_type().as_str() {
-                        "whitespace" => {
-                            frame.accumulated.push(Node::Whitespace {
-                                raw: tok.raw().to_string(),
-                                token_idx,
+                        "end_of_file" => {
+                            frame.accumulated.push(MatchResult {
+                                matched_slice: token_idx..token_idx + 1,
+                                matched_class: None, // Inferred from token type
+                                ..Default::default()
                             });
                             self.mark_position_collected(token_idx);
                         }
-                        "newline" => {
-                            frame.accumulated.push(Node::Newline {
-                                raw: tok.raw().to_string(),
-                                token_idx,
-                            });
-                            self.mark_position_collected(token_idx);
-                        }
-                        "comment" => {
-                            frame.accumulated.push(Node::Comment {
-                                raw: tok.raw().to_string(),
-                                token_idx,
-                            });
-                            self.mark_position_collected(token_idx);
+                        "whitespace" | "newline" | "comment" => {
+                            log::debug!(
+                                "AnyNumberOf[table]: Skipping explicit collection of {} at {} - will be captured as trailing",
+                                tok.get_type(),
+                                token_idx
+                            );
                         }
                         _ => {}
                     }
@@ -434,7 +432,7 @@ impl Parser<'_> {
             }
 
             // Match succeeded - accumulate and increment count
-            frame.accumulated.push(best_node);
+            frame.accumulated.push(best_match);
             *matched_idx = best_end_pos;
             *working_idx = *matched_idx;
             *count += 1;
@@ -578,20 +576,19 @@ impl Parser<'_> {
             // Didn't meet min_times
             self.pos = frame.pos;
             frame.end_pos = Some(frame.pos);
-            frame.state = FrameState::Complete(Node::Empty);
+            frame.state = FrameState::Complete(MatchResult::empty_at(frame.pos));
             return Ok(TableFrameResult::Push(frame));
         }
 
         // Build final result
-        let (result_node, final_pos) = {
-            // Success - return sequence of matches
+        let (result_match, final_pos) = {
+            // Success - use lazy evaluation - store child_matches
             if frame.accumulated.is_empty() {
-                (Node::Empty, frame.pos)
+                (MatchResult::empty_at(frame.pos), frame.pos)
             } else {
+                let accumulated = std::mem::take(&mut frame.accumulated);
                 (
-                    Node::Sequence {
-                        children: frame.accumulated.clone(),
-                    },
+                    MatchResult::sequence(frame.pos, *matched_idx, accumulated),
                     *matched_idx,
                 )
             }
@@ -599,7 +596,7 @@ impl Parser<'_> {
 
         self.pos = final_pos;
         frame.end_pos = Some(final_pos);
-        frame.state = FrameState::Complete(result_node);
+        frame.state = FrameState::Complete(result_match);
 
         Ok(TableFrameResult::Push(frame))
     }
