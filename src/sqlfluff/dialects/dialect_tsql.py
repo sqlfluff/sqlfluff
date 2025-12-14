@@ -5064,7 +5064,7 @@ class OpenRowSetSegment(BaseSegment):
                             Delimited(
                                 AnyNumberOf(
                                     Sequence(
-                                        "DATASOURCE",
+                                        "DATA_SOURCE",
                                         Ref("EqualsSegment"),
                                         Ref("QuotedLiteralSegmentOptWithN"),
                                     ),
