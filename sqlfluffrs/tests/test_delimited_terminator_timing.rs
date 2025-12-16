@@ -78,7 +78,7 @@ mod delimited_terminator_tests {
         let (tokens, _) = lexer.lex(sqlfluffrs_lexer::LexInput::String(sql.to_string()), false);
 
         // Parse as a simple delimited list (simulating column list)
-        let mut parser = Parser::new(&tokens, dialect);
+        let mut parser = Parser::new(&tokens, dialect, hashbrown::HashMap::new());
         let result = parser.call_rule_as_root();
 
         // Should successfully parse the bracketed comma-delimited list

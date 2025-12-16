@@ -38,7 +38,7 @@ fn test_sql(sql: &str) {
     }
 
     // Parse
-    let mut parser = Parser::new(&tokens, dialect);
+    let mut parser = Parser::new(&tokens, dialect, hashbrown::HashMap::new());
     let result = parser.call_rule_as_root();
 
     match result {

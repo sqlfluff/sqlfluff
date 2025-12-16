@@ -59,6 +59,7 @@ impl Parser<'_> {
             current_element_idx: 0, // Start at first element
             first_match: true,      // For GREEDY_ONCE_STARTED trimming
             optional: self.grammar_ctx.inst(grammar_id).flags.optional(), // Store Sequence-level optional flag
+            meta_buffer: Vec::new(), // Buffer for meta elements to flush
         };
         frame.table_terminators = all_terminators;
         let current_frame_id = frame.frame_id; // Save before moving frame
@@ -375,9 +376,9 @@ impl Parser<'_> {
                 }
             }
 
-            // Skip any META children and insert them directly into accumulated
-            // META grammars (Indent, Dedent, etc.) don't need parsing - they're
-            // inserted as META segments at the current position.
+            // PYTHON-STYLE META HANDLING: Buffer trailing META children after this match
+            // They will be flushed when we have the next boundary position
+            let mut meta_buffer: Vec<GrammarId> = Vec::new();
             if let FrameContext::SequenceTableDriven {
                 current_element_idx,
                 ..
@@ -387,60 +388,9 @@ impl Parser<'_> {
                     let child_id = all_children[*current_element_idx];
                     if self.grammar_ctx.variant(child_id) == sqlfluffrs_types::GrammarVariant::Meta
                     {
-                        // Insert META segment
-                        let meta_type_str =
-                            self.grammar_ctx.segment_type(child_id).expect("meta type");
-                        if meta_type_str == "indent" {
-                            // Indent goes before whitespace
-                            let mut insert_pos = frame.accumulated.len();
-                            while insert_pos > 0 {
-                                let prev_match = &frame.accumulated[insert_pos - 1];
-                                let is_whitespace = if !prev_match.matched_slice.is_empty() {
-                                    let token_idx = prev_match.matched_slice.start;
-                                    if token_idx < self.tokens.len() {
-                                        let tok_type = self.tokens[token_idx].get_type();
-                                        tok_type == "whitespace" || tok_type == "newline"
-                                    } else {
-                                        false
-                                    }
-                                } else {
-                                    false
-                                };
-                                if is_whitespace {
-                                    insert_pos -= 1;
-                                } else {
-                                    break;
-                                }
-                            }
-                            frame.accumulated.insert(
-                                insert_pos,
-                                MatchResult {
-                                    matched_slice: frame.pos..frame.pos,
-                                    insert_segments: vec![(
-                                        frame.pos,
-                                        crate::parser::MetaSegmentType::Indent,
-                                    )],
-                                    ..Default::default()
-                                },
-                            );
-                        } else {
-                            let meta_type = match meta_type_str {
-                                "dedent" => crate::parser::MetaSegmentType::Dedent,
-                                _ => {
-                                    log::warn!("Unknown meta type: {}", meta_type_str);
-                                    *current_element_idx += 1;
-                                    continue;
-                                }
-                            };
-                            frame.accumulated.push(MatchResult {
-                                matched_slice: frame.pos..frame.pos,
-                                insert_segments: vec![(frame.pos, meta_type)],
-                                ..Default::default()
-                            });
-                        }
+                        meta_buffer.push(child_id);
                         *current_element_idx += 1;
                     } else {
-                        // Non-META child - stop skipping
                         break;
                     }
                 }
@@ -478,6 +428,18 @@ impl Parser<'_> {
                 } else {
                     matched_idx_val
                 };
+
+                // PYTHON-STYLE META FLUSH: Flush buffered metas at whitespace boundary
+                // pre_code_idx = matched_idx_val (before whitespace)
+                // post_code_idx = next_start_pos (after whitespace)
+                if !meta_buffer.is_empty() {
+                    self.flush_meta_buffer(
+                        &mut frame.accumulated,
+                        matched_idx_val,
+                        next_start_pos,
+                        meta_buffer,
+                    );
+                }
 
                 let next_child = all_children[current_element_idx_val];
 
@@ -527,6 +489,16 @@ impl Parser<'_> {
                 );
                 return Ok(TableFrameResult::Done);
             } else {
+                // All children matched - flush any remaining buffered metas
+                if !meta_buffer.is_empty() {
+                    self.flush_meta_buffer(
+                        &mut frame.accumulated,
+                        matched_idx_val,
+                        matched_idx_val,
+                        meta_buffer,
+                    );
+                }
+
                 self.pos = matched_idx_val;
                 frame.end_pos = Some(matched_idx_val);
                 frame.state = FrameState::Combining;
@@ -561,62 +533,13 @@ impl Parser<'_> {
         if failed_inst.flags.optional() {
             let mut next_index = failed_idx + 1;
 
-            // Skip any META children and insert them directly into accumulated
-            // META grammars (Indent, Dedent, etc.) don't need parsing - they're
-            // inserted as META segments at the current position.
+            // PYTHON-STYLE META HANDLING: Buffer trailing META children after optional skip
+            // They will be flushed with conditional config checking via flush_meta_buffer
+            let mut meta_buffer: Vec<GrammarId> = Vec::new();
             while next_index < all_children.len() {
                 let child_id = all_children[next_index];
                 if self.grammar_ctx.variant(child_id) == sqlfluffrs_types::GrammarVariant::Meta {
-                    // Insert META segment
-                    let meta_type_str = self.grammar_ctx.segment_type(child_id).expect("meta type");
-                    if meta_type_str == "indent" {
-                        // Indent goes before whitespace
-                        let mut insert_pos = frame.accumulated.len();
-                        while insert_pos > 0 {
-                            let prev_match = &frame.accumulated[insert_pos - 1];
-                            let is_whitespace = if !prev_match.matched_slice.is_empty() {
-                                let token_idx = prev_match.matched_slice.start;
-                                if token_idx < self.tokens.len() {
-                                    let tok_type = self.tokens[token_idx].get_type();
-                                    tok_type == "whitespace" || tok_type == "newline"
-                                } else {
-                                    false
-                                }
-                            } else {
-                                false
-                            };
-                            if is_whitespace {
-                                insert_pos -= 1;
-                            } else {
-                                break;
-                            }
-                        }
-                        frame.accumulated.insert(
-                            insert_pos,
-                            MatchResult {
-                                matched_slice: frame.pos..frame.pos,
-                                insert_segments: vec![(
-                                    frame.pos,
-                                    crate::parser::MetaSegmentType::Indent,
-                                )],
-                                ..Default::default()
-                            },
-                        );
-                    } else {
-                        let meta_type = match meta_type_str {
-                            "dedent" => crate::parser::MetaSegmentType::Dedent,
-                            _ => {
-                                log::warn!("Unknown meta type: {}", meta_type_str);
-                                next_index += 1;
-                                continue;
-                            }
-                        };
-                        frame.accumulated.push(MatchResult {
-                            matched_slice: frame.pos..frame.pos,
-                            insert_segments: vec![(frame.pos, meta_type)],
-                            ..Default::default()
-                        });
-                    }
+                    meta_buffer.push(child_id);
                     next_index += 1;
                 } else {
                     // Non-META child - stop skipping
@@ -654,6 +577,16 @@ impl Parser<'_> {
                     base_matched_idx
                 };
 
+                // PYTHON-STYLE META FLUSH: Flush buffered metas with conditional config checking
+                if !meta_buffer.is_empty() {
+                    self.flush_meta_buffer(
+                        &mut frame.accumulated,
+                        base_matched_idx,
+                        next_start_pos,
+                        meta_buffer,
+                    );
+                }
+
                 let next_child = all_children[next_index];
                 let child_frame = TableParseFrame::new_child(
                     stack.frame_id_counter,
@@ -680,8 +613,18 @@ impl Parser<'_> {
 
                 Ok(TableFrameResult::Done)
             } else {
-                // Child failure at end of sequence: ensure parser position is restored
-                // to the sequence's starting position before completing with Empty.
+                // Child failure at end of sequence - flush any remaining buffered metas
+                if !meta_buffer.is_empty() {
+                    self.flush_meta_buffer(
+                        &mut frame.accumulated,
+                        frame.pos,
+                        frame.pos,
+                        meta_buffer,
+                    );
+                }
+
+                // ensure parser position is restored to the sequence's starting position
+                // before completing with Empty.
                 self.pos = frame.pos;
                 frame.end_pos = Some(frame.pos);
                 frame.state = FrameState::Combining;
@@ -804,6 +747,121 @@ impl Parser<'_> {
                     }
                     _ => {}
                 }
+            }
+        }
+    }
+
+    /// Flush buffered meta segments, positioning them relative to whitespace boundary.
+    /// Follows Python's _flush_metas() pattern from sequence.py.
+    ///
+    /// - `accumulated`: The accumulated match results to insert metas into
+    /// - `pre_code_idx`: Position before whitespace (where positive indents go)
+    /// - `post_code_idx`: Position after whitespace (where negative dedents go)
+    /// - `meta_buffer`: The buffered meta grammar IDs to flush
+    pub(crate) fn flush_meta_buffer(
+        &self,
+        accumulated: &mut Vec<MatchResult>,
+        pre_code_idx: usize,
+        post_code_idx: usize,
+        meta_buffer: Vec<GrammarId>,
+    ) {
+        // PYTHON PARITY: Check if ALL metas have positive indent values
+        // If all positive → position at pre_code_idx (before whitespace)
+        // If any negative → position at post_code_idx (after whitespace)
+
+        // First pass: collect metas and check their signs
+        let mut meta_types = Vec::new();
+        let mut all_positive = true;
+
+        for meta_id in &meta_buffer {
+            // Check if this is a conditional meta
+            let inst = self.grammar_ctx.inst(*meta_id);
+            let is_conditional = inst.flags.is_conditional();
+
+            let meta_type_opt: Option<crate::parser::MetaSegmentType> = if is_conditional {
+                // Conditional meta - check config to see if it should be included
+                let (meta_type_str, config_key, expected_value) =
+                    self.grammar_ctx.conditional_config(*meta_id);
+                let actual_value = self.indent_config.get(config_key).copied().unwrap_or(false);
+
+                if actual_value == expected_value {
+                    match meta_type_str {
+                        "indent" => Some(crate::parser::MetaSegmentType::Indent),
+                        "dedent" => Some(crate::parser::MetaSegmentType::Dedent),
+                        _ => None,
+                    }
+                } else {
+                    None // Config doesn't match - skip this meta
+                }
+            } else {
+                // Non-conditional meta - always include based on segment_type
+                self.grammar_ctx
+                    .segment_type(*meta_id)
+                    .and_then(|s| match s {
+                        "indent" => Some(crate::parser::MetaSegmentType::Indent),
+                        "dedent" => Some(crate::parser::MetaSegmentType::Dedent),
+                        _ => {
+                            log::warn!("Unknown meta type: {}", s);
+                            None
+                        }
+                    })
+            };
+
+            if let Some(meta_type) = meta_type_opt {
+                // Check if it's a dedent (negative)
+                if matches!(meta_type, crate::parser::MetaSegmentType::Dedent) {
+                    all_positive = false;
+                }
+                meta_types.push(meta_type);
+            }
+        }
+
+        // Second pass: insert all metas at the determined position
+        // PYTHON PARITY: If all positive indents, insert before whitespace
+        // Otherwise insert after whitespace
+        if all_positive {
+            // All indents - search backward past trailing whitespace
+            let mut insert_pos = accumulated.len();
+            while insert_pos > 0 {
+                let prev_match = &accumulated[insert_pos - 1];
+                let is_whitespace = if !prev_match.matched_slice.is_empty() {
+                    let token_idx = prev_match.matched_slice.start;
+                    if token_idx < self.tokens.len() {
+                        let tok_type = self.tokens[token_idx].get_type();
+                        tok_type == "whitespace" || tok_type == "newline"
+                    } else {
+                        false
+                    }
+                } else {
+                    false
+                };
+                if is_whitespace {
+                    insert_pos -= 1;
+                } else {
+                    break;
+                }
+            }
+
+            // Insert all metas at this position
+            for meta_type in meta_types {
+                accumulated.insert(
+                    insert_pos,
+                    MatchResult {
+                        matched_slice: pre_code_idx..pre_code_idx,
+                        insert_segments: vec![(pre_code_idx, meta_type)],
+                        ..Default::default()
+                    },
+                );
+                // Don't increment insert_pos - we want them all at the same logical position
+            }
+        } else {
+            // Contains dedents - append after whitespace
+            for meta_type in meta_types {
+                accumulated.push(MatchResult {
+                    matched_slice: post_code_idx..post_code_idx,
+                    insert_segments: vec![(post_code_idx, meta_type)],
+                    ..Default::default()
+                });
             }
         }
     }

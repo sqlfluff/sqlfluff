@@ -27,7 +27,7 @@ SELECT NUMERIC "0" = NUMERIC "0";"#;
 
     println!("=== Total tokens: {} ===", tokens.len());
 
-    let mut parser = Parser::new(&tokens, dialect);
+    let mut parser = Parser::new(&tokens, dialect, hashbrown::HashMap::new());
     let _ast = parser.call_rule_as_root().expect("Parse error");
 
     println!("\n=== Parse successful ===");

@@ -80,7 +80,8 @@ impl GrammarFlags {
     pub const HAS_SIMPLE_HINT: u16 = 1 << 5; // Whether simple_hint_idx is valid
     pub const HAS_EXCLUDE: u16 = 1 << 6; // Whether exclude_idx is valid
     pub const HAS_ANTI_TEMPLATE: u16 = 1 << 7; // For RegexParser
-                                               // Bits 8-15 reserved for future use
+    pub const IS_CONDITIONAL: u16 = 1 << 8; // For Meta - whether it's a Conditional Meta
+                                            // Bits 9-15 reserved for future use
 
     /// Create empty flags
     #[inline]
@@ -157,6 +158,11 @@ impl GrammarFlags {
     #[inline]
     pub const fn has_anti_template(self) -> bool {
         self.has(Self::HAS_ANTI_TEMPLATE)
+    }
+
+    #[inline]
+    pub const fn is_conditional(self) -> bool {
+        self.has(Self::IS_CONDITIONAL)
     }
 }
 

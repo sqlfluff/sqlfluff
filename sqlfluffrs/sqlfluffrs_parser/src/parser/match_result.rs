@@ -72,6 +72,9 @@ pub struct MatchResult {
     pub instance_types: Option<Vec<String>>,
     pub trim_chars: Option<Vec<String>>,
     pub casefold: CaseFold,
+
+    /// Parse error information (message and token position)
+    pub parse_error: Option<(String, usize)>,
 }
 
 impl Default for MatchResult {
@@ -87,6 +90,7 @@ impl Default for MatchResult {
             instance_types: None,
             trim_chars: None,
             casefold: CaseFold::None,
+            parse_error: None,
         }
     }
 }
@@ -167,111 +171,11 @@ impl MatchResult {
     /// Additionally, if a child fully spans the parent's range and has no class,
     /// we can flatten it by using its children instead (avoiding redundant wrappers).
     fn deduplicate_children(children: Vec<MatchResult>) -> Vec<MatchResult> {
-        use std::collections::HashSet;
-
-        // If there's only one child or no children, no deduplication needed
-        if children.len() <= 1 {
-            return children;
-        }
-
-        // Helper function to check if a MatchResult contains a child with the exact slice
-        fn contains_exact_slice(result: &MatchResult, start: usize, end: usize) -> bool {
-            for child in &result.child_matches {
-                if child.matched_slice.start == start && child.matched_slice.end == end {
-                    return true;
-                }
-                // Recursively check grandchildren
-                if contains_exact_slice(child, start, end) {
-                    return true;
-                }
-            }
-            false
-        }
-
-        // First pass: identify redundant bare leaves
-        // A bare leaf at position X..Y is redundant if any sibling starts at X, extends to Z > Y,
-        // AND has a nested child covering the exact X..Y slice.
-        let mut redundant_indices = HashSet::new();
-        for (i, child) in children.iter().enumerate() {
-            if matches!(child.matched_class, None) && child.child_matches.is_empty() {
-                // This is a bare leaf node. Check if any sibling makes it redundant.
-                for (j, sibling) in children.iter().enumerate() {
-                    if i == j {
-                        continue; // Skip self-comparison
-                    }
-                    // Check if sibling starts at the same position and extends further
-                    if sibling.matched_slice.start == child.matched_slice.start
-                        && sibling.matched_slice.end > child.matched_slice.end
-                    {
-                        // Sibling is longer and starts at same position.
-                        // Only mark as redundant if the sibling contains a nested child
-                        // with the exact same slice, meaning the content is duplicated.
-                        if contains_exact_slice(
-                            sibling,
-                            child.matched_slice.start,
-                            child.matched_slice.end,
-                        ) {
-                            redundant_indices.insert(i);
-                            break;
-                        }
-                    }
-                }
-            }
-        }
-
-        let mut seen_slices: HashSet<(usize, usize)> = HashSet::new();
-        let mut deduped = Vec::new();
-
-        for (i, child) in children.into_iter().enumerate() {
-            // Skip if marked as redundant
-            if redundant_indices.contains(&i) {
-                continue;
-            }
-
-            let slice_key = (child.matched_slice.start, child.matched_slice.end);
-
-            // Skip if we've already seen this exact slice
-            if seen_slices.contains(&slice_key) {
-                continue;
-            }
-
-            // If this child has no class and has children, check if any of its children
-            // have the same slice. If so, prefer keeping those children instead.
-            let mut should_flatten = false;
-            if matches!(child.matched_class, None) && !child.child_matches.is_empty() {
-                // Check if any of this child's children cover the same range
-                for grandchild in &child.child_matches {
-                    let grandchild_key =
-                        (grandchild.matched_slice.start, grandchild.matched_slice.end);
-                    if grandchild_key == slice_key {
-                        // A grandchild covers the same range - flatten by using grandchildren
-                        should_flatten = true;
-                        break;
-                    }
-                }
-            }
-
-            if should_flatten {
-                // Mark the parent slice as seen even though we're flattening it
-                // This prevents duplicate flattened nodes from being added
-                seen_slices.insert(slice_key);
-
-                // Add the child's children instead of the child itself
-                for grandchild in child.child_matches {
-                    let grandchild_key =
-                        (grandchild.matched_slice.start, grandchild.matched_slice.end);
-                    if !seen_slices.contains(&grandchild_key) {
-                        seen_slices.insert(grandchild_key);
-                        deduped.push(grandchild);
-                    }
-                }
-            } else {
-                seen_slices.insert(slice_key);
-                deduped.push(child);
-            }
-        }
-
-        deduped
+        // PYTHON PARITY: Python doesn't do any deduplication of child_matches.
+        // It just uses whatever children are provided. Any deduplication logic
+        // here was causing bugs by incorrectly dropping valid segments (like
+        // multiple meta segments at the same position).
+        children
     }
 
     pub fn match_token_at(idx: usize, matched_class: Option<String>, token: &Token) -> Self {
@@ -281,6 +185,7 @@ impl MatchResult {
             instance_types: Some(token.instance_types.clone()),
             trim_chars: token.trim_chars.clone(),
             casefold: token.casefold.clone(),
+            parse_error: None,
             ..Default::default()
         }
     }
@@ -311,6 +216,7 @@ impl MatchResult {
         MatchResult {
             matched_slice: start_idx..end_idx,
             matched_class: Some(token.get_type().to_string()),
+            parse_error: None,
             ..Default::default()
         }
     }
@@ -321,6 +227,7 @@ impl MatchResult {
         MatchResult {
             matched_slice: start_idx..end_idx,
             matched_class: Some(token.get_type().to_string()),
+            parse_error: None,
             ..Default::default()
         }
     }
@@ -361,6 +268,14 @@ impl MatchResult {
         children: Vec<MatchResult>,
     ) -> Self {
         let deduped_children = Self::deduplicate_children(children);
+
+        // CRITICAL: If we have a single child that contains an unparsable segment (at any depth),
+        // return it directly without wrapping in Ref with matched_class: None.
+        // Unparsable segments must bubble up to avoid being flattened.
+        if deduped_children.len() == 1 && deduped_children[0].contains_unparsable() {
+            return deduped_children[0].clone();
+        }
+
         // Only set matched_class if segment_type is explicitly provided from tables
         // Refs without segment_type are grammar-only (not Python segment classes)
         // and should not create a matched_class wrapper
@@ -369,6 +284,7 @@ impl MatchResult {
             matched_slice: start_idx..end_idx,
             matched_class: class_name,
             child_matches: deduped_children,
+            parse_error: None,
             ..Default::default()
         }
     }
@@ -380,6 +296,7 @@ impl MatchResult {
             matched_slice: start_idx..end_idx,
             matched_class: Some("DelimitedSegment".to_string()),
             child_matches: deduped_children,
+            parse_error: None,
             ..Default::default()
         }
     }
@@ -394,11 +311,32 @@ impl MatchResult {
         let deduped_children = Self::deduplicate_children(children);
         let mut segment_kwargs = HashMap::new();
         segment_kwargs.insert("bracket_persists".to_string(), bracket_persists.to_string());
+
+        // Python parity: Insert Indent after opening bracket and Dedent before closing bracket
+        // Python code (sequence.py Bracketed.match() lines ~580-582):
+        //   insert_segments=(
+        //       (start_match.matched_slice.stop, Indent),
+        //       (end_match.matched_slice.start, Dedent),
+        //   )
+        let mut insert_segments = Vec::new();
+        if let Some(first_child) = deduped_children.first() {
+            // Indent after opening bracket
+            let indent_pos = first_child.matched_slice.end;
+            insert_segments.push((indent_pos, MetaSegmentType::Indent));
+        }
+        if let Some(last_child) = deduped_children.last() {
+            // Dedent before closing bracket
+            let dedent_pos = last_child.matched_slice.start;
+            insert_segments.push((dedent_pos, MetaSegmentType::Dedent));
+        }
+
         MatchResult {
             matched_slice: start_idx..end_idx,
             matched_class: Some("BracketedSegment".to_string()),
             child_matches: deduped_children,
             segment_kwargs,
+            insert_segments,
+            parse_error: None,
             ..Default::default()
         }
     }
@@ -413,6 +351,17 @@ impl MatchResult {
             nodes.into_iter().next().unwrap()
         } else {
             Node::Sequence { children: nodes }
+        }
+    }
+
+    /// Create a MatchResult representing a parse error.
+    /// Used when parsing fails and we need to report the error location.
+    pub fn with_error(start_idx: usize, end_idx: usize, message: String, error_pos: usize) -> Self {
+        MatchResult {
+            matched_slice: start_idx..end_idx,
+            matched_class: None,
+            parse_error: Some((message, error_pos)),
+            ..Default::default()
         }
     }
 
@@ -518,6 +467,7 @@ impl MatchResult {
             instance_types: None,
             trim_chars: None,
             casefold: CaseFold::None,
+            parse_error: None,
         }
     }
 
@@ -527,6 +477,15 @@ impl MatchResult {
     pub fn wrap(self, outer_class: String) -> MatchResult {
         if self.is_empty() {
             return self;
+        }
+
+        // CRITICAL: If we're trying to wrap an UnparsableSegment, return it as-is.
+        // Unparsable results should bubble up to the top without being wrapped in
+        // parent segments, so they appear in the tree and generate violations.
+        if let Some(ref class) = self.matched_class {
+            if class == "UnparsableSegment" {
+                return self;
+            }
         }
 
         let (insert_segments, insert_transparent, child_matches, child_nodes) =
@@ -557,6 +516,7 @@ impl MatchResult {
             instance_types: self.instance_types.clone(),
             trim_chars: self.trim_chars.clone(),
             casefold: self.casefold.clone(),
+            parse_error: self.parse_error.clone(),
         }
     }
 

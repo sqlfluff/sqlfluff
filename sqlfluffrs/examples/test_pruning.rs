@@ -25,7 +25,7 @@ fn main() {
     }
     println!("");
 
-    let mut parser = Parser::new(&tokens, dialect);
+    let mut parser = Parser::new(&tokens, dialect, hashbrown::HashMap::new());
     match parser.call_rule("FileSegment", &[]) {
         Ok(ast) => {
             println!("\n=== PARSE SUCCESS ===");

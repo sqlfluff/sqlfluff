@@ -28,7 +28,7 @@ fn main() {
     println!();
 
     // Parse the tokens
-    let mut parser = Parser::new(&tokens, Dialect::Ansi);
+    let mut parser = Parser::new(&tokens, Dialect::Ansi, hashbrown::HashMap::new());
     let ast = parser
         .call_rule("FileSegment", &[])
         .expect("Failed to parse");

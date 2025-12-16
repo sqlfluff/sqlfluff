@@ -16,13 +16,13 @@ use sqlfluffrs_types::{
 //   Instructions:      3693 × 20 bytes =    73860 bytes
 //   Child IDs:         3262 ×  4 bytes =    13048 bytes
 //   Terminators:         83 ×  4 bytes =      332 bytes
-//   Strings:           1401 strings      =    23219 bytes
-//   Aux Data:          2239 ×  4 bytes =     8956 bytes
+//   Strings:           1406 strings      =    23307 bytes
+//   Aux Data:          2287 ×  4 bytes =     9148 bytes
 //   Aux Offsets:       3693 ×  4 bytes =    14772 bytes
 //   Regex Patterns:       7 patterns     =      704 bytes
 //   Simple Hints:       446 hints        =     7136 bytes
 //   Hint Indices:       985 ×  4 bytes =     3940 bytes
-//   TOTAL:                                    ≈   145967 bytes
+//   TOTAL:                                    ≈   146247 bytes
 
 pub static INSTRUCTIONS: &[GrammarInst] = &[
     // [0] StringParser("ACCESS")
@@ -3717,8 +3717,8 @@ pub static INSTRUCTIONS: &[GrammarInst] = &[
     GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 1690, child_count: 0, min_times: 0, first_terminator_idx: 36, terminator_count: 0, _padding: 0 },
     // [1845] Ref(ByKeywordSegment)
     GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 1690, child_count: 0, min_times: 0, first_terminator_idx: 36, terminator_count: 0, _padding: 0 },
-    // [1846] Meta(conditional)
-    GrammarInst { variant: GrammarVariant::Meta, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(0), first_child_idx: 1690, child_count: 0, min_times: 0, first_terminator_idx: 38, terminator_count: 0, _padding: 0 },
+    // [1846] Meta(conditional: indented_joins=True -> indent)
+    GrammarInst { variant: GrammarVariant::Meta, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(256), first_child_idx: 1690, child_count: 0, min_times: 0, first_terminator_idx: 38, terminator_count: 0, _padding: 0 },
     // [1847] AnyNumberOf(1 elements, min=0)
     GrammarInst { variant: GrammarVariant::AnyNumberOf, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(5), first_child_idx: 1690, child_count: 1, min_times: 0, first_terminator_idx: 38, terminator_count: 2, _padding: 0 },
     // [1848] Sequence(1 elements)
@@ -3741,8 +3741,8 @@ pub static INSTRUCTIONS: &[GrammarInst] = &[
     GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 1698, child_count: 0, min_times: 0, first_terminator_idx: 38, terminator_count: 0, _padding: 0 },
     // [1857] Ref(ByKeywordSegment)
     GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 1698, child_count: 0, min_times: 0, first_terminator_idx: 38, terminator_count: 0, _padding: 0 },
-    // [1858] Meta(conditional)
-    GrammarInst { variant: GrammarVariant::Meta, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(0), first_child_idx: 1698, child_count: 0, min_times: 0, first_terminator_idx: 40, terminator_count: 0, _padding: 0 },
+    // [1858] Meta(conditional: indented_joins=True -> dedent)
+    GrammarInst { variant: GrammarVariant::Meta, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(256), first_child_idx: 1698, child_count: 0, min_times: 0, first_terminator_idx: 40, terminator_count: 0, _padding: 0 },
     // [1859] StringParser("FROM")
     GrammarInst { variant: GrammarVariant::StringParser, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(0), first_child_idx: 1698, child_count: 0, min_times: 0, first_terminator_idx: 40, terminator_count: 0, _padding: 0 },
     // [1860] Sequence(2 elements)
@@ -4561,8 +4561,8 @@ pub static INSTRUCTIONS: &[GrammarInst] = &[
     GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 2098, child_count: 0, min_times: 0, first_terminator_idx: 48, terminator_count: 0, _padding: 0 },
     // [2267] Sequence(4 elements)
     GrammarInst { variant: GrammarVariant::Sequence, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(5), first_child_idx: 2098, child_count: 4, min_times: 0, first_terminator_idx: 48, terminator_count: 0, _padding: 0 },
-    // [2268] Meta(conditional)
-    GrammarInst { variant: GrammarVariant::Meta, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(0), first_child_idx: 2102, child_count: 0, min_times: 0, first_terminator_idx: 48, terminator_count: 0, _padding: 0 },
+    // [2268] Meta(conditional: indented_using_on=True -> indent)
+    GrammarInst { variant: GrammarVariant::Meta, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(256), first_child_idx: 2102, child_count: 0, min_times: 0, first_terminator_idx: 48, terminator_count: 0, _padding: 0 },
     // [2269] Ref(MatchConditionSegment)
     GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(5), first_child_idx: 2102, child_count: 0, min_times: 0, first_terminator_idx: 48, terminator_count: 0, _padding: 0 },
     // [2270] OneOf(2 options)
@@ -4571,8 +4571,8 @@ pub static INSTRUCTIONS: &[GrammarInst] = &[
     GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 2104, child_count: 0, min_times: 0, first_terminator_idx: 48, terminator_count: 0, _padding: 0 },
     // [2272] Ref(JoinUsingConditionGrammar)
     GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 2104, child_count: 0, min_times: 0, first_terminator_idx: 48, terminator_count: 0, _padding: 0 },
-    // [2273] Meta(conditional)
-    GrammarInst { variant: GrammarVariant::Meta, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(0), first_child_idx: 2104, child_count: 0, min_times: 0, first_terminator_idx: 48, terminator_count: 0, _padding: 0 },
+    // [2273] Meta(conditional: indented_using_on=True -> dedent)
+    GrammarInst { variant: GrammarVariant::Meta, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(256), first_child_idx: 2104, child_count: 0, min_times: 0, first_terminator_idx: 48, terminator_count: 0, _padding: 0 },
     // [2274] Sequence(6 elements)
     GrammarInst { variant: GrammarVariant::Sequence, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 2104, child_count: 6, min_times: 0, first_terminator_idx: 48, terminator_count: 0, _padding: 0 },
     // [2275] Ref(UnconditionalJoinKeywordsGrammar)
@@ -4609,16 +4609,16 @@ pub static INSTRUCTIONS: &[GrammarInst] = &[
     GrammarInst { variant: GrammarVariant::Sequence, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 2119, child_count: 4, min_times: 0, first_terminator_idx: 48, terminator_count: 0, _padding: 0 },
     // [2291] Ref(OnKeywordSegment)
     GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 2123, child_count: 0, min_times: 0, first_terminator_idx: 48, terminator_count: 0, _padding: 0 },
-    // [2292] Meta(conditional)
-    GrammarInst { variant: GrammarVariant::Meta, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(0), first_child_idx: 2123, child_count: 0, min_times: 0, first_terminator_idx: 48, terminator_count: 0, _padding: 0 },
+    // [2292] Meta(conditional: indented_on_contents=True -> indent)
+    GrammarInst { variant: GrammarVariant::Meta, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(256), first_child_idx: 2123, child_count: 0, min_times: 0, first_terminator_idx: 48, terminator_count: 0, _padding: 0 },
     // [2293] OneOf(2 options)
     GrammarInst { variant: GrammarVariant::OneOf, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 2123, child_count: 2, min_times: 0, first_terminator_idx: 48, terminator_count: 0, _padding: 0 },
     // [2294] Bracketed(1 elements -> 1 child)
     GrammarInst { variant: GrammarVariant::Bracketed, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 2125, child_count: 3, min_times: 0, first_terminator_idx: 48, terminator_count: 0, _padding: 0 },
     // [2295] Ref(ExpressionSegment)
     GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 2128, child_count: 0, min_times: 0, first_terminator_idx: 48, terminator_count: 0, _padding: 0 },
-    // [2296] Meta(conditional)
-    GrammarInst { variant: GrammarVariant::Meta, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(0), first_child_idx: 2128, child_count: 0, min_times: 0, first_terminator_idx: 48, terminator_count: 0, _padding: 0 },
+    // [2296] Meta(conditional: indented_on_contents=True -> dedent)
+    GrammarInst { variant: GrammarVariant::Meta, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(256), first_child_idx: 2128, child_count: 0, min_times: 0, first_terminator_idx: 48, terminator_count: 0, _padding: 0 },
     // [2297] OneOf(2 options)
     GrammarInst { variant: GrammarVariant::OneOf, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 2128, child_count: 2, min_times: 0, first_terminator_idx: 48, terminator_count: 0, _padding: 0 },
     // [2298] Ref(InnerKeywordSegment)
@@ -5093,12 +5093,12 @@ pub static INSTRUCTIONS: &[GrammarInst] = &[
     GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 2363, child_count: 0, min_times: 0, first_terminator_idx: 49, terminator_count: 0, _padding: 0 },
     // [2533] Ref(AliasExpressionSegment)
     GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(5), first_child_idx: 2363, child_count: 0, min_times: 0, first_terminator_idx: 49, terminator_count: 0, _padding: 0 },
-    // [2534] Meta(conditional)
-    GrammarInst { variant: GrammarVariant::Meta, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(0), first_child_idx: 2363, child_count: 0, min_times: 0, first_terminator_idx: 49, terminator_count: 0, _padding: 0 },
+    // [2534] Meta(conditional: indented_using_on=True -> indent)
+    GrammarInst { variant: GrammarVariant::Meta, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(256), first_child_idx: 2363, child_count: 0, min_times: 0, first_terminator_idx: 49, terminator_count: 0, _padding: 0 },
     // [2535] Ref(JoinOnConditionSegment)
     GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 2363, child_count: 0, min_times: 0, first_terminator_idx: 49, terminator_count: 0, _padding: 0 },
-    // [2536] Meta(conditional)
-    GrammarInst { variant: GrammarVariant::Meta, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(0), first_child_idx: 2363, child_count: 0, min_times: 0, first_terminator_idx: 49, terminator_count: 0, _padding: 0 },
+    // [2536] Meta(conditional: indented_using_on=True -> dedent)
+    GrammarInst { variant: GrammarVariant::Meta, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(256), first_child_idx: 2363, child_count: 0, min_times: 0, first_terminator_idx: 49, terminator_count: 0, _padding: 0 },
     // [2537] Ref(MergeMatchSegment)
     GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 2363, child_count: 0, min_times: 0, first_terminator_idx: 49, terminator_count: 0, _padding: 0 },
     // [2538] Sequence(4 elements)
@@ -7205,18 +7205,18 @@ pub static INSTRUCTIONS: &[GrammarInst] = &[
     GrammarInst { variant: GrammarVariant::Sequence, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3181, child_count: 3, min_times: 0, first_terminator_idx: 80, terminator_count: 0, _padding: 0 },
     // [3589] Ref(ExpressionSegment)
     GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3184, child_count: 0, min_times: 0, first_terminator_idx: 80, terminator_count: 0, _padding: 0 },
-    // [3590] Meta(conditional)
-    GrammarInst { variant: GrammarVariant::Meta, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(0), first_child_idx: 3184, child_count: 0, min_times: 0, first_terminator_idx: 80, terminator_count: 0, _padding: 0 },
+    // [3590] Meta(conditional: indented_then=True -> indent)
+    GrammarInst { variant: GrammarVariant::Meta, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(256), first_child_idx: 3184, child_count: 0, min_times: 0, first_terminator_idx: 80, terminator_count: 0, _padding: 0 },
     // [3591] Ref(ThenKeywordSegment)
     GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3184, child_count: 0, min_times: 0, first_terminator_idx: 80, terminator_count: 0, _padding: 0 },
-    // [3592] Meta(conditional)
-    GrammarInst { variant: GrammarVariant::Meta, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(0), first_child_idx: 3184, child_count: 0, min_times: 0, first_terminator_idx: 80, terminator_count: 0, _padding: 0 },
+    // [3592] Meta(conditional: indented_then_contents=True -> indent)
+    GrammarInst { variant: GrammarVariant::Meta, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(256), first_child_idx: 3184, child_count: 0, min_times: 0, first_terminator_idx: 80, terminator_count: 0, _padding: 0 },
     // [3593] Ref(ExpressionSegment)
     GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3184, child_count: 0, min_times: 0, first_terminator_idx: 80, terminator_count: 0, _padding: 0 },
-    // [3594] Meta(conditional)
-    GrammarInst { variant: GrammarVariant::Meta, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(0), first_child_idx: 3184, child_count: 0, min_times: 0, first_terminator_idx: 80, terminator_count: 0, _padding: 0 },
-    // [3595] Meta(conditional)
-    GrammarInst { variant: GrammarVariant::Meta, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(0), first_child_idx: 3184, child_count: 0, min_times: 0, first_terminator_idx: 80, terminator_count: 0, _padding: 0 },
+    // [3594] Meta(conditional: indented_then_contents=True -> dedent)
+    GrammarInst { variant: GrammarVariant::Meta, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(256), first_child_idx: 3184, child_count: 0, min_times: 0, first_terminator_idx: 80, terminator_count: 0, _padding: 0 },
+    // [3595] Meta(conditional: indented_then=True -> dedent)
+    GrammarInst { variant: GrammarVariant::Meta, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(256), first_child_idx: 3184, child_count: 0, min_times: 0, first_terminator_idx: 80, terminator_count: 0, _padding: 0 },
     // [3596] StringParser("WHEN")
     GrammarInst { variant: GrammarVariant::StringParser, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(0), first_child_idx: 3184, child_count: 0, min_times: 0, first_terminator_idx: 80, terminator_count: 0, _padding: 0 },
     // [3597] Sequence(4 elements)
@@ -7343,16 +7343,16 @@ pub static INSTRUCTIONS: &[GrammarInst] = &[
     GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3244, child_count: 0, min_times: 0, first_terminator_idx: 81, terminator_count: 0, _padding: 0 },
     // [3658] Ref(RecursiveKeywordSegment)
     GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(5), first_child_idx: 3244, child_count: 0, min_times: 0, first_terminator_idx: 81, terminator_count: 0, _padding: 0 },
-    // [3659] Meta(conditional)
-    GrammarInst { variant: GrammarVariant::Meta, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(0), first_child_idx: 3244, child_count: 0, min_times: 0, first_terminator_idx: 81, terminator_count: 0, _padding: 0 },
+    // [3659] Meta(conditional: indented_ctes=True -> indent)
+    GrammarInst { variant: GrammarVariant::Meta, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(256), first_child_idx: 3244, child_count: 0, min_times: 0, first_terminator_idx: 81, terminator_count: 0, _padding: 0 },
     // [3660] Delimited(1 element)
     GrammarInst { variant: GrammarVariant::Delimited, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(12), first_child_idx: 3244, child_count: 2, min_times: 0, first_terminator_idx: 81, terminator_count: 1, _padding: 0 },
     // [3661] Ref(CTEDefinitionSegment)
     GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3246, child_count: 0, min_times: 0, first_terminator_idx: 81, terminator_count: 0, _padding: 0 },
     // [3662] Ref(SelectKeywordSegment)
     GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3246, child_count: 0, min_times: 0, first_terminator_idx: 81, terminator_count: 0, _padding: 0 },
-    // [3663] Meta(conditional)
-    GrammarInst { variant: GrammarVariant::Meta, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(0), first_child_idx: 3246, child_count: 0, min_times: 0, first_terminator_idx: 82, terminator_count: 0, _padding: 0 },
+    // [3663] Meta(conditional: indented_ctes=True -> dedent)
+    GrammarInst { variant: GrammarVariant::Meta, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(256), first_child_idx: 3246, child_count: 0, min_times: 0, first_terminator_idx: 82, terminator_count: 0, _padding: 0 },
     // [3664] Ref(NonWithNonSelectableGrammar)
     GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3246, child_count: 0, min_times: 0, first_terminator_idx: 82, terminator_count: 0, _padding: 0 },
     // [3665] Sequence(6 elements)
@@ -7361,16 +7361,16 @@ pub static INSTRUCTIONS: &[GrammarInst] = &[
     GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3252, child_count: 0, min_times: 0, first_terminator_idx: 82, terminator_count: 0, _padding: 0 },
     // [3667] Ref(RecursiveKeywordSegment)
     GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(5), first_child_idx: 3252, child_count: 0, min_times: 0, first_terminator_idx: 82, terminator_count: 0, _padding: 0 },
-    // [3668] Meta(conditional)
-    GrammarInst { variant: GrammarVariant::Meta, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(0), first_child_idx: 3252, child_count: 0, min_times: 0, first_terminator_idx: 82, terminator_count: 0, _padding: 0 },
+    // [3668] Meta(conditional: indented_ctes=True -> indent)
+    GrammarInst { variant: GrammarVariant::Meta, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(256), first_child_idx: 3252, child_count: 0, min_times: 0, first_terminator_idx: 82, terminator_count: 0, _padding: 0 },
     // [3669] Delimited(1 element)
     GrammarInst { variant: GrammarVariant::Delimited, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(12), first_child_idx: 3252, child_count: 2, min_times: 0, first_terminator_idx: 82, terminator_count: 1, _padding: 0 },
     // [3670] Ref(CTEDefinitionSegment)
     GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3254, child_count: 0, min_times: 0, first_terminator_idx: 82, terminator_count: 0, _padding: 0 },
     // [3671] Ref(SelectKeywordSegment)
     GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3254, child_count: 0, min_times: 0, first_terminator_idx: 82, terminator_count: 0, _padding: 0 },
-    // [3672] Meta(conditional)
-    GrammarInst { variant: GrammarVariant::Meta, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(0), first_child_idx: 3254, child_count: 0, min_times: 0, first_terminator_idx: 83, terminator_count: 0, _padding: 0 },
+    // [3672] Meta(conditional: indented_ctes=True -> dedent)
+    GrammarInst { variant: GrammarVariant::Meta, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(256), first_child_idx: 3254, child_count: 0, min_times: 0, first_terminator_idx: 83, terminator_count: 0, _padding: 0 },
     // [3673] Ref(NonWithSelectableGrammar)
     GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3254, child_count: 0, min_times: 0, first_terminator_idx: 83, terminator_count: 0, _padding: 0 },
     // [3674] Sequence(3 elements)
@@ -8517,7 +8517,7 @@ pub static STRINGS: &[&str] = &[
     "ml_table_expression", // [884]
     "FromExpressionElementSegment", // [885]
     "from_expression_element", // [886]
-    "conditional", // [887]
+    "indented_joins", // [887]
     "PivotKeywordSegment", // [888]
     "PivotForClauseSegment", // [889]
     "pivot_for_clause", // [890]
@@ -8595,442 +8595,447 @@ pub static STRINGS: &[&str] = &[
     "JoinKeywordsGrammar", // [962]
     "JOIN", // [963]
     "NestedJoinGrammar", // [964]
-    "MatchConditionSegment", // [965]
-    "match_condition", // [966]
-    "JoinOnConditionSegment", // [967]
-    "join_on_condition", // [968]
-    "JoinUsingConditionGrammar", // [969]
-    "UnconditionalJoinKeywordsGrammar", // [970]
-    "ExtendedNaturalJoinKeywordsGrammar", // [971]
-    "JoinKeywordSegment", // [972]
-    "FromPivotExpressionSegment", // [973]
-    "from_pivot_expression", // [974]
-    "FromUnpivotExpressionSegment", // [975]
-    "from_unpivot_expression", // [976]
-    "InnerKeywordSegment", // [977]
-    "FullKeywordSegment", // [978]
-    "LeftKeywordSegment", // [979]
-    "RightKeywordSegment", // [980]
-    "OuterKeywordSegment", // [981]
-    "LATERAL", // [982]
-    "LeaveKeywordSegment", // [983]
-    "LikeGrammar", // [984]
-    "EscapeKeywordSegment", // [985]
-    "RlikeKeywordSegment", // [986]
-    "IlikeKeywordSegment", // [987]
-    "TypedArrayLiteralSegment", // [988]
-    "typed_array_literal", // [989]
-    "ObjectLiteralSegment", // [990]
-    "object_literal", // [991]
-    "ParameterizedSegment", // [992]
-    "parameterized_expression", // [993]
-    "SystemVariableSegment", // [994]
-    "system_variable", // [995]
-    "literal", // [996]
-    "LoadKeywordSegment", // [997]
-    "OverwriteKeywordSegment", // [998]
-    "PARTITIONS", // [999]
-    "PartitionsKeywordSegment", // [1000]
-    "FilesKeywordSegment", // [1001]
-    "LOOKUP", // [1002]
-    "LOOP", // [1003]
-    "LoopKeywordSegment", // [1004]
-    "LoopStatementsSegment", // [1005]
-    "loop_statements", // [1006]
-    "MlKeywordSegment", // [1007]
-    "MATCHED", // [1008]
-    "MergeKeywordSegment", // [1009]
-    "MergeMatchedClauseSegment", // [1010]
-    "merge_when_matched_clause", // [1011]
-    "MergeNotMatchedByTargetClauseSegment", // [1012]
-    "not_matched_by_target_clause", // [1013]
-    "MergeNotMatchedBySourceClauseSegment", // [1014]
-    "MatchedKeywordSegment", // [1015]
-    "MergeUpdateClauseSegment", // [1016]
-    "merge_update_clause", // [1017]
-    "MergeDeleteClauseSegment", // [1018]
-    "merge_delete_clause", // [1019]
-    "SourceKeywordSegment", // [1020]
-    "SOURCE", // [1021]
-    "TargetKeywordSegment", // [1022]
-    "TARGET", // [1023]
-    "MergeInsertClauseSegment", // [1024]
-    "merge_insert_clause", // [1025]
-    "MergeIntoLiteralGrammar", // [1026]
-    "AliasedTableReferenceGrammar", // [1027]
-    "MergeMatchSegment", // [1028]
-    "merge_match", // [1029]
-    "SetClauseListSegment", // [1030]
-    "set_clause_list", // [1031]
-    "MESSAGE", // [1032]
-    "MINUS", // [1033]
-    "ForInStatementSegment", // [1034]
-    "for_in_statement", // [1035]
-    "RepeatStatementSegment", // [1036]
-    "REPEAT", // [1037]
-    "repeat_statement", // [1038]
-    "WhileStatementSegment", // [1039]
-    "WHILE", // [1040]
-    "while_statement", // [1041]
-    "LoopStatementSegment", // [1042]
-    "loop_statement", // [1043]
-    "IfStatementSegment", // [1044]
-    "if_statement", // [1045]
-    "CreateProcedureStatementSegment", // [1046]
-    "create_procedure_statement", // [1047]
-    "naked_identifier", // [1048]
-    "naked_identifier_all", // [1049]
-    "NAME", // [1050]
-    "RightArrowSegment", // [1051]
-    "=>", // [1052]
-    "WindowSpecificationSegment", // [1053]
-    "window_specification", // [1054]
-    "NamedWindowExpressionSegment", // [1055]
-    "named_window_expression", // [1056]
-    "null_literal", // [1057]
-    "sign_indicator", // [1058]
-    "newline", // [1059]
-    "NewlineSegment", // [1060]
-    "NFC", // [1061]
-    "NFD", // [1062]
-    "NFKC", // [1063]
-    "NFKD", // [1064]
-    "UnorderedSelectStatementSegment", // [1065]
-    "WithCompoundStatementSegment", // [1066]
-    "with_compound_statement", // [1067]
-    "NonSetSelectableGrammar", // [1068]
-    "BracketedSetExpressionGrammar", // [1069]
-    "MergeStatementSegment", // [1070]
-    "merge_statement", // [1071]
-    "NfcKeywordSegment", // [1072]
-    "NfkcKeywordSegment", // [1073]
-    "NfdKeywordSegment", // [1074]
-    "NfkdKeywordSegment", // [1075]
-    "RawNotSegment", // [1076]
-    "ObjectLiteralElementSegment", // [1077]
-    "object_literal_element", // [1078]
-    "start_curly_bracket", // [1079]
-    "ReplaceKeywordSegment", // [1080]
-    "REPLACE", // [1081]
-    "WithFillSegment", // [1082]
-    "with_fill", // [1083]
-    "NoorderKeywordSegment", // [1084]
-    "ORDINAL", // [1085]
-    "OUT", // [1086]
-    "OverKeywordSegment", // [1087]
-    "OVER", // [1088]
-    "OverlapsKeywordSegment", // [1089]
-    "parameter", // [1090]
-    "AtSignLiteralSegment", // [1091]
-    "QuestionMarkSegment", // [1092]
-    "SlashSegment", // [1093]
-    "word", // [1094]
-    "path_segment", // [1095]
-    "WordSegment", // [1096]
-    "PERCENT", // [1097]
-    "SelectClauseSegment", // [1098]
-    "select_clause", // [1099]
-    "ExtendClauseSegment", // [1100]
-    "extend_clause", // [1101]
-    "DropColumnClauseSegment", // [1102]
-    "drop_column_clause", // [1103]
-    "RenameColumnClauseSegment", // [1104]
-    "rename_column_clause", // [1105]
-    "AggregateClauseSegment", // [1106]
-    "aggregate_clause", // [1107]
-    "SetOperatorClauseSegment", // [1108]
-    "set_operator_clause", // [1109]
-    "CallOperatorSegment", // [1110]
-    "call_operator", // [1111]
-    "PivotOperatorSegment", // [1112]
-    "pivot_operator", // [1113]
-    "UnpivotOperatorSegment", // [1114]
-    "unpivot_operator", // [1115]
-    "pipe_operator", // [1116]
-    "pipe", // [1117]
-    "FromClauseSegment", // [1118]
-    "from_clause", // [1119]
-    "PipeOperatorClauseSegment", // [1120]
-    "pipe_operator_clause", // [1121]
-    "OverClauseSegment", // [1122]
-    "over_clause", // [1123]
-    "FilterClauseGrammar", // [1124]
-    "PRECISION", // [1125]
-    "procedure_name_identifier", // [1126]
-    "ProcedureNameIdentifierSegment", // [1127]
-    "OutKeywordSegment", // [1128]
-    "InoutKeywordSegment", // [1129]
-    "ProcedureParameterGrammar", // [1130]
-    "PROTO", // [1131]
-    "question_mark", // [1132]
-    "quoted_identifier", // [1133]
-    "SingleQuotedLiteralSegment", // [1134]
-    "DoubleQuotedLiteralSegment", // [1135]
-    "RaiseKeywordSegment", // [1136]
-    "MessageKeywordSegment", // [1137]
-    "raw_comparison_operator", // [1138]
-    "RawSegment", // [1139]
-    "RECURSIVE", // [1140]
-    "ReferenceMatchGrammar", // [1141]
-    "ReferentialActionGrammar", // [1142]
-    "NoKeywordSegment", // [1143]
-    "ActionKeywordSegment", // [1144]
-    "RepeatKeywordSegment", // [1145]
-    "RepeatStatementsSegment", // [1146]
-    "repeat_statements", // [1147]
-    "UntilKeywordSegment", // [1148]
-    "UNTIL", // [1149]
-    "REPEATABLE", // [1150]
-    "ReturnKeywordSegment", // [1151]
-    "right_arrow", // [1152]
-    "TablesampleKeywordSegment", // [1153]
-    "PercentKeywordSegment", // [1154]
-    "SelectClauseElementSegment", // [1155]
-    "select_clause_element", // [1156]
-    "WildcardExpressionSegment", // [1157]
-    "wildcard_expression", // [1158]
-    "StructKeywordSegment", // [1159]
-    "ValueKeywordSegment", // [1160]
-    "SelectClauseModifierSegment", // [1161]
-    "select_clause_modifier", // [1162]
-    "SelectClauseTerminatorGrammar", // [1163]
-    "GroupByClauseSegment", // [1164]
-    "groupby_clause", // [1165]
-    "HavingClauseSegment", // [1166]
-    "having_clause", // [1167]
-    "NamedWindowSegment", // [1168]
-    "named_window", // [1169]
-    "QualifyClauseSegment", // [1170]
-    "qualify_clause", // [1171]
-    "OffsetClauseSegment", // [1172]
-    "offset_clause", // [1173]
-    "FetchClauseSegment", // [1174]
-    "fetch_clause", // [1175]
-    "WithCompoundNonSelectStatementSegment", // [1176]
-    "NonWithSelectableGrammar", // [1177]
-    "statement_terminator", // [1178]
-    "MaxvalueKeywordSegment", // [1179]
-    "MinvalueKeywordSegment", // [1180]
-    "SetClauseSegment", // [1181]
-    "set_clause", // [1182]
-    "UnionKeywordSegment", // [1183]
-    "IntersectKeywordSegment", // [1184]
-    "STRICT", // [1185]
-    "NameKeywordSegment", // [1186]
-    "StrictKeywordSegment", // [1187]
-    "CorrespondingKeywordSegment", // [1188]
-    "PositiveSegment", // [1189]
-    "NegativeSegment", // [1190]
-    "NakedCSIdentifierSegment", // [1191]
-    "QuotedCSIdentifierSegment", // [1192]
-    "NakedIdentifierFullSegment", // [1193]
-    "slash", // [1194]
-    "slice", // [1195]
-    "SOME", // [1196]
-    "star", // [1197]
-    "TransactionStatementSegment", // [1198]
-    "transaction_statement", // [1199]
-    "DropTableStatementSegment", // [1200]
-    "drop_table_statement", // [1201]
-    "DropViewStatementSegment", // [1202]
-    "drop_view_statement", // [1203]
-    "CreateUserStatementSegment", // [1204]
-    "create_user_statement", // [1205]
-    "DropUserStatementSegment", // [1206]
-    "drop_user_statement", // [1207]
-    "TruncateStatementSegment", // [1208]
-    "truncate_table", // [1209]
-    "AccessStatementSegment", // [1210]
-    "access_statement", // [1211]
-    "CreateTableStatementSegment", // [1212]
-    "create_table_statement", // [1213]
-    "CreateRoleStatementSegment", // [1214]
-    "create_role_statement", // [1215]
-    "DropRoleStatementSegment", // [1216]
-    "drop_role_statement", // [1217]
-    "AlterTableStatementSegment", // [1218]
-    "alter_table_statement", // [1219]
-    "CreateSchemaStatementSegment", // [1220]
-    "create_schema_statement", // [1221]
-    "SetSchemaStatementSegment", // [1222]
-    "set_schema_statement", // [1223]
-    "DropSchemaStatementSegment", // [1224]
-    "drop_schema_statement", // [1225]
-    "DropTypeStatementSegment", // [1226]
-    "drop_type_statement", // [1227]
-    "CreateDatabaseStatementSegment", // [1228]
-    "create_database_statement", // [1229]
-    "DropDatabaseStatementSegment", // [1230]
-    "drop_database_statement", // [1231]
-    "CreateIndexStatementSegment", // [1232]
-    "create_index_statement", // [1233]
-    "DropIndexStatementSegment", // [1234]
-    "drop_index_statement", // [1235]
-    "CreateViewStatementSegment", // [1236]
-    "create_view_statement", // [1237]
-    "CreateCastStatementSegment", // [1238]
-    "create_cast_statement", // [1239]
-    "DropCastStatementSegment", // [1240]
-    "drop_cast_statement", // [1241]
-    "CreateFunctionStatementSegment", // [1242]
-    "create_function_statement", // [1243]
-    "DropFunctionStatementSegment", // [1244]
-    "drop_function_statement", // [1245]
-    "CreateModelStatementSegment", // [1246]
-    "create_model_statement", // [1247]
-    "DropModelStatementSegment", // [1248]
-    "drop_MODELstatement", // [1249]
-    "DescribeStatementSegment", // [1250]
-    "describe_statement", // [1251]
-    "UseStatementSegment", // [1252]
-    "use_statement", // [1253]
-    "ExplainStatementSegment", // [1254]
-    "explain_statement", // [1255]
-    "CreateSequenceStatementSegment", // [1256]
-    "create_sequence_statement", // [1257]
-    "AlterSequenceStatementSegment", // [1258]
-    "alter_sequence_statement", // [1259]
-    "DropSequenceStatementSegment", // [1260]
-    "drop_sequence_statement", // [1261]
-    "CreateTriggerStatementSegment", // [1262]
-    "create_trigger", // [1263]
-    "DropTriggerStatementSegment", // [1264]
-    "drop_trigger", // [1265]
-    "DeclareStatementSegment", // [1266]
-    "declare_segment", // [1267]
-    "SetStatementSegment", // [1268]
-    "set_segment", // [1269]
-    "ExportStatementSegment", // [1270]
-    "export_statement", // [1271]
-    "LoadDataStatementSegment", // [1272]
-    "load_data_statement", // [1273]
-    "CreateExternalTableStatementSegment", // [1274]
-    "create_external_table_statement", // [1275]
-    "CreateSnapshotTableStatementSegment", // [1276]
-    "create_snapshot_table_statement", // [1277]
-    "ExecuteImmediateSegment", // [1278]
-    "execute_immediate", // [1279]
-    "AssertStatementSegment", // [1280]
-    "assert_statement", // [1281]
-    "ReturnStatementSegment", // [1282]
-    "return_statement", // [1283]
-    "BreakStatementSegment", // [1284]
-    "break_statement", // [1285]
-    "LeaveStatementSegment", // [1286]
-    "leave_statement", // [1287]
-    "ContinueStatementSegment", // [1288]
-    "continue_statement", // [1289]
-    "RaiseStatementSegment", // [1290]
-    "raise_statement", // [1291]
-    "AlterViewStatementSegment", // [1292]
-    "alter_view_statement", // [1293]
-    "AlterSchemaStatementSegment", // [1294]
-    "alter_schema_statement", // [1295]
-    "CreateMaterializedViewStatementSegment", // [1296]
-    "create_materialized_view_statement", // [1297]
-    "CreateMaterializedViewAsReplicaOfStatementSegment", // [1298]
-    "create_materialized_view_as_replica_of_statement", // [1299]
-    "AlterMaterializedViewStatementSegment", // [1300]
-    "alter_materialized_view_set_options_statement", // [1301]
-    "DropMaterializedViewStatementSegment", // [1302]
-    "drop_materialized_view_statement", // [1303]
-    "DropProcedureStatementSegment", // [1304]
-    "drop_procedure_statement", // [1305]
-    "UndropSchemaStatementSegment", // [1306]
-    "undrop_schema_statement", // [1307]
-    "AlterOrganizationStatementSegment", // [1308]
-    "alter_organization_statement", // [1309]
-    "AlterProjectStatementSegment", // [1310]
-    "alter_project_statement", // [1311]
-    "CreateSearchIndexStatementSegment", // [1312]
-    "create_search_index_statement", // [1313]
-    "DropSearchIndexStatementSegment", // [1314]
-    "drop_search_index_statement", // [1315]
-    "CreateVectorIndexStatementSegment", // [1316]
-    "create_vector_index_statement", // [1317]
-    "DropVectorIndexStatementSegment", // [1318]
-    "drop_vector_index_statement", // [1319]
-    "CreateRowAccessPolicyStatementSegment", // [1320]
-    "create_row_access_policy_statement", // [1321]
-    "DropRowAccessPolicyStatementSegment", // [1322]
-    "drop_row_access_policy_statement", // [1323]
-    "AlterBiCapacityStatementSegment", // [1324]
-    "alter_bi_capacity_statement", // [1325]
-    "CreateCapacityStatementSegment", // [1326]
-    "create_capacity_statement", // [1327]
-    "AlterCapacityStatementSegment", // [1328]
-    "alter_capacity_statement", // [1329]
-    "DropCapacityStatementSegment", // [1330]
-    "drop_capacity_statement", // [1331]
-    "CreateReservationStatementSegment", // [1332]
-    "create_reservation_statement", // [1333]
-    "AlterReservationStatementSegment", // [1334]
-    "alter_reservation_statement", // [1335]
-    "DropReservationStatementSegment", // [1336]
-    "drop_reservation_statement", // [1337]
-    "CreateAssignmentStatementSegment", // [1338]
-    "create_assignment_statement", // [1339]
-    "DropAssignmentStatementSegment", // [1340]
-    "drop_assignment_statement", // [1341]
-    "DropTableFunctionStatementSegment", // [1342]
-    "drop_table_function_statement", // [1343]
-    "CreateTableFunctionStatementSegment", // [1344]
-    "create_table_function_statement", // [1345]
-    "StoringKeywordSegment", // [1346]
-    "ConcatSegment", // [1347]
-    "StructTypeSchemaSegment", // [1348]
-    "struct_type_schema", // [1349]
-    "symbol", // [1350]
-    "DoubleAtSignLiteralSegment", // [1351]
-    "ForeignKeyGrammar", // [1352]
-    "SingleCSIdentifierGrammar", // [1353]
-    "DashSegment", // [1354]
-    "NakedCSIdentifierPart", // [1355]
-    "Expression_A_Unary_Operator_Grammar", // [1356]
-    "Expression_C_Grammar", // [1357]
-    "Expression_B_Unary_Operator_Grammar", // [1358]
-    "TransientKeywordSegment", // [1359]
-    "tilde", // [1360]
-    "WITHOUT", // [1361]
-    "WithoutKeywordSegment", // [1362]
-    "ZoneKeywordSegment", // [1363]
-    "ZONE", // [1364]
-    "AtKeywordSegment", // [1365]
-    "TRANSACTION", // [1366]
-    "CommitKeywordSegment", // [1367]
-    "RollbackKeywordSegment", // [1368]
-    "TransactionKeywordSegment", // [1369]
-    "TREAT", // [1370]
-    "StructLiteralSegment", // [1371]
-    "CrossKeywordSegment", // [1372]
-    "NaturalJoinKeywordsGrammar", // [1373]
-    "UnconditionalCrossJoinKeywordsGrammar", // [1374]
-    "HorizontalJoinKeywordsGrammar", // [1375]
-    "UndropKeywordSegment", // [1376]
-    "UNNEST", // [1377]
-    "UNSIGNED", // [1378]
-    "VARYING", // [1379]
-    "VERSION", // [1380]
-    "WhileKeywordSegment", // [1381]
-    "WhileStatementsSegment", // [1382]
-    "while_statements", // [1383]
-    "whitespace", // [1384]
-    "WhitespaceSegment", // [1385]
-    "ExceptClauseSegment", // [1386]
-    "select_except_clause", // [1387]
-    "ReplaceClauseSegment", // [1388]
-    "select_replace_clause", // [1389]
-    "PartitionClauseSegment", // [1390]
-    "partitionby_clause", // [1391]
-    "FrameClauseSegment", // [1392]
-    "frame_clause", // [1393]
-    "RecursiveKeywordSegment", // [1394]
-    "CTEDefinitionSegment", // [1395]
-    "common_table_expression", // [1396]
-    "NonWithNonSelectableGrammar", // [1397]
-    "BindingKeywordSegment", // [1398]
-    "WITHIN", // [1399]
-    "WORK", // [1400]
+    "indented_using_on", // [965]
+    "MatchConditionSegment", // [966]
+    "match_condition", // [967]
+    "JoinOnConditionSegment", // [968]
+    "join_on_condition", // [969]
+    "JoinUsingConditionGrammar", // [970]
+    "UnconditionalJoinKeywordsGrammar", // [971]
+    "ExtendedNaturalJoinKeywordsGrammar", // [972]
+    "JoinKeywordSegment", // [973]
+    "FromPivotExpressionSegment", // [974]
+    "from_pivot_expression", // [975]
+    "FromUnpivotExpressionSegment", // [976]
+    "from_unpivot_expression", // [977]
+    "indented_on_contents", // [978]
+    "InnerKeywordSegment", // [979]
+    "FullKeywordSegment", // [980]
+    "LeftKeywordSegment", // [981]
+    "RightKeywordSegment", // [982]
+    "OuterKeywordSegment", // [983]
+    "LATERAL", // [984]
+    "LeaveKeywordSegment", // [985]
+    "LikeGrammar", // [986]
+    "EscapeKeywordSegment", // [987]
+    "RlikeKeywordSegment", // [988]
+    "IlikeKeywordSegment", // [989]
+    "TypedArrayLiteralSegment", // [990]
+    "typed_array_literal", // [991]
+    "ObjectLiteralSegment", // [992]
+    "object_literal", // [993]
+    "ParameterizedSegment", // [994]
+    "parameterized_expression", // [995]
+    "SystemVariableSegment", // [996]
+    "system_variable", // [997]
+    "literal", // [998]
+    "LoadKeywordSegment", // [999]
+    "OverwriteKeywordSegment", // [1000]
+    "PARTITIONS", // [1001]
+    "PartitionsKeywordSegment", // [1002]
+    "FilesKeywordSegment", // [1003]
+    "LOOKUP", // [1004]
+    "LOOP", // [1005]
+    "LoopKeywordSegment", // [1006]
+    "LoopStatementsSegment", // [1007]
+    "loop_statements", // [1008]
+    "MlKeywordSegment", // [1009]
+    "MATCHED", // [1010]
+    "MergeKeywordSegment", // [1011]
+    "MergeMatchedClauseSegment", // [1012]
+    "merge_when_matched_clause", // [1013]
+    "MergeNotMatchedByTargetClauseSegment", // [1014]
+    "not_matched_by_target_clause", // [1015]
+    "MergeNotMatchedBySourceClauseSegment", // [1016]
+    "MatchedKeywordSegment", // [1017]
+    "MergeUpdateClauseSegment", // [1018]
+    "merge_update_clause", // [1019]
+    "MergeDeleteClauseSegment", // [1020]
+    "merge_delete_clause", // [1021]
+    "SourceKeywordSegment", // [1022]
+    "SOURCE", // [1023]
+    "TargetKeywordSegment", // [1024]
+    "TARGET", // [1025]
+    "MergeInsertClauseSegment", // [1026]
+    "merge_insert_clause", // [1027]
+    "MergeIntoLiteralGrammar", // [1028]
+    "AliasedTableReferenceGrammar", // [1029]
+    "MergeMatchSegment", // [1030]
+    "merge_match", // [1031]
+    "SetClauseListSegment", // [1032]
+    "set_clause_list", // [1033]
+    "MESSAGE", // [1034]
+    "MINUS", // [1035]
+    "ForInStatementSegment", // [1036]
+    "for_in_statement", // [1037]
+    "RepeatStatementSegment", // [1038]
+    "REPEAT", // [1039]
+    "repeat_statement", // [1040]
+    "WhileStatementSegment", // [1041]
+    "WHILE", // [1042]
+    "while_statement", // [1043]
+    "LoopStatementSegment", // [1044]
+    "loop_statement", // [1045]
+    "IfStatementSegment", // [1046]
+    "if_statement", // [1047]
+    "CreateProcedureStatementSegment", // [1048]
+    "create_procedure_statement", // [1049]
+    "naked_identifier", // [1050]
+    "naked_identifier_all", // [1051]
+    "NAME", // [1052]
+    "RightArrowSegment", // [1053]
+    "=>", // [1054]
+    "WindowSpecificationSegment", // [1055]
+    "window_specification", // [1056]
+    "NamedWindowExpressionSegment", // [1057]
+    "named_window_expression", // [1058]
+    "null_literal", // [1059]
+    "sign_indicator", // [1060]
+    "newline", // [1061]
+    "NewlineSegment", // [1062]
+    "NFC", // [1063]
+    "NFD", // [1064]
+    "NFKC", // [1065]
+    "NFKD", // [1066]
+    "UnorderedSelectStatementSegment", // [1067]
+    "WithCompoundStatementSegment", // [1068]
+    "with_compound_statement", // [1069]
+    "NonSetSelectableGrammar", // [1070]
+    "BracketedSetExpressionGrammar", // [1071]
+    "MergeStatementSegment", // [1072]
+    "merge_statement", // [1073]
+    "NfcKeywordSegment", // [1074]
+    "NfkcKeywordSegment", // [1075]
+    "NfdKeywordSegment", // [1076]
+    "NfkdKeywordSegment", // [1077]
+    "RawNotSegment", // [1078]
+    "ObjectLiteralElementSegment", // [1079]
+    "object_literal_element", // [1080]
+    "start_curly_bracket", // [1081]
+    "ReplaceKeywordSegment", // [1082]
+    "REPLACE", // [1083]
+    "WithFillSegment", // [1084]
+    "with_fill", // [1085]
+    "NoorderKeywordSegment", // [1086]
+    "ORDINAL", // [1087]
+    "OUT", // [1088]
+    "OverKeywordSegment", // [1089]
+    "OVER", // [1090]
+    "OverlapsKeywordSegment", // [1091]
+    "parameter", // [1092]
+    "AtSignLiteralSegment", // [1093]
+    "QuestionMarkSegment", // [1094]
+    "SlashSegment", // [1095]
+    "word", // [1096]
+    "path_segment", // [1097]
+    "WordSegment", // [1098]
+    "PERCENT", // [1099]
+    "SelectClauseSegment", // [1100]
+    "select_clause", // [1101]
+    "ExtendClauseSegment", // [1102]
+    "extend_clause", // [1103]
+    "DropColumnClauseSegment", // [1104]
+    "drop_column_clause", // [1105]
+    "RenameColumnClauseSegment", // [1106]
+    "rename_column_clause", // [1107]
+    "AggregateClauseSegment", // [1108]
+    "aggregate_clause", // [1109]
+    "SetOperatorClauseSegment", // [1110]
+    "set_operator_clause", // [1111]
+    "CallOperatorSegment", // [1112]
+    "call_operator", // [1113]
+    "PivotOperatorSegment", // [1114]
+    "pivot_operator", // [1115]
+    "UnpivotOperatorSegment", // [1116]
+    "unpivot_operator", // [1117]
+    "pipe_operator", // [1118]
+    "pipe", // [1119]
+    "FromClauseSegment", // [1120]
+    "from_clause", // [1121]
+    "PipeOperatorClauseSegment", // [1122]
+    "pipe_operator_clause", // [1123]
+    "OverClauseSegment", // [1124]
+    "over_clause", // [1125]
+    "FilterClauseGrammar", // [1126]
+    "PRECISION", // [1127]
+    "procedure_name_identifier", // [1128]
+    "ProcedureNameIdentifierSegment", // [1129]
+    "OutKeywordSegment", // [1130]
+    "InoutKeywordSegment", // [1131]
+    "ProcedureParameterGrammar", // [1132]
+    "PROTO", // [1133]
+    "question_mark", // [1134]
+    "quoted_identifier", // [1135]
+    "SingleQuotedLiteralSegment", // [1136]
+    "DoubleQuotedLiteralSegment", // [1137]
+    "RaiseKeywordSegment", // [1138]
+    "MessageKeywordSegment", // [1139]
+    "raw_comparison_operator", // [1140]
+    "RawSegment", // [1141]
+    "RECURSIVE", // [1142]
+    "ReferenceMatchGrammar", // [1143]
+    "ReferentialActionGrammar", // [1144]
+    "NoKeywordSegment", // [1145]
+    "ActionKeywordSegment", // [1146]
+    "RepeatKeywordSegment", // [1147]
+    "RepeatStatementsSegment", // [1148]
+    "repeat_statements", // [1149]
+    "UntilKeywordSegment", // [1150]
+    "UNTIL", // [1151]
+    "REPEATABLE", // [1152]
+    "ReturnKeywordSegment", // [1153]
+    "right_arrow", // [1154]
+    "TablesampleKeywordSegment", // [1155]
+    "PercentKeywordSegment", // [1156]
+    "SelectClauseElementSegment", // [1157]
+    "select_clause_element", // [1158]
+    "WildcardExpressionSegment", // [1159]
+    "wildcard_expression", // [1160]
+    "StructKeywordSegment", // [1161]
+    "ValueKeywordSegment", // [1162]
+    "SelectClauseModifierSegment", // [1163]
+    "select_clause_modifier", // [1164]
+    "SelectClauseTerminatorGrammar", // [1165]
+    "GroupByClauseSegment", // [1166]
+    "groupby_clause", // [1167]
+    "HavingClauseSegment", // [1168]
+    "having_clause", // [1169]
+    "NamedWindowSegment", // [1170]
+    "named_window", // [1171]
+    "QualifyClauseSegment", // [1172]
+    "qualify_clause", // [1173]
+    "OffsetClauseSegment", // [1174]
+    "offset_clause", // [1175]
+    "FetchClauseSegment", // [1176]
+    "fetch_clause", // [1177]
+    "WithCompoundNonSelectStatementSegment", // [1178]
+    "NonWithSelectableGrammar", // [1179]
+    "statement_terminator", // [1180]
+    "MaxvalueKeywordSegment", // [1181]
+    "MinvalueKeywordSegment", // [1182]
+    "SetClauseSegment", // [1183]
+    "set_clause", // [1184]
+    "UnionKeywordSegment", // [1185]
+    "IntersectKeywordSegment", // [1186]
+    "STRICT", // [1187]
+    "NameKeywordSegment", // [1188]
+    "StrictKeywordSegment", // [1189]
+    "CorrespondingKeywordSegment", // [1190]
+    "PositiveSegment", // [1191]
+    "NegativeSegment", // [1192]
+    "NakedCSIdentifierSegment", // [1193]
+    "QuotedCSIdentifierSegment", // [1194]
+    "NakedIdentifierFullSegment", // [1195]
+    "slash", // [1196]
+    "slice", // [1197]
+    "SOME", // [1198]
+    "star", // [1199]
+    "TransactionStatementSegment", // [1200]
+    "transaction_statement", // [1201]
+    "DropTableStatementSegment", // [1202]
+    "drop_table_statement", // [1203]
+    "DropViewStatementSegment", // [1204]
+    "drop_view_statement", // [1205]
+    "CreateUserStatementSegment", // [1206]
+    "create_user_statement", // [1207]
+    "DropUserStatementSegment", // [1208]
+    "drop_user_statement", // [1209]
+    "TruncateStatementSegment", // [1210]
+    "truncate_table", // [1211]
+    "AccessStatementSegment", // [1212]
+    "access_statement", // [1213]
+    "CreateTableStatementSegment", // [1214]
+    "create_table_statement", // [1215]
+    "CreateRoleStatementSegment", // [1216]
+    "create_role_statement", // [1217]
+    "DropRoleStatementSegment", // [1218]
+    "drop_role_statement", // [1219]
+    "AlterTableStatementSegment", // [1220]
+    "alter_table_statement", // [1221]
+    "CreateSchemaStatementSegment", // [1222]
+    "create_schema_statement", // [1223]
+    "SetSchemaStatementSegment", // [1224]
+    "set_schema_statement", // [1225]
+    "DropSchemaStatementSegment", // [1226]
+    "drop_schema_statement", // [1227]
+    "DropTypeStatementSegment", // [1228]
+    "drop_type_statement", // [1229]
+    "CreateDatabaseStatementSegment", // [1230]
+    "create_database_statement", // [1231]
+    "DropDatabaseStatementSegment", // [1232]
+    "drop_database_statement", // [1233]
+    "CreateIndexStatementSegment", // [1234]
+    "create_index_statement", // [1235]
+    "DropIndexStatementSegment", // [1236]
+    "drop_index_statement", // [1237]
+    "CreateViewStatementSegment", // [1238]
+    "create_view_statement", // [1239]
+    "CreateCastStatementSegment", // [1240]
+    "create_cast_statement", // [1241]
+    "DropCastStatementSegment", // [1242]
+    "drop_cast_statement", // [1243]
+    "CreateFunctionStatementSegment", // [1244]
+    "create_function_statement", // [1245]
+    "DropFunctionStatementSegment", // [1246]
+    "drop_function_statement", // [1247]
+    "CreateModelStatementSegment", // [1248]
+    "create_model_statement", // [1249]
+    "DropModelStatementSegment", // [1250]
+    "drop_MODELstatement", // [1251]
+    "DescribeStatementSegment", // [1252]
+    "describe_statement", // [1253]
+    "UseStatementSegment", // [1254]
+    "use_statement", // [1255]
+    "ExplainStatementSegment", // [1256]
+    "explain_statement", // [1257]
+    "CreateSequenceStatementSegment", // [1258]
+    "create_sequence_statement", // [1259]
+    "AlterSequenceStatementSegment", // [1260]
+    "alter_sequence_statement", // [1261]
+    "DropSequenceStatementSegment", // [1262]
+    "drop_sequence_statement", // [1263]
+    "CreateTriggerStatementSegment", // [1264]
+    "create_trigger", // [1265]
+    "DropTriggerStatementSegment", // [1266]
+    "drop_trigger", // [1267]
+    "DeclareStatementSegment", // [1268]
+    "declare_segment", // [1269]
+    "SetStatementSegment", // [1270]
+    "set_segment", // [1271]
+    "ExportStatementSegment", // [1272]
+    "export_statement", // [1273]
+    "LoadDataStatementSegment", // [1274]
+    "load_data_statement", // [1275]
+    "CreateExternalTableStatementSegment", // [1276]
+    "create_external_table_statement", // [1277]
+    "CreateSnapshotTableStatementSegment", // [1278]
+    "create_snapshot_table_statement", // [1279]
+    "ExecuteImmediateSegment", // [1280]
+    "execute_immediate", // [1281]
+    "AssertStatementSegment", // [1282]
+    "assert_statement", // [1283]
+    "ReturnStatementSegment", // [1284]
+    "return_statement", // [1285]
+    "BreakStatementSegment", // [1286]
+    "break_statement", // [1287]
+    "LeaveStatementSegment", // [1288]
+    "leave_statement", // [1289]
+    "ContinueStatementSegment", // [1290]
+    "continue_statement", // [1291]
+    "RaiseStatementSegment", // [1292]
+    "raise_statement", // [1293]
+    "AlterViewStatementSegment", // [1294]
+    "alter_view_statement", // [1295]
+    "AlterSchemaStatementSegment", // [1296]
+    "alter_schema_statement", // [1297]
+    "CreateMaterializedViewStatementSegment", // [1298]
+    "create_materialized_view_statement", // [1299]
+    "CreateMaterializedViewAsReplicaOfStatementSegment", // [1300]
+    "create_materialized_view_as_replica_of_statement", // [1301]
+    "AlterMaterializedViewStatementSegment", // [1302]
+    "alter_materialized_view_set_options_statement", // [1303]
+    "DropMaterializedViewStatementSegment", // [1304]
+    "drop_materialized_view_statement", // [1305]
+    "DropProcedureStatementSegment", // [1306]
+    "drop_procedure_statement", // [1307]
+    "UndropSchemaStatementSegment", // [1308]
+    "undrop_schema_statement", // [1309]
+    "AlterOrganizationStatementSegment", // [1310]
+    "alter_organization_statement", // [1311]
+    "AlterProjectStatementSegment", // [1312]
+    "alter_project_statement", // [1313]
+    "CreateSearchIndexStatementSegment", // [1314]
+    "create_search_index_statement", // [1315]
+    "DropSearchIndexStatementSegment", // [1316]
+    "drop_search_index_statement", // [1317]
+    "CreateVectorIndexStatementSegment", // [1318]
+    "create_vector_index_statement", // [1319]
+    "DropVectorIndexStatementSegment", // [1320]
+    "drop_vector_index_statement", // [1321]
+    "CreateRowAccessPolicyStatementSegment", // [1322]
+    "create_row_access_policy_statement", // [1323]
+    "DropRowAccessPolicyStatementSegment", // [1324]
+    "drop_row_access_policy_statement", // [1325]
+    "AlterBiCapacityStatementSegment", // [1326]
+    "alter_bi_capacity_statement", // [1327]
+    "CreateCapacityStatementSegment", // [1328]
+    "create_capacity_statement", // [1329]
+    "AlterCapacityStatementSegment", // [1330]
+    "alter_capacity_statement", // [1331]
+    "DropCapacityStatementSegment", // [1332]
+    "drop_capacity_statement", // [1333]
+    "CreateReservationStatementSegment", // [1334]
+    "create_reservation_statement", // [1335]
+    "AlterReservationStatementSegment", // [1336]
+    "alter_reservation_statement", // [1337]
+    "DropReservationStatementSegment", // [1338]
+    "drop_reservation_statement", // [1339]
+    "CreateAssignmentStatementSegment", // [1340]
+    "create_assignment_statement", // [1341]
+    "DropAssignmentStatementSegment", // [1342]
+    "drop_assignment_statement", // [1343]
+    "DropTableFunctionStatementSegment", // [1344]
+    "drop_table_function_statement", // [1345]
+    "CreateTableFunctionStatementSegment", // [1346]
+    "create_table_function_statement", // [1347]
+    "StoringKeywordSegment", // [1348]
+    "ConcatSegment", // [1349]
+    "StructTypeSchemaSegment", // [1350]
+    "struct_type_schema", // [1351]
+    "symbol", // [1352]
+    "DoubleAtSignLiteralSegment", // [1353]
+    "ForeignKeyGrammar", // [1354]
+    "SingleCSIdentifierGrammar", // [1355]
+    "DashSegment", // [1356]
+    "NakedCSIdentifierPart", // [1357]
+    "Expression_A_Unary_Operator_Grammar", // [1358]
+    "Expression_C_Grammar", // [1359]
+    "Expression_B_Unary_Operator_Grammar", // [1360]
+    "TransientKeywordSegment", // [1361]
+    "tilde", // [1362]
+    "WITHOUT", // [1363]
+    "WithoutKeywordSegment", // [1364]
+    "ZoneKeywordSegment", // [1365]
+    "ZONE", // [1366]
+    "AtKeywordSegment", // [1367]
+    "TRANSACTION", // [1368]
+    "CommitKeywordSegment", // [1369]
+    "RollbackKeywordSegment", // [1370]
+    "TransactionKeywordSegment", // [1371]
+    "TREAT", // [1372]
+    "StructLiteralSegment", // [1373]
+    "CrossKeywordSegment", // [1374]
+    "NaturalJoinKeywordsGrammar", // [1375]
+    "UnconditionalCrossJoinKeywordsGrammar", // [1376]
+    "HorizontalJoinKeywordsGrammar", // [1377]
+    "UndropKeywordSegment", // [1378]
+    "UNNEST", // [1379]
+    "UNSIGNED", // [1380]
+    "VARYING", // [1381]
+    "VERSION", // [1382]
+    "indented_then", // [1383]
+    "indented_then_contents", // [1384]
+    "WhileKeywordSegment", // [1385]
+    "WhileStatementsSegment", // [1386]
+    "while_statements", // [1387]
+    "whitespace", // [1388]
+    "WhitespaceSegment", // [1389]
+    "ExceptClauseSegment", // [1390]
+    "select_except_clause", // [1391]
+    "ReplaceClauseSegment", // [1392]
+    "select_replace_clause", // [1393]
+    "PartitionClauseSegment", // [1394]
+    "partitionby_clause", // [1395]
+    "FrameClauseSegment", // [1396]
+    "frame_clause", // [1397]
+    "RecursiveKeywordSegment", // [1398]
+    "indented_ctes", // [1399]
+    "CTEDefinitionSegment", // [1400]
+    "common_table_expression", // [1401]
+    "NonWithNonSelectableGrammar", // [1402]
+    "BindingKeywordSegment", // [1403]
+    "WITHIN", // [1404]
+    "WORK", // [1405]
 ];
 
 pub static AUX_DATA: &[u32] = &[
@@ -9091,89 +9096,92 @@ pub static AUX_DATA: &[u32] = &[
     4294967295, 4294967295, 0, 827, 1, 2, 1, 2, 1, 602, 1, 2, 223, 1, 2, 829,
     1, 2, 0, 0, 4294967295, 4294967295, 0, 200, 1, 2, 0, 127, 1, 2, 85, 1,
     2, 0, 0, 0, 0, 0, 673, 1, 2, 1, 0, 0, 1, 2, 1, 0,
-    0, 0, 4294967295, 4294967295, 0, 1, 2, 1, 0, 1, 2, 1, 0, 0, 0, 4294967295,
-    4294967295, 0, 1, 2, 1, 0, 161, 1, 2, 1, 0, 1, 0, 1, 2, 1,
-    5, 6, 1, 0, 1, 0, 1, 0, 1, 2, 1, 5, 6, 1, 1, 1,
-    1, 2, 1, 1, 1, 1, 2, 1, 1, 0, 1, 2, 1, 5, 6, 1,
-    0, 545, 1, 2, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 4294967295, 4294967295,
-    0, 1, 2, 1, 0, 1, 0, 1, 2, 1, 0, 1, 2, 1, 0, 0,
-    4294967295, 4294967295, 0, 60, 1, 2, 0, 2, 379, 380, 3, 4294967295, 379, 380, 0, 0,
-    0, 4294967295, 4294967295, 0, 0, 0, 0, 0, 1, 0, 1, 2, 1, 0, 0, 139,
-    1, 2, 935, 935, 540, 3, 1, 2, 1, 0, 1, 2, 1, 190, 1, 2,
-    53, 1, 2, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 170, 1,
-    2, 0, 1, 1, 0, 1, 0, 937, 1, 2, 0, 1, 0, 1, 2, 1,
-    945, 1, 2, 946, 1, 2, 1, 2, 1, 0, 0, 847, 1, 2, 691, 1,
-    2, 262, 1, 2, 0, 4294967295, 4294967295, 0, 0, 0, 4294967295, 4294967295, 0, 896, 1, 2,
-    0, 772, 1, 2, 632, 1, 2, 12, 1, 2, 138, 1, 2, 1, 0, 0,
-    1, 2, 1, 0, 892, 1, 2, 280, 1, 2, 0, 578, 1, 2, 546, 1,
-    2, 955, 1, 2, 13, 1, 2, 34, 1, 2, 848, 1, 2, 0, 399, 1,
-    2, 749, 1, 2, 0, 445, 1, 2, 418, 1, 2, 0, 4294967295, 4294967295, 0, 0,
-    0, 963, 1, 2, 1, 4294967295, 4294967295, 0, 1, 2, 1, 0, 0, 0, 1, 0,
-    1, 2, 1, 332, 1, 2, 122, 1, 2, 162, 1, 2, 224, 1, 2, 982,
-    1, 2, 419, 1, 2, 547, 1, 2, 0, 616, 1, 2, 447, 447, 540, 0,
-    1, 2, 1, 0, 0, 0, 849, 1, 2, 0, 0, 0, 1, 0, 1, 2,
-    1, 1, 0, 1, 2, 1, 1, 0, 1, 2, 1, 1, 0, 1, 2, 1,
-    420, 1, 2, 1002, 1, 2, 1003, 1, 2, 0, 0, 4294967295, 4294967295, 0, 1, 2,
-    1, 2, 3, 1, 14, 1, 2, 45, 1, 2, 1008, 1, 2, 61, 1, 2,
-    900, 1, 2, 281, 1, 2, 0, 421, 1, 2, 1, 4294967295, 4294967295, 0, 0, 0,
-    0, 1, 2, 1, 0, 1032, 1, 2, 901, 1, 2, 1033, 1, 2, 307, 346,
-    241, 282, 1, 2, 883, 1, 2, 590, 1, 2, 15, 1, 2, 349, 346, 241,
-    674, 1, 2, 16, 1, 2, 0, 350, 346, 241, 4, 4294967295, 1048, 950, 0, 5,
-    1048, 950, 0, 4294967295, 1049, 950, 4, 4294967295, 1048, 950, 0, 5, 1048, 950, 1050, 1,
-    2, 1, 2, 1, 0, 1, 0, 958, 1, 2, 958, 1057, 819, 307, 1058, 241,
-    628, 1, 2, 1061, 1, 2, 1062, 1, 2, 1063, 1, 2, 1064, 1, 2, 283,
-    1, 2, 284, 1, 2, 285, 1, 2, 1, 2, 1, 1, 2, 1, 1, 2,
-    1, 0, 0, 1, 2, 1, 0, 0, 286, 1, 2, 0, 2, 3, 1, 926,
-    379, 380, 927, 379, 380, 0, 0, 334, 1, 2, 334, 1, 2, 312, 1, 2,
-    312, 1057, 819, 221, 1, 2, 169, 169, 390, 0, 165, 1, 2, 1, 0, 316,
-    1079, 241, 1, 2, 0, 0, 0, 584, 1, 2, 0, 0, 850, 1, 2, 114,
-    1, 2, 17, 1, 2, 184, 1, 2, 257, 1, 2, 1, 0, 1, 2, 1,
-    446, 1, 2, 446, 346, 347, 0, 0, 0, 1, 0, 0, 230, 1, 2, 0,
-    1085, 1, 2, 264, 1, 2, 1086, 1, 2, 851, 1, 2, 1, 2, 1, 0,
-    1088, 1, 2, 3, 4, 1, 0, 812, 1, 2, 763, 1, 2, 18, 1, 2,
-    0, 4294967295, 1090, 380, 3, 4294967295, 1090, 380, 0, 167, 1090, 241, 0, 1, 0, 1,
-    2, 1, 0, 568, 1, 2, 999, 1, 2, 1094, 1095, 1096, 1, 0, 0, 1097,
-    1, 2, 62, 1, 2, 0, 855, 1116, 241, 355, 1117, 241, 0, 4294967295, 4294967295, 0,
-    1, 4294967295, 4294967295, 0, 0, 498, 1, 2, 306, 346, 241, 47, 1, 2, 306, 1058,
-    241, 0, 841, 1, 2, 1125, 1, 2, 338, 1, 2, 784, 1, 2, 90, 1,
-    2, 63, 1, 2, 0, 6, 1126, 380, 3, 4294967295, 1126, 380, 0, 0, 4294967295, 4294967295,
-    0, 0, 0, 0, 0, 0, 1, 0, 1, 2, 1, 266, 1, 2, 1131, 1,
-    2, 179, 1, 2, 1, 2, 1, 0, 852, 1, 2, 698, 1, 2, 167, 1132,
-    241, 922, 1133, 950, 922, 1133, 950, 0, 422, 1, 2, 837, 1, 2, 303, 1138,
-    241, 353, 1138, 241, 352, 1138, 241, 444, 1138, 241, 19, 1, 2, 1140, 1, 2,
-    0, 4294967295, 1, 0, 21, 1, 2, 20, 1, 2, 0, 1, 0, 326, 1, 2,
-    1037, 1, 2, 0, 0, 4294967295, 4294967295, 0, 1150, 1, 2, 1, 0, 1, 2, 1,
-    1081, 1, 2, 276, 1, 2, 268, 1, 2, 117, 1, 2, 897, 1, 2, 203,
-    1, 2, 423, 1, 2, 571, 1, 2, 4, 1, 2, 1052, 1152, 241, 548, 1,
-    2, 773, 1, 2, 35, 1, 2, 424, 1, 2, 646, 379, 380, 646, 1, 2,
-    64, 1, 2, 597, 1, 2, 823, 1, 2, 919, 1, 2, 2, 3, 1, 675,
-    1, 2, 65, 1, 2, 136, 1, 2, 604, 1, 2, 699, 1, 2, 1, 0,
-    0, 0, 0, 1, 0, 0, 22, 1, 2, 1, 2, 1, 0, 1, 2, 1,
-    0, 1, 2, 1, 0, 0, 1, 4294967295, 4294967295, 0, 430, 1178, 241, 911, 1, 2,
-    66, 1, 2, 0, 0, 130, 1, 2, 197, 1, 2, 1, 0, 0, 1, 4294967295,
-    4294967295, 0, 255, 1, 2, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0,
-    1, 2, 1, 0, 1, 2, 1, 1, 2, 1, 0, 1, 0, 1, 2, 1,
-    0, 1, 0, 944, 1, 2, 171, 1, 2, 0, 1, 4294967295, 4294967295, 0, 0, 0,
-    0, 0, 1, 0, 245, 1133, 950, 245, 730, 390, 245, 731, 380, 351, 1194, 241,
-    369, 1195, 241, 610, 1, 2, 1196, 1, 2, 1021, 1, 2, 67, 1, 2, 350,
-    1197, 241, 605, 1, 2, 0, 641, 1, 2, 1, 0, 1, 2, 1, 68, 1,
-    2, 1185, 1, 2, 0, 659, 1, 2, 1, 0, 1, 2, 1, 0, 0, 4294967295,
-    4294967295, 0, 1, 0, 1, 2, 0, 676, 1, 2, 833, 1, 2, 834, 1, 2,
-    0, 1, 2, 1, 1, 2, 1, 0, 69, 1, 2, 0, 4294967295, 4294967295, 0, 1,
-    0, 876, 1, 2, 124, 1, 2, 0, 4294967295, 4294967295, 0, 0, 4294967295, 4294967295, 0, 1023,
-    1, 2, 50, 1, 2, 23, 1, 2, 0, 24, 1, 2, 0, 438, 1, 2,
-    677, 1, 2, 785, 1360, 241, 313, 1, 2, 0, 0, 0, 4294967295, 4294967295, 0, 314,
-    1, 2, 159, 1, 2, 1366, 1, 2, 0, 615, 1, 2, 1370, 1, 2, 25,
-    1, 2, 315, 1, 2, 315, 818, 819, 26, 1, 2, 678, 1, 2, 1, 0,
-    1, 2, 1, 126, 1, 2, 840, 1, 2, 0, 425, 1, 2, 0, 853, 1,
-    2, 511, 1, 2, 1377, 1, 2, 1, 4294967295, 4294967295, 0, 0, 499, 1, 2, 1378,
-    1, 2, 1149, 1, 2, 27, 1, 2, 28, 1, 2, 29, 1, 2, 30, 1,
-    2, 36, 1, 2, 500, 1, 2, 377, 1, 2, 0, 0, 1, 0, 1, 2,
-    1, 1, 0, 378, 1, 2, 1379, 1, 2, 639, 1, 2, 1380, 1, 2, 70,
-    1, 2, 37, 1, 2, 679, 1, 2, 671, 1, 2, 434, 1, 2, 1, 2,
-    1, 0, 0, 723, 1, 2, 1040, 1, 2, 0, 4294967295, 4294967295, 0, 0, 0, 4294967295,
-    4294967295, 0, 854, 1, 2, 0, 1, 0, 1, 0, 181, 1, 2, 1399, 1, 2,
-    1361, 1, 2, 1400, 1, 2, 134, 1, 2, 31, 1, 2, 1364, 1, 2,
+    0, 0, 4294967295, 4294967295, 0, 1, 2, 1, 0, 1, 2, 1, 0, 232, 887, 1,
+    0, 0, 4294967295, 4294967295, 0, 246, 887, 1, 1, 2, 1, 0, 161, 1, 2, 1,
+    0, 1, 0, 1, 2, 1, 5, 6, 1, 0, 1, 0, 1, 0, 1, 2,
+    1, 5, 6, 1, 1, 1, 1, 2, 1, 1, 1, 1, 2, 1, 1, 0,
+    1, 2, 1, 5, 6, 1, 0, 545, 1, 2, 0, 0, 0, 0, 1, 0,
+    0, 0, 0, 0, 4294967295, 4294967295, 0, 1, 2, 1, 0, 1, 0, 1, 2, 1,
+    0, 1, 2, 1, 0, 0, 4294967295, 4294967295, 0, 60, 1, 2, 0, 2, 379, 380,
+    3, 4294967295, 379, 380, 0, 0, 0, 4294967295, 4294967295, 0, 0, 0, 0, 0, 1, 0,
+    1, 2, 1, 0, 0, 139, 1, 2, 935, 935, 540, 3, 1, 2, 1, 0,
+    1, 2, 1, 190, 1, 2, 53, 1, 2, 0, 0, 0, 1, 0, 0, 0,
+    1, 0, 0, 0, 170, 1, 2, 0, 1, 1, 0, 1, 0, 937, 1, 2,
+    0, 1, 0, 1, 2, 1, 945, 1, 2, 946, 1, 2, 1, 2, 1, 0,
+    0, 847, 1, 2, 691, 1, 2, 262, 1, 2, 0, 4294967295, 4294967295, 0, 0, 0,
+    4294967295, 4294967295, 0, 896, 1, 2, 0, 772, 1, 2, 632, 1, 2, 12, 1, 2,
+    138, 1, 2, 1, 0, 0, 1, 2, 1, 0, 892, 1, 2, 280, 1, 2,
+    0, 578, 1, 2, 546, 1, 2, 955, 1, 2, 13, 1, 2, 34, 1, 2,
+    848, 1, 2, 0, 399, 1, 2, 749, 1, 2, 0, 445, 1, 2, 418, 1,
+    2, 0, 4294967295, 4294967295, 0, 232, 965, 1, 0, 246, 965, 1, 0, 963, 1, 2,
+    1, 4294967295, 4294967295, 0, 232, 978, 1, 1, 2, 1, 0, 246, 978, 1, 0, 0,
+    1, 0, 1, 2, 1, 332, 1, 2, 122, 1, 2, 162, 1, 2, 224, 1,
+    2, 984, 1, 2, 419, 1, 2, 547, 1, 2, 0, 616, 1, 2, 447, 447,
+    540, 0, 1, 2, 1, 0, 0, 0, 849, 1, 2, 0, 0, 0, 1, 0,
+    1, 2, 1, 1, 0, 1, 2, 1, 1, 0, 1, 2, 1, 1, 0, 1,
+    2, 1, 420, 1, 2, 1004, 1, 2, 1005, 1, 2, 0, 0, 4294967295, 4294967295, 0,
+    1, 2, 1, 2, 3, 1, 14, 1, 2, 45, 1, 2, 1010, 1, 2, 61,
+    1, 2, 900, 1, 2, 281, 1, 2, 0, 421, 1, 2, 1, 4294967295, 4294967295, 0,
+    0, 0, 0, 1, 2, 1, 0, 232, 965, 1, 246, 965, 1, 1034, 1, 2,
+    901, 1, 2, 1035, 1, 2, 307, 346, 241, 282, 1, 2, 883, 1, 2, 590,
+    1, 2, 15, 1, 2, 349, 346, 241, 674, 1, 2, 16, 1, 2, 0, 350,
+    346, 241, 4, 4294967295, 1050, 950, 0, 5, 1050, 950, 0, 4294967295, 1051, 950, 4, 4294967295,
+    1050, 950, 0, 5, 1050, 950, 1052, 1, 2, 1, 2, 1, 0, 1, 0, 958,
+    1, 2, 958, 1059, 819, 307, 1060, 241, 628, 1, 2, 1063, 1, 2, 1064, 1,
+    2, 1065, 1, 2, 1066, 1, 2, 283, 1, 2, 284, 1, 2, 285, 1, 2,
+    1, 2, 1, 1, 2, 1, 1, 2, 1, 0, 0, 1, 2, 1, 0, 0,
+    286, 1, 2, 0, 2, 3, 1, 926, 379, 380, 927, 379, 380, 0, 0, 334,
+    1, 2, 334, 1, 2, 312, 1, 2, 312, 1059, 819, 221, 1, 2, 169, 169,
+    390, 0, 165, 1, 2, 1, 0, 316, 1081, 241, 1, 2, 0, 0, 0, 584,
+    1, 2, 0, 0, 850, 1, 2, 114, 1, 2, 17, 1, 2, 184, 1, 2,
+    257, 1, 2, 1, 0, 1, 2, 1, 446, 1, 2, 446, 346, 347, 0, 0,
+    0, 1, 0, 0, 230, 1, 2, 0, 1087, 1, 2, 264, 1, 2, 1088, 1,
+    2, 851, 1, 2, 1, 2, 1, 0, 1090, 1, 2, 3, 4, 1, 0, 812,
+    1, 2, 763, 1, 2, 18, 1, 2, 0, 4294967295, 1092, 380, 3, 4294967295, 1092, 380,
+    0, 167, 1092, 241, 0, 1, 0, 1, 2, 1, 0, 568, 1, 2, 1001, 1,
+    2, 1096, 1097, 1098, 1, 0, 0, 1099, 1, 2, 62, 1, 2, 0, 855, 1118,
+    241, 355, 1119, 241, 0, 4294967295, 4294967295, 0, 1, 4294967295, 4294967295, 0, 0, 498, 1, 2,
+    306, 346, 241, 47, 1, 2, 306, 1060, 241, 0, 841, 1, 2, 1127, 1, 2,
+    338, 1, 2, 784, 1, 2, 90, 1, 2, 63, 1, 2, 0, 6, 1128, 380,
+    3, 4294967295, 1128, 380, 0, 0, 4294967295, 4294967295, 0, 0, 0, 0, 0, 0, 1, 0,
+    1, 2, 1, 266, 1, 2, 1133, 1, 2, 179, 1, 2, 1, 2, 1, 0,
+    852, 1, 2, 698, 1, 2, 167, 1134, 241, 922, 1135, 950, 922, 1135, 950, 0,
+    422, 1, 2, 837, 1, 2, 303, 1140, 241, 353, 1140, 241, 352, 1140, 241, 444,
+    1140, 241, 19, 1, 2, 1142, 1, 2, 0, 4294967295, 1, 0, 21, 1, 2, 20,
+    1, 2, 0, 1, 0, 326, 1, 2, 1039, 1, 2, 0, 0, 4294967295, 4294967295, 0,
+    1152, 1, 2, 1, 0, 1, 2, 1, 1083, 1, 2, 276, 1, 2, 268, 1,
+    2, 117, 1, 2, 897, 1, 2, 203, 1, 2, 423, 1, 2, 571, 1, 2,
+    4, 1, 2, 1054, 1154, 241, 548, 1, 2, 773, 1, 2, 35, 1, 2, 424,
+    1, 2, 646, 379, 380, 646, 1, 2, 64, 1, 2, 597, 1, 2, 823, 1,
+    2, 919, 1, 2, 2, 3, 1, 675, 1, 2, 65, 1, 2, 136, 1, 2,
+    604, 1, 2, 699, 1, 2, 1, 0, 0, 0, 0, 1, 0, 0, 22, 1,
+    2, 1, 2, 1, 0, 1, 2, 1, 0, 1, 2, 1, 0, 0, 1, 4294967295,
+    4294967295, 0, 430, 1180, 241, 911, 1, 2, 66, 1, 2, 0, 0, 130, 1, 2,
+    197, 1, 2, 1, 0, 0, 1, 4294967295, 4294967295, 0, 255, 1, 2, 1, 0, 0,
+    0, 0, 0, 0, 0, 0, 1, 0, 1, 2, 1, 0, 1, 2, 1, 1,
+    2, 1, 0, 1, 0, 1, 2, 1, 0, 1, 0, 944, 1, 2, 171, 1,
+    2, 0, 1, 4294967295, 4294967295, 0, 0, 0, 0, 0, 1, 0, 245, 1135, 950, 245,
+    730, 390, 245, 731, 380, 351, 1196, 241, 369, 1197, 241, 610, 1, 2, 1198, 1,
+    2, 1023, 1, 2, 67, 1, 2, 350, 1199, 241, 605, 1, 2, 0, 641, 1,
+    2, 1, 0, 1, 2, 1, 68, 1, 2, 1187, 1, 2, 0, 659, 1, 2,
+    1, 0, 1, 2, 1, 0, 0, 4294967295, 4294967295, 0, 1, 0, 1, 2, 0, 676,
+    1, 2, 833, 1, 2, 834, 1, 2, 0, 1, 2, 1, 1, 2, 1, 0,
+    69, 1, 2, 0, 4294967295, 4294967295, 0, 1, 0, 876, 1, 2, 124, 1, 2, 0,
+    4294967295, 4294967295, 0, 0, 4294967295, 4294967295, 0, 1025, 1, 2, 50, 1, 2, 23, 1, 2,
+    0, 24, 1, 2, 0, 438, 1, 2, 677, 1, 2, 785, 1362, 241, 313, 1,
+    2, 0, 0, 0, 4294967295, 4294967295, 0, 314, 1, 2, 159, 1, 2, 1368, 1, 2,
+    0, 615, 1, 2, 1372, 1, 2, 25, 1, 2, 315, 1, 2, 315, 818, 819,
+    26, 1, 2, 678, 1, 2, 1, 0, 1, 2, 1, 126, 1, 2, 840, 1,
+    2, 0, 425, 1, 2, 0, 853, 1, 2, 511, 1, 2, 1379, 1, 2, 1,
+    4294967295, 4294967295, 0, 0, 499, 1, 2, 1380, 1, 2, 1151, 1, 2, 27, 1, 2,
+    28, 1, 2, 29, 1, 2, 30, 1, 2, 36, 1, 2, 500, 1, 2, 377,
+    1, 2, 0, 0, 1, 0, 1, 2, 1, 1, 0, 378, 1, 2, 1381, 1,
+    2, 639, 1, 2, 1382, 1, 2, 70, 1, 2, 37, 1, 2, 679, 1, 2,
+    671, 1, 2, 232, 1383, 1, 232, 1384, 1, 246, 1384, 1, 246, 1383, 1, 434,
+    1, 2, 1, 2, 1, 0, 0, 723, 1, 2, 1042, 1, 2, 0, 4294967295, 4294967295,
+    0, 0, 0, 4294967295, 4294967295, 0, 854, 1, 2, 0, 232, 1399, 1, 1, 0, 246,
+    1399, 1, 232, 1399, 1, 1, 0, 246, 1399, 1, 181, 1, 2, 1404, 1, 2,
+    1363, 1, 2, 1405, 1, 2, 134, 1, 2, 31, 1, 2, 1366, 1, 2,
 ];
 
 pub static AUX_DATA_OFFSETS: &[u32] = &[
@@ -9291,123 +9299,123 @@ pub static AUX_DATA_OFFSETS: &[u32] = &[
     323, 898, 842, 843, 0, 780, 782, 901, 824, 844, 902, 0, 160, 905, 845, 907,
     828, 856, 0, 172, 192, 0, 857, 192, 858, 859, 860, 861, 863, 865, 821, 867,
     868, 920, 0, 869, 911, 908, 870, 872, 215, 912, 874, 875, 878, 879, 0, 182,
-    867, 215, 875, 881, 917, 0, 913, 879, 933, 930, 0, 924, 882, 885, 921, 845,
-    0, 857, 192, 0, 172, 192, 887, 926, 0, 925, 879, 878, 0, 857, 192, 0,
-    172, 192, 887, 934, 0, 888, 944, 937, 0, 176, 215, 199, 889, 137, 941, 939,
-    0, 305, 215, 0, 891, 0, 947, 893, 894, 222, 976, 955, 237, 199, 237, 137,
-    952, 950, 0, 948, 237, 895, 973, 960, 958, 237, 199, 237, 137, 970, 968, 0,
-    965, 963, 237, 895, 977, 982, 687, 702, 0, 366, 0, 980, 898, 899, 222, 0,
-    366, 858, 981, 902, 903, 904, 989, 366, 0, 366, 328, 339, 0, 906, 366, 160,
-    160, 366, 0, 983, 687, 366, 160, 366, 0, 907, 986, 799, 984, 908, 909, 0,
-    912, 305, 0, 987, 386, 237, 323, 137, 988, 386, 237, 323, 913, 581, 914, 0,
-    993, 704, 0, 1007, 0, 996, 915, 0, 333, 915, 0, 121, 319, 0, 591, 999,
-    997, 0, 301, 302, 0, 0, 328, 1006, 916, 917, 1003, 1002, 366, 713, 256, 1011,
-    1022, 1014, 1018, 0, 1024, 0, 1023, 918, 237, 920, 462, 1028, 636, 921, 462, 1031,
-    0, 301, 1029, 0, 656, 125, 339, 1030, 0, 656, 125, 339, 1034, 1032, 923, 0,
-    1038, 0, 924, 925, 0, 928, 929, 0, 930, 924, 931, 0, 0, 152, 1037, 930,
-    928, 932, 637, 206, 208, 934, 1039, 1042, 1045, 0, 5, 158, 1050, 1048, 386, 1053,
-    1056, 0, 456, 742, 456, 0, 172, 0, 782, 857, 192, 1064, 108, 936, 939, 0,
-    1062, 0, 1059, 323, 166, 366, 941, 215, 0, 1060, 219, 220, 0, 222, 1061, 225,
-    226, 0, 172, 192, 1068, 108, 936, 939, 0, 1066, 1065, 323, 166, 366, 941, 1069,
-    0, 857, 192, 856, 858, 859, 860, 821, 868, 219, 220, 1070, 0, 1077, 1076, 323,
-    166, 366, 1073, 941, 1079, 0, 942, 943, 1085, 1083, 1082, 939, 649, 1088, 1091, 0,
-    858, 1097, 1094, 366, 1098, 0, 857, 192, 947, 859, 860, 821, 1099, 0, 1102, 949,
-    0, 951, 792, 1105, 0, 951, 333, 792, 0, 951, 366, 437, 952, 1108, 0, 954,
-    366, 437, 952, 0, 480, 952, 439, 951, 1113, 0, 1112, 409, 427, 429, 480, 954,
-    0, 439, 951, 1117, 0, 1120, 898, 899, 222, 1121, 1124, 1127, 1130, 0, 333, 137,
-    1139, 1136, 1135, 1133, 769, 376, 176, 1140, 1143, 0, 237, 1146, 219, 220, 1147, 1150,
-    1153, 1156, 0, 93, 750, 248, 109, 376, 1159, 1162, 0, 956, 366, 1165, 386, 687,
-    0, 687, 158, 687, 1166, 1169, 1172, 803, 957, 959, 802, 960, 0, 775, 333, 907,
-    160, 1173, 0, 1176, 1184, 0, 961, 962, 885, 1179, 964, 0, 887, 965, 1183, 967,
-    969, 887, 0, 970, 962, 885, 965, 0, 971, 885, 1185, 0, 972, 0, 1188, 973,
-    975, 215, 0, 113, 887, 1195, 1192, 366, 887, 1197, 977, 0, 1196, 978, 979, 980,
-    981, 0, 523, 1200, 1198, 237, 1203, 1, 1206, 1209, 1212, 1215, 1218, 0, 983, 1221,
-    0, 454, 742, 454, 0, 0, 333, 984, 769, 0, 985, 770, 1224, 617, 986, 987,
-    1225, 1228, 0, 856, 1235, 1232, 1231, 166, 366, 108, 1237, 0, 867, 1236, 166, 366,
-    0, 111, 166, 1238, 0, 1241, 386, 166, 802, 787, 803, 804, 715, 988, 990, 992,
-    994, 996, 996, 0, 997, 132, 1242, 750, 998, 0, 570, 73, 248, 0, 1246, 1244,
-    1243, 320, 618, 0, 0, 998, 1000, 1251, 1249, 0, 301, 302, 214, 585, 587, 256,
-    0, 160, 1001, 1256, 1254, 0, 301, 302, 214, 0, 182, 567, 569, 1261, 1259, 0,
-    237, 339, 0, 182, 566, 150, 1264, 0, 1267, 1270, 0, 1004, 1005, 439, 1004, 1274,
-    0, 1273, 409, 427, 429, 0, 439, 1004, 0, 1007, 920, 237, 1281, 0, 589, 150,
-    0, 111, 1278, 376, 1284, 0, 1287, 0, 1290, 1293, 1296, 1299, 92, 1302, 0, 93,
-    109, 932, 0, 93, 596, 0, 1009, 750, 1303, 1306, 1010, 1012, 1014, 0, 433, 1015,
-    0, 782, 366, 437, 1310, 1016, 1018, 0, 433, 333, 1015, 192, 1020, 0, 782, 366,
-    437, 1311, 1016, 1018, 0, 433, 333, 1015, 0, 192, 1022, 0, 782, 366, 437, 1024,
-    0, 433, 333, 1015, 0, 782, 366, 437, 1024, 0, 1026, 1312, 248, 1027, 523, 1316,
-    248, 1027, 0, 1313, 376, 215, 887, 967, 887, 1028, 0, 105, 1030, 1317, 1320, 1323,
-    1326, 1329, 1332, 1335, 1338, 1341, 1344, 1347, 1350, 1034, 1036, 1039, 1042, 1044, 1046, 594,
-    1351, 1354, 1358, 1362, 1366, 1370, 1374, 0, 319, 1051, 366, 0, 237, 328, 1380, 237,
-    1377, 1053, 0, 860, 1381, 1055, 1383, 1386, 0, 1389, 0, 1392, 1059, 1395, 1398, 1401,
-    1404, 1407, 1410, 1413, 1425, 932, 1065, 1416, 713, 1419, 1066, 1422, 1068, 1069, 0, 1426,
-    755, 753, 757, 1070, 1431, 463, 1430, 1427, 713, 1068, 1432, 0, 1436, 366, 0, 111,
-    1435, 1072, 1073, 1074, 1075, 1445, 1439, 1442, 0, 0, 333, 335, 1446, 0, 1076, 742,
-    0, 454, 456, 1447, 0, 1450, 1453, 1456, 1459, 1465, 1462, 992, 1466, 0, 386, 407,
-    214, 1474, 1469, 1077, 1471, 1477, 920, 0, 920, 920, 1478, 113, 328, 523, 111, 524,
-    525, 526, 484, 407, 429, 878, 1479, 0, 867, 1482, 166, 366, 596, 1483, 596, 824,
-    1484, 1487, 1490, 1493, 1496, 0, 591, 1501, 1499, 0, 301, 302, 214, 1504, 1507, 0,
-    624, 1080, 0, 857, 192, 1513, 0, 1510, 323, 166, 366, 1511, 219, 220, 0, 222,
-    1512, 225, 226, 1082, 947, 838, 1515, 856, 858, 859, 860, 838, 912, 821, 868, 1516,
-    1519, 857, 1084, 1520, 1523, 1526, 1529, 0, 913, 1087, 1535, 237, 1532, 1053, 1536, 0,
-    1089, 1542, 0, 1539, 804, 111, 804, 323, 1543, 1546, 1549, 1560, 1552, 1556, 1561, 1564,
-    1091, 1092, 0, 567, 192, 366, 0, 567, 192, 1570, 1567, 1565, 366, 1571, 1574, 1582,
-    0, 1093, 1580, 1577, 1093, 386, 0, 1583, 1586, 0, 868, 1589, 1098, 1100, 1030, 1102,
-    1104, 215, 722, 947, 229, 1106, 1108, 879, 1110, 875, 1112, 1114, 1590, 1593, 1604, 0,
-    1118, 1596, 1120, 0, 376, 215, 1600, 1120, 0, 214, 137, 1605, 0, 973, 215, 1608,
-    1611, 1614, 1617, 1122, 1124, 0, 612, 0, 182, 867, 0, 328, 237, 0, 1618, 1621,
-    0, 337, 331, 1624, 1627, 1630, 1633, 1644, 1636, 1640, 0, 1645, 0, 237, 920, 1649,
-    1127, 921, 1653, 0, 1650, 137, 1128, 1129, 301, 1651, 0, 656, 125, 339, 1652, 0,
-    656, 125, 339, 1656, 1654, 1130, 1659, 1662, 1665, 0, 786, 166, 0, 859, 1671, 1668,
-    366, 1672, 1675, 1678, 1681, 1684, 1687, 1134, 1135, 1688, 0, 1136, 0, 523, 1137, 302,
-    366, 1691, 1694, 1697, 1700, 1703, 494, 1706, 1709, 0, 99, 248, 109, 1141, 1712, 0,
-    113, 92, 1142, 0, 113, 105, 1142, 0, 1716, 1719, 1722, 732, 733, 0, 254, 342,
-    0, 1143, 1144, 0, 254, 341, 0, 327, 1723, 0, 323, 215, 1725, 1728, 0, 1145,
-    1146, 1148, 366, 439, 1145, 1732, 0, 1731, 409, 427, 429, 1148, 1736, 0, 1080, 1741,
-    1739, 0, 214, 328, 237, 1744, 1747, 1750, 1753, 1756, 1759, 1762, 0, 1151, 1765, 1768,
-    1771, 1774, 1777, 1780, 237, 1783, 1786, 1789, 1792, 1795, 1798, 1801, 0, 1153, 836, 1804,
-    166, 1154, 1807, 1810, 1813, 1816, 1819, 1822, 1155, 1824, 1157, 0, 214, 215, 0, 1825,
-    907, 108, 0, 328, 1826, 1159, 1160, 0, 100, 1161, 1827, 1155, 1163, 1829, 160, 828,
-    0, 857, 192, 856, 1089, 861, 821, 868, 1830, 0, 1098, 1118, 722, 1164, 1166, 811,
-    1168, 1170, 229, 1172, 1174, 947, 1168, 861, 863, 865, 868, 1844, 1836, 1833, 1066, 1840,
-    1837, 1176, 1177, 1841, 376, 0, 1846, 0, 920, 1845, 237, 799, 206, 1850, 1853, 1856,
-    1859, 0, 1179, 166, 0, 1143, 1179, 1860, 0, 1180, 166, 0, 1143, 1180, 1861, 1864,
-    0, 254, 1867, 1181, 0, 323, 302, 1869, 305, 397, 176, 323, 366, 932, 341, 0,
-    1068, 1870, 0, 861, 1068, 229, 947, 1168, 1874, 0, 861, 1877, 1068, 1885, 0, 1183,
-    1879, 907, 108, 0, 1184, 907, 0, 745, 907, 0, 1881, 977, 0, 1880, 978, 979,
-    981, 981, 1883, 0, 1183, 1882, 108, 907, 0, 1184, 907, 0, 745, 907, 0, 1884,
-    0, 192, 1186, 0, 113, 109, 0, 1187, 1188, 0, 192, 109, 0, 254, 71, 269,
-    734, 0, 254, 1891, 319, 1888, 1886, 319, 994, 302, 1905, 1904, 305, 1892, 713, 397,
-    176, 1901, 1899, 1898, 305, 1895, 713, 397, 176, 715, 366, 1907, 1910, 0, 1913, 793,
-    747, 1914, 0, 524, 339, 794, 1918, 1189, 1190, 1919, 1191, 1192, 920, 1920, 319, 921,
-    1193, 1921, 319, 921, 920, 1922, 237, 1924, 1927, 1930, 0, 657, 206, 1933, 1936, 1939,
-    1942, 1945, 1948, 1951, 1954, 1957, 376, 1070, 753, 1198, 1200, 1202, 1204, 1206, 1208, 1210,
-    1212, 1214, 1216, 1218, 1220, 1222, 1224, 1226, 1228, 1230, 1232, 1234, 1236, 757, 755, 1238,
-    1240, 1242, 1244, 1246, 1248, 1250, 1252, 1254, 1256, 1258, 1260, 1262, 1264, 1266, 1268, 1270,
-    1272, 1274, 1276, 1278, 1280, 470, 1282, 1284, 1286, 1288, 1290, 1292, 1294, 1296, 1298, 1300,
-    1302, 1304, 1306, 1308, 1310, 1312, 1314, 1316, 1318, 1320, 1322, 1324, 1326, 1328, 1330, 1332,
-    1334, 1336, 1338, 1340, 1342, 1344, 468, 429, 1958, 0, 1346, 1963, 1961, 237, 1966, 1969,
-    1972, 1347, 1973, 1978, 1976, 0, 214, 215, 1988, 1986, 0, 1981, 339, 0, 301, 339,
-    1982, 521, 256, 0, 1159, 1348, 1991, 1350, 1994, 1351, 1997, 2000, 0, 508, 109, 333,
-    335, 0, 1352, 109, 99, 248, 109, 333, 335, 0, 2007, 932, 397, 176, 248, 2001,
-    376, 2004, 1070, 2008, 2015, 0, 1353, 2011, 0, 1354, 1355, 496, 113, 328, 523, 111,
-    524, 525, 526, 407, 429, 878, 2017, 2020, 0, 2023, 1356, 484, 1357, 0, 2027, 1358,
-    1357, 2031, 2034, 2037, 0, 2040, 101, 102, 2041, 2044, 1359, 570, 2045, 2048, 2051, 2054,
-    0, 2057, 707, 708, 654, 0, 2058, 182, 1362, 707, 1363, 2059, 0, 1365, 707, 1363,
-    366, 2063, 2066, 2069, 0, 2072, 408, 1367, 1368, 1369, 429, 2073, 2076, 2079, 0, 2082,
-    2085, 2088, 0, 104, 73, 248, 2091, 2096, 2094, 214, 2099, 0, 657, 715, 0, 658,
-    1371, 2102, 1372, 2105, 1373, 1374, 1375, 2106, 0, 1376, 71, 269, 734, 0, 1183, 2109,
-    907, 108, 2110, 0, 576, 2113, 0, 2116, 0, 1098, 1118, 722, 1164, 1166, 1170, 811,
-    1168, 861, 863, 865, 229, 947, 868, 0, 1068, 2119, 0, 861, 1068, 0, 234, 2123,
-    386, 166, 2124, 0, 975, 215, 2127, 2130, 2133, 0, 105, 248, 215, 254, 1030, 1118,
-    722, 2136, 2139, 0, 86, 563, 2142, 2145, 2148, 2151, 0, 2154, 1160, 720, 2161, 0,
-    596, 2158, 2156, 2155, 341, 305, 366, 2163, 2166, 2169, 2172, 0, 237, 256, 2175, 2178,
-    2181, 2184, 0, 433, 0, 366, 887, 437, 887, 366, 887, 887, 2187, 0, 828, 2193,
-    2190, 366, 2194, 856, 0, 172, 192, 0, 857, 192, 858, 859, 860, 1089, 821, 868,
-    2195, 2198, 0, 1381, 366, 830, 1382, 439, 1381, 2201, 0, 409, 429, 0, 439, 1381,
-    1384, 0, 156, 1386, 1388, 0, 2206, 2205, 0, 237, 496, 0, 799, 920, 799, 2210,
-    0, 237, 2213, 567, 857, 1390, 229, 1392, 0, 182, 1394, 887, 2214, 1395, 100, 887,
-    1397, 0, 182, 1394, 887, 2216, 1395, 100, 887, 1177, 0, 182, 0, 1143, 132, 0,
-    2218, 0, 182, 1143, 71, 1398, 2221, 2224, 1094, 2227, 2230, 2233, 2236,
+    867, 215, 875, 881, 917, 0, 913, 879, 939, 936, 0, 924, 882, 885, 921, 845,
+    0, 857, 192, 0, 172, 192, 925, 929, 0, 928, 879, 878, 0, 857, 192, 0,
+    172, 192, 933, 940, 0, 888, 950, 943, 0, 176, 215, 199, 889, 137, 947, 945,
+    0, 305, 215, 0, 891, 0, 953, 893, 894, 222, 982, 961, 237, 199, 237, 137,
+    958, 956, 0, 954, 237, 895, 979, 966, 964, 237, 199, 237, 137, 976, 974, 0,
+    971, 969, 237, 895, 983, 988, 687, 702, 0, 366, 0, 986, 898, 899, 222, 0,
+    366, 858, 987, 902, 903, 904, 995, 366, 0, 366, 328, 339, 0, 906, 366, 160,
+    160, 366, 0, 989, 687, 366, 160, 366, 0, 907, 992, 799, 990, 908, 909, 0,
+    912, 305, 0, 993, 386, 237, 323, 137, 994, 386, 237, 323, 913, 581, 914, 0,
+    999, 704, 0, 1013, 0, 1002, 915, 0, 333, 915, 0, 121, 319, 0, 591, 1005,
+    1003, 0, 301, 302, 0, 0, 328, 1012, 916, 917, 1009, 1008, 366, 713, 256, 1017,
+    1028, 1020, 1024, 0, 1030, 0, 1029, 918, 237, 920, 462, 1034, 636, 921, 462, 1037,
+    0, 301, 1035, 0, 656, 125, 339, 1036, 0, 656, 125, 339, 1040, 1038, 923, 0,
+    1044, 0, 924, 925, 0, 928, 929, 0, 930, 924, 931, 0, 0, 152, 1043, 930,
+    928, 932, 637, 206, 208, 934, 1045, 1048, 1051, 0, 5, 158, 1056, 1054, 386, 1059,
+    1062, 0, 456, 742, 456, 0, 172, 0, 782, 857, 192, 1070, 108, 936, 939, 0,
+    1068, 0, 1065, 323, 166, 366, 941, 215, 0, 1066, 219, 220, 0, 222, 1067, 225,
+    226, 0, 172, 192, 1074, 108, 936, 939, 0, 1072, 1071, 323, 166, 366, 941, 1075,
+    0, 857, 192, 856, 858, 859, 860, 821, 868, 219, 220, 1076, 0, 1083, 1082, 323,
+    166, 366, 1079, 941, 1085, 0, 942, 943, 1091, 1089, 1088, 939, 649, 1094, 1097, 0,
+    858, 1103, 1100, 366, 1104, 0, 857, 192, 947, 859, 860, 821, 1105, 0, 1108, 949,
+    0, 951, 792, 1111, 0, 951, 333, 792, 0, 951, 366, 437, 952, 1114, 0, 954,
+    366, 437, 952, 0, 480, 952, 439, 951, 1119, 0, 1118, 409, 427, 429, 480, 954,
+    0, 439, 951, 1123, 0, 1126, 898, 899, 222, 1127, 1130, 1133, 1136, 0, 333, 137,
+    1145, 1142, 1141, 1139, 769, 376, 176, 1146, 1149, 0, 237, 1152, 219, 220, 1153, 1156,
+    1159, 1162, 0, 93, 750, 248, 109, 376, 1165, 1168, 0, 956, 366, 1171, 386, 687,
+    0, 687, 158, 687, 1172, 1175, 1178, 803, 957, 959, 802, 960, 0, 775, 333, 907,
+    160, 1179, 0, 1182, 1196, 0, 961, 962, 885, 1185, 964, 0, 1189, 966, 1192, 968,
+    970, 1193, 0, 971, 962, 885, 966, 0, 972, 885, 1197, 0, 973, 0, 1200, 974,
+    976, 215, 0, 113, 1204, 1210, 1207, 366, 1211, 1215, 979, 0, 1214, 980, 981, 982,
+    983, 0, 523, 1218, 1216, 237, 1221, 1, 1224, 1227, 1230, 1233, 1236, 0, 985, 1239,
+    0, 454, 742, 454, 0, 0, 333, 986, 769, 0, 987, 770, 1242, 617, 988, 989,
+    1243, 1246, 0, 856, 1253, 1250, 1249, 166, 366, 108, 1255, 0, 867, 1254, 166, 366,
+    0, 111, 166, 1256, 0, 1259, 386, 166, 802, 787, 803, 804, 715, 990, 992, 994,
+    996, 998, 998, 0, 999, 132, 1260, 750, 1000, 0, 570, 73, 248, 0, 1264, 1262,
+    1261, 320, 618, 0, 0, 1000, 1002, 1269, 1267, 0, 301, 302, 214, 585, 587, 256,
+    0, 160, 1003, 1274, 1272, 0, 301, 302, 214, 0, 182, 567, 569, 1279, 1277, 0,
+    237, 339, 0, 182, 566, 150, 1282, 0, 1285, 1288, 0, 1006, 1007, 439, 1006, 1292,
+    0, 1291, 409, 427, 429, 0, 439, 1006, 0, 1009, 920, 237, 1299, 0, 589, 150,
+    0, 111, 1296, 376, 1302, 0, 1305, 0, 1308, 1311, 1314, 1317, 92, 1320, 0, 93,
+    109, 932, 0, 93, 596, 0, 1011, 750, 1321, 1324, 1012, 1014, 1016, 0, 433, 1017,
+    0, 782, 366, 437, 1328, 1018, 1020, 0, 433, 333, 1017, 192, 1022, 0, 782, 366,
+    437, 1329, 1018, 1020, 0, 433, 333, 1017, 0, 192, 1024, 0, 782, 366, 437, 1026,
+    0, 433, 333, 1017, 0, 782, 366, 437, 1026, 0, 1028, 1330, 248, 1029, 523, 1334,
+    248, 1029, 0, 1331, 376, 215, 1335, 968, 1338, 1030, 0, 105, 1032, 1341, 1344, 1347,
+    1350, 1353, 1356, 1359, 1362, 1365, 1368, 1371, 1374, 1036, 1038, 1041, 1044, 1046, 1048, 594,
+    1375, 1378, 1382, 1386, 1390, 1394, 1398, 0, 319, 1053, 366, 0, 237, 328, 1404, 237,
+    1401, 1055, 0, 860, 1405, 1057, 1407, 1410, 0, 1413, 0, 1416, 1061, 1419, 1422, 1425,
+    1428, 1431, 1434, 1437, 1449, 932, 1067, 1440, 713, 1443, 1068, 1446, 1070, 1071, 0, 1450,
+    755, 753, 757, 1072, 1455, 463, 1454, 1451, 713, 1070, 1456, 0, 1460, 366, 0, 111,
+    1459, 1074, 1075, 1076, 1077, 1469, 1463, 1466, 0, 0, 333, 335, 1470, 0, 1078, 742,
+    0, 454, 456, 1471, 0, 1474, 1477, 1480, 1483, 1489, 1486, 994, 1490, 0, 386, 407,
+    214, 1498, 1493, 1079, 1495, 1501, 920, 0, 920, 920, 1502, 113, 328, 523, 111, 524,
+    525, 526, 484, 407, 429, 878, 1503, 0, 867, 1506, 166, 366, 596, 1507, 596, 824,
+    1508, 1511, 1514, 1517, 1520, 0, 591, 1525, 1523, 0, 301, 302, 214, 1528, 1531, 0,
+    624, 1082, 0, 857, 192, 1537, 0, 1534, 323, 166, 366, 1535, 219, 220, 0, 222,
+    1536, 225, 226, 1084, 947, 838, 1539, 856, 858, 859, 860, 838, 912, 821, 868, 1540,
+    1543, 857, 1086, 1544, 1547, 1550, 1553, 0, 913, 1089, 1559, 237, 1556, 1055, 1560, 0,
+    1091, 1566, 0, 1563, 804, 111, 804, 323, 1567, 1570, 1573, 1584, 1576, 1580, 1585, 1588,
+    1093, 1094, 0, 567, 192, 366, 0, 567, 192, 1594, 1591, 1589, 366, 1595, 1598, 1606,
+    0, 1095, 1604, 1601, 1095, 386, 0, 1607, 1610, 0, 868, 1613, 1100, 1102, 1032, 1104,
+    1106, 215, 722, 947, 229, 1108, 1110, 879, 1112, 875, 1114, 1116, 1614, 1617, 1628, 0,
+    1120, 1620, 1122, 0, 376, 215, 1624, 1122, 0, 214, 137, 1629, 0, 974, 215, 1632,
+    1635, 1638, 1641, 1124, 1126, 0, 612, 0, 182, 867, 0, 328, 237, 0, 1642, 1645,
+    0, 337, 331, 1648, 1651, 1654, 1657, 1668, 1660, 1664, 0, 1669, 0, 237, 920, 1673,
+    1129, 921, 1677, 0, 1674, 137, 1130, 1131, 301, 1675, 0, 656, 125, 339, 1676, 0,
+    656, 125, 339, 1680, 1678, 1132, 1683, 1686, 1689, 0, 786, 166, 0, 859, 1695, 1692,
+    366, 1696, 1699, 1702, 1705, 1708, 1711, 1136, 1137, 1712, 0, 1138, 0, 523, 1139, 302,
+    366, 1715, 1718, 1721, 1724, 1727, 494, 1730, 1733, 0, 99, 248, 109, 1143, 1736, 0,
+    113, 92, 1144, 0, 113, 105, 1144, 0, 1740, 1743, 1746, 732, 733, 0, 254, 342,
+    0, 1145, 1146, 0, 254, 341, 0, 327, 1747, 0, 323, 215, 1749, 1752, 0, 1147,
+    1148, 1150, 366, 439, 1147, 1756, 0, 1755, 409, 427, 429, 1150, 1760, 0, 1082, 1765,
+    1763, 0, 214, 328, 237, 1768, 1771, 1774, 1777, 1780, 1783, 1786, 0, 1153, 1789, 1792,
+    1795, 1798, 1801, 1804, 237, 1807, 1810, 1813, 1816, 1819, 1822, 1825, 0, 1155, 836, 1828,
+    166, 1156, 1831, 1834, 1837, 1840, 1843, 1846, 1157, 1848, 1159, 0, 214, 215, 0, 1849,
+    907, 108, 0, 328, 1850, 1161, 1162, 0, 100, 1163, 1851, 1157, 1165, 1853, 160, 828,
+    0, 857, 192, 856, 1091, 861, 821, 868, 1854, 0, 1100, 1120, 722, 1166, 1168, 811,
+    1170, 1172, 229, 1174, 1176, 947, 1170, 861, 863, 865, 868, 1868, 1860, 1857, 1068, 1864,
+    1861, 1178, 1179, 1865, 376, 0, 1870, 0, 920, 1869, 237, 799, 206, 1874, 1877, 1880,
+    1883, 0, 1181, 166, 0, 1145, 1181, 1884, 0, 1182, 166, 0, 1145, 1182, 1885, 1888,
+    0, 254, 1891, 1183, 0, 323, 302, 1893, 305, 397, 176, 323, 366, 932, 341, 0,
+    1070, 1894, 0, 861, 1070, 229, 947, 1170, 1898, 0, 861, 1901, 1070, 1909, 0, 1185,
+    1903, 907, 108, 0, 1186, 907, 0, 745, 907, 0, 1905, 979, 0, 1904, 980, 981,
+    983, 983, 1907, 0, 1185, 1906, 108, 907, 0, 1186, 907, 0, 745, 907, 0, 1908,
+    0, 192, 1188, 0, 113, 109, 0, 1189, 1190, 0, 192, 109, 0, 254, 71, 269,
+    734, 0, 254, 1915, 319, 1912, 1910, 319, 996, 302, 1929, 1928, 305, 1916, 713, 397,
+    176, 1925, 1923, 1922, 305, 1919, 713, 397, 176, 715, 366, 1931, 1934, 0, 1937, 793,
+    747, 1938, 0, 524, 339, 794, 1942, 1191, 1192, 1943, 1193, 1194, 920, 1944, 319, 921,
+    1195, 1945, 319, 921, 920, 1946, 237, 1948, 1951, 1954, 0, 657, 206, 1957, 1960, 1963,
+    1966, 1969, 1972, 1975, 1978, 1981, 376, 1072, 753, 1200, 1202, 1204, 1206, 1208, 1210, 1212,
+    1214, 1216, 1218, 1220, 1222, 1224, 1226, 1228, 1230, 1232, 1234, 1236, 1238, 757, 755, 1240,
+    1242, 1244, 1246, 1248, 1250, 1252, 1254, 1256, 1258, 1260, 1262, 1264, 1266, 1268, 1270, 1272,
+    1274, 1276, 1278, 1280, 1282, 470, 1284, 1286, 1288, 1290, 1292, 1294, 1296, 1298, 1300, 1302,
+    1304, 1306, 1308, 1310, 1312, 1314, 1316, 1318, 1320, 1322, 1324, 1326, 1328, 1330, 1332, 1334,
+    1336, 1338, 1340, 1342, 1344, 1346, 468, 429, 1982, 0, 1348, 1987, 1985, 237, 1990, 1993,
+    1996, 1349, 1997, 2002, 2000, 0, 214, 215, 2012, 2010, 0, 2005, 339, 0, 301, 339,
+    2006, 521, 256, 0, 1161, 1350, 2015, 1352, 2018, 1353, 2021, 2024, 0, 508, 109, 333,
+    335, 0, 1354, 109, 99, 248, 109, 333, 335, 0, 2031, 932, 397, 176, 248, 2025,
+    376, 2028, 1072, 2032, 2039, 0, 1355, 2035, 0, 1356, 1357, 496, 113, 328, 523, 111,
+    524, 525, 526, 407, 429, 878, 2041, 2044, 0, 2047, 1358, 484, 1359, 0, 2051, 1360,
+    1359, 2055, 2058, 2061, 0, 2064, 101, 102, 2065, 2068, 1361, 570, 2069, 2072, 2075, 2078,
+    0, 2081, 707, 708, 654, 0, 2082, 182, 1364, 707, 1365, 2083, 0, 1367, 707, 1365,
+    366, 2087, 2090, 2093, 0, 2096, 408, 1369, 1370, 1371, 429, 2097, 2100, 2103, 0, 2106,
+    2109, 2112, 0, 104, 73, 248, 2115, 2120, 2118, 214, 2123, 0, 657, 715, 0, 658,
+    1373, 2126, 1374, 2129, 1375, 1376, 1377, 2130, 0, 1378, 71, 269, 734, 0, 1185, 2133,
+    907, 108, 2134, 0, 576, 2137, 0, 2140, 0, 1100, 1120, 722, 1166, 1168, 1172, 811,
+    1170, 861, 863, 865, 229, 947, 868, 0, 1070, 2143, 0, 861, 1070, 0, 234, 2147,
+    386, 166, 2148, 0, 976, 215, 2151, 2154, 2157, 0, 105, 248, 215, 254, 1032, 1120,
+    722, 2160, 2163, 0, 86, 563, 2166, 2169, 2172, 2175, 0, 2178, 1162, 720, 2185, 0,
+    596, 2182, 2180, 2179, 341, 305, 366, 2187, 2190, 2193, 2196, 0, 237, 256, 2199, 2202,
+    2205, 2208, 0, 433, 0, 366, 2211, 437, 2214, 366, 2217, 2220, 2223, 0, 828, 2229,
+    2226, 366, 2230, 856, 0, 172, 192, 0, 857, 192, 858, 859, 860, 1091, 821, 868,
+    2231, 2234, 0, 1385, 366, 830, 1386, 439, 1385, 2237, 0, 409, 429, 0, 439, 1385,
+    1388, 0, 156, 1390, 1392, 0, 2242, 2241, 0, 237, 496, 0, 799, 920, 799, 2246,
+    0, 237, 2249, 567, 857, 1394, 229, 1396, 0, 182, 1398, 2250, 2253, 1400, 100, 2255,
+    1402, 0, 182, 1398, 2258, 2261, 1400, 100, 2263, 1179, 0, 182, 0, 1145, 132, 0,
+    2266, 0, 182, 1145, 71, 1403, 2269, 2272, 1096, 2275, 2278, 2281, 2284,
 ];
 
 pub static SEGMENT_TYPE_OFFSETS: &[u32] = &[
@@ -9552,43 +9560,43 @@ pub static SEGMENT_TYPE_OFFSETS: &[u32] = &[
     4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 177, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295,
     4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 249, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 367, 4294967295, 4294967295, 4294967295,
     4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295,
-    4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 886, 4294967295, 4294967295, 4294967295, 232, 966, 4294967295, 968,
-    4294967295, 246, 4294967295, 4294967295, 4294967295, 886, 966, 4294967295, 4294967295, 886, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 974,
-    976, 216, 4294967295, 4294967295, 232, 4294967295, 4294967295, 367, 246, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295,
+    4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 886, 4294967295, 4294967295, 4294967295, 232, 967, 4294967295, 969,
+    4294967295, 246, 4294967295, 4294967295, 4294967295, 886, 967, 4294967295, 4294967295, 886, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 975,
+    977, 216, 4294967295, 4294967295, 232, 4294967295, 4294967295, 367, 246, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295,
     4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 1, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295,
     4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295,
     4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 367, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 367,
-    4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 169, 4294967295, 4294967295, 716, 989, 991, 993,
-    995, 996, 996, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 249, 4294967295, 4294967295, 4294967295,
+    4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 169, 4294967295, 4294967295, 716, 991, 993, 995,
+    997, 998, 998, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 249, 4294967295, 4294967295, 4294967295,
     4294967295, 321, 619, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 304, 4294967295, 586, 588, 258,
     4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 304, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295,
-    4294967295, 340, 4294967295, 4294967295, 4294967295, 151, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 1006, 4294967295, 4294967295, 4294967295,
+    4294967295, 340, 4294967295, 4294967295, 4294967295, 151, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 1008, 4294967295, 4294967295, 4294967295,
     4294967295, 4294967295, 426, 428, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 151,
     4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295,
-    4294967295, 933, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 1011, 1013, 1011, 4294967295, 4294967295, 4294967295,
-    4294967295, 4294967295, 367, 4294967295, 4294967295, 1017, 1019, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 367,
-    4294967295, 4294967295, 1017, 1019, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 367, 4294967295, 1025,
-    4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 367, 4294967295, 1025, 4294967295, 4294967295, 4294967295, 249, 4294967295, 4294967295, 4294967295,
-    249, 4294967295, 4294967295, 4294967295, 4294967295, 216, 232, 968, 246, 1029, 4294967295, 4294967295, 1031, 4294967295, 4294967295, 4294967295,
-    4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 1035, 1038, 1041, 1043, 1045, 1047, 595,
+    4294967295, 933, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 1013, 1015, 1013, 4294967295, 4294967295, 4294967295,
+    4294967295, 4294967295, 367, 4294967295, 4294967295, 1019, 1021, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 367,
+    4294967295, 4294967295, 1019, 1021, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 367, 4294967295, 1027,
+    4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 367, 4294967295, 1027, 4294967295, 4294967295, 4294967295, 249, 4294967295, 4294967295, 4294967295,
+    249, 4294967295, 4294967295, 4294967295, 4294967295, 216, 232, 969, 246, 1031, 4294967295, 4294967295, 1033, 4294967295, 4294967295, 4294967295,
+    4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 1037, 1040, 1043, 1045, 1047, 1049, 595,
     4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 367, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295,
-    4294967295, 1054, 4294967295, 4294967295, 4294967295, 1056, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 1059, 4294967295, 4294967295, 4294967295,
-    4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 933, 714, 4294967295, 714, 4294967295, 1067, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295,
-    756, 754, 758, 1071, 4294967295, 464, 4294967295, 4294967295, 714, 4294967295, 4294967295, 4294967295, 4294967295, 367, 4294967295, 4294967295,
+    4294967295, 1056, 4294967295, 4294967295, 4294967295, 1058, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 1061, 4294967295, 4294967295, 4294967295,
+    4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 933, 714, 4294967295, 714, 4294967295, 1069, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295,
+    756, 754, 758, 1073, 4294967295, 464, 4294967295, 4294967295, 714, 4294967295, 4294967295, 4294967295, 4294967295, 367, 4294967295, 4294967295,
     4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295,
-    4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 993, 4294967295, 4294967295, 4294967295, 4294967295,
-    4294967295, 4294967295, 4294967295, 1078, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295,
+    4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 995, 4294967295, 4294967295, 4294967295, 4294967295,
+    4294967295, 4294967295, 4294967295, 1080, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295,
     4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 367, 4294967295, 4294967295, 4294967295, 4294967295,
     4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 304, 4294967295, 4294967295, 4294967295, 4294967295,
     4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 324, 4294967295, 367, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295,
-    4294967295, 4294967295, 4294967295, 1083, 948, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295,
-    4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 1054, 4294967295, 4294967295,
+    4294967295, 4294967295, 4294967295, 1085, 948, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295,
+    4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 1056, 4294967295, 4294967295,
     4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 324, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295,
     4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 367, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 367, 4294967295, 4294967295, 4294967295,
-    4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 1099, 1101, 1031, 1103,
-    1105, 216, 724, 948, 231, 1107, 1109, 880, 1111, 877, 1113, 1115, 4294967295, 4294967295, 4294967295, 4294967295,
-    1119, 4294967295, 1121, 4294967295, 4294967295, 216, 4294967295, 1121, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 974, 216, 4294967295,
-    4294967295, 4294967295, 4294967295, 1123, 4294967295, 4294967295, 613, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295,
+    4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 1101, 1103, 1033, 1105,
+    1107, 216, 724, 948, 231, 1109, 1111, 880, 1113, 877, 1115, 1117, 4294967295, 4294967295, 4294967295, 4294967295,
+    1121, 4294967295, 1123, 4294967295, 4294967295, 216, 4294967295, 1123, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 975, 216, 4294967295,
+    4294967295, 4294967295, 4294967295, 1125, 4294967295, 4294967295, 613, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295,
     4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295,
     4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 340, 4294967295, 4294967295,
     4294967295, 4294967295, 340, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295,
@@ -9596,52 +9604,52 @@ pub static SEGMENT_TYPE_OFFSETS: &[u32] = &[
     367, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 494, 4294967295, 4294967295, 4294967295, 4294967295, 249, 4294967295, 4294967295, 4294967295, 4294967295,
     4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295,
     4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 324, 216, 4294967295, 4294967295, 4294967295, 4294967295,
-    1147, 4294967295, 367, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 426, 428, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295,
+    1149, 4294967295, 367, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 426, 428, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295,
     4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295,
     4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295,
-    4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 1156, 4294967295, 1158, 4294967295, 4294967295, 216, 4294967295, 4294967295,
-    4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 1162, 4294967295, 1156, 4294967295, 4294967295, 4294967295, 4294967295,
-    4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 862, 4294967295, 4294967295, 4294967295, 4294967295, 1099, 1119, 724, 1165, 1167, 813,
-    1169, 1171, 231, 1173, 1175, 948, 1169, 862, 864, 866, 4294967295, 4294967295, 4294967295, 4294967295, 1067, 4294967295,
-    4294967295, 1067, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 207, 4294967295, 4294967295, 4294967295,
+    4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 1158, 4294967295, 1160, 4294967295, 4294967295, 216, 4294967295, 4294967295,
+    4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 1164, 4294967295, 1158, 4294967295, 4294967295, 4294967295, 4294967295,
+    4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 862, 4294967295, 4294967295, 4294967295, 4294967295, 1101, 1121, 724, 1167, 1169, 813,
+    1171, 1173, 231, 1175, 1177, 948, 1171, 862, 864, 866, 4294967295, 4294967295, 4294967295, 4294967295, 1069, 4294967295,
+    4294967295, 1069, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 207, 4294967295, 4294967295, 4294967295,
     4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295,
-    4294967295, 4294967295, 4294967295, 1182, 4294967295, 324, 304, 4294967295, 4294967295, 4294967295, 177, 324, 367, 933, 4294967295, 4294967295,
-    4294967295, 4294967295, 4294967295, 862, 4294967295, 231, 948, 1169, 4294967295, 4294967295, 862, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295,
+    4294967295, 4294967295, 4294967295, 1184, 4294967295, 324, 304, 4294967295, 4294967295, 4294967295, 177, 324, 367, 933, 4294967295, 4294967295,
+    4294967295, 4294967295, 4294967295, 862, 4294967295, 231, 948, 1171, 4294967295, 4294967295, 862, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295,
     4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295,
     4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295,
     4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295,
-    735, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 995, 304, 4294967295, 4294967295, 4294967295, 4294967295, 714, 4294967295,
+    735, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 997, 304, 4294967295, 4294967295, 4294967295, 4294967295, 714, 4294967295,
     177, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 714, 4294967295, 177, 716, 367, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295,
     748, 4294967295, 4294967295, 4294967295, 340, 795, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295,
     4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 340, 207, 4294967295, 4294967295, 4294967295,
-    4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 1071, 754, 1199, 1201, 1203, 1205, 1207, 1209, 1211,
-    1213, 1215, 1217, 1219, 1221, 1223, 1225, 1227, 1229, 1231, 1233, 1235, 1237, 758, 756, 1239,
-    1241, 1243, 1245, 1247, 1249, 1251, 1253, 1255, 1257, 1259, 1261, 1263, 1265, 1267, 1269, 1271,
-    1273, 1275, 1277, 1279, 1281, 471, 1283, 1285, 1287, 1289, 1291, 1293, 1295, 1297, 1299, 1301,
-    1303, 1305, 1307, 1309, 1311, 1313, 1315, 1317, 1319, 1321, 1323, 1325, 1327, 1329, 1331, 1333,
-    1335, 1337, 1339, 1341, 1343, 1345, 469, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295,
+    4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 1073, 754, 1201, 1203, 1205, 1207, 1209, 1211, 1213,
+    1215, 1217, 1219, 1221, 1223, 1225, 1227, 1229, 1231, 1233, 1235, 1237, 1239, 758, 756, 1241,
+    1243, 1245, 1247, 1249, 1251, 1253, 1255, 1257, 1259, 1261, 1263, 1265, 1267, 1269, 1271, 1273,
+    1275, 1277, 1279, 1281, 1283, 471, 1285, 1287, 1289, 1291, 1293, 1295, 1297, 1299, 1301, 1303,
+    1305, 1307, 1309, 1311, 1313, 1315, 1317, 1319, 1321, 1323, 1325, 1327, 1329, 1331, 1333, 1335,
+    1337, 1339, 1341, 1343, 1345, 1347, 469, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295,
     4294967295, 346, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 216, 4294967295, 4294967295, 4294967295, 4294967295, 340, 4294967295, 4294967295, 340,
-    4294967295, 522, 258, 4294967295, 4294967295, 1349, 4294967295, 1350, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295,
+    4294967295, 522, 258, 4294967295, 4294967295, 1351, 4294967295, 1352, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295,
     4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 249, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 933, 4294967295, 177, 249, 4294967295,
-    4294967295, 4294967295, 1071, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295,
+    4294967295, 4294967295, 1073, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295,
     4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295,
     4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295,
     4294967295, 4294967295, 4294967295, 4294967295, 655, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295,
     367, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295,
     4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 249, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 340, 716, 4294967295, 340,
     738, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 735, 4294967295, 4294967295, 4294967295,
-    4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 1099, 1119, 724, 1165, 1167, 1171, 813,
-    1169, 862, 864, 866, 231, 948, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 862, 4294967295, 4294967295, 236, 4294967295,
-    4294967295, 4294967295, 4294967295, 4294967295, 976, 216, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 249, 216, 4294967295, 1031, 1119,
+    4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 1101, 1121, 724, 1167, 1169, 1173, 813,
+    1171, 862, 864, 866, 231, 948, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 862, 4294967295, 4294967295, 236, 4294967295,
+    4294967295, 4294967295, 4294967295, 4294967295, 977, 216, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 249, 216, 4294967295, 1033, 1121,
     724, 4294967295, 4294967295, 4294967295, 4294967295, 564, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295,
     4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 367, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 258, 4294967295, 4294967295,
     4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 367, 232, 4294967295, 232, 367, 246, 246, 4294967295, 4294967295, 4294967295, 4294967295,
     4294967295, 367, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295,
-    4294967295, 4294967295, 4294967295, 4294967295, 367, 4294967295, 1383, 4294967295, 4294967295, 4294967295, 4294967295, 426, 4294967295, 4294967295, 4294967295, 4294967295,
-    1384, 4294967295, 157, 1387, 1389, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295,
-    4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 1391, 231, 1393, 4294967295, 4294967295, 4294967295, 232, 4294967295, 1396, 4294967295, 246,
-    4294967295, 4294967295, 4294967295, 4294967295, 232, 4294967295, 1396, 4294967295, 246, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295,
-    4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 1094, 4294967295, 4294967295, 4294967295, 4294967295,
+    4294967295, 4294967295, 4294967295, 4294967295, 367, 4294967295, 1387, 4294967295, 4294967295, 4294967295, 4294967295, 426, 4294967295, 4294967295, 4294967295, 4294967295,
+    1388, 4294967295, 157, 1391, 1393, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295,
+    4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 1395, 231, 1397, 4294967295, 4294967295, 4294967295, 232, 4294967295, 1401, 4294967295, 246,
+    4294967295, 4294967295, 4294967295, 4294967295, 232, 4294967295, 1401, 4294967295, 246, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295,
+    4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 1096, 4294967295, 4294967295, 4294967295, 4294967295,
 ];
 
 pub static SEGMENT_CLASS_OFFSETS: &[u32] = &[
@@ -9786,96 +9794,96 @@ pub static SEGMENT_CLASS_OFFSETS: &[u32] = &[
     4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 176, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295,
     4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 248, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 366, 4294967295, 4294967295, 4294967295,
     4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295,
-    4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 885, 4294967295, 4294967295, 4294967295, 233, 965, 4294967295, 967,
-    4294967295, 247, 4294967295, 4294967295, 4294967295, 885, 965, 4294967295, 4294967295, 885, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 973,
-    975, 215, 4294967295, 4294967295, 477, 4294967295, 4294967295, 366, 247, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295,
+    4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 885, 4294967295, 4294967295, 4294967295, 233, 966, 4294967295, 968,
+    4294967295, 247, 4294967295, 4294967295, 4294967295, 885, 966, 4294967295, 4294967295, 885, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 974,
+    976, 215, 4294967295, 4294967295, 477, 4294967295, 4294967295, 366, 247, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295,
     4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 2, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295,
     4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295,
     4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 366, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 366,
-    4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 787, 4294967295, 4294967295, 715, 988, 990, 992,
-    994, 819, 390, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 248, 4294967295, 4294967295, 4294967295,
+    4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 787, 4294967295, 4294967295, 715, 990, 992, 994,
+    996, 819, 390, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 248, 4294967295, 4294967295, 4294967295,
     4294967295, 320, 618, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 302, 4294967295, 585, 587, 256,
     4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 302, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295,
-    4294967295, 339, 4294967295, 4294967295, 4294967295, 150, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 1005, 4294967295, 4294967295, 4294967295,
+    4294967295, 339, 4294967295, 4294967295, 4294967295, 150, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 1007, 4294967295, 4294967295, 4294967295,
     4294967295, 4294967295, 409, 427, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 150,
     4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295,
-    4294967295, 932, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 1010, 1012, 1014, 4294967295, 4294967295, 4294967295,
-    4294967295, 4294967295, 366, 4294967295, 4294967295, 1016, 1018, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 366,
-    4294967295, 4294967295, 1016, 1018, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 366, 4294967295, 1024,
-    4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 366, 4294967295, 1024, 4294967295, 4294967295, 4294967295, 248, 4294967295, 4294967295, 4294967295,
-    248, 4294967295, 4294967295, 4294967295, 4294967295, 215, 233, 967, 247, 1028, 4294967295, 4294967295, 1030, 4294967295, 4294967295, 4294967295,
-    4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 1034, 1036, 1039, 1042, 1044, 1046, 594,
+    4294967295, 932, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 1012, 1014, 1016, 4294967295, 4294967295, 4294967295,
+    4294967295, 4294967295, 366, 4294967295, 4294967295, 1018, 1020, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 366,
+    4294967295, 4294967295, 1018, 1020, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 366, 4294967295, 1026,
+    4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 366, 4294967295, 1026, 4294967295, 4294967295, 4294967295, 248, 4294967295, 4294967295, 4294967295,
+    248, 4294967295, 4294967295, 4294967295, 4294967295, 215, 233, 968, 247, 1030, 4294967295, 4294967295, 1032, 4294967295, 4294967295, 4294967295,
+    4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 1036, 1038, 1041, 1044, 1046, 1048, 594,
     4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 366, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295,
-    4294967295, 1053, 4294967295, 4294967295, 4294967295, 1055, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 1060, 4294967295, 4294967295, 4294967295,
-    4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 932, 1065, 4294967295, 713, 4294967295, 1066, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295,
-    755, 753, 757, 1070, 4294967295, 463, 4294967295, 4294967295, 713, 4294967295, 4294967295, 4294967295, 4294967295, 366, 4294967295, 4294967295,
+    4294967295, 1055, 4294967295, 4294967295, 4294967295, 1057, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 1062, 4294967295, 4294967295, 4294967295,
+    4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 932, 1067, 4294967295, 713, 4294967295, 1068, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295,
+    755, 753, 757, 1072, 4294967295, 463, 4294967295, 4294967295, 713, 4294967295, 4294967295, 4294967295, 4294967295, 366, 4294967295, 4294967295,
     4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295,
-    4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 992, 4294967295, 4294967295, 4294967295, 4294967295,
-    4294967295, 4294967295, 4294967295, 1077, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295,
+    4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 994, 4294967295, 4294967295, 4294967295, 4294967295,
+    4294967295, 4294967295, 4294967295, 1079, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295,
     4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 366, 4294967295, 4294967295, 4294967295, 4294967295,
     4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 302, 4294967295, 4294967295, 4294967295, 4294967295,
     4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 323, 4294967295, 366, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295,
-    4294967295, 4294967295, 4294967295, 1082, 947, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295,
-    4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 1053, 4294967295, 4294967295,
+    4294967295, 4294967295, 4294967295, 1084, 947, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295,
+    4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 1055, 4294967295, 4294967295,
     4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 323, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295,
     4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 366, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 366, 4294967295, 4294967295, 4294967295,
-    4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 1098, 1100, 1030, 1102,
-    1104, 215, 722, 947, 229, 1106, 1108, 879, 1110, 875, 1112, 1114, 4294967295, 4294967295, 4294967295, 4294967295,
-    1118, 4294967295, 1120, 4294967295, 4294967295, 215, 4294967295, 1120, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 973, 215, 4294967295,
-    4294967295, 4294967295, 4294967295, 1122, 4294967295, 4294967295, 612, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295,
+    4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 1100, 1102, 1032, 1104,
+    1106, 215, 722, 947, 229, 1108, 1110, 879, 1112, 875, 1114, 1116, 4294967295, 4294967295, 4294967295, 4294967295,
+    1120, 4294967295, 1122, 4294967295, 4294967295, 215, 4294967295, 1122, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 974, 215, 4294967295,
+    4294967295, 4294967295, 4294967295, 1124, 4294967295, 4294967295, 612, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295,
     4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295,
     4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 339, 4294967295, 4294967295,
     4294967295, 4294967295, 339, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295,
     366, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 302,
-    366, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 1139, 4294967295, 4294967295, 4294967295, 4294967295, 248, 4294967295, 4294967295, 4294967295, 4294967295,
+    366, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 1141, 4294967295, 4294967295, 4294967295, 4294967295, 248, 4294967295, 4294967295, 4294967295, 4294967295,
     4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295,
     4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 323, 215, 4294967295, 4294967295, 4294967295, 4294967295,
-    1146, 4294967295, 366, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 409, 427, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295,
+    1148, 4294967295, 366, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 409, 427, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295,
     4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295,
     4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295,
-    4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 1155, 4294967295, 1157, 4294967295, 4294967295, 215, 4294967295, 4294967295,
-    4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 1161, 4294967295, 1155, 4294967295, 4294967295, 4294967295, 4294967295,
-    4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 861, 4294967295, 4294967295, 4294967295, 4294967295, 1098, 1118, 722, 1164, 1166, 811,
-    1168, 1170, 229, 1172, 1174, 947, 1168, 861, 863, 865, 4294967295, 4294967295, 4294967295, 4294967295, 1066, 4294967295,
-    4294967295, 1176, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 206, 4294967295, 4294967295, 4294967295,
+    4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 1157, 4294967295, 1159, 4294967295, 4294967295, 215, 4294967295, 4294967295,
+    4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 1163, 4294967295, 1157, 4294967295, 4294967295, 4294967295, 4294967295,
+    4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 861, 4294967295, 4294967295, 4294967295, 4294967295, 1100, 1120, 722, 1166, 1168, 811,
+    1170, 1172, 229, 1174, 1176, 947, 1170, 861, 863, 865, 4294967295, 4294967295, 4294967295, 4294967295, 1068, 4294967295,
+    4294967295, 1178, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 206, 4294967295, 4294967295, 4294967295,
     4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295,
-    4294967295, 4294967295, 4294967295, 1181, 4294967295, 323, 302, 4294967295, 4294967295, 4294967295, 176, 323, 366, 932, 4294967295, 4294967295,
-    4294967295, 4294967295, 4294967295, 861, 4294967295, 229, 947, 1168, 4294967295, 4294967295, 861, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295,
+    4294967295, 4294967295, 4294967295, 1183, 4294967295, 323, 302, 4294967295, 4294967295, 4294967295, 176, 323, 366, 932, 4294967295, 4294967295,
+    4294967295, 4294967295, 4294967295, 861, 4294967295, 229, 947, 1170, 4294967295, 4294967295, 861, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295,
     4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295,
     4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295,
     4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295,
-    734, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 994, 302, 4294967295, 4294967295, 4294967295, 4294967295, 713, 4294967295,
+    734, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 996, 302, 4294967295, 4294967295, 4294967295, 4294967295, 713, 4294967295,
     176, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 713, 4294967295, 176, 715, 366, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295,
     747, 4294967295, 4294967295, 4294967295, 339, 794, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295,
     4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 657, 206, 4294967295, 4294967295, 4294967295,
-    4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 1070, 753, 1198, 1200, 1202, 1204, 1206, 1208, 1210,
-    1212, 1214, 1216, 1218, 1220, 1222, 1224, 1226, 1228, 1230, 1232, 1234, 1236, 757, 755, 1238,
-    1240, 1242, 1244, 1246, 1248, 1250, 1252, 1254, 1256, 1258, 1260, 1262, 1264, 1266, 1268, 1270,
-    1272, 1274, 1276, 1278, 1280, 470, 1282, 1284, 1286, 1288, 1290, 1292, 1294, 1296, 1298, 1300,
-    1302, 1304, 1306, 1308, 1310, 1312, 1314, 1316, 1318, 1320, 1322, 1324, 1326, 1328, 1330, 1332,
-    1334, 1336, 1338, 1340, 1342, 1344, 468, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295,
-    4294967295, 1347, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 215, 4294967295, 4294967295, 4294967295, 4294967295, 339, 4294967295, 4294967295, 339,
-    4294967295, 521, 256, 4294967295, 4294967295, 1348, 4294967295, 241, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295,
+    4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 1072, 753, 1200, 1202, 1204, 1206, 1208, 1210, 1212,
+    1214, 1216, 1218, 1220, 1222, 1224, 1226, 1228, 1230, 1232, 1234, 1236, 1238, 757, 755, 1240,
+    1242, 1244, 1246, 1248, 1250, 1252, 1254, 1256, 1258, 1260, 1262, 1264, 1266, 1268, 1270, 1272,
+    1274, 1276, 1278, 1280, 1282, 470, 1284, 1286, 1288, 1290, 1292, 1294, 1296, 1298, 1300, 1302,
+    1304, 1306, 1308, 1310, 1312, 1314, 1316, 1318, 1320, 1322, 1324, 1326, 1328, 1330, 1332, 1334,
+    1336, 1338, 1340, 1342, 1344, 1346, 468, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295,
+    4294967295, 1349, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 215, 4294967295, 4294967295, 4294967295, 4294967295, 339, 4294967295, 4294967295, 339,
+    4294967295, 521, 256, 4294967295, 4294967295, 1350, 4294967295, 241, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295,
     4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 248, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 932, 4294967295, 176, 248, 4294967295,
-    4294967295, 4294967295, 1070, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295,
+    4294967295, 4294967295, 1072, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295,
     4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295,
     4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295,
     4294967295, 4294967295, 4294967295, 4294967295, 654, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295,
     366, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295,
     4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 248, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 657, 715, 4294967295, 658,
-    1371, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 734, 4294967295, 4294967295, 4294967295,
-    4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 1098, 1118, 722, 1164, 1166, 1170, 811,
-    1168, 861, 863, 865, 229, 947, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 861, 4294967295, 4294967295, 234, 4294967295,
-    4294967295, 4294967295, 4294967295, 4294967295, 975, 215, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 248, 215, 4294967295, 1030, 1118,
+    1373, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 734, 4294967295, 4294967295, 4294967295,
+    4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 1100, 1120, 722, 1166, 1168, 1172, 811,
+    1170, 861, 863, 865, 229, 947, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 861, 4294967295, 4294967295, 234, 4294967295,
+    4294967295, 4294967295, 4294967295, 4294967295, 976, 215, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 248, 215, 4294967295, 1032, 1120,
     722, 4294967295, 4294967295, 4294967295, 4294967295, 563, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295,
     4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 366, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 256, 4294967295, 4294967295,
     4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 366, 233, 4294967295, 477, 366, 247, 247, 4294967295, 4294967295, 4294967295, 4294967295,
     4294967295, 366, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295,
-    4294967295, 4294967295, 4294967295, 4294967295, 366, 4294967295, 1382, 4294967295, 4294967295, 4294967295, 4294967295, 409, 4294967295, 4294967295, 4294967295, 4294967295,
-    1385, 4294967295, 156, 1386, 1388, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295,
-    4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 1390, 229, 1392, 4294967295, 4294967295, 4294967295, 233, 4294967295, 1395, 4294967295, 247,
-    4294967295, 4294967295, 4294967295, 4294967295, 233, 4294967295, 1395, 4294967295, 247, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295,
-    4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 1096, 4294967295, 4294967295, 4294967295, 4294967295,
+    4294967295, 4294967295, 4294967295, 4294967295, 366, 4294967295, 1386, 4294967295, 4294967295, 4294967295, 4294967295, 409, 4294967295, 4294967295, 4294967295, 4294967295,
+    1389, 4294967295, 156, 1390, 1392, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295,
+    4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 1394, 229, 1396, 4294967295, 4294967295, 4294967295, 233, 4294967295, 1400, 4294967295, 247,
+    4294967295, 4294967295, 4294967295, 4294967295, 233, 4294967295, 1400, 4294967295, 247, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295,
+    4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 1098, 4294967295, 4294967295, 4294967295, 4294967295,
 ];
 
 pub static REGEX_PATTERNS: &[&str] = &[
@@ -9884,7 +9892,7 @@ pub static REGEX_PATTERNS: &[&str] = &[
     r#"^(STRUCT|ARRAY)$"#, // [2]
     r#"`[^`]*`"#, // [3]
     r#"[A-Z0-9_]+"#, // [4]
-    r#"^(IF|CORRESPONDING|TABLESAMPLE|INNER|LIKE|ASSERT_ROWS_MODIFIED|CURRENT|PRIMARY|END|TRUE|WINDOW|OR|DEFINE|CAST|CASE|IGNORE|ALL|CROSS|LATERAL|UNION|RESPECT|NULL|FOR|UNNEST|FETCH|SELECT|SET|PROTO|LIMIT|GROUPS|AGGREGATE|ESCAPE|ROLLUP|ORDER|WHEN|PARTITION|HAVING|ANY|CLONE|NULLS|RANGE|NO|IN|ENUM|UNPIVOT|FROM|OF|LOOKUP|FOLLOWING|COLLATE|RECURSIVE|THEN|NOT|EXCEPT|INTERVAL|EXTEND|ARRAY|OUTER|EXCLUDE|UNBOUNDED|DESC|DEFAULT|WITH|EXISTS|OVER|BETWEEN|USING|ON|BY|MERGE|PIVOT|INTERSECT|GROUP|INCLUDE|CREATE|AND|FULL|SOME|INTO|RIGHT|STRUCT|GROUPING|TO|JOIN|TREAT|PRECEDING|ASC|FALSE|WHERE|AT|LEFT|CUBE|WITHIN|ELSE|AS|CONTAINS|HASH|DISTINCT|NEW|IS|ROWS)$"#, // [5]
+    r#"^(GROUPS|IGNORE|BY|CREATE|DEFINE|EXCLUDE|WHERE|INCLUDE|COLLATE|PRECEDING|DISTINCT|ASC|FETCH|PARTITION|AS|EXTEND|INTERSECT|IF|STRUCT|AT|LEFT|NULLS|ROWS|INNER|NEW|RECURSIVE|GROUP|WITH|SET|OF|SELECT|RIGHT|USING|CROSS|NULL|HAVING|CAST|LOOKUP|BETWEEN|FOLLOWING|ROLLUP|LIKE|FALSE|EXCEPT|PIVOT|ANY|AGGREGATE|GROUPING|NOT|TO|LATERAL|UNBOUNDED|PROTO|RESPECT|ORDER|FROM|HASH|ON|DESC|INTO|CORRESPONDING|IN|AND|INTERVAL|THEN|FOR|FULL|UNION|CONTAINS|TABLESAMPLE|END|WHEN|PRIMARY|TRUE|UNNEST|DEFAULT|CUBE|ASSERT_ROWS_MODIFIED|RANGE|TREAT|WITHIN|MERGE|WINDOW|UNPIVOT|ENUM|OUTER|NO|ESCAPE|OR|ELSE|CASE|EXISTS|ARRAY|SOME|ALL|LIMIT|OVER|JOIN|CURRENT|CLONE|IS)$"#, // [5]
     r#"STRUCT"#, // [6]
 ];
 
@@ -10733,35 +10741,35 @@ pub static HINT_STRING_INDICES: &[u32] = &[
     763, // [841]
     763, // [842]
     763, // [843]
-    999, // [844]
-    999, // [845]
+    1001, // [844]
+    1001, // [845]
     827, // [846]
-    1003, // [847]
+    1005, // [847]
     421, // [848]
-    1008, // [849]
+    1010, // [849]
     10, // [850]
     27, // [851]
-    1021, // [852]
-    1023, // [853]
-    1037, // [854]
-    1040, // [855]
-    1052, // [856]
+    1023, // [852]
+    1025, // [853]
+    1039, // [854]
+    1042, // [855]
+    1054, // [856]
     10, // [857]
     13, // [858]
     421, // [859]
     27, // [860]
     110, // [861]
     22, // [862]
-    1061, // [863]
-    1062, // [864]
-    1063, // [865]
-    1064, // [866]
-    1061, // [867]
-    1063, // [868]
-    1062, // [869]
-    1064, // [870]
+    1063, // [863]
+    1064, // [864]
+    1065, // [865]
+    1066, // [866]
+    1063, // [867]
+    1065, // [868]
+    1064, // [869]
+    1066, // [870]
     444, // [871]
-    1081, // [872]
+    1083, // [872]
     820, // [873]
     847, // [874]
     849, // [875]
@@ -10772,28 +10780,28 @@ pub static HINT_STRING_INDICES: &[u32] = &[
     854, // [880]
     855, // [881]
     286, // [882]
-    1088, // [883]
+    1090, // [883]
     168, // [884]
     167, // [885]
     351, // [886]
     318, // [887]
     245, // [888]
-    1094, // [889]
+    1096, // [889]
     138, // [890]
     955, // [891]
-    1086, // [892]
-    1086, // [893]
+    1088, // [892]
+    1088, // [893]
     955, // [894]
     422, // [895]
-    1032, // [896]
+    1034, // [896]
     202, // [897]
     283, // [898]
     203, // [899]
     255, // [900]
     283, // [901]
-    1149, // [902]
+    1151, // [902]
     423, // [903]
-    1097, // [904]
+    1099, // [904]
     6, // [905]
     235, // [906]
     726, // [907]
@@ -10833,11 +10841,11 @@ pub static HINT_STRING_INDICES: &[u32] = &[
     853, // [941]
     193, // [942]
     555, // [943]
-    1185, // [944]
-    1050, // [945]
+    1187, // [944]
+    1052, // [945]
     555, // [946]
-    1185, // [947]
-    1185, // [948]
+    1187, // [947]
+    1187, // [948]
     555, // [949]
     405, // [950]
     412, // [951]
@@ -10847,12 +10855,12 @@ pub static HINT_STRING_INDICES: &[u32] = &[
     313, // [955]
     314, // [956]
     181, // [957]
-    1361, // [958]
-    1361, // [959]
-    1364, // [960]
+    1363, // [958]
+    1363, // [959]
+    1366, // [960]
     412, // [961]
     424, // [962]
-    1366, // [963]
+    1368, // [963]
     644, // [964]
     167, // [965]
     168, // [966]
@@ -10872,7 +10880,7 @@ pub static HINT_STRING_INDICES: &[u32] = &[
     855, // [980]
     230, // [981]
     568, // [982]
-    1140, // [983]
+    1142, // [983]
     452, // [984]
 ];
 

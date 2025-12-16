@@ -25,7 +25,7 @@ WHERE pos1 = pos2;"#;
 
     assert!(lex_errors.is_empty(), "Lexer errors: {:?}", lex_errors);
 
-    let mut parser = Parser::new(&tokens, Dialect::Ansi);
+    let mut parser = Parser::new(&tokens, Dialect::Ansi, hashbrown::HashMap::new());
     let ast = parser.call_rule_as_root();
 
     match &ast {

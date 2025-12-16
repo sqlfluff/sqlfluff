@@ -13,7 +13,7 @@ fn main() {
     let lexer = Lexer::new(None, ANSI_LEXERS.to_vec());
     let (tokens, _) = lexer.lex(input, false);
 
-    let mut parser = Parser::new(&tokens, dialect);
+    let mut parser = Parser::new(&tokens, dialect, hashbrown::HashMap::new());
 
     match parser.call_rule("SelectStatementSegment", &[]) {
         Ok(ast) => {

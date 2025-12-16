@@ -253,6 +253,27 @@ impl<'a> GrammarContext<'a> {
         (start_id, end_id)
     }
 
+    /// Get conditional configuration from aux_data (for Meta variant with Conditional)
+    /// Returns: (meta_type, config_key, expected_value)
+    /// where meta_type is "indent" or "dedent", config_key is like "indented_joins",
+    /// and expected_value is true/false
+    #[inline]
+    pub fn conditional_config(&self, id: GrammarId) -> (&'static str, &'static str, bool) {
+        let inst = self.inst(id);
+        debug_assert_eq!(inst.variant, GrammarVariant::Meta);
+
+        let aux_offset = self.tables.aux_data_offsets[id.get() as usize] as usize;
+        let meta_type_id = self.tables.aux_data[aux_offset];
+        let config_key_id = self.tables.aux_data[aux_offset + 1];
+        let expected_value_int = self.tables.aux_data[aux_offset + 2];
+
+        let meta_type = self.tables.get_string(meta_type_id);
+        let config_key = self.tables.get_string(config_key_id);
+        let expected_value = expected_value_int != 0;
+
+        (meta_type, config_key, expected_value)
+    }
+
     /// Get persists flag for Bracketed variant (from aux_data)
     #[inline]
     pub fn bracketed_persists(&self, id: GrammarId) -> bool {

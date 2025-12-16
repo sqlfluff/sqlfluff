@@ -22,7 +22,7 @@ fn table_driven_select_parses() {
     }
 
     // Create parser using the RootGrammar
-    let mut parser = Parser::new(&tokens, dialect);
+    let mut parser = Parser::new(&tokens, dialect, hashbrown::HashMap::new());
 
     // Parse starting from the root
     let node = parser

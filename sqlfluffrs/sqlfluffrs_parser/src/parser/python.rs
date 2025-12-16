@@ -449,6 +449,12 @@ impl PyMatchResult {
             .collect()
     }
 
+    /// Get parse_error (error message and token position) if present
+    #[getter]
+    fn parse_error(&self) -> Option<(String, usize)> {
+        self.0.parse_error.clone()
+    }
+
     /// Check if this is an empty match
     fn is_empty(&self) -> bool {
         self.0.matched_slice.is_empty()
@@ -480,18 +486,39 @@ impl PyMatchResult {
 #[pyclass(name = "RsParser", module = "sqlfluffrs")]
 pub struct PyParser {
     dialect: Dialect,
+    indent_config: hashbrown::HashMap<&'static str, bool>,
 }
 
 #[pymethods]
 impl PyParser {
     #[new]
-    #[pyo3(signature = (dialect=None))]
-    pub fn new(dialect: Option<&str>) -> PyResult<Self> {
+    #[pyo3(signature = (dialect=None, indent_config=None))]
+    pub fn new(
+        dialect: Option<&str>,
+        indent_config: Option<std::collections::HashMap<String, bool>>,
+    ) -> PyResult<Self> {
         let dialect = dialect
             .and_then(|d| Dialect::from_str(d).ok())
             .unwrap_or(Dialect::Ansi);
 
-        Ok(PyParser { dialect })
+        // Convert Python HashMap<String, bool> to Rust HashMap<&'static str, bool>
+        // by leaking the strings to get 'static references
+        let indent_config = if let Some(config) = indent_config {
+            config
+                .into_iter()
+                .map(|(k, v)| {
+                    let static_key: &'static str = Box::leak(k.into_boxed_str());
+                    (static_key, v)
+                })
+                .collect()
+        } else {
+            hashbrown::HashMap::new()
+        };
+
+        Ok(PyParser {
+            dialect,
+            indent_config,
+        })
     }
 
     /// Parse SQL from tokens (standalone mode)
@@ -502,7 +529,7 @@ impl PyParser {
         let rust_tokens: Vec<Token> = tokens.into_iter().map(|t| t.into()).collect();
 
         // Create parser
-        let mut parser = Parser::new(&rust_tokens, self.dialect);
+        let mut parser = Parser::new(&rust_tokens, self.dialect, self.indent_config.clone());
 
         // Parse and convert result
         let node = parser
@@ -536,7 +563,7 @@ impl PyParser {
         }
 
         // Parse
-        let mut parser = Parser::new(&tokens, self.dialect);
+        let mut parser = Parser::new(&tokens, self.dialect, self.indent_config.clone());
         let node = parser
             .call_rule_as_root()
             .map_err(|e| PyErr::new::<pyo3::exceptions::PyRuntimeError, _>(e.message))?;
@@ -560,7 +587,7 @@ impl PyParser {
         let rust_tokens: Vec<Token> = tokens.into_iter().map(|t| t.into()).collect();
 
         // Create parser
-        let mut parser = Parser::new(&rust_tokens, self.dialect);
+        let mut parser = Parser::new(&rust_tokens, self.dialect, self.indent_config.clone());
 
         // Parse and get the MatchResult directly
         let match_result = parser

@@ -415,7 +415,25 @@ impl Parser<'_> {
                         stack.push(&mut frame);
                         Ok(TableFrameResult::Done)
                     } else {
-                        panic!("Couldn't find closing bracket for opening bracket");
+                        // GREEDY mode: Create parse error result for unclosed bracket
+                        // Python parity: raises SQLParseError which gets caught and converted to violation
+                        log::debug!(
+                            "Bracketed[table] GREEDY mode: No closing bracket found at EOF, creating parse error result"
+                        );
+
+                        // Create error result with position at opening bracket
+                        let error_match = MatchResult::with_error(
+                            frame.pos,
+                            self.pos,
+                            "No closing bracket found for opening bracket.".to_string(),
+                            frame.pos, // Error at opening bracket position
+                        );
+
+                        self.commit_collection_checkpoint(frame.frame_id);
+                        stack
+                            .results
+                            .insert(frame.frame_id, (error_match, self.pos, None));
+                        return Ok(TableFrameResult::Done);
                     }
                 } else {
                     // STRICT mode check: All content elements must end at the closing bracket position

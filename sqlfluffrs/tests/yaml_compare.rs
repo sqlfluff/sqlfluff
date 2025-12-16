@@ -152,7 +152,8 @@ fn test_yaml_comparison_ansi_arithmetic_a() {
     let (tokens, lex_errors) = lexer.lex(input, false);
     assert!(lex_errors.is_empty(), "Lexer errors: {:?}", lex_errors);
 
-    let mut parser = sqlfluffrs_parser::parser::Parser::new(&tokens, dialect);
+    let mut parser =
+        sqlfluffrs_parser::parser::Parser::new(&tokens, dialect, hashbrown::HashMap::new());
     let ast = parser.call_rule_as_root().expect("Parse error");
 
     println!("\n=== AST ===");
@@ -187,7 +188,8 @@ fn test_yaml_comparison_tsql_sqlcmd_command() {
     let (tokens, lex_errors) = lexer.lex(input, false);
     assert!(lex_errors.is_empty(), "Lexer errors: {:?}", lex_errors);
 
-    let mut parser = sqlfluffrs_parser::parser::Parser::new(&tokens, dialect);
+    let mut parser =
+        sqlfluffrs_parser::parser::Parser::new(&tokens, dialect, hashbrown::HashMap::new());
     let ast = parser.call_rule_as_root().expect("Parse error");
 
     // Generate YAML

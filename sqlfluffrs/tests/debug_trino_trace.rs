@@ -42,7 +42,7 @@ fn test_sql(sql: &str) {
     println!("\nTokens: {} total", tokens.len());
 
     // Parse
-    let mut parser = Parser::new(&tokens, dialect);
+    let mut parser = Parser::new(&tokens, dialect, hashbrown::HashMap::new());
     let result = parser.call_rule_as_root();
 
     match result {

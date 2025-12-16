@@ -28,7 +28,7 @@ fn main() {
     println!("\n=== Parsing ===\n");
 
     // Parse
-    let mut parser = Parser::new(&tokens, dialect);
+    let mut parser = Parser::new(&tokens, dialect, hashbrown::HashMap::new());
     parser.set_cache_enabled(true);
     match parser.call_rule_as_root() {
         Ok(ast) => {

@@ -33,7 +33,7 @@ fn test_sql(raw: &str) {
         println!("  [{:2}] {:20} | {:?}", i, tok.get_type(), tok.raw());
     }
 
-    let mut parser = Parser::new(&tokens, dialect);
+    let mut parser = Parser::new(&tokens, dialect, hashbrown::HashMap::new());
 
     println!("\nParsing...");
     match parser.call_rule("SelectStatementSegment", &[]) {

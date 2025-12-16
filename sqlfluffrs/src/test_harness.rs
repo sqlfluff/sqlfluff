@@ -95,7 +95,7 @@ impl FixtureTest {
             };
         }
 
-        let mut parser = Parser::new(&tokens, dialect);
+        let mut parser = Parser::new(&tokens, dialect, hashbrown::HashMap::new());
 
         // Try to parse as a file (top-level rule)
         // FileSegment always has segment_type "file"
@@ -495,7 +495,7 @@ mod tests {
         let lexer = Lexer::new(None, Dialect::get_lexers(&dialect).clone());
         let (tokens, _errors) = lexer.lex(input, false);
 
-        let mut parser = Parser::new(&tokens, dialect);
+        let mut parser = Parser::new(&tokens, dialect, hashbrown::HashMap::new());
         let _ast = parser.call_rule_as_root().expect("Parse failed");
 
         // Print pruning statistics
@@ -514,7 +514,7 @@ mod tests {
         let lexer = Lexer::new(None, Dialect::get_lexers(&dialect).clone());
         let (tokens, _errors) = lexer.lex(input, false);
 
-        let mut parser = Parser::new(&tokens, dialect);
+        let mut parser = Parser::new(&tokens, dialect, hashbrown::HashMap::new());
         let _ast = parser.call_rule_as_root().expect("Parse failed");
 
         // Print cache statistics for complex query
@@ -578,7 +578,7 @@ mod whitespace_tests {
             );
         }
 
-        let mut parser = Parser::new(&tokens, dialect);
+        let mut parser = Parser::new(&tokens, dialect, hashbrown::HashMap::new());
         let ast = parser.call_rule_as_root().expect("Parse failed");
 
         println!("\n=== AST STRUCTURE ===");
@@ -638,7 +638,7 @@ mod whitespace_tests {
             );
         }
 
-        let mut parser = Parser::new(&tokens, dialect);
+        let mut parser = Parser::new(&tokens, dialect, hashbrown::HashMap::new());
         let ast = parser.call_rule_as_root().expect("Parse failed");
 
         let mut ast_positions = HashSet::new();

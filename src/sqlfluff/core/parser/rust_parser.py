@@ -61,8 +61,19 @@ class RustParser:
         # Import here to avoid circular dependencies
         from sqlfluffrs import RsParser
 
+        # Extract indentation config and convert boolean values only
+        indent_config = self.config.get_section("indentation") or {}
+        if indent_config:
+            # Only keep boolean config values for conditional evaluation
+            # Non-boolean values like "indent_unit": "space" are not needed for conditionals
+            indent_config = {
+                k: v for k, v in indent_config.items() if isinstance(v, bool)
+            }
+
         # Create the Rust parser
-        self._rs_parser = RsParser(dialect=self.config.get("dialect"))
+        self._rs_parser = RsParser(
+            dialect=self.config.get("dialect"), indent_config=indent_config
+        )
 
     def parse(
         self,
@@ -161,7 +172,23 @@ class RustParser:
             return None
 
         # Convert RsMatchResult to Python MatchResult
-        py_match_result = self._convert_rs_match_result(rs_match_result)
+        # This also extracts any parse errors
+        py_match_result, parse_errors = self._convert_rs_match_result(rs_match_result)
+
+        # Check for parse errors and raise the first one
+        # (Python parser would have raised during parsing)
+        if parse_errors:
+            error_msg, error_pos = parse_errors[0]
+            # Get the segment at error position for its position marker
+            if error_pos < len(segments[_start_idx:_end_idx]):
+                error_segment = segments[_start_idx + error_pos]
+                if hasattr(error_segment, "pos_marker") and error_segment.pos_marker:
+                    from sqlfluff.core.errors import SQLParseError
+
+                    raise SQLParseError(
+                        error_msg,
+                        segment=error_segment,
+                    )
 
         # Apply the match result to construct the BaseSegment tree
         # PYTHON PARITY: Pass only the code portion (segments[_start_idx:_end_idx])
@@ -174,24 +201,123 @@ class RustParser:
             _start_idx + py_match_result.matched_slice.stop : _end_idx
         ]
 
+        # PYTHON PARITY: If there are unmatched code segments, wrap them in UnparsableSegment
+        # This matches the logic in FileSegment.root_parse() lines 98-111
+        if _unmatched:
+            # Find the first code segment in unmatched
+            _first_code_idx = 0
+            for _first_code_idx in range(len(_unmatched)):
+                if _unmatched[_first_code_idx].is_code:
+                    break
+
+            # If we found code segments, create an UnparsableSegment
+            if (
+                _first_code_idx < len(_unmatched)
+                and _unmatched[_first_code_idx].is_code
+            ):
+                from sqlfluff.core.parser.segments.base import UnparsableSegment
+
+                unparsable = UnparsableSegment(
+                    _unmatched[_first_code_idx:],
+                    expected="Nothing else in FileSegment.",
+                )
+                content = result_segments + _unmatched[:_first_code_idx] + (unparsable,)
+            else:
+                # No code segments in unmatched, just add them as-is
+                content = result_segments + _unmatched
+        else:
+            content = result_segments + _unmatched
+
         # Wrap in FileSegment following root_parse pattern
         dialect = self.config.get("dialect_obj")
         file_segment_cls = dialect.get_segment("FileSegment")
 
-        # PYTHON PARITY: Reassemble with leading non-code + matched + unmatched + trailing non-code
-        content = result_segments + _unmatched
+        # PYTHON PARITY: Reassemble with leading non-code + content + trailing non-code
         final_segments = segments[:_start_idx] + content + segments[_end_idx:]
 
         result = file_segment_cls(segments=final_segments, fname=fname)
+
+        # PYTHON PARITY: Post-process to wrap unparsed brackets in UnparsableSegment
+        # This handles cases where brackets appear as raw CodeSegments inside expressions
+        result = self._wrap_unparsed_brackets(result)
 
         if parse_statistics:
             print("Warning: parse_statistics not yet implemented for Rust parser")
 
         return result
 
+    def _wrap_unparsed_brackets(self, segment: "BaseSegment") -> "BaseSegment":
+        """Post-process parsed tree to wrap unparsed brackets in UnparsableSegment.
+
+        This handles cases where opening brackets without matching closing brackets
+        appear as raw CodeSegments inside parsed expressions.
+        """
+        from sqlfluff.core.parser.segments.base import UnparsableSegment
+
+        # Recursively process children
+        if not hasattr(segment, "segments") or not segment.segments:
+            return segment
+
+        new_segments = []
+        i = 0
+        modified = False
+        while i < len(segment.segments):
+            child = segment.segments[i]
+
+            # Check if this is an unparsed opening bracket
+            # CodeSegment is the raw segment type, check by class name
+            if (
+                type(child).__name__ == "CodeSegment"
+                and child.raw in ("(", "[", "{")
+                and child.is_code
+            ):
+                # This is an unparsed bracket - wrap it and following tokens in UnparsableSegment
+                # Find all tokens until we hit a non-code or reach end
+                unparsable_segments = [child]
+                i += 1
+                while i < len(segment.segments):
+                    next_seg = segment.segments[i]
+                    if not next_seg.is_code:
+                        break
+                    unparsable_segments.append(next_seg)
+                    i += 1
+
+                # Create UnparsableSegment
+                unparsable = UnparsableSegment(
+                    tuple(unparsable_segments),
+                    expected=f"Closing bracket for '{child.raw}'",
+                )
+                new_segments.append(unparsable)
+                modified = True
+            else:
+                # Recursively process this child
+                processed_child = self._wrap_unparsed_brackets(child)
+                new_segments.append(processed_child)
+                # Check if child was modified (different object)
+                if processed_child is not child:
+                    modified = True
+                i += 1
+
+        # Return a new segment with updated children if any changed
+        if modified:
+            # FileSegment has a different constructor signature
+            if type(segment).__name__ == "FileSegment":
+                return segment.__class__(
+                    segments=tuple(new_segments),
+                    pos_marker=segment.pos_marker,
+                    fname=getattr(segment, "fname", None),
+                )
+            else:
+                return segment.__class__(
+                    segments=tuple(new_segments),
+                    pos_marker=segment.pos_marker,
+                    uuid=segment.uuid,
+                )
+        return segment
+
     def _convert_rs_match_result(
         self, rs_match: "RsMatchResult", depth: int = 0
-    ) -> MatchResult:
+    ) -> tuple[MatchResult, list[tuple[str, int]]]:
         """Convert Rust MatchResult to Python MatchResult.
 
         Args:
@@ -199,17 +325,28 @@ class RustParser:
             depth: Current recursion depth for debugging
 
         Returns:
-            Python MatchResult with equivalent structure
+            Tuple of (Python MatchResult with equivalent structure, list of parse errors)
+            Parse errors are tuples of (error_message, token_position)
         """
+        # Collect parse errors from this match and all children
+        parse_errors = []
+
+        # Check if this match has a parse error
+        if hasattr(rs_match, "parse_error") and rs_match.parse_error:
+            parse_errors.append(rs_match.parse_error)
+
         # Get the matched slice
         start, stop = rs_match.matched_slice
         matched_slice = slice(start, stop)
 
-        # Convert child matches recursively
-        child_matches = tuple(
-            self._convert_rs_match_result(child, depth + 1)
-            for child in rs_match.child_matches
-        )
+        # Convert child matches recursively and collect their errors
+        child_matches_list = []
+        for child in rs_match.child_matches:
+            child_match, child_errors = self._convert_rs_match_result(child, depth + 1)
+            child_matches_list.append(child_match)
+            parse_errors.extend(child_errors)
+
+        child_matches = tuple(child_matches_list)
 
         # Determine matched_class
         # The Rust parser now includes actual Python class names (from codegen)
@@ -245,13 +382,15 @@ class RustParser:
                 for idx, seg_type in rs_match.insert_segments
             )
 
-        return MatchResult(
+        match_result = MatchResult(
             matched_slice=matched_slice,
             matched_class=matched_class,
             child_matches=child_matches,
             segment_kwargs=segment_kwargs,
             insert_segments=insert_segments,
         )
+
+        return match_result, parse_errors
 
     def _extract_tokens_from_segments(
         self, segments: tuple["BaseSegment", ...]

@@ -27,7 +27,7 @@ fn parse_and_find(sql: &str, grammar_name: &str, expected: &str) -> bool {
     }
 
     // Parse starting from the requested segment grammar.
-    let mut parser = Parser::new(&tokens, dialect);
+    let mut parser = Parser::new(&tokens, dialect, hashbrown::HashMap::new());
     let node = parser
         .parse_table_iterative(segment_grammar.grammar_id, &[])
         .expect("parse_table_driven_iterative should not error");

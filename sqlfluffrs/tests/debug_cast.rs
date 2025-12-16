@@ -32,7 +32,7 @@ FROM bear_inventory;"#;
     }
 
     let dialect = Dialect::Ansi;
-    let mut parser = Parser::new(&tokens, dialect);
+    let mut parser = Parser::new(&tokens, dialect, hashbrown::HashMap::new());
     let ast = parser.call_rule_as_root();
 
     match &ast {
@@ -93,7 +93,7 @@ fn test_select_from_debug() {
     }
 
     let dialect = Dialect::Ansi;
-    let mut parser = Parser::new(&tokens, dialect);
+    let mut parser = Parser::new(&tokens, dialect, hashbrown::HashMap::new());
     let ast = parser.call_rule_as_root();
 
     match &ast {
@@ -148,7 +148,7 @@ fn run_sql_debug(sql: &str, dialect: Dialect) {
         println!("{:3}: {:20} {:?}", i, tok.token_type, tok.raw);
     }
 
-    let mut parser = Parser::new(&tokens, dialect);
+    let mut parser = Parser::new(&tokens, dialect, hashbrown::HashMap::new());
     let ast = parser.call_rule_as_root();
 
     match &ast {

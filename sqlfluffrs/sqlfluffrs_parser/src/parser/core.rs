@@ -47,6 +47,9 @@ pub struct Parser<'a> {
     pub pruning_complex: std::cell::Cell<usize>, // Options that returned None (complex)
     // Table-driven grammar support
     pub grammar_ctx: GrammarContext<'static>,
+    /// Indentation configuration (key -> enabled)
+    /// Used by conditional meta segments (e.g., indented_joins=true enables Indent/Dedent)
+    pub indent_config: hashbrown::HashMap<&'static str, bool>,
     /// Optional owned RootGrammar. When present, callers can use `parse_root`
     /// to parse starting from this root without having to pass grammar ids
     /// or contexts manually.
@@ -57,7 +60,11 @@ pub struct Parser<'a> {
 
 impl<'a> Parser<'a> {
     /// Create a new Parser instance with table-driven grammar support
-    pub fn new(tokens: &'a [Token], dialect: Dialect) -> Parser<'a> {
+    pub fn new(
+        tokens: &'a [Token],
+        dialect: Dialect,
+        indent_config: hashbrown::HashMap<&'static str, bool>,
+    ) -> Parser<'a> {
         let root = dialect.get_root_grammar();
         let grammar_ctx = GrammarContext::new(root.tables);
         Parser {
@@ -75,6 +82,7 @@ impl<'a> Parser<'a> {
             simple_hint_cache: hashbrown::HashMap::new(),
             cache_enabled: true,
             grammar_ctx,
+            indent_config,
             root: None,
             regex_cache: std::cell::RefCell::new(hashbrown::HashMap::new()),
         }

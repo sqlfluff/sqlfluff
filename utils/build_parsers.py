@@ -75,6 +75,7 @@ class TableBuilder:
     FLAG_OPTIONAL_DELIMITER = 1 << 4
     FLAG_HAS_SIMPLE_HINT = 1 << 5
     FLAG_HAS_EXCLUDE = 1 << 6
+    FLAG_IS_CONDITIONAL = 1 << 8  # For Meta - whether it's a Conditional Meta
 
     def __init__(self):
         # Core tables
@@ -240,7 +241,8 @@ class TableBuilder:
         # the textual type (e.g., "keyword", "file", etc.). Use 0xFFFFFFFF
         # to indicate "no type".
         try:
-            # If this grammar is a Segment class itself, use its `type` and `__name__` attrs
+            # If this grammar is a Segment class itself, use its `type` and
+            # `__name__` attrs
             if isinstance(grammar, type) and issubclass(grammar, BaseSegment):
                 seg_type = getattr(grammar, "type", None)
                 if seg_type:
@@ -1000,20 +1002,46 @@ class TableBuilder:
     def _handle_conditional(
         self, grammar: Conditional, parse_context
     ) -> GrammarInstData:
-        """Convert Conditional to Meta (not implemented in parser yet)."""
-        type_id = self._add_string("conditional")
+        """Convert Conditional to Meta with conditional configuration.
+
+        Encodes conditional rules in aux_data:
+        - aux_data[0]: meta_type string ID ("indent", "dedent", etc.)
+        - aux_data[1]: config_key string ID ("indented_joins", etc.)
+        - aux_data[2]: expected_value (1 for True, 0 for False)
+
+        Note: Currently only supports a single config rule.
+        """
+        # Get the meta type ("indent", "dedent", etc.)
+        meta_type = grammar._meta.type
+        meta_type_id = self._add_string(meta_type)
+
+        # Get the config rules (currently only one is supported)
+        if len(grammar._config_rules) != 1:
+            raise ValueError(
+                "Conditional with multiple rules not yet supported:"
+                f" {grammar._config_rules}"
+            )
+
+        config_key, expected_value = next(iter(grammar._config_rules.items()))
+        config_key_id = self._add_string(config_key)
+        expected_value_int = 1 if expected_value else 0
+
+        # Store in aux_data: [meta_type_id, config_key_id, expected_value]
+        aux_offset = len(self.aux_data)
+        self.aux_data.extend([meta_type_id, config_key_id, expected_value_int])
+
         return GrammarInstData(
             variant="Meta",
-            flags=0,
+            flags=self.FLAG_IS_CONDITIONAL,
             parse_mode="Strict",
             first_child_idx=len(self.child_ids),
             child_count=0,
             min_times=0,
             first_terminator_idx=len(self.terminators),
             terminator_count=0,
-            aux_data_offset=type_id,
+            aux_data_offset=aux_offset,
             simple_hint_idx=0,
-            comment="Meta(conditional)",
+            comment=f"Meta(conditional: {config_key}={expected_value} -> {meta_type})",
         )
 
     def _handle_meta(self, grammar, parse_context) -> GrammarInstData:

@@ -27,7 +27,7 @@ fn test_simple_cast() {
     }
 
     let dialect = Dialect::Ansi;
-    let mut parser = Parser::new(&tokens, dialect);
+    let mut parser = Parser::new(&tokens, dialect, hashbrown::HashMap::new());
     let ast = parser.call_rule_as_root();
 
     match &ast {

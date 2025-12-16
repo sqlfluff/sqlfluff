@@ -185,7 +185,7 @@ mod tests {
         let lexer = Lexer::new(None, ANSI_LEXERS.to_vec());
         let (tokens, _errors) = lexer.lex(input, false);
 
-        let mut parser = Parser::new(&tokens, dialect);
+        let mut parser = Parser::new(&tokens, dialect, hashbrown::HashMap::new());
 
         // First parse - should populate cache
         println!("\n=== First Parse (should populate cache) ===");

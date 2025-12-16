@@ -22,7 +22,7 @@ fn main() {
         println!("  [{}] {:?} (type: {})", idx, tok.raw(), tok.get_type());
     }
 
-    let mut parser = Parser::new(&tokens, dialect);
+    let mut parser = Parser::new(&tokens, dialect, hashbrown::HashMap::new());
     match parser.call_rule("SelectStatementSegment", &[]) {
         Ok(ast) => {
             println!("\nAST collected successfully");

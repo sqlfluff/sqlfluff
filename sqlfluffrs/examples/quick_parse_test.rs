@@ -24,7 +24,7 @@ fn main() {
     println!("Lexed {} tokens", tokens.len());
 
     // Parse
-    let mut parser = Parser::new(&tokens, dialect);
+    let mut parser = Parser::new(&tokens, dialect, hashbrown::HashMap::new());
     match parser.call_rule_as_root() {
         Ok(ast) => {
             println!("\n=== PARSE SUCCESS ===");

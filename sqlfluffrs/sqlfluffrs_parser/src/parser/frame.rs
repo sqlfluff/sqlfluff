@@ -51,6 +51,7 @@ pub enum FrameContext {
         current_element_idx: usize, // Track which element we're currently processing
         first_match: bool,          // For GREEDY_ONCE_STARTED: trim max_idx after first match
         optional: bool,             // Sequence-level optional flag
+        meta_buffer: Vec<GrammarId>, // Buffer for meta elements to be flushed after matching content
     },
     RefTableDriven {
         grammar_id: GrammarId,

@@ -38,7 +38,8 @@ fn check_yaml_output_matches_python_for_dialect(dialect: &str) {
         let lexer = sqlfluffrs_lexer::Lexer::new(None, dialect_obj.get_lexers().to_vec());
         let (tokens, lex_errors) = lexer.lex(input, false);
         assert!(lex_errors.is_empty(), "Lexer errors: {:?}", lex_errors);
-        let mut parser = sqlfluffrs_parser::parser::Parser::new(&tokens, dialect_obj);
+        let mut parser =
+            sqlfluffrs_parser::parser::Parser::new(&tokens, dialect_obj, hashbrown::HashMap::new());
         let ast = parser.call_rule_as_root().expect("Parse error");
 
         // Generate YAML
@@ -399,7 +400,8 @@ fn test_yaml_output_matches_python() {
     let (tokens, lex_errors) = lexer.lex(input, false);
     assert!(lex_errors.is_empty(), "Lexer errors: {:?}", lex_errors);
     // Parse
-    let mut parser = sqlfluffrs_parser::parser::Parser::new(&tokens, Dialect::Ansi);
+    let mut parser =
+        sqlfluffrs_parser::parser::Parser::new(&tokens, Dialect::Ansi, hashbrown::HashMap::new());
     let ast = parser.call_rule_as_root().expect("Parse error");
     // Generate YAML
     let generated_yaml = node_to_yaml(&ast, &tokens).expect("YAML generation failed");
@@ -494,7 +496,7 @@ impl FixtureTest {
             return Err(format!("Lexer errors: {:?}", lex_errors));
         }
 
-        let mut parser = Parser::new(&tokens, dialect);
+        let mut parser = Parser::new(&tokens, dialect, hashbrown::HashMap::new());
 
         // Try to parse as a file (top-level rule)
         parser
