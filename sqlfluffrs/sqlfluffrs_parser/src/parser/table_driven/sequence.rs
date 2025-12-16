@@ -312,6 +312,7 @@ impl Parser<'_> {
 
         // Child matched
         if !child_match.is_empty() {
+            // Add the matched child to accumulated
             frame.accumulated.push(child_match.clone());
 
             if let FrameContext::SequenceTableDriven {
@@ -410,21 +411,12 @@ impl Parser<'_> {
                 // Move parser position to where the child ended
                 self.pos = matched_idx_val;
 
-                // When gaps are allowed, skip forward to the next code token before
-                // attempting to parse the next element (Python parity).
-                // Also collect any transparent tokens between the child end and
-                // the next code token into the accumulated list (tentatively).
+                // When gaps are allowed, skip forward to find the next code token.
+                // We DON'T explicitly collect transparent tokens here because they'll
+                // be captured implicitly as "trailing segments" by apply() when
+                // processing the previous child's matched_slice.
                 let next_start_pos = if allow_gaps {
-                    let ns = self.skip_start_index_forward_to_code(matched_idx_val, max_idx_val);
-                    // collect transparent tokens between matched_idx and ns into accumulated
-                    if ns > matched_idx_val {
-                        self.table_collect_transparent_between_into_accum(
-                            &mut frame.accumulated,
-                            matched_idx_val,
-                            ns,
-                        );
-                    }
-                    ns
+                    self.skip_start_index_forward_to_code(matched_idx_val, max_idx_val)
                 } else {
                     matched_idx_val
                 };
@@ -561,18 +553,12 @@ impl Parser<'_> {
                     _ => (frame.pos, frame.pos),
                 };
 
-                // Respect allow_gaps: if allowed, advance to next code token and
-                // collect transparent tokens between base_matched_idx and that pos.
+                // Respect allow_gaps: if allowed, advance to next code token.
+                // We DON'T explicitly collect transparent tokens here because they'll
+                // be captured implicitly as "trailing segments" by apply() when
+                // processing the matched_slice.
                 let next_start_pos = if allow_gaps {
-                    let ns = self.skip_start_index_forward_to_code(base_matched_idx, base_max_idx);
-                    if ns > base_matched_idx {
-                        self.table_collect_transparent_between_into_accum(
-                            &mut frame.accumulated,
-                            base_matched_idx,
-                            ns,
-                        );
-                    }
-                    ns
+                    self.skip_start_index_forward_to_code(base_matched_idx, base_max_idx)
                 } else {
                     base_matched_idx
                 };
@@ -614,11 +600,16 @@ impl Parser<'_> {
                 Ok(TableFrameResult::Done)
             } else {
                 // Child failure at end of sequence - flush any remaining buffered metas
+                // Use matched_idx from frame context as the position (not frame.pos which is the start)
+                let end_matched_idx = match &frame.context {
+                    FrameContext::SequenceTableDriven { matched_idx, .. } => *matched_idx,
+                    _ => frame.pos,
+                };
                 if !meta_buffer.is_empty() {
                     self.flush_meta_buffer(
                         &mut frame.accumulated,
-                        frame.pos,
-                        frame.pos,
+                        end_matched_idx,
+                        end_matched_idx,
                         meta_buffer,
                     );
                 }
@@ -739,8 +730,10 @@ impl Parser<'_> {
                     "whitespace" | "newline" | "comment" => {
                         // PYTHON PARITY: Don't explicitly collect these - they'll be captured
                         // implicitly as trailing segments by apply()
+                        // However, mark them as collected so they're not captured multiple times
+                        self.mark_position_collected(collect_pos);
                         log::debug!(
-                            "Skipping explicit collection of {} at {} - will be captured as trailing",
+                            "Marking {} at {} as collected (will be captured as trailing)",
                             tok_type,
                             collect_pos
                         );
@@ -855,11 +848,13 @@ impl Parser<'_> {
                 // Don't increment insert_pos - we want them all at the same logical position
             }
         } else {
-            // Contains dedents - append after whitespace
+            // PYTHON PARITY: Contains dedents - ALL metas go at pre_code_idx (NOT post_code_idx)
+            // This ensures dedents are positioned at the same position as trailing whitespace,
+            // not after it, preventing duplication when apply() captures trailing segments.
             for meta_type in meta_types {
                 accumulated.push(MatchResult {
-                    matched_slice: post_code_idx..post_code_idx,
-                    insert_segments: vec![(post_code_idx, meta_type)],
+                    matched_slice: pre_code_idx..pre_code_idx,
+                    insert_segments: vec![(pre_code_idx, meta_type)],
                     ..Default::default()
                 });
             }

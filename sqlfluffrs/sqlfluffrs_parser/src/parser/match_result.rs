@@ -251,10 +251,36 @@ impl MatchResult {
     /// Create a MatchResult for a Sequence with child matches (lazy evaluation)
     pub fn sequence(start_idx: usize, end_idx: usize, children: Vec<MatchResult>) -> Self {
         let deduped_children = Self::deduplicate_children(children);
+
+        // PYTHON PARITY: Flatten meta-only children into insert_segments
+        // Separate children into meta-only (empty slice + insert_segments) and real content
+        let mut insert_segments = Vec::new();
+        let mut real_children = Vec::new();
+
+        for child in deduped_children {
+            // Check if this is a meta-only child (empty slice with only insert_segments)
+            if child.matched_slice.is_empty()
+                && child.child_matches.is_empty()
+                && !child.insert_segments.is_empty()
+            {
+                // Extract insert_segments from meta-only child
+                insert_segments.extend(child.insert_segments);
+            } else {
+                // Keep real content as child
+                real_children.push(child);
+            }
+        }
+
         MatchResult {
             matched_slice: start_idx..end_idx,
-            matched_class: Some("SequenceSegment".to_string()),
-            child_matches: deduped_children,
+            // PYTHON PARITY: Sequence is a grammar construct, not a segment class
+            // Set matched_class to None so Python's apply() will:
+            // 1. Process insert_segments (creating metas at correct positions)
+            // 2. Process child_matches (recursively)
+            // 3. Return all results unwrapped (no Sequence wrapper in final tree)
+            matched_class: None,
+            child_matches: real_children,
+            insert_segments,
             ..Default::default()
         }
     }
@@ -280,6 +306,29 @@ impl MatchResult {
         // Refs without segment_type are grammar-only (not Python segment classes)
         // and should not create a matched_class wrapper
         let class_name = segment_type;
+
+        // PYTHON PARITY: If we have a segment class AND a single grammar wrapper child
+        // (matched_class=None with insert_segments), lift insert_segments to the parent
+        // and unwrap the child's children. This matches Python's behavior where metas
+        // are attached to the segment class, not intermediate grammar wrappers.
+        if class_name.is_some() && deduped_children.len() == 1 {
+            let child = &deduped_children[0];
+            if child.matched_class.is_none() && !child.insert_segments.is_empty() {
+                // Lift insert_segments from grammar wrapper to segment class
+                let insert_segments = child.insert_segments.clone();
+                // Use the child's children directly (unwrap the grammar wrapper)
+                let unwrapped_children = child.child_matches.clone();
+                return MatchResult {
+                    matched_slice: start_idx..end_idx,
+                    matched_class: class_name,
+                    child_matches: unwrapped_children,
+                    insert_segments,
+                    parse_error: None,
+                    ..Default::default()
+                };
+            }
+        }
+
         MatchResult {
             matched_slice: start_idx..end_idx,
             matched_class: class_name,
@@ -292,10 +341,36 @@ impl MatchResult {
     /// Create a MatchResult for a DelimitedList with child matches (lazy evaluation)
     pub fn delimited(start_idx: usize, end_idx: usize, children: Vec<MatchResult>) -> Self {
         let deduped_children = Self::deduplicate_children(children);
+
+        // PYTHON PARITY: Flatten meta-only children into insert_segments
+        // Separate children into meta-only (empty slice + insert_segments) and real content
+        let mut insert_segments = Vec::new();
+        let mut real_children = Vec::new();
+
+        for child in deduped_children {
+            // Check if this is a meta-only child (empty slice with only insert_segments)
+            if child.matched_slice.is_empty()
+                && child.child_matches.is_empty()
+                && !child.insert_segments.is_empty()
+            {
+                // Extract insert_segments from meta-only child
+                insert_segments.extend(child.insert_segments);
+            } else {
+                // Keep real content as child
+                real_children.push(child);
+            }
+        }
+
         MatchResult {
             matched_slice: start_idx..end_idx,
-            matched_class: Some("DelimitedSegment".to_string()),
-            child_matches: deduped_children,
+            // PYTHON PARITY: Delimited is a grammar construct, not a segment class
+            // Set matched_class to None so Python's apply() will:
+            // 1. Process insert_segments (creating metas at correct positions)
+            // 2. Process child_matches (recursively)
+            // 3. Return all results unwrapped (no Delimited wrapper in final tree)
+            matched_class: None,
+            child_matches: real_children,
+            insert_segments,
             parse_error: None,
             ..Default::default()
         }
@@ -537,6 +612,16 @@ impl MatchResult {
     /// This is where materialization happens - converting the match description
     /// into the actual nested Node structure.
     pub fn apply(self, tokens: &[Token]) -> Vec<Node> {
+        // DEBUG: Log apply() entry for FromExpressionSegment
+        if self.matched_class.as_deref() == Some("FromExpressionSegment") {
+            log::debug!(
+                "[APPLY-ENTRY] FromExpressionSegment: matched_slice={:?}, child_matches={}, insert_segments={}",
+                self.matched_slice,
+                self.child_matches.len(),
+                self.insert_segments.len()
+            );
+        }
+
         // If empty, return empty vec (or just inserts)
         if self.matched_slice.is_empty()
             && self.child_matches.is_empty()
@@ -626,10 +711,24 @@ impl MatchResult {
                             }
                         }
                         TriggerItem::ChildMatch(child) => {
+                            if self.matched_class.as_deref() == Some("FromExpressionSegment") {
+                                log::debug!(
+                                    "[APPLY-CHILD] Processing child at {}: matched_slice={:?}, current_idx={}",
+                                    pos,
+                                    child.matched_slice,
+                                    current_idx
+                                );
+                            }
                             let child_nodes = child.clone().apply(tokens);
                             result_nodes.extend(child_nodes);
                             if child.matched_slice.end > current_idx {
                                 current_idx = child.matched_slice.end;
+                            }
+                            if self.matched_class.as_deref() == Some("FromExpressionSegment") {
+                                log::debug!(
+                                    "[APPLY-CHILD] After child: current_idx={}",
+                                    current_idx
+                                );
                             }
                         }
                         TriggerItem::ChildNode(node) => {
@@ -648,11 +747,31 @@ impl MatchResult {
         // PYTHON PARITY: If we finish processing triggers and there are still tokens
         // left in the matched_slice, add them too (captures trailing whitespace/comments)
         if current_idx < self.matched_slice.end {
+            // DEBUG: Log when we're adding trailing tokens
+            if self.matched_class.as_deref() == Some("FromExpressionSegment") {
+                log::debug!(
+                    "[APPLY-DEBUG] FromExpressionSegment adding trailing tokens: current_idx={}, matched_slice.end={}, count={}",
+                    current_idx,
+                    self.matched_slice.end,
+                    self.matched_slice.end - current_idx
+                );
+            }
+
             for idx in current_idx..self.matched_slice.end {
                 if idx < tokens.len() {
                     let tok = &tokens[idx];
                     let raw = tok.raw().to_string();
                     let tok_type = tok.get_type().to_string();
+
+                    if self.matched_class.as_deref() == Some("FromExpressionSegment") {
+                        log::debug!(
+                            "[APPLY-DEBUG]   Adding token[{}]: {} {:?}",
+                            idx,
+                            tok_type,
+                            raw
+                        );
+                    }
+
                     result_nodes.push(Node::new_token(tok_type, raw, idx));
                 }
             }

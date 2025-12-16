@@ -300,14 +300,37 @@ class RustParser:
 
         # Return a new segment with updated children if any changed
         if modified:
-            # FileSegment has a different constructor signature
-            if type(segment).__name__ == "FileSegment":
+            # Different segment types have different constructor signatures.
+            # Handle special cases that don't accept uuid parameter.
+            seg_type_name = type(segment).__name__
+
+            if seg_type_name == "FileSegment":
+                # FileSegment(segments, pos_marker, fname)
                 return segment.__class__(
                     segments=tuple(new_segments),
                     pos_marker=segment.pos_marker,
                     fname=getattr(segment, "fname", None),
                 )
+            elif seg_type_name == "UnparsableSegment":
+                # UnparsableSegment(segments, pos_marker, expected)
+                return segment.__class__(
+                    segments=tuple(new_segments),
+                    pos_marker=segment.pos_marker,
+                    expected=getattr(segment, "_expected", ""),
+                )
+            elif seg_type_name in (
+                "RawSegment",
+                "MetaSegment",
+                "Indent",
+                "Dedent",
+                "TemplateSegment",
+                "ImplicitIndent",
+            ):
+                # These segments don't have children, so they shouldn't reach here.
+                # If they do, just return the original segment.
+                return segment
             else:
+                # Standard BaseSegment constructor: (segments, pos_marker, uuid)
                 return segment.__class__(
                     segments=tuple(new_segments),
                     pos_marker=segment.pos_marker,
