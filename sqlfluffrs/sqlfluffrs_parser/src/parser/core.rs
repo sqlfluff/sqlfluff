@@ -722,12 +722,54 @@ impl<'a> Parser<'a> {
                     class_types
                 );
 
+                // Build instance_types following Python TypedParser logic:
+                // 1. Override type (token_type) - e.g., "quoted_literal"
+                // 2. Segment class type - e.g., "literal" from "LiteralSegment"
+                // 3. Template type - e.g., "single_quote" (if not in class hierarchy)
+                let mut instance_types_vec = vec![token_type.clone()];
+
+                // Add the segment class type if different from override
+                // Use the dialect's pre-built segment type lookup (robust, authoritative)
+                let class_type = self.dialect.get_segment_type(&raw_class);
+                if let Some(cls_type) = class_type {
+                    if cls_type != token_type {
+                        instance_types_vec.push(cls_type.to_string());
+                    }
+
+                    // Add template type if not already added
+                    // The segment class (e.g., LiteralSegment) has a fixed hierarchy that
+                    // doesn't include token-specific types like "single_quote", so we add it
+                    // Python checks: if not raw_class.class_is_type(template)
+                    // For simplicity, we add template if it's different from what we already have
+                    if template != token_type && template != cls_type {
+                        instance_types_vec.push(template.clone());
+                    }
+                } else {
+                    // Fallback: if lookup fails, just add template if different from token_type
+                    log::warn!(
+                        "Could not find segment type for class '{}', using fallback",
+                        raw_class
+                    );
+                    if template != token_type {
+                        instance_types_vec.push(template.clone());
+                    }
+                }
+
+                log::debug!(
+                    "TypedParser[table] Built instance_types: {:?} (token_type={}, raw_class={}, class_type={:?}, template={})",
+                    instance_types_vec,
+                    token_type,
+                    raw_class,
+                    class_type,
+                    template
+                );
+
                 // Return MatchResult with raw_class as matched_class (segment class)
-                // and token_type as instance_types (semantic type)
+                // and computed instance_types (semantic type hierarchy)
                 let match_result = MatchResult {
                     matched_slice: token_pos..token_pos + 1,
                     matched_class: Some(raw_class),
-                    instance_types: Some(vec![token_type]),
+                    instance_types: Some(instance_types_vec),
                     trim_chars: None, // TODO: Add trim_chars support from grammar
                     casefold: CaseFold::None, // TODO: Add casefold support from grammar
                     ..Default::default()
