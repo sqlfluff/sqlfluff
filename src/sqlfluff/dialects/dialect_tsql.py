@@ -2833,14 +2833,11 @@ class DropIndexStatementSegment(ansi.DropIndexStatementSegment):
         "INDEX",
         Ref("IfExistsGrammar", optional=True),
         OneOf(
-            # Syntax 1: DROP INDEX IndexName ON TableName
             Sequence(
                 Ref("IndexReferenceSegment"),
                 "ON",
                 Ref("TableReferenceSegment"),
             ),
-            # Syntax 2: DROP INDEX [database.][schema.]table.index
-            # Uses ObjectReferenceSegment for the full dotted path (2-4 parts).
             Ref("ObjectReferenceSegment"),
         ),
     )
