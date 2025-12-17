@@ -2839,9 +2839,8 @@ class DropIndexStatementSegment(ansi.DropIndexStatementSegment):
                 "ON",
                 Ref("TableReferenceSegment"),
             ),
-            # Syntax 2: DROP INDEX [schema.]table.index
-            # Uses ObjectReferenceSegment for the full dotted path.
-            # In this context, it represents [schema.]table.index (2-3 parts).
+            # Syntax 2: DROP INDEX [database.][schema.]table.index
+            # Uses ObjectReferenceSegment for the full dotted path (2-4 parts).
             Ref("ObjectReferenceSegment"),
         ),
     )
