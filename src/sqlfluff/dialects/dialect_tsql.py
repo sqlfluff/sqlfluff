@@ -2825,7 +2825,7 @@ class DropIndexStatementSegment(ansi.DropIndexStatementSegment):
 
     Overriding ANSI to support both T-SQL syntaxes:
     - DROP INDEX IndexName ON TableName
-    - DROP INDEX [schema.]table.index
+    - DROP INDEX [database.][schema.]table.index
     """
 
     match_grammar = Sequence(
