@@ -2823,16 +2823,28 @@ class MaxDurationSegment(BaseSegment):
 class DropIndexStatementSegment(ansi.DropIndexStatementSegment):
     """A `DROP INDEX` statement.
 
-    Overriding ANSI to include required ON clause.
+    Overriding ANSI to support both T-SQL syntaxes:
+    - DROP INDEX IndexName ON TableName
+    - DROP INDEX [schema.]table.index
     """
 
     match_grammar = Sequence(
         "DROP",
         "INDEX",
         Ref("IfExistsGrammar", optional=True),
-        Ref("IndexReferenceSegment"),
-        "ON",
-        Ref("TableReferenceSegment"),
+        OneOf(
+            # Syntax 1: DROP INDEX IndexName ON TableName
+            Sequence(
+                Ref("IndexReferenceSegment"),
+                "ON",
+                Ref("TableReferenceSegment"),
+            ),
+            # Syntax 2: DROP INDEX [schema.]table.index
+            # This uses ObjectReferenceSegment which allows up to 4 parts
+            # (server.database.schema.table), but for DROP INDEX we expect
+            # 2-3 parts: [schema.]table.index
+            Ref("ObjectReferenceSegment"),
+        ),
     )
 
 

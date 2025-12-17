@@ -1,0 +1,84 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: ee40732d7f7958da1f480e14277b3e8d4f84a433c87833b37a51256f68c460cd
+file:
+  batch:
+  - statement:
+      drop_index_statement:
+      - keyword: DROP
+      - keyword: INDEX
+      - index_reference:
+          naked_identifier: IX_IndexName
+      - keyword: 'ON'
+      - table_reference:
+        - naked_identifier: dbo
+        - dot: .
+        - naked_identifier: TableName
+  - statement_terminator: ;
+  - statement:
+      drop_index_statement:
+      - keyword: DROP
+      - keyword: INDEX
+      - object_reference:
+        - naked_identifier: dbo
+        - dot: .
+        - naked_identifier: TableName
+        - dot: .
+        - naked_identifier: IX_IndexName
+  - statement_terminator: ;
+  - statement:
+      drop_index_statement:
+      - keyword: DROP
+      - keyword: INDEX
+      - object_reference:
+        - naked_identifier: TableName
+        - dot: .
+        - naked_identifier: IX_IndexName
+  - statement_terminator: ;
+  - statement:
+      drop_index_statement:
+      - keyword: DROP
+      - keyword: INDEX
+      - object_reference:
+        - quoted_identifier: '[dbo]'
+        - dot: .
+        - quoted_identifier: '[TableName]'
+        - dot: .
+        - quoted_identifier: '[IX_IndexName]'
+  - statement_terminator: ;
+  - statement:
+      drop_index_statement:
+      - keyword: DROP
+      - keyword: INDEX
+      - object_reference:
+        - quoted_identifier: '[TableName]'
+        - dot: .
+        - quoted_identifier: '[IX_IndexName]'
+  - statement_terminator: ;
+  - statement:
+      drop_index_statement:
+      - keyword: DROP
+      - keyword: INDEX
+      - keyword: IF
+      - keyword: EXISTS
+      - object_reference:
+        - naked_identifier: dbo
+        - dot: .
+        - naked_identifier: TableName
+        - dot: .
+        - naked_identifier: IX_IndexName
+  - statement_terminator: ;
+  - statement:
+      drop_index_statement:
+      - keyword: DROP
+      - keyword: INDEX
+      - keyword: IF
+      - keyword: EXISTS
+      - object_reference:
+        - naked_identifier: TableName
+        - dot: .
+        - naked_identifier: IX_IndexName
+  - statement_terminator: ;
