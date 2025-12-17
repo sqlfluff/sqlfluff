@@ -1,7 +1,7 @@
 -- Syntax 1: DROP INDEX with ON clause (currently supported)
 DROP INDEX IX_IndexName ON dbo.TableName;
 
--- Syntax 2: DROP INDEX with dotted notation (NOT currently supported)
+-- Syntax 2: DROP INDEX with dotted notation (now supported)
 -- This is the three-part name format: [schema.]table.index
 DROP INDEX dbo.TableName.IX_IndexName;
 

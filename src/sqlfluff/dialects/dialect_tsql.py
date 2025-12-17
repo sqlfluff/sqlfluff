@@ -2840,9 +2840,8 @@ class DropIndexStatementSegment(ansi.DropIndexStatementSegment):
                 Ref("TableReferenceSegment"),
             ),
             # Syntax 2: DROP INDEX [schema.]table.index
-            # This uses ObjectReferenceSegment which allows up to 4 parts
-            # (server.database.schema.table), but for DROP INDEX we expect
-            # 2-3 parts: [schema.]table.index
+            # Uses ObjectReferenceSegment for the full dotted path.
+            # In this context, it represents [schema.]table.index (2-3 parts).
             Ref("ObjectReferenceSegment"),
         ),
     )
