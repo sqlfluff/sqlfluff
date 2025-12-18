@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 3ae13d24b15b3833d9645ad5f737db733e900dbd565bca98af772df22af0cb4b
+_hash: be768cf5638cac420924be39f8ae3d9436e1f17562d47d33699e52db22b5e37f
 file:
   batch:
   - statement:
@@ -21,7 +21,7 @@ file:
                 - keyword: 'ON'
                 - keyword: 'NULL'
                 - end_bracket: )
-        statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       select_statement:
         select_clause:
@@ -37,15 +37,15 @@ file:
                     quoted_literal: "'a'"
                 - comma: ','
                 - expression:
-                    numeric_literal: '1'
+                    integer_literal: '1'
                 - comma: ','
                 - expression:
                     quoted_literal: "'b'"
                 - comma: ','
                 - expression:
-                    numeric_literal: '2'
+                    integer_literal: '2'
                 - end_bracket: )
-        statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       select_statement:
         select_clause:
@@ -69,7 +69,7 @@ file:
                 - keyword: 'ON'
                 - keyword: 'NULL'
                 - end_bracket: )
-        statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       select_statement:
         select_clause:
@@ -87,9 +87,9 @@ file:
                 - comma: ','
                 - quoted_literal: "'new'"
                 - colon: ':'
-                - numeric_literal: '1'
+                - integer_literal: '1'
                 - end_bracket: )
-        statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       select_statement:
         select_clause:
@@ -136,10 +136,10 @@ file:
                       bracketed:
                       - start_bracket: (
                       - expression:
-                          numeric_literal: '1'
+                          integer_literal: '1'
                       - comma: ','
                       - expression:
-                          numeric_literal: '2'
+                          integer_literal: '2'
                       - end_bracket: )
                 - end_bracket: )
   - statement:
@@ -167,7 +167,7 @@ file:
                       - start_bracket: (
                       - quoted_literal: "'type_id'"
                       - colon: ':'
-                      - numeric_literal: '1'
+                      - integer_literal: '1'
                       - comma: ','
                       - quoted_literal: "'name'"
                       - colon: ':'
@@ -179,12 +179,12 @@ file:
       - keyword: DECLARE
       - parameter: '@id_key'
       - data_type:
-          data_type_identifier: nvarchar
+          keyword: nvarchar
           bracketed_arguments:
             bracketed:
               start_bracket: (
               expression:
-                numeric_literal: '10'
+                integer_literal: '10'
               end_bracket: )
       - comparison_operator:
           raw_comparison_operator: '='
@@ -193,12 +193,12 @@ file:
       - comma: ','
       - parameter: '@id_value'
       - data_type:
-          data_type_identifier: nvarchar
+          keyword: nvarchar
           bracketed_arguments:
             bracketed:
               start_bracket: (
               expression:
-                numeric_literal: '64'
+                integer_literal: '64'
               end_bracket: )
       - comparison_operator:
           raw_comparison_operator: '='
@@ -210,7 +210,7 @@ file:
               bracketed:
                 start_bracket: (
                 end_bracket: )
-      - statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       select_statement:
         select_clause:
@@ -247,7 +247,7 @@ file:
                           system_variable: '@@SPID'
                     end_bracket: )
                 - end_bracket: )
-        statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       select_statement:
         select_clause:
@@ -312,8 +312,8 @@ file:
             - naked_identifier: is_user_process
             comparison_operator:
               raw_comparison_operator: '='
-            numeric_literal: '1'
-        statement_terminator: ;
+            integer_literal: '1'
+  - statement_terminator: ;
   - statement:
       select_statement:
         select_clause:
@@ -341,10 +341,10 @@ file:
                         - comma: ','
                         - quoted_literal: "'type'"
                         - colon: ':'
-                        - numeric_literal: '1'
+                        - integer_literal: '1'
                         - end_bracket: )
                 - end_bracket: )
-        statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       select_statement:
         select_clause:
@@ -372,7 +372,7 @@ file:
                         - comma: ','
                         - quoted_literal: "'type'"
                         - colon: ':'
-                        - numeric_literal: '1'
+                        - integer_literal: '1'
                         - end_bracket: )
                 - comma: ','
                 - expression:
@@ -392,18 +392,18 @@ file:
                         - keyword: 'NULL'
                         - end_bracket: )
                 - end_bracket: )
-        statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       declare_segment:
         keyword: DECLARE
         parameter: '@id_value'
         data_type:
-          data_type_identifier: nvarchar
+          keyword: nvarchar
           bracketed_arguments:
             bracketed:
               start_bracket: (
               expression:
-                numeric_literal: '64'
+                integer_literal: '64'
               end_bracket: )
         comparison_operator:
           raw_comparison_operator: '='
@@ -415,7 +415,7 @@ file:
               bracketed:
                 start_bracket: (
                 end_bracket: )
-        statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       select_statement:
         select_clause:
@@ -428,7 +428,7 @@ file:
                 bracketed:
                 - start_bracket: (
                 - expression:
-                    numeric_literal: '1'
+                    integer_literal: '1'
                 - comma: ','
                 - expression:
                     parameter: '@id_value'
@@ -444,7 +444,7 @@ file:
                               system_variable: '@@SPID'
                       end_bracket: )
                 - end_bracket: )
-        statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       select_statement:
         select_clause:
@@ -502,5 +502,5 @@ file:
             - naked_identifier: is_user_process
             comparison_operator:
               raw_comparison_operator: '='
-            numeric_literal: '1'
-        statement_terminator: ;
+            integer_literal: '1'
+  - statement_terminator: ;

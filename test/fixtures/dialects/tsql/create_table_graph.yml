@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: eec36e50396bb61abe0713b0338d60f4c17688597f014d5ea215db882d52c97d
+_hash: 39acfd2d35bf34fe95b2295d76043f2e00178f19eb06cf51f0d934bea9090f58
 file:
   batch:
   - statement:
@@ -27,17 +27,17 @@ file:
         - column_definition:
             quoted_identifier: '[name]'
             data_type:
-              data_type_identifier: VARCHAR
+              keyword: VARCHAR
               bracketed_arguments:
                 bracketed:
                   start_bracket: (
                   expression:
-                    numeric_literal: '100'
+                    integer_literal: '100'
                   end_bracket: )
         - end_bracket: )
       - keyword: AS
       - keyword: NODE
-      - statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       create_table_graph_statement:
       - keyword: CREATE
@@ -57,11 +57,11 @@ file:
         - column_definition:
             naked_identifier: start_date
             data_type:
-              data_type_identifier: DATE
+              keyword: DATE
         - end_bracket: )
       - keyword: AS
       - keyword: EDGE
-      - statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       create_table_graph_statement:
       - keyword: CREATE
@@ -70,7 +70,7 @@ file:
           naked_identifier: likes
       - keyword: AS
       - keyword: EDGE
-      - statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       create_table_graph_statement:
       - keyword: CREATE
@@ -102,7 +102,7 @@ file:
           end_bracket: )
       - keyword: AS
       - keyword: EDGE
-      - statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       create_table_graph_statement:
       - keyword: CREATE
@@ -137,4 +137,4 @@ file:
           end_bracket: )
       - keyword: AS
       - keyword: EDGE
-      - statement_terminator: ;
+  - statement_terminator: ;

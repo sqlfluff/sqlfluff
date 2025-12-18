@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 42bc55b8cb475283121f1b764e6cbc0c8ec49b0889a46566400f1073b355b7f4
+_hash: 09029d1ddb765244996c81a42559b49c74559a645f38e1cdabc4910ff1f3e70b
 file:
 - batch:
   - statement:
@@ -65,7 +65,7 @@ file:
             - keyword: as
             - table_reference:
                 naked_identifier: pvt
-          statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       select_statement:
         select_clause:
@@ -124,9 +124,9 @@ file:
               - end_bracket: )
               table_reference:
                 naked_identifier: pvt
-          statement_terminator: ;
-- go_statement:
-    keyword: GO
+  - statement_terminator: ;
+  - go_statement:
+      keyword: GO
 - batch:
     statement:
       select_statement:
@@ -224,6 +224,6 @@ file:
                   - naked_identifier: unpvt
                   - dot: .
                   - naked_identifier: MonthColumn
-          statement_terminator: ;
-- go_statement:
-    keyword: GO
+    statement_terminator: ;
+    go_statement:
+      keyword: GO

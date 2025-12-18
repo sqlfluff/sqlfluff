@@ -199,6 +199,7 @@ oracle_dialect.sets("unreserved_keywords").update(
     [
         "ABSENT",
         "ACCESSIBLE",
+        "AUTHENTICATED",
         "AUTHID",
         "BODY",
         "BULK",
@@ -227,6 +228,7 @@ oracle_dialect.sets("unreserved_keywords").update(
         "INDICES",
         "ISOPEN",
         "KEEP",
+        "LINK",
         "LOOP",
         "MUTABLE",
         "NESTED",
@@ -257,6 +259,7 @@ oracle_dialect.sets("unreserved_keywords").update(
         "REVERSE",
         "ROWTYPE",
         "SHARD_ENABLE",
+        "SHARED",
         "SHARING",
         "SPECIFICATION",
         "SQL_MACRO",
@@ -268,6 +271,7 @@ oracle_dialect.sets("unreserved_keywords").update(
 oracle_dialect.sets("bare_functions").clear()
 oracle_dialect.sets("bare_functions").update(
     [
+        "column_value",
         "current_date",
         "current_timestamp",
         "dbtimezone",
@@ -281,7 +285,7 @@ oracle_dialect.sets("bare_functions").update(
 
 oracle_dialect.patch_lexer_matchers(
     [
-        RegexLexer("word", r"[a-zA-Z][0-9a-zA-Z_$#]*", WordSegment),
+        RegexLexer("word", r"[\p{L}][\p{L}\p{N}_$#]*", WordSegment),
         RegexLexer(
             "single_quote",
             r"'([^'\\]|\\|\\.|'')*'",
@@ -701,6 +705,17 @@ oracle_dialect.add(
             "JSON",
         ),
     ),
+    DBLinkAuthenticationGrammar=OneOf(
+        Sequence(
+            "AUTHENTICATED",
+            "BY",
+            Ref("RoleReferenceSegment"),
+            "IDENTIFIED",
+            "BY",
+            Ref("SingleIdentifierGrammar"),
+        ),
+        Sequence("WITH", "CREDENTIAL"),
+    ),
 )
 
 oracle_dialect.replace(
@@ -720,7 +735,7 @@ oracle_dialect.replace(
     ),
     NakedIdentifierSegment=SegmentGenerator(
         lambda dialect: RegexParser(
-            r"[A-Z0-9_]*[A-Z][A-Z0-9_#$]*",
+            r"[\p{L}\p{N}_]*[\p{L}][\p{L}\p{N}_#$]*",
             IdentifierSegment,
             type="naked_identifier",
             anti_template=r"^(" + r"|".join(dialect.sets("reserved_keywords")) + r")$",
@@ -1161,6 +1176,9 @@ class StatementSegment(ansi.StatementSegment):
             Ref("RaiseStatementSegment"),
             Ref("ReturnStatementSegment"),
             Ref("AlterIndexStatementSegment"),
+            Ref("CreateDatabaseLinkStatementSegment"),
+            Ref("DropDatabaseLinkStatementSegment"),
+            Ref("AlterDatabaseLinkStatementSegment"),
         ],
     )
 
@@ -1387,7 +1405,7 @@ class ColumnDefinitionSegment(BaseSegment):
             AnyNumberOf(
                 Sequence(
                     Ref("ColumnConstraintSegment"),
-                    Ref.keyword("ENABLE", optional=True),
+                    OneOf("ENABLE", "DISABLE", optional=True),
                 )
             ),
             Sequence(
@@ -1405,7 +1423,10 @@ class ColumnDefinitionSegment(BaseSegment):
                     optional=True,
                 ),
                 AnyNumberOf(
-                    Ref("ColumnConstraintSegment", optional=True),
+                    Sequence(
+                        Ref("ColumnConstraintSegment"),
+                        OneOf("ENABLE", "DISABLE", optional=True),
+                    )
                 ),
                 Ref("IdentityClauseGrammar", optional=True),
             ),
@@ -2520,7 +2541,7 @@ class CaseExpressionSegment(BaseSegment):
             "CASE",
             ImplicitIndent,
             AnyNumberOf(
-                Ref("WhenClauseSegment"),
+                Ref("WhenClauseSegment", terminators=[Ref.keyword("WHEN")]),
                 reset_terminators=True,
                 terminators=[Ref.keyword("ELSE"), Ref.keyword("END")],
             ),
@@ -2537,7 +2558,7 @@ class CaseExpressionSegment(BaseSegment):
             "CASE",
             ImplicitIndent,
             AnyNumberOf(
-                Ref("WhenClauseSegment"),
+                Ref("WhenClauseSegment", terminators=[Ref.keyword("WHEN")]),
                 reset_terminators=True,
                 terminators=[Ref.keyword("ELSE"), Ref.keyword("END")],
             ),
@@ -2560,7 +2581,7 @@ class CaseExpressionSegment(BaseSegment):
             ),
             ImplicitIndent,
             AnyNumberOf(
-                Ref("WhenClauseSegment"),
+                Ref("WhenClauseSegment", terminators=[Ref.keyword("WHEN")]),
                 reset_terminators=True,
                 terminators=[Ref.keyword("ELSE"), Ref.keyword("END")],
             ),
@@ -3068,4 +3089,112 @@ class DeleteStatementSegment(ansi.DeleteStatementSegment):
 
     match_grammar: Matchable = ansi.DeleteStatementSegment.match_grammar.copy(
         insert=[Ref("ReturningClauseSegment", optional=True)]
+    )
+
+
+class DatabaseLinkReferenceSegment(ansi.ObjectReferenceSegment):
+    """A reference to a database link."""
+
+    type = "database_link_reference"
+    match_grammar: Matchable = Delimited(
+        Ref("SingleIdentifierGrammar"), delimiter=Ref("DotSegment")
+    )
+
+
+class CreateDatabaseLinkStatementSegment(BaseSegment):
+    """A `CREATE DATABASE LINK` statement.
+
+    https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/CREATE-DATABASE-LINK.html
+    """
+
+    type = "create_database_link_statement"
+
+    match_grammar: Matchable = Sequence(
+        "CREATE",
+        Ref.keyword("SHARED", optional=True),
+        Ref.keyword("PUBLIC", optional=True),
+        "DATABASE",
+        "LINK",
+        Ref("IfNotExistsGrammar", optional=True),
+        Ref("DatabaseLinkReferenceSegment"),
+        Sequence(
+            OneOf(
+                Sequence(
+                    "CONNECT",
+                    OneOf(
+                        Sequence(
+                            "TO",
+                            OneOf(
+                                "CURRENT_USER",
+                                Sequence(
+                                    Ref("RoleReferenceSegment"),
+                                    "IDENTIFIED",
+                                    "BY",
+                                    Ref("SingleIdentifierGrammar"),
+                                    Ref("DBLinkAuthenticationGrammar", optional=True),
+                                ),
+                            ),
+                        ),
+                        Sequence("WITH", Ref("SingleIdentifierGrammar")),
+                    ),
+                ),
+                Ref("DBLinkAuthenticationGrammar"),
+            ),
+            optional=True,
+        ),
+        Sequence("USING", Ref("SingleQuotedIdentifierSegment"), optional=True),
+    )
+
+
+class DropDatabaseLinkStatementSegment(BaseSegment):
+    """A `DROP DATABASE LINK` statement.
+
+    https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/DROP-DATABASE-LINK.html
+    """
+
+    type = "drop_database_link_statement"
+
+    match_grammar: Matchable = Sequence(
+        "DROP",
+        Ref.keyword("PUBLIC", optional=True),
+        "DATABASE",
+        "LINK",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("DatabaseLinkReferenceSegment"),
+    )
+
+
+class AlterDatabaseLinkStatementSegment(BaseSegment):
+    """An `ALTER DATABASE LINK` statement.
+
+    https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/ALTER-DATABASE-LINK.html
+    """
+
+    type = "alter_database_link_statement"
+
+    match_grammar: Matchable = Sequence(
+        "ALTER",
+        Ref.keyword("SHARED", optional=True),
+        Ref.keyword("PUBLIC", optional=True),
+        "DATABASE",
+        "LINK",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("DatabaseLinkReferenceSegment"),
+        OneOf(
+            Sequence(
+                "CONNECT",
+                OneOf(
+                    Sequence(
+                        "TO",
+                        Ref("RoleReferenceSegment"),
+                        "IDENTIFIED",
+                        "BY",
+                        Ref("SingleIdentifierGrammar"),
+                        Ref("DBLinkAuthenticationGrammar", optional=True),
+                    ),
+                    Sequence("WITH", Ref("SingleIdentifierGrammar")),
+                ),
+            ),
+            Ref("DBLinkAuthenticationGrammar"),
+        ),
     )

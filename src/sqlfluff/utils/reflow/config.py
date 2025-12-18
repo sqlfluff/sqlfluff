@@ -80,7 +80,7 @@ class ReflowConfig:
     max_line_length: int = 80
     hanging_indents: bool = False
     skip_indentation_in: frozenset[str] = frozenset()
-    allow_implicit_indents: bool = False
+    implicit_indents: str = "forbid"
     trailing_comments: str = "before"
     ignore_comment_lines: bool = False
 
@@ -99,6 +99,11 @@ class ReflowConfig:
                         new_key += ":" + config_dict[seg_type]["align_within"]
                         if config_dict[seg_type].get("align_scope", None):
                             new_key += ":" + config_dict[seg_type]["align_scope"]
+                    # Optional coordinate space override
+                    if config_dict[seg_type].get("alignment_coordinate_space", None):
+                        new_key += (
+                            ":" + config_dict[seg_type]["alignment_coordinate_space"]
+                        )
                     config_dict[seg_type][key] = new_key
         return cls(_config_dict=config_dict, config_types=config_types, **kwargs)
 
@@ -114,9 +119,7 @@ class ReflowConfig:
             skip_indentation_in=frozenset(
                 config.get("skip_indentation_in", ["indentation"]).split(",")
             ),
-            allow_implicit_indents=config.get(
-                "allow_implicit_indents", ["indentation"]
-            ),
+            implicit_indents=config.get("implicit_indents", ["indentation"]),
             trailing_comments=config.get("trailing_comments", ["indentation"]),
             ignore_comment_lines=config.get("ignore_comment_lines", ["indentation"]),
         )

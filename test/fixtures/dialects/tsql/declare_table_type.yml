@@ -3,10 +3,10 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 82f903b527bab32939d1faabb97886364d5cc3ad173215ad572f30e922c54460
+_hash: fff818dae10eb906b41219628754aca31aa0aad29d1f048b377c87a0be3b988d
 file:
   batch:
-    statement:
+  - statement:
       declare_segment:
       - keyword: DECLARE
       - parameter: '@MyTableVar'
@@ -16,7 +16,7 @@ file:
         - column_definition:
             naked_identifier: EmpID
             data_type:
-              data_type_identifier: INT
+              keyword: INT
             column_constraint_segment:
             - keyword: NOT
             - keyword: 'NULL'
@@ -24,17 +24,17 @@ file:
         - column_definition:
             naked_identifier: OldVacationHours
             data_type:
-              data_type_identifier: INT
+              keyword: INT
         - comma: ','
         - column_definition:
             naked_identifier: NewVacationHours
             data_type:
-              data_type_identifier: INT
+              keyword: INT
         - comma: ','
         - column_definition:
             naked_identifier: ModifiedDate
             data_type:
-              data_type_identifier: DATETIME
+              keyword: DATETIME
         - comma: ','
         - table_constraint:
           - keyword: PRIMARY
@@ -46,4 +46,68 @@ file:
                   naked_identifier: EmpID
                 end_bracket: )
         - end_bracket: )
-      - statement_terminator: ;
+  - statement_terminator: ;
+  - statement:
+      declare_segment:
+      - keyword: DECLARE
+      - parameter: '@myTable'
+      - keyword: TABLE
+      - bracketed:
+        - start_bracket: (
+        - column_definition:
+            naked_identifier: ID
+            data_type:
+              keyword: INT
+        - comma: ','
+        - column_definition:
+            naked_identifier: MyCol1
+            data_type:
+              keyword: BIT
+        - comma: ','
+        - column_definition:
+            naked_identifier: MyCol2
+            data_type:
+              keyword: BIT
+        - comma: ','
+        - computed_column_definition:
+            naked_identifier: MyComputedCol
+            keyword: AS
+            bracketed:
+              start_bracket: (
+              expression:
+                case_expression:
+                - keyword: CASE
+                - when_clause:
+                  - keyword: WHEN
+                  - expression:
+                    - column_reference:
+                        naked_identifier: MyCol1
+                    - binary_operator:
+                        ampersand: '&'
+                    - column_reference:
+                        naked_identifier: MyCol2
+                    - comparison_operator:
+                        raw_comparison_operator: '='
+                    - integer_literal: '0'
+                  - keyword: THEN
+                  - expression:
+                      integer_literal: '1'
+                - when_clause:
+                  - keyword: WHEN
+                  - expression:
+                      column_reference:
+                        naked_identifier: MyCol2
+                      comparison_operator:
+                        raw_comparison_operator: '='
+                      integer_literal: '0'
+                  - keyword: THEN
+                  - expression:
+                      integer_literal: '2'
+                - else_clause:
+                    keyword: ELSE
+                    expression:
+                      integer_literal: '3'
+                - keyword: END
+              end_bracket: )
+        - end_bracket: )
+  - statement_terminator: ;

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: e09eedf30ed29ce19cc60d5792c9a59fe7a64e75171aa1240e3d3196a3dd7828
+_hash: a530620325dc05639c53d38db1b0cab45e5ece5cf5c83b1ff34bab2d1dcb11cd
 file:
 - batch:
     statement:
@@ -11,7 +11,7 @@ file:
         select_clause:
           keyword: SELECT
           select_clause_element:
-            numeric_literal: '1'
+            integer_literal: '1'
             alias_expression:
               alias_operator:
                 keyword: AS
@@ -65,16 +65,16 @@ file:
                   - naked_identifier: I
                   - dot: .
                   - naked_identifier: Bcd
-          statement_terminator: ;
-- go_statement:
-    keyword: GO
+    statement_terminator: ;
+    go_statement:
+      keyword: GO
 - batch:
   - statement:
       select_statement:
         select_clause:
           keyword: SELECT
           select_clause_element:
-            numeric_literal: '1'
+            integer_literal: '1'
         from_clause:
           keyword: FROM
           from_expression:
@@ -149,7 +149,7 @@ file:
                             - naked_identifier: IDEID
                           keyword: AS
                           data_type:
-                            data_type_identifier: varchar
+                            keyword: varchar
                           end_bracket: )
             - join_clause:
               - keyword: LEFT
@@ -210,7 +210,7 @@ file:
                             - naked_identifier: IDEID
                           keyword: AS
                           data_type:
-                            data_type_identifier: varchar
+                            keyword: varchar
                           end_bracket: )
             - join_on_condition:
                 keyword: 'ON'
@@ -228,7 +228,7 @@ file:
                           - naked_identifier: IDEID
                         keyword: AS
                         data_type:
-                          data_type_identifier: varchar
+                          keyword: varchar
                         end_bracket: )
                   comparison_operator:
                     raw_comparison_operator: '='
@@ -241,7 +241,7 @@ file:
         select_clause:
           keyword: SELECT
           select_clause_element:
-            numeric_literal: '1'
+            integer_literal: '1'
             alias_expression:
               alias_operator:
                 keyword: AS
@@ -297,9 +297,9 @@ file:
                   - naked_identifier: I
                   - dot: .
                   - naked_identifier: Bcd
-          statement_terminator: ;
-- go_statement:
-    keyword: GO
+  - statement_terminator: ;
+  - go_statement:
+      keyword: GO
 - batch:
     statement:
       select_statement:
@@ -385,4 +385,4 @@ file:
                   - naked_identifier: tst2
                   - dot: .
                   - naked_identifier: id
-          statement_terminator: ;
+    statement_terminator: ;

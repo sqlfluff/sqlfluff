@@ -170,6 +170,7 @@ UNRESERVED_KEYWORDS = [
     "HIERARCHICAL",
     "HOUR",
     "ID",
+    "IDENTIFIED",
     "IF",
     "ILIKE",
     "IN",

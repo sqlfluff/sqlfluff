@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 5589a876d8cca343f15539310fb540c839f80b2f4ad9f2525b28d8910794430c
+_hash: 7cd57536784a7e25f797c84f119bad4adfa89bc17286dd69fb4f44dc67d6841e
 file:
 - batch:
     statement:
@@ -19,11 +19,11 @@ file:
           column_definition:
             naked_identifier: column_a
             data_type:
-              data_type_identifier: INT
+              keyword: INT
           end_bracket: )
-      - statement_terminator: ;
-- go_statement:
-    keyword: GO
+    statement_terminator: ;
+    go_statement:
+      keyword: GO
 - batch:
     statement:
       alter_table_statement:
@@ -37,18 +37,18 @@ file:
       - column_definition:
           naked_identifier: column_b
           data_type:
-            data_type_identifier: VARCHAR
+            keyword: VARCHAR
             bracketed_arguments:
               bracketed:
                 start_bracket: (
                 expression:
-                  numeric_literal: '20'
+                  integer_literal: '20'
                 end_bracket: )
           column_constraint_segment:
             keyword: 'NULL'
     statement_terminator: ;
-- go_statement:
-    keyword: GO
+    go_statement:
+      keyword: GO
 - batch:
     statement:
       create_table_statement:
@@ -63,11 +63,11 @@ file:
           column_definition:
             naked_identifier: column_a
             data_type:
-              data_type_identifier: INT
+              keyword: INT
           end_bracket: )
-      - statement_terminator: ;
-- go_statement:
-    keyword: GO
+    statement_terminator: ;
+    go_statement:
+      keyword: GO
 - batch:
     statement:
       alter_table_statement:
@@ -81,12 +81,12 @@ file:
       - column_definition:
         - naked_identifier: column_b
         - data_type:
-            data_type_identifier: VARCHAR
+            keyword: VARCHAR
             bracketed_arguments:
               bracketed:
                 start_bracket: (
                 expression:
-                  numeric_literal: '20'
+                  integer_literal: '20'
                 end_bracket: )
         - column_constraint_segment:
             keyword: 'NULL'
@@ -108,8 +108,8 @@ file:
       - column_reference:
           naked_identifier: column_c
     statement_terminator: ;
-- go_statement:
-    keyword: GO
+    go_statement:
+      keyword: GO
 - batch:
     statement:
       execute_script_statement:
@@ -119,9 +119,9 @@ file:
         expression:
           column_reference:
             naked_identifier: doc_exc
-        statement_terminator: ;
-- go_statement:
-    keyword: GO
+    statement_terminator: ;
+    go_statement:
+      keyword: GO
 - batch:
     statement:
       drop_table_statement:
@@ -131,9 +131,9 @@ file:
         - naked_identifier: dbo
         - dot: .
         - naked_identifier: doc_exc
-      - statement_terminator: ;
-- go_statement:
-    keyword: GO
+    statement_terminator: ;
+    go_statement:
+      keyword: GO
 - batch:
     statement:
       create_table_statement:
@@ -148,16 +148,16 @@ file:
         - column_definition:
             naked_identifier: column_a
             data_type:
-              data_type_identifier: INT
+              keyword: INT
         - comma: ','
         - column_definition:
             naked_identifier: column_b
             data_type:
-              data_type_identifier: INT
+              keyword: INT
         - end_bracket: )
-      - statement_terminator: ;
-- go_statement:
-    keyword: GO
+    statement_terminator: ;
+    go_statement:
+      keyword: GO
 - batch:
     statement:
       insert_statement:
@@ -176,11 +176,11 @@ file:
           keyword: VALUES
           bracketed:
             start_bracket: (
-            numeric_literal: '7'
+            integer_literal: '7'
             end_bracket: )
     statement_terminator: ;
-- go_statement:
-    keyword: GO
+    go_statement:
+      keyword: GO
 - batch:
     statement:
       alter_table_statement:
@@ -196,13 +196,13 @@ file:
         - object_reference:
             naked_identifier: col_b_def
         - keyword: DEFAULT
-        - numeric_literal: '50'
+        - integer_literal: '50'
       - keyword: FOR
       - column_reference:
           naked_identifier: column_b
     statement_terminator: ;
-- go_statement:
-    keyword: GO
+    go_statement:
+      keyword: GO
 - batch:
     statement:
       insert_statement:
@@ -221,11 +221,11 @@ file:
           keyword: VALUES
           bracketed:
             start_bracket: (
-            numeric_literal: '10'
+            integer_literal: '10'
             end_bracket: )
     statement_terminator: ;
-- go_statement:
-    keyword: GO
+    go_statement:
+      keyword: GO
 - batch:
     statement:
       select_statement:
@@ -244,9 +244,9 @@ file:
                 - naked_identifier: dbo
                 - dot: .
                 - naked_identifier: doc_exz
-          statement_terminator: ;
-- go_statement:
-    keyword: GO
+    statement_terminator: ;
+    go_statement:
+      keyword: GO
 - batch:
     statement:
       drop_table_statement:
@@ -256,9 +256,9 @@ file:
         - naked_identifier: dbo
         - dot: .
         - naked_identifier: doc_exz
-      - statement_terminator: ;
-- go_statement:
-    keyword: GO
+    statement_terminator: ;
+    go_statement:
+      keyword: GO
 - batch:
     statement:
       alter_table_statement:
@@ -282,8 +282,8 @@ file:
               index_column_definition:
                 naked_identifier: TransactionID
               end_bracket: )
-- go_statement:
-    keyword: GO
+    go_statement:
+      keyword: GO
 - batch:
     statement:
       alter_table_statement:
@@ -298,15 +298,15 @@ file:
       - column_definition:
           naked_identifier: rec_number
           data_type:
-            data_type_identifier: VARCHAR
+            keyword: VARCHAR
             bracketed_arguments:
               bracketed:
                 start_bracket: (
                 expression:
-                  numeric_literal: '36'
+                  integer_literal: '36'
                 end_bracket: )
-- go_statement:
-    keyword: GO
+    go_statement:
+      keyword: GO
 - batch:
   - statement:
       alter_table_statement:
@@ -367,8 +367,8 @@ file:
               column_reference:
                 quoted_identifier: '[ProductID]'
               end_bracket: )
-- go_statement:
-    keyword: GO
+  - go_statement:
+      keyword: GO
 - batch:
     statement:
       alter_table_statement:
@@ -382,8 +382,8 @@ file:
       - keyword: CONSTRAINT
       - object_reference:
           quoted_identifier: '[FK_ProductCostHistory_Product_ProductID]'
-- go_statement:
-    keyword: GO
+    go_statement:
+      keyword: GO
 - batch:
     statement:
       alter_table_statement:
@@ -395,14 +395,14 @@ file:
       - column_definition:
           naked_identifier: my_col_1
           data_type:
-            data_type_identifier: INT
+            keyword: INT
       - comma: ','
       - column_definition:
           naked_identifier: my_col_2
           data_type:
-            data_type_identifier: INT
-- go_statement:
-    keyword: GO
+            keyword: INT
+    go_statement:
+      keyword: GO
 - batch:
     statement:
       alter_table_statement:
@@ -419,8 +419,8 @@ file:
         - keyword: 'ON'
         - end_bracket: )
     statement_terminator: ;
-- go_statement:
-    keyword: GO
+    go_statement:
+      keyword: GO
 - batch:
     statement:
       alter_table_statement:
@@ -437,8 +437,8 @@ file:
         - keyword: 'OFF'
         - end_bracket: )
     statement_terminator: ;
-- go_statement:
-    keyword: GO
+    go_statement:
+      keyword: GO
 - batch:
     statement:
       alter_table_statement:
@@ -463,8 +463,8 @@ file:
             end_bracket: )
         - end_bracket: )
     statement_terminator: ;
-- go_statement:
-    keyword: GO
+    go_statement:
+      keyword: GO
 - batch:
     statement:
       alter_table_statement:
@@ -494,8 +494,8 @@ file:
           - end_bracket: )
         - end_bracket: )
     statement_terminator: ;
-- go_statement:
-    keyword: GO
+    go_statement:
+      keyword: GO
 - batch:
     statement:
       alter_table_statement:
@@ -530,8 +530,8 @@ file:
           - end_bracket: )
         - end_bracket: )
     statement_terminator: ;
-- go_statement:
-    keyword: GO
+    go_statement:
+      keyword: GO
 - batch:
     statement:
       alter_table_statement:
@@ -567,8 +567,8 @@ file:
           - end_bracket: )
         - end_bracket: )
     statement_terminator: ;
-- go_statement:
-    keyword: GO
+    go_statement:
+      keyword: GO
 - batch:
     statement:
       alter_table_statement:
@@ -604,8 +604,8 @@ file:
           - end_bracket: )
         - end_bracket: )
     statement_terminator: ;
-- go_statement:
-    keyword: GO
+    go_statement:
+      keyword: GO
 - batch:
     statement:
       alter_table_statement:
@@ -623,8 +623,8 @@ file:
             quoted_identifier: '"NULL"'
           end_bracket: )
     statement_terminator: ;
-- go_statement:
-    keyword: GO
+    go_statement:
+      keyword: GO
 - batch:
     statement:
       alter_table_statement:
@@ -642,8 +642,8 @@ file:
             quoted_identifier: '"default"'
           end_bracket: )
     statement_terminator: ;
-- go_statement:
-    keyword: GO
+    go_statement:
+      keyword: GO
 - batch:
     statement:
       alter_table_statement:
@@ -661,8 +661,8 @@ file:
             naked_identifier: PartitionSchemeName
           end_bracket: )
     statement_terminator: ;
-- go_statement:
-    keyword: GO
+    go_statement:
+      keyword: GO
 - batch:
     statement:
       alter_table_statement:
@@ -679,8 +679,8 @@ file:
         - keyword: 'ON'
         - end_bracket: )
     statement_terminator: ;
-- go_statement:
-    keyword: GO
+    go_statement:
+      keyword: GO
 - batch:
     statement:
       alter_table_statement:
@@ -705,8 +705,8 @@ file:
             end_bracket: )
         - end_bracket: )
     statement_terminator: ;
-- go_statement:
-    keyword: GO
+    go_statement:
+      keyword: GO
 - batch:
     statement:
       alter_table_statement:
@@ -737,8 +737,8 @@ file:
           - end_bracket: )
         - end_bracket: )
     statement_terminator: ;
-- go_statement:
-    keyword: GO
+    go_statement:
+      keyword: GO
 - batch:
     statement:
       alter_table_statement:
@@ -768,8 +768,8 @@ file:
           - end_bracket: )
         - end_bracket: )
     statement_terminator: ;
-- go_statement:
-    keyword: GO
+    go_statement:
+      keyword: GO
 - batch:
     statement:
       alter_table_statement:
@@ -800,8 +800,8 @@ file:
           - end_bracket: )
         - end_bracket: )
     statement_terminator: ;
-- go_statement:
-    keyword: GO
+    go_statement:
+      keyword: GO
 - batch:
     statement:
       alter_table_statement:
@@ -832,8 +832,8 @@ file:
           - end_bracket: )
         - end_bracket: )
     statement_terminator: ;
-- go_statement:
-    keyword: GO
+    go_statement:
+      keyword: GO
 - batch:
     statement:
       alter_table_statement:
@@ -857,8 +857,8 @@ file:
           - numeric_literal: '1.5'
         - keyword: PERSISTED
     statement_terminator: ;
-- go_statement:
-    keyword: GO
+    go_statement:
+      keyword: GO
 - batch:
     statement:
       alter_table_statement:
@@ -887,8 +887,8 @@ file:
         - keyword: NOT
         - keyword: 'NULL'
     statement_terminator: ;
-- go_statement:
-    keyword: GO
+    go_statement:
+      keyword: GO
 - batch:
     statement:
       alter_table_statement:
@@ -913,11 +913,11 @@ file:
                     quoted_identifier: '[InventoryTs]'
                 keyword: AS
                 data_type:
-                  data_type_identifier: date
+                  keyword: date
                 end_bracket: )
     statement_terminator: ;
-- go_statement:
-    keyword: GO
+    go_statement:
+      keyword: GO
 - batch:
     statement:
       alter_table_statement:
@@ -957,8 +957,8 @@ file:
           - keyword: DELETE
           - keyword: CASCADE
     statement_terminator: ;
-- go_statement:
-    keyword: GO
+    go_statement:
+      keyword: GO
 - batch:
   - statement:
       alter_table_statement:
@@ -1010,12 +1010,10 @@ file:
             quoted_identifier: '[strUserId]'
             data_type:
               data_type_identifier: '[char]'
-              bracketed_arguments:
-                bracketed:
-                  start_bracket: (
-                  expression:
-                    numeric_literal: '21'
-                  end_bracket: )
+            bracketed:
+              start_bracket: (
+              numeric_literal: '21'
+              end_bracket: )
             column_constraint_segment:
             - keyword: NOT
             - keyword: 'NULL'
@@ -1024,12 +1022,10 @@ file:
             quoted_identifier: '[strItem]'
             data_type:
               data_type_identifier: '[binary]'
-              bracketed_arguments:
-                bracketed:
-                  start_bracket: (
-                  expression:
-                    numeric_literal: '400'
-                  end_bracket: )
+            bracketed:
+              start_bracket: (
+              numeric_literal: '400'
+              end_bracket: )
             column_constraint_segment:
               keyword: 'NULL'
         - comma: ','
@@ -1037,12 +1033,10 @@ file:
             quoted_identifier: '[strSkill]'
             data_type:
               data_type_identifier: '[binary]'
-              bracketed_arguments:
-                bracketed:
-                  start_bracket: (
-                  expression:
-                    numeric_literal: '400'
-                  end_bracket: )
+            bracketed:
+              start_bracket: (
+              numeric_literal: '400'
+              end_bracket: )
             column_constraint_segment:
               keyword: 'NULL'
         - comma: ','
@@ -1061,7 +1055,7 @@ file:
                   keyword: ASC
                 end_bracket: )
         - end_bracket: )
-      - statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       alter_table_statement:
       - keyword: ALTER
@@ -1078,14 +1072,14 @@ file:
         - keyword: DEFAULT
         - bracketed:
             start_bracket: (
-            numeric_literal: '0x00'
+            binary_literal: '0x00'
             end_bracket: )
       - keyword: FOR
       - column_reference:
           quoted_identifier: '[strSkill]'
   - statement_terminator: ;
-- go_statement:
-    keyword: GO
+  - go_statement:
+      keyword: GO
 - batch:
   - statement:
       alter_table_statement:

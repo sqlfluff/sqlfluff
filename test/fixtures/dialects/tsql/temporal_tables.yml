@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: c6b1721989e1c1a27945606b69a0849014796d39f869e76969243459b0a0d603
+_hash: 6b2fdeb90ef3c094941357d2bbda4dcc9cebb8d2f80f2e5e5a3c9825b1d12d6b
 file:
 - batch:
   - statement:
@@ -28,7 +28,7 @@ file:
               - quoted_literal: "'2021-01-01 00:00:00.0000000'"
               - keyword: AND
               - quoted_literal: "'2022-01-01 00:00:00.0000000'"
-          statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       select_statement:
         select_clause:
@@ -48,7 +48,7 @@ file:
               - keyword: FOR
               - keyword: SYSTEM_TIME
               - keyword: ALL
-          statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       select_statement:
         select_clause:
@@ -71,7 +71,7 @@ file:
               - quoted_literal: "'2021-01-01 00:00:00.0000000'"
               - keyword: TO
               - quoted_literal: "'2022-01-01 00:00:00.0000000'"
-          statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       select_statement:
         select_clause:
@@ -93,7 +93,7 @@ file:
               - keyword: AS
               - keyword: OF
               - quoted_literal: "'2021-01-01 00:00:00.0000000'"
-          statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       select_statement:
         select_clause:
@@ -120,29 +120,29 @@ file:
                 - comma: ','
                 - quoted_literal: "'2022-01-01 00:00:00.0000000'"
                 - end_bracket: )
-          statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       declare_segment:
         keyword: DECLARE
         parameter: '@StartTime'
         data_type:
-          data_type_identifier: DATETIME2
+          keyword: DATETIME2
         comparison_operator:
           raw_comparison_operator: '='
         expression:
           quoted_literal: "'2021-01-01 00:00:00'"
-        statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       declare_segment:
         keyword: DECLARE
         parameter: '@EndTime'
         data_type:
-          data_type_identifier: DATETIME2
+          keyword: DATETIME2
         comparison_operator:
           raw_comparison_operator: '='
         expression:
           quoted_literal: "'2022-01-01 00:00:00'"
-        statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       select_statement:
         select_clause:
@@ -165,18 +165,18 @@ file:
               - parameter: '@StartTime'
               - keyword: TO
               - parameter: '@EndTime'
-          statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       declare_segment:
         keyword: DECLARE
         parameter: '@PointInTime'
         data_type:
-          data_type_identifier: DATETIME2
+          keyword: DATETIME2
         comparison_operator:
           raw_comparison_operator: '='
         expression:
           quoted_literal: "'2021-01-01 00:00:00'"
-        statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       select_statement:
         select_clause:
@@ -198,7 +198,7 @@ file:
               - keyword: AS
               - keyword: OF
               - parameter: '@PointInTime'
-          statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       create_table_statement:
       - keyword: CREATE
@@ -213,36 +213,34 @@ file:
             quoted_identifier: '[Column B]'
             data_type:
               data_type_identifier: '[varchar]'
-              bracketed_arguments:
-                bracketed:
-                  start_bracket: (
-                  expression:
-                    numeric_literal: '100'
-                  end_bracket: )
+            bracketed:
+              start_bracket: (
+              numeric_literal: '100'
+              end_bracket: )
         - comma: ','
         - column_definition:
             quoted_identifier: '[ColumnC]'
             data_type:
-              data_type_identifier: varchar
+              keyword: varchar
               bracketed_arguments:
                 bracketed:
                   start_bracket: (
                   expression:
-                    numeric_literal: '100'
+                    integer_literal: '100'
                   end_bracket: )
         - comma: ','
         - column_definition:
             quoted_identifier: '[ColumnDecimal]'
             data_type:
-              data_type_identifier: decimal
+              keyword: decimal
               bracketed_arguments:
                 bracketed:
                 - start_bracket: (
                 - expression:
-                    numeric_literal: '10'
+                    integer_literal: '10'
                 - comma: ','
                 - expression:
-                    numeric_literal: '3'
+                    integer_literal: '3'
                 - end_bracket: )
         - end_bracket: )
       - table_option_statement:
@@ -269,10 +267,10 @@ file:
               raw_comparison_operator: '='
           - keyword: SCHEMA_ONLY
           - end_bracket: )
-      - statement_terminator: ;
   - statement_terminator: ;
-- go_statement:
-    keyword: GO
+  - statement_terminator: ;
+  - go_statement:
+      keyword: GO
 - batch:
     statement:
       create_table_statement:
@@ -285,7 +283,7 @@ file:
         - column_definition:
           - naked_identifier: DeptID
           - data_type:
-              data_type_identifier: INT
+              keyword: INT
           - column_constraint_segment:
             - keyword: NOT
             - keyword: 'NULL'
@@ -297,12 +295,12 @@ file:
         - column_definition:
             naked_identifier: DeptName
             data_type:
-              data_type_identifier: VARCHAR
+              keyword: VARCHAR
               bracketed_arguments:
                 bracketed:
                   start_bracket: (
                   expression:
-                    numeric_literal: '50'
+                    integer_literal: '50'
                   end_bracket: )
             column_constraint_segment:
             - keyword: NOT
@@ -311,21 +309,21 @@ file:
         - column_definition:
             naked_identifier: ManagerID
             data_type:
-              data_type_identifier: INT
+              keyword: INT
             column_constraint_segment:
               keyword: 'NULL'
         - comma: ','
         - column_definition:
             naked_identifier: ParentDeptID
             data_type:
-              data_type_identifier: INT
+              keyword: INT
             column_constraint_segment:
               keyword: 'NULL'
         - comma: ','
         - column_definition:
           - naked_identifier: ValidFrom
           - data_type:
-              data_type_identifier: DATETIME2
+              keyword: DATETIME2
           - column_constraint_segment:
             - keyword: GENERATED
             - keyword: ALWAYS
@@ -339,7 +337,7 @@ file:
         - column_definition:
           - naked_identifier: ValidTo
           - data_type:
-              data_type_identifier: DATETIME2
+              keyword: DATETIME2
           - column_constraint_segment:
             - keyword: GENERATED
             - keyword: ALWAYS
@@ -382,11 +380,11 @@ file:
               - naked_identifier: DepartmentHistory
               end_bracket: )
           - end_bracket: )
-      - statement_terminator: ;
-- go_statement:
-    keyword: GO
+    statement_terminator: ;
+    go_statement:
+      keyword: GO
 - batch:
-    statement:
+  - statement:
       create_table_statement:
       - keyword: CREATE
       - keyword: TABLE
@@ -400,36 +398,34 @@ file:
             quoted_identifier: '[Column B]'
             data_type:
               data_type_identifier: '[varchar]'
-              bracketed_arguments:
-                bracketed:
-                  start_bracket: (
-                  expression:
-                    numeric_literal: '100'
-                  end_bracket: )
+            bracketed:
+              start_bracket: (
+              numeric_literal: '100'
+              end_bracket: )
         - comma: ','
         - column_definition:
             quoted_identifier: '[ColumnC]'
             data_type:
-              data_type_identifier: varchar
+              keyword: varchar
               bracketed_arguments:
                 bracketed:
                   start_bracket: (
                   expression:
-                    numeric_literal: '100'
+                    integer_literal: '100'
                   end_bracket: )
         - comma: ','
         - column_definition:
             quoted_identifier: '[ColumnDecimal]'
             data_type:
-              data_type_identifier: decimal
+              keyword: decimal
               bracketed_arguments:
                 bracketed:
                 - start_bracket: (
                 - expression:
-                    numeric_literal: '10'
+                    integer_literal: '10'
                 - comma: ','
                 - expression:
-                    numeric_literal: '3'
+                    integer_literal: '3'
                 - end_bracket: )
         - end_bracket: )
       - table_option_statement:
@@ -442,12 +438,12 @@ file:
             object_reference:
               naked_identifier: COLUMNC
             end_bracket: )
-      - statement_terminator: ;
-    statement_terminator: ;
-- go_statement:
-    keyword: GO
+  - statement_terminator: ;
+  - statement_terminator: ;
+  - go_statement:
+      keyword: GO
 - batch:
-    statement:
+  - statement:
       create_table_statement:
       - keyword: CREATE
       - keyword: TABLE
@@ -461,36 +457,34 @@ file:
             quoted_identifier: '[Column B]'
             data_type:
               data_type_identifier: '[varchar]'
-              bracketed_arguments:
-                bracketed:
-                  start_bracket: (
-                  expression:
-                    numeric_literal: '100'
-                  end_bracket: )
+            bracketed:
+              start_bracket: (
+              numeric_literal: '100'
+              end_bracket: )
         - comma: ','
         - column_definition:
             quoted_identifier: '[ColumnC]'
             data_type:
-              data_type_identifier: varchar
+              keyword: varchar
               bracketed_arguments:
                 bracketed:
                   start_bracket: (
                   expression:
-                    numeric_literal: '100'
+                    integer_literal: '100'
                   end_bracket: )
         - comma: ','
         - column_definition:
             quoted_identifier: '[ColumnDecimal]'
             data_type:
-              data_type_identifier: decimal
+              keyword: decimal
               bracketed_arguments:
                 bracketed:
                 - start_bracket: (
                 - expression:
-                    numeric_literal: '10'
+                    integer_literal: '10'
                 - comma: ','
                 - expression:
-                    numeric_literal: '3'
+                    integer_literal: '3'
                 - end_bracket: )
         - end_bracket: )
       - table_option_statement:
@@ -515,10 +509,10 @@ file:
             - date_part: INFINITE
             - end_bracket: )
           - end_bracket: )
-      - statement_terminator: ;
-    statement_terminator: ;
-- go_statement:
-    keyword: GO
+  - statement_terminator: ;
+  - statement_terminator: ;
+  - go_statement:
+      keyword: GO
 - batch:
     statement:
       create_table_statement:
@@ -534,36 +528,34 @@ file:
             quoted_identifier: '[Column B]'
             data_type:
               data_type_identifier: '[varchar]'
-              bracketed_arguments:
-                bracketed:
-                  start_bracket: (
-                  expression:
-                    numeric_literal: '100'
-                  end_bracket: )
+            bracketed:
+              start_bracket: (
+              numeric_literal: '100'
+              end_bracket: )
         - comma: ','
         - column_definition:
             quoted_identifier: '[ColumnC]'
             data_type:
-              data_type_identifier: varchar
+              keyword: varchar
               bracketed_arguments:
                 bracketed:
                   start_bracket: (
                   expression:
-                    numeric_literal: '100'
+                    integer_literal: '100'
                   end_bracket: )
         - comma: ','
         - column_definition:
             quoted_identifier: '[ColumnDecimal]'
             data_type:
-              data_type_identifier: decimal
+              keyword: decimal
               bracketed_arguments:
                 bracketed:
                 - start_bracket: (
                 - expression:
-                    numeric_literal: '10'
+                    integer_literal: '10'
                 - comma: ','
                 - expression:
-                    numeric_literal: '3'
+                    integer_literal: '3'
                 - end_bracket: )
         - end_bracket: )
       - table_option_statement:
@@ -595,9 +587,9 @@ file:
               - naked_identifier: DepartmentHistory
               end_bracket: )
           - end_bracket: )
-      - statement_terminator: ;
-- go_statement:
-    keyword: GO
+    statement_terminator: ;
+    go_statement:
+      keyword: GO
 - batch:
     statement:
       create_table_statement:
@@ -613,36 +605,34 @@ file:
             quoted_identifier: '[Column B]'
             data_type:
               data_type_identifier: '[varchar]'
-              bracketed_arguments:
-                bracketed:
-                  start_bracket: (
-                  expression:
-                    numeric_literal: '100'
-                  end_bracket: )
+            bracketed:
+              start_bracket: (
+              numeric_literal: '100'
+              end_bracket: )
         - comma: ','
         - column_definition:
             quoted_identifier: '[ColumnC]'
             data_type:
-              data_type_identifier: varchar
+              keyword: varchar
               bracketed_arguments:
                 bracketed:
                   start_bracket: (
                   expression:
-                    numeric_literal: '100'
+                    integer_literal: '100'
                   end_bracket: )
         - comma: ','
         - column_definition:
             quoted_identifier: '[ColumnDecimal]'
             data_type:
-              data_type_identifier: decimal
+              keyword: decimal
               bracketed_arguments:
                 bracketed:
                 - start_bracket: (
                 - expression:
-                    numeric_literal: '10'
+                    integer_literal: '10'
                 - comma: ','
                 - expression:
-                    numeric_literal: '3'
+                    integer_literal: '3'
                 - end_bracket: )
         - end_bracket: )
       - table_option_statement:
@@ -690,9 +680,9 @@ file:
               - end_bracket: )
               end_bracket: )
           - end_bracket: )
-      - statement_terminator: ;
-- go_statement:
-    keyword: GO
+    statement_terminator: ;
+    go_statement:
+      keyword: GO
 - batch:
     statement:
       create_table_statement:
@@ -708,36 +698,34 @@ file:
             quoted_identifier: '[Column B]'
             data_type:
               data_type_identifier: '[varchar]'
-              bracketed_arguments:
-                bracketed:
-                  start_bracket: (
-                  expression:
-                    numeric_literal: '100'
-                  end_bracket: )
+            bracketed:
+              start_bracket: (
+              numeric_literal: '100'
+              end_bracket: )
         - comma: ','
         - column_definition:
             quoted_identifier: '[ColumnC]'
             data_type:
-              data_type_identifier: varchar
+              keyword: varchar
               bracketed_arguments:
                 bracketed:
                   start_bracket: (
                   expression:
-                    numeric_literal: '100'
+                    integer_literal: '100'
                   end_bracket: )
         - comma: ','
         - column_definition:
             quoted_identifier: '[ColumnDecimal]'
             data_type:
-              data_type_identifier: decimal
+              keyword: decimal
               bracketed_arguments:
                 bracketed:
                 - start_bracket: (
                 - expression:
-                    numeric_literal: '10'
+                    integer_literal: '10'
                 - comma: ','
                 - expression:
-                    numeric_literal: '3'
+                    integer_literal: '3'
                 - end_bracket: )
         - end_bracket: )
       - table_option_statement:
@@ -759,9 +747,9 @@ file:
               numeric_literal: '2'
               end_bracket: )
           - end_bracket: )
-      - statement_terminator: ;
-- go_statement:
-    keyword: GO
+    statement_terminator: ;
+    go_statement:
+      keyword: GO
 - batch:
     statement:
       create_table_statement:
@@ -777,36 +765,34 @@ file:
             quoted_identifier: '[Column B]'
             data_type:
               data_type_identifier: '[varchar]'
-              bracketed_arguments:
-                bracketed:
-                  start_bracket: (
-                  expression:
-                    numeric_literal: '100'
-                  end_bracket: )
+            bracketed:
+              start_bracket: (
+              numeric_literal: '100'
+              end_bracket: )
         - comma: ','
         - column_definition:
             quoted_identifier: '[ColumnC]'
             data_type:
-              data_type_identifier: varchar
+              keyword: varchar
               bracketed_arguments:
                 bracketed:
                   start_bracket: (
                   expression:
-                    numeric_literal: '100'
+                    integer_literal: '100'
                   end_bracket: )
         - comma: ','
         - column_definition:
             quoted_identifier: '[ColumnDecimal]'
             data_type:
-              data_type_identifier: decimal
+              keyword: decimal
               bracketed_arguments:
                 bracketed:
                 - start_bracket: (
                 - expression:
-                    numeric_literal: '10'
+                    integer_literal: '10'
                 - comma: ','
                 - expression:
-                    numeric_literal: '3'
+                    integer_literal: '3'
                 - end_bracket: )
         - end_bracket: )
       - table_option_statement:
@@ -830,9 +816,9 @@ file:
               raw_comparison_operator: '='
           - keyword: 'OFF'
           - end_bracket: )
-      - statement_terminator: ;
-- go_statement:
-    keyword: GO
+    statement_terminator: ;
+    go_statement:
+      keyword: GO
 - batch:
     statement:
       create_table_statement:
@@ -848,36 +834,34 @@ file:
             quoted_identifier: '[Column B]'
             data_type:
               data_type_identifier: '[varchar]'
-              bracketed_arguments:
-                bracketed:
-                  start_bracket: (
-                  expression:
-                    numeric_literal: '100'
-                  end_bracket: )
+            bracketed:
+              start_bracket: (
+              numeric_literal: '100'
+              end_bracket: )
         - comma: ','
         - column_definition:
             quoted_identifier: '[ColumnC]'
             data_type:
-              data_type_identifier: varchar
+              keyword: varchar
               bracketed_arguments:
                 bracketed:
                   start_bracket: (
                   expression:
-                    numeric_literal: '100'
+                    integer_literal: '100'
                   end_bracket: )
         - comma: ','
         - column_definition:
             quoted_identifier: '[ColumnDecimal]'
             data_type:
-              data_type_identifier: decimal
+              keyword: decimal
               bracketed_arguments:
                 bracketed:
                 - start_bracket: (
                 - expression:
-                    numeric_literal: '10'
+                    integer_literal: '10'
                 - comma: ','
                 - expression:
-                    numeric_literal: '3'
+                    integer_literal: '3'
                 - end_bracket: )
         - end_bracket: )
       - table_option_statement:
@@ -926,9 +910,9 @@ file:
           - object_reference:
               naked_identifier: constraint4
           - end_bracket: )
-      - statement_terminator: ;
-- go_statement:
-    keyword: GO
+    statement_terminator: ;
+    go_statement:
+      keyword: GO
 - batch:
     statement:
       create_table_statement:
@@ -944,36 +928,34 @@ file:
             quoted_identifier: '[Column B]'
             data_type:
               data_type_identifier: '[varchar]'
-              bracketed_arguments:
-                bracketed:
-                  start_bracket: (
-                  expression:
-                    numeric_literal: '100'
-                  end_bracket: )
+            bracketed:
+              start_bracket: (
+              numeric_literal: '100'
+              end_bracket: )
         - comma: ','
         - column_definition:
             quoted_identifier: '[ColumnC]'
             data_type:
-              data_type_identifier: varchar
+              keyword: varchar
               bracketed_arguments:
                 bracketed:
                   start_bracket: (
                   expression:
-                    numeric_literal: '100'
+                    integer_literal: '100'
                   end_bracket: )
         - comma: ','
         - column_definition:
             quoted_identifier: '[ColumnDecimal]'
             data_type:
-              data_type_identifier: decimal
+              keyword: decimal
               bracketed_arguments:
                 bracketed:
                 - start_bracket: (
                 - expression:
-                    numeric_literal: '10'
+                    integer_literal: '10'
                 - comma: ','
                 - expression:
-                    numeric_literal: '3'
+                    integer_literal: '3'
                 - end_bracket: )
         - end_bracket: )
       - table_option_statement:
@@ -1017,6 +999,6 @@ file:
             - keyword: 'ON'
             - end_bracket: )
           - end_bracket: )
-      - statement_terminator: ;
-- go_statement:
-    keyword: GO
+    statement_terminator: ;
+    go_statement:
+      keyword: GO

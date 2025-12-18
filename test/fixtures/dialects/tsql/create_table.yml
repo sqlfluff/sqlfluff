@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 5da583c0e5899600af6cd8bd9abd5e14a54d6374cf5f53cdf7b03802e8c554ca
+_hash: f8a2a4fd5650e302c680d7646413f27a178a0b72e2e3019cf76b817ef39fb340
 file:
   batch:
   - statement:
@@ -20,36 +20,34 @@ file:
             quoted_identifier: '[Column B]'
             data_type:
               data_type_identifier: '[varchar]'
-              bracketed_arguments:
-                bracketed:
-                  start_bracket: (
-                  expression:
-                    numeric_literal: '100'
-                  end_bracket: )
+            bracketed:
+              start_bracket: (
+              numeric_literal: '100'
+              end_bracket: )
         - comma: ','
         - column_definition:
             quoted_identifier: '[ColumnC]'
             data_type:
-              data_type_identifier: varchar
+              keyword: varchar
               bracketed_arguments:
                 bracketed:
                   start_bracket: (
                   expression:
-                    numeric_literal: '100'
+                    integer_literal: '100'
                   end_bracket: )
         - comma: ','
         - column_definition:
             quoted_identifier: '[ColumnDecimal]'
             data_type:
-              data_type_identifier: decimal
+              keyword: decimal
               bracketed_arguments:
                 bracketed:
                 - start_bracket: (
                 - expression:
-                    numeric_literal: '10'
+                    integer_literal: '10'
                 - comma: ','
                 - expression:
-                    numeric_literal: '3'
+                    integer_literal: '3'
                 - end_bracket: )
         - end_bracket: )
   - statement:
@@ -63,7 +61,7 @@ file:
         - column_definition:
             naked_identifier: pk
             data_type:
-              data_type_identifier: int
+              keyword: int
             column_constraint_segment:
             - keyword: PRIMARY
             - keyword: KEY
@@ -101,7 +99,7 @@ file:
               dot: .
               quoted_identifier: '[custom udt]'
         - end_bracket: )
-      - statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       create_table_statement:
       - keyword: CREATE
@@ -115,7 +113,7 @@ file:
         - column_definition:
           - naked_identifier: ProductID
           - data_type:
-              data_type_identifier: int
+              keyword: int
           - column_constraint_segment:
               identity_grammar:
                 keyword: IDENTITY
@@ -132,28 +130,28 @@ file:
         - column_definition:
             naked_identifier: InventoryTs
             data_type:
-              data_type_identifier: datetime2
+              keyword: datetime2
               bracketed_arguments:
                 bracketed:
                   start_bracket: (
                   expression:
-                    numeric_literal: '0'
+                    integer_literal: '0'
                   end_bracket: )
         - comma: ','
         - column_definition:
             naked_identifier: QtyAvailable
             data_type:
-              data_type_identifier: smallint
+              keyword: smallint
         - comma: ','
         - column_definition:
             naked_identifier: QtySold
             data_type:
-              data_type_identifier: smallint
+              keyword: smallint
         - comma: ','
         - column_definition:
             naked_identifier: UnitPrice
             data_type:
-              data_type_identifier: money
+              keyword: money
         - comma: ','
         - computed_column_definition:
           - naked_identifier: InventoryValue1
@@ -229,10 +227,10 @@ file:
                       naked_identifier: InventoryTs
                   keyword: AS
                   data_type:
-                    data_type_identifier: date
+                    keyword: date
                   end_bracket: )
         - end_bracket: )
-      - statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       create_table_statement:
       - keyword: CREATE
@@ -297,4 +295,4 @@ file:
           - column_constraint_segment:
               keyword: UNIQUE
         - end_bracket: )
-      - statement_terminator: ;
+  - statement_terminator: ;

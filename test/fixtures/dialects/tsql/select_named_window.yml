@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 24dceed7a3e011ab5c6f65e97a705d9a988ca9bd6a99da65557acf056d3653b5
+_hash: 5a860ee8ecc29d9b7b8f2891154d248d232c4c5a8110dee1ddff4e8e26096cce
 file:
   batch:
   - statement:
@@ -122,7 +122,7 @@ file:
           - comparison_operator:
             - raw_comparison_operator: <
             - raw_comparison_operator: '>'
-          - numeric_literal: '0'
+          - integer_literal: '0'
         named_window:
           keyword: WINDOW
           named_window_expression:
@@ -148,7 +148,7 @@ file:
         - keyword: BY
         - column_reference:
             naked_identifier: PostalCode
-        statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       select_statement:
         select_clause:
@@ -276,9 +276,9 @@ file:
             keyword: IN
             bracketed:
             - start_bracket: (
-            - numeric_literal: '43659'
+            - integer_literal: '43659'
             - comma: ','
-            - numeric_literal: '43664'
+            - integer_literal: '43664'
             - end_bracket: )
         named_window:
           keyword: WINDOW
@@ -294,7 +294,7 @@ file:
                 - column_reference:
                     naked_identifier: SalesOrderID
               end_bracket: )
-        statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       select_statement:
         select_clause:
@@ -413,9 +413,9 @@ file:
           - keyword: IN
           - bracketed:
             - start_bracket: (
-            - numeric_literal: '43659'
+            - integer_literal: '43659'
             - comma: ','
-            - numeric_literal: '43664'
+            - integer_literal: '43664'
             - end_bracket: )
           - binary_operator: AND
           - column_reference:
@@ -439,7 +439,7 @@ file:
                 - column_reference:
                     naked_identifier: ProductID
               end_bracket: )
-        statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       select_statement:
         select_clause:
@@ -518,9 +518,9 @@ file:
           - keyword: IN
           - bracketed:
             - start_bracket: (
-            - numeric_literal: '43659'
+            - integer_literal: '43659'
             - comma: ','
-            - numeric_literal: '43664'
+            - integer_literal: '43664'
             - end_bracket: )
           - binary_operator: AND
           - column_reference:
@@ -567,7 +567,7 @@ file:
                 - column_reference:
                     naked_identifier: SalesOrderID
               end_bracket: )
-        statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       select_statement:
         select_clause:
@@ -610,4 +610,4 @@ file:
                 - column_reference:
                     naked_identifier: table_name
               end_bracket: )
-        statement_terminator: ;
+  - statement_terminator: ;

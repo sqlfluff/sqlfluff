@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 333acdf9243a058e27457a9e769f500611d59400530ba6f5e77acc40f92644c0
+_hash: 066dae08a8e237bc479afca778fe111c8e83c218cba16af4abe16a8b4496bb81
 file:
 - batch:
     statement:
@@ -58,9 +58,9 @@ file:
                 index_column_definition:
                   naked_identifier: DATE_LAST_INSERTED
                 end_bracket: )
-          - statement_terminator: ;
-- go_statement:
-    keyword: GO
+        statement_terminator: ;
+    go_statement:
+      keyword: GO
 - batch:
     statement:
       if_then_statement:
@@ -114,9 +114,9 @@ file:
                 index_column_definition:
                   naked_identifier: DATE_LAST_INSERTED
                 end_bracket: )
-          - statement_terminator: ;
-- go_statement:
-    keyword: GO
+        statement_terminator: ;
+    go_statement:
+      keyword: GO
 - batch:
     statement:
       if_then_statement:
@@ -169,9 +169,9 @@ file:
                 index_column_definition:
                   naked_identifier: DATE_LAST_INSERTED
                 end_bracket: )
-          - statement_terminator: ;
-- go_statement:
-    keyword: GO
+        statement_terminator: ;
+    go_statement:
+      keyword: GO
 - batch:
     statement:
       create_index_statement:
@@ -208,9 +208,9 @@ file:
               keyword: IS
               null_literal: 'NULL'
             end_bracket: )
-      - statement_terminator: ;
-- go_statement:
-    keyword: GO
+    statement_terminator: ;
+    go_statement:
+      keyword: GO
 - batch:
     statement:
       create_index_statement:
@@ -236,9 +236,9 @@ file:
             keyword: 'ON'
             filegroup_name:
               quoted_identifier: '[PRIMARY]'
-      - statement_terminator: ;
-- go_statement:
-    keyword: GO
+    statement_terminator: ;
+    go_statement:
+      keyword: GO
 - batch:
     statement:
       create_index_statement:
@@ -266,10 +266,10 @@ file:
         - keyword: FILLFACTOR
         - comparison_operator:
             raw_comparison_operator: '='
-        - numeric_literal: '80'
-      - statement_terminator: ;
-- go_statement:
-    keyword: GO
+        - integer_literal: '80'
+    statement_terminator: ;
+    go_statement:
+      keyword: GO
 - batch:
   - statement:
       create_index_statement:
@@ -303,7 +303,7 @@ file:
               raw_comparison_operator: '='
           - keyword: 'ON'
           - end_bracket: )
-      - statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       create_index_statement:
       - keyword: CREATE
@@ -331,9 +331,9 @@ file:
               raw_comparison_operator: '='
           - keyword: 'ON'
           - end_bracket: )
-      - statement_terminator: ;
-- go_statement:
-    keyword: GO
+  - statement_terminator: ;
+  - go_statement:
+      keyword: GO
 - batch:
     statement:
       create_index_statement:
@@ -380,9 +380,9 @@ file:
               - end_bracket: )
               end_bracket: )
           - end_bracket: )
-      - statement_terminator: ;
-- go_statement:
-    keyword: GO
+    statement_terminator: ;
+    go_statement:
+      keyword: GO
 - batch:
     statement:
       create_index_statement:
@@ -421,8 +421,8 @@ file:
             - keyword: TO
             - numeric_literal: '8'
             - end_bracket: )
-- go_statement:
-    keyword: GO
+    go_statement:
+      keyword: GO
 - batch:
     statement:
       create_index_statement:
@@ -447,8 +447,8 @@ file:
           - index_column_definition:
               quoted_identifier: '[Population]'
           - end_bracket: )
-- go_statement:
-    keyword: GO
+    go_statement:
+      keyword: GO
 - batch:
     statement:
       update_statistics_statement:
@@ -459,9 +459,9 @@ file:
         - dot: .
         - naked_identifier: Population
       - naked_identifier: Stats_Population
-      - statement_terminator: ;
-- go_statement:
-    keyword: GO
+    statement_terminator: ;
+    go_statement:
+      keyword: GO
 - batch:
     statement:
       update_statistics_statement:
@@ -477,9 +477,9 @@ file:
         - comma: ','
         - naked_identifier: Stats_Population
         - end_bracket: )
-      - statement_terminator: ;
-- go_statement:
-    keyword: GO
+    statement_terminator: ;
+    go_statement:
+      keyword: GO
 - batch:
     statement:
       update_statistics_statement:
@@ -498,8 +498,8 @@ file:
       - keyword: WITH
       - keyword: FULLSCAN
     statement_terminator: ;
-- go_statement:
-    keyword: GO
+    go_statement:
+      keyword: GO
 - batch:
     statement:
       update_statistics_statement:
@@ -518,8 +518,8 @@ file:
       - keyword: WITH
       - keyword: RESAMPLE
     statement_terminator: ;
-- go_statement:
-    keyword: GO
+    go_statement:
+      keyword: GO
 - batch:
     statement:
       drop_statement:
@@ -531,8 +531,8 @@ file:
         - naked_identifier: Population
         - dot: .
         - naked_identifier: Stats_Population
-- go_statement:
-    keyword: GO
+    go_statement:
+      keyword: GO
 - batch:
     statement:
       drop_index_statement:
@@ -545,6 +545,6 @@ file:
         - naked_identifier: dbo
         - dot: .
         - naked_identifier: VIMR_INFECTIOUS_PEOPLE
-      - statement_terminator: ;
-- go_statement:
-    keyword: GO
+    statement_terminator: ;
+    go_statement:
+      keyword: GO

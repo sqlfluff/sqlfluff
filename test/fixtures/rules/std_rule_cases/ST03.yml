@@ -459,3 +459,27 @@ test_pass_bigquery_unquoted_cte_quoted_ref:
   configs:
     core:
       dialect: bigquery
+
+test_fail_postgres_dml_ctes_not_flagged:
+  desc: Data-modifying CTEs should not be flagged in Postgres; only SELECT CTE is unused.
+  fail_str: |
+    WITH
+    cte_select AS (
+        SELECT foo FROM t
+    ),
+    cte_insert AS (
+        INSERT INTO t (foo) VALUES (1)
+    ),
+    cte_update AS (
+        UPDATE t SET foo = 2
+    ),
+    cte_delete AS (
+        DELETE FROM t
+    )
+
+    SELECT 1
+  configs:
+    core:
+      dialect: postgres
+  line_numbers:
+    - 2

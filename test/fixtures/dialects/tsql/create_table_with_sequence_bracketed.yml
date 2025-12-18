@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: d2ba1222dc34facb043345ddade735eaea43fc02bd63840d53eb3c4cbb4571ae
+_hash: ef7c9b8f741683854a5a8fe35d4e71338c4b800649f5c485650d9986cebdb69d
 file:
 - batch:
     statement:
@@ -69,8 +69,8 @@ file:
             - keyword: BY
             - numeric_literal: '1'
         statement_terminator: ;
-- go_statement:
-    keyword: GO
+    go_statement:
+      keyword: GO
 - batch:
   - statement:
       create_table_statement:
@@ -85,7 +85,7 @@ file:
         - column_definition:
           - quoted_identifier: '[ID]'
           - data_type:
-              data_type_identifier: INT
+              keyword: INT
           - column_constraint_segment:
             - keyword: PRIMARY
             - keyword: KEY
@@ -109,31 +109,31 @@ file:
         - column_definition:
             quoted_identifier: '[WEEK_UNIX]'
             data_type:
-              data_type_identifier: BIGINT
+              keyword: BIGINT
         - comma: ','
         - column_definition:
             naked_identifier: GMCODE
             data_type:
-              data_type_identifier: VARCHAR
+              keyword: VARCHAR
               bracketed_arguments:
                 bracketed:
                   start_bracket: (
                   expression:
-                    numeric_literal: '100'
+                    integer_literal: '100'
                   end_bracket: )
         - comma: ','
         - column_definition:
             naked_identifier: AVERAGE_RNA_FLOW_PER_100000
             data_type:
-              data_type_identifier: DECIMAL
+              keyword: DECIMAL
               bracketed_arguments:
                 bracketed:
                 - start_bracket: (
                 - expression:
-                    numeric_literal: '16'
+                    integer_literal: '16'
                 - comma: ','
                 - expression:
-                    numeric_literal: '2'
+                    integer_literal: '2'
                 - end_bracket: )
             column_constraint_segment:
               keyword: 'NULL'
@@ -141,28 +141,28 @@ file:
         - column_definition:
             naked_identifier: NUMBER_OF_MEASUREMENTS
             data_type:
-              data_type_identifier: INT
+              keyword: INT
             column_constraint_segment:
               keyword: 'NULL'
         - comma: ','
         - column_definition:
             naked_identifier: NUMBER_OF_LOCATIONS
             data_type:
-              data_type_identifier: INT
+              keyword: INT
             column_constraint_segment:
               keyword: 'NULL'
         - comma: ','
         - column_definition:
             naked_identifier: TOTAL_LOCATIONS
             data_type:
-              data_type_identifier: INT
+              keyword: INT
             column_constraint_segment:
               keyword: 'NULL'
         - comma: ','
         - column_definition:
             naked_identifier: DATE_LAST_INSERTED
             data_type:
-              data_type_identifier: DATETIME
+              keyword: DATETIME
             column_constraint_segment:
               keyword: DEFAULT
               function:
@@ -173,7 +173,7 @@ file:
                     start_bracket: (
                     end_bracket: )
         - end_bracket: )
-      - statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       if_then_statement:
         if_clause:
@@ -237,8 +237,8 @@ file:
             - keyword: BY
             - numeric_literal: '1'
         statement_terminator: ;
-- go_statement:
-    keyword: GO
+  - go_statement:
+      keyword: GO
 - batch:
     statement:
       create_table_statement:
@@ -253,7 +253,7 @@ file:
         - column_definition:
           - quoted_identifier: '[ID]'
           - data_type:
-              data_type_identifier: INT
+              keyword: INT
           - column_constraint_segment:
             - keyword: PRIMARY
             - keyword: KEY
@@ -278,12 +278,12 @@ file:
         - column_definition:
             naked_identifier: GEMEENTE_CODE
             data_type:
-              data_type_identifier: VARCHAR
+              keyword: VARCHAR
               bracketed_arguments:
                 bracketed:
                   start_bracket: (
                   expression:
-                    numeric_literal: '100'
+                    integer_literal: '100'
                   end_bracket: )
             column_constraint_segment:
               keyword: 'NULL'
@@ -291,12 +291,12 @@ file:
         - column_definition:
             naked_identifier: GEMEENTE
             data_type:
-              data_type_identifier: VARCHAR
+              keyword: VARCHAR
               bracketed_arguments:
                 bracketed:
                   start_bracket: (
                   expression:
-                    numeric_literal: '100'
+                    integer_literal: '100'
                   end_bracket: )
             column_constraint_segment:
               keyword: 'NULL'
@@ -304,12 +304,12 @@ file:
         - column_definition:
             naked_identifier: LEEFTIJD
             data_type:
-              data_type_identifier: VARCHAR
+              keyword: VARCHAR
               bracketed_arguments:
                 bracketed:
                   start_bracket: (
                   expression:
-                    numeric_literal: '100'
+                    integer_literal: '100'
                   end_bracket: )
             column_constraint_segment:
               keyword: 'NULL'
@@ -317,12 +317,12 @@ file:
         - column_definition:
             naked_identifier: GESLACHT
             data_type:
-              data_type_identifier: VARCHAR
+              keyword: VARCHAR
               bracketed_arguments:
                 bracketed:
                   start_bracket: (
                   expression:
-                    numeric_literal: '100'
+                    integer_literal: '100'
                   end_bracket: )
             column_constraint_segment:
               keyword: 'NULL'
@@ -330,12 +330,12 @@ file:
         - column_definition:
             naked_identifier: DATUM_PEILING
             data_type:
-              data_type_identifier: VARCHAR
+              keyword: VARCHAR
               bracketed_arguments:
                 bracketed:
                   start_bracket: (
                   expression:
-                    numeric_literal: '100'
+                    integer_literal: '100'
                   end_bracket: )
             column_constraint_segment:
               keyword: 'NULL'
@@ -343,12 +343,12 @@ file:
         - column_definition:
             naked_identifier: POPULATIE
             data_type:
-              data_type_identifier: VARCHAR
+              keyword: VARCHAR
               bracketed_arguments:
                 bracketed:
                   start_bracket: (
                   expression:
-                    numeric_literal: '100'
+                    integer_literal: '100'
                   end_bracket: )
             column_constraint_segment:
               keyword: 'NULL'
@@ -356,12 +356,12 @@ file:
         - column_definition:
             naked_identifier: VEILIGHEIDSREGIO_CODE
             data_type:
-              data_type_identifier: VARCHAR
+              keyword: VARCHAR
               bracketed_arguments:
                 bracketed:
                   start_bracket: (
                   expression:
-                    numeric_literal: '100'
+                    integer_literal: '100'
                   end_bracket: )
             column_constraint_segment:
               keyword: 'NULL'
@@ -369,12 +369,12 @@ file:
         - column_definition:
             naked_identifier: VEILIGHEIDSREGIO_NAAM
             data_type:
-              data_type_identifier: VARCHAR
+              keyword: VARCHAR
               bracketed_arguments:
                 bracketed:
                   start_bracket: (
                   expression:
-                    numeric_literal: '100'
+                    integer_literal: '100'
                   end_bracket: )
             column_constraint_segment:
               keyword: 'NULL'
@@ -382,12 +382,12 @@ file:
         - column_definition:
             naked_identifier: PROVINCIE_CODE
             data_type:
-              data_type_identifier: VARCHAR
+              keyword: VARCHAR
               bracketed_arguments:
                 bracketed:
                   start_bracket: (
                   expression:
-                    numeric_literal: '100'
+                    integer_literal: '100'
                   end_bracket: )
             column_constraint_segment:
               keyword: 'NULL'
@@ -395,12 +395,12 @@ file:
         - column_definition:
             naked_identifier: PROVINCIE_NAAM
             data_type:
-              data_type_identifier: VARCHAR
+              keyword: VARCHAR
               bracketed_arguments:
                 bracketed:
                   start_bracket: (
                   expression:
-                    numeric_literal: '100'
+                    integer_literal: '100'
                   end_bracket: )
             column_constraint_segment:
               keyword: 'NULL'
@@ -408,12 +408,12 @@ file:
         - column_definition:
             naked_identifier: GGD_CODE
             data_type:
-              data_type_identifier: VARCHAR
+              keyword: VARCHAR
               bracketed_arguments:
                 bracketed:
                   start_bracket: (
                   expression:
-                    numeric_literal: '100'
+                    integer_literal: '100'
                   end_bracket: )
             column_constraint_segment:
               keyword: 'NULL'
@@ -421,12 +421,12 @@ file:
         - column_definition:
             naked_identifier: GGD_NAAM
             data_type:
-              data_type_identifier: VARCHAR
+              keyword: VARCHAR
               bracketed_arguments:
                 bracketed:
                   start_bracket: (
                   expression:
-                    numeric_literal: '100'
+                    integer_literal: '100'
                   end_bracket: )
             column_constraint_segment:
               keyword: 'NULL'
@@ -434,7 +434,7 @@ file:
         - column_definition:
             naked_identifier: DATE_LAST_INSERTED
             data_type:
-              data_type_identifier: DATETIME
+              keyword: DATETIME
             column_constraint_segment:
               keyword: DEFAULT
               function:
@@ -445,9 +445,9 @@ file:
                     start_bracket: (
                     end_bracket: )
         - end_bracket: )
-      - statement_terminator: ;
-- go_statement:
-    keyword: GO
+    statement_terminator: ;
+    go_statement:
+      keyword: GO
 - batch:
     statement:
       create_index_statement:
@@ -467,8 +467,8 @@ file:
             index_column_definition:
               naked_identifier: DATE_LAST_INSERTED
             end_bracket: )
-- go_statement:
-    keyword: GO
+    go_statement:
+      keyword: GO
 - batch:
   - statement:
       create_index_statement:
@@ -524,7 +524,7 @@ file:
           - index_column_definition:
               naked_identifier: GGD_NAAM
           - end_bracket: )
-      - statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       create_table_statement:
       - keyword: CREATE
@@ -538,7 +538,7 @@ file:
         - column_definition:
           - quoted_identifier: '[ID]'
           - data_type:
-              data_type_identifier: INT
+              keyword: INT
           - column_constraint_segment:
             - keyword: PRIMARY
             - keyword: KEY
@@ -562,29 +562,29 @@ file:
         - column_definition:
             naked_identifier: DATE_OF_REPORT
             data_type:
-              data_type_identifier: DATETIME
+              keyword: DATETIME
             column_constraint_segment:
               keyword: 'NULL'
         - comma: ','
         - column_definition:
             naked_identifier: DATE_OF_REPORT_UNIX
             data_type:
-              data_type_identifier: BIGINT
+              keyword: BIGINT
             column_constraint_segment:
               keyword: 'NULL'
         - comma: ','
         - column_definition:
             naked_identifier: INFECTED_DAILY_INCREASE
             data_type:
-              data_type_identifier: DECIMAL
+              keyword: DECIMAL
               bracketed_arguments:
                 bracketed:
                 - start_bracket: (
                 - expression:
-                    numeric_literal: '16'
+                    integer_literal: '16'
                 - comma: ','
                 - expression:
-                    numeric_literal: '1'
+                    integer_literal: '1'
                 - end_bracket: )
             column_constraint_segment:
               keyword: 'NULL'
@@ -592,14 +592,14 @@ file:
         - column_definition:
             naked_identifier: INFECTED_DAILY_TOTAL
             data_type:
-              data_type_identifier: INT
+              keyword: INT
             column_constraint_segment:
               keyword: 'NULL'
         - comma: ','
         - column_definition:
             naked_identifier: DATE_LAST_INSERTED
             data_type:
-              data_type_identifier: DATETIME
+              keyword: DATETIME
             column_constraint_segment:
               keyword: DEFAULT
               function:
@@ -613,58 +613,58 @@ file:
         - column_definition:
             quoted_identifier: '[DATE_RANGE_START]'
             data_type:
-              data_type_identifier: datetime
+              keyword: datetime
         - comma: ','
         - column_definition:
             quoted_identifier: '[DATE_OF_REPORTS_LAG]'
             data_type:
-              data_type_identifier: datetime
+              keyword: datetime
         - comma: ','
         - column_definition:
             quoted_identifier: '[DATE_RANGE_START_LAG]'
             data_type:
-              data_type_identifier: datetime
+              keyword: datetime
         - comma: ','
         - column_definition:
             quoted_identifier: '[7D_AVERAGE_INFECTED_DAILY_INCREASE_TOTAL]'
             data_type:
-              data_type_identifier: decimal
+              keyword: decimal
               bracketed_arguments:
                 bracketed:
                 - start_bracket: (
                 - expression:
-                    numeric_literal: '16'
+                    integer_literal: '16'
                 - comma: ','
                 - expression:
-                    numeric_literal: '2'
+                    integer_literal: '2'
                 - end_bracket: )
         - comma: ','
         - column_definition:
             quoted_identifier: '[7D_AVERAGE_INFECTED_DAILY_INCREASE_LAG]'
             data_type:
-              data_type_identifier: decimal
+              keyword: decimal
               bracketed_arguments:
                 bracketed:
                 - start_bracket: (
                 - expression:
-                    numeric_literal: '16'
+                    integer_literal: '16'
                 - comma: ','
                 - expression:
-                    numeric_literal: '2'
+                    integer_literal: '2'
                 - end_bracket: )
         - comma: ','
         - column_definition:
             quoted_identifier: '[7D_AVERAGE_INFECTED_DAILY_INCREASE_ABSOLUTE]'
             data_type:
-              data_type_identifier: decimal
+              keyword: decimal
               bracketed_arguments:
                 bracketed:
                 - start_bracket: (
                 - expression:
-                    numeric_literal: '16'
+                    integer_literal: '16'
                 - comma: ','
                 - expression:
-                    numeric_literal: '2'
+                    integer_literal: '2'
                 - end_bracket: )
         - end_bracket: )
-      - statement_terminator: ;
+  - statement_terminator: ;

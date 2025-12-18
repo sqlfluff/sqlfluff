@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 0f7c6c65711a746c148a7746b8cc97be1a3a499bfbf7faa3c4937daa5906a237
+_hash: d769af0449f931aab8e131f48d87f64c8260b09d944567e1583bb56e388185a1
 file:
 - statement:
     create_table_statement:
@@ -144,4 +144,74 @@ file:
           - dot: .
           - keyword: NEXTVAL
         end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: departments_demo
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          naked_identifier: department_id
+          data_type:
+            data_type_identifier: NUMBER
+            bracketed_arguments:
+              bracketed:
+                start_bracket: (
+                numeric_literal: '4'
+                end_bracket: )
+          column_constraint_segment:
+          - keyword: PRIMARY
+          - keyword: KEY
+          keyword: ENABLE
+      - comma: ','
+      - column_definition:
+          naked_identifier: department_name
+          data_type:
+            data_type_identifier: VARCHAR2
+            bracketed_arguments:
+              bracketed:
+                start_bracket: (
+                numeric_literal: '30'
+                end_bracket: )
+          column_constraint_segment:
+          - keyword: CONSTRAINT
+          - object_reference:
+              naked_identifier: dept_name_nn
+          - keyword: NOT
+          - keyword: 'NULL'
+          keyword: DISABLE
+      - comma: ','
+      - column_definition:
+          naked_identifier: manager_id
+          data_type:
+            data_type_identifier: NUMBER
+            bracketed_arguments:
+              bracketed:
+                start_bracket: (
+                numeric_literal: '6'
+                end_bracket: )
+      - comma: ','
+      - column_definition:
+          naked_identifier: location_id
+          data_type:
+            data_type_identifier: NUMBER
+            bracketed_arguments:
+              bracketed:
+                start_bracket: (
+                numeric_literal: '4'
+                end_bracket: )
+      - comma: ','
+      - column_definition:
+          naked_identifier: dn
+          data_type:
+            data_type_identifier: VARCHAR2
+            bracketed_arguments:
+              bracketed:
+                start_bracket: (
+                numeric_literal: '300'
+                end_bracket: )
+      - end_bracket: )
 - statement_terminator: ;

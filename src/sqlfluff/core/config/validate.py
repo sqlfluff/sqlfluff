@@ -13,7 +13,10 @@ ALLOWABLE_LAYOUT_CONFIG_KEYS = (
     "align_scope",
     "keyword_line_position",
     "keyword_line_position_exclusions",
+    "alignment_coordinate_space",
 )
+
+ALLOWABLE_IMPLICIT_INDENTS_VALUES = ("forbid", "allow", "require")
 
 
 def _validate_layout_config(config: ConfigMappingType, logging_reference: str) -> None:
@@ -84,12 +87,39 @@ def _validate_layout_config(config: ConfigMappingType, logging_reference: str) -
                     )
 
 
+def _validate_indentation_config(
+    config: ConfigMappingType, logging_reference: str
+) -> None:
+    """Validate the indentation config section of the config.
+
+    We check for valid values for enum-like config options.
+    """
+    indentation_section = config.get("indentation", {})
+    if not indentation_section:
+        return None
+
+    # Validate implicit_indents enum value
+    # indentation_section should be a dict, but we need to type check
+    assert isinstance(indentation_section, dict)
+    implicit_indents = indentation_section.get("implicit_indents")
+    if implicit_indents is not None:
+        if implicit_indents not in ALLOWABLE_IMPLICIT_INDENTS_VALUES:
+            raise SQLFluffUserError(
+                f"Config file {logging_reference!r} set an invalid value for "
+                f"`implicit_indents`: {implicit_indents!r}. "
+                f"Valid options are: {', '.join(ALLOWABLE_IMPLICIT_INDENTS_VALUES)}. "
+                "See https://docs.sqlfluff.com/en/stable/perma/configuration.html "
+                "for more details."
+            )
+
+
 def validate_config_dict(config: ConfigMappingType, logging_reference: str) -> None:
     """Validate a config dict.
 
     Currently we validate:
     - Removed and deprecated values.
     - Layout configuration structure.
+    - Indentation configuration values.
 
     Using this method ensures that any later validation will also be applied.
 
@@ -100,3 +130,5 @@ def validate_config_dict(config: ConfigMappingType, logging_reference: str) -> N
     validate_config_dict_for_removed(config, logging_reference)
     # Validate layout section
     _validate_layout_config(config, logging_reference)
+    # Validate indentation section
+    _validate_indentation_config(config, logging_reference)

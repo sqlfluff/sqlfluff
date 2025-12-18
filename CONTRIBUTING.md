@@ -113,7 +113,7 @@ source .venv/bin/activate
 ```
 (The `dbt180` environment is a good default choice.
 However any version can be installed by replacing `dbt180` with
-`py`, `py39` through `py313`, `dbt140` through `dbt190`, etc.
+`py`, `py39` through `py313`, `dbt170` through `dbt1100`, etc.
 `py` defaults to the python version that was used to install tox.
 To be able to run all tests including the dbt templater,
 choose one of the dbt environments.)
@@ -224,6 +224,10 @@ for development, and which parts of the test suite you may find most useful.
    runs to specific dialects to further improve iteration speed. e.g.
    - `tox -e generate-fixture-yml -- -d mysql` will run just the mysql tests.
    - `python test/generate_parse_fixture_yml.py -d mysql` will do the same.
+   As you make changes to a dialect, you will also need to regenerate the Rust
+   dialects to keep them in sync. To do this, run `tox -e generate-rs` (if using
+   tox), or, with sqlfluff installed in a virtual environment, run
+   `utils/rustify.py build` to resync the languages.
 2. Developing for the dbt templater should only require running the dbt test
    suite (see below).
 3. Developing rules and rule plugins there are a couple of scenarios.
@@ -337,13 +341,12 @@ need a [GitHub Personal Access Token](https://docs.github.com/en/authentication/
 scope, and read permissions on the "Metadata" scope. The reason we need
 both read & write access on the "Content" scope is that only tokens with
 write access can see _draft_ releases, which is what we need access to).
-All maintainers should have sufficient access to generate such a token:
+All maintainers should have sufficient access to generate such a token. Once
+generated, store it in your env (zshrc, etc) as `SQLFLUFF_GITHUB_TOKEN`. Then:
 
 ```shell
-source .venv/bin/activate
-export GITHUB_REPOSITORY_OWNER=sqlfluff
-export GITHUB_TOKEN=gho_xxxxxxxx # Change to your token with "repo" permissions.
-python util.py release 2.0.3 # Change to your release number
+make shell
+make release 3.4.2 # Change to your release number
 ```
 
 When all of the changes planned for the release have been merged, and

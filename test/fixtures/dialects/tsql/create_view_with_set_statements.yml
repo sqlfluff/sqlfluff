@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: b6b6764cc3073636b3fd1cc45be9aae79045f732e7cf74c2d0590c663ece8748
+_hash: 6767a3e35fcdc202ff47f73e366825b7a2b0c0ae3bba785d109590e1962a9e95
 file:
 - batch:
     statement:
@@ -11,16 +11,16 @@ file:
       - keyword: SET
       - keyword: ANSI_NULLS
       - keyword: 'ON'
-- go_statement:
-    keyword: GO
+    go_statement:
+      keyword: GO
 - batch:
     statement:
       set_segment:
       - keyword: SET
       - keyword: QUOTED_IDENTIFIER
       - keyword: 'ON'
-- go_statement:
-    keyword: GO
+    go_statement:
+      keyword: GO
 - batch:
     statement:
       create_view_statement:
@@ -37,7 +37,7 @@ file:
             select_clause_modifier:
               keyword: TOP
               expression:
-                numeric_literal: '1'
+                integer_literal: '1'
             select_clause_element:
               column_reference:
                 naked_identifier: DATE_OF_REPORT
@@ -48,9 +48,9 @@ file:
                 table_expression:
                   table_reference:
                     naked_identifier: BASE_CTE
-            statement_terminator: ;
-- go_statement:
-    keyword: GO
+    statement_terminator: ;
+    go_statement:
+      keyword: GO
 - batch:
     statement:
       create_view_statement:
@@ -69,7 +69,7 @@ file:
             select_clause_modifier:
               keyword: TOP
               expression:
-                numeric_literal: '1'
+                integer_literal: '1'
             select_clause_element:
               column_reference:
                 naked_identifier: DATE_OF_REPORT
@@ -85,9 +85,9 @@ file:
           - keyword: BY
           - column_reference:
               naked_identifier: DATE_OF_REPORT
-          statement_terminator: ;
-- go_statement:
-    keyword: GO
+    statement_terminator: ;
+    go_statement:
+      keyword: GO
 - batch:
     statement:
       create_view_statement:
@@ -140,7 +140,7 @@ file:
                       null_literal: 'NULL'
                   - keyword: THEN
                   - expression:
-                      numeric_literal: '0'
+                      integer_literal: '0'
                 - else_clause:
                     keyword: ELSE
                     expression:
@@ -165,7 +165,7 @@ file:
                       null_literal: 'NULL'
                   - keyword: THEN
                   - expression:
-                      numeric_literal: '0'
+                      integer_literal: '0'
                 - else_clause:
                     keyword: ELSE
                     expression:
@@ -216,6 +216,6 @@ file:
                 raw_comparison_operator: '='
             - column_reference:
                 naked_identifier: LAST_DATE_OF_REPORT
-          statement_terminator: ;
-- go_statement:
-    keyword: GO
+    statement_terminator: ;
+    go_statement:
+      keyword: GO

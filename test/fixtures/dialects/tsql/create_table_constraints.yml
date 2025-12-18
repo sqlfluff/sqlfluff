@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 698fc3e052539d86352bbfca199a76a7809282b7a4834e12b7671cbfc94b00e7
+_hash: 56ea05fee863d1a5fcd2f8981c49e3e83b47b2b81dfdc38f16c18c84fe97dfe1
 file:
 - batch:
     statement:
@@ -44,12 +44,12 @@ file:
         - column_definition:
             quoted_identifier: '[ColumnC]'
             data_type:
-              data_type_identifier: varchar
+              keyword: varchar
               bracketed_arguments:
                 bracketed:
                   start_bracket: (
                   expression:
-                    numeric_literal: '100'
+                    integer_literal: '100'
                   end_bracket: )
             column_constraint_segment:
               keyword: DEFAULT
@@ -58,7 +58,7 @@ file:
         - column_definition:
             quoted_identifier: '[ColumnDecimal]'
             data_type:
-              data_type_identifier: DATE
+              keyword: DATE
             column_constraint_segment:
               keyword: DEFAULT
               function:
@@ -72,12 +72,12 @@ file:
         - column_definition:
             quoted_identifier: '[ColumnUser]'
             data_type:
-              data_type_identifier: char
+              keyword: char
               bracketed_arguments:
                 bracketed:
                   start_bracket: (
                   expression:
-                    numeric_literal: '30'
+                    integer_literal: '30'
                   end_bracket: )
             column_constraint_segment:
               keyword: DEFAULT
@@ -86,7 +86,7 @@ file:
         - column_definition:
           - quoted_identifier: '[col1]'
           - data_type:
-              data_type_identifier: int
+              keyword: int
           - column_constraint_segment:
               keyword: default
               bracketed:
@@ -105,7 +105,7 @@ file:
         - column_definition:
           - quoted_identifier: '[col1]'
           - data_type:
-              data_type_identifier: int
+              keyword: int
           - column_constraint_segment:
               keyword: default
               bracketed:
@@ -121,7 +121,7 @@ file:
         - column_definition:
           - quoted_identifier: '[col1]'
           - data_type:
-              data_type_identifier: int
+              keyword: int
           - column_constraint_segment:
               keyword: default
               numeric_literal:
@@ -134,7 +134,7 @@ file:
         - column_definition:
           - quoted_identifier: '[col1]'
           - data_type:
-              data_type_identifier: INT
+              keyword: INT
           - column_constraint_segment:
               keyword: DEFAULT
               bracketed:
@@ -144,8 +144,8 @@ file:
           - column_constraint_segment:
               keyword: 'NULL'
         - end_bracket: )
-- go_statement:
-    keyword: GO
+    go_statement:
+      keyword: GO
 - batch:
     statement:
       create_table_statement:
@@ -160,7 +160,7 @@ file:
           column_definition:
             quoted_identifier: '[col1]'
             data_type:
-              data_type_identifier: INT
+              keyword: INT
           comma: ','
           table_constraint:
           - keyword: PRIMARY
@@ -174,8 +174,8 @@ file:
                   keyword: ASC
                 end_bracket: )
           end_bracket: )
-- go_statement:
-    keyword: GO
+    go_statement:
+      keyword: GO
 - batch:
     statement:
       create_table_statement:
@@ -190,7 +190,7 @@ file:
           column_definition:
             quoted_identifier: '[col1]'
             data_type:
-              data_type_identifier: INT
+              keyword: INT
           comma: ','
           table_constraint:
           - keyword: CONSTRAINT
@@ -207,8 +207,8 @@ file:
                   keyword: DESC
                 end_bracket: )
           end_bracket: )
-- go_statement:
-    keyword: GO
+    go_statement:
+      keyword: GO
 - batch:
     statement:
       create_table_statement:
@@ -224,12 +224,10 @@ file:
           - quoted_identifier: '[ColumnB]'
           - data_type:
               data_type_identifier: '[varchar]'
-              bracketed_arguments:
-                bracketed:
-                  start_bracket: (
-                  expression:
-                    numeric_literal: '100'
-                  end_bracket: )
+          - bracketed:
+              start_bracket: (
+              numeric_literal: '100'
+              end_bracket: )
           - column_constraint_segment:
               keyword: FILESTREAM
           - column_constraint_segment:
@@ -246,12 +244,12 @@ file:
         - column_definition:
           - quoted_identifier: '[ColumnC]'
           - data_type:
-              data_type_identifier: varchar
+              keyword: varchar
               bracketed_arguments:
                 bracketed:
                   start_bracket: (
                   expression:
-                    numeric_literal: '100'
+                    integer_literal: '100'
                   end_bracket: )
           - column_constraint_segment:
               keyword: 'NULL'
@@ -263,15 +261,15 @@ file:
         - column_definition:
             quoted_identifier: '[ColumnDecimal]'
             data_type:
-              data_type_identifier: decimal
+              keyword: decimal
               bracketed_arguments:
                 bracketed:
                 - start_bracket: (
                 - expression:
-                    numeric_literal: '10'
+                    integer_literal: '10'
                 - comma: ','
                 - expression:
-                    numeric_literal: '3'
+                    integer_literal: '3'
                 - end_bracket: )
             column_constraint_segment:
             - keyword: GENERATED
@@ -284,12 +282,12 @@ file:
         - column_definition:
             quoted_identifier: '[columnE]'
             data_type:
-              data_type_identifier: varchar
+              keyword: varchar
               bracketed_arguments:
                 bracketed:
                   start_bracket: (
                   expression:
-                    numeric_literal: '100'
+                    integer_literal: '100'
                   end_bracket: )
             column_constraint_segment:
               encrypted_with_grammar:
@@ -316,20 +314,20 @@ file:
         - column_definition:
             quoted_identifier: '[column1]'
             data_type:
-              data_type_identifier: varchar
+              keyword: varchar
               bracketed_arguments:
                 bracketed:
                   start_bracket: (
                   expression:
-                    numeric_literal: '100'
+                    integer_literal: '100'
                   end_bracket: )
             column_constraint_segment:
               keyword: collate
               collation_reference:
                 naked_identifier: Latin1_General_BIN
         - end_bracket: )
-- go_statement:
-    keyword: GO
+    go_statement:
+      keyword: GO
 - batch:
     statement:
       create_table_statement:
@@ -342,7 +340,7 @@ file:
           column_definition:
           - naked_identifier: id
           - data_type:
-              data_type_identifier: UNIQUEIDENTIFIER
+              keyword: UNIQUEIDENTIFIER
           - column_constraint_segment:
             - keyword: NOT
             - keyword: 'NULL'
@@ -359,4 +357,4 @@ file:
               - keyword: 'NO'
               - keyword: ACTION
           end_bracket: )
-      - statement_terminator: ;
+    statement_terminator: ;

@@ -62,3 +62,31 @@ INSERT INTO students PARTITION (student_id = 11215017) (address, name) VALUES
 INSERT OVERWRITE students
 PARTITION (student_id = 11215017) (address, name)
 VALUES ('Hangzhou, China', 'Kent Yao Jr.');
+
+INSERT INTO students REPLACE USING (country)
+SELECT *
+FROM new_students;
+
+INSERT INTO students REPLACE USING (country, city)
+SELECT *
+FROM new_students;
+
+INSERT INTO students REPLACE USING (country, city)
+VALUES
+    ('Amy Smith', 1100),
+    ('Kent Yao', 2200);
+
+INSERT INTO sales REPLACE
+WHERE tx_date BETWEEN '2023-10-01' AND '2023-10-02'
+VALUES
+    ('2023-10-01', 1100),
+    ('2023-10-02', 2200),
+    ('2023-10-04', 4000);
+
+INSERT INTO sales REPLACE
+WHERE
+    tx_date BETWEEN '2023-10-01' AND '2023-10-02'
+    AND store_nbr = 1
+    AND item_nbr = 1
+SELECT *
+FROM new_sales;

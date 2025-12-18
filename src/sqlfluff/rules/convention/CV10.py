@@ -4,8 +4,7 @@ from typing import Optional
 
 import regex
 
-from sqlfluff.core.parser import LiteralSegment
-from sqlfluff.core.parser.markers import PositionMarker
+from sqlfluff.core.parser import LiteralSegment, PositionMarker
 from sqlfluff.core.rules import BaseRule, LintFix, LintResult, RuleContext
 from sqlfluff.core.rules.crawlers import SegmentSeekerCrawler
 from sqlfluff.utils.functional import FunctionalContext, rsp

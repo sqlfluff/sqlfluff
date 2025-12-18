@@ -49,6 +49,7 @@ currently supports the following SQL dialects (though perhaps not in full):
 - [Doris](https://doris.apache.org/)
 - [DuckDB](https://duckdb.org/)
 - [Exasol](https://www.exasol.com/)
+- [FlinkSQL](https://nightlies.apache.org/flink/flink-docs-master/)
 - [Greenplum](https://greenplum.org/)
 - [Hive](https://hive.apache.org/)
 - [Impala](https://impala.apache.org/)
@@ -179,5 +180,5 @@ the guide to [contributing](CONTRIBUTING.md).
 
 # Sponsors
 
-<img src="images/datacoves.png" alt="Datacoves" width="150"/><br>
+<img src="https://raw.githubusercontent.com/sqlfluff/sqlfluff/refs/heads/main/images/datacoves.png" alt="Datacoves" width="150"/><br>
 The turnkey analytics stack, find out more at [Datacoves.com](https://datacoves.com/).
