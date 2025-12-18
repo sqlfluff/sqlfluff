@@ -252,24 +252,10 @@ impl MatchResult {
     pub fn sequence(start_idx: usize, end_idx: usize, children: Vec<MatchResult>) -> Self {
         let deduped_children = Self::deduplicate_children(children);
 
-        // PYTHON PARITY: Flatten meta-only children into insert_segments
-        // Separate children into meta-only (empty slice + insert_segments) and real content
-        let mut insert_segments = Vec::new();
-        let mut real_children = Vec::new();
-
-        for child in deduped_children {
-            // Check if this is a meta-only child (empty slice with only insert_segments)
-            if child.matched_slice.is_empty()
-                && child.child_matches.is_empty()
-                && !child.insert_segments.is_empty()
-            {
-                // Extract insert_segments from meta-only child
-                insert_segments.extend(child.insert_segments);
-            } else {
-                // Keep real content as child
-                real_children.push(child);
-            }
-        }
+        // PYTHON PARITY: Keep child matches intact - do NOT flatten meta-only children
+        // into parent's insert_segments. Each child's metas should be processed when
+        // that child is applied, preserving the order relative to surrounding content.
+        // Flattening causes metas from different nesting levels to be merged incorrectly.
 
         MatchResult {
             matched_slice: start_idx..end_idx,
@@ -279,8 +265,8 @@ impl MatchResult {
             // 2. Process child_matches (recursively)
             // 3. Return all results unwrapped (no Sequence wrapper in final tree)
             matched_class: None,
-            child_matches: real_children,
-            insert_segments,
+            child_matches: deduped_children,
+            insert_segments: Vec::new(),
             ..Default::default()
         }
     }
@@ -342,24 +328,9 @@ impl MatchResult {
     pub fn delimited(start_idx: usize, end_idx: usize, children: Vec<MatchResult>) -> Self {
         let deduped_children = Self::deduplicate_children(children);
 
-        // PYTHON PARITY: Flatten meta-only children into insert_segments
-        // Separate children into meta-only (empty slice + insert_segments) and real content
-        let mut insert_segments = Vec::new();
-        let mut real_children = Vec::new();
-
-        for child in deduped_children {
-            // Check if this is a meta-only child (empty slice with only insert_segments)
-            if child.matched_slice.is_empty()
-                && child.child_matches.is_empty()
-                && !child.insert_segments.is_empty()
-            {
-                // Extract insert_segments from meta-only child
-                insert_segments.extend(child.insert_segments);
-            } else {
-                // Keep real content as child
-                real_children.push(child);
-            }
-        }
+        // PYTHON PARITY: Keep child matches intact - do NOT flatten meta-only children
+        // into parent's insert_segments. Each child's metas should be processed when
+        // that child is applied, preserving the order relative to surrounding content.
 
         MatchResult {
             matched_slice: start_idx..end_idx,
@@ -369,8 +340,8 @@ impl MatchResult {
             // 2. Process child_matches (recursively)
             // 3. Return all results unwrapped (no Delimited wrapper in final tree)
             matched_class: None,
-            child_matches: real_children,
-            insert_segments,
+            child_matches: deduped_children,
+            insert_segments: Vec::new(),
             parse_error: None,
             ..Default::default()
         }

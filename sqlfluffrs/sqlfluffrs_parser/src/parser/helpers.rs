@@ -280,23 +280,6 @@ impl<'a> Parser<'a> {
         }
 
         let open_tok = self.tokens.get(open_idx)?;
-
-        // FAST PATH: Use pre-computed bracket pair if available (O(1))
-        if let Some(matching_idx) = open_tok.matching_bracket_idx {
-            log::debug!(
-                "find_matching_bracket: Using pre-computed match {} -> {}",
-                open_idx,
-                matching_idx
-            );
-            return Some(matching_idx);
-        }
-
-        // SLOW PATH: Fallback to scanning (for tokens created without lexer)
-        log::debug!(
-            "find_matching_bracket: Pre-computed match not available for index {}, falling back to scan",
-            open_idx
-        );
-
         let open_raw = open_tok.raw();
 
         // Determine which closing bracket we're looking for based on the opening bracket
@@ -309,6 +292,49 @@ impl<'a> Parser<'a> {
                 "{" => (|s| s == "{", |s| s == "}"),
                 _ => return None, // Not an opening bracket
             };
+
+        // FAST PATH: Use pre-computed bracket pair if available (O(1))
+        // IMPORTANT: Validate the pre-computed index is within bounds AND points
+        // to the correct closing bracket type. When tokens are trimmed (e.g.,
+        // leading comments removed), the pre-computed indices from lexing may be
+        // invalid for the trimmed array - they might point to the wrong token.
+        if let Some(matching_idx) = open_tok.matching_bracket_idx {
+            if matching_idx < self.tokens.len() {
+                // Verify the token at matching_idx is actually the expected closing bracket
+                if let Some(close_tok) = self.tokens.get(matching_idx) {
+                    if is_matching_close(&close_tok.raw()) {
+                        log::debug!(
+                            "find_matching_bracket: Using pre-computed match {} -> {}",
+                            open_idx,
+                            matching_idx
+                        );
+                        return Some(matching_idx);
+                    }
+                    // Pre-computed index points to wrong token type - fall through to scan
+                    log::debug!(
+                        "find_matching_bracket: Pre-computed match {} -> {} points to '{}' not closing bracket, falling back to scan",
+                        open_idx,
+                        matching_idx,
+                        close_tok.raw()
+                    );
+                }
+            } else {
+                // Pre-computed index out of bounds - fall through to scan
+                log::debug!(
+                    "find_matching_bracket: Pre-computed match {} -> {} is out of bounds (len={}), falling back to scan",
+                    open_idx,
+                    matching_idx,
+                    self.tokens.len()
+                );
+            }
+        }
+
+        // SLOW PATH: Fallback to scanning (for tokens created without lexer,
+        // or when pre-computed indices are invalid due to token trimming)
+        log::debug!(
+            "find_matching_bracket: Pre-computed match not available for index {}, falling back to scan",
+            open_idx
+        );
 
         let mut depth = 1; // We've already seen the opening bracket
         for idx in (open_idx + 1)..self.tokens.len() {
@@ -332,9 +358,47 @@ impl<'a> Parser<'a> {
 
     /// Get the pre-computed matching bracket index for a token.
     /// This is a public wrapper for accessing pre-computed bracket pairs.
-    /// Returns None if not a bracket or if matching bracket wasn't found during lexing.
+    /// Returns None if not a bracket, if matching bracket wasn't found during lexing,
+    /// or if the pre-computed index is invalid (can happen with trimmed token arrays).
+    ///
+    /// IMPORTANT: When tokens are trimmed (e.g., leading comments removed), the
+    /// pre-computed indices from lexing may point to the wrong token. This function
+    /// validates that the token at matching_idx is actually the expected closing bracket.
     pub(crate) fn get_matching_bracket_idx(&self, token_idx: usize) -> Option<usize> {
-        self.tokens.get(token_idx)?.matching_bracket_idx
+        let open_tok = self.tokens.get(token_idx)?;
+        let matching_idx = open_tok.matching_bracket_idx?;
+
+        // Validate the pre-computed index is within bounds
+        if matching_idx >= self.tokens.len() {
+            log::debug!(
+                "get_matching_bracket_idx: Pre-computed match {} is out of bounds (len={})",
+                matching_idx,
+                self.tokens.len()
+            );
+            return None;
+        }
+
+        // Validate the token at matching_idx is actually the expected closing bracket
+        let close_tok = self.tokens.get(matching_idx)?;
+        let open_raw = open_tok.raw();
+        let expected_close = match open_raw.as_str() {
+            "(" => ")",
+            "[" => "]",
+            "{" => "}",
+            _ => return None, // Not an opening bracket
+        };
+
+        if close_tok.raw() == expected_close {
+            Some(matching_idx)
+        } else {
+            log::debug!(
+                "get_matching_bracket_idx: Pre-computed match {} points to '{}' not '{}', returning None",
+                matching_idx,
+                close_tok.raw(),
+                expected_close
+            );
+            None
+        }
     }
 
     // ============================================================================
