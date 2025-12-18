@@ -318,6 +318,15 @@ class RustParser:
                     pos_marker=segment.pos_marker,
                     expected=getattr(segment, "_expected", ""),
                 )
+            elif seg_type_name == "BracketedSegment":
+                # BracketedSegment requires start_bracket and end_bracket
+                return segment.__class__(
+                    segments=tuple(new_segments),
+                    start_bracket=segment.start_bracket,
+                    end_bracket=segment.end_bracket,
+                    pos_marker=segment.pos_marker,
+                    uuid=segment.uuid,
+                )
             elif seg_type_name in (
                 "RawSegment",
                 "MetaSegment",

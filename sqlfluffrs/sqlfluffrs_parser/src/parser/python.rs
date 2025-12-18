@@ -526,7 +526,12 @@ impl PyParser {
     /// Takes a list of RsToken objects and returns the parsed AST as RsNode.
     pub fn parse_from_tokens(&self, tokens: Vec<PyToken>) -> PyResult<PyNode> {
         // Convert PyToken to internal Token
-        let rust_tokens: Vec<Token> = tokens.into_iter().map(|t| t.into()).collect();
+        let mut rust_tokens: Vec<Token> = tokens.into_iter().map(|t| t.into()).collect();
+
+        // Compute bracket pairs for the tokens.
+        // When tokens come from Python (lexed by Python lexer), matching_bracket_idx is None.
+        // We need to compute it for the Bracketed grammar to work correctly.
+        compute_bracket_pairs(&mut rust_tokens);
 
         // Create parser
         let mut parser = Parser::new(&rust_tokens, self.dialect, self.indent_config.clone());
@@ -584,7 +589,12 @@ impl PyParser {
     /// the AST construction process.
     pub fn parse_match_result_from_tokens(&self, tokens: Vec<PyToken>) -> PyResult<PyMatchResult> {
         // Convert PyToken to internal Token
-        let rust_tokens: Vec<Token> = tokens.into_iter().map(|t| t.into()).collect();
+        let mut rust_tokens: Vec<Token> = tokens.into_iter().map(|t| t.into()).collect();
+
+        // Compute bracket pairs for the tokens.
+        // When tokens come from Python (lexed by Python lexer), matching_bracket_idx is None.
+        // We need to compute it for the Bracketed grammar to work correctly.
+        compute_bracket_pairs(&mut rust_tokens);
 
         // Create parser
         let mut parser = Parser::new(&rust_tokens, self.dialect, self.indent_config.clone());
@@ -596,4 +606,48 @@ impl PyParser {
 
         Ok(PyMatchResult(match_result))
     }
+}
+
+/// Compute matching bracket indices for all bracket tokens.
+///
+/// This function sets `matching_bracket_idx` on each opening and closing bracket
+/// to point to its matching counterpart. This is used by the parser's
+/// `find_matching_bracket` function for O(1) bracket pair lookup.
+///
+/// This is necessary when tokens come from Python (via PyToken -> Token conversion)
+/// because the Python lexer doesn't compute these indices.
+fn compute_bracket_pairs(tokens: &mut [Token]) {
+    // Stack to track opening brackets: (index, bracket_char)
+    let mut bracket_stack: Vec<(usize, char)> = Vec::new();
+
+    for idx in 0..tokens.len() {
+        let raw = tokens[idx].raw();
+
+        // Check if this is an opening bracket
+        if let Some(open_char) = match raw.as_str() {
+            "(" => Some('('),
+            "[" => Some('['),
+            "{" => Some('{'),
+            _ => None,
+        } {
+            bracket_stack.push((idx, open_char));
+        }
+        // Check if this is a closing bracket
+        else if let Some(expected_open) = match raw.as_str() {
+            ")" => Some('('),
+            "]" => Some('['),
+            "}" => Some('{'),
+            _ => None,
+        } {
+            // Try to match with the most recent opening bracket of the same type
+            if let Some(pos) = bracket_stack.iter().rposition(|(_, c)| *c == expected_open) {
+                let (open_idx, _) = bracket_stack.remove(pos);
+                // Set bidirectional pointers
+                tokens[open_idx].matching_bracket_idx = Some(idx);
+                tokens[idx].matching_bracket_idx = Some(open_idx);
+            }
+            // If no matching opening bracket, leave as None (syntax error)
+        }
+    }
+    // Any remaining opening brackets on the stack are unmatched - leave as None
 }
