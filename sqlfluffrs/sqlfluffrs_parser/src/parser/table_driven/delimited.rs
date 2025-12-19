@@ -487,8 +487,17 @@ impl<'a> Parser<'_> {
                     *max_idx = *matched_idx;
                 }
 
-                // Check for termination after delimiter
+                // CRITICAL FIX: Check for termination from BEFORE the delimiter position.
+                // This is essential for terminators like `Sequence(CommaSegment, TABLE)`
+                // which start with the delimiter itself. If we check from AFTER the delimiter,
+                // such terminators won't match and we'll incorrectly include the delimiter
+                // in the output before discovering the termination.
+                //
+                // Save and restore self.pos to check from pos_before_delimiter
+                let saved_pos = self.pos;
+                self.pos = pos_before_delimiter.unwrap();
                 let is_terminated = self.is_terminated_table_driven(&frame_terminators);
+                self.pos = saved_pos;
 
                 if is_terminated {
                     log::debug!("Delimited[table]: terminated after delimiter");
@@ -521,12 +530,8 @@ impl<'a> Parser<'_> {
                 // Transition to MatchingElement
                 *delim_state = DelimitedState::MatchingElement;
 
-                // Push the delimiter NOW (not when the next element matches)
-                // This ensures correct ordering: element1 → delimiter → transparent → element2
-                if let Some(dm) = delimiter_match.take() {
-                    frame.accumulated.push(dm);
-                    *delimiter_count += 1;
-                }
+                // DON'T push the delimiter yet - we need to check for termination first.
+                // The delimiter will be pushed only if we're NOT terminated.
 
                 // Collect and skip transparent tokens (whitespace, newlines, comments) after delimiter if allow_gaps
                 // NOTE: Don't constrain by max_idx - transparent tokens should be collected unconditionally
@@ -597,11 +602,13 @@ impl<'a> Parser<'_> {
                     log::debug!("Delimited[table]: terminated after delimiter+whitespace");
 
                     if allow_trailing {
+                        // Include the trailing delimiter
                         if let Some(dm) = delimiter_match.take() {
                             frame.accumulated.push(dm);
                             *delimiter_count += 1;
                         }
                     } else {
+                        // Don't include the delimiter - backtrack
                         *matched_idx = pos_before_delimiter.unwrap();
                         *delimiter_match = None;
                     }
@@ -617,6 +624,13 @@ impl<'a> Parser<'_> {
                     frame.state = FrameState::Combining;
                     stack.push(&mut frame);
                     return Ok(TableFrameResult::Done);
+                }
+
+                // NOT terminated - NOW push the delimiter
+                // This ensures we only include the delimiter if we're continuing to match more elements
+                if let Some(dm) = delimiter_match.take() {
+                    frame.accumulated.push(dm);
+                    *delimiter_count += 1;
                 }
 
                 // Re-try elements at new position
