@@ -1342,7 +1342,7 @@ impl<'a> Parser<'a> {
         parent_max_idx: Option<usize>,
     ) -> Result<TableFrameResult, ParseError> {
         let start_pos = self.pos;
-        let mut anything_tokens = vec![];
+        let mut child_matches: Vec<MatchResult> = vec![];
         log::debug!(
             "Anything[table]: pos={}, parent_terminators={}, parent_max_idx={:?}",
             start_pos,
@@ -1374,7 +1374,6 @@ impl<'a> Parser<'a> {
             }
 
             if let Some(tok) = self.peek() {
-                let tok_type = tok.get_type();
                 let tok_raw = tok.raw();
 
                 // Handle bracket openers - match entire bracketed section
@@ -1386,16 +1385,16 @@ impl<'a> Parser<'a> {
                         _ => unreachable!(),
                     };
 
-                    let mut bracket_depth = 0;
-                    let mut bracket_tokens = vec![];
+                    let bracket_start = self.pos;
+                    let mut bracket_depth = 1;
 
-                    // Add start bracket
-                    bracket_tokens.push(Node::new_token(
-                        "start_bracket".to_string(),
-                        tok_raw.to_string(),
-                        self.pos,
-                    ));
-                    bracket_depth += 1;
+                    // Record opening bracket position with SymbolSegment class
+                    // This ensures Python's apply() creates a SymbolSegment, not raw CodeSegment
+                    let open_bracket_match = MatchResult {
+                        matched_slice: self.pos..self.pos + 1,
+                        matched_class: Some("SymbolSegment".to_string()),
+                        ..Default::default()
+                    };
                     self.bump();
 
                     // Match everything until matching close bracket
@@ -1409,54 +1408,75 @@ impl<'a> Parser<'a> {
                                 bracket_depth -= 1;
                             }
 
-                            let node_type = if bracket_depth == 0 {
-                                "end_bracket".to_string()
-                            } else {
-                                inner_tok.get_type().to_string()
-                            };
-
-                            bracket_tokens.push(Node::new_token(
-                                node_type,
-                                inner_raw.to_string(),
-                                self.pos,
-                            ));
                             self.bump();
                         } else {
                             break;
                         }
                     }
 
-                    // Round brackets persist, square/curly don't
+                    let bracket_end = self.pos;
+
+                    // Record closing bracket position with SymbolSegment class
+                    let close_bracket_match = MatchResult {
+                        matched_slice: bracket_end - 1..bracket_end,
+                        matched_class: Some("SymbolSegment".to_string()),
+                        ..Default::default()
+                    };
+
+                    // Round brackets persist as BracketedSegment, square/curly don't
                     let bracket_persists = tok_raw == "(";
 
-                    anything_tokens.push(Node::Bracketed {
-                        children: bracket_tokens,
-                        bracket_persists,
-                    });
+                    if bracket_persists {
+                        // Create a BracketedSegment match
+                        let bracket_match = MatchResult {
+                            matched_slice: bracket_start..bracket_end,
+                            matched_class: Some("BracketedSegment".to_string()),
+                            child_matches: vec![open_bracket_match, close_bracket_match],
+                            insert_segments: vec![
+                                (bracket_start + 1, MetaSegmentType::Indent),
+                                (bracket_end - 1, MetaSegmentType::Dedent),
+                            ],
+                            ..Default::default()
+                        };
+                        child_matches.push(bracket_match);
+                    } else {
+                        // For non-persisting brackets (square/curly), add as SymbolSegment matches
+                        // with Indent/Dedent meta segments for proper formatting
+                        child_matches.push(open_bracket_match);
+                        // Add Indent after open bracket
+                        let mut indent_match = MatchResult::empty_at(bracket_start + 1);
+                        indent_match.insert_segments =
+                            vec![(bracket_start + 1, MetaSegmentType::Indent)];
+                        child_matches.push(indent_match);
+                        // Add Dedent before close bracket
+                        let mut dedent_match = MatchResult::empty_at(bracket_end - 1);
+                        dedent_match.insert_segments =
+                            vec![(bracket_end - 1, MetaSegmentType::Dedent)];
+                        child_matches.push(dedent_match);
+                        child_matches.push(close_bracket_match);
+                    }
                 } else {
-                    // Regular token - preserve type as-is
-                    anything_tokens.push(Node::new_token(
-                        tok_type.to_string(),
-                        tok_raw.to_string(),
-                        self.pos,
-                    ));
+                    // Regular token - just bump, it'll be part of the raw content
                     self.bump();
                 }
             }
         }
 
         log::debug!(
-            "Anything[table]: matched {} nodes, pos {} -> {}",
-            anything_tokens.len(),
+            "Anything[table]: matched {} child_matches, pos {} -> {}",
+            child_matches.len(),
             start_pos,
             self.pos
         );
 
-        let result_node = Node::Sequence {
-            children: anything_tokens,
+        // Return a MatchResult with child_matches for brackets
+        // Python's apply() will use child_matches to reconstruct brackets
+        let result = MatchResult {
+            matched_slice: start_pos..self.pos,
+            child_matches,
+            ..Default::default()
         };
-        frame.state =
-            FrameState::Complete(MatchResult::from_node(result_node, start_pos, self.pos));
+        frame.state = FrameState::Complete(result);
         frame.end_pos = Some(self.pos);
 
         Ok(TableFrameResult::Push(frame))

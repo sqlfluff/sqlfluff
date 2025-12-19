@@ -117,8 +117,28 @@ where
     }
 
     // Otherwise, scan forward until a terminator matches or we reach max_idx
+    // CRITICAL: Skip over brackets to avoid finding terminators inside them
     let max_idx = std::cmp::min(max_idx, tokens_len);
-    for i in start_idx..max_idx {
+    let mut i = start_idx;
+    while i < max_idx {
+        // Check if current token is an opening bracket - if so, skip to matching close
+        let token = &tokens[i];
+        let raw = token.raw();
+        if raw == "(" || raw == "[" || raw == "{" {
+            // Check if we have a pre-computed matching bracket index
+            if let Some(matching_idx) = token.matching_bracket_idx {
+                log::debug!(
+                    "[GREEDY_MATCH_TABLE] greedy_match_table_driven: skipping bracket at {} to {}",
+                    i,
+                    matching_idx + 1
+                );
+                // Skip past the closing bracket
+                i = matching_idx + 1;
+                continue;
+            }
+        }
+
+        // Check terminators at this position
         for &term_id in terminators {
             log::debug!(
                 "[GREEDY_MATCH_TABLE] greedy_match_table_driven: checking terminator {:?} at {}",
@@ -138,6 +158,7 @@ where
                 }
             }
         }
+        i += 1;
     }
     log::debug!(
         "[GREEDY_MATCH_TABLE] greedy_match_table_driven: returning max_idx={}",
