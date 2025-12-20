@@ -1376,85 +1376,11 @@ impl<'a> Parser<'a> {
             if let Some(tok) = self.peek() {
                 let tok_raw = tok.raw();
 
-                // Handle bracket openers - match entire bracketed section
+                // Handle bracket openers - match entire bracketed section with nested brackets
                 if tok_raw == "(" || tok_raw == "[" || tok_raw == "{" {
-                    let close_bracket = match tok_raw.as_str() {
-                        "(" => ")",
-                        "[" => "]",
-                        "{" => "}",
-                        _ => unreachable!(),
-                    };
-
-                    let bracket_start = self.pos;
-                    let mut bracket_depth = 1;
-
-                    // Record opening bracket position with SymbolSegment class
-                    // This ensures Python's apply() creates a SymbolSegment, not raw CodeSegment
-                    let open_bracket_match = MatchResult {
-                        matched_slice: self.pos..self.pos + 1,
-                        matched_class: Some("SymbolSegment".to_string()),
-                        ..Default::default()
-                    };
-                    self.bump();
-
-                    // Match everything until matching close bracket
-                    while bracket_depth > 0 && !self.is_at_end() {
-                        if let Some(inner_tok) = self.peek() {
-                            let inner_raw = inner_tok.raw();
-
-                            if inner_raw == tok_raw {
-                                bracket_depth += 1;
-                            } else if inner_raw == close_bracket {
-                                bracket_depth -= 1;
-                            }
-
-                            self.bump();
-                        } else {
-                            break;
-                        }
-                    }
-
-                    let bracket_end = self.pos;
-
-                    // Record closing bracket position with SymbolSegment class
-                    let close_bracket_match = MatchResult {
-                        matched_slice: bracket_end - 1..bracket_end,
-                        matched_class: Some("SymbolSegment".to_string()),
-                        ..Default::default()
-                    };
-
-                    // Round brackets persist as BracketedSegment, square/curly don't
-                    let bracket_persists = tok_raw == "(";
-
-                    if bracket_persists {
-                        // Create a BracketedSegment match
-                        let bracket_match = MatchResult {
-                            matched_slice: bracket_start..bracket_end,
-                            matched_class: Some("BracketedSegment".to_string()),
-                            child_matches: vec![open_bracket_match, close_bracket_match],
-                            insert_segments: vec![
-                                (bracket_start + 1, MetaSegmentType::Indent),
-                                (bracket_end - 1, MetaSegmentType::Dedent),
-                            ],
-                            ..Default::default()
-                        };
-                        child_matches.push(bracket_match);
-                    } else {
-                        // For non-persisting brackets (square/curly), add as SymbolSegment matches
-                        // with Indent/Dedent meta segments for proper formatting
-                        child_matches.push(open_bracket_match);
-                        // Add Indent after open bracket
-                        let mut indent_match = MatchResult::empty_at(bracket_start + 1);
-                        indent_match.insert_segments =
-                            vec![(bracket_start + 1, MetaSegmentType::Indent)];
-                        child_matches.push(indent_match);
-                        // Add Dedent before close bracket
-                        let mut dedent_match = MatchResult::empty_at(bracket_end - 1);
-                        dedent_match.insert_segments =
-                            vec![(bracket_end - 1, MetaSegmentType::Dedent)];
-                        child_matches.push(dedent_match);
-                        child_matches.push(close_bracket_match);
-                    }
+                    let bracket_match =
+                        self.match_bracket_recursively(tok_raw.as_str(), tok_raw == "(");
+                    child_matches.push(bracket_match);
                 } else {
                     // Regular token - just bump, it'll be part of the raw content
                     self.bump();
@@ -1508,6 +1434,101 @@ impl<'a> Parser<'a> {
                 Ok(MatchResult::empty_at(self.pos))
             }
             TableFrameResult::Done => Ok(MatchResult::empty_at(self.pos)),
+        }
+    }
+
+    /// Recursively match brackets, handling nested brackets properly.
+    /// This ensures that nested brackets inside Anything grammars produce
+    /// proper BracketedSegment child_matches.
+    fn match_bracket_recursively(&mut self, open_bracket: &str, persists: bool) -> MatchResult {
+        let close_bracket = match open_bracket {
+            "(" => ")",
+            "[" => "]",
+            "{" => "}",
+            _ => unreachable!(),
+        };
+
+        let bracket_start = self.pos;
+
+        // Record opening bracket position with SymbolSegment class
+        let open_bracket_match = MatchResult {
+            matched_slice: self.pos..self.pos + 1,
+            matched_class: Some("SymbolSegment".to_string()),
+            instance_types: Some(vec!["start_bracket".to_string()]),
+            ..Default::default()
+        };
+        self.bump();
+
+        // Collect nested child matches (for nested brackets inside)
+        let mut inner_child_matches: Vec<MatchResult> = vec![open_bracket_match];
+
+        // Match everything until matching close bracket, recursively handling nested brackets
+        while !self.is_at_end() {
+            if let Some(inner_tok) = self.peek() {
+                let inner_raw = inner_tok.raw();
+
+                if inner_raw == close_bracket {
+                    // Found our closing bracket
+                    break;
+                } else if inner_raw == "(" || inner_raw == "[" || inner_raw == "{" {
+                    // Found a nested bracket - recursively match it
+                    let nested_persists = inner_raw == "(";
+                    let nested_match =
+                        self.match_bracket_recursively(inner_raw.as_str(), nested_persists);
+                    inner_child_matches.push(nested_match);
+                } else {
+                    // Regular token - just bump
+                    self.bump();
+                }
+            } else {
+                break;
+            }
+        }
+
+        // Record closing bracket position with SymbolSegment class
+        let bracket_end = if !self.is_at_end() {
+            self.bump(); // consume the close bracket
+            self.pos
+        } else {
+            self.pos
+        };
+
+        let close_bracket_match = MatchResult {
+            matched_slice: bracket_end - 1..bracket_end,
+            matched_class: Some("SymbolSegment".to_string()),
+            instance_types: Some(vec!["end_bracket".to_string()]),
+            ..Default::default()
+        };
+        inner_child_matches.push(close_bracket_match);
+
+        if persists {
+            // Create a BracketedSegment match
+            let mut segment_kwargs = hashbrown::HashMap::new();
+            segment_kwargs.insert("bracket_persists".to_string(), "true".to_string());
+            MatchResult {
+                matched_slice: bracket_start..bracket_end,
+                matched_class: Some("BracketedSegment".to_string()),
+                child_matches: inner_child_matches,
+                insert_segments: vec![
+                    (bracket_start + 1, MetaSegmentType::Indent),
+                    (bracket_end - 1, MetaSegmentType::Dedent),
+                ],
+                segment_kwargs,
+                ..Default::default()
+            }
+        } else {
+            // For non-persisting brackets, return a simple match with indent/dedent
+            // but no BracketedSegment wrapper
+            let mut result = MatchResult {
+                matched_slice: bracket_start..bracket_end,
+                child_matches: inner_child_matches,
+                insert_segments: vec![
+                    (bracket_start + 1, MetaSegmentType::Indent),
+                    (bracket_end - 1, MetaSegmentType::Dedent),
+                ],
+                ..Default::default()
+            };
+            result
         }
     }
 }
