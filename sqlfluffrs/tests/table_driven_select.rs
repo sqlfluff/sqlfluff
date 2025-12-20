@@ -41,6 +41,7 @@ fn table_driven_select_parses() {
                 token_type,
                 raw,
                 token_idx,
+                ..
             } => {
                 if raw == "1" {
                     return Some((token_type.clone(), *token_idx));

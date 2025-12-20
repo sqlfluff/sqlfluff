@@ -249,6 +249,7 @@ fn print_match_tree(node: &sqlfluffrs_parser::parser::Node, depth: usize) {
             token_type,
             raw,
             token_idx: pos,
+            ..
         } => {
             // Leaf token - show type and raw value
             println!(
@@ -287,6 +288,17 @@ fn print_match_tree(node: &sqlfluffrs_parser::parser::Node, depth: usize) {
             );
             println!("{}  -raw: {:?}", indent, raw);
         }
+        Node::Comment { raw, token_idx } => {
+            let pos = *token_idx;
+            println!(
+                "{}{}<comment>: slice({}, {}, None)",
+                indent,
+                prefix,
+                pos,
+                pos + 1
+            );
+            println!("{}  -raw: {:?}", indent, raw);
+        }
         Node::EndOfFile {
             raw,
             token_idx: pos,
@@ -304,6 +316,7 @@ fn print_match_tree(node: &sqlfluffrs_parser::parser::Node, depth: usize) {
             name: _,
             segment_type,
             child,
+            ..
         } => {
             // Ref node - show segment type if present
             if let Some(seg_type) = segment_type {
@@ -361,23 +374,11 @@ fn get_node_slice(node: &sqlfluffrs_parser::parser::Node) -> (usize, usize) {
     use sqlfluffrs_parser::parser::Node;
 
     match node {
-        Node::Token {
-            token_type: _,
-            raw: _,
-            token_idx: pos,
-        }
-        | Node::Whitespace {
-            raw: _,
-            token_idx: pos,
-        }
-        | Node::Newline {
-            raw: _,
-            token_idx: pos,
-        }
-        | Node::EndOfFile {
-            raw: _,
-            token_idx: pos,
-        } => (*pos, *pos + 1),
+        Node::Token { token_idx: pos, .. }
+        | Node::Whitespace { token_idx: pos, .. }
+        | Node::Newline { token_idx: pos, .. }
+        | Node::Comment { token_idx: pos, .. }
+        | Node::EndOfFile { token_idx: pos, .. } => (*pos, *pos + 1),
         Node::Ref { child, .. } => get_node_slice(child),
         Node::Sequence { children }
         | Node::DelimitedList { children }

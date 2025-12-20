@@ -9,6 +9,7 @@ fn collect_token_positions(node: &Node, positions: &mut HashSet<usize>) {
         Node::Whitespace { token_idx: pos, .. }
         | Node::Newline { token_idx: pos, .. }
         | Node::Token { token_idx: pos, .. }
+        | Node::Comment { token_idx: pos, .. }
         | Node::EndOfFile { token_idx: pos, .. } => {
             positions.insert(*pos);
         }

@@ -68,23 +68,11 @@ fn main() {
 fn collect_positions(node: &sqlfluffrs_parser::parser::Node, positions: &mut HashSet<usize>) {
     use sqlfluffrs_parser::parser::Node;
     match node {
-        Node::Whitespace {
-            raw: _,
-            token_idx: pos,
-        }
-        | Node::Newline {
-            raw: _,
-            token_idx: pos,
-        }
-        | Node::Token {
-            token_type: _,
-            raw: _,
-            token_idx: pos,
-        }
-        | Node::EndOfFile {
-            raw: _,
-            token_idx: pos,
-        } => {
+        Node::Whitespace { token_idx: pos, .. }
+        | Node::Newline { token_idx: pos, .. }
+        | Node::Token { token_idx: pos, .. }
+        | Node::Comment { token_idx: pos, .. }
+        | Node::EndOfFile { token_idx: pos, .. } => {
             positions.insert(*pos);
         }
         Node::Sequence { children }
