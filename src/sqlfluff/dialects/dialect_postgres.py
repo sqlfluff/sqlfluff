@@ -550,6 +550,12 @@ postgres_dialect.replace(
                 optional=True,
             ),
         ),
+        # json_serialize and json_value functions with RETURNING clause
+        # https://www.postgresql.org/docs/current/functions-json.html
+        Sequence(
+            "RETURNING",
+            Ref("DatatypeSegment"),
+        ),
         Sequence(
             # Allow an optional distinct keyword here.
             Ref.keyword("DISTINCT", optional=True),
