@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 201b5e60a74308d1e516f4705fa122f20b7acfd96f48052bf22a6b8cdaa2114a
+_hash: 59cbbb8e382521d8e53fd13bd2aa59e6705d11cf7a8c09f18acda2fca24e374c
 file:
 - statement:
     create_function_statement:
@@ -321,7 +321,8 @@ file:
     create_type_statement:
     - keyword: CREATE
     - keyword: TYPE
-    - data_type_identifier: dup_result
+    - data_type:
+        data_type_identifier: dup_result
     - keyword: AS
     - bracketed:
       - start_bracket: (

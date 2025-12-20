@@ -3,13 +3,14 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 0dd3bf202a18b36a5f5c6d907e359f3c6da60ce42ebc483c08edbec7db94afde
+_hash: 34316986b9a608bcbd68faa4f71274e29dd24178c6831f992c7d867326e7bd49
 file:
 - statement:
     alter_type_statement:
     - keyword: ALTER
     - keyword: TYPE
-    - data_type_identifier: foo
+    - data_type:
+        data_type_identifier: foo
     - keyword: RENAME
     - keyword: TO
     - object_reference:
@@ -19,7 +20,8 @@ file:
     alter_type_statement:
     - keyword: ALTER
     - keyword: TYPE
-    - data_type_identifier: foo
+    - data_type:
+        data_type_identifier: foo
     - keyword: OWNER
     - keyword: TO
     - keyword: CURRENT_USER
@@ -28,7 +30,8 @@ file:
     alter_type_statement:
     - keyword: ALTER
     - keyword: TYPE
-    - data_type_identifier: foo
+    - data_type:
+        data_type_identifier: foo
     - keyword: OWNER
     - keyword: TO
     - object_reference:
@@ -38,7 +41,8 @@ file:
     alter_type_statement:
     - keyword: ALTER
     - keyword: TYPE
-    - data_type_identifier: foo
+    - data_type:
+        data_type_identifier: foo
     - keyword: SET
     - keyword: SCHEMA
     - schema_reference:
@@ -48,7 +52,8 @@ file:
     alter_type_statement:
     - keyword: ALTER
     - keyword: TYPE
-    - data_type_identifier: compfoo
+    - data_type:
+        data_type_identifier: compfoo
     - keyword: ADD
     - keyword: ATTRIBUTE
     - column_reference:
@@ -75,7 +80,8 @@ file:
     alter_type_statement:
     - keyword: ALTER
     - keyword: TYPE
-    - data_type_identifier: compfoo
+    - data_type:
+        data_type_identifier: compfoo
     - keyword: RENAME
     - keyword: ATTRIBUTE
     - column_reference:
@@ -88,7 +94,8 @@ file:
     alter_type_statement:
     - keyword: ALTER
     - keyword: TYPE
-    - data_type_identifier: colors
+    - data_type:
+        data_type_identifier: colors
     - keyword: ADD
     - keyword: VALUE
     - quoted_literal: "'orange'"
@@ -99,7 +106,8 @@ file:
     alter_type_statement:
     - keyword: ALTER
     - keyword: TYPE
-    - data_type_identifier: foo
+    - data_type:
+        data_type_identifier: foo
     - keyword: ADD
     - keyword: VALUE
     - quoted_literal: "'baz'"
@@ -108,7 +116,8 @@ file:
     alter_type_statement:
     - keyword: ALTER
     - keyword: TYPE
-    - data_type_identifier: foo
+    - data_type:
+        data_type_identifier: foo
     - keyword: ADD
     - keyword: VALUE
     - quoted_literal: "'qux'"
@@ -119,7 +128,8 @@ file:
     alter_type_statement:
     - keyword: ALTER
     - keyword: TYPE
-    - data_type_identifier: foo
+    - data_type:
+        data_type_identifier: foo
     - keyword: ADD
     - keyword: VALUE
     - quoted_literal: "'quux'"
@@ -130,10 +140,10 @@ file:
     alter_type_statement:
     - keyword: ALTER
     - keyword: TYPE
-    - object_reference:
-      - naked_identifier: financial
-      - dot: .
-      - naked_identifier: reporting_statuses
+    - data_type:
+        naked_identifier: financial
+        dot: .
+        data_type_identifier: reporting_statuses
     - keyword: RENAME
     - keyword: VALUE
     - quoted_literal: "'partially'"
