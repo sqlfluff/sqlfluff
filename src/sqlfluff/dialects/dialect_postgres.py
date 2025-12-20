@@ -1984,9 +1984,9 @@ class FunctionExpansionSegment(BaseSegment):
 
     This handles the PostgreSQL syntax where you can expand all columns
     from a set-returning function using the .* syntax.
-    
+
     Example: (JSONB_EACH_TEXT(w.inventory_events)).*
-    
+
     See: https://www.postgresql.org/docs/current/functions-json.html
     """
 

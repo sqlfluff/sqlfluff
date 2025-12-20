@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 561ce95d27b50f5c46ea28ab605d0cfeed5c20780ef9cb9d9d55ded9e66d45fc
+_hash: 711b1f109370e8de6332bc4eb94bbe0dfeafa286b0b7400893bc9710397aa0bd
 file:
 - statement:
     select_statement:
@@ -34,6 +34,44 @@ file:
             table_expression:
               table_reference:
                 naked_identifier: table1
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          function_expansion:
+            bracketed:
+              start_bracket: (
+              expression:
+                function:
+                  function_name:
+                    function_name_identifier: JSONB_EACH_TEXT
+                  function_contents:
+                    bracketed:
+                      start_bracket: (
+                      expression:
+                        column_reference:
+                        - naked_identifier: w
+                        - dot: .
+                        - naked_identifier: inventory_events
+                      end_bracket: )
+              end_bracket: )
+            dot: .
+            star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+              - naked_identifier: public
+              - dot: .
+              - naked_identifier: widget
+            alias_expression:
+              alias_operator:
+                keyword: AS
+              naked_identifier: w
 - statement_terminator: ;
 - statement:
     select_statement:
