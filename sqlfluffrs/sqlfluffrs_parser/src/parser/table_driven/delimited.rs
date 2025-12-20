@@ -246,18 +246,11 @@ impl<'a> Parser<'_> {
                 self.pos = *working_idx;
 
                 // Python parity: Check for terminators BEFORE trying to match element/delimiter
-                // CRITICAL: If we have a pending delimiter, check terminators from BEFORE
-                // the delimiter, not after it.
-                let check_pos = if delimiter_match.is_some() && pos_before_delimiter.is_some() {
-                    pos_before_delimiter.unwrap()
-                } else {
-                    self.pos
-                };
-
-                let saved_pos = self.pos;
-                self.pos = check_pos;
+                // The terminator check should be at the current position (working_idx),
+                // which is AFTER the delimiter if one was matched.
+                // This matches Python where working_idx is updated to match.matched_slice.stop
+                // after each match, so terminator check happens from past the delimiter.
                 let is_terminated = self.is_terminated_table_driven(&frame_terminators);
-                self.pos = saved_pos;
 
                 // Handle termination or end of input
                 if self.is_at_end() || is_terminated {
@@ -343,9 +336,15 @@ impl<'a> Parser<'_> {
                     child_end_pos
                 );
 
+                // PYTHON PARITY: Push the pending delimiter FIRST (if any), then the element.
+                // This matches Python's behavior where delimiter is only added when the
+                // NEXT element successfully matches.
+                if let Some(dm) = delimiter_match.take() {
+                    frame.accumulated.push(dm);
+                    *delimiter_count += 1;
+                }
+
                 // Add the matched element
-                // The delimiter and transparent tokens were already pushed when transitioning
-                // from MatchingDelimiter to MatchingElement state.
                 frame.accumulated.push(child_match.clone());
                 *matched_idx = *child_end_pos;
                 *working_idx = *matched_idx;
@@ -626,12 +625,11 @@ impl<'a> Parser<'_> {
                     return Ok(TableFrameResult::Done);
                 }
 
-                // NOT terminated - NOW push the delimiter
-                // This ensures we only include the delimiter if we're continuing to match more elements
-                if let Some(dm) = delimiter_match.take() {
-                    frame.accumulated.push(dm);
-                    *delimiter_count += 1;
-                }
+                // NOT terminated - keep the delimiter in delimiter_match for now.
+                // It will be pushed to accumulated ONLY if the next element successfully matches.
+                // This ensures we don't include trailing delimiters when allow_trailing=false.
+                // (The delimiter is stored in delimiter_match and will be pushed in
+                // MatchingElement branch when child_match is NOT empty)
 
                 // Re-try elements at new position
                 // With the new structure, just use elements_id directly (OneOf or single element)
