@@ -1,0 +1,49 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: cefd4e3ac8bc4fc3153085835e5fffe4139f7a76b34b4412eb9a627ee4e7543a
+file:
+- statement:
+    drop_text_search_configuration_statement:
+    - keyword: DROP
+    - keyword: TEXT
+    - keyword: SEARCH
+    - keyword: CONFIGURATION
+    - object_reference:
+        naked_identifier: my_config
+- statement_terminator: ;
+- statement:
+    drop_text_search_configuration_statement:
+    - keyword: DROP
+    - keyword: TEXT
+    - keyword: SEARCH
+    - keyword: CONFIGURATION
+    - keyword: IF
+    - keyword: EXISTS
+    - object_reference:
+        naked_identifier: my_config
+- statement_terminator: ;
+- statement:
+    drop_text_search_configuration_statement:
+    - keyword: DROP
+    - keyword: TEXT
+    - keyword: SEARCH
+    - keyword: CONFIGURATION
+    - object_reference:
+      - naked_identifier: public
+      - dot: .
+      - naked_identifier: my_config
+    - keyword: CASCADE
+- statement_terminator: ;
+- statement:
+    drop_text_search_configuration_statement:
+    - keyword: DROP
+    - keyword: TEXT
+    - keyword: SEARCH
+    - keyword: CONFIGURATION
+    - object_reference:
+        naked_identifier: my_config
+    - keyword: RESTRICT
+- statement_terminator: ;

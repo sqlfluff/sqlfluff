@@ -3,6 +3,7 @@
 .idea
 /.sqlfluff
 **/.DS_Store
+.junie
 
 # Ignore Python cache and prebuilt things
 .cache

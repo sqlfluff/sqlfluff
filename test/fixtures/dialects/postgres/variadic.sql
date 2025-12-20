@@ -37,3 +37,17 @@ SELECT my_function(VARIADIC ARRAY[
 ]);
 
 SELECT my_function(VARIADIC ARRAY(SELECT value FROM table1));
+
+SELECT my_function(VARIADIC param_name = ARRAY[1, 2, 3]);
+
+SELECT my_function(
+    regular_param = 'value',
+    VARIADIC variadic_param = ARRAY[1, 2, 3]
+);
+
+SELECT my_function(VARIADIC param_name => ARRAY[1, 2, 3]);
+
+SELECT my_function(
+    regular_param => 'value',
+    VARIADIC variadic_param => ARRAY[1, 2, 3]
+);

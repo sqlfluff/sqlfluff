@@ -5,14 +5,12 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "sqlfluff"
-version = "3.4.2"
+version = "4.0.0a2"
 description = "The SQL Linter for Humans"
-readme = {file = "README.md", content-type = "text/markdown"}
+readme = { file = "README.md", content-type = "text/markdown" }
 requires-python = ">=3.9"
-authors = [
-  {name = "Alan Cruickshank", email = "alan@designingoverload.com"},
-]
-license = {file = "LICENSE.md"}
+authors = [{ name = "Alan Cruickshank", email = "alan@designingoverload.com" }]
+license = { file = "LICENSE.md" }
 classifiers = [
     "Development Status :: 5 - Production/Stable",
     "Environment :: Console",
@@ -74,7 +72,7 @@ dependencies = [
     "chardet",
     # Click can include breaking changes in minor releases. Make sure to test
     # well before updating upper bound.
-    "click<=8.3.0",
+    "click<8.4.0",
     "colorama>=0.3",
     # Used for diffcover plugin
     "diff-cover>=2.5.0",
@@ -98,6 +96,9 @@ dependencies = [
     # For handling progress bars
     "tqdm",
 ]
+
+[project.optional-dependencies]
+rs = ["sqlfluffrs==4.0.0a2"]
 
 [project.urls]
 Homepage = "https://www.sqlfluff.com"
@@ -133,7 +134,7 @@ sqlfluff_rules_tsql = "sqlfluff.rules.tsql"
 
 [tool.sqlfluff_docs]
 # NOTE: Stable version is used by docs/conf.py
-stable_version = "3.4.2"
+stable_version = "3.5.0"
 
 
 [tool.setuptools.package-data]
@@ -148,9 +149,7 @@ root_package = "sqlfluff"
 [[tool.importlinter.contracts]]
 name = "Forbid dependencies outside core"
 type = "forbidden"
-source_modules = [
-    "sqlfluff.core",
-]
+source_modules = ["sqlfluff.core"]
 forbidden_modules = [
     "sqlfluff.api",
     "sqlfluff.cli",
@@ -162,12 +161,8 @@ forbidden_modules = [
 [[tool.importlinter.contracts]]
 name = "API may not depend on CLI"
 type = "forbidden"
-source_modules = [
-    "sqlfluff.api",
-]
-forbidden_modules = [
-    "sqlfluff.cli",
-]
+source_modules = ["sqlfluff.api"]
+forbidden_modules = ["sqlfluff.cli"]
 
 [[tool.importlinter.contracts]]
 name = "Helper methods must be internally independent"
@@ -222,6 +217,7 @@ warn_unused_ignores = true
 strict_equality = true
 extra_checks = true
 no_implicit_reexport = true
+mypy_path = "$MYPY_CONFIG_FILE_DIR/sqlfluffrs"
 
 # skip type checking for 3rd party packages for which stubs are not available
 [[tool.mypy.overrides]]
@@ -232,7 +228,6 @@ ignore_missing_imports = true
 module = "tblib.*"
 ignore_missing_imports = true
 
-
 [tool.ruff.lint]
 extend-select = ["I", "D"]
 
@@ -240,6 +235,7 @@ extend-select = ["I", "D"]
 # D107: Missing docstring in __init__
 # D418: Function/ Method decorated with @overload shouldn’t contain a docstring
 ignore = ["D107", "D105", "D418"]
+
 
 [tool.ruff.lint.isort]
 # Mark sqlfluff, test and it's plugins as known first party
@@ -279,7 +275,7 @@ ignore-path = "docs/source/_partials/"
 skip = "*/test/fixtures/*,*/.*,*/pyproject.toml"
 
 check-hidden = true
-quiet-level=2
+quiet-level = 2
 # ignore-regex = '\\[fnrstv]'
 builtin = "clear,rare,informal,names"
 
@@ -287,7 +283,7 @@ ignore-words-list = "fo,ws,falsy,coo,inout,deque,crate,trough,ro,mange,identifer
 
 # ignore-words = "dev/tools/codespell/codespell-ignore.txt"
 # exclude-file = "dev/tools/codespell/codespell-lines-ignore.txt"
-uri-ignore-words-list="crate"
+uri-ignore-words-list = "crate"
 
 # For future reference: it is not currently possible to specify
 # the standard dictionary and the custom dictionary in the configuration

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: f0d6ed4515b8bc43701b4f6fbd3ae50b9b9f43470178a3f4f0f741439f7d0e4e
+_hash: b22b883762728785773d171e47ff361c1dcee8b637459c4375fd5659263eafe3
 file:
   batch:
   - statement:
@@ -11,7 +11,7 @@ file:
         keyword: DECLARE
         parameter: '@DateNow'
         data_type:
-          data_type_identifier: date
+          keyword: date
         comparison_operator:
           raw_comparison_operator: '='
         expression:
@@ -74,12 +74,12 @@ file:
                     quoted_literal: "'1900-01-01'"
                   keyword: as
                   data_type:
-                    data_type_identifier: datetime2
+                    keyword: datetime2
                     bracketed_arguments:
                       bracketed:
                         start_bracket: (
                         expression:
-                          numeric_literal: '7'
+                          integer_literal: '7'
                         end_bracket: )
                   end_bracket: )
             alias_expression:
@@ -95,13 +95,13 @@ file:
                   naked_identifier: encounter
               alias_expression:
                 naked_identifier: enc
-          statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       declare_segment:
         keyword: declare
         parameter: '@sample'
         data_type:
-          data_type_identifier: nvarchar
+          keyword: nvarchar
           bracketed_arguments:
             bracketed:
               start_bracket: (
@@ -117,10 +117,10 @@ file:
               bracketed:
                 start_bracket: (
                 expression:
-                  numeric_literal: '100'
+                  integer_literal: '100'
                 keyword: as
                 data_type:
-                  data_type_identifier: nvarchar
+                  keyword: nvarchar
                   bracketed_arguments:
                     bracketed:
                       start_bracket: (

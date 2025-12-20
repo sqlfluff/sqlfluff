@@ -1,0 +1,4 @@
+test-config:
+  dialect: oracle
+  rules:
+    - LT02

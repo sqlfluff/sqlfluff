@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 0d3e1a239cfc078f09e11cf7d587ef50fa821012b42cb3e13079f6e3d457e410
+_hash: 7b73b841e1fdc0085877091eeba8d959706be28ca620115b129928eb10f1b961
 file:
 - batch:
     statement:
@@ -31,7 +31,7 @@ file:
             - naked_identifier: rn
           - comparison_operator:
               raw_comparison_operator: '='
-          - numeric_literal: '1'
+          - integer_literal: '1'
           - binary_operator: and
           - column_reference:
             - naked_identifier: dst
@@ -84,8 +84,8 @@ file:
                     - naked_identifier: src
                     - dot: .
                     - naked_identifier: e_date_from
-- go_statement:
-    keyword: go
+    go_statement:
+      keyword: go
 - batch:
     statement:
       with_compound_statement:
@@ -240,8 +240,8 @@ file:
                       naked_identifier: cc_description
                 - end_bracket: )
     statement_terminator: ;
-- go_statement:
-    keyword: go
+    go_statement:
+      keyword: go
 - batch:
     statement:
       merge_statement:
@@ -414,7 +414,7 @@ file:
                 naked_identifier: s_id
               comparison_operator:
                 raw_comparison_operator: '='
-              numeric_literal: '1'
+              integer_literal: '1'
               keyword: in
               bracketed:
                 start_bracket: (
@@ -462,8 +462,8 @@ file:
                     column_reference:
                       naked_identifier: col2
     statement_terminator: ;
-- go_statement:
-    keyword: go
+    go_statement:
+      keyword: go
 - batch:
     statement:
       merge_statement:
@@ -566,26 +566,23 @@ file:
               - end_bracket: )
           output_clause:
           - keyword: OUTPUT
-          - wildcard_expression:
-              wildcard_identifier:
-                naked_identifier: deleted
-                dot: .
-                star: '*'
+          - keyword: deleted
+          - dot: .
+          - wildcard_identifier:
+              star: '*'
           - comma: ','
-          - column_reference:
-              variable_identifier: $action
+          - action_parameter: $action
           - comma: ','
-          - wildcard_expression:
-              wildcard_identifier:
-                naked_identifier: inserted
-                dot: .
-                star: '*'
+          - keyword: inserted
+          - dot: .
+          - wildcard_identifier:
+              star: '*'
           - keyword: INTO
           - table_reference:
               hash_identifier: '#MyTempTable'
     statement_terminator: ;
-- go_statement:
-    keyword: GO
+    go_statement:
+      keyword: GO
 - batch:
     statement:
       merge_statement:
@@ -716,7 +713,7 @@ file:
             - comparison_operator:
               - raw_comparison_operator: <
               - raw_comparison_operator: '='
-            - numeric_literal: '0'
+            - integer_literal: '0'
           - keyword: THEN
           - merge_delete_clause:
               keyword: DELETE
@@ -763,41 +760,34 @@ file:
                           end_bracket: )
         - output_clause:
           - keyword: OUTPUT
-          - column_reference:
-              variable_identifier: $action
+          - action_parameter: $action
           - comma: ','
-          - column_reference:
-            - naked_identifier: Inserted
-            - dot: .
-            - naked_identifier: ProductID
+          - keyword: Inserted
+          - dot: .
+          - naked_identifier: ProductID
           - comma: ','
-          - column_reference:
-            - naked_identifier: Inserted
-            - dot: .
-            - naked_identifier: Quantity
+          - keyword: Inserted
+          - dot: .
+          - naked_identifier: Quantity
           - comma: ','
-          - column_reference:
-            - naked_identifier: Inserted
-            - dot: .
-            - naked_identifier: ModifiedDate
+          - keyword: Inserted
+          - dot: .
+          - naked_identifier: ModifiedDate
           - comma: ','
-          - column_reference:
-            - naked_identifier: Deleted
-            - dot: .
-            - naked_identifier: ProductID
+          - keyword: Deleted
+          - dot: .
+          - naked_identifier: ProductID
           - comma: ','
-          - column_reference:
-            - naked_identifier: Deleted
-            - dot: .
-            - naked_identifier: Quantity
+          - keyword: Deleted
+          - dot: .
+          - naked_identifier: Quantity
           - comma: ','
-          - column_reference:
-            - naked_identifier: Deleted
-            - dot: .
-            - naked_identifier: ModifiedDate
+          - keyword: Deleted
+          - dot: .
+          - naked_identifier: ModifiedDate
     statement_terminator: ;
-- go_statement:
-    keyword: GO
+    go_statement:
+      keyword: GO
 - batch:
     statement:
       merge_statement:
@@ -926,7 +916,7 @@ file:
             - comparison_operator:
               - raw_comparison_operator: '>'
               - raw_comparison_operator: '='
-            - numeric_literal: '0'
+            - integer_literal: '0'
           - keyword: THEN
           - merge_update_clause:
               keyword: UPDATE
@@ -966,45 +956,40 @@ file:
             - comparison_operator:
               - raw_comparison_operator: <
               - raw_comparison_operator: '='
-            - numeric_literal: '0'
+            - integer_literal: '0'
           - keyword: THEN
           - merge_delete_clause:
               keyword: DELETE
         - output_clause:
           - keyword: OUTPUT
-          - column_reference:
-              variable_identifier: $action
+          - action_parameter: $action
           - comma: ','
-          - column_reference:
-            - naked_identifier: Inserted
-            - dot: .
-            - naked_identifier: ProductID
+          - keyword: Inserted
+          - dot: .
+          - naked_identifier: ProductID
           - comma: ','
-          - column_reference:
-            - naked_identifier: Inserted
-            - dot: .
-            - naked_identifier: LocationID
+          - keyword: Inserted
+          - dot: .
+          - naked_identifier: LocationID
           - comma: ','
-          - column_reference:
-            - naked_identifier: Inserted
-            - dot: .
-            - naked_identifier: Quantity
+          - keyword: Inserted
+          - dot: .
+          - naked_identifier: Quantity
           - alias_expression:
               alias_operator:
                 keyword: AS
               naked_identifier: NewQty
           - comma: ','
-          - column_reference:
-            - naked_identifier: Deleted
-            - dot: .
-            - naked_identifier: Quantity
+          - keyword: Deleted
+          - dot: .
+          - naked_identifier: Quantity
           - alias_expression:
               alias_operator:
                 keyword: AS
               naked_identifier: PreviousQty
     statement_terminator: ;
-- go_statement:
-    keyword: GO
+    go_statement:
+      keyword: GO
 - batch:
     statement:
       insert_statement:
@@ -1102,19 +1087,18 @@ file:
                                   - dot: .
                                   - naked_identifier: columnC
                         output_clause:
-                          keyword: output
-                          column_reference:
-                          - naked_identifier: inserted
-                          - dot: .
-                          - naked_identifier: columnC
+                        - keyword: output
+                        - keyword: inserted
+                        - dot: .
+                        - naked_identifier: columnC
                     end_bracket: )
                 alias_expression:
                   alias_operator:
                     keyword: as
                   naked_identifier: upd
-            statement_terminator: ;
-- go_statement:
-    keyword: GO
+    statement_terminator: ;
+    go_statement:
+      keyword: GO
 - batch:
     statement:
       merge_statement:
@@ -1223,26 +1207,23 @@ file:
               - end_bracket: )
           output_clause:
           - keyword: OUTPUT
-          - wildcard_expression:
-              wildcard_identifier:
-                naked_identifier: deleted
-                dot: .
-                star: '*'
+          - keyword: deleted
+          - dot: .
+          - wildcard_identifier:
+              star: '*'
           - comma: ','
-          - column_reference:
-              variable_identifier: $action
+          - action_parameter: $action
           - comma: ','
-          - wildcard_expression:
-              wildcard_identifier:
-                naked_identifier: inserted
-                dot: .
-                star: '*'
+          - keyword: inserted
+          - dot: .
+          - wildcard_identifier:
+              star: '*'
           - keyword: INTO
           - table_reference:
               hash_identifier: '#MyTempTable'
     statement_terminator: ;
-- go_statement:
-    keyword: GO
+    go_statement:
+      keyword: GO
 - batch:
     statement:
       merge_statement:
@@ -1389,7 +1370,7 @@ file:
             - comparison_operator:
               - raw_comparison_operator: '>'
               - raw_comparison_operator: '='
-            - numeric_literal: '0'
+            - integer_literal: '0'
           - keyword: THEN
           - merge_update_clause:
               keyword: UPDATE
@@ -1429,45 +1410,40 @@ file:
             - comparison_operator:
               - raw_comparison_operator: <
               - raw_comparison_operator: '='
-            - numeric_literal: '0'
+            - integer_literal: '0'
           - keyword: THEN
           - merge_delete_clause:
               keyword: DELETE
         - output_clause:
           - keyword: OUTPUT
-          - column_reference:
-              variable_identifier: $action
+          - action_parameter: $action
           - comma: ','
-          - column_reference:
-            - naked_identifier: Inserted
-            - dot: .
-            - naked_identifier: ProductID
+          - keyword: Inserted
+          - dot: .
+          - naked_identifier: ProductID
           - comma: ','
-          - column_reference:
-            - naked_identifier: Inserted
-            - dot: .
-            - naked_identifier: LocationID
+          - keyword: Inserted
+          - dot: .
+          - naked_identifier: LocationID
           - comma: ','
-          - column_reference:
-            - naked_identifier: Inserted
-            - dot: .
-            - naked_identifier: Quantity
+          - keyword: Inserted
+          - dot: .
+          - naked_identifier: Quantity
           - alias_expression:
               alias_operator:
                 keyword: AS
               naked_identifier: NewQty
           - comma: ','
-          - column_reference:
-            - naked_identifier: Deleted
-            - dot: .
-            - naked_identifier: Quantity
+          - keyword: Deleted
+          - dot: .
+          - naked_identifier: Quantity
           - alias_expression:
               alias_operator:
                 keyword: AS
               naked_identifier: PreviousQty
     statement_terminator: ;
-- go_statement:
-    keyword: GO
+    go_statement:
+      keyword: GO
 - batch:
     statement:
       merge_statement:
@@ -1484,7 +1460,7 @@ file:
             select_clause:
               keyword: SELECT
               select_clause_element:
-                numeric_literal: '1'
+                integer_literal: '1'
                 alias_expression:
                   alias_operator:
                     keyword: AS

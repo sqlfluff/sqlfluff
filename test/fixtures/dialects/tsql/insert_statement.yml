@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 16df891b928c5d8c9d95f87eadca7ebd741602622fb956784bdde800ab4bcea1
+_hash: 0aca86951922d28dd24904f119c88a9092595d2b542a556054664a800294e6d3
 file:
 - batch:
     statement:
@@ -79,7 +79,7 @@ file:
                         quoted_identifier: '[POPULATION]'
                     keyword: AS
                     data_type:
-                      data_type_identifier: BIGINT
+                      keyword: BIGINT
                     end_bracket: )
               alias_expression:
                 alias_operator:
@@ -102,7 +102,7 @@ file:
                         quoted_identifier: '[WEEKLY_COUNT]'
                     keyword: AS
                     data_type:
-                      data_type_identifier: BIGINT
+                      keyword: BIGINT
                     end_bracket: )
               alias_expression:
                 alias_operator:
@@ -141,7 +141,7 @@ file:
                                         naked_identifier: YEAR_WEEK
                                   - comma: ','
                                   - expression:
-                                      numeric_literal: '4'
+                                      integer_literal: '4'
                                   - end_bracket: )
                           - comma: ','
                           - expression:
@@ -156,12 +156,12 @@ file:
                                         naked_identifier: YEAR_WEEK
                                   - comma: ','
                                   - expression:
-                                      numeric_literal: '2'
+                                      integer_literal: '2'
                                   - end_bracket: )
                           - end_bracket: )
                     keyword: AS
                     data_type:
-                      data_type_identifier: DATE
+                      keyword: DATE
                     end_bracket: )
               alias_expression:
                 alias_operator:
@@ -205,7 +205,7 @@ file:
                                                 naked_identifier: YEAR_WEEK
                                           - comma: ','
                                           - expression:
-                                              numeric_literal: '4'
+                                              integer_literal: '4'
                                           - end_bracket: )
                                   - comma: ','
                                   - expression:
@@ -220,13 +220,13 @@ file:
                                                 naked_identifier: YEAR_WEEK
                                           - comma: ','
                                           - expression:
-                                              numeric_literal: '2'
+                                              integer_literal: '2'
                                           - end_bracket: )
                                   - end_bracket: )
                             end_bracket: )
                     keyword: AS
                     data_type:
-                      data_type_identifier: DATE
+                      keyword: DATE
                     end_bracket: )
               alias_expression:
                 alias_operator:
@@ -245,7 +245,7 @@ file:
                         quoted_identifier: '[RATE_14_DAY]'
                     keyword: AS
                     data_type:
-                      data_type_identifier: FLOAT
+                      keyword: FLOAT
                     end_bracket: )
               alias_expression:
                 alias_operator:
@@ -264,7 +264,7 @@ file:
                         quoted_identifier: '[CUMULATIVE_COUNT]'
                     keyword: AS
                     data_type:
-                      data_type_identifier: BIGINT
+                      keyword: BIGINT
                     end_bracket: )
               alias_expression:
                 alias_operator:
@@ -283,8 +283,8 @@ file:
                   - naked_identifier: STAGE
                   - dot: .
                   - naked_identifier: ECDC_CASES
-- go_statement:
-    keyword: GO
+    go_statement:
+      keyword: GO
 - batch:
     statement:
       begin_end_block:
@@ -342,10 +342,10 @@ file:
                     table_expression:
                       table_reference:
                         naked_identifier: EmployeeTemp
-                statement_terminator: ;
+      - statement_terminator: ;
       - keyword: END
-- go_statement:
-    keyword: GO
+    go_statement:
+      keyword: GO
 - batch:
     statement:
       insert_statement:
@@ -400,9 +400,9 @@ file:
                 table_expression:
                   table_reference:
                     naked_identifier: EmployeeTemp
-            statement_terminator: ;
-- go_statement:
-    keyword: GO
+    statement_terminator: ;
+    go_statement:
+      keyword: GO
 - batch:
     statement:
       insert_statement:
@@ -421,9 +421,10 @@ file:
             end_bracket: )
       - output_clause:
         - keyword: OUTPUT
-        - wildcard_expression:
-            wildcard_identifier:
-              star: '*'
+        - keyword: INSERTED
+        - dot: .
+        - wildcard_identifier:
+            star: '*'
         - keyword: INTO
         - table_reference:
             naked_identifier: Results
@@ -436,8 +437,8 @@ file:
             raw_comparison_operator: '='
           expression:
             quoted_literal: "'Picard'"
-- go_statement:
-    keyword: GO
+    go_statement:
+      keyword: GO
 - batch:
     statement:
       insert_statement:
@@ -462,5 +463,5 @@ file:
           - comma: ','
           - quoted_literal: "'James'"
           - end_bracket: )
-- go_statement:
-    keyword: GO
+    go_statement:
+      keyword: GO

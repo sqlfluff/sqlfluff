@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: ce469a0d8d36ac5394266038687470feed3f42c351aa2f2256f63407ab35663b
+_hash: de25d25af6cf45105e558382686794ce8b000f7fe84a85106aed6a058affdba1
 file:
 - batch:
     statement:
@@ -40,9 +40,9 @@ file:
                 alias_operator:
                   keyword: AS
                 naked_identifier: a
-          statement_terminator: ;
-- go_statement:
-    keyword: GO
+    statement_terminator: ;
+    go_statement:
+      keyword: GO
 - batch:
     statement:
       select_statement:
@@ -74,9 +74,9 @@ file:
                 alias_operator:
                   keyword: AS
                 naked_identifier: d
-          statement_terminator: ;
-- go_statement:
-    keyword: GO
+    statement_terminator: ;
+    go_statement:
+      keyword: GO
 - batch:
     statement:
       select_statement:
@@ -112,9 +112,9 @@ file:
                 alias_operator:
                   keyword: AS
                 naked_identifier: d
-          statement_terminator: ;
-- go_statement:
-    keyword: GO
+    statement_terminator: ;
+    go_statement:
+      keyword: GO
 - batch:
     statement:
       select_statement:
@@ -145,9 +145,9 @@ file:
                 alias_operator:
                   keyword: AS
                 naked_identifier: a
-          statement_terminator: ;
-- go_statement:
-    keyword: GO
+    statement_terminator: ;
+    go_statement:
+      keyword: GO
 - batch:
     statement:
       select_statement:
@@ -175,9 +175,9 @@ file:
                 alias_operator:
                   keyword: AS
                 naked_identifier: DATA
-          statement_terminator: ;
-- go_statement:
-    keyword: GO
+    statement_terminator: ;
+    go_statement:
+      keyword: GO
 - batch:
     statement:
       select_statement:
@@ -205,9 +205,9 @@ file:
                 alias_operator:
                   keyword: AS
                 naked_identifier: Document
-          statement_terminator: ;
-- go_statement:
-    keyword: GO
+    statement_terminator: ;
+    go_statement:
+      keyword: GO
 - batch:
     statement:
       select_statement:
@@ -248,9 +248,9 @@ file:
                 alias_operator:
                   keyword: AS
                 naked_identifier: cars
-          statement_terminator: ;
-- go_statement:
-    keyword: GO
+    statement_terminator: ;
+    go_statement:
+      keyword: GO
 - batch:
     statement:
       select_statement:
@@ -259,7 +259,7 @@ file:
           select_clause_modifier:
             keyword: TOP
             expression:
-              numeric_literal: '10'
+              integer_literal: '10'
           select_clause_element:
             wildcard_expression:
               wildcard_identifier:
@@ -285,8 +285,8 @@ file:
                 alias_operator:
                   keyword: as
                 naked_identifier: rows
-- go_statement:
-    keyword: GO
+    go_statement:
+      keyword: GO
 - batch:
     statement:
       select_statement:
@@ -295,7 +295,7 @@ file:
           select_clause_modifier:
             keyword: TOP
             expression:
-              numeric_literal: '10'
+              integer_literal: '10'
           select_clause_element:
             wildcard_expression:
               wildcard_identifier:
@@ -323,12 +323,12 @@ file:
                     - start_bracket: (
                     - quoted_identifier: '[country_code]'
                     - data_type:
-                        data_type_identifier: VARCHAR
+                        keyword: VARCHAR
                         bracketed_arguments:
                           bracketed:
                             start_bracket: (
                             expression:
-                              numeric_literal: '5'
+                              integer_literal: '5'
                             end_bracket: )
                     - keyword: COLLATE
                     - collation_reference:
@@ -336,12 +336,12 @@ file:
                     - comma: ','
                     - quoted_identifier: '[country_name]'
                     - data_type:
-                        data_type_identifier: VARCHAR
+                        keyword: VARCHAR
                         bracketed_arguments:
                           bracketed:
                             start_bracket: (
                             expression:
-                              numeric_literal: '100'
+                              integer_literal: '100'
                             end_bracket: )
                     - keyword: COLLATE
                     - collation_reference:
@@ -350,18 +350,18 @@ file:
                     - comma: ','
                     - quoted_identifier: '[year]'
                     - data_type:
-                        data_type_identifier: smallint
+                        keyword: smallint
                     - comma: ','
                     - quoted_identifier: '[population]'
                     - data_type:
-                        data_type_identifier: bigint
+                        keyword: bigint
                     - end_bracket: )
               alias_expression:
                 alias_operator:
                   keyword: as
                 naked_identifier: rows
-- go_statement:
-    keyword: GO
+    go_statement:
+      keyword: GO
 - batch:
     statement:
       select_statement:
@@ -370,7 +370,7 @@ file:
           select_clause_modifier:
             keyword: TOP
             expression:
-              numeric_literal: '1'
+              integer_literal: '1'
           select_clause_element:
             wildcard_expression:
               wildcard_identifier:
@@ -398,54 +398,54 @@ file:
                     - start_bracket: (
                     - quoted_identifier: '[stateName]'
                     - data_type:
-                        data_type_identifier: VARCHAR
+                        keyword: VARCHAR
                         bracketed_arguments:
                           bracketed:
                             start_bracket: (
                             expression:
-                              numeric_literal: '50'
+                              integer_literal: '50'
                             end_bracket: )
                     - comma: ','
                     - quoted_identifier: '[stateName_explicit_path]'
                     - data_type:
-                        data_type_identifier: VARCHAR
+                        keyword: VARCHAR
                         bracketed_arguments:
                           bracketed:
                             start_bracket: (
                             expression:
-                              numeric_literal: '50'
+                              integer_literal: '50'
                             end_bracket: )
                     - quoted_literal: "'$.stateName'"
                     - comma: ','
                     - quoted_identifier: '[COUNTYNAME]'
                     - data_type:
-                        data_type_identifier: VARCHAR
+                        keyword: VARCHAR
                         bracketed_arguments:
                           bracketed:
                             start_bracket: (
                             expression:
-                              numeric_literal: '50'
+                              integer_literal: '50'
                             end_bracket: )
                     - comma: ','
                     - quoted_identifier: '[countyName_explicit_path]'
                     - data_type:
-                        data_type_identifier: VARCHAR
+                        keyword: VARCHAR
                         bracketed_arguments:
                           bracketed:
                             start_bracket: (
                             expression:
-                              numeric_literal: '50'
+                              integer_literal: '50'
                             end_bracket: )
                     - quoted_literal: "'$.COUNTYNAME'"
                     - comma: ','
                     - quoted_identifier: '[population]'
                     - data_type:
-                        data_type_identifier: bigint
+                        keyword: bigint
                     - quoted_literal: "'strict $.population'"
                     - end_bracket: )
               alias_expression:
                 alias_operator:
                   keyword: AS
                 quoted_identifier: '[r]'
-- go_statement:
-    keyword: GO
+    go_statement:
+      keyword: GO

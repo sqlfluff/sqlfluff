@@ -113,7 +113,7 @@ bigquery_dialect.patch_lexer_matchers(
                     r"|[^'])*(?<!\\)(?:\\{2})*)')",
                     "value",
                 ),
-                "escape_replacements": [(r"\\([\\`\"'?])", "\1")],
+                "escape_replacements": [(r"\\([\\`\"'?])", r"\1")],
             },
         ),
         RegexLexer(
@@ -130,7 +130,7 @@ bigquery_dialect.patch_lexer_matchers(
                     r'(\\{2})*\\"|[^"])*(?<!\\)(\\{2})*)")',
                     "value",
                 ),
-                "escape_replacements": [(r"\\([\\`\"'?])", "\1")],
+                "escape_replacements": [(r"\\([\\`\"'?])", r"\1")],
             },
         ),
     ]
@@ -290,6 +290,40 @@ bigquery_dialect.replace(
             casefold=str.upper,
         )
     ),
+    DatatypeIdentifierSegment=SegmentGenerator(
+        lambda dialect: MultiStringParser(
+            [
+                "INT64",
+                "INT",
+                "SMALLINT",
+                "INTEGER",
+                "BIGINT",
+                "TINYINT",
+                "BYTEINT",
+                "FLOAT64",
+                "NUMERIC",
+                "DECIMAL",
+                "BIGNUMERIC",
+                "BIGDECIMAL",
+                "BOOL",
+                "BOOLEAN",
+                "STRING",
+                "BYTES",
+                "DATE",
+                "DATETIME",
+                "TIME",
+                "TIMESTAMP",
+                "GEOGRAPHY",
+                "INTERVAL",
+                "JSON",
+                "RANGE",
+                "ARRAY",
+                "STRUCT",
+            ],
+            CodeSegment,
+            type="data_type_identifier",
+        )
+    ),
     FunctionContentsExpressionGrammar=OneOf(
         Ref("DatetimeUnitSegment"),
         Ref("DatePartWeekSegment"),
@@ -299,6 +333,24 @@ bigquery_dialect.replace(
         ),
         Sequence(Ref("ExpressionSegment"), "HAVING", OneOf("MIN", "MAX")),
         Ref("NamedArgumentSegment"),
+    ),
+    # Extend the ANSI FunctionContentsGrammar to allow a FORMAT clause
+    # after the CAST-style "AS <datatype>" pattern, e.g.:
+    #   CAST(x AS STRING FORMAT 'ASCII')
+    FunctionContentsGrammar=ansi_dialect.get_grammar("FunctionContentsGrammar").copy(
+        insert=[
+            Sequence(
+                Ref("ExpressionSegment"),
+                "AS",
+                Ref("DatatypeSegment"),
+                Sequence(
+                    Ref.keyword("FORMAT"),
+                    Ref("QuotedLiteralSegment"),
+                    Ref("TimeZoneGrammar", optional=True),
+                    optional=True,
+                ),
+            )
+        ]
     ),
     TrimParametersGrammar=Nothing(),
     # BigQuery allows underscore in parameter names, and also anything if quoted in
@@ -463,7 +515,7 @@ bigquery_dialect.bracket_sets("angle_bracket_pairs").update(
 class ArrayTypeSegment(ansi.ArrayTypeSegment):
     """Prefix for array literals specifying the type."""
 
-    type = "array_type"
+    type = "data_type"
     match_grammar = Sequence(
         "ARRAY",
         Bracketed(
@@ -605,6 +657,7 @@ class FileSegment(BaseFileSegment):
     # NB: We don't need a match_grammar here because we're
     # going straight into instantiating it directly usually.
     match_grammar = Sequence(
+        AnyNumberOf(Ref("DelimiterGrammar")),
         Sequence(
             OneOf(
                 Ref("MultiStatementSegment"),
@@ -618,7 +671,7 @@ class FileSegment(BaseFileSegment):
                 Ref("StatementSegment"),
             ),
         ),
-        Ref("DelimiterGrammar", optional=True),
+        AnyNumberOf(Ref("DelimiterGrammar")),
     )
 
 
@@ -1368,6 +1421,7 @@ class DatatypeSegment(ansi.DatatypeSegment):
 class StructTypeSegment(ansi.StructTypeSegment):
     """Expression to construct a STRUCT datatype."""
 
+    type = "data_type"
     match_grammar = Sequence(
         "STRUCT",
         Ref("StructTypeSchemaSegment", optional=True),
@@ -3128,7 +3182,21 @@ class CreateVectorIndexStatementSegment(BaseSegment):
                 Ref("IndexColumnDefinitionSegment"),
             ),
         ),
+        Ref("StoringSegment", optional=True),
         Ref("OptionsSegment"),
+    )
+
+
+class StoringSegment(BaseSegment):
+    """The `STORING` clause for a `CREATE VECTOR INDEX` statement.
+
+    https://cloud.google.com/bigquery/docs/reference/standard-sql/data-definition-language#create_vector_index_statement
+    """
+
+    type = "storing_segment"
+    match_grammar: Matchable = Sequence(
+        "STORING",
+        Bracketed(Delimited(Ref("SingleIdentifierGrammar"))),
     )
 
 
@@ -3558,4 +3626,22 @@ class UnpivotOperatorSegment(BaseSegment):
     match_grammar: Matchable = Sequence(
         Ref("FromUnpivotExpressionSegment"),
         Ref("AliasExpressionSegment", optional=True),
+    )
+
+
+class CTEDefinitionSegment(ansi.CTEDefinitionSegment):
+    """A CTE Definition from a WITH statement.
+
+    BigQuery allows FROM clauses directly in CTEs without requiring SELECT statements.
+    This extends the ANSI definition to support this pipe syntax.
+    """
+
+    match_grammar = Sequence(
+        Ref("SingleIdentifierGrammar"),
+        Ref("CTEColumnList", optional=True),
+        Ref.keyword("AS", optional=True),
+        Bracketed(
+            OneOf(Ref("SelectableGrammar"), Ref("PipeStatementSegment")),
+            parse_mode=ParseMode.GREEDY,
+        ),
     )

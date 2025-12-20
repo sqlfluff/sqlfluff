@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 96633a795ee98a2b3cd19c5e41d5414cc4903d923a633eb661385fe896b4bd91
+_hash: b58e0c490b0e21c3c38931d514f207da53fe5c0938942d65f0fcef5c4daea889
 file:
 - batch:
     statement:
@@ -34,8 +34,8 @@ file:
             - numeric_literal: '10'
             - end_bracket: )
       - statement_terminator: ;
-- go_statement:
-    keyword: GO
+    go_statement:
+      keyword: GO
 - batch:
     statement:
       create_trigger:
@@ -87,9 +87,9 @@ file:
               raw_comparison_operator: '='
           - expression:
               quoted_literal: "'Reminder'"
-          - statement_terminator: ;
-- go_statement:
-    keyword: GO
+      - statement_terminator: ;
+    go_statement:
+      keyword: GO
 - batch:
     statement:
       create_trigger:
@@ -124,12 +124,12 @@ file:
                           end_bracket: )
                     comparison_operator:
                       raw_comparison_operator: '='
-                    numeric_literal: '0'
+                    integer_literal: '0'
                   end_bracket: )
             statement:
               return_segment:
                 keyword: RETURN
-                statement_terminator: ;
+            statement_terminator: ;
       - statement:
           if_then_statement:
             if_clause:
@@ -142,7 +142,7 @@ file:
                     select_clause:
                       keyword: SELECT
                       select_clause_element:
-                        numeric_literal: '1'
+                        integer_literal: '1'
                     from_clause:
                       keyword: FROM
                       from_expression:
@@ -188,7 +188,7 @@ file:
                         - naked_identifier: CreditRating
                         comparison_operator:
                           raw_comparison_operator: '='
-                        numeric_literal: '5'
+                        integer_literal: '5'
                   end_bracket: )
             statement:
               begin_end_block:
@@ -210,14 +210,14 @@ file:
                   transaction_statement:
                   - keyword: ROLLBACK
                   - keyword: TRANSACTION
-                  - statement_terminator: ;
+              - statement_terminator: ;
               - statement:
                   return_segment:
                     keyword: RETURN
               - keyword: END
             statement_terminator: ;
-- go_statement:
-    keyword: GO
+    go_statement:
+      keyword: GO
 - batch:
     statement:
       create_trigger:
@@ -241,12 +241,12 @@ file:
                     system_variable: '@@ROWCOUNT'
                     comparison_operator:
                       raw_comparison_operator: '='
-                    numeric_literal: '0'
+                    integer_literal: '0'
                   end_bracket: )
             statement:
               return_segment:
                 keyword: RETURN
-                statement_terminator: ;
+            statement_terminator: ;
       - statement:
           raiserror_statement:
             keyword: RAISERROR
@@ -261,8 +261,8 @@ file:
       - statement:
           transaction_statement:
             keyword: ROLLBACK
-- go_statement:
-    keyword: GO
+    go_statement:
+      keyword: GO
 - batch:
     statement:
       drop_trigger:
@@ -273,8 +273,8 @@ file:
       - keyword: 'ON'
       - keyword: DATABASE
     statement_terminator: ;
-- go_statement:
-    keyword: GO
+    go_statement:
+      keyword: GO
 - batch:
     statement:
       create_trigger:
@@ -298,9 +298,9 @@ file:
             select_clause:
               keyword: SELECT
               select_clause_element:
-                numeric_literal: '1'
-- go_statement:
-    keyword: GO
+                integer_literal: '1'
+    go_statement:
+      keyword: GO
 - batch:
     statement:
       create_trigger:
@@ -319,15 +319,15 @@ file:
             keyword: PRINT
             expression:
               quoted_literal: "'Database Created.'"
-            statement_terminator: ;
+      - statement_terminator: ;
       - statement:
           select_statement:
             select_clause:
               keyword: SELECT
               select_clause_element:
-                numeric_literal: '1'
-- go_statement:
-    keyword: GO
+                integer_literal: '1'
+    go_statement:
+      keyword: GO
 - batch:
     statement:
       drop_trigger:
@@ -339,8 +339,8 @@ file:
       - keyword: ALL
       - keyword: SERVER
     statement_terminator: ;
-- go_statement:
-    keyword: GO
+    go_statement:
+      keyword: GO
 - batch:
     statement:
       create_trigger:
@@ -409,7 +409,7 @@ file:
                                 naked_identifier: is_user_process
                             - comparison_operator:
                                 raw_comparison_operator: '='
-                            - numeric_literal: '1'
+                            - integer_literal: '1'
                             - binary_operator: AND
                             - column_reference:
                                 naked_identifier: original_login_name
@@ -419,15 +419,15 @@ file:
                       end_bracket: )
                   - comparison_operator:
                       raw_comparison_operator: '>'
-                  - numeric_literal: '3'
+                  - integer_literal: '3'
                 statement:
                   transaction_statement:
                     keyword: ROLLBACK
-                    statement_terminator: ;
+                statement_terminator: ;
           - keyword: END
       - statement_terminator: ;
-- go_statement:
-    keyword: GO
+    go_statement:
+      keyword: GO
 - batch:
     statement:
       create_trigger:
@@ -500,8 +500,8 @@ file:
                       - naked_identifier: i
                       - dot: .
                       - naked_identifier: PK_L2_BALS
-- go_statement:
-    keyword: go
+    go_statement:
+      keyword: go
 - batch:
     statement:
       disable_trigger:
@@ -516,8 +516,8 @@ file:
         - naked_identifier: dbo
         - dot: .
         - naked_identifier: SP_BALS_L2_ATTRIBUTES
-- go_statement:
-    keyword: go
+    go_statement:
+      keyword: go
 - batch:
     statement:
       create_trigger:
@@ -590,8 +590,8 @@ file:
                       - naked_identifier: i
                       - dot: .
                       - naked_identifier: PK_L2_BALS
-- go_statement:
-    keyword: GO
+    go_statement:
+      keyword: GO
 - batch:
     statement:
       drop_trigger:
@@ -600,8 +600,8 @@ file:
       - trigger_reference:
           naked_identifier: employee_insupd
     statement_terminator: ;
-- go_statement:
-    keyword: GO
+    go_statement:
+      keyword: GO
 - batch:
     statement:
       drop_trigger:
@@ -612,8 +612,8 @@ file:
       - keyword: 'ON'
       - keyword: DATABASE
     statement_terminator: ;
-- go_statement:
-    keyword: GO
+    go_statement:
+      keyword: GO
 - batch:
     statement:
       disable_trigger:
@@ -628,8 +628,8 @@ file:
         - naked_identifier: dbo
         - dot: .
         - naked_identifier: SP_BALS_L2_ATTRIBUTES
-- go_statement:
-    keyword: GO
+    go_statement:
+      keyword: GO
 - batch:
     statement:
       disable_trigger:
@@ -640,8 +640,8 @@ file:
       - keyword: 'ON'
       - keyword: DATABASE
     statement_terminator: ;
-- go_statement:
-    keyword: GO
+    go_statement:
+      keyword: GO
 - batch:
     statement:
       create_trigger:
@@ -673,8 +673,8 @@ file:
             - numeric_literal: '10'
             - end_bracket: )
       - statement_terminator: ;
-- go_statement:
-    keyword: GO
+    go_statement:
+      keyword: GO
 - batch:
     statement:
       create_trigger:
@@ -736,5 +736,5 @@ file:
                     - end_bracket: )
               - keyword: END
             statement_terminator: ;
-- go_statement:
-    keyword: GO
+    go_statement:
+      keyword: GO

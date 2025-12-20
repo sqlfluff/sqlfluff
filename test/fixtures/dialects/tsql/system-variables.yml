@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 2157e88d8d683ea28e7a4362d18a121c05a29bc66ca4b8dc02657d787f45d099
+_hash: 2024d31b6fffc35962a56edee8776f4c757654a92b8face719468c330a19e85a
 file:
 - batch:
   - statement:
@@ -29,7 +29,7 @@ file:
               naked_identifier: NationalIDNumber
             comparison_operator:
               raw_comparison_operator: '='
-            numeric_literal: '123456789'
+            integer_literal: '123456789'
   - statement:
       if_then_statement:
         if_clause:
@@ -38,13 +38,13 @@ file:
             system_variable: '@@ROWCOUNT'
             comparison_operator:
               raw_comparison_operator: '='
-            numeric_literal: '0'
+            integer_literal: '0'
         statement:
           print_statement:
             keyword: PRINT
             expression:
               quoted_literal: "'Warning: No rows were updated'"
-            statement_terminator: ;
+        statement_terminator: ;
   - statement:
       if_then_statement:
         if_clause:
@@ -53,7 +53,7 @@ file:
             system_variable: '@@ERROR'
             comparison_operator:
               raw_comparison_operator: '='
-            numeric_literal: '547'
+            integer_literal: '547'
         statement:
           begin_end_block:
           - keyword: BEGIN
@@ -62,10 +62,10 @@ file:
                 keyword: PRINT
                 expression:
                   quoted_literal: "N'A check constraint violation occurred.'"
-                statement_terminator: ;
+          - statement_terminator: ;
           - keyword: END
-- go_statement:
-    keyword: GO
+  - go_statement:
+      keyword: GO
 - batch:
     statement:
       select_statement:
@@ -77,17 +77,17 @@ file:
               alias_operator:
                 keyword: AS
               quoted_identifier: "'Identity'"
-        statement_terminator: ;
-- go_statement:
-    keyword: GO
+    statement_terminator: ;
+    go_statement:
+      keyword: GO
 - batch:
     statement:
       print_statement:
         keyword: PRINT
         expression:
           system_variable: '@@TRANCOUNT'
-- go_statement:
-    keyword: GO
+    go_statement:
+      keyword: GO
 - batch:
     statement:
       select_statement:
@@ -99,6 +99,6 @@ file:
               alias_operator:
                 keyword: AS
               quoted_identifier: "'Packets Received'"
-        statement_terminator: ;
-- go_statement:
-    keyword: GO
+    statement_terminator: ;
+    go_statement:
+      keyword: GO

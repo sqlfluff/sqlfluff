@@ -3,48 +3,49 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: fa41197cd43f3e5dafdf93790658245f09fe3af641711997f525e23cf60b8b00
+_hash: 447f1a0362947a0098af57d814e8c687bfa77150ddcdfa1d4431c47a9ee26d5c
 file:
   batch:
   - statement:
       declare_segment:
-      - keyword: DECLARE
-      - naked_identifier: pointy
-      - keyword: CURSOR
-      - keyword: LOCAL
-      - keyword: FORWARD_ONLY
-      - keyword: READ_ONLY
-      - keyword: FOR
-      - select_statement:
-          select_clause:
-          - keyword: SELECT
-          - select_clause_element:
-              column_reference:
-                naked_identifier: column_a
-          - comma: ','
-          - select_clause_element:
-              column_reference:
-                naked_identifier: column_b
-          from_clause:
-            keyword: FROM
-            from_expression:
-              from_expression_element:
-                table_expression:
-                  table_reference:
-                    naked_identifier: some_table
-          where_clause:
-            keyword: WHERE
-            expression:
+        keyword: DECLARE
+        naked_identifier: pointy
+        cursor_definition:
+        - keyword: CURSOR
+        - keyword: LOCAL
+        - keyword: FORWARD_ONLY
+        - keyword: READ_ONLY
+        - keyword: FOR
+        - select_statement:
+            select_clause:
+            - keyword: SELECT
+            - select_clause_element:
+                column_reference:
+                  naked_identifier: column_a
+            - comma: ','
+            - select_clause_element:
+                column_reference:
+                  naked_identifier: column_b
+            from_clause:
+              keyword: FROM
+              from_expression:
+                from_expression_element:
+                  table_expression:
+                    table_reference:
+                      naked_identifier: some_table
+            where_clause:
+              keyword: WHERE
+              expression:
+              - column_reference:
+                  naked_identifier: column_a
+              - keyword: IS
+              - keyword: NOT
+              - null_literal: 'NULL'
+            orderby_clause:
+            - keyword: ORDER
+            - keyword: BY
             - column_reference:
-                naked_identifier: column_a
-            - keyword: IS
-            - keyword: NOT
-            - null_literal: 'NULL'
-          orderby_clause:
-          - keyword: ORDER
-          - keyword: BY
-          - column_reference:
-              naked_identifier: column_b
+                naked_identifier: column_b
   - statement:
       open_cursor_statement:
         keyword: OPEN
@@ -56,7 +57,7 @@ file:
       - keyword: FIRST
       - keyword: FROM
       - parameter: '@pointy'
-      - keyword: into
+      - keyword: INTO
       - parameter: '@result'
   - statement_terminator: ;
   - statement:
@@ -77,4 +78,11 @@ file:
       deallocate_cursor_statement:
         keyword: DEALLOCATE
         naked_identifier: pointy
+  - statement_terminator: ;
+  - statement:
+      declare_segment:
+        keyword: DECLARE
+        parameter: '@cursorName'
+        data_type:
+          keyword: CURSOR
   - statement_terminator: ;

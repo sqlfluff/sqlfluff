@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 0011b4bff405995cd8650f894336a6ccc8fe336b1989056543054c7b8a7628d2
+_hash: a825139fc4e8f3824ebea9b144da62037a798bd251ec4cdb6c534ef3a9a76216
 file:
   batch:
   - statement:
@@ -20,23 +20,23 @@ file:
         - column_definition:
             naked_identifier: column_name_1
             data_type:
-              data_type_identifier: VARCHAR
+              keyword: VARCHAR
               bracketed_arguments:
                 bracketed:
                   start_bracket: (
                   expression:
-                    numeric_literal: '50'
+                    integer_literal: '50'
                   end_bracket: )
         - comma: ','
         - column_definition:
             naked_identifier: column_name_2
             data_type:
-              data_type_identifier: VARCHAR
+              keyword: VARCHAR
               bracketed_arguments:
                 bracketed:
                   start_bracket: (
                   expression:
-                    numeric_literal: '50'
+                    integer_literal: '50'
                   end_bracket: )
             column_constraint_segment:
               keyword: 'NULL'
@@ -44,12 +44,12 @@ file:
         - column_definition:
             naked_identifier: column_name_3
             data_type:
-              data_type_identifier: VARCHAR
+              keyword: VARCHAR
               bracketed_arguments:
                 bracketed:
                   start_bracket: (
                   expression:
-                    numeric_literal: '50'
+                    integer_literal: '50'
                   end_bracket: )
             column_constraint_segment:
             - keyword: NOT
@@ -105,23 +105,23 @@ file:
         - column_definition:
             naked_identifier: column_name_1
             data_type:
-              data_type_identifier: VARCHAR
+              keyword: VARCHAR
               bracketed_arguments:
                 bracketed:
                   start_bracket: (
                   expression:
-                    numeric_literal: '50'
+                    integer_literal: '50'
                   end_bracket: )
         - comma: ','
         - column_definition:
             naked_identifier: column_name_2
             data_type:
-              data_type_identifier: VARCHAR
+              keyword: VARCHAR
               bracketed_arguments:
                 bracketed:
                   start_bracket: (
                   expression:
-                    numeric_literal: '50'
+                    integer_literal: '50'
                   end_bracket: )
             column_constraint_segment:
               keyword: 'NULL'
@@ -129,12 +129,12 @@ file:
         - column_definition:
             naked_identifier: column_name_3
             data_type:
-              data_type_identifier: VARCHAR
+              keyword: VARCHAR
               bracketed_arguments:
                 bracketed:
                   start_bracket: (
                   expression:
-                    numeric_literal: '50'
+                    integer_literal: '50'
                   end_bracket: )
             column_constraint_segment:
             - keyword: NOT
@@ -193,12 +193,12 @@ file:
         - column_definition:
             naked_identifier: o_orderkey
             data_type:
-              data_type_identifier: DECIMAL
+              keyword: DECIMAL
               bracketed_arguments:
                 bracketed:
                   start_bracket: (
                   expression:
-                    numeric_literal: '38'
+                    integer_literal: '38'
                   end_bracket: )
             column_constraint_segment:
             - keyword: NOT
@@ -207,12 +207,12 @@ file:
         - column_definition:
             naked_identifier: o_custkey
             data_type:
-              data_type_identifier: DECIMAL
+              keyword: DECIMAL
               bracketed_arguments:
                 bracketed:
                   start_bracket: (
                   expression:
-                    numeric_literal: '38'
+                    integer_literal: '38'
                   end_bracket: )
             column_constraint_segment:
             - keyword: NOT
@@ -221,7 +221,7 @@ file:
         - column_definition:
           - naked_identifier: o_orderstatus
           - data_type:
-              data_type_identifier: CHAR
+              keyword: CHAR
           - column_constraint_segment:
               keyword: COLLATE
               collation_reference:
@@ -233,15 +233,15 @@ file:
         - column_definition:
             naked_identifier: o_totalprice
             data_type:
-              data_type_identifier: DECIMAL
+              keyword: DECIMAL
               bracketed_arguments:
                 bracketed:
                 - start_bracket: (
                 - expression:
-                    numeric_literal: '15'
+                    integer_literal: '15'
                 - comma: ','
                 - expression:
-                    numeric_literal: '2'
+                    integer_literal: '2'
                 - end_bracket: )
             column_constraint_segment:
             - keyword: NOT
@@ -250,12 +250,12 @@ file:
         - column_definition:
             naked_identifier: o_orderdate
             data_type:
-              data_type_identifier: DATETIME2
+              keyword: DATETIME2
               bracketed_arguments:
                 bracketed:
                   start_bracket: (
                   expression:
-                    numeric_literal: '0'
+                    integer_literal: '0'
                   end_bracket: )
             column_constraint_segment:
             - keyword: NOT
@@ -264,12 +264,12 @@ file:
         - column_definition:
           - naked_identifier: o_orderpriority
           - data_type:
-              data_type_identifier: CHAR
+              keyword: CHAR
               bracketed_arguments:
                 bracketed:
                   start_bracket: (
                   expression:
-                    numeric_literal: '15'
+                    integer_literal: '15'
                   end_bracket: )
           - column_constraint_segment:
               keyword: COLLATE
@@ -282,12 +282,12 @@ file:
         - column_definition:
           - naked_identifier: o_clerk
           - data_type:
-              data_type_identifier: CHAR
+              keyword: CHAR
               bracketed_arguments:
                 bracketed:
                   start_bracket: (
                   expression:
-                    numeric_literal: '15'
+                    integer_literal: '15'
                   end_bracket: )
           - column_constraint_segment:
               keyword: COLLATE
@@ -300,12 +300,12 @@ file:
         - column_definition:
             naked_identifier: o_shippriority
             data_type:
-              data_type_identifier: DECIMAL
+              keyword: DECIMAL
               bracketed_arguments:
                 bracketed:
                   start_bracket: (
                   expression:
-                    numeric_literal: '38'
+                    integer_literal: '38'
                   end_bracket: )
             column_constraint_segment:
             - keyword: NOT
@@ -314,12 +314,12 @@ file:
         - column_definition:
           - naked_identifier: o_comment
           - data_type:
-              data_type_identifier: VARCHAR
+              keyword: VARCHAR
               bracketed_arguments:
                 bracketed:
                   start_bracket: (
                   expression:
-                    numeric_literal: '79'
+                    integer_literal: '79'
                   end_bracket: )
           - column_constraint_segment:
               keyword: COLLATE

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: f9e4be1cf7752f39ca82f62cc70f98250c8695d27f87372723b9e0b4497aecd5
+_hash: 19767e80197dd371913d308c11bd553467cc35ea9cfe5a6c03208395231fb650
 file:
   batch:
   - statement:
@@ -22,7 +22,7 @@ file:
                       quoted_literal: "'0'"
                   - comma: ','
                   - expression:
-                      numeric_literal: '3'
+                      integer_literal: '3'
                       binary_operator: '-'
                       function:
                         function_name:
@@ -55,7 +55,7 @@ file:
                       quoted_literal: "'0'"
                   - comma: ','
                   - expression:
-                      numeric_literal: '3'
+                      integer_literal: '3'
                       binary_operator: '-'
                       function:
                         function_name:
@@ -82,22 +82,22 @@ file:
               table_expression:
                 table_reference:
                   naked_identifier: t1
-          statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       declare_segment:
         keyword: DECLARE
         parameter: '@BinVar'
         data_type:
-          data_type_identifier: varbinary
+          keyword: varbinary
           bracketed_arguments:
             bracketed:
               start_bracket: (
               expression:
-                numeric_literal: '128'
+                integer_literal: '128'
               end_bracket: )
-        statement_terminator: ;
+  - statement_terminator: ;
   - statement:
-      set_segment:
+      set_local_variable_segment:
         keyword: SET
         parameter: '@BinVar'
         assignment_operator:
@@ -115,20 +115,21 @@ file:
                       keyword: REPLICATE
                     function_contents:
                       bracketed:
-                        start_bracket: (
-                        numeric_literal: '0x20'
-                        comma: ','
-                        expression:
-                          numeric_literal: '128'
-                        end_bracket: )
+                      - start_bracket: (
+                      - expression:
+                          binary_literal: '0x20'
+                      - comma: ','
+                      - expression:
+                          integer_literal: '128'
+                      - end_bracket: )
                 keyword: AS
                 data_type:
-                  data_type_identifier: varbinary
+                  keyword: varbinary
                   bracketed_arguments:
                     bracketed:
                       start_bracket: (
                       expression:
-                        numeric_literal: '128'
+                        integer_literal: '128'
                       end_bracket: )
                 end_bracket: )
-        statement_terminator: ;
+  - statement_terminator: ;

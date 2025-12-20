@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 48977d26c7882b0c980d91d20a2bb803892e87ddf2bcd0b2e78dd5d73c69fee3
+_hash: b3309837c852cd22ce3ce3e0131ef249d3eeef0915c2e0a74a3139de03d78383
 file:
   batch:
   - statement:
@@ -25,7 +25,7 @@ file:
               bracketed:
                 start_bracket: (
                 expression:
-                  numeric_literal: '100'
+                  integer_literal: '100'
                 end_bracket: )
           - select_clause_element:
               column_reference:
@@ -69,7 +69,7 @@ file:
                   bracketed:
                   - start_bracket: (
                   - data_type:
-                      data_type_identifier: DATETIME
+                      keyword: DATETIME
                   - comma: ','
                   - expression:
                       quoted_literal: "'20001231'"
@@ -81,7 +81,7 @@ file:
           - keyword: BY
           - column_reference:
               naked_identifier: SalesPersonID
-          statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       create_view_statement:
       - keyword: CREATE
@@ -101,7 +101,7 @@ file:
               bracketed:
                 start_bracket: (
                 expression:
-                  numeric_literal: '100'
+                  integer_literal: '100'
                 end_bracket: )
           - select_clause_element:
               column_reference:
@@ -145,7 +145,7 @@ file:
                   bracketed:
                   - start_bracket: (
                   - data_type:
-                      data_type_identifier: DATETIME
+                      keyword: DATETIME
                   - comma: ','
                   - expression:
                       quoted_literal: "'20001231'"
@@ -157,7 +157,7 @@ file:
           - keyword: BY
           - column_reference:
               naked_identifier: SalesPersonID
-          statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       create_view_statement:
       - keyword: CREATE
@@ -218,7 +218,7 @@ file:
                 naked_identifier: ReceivedQty
             - comparison_operator:
                 raw_comparison_operator: '>'
-            - numeric_literal: '0'
+            - integer_literal: '0'
             - binary_operator: AND
             - column_reference:
                 naked_identifier: DueDate
@@ -231,14 +231,14 @@ file:
                   bracketed:
                   - start_bracket: (
                   - data_type:
-                      data_type_identifier: DATETIME
+                      keyword: DATETIME
                   - comma: ','
                   - expression:
                       quoted_literal: "'20010630'"
                   - comma: ','
                   - numeric_literal: '101'
                   - end_bracket: )
-          statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       create_view_statement:
       - keyword: CREATE
@@ -400,7 +400,7 @@ file:
       - keyword: WITH
       - keyword: CHECK
       - keyword: OPTION
-      - statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       create_view_statement:
       - keyword: CREATE
@@ -498,7 +498,7 @@ file:
                     - naked_identifier: dbo
                     - dot: .
                     - naked_identifier: SUPPLY4
-              statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       create_view_statement:
       - keyword: create

@@ -87,3 +87,7 @@ COPY INTO test.transactions_all
 FROM @rawdata.STITCH_STAGE_NETSUITE/transactions/
 FILE_FORMAT = rawdata.json_format
 MATCH_BY_COLUMN_NAME = 'case_insensitive';
+
+copy into mytable1
+    from 's3://bucket/source'
+    file_format = (type=csv MULTI_LINE=FALSE);

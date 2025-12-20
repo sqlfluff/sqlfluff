@@ -119,3 +119,13 @@ test_mysql_system_variable:
   configs:
     core:
       dialect: mysql
+
+test_tsql_variable_assignment:
+  pass_str: |
+    DECLARE @MyVariable VARCHAR(10);
+
+    SELECT
+      @MyVariable = NULL;
+  configs:
+    core:
+      dialect: tsql

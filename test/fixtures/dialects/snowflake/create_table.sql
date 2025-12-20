@@ -351,3 +351,7 @@ CREATE OR REPLACE HYBRID TABLE application_log (
   col1 VARCHAR(20),
   col2 VARCHAR(20) NOT NULL
   );
+
+CREATE TABLE IF NOT EXISTS my_schema.my_table (
+  DELTA INT
+);

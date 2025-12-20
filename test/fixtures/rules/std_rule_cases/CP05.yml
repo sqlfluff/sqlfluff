@@ -168,3 +168,66 @@ test_pass_typless_structs_dont_trigger_rule:
     rules:
       capitalisation.types:
         extended_capitalisation_policy: upper
+
+test_fail_bigquery_array_lowercase_type:
+  fail_str: |
+    select
+      array<struct<
+        first_name STRING,
+        last_name STRING
+      >>[
+        struct('John' as first_name, 'Doe' as last_name),
+        struct('Jane' as first_name, 'Smith' as last_name)
+      ] as people
+    from dual
+  fix_str: |
+    select
+      array<struct<
+        first_name string,
+        last_name string
+      >>[
+        struct('John' as first_name, 'Doe' as last_name),
+        struct('Jane' as first_name, 'Smith' as last_name)
+      ] as people
+    from dual
+  configs:
+    core:
+      dialect: bigquery
+
+test_fail_bigquery_array_uppercase_type:
+  fail_str: |
+    select
+      ARRAY<STRUCT<
+        first_name string,
+        last_name string
+      >>[
+        STRUCT('John' as first_name, 'Doe' as last_name),
+        STRUCT('Jane' as first_name, 'Smith' as last_name)
+      ] as people
+    from dual
+  fix_str: |
+    select
+      ARRAY<STRUCT<
+        first_name STRING,
+        last_name STRING
+      >>[
+        STRUCT('John' as first_name, 'Doe' as last_name),
+        STRUCT('Jane' as first_name, 'Smith' as last_name)
+      ] as people
+    from dual
+  configs:
+    core:
+      dialect: bigquery
+
+test_fail_bigquery_struct:
+  fail_str: |
+    select
+      STRUCT<int64>(5)
+    from persons
+  fix_str: |
+    select
+      STRUCT<INT64>(5)
+    from persons
+  configs:
+    core:
+      dialect: bigquery

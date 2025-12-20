@@ -6,6 +6,7 @@ https://mariadb.com/kb/en/sql-statements-structure/
 from sqlfluff.core.dialects import load_raw_dialect
 from sqlfluff.core.parser import (
     AnyNumberOf,
+    AnySetOf,
     BaseSegment,
     Bracketed,
     Dedent,
@@ -586,4 +587,139 @@ class WithRollupClauseSegment(BaseSegment):
     match_grammar = Sequence(
         "WITH",
         "ROLLUP",
+    )
+
+
+class IndexTypeSegment(BaseSegment):
+    """Index type specification: USING {BTREE | HASH | RTREE}."""
+
+    type = "index_type"
+
+    match_grammar = Sequence(
+        "USING",
+        OneOf("BTREE", "HASH", "RTREE"),
+    )
+
+
+class IndexOptionSegment(BaseSegment):
+    """Index option specification for MariaDB."""
+
+    type = "index_option"
+
+    match_grammar = AnyNumberOf(
+        # KEY_BLOCK_SIZE [=] value
+        Sequence(
+            "KEY_BLOCK_SIZE",
+            Ref("EqualsSegment", optional=True),
+            Ref("NumericLiteralSegment"),
+        ),
+        # index_type
+        Ref("IndexTypeSegment"),
+        # WITH PARSER parser_name
+        Sequence(
+            "WITH",
+            "PARSER",
+            Ref("ObjectReferenceSegment"),
+        ),
+        # COMMENT 'string'
+        Sequence(
+            "COMMENT",
+            Ref("QuotedLiteralSegment"),
+        ),
+        # CLUSTERING={YES| NO}
+        Sequence(
+            "CLUSTERING",
+            Ref("EqualsSegment", optional=True),
+            OneOf("YES", "NO"),
+        ),
+        # IGNORED | NOT IGNORED
+        OneOf(
+            "IGNORED",
+            Sequence("NOT", "IGNORED"),
+        ),
+    )
+
+
+class AlgorithmOptionSegment(BaseSegment):
+    """Algorithm option: ALGORITHM [=] {DEFAULT|INPLACE|COPY|NOCOPY|INSTANT}."""
+
+    type = "algorithm_option"
+
+    match_grammar = Sequence(
+        "ALGORITHM",
+        Ref("EqualsSegment", optional=True),
+        OneOf("DEFAULT", "INPLACE", "COPY", "NOCOPY", "INSTANT"),
+    )
+
+
+class LockOptionSegment(BaseSegment):
+    """Lock option: LOCK [=] {DEFAULT|NONE|SHARED|EXCLUSIVE}."""
+
+    type = "lock_option"
+
+    match_grammar = Sequence(
+        "LOCK",
+        Ref("EqualsSegment", optional=True),
+        OneOf("DEFAULT", "NONE", "SHARED", "EXCLUSIVE"),
+    )
+
+
+class WaitOptionSegment(BaseSegment):
+    """Wait option: WAIT n | NOWAIT."""
+
+    type = "wait_option"
+
+    match_grammar = OneOf(
+        Sequence("WAIT", Ref("NumericLiteralSegment")),
+        "NOWAIT",
+    )
+
+
+class CreateIndexStatementSegment(mysql.CreateIndexStatementSegment):
+    """A `CREATE INDEX` statement for MariaDB."""
+
+    type = "create_index_statement"
+
+    match_grammar = Sequence(
+        "CREATE",
+        Ref("OrReplaceGrammar", optional=True),
+        OneOf("UNIQUE", "FULLTEXT", "SPATIAL", optional=True),
+        "INDEX",
+        Ref("IfNotExistsGrammar", optional=True),
+        Ref("IndexReferenceSegment"),
+        Ref("IndexTypeSegment", optional=True),
+        "ON",
+        Ref("TableReferenceSegment"),
+        Ref("BracketedKeyPartListGrammar"),
+        Ref("WaitOptionSegment", optional=True),
+        Ref("IndexOptionSegment", optional=True),
+        AnySetOf(
+            Ref("AlgorithmOptionSegment"),
+            Ref("LockOptionSegment"),
+            optional=True,
+        ),
+    )
+
+
+class CreateProcedureStatementSegment(mysql.CreateProcedureStatementSegment):
+    """A `CREATE PROCEDURE` statement.
+
+    https://mariadb.com/docs/server/server-usage/stored-routines/stored-procedures/create-procedure
+    """
+
+    match_grammar = mysql.CreateProcedureStatementSegment.match_grammar.copy(
+        insert=[Ref("OrReplaceGrammar", optional=True)],
+        before=Ref("ProcedureKeywordSegment"),
+    )
+
+
+class CreateFunctionStatementSegment(mysql.CreateFunctionStatementSegment):
+    """A `CREATE FUNCTION` statement.
+
+    https://mariadb.com/docs/server/reference/sql-statements/data-definition/create/create-function
+    """
+
+    match_grammar = mysql.CreateFunctionStatementSegment.match_grammar.copy(
+        insert=[Ref("OrReplaceGrammar", optional=True)],
+        before=Ref("FunctionKeywordSegment"),
     )
