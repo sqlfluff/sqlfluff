@@ -96,6 +96,11 @@ class TableBuilder:
         self.string_to_id: Dict[str, int] = {}
         self.regex_to_id: Dict[str, int] = {}
         self.grammar_to_id: Dict[int, int] = {}  # Python id() -> GrammarId
+
+        # Keep references to synthetic grammars to prevent garbage collection.
+        # Python may reuse memory addresses for new objects after GC, which
+        # would cause incorrect cache hits in grammar_to_id when using id().
+        self._synthetic_grammars: List = []
         self.hint_to_id: Dict[Tuple[Tuple[str, ...], Tuple[str, ...]], int] = {}
 
     def _add_string(self, s: str) -> int:
@@ -278,7 +283,8 @@ class TableBuilder:
                 except Exception:
                     # Be conservative: if lookup fails, leave as NONE
                     pass
-            # If this grammar is Conditional, use its _meta type and class for segment_type_offset
+            # If this grammar is Conditional, use its _meta type and class
+            # for segment_type_offset
             elif grammar.__class__ is Conditional:
                 meta_type = getattr(grammar, "_meta", None)
                 if meta_type:
@@ -712,6 +718,8 @@ class TableBuilder:
                 allow_gaps=grammar.allow_gaps,
                 optional=True,  # Elements in Delimited are implicitly optional
             )
+            # Keep reference to prevent GC and id() reuse
+            self._synthetic_grammars.append(elements_oneof)
             elements_id = self.flatten_grammar(elements_oneof, parse_context)
             comment = f"Delimited({len(grammar._elements)} elements via OneOf)"
         else:
@@ -1221,7 +1229,8 @@ class TableBuilder:
         lines.append("];")
         lines.append("")
 
-        # Segment type offsets (indexed by GrammarId) - index into STRINGS or 0xFFFFFFFF
+        # Segment type offsets (indexed by GrammarId)
+        # - index into STRINGS or 0xFFFFFFFF
         lines.append("pub static SEGMENT_TYPE_OFFSETS: &[u32] = &[")
         for i in range(0, len(self.segment_type_offsets), 16):
             chunk = self.segment_type_offsets[i : i + 16]
@@ -1230,7 +1239,8 @@ class TableBuilder:
         lines.append("];")
         lines.append("")
 
-        # Segment class name offsets (indexed by GrammarId) - index into STRINGS or 0xFFFFFFFF
+        # Segment class name offsets (indexed by GrammarId)
+        # - index into STRINGS or 0xFFFFFFFF
         lines.append("pub static SEGMENT_CLASS_OFFSETS: &[u32] = &[")
         for i in range(0, len(self.segment_class_offsets), 16):
             chunk = self.segment_class_offsets[i : i + 16]
