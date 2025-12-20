@@ -1980,7 +1980,7 @@ class GroupByClauseSegment(BaseSegment):
 
 
 class CompositeTypeColumnExpansionSegment(BaseSegment):
-    """A PostgreSQL-specific composite type column expansion segment (e.g., (expression).* ).
+    """A PostgreSQL-specific composite type column expansion segment.
 
     This handles the PostgreSQL syntax where you can expand all columns
     from a composite-valued expression using the .* syntax. This feature
@@ -1990,7 +1990,7 @@ class CompositeTypeColumnExpansionSegment(BaseSegment):
     to a composite type and expands it into its constituent columns.
 
     Examples:
-        (JSONB_EACH_TEXT(config)).*       -- Expand JSON key-value pairs  
+        (JSONB_EACH_TEXT(config)).*       -- Expand JSON key-value pairs
         (myfunc(x)).*                     -- Expand function result columns
         (composite_column).*              -- Expand any composite column
 
@@ -1998,7 +1998,7 @@ class CompositeTypeColumnExpansionSegment(BaseSegment):
     """
 
     type = "composite_type_column_expansion"
-    
+
     match_grammar = Sequence(
         # A bracketed expression that evaluates to a composite type
         # This can be a function call, column reference, or any expression
