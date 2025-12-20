@@ -3,14 +3,14 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 711b1f109370e8de6332bc4eb94bbe0dfeafa286b0b7400893bc9710397aa0bd
+_hash: 039234265427a78b12fbef3dfc2a6f9ed6a250d7b8f800663facb96782fc859a
 file:
 - statement:
     select_statement:
       select_clause:
         keyword: SELECT
         select_clause_element:
-          function_expansion:
+          composite_type_column_expansion:
             bracketed:
               start_bracket: (
               expression:
@@ -40,7 +40,7 @@ file:
       select_clause:
         keyword: SELECT
         select_clause_element:
-          function_expansion:
+          composite_type_column_expansion:
             bracketed:
               start_bracket: (
               expression:
@@ -78,7 +78,7 @@ file:
       select_clause:
         keyword: SELECT
         select_clause_element:
-          function_expansion:
+          composite_type_column_expansion:
             bracketed:
               start_bracket: (
               expression:
@@ -108,7 +108,7 @@ file:
       select_clause:
         keyword: SELECT
         select_clause_element:
-          function_expansion:
+          composite_type_column_expansion:
             bracketed:
               start_bracket: (
               expression:
@@ -142,7 +142,7 @@ file:
             naked_identifier: id
       - comma: ','
       - select_clause_element:
-          function_expansion:
+          composite_type_column_expansion:
             bracketed:
               start_bracket: (
               expression:
@@ -161,7 +161,7 @@ file:
             star: '*'
       - comma: ','
       - select_clause_element:
-          function_expansion:
+          composite_type_column_expansion:
             bracketed:
               start_bracket: (
               expression:
@@ -191,7 +191,7 @@ file:
       select_clause:
         keyword: SELECT
         select_clause_element:
-          function_expansion:
+          composite_type_column_expansion:
             bracketed:
               start_bracket: (
               expression:
@@ -230,4 +230,26 @@ file:
             table_expression:
               table_reference:
                 naked_identifier: table1
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          composite_type_column_expansion:
+            bracketed:
+              start_bracket: (
+              expression:
+                column_reference:
+                  naked_identifier: composite_column
+              end_bracket: )
+            dot: .
+            star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: my_table
 - statement_terminator: ;

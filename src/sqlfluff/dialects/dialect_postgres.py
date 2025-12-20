@@ -464,7 +464,7 @@ postgres_dialect.replace(
     StringBinaryOperatorGrammar=OneOf(Ref("ConcatSegment"), "COLLATE"),
     BaseExpressionElementGrammar=OneOf(
         ansi_dialect.get_grammar("BaseExpressionElementGrammar"),
-        Ref("FunctionExpansionSegment"),
+        Ref("CompositeTypeColumnExpansionSegment"),
     ),
     IsClauseGrammar=OneOf(
         Ref("NullLiteralSegment"),
@@ -1979,22 +1979,31 @@ class GroupByClauseSegment(BaseSegment):
     )
 
 
-class FunctionExpansionSegment(BaseSegment):
-    """A PostgreSQL-specific function expansion segment (e.g., (function()).*).
+class CompositeTypeColumnExpansionSegment(BaseSegment):
+    """A PostgreSQL-specific composite type column expansion segment (e.g., (expression).* ).
 
     This handles the PostgreSQL syntax where you can expand all columns
-    from a set-returning function using the .* syntax.
+    from a composite-valued expression using the .* syntax. This feature
+    is commonly used with set-returning functions that return composite types.
 
-    Example: (JSONB_EACH_TEXT(w.inventory_events)).*
+    The expansion operator (.*) takes a bracketed expression that evaluates
+    to a composite type and expands it into its constituent columns.
 
-    See: https://www.postgresql.org/docs/current/functions-json.html
+    Examples:
+        (JSONB_EACH_TEXT(config)).*       -- Expand JSON key-value pairs  
+        (myfunc(x)).*                     -- Expand function result columns
+        (composite_column).*              -- Expand any composite column
+
+    See: https://www.postgresql.org/docs/current/rowtypes.html
     """
 
-    type = "function_expansion"
+    type = "composite_type_column_expansion"
+    
     match_grammar = Sequence(
-        # A bracketed expression (typically a function call)
+        # A bracketed expression that evaluates to a composite type
+        # This can be a function call, column reference, or any expression
+        # that returns a composite type in PostgreSQL
         Bracketed(Ref("ExpressionSegment")),
-        # The expansion operator .*
         Ref("DotSegment"),
         Ref("StarSegment"),
     )
