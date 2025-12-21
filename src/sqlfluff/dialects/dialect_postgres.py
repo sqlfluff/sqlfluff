@@ -6175,7 +6175,7 @@ class CreateTypeStatementSegment(BaseSegment):
     match_grammar: Matchable = Sequence(
         "CREATE",
         "TYPE",
-        Ref("ObjectReferenceSegment"),
+        Ref("DatatypeSegment"),
         Sequence("AS", OneOf("ENUM", "RANGE", optional=True), optional=True),
         Bracketed(Delimited(Anything(), optional=True), optional=True),
     )
@@ -6310,7 +6310,7 @@ class AlterTypeStatementSegment(BaseSegment):
     match_grammar: Matchable = Sequence(
         "ALTER",
         "TYPE",
-        Ref("ObjectReferenceSegment"),
+        Ref("DatatypeSegment"),
         OneOf(
             Sequence(
                 "OWNER",
