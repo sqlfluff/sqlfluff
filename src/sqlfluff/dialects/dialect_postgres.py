@@ -462,6 +462,10 @@ postgres_dialect.add(
 postgres_dialect.replace(
     LikeGrammar=OneOf("LIKE", "ILIKE", Sequence("SIMILAR", "TO")),
     StringBinaryOperatorGrammar=OneOf(Ref("ConcatSegment"), "COLLATE"),
+    BaseExpressionElementGrammar=OneOf(
+        ansi_dialect.get_grammar("BaseExpressionElementGrammar"),
+        Ref("CompositeValueExpansionSegment"),
+    ),
     IsClauseGrammar=OneOf(
         Ref("NullLiteralSegment"),
         Ref("NanLiteralSegment"),
@@ -1972,6 +1976,36 @@ class GroupByClauseSegment(BaseSegment):
             ],
         ),
         Dedent,
+    )
+
+
+class CompositeValueExpansionSegment(BaseSegment):
+    """A PostgreSQL-specific composite value expansion segment.
+
+    This handles the PostgreSQL syntax where you can expand all columns
+    from a composite-valued expression using the .* syntax. This feature
+    is commonly used with set-returning functions that return composite types.
+
+    The expansion operator (.*) takes a bracketed expression that evaluates
+    to a composite value and expands it into its constituent columns.
+
+    Examples:
+        (JSONB_EACH_TEXT(config)).*       -- Expand JSON key-value pairs
+        (myfunc(x)).*                     -- Expand function result columns
+        (composite_column).*              -- Expand any composite column
+
+    See: https://www.postgresql.org/docs/current/rowtypes.html
+    """
+
+    type = "composite_value_expansion"
+
+    match_grammar = Sequence(
+        # A bracketed expression that evaluates to a composite value
+        # This can be a function call, column reference, or any expression
+        # that returns a composite value in PostgreSQL
+        Bracketed(Ref("ExpressionSegment")),
+        Ref("DotSegment"),
+        Ref("StarSegment"),
     )
 
 
