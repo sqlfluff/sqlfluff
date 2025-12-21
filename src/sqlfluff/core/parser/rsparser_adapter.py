@@ -48,10 +48,6 @@ def _is_valid_segment_class(segment_name: str, dialect: Dialect) -> bool:
     Returns:
         True if the name is a valid segment class, False otherwise (grammar or not found)
     """
-    # Grammar names (e.g., "SelectableGrammar") aren't segment classes
-    if segment_name.endswith("Grammar"):
-        return False
-
     item = dialect._library.get(segment_name)
 
     # Must be a type (class) and a BaseSegment subclass
@@ -74,17 +70,19 @@ def get_segment_class_by_name(
         ValueError: If the segment class is not found in the dialect,
                     or if the name refers to a grammar instead of a segment class
     """
-    if not _is_valid_segment_class(segment_name, dialect):
-        if segment_name.endswith("Grammar"):
-            raise ValueError(f"'{segment_name}' is a grammar, not a segment class")
+    # First check if it's a valid segment class
+    if _is_valid_segment_class(segment_name, dialect):
+        return dialect.get_segment(segment_name)
 
-        item = dialect._library.get(segment_name)
+    # Not a valid segment class - provide helpful error message
+    if segment_name.endswith("Grammar"):
+        raise ValueError(f"'{segment_name}' is a grammar, not a segment class")
 
-        if item is None:
-            raise ValueError(f"Segment '{segment_name}' not found in dialect")
+    item = dialect._library.get(segment_name)
 
-        raise ValueError(
-            f"'{segment_name}' is not a segment class (got {type(item).__name__})"
-        )
+    if item is None:
+        raise ValueError(f"Segment '{segment_name}' not found in dialect")
 
-    return dialect.get_segment(segment_name)
+    raise ValueError(
+        f"'{segment_name}' is not a segment class (got {type(item).__name__})"
+    )

@@ -433,6 +433,28 @@ impl PyMatchResult {
         }
     }
 
+    /// Get quoted_value for identifier normalization
+    #[getter]
+    fn quoted_value(&self, py: Python<'_>) -> Option<(String, Py<PyAny>)> {
+        self.0.quoted_value.as_ref().map(|(pattern, group)| {
+            let py_group: Py<PyAny> = match group {
+                sqlfluffrs_types::regex::RegexModeGroup::Index(idx) => {
+                    idx.into_pyobject(py).unwrap().into()
+                }
+                sqlfluffrs_types::regex::RegexModeGroup::Name(name) => {
+                    name.clone().into_pyobject(py).unwrap().into()
+                }
+            };
+            (pattern.clone(), py_group)
+        })
+    }
+
+    /// Get escape_replacement for escape sequence handling
+    #[getter]
+    fn escape_replacement(&self) -> Option<(String, String)> {
+        self.0.escape_replacement.clone()
+    }
+
     /// Get insert_segments (meta segments like Indent/Dedent to insert)
     #[getter]
     fn insert_segments(&self) -> Vec<(usize, String)> {

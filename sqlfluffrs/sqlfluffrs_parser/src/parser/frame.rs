@@ -60,6 +60,7 @@ pub enum FrameContext {
         saved_pos: usize, // Position before skipping transparent tokens
         last_child_frame_id: Option<usize>,
         leading_transparent: Vec<MatchResult>,
+        child_grammar_id: GrammarId, // The actual grammar this Ref resolves to (for casefold lookup)
     },
     DelimitedTableDriven {
         grammar_id: GrammarId,

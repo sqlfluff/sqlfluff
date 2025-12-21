@@ -766,12 +766,16 @@ impl<'a> Parser<'a> {
 
                 // Return MatchResult with raw_class as matched_class (segment class)
                 // and computed instance_types (semantic type hierarchy)
+                let casefold = self
+                    .grammar_ctx
+                    .casefold(grammar_id)
+                    .unwrap_or(CaseFold::None);
                 let match_result = MatchResult {
                     matched_slice: token_pos..token_pos + 1,
                     matched_class: Some(raw_class),
                     instance_types: Some(instance_types_vec),
                     trim_chars: None, // TODO: Add trim_chars support from grammar
-                    casefold: CaseFold::None, // TODO: Add casefold support from grammar
+                    casefold,
                     ..Default::default()
                 };
 
@@ -1120,12 +1124,16 @@ impl<'a> Parser<'a> {
 
                     // Return MatchResult with raw_class as matched_class
                     let token_type = token_type_opt.unwrap_or_default();
+                    let casefold = self
+                        .grammar_ctx
+                        .casefold(grammar_id)
+                        .unwrap_or(CaseFold::None);
                     Ok(MatchResult {
                         matched_slice: token_pos..token_pos + 1,
                         matched_class: Some(raw_class),
                         instance_types: Some(vec![token_type]),
                         trim_chars: None, // TODO: Add trim_chars support from grammar
-                        casefold: CaseFold::None, // TODO: Add casefold support from grammar
+                        casefold,
                         ..Default::default()
                     })
                 } else {

@@ -118,6 +118,9 @@ pub struct GrammarTables {
 
     /// Per-instruction segment class name offsets into the strings table (or 0xFFFFFFFF)
     pub segment_class_offsets: &'static [u32],
+
+    /// Per-instruction casefold mode (0xFF=unspecified, 0=None, 1=Upper, 2=Lower)
+    pub casefold_offsets: &'static [u8],
 }
 
 impl GrammarTables {
@@ -135,6 +138,7 @@ impl GrammarTables {
         simple_hint_indices: &'static [u32],
         segment_type_offsets: &'static [u32],
         segment_class_offsets: &'static [u32],
+        casefold_offsets: &'static [u8],
     ) -> Self {
         Self {
             instructions,
@@ -149,6 +153,7 @@ impl GrammarTables {
             simple_hint_indices,
             segment_type_offsets,
             segment_class_offsets,
+            casefold_offsets,
         }
     }
 
@@ -558,6 +563,7 @@ mod tests {
         static SIMPLE_HINTS: &[SimpleHintData] = &[];
         static HINT_STRING_INDICES: &[u32] = &[];
         static SIMPLE_HINT_INDICES: &[u32] = &[0, 0, 0]; // One per instruction
+        static CASEFOLD_OFFSETS: &[u8] = &[0xFF, 0xFF, 0xFF]; // One per instruction
 
         let tables = GrammarTables::new(
             INSTRUCTIONS,
@@ -572,6 +578,7 @@ mod tests {
             SIMPLE_HINT_INDICES,
             &[], // segment_type_offsets
             &[], // segment_class_offsets
+            CASEFOLD_OFFSETS,
         );
 
         assert_eq!(tables.instructions.len(), 3);
@@ -619,6 +626,7 @@ mod tests {
         static SIMPLE_HINTS: &[SimpleHintData] = &[];
         static HINT_STRING_INDICES: &[u32] = &[];
         static SIMPLE_HINT_INDICES: &[u32] = &[0, 0]; // One per instruction
+        static CASEFOLD_OFFSETS: &[u8] = &[0xFF, 0xFF]; // One per instruction
 
         let tables = GrammarTables::new(
             INSTRUCTIONS,
@@ -633,6 +641,7 @@ mod tests {
             SIMPLE_HINT_INDICES,
             &[], // segment_type_offsets
             &[], // segment_class_offsets
+            CASEFOLD_OFFSETS,
         );
 
         let stats = tables.memory_stats();

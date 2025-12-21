@@ -132,6 +132,16 @@ impl Token {
         self.raw.to_uppercase()
     }
 
+    /// Get the quoted_value pattern for this token (if any)
+    pub fn quoted_value(&self) -> Option<&(String, RegexModeGroup)> {
+        self.quoted_value.as_ref()
+    }
+
+    /// Get the escape_replacement pattern for this token (if any)
+    pub fn escape_replacement(&self) -> Option<&(String, String)> {
+        self.escape_replacement.as_ref()
+    }
+
     pub fn normalize(
         value: &str,
         quoted_value: Option<(String, RegexModeGroup)>,

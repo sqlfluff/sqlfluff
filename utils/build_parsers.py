@@ -91,6 +91,8 @@ class TableBuilder:
         self.segment_type_offsets: List[int] = []
         # Per-instruction segment class name index (into strings) or 0xFFFFFFFF if none
         self.segment_class_offsets: List[int] = []
+        # Per-instruction casefold mode (0=None, 1=Upper, 2=Lower) or 0xFF if unspecified
+        self.casefold_offsets: List[int] = []
 
         # Deduplication maps
         self.string_to_id: Dict[str, int] = {}
@@ -233,6 +235,8 @@ class TableBuilder:
         self.segment_type_offsets.append(0xFFFFFFFF)
         # Reserve a slot for the segment_class offset (default: no class)
         self.segment_class_offsets.append(0xFFFFFFFF)
+        # Reserve a slot for casefold mode (default: unspecified = 0xFF)
+        self.casefold_offsets.append(0xFF)
 
         # Convert to GrammarInst (variant-specific logic)
         inst_data = self._convert_to_inst(grammar, parse_context)
@@ -866,6 +870,15 @@ class TableBuilder:
 
         flags = self._build_flags(grammar)
 
+        # Extract casefold and store in casefold_offsets
+        grammar_id = len(self.instructions) - 1  # Current grammar being built
+        casefold_attr = getattr(grammar, "casefold", None)
+        if casefold_attr is str.upper:
+            self.casefold_offsets[grammar_id] = 1  # Upper
+        elif casefold_attr is str.lower:
+            self.casefold_offsets[grammar_id] = 2  # Lower
+        # else: leave as 0xFF (unspecified)
+
         # Store ids in aux_data
         aux_offset = len(self.aux_data)
         self.aux_data.append(template_id)
@@ -941,6 +954,23 @@ class TableBuilder:
         raw_class_id = self._add_string(grammar.raw_class.__name__)
 
         flags = self._build_flags(grammar)
+
+        # Extract casefold and store in casefold_offsets
+        grammar_id = len(self.instructions) - 1  # Current grammar being built
+        casefold_attr = getattr(grammar, "casefold", None)
+        if casefold_attr is str.upper:
+            print(
+                f"  Setting casefold=Upper for grammar_id {grammar_id} "
+                f"(RegexParser, instance_types={grammar._instance_types})"
+            )
+            self.casefold_offsets[grammar_id] = 1  # Upper
+        elif casefold_attr is str.lower:
+            print(
+                f"  Setting casefold=Lower for grammar_id {grammar_id} "
+                f"(RegexParser, instance_types={grammar._instance_types})"
+            )
+            self.casefold_offsets[grammar_id] = 2  # Lower
+        # else: leave as 0xFF (unspecified)
 
         # Store ids in aux_data
         aux_offset = len(self.aux_data)
@@ -1249,6 +1279,16 @@ class TableBuilder:
         lines.append("];")
         lines.append("")
 
+        # Casefold offsets (indexed by GrammarId)
+        # - 0xFF=unspecified, 0=None, 1=Upper, 2=Lower
+        lines.append("pub static CASEFOLD_OFFSETS: &[u8] = &[")
+        for i in range(0, len(self.casefold_offsets), 32):
+            chunk = self.casefold_offsets[i : i + 32]
+            line = "    " + ", ".join(str(x) for x in chunk) + ","
+            lines.append(line)
+        lines.append("];")
+        lines.append("")
+
         # Regex patterns
         lines.append("pub static REGEX_PATTERNS: &[&str] = &[")
         for i, pattern in enumerate(self.regex_patterns):
@@ -1494,6 +1534,7 @@ def generate_parser_table_driven(dialect: str):
     simple_hint_indices: SIMPLE_HINT_INDICES,
     segment_type_offsets: SEGMENT_TYPE_OFFSETS,
     segment_class_offsets: SEGMENT_CLASS_OFFSETS,
+    casefold_offsets: CASEFOLD_OFFSETS,
 }};
 """
     )

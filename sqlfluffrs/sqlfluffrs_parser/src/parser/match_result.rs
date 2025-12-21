@@ -11,6 +11,7 @@ use std::ops::Range;
 
 use crate::parser::types::Node;
 use hashbrown::HashMap;
+use sqlfluffrs_types::regex::RegexModeGroup;
 use sqlfluffrs_types::token::CaseFold;
 use sqlfluffrs_types::Token;
 
@@ -72,6 +73,8 @@ pub struct MatchResult {
     pub instance_types: Option<Vec<String>>,
     pub trim_chars: Option<Vec<String>>,
     pub casefold: CaseFold,
+    pub quoted_value: Option<(String, RegexModeGroup)>,
+    pub escape_replacement: Option<(String, String)>,
 
     /// Parse error information (message and token position)
     pub parse_error: Option<(String, usize)>,
@@ -90,6 +93,8 @@ impl Default for MatchResult {
             instance_types: None,
             trim_chars: None,
             casefold: CaseFold::None,
+            quoted_value: None,
+            escape_replacement: None,
             parse_error: None,
         }
     }
@@ -185,6 +190,8 @@ impl MatchResult {
             instance_types: Some(token.instance_types.clone()),
             trim_chars: token.trim_chars.clone(),
             casefold: token.casefold.clone(),
+            quoted_value: token.quoted_value().cloned(),
+            escape_replacement: token.escape_replacement().cloned(),
             parse_error: None,
             ..Default::default()
         }
@@ -506,6 +513,8 @@ impl MatchResult {
             instance_types: None,
             trim_chars: None,
             casefold: CaseFold::None,
+            quoted_value: None,
+            escape_replacement: None,
             parse_error: None,
         }
     }
@@ -555,6 +564,8 @@ impl MatchResult {
             instance_types: self.instance_types.clone(),
             trim_chars: self.trim_chars.clone(),
             casefold: self.casefold.clone(),
+            quoted_value: self.quoted_value.clone(),
+            escape_replacement: self.escape_replacement.clone(),
             parse_error: self.parse_error.clone(),
         }
     }
@@ -568,6 +579,12 @@ impl MatchResult {
     /// Add meta segments (Indent/Dedent) to this match result
     pub fn with_meta(mut self, meta: Vec<(usize, MetaSegmentType)>) -> MatchResult {
         self.insert_segments.extend(meta);
+        self
+    }
+
+    /// Set casefold mode on this match result
+    pub fn with_casefold(mut self, casefold: sqlfluffrs_types::token::CaseFold) -> MatchResult {
+        self.casefold = casefold;
         self
     }
 

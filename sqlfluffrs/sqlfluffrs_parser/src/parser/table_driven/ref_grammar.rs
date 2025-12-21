@@ -127,12 +127,19 @@ impl Parser<'_> {
             }
         }
 
-        // Determine the segment_class from tables if available, otherwise None
-        // This is the actual Python class name (e.g., "SelectStatementSegment")
+        // Determine the segment_class (Python class name) from tables
+        // This is what gets stored in matched_class for Python lookup
+        // e.g., "ProcedureDefinitionGrammar", "SelectStatementSegment", etc.
         let table_segment_class = self
             .grammar_ctx
             .segment_class(grammar_id)
             .map(|s| s.to_string());
+
+        log::debug!(
+            "Ref[table]: rule_name='{}', table_segment_class={:?}",
+            rule_name,
+            table_segment_class
+        );
 
         // Store context with collected leading transparent tokens
         frame.context = FrameContext::RefTableDriven {
@@ -142,6 +149,7 @@ impl Parser<'_> {
             saved_pos,
             last_child_frame_id: Some(stack.frame_id_counter),
             leading_transparent,
+            child_grammar_id,
         };
 
         // CRITICAL: Set parent frame state to WaitingForChild so it will
@@ -245,6 +253,7 @@ impl Parser<'_> {
             name,
             segment_type,
             leading_transparent,
+            child_grammar_id,
             ..
         } = &frame.context
         else {
@@ -283,13 +292,30 @@ impl Parser<'_> {
             // Commit collected positions since Ref succeeded
             self.commit_collection_checkpoint(frame.frame_id);
 
-            MatchResult::ref_match(
+            log::debug!(
+                "Ref[table] Combining: name='{}', segment_type={:?}, creating ref_match",
+                name,
+                segment_type
+            );
+
+            // Get casefold from the child grammar (the actual parser), not the Ref wrapper
+            // Refs are just named references - the casefold comes from the RegexParser/TypedParser they point to
+            let casefold = self.grammar_ctx.casefold(*child_grammar_id);
+
+            let mut result = MatchResult::ref_match(
                 name.clone(),
                 segment_type.clone(),
                 frame.pos,
                 final_pos,
                 children,
-            )
+            );
+
+            // Apply casefold if present
+            if let Some(cf) = casefold {
+                result = result.with_casefold(cf);
+            }
+
+            result
         };
 
         self.pos = final_pos;

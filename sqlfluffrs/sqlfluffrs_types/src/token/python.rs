@@ -552,7 +552,7 @@ impl PyToken {
         source_slice: (usize, usize),
         templated_slice: (usize, usize),
         block_type: String,
-        _source_str: String,  // Currently unused - extracted from templated_file
+        _source_str: String, // Currently unused - extracted from templated_file
         block_uuid: Option<String>,
         templated_file: Bound<'_, PyAny>,
     ) -> PyResult<Self> {
@@ -564,9 +564,7 @@ impl PyToken {
         let tf_arc: Arc<crate::templater::templatefile::TemplatedFile> = tf.into();
 
         // Parse UUID if provided (Python passes hex string)
-        let uuid = block_uuid
-            .as_ref()
-            .and_then(|s| Uuid::parse_str(s).ok());
+        let uuid = block_uuid.as_ref().and_then(|s| Uuid::parse_str(s).ok());
 
         // Create template placeholder token using existing constructor
         let token = Token::template_placeholder_token_from_slice(

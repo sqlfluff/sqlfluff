@@ -149,6 +149,25 @@ impl<'a> GrammarContext<'a> {
         }
     }
 
+    /// Get casefold mode for an instruction, if present
+    ///
+    /// Returns None if the instruction doesn't specify casefold or if the
+    /// grammar_id is out of bounds.
+    #[inline]
+    pub fn casefold(&self, id: GrammarId) -> Option<crate::token::CaseFold> {
+        let idx = id.get() as usize;
+        if idx >= self.tables.casefold_offsets.len() {
+            return None;
+        }
+        match self.tables.casefold_offsets[idx] {
+            0xFF => None, // Unspecified
+            0 => Some(crate::token::CaseFold::None),
+            1 => Some(crate::token::CaseFold::Upper),
+            2 => Some(crate::token::CaseFold::Lower),
+            _ => None, // Invalid value
+        }
+    }
+
     /// Get string template (for StringParser/TypedParser/Token variants)
     #[inline]
     pub fn template(&self, id: GrammarId) -> &'static str {
@@ -473,6 +492,7 @@ mod tests {
         static SIMPLE_HINTS: &[SimpleHintData] = &[];
         static HINT_STRING_INDICES: &[u32] = &[];
         static SIMPLE_HINT_INDICES: &[u32] = &[0, 0, 0]; // One per instruction
+        static CASEFOLD_OFFSETS: &[u8] = &[0xFF, 0xFF, 0xFF]; // One per instruction
 
         let tables = GrammarTables::new(
             INSTRUCTIONS,
@@ -487,6 +507,7 @@ mod tests {
             SIMPLE_HINT_INDICES,
             &[], // segment_type_offsets
             &[], // segment_class_offsets
+            CASEFOLD_OFFSETS,
         );
 
         let ctx = GrammarContext::new(&tables);
@@ -520,6 +541,7 @@ mod tests {
         static SIMPLE_HINTS: &[SimpleHintData] = &[];
         static HINT_STRING_INDICES: &[u32] = &[];
         static SIMPLE_HINT_INDICES: &[u32] = &[0, 0, 0, 0]; // One per instruction
+        static CASEFOLD_OFFSETS: &[u8] = &[0xFF, 0xFF, 0xFF, 0xFF]; // One per instruction
 
         let tables = GrammarTables::new(
             INSTRUCTIONS,
@@ -534,6 +556,7 @@ mod tests {
             SIMPLE_HINT_INDICES,
             &[], // segment_type_offsets
             &[], // segment_class_offsets
+            CASEFOLD_OFFSETS,
         );
 
         let ctx = GrammarContext::new(&tables);

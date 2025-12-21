@@ -401,6 +401,19 @@ class RustParser:
         if rs_match.instance_types:
             segment_kwargs["instance_types"] = tuple(rs_match.instance_types)
 
+        # Set casefold from the match result if available (dialect-specific from parser)
+        if rs_match.casefold:
+            if rs_match.casefold == "upper":
+                segment_kwargs["casefold"] = str.upper
+            elif rs_match.casefold == "lower":
+                segment_kwargs["casefold"] = str.lower
+
+        # Set quoted_value and escape_replacement for identifier/literal normalization
+        if rs_match.quoted_value:
+            segment_kwargs["quoted_value"] = rs_match.quoted_value
+        if rs_match.escape_replacement:
+            segment_kwargs["escape_replacements"] = [rs_match.escape_replacement]
+
         # Extract insert_segments (Indent/Dedent meta segments)
         insert_segments = ()
         if rs_match.insert_segments:
