@@ -546,6 +546,47 @@ impl PyToken {
         )
     }
 
+    #[staticmethod]
+    #[pyo3(signature = (source_slice, templated_slice, block_type, _source_str, block_uuid, templated_file))]
+    pub fn template_placeholder_from_slice(
+        source_slice: (usize, usize),
+        templated_slice: (usize, usize),
+        block_type: String,
+        _source_str: String,  // Currently unused - extracted from templated_file
+        block_uuid: Option<String>,
+        templated_file: Bound<'_, PyAny>,
+    ) -> PyResult<Self> {
+        use crate::slice::Slice;
+        use crate::templater::templatefile::python::PySqlFluffTemplatedFile;
+
+        // Extract TemplatedFile from Python object
+        let tf: PySqlFluffTemplatedFile = templated_file.extract()?;
+        let tf_arc: Arc<crate::templater::templatefile::TemplatedFile> = tf.into();
+
+        // Parse UUID if provided (Python passes hex string)
+        let uuid = block_uuid
+            .as_ref()
+            .and_then(|s| Uuid::parse_str(s).ok());
+
+        // Create template placeholder token using existing constructor
+        let token = Token::template_placeholder_token_from_slice(
+            Slice {
+                start: source_slice.0,
+                stop: source_slice.1,
+            },
+            Slice {
+                start: templated_slice.0,
+                stop: templated_slice.1,
+            },
+            block_type,
+            &tf_arc,
+            uuid,
+            HashSet::new(), // class_types - empty for template placeholders
+        );
+
+        Ok(PyToken(token))
+    }
+
     pub fn __repr__(&self) -> String {
         format!("{}", self)
     }

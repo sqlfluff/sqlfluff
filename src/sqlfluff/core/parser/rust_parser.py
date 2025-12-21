@@ -14,12 +14,13 @@ from typing import TYPE_CHECKING, Optional
 
 from sqlfluff.core.parser.match_result import MatchResult
 from sqlfluff.core.parser.rsparser_adapter import get_segment_class_by_name
+from sqlfluff.core.parser.segments.meta import TemplateSegment
 
 if TYPE_CHECKING:  # pragma: no cover
     from sqlfluff.core.config import FluffConfig
     from sqlfluff.core.parser.segments import BaseSegment
     from sqlfluff.core.templaters.base import TemplatedFile
-    from sqlfluffrs import RsMatchResult
+    from sqlfluffrs import RsMatchResult, RsToken
 
 
 class RustParser:
@@ -424,17 +425,50 @@ class RustParser:
 
         return match_result, parse_errors
 
+    @staticmethod
+    def _template_segment_to_rstoken(segment: TemplateSegment) -> "RsToken":
+        """Convert a Python TemplateSegment to a Rust RsToken.
+
+        Creates a template placeholder token with the segment's metadata.
+        This allows the Rust parser to handle templated SQL (Jinja, dbt, etc.).
+
+        Args:
+            segment: Python TemplateSegment from the lexer
+
+        Returns:
+            RsToken representing a template placeholder
+        """
+        from sqlfluffrs import RsToken
+
+        # Extract position marker data
+        pm = segment.pos_marker
+        source_slice = (pm.source_slice.start, pm.source_slice.stop)
+        templated_slice = (pm.templated_slice.start, pm.templated_slice.stop)
+        templated_file = pm.templated_file
+
+        # Convert block_uuid to hex string if present
+        block_uuid_str = segment.block_uuid.hex if segment.block_uuid else None
+
+        # Create template placeholder token using Rust constructor
+        return RsToken.template_placeholder_from_slice(
+            source_slice=source_slice,
+            templated_slice=templated_slice,
+            block_type=segment.block_type,
+            _source_str=segment.source_str,  # Passed for API compatibility
+            block_uuid=block_uuid_str,
+            templated_file=templated_file,
+        )
+
     def _extract_tokens_from_segments(
         self, segments: tuple["BaseSegment", ...]
     ) -> list:
         """Extract RsToken objects from RawSegments.
 
-        This is a temporary solution. In the optimized flow, we would pass
-        RsToken objects directly from lexer to parser without converting to
-        RawSegment first.
+        This extracts the cached _rstoken attribute from segments that came from
+        the Rust lexer, or converts TemplateSegments to template placeholder tokens.
 
         Args:
-            segments: Tuple of RawSegment objects
+            segments: Tuple of BaseSegment objects
 
         Returns:
             List of RsToken objects (or compatible token objects)
@@ -444,13 +478,14 @@ class RustParser:
             # Check if segment has _rstoken attribute (cached original token)
             if hasattr(segment, "_rstoken"):
                 tokens.append(segment._rstoken)
+            elif isinstance(segment, TemplateSegment):
+                # Template segment - create template placeholder token
+                tokens.append(self._template_segment_to_rstoken(segment))
             else:
-                # Cannot reconstruct RsToken from Python segment - this happens with
-                # templated segments or segments created by Python code
+                # Cannot reconstruct RsToken from Python segment
                 raise ValueError(
                     f"Cannot extract RsToken from segment {segment!r}. "
-                    f"Rust parser requires segments with _rstoken attribute. "
-                    f"This may indicate templated content which is not yet supported."
+                    f"Unsupported segment type: {type(segment).__name__}."
                 )
 
         return tokens
