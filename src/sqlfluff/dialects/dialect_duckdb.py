@@ -20,6 +20,7 @@ from sqlfluff.core.parser import (
     Nothing,
     OneOf,
     OptionallyBracketed,
+    ParseMode,
     Ref,
     RegexLexer,
     RegexParser,
@@ -29,7 +30,6 @@ from sqlfluff.core.parser import (
     SymbolSegment,
     TypedParser,
 )
-from sqlfluff.core.parser.types import ParseMode
 from sqlfluff.dialects import dialect_ansi as ansi
 from sqlfluff.dialects import dialect_postgres as postgres
 
