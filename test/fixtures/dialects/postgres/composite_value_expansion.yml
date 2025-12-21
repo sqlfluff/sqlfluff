@@ -3,14 +3,14 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 039234265427a78b12fbef3dfc2a6f9ed6a250d7b8f800663facb96782fc859a
+_hash: 1f093f3231ff1058509f75341747d793f2c950f061787def864c467fa70815d5
 file:
 - statement:
     select_statement:
       select_clause:
         keyword: SELECT
         select_clause_element:
-          composite_type_column_expansion:
+          composite_value_expansion:
             bracketed:
               start_bracket: (
               expression:
@@ -40,7 +40,7 @@ file:
       select_clause:
         keyword: SELECT
         select_clause_element:
-          composite_type_column_expansion:
+          composite_value_expansion:
             bracketed:
               start_bracket: (
               expression:
@@ -78,7 +78,7 @@ file:
       select_clause:
         keyword: SELECT
         select_clause_element:
-          composite_type_column_expansion:
+          composite_value_expansion:
             bracketed:
               start_bracket: (
               expression:
@@ -108,7 +108,7 @@ file:
       select_clause:
         keyword: SELECT
         select_clause_element:
-          composite_type_column_expansion:
+          composite_value_expansion:
             bracketed:
               start_bracket: (
               expression:
@@ -142,7 +142,7 @@ file:
             naked_identifier: id
       - comma: ','
       - select_clause_element:
-          composite_type_column_expansion:
+          composite_value_expansion:
             bracketed:
               start_bracket: (
               expression:
@@ -161,7 +161,7 @@ file:
             star: '*'
       - comma: ','
       - select_clause_element:
-          composite_type_column_expansion:
+          composite_value_expansion:
             bracketed:
               start_bracket: (
               expression:
@@ -191,7 +191,7 @@ file:
       select_clause:
         keyword: SELECT
         select_clause_element:
-          composite_type_column_expansion:
+          composite_value_expansion:
             bracketed:
               start_bracket: (
               expression:
@@ -236,7 +236,7 @@ file:
       select_clause:
         keyword: SELECT
         select_clause_element:
-          composite_type_column_expansion:
+          composite_value_expansion:
             bracketed:
               start_bracket: (
               expression:

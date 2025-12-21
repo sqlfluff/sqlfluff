@@ -1,5 +1,3 @@
--- Test PostgreSQL composite type expansion syntax
--- Only works with expressions that return composite types
 SELECT (JSONB_EACH_TEXT(data)).* FROM table1;
 SELECT (JSONB_EACH_TEXT(w.inventory_events)).* FROM public.widget AS w;
 SELECT (JSON_EACH(config)).* FROM settings;
@@ -10,5 +8,5 @@ SELECT
     (JSON_EACH(metadata)).*
 FROM table1;
 SELECT (JSONB_EACH_TEXT(COALESCE(data, '{}'::jsonb))).* FROM table1;
--- Test with a general composite column
 SELECT (composite_column).* FROM my_table;
+SELECT (myfunc(x)).* FROM my_table;
