@@ -32,15 +32,8 @@ impl Parser<'_> {
         // Delegate to the MatchResult version
         let match_result = self.parse_table_iterative_match_result(grammar, parent_terminators)?;
 
-        // Materialize the AST by calling apply()
-        let nodes = match_result.apply(self.tokens);
-        let node = if nodes.is_empty() {
-            Node::Empty
-        } else if nodes.len() == 1 {
-            nodes.into_iter().next().unwrap()
-        } else {
-            Node::Sequence { children: nodes }
-        };
+        // Materialize the AST by calling apply() - now returns a single Node
+        let node = match_result.apply(self.tokens);
 
         Ok(node)
     }

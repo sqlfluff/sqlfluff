@@ -390,14 +390,7 @@ impl MatchResult {
     /// Bridge method: Convert this MatchResult back to a Node.
     /// Used during migration when callers still expect Node.
     pub fn to_node(self, tokens: &[sqlfluffrs_types::Token]) -> Node {
-        let nodes = self.apply(tokens);
-        if nodes.is_empty() {
-            Node::Empty
-        } else if nodes.len() == 1 {
-            nodes.into_iter().next().unwrap()
-        } else {
-            Node::Sequence { children: nodes }
-        }
+        self.apply(tokens)
     }
 
     /// Create a MatchResult representing a parse error.
@@ -582,7 +575,7 @@ impl MatchResult {
     ///
     /// This is where materialization happens - converting the match description
     /// into the actual nested Node structure.
-    pub fn apply(self, tokens: &[Token]) -> Vec<Node> {
+    pub fn apply(self, tokens: &[Token]) -> Node {
         // DEBUG: Log apply() entry for FromExpressionSegment
         if self.matched_class.as_deref() == Some("FromExpressionSegment") {
             log::debug!(
@@ -593,12 +586,12 @@ impl MatchResult {
             );
         }
 
-        // If empty, return empty vec (or just inserts)
+        // If empty, return Empty node
         if self.matched_slice.is_empty()
             && self.child_matches.is_empty()
             && self.child_nodes.is_empty()
         {
-            // Only meta/transparent inserts - create them
+            // Only meta/transparent inserts - create them as children
             let mut result = vec![];
             for insert in &self.insert_transparent {
                 result.push(transparent_to_node(insert));
@@ -606,7 +599,11 @@ impl MatchResult {
             for (idx, meta_type) in &self.insert_segments {
                 result.push(meta_to_node(*idx, meta_type));
             }
-            return result;
+            // If we have inserts but no matched_class, wrap in Sequence
+            if !result.is_empty() && self.matched_class.is_none() {
+                return Node::Sequence { children: result };
+            }
+            return Node::Empty;
         }
 
         // Build a map of positions to things to insert/apply
@@ -690,8 +687,11 @@ impl MatchResult {
                                     current_idx
                                 );
                             }
-                            let child_nodes = child.clone().apply(tokens);
-                            result_nodes.extend(child_nodes);
+                            let child_node = child.clone().apply(tokens);
+                            // Only add non-empty nodes
+                            if !matches!(child_node, Node::Empty) {
+                                result_nodes.push(child_node);
+                            }
                             if child.matched_slice.end > current_idx {
                                 current_idx = child.matched_slice.end;
                             }
@@ -748,7 +748,62 @@ impl MatchResult {
             }
         }
 
-        result_nodes
+        // Now wrap result_nodes with the matched_class if present
+        if let Some(class_name) = self.matched_class {
+            // Create the appropriate wrapper node based on class_name
+            if result_nodes.is_empty() {
+                return Node::Empty;
+            }
+
+            // For segment classes (end with "Segment"), wrap in Ref
+            // For other cases, wrap in Sequence
+            if class_name.ends_with("Segment") {
+                // Get segment_type from grammar context if available
+                // For now, derive it from class name
+                let segment_type = class_name.strip_suffix("Segment").map(|s| {
+                    // Convert CamelCase to snake_case
+                    let mut result = String::new();
+                    for (i, c) in s.chars().enumerate() {
+                        if c.is_uppercase() && i > 0 {
+                            result.push('_');
+                        }
+                        result.push(c.to_ascii_lowercase());
+                    }
+                    result
+                });
+
+                // Wrap children in a Sequence first, then in Ref
+                let child = if result_nodes.len() == 1 {
+                    result_nodes.into_iter().next().unwrap()
+                } else {
+                    Node::Sequence {
+                        children: result_nodes,
+                    }
+                };
+
+                Node::new_ref(class_name, segment_type, child)
+            } else {
+                // Non-segment classes get wrapped in Sequence
+                if result_nodes.len() == 1 {
+                    result_nodes.into_iter().next().unwrap()
+                } else {
+                    Node::Sequence {
+                        children: result_nodes,
+                    }
+                }
+            }
+        } else {
+            // No matched_class - return as-is
+            if result_nodes.is_empty() {
+                Node::Empty
+            } else if result_nodes.len() == 1 {
+                result_nodes.into_iter().next().unwrap()
+            } else {
+                Node::Sequence {
+                    children: result_nodes,
+                }
+            }
+        }
     }
 }
 
