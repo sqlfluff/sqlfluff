@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: d1222545f781e75ff514f47a4da0bb0a3b8535419a7f5a1a3cf1bf4dc727b4ad
+_hash: 7654c1652b1ea73d12f04074bc35ddf451bd6e8ce8a7bdd38847793c9eb1dc12
 file:
 - statement:
     alter_table_statement:
@@ -49,7 +49,7 @@ file:
       - column_definition:
           naked_identifier: id
           data_type:
-            keyword: SERIAL
+            keyword: serial
           column_constraint_segment:
           - keyword: PRIMARY
           - keyword: KEY
@@ -156,23 +156,6 @@ file:
       - column_reference:
           naked_identifier: mixed_case
       - data_type:
-        - keyword: DOUBLE
-        - keyword: PRECISION
-- statement_terminator: ;
-- statement:
-    alter_table_statement:
-    - keyword: ALTER
-    - keyword: TABLE
-    - table_reference:
-        naked_identifier: t
-    - alter_table_action_segment:
-      - keyword: ADD
-      - keyword: COLUMN
-      - column_reference:
-          naked_identifier: qualified
-      - data_type:
-        - naked_identifier: pg_catalog
-        - dot: .
         - keyword: double
         - keyword: precision
 - statement_terminator: ;
@@ -239,7 +222,7 @@ file:
     - bracketed:
       - start_bracket: (
       - column_definition:
-          naked_identifier: values
+          naked_identifier: all_values
           data_type:
           - keyword: double
           - keyword: precision
