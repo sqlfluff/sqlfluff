@@ -1256,10 +1256,11 @@ impl<'a> Parser<'a> {
 
         log::debug!("Meta[table]: pos={}, token_type='{}'", self.pos, token_type);
 
-        // Meta creates zero-length inserts. Map token_type to MetaSegmentType.
-        let meta_type = match token_type.as_str() {
-            "indent" => MetaSegmentType::Indent,
-            "dedent" => MetaSegmentType::Dedent,
+        // Meta creates zero-length inserts. Determine type and is_implicit flag.
+        let (meta_type, is_implicit) = match token_type.as_str() {
+            "indent" => (MetaSegmentType::Indent, false),
+            "implicit_indent" => (MetaSegmentType::Indent, true),
+            "dedent" => (MetaSegmentType::Dedent, false),
             _ => {
                 log::warn!("Unknown meta token_type: {}", token_type);
                 return Ok(MatchResult::empty_at(self.pos));
@@ -1269,7 +1270,7 @@ impl<'a> Parser<'a> {
         // Return MatchResult with insert_segments
         Ok(MatchResult {
             matched_slice: self.pos..self.pos,
-            insert_segments: vec![(self.pos, meta_type)],
+            insert_segments: vec![(self.pos, meta_type, is_implicit)],
             ..Default::default()
         })
     }
@@ -1518,8 +1519,8 @@ impl<'a> Parser<'a> {
                 matched_class: Some("BracketedSegment".to_string()),
                 child_matches: inner_child_matches,
                 insert_segments: vec![
-                    (bracket_start + 1, MetaSegmentType::Indent),
-                    (bracket_end - 1, MetaSegmentType::Dedent),
+                    (bracket_start + 1, MetaSegmentType::Indent, false),
+                    (bracket_end - 1, MetaSegmentType::Dedent, false),
                 ],
                 segment_kwargs,
                 ..Default::default()
@@ -1531,8 +1532,8 @@ impl<'a> Parser<'a> {
                 matched_slice: bracket_start..bracket_end,
                 child_matches: inner_child_matches,
                 insert_segments: vec![
-                    (bracket_start + 1, MetaSegmentType::Indent),
-                    (bracket_end - 1, MetaSegmentType::Dedent),
+                    (bracket_start + 1, MetaSegmentType::Indent, false),
+                    (bracket_end - 1, MetaSegmentType::Dedent, false),
                 ],
                 ..Default::default()
             };

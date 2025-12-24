@@ -959,16 +959,8 @@ class TableBuilder:
         grammar_id = len(self.instructions) - 1  # Current grammar being built
         casefold_attr = getattr(grammar, "casefold", None)
         if casefold_attr is str.upper:
-            print(
-                f"  Setting casefold=Upper for grammar_id {grammar_id} "
-                f"(RegexParser, instance_types={grammar._instance_types})"
-            )
             self.casefold_offsets[grammar_id] = 1  # Upper
         elif casefold_attr is str.lower:
-            print(
-                f"  Setting casefold=Lower for grammar_id {grammar_id} "
-                f"(RegexParser, instance_types={grammar._instance_types})"
-            )
             self.casefold_offsets[grammar_id] = 2  # Lower
         # else: leave as 0xFF (unspecified)
 

@@ -56,7 +56,8 @@ pub struct MatchResult {
     pub matched_class: Option<String>,
 
     /// Meta-segments to insert at specific positions (Indent/Dedent)
-    pub insert_segments: Vec<(usize, MetaSegmentType)>,
+    /// Tuple is (position, meta_type, is_implicit)
+    pub insert_segments: Vec<(usize, MetaSegmentType, bool)>,
 
     /// Transparent tokens (whitespace/newlines/comments) to insert
     pub insert_transparent: Vec<TransparentInsert>,
@@ -375,12 +376,12 @@ impl MatchResult {
         if let Some(first_child) = deduped_children.first() {
             // Indent after opening bracket
             let indent_pos = first_child.matched_slice.end;
-            insert_segments.push((indent_pos, MetaSegmentType::Indent));
+            insert_segments.push((indent_pos, MetaSegmentType::Indent, false));
         }
         if let Some(last_child) = deduped_children.last() {
             // Dedent before closing bracket
             let dedent_pos = last_child.matched_slice.start;
-            insert_segments.push((dedent_pos, MetaSegmentType::Dedent));
+            insert_segments.push((dedent_pos, MetaSegmentType::Dedent, false));
         }
 
         MatchResult {
@@ -577,7 +578,7 @@ impl MatchResult {
     }
 
     /// Add meta segments (Indent/Dedent) to this match result
-    pub fn with_meta(mut self, meta: Vec<(usize, MetaSegmentType)>) -> MatchResult {
+    pub fn with_meta(mut self, meta: Vec<(usize, MetaSegmentType, bool)>) -> MatchResult {
         self.insert_segments.extend(meta);
         self
     }
@@ -613,8 +614,8 @@ impl MatchResult {
             for insert in &self.insert_transparent {
                 result.push(transparent_to_node(insert));
             }
-            for (idx, meta_type) in &self.insert_segments {
-                result.push(meta_to_node(*idx, meta_type));
+            for (idx, meta_type, is_implicit) in &self.insert_segments {
+                result.push(meta_to_node(*idx, meta_type, *is_implicit));
             }
             // If we have inserts but no matched_class, wrap in Sequence
             if !result.is_empty() && self.matched_class.is_none() {
@@ -627,11 +628,11 @@ impl MatchResult {
         let mut trigger_map: HashMap<usize, Vec<TriggerItem>> = HashMap::new();
 
         // Add meta segments
-        for (idx, meta_type) in &self.insert_segments {
+        for (idx, meta_type, is_implicit) in &self.insert_segments {
             trigger_map
                 .entry(*idx)
                 .or_default()
-                .push(TriggerItem::Meta(meta_type.clone()));
+                .push(TriggerItem::Meta(meta_type.clone(), *is_implicit));
         }
 
         // Add transparent tokens
@@ -686,8 +687,8 @@ impl MatchResult {
             if let Some(triggers) = trigger_map.get(&pos) {
                 for trigger in triggers {
                     match trigger {
-                        TriggerItem::Meta(meta_type) => {
-                            result_nodes.push(meta_to_node(pos, meta_type));
+                        TriggerItem::Meta(meta_type, is_implicit) => {
+                            result_nodes.push(meta_to_node(pos, meta_type, *is_implicit));
                         }
                         TriggerItem::Transparent(insert) => {
                             result_nodes.push(transparent_to_node(insert));
@@ -827,7 +828,7 @@ impl MatchResult {
 /// Internal enum for tracking what to process at each position
 #[derive(Debug, Clone)]
 enum TriggerItem {
-    Meta(MetaSegmentType),
+    Meta(MetaSegmentType, bool), // (type, is_implicit)
     Transparent(TransparentInsert),
     ChildMatch(MatchResult),
     ChildNode(Node),
@@ -856,10 +857,15 @@ fn transparent_to_node(insert: &TransparentInsert) -> Node {
 }
 
 /// Convert a meta segment type to a Node
-fn meta_to_node(idx: usize, meta_type: &MetaSegmentType) -> Node {
+fn meta_to_node(idx: usize, meta_type: &MetaSegmentType, is_implicit: bool) -> Node {
     match meta_type {
         MetaSegmentType::Indent => Node::Meta {
-            token_type: "indent".to_string(),
+            token_type: if is_implicit {
+                "implicit_indent"
+            } else {
+                "indent"
+            }
+            .to_string(),
             token_idx: Some(idx),
         },
         MetaSegmentType::Dedent => Node::Meta {

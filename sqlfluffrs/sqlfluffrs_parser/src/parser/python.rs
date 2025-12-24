@@ -457,16 +457,16 @@ impl PyMatchResult {
 
     /// Get insert_segments (meta segments like Indent/Dedent to insert)
     #[getter]
-    fn insert_segments(&self) -> Vec<(usize, String)> {
+    fn insert_segments(&self) -> Vec<(usize, String, bool)> {
         self.0
             .insert_segments
             .iter()
-            .map(|(idx, seg_type)| {
+            .map(|(idx, seg_type, is_implicit)| {
                 let type_name = match seg_type {
                     crate::parser::MetaSegmentType::Indent => "indent",
                     crate::parser::MetaSegmentType::Dedent => "dedent",
                 };
-                (*idx, type_name.to_string())
+                (*idx, type_name.to_string(), *is_implicit)
             })
             .collect()
     }

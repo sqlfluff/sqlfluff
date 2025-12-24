@@ -417,15 +417,21 @@ class RustParser:
         # Extract insert_segments (Indent/Dedent meta segments)
         insert_segments = ()
         if rs_match.insert_segments:
-            from sqlfluff.core.parser.segments.meta import Indent, Dedent
+            from sqlfluff.core.parser.segments.meta import (
+                Indent,
+                Dedent,
+                ImplicitIndent,
+            )
 
-            meta_segment_map = {
-                "indent": Indent,
-                "dedent": Dedent,
-            }
+            # rs_match.insert_segments now contains (idx, seg_type, is_implicit) tuples
             insert_segments = tuple(
-                (idx, meta_segment_map[seg_type])
-                for idx, seg_type in rs_match.insert_segments
+                (
+                    idx,
+                    ImplicitIndent
+                    if (seg_type == "indent" and is_implicit)
+                    else (Indent if seg_type == "indent" else Dedent),
+                )
+                for idx, seg_type, is_implicit in rs_match.insert_segments
             )
 
         match_result = MatchResult(

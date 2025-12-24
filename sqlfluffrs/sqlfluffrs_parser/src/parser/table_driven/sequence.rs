@@ -203,15 +203,17 @@ impl Parser<'_> {
                                     insert_segments: vec![(
                                         parent_frame.pos,
                                         crate::parser::MetaSegmentType::Indent,
+                                        false, // is_implicit
                                     )],
                                     ..Default::default()
                                 },
                             );
                         } else {
                             // Dedent or other meta type
-                            let meta_type = match meta_type_str {
-                                "indent" => crate::parser::MetaSegmentType::Indent,
-                                "dedent" => crate::parser::MetaSegmentType::Dedent,
+                            let (meta_type, is_implicit) = match meta_type_str {
+                                "indent" => (crate::parser::MetaSegmentType::Indent, false),
+                                "implicit_indent" => (crate::parser::MetaSegmentType::Indent, true),
+                                "dedent" => (crate::parser::MetaSegmentType::Dedent, false),
                                 _ => {
                                     log::warn!("Unknown meta type: {}", meta_type_str);
                                     child_idx += 1;
@@ -220,7 +222,7 @@ impl Parser<'_> {
                             };
                             parent_frame.accumulated.push(MatchResult {
                                 matched_slice: parent_frame.pos..parent_frame.pos,
-                                insert_segments: vec![(parent_frame.pos, meta_type)],
+                                insert_segments: vec![(parent_frame.pos, meta_type, is_implicit)],
                                 ..Default::default()
                             });
                         }
@@ -833,7 +835,7 @@ impl Parser<'_> {
             let inst = self.grammar_ctx.inst(*meta_id);
             let is_conditional = inst.flags.is_conditional();
 
-            let meta_type_opt: Option<crate::parser::MetaSegmentType> = if is_conditional {
+            let meta_type_opt: Option<(crate::parser::MetaSegmentType, bool)> = if is_conditional {
                 // Conditional meta - check config to see if it should be included
                 let (meta_type_str, config_key, expected_value) =
                     self.grammar_ctx.conditional_config(*meta_id);
@@ -841,8 +843,9 @@ impl Parser<'_> {
 
                 if actual_value == expected_value {
                     match meta_type_str {
-                        "indent" => Some(crate::parser::MetaSegmentType::Indent),
-                        "dedent" => Some(crate::parser::MetaSegmentType::Dedent),
+                        "indent" => Some((crate::parser::MetaSegmentType::Indent, false)),
+                        "implicit_indent" => Some((crate::parser::MetaSegmentType::Indent, true)),
+                        "dedent" => Some((crate::parser::MetaSegmentType::Dedent, false)),
                         _ => None,
                     }
                 } else {
@@ -853,8 +856,9 @@ impl Parser<'_> {
                 self.grammar_ctx
                     .segment_type(*meta_id)
                     .and_then(|s| match s {
-                        "indent" => Some(crate::parser::MetaSegmentType::Indent),
-                        "dedent" => Some(crate::parser::MetaSegmentType::Dedent),
+                        "indent" => Some((crate::parser::MetaSegmentType::Indent, false)),
+                        "implicit_indent" => Some((crate::parser::MetaSegmentType::Indent, true)),
+                        "dedent" => Some((crate::parser::MetaSegmentType::Dedent, false)),
                         _ => {
                             log::warn!("Unknown meta type: {}", s);
                             None
@@ -862,12 +866,12 @@ impl Parser<'_> {
                     })
             };
 
-            if let Some(meta_type) = meta_type_opt {
+            if let Some((meta_type, is_implicit)) = meta_type_opt {
                 // Check if it's a dedent (negative)
                 if matches!(meta_type, crate::parser::MetaSegmentType::Dedent) {
                     all_positive = false;
                 }
-                meta_types.push(meta_type);
+                meta_types.push((meta_type, is_implicit));
             }
         }
 
@@ -908,12 +912,12 @@ impl Parser<'_> {
             }
 
             // Insert all metas at this position
-            for meta_type in meta_types {
+            for (meta_type, is_implicit) in meta_types {
                 accumulated.insert(
                     insert_pos,
                     MatchResult {
                         matched_slice: pre_code_idx..pre_code_idx,
-                        insert_segments: vec![(pre_code_idx, meta_type)],
+                        insert_segments: vec![(pre_code_idx, meta_type, is_implicit)],
                         ..Default::default()
                     },
                 );
@@ -922,10 +926,10 @@ impl Parser<'_> {
         } else {
             // Contains dedents - use post_code_idx (after whitespace)
             // This matches Python's _flush_metas behavior where dedents use post_nc_idx.
-            for meta_type in meta_types {
+            for (meta_type, is_implicit) in meta_types {
                 accumulated.push(MatchResult {
                     matched_slice: post_code_idx..post_code_idx,
-                    insert_segments: vec![(post_code_idx, meta_type)],
+                    insert_segments: vec![(post_code_idx, meta_type, is_implicit)],
                     ..Default::default()
                 });
             }
