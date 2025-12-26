@@ -3141,5 +3141,5 @@ class AlterSynonymStatementSegment(BaseSegment):
         "SYNONYM",
         Ref("IfExistsGrammar", optional=True),
         Ref("ObjectReferenceSegment"),
-        OneOf("EDITIONABLE", "NONEDITIONABLE", "COMPILE", optional=True),
+        OneOf("EDITIONABLE", "NONEDITIONABLE", "COMPILE"),
     )
