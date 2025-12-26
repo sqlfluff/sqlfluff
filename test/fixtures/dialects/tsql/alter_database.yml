@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: b2da1070318d3f630c41f07c1aa87186a3bfd001372e339885ea2298fd8ceb8c
+_hash: 3ce874e21329fd0acab5338f2411c957122f84d34f121cf5516a6440c9396a09
 file:
 - batch:
     statement:
@@ -437,5 +437,102 @@ file:
             raw_comparison_operator: '='
         - numeric_literal: '10'
         - keyword: GB
+        - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      alter_database_statement:
+      - keyword: ALTER
+      - keyword: DATABASE
+      - database_reference:
+          quoted_identifier: '[DatabaseName]'
+      - keyword: SET
+      - naked_identifier: MULTI_USER
+  - statement_terminator: ;
+  - statement:
+      alter_database_statement:
+      - keyword: ALTER
+      - keyword: DATABASE
+      - database_reference:
+          quoted_identifier: '[DatabaseName]'
+      - keyword: SET
+      - naked_identifier: QUOTED_IDENTIFIER
+      - keyword: 'ON'
+  - statement_terminator: ;
+  - statement:
+      alter_database_statement:
+      - keyword: ALTER
+      - keyword: DATABASE
+      - database_reference:
+          quoted_identifier: '[DatabaseName]'
+      - keyword: SET
+      - naked_identifier: RECURSIVE_TRIGGERS
+      - keyword: 'OFF'
+  - statement_terminator: ;
+  - statement:
+      alter_database_statement:
+      - keyword: ALTER
+      - keyword: DATABASE
+      - database_reference:
+          quoted_identifier: '[DatabaseName]'
+      - keyword: SET
+      - naked_identifier: DISABLE_BROKER
+  - statement_terminator: ;
+  - statement:
+      alter_database_statement:
+      - keyword: ALTER
+      - keyword: DATABASE
+      - database_reference:
+          quoted_identifier: '[DatabaseName]'
+      - keyword: SET
+      - naked_identifier: PAGE_VERIFY
+      - keyword: NONE
+  - statement_terminator: ;
+  - statement:
+      alter_database_statement:
+      - keyword: ALTER
+      - keyword: DATABASE
+      - database_reference:
+          quoted_identifier: '[DatabaseName]'
+      - keyword: SET
+      - naked_identifier: DELAYED_DURABILITY
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - keyword: DISABLED
+  - statement_terminator: ;
+  - statement:
+      alter_database_statement:
+      - keyword: ALTER
+      - keyword: DATABASE
+      - database_reference:
+          quoted_identifier: '[DatabaseName]'
+      - keyword: SET
+      - naked_identifier: QUERY_STORE
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - keyword: 'OFF'
+  - statement_terminator: ;
+  - statement:
+      alter_database_statement:
+      - keyword: ALTER
+      - keyword: DATABASE
+      - database_reference:
+          quoted_identifier: '[DatabaseName]'
+      - keyword: SET
+      - naked_identifier: READ_WRITE
+  - statement_terminator: ;
+  - statement:
+      alter_database_statement:
+      - keyword: ALTER
+      - keyword: DATABASE
+      - database_reference:
+          quoted_identifier: '[DatabaseName]'
+      - keyword: SET
+      - keyword: FILESTREAM
+      - bracketed:
+        - start_bracket: (
+        - keyword: NON_TRANSACTED_ACCESS
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - keyword: 'OFF'
         - end_bracket: )
   - statement_terminator: ;

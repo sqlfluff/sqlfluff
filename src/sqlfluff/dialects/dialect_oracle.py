@@ -199,6 +199,7 @@ oracle_dialect.sets("unreserved_keywords").update(
     [
         "ABSENT",
         "ACCESSIBLE",
+        "AUTHENTICATED",
         "AUTHID",
         "BODY",
         "BULK",
@@ -227,6 +228,7 @@ oracle_dialect.sets("unreserved_keywords").update(
         "INDICES",
         "ISOPEN",
         "KEEP",
+        "LINK",
         "LOOP",
         "MUTABLE",
         "NESTED",
@@ -257,6 +259,7 @@ oracle_dialect.sets("unreserved_keywords").update(
         "REVERSE",
         "ROWTYPE",
         "SHARD_ENABLE",
+        "SHARED",
         "SHARING",
         "SPECIFICATION",
         "SQL_MACRO",
@@ -701,6 +704,17 @@ oracle_dialect.add(
             ),
             "JSON",
         ),
+    ),
+    DBLinkAuthenticationGrammar=OneOf(
+        Sequence(
+            "AUTHENTICATED",
+            "BY",
+            Ref("RoleReferenceSegment"),
+            "IDENTIFIED",
+            "BY",
+            Ref("SingleIdentifierGrammar"),
+        ),
+        Sequence("WITH", "CREDENTIAL"),
     ),
 )
 
@@ -1162,6 +1176,9 @@ class StatementSegment(ansi.StatementSegment):
             Ref("RaiseStatementSegment"),
             Ref("ReturnStatementSegment"),
             Ref("AlterIndexStatementSegment"),
+            Ref("CreateDatabaseLinkStatementSegment"),
+            Ref("DropDatabaseLinkStatementSegment"),
+            Ref("AlterDatabaseLinkStatementSegment"),
             Ref("CreateSynonymStatementSegment"),
             Ref("DropSynonymStatementSegment"),
             Ref("AlterSynonymStatementSegment"),
@@ -1391,7 +1408,7 @@ class ColumnDefinitionSegment(BaseSegment):
             AnyNumberOf(
                 Sequence(
                     Ref("ColumnConstraintSegment"),
-                    Ref.keyword("ENABLE", optional=True),
+                    OneOf("ENABLE", "DISABLE", optional=True),
                 )
             ),
             Sequence(
@@ -1409,7 +1426,10 @@ class ColumnDefinitionSegment(BaseSegment):
                     optional=True,
                 ),
                 AnyNumberOf(
-                    Ref("ColumnConstraintSegment", optional=True),
+                    Sequence(
+                        Ref("ColumnConstraintSegment"),
+                        OneOf("ENABLE", "DISABLE", optional=True),
+                    )
                 ),
                 Ref("IdentityClauseGrammar", optional=True),
             ),
@@ -3081,6 +3101,105 @@ class DatabaseLinkReferenceSegment(ansi.ObjectReferenceSegment):
     type = "database_link_reference"
     match_grammar: Matchable = Delimited(
         Ref("SingleIdentifierGrammar"), delimiter=Ref("DotSegment")
+    )
+
+
+class CreateDatabaseLinkStatementSegment(BaseSegment):
+    """A `CREATE DATABASE LINK` statement.
+
+    https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/CREATE-DATABASE-LINK.html
+    """
+
+    type = "create_database_link_statement"
+
+    match_grammar: Matchable = Sequence(
+        "CREATE",
+        Ref.keyword("SHARED", optional=True),
+        Ref.keyword("PUBLIC", optional=True),
+        "DATABASE",
+        "LINK",
+        Ref("IfNotExistsGrammar", optional=True),
+        Ref("DatabaseLinkReferenceSegment"),
+        Sequence(
+            OneOf(
+                Sequence(
+                    "CONNECT",
+                    OneOf(
+                        Sequence(
+                            "TO",
+                            OneOf(
+                                "CURRENT_USER",
+                                Sequence(
+                                    Ref("RoleReferenceSegment"),
+                                    "IDENTIFIED",
+                                    "BY",
+                                    Ref("SingleIdentifierGrammar"),
+                                    Ref("DBLinkAuthenticationGrammar", optional=True),
+                                ),
+                            ),
+                        ),
+                        Sequence("WITH", Ref("SingleIdentifierGrammar")),
+                    ),
+                ),
+                Ref("DBLinkAuthenticationGrammar"),
+            ),
+            optional=True,
+        ),
+        Sequence("USING", Ref("SingleQuotedIdentifierSegment"), optional=True),
+    )
+
+
+class DropDatabaseLinkStatementSegment(BaseSegment):
+    """A `DROP DATABASE LINK` statement.
+
+    https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/DROP-DATABASE-LINK.html
+    """
+
+    type = "drop_database_link_statement"
+
+    match_grammar: Matchable = Sequence(
+        "DROP",
+        Ref.keyword("PUBLIC", optional=True),
+        "DATABASE",
+        "LINK",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("DatabaseLinkReferenceSegment"),
+    )
+
+
+class AlterDatabaseLinkStatementSegment(BaseSegment):
+    """An `ALTER DATABASE LINK` statement.
+
+    https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/ALTER-DATABASE-LINK.html
+    """
+
+    type = "alter_database_link_statement"
+
+    match_grammar: Matchable = Sequence(
+        "ALTER",
+        Ref.keyword("SHARED", optional=True),
+        Ref.keyword("PUBLIC", optional=True),
+        "DATABASE",
+        "LINK",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("DatabaseLinkReferenceSegment"),
+        OneOf(
+            Sequence(
+                "CONNECT",
+                OneOf(
+                    Sequence(
+                        "TO",
+                        Ref("RoleReferenceSegment"),
+                        "IDENTIFIED",
+                        "BY",
+                        Ref("SingleIdentifierGrammar"),
+                        Ref("DBLinkAuthenticationGrammar", optional=True),
+                    ),
+                    Sequence("WITH", Ref("SingleIdentifierGrammar")),
+                ),
+            ),
+            Ref("DBLinkAuthenticationGrammar"),
+        ),
     )
 
 
