@@ -5166,10 +5166,8 @@ class OpenRowSetSegment(BaseSegment):
                         Ref("QuotedLiteralSegmentOptWithN"),
                         Bracketed(
                             Delimited(
-                                AnyNumberOf(                            
-                                    Ref("QuotedLiteralSegmentOptWithN"),
-                                    min_times=1,
-                                ),
+                                Ref("QuotedLiteralSegmentOptWithN"),
+                                min_delimiters=1,
                             ),
                         ),
                     ),
