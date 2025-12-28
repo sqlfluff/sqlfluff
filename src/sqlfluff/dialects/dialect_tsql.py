@@ -5162,11 +5162,14 @@ class OpenRowSetSegment(BaseSegment):
                 ),
                 Sequence(
                     "BULK",
-                    OptionallyBracketed(
-                        Delimited(
-                            AnyNumberOf(                            
-                                Ref("QuotedLiteralSegmentOptWithN"),
-                                min_times=1,
+                    OneOf(
+                        Ref("QuotedLiteralSegmentOptWithN"),
+                        Bracketed(
+                            Delimited(
+                                AnyNumberOf(                            
+                                    Ref("QuotedLiteralSegmentOptWithN"),
+                                    min_times=1,
+                                ),
                             ),
                         ),
                     ),

@@ -32,8 +32,8 @@ SELECT *
 GO
 
 SELECT *
-FROM OPENROWSET(BULK N'D:\XChange\test-csv.csv',
-    N'D:\XChange\test-csv2.csv',    
+FROM OPENROWSET(BULK(N'D:\XChange\test-csv.csv',
+    N'D:\XChange\test-csv2.csv'),    
     FORMATFILE = N'D:\XChange\test-csv.fmt',
     FIRSTROW=2,
     FORMAT='CSV') AS cars;
@@ -47,10 +47,7 @@ GO
 
 SELECT TOP 10 *
 FROM OPENROWSET(
-      BULK (
-        'https://pandemicdatalake.blob.core.windows.net/public/curated/covid-19/ecdc_cases/latest/ecdc_cases.parquet',
-        'https://pandemicdatalake.blob.core.windows.net/public/curated/covid-19/ecdc_cases/latest/does_not_exist.parquet'
-      ),
+      BULK 'https://pandemicdatalake.blob.core.windows.net/public/curated/covid-19/ecdc_cases/latest/ecdc_cases.parquet'
       FORMAT = 'PARQUET'
    )
 WITH (
