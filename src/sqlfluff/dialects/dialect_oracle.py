@@ -1179,6 +1179,9 @@ class StatementSegment(ansi.StatementSegment):
             Ref("CreateDatabaseLinkStatementSegment"),
             Ref("DropDatabaseLinkStatementSegment"),
             Ref("AlterDatabaseLinkStatementSegment"),
+            Ref("CreateSynonymStatementSegment"),
+            Ref("DropSynonymStatementSegment"),
+            Ref("AlterSynonymStatementSegment"),
         ],
     )
 
@@ -3197,4 +3200,65 @@ class AlterDatabaseLinkStatementSegment(BaseSegment):
             ),
             Ref("DBLinkAuthenticationGrammar"),
         ),
+    )
+
+
+class CreateSynonymStatementSegment(BaseSegment):
+    """A `CREATE SYNONYM` statement.
+
+    https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/CREATE-SYNONYM.html
+    """
+
+    type = "create_synonym_statement"
+
+    match_grammar: Matchable = Sequence(
+        "CREATE",
+        Ref("OrReplaceGrammar", optional=True),
+        OneOf("EDITIONABLE", "NONEDITIONABLE", optional=True),
+        Ref.keyword("PUBLIC", optional=True),
+        "SYNONYM",
+        Ref("IfNotExistsGrammar", optional=True),
+        Ref("ObjectReferenceSegment"),
+        Ref("SharingClauseGrammar", optional=True),
+        "FOR",
+        Ref("ObjectReferenceSegment"),
+        Sequence(
+            Ref("AtSignSegment"), Ref("DatabaseLinkReferenceSegment"), optional=True
+        ),
+    )
+
+
+class DropSynonymStatementSegment(BaseSegment):
+    """A `DROP SYNONYM` statement.
+
+    https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/DROP-SYNONYM.html
+    """
+
+    type = "drop_synonym_statement"
+
+    match_grammar: Matchable = Sequence(
+        "DROP",
+        Ref.keyword("PUBLIC", optional=True),
+        "SYNONYM",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("ObjectReferenceSegment"),
+        Ref.keyword("FORCE", optional=True),
+    )
+
+
+class AlterSynonymStatementSegment(BaseSegment):
+    """An `ALTER SYNONYM` statement.
+
+    https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/ALTER-SYNONYM.html
+    """
+
+    type = "alter_synonym_statement"
+
+    match_grammar: Matchable = Sequence(
+        "ALTER",
+        Ref.keyword("PUBLIC", optional=True),
+        "SYNONYM",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("ObjectReferenceSegment"),
+        OneOf("EDITIONABLE", "NONEDITIONABLE", "COMPILE"),
     )
