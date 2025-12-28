@@ -33,7 +33,7 @@ GO
 
 SELECT *
 FROM OPENROWSET(BULK(N'D:\XChange\test-csv.csv',
-    N'D:\XChange\test-csv2.csv'),    
+    N'D:\XChange\test-csv2.csv'),
     FORMATFILE = N'D:\XChange\test-csv.fmt',
     FIRSTROW=2,
     FORMAT='CSV') AS cars;
