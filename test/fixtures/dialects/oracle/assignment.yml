@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 27c89f3f773c4ab48fd82b38dc7e2e469c8eb1cf038769db5fc8ed49ae00a05c
+_hash: 18f2bea7d542d49dde95156ebde94bb25d6be17107a3762ae3f1f0e221df718c
 file:
 - statement:
     begin_end_block:
@@ -194,17 +194,13 @@ file:
               naked_identifier: emp_rec2
     - statement_terminator: ;
     - statement:
-        function:
-          function_name:
-            function_name_identifier: comm_tab
-          function_contents:
-            bracketed:
-              start_bracket: (
-              expression:
-                numeric_literal: '5'
-              end_bracket: )
-    - statement:
         assignment_segment_statement:
+          object_reference:
+            naked_identifier: comm_tab
+          bracketed:
+            start_bracket: (
+            numeric_literal: '5'
+            end_bracket: )
           assignment_operator: :=
           expression:
           - numeric_literal: '20000'
