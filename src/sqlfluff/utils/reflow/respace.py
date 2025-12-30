@@ -145,13 +145,20 @@ def determine_constraints(
     # If segments are expected to be touch within. Then modify
     # constraints accordingly.
     if within_spacing == "touch":
-        # Preserve spacing in multi-word data types (e.g., "double precision", "character varying")
+        # Preserve spacing in multi-word data types
+        # (e.g., "double precision", "character varying")
         # https://github.com/sqlfluff/sqlfluff/issues/7302
-        if (prev_block and next_block and
-            prev_block.segments and next_block.segments and
-            prev_block.segments[-1].is_type("keyword") and
-            next_block.segments[0].is_type("keyword") and
-            any("data_type" in cls for cls in prev_block.depth_info.stack_class_types)):
+        if (
+            prev_block
+            and next_block
+            and prev_block.segments
+            and next_block.segments
+            and prev_block.segments[-1].is_type("keyword")
+            and next_block.segments[0].is_type("keyword")
+            and any(
+                "data_type" in cls for cls in prev_block.depth_info.stack_class_types
+            )
+        ):
             pre_constraint = "single"
             post_constraint = "single"
         else:
