@@ -119,6 +119,7 @@ impl Parser<'_> {
             end_pos: None,
             transparent_positions: None,
             element_key: None,
+            parse_mode_override: None, // No override for top-level frame
         });
 
         let mut iteration_count = 0_usize;

@@ -55,6 +55,7 @@ impl Parser<'_> {
             &all_terminators,
             FrameContext::None,
             parent_max_idx,
+            None, // No override for opening bracket
         );
         log::debug!(
             "Bracketed[table] pushed open_bracket child grammar_id={} at pos={} frame_id={}",
@@ -88,6 +89,7 @@ impl Parser<'_> {
             last_child_frame_id,
             content_ids,
             content_idx,
+            parse_mode_override,
         } = &mut frame.context
         else {
             unreachable!("Expected BracketedTableDriven context");
@@ -130,7 +132,15 @@ impl Parser<'_> {
 
                 let grammar_inst = self.grammar_ctx.inst(frame.grammar_id);
                 let allow_gaps = grammar_inst.flags.allow_gaps();
-                let parse_mode = grammar_inst.parse_mode;
+                // Check for parse_mode_override first (though Bracketed itself shouldn't be overridden,
+                // this is here for completeness)
+                let parse_mode = frame.parse_mode_override.unwrap_or(grammar_inst.parse_mode);
+
+                log::debug!(
+                    "Bracketed[table] MatchingOpen: grammar_id={}, parse_mode={:?}",
+                    frame.grammar_id,
+                    parse_mode
+                );
 
                 frame.accumulated.push(child_match.clone());
                 let content_start_idx = *child_end_pos;
@@ -206,6 +216,19 @@ impl Parser<'_> {
                 // Transition to MatchingContent state
                 *bracket_state = BracketedState::MatchingContent;
 
+                // CRITICAL: If Bracketed is GREEDY, set parse_mode_override so content inherits it.
+                // This matches Python behavior where Bracketed(parse_mode=GREEDY) inherits from
+                // Sequence and passes parse_mode to all content elements.
+                // Without this, content would use its own parse_mode (often STRICT), causing
+                // the entire bracketed expression to fail on unparsable content instead of
+                // creating granular unparsable sections.
+                if parse_mode == ParseMode::Greedy {
+                    *parse_mode_override = Some(ParseMode::Greedy);
+                    log::debug!(
+                        "Bracketed[table]: Setting parse_mode_override=Greedy for content (Bracketed is GREEDY)"
+                    );
+                }
+
                 // CRITICAL: Store all content IDs in the frame context.
                 // Multiple content grammars (e.g., DatatypeSegment, "AS", DatatypeSegment)
                 // will be parsed sequentially as an implicit Sequence.
@@ -230,6 +253,7 @@ impl Parser<'_> {
                         &[close_bracket_id],
                         FrameContext::None,
                         parent_limit,
+                        None, // No override for closing bracket
                     );
 
                     *last_child_frame_id = Some(stack.frame_id_counter);
@@ -258,6 +282,7 @@ impl Parser<'_> {
                     bracket_max_idx: *bracket_max_idx,
                     content_ids: content_ids.clone(),
                     content_idx: *content_idx,
+                    parse_mode_override: *parse_mode_override,
                 };
                 let mut child_frame = create_table_driven_child_frame(
                     stack.frame_id_counter,
@@ -266,6 +291,7 @@ impl Parser<'_> {
                     &[], // Don't pass close bracket as terminator - use bracket_max_idx instead
                     context,
                     *bracket_max_idx,
+                    *parse_mode_override, // Pass override to content
                 );
                 *last_child_frame_id = Some(stack.frame_id_counter);
                 stack.increment_frame_id_counter();
@@ -281,7 +307,9 @@ impl Parser<'_> {
                 // This Rust logic optimizes by pre-computing the bracket position, but
                 // must still respect GREEDY mode semantics.
                 let grammar_inst = self.grammar_ctx.inst(frame.grammar_id);
-                let parse_mode = grammar_inst.parse_mode;
+                // Check for parse_mode_override first (though Bracketed itself shouldn't be overridden,
+                // this is here for completeness)
+                let parse_mode = frame.parse_mode_override.unwrap_or(grammar_inst.parse_mode);
                 let allow_gaps = grammar_inst.flags.allow_gaps();
                 let (_start_bracket_idx, end_bracket_idx) =
                     self.grammar_ctx.bracketed_config(*grammar_id);
@@ -386,6 +414,7 @@ impl Parser<'_> {
                         bracket_max_idx: *bracket_max_idx,
                         content_ids: content_ids.clone(),
                         content_idx: *content_idx,
+                        parse_mode_override: *parse_mode_override,
                     };
                     let mut child_frame = create_table_driven_child_frame(
                         stack.frame_id_counter,
@@ -394,6 +423,7 @@ impl Parser<'_> {
                         &[], // Don't pass close bracket as terminator - use bracket_max_idx instead
                         context,
                         *bracket_max_idx,
+                        *parse_mode_override, // Pass override to content
                     );
                     *last_child_frame_id = Some(stack.frame_id_counter);
                     stack.increment_frame_id_counter();
@@ -451,7 +481,27 @@ impl Parser<'_> {
                                 stack.push(&mut frame);
                                 return Ok(TableFrameResult::Done);
                             } else {
-                                log::debug!("Bracketed[table] GREEDY mode: content did not end at closing bracket, but continuing (may contain unparsable). check_pos={}, expected_close_pos={}", check_pos, expected_close_pos);
+                                // GREEDY mode: Create unparsable section for tokens between content end and closing bracket
+                                log::debug!(
+                                    "Bracketed[table] GREEDY mode: Creating unparsable section for tokens {}..{} (content ended at {}, closing bracket at {})",
+                                    check_pos, expected_close_pos, check_pos, expected_close_pos
+                                );
+
+                                // Create an UnparsableSegment for the tokens we couldn't parse
+                                let mut segment_kwargs = hashbrown::HashMap::new();
+                                segment_kwargs
+                                    .insert("expected".to_string(), "Nothing here.".to_string());
+
+                                let unparsable_match = MatchResult {
+                                    matched_slice: check_pos..expected_close_pos,
+                                    matched_class: Some("UnparsableSegment".to_string()),
+                                    segment_kwargs,
+                                    ..Default::default()
+                                };
+                                frame.accumulated.push(unparsable_match);
+
+                                // Move position to the closing bracket
+                                self.pos = expected_close_pos;
                             }
                         } else {
                             log::debug!("[BRACKET-DEBUG] Bracketed content ends at expected closing bracket (check_pos == expected_close_pos)");
@@ -475,6 +525,7 @@ impl Parser<'_> {
                         &[close_bracket_id],
                         FrameContext::None,
                         parent_limit,
+                        None, // No override for closing bracket
                     );
                     *last_child_frame_id = Some(stack.frame_id_counter);
                     stack.increment_frame_id_counter();
@@ -490,7 +541,9 @@ impl Parser<'_> {
                     child_end_pos
                 );
                 let grammar_inst = self.grammar_ctx.inst(frame.grammar_id);
-                let parse_mode = grammar_inst.parse_mode;
+                // Check for parse_mode_override first (though Bracketed itself shouldn't be overridden,
+                // this is here for completeness)
+                let parse_mode = frame.parse_mode_override.unwrap_or(grammar_inst.parse_mode);
 
                 if child_is_empty {
                     if parse_mode == ParseMode::Strict {
@@ -622,6 +675,7 @@ fn initialize_table_driven_bracketed_frame(
         bracket_max_idx: None,
         content_ids: Vec::new(), // Will be populated later
         content_idx: 0,
+        parse_mode_override: None, // Will be set when creating content frames
     };
     frame.table_terminators = all_terminators.to_vec();
     stack.push(&mut frame);
@@ -634,6 +688,7 @@ fn create_table_driven_child_frame(
     terminators: &[GrammarId],
     context: FrameContext,
     parent_max_idx: Option<usize>,
+    parse_mode_override: Option<ParseMode>,
 ) -> TableParseFrame {
     TableParseFrame {
         frame_id,
@@ -647,5 +702,6 @@ fn create_table_driven_child_frame(
         end_pos: None,
         transparent_positions: None,
         element_key: None,
+        parse_mode_override, // Propagate parse mode override!
     }
 }

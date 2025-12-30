@@ -356,6 +356,8 @@ impl MatchResult {
     }
 
     /// Create a MatchResult for Bracketed with child matches (lazy evaluation)
+    /// When bracket_persists is true, wraps in BracketedSegment.
+    /// When bracket_persists is false, returns children without wrapper (like Python).
     pub fn bracketed(
         start_idx: usize,
         end_idx: usize,
@@ -363,8 +365,6 @@ impl MatchResult {
         bracket_persists: bool,
     ) -> Self {
         let deduped_children = Self::deduplicate_children(children);
-        let mut segment_kwargs = HashMap::new();
-        segment_kwargs.insert("bracket_persists".to_string(), bracket_persists.to_string());
 
         // Python parity: Insert Indent after opening bracket and Dedent before closing bracket
         // Python code (sequence.py Bracketed.match() lines ~580-582):
@@ -384,11 +384,20 @@ impl MatchResult {
             insert_segments.push((dedent_pos, MetaSegmentType::Dedent, false));
         }
 
+        // Python parity: When bracket_persists is false (e.g., square/curly brackets),
+        // don't wrap in BracketedSegment - just return the match with children inline.
+        // When bracket_persists is true (parentheses), wrap in BracketedSegment.
+        let matched_class = if bracket_persists {
+            Some("BracketedSegment".to_string())
+        } else {
+            None
+        };
+
         MatchResult {
             matched_slice: start_idx..end_idx,
-            matched_class: Some("BracketedSegment".to_string()),
+            matched_class,
             child_matches: deduped_children,
-            segment_kwargs,
+            segment_kwargs: HashMap::new(),
             insert_segments,
             parse_error: None,
             ..Default::default()
@@ -594,13 +603,15 @@ impl MatchResult {
     /// This is where materialization happens - converting the match description
     /// into the actual nested Node structure.
     pub fn apply(self, tokens: &[Token]) -> Node {
-        // DEBUG: Log apply() entry for FromExpressionSegment
-        if self.matched_class.as_deref() == Some("FromExpressionSegment") {
+        // DEBUG: Log apply() entry for all named segments
+        if let Some(ref class_name) = self.matched_class {
             log::debug!(
-                "[APPLY-ENTRY] FromExpressionSegment: matched_slice={:?}, child_matches={}, insert_segments={}",
+                "[APPLY-ENTRY] {}: matched_slice={:?}, child_matches={}, insert_segments={}, child_nodes={}",
+                class_name,
                 self.matched_slice,
                 self.child_matches.len(),
-                self.insert_segments.len()
+                self.insert_segments.len(),
+                self.child_nodes.len()
             );
         }
 
@@ -697,18 +708,32 @@ impl MatchResult {
                             }
                         }
                         TriggerItem::ChildMatch(child) => {
-                            if self.matched_class.as_deref() == Some("FromExpressionSegment") {
+                            if self.matched_class.as_deref() == Some("FromExpressionSegment")
+                                || self.matched_class.as_deref() == Some("BracketedSegment")
+                            {
                                 log::debug!(
-                                    "[APPLY-CHILD] Processing child at {}: matched_slice={:?}, current_idx={}",
+                                    "[APPLY-CHILD] Processing child at {}: matched_slice={:?}, matched_class={:?}, current_idx={}",
                                     pos,
                                     child.matched_slice,
+                                    child.matched_class,
                                     current_idx
                                 );
                             }
                             let child_node = child.clone().apply(tokens);
                             // Only add non-empty nodes
                             if !matches!(child_node, Node::Empty) {
+                                if self.matched_class.as_deref() == Some("BracketedSegment") {
+                                    log::debug!(
+                                        "[APPLY-CHILD] BracketedSegment adding non-empty child node: {:?}",
+                                        child_node
+                                    );
+                                }
                                 result_nodes.push(child_node);
+                            } else if self.matched_class.as_deref() == Some("BracketedSegment") {
+                                log::debug!(
+                                    "[APPLY-CHILD] BracketedSegment child returned Empty! matched_class={:?}",
+                                    child.matched_class
+                                );
                             }
                             if child.matched_slice.end > current_idx {
                                 current_idx = child.matched_slice.end;
@@ -737,9 +762,12 @@ impl MatchResult {
         // left in the matched_slice, add them too (captures trailing whitespace/comments)
         if current_idx < self.matched_slice.end {
             // DEBUG: Log when we're adding trailing tokens
-            if self.matched_class.as_deref() == Some("FromExpressionSegment") {
+            if self.matched_class.as_deref() == Some("FromExpressionSegment")
+                || self.matched_class.as_deref() == Some("UnparsableSegment")
+            {
                 log::debug!(
-                    "[APPLY-DEBUG] FromExpressionSegment adding trailing tokens: current_idx={}, matched_slice.end={}, count={}",
+                    "[APPLY-DEBUG] {} adding trailing tokens: current_idx={}, matched_slice.end={}, count={}",
+                    self.matched_class.as_deref().unwrap_or("None"),
                     current_idx,
                     self.matched_slice.end,
                     self.matched_slice.end - current_idx
@@ -752,7 +780,9 @@ impl MatchResult {
                     let raw = tok.raw().to_string();
                     let tok_type = tok.get_type().to_string();
 
-                    if self.matched_class.as_deref() == Some("FromExpressionSegment") {
+                    if self.matched_class.as_deref() == Some("FromExpressionSegment")
+                        || self.matched_class.as_deref() == Some("UnparsableSegment")
+                    {
                         log::debug!(
                             "[APPLY-DEBUG]   Adding token[{}]: {} {:?}",
                             idx,
@@ -770,8 +800,18 @@ impl MatchResult {
         if let Some(class_name) = self.matched_class {
             // Create the appropriate wrapper node based on class_name
             if result_nodes.is_empty() {
+                log::debug!(
+                    "[APPLY-DEBUG] {} result_nodes is EMPTY - returning Node::Empty",
+                    class_name
+                );
                 return Node::Empty;
             }
+
+            log::debug!(
+                "[APPLY-DEBUG] {} wrapping {} nodes",
+                class_name,
+                result_nodes.len()
+            );
 
             // For segment classes (end with "Segment"), wrap in Ref
             // For other cases, wrap in Sequence

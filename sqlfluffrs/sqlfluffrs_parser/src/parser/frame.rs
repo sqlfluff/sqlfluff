@@ -6,8 +6,7 @@
 use hashbrown::HashMap;
 
 use super::match_result::MatchResult;
-use super::types::Node;
-use sqlfluffrs_types::GrammarId;
+use sqlfluffrs_types::{GrammarId, ParseMode};
 
 /// State machine for each frame
 #[derive(Debug, Clone)]
@@ -85,6 +84,9 @@ pub enum FrameContext {
         bracket_max_idx: Option<usize>,
         content_ids: Vec<GrammarId>, // Multiple content elements treated as implicit Sequence
         content_idx: usize,          // Current content element being parsed
+        /// When Some, override content grammar's parse_mode with this value
+        /// Python parity: Bracketed inherits from Sequence, so content uses Bracketed's parse_mode
+        parse_mode_override: Option<ParseMode>,
     },
     AnyNumberOfTableDriven {
         grammar_id: GrammarId,

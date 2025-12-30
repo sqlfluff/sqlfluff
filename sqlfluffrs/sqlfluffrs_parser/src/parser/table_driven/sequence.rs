@@ -21,7 +21,19 @@ impl Parser<'_> {
         let start_idx = self.pos;
         let grammar_id = frame.grammar_id;
         let reset_terminators = self.grammar_ctx.inst(grammar_id).flags.reset_terminators();
-        let parse_mode = self.grammar_ctx.inst(grammar_id).parse_mode;
+        // Check for parse_mode_override first (Bracketed GREEDY mode inheritance)
+        let parse_mode = frame
+            .parse_mode_override
+            .unwrap_or_else(|| self.grammar_ctx.inst(grammar_id).parse_mode);
+
+        if frame.parse_mode_override.is_some() {
+            log::debug!(
+                "Sequence[table] Initial: Using parse_mode_override={:?} (native={:?})",
+                parse_mode,
+                self.grammar_ctx.inst(grammar_id).parse_mode
+            );
+        }
+
         let local_terminators = self.grammar_ctx.terminators(grammar_id).collect::<Vec<_>>();
         let elements = self.grammar_ctx.children(grammar_id).collect::<Vec<_>>();
 
@@ -166,15 +178,17 @@ impl Parser<'_> {
                 if should_add {
                     if let Some(ref mut parent_frame) = stack.last_mut() {
                         // Get the meta type - for conditional metas, use conditional_config
+                        // For non-conditional metas, use meta_type (which reads from aux_data_offsets)
                         let meta_type_str = if is_conditional {
                             let (meta_type, _, _) = self.grammar_ctx.conditional_config(meta_id);
                             meta_type
                         } else {
-                            self.grammar_ctx.segment_type(meta_id).expect("meta type")
+                            self.grammar_ctx.meta_type(meta_id)
                         };
 
-                        if meta_type_str == "indent" {
+                        if meta_type_str == "indent" || meta_type_str == "implicit_indent" {
                             // Indent goes before whitespace
+                            let is_implicit = meta_type_str == "implicit_indent";
                             let mut insert_pos = parent_frame.accumulated.len();
                             while insert_pos > 0 {
                                 // Check if previous accumulated item is whitespace/newline
@@ -203,7 +217,7 @@ impl Parser<'_> {
                                     insert_segments: vec![(
                                         parent_frame.pos,
                                         crate::parser::MetaSegmentType::Indent,
-                                        false, // is_implicit
+                                        is_implicit,
                                     )],
                                     ..Default::default()
                                 },
@@ -273,6 +287,7 @@ impl Parser<'_> {
                     end_pos: None,
                     transparent_positions: None,
                     element_key: None,
+                    parse_mode_override: frame.parse_mode_override, // Propagate override to children
                 };
 
                 // Update parent (already on stack) and push child
@@ -306,7 +321,10 @@ impl Parser<'_> {
             _ => unreachable!("Expected SequenceTableDriven context"),
         };
 
-        let parse_mode = self.grammar_ctx.inst(grammar_id).parse_mode;
+        // Check for parse_mode_override first (Bracketed GREEDY mode inheritance)
+        let parse_mode = frame
+            .parse_mode_override
+            .unwrap_or_else(|| self.grammar_ctx.inst(grammar_id).parse_mode);
         let allow_gaps = self.grammar_ctx.inst(grammar_id).flags.allow_gaps();
         let all_children: Vec<GrammarId> = self.grammar_ctx.children(grammar_id).collect();
 
@@ -852,18 +870,18 @@ impl Parser<'_> {
                     None // Config doesn't match - skip this meta
                 }
             } else {
-                // Non-conditional meta - always include based on segment_type
-                self.grammar_ctx
-                    .segment_type(*meta_id)
-                    .and_then(|s| match s {
-                        "indent" => Some((crate::parser::MetaSegmentType::Indent, false)),
-                        "implicit_indent" => Some((crate::parser::MetaSegmentType::Indent, true)),
-                        "dedent" => Some((crate::parser::MetaSegmentType::Dedent, false)),
-                        _ => {
-                            log::warn!("Unknown meta type: {}", s);
-                            None
-                        }
-                    })
+                // Non-conditional meta - always include based on meta_type
+                // (which reads from aux_data_offsets for non-conditional metas)
+                let s = self.grammar_ctx.meta_type(*meta_id);
+                match s {
+                    "indent" => Some((crate::parser::MetaSegmentType::Indent, false)),
+                    "implicit_indent" => Some((crate::parser::MetaSegmentType::Indent, true)),
+                    "dedent" => Some((crate::parser::MetaSegmentType::Dedent, false)),
+                    _ => {
+                        log::warn!("Unknown meta type: {}", s);
+                        None
+                    }
+                }
             };
 
             if let Some((meta_type, is_implicit)) = meta_type_opt {
@@ -875,21 +893,69 @@ impl Parser<'_> {
             }
         }
 
-        // Second pass: insert all metas at the determined position
-        // PYTHON PARITY FIX: Always use pre_code_idx for ALL metas.
-        // In Python, metas are placed at matched_idx (the position right after the
-        // last matched token), NOT at the position after skipping whitespace.
-        // This is because the sequence's matched_slice ends at matched_idx, and
-        // metas should be at the boundary of what was matched, not beyond.
-        //
-        // The distinction between pre_code_idx and post_code_idx matters for where
-        // metas appear in the PARENT's view (before or after whitespace), but within
-        // the current sequence, both indents and dedents go at pre_code_idx.
-        //
-        // The backward search for whitespace in accumulated is still important for
-        // indents to appear before any trailing whitespace that was already added.
+        // Second pass: determine position and insert metas
+        // PYTHON PARITY: Match Python's _flush_metas() logic exactly.
+        // If all metas are positive (indents):
+        //   - Search backward from post_code_idx to pre_code_idx for block_end placeholder
+        //   - If found, position before it; otherwise use pre_code_idx
+        // If any meta is negative (has dedent):
+        //   - Search forward from pre_code_idx to post_code_idx for block_start placeholder
+        //   - If found, position after it; otherwise use post_code_idx
+        let meta_idx = if all_positive {
+            // All indents - look backward for block_end placeholder
+            let mut found_idx = None;
+            for idx in (pre_code_idx + 1..=post_code_idx).rev() {
+                if idx > 0 && idx <= self.tokens.len() {
+                    let tok = &self.tokens[idx - 1];
+                    if tok.is_type(&["placeholder"]) {
+                        // Check if it's a block_end
+                        if let Some(block_type) = tok.block_type.as_ref() {
+                            if block_type == "block_end" {
+                                found_idx = Some(idx);
+                            } else {
+                                // Found a placeholder but NOT block_end
+                                // Python sets meta_idx = pre_nc_idx in this case
+                                found_idx = Some(pre_code_idx);
+                            }
+                        } else {
+                            // Placeholder with no block_type - treat as non-block_end
+                            found_idx = Some(pre_code_idx);
+                        }
+                        break; // Stop after first placeholder
+                    }
+                }
+            }
+            found_idx.unwrap_or(pre_code_idx)
+        } else {
+            // Has dedents - look forward for block_start placeholder
+            let mut found_idx = None;
+            for idx in pre_code_idx..post_code_idx {
+                if idx < self.tokens.len() {
+                    let tok = &self.tokens[idx];
+                    if tok.is_type(&["placeholder"]) {
+                        // Check if it's a block_start
+                        if let Some(block_type) = tok.block_type.as_ref() {
+                            if block_type == "block_start" {
+                                found_idx = Some(idx);
+                            } else {
+                                // Found a placeholder but NOT block_start
+                                // Python sets meta_idx = post_nc_idx in this case
+                                found_idx = Some(post_code_idx);
+                            }
+                        } else {
+                            // Placeholder with no block_type - treat as non-block_start
+                            found_idx = Some(post_code_idx);
+                        }
+                        break; // Stop after first placeholder
+                    }
+                }
+            }
+            found_idx.unwrap_or(post_code_idx)
+        };
+
+        // Insert metas at the determined position
         if all_positive {
-            // All indents - search backward past trailing whitespace
+            // All indents - search backward past trailing whitespace in accumulated
             let mut insert_pos = accumulated.len();
             while insert_pos > 0 {
                 let prev_match = &accumulated[insert_pos - 1];
@@ -916,20 +982,18 @@ impl Parser<'_> {
                 accumulated.insert(
                     insert_pos,
                     MatchResult {
-                        matched_slice: pre_code_idx..pre_code_idx,
-                        insert_segments: vec![(pre_code_idx, meta_type, is_implicit)],
+                        matched_slice: meta_idx..meta_idx,
+                        insert_segments: vec![(meta_idx, meta_type, is_implicit)],
                         ..Default::default()
                     },
                 );
-                // Don't increment insert_pos - we want them all at the same logical position
             }
         } else {
-            // Contains dedents - use post_code_idx (after whitespace)
-            // This matches Python's _flush_metas behavior where dedents use post_nc_idx.
+            // Has dedents - append at end
             for (meta_type, is_implicit) in meta_types {
                 accumulated.push(MatchResult {
-                    matched_slice: post_code_idx..post_code_idx,
-                    insert_segments: vec![(post_code_idx, meta_type, is_implicit)],
+                    matched_slice: meta_idx..meta_idx,
+                    insert_segments: vec![(meta_idx, meta_type, is_implicit)],
                     ..Default::default()
                 });
             }

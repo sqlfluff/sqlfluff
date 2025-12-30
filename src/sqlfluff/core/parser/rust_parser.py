@@ -386,20 +386,34 @@ class RustParser:
         # in matched_class, so we can use them directly without conversion.
         matched_class = None
         if rs_match.matched_class:
-            try:
-                # Try direct lookup first (exact class name from Rust codegen)
-                matched_class = get_segment_class_by_name(
-                    rs_match.matched_class, self.config.get("dialect_obj")
-                )
-            except (ValueError, KeyError):
-                # Grammar names or unknown classes - these are intermediate wrappers
-                # that don't need to be resolved to segment classes
-                matched_class = None
+            # Handle core segment classes that aren't in the dialect library
+            if rs_match.matched_class == "UnparsableSegment":
+                from sqlfluff.core.parser.segments.base import UnparsableSegment
+
+                matched_class = UnparsableSegment
+            else:
+                try:
+                    # Try direct lookup first (exact class name from Rust codegen)
+                    matched_class = get_segment_class_by_name(
+                        rs_match.matched_class, self.config.get("dialect_obj")
+                    )
+                except (ValueError, KeyError):
+                    # Grammar names or unknown classes - these are intermediate wrappers
+                    # that don't need to be resolved to segment classes
+                    matched_class = None
 
         # Build segment_kwargs from instance_types if present
         segment_kwargs = {}
         if rs_match.instance_types:
             segment_kwargs["instance_types"] = tuple(rs_match.instance_types)
+
+        # Copy over any segment_kwargs from Rust (e.g., "expected" for UnparsableSegment)
+        if rs_match.segment_kwargs:
+            segment_kwargs.update(rs_match.segment_kwargs)
+
+        # Set trim_chars from the match result if available
+        if rs_match.trim_chars:
+            segment_kwargs["trim_chars"] = tuple(rs_match.trim_chars)
 
         # Set casefold from the match result if available (dialect-specific from parser)
         if rs_match.casefold:

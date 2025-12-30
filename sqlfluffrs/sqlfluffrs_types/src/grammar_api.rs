@@ -168,6 +168,33 @@ impl<'a> GrammarContext<'a> {
         }
     }
 
+    /// Get trim_chars for an instruction, if present
+    ///
+    /// Returns None if the instruction doesn't specify trim_chars or if the
+    /// grammar_id is out of bounds.
+    #[inline]
+    pub fn trim_chars(&self, id: GrammarId) -> Option<Vec<String>> {
+        let idx = id.get() as usize;
+        if idx >= self.tables.trim_chars_offsets.len() {
+            return None;
+        }
+        let offset = self.tables.trim_chars_offsets[idx];
+        if offset == 0xFFFFFFFF {
+            return None;
+        }
+        let count = self.tables.trim_chars_counts[idx] as usize;
+        if count == 0 {
+            return None;
+        }
+        let start = offset as usize;
+        let mut result = Vec::with_capacity(count);
+        for i in 0..count {
+            let str_idx = self.tables.trim_chars_data[start + i];
+            result.push(self.tables.get_string(str_idx).to_string());
+        }
+        Some(result)
+    }
+
     /// Get string template (for StringParser/TypedParser/Token variants)
     #[inline]
     pub fn template(&self, id: GrammarId) -> &'static str {
@@ -270,6 +297,19 @@ impl<'a> GrammarContext<'a> {
             GrammarId::new(self.tables.child_ids[(inst.first_child_idx as usize) + end_idx]);
 
         (start_id, end_id)
+    }
+
+    /// Get meta type for a non-conditional Meta variant
+    /// Returns: meta_type string (e.g., "indent", "implicit_indent", "dedent")
+    /// For non-conditional Meta, the type string ID is stored directly in aux_data_offsets.
+    #[inline]
+    pub fn meta_type(&self, id: GrammarId) -> &'static str {
+        let inst = self.inst(id);
+        debug_assert_eq!(inst.variant, GrammarVariant::Meta);
+
+        // For non-conditional Meta, aux_data_offsets stores the string ID directly
+        let string_id = self.tables.aux_data_offsets[id.get() as usize];
+        self.tables.get_string(string_id)
     }
 
     /// Get conditional configuration from aux_data (for Meta variant with Conditional)
@@ -493,6 +533,9 @@ mod tests {
         static HINT_STRING_INDICES: &[u32] = &[];
         static SIMPLE_HINT_INDICES: &[u32] = &[0, 0, 0]; // One per instruction
         static CASEFOLD_OFFSETS: &[u8] = &[0xFF, 0xFF, 0xFF]; // One per instruction
+        static TRIM_CHARS_OFFSETS: &[u32] = &[0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF];
+        static TRIM_CHARS_COUNTS: &[u8] = &[0, 0, 0];
+        static TRIM_CHARS_DATA: &[u32] = &[];
 
         let tables = GrammarTables::new(
             INSTRUCTIONS,
@@ -508,6 +551,9 @@ mod tests {
             &[], // segment_type_offsets
             &[], // segment_class_offsets
             CASEFOLD_OFFSETS,
+            TRIM_CHARS_OFFSETS,
+            TRIM_CHARS_COUNTS,
+            TRIM_CHARS_DATA,
         );
 
         let ctx = GrammarContext::new(&tables);
@@ -542,6 +588,9 @@ mod tests {
         static HINT_STRING_INDICES: &[u32] = &[];
         static SIMPLE_HINT_INDICES: &[u32] = &[0, 0, 0, 0]; // One per instruction
         static CASEFOLD_OFFSETS: &[u8] = &[0xFF, 0xFF, 0xFF, 0xFF]; // One per instruction
+        static TRIM_CHARS_OFFSETS: &[u32] = &[0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF];
+        static TRIM_CHARS_COUNTS: &[u8] = &[0, 0, 0, 0];
+        static TRIM_CHARS_DATA: &[u32] = &[];
 
         let tables = GrammarTables::new(
             INSTRUCTIONS,
@@ -557,6 +606,9 @@ mod tests {
             &[], // segment_type_offsets
             &[], // segment_class_offsets
             CASEFOLD_OFFSETS,
+            TRIM_CHARS_OFFSETS,
+            TRIM_CHARS_COUNTS,
+            TRIM_CHARS_DATA,
         );
 
         let ctx = GrammarContext::new(&tables);

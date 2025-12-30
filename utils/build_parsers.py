@@ -93,6 +93,12 @@ class TableBuilder:
         self.segment_class_offsets: List[int] = []
         # Per-instruction casefold mode (0=None, 1=Upper, 2=Lower) or 0xFF if unspecified
         self.casefold_offsets: List[int] = []
+        # Per-instruction trim_chars: offset into trim_chars_data (0xFFFFFFFF if none)
+        self.trim_chars_offsets: List[int] = []
+        # Per-instruction trim_chars count
+        self.trim_chars_counts: List[int] = []
+        # Flat array of string indices for trim_chars values
+        self.trim_chars_data: List[int] = []
 
         # Deduplication maps
         self.string_to_id: Dict[str, int] = {}
@@ -237,6 +243,9 @@ class TableBuilder:
         self.segment_class_offsets.append(0xFFFFFFFF)
         # Reserve a slot for casefold mode (default: unspecified = 0xFF)
         self.casefold_offsets.append(0xFF)
+        # Reserve slots for trim_chars (default: no trim_chars)
+        self.trim_chars_offsets.append(0xFFFFFFFF)
+        self.trim_chars_counts.append(0)
 
         # Convert to GrammarInst (variant-specific logic)
         inst_data = self._convert_to_inst(grammar, parse_context)
@@ -879,6 +888,18 @@ class TableBuilder:
             self.casefold_offsets[grammar_id] = 2  # Lower
         # else: leave as 0xFF (unspecified)
 
+        # Extract trim_chars and store in trim_chars arrays
+        trim_chars_attr = getattr(grammar, "_trim_chars", None)
+        if trim_chars_attr:
+            # Store offset into trim_chars_data
+            self.trim_chars_offsets[grammar_id] = len(self.trim_chars_data)
+            self.trim_chars_counts[grammar_id] = len(trim_chars_attr)
+            # Add each trim char string to the data array
+            for tc in trim_chars_attr:
+                tc_id = self._add_string(tc)
+                self.trim_chars_data.append(tc_id)
+        # else: leave as 0xFFFFFFFF (no trim_chars)
+
         # Store ids in aux_data
         aux_offset = len(self.aux_data)
         self.aux_data.append(template_id)
@@ -1035,14 +1056,20 @@ class TableBuilder:
         """Convert Conditional to Meta with conditional configuration.
 
         Encodes conditional rules in aux_data:
-        - aux_data[0]: meta_type string ID ("indent", "dedent", etc.)
+        - aux_data[0]: meta_type string ID ("indent", "implicit_indent", "dedent", etc.)
         - aux_data[1]: config_key string ID ("indented_joins", etc.)
         - aux_data[2]: expected_value (1 for True, 0 for False)
 
         Note: Currently only supports a single config rule.
         """
         # Get the meta type ("indent", "dedent", etc.)
-        meta_type = grammar._meta.type
+        # Check if this is an implicit indent
+        is_implicit = getattr(grammar._meta, "is_implicit", False)
+        if is_implicit and grammar._meta.type == "indent":
+            # Use "implicit_indent" as the type to distinguish from regular indent
+            meta_type = "implicit_indent"
+        else:
+            meta_type = grammar._meta.type
         meta_type_id = self._add_string(meta_type)
 
         # Get the config rules (currently only one is supported)
@@ -1076,7 +1103,15 @@ class TableBuilder:
 
     def _handle_meta(self, grammar, parse_context) -> GrammarInstData:
         """Convert MetaSegment to Meta."""
-        type_id = self._add_string(grammar.type)
+        # Check if this is an implicit indent
+        is_implicit = getattr(grammar, "is_implicit", False)
+        if is_implicit and grammar.type == "indent":
+            # Use "implicit_indent" as the type to distinguish from regular indent
+            type_id = self._add_string("implicit_indent")
+            type_name = "implicit_indent"
+        else:
+            type_id = self._add_string(grammar.type)
+            type_name = grammar.type
         return GrammarInstData(
             variant="Meta",
             flags=0,
@@ -1088,7 +1123,7 @@ class TableBuilder:
             terminator_count=0,
             aux_data_offset=type_id,
             simple_hint_idx=0,
-            comment=f'Meta("{grammar.type}")',
+            comment=f'Meta("{type_name}")',
         )
 
     def _handle_token(self, grammar, parse_context) -> GrammarInstData:
@@ -1276,6 +1311,34 @@ class TableBuilder:
         lines.append("pub static CASEFOLD_OFFSETS: &[u8] = &[")
         for i in range(0, len(self.casefold_offsets), 32):
             chunk = self.casefold_offsets[i : i + 32]
+            line = "    " + ", ".join(str(x) for x in chunk) + ","
+            lines.append(line)
+        lines.append("];")
+        lines.append("")
+
+        # Trim chars offsets (indexed by GrammarId)
+        # - index into TRIM_CHARS_DATA or 0xFFFFFFFF
+        lines.append("pub static TRIM_CHARS_OFFSETS: &[u32] = &[")
+        for i in range(0, len(self.trim_chars_offsets), 16):
+            chunk = self.trim_chars_offsets[i : i + 16]
+            line = "    " + ", ".join(str(x) for x in chunk) + ","
+            lines.append(line)
+        lines.append("];")
+        lines.append("")
+
+        # Trim chars counts (indexed by GrammarId)
+        lines.append("pub static TRIM_CHARS_COUNTS: &[u8] = &[")
+        for i in range(0, len(self.trim_chars_counts), 32):
+            chunk = self.trim_chars_counts[i : i + 32]
+            line = "    " + ", ".join(str(x) for x in chunk) + ","
+            lines.append(line)
+        lines.append("];")
+        lines.append("")
+
+        # Trim chars data (flat array of string indices)
+        lines.append("pub static TRIM_CHARS_DATA: &[u32] = &[")
+        for i in range(0, len(self.trim_chars_data), 16):
+            chunk = self.trim_chars_data[i : i + 16]
             line = "    " + ", ".join(str(x) for x in chunk) + ","
             lines.append(line)
         lines.append("];")
@@ -1527,6 +1590,9 @@ def generate_parser_table_driven(dialect: str):
     segment_type_offsets: SEGMENT_TYPE_OFFSETS,
     segment_class_offsets: SEGMENT_CLASS_OFFSETS,
     casefold_offsets: CASEFOLD_OFFSETS,
+    trim_chars_offsets: TRIM_CHARS_OFFSETS,
+    trim_chars_counts: TRIM_CHARS_COUNTS,
+    trim_chars_data: TRIM_CHARS_DATA,
 }};
 """
     )

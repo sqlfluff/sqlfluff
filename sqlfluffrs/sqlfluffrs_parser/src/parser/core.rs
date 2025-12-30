@@ -770,11 +770,12 @@ impl<'a> Parser<'a> {
                     .grammar_ctx
                     .casefold(grammar_id)
                     .unwrap_or(CaseFold::None);
+                let trim_chars = self.grammar_ctx.trim_chars(grammar_id);
                 let match_result = MatchResult {
                     matched_slice: token_pos..token_pos + 1,
                     matched_class: Some(raw_class),
                     instance_types: Some(instance_types_vec),
-                    trim_chars: None, // TODO: Add trim_chars support from grammar
+                    trim_chars,
                     casefold,
                     ..Default::default()
                 };
@@ -1512,8 +1513,9 @@ impl<'a> Parser<'a> {
 
         if persists {
             // Create a BracketedSegment match
-            let mut segment_kwargs = hashbrown::HashMap::new();
-            segment_kwargs.insert("bracket_persists".to_string(), "true".to_string());
+            // Note: bracket_persists is NOT stored in segment_kwargs.
+            // In Python, it's only used as a decision flag for whether to wrap in BracketedSegment.
+            // When wrapping, Python stores start_bracket/end_bracket (extracted from children), not bracket_persists.
             MatchResult {
                 matched_slice: bracket_start..bracket_end,
                 matched_class: Some("BracketedSegment".to_string()),
@@ -1522,7 +1524,6 @@ impl<'a> Parser<'a> {
                     (bracket_start + 1, MetaSegmentType::Indent, false),
                     (bracket_end - 1, MetaSegmentType::Dedent, false),
                 ],
-                segment_kwargs,
                 ..Default::default()
             }
         } else {

@@ -477,6 +477,16 @@ impl PyMatchResult {
         self.0.parse_error.clone()
     }
 
+    /// Get segment_kwargs dictionary (e.g., "expected" for UnparsableSegment)
+    #[getter]
+    fn segment_kwargs(&self) -> std::collections::HashMap<String, String> {
+        self.0
+            .segment_kwargs
+            .iter()
+            .map(|(k, v)| (k.clone(), v.clone()))
+            .collect()
+    }
+
     /// Check if this is an empty match
     fn is_empty(&self) -> bool {
         self.0.matched_slice.is_empty()

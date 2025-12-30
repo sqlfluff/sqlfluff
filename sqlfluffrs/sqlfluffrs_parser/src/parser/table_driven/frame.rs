@@ -1,4 +1,4 @@
-use sqlfluffrs_types::GrammarId;
+use sqlfluffrs_types::{GrammarId, ParseMode};
 
 use crate::parser::{FrameContext, FrameState, MatchResult};
 
@@ -98,6 +98,11 @@ pub struct TableParseFrame {
     /// Element key for this match (used by AnyNumberOf to track per-element counts)
     /// Set by OneOf when storing its result, propagated to parent via results map
     pub element_key: Option<u64>,
+    /// Parse mode override for this frame. When Some, this overrides the grammar's native parse_mode.
+    /// Used by Bracketed to force content to use GREEDY mode when the Bracketed itself is GREEDY.
+    /// This matches Python behavior where Bracketed(parse_mode=GREEDY) inherits from Sequence
+    /// and passes its parse_mode to all content elements.
+    pub parse_mode_override: Option<ParseMode>,
 }
 
 impl TableParseFrame {
@@ -121,6 +126,7 @@ impl TableParseFrame {
             end_pos: None,
             transparent_positions: None,
             element_key: None,
+            parse_mode_override: None,
         }
     }
 
