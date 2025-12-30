@@ -5413,8 +5413,8 @@ class TableExpressionSegment(BaseSegment):
 class GroupByClauseSegment(BaseSegment):
     """A `GROUP BY` clause like in `SELECT`.
 
-    Overriding ANSI to remove Delimited logic which assumes statements have been
-    delimited
+    Overriding ANSI to add T-SQL specific terminators that prevent
+    GROUP BY from consuming subsequent statements when semicolons are omitted.
     """
 
     type = "groupby_clause"
@@ -5422,15 +5422,7 @@ class GroupByClauseSegment(BaseSegment):
         "GROUP",
         "BY",
         Indent,
-        OneOf(
-            Ref("ColumnReferenceSegment"),
-            # Can `GROUP BY 1`
-            Ref("NumericLiteralSegment"),
-            # Can `GROUP BY coalesce(col, 1)`
-            Ref("ExpressionSegment"),
-        ),
-        AnyNumberOf(
-            Ref("CommaSegment"),
+        Delimited(
             OneOf(
                 Ref("ColumnReferenceSegment"),
                 # Can `GROUP BY 1`
@@ -5438,6 +5430,27 @@ class GroupByClauseSegment(BaseSegment):
                 # Can `GROUP BY coalesce(col, 1)`
                 Ref("ExpressionSegment"),
             ),
+            terminators=[
+                # Clauses that can follow GROUP BY
+                "HAVING",
+                "WINDOW",
+                Sequence("ORDER", "BY"),
+                "OPTION",
+                "FOR",
+                # Set operators
+                "UNION",
+                "INTERSECT",
+                "EXCEPT",
+                # Statement-level keywords that start new statements
+                "SELECT",
+                "INSERT",
+                "UPDATE",
+                "DELETE",
+                "MERGE",
+                "WITH",
+                # T-SQL specific: semicolons and statement terminators
+                Ref("DelimiterGrammar"),
+            ],
         ),
         Ref("WithRollupClauseSegment", optional=True),
         Dedent,
