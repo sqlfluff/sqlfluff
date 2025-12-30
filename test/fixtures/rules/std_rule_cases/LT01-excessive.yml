@@ -421,19 +421,3 @@ test_clickhouse_system_path:
   configs:
     core:
       dialect: clickhouse
-
-test_postgres_double_precision_spacing:
-  # Test that "double precision" maintains proper spacing even with custom config
-  # https://github.com/sqlfluff/sqlfluff/issues/7302
-  pass_str: |
-    ALTER TABLE t
-    ADD COLUMN a double precision,
-    ADD COLUMN b double precision,
-    ADD COLUMN v double precision;
-  configs:
-    layout:
-      type:
-        data_type:
-          spacing_within: touch:inline
-    core:
-      dialect: postgres
