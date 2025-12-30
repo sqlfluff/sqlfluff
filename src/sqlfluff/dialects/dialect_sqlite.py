@@ -113,6 +113,18 @@ sqlite_dialect.patch_lexer_matchers(
 sqlite_dialect.insert_lexer_matchers(
     [
         RegexLexer(
+            "blob_literal",
+            r"[xX]'([\da-fA-F][\da-fA-F])*'",
+            LiteralSegment,
+            segment_kwargs={"type": "blob_literal"},
+        ),
+        RegexLexer(
+            "hexadecimal_literal",
+            r"0x[\da-fA-F]+",
+            LiteralSegment,
+            segment_kwargs={"type": "numeric_literal"},
+        ),
+        RegexLexer(
             "at_sign_literal",
             r"@[a-zA-Z0-9_]+",
             LiteralSegment,
@@ -183,6 +195,11 @@ sqlite_dialect.add(
         LiteralSegment,
         type="dollar_literal",
     ),
+    BlobLiteralSegment=TypedParser(
+        "blob_literal",
+        LiteralSegment,
+        type="blob_literal",
+    ),
 )
 
 sqlite_dialect.replace(
@@ -198,7 +215,7 @@ sqlite_dialect.replace(
         Ref("ParameterizedSegment"),
     ),
     LiteralGrammar=ansi_dialect.get_grammar("LiteralGrammar").copy(
-        insert=[Ref("ParameterizedSegment")]
+        insert=[Ref("ParameterizedSegment"), Ref("BlobLiteralSegment")]
     ),
     TemporaryTransientGrammar=Ref("TemporaryGrammar"),
     DateTimeLiteralGrammar=Sequence(

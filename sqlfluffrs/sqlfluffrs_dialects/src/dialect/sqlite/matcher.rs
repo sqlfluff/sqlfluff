@@ -731,6 +731,50 @@ pub static SQLITE_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
     ),
 
     LexMatcher::regex_lexer(
+        "blob_literal",
+        r#"[xX]'([\da-fA-F][\da-fA-F])*'"#,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::literal_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        |_| true,
+        Some(String::from("blob_literal")),
+    ),
+
+    LexMatcher::regex_lexer(
+        "hexadecimal_literal",
+        r#"0x[\da-fA-F]+"#,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::literal_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        |_| true,
+        Some(String::from("numeric_literal")),
+    ),
+
+    LexMatcher::regex_lexer(
         "at_sign_literal",
         r#"@[a-zA-Z0-9_]+"#,
         |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
