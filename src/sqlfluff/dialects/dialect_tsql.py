@@ -5164,8 +5164,7 @@ class OpenRowSetSegment(BaseSegment):
                     "BULK",
                     OptionallyBracketed(
                         Delimited(                                                     
-                            Ref("QuotedLiteralSegmentOptWithN"),
-                            min_delimiters=1,
+                            Ref("QuotedLiteralSegmentOptWithN")
                         ),
                     ),
                     Ref("CommaSegment"),
