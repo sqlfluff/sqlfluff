@@ -362,6 +362,49 @@ class CreateViewStatementSegment(ansi.CreateViewStatementSegment):
     )
 
 
+class IntervalExpressionSegment(ansi.IntervalExpressionSegment):
+    """An interval expression segment for FlinkSQL.
+
+    Flink supports precision for datetime units, e.g., SECOND(3).
+    https://nightlies.apache.org/flink/flink-docs-stable/docs/dev/table/sql/queries/window-tvf/
+    """
+
+    type = "interval_expression"
+
+    # Datetime unit with optional precision, e.g., SECOND or SECOND(3)
+    _datetime_unit_with_precision = Sequence(
+        Ref("DatetimeUnitSegment"),
+        Bracketed(
+            Ref("NumericLiteralSegment"),
+            optional=True,
+        ),
+    )
+
+    match_grammar = Sequence(
+        "INTERVAL",
+        OneOf(
+            # The Numeric Version
+            Sequence(
+                Ref("NumericLiteralSegment"),
+                OneOf(
+                    Ref("QuotedLiteralSegment"),
+                    _datetime_unit_with_precision,
+                ),
+            ),
+            # The String version
+            Ref("QuotedLiteralSegment"),
+            # Combine version (most common in Flink)
+            Sequence(
+                Ref("QuotedLiteralSegment"),
+                OneOf(
+                    Ref("QuotedLiteralSegment"),
+                    _datetime_unit_with_precision,
+                ),
+            ),
+        ),
+    )
+
+
 class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
     """A `CREATE TABLE` statement for FlinkSQL."""
 
