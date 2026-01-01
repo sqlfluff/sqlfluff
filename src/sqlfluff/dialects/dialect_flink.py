@@ -146,6 +146,9 @@ flink_dialect.sets("bare_functions").update(
     ]
 )
 
+# Add FlinkSQL-specific date part functions
+flink_dialect.sets("date_part_function_name").update(["TIMESTAMPDIFF"])
+
 # Add angle brackets for generic types
 flink_dialect.bracket_sets("angle_bracket_pairs").update(
     [
@@ -208,14 +211,14 @@ flink_dialect.add(
     ),
     # Computed column definition
     ComputedColumnDefinitionSegment=Sequence(
-        Ref("NakedIdentifierSegment"),  # column name
+        Ref("SingleIdentifierGrammar"),  # column name
         "AS",
         Ref("ExpressionSegment"),  # computed expression
         Sequence("COMMENT", Ref("QuotedLiteralSegment"), optional=True),
     ),
     # Metadata column definition
     MetadataColumnDefinitionSegment=Sequence(
-        Ref("NakedIdentifierSegment"),  # column name
+        Ref("SingleIdentifierGrammar"),  # column name
         Ref("DatatypeSegment"),  # column type
         "METADATA",
         Sequence("FROM", Ref("QuotedLiteralSegment"), optional=True),
@@ -291,6 +294,18 @@ flink_dialect.add(
             optional=True,
         ),
     ),
+    # DESCRIPTOR(col) - used in windowing TVFs
+    DescriptorSegment=Sequence(
+        "DESCRIPTOR",
+        Bracketed(
+            Ref("ColumnReferenceSegment"),
+        ),
+    ),
+    # TABLE t - table argument for TVFs like TUMBLE, HOP
+    TableArgSegment=Sequence(
+        "TABLE",
+        Ref("TableReferenceSegment"),
+    ),
 )
 
 flink_dialect.replace(
@@ -299,7 +314,52 @@ flink_dialect.replace(
         Ref("QuotedIdentifierSegment"),
         Ref("BackQuotedIdentifierSegment"),
     ),
+    # Extended to support TABLE and DESCRIPTOR arguments in TVFs
+    FunctionContentsExpressionGrammar=OneOf(
+        Ref("TableArgSegment"),
+        Ref("DescriptorSegment"),
+        Ref("ExpressionSegment"),
+    ),
 )
+
+
+class TemporalQuerySegment(BaseSegment):
+    """A segment for `FOR SYSTEM_TIME AS OF`."""
+
+    type = "temporal_query"
+    match_grammar = Sequence(
+        "FOR",
+        "SYSTEM_TIME",
+        "AS",
+        "OF",
+        Ref("ExpressionSegment"),
+    )
+
+
+class CreateViewStatementSegment(ansi.CreateViewStatementSegment):
+    """A `CREATE VIEW` statement for FlinkSQL.
+
+    https://nightlies.apache.org/flink/flink-docs-stable/docs/dev/table/sql/create/#create-view
+    """
+
+    match_grammar = Sequence(
+        "CREATE",
+        Sequence("OR", "REPLACE", optional=True),
+        Ref("TemporaryGrammar", optional=True),
+        "VIEW",
+        Ref("IfNotExistsGrammar", optional=True),
+        Ref("TableReferenceSegment"),
+        # Column list (optional)
+        Bracketed(
+            Delimited(
+                Ref("ColumnReferenceSegment"),
+            ),
+            optional=True,
+        ),
+        Sequence("COMMENT", Ref("QuotedLiteralSegment"), optional=True),
+        "AS",
+        Ref("SelectableGrammar"),
+    )
 
 
 class CreateTableStatementSegment(ansi.CreateTableStatementSegment):
@@ -479,7 +539,7 @@ class RowDataTypeSegment(BaseSegment):
             Bracketed(
                 Delimited(
                     Sequence(
-                        Ref("NakedIdentifierSegment"),  # field name
+                        Ref("SingleIdentifierGrammar"),  # field name
                         Ref("DatatypeSegment"),  # field type
                         Sequence("COMMENT", Ref("QuotedLiteralSegment"), optional=True),
                     ),
@@ -491,7 +551,7 @@ class RowDataTypeSegment(BaseSegment):
             Bracketed(
                 Delimited(
                     Sequence(
-                        Ref("NakedIdentifierSegment"),  # field name
+                        Ref("SingleIdentifierGrammar"),  # field name
                         Ref("DatatypeSegment"),  # field type
                         Sequence("COMMENT", Ref("QuotedLiteralSegment"), optional=True),
                     ),
