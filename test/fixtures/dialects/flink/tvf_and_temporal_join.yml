@@ -1,0 +1,119 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: d02786fa66dffb5ff0aaf2d71780748a83749f4487de3c32a276f99bc9eee574
+file:
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              function:
+                function_name:
+                  function_name_identifier: TABLE
+                function_contents:
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      function:
+                        function_name:
+                          function_name_identifier: TUMBLE
+                        function_contents:
+                          bracketed:
+                          - start_bracket: (
+                          - keyword: TABLE
+                          - table_reference:
+                              naked_identifier: my_table
+                          - comma: ','
+                          - keyword: DESCRIPTOR
+                          - bracketed:
+                              start_bracket: (
+                              column_reference:
+                                naked_identifier: row_time
+                              end_bracket: )
+                          - comma: ','
+                          - expression:
+                              keyword: INTERVAL
+                              date_constructor_literal: "'10'"
+                          - expression:
+                              column_reference:
+                                naked_identifier: MINUTES
+                          - end_bracket: )
+                    end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+          - naked_identifier: o
+          - dot: .
+          - naked_identifier: order_id
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+          - naked_identifier: o
+          - dot: .
+          - naked_identifier: total
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+          - naked_identifier: p
+          - dot: .
+          - naked_identifier: product_name
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: orders
+            alias_expression:
+              alias_operator:
+                keyword: AS
+              naked_identifier: o
+          join_clause:
+            keyword: JOIN
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: products
+              temporal_query:
+              - keyword: FOR
+              - keyword: SYSTEM_TIME
+              - keyword: AS
+              - keyword: OF
+              - expression:
+                  column_reference:
+                  - naked_identifier: o
+                  - dot: .
+                  - naked_identifier: proc_time
+              alias_expression:
+                alias_operator:
+                  keyword: AS
+                naked_identifier: p
+            join_on_condition:
+              keyword: 'ON'
+              expression:
+              - column_reference:
+                - naked_identifier: o
+                - dot: .
+                - naked_identifier: product_id
+              - comparison_operator:
+                  raw_comparison_operator: '='
+              - column_reference:
+                - naked_identifier: p
+                - dot: .
+                - naked_identifier: product_id
+- statement_terminator: ;
