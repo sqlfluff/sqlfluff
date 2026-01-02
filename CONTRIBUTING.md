@@ -83,21 +83,10 @@ changes.
 
 #### Requirements
 
-If you plan on working with a particular dbt plugin, you will need
-to ensure your python version is high enough to support it. For example,
-the instructions below use `python3.13`, and we support as low as `python3.9`.
+The simplest way to set up a development environment is to use [`tox`](https://tox.wiki/en/latest/installation.html).
 
-The simplest way to set up a development environment is to use `tox`.
-
-First ensure that you have tox installed:
-```shell
-python3.12 -m pip install -U tox
-```
 **IMPORTANT:** Python 3.9 is the minimum version we support. Feel free
 to test on anything between `python3.9` and `python3.13`.
-
-Note: Unfortunately tox does not currently support setting just a minimum
-Python version (though this may be be coming in tox 4!).
 
 #### Creating a virtual environment
 
