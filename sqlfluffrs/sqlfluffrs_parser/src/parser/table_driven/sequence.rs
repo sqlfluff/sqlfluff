@@ -482,36 +482,165 @@ impl Parser<'_> {
                 _ => unreachable!("Expected SequenceTableDriven context"),
             };
 
-            if current_element_idx_val < all_children.len() {
+            // PYTHON PARITY: Loop to skip optional elements when we've run out of segments.
+            // When max_idx is trimmed (GREEDY_ONCE_STARTED), we must skip all optional elements
+            // and only stop at a required element or when all elements are processed.
+            // We use a loop here to avoid re-entering this function with stale child results.
+            loop {
+                // Re-read current_element_idx each iteration since we modify it
+                let current_idx = match &frame.context {
+                    FrameContext::SequenceTableDriven { current_element_idx, .. } => *current_element_idx,
+                    _ => unreachable!(),
+                };
+                
+                if current_idx >= all_children.len() {
+                    // All children processed - go to combining
+                    let pending_metas = match &mut frame.context {
+                        FrameContext::SequenceTableDriven { meta_buffer, .. } => {
+                            std::mem::take(meta_buffer)
+                        }
+                        _ => Vec::new(),
+                    };
+                    if !pending_metas.is_empty() {
+                        self.flush_meta_buffer(
+                            &mut frame.accumulated,
+                            matched_idx_val,
+                            matched_idx_val,
+                            pending_metas,
+                        );
+                    }
+                    self.pos = matched_idx_val;
+                    frame.end_pos = Some(matched_idx_val);
+                    frame.state = FrameState::Combining;
+                    stack.push(&mut frame);
+                    return Ok(TableFrameResult::Done);
+                }
+                
                 // Move parser position to where the child ended
                 self.pos = matched_idx_val;
 
                 // When gaps are allowed, skip forward to find the next code token.
-                // We DON'T explicitly collect transparent tokens here because they'll
-                // be captured implicitly as "trailing segments" by apply() when
-                // processing the previous child's matched_slice.
                 let next_start_pos = if allow_gaps {
                     self.skip_start_index_forward_to_code(matched_idx_val, max_idx_val)
                 } else {
                     matched_idx_val
                 };
 
-                // NOTE: Do NOT flush meta_buffer here! Metas should be flushed:
-                // 1. BEFORE the next successful child match (at the top of this block)
-                // 2. At the end of the sequence (when all children processed)
-                // This matches Python's behavior where _flush_metas happens AFTER a match,
-                // not before an attempted match.
+                let next_child = all_children[current_idx];
+                let next_child_optional = self.grammar_ctx.is_optional(next_child);
 
-                let next_child = all_children[current_element_idx_val];
+                // PYTHON PARITY: Check if we've run out of segments BEFORE trying to match.
+                // This corresponds to Python's check at line 199:
+                //   if _idx >= max_idx:
+                if next_start_pos >= max_idx_val {
+                    // If the next element is optional, skip it and continue the loop
+                    if next_child_optional {
+                        if let FrameContext::SequenceTableDriven {
+                            current_element_idx,
+                            meta_buffer,
+                            ..
+                        } = &mut frame.context
+                        {
+                            *current_element_idx += 1;
+                            // Also buffer any consecutive Meta elements after this skip
+                            while *current_element_idx < all_children.len() {
+                                let child_id = all_children[*current_element_idx];
+                                if self.grammar_ctx.variant(child_id) == sqlfluffrs_types::GrammarVariant::Meta
+                                {
+                                    meta_buffer.push(child_id);
+                                    *current_element_idx += 1;
+                                } else {
+                                    break;
+                                }
+                            }
+                        }
+                        // Loop continues to check the next element
+                        continue;
+                    }
+                    
+                    // Required element but no segments left - handle "ran out of segments" case
+                    let start_idx = frame.pos;
+                    
+                    // STRICT or nothing matched yet: return Empty
+                    if parse_mode == ParseMode::Strict || matched_idx_val == start_idx {
+                        log::debug!(
+                            "Sequence[table]: Ran out of segments at idx {}, mode={:?}, matched_idx={}, start_idx={} - returning Empty",
+                            next_start_pos, parse_mode, matched_idx_val, start_idx
+                        );
+                        self.pos = start_idx;
+                        self.rollback_collection_checkpoint(frame.frame_id);
+                        stack.results.insert(
+                            frame.frame_id,
+                            (MatchResult::empty_at(start_idx), start_idx, None),
+                        );
+                        return Ok(TableFrameResult::Done);
+                    }
+                    
+                    // GREEDY modes with partial match: wrap existing matches as UnparsableSegment
+                    log::debug!(
+                        "Sequence[table]: Ran out of segments at idx {} in {:?} mode (matched_idx={}, start_idx={}) - wrapping as UnparsableSegment",
+                        next_start_pos, parse_mode, matched_idx_val, start_idx
+                    );
+                    
+                    // Flush any pending metas first
+                    let pending_metas = match &mut frame.context {
+                        FrameContext::SequenceTableDriven { meta_buffer, .. } => {
+                            std::mem::take(meta_buffer)
+                        }
+                        _ => Vec::new(),
+                    };
+                    if !pending_metas.is_empty() {
+                        self.flush_meta_buffer(
+                            &mut frame.accumulated,
+                            matched_idx_val,
+                            matched_idx_val,
+                            pending_metas,
+                        );
+                    }
+                    
+                    // Build expected message in Python-compatible format
+                    // Python format: f"{elem} after {segments[matched_idx - 1]}. Found nothing."
+                    // Where elem is the grammar repr and segments[matched_idx - 1] is the segment repr
+                    let next_elem_repr = self.grammar_ctx.grammar_repr(next_child);
+                    let prev_segment_repr = if matched_idx_val > 0 && matched_idx_val - 1 < self.tokens.len() {
+                        let tok = &self.tokens[matched_idx_val - 1];
+                        // Format like Python's segment repr: <ClassName: (pos_marker) 'raw'>
+                        // Map token_type to Python class name format (e.g., "word" -> "WordSegment")
+                        let type_name = tok.get_type();
+                        let class_name = format!("{}Segment",
+                            type_name.chars().next().map(|c| c.to_uppercase().collect::<String>()).unwrap_or_default()
+                            + &type_name.chars().skip(1).collect::<String>());
+                        let pos = tok.pos_marker.as_ref().map(|p| p.to_string()).unwrap_or_else(|| "unknown".to_string());
+                        format!("<{}: ({}) '{}'>", class_name, pos, tok.raw())
+                    } else {
+                        "nothing".to_string()
+                    };
+                    let expected_msg = format!("{} after {}. Found nothing.", next_elem_repr, prev_segment_repr);
+                    
+                    // Create result with matched portion wrapped as UnparsableSegment
+                    let mut segment_kwargs = hashbrown::HashMap::new();
+                    segment_kwargs.insert("expected".to_string(), expected_msg);
+                    
+                    let result = MatchResult {
+                        matched_slice: start_idx..matched_idx_val,
+                        matched_class: Some("UnparsableSegment".to_string()),
+                        child_matches: frame.accumulated.clone(),
+                        segment_kwargs,
+                        ..Default::default()
+                    };
+                    
+                    self.pos = matched_idx_val;
+                    self.commit_collection_checkpoint(frame.frame_id);
+                    stack.results.insert(
+                        frame.frame_id,
+                        (result, matched_idx_val, None),
+                    );
+                    return Ok(TableFrameResult::Done);
+                }
 
-                // Pass the current (possibly trimmed) max_idx to child frames.
-                // For GREEDY_ONCE_STARTED, max_idx is trimmed after the first match,
-                // and subsequent children MUST respect this trimmed boundary to prevent
-                // parsing past terminators (e.g., FROM being parsed as an alias).
+                // We have segments left and a next child to match - create a child frame
                 let child_parent_max = Some(max_idx_val);
 
-                // Debug: log token at matched_idx and at next_start_pos to diagnose why
-                // parsing doesn't advance beyond this point in table-driven mode.
                 if next_start_pos < self.tokens.len() {
                     let tok = &self.tokens[next_start_pos];
                     log::debug!(
@@ -538,7 +667,7 @@ impl Parser<'_> {
                 );
 
                 frame.state = FrameState::WaitingForChild {
-                    child_index: current_element_idx_val,
+                    child_index: current_idx,
                     total_children: all_children.len(),
                 };
 
@@ -546,32 +675,11 @@ impl Parser<'_> {
                     stack,
                     &mut frame,
                     child_frame,
-                    current_element_idx_val,
+                    current_idx,
                 );
                 return Ok(TableFrameResult::Done);
-            } else {
-                // All children matched - flush any remaining buffered metas from frame
-                let pending_metas = match &mut frame.context {
-                    FrameContext::SequenceTableDriven { meta_buffer, .. } => {
-                        std::mem::take(meta_buffer)
-                    }
-                    _ => Vec::new(),
-                };
-                if !pending_metas.is_empty() {
-                    self.flush_meta_buffer(
-                        &mut frame.accumulated,
-                        matched_idx_val,
-                        matched_idx_val, // At end of sequence, both are the same (Python line 341)
-                        pending_metas,
-                    );
-                }
-
-                self.pos = matched_idx_val;
-                frame.end_pos = Some(matched_idx_val);
-                frame.state = FrameState::Combining;
-                stack.push(&mut frame);
-                return Ok(TableFrameResult::Done);
             }
+            // This point is unreachable due to the loop always returning
         }
 
         // Child failed (Empty)
@@ -705,27 +813,152 @@ impl Parser<'_> {
                 Ok(TableFrameResult::Done)
             }
         } else {
-            // Required child failed: restore parser position to sequence start
-            self.pos = frame.pos;
+            // Required child failed: behavior depends on parse_mode (Python parity)
+            let start_idx = frame.pos;
+            let (matched_idx, max_idx) = match &frame.context {
+                FrameContext::SequenceTableDriven {
+                    matched_idx,
+                    max_idx,
+                    ..
+                } => (*matched_idx, *max_idx),
+                _ => (start_idx, start_idx),
+            };
 
-            // CRITICAL FIX: When a required element fails, the Sequence must fail completely.
-            // This is true regardless of whether the Sequence itself is optional.
-            // - If Sequence is optional, the parent handles the Empty appropriately.
-            // - If Sequence is not optional, this is a parse error that propagates up.
-            // In both cases, we should NOT go to Combining state with partial results,
-            // as that would incorrectly return a partial Sequence node.
+            // 1. In STRICT mode, failing to match required element means no match
+            if parse_mode == ParseMode::Strict {
+                log::debug!(
+                    "Sequence[table]: Required element {} returned Empty in STRICT mode - Sequence fails completely",
+                    failed_idx
+                );
+                self.pos = start_idx;
+                self.rollback_collection_checkpoint(frame.frame_id);
+                stack.results.insert(
+                    frame.frame_id,
+                    (MatchResult::empty_at(start_idx), start_idx, None),
+                );
+                return Ok(TableFrameResult::Done);
+            }
+
+            // 2. In GREEDY_ONCE_STARTED, if nothing matched yet, no match
+            if parse_mode == ParseMode::GreedyOnceStarted && matched_idx == start_idx {
+                log::debug!(
+                    "Sequence[table]: Required element {} returned Empty in GREEDY_ONCE_STARTED but nothing matched yet - Sequence fails completely",
+                    failed_idx
+                );
+                self.pos = start_idx;
+                self.rollback_collection_checkpoint(frame.frame_id);
+                stack.results.insert(
+                    frame.frame_id,
+                    (MatchResult::empty_at(start_idx), start_idx, None),
+                );
+                return Ok(TableFrameResult::Done);
+            }
+
+            // 3. For GREEDY modes with partial match OR GREEDY mode without match:
+            //    Return result with UnparsableSegment
             log::debug!(
-                "Sequence[table]: Required element {} returned Empty - Sequence fails completely",
-                failed_idx
+                "Sequence[table]: Required element {} returned Empty in {:?} mode (matched_idx={}, start_idx={}, max_idx={}) - creating UnparsableSegment",
+                failed_idx, parse_mode, matched_idx, start_idx, max_idx
             );
 
-            // Rollback collected positions since we're failing
-            self.rollback_collection_checkpoint(frame.frame_id);
+            // Build expected message like Python does
+            let failed_elem_name = self.grammar_ctx.grammar_id_name(failed_child);
+            let expected_msg = if matched_idx == start_idx {
+                // Nothing matched yet - use "to start sequence" message
+                let token_at_idx = if corrected_child_end_pos < self.tokens.len() {
+                    format!("{}", self.tokens[corrected_child_end_pos].raw())
+                } else {
+                    "EOF".to_string()
+                };
+                format!("{} to start sequence. Found {}", failed_elem_name, token_at_idx)
+            } else {
+                // Partial match - use "after X. Found Y" message  
+                let prev_token = if matched_idx > 0 && matched_idx - 1 < self.tokens.len() {
+                    format!("{}", self.tokens[matched_idx - 1].raw())
+                } else {
+                    "nothing".to_string()
+                };
+                let token_at_idx = if corrected_child_end_pos < self.tokens.len() {
+                    format!("{}", self.tokens[corrected_child_end_pos].raw())
+                } else {
+                    "nothing".to_string()
+                };
+                format!("{} after {}. Found {}", failed_elem_name, prev_token, token_at_idx)
+            };
 
-            stack.results.insert(
-                frame.frame_id,
-                (MatchResult::empty_at(frame.pos), frame.pos, None),
-            );
+            let mut segment_kwargs = hashbrown::HashMap::new();
+            segment_kwargs.insert("expected".to_string(), expected_msg);
+
+            if matched_idx == start_idx {
+                // Case 3a: GREEDY mode, nothing matched - wrap everything as UnparsableSegment
+                let unparsable_match = MatchResult {
+                    matched_slice: start_idx..max_idx,
+                    matched_class: Some("UnparsableSegment".to_string()),
+                    segment_kwargs,
+                    ..Default::default()
+                };
+
+                self.pos = max_idx;
+                self.commit_collection_checkpoint(frame.frame_id);
+                stack.results.insert(
+                    frame.frame_id,
+                    (unparsable_match, max_idx, None),
+                );
+            } else {
+                // Case 3b: Partial match - return accumulated matches + remaining as UnparsableSegment child
+                // Find where unparsable section starts (skip whitespace forward)
+                let allow_gaps = self.grammar_ctx.inst(grammar_id).flags.allow_gaps();
+                let unparsable_start = if allow_gaps {
+                    self.skip_start_index_forward_to_code(matched_idx, max_idx)
+                } else {
+                    matched_idx
+                };
+
+                // Flush any buffered metas before finalizing
+                let pending_metas = match &mut frame.context {
+                    FrameContext::SequenceTableDriven { meta_buffer, .. } => {
+                        std::mem::take(meta_buffer)
+                    }
+                    _ => Vec::new(),
+                };
+                if !pending_metas.is_empty() {
+                    self.flush_meta_buffer(
+                        &mut frame.accumulated,
+                        matched_idx,
+                        matched_idx,
+                        pending_metas,
+                    );
+                }
+
+                // Only create UnparsableSegment child if there's actually content to wrap
+                if unparsable_start < max_idx {
+                    // Create UnparsableSegment child for the remaining unmatched portion
+                    let unparsable_child = MatchResult {
+                        matched_slice: unparsable_start..max_idx,
+                        matched_class: Some("UnparsableSegment".to_string()),
+                        segment_kwargs,
+                        ..Default::default()
+                    };
+
+                    // Add the unparsable child to accumulated matches
+                    frame.accumulated.push(unparsable_child);
+                }
+
+                // Build result with all child_matches
+                let result = MatchResult {
+                    matched_slice: start_idx..max_idx,
+                    child_matches: frame.accumulated.clone(),
+                    ..Default::default()
+                };
+
+                self.pos = max_idx;
+                self.commit_collection_checkpoint(frame.frame_id);
+                stack.results.insert(
+                    frame.frame_id,
+                    (result, max_idx, None),
+                );
+            }
+
             Ok(TableFrameResult::Done)
         }
     }

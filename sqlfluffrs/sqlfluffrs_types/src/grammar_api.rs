@@ -30,6 +30,69 @@ impl<'a> GrammarContext<'a> {
             other => format!("{:?}", other),
         }
     }
+
+    /// Generate a Python-compatible repr string for a grammar element.
+    /// Format: "<VariantName: [child_repr, ...]>" for grammars with children
+    /// Format: "<Ref: 'RefName'>" for Ref
+    /// Format: "VariantName" for others
+    pub fn grammar_repr(&self, id: GrammarId) -> String {
+        if id == GrammarId::NONCODE {
+            return "NONCODE".to_string();
+        }
+        let variant = self.variant(id);
+        match variant {
+            GrammarVariant::Ref => {
+                // For Ref, format as <Ref: 'RefName'>
+                let name = self.ref_name(id);
+                format!("<Ref: '{}'>", name)
+            }
+            GrammarVariant::Delimited => {
+                // For Delimited, Python only shows the element children (child 0), not the delimiter (child 1)
+                // Child 0 may be a OneOf wrapping multiple elements, or a single element Ref
+                let children: Vec<GrammarId> = self.children(id).collect();
+                if children.is_empty() {
+                    return "<Delimited: []>".to_string();
+                }
+                let first_child = children[0];
+                let first_child_variant = self.variant(first_child);
+                
+                // If first child is OneOf, show its children directly
+                // Otherwise show the first child
+                let child_reprs: Vec<String> = if first_child_variant == GrammarVariant::OneOf {
+                    self.children(first_child)
+                        .map(|child_id| self.grammar_repr(child_id))
+                        .collect()
+                } else {
+                    vec![self.grammar_repr(first_child)]
+                };
+                format!("<Delimited: [{}]>", child_reprs.join(", "))
+            }
+            GrammarVariant::Sequence
+            | GrammarVariant::OneOf
+            | GrammarVariant::AnyNumberOf
+            | GrammarVariant::AnySetOf
+            | GrammarVariant::Bracketed => {
+                // For grammars with children, format as <VariantName: [child_reprs]>
+                let variant_name = format!("{:?}", variant);
+                let children: Vec<GrammarId> = self.children(id).collect();
+                let child_reprs: Vec<String> = children
+                    .iter()
+                    .map(|&child_id| self.grammar_repr(child_id))
+                    .collect();
+                format!("<{}: [{}]>", variant_name, child_reprs.join(", "))
+            }
+            GrammarVariant::StringParser
+            | GrammarVariant::TypedParser
+            | GrammarVariant::RegexParser => {
+                // For parsers, just show the variant name
+                let template = self.template(id);
+                let variant_name = format!("{:?}", variant);
+                format!("<{}: '{}'>", variant_name, template)
+            }
+            _ => format!("{:?}", variant),
+        }
+    }
+
     /// Create new context from tables
     pub const fn new(tables: &'a GrammarTables) -> Self {
         Self { tables }
