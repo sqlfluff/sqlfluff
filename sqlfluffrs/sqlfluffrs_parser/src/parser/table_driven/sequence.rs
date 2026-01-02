@@ -159,7 +159,11 @@ impl Parser<'_> {
             if self.grammar_ctx.variant(elements[child_idx])
                 == sqlfluffrs_types::GrammarVariant::Meta
             {
-                // Meta doesn't need parsing - check if it should be included
+                // PYTHON PARITY: Buffer metas instead of inserting them directly!
+                // In Python, metas are buffered and only flushed when the next
+                // non-meta element successfully matches. This ensures that if a
+                // Sequence like Sequence(Indent, Delimited(...), Dedent) fails at
+                // the Delimited, the Indent is NOT included in the output.
                 let meta_id = elements[child_idx];
                 let inst = self.grammar_ctx.inst(meta_id);
                 let is_conditional = inst.flags.is_conditional();
@@ -176,71 +180,17 @@ impl Parser<'_> {
                 };
 
                 if should_add {
+                    // Add to meta_buffer - will be flushed on next successful match
                     if let Some(ref mut parent_frame) = stack.last_mut() {
-                        // Get the meta type - for conditional metas, use conditional_config
-                        // For non-conditional metas, use meta_type (which reads from aux_data_offsets)
-                        let meta_type_str = if is_conditional {
-                            let (meta_type, _, _) = self.grammar_ctx.conditional_config(meta_id);
-                            meta_type
-                        } else {
-                            self.grammar_ctx.meta_type(meta_id)
-                        };
-
-                        if meta_type_str == "indent" || meta_type_str == "implicit_indent" {
-                            // Indent goes before whitespace
-                            let is_implicit = meta_type_str == "implicit_indent";
-                            let mut insert_pos = parent_frame.accumulated.len();
-                            while insert_pos > 0 {
-                                // Check if previous accumulated item is whitespace/newline
-                                let prev_match = &parent_frame.accumulated[insert_pos - 1];
-                                let is_whitespace = if !prev_match.matched_slice.is_empty() {
-                                    let token_idx = prev_match.matched_slice.start;
-                                    if token_idx < self.tokens.len() {
-                                        let tok_type = self.tokens[token_idx].get_type();
-                                        tok_type == "whitespace" || tok_type == "newline"
-                                    } else {
-                                        false
-                                    }
-                                } else {
-                                    false
-                                };
-                                if is_whitespace {
-                                    insert_pos -= 1;
-                                } else {
-                                    break;
-                                }
-                            }
-                            parent_frame.accumulated.insert(
-                                insert_pos,
-                                MatchResult {
-                                    matched_slice: parent_frame.pos..parent_frame.pos,
-                                    insert_segments: vec![(
-                                        parent_frame.pos,
-                                        crate::parser::MetaSegmentType::Indent,
-                                        is_implicit,
-                                    )],
-                                    ..Default::default()
-                                },
-                            );
-                        } else {
-                            // Dedent or other meta type
-                            let (meta_type, is_implicit) = match meta_type_str {
-                                "indent" => (crate::parser::MetaSegmentType::Indent, false),
-                                "implicit_indent" => (crate::parser::MetaSegmentType::Indent, true),
-                                "dedent" => (crate::parser::MetaSegmentType::Dedent, false),
-                                _ => {
-                                    log::warn!("Unknown meta type: {}", meta_type_str);
-                                    child_idx += 1;
-                                    continue;
-                                }
-                            };
-                            parent_frame.accumulated.push(MatchResult {
-                                matched_slice: parent_frame.pos..parent_frame.pos,
-                                insert_segments: vec![(parent_frame.pos, meta_type, is_implicit)],
-                                ..Default::default()
-                            });
+                        if let FrameContext::SequenceTableDriven {
+                            meta_buffer,
+                            current_element_idx,
+                            ..
+                        } = &mut parent_frame.context
+                        {
+                            meta_buffer.push(meta_id);
+                            *current_element_idx = child_idx + 1;
                         }
-
                         // Update state to next child
                         if let FrameState::WaitingForChild {
                             child_index,
@@ -489,7 +439,10 @@ impl Parser<'_> {
             loop {
                 // Re-read current_element_idx each iteration since we modify it
                 let current_idx = match &frame.context {
-                    FrameContext::SequenceTableDriven { current_element_idx, .. } => *current_element_idx,
+                    FrameContext::SequenceTableDriven {
+                        current_element_idx,
+                        ..
+                    } => *current_element_idx,
                     _ => unreachable!(),
                 };
 
@@ -545,7 +498,8 @@ impl Parser<'_> {
                             // Also buffer any consecutive Meta elements after this skip
                             while *current_element_idx < all_children.len() {
                                 let child_id = all_children[*current_element_idx];
-                                if self.grammar_ctx.variant(child_id) == sqlfluffrs_types::GrammarVariant::Meta
+                                if self.grammar_ctx.variant(child_id)
+                                    == sqlfluffrs_types::GrammarVariant::Meta
                                 {
                                     meta_buffer.push(child_id);
                                     *current_element_idx += 1;
@@ -602,20 +556,34 @@ impl Parser<'_> {
                     // Python format: f"{elem} after {segments[matched_idx - 1]}. Found nothing."
                     // Where elem is the grammar repr and segments[matched_idx - 1] is the segment repr
                     let next_elem_repr = self.grammar_ctx.grammar_repr(next_child);
-                    let prev_segment_repr = if matched_idx_val > 0 && matched_idx_val - 1 < self.tokens.len() {
-                        let tok = &self.tokens[matched_idx_val - 1];
-                        // Format like Python's segment repr: <ClassName: (pos_marker) 'raw'>
-                        // Map token_type to Python class name format (e.g., "word" -> "WordSegment")
-                        let type_name = tok.get_type();
-                        let class_name = format!("{}Segment",
-                            type_name.chars().next().map(|c| c.to_uppercase().collect::<String>()).unwrap_or_default()
-                            + &type_name.chars().skip(1).collect::<String>());
-                        let pos = tok.pos_marker.as_ref().map(|p| p.to_string()).unwrap_or_else(|| "unknown".to_string());
-                        format!("<{}: ({}) '{}'>", class_name, pos, tok.raw())
-                    } else {
-                        "nothing".to_string()
-                    };
-                    let expected_msg = format!("{} after {}. Found nothing.", next_elem_repr, prev_segment_repr);
+                    let prev_segment_repr =
+                        if matched_idx_val > 0 && matched_idx_val - 1 < self.tokens.len() {
+                            let tok = &self.tokens[matched_idx_val - 1];
+                            // Format like Python's segment repr: <ClassName: (pos_marker) 'raw'>
+                            // Map token_type to Python class name format (e.g., "word" -> "WordSegment")
+                            let type_name = tok.get_type();
+                            let class_name = format!(
+                                "{}Segment",
+                                type_name
+                                    .chars()
+                                    .next()
+                                    .map(|c| c.to_uppercase().collect::<String>())
+                                    .unwrap_or_default()
+                                    + &type_name.chars().skip(1).collect::<String>()
+                            );
+                            let pos = tok
+                                .pos_marker
+                                .as_ref()
+                                .map(|p| p.to_string())
+                                .unwrap_or_else(|| "unknown".to_string());
+                            format!("<{}: ({}) '{}'>", class_name, pos, tok.raw())
+                        } else {
+                            "nothing".to_string()
+                        };
+                    let expected_msg = format!(
+                        "{} after {}. Found nothing.",
+                        next_elem_repr, prev_segment_repr
+                    );
 
                     // Create result with matched portion wrapped as UnparsableSegment
                     let mut segment_kwargs = hashbrown::HashMap::new();
@@ -631,10 +599,9 @@ impl Parser<'_> {
 
                     self.pos = matched_idx_val;
                     self.commit_collection_checkpoint(frame.frame_id);
-                    stack.results.insert(
-                        frame.frame_id,
-                        (result, matched_idx_val, None),
-                    );
+                    stack
+                        .results
+                        .insert(frame.frame_id, (result, matched_idx_val, None));
                     return Ok(TableFrameResult::Done);
                 }
 
@@ -870,7 +837,10 @@ impl Parser<'_> {
                 } else {
                     "EOF".to_string()
                 };
-                format!("{} to start sequence. Found {}", failed_elem_name, token_at_idx)
+                format!(
+                    "{} to start sequence. Found {}",
+                    failed_elem_name, token_at_idx
+                )
             } else {
                 // Partial match - use "after X. Found Y" message
                 let prev_token = if matched_idx > 0 && matched_idx - 1 < self.tokens.len() {
@@ -883,7 +853,10 @@ impl Parser<'_> {
                 } else {
                     "nothing".to_string()
                 };
-                format!("{} after {}. Found {}", failed_elem_name, prev_token, token_at_idx)
+                format!(
+                    "{} after {}. Found {}",
+                    failed_elem_name, prev_token, token_at_idx
+                )
             };
 
             let mut segment_kwargs = hashbrown::HashMap::new();
@@ -900,10 +873,9 @@ impl Parser<'_> {
 
                 self.pos = max_idx;
                 self.commit_collection_checkpoint(frame.frame_id);
-                stack.results.insert(
-                    frame.frame_id,
-                    (unparsable_match, max_idx, None),
-                );
+                stack
+                    .results
+                    .insert(frame.frame_id, (unparsable_match, max_idx, None));
             } else {
                 // Case 3b: Partial match - return accumulated matches + remaining as UnparsableSegment child
                 // Find where unparsable section starts (skip whitespace forward)
@@ -914,21 +886,11 @@ impl Parser<'_> {
                     matched_idx
                 };
 
-                // Flush any buffered metas before finalizing
-                let pending_metas = match &mut frame.context {
-                    FrameContext::SequenceTableDriven { meta_buffer, .. } => {
-                        std::mem::take(meta_buffer)
-                    }
-                    _ => Vec::new(),
-                };
-                if !pending_metas.is_empty() {
-                    self.flush_meta_buffer(
-                        &mut frame.accumulated,
-                        matched_idx,
-                        matched_idx,
-                        pending_metas,
-                    );
-                }
+                // PYTHON PARITY: Do NOT flush meta_buffer here!
+                // In Python, metas are only flushed after a SUCCESSFUL match.
+                // When a required child fails in a partial match, the pending metas
+                // (e.g., Indent before Delimited) should NOT be included in the output.
+                // They are simply discarded.
 
                 // Only create UnparsableSegment child if there's actually content to wrap
                 if unparsable_start < max_idx {
@@ -953,10 +915,9 @@ impl Parser<'_> {
 
                 self.pos = max_idx;
                 self.commit_collection_checkpoint(frame.frame_id);
-                stack.results.insert(
-                    frame.frame_id,
-                    (result, max_idx, None),
-                );
+                stack
+                    .results
+                    .insert(frame.frame_id, (result, max_idx, None));
             }
 
             Ok(TableFrameResult::Done)
@@ -974,7 +935,8 @@ impl Parser<'_> {
             matched_idx,
             max_idx,
             ..
-        } = &frame.context else {
+        } = &frame.context
+        else {
             return Err(ParseError::new(
                 "Expected SequenceTableDriven context in combining".to_string(),
             ));
