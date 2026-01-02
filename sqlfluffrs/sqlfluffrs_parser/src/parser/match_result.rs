@@ -289,12 +289,11 @@ impl MatchResult {
     ) -> Self {
         let deduped_children = Self::deduplicate_children(children);
 
-        // CRITICAL: If we have a single child that contains an unparsable segment (at any depth),
-        // return it directly without wrapping in Ref with matched_class: None.
-        // Unparsable segments must bubble up to avoid being flattened.
-        if deduped_children.len() == 1 && deduped_children[0].contains_unparsable() {
-            return deduped_children[0].clone();
-        }
+        // NOTE: Previously we had an optimization that returned the child directly when it
+        // contained an unparsable segment. This was WRONG because it destroyed the segment
+        // hierarchy (losing StatementSegment, SelectStatementSegment, etc. wrappers).
+        // The correct behavior is to ALWAYS wrap with the segment_type if provided,
+        // even when there are unparsable segments inside.
 
         // Only set matched_class if segment_type is explicitly provided from tables
         // Refs without segment_type are grammar-only (not Python segment classes)
@@ -305,9 +304,15 @@ impl MatchResult {
         // (matched_class=None with insert_segments), lift insert_segments to the parent
         // and unwrap the child's children. This matches Python's behavior where metas
         // are attached to the segment class, not intermediate grammar wrappers.
+        // BUT: Only do this if the child doesn't contain an UnparsableSegment, because
+        // unwrapping in that case can cause issues with segment boundaries.
         if class_name.is_some() && deduped_children.len() == 1 {
             let child = &deduped_children[0];
-            if child.matched_class.is_none() && !child.insert_segments.is_empty() {
+            // Don't unwrap if the child contains an unparsable - keep structure intact
+            if child.matched_class.is_none()
+                && !child.insert_segments.is_empty()
+                && !child.contains_unparsable()
+            {
                 // Lift insert_segments from grammar wrapper to segment class
                 let insert_segments = child.insert_segments.clone();
                 // Use the child's children directly (unwrap the grammar wrapper)
