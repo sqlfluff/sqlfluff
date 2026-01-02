@@ -880,6 +880,18 @@ oracle_dialect.replace(
             Ref("LocalAliasSegment"),
             Ref("SqlplusSubstitutionVariableSegment"),
             Ref("ImplicitCursorAttributesGrammar"),
+            Sequence(
+                Ref("ObjectReferenceSegment"),
+                Bracketed(
+                    OneOf(
+                        Ref("ObjectReferenceSegment"),
+                        Ref("SingleQuotedIdentifierSegment"),
+                        Ref("NumericLiteralSegment"),
+                    ),
+                    optional=True,
+                ),
+                Ref("DotSegment", optional=True),
+            ),
             terminators=[Ref("CommaSegment")],
         ),
         Ref("AccessorGrammar", optional=True),
@@ -2508,7 +2520,14 @@ class AssignmentStatementSegment(BaseSegment):
     match_grammar = Sequence(
         AnyNumberOf(
             Ref("ObjectReferenceSegment"),
-            Bracketed(Ref("ObjectReferenceSegment"), optional=True),
+            Bracketed(
+                OneOf(
+                    Ref("ObjectReferenceSegment"),
+                    Ref("SingleQuotedIdentifierSegment"),
+                    Ref("NumericLiteralSegment"),
+                ),
+                optional=True,
+            ),
             Ref("DotSegment", optional=True),
             Ref("SqlplusVariableGrammar"),
             optional=True,

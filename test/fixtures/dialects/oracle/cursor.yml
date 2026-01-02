@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: b2ecfa015011fb4c82498dda4193ea6dc5edc0b404befe3998f8a34ac47fe8af
+_hash: d9ed54d452073bf1d4f5ae2bbac40ec0ccef435994959d3f0be6e149002f9c7a
 file:
 - statement:
     begin_end_block:
@@ -591,41 +591,33 @@ file:
       - statement_terminator: ;
     - keyword: BEGIN
     - statement:
-        function:
-          function_name:
-            function_name_identifier: v1
-          function_contents:
-            bracketed:
-              start_bracket: (
-              expression:
-                numeric_literal: '1'
-              end_bracket: )
-    - statement:
         assignment_segment_statement:
-          dot: .
-          object_reference:
+        - object_reference:
+            naked_identifier: v1
+        - bracketed:
+            start_bracket: (
+            numeric_literal: '1'
+            end_bracket: )
+        - dot: .
+        - object_reference:
             naked_identifier: f1
-          assignment_operator: :=
-          expression:
+        - assignment_operator: :=
+        - expression:
             numeric_literal: '1'
     - statement_terminator: ;
     - statement:
-        function:
-          function_name:
-            function_name_identifier: v1
-          function_contents:
-            bracketed:
-              start_bracket: (
-              expression:
-                numeric_literal: '1'
-              end_bracket: )
-    - statement:
         assignment_segment_statement:
-          dot: .
-          object_reference:
+        - object_reference:
+            naked_identifier: v1
+        - bracketed:
+            start_bracket: (
+            numeric_literal: '1'
+            end_bracket: )
+        - dot: .
+        - object_reference:
             naked_identifier: f2
-          assignment_operator: :=
-          expression:
+        - assignment_operator: :=
+        - expression:
             quoted_literal: "'one'"
     - statement_terminator: ;
     - statement:
