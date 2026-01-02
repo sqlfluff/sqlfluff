@@ -64,9 +64,19 @@ impl<'a> Parser<'_> {
         );
 
         // CRITICAL: Filter delimiter from terminators to prevent infinite loops!
+        // We must filter by grammar NAME, not just GrammarId, because the same logical
+        // grammar (e.g., "CommaSegment") can have multiple GrammarIds if it's referenced
+        // in different contexts. Without this, a parent's "CommaSegment" terminator
+        // could prematurely terminate a child Delimited that uses "CommaSegment" as its
+        // delimiter, even though we filtered out the child's specific delimiter GrammarId.
+        let delimiter_name = self.grammar_ctx.grammar_id_name(delimiter_id);
+
         let filtered_parent_terminators: Vec<GrammarId> = parent_terminators
             .iter()
-            .filter(|&term_id| *term_id != delimiter_id)
+            .filter(|&term_id| {
+                // Filter out ANY grammar with the same name as the delimiter
+                self.grammar_ctx.grammar_id_name(*term_id) != delimiter_name
+            })
             .copied()
             .collect();
 
@@ -74,7 +84,9 @@ impl<'a> Parser<'_> {
         let local_terminators: Vec<GrammarId> = self.grammar_ctx.terminators(grammar_id).collect();
         let filtered_local: Vec<GrammarId> = local_terminators
             .iter()
-            .filter(|&term_id| *term_id != delimiter_id)
+            .filter(|&term_id| {
+                self.grammar_ctx.grammar_id_name(*term_id) != delimiter_name
+            })
             .copied()
             .collect();
 
@@ -639,18 +651,22 @@ impl<'a> Parser<'_> {
                 // and may point to THIS delimiter, which is now behind us.
                 //
                 // For Strict parse mode (which Delimited uses), we allow parsing to the end
-                // of the token stream, BUT we must respect the parent_max_idx constraint.
-                // This is important because:
-                // 1. For cases like DATEPART(YEAR, col1), there's no parent constraint, so we
-                //    allow parsing to tokens.len() after the comma.
-                // 2. For cases like "SELECT a, b FROM ..." where the parent Sequence (with
-                //    GreedyOnceStarted mode) set a max_idx based on FROM, we respect that.
+                // of the token stream, BUT we must handle the case where parent_max_idx
+                // was pointing TO the delimiter we just consumed.
                 //
-                // The parent_max_idx already accounts for terminators - the parent grammar
-                // would have computed it via calculate_max_idx_table_driven which does
-                // trim_to_terminator for Greedy mode.
+                // PYTHON PARITY FIX: If parent_max_idx points to a position we've already
+                // passed (i.e., before or at the delimiter we just consumed), then the
+                // parent's constraint is based on the delimiter being a terminator, which
+                // is no longer relevant since we've consumed it. In this case, we should
+                // ignore the parent_max_idx and recompute from the new position.
                 let new_max_idx = if let Some(parent_limit) = frame.parent_max_idx {
-                    parent_limit
+                    // If parent_limit <= working_idx, it means the parent's constraint was
+                    // likely based on the delimiter we just consumed. Ignore it and use tokens.len()
+                    if parent_limit <= *working_idx {
+                        self.tokens.len()
+                    } else {
+                        parent_limit
+                    }
                 } else {
                     self.tokens.len()
                 };
