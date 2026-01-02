@@ -64,8 +64,8 @@ with open(base_path / "source/_partials/rule_table.rst", "w", encoding="utf8") a
         # Set the bundle name to the ref.
         _bundle_name = f":ref:`bundle_{bundle}`"
         for idx, rule in enumerate(rule_bundles[bundle]):
-            # Determine if this is a core rule by checking if "core" is in the rule's groups
-            is_core_rule = "✓" if "core" in getattr(rule, 'groups', ()) else ""
+            # Check if "core" is in the rule's groups
+            is_core_rule = "✓" if "core" in getattr(rule, "groups", ()) else ""
             name_ref = f":sqlfluff:ref:`{rule.name}`"
             code_ref = f":sqlfluff:ref:`{rule.code}`"
             f.write(
