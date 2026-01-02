@@ -492,7 +492,7 @@ impl Parser<'_> {
                     FrameContext::SequenceTableDriven { current_element_idx, .. } => *current_element_idx,
                     _ => unreachable!(),
                 };
-                
+
                 if current_idx >= all_children.len() {
                     // All children processed - go to combining
                     let pending_metas = match &mut frame.context {
@@ -515,7 +515,7 @@ impl Parser<'_> {
                     stack.push(&mut frame);
                     return Ok(TableFrameResult::Done);
                 }
-                
+
                 // Move parser position to where the child ended
                 self.pos = matched_idx_val;
 
@@ -557,10 +557,10 @@ impl Parser<'_> {
                         // Loop continues to check the next element
                         continue;
                     }
-                    
+
                     // Required element but no segments left - handle "ran out of segments" case
                     let start_idx = frame.pos;
-                    
+
                     // STRICT or nothing matched yet: return Empty
                     if parse_mode == ParseMode::Strict || matched_idx_val == start_idx {
                         log::debug!(
@@ -575,13 +575,13 @@ impl Parser<'_> {
                         );
                         return Ok(TableFrameResult::Done);
                     }
-                    
+
                     // GREEDY modes with partial match: wrap existing matches as UnparsableSegment
                     log::debug!(
                         "Sequence[table]: Ran out of segments at idx {} in {:?} mode (matched_idx={}, start_idx={}) - wrapping as UnparsableSegment",
                         next_start_pos, parse_mode, matched_idx_val, start_idx
                     );
-                    
+
                     // Flush any pending metas first
                     let pending_metas = match &mut frame.context {
                         FrameContext::SequenceTableDriven { meta_buffer, .. } => {
@@ -597,7 +597,7 @@ impl Parser<'_> {
                             pending_metas,
                         );
                     }
-                    
+
                     // Build expected message in Python-compatible format
                     // Python format: f"{elem} after {segments[matched_idx - 1]}. Found nothing."
                     // Where elem is the grammar repr and segments[matched_idx - 1] is the segment repr
@@ -616,11 +616,11 @@ impl Parser<'_> {
                         "nothing".to_string()
                     };
                     let expected_msg = format!("{} after {}. Found nothing.", next_elem_repr, prev_segment_repr);
-                    
+
                     // Create result with matched portion wrapped as UnparsableSegment
                     let mut segment_kwargs = hashbrown::HashMap::new();
                     segment_kwargs.insert("expected".to_string(), expected_msg);
-                    
+
                     let result = MatchResult {
                         matched_slice: start_idx..matched_idx_val,
                         matched_class: Some("UnparsableSegment".to_string()),
@@ -628,7 +628,7 @@ impl Parser<'_> {
                         segment_kwargs,
                         ..Default::default()
                     };
-                    
+
                     self.pos = matched_idx_val;
                     self.commit_collection_checkpoint(frame.frame_id);
                     stack.results.insert(
@@ -872,7 +872,7 @@ impl Parser<'_> {
                 };
                 format!("{} to start sequence. Found {}", failed_elem_name, token_at_idx)
             } else {
-                // Partial match - use "after X. Found Y" message  
+                // Partial match - use "after X. Found Y" message
                 let prev_token = if matched_idx > 0 && matched_idx - 1 < self.tokens.len() {
                     format!("{}", self.tokens[matched_idx - 1].raw())
                 } else {
@@ -969,17 +969,33 @@ impl Parser<'_> {
         mut frame: TableParseFrame,
         _stack: &mut TableParseFrameStack,
     ) -> Result<TableFrameResult, ParseError> {
-        let FrameContext::SequenceTableDriven { matched_idx, .. } = &frame.context else {
+        let FrameContext::SequenceTableDriven {
+            grammar_id,
+            matched_idx,
+            max_idx,
+            ..
+        } = &frame.context else {
             return Err(ParseError::new(
                 "Expected SequenceTableDriven context in combining".to_string(),
             ));
         };
 
+        // Copy values before mutable borrow
+        let grammar_id = *grammar_id;
+        let matched_idx = *matched_idx;
+        let max_idx = *max_idx;
+
+        // Get parse_mode from grammar
+        let inst = self.grammar_ctx.inst(grammar_id);
+        let parse_mode = inst.parse_mode;
+
         log::debug!(
-            "Sequence[table] Combining: frame_id={}, accumulated={}, matched_idx={}",
+            "Sequence[table] Combining: frame_id={}, accumulated={}, matched_idx={}, max_idx={}, parse_mode={:?}",
             frame.frame_id,
             frame.accumulated.len(),
-            matched_idx
+            matched_idx,
+            max_idx,
+            parse_mode
         );
         for (i, child) in frame.accumulated.iter().enumerate() {
             log::debug!("  Combining accumulated[{}]: {:?}", i, child);
@@ -992,11 +1008,48 @@ impl Parser<'_> {
         } else {
             // Successful match - commit collected positions
             self.commit_collection_checkpoint(frame.frame_id);
-            // Use lazy evaluation - store child_matches instead of building Node
-            let accumulated = std::mem::take(&mut frame.accumulated);
+
+            let mut accumulated = std::mem::take(&mut frame.accumulated);
+            let mut final_matched_idx = matched_idx;
+
+            // PYTHON PARITY: If we're in GREEDY mode and there's leftover content,
+            // create an UnparsableSegment for it.
+            // This matches Python's sequence.py lines 346-365:
+            //   if self.parse_mode in (ParseMode.GREEDY, ParseMode.GREEDY_ONCE_STARTED):
+            //       if max_idx > matched_idx:
+            //           ...create UnparsableSegment...
+            if (parse_mode == ParseMode::Greedy || parse_mode == ParseMode::GreedyOnceStarted)
+                && max_idx > matched_idx
+            {
+                // Skip to code token position
+                let _idx = self.skip_start_index_forward_to_code(matched_idx, max_idx);
+                let _stop_idx = self.skip_stop_index_backward_to_code(max_idx, _idx);
+
+                if _stop_idx > _idx {
+                    log::debug!(
+                        "Sequence[table] Combining: GREEDY mode leftover content from {} to {}, creating UnparsableSegment",
+                        _idx,
+                        _stop_idx
+                    );
+
+                    let mut segment_kwargs = hashbrown::HashMap::new();
+                    segment_kwargs.insert("expected".to_string(), "Nothing here.".to_string());
+
+                    accumulated.push(MatchResult {
+                        matched_slice: _idx.._stop_idx,
+                        matched_class: Some("UnparsableSegment".to_string()),
+                        segment_kwargs,
+                        ..Default::default()
+                    });
+
+                    // Match up to the end
+                    final_matched_idx = _stop_idx;
+                }
+            }
+
             (
-                MatchResult::sequence(frame.pos, *matched_idx, accumulated),
-                *matched_idx,
+                MatchResult::sequence(frame.pos, final_matched_idx, accumulated),
+                final_matched_idx,
             )
         };
 
