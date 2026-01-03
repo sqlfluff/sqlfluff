@@ -5,7 +5,7 @@ import logging
 import os
 import time
 from collections.abc import Iterator, Sequence
-from typing import TYPE_CHECKING, Optional, cast
+from typing import TYPE_CHECKING, Optional, Union, cast
 
 import regex
 from tqdm import tqdm
@@ -240,7 +240,7 @@ class Linter:
             try:
                 from sqlfluff.core.parser.rust_parser import RustParser
 
-                parser = RustParser(config=config)
+                parser: Union[Parser, "RustParser"] = RustParser(config=config)
                 linter_logger.info("Using Rust parser (experimental)")
             except ImportError:
                 linter_logger.warning(

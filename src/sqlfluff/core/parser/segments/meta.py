@@ -88,6 +88,7 @@ class MetaSegment(RawSegment):
         cls,
         token: "RsToken",
         tf: "TemplatedFile",
+        type_override: Optional[str] = None,
     ) -> "MetaSegment":
         """Create a RawSegment from an RSQL token."""
         segment = cls(
@@ -95,7 +96,7 @@ class MetaSegment(RawSegment):
             block_uuid=token.block_uuid,
         )
         # Cache the original RsToken for efficient round-trip to Rust parser
-        segment._rstoken = token  # type: ignore[attr-defined]
+        segment._rstoken = token
         return segment
 
 
@@ -290,7 +291,12 @@ class TemplateSegment(MetaSegment):
         )
 
     @classmethod
-    def from_rstoken(cls, token: "RsToken", tf: TemplatedFile) -> "TemplateSegment":
+    def from_rstoken(
+        cls,
+        token: "RsToken",
+        tf: TemplatedFile,
+        type_override: Optional[str] = None,
+    ) -> "TemplateSegment":
         """Create a TemplateSegment from a token."""
         segment = cls(
             pos_marker=PositionMarker.from_rs_position_marker(token.pos_marker, tf),

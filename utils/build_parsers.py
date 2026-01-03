@@ -87,13 +87,17 @@ class TableBuilder:
         self.regex_patterns: List[str] = []
         self.simple_hints: List[SimpleHintData] = []
         self.hint_string_indices: List[int] = []  # Indices into strings for hints
-        # Per-instruction segment type index (into strings) or 0xFFFFFFFF if none
+        # Per-instruction segment type index (into strings) or 0xFFFFFFFF
+        # if none
         self.segment_type_offsets: List[int] = []
-        # Per-instruction segment class name index (into strings) or 0xFFFFFFFF if none
+        # Per-instruction segment class name index (into strings) or
+        # 0xFFFFFFFF if none
         self.segment_class_offsets: List[int] = []
-        # Per-instruction casefold mode (0=None, 1=Upper, 2=Lower) or 0xFF if unspecified
+        # Per-instruction casefold mode (0=None, 1=Upper, 2=Lower) or 0xFF
+        # if unspecified
         self.casefold_offsets: List[int] = []
-        # Per-instruction trim_chars: offset into trim_chars_data (0xFFFFFFFF if none)
+        # Per-instruction trim_chars: offset into trim_chars_data
+        # (0xFFFFFFFF if none)
         self.trim_chars_offsets: List[int] = []
         # Per-instruction trim_chars count
         self.trim_chars_counts: List[int] = []

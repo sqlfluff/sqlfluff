@@ -1,21 +1,15 @@
 """Adapter to convert Rust parser output (RsNode) to Python BaseSegment tree.
 
-This module provides the bridge between the Rust parser and Python linter infrastructure.
-The Rust parser returns RsNode objects, but the linter expects BaseSegment objects.
+This module provides the bridge between the Rust parser and Python linter
+infrastructure. The Rust parser returns RsNode objects, but the linter expects
+BaseSegment objects.
 """
 
-from typing import TYPE_CHECKING, Optional
-
 from sqlfluff.core.dialects.base import Dialect
-from sqlfluff.core.parser.segments.base import BaseSegment, UnparsableSegment
+from sqlfluff.core.parser.segments.base import BaseSegment
 from sqlfluff.core.parser.segments.keyword import LiteralKeywordSegment
 from sqlfluff.core.parser.segments.meta import ImplicitIndent
 from sqlfluff.core.parser.segments.raw import RawSegment
-from sqlfluff.core.templaters.base import TemplatedFile
-
-if TYPE_CHECKING:  # pragma: no cover
-    from sqlfluff.core.config import FluffConfig
-    from sqlfluffrs import RsNode, RsToken
 
 
 def _get_segment_type_map(base_class: type) -> dict[str, type[RawSegment]]:
@@ -42,11 +36,13 @@ def _is_valid_segment_class(segment_name: str, dialect: Dialect) -> bool:
     if the name refers to an actual segment class (vs a grammar element).
 
     Args:
-        segment_name: The name to check (e.g., "AsAliasOperatorSegment", "base", "SelectableGrammar")
-        config: The FluffConfig (provides access to dialect)
+        segment_name: The name to check (e.g., "AsAliasOperatorSegment", "base",
+            "SelectableGrammar")
+        dialect: The Dialect instance to check against
 
     Returns:
-        True if the name is a valid segment class, False otherwise (grammar or not found)
+        True if the name is a valid segment class, False otherwise (grammar or
+        not found).
     """
     item = dialect._library.get(segment_name)
 

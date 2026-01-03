@@ -105,6 +105,15 @@ class RsToken:
     def __repr__(self) -> str: ...
     @property
     def instance_types(self) -> List[str]: ...
+    @staticmethod
+    def template_placeholder_from_slice(
+        source_slice: tuple[int, int],
+        templated_slice: tuple[int, int],
+        block_type: str,
+        _source_str: str,
+        block_uuid: Optional[str],
+        templated_file: "TemplatedFile",
+    ) -> "RsToken": ...
 
 class RsSQLLexerError:
     desc: str
@@ -141,3 +150,30 @@ class RsLexer:
     def _lex(
         self, lex_input: Union[str, "TemplatedFile"]
     ) -> Tuple[List[RsToken], List[Any]]: ...
+
+class RsMatchResult:
+    """Result of a Rust parser match operation."""
+
+    matched_slice: tuple[int, int]
+    matched_class: Optional[str]
+    child_matches: List["RsMatchResult"]
+    parse_error: Optional[tuple[str, int]]
+    instance_types: Optional[List[str]]
+    segment_kwargs: Optional[dict[str, Any]]
+    trim_chars: Optional[List[str]]
+    casefold: Optional[str]
+    quoted_value: Optional[str]
+    escape_replacement: Optional[tuple[str, str]]
+    insert_segments: Optional[List[tuple[int, str, bool]]]
+
+class RsParser:
+    """Rust-based SQL parser."""
+
+    def __init__(
+        self,
+        dialect: str,
+        indent_config: Optional[dict[str, bool]] = None,
+    ): ...
+    def parse_match_result_from_tokens(
+        self, tokens: List[RsToken]
+    ) -> RsMatchResult: ...
