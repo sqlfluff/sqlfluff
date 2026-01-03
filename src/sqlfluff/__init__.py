@@ -3,7 +3,10 @@
 import sys
 from importlib import metadata
 
-import pytest
+try:
+    import pytest  # isort: skip
+except ImportError:
+    pytest = None  # type: ignore[assignment]
 
 # Expose the public API.
 from sqlfluff.api import fix, lint, list_dialects, list_rules, parse
@@ -30,4 +33,5 @@ elif sys.version_info[1] < 8:
     )
 
 # Register helper functions to support variable introspection on failure.
-pytest.register_assert_rewrite("sqlfluff.utils.testing")
+if pytest is not None:
+    pytest.register_assert_rewrite("sqlfluff.utils.testing")

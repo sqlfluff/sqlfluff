@@ -18,22 +18,50 @@ import logging
 from collections.abc import Iterator
 from contextlib import contextmanager
 
-from _pytest.logging import LogCaptureHandler, _remove_ansi_escape_sequences
+try:
+    from _pytest.logging import (
+        LogCaptureHandler,
+        _remove_ansi_escape_sequences,
+    )  # isort: skip
+except ImportError:
+    LogCaptureHandler = None  # type: ignore[assignment,misc]
+    _remove_ansi_escape_sequences = None  # type: ignore[assignment]
 
 
-class FluffLogHandler(LogCaptureHandler):
-    """A modified LogCaptureHandler which also exposes some helper functions.
+def _ensure_pytest_logging():
+    """Ensure pytest logging components are available."""
+    if LogCaptureHandler is None or _remove_ansi_escape_sequences is None:
+        raise ImportError(
+            "pytest is required for SQLFluff testing utilities. "
+            "Please install it with: pip install sqlfluff[testutils]"
+        )
 
-    The aim is to mimic some of the methods available on caplog.
 
-    See:
-    https://docs.pytest.org/en/7.1.x/_modules/_pytest/logging.html
-    """
+if LogCaptureHandler is not None:
 
-    @property
-    def text(self) -> str:
-        """The formatted log text."""
-        return _remove_ansi_escape_sequences(self.stream.getvalue())
+    class FluffLogHandler(LogCaptureHandler):
+        """A modified LogCaptureHandler which also exposes some helper functions.
+
+        The aim is to mimic some of the methods available on caplog.
+
+        See:
+        https://docs.pytest.org/en/7.1.x/_modules/_pytest/logging.html
+        """
+
+        @property
+        def text(self) -> str:
+            """The formatted log text."""
+            result = self.stream.getvalue()
+            return _remove_ansi_escape_sequences(result)
+
+else:
+    # Create a placeholder class that will never be instantiated
+    # (since _ensure_pytest_logging will fail)
+    class FluffLogHandler:  # type: ignore[no-redef]
+        """Placeholder class when pytest is not available."""
+
+        def __init__(self, *args, **kwargs):
+            _ensure_pytest_logging()
 
 
 @contextmanager
