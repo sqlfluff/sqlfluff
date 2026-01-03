@@ -84,9 +84,7 @@ impl<'a> Parser<'_> {
         let local_terminators: Vec<GrammarId> = self.grammar_ctx.terminators(grammar_id).collect();
         let filtered_local: Vec<GrammarId> = local_terminators
             .iter()
-            .filter(|&term_id| {
-                self.grammar_ctx.grammar_id_name(*term_id) != delimiter_name
-            })
+            .filter(|&term_id| self.grammar_ctx.grammar_id_name(*term_id) != delimiter_name)
             .copied()
             .collect();
 

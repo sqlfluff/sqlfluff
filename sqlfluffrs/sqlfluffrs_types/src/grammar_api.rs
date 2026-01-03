@@ -55,7 +55,7 @@ impl<'a> GrammarContext<'a> {
                 }
                 let first_child = children[0];
                 let first_child_variant = self.variant(first_child);
-                
+
                 // If first child is OneOf, show its children directly
                 // Otherwise show the first child
                 let child_reprs: Vec<String> = if first_child_variant == GrammarVariant::OneOf {

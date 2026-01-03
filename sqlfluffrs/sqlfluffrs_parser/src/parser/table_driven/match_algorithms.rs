@@ -196,7 +196,8 @@ impl Parser<'_> {
         start_idx: usize,
         terminators: &[GrammarId],
         max_idx: usize,
-    ) -> Result<(usize, usize), ParseError> {        let tokens = self.tokens;
+    ) -> Result<(usize, usize), ParseError> {
+        let tokens = self.tokens;
         let mut try_match = |g: GrammarId, pos: usize, terms: &[GrammarId]| {
             self.try_match_grammar_table_driven(g, pos, terms)
         };

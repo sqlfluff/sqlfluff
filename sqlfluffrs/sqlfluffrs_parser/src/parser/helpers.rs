@@ -773,7 +773,8 @@ impl<'a> Parser<'a> {
             }
         }
 
-        let term_match = self.greedy_match_table_driven(start_idx, terminators, self.tokens.len())?;
+        let term_match =
+            self.greedy_match_table_driven(start_idx, terminators, self.tokens.len())?;
         log::debug!(
             "[TRIM_TO_TERM_TABLE] greedy_match_table_driven returned {:?}",
             term_match
