@@ -438,10 +438,10 @@ impl<'a> Parser<'a> {
         terminators: &[GrammarId],
         parse_mode: ParseMode,
         parent_max_idx: Option<usize>,
-    ) -> usize {
+    ) -> Result<usize, crate::parser::ParseError> {
         // Calculate initial max_idx based on parse_mode
         let mut max_idx = if parse_mode == ParseMode::Greedy {
-            self.trim_to_terminator_table_driven(start_idx, terminators)
+            self.trim_to_terminator_table_driven(start_idx, terminators)?
         } else {
             self.tokens.len()
         };
@@ -461,7 +461,7 @@ impl<'a> Parser<'a> {
             start_idx, terminators.len(), parse_mode, parent_max_idx, max_idx
         );
 
-        max_idx
+        Ok(max_idx)
     }
 
     /// Calculate max_idx for table-driven parsing with element awareness (for AnyNumberOf).
@@ -474,10 +474,10 @@ impl<'a> Parser<'a> {
         elements: &[GrammarId],
         parse_mode: ParseMode,
         parent_max_idx: Option<usize>,
-    ) -> usize {
+    ) -> Result<usize, crate::parser::ParseError> {
         // Calculate initial max_idx based on parse_mode
         let mut max_idx = if parse_mode == ParseMode::Greedy {
-            self.trim_to_terminator_with_elements_table_driven(start_idx, terminators, elements)
+            self.trim_to_terminator_with_elements_table_driven(start_idx, terminators, elements)?
         } else {
             self.tokens.len()
         };
@@ -492,7 +492,7 @@ impl<'a> Parser<'a> {
             max_idx = max_idx.min(parent_limit);
         }
 
-        max_idx
+        Ok(max_idx)
     }
 
     /// Prune options for table-driven parsing based on simple hints.
@@ -727,7 +727,7 @@ impl<'a> Parser<'a> {
         &mut self,
         start_idx: usize,
         terminators: &[GrammarId],
-    ) -> usize {
+    ) -> Result<usize, crate::parser::ParseError> {
         let segments = self.tokens;
 
         if start_idx >= segments.len() {
@@ -737,7 +737,7 @@ impl<'a> Parser<'a> {
                 segments.len(),
                 segments.len()
             );
-            return segments.len();
+            return Ok(segments.len());
         }
 
         let pruned_terms = self.prune_options_table_driven(terminators);
@@ -762,7 +762,7 @@ impl<'a> Parser<'a> {
                     start_idx,
                     m
                 );
-                return m;
+                return Ok(m);
             } else {
                 log::debug!(
                     "[TRIM_TO_TERM_TABLE] Terminator {:?} (name: {}) did NOT match at idx={}",
@@ -773,7 +773,7 @@ impl<'a> Parser<'a> {
             }
         }
 
-        let term_match = self.greedy_match_table_driven(start_idx, terminators, self.tokens.len());
+        let term_match = self.greedy_match_table_driven(start_idx, terminators, self.tokens.len())?;
         log::debug!(
             "[TRIM_TO_TERM_TABLE] greedy_match_table_driven returned {:?}",
             term_match
@@ -784,7 +784,7 @@ impl<'a> Parser<'a> {
             "[TRIM_TO_TERM_TABLE] Using term_match.1 as final_idx: {}",
             final_idx
         );
-        final_idx
+        Ok(final_idx)
     }
 
     /// Trim to first terminator position for table-driven parsing with element awareness.
@@ -795,11 +795,11 @@ impl<'a> Parser<'a> {
         start_idx: usize,
         terminators: &[GrammarId],
         _elements: &[GrammarId],
-    ) -> usize {
+    ) -> Result<usize, crate::parser::ParseError> {
         // Python version: trim at the first position where a terminator matches.
         // For keyword terminators (all alphabetical), require whitespace before them.
         if terminators.is_empty() {
-            return self.tokens.len();
+            return Ok(self.tokens.len());
         }
 
         let mut idx = start_idx;
@@ -826,6 +826,19 @@ impl<'a> Parser<'a> {
                     if let Some(end_idx) = self.find_matching_bracket(idx) {
                         idx = end_idx + 1;
                         continue;
+                    } else {
+                        // PYTHON PARITY: No matching closing bracket found - raise parse error
+                        // This matches Python's resolve_bracket() behavior in greedy_match()
+                        // which raises SQLParseError("Couldn't find closing bracket for opening bracket.")
+                        log::debug!(
+                            "trim_to_terminator_with_elements: no matching closing bracket for opening bracket at {}",
+                            idx
+                        );
+                        return Err(crate::parser::ParseError::with_context(
+                            "Couldn't find closing bracket for opening bracket.".to_string(),
+                            Some(idx),
+                            None,
+                        ));
                     }
                 }
             }
@@ -857,7 +870,7 @@ impl<'a> Parser<'a> {
                             // Edge case: if matching at start_idx, allow it (Python behavior)
                             if match_pos == start_idx {
                                 self.pos = saved_pos;
-                                return idx;
+                                return Ok(idx);
                             }
 
                             // Check for whitespace before this position
@@ -894,7 +907,7 @@ impl<'a> Parser<'a> {
 
                         // Terminator is valid - return the position
                         self.pos = saved_pos;
-                        return idx;
+                        return Ok(idx);
                     }
                 }
             }
@@ -903,6 +916,6 @@ impl<'a> Parser<'a> {
             idx += 1;
         }
 
-        self.tokens.len()
+        Ok(self.tokens.len())
     }
 }

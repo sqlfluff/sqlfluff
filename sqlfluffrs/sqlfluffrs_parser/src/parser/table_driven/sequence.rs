@@ -50,7 +50,7 @@ impl Parser<'_> {
             &all_terminators,
             parse_mode,
             frame.parent_max_idx,
-        );
+        )?;
 
         // Push a checkpoint for transparent token collection.
         // If this Sequence fails, we'll rollback to release collected positions.
@@ -390,7 +390,7 @@ impl Parser<'_> {
                         *matched_idx,
                         &frame.table_terminators,
                         &remaining_children,
-                    );
+                    )?;
                     // Respect original parent max constraint
                     *max_idx = new_max_idx.min(*original_max_idx);
                     log::debug!(

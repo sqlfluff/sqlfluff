@@ -89,14 +89,14 @@ pub(crate) fn greedy_match_table_driven<F>(
     terminators: &[GrammarId],
     max_idx: usize,
     try_match: &mut F,
-) -> (usize, usize)
+) -> Result<(usize, usize), ParseError>
 where
     F: FnMut(GrammarId, usize, &[GrammarId]) -> Result<usize, ParseError>,
 {
     let tokens_len = tokens.len();
     // If no tokens left, return tokens_len
     if start_idx >= tokens_len {
-        return (tokens_len, tokens_len);
+        return Ok((tokens_len, tokens_len));
     }
 
     // If a terminator matches immediately, return start_idx and its end_pos
@@ -111,7 +111,7 @@ where
                     "[GREEDY_MATCH_TABLE] greedy_match_table_driven: immediate terminator {:?} matched at {}",
                     term_id, start_idx
                 );
-                return (start_idx, start_idx);
+                return Ok((start_idx, start_idx));
             }
         }
     }
@@ -135,6 +135,19 @@ where
                 // Skip past the closing bracket
                 i = matching_idx + 1;
                 continue;
+            } else {
+                // PYTHON PARITY: No matching closing bracket found - raise parse error
+                // This matches Python's resolve_bracket() behavior which raises
+                // SQLParseError("Couldn't find closing bracket for opening bracket.")
+                log::debug!(
+                    "[GREEDY_MATCH_TABLE] greedy_match_table_driven: no matching closing bracket for opening bracket at {}",
+                    i
+                );
+                return Err(ParseError::with_context(
+                    "Couldn't find closing bracket for opening bracket.".to_string(),
+                    Some(i),
+                    None,
+                ));
             }
         }
 
@@ -154,7 +167,7 @@ where
                     let last_code_idx = skip_stop_index_backward_to_code(tokens, i, start_idx);
                     // Return last_code_idx + 1 because max_idx is used as an EXCLUSIVE bound
                     // We want to include the token at last_code_idx in the match range
-                    return (i, last_code_idx + 1);
+                    return Ok((i, last_code_idx + 1));
                 }
             }
         }
@@ -164,7 +177,7 @@ where
         "[GREEDY_MATCH_TABLE] greedy_match_table_driven: returning max_idx={}",
         max_idx
     );
-    (start_idx, max_idx)
+    Ok((start_idx, max_idx))
 }
 
 impl Parser<'_> {
@@ -183,8 +196,7 @@ impl Parser<'_> {
         start_idx: usize,
         terminators: &[GrammarId],
         max_idx: usize,
-    ) -> (usize, usize) {
-        let tokens = self.tokens;
+    ) -> Result<(usize, usize), ParseError> {        let tokens = self.tokens;
         let mut try_match = |g: GrammarId, pos: usize, terms: &[GrammarId]| {
             self.try_match_grammar_table_driven(g, pos, terms)
         };

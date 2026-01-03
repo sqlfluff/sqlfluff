@@ -145,7 +145,7 @@ impl Parser<'_> {
             &all_terminators,
             grammar_parse_mode,
             frame.parent_max_idx,
-        );
+        )?;
 
         log::debug!(
             "AnyNumberOf[table] Initial handler: grammar_id={}, start_pos={}, max_idx={}, parse_mode={:?}, parent_max_idx={:?}",

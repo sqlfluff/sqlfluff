@@ -139,7 +139,7 @@ impl<'a> Parser<'_> {
             &all_terminators,
             grammar_parse_mode,
             frame.parent_max_idx,
-        );
+        )?;
 
         // Store context - element_children now just contains the single elements_id
         // (which may be a OneOf internally)

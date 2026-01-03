@@ -452,10 +452,11 @@ impl Parser<'_> {
                         );
 
                         // Create error result with position at opening bracket
+                        // PYTHON PARITY: Message must match Python's SQLParseError message exactly
                         let error_match = MatchResult::with_error(
                             frame.pos,
                             self.pos,
-                            "No closing bracket found for opening bracket.".to_string(),
+                            "Couldn't find closing bracket for opening bracket.".to_string(),
                             frame.pos, // Error at opening bracket position
                         );
 
@@ -549,16 +550,33 @@ impl Parser<'_> {
                     if parse_mode == ParseMode::Strict {
                         self.pos = frame.pos;
                         frame.end_pos = Some(frame.pos);
+                        // Transition to Combining to finalize Empty result
+                        frame.state = FrameState::Combining;
+                        stack.push(&mut frame);
+                        return Ok(TableFrameResult::Done);
                     } else {
-                        // In GREEDY mode, not finding a closing bracket is an error
-                        // But we still need to store SOME result so the parent doesn't wait forever
+                        // GREEDY mode: Closing bracket not found - raise parse error
+                        // PYTHON PARITY: This matches Python's behavior where Bracketed.match()
+                        // raises SQLParseError("Couldn't find closing bracket for opening bracket.")
                         log::debug!(
                             "Bracketed[table] GREEDY mode: Couldn't find closing bracket for opening bracket at pos {}, frame_id={}",
                             frame.pos,
                             frame.frame_id
                         );
-                        self.pos = frame.pos;
-                        frame.end_pos = Some(frame.pos);
+
+                        // Create error result with position at opening bracket
+                        let error_match = MatchResult::with_error(
+                            frame.pos,
+                            self.pos,
+                            "Couldn't find closing bracket for opening bracket.".to_string(),
+                            frame.pos, // Error at opening bracket position
+                        );
+
+                        self.commit_collection_checkpoint(frame.frame_id);
+                        stack
+                            .results
+                            .insert(frame.frame_id, (error_match, self.pos, None));
+                        return Ok(TableFrameResult::Done);
                     }
                 } else {
                     frame.accumulated.push(child_match.clone());

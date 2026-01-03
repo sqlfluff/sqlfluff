@@ -77,7 +77,7 @@ impl Parser<'_> {
             &[],
             parse_mode,
             frame.parent_max_idx,
-        );
+        )?;
 
         log::debug!(
             "OneOf[table]: post_skip_pos={}, max_idx={}, terminators={}",

@@ -168,7 +168,26 @@ class RustParser:
         try:
             rs_match_result = self._rs_parser.parse_match_result_from_tokens(tokens)
         except Exception as e:
-            # Log the error and return None (like Python parser does)
+            # Check if this is a parse error that should be raised
+            error_str = str(e)
+            if "Couldn't find closing bracket" in error_str:
+                # Re-raise as SQLParseError with proper location
+                from sqlfluff.core.errors import SQLParseError
+
+                # Try to find a meaningful segment for error location
+                # Look for any start_bracket in the segments
+                error_segment = None
+                for seg in segments[_start_idx:_end_idx]:
+                    if hasattr(seg, "is_type") and seg.is_type("start_bracket"):
+                        error_segment = seg
+                if error_segment is None and segments[_start_idx:_end_idx]:
+                    # Fall back to first segment
+                    error_segment = segments[_start_idx]
+                raise SQLParseError(
+                    error_str,
+                    segment=error_segment,
+                ) from e
+            # Log other errors and return None (like Python parser does)
             print(f"Rust parser error: {e}")
             return None
 
@@ -441,9 +460,11 @@ class RustParser:
             insert_segments = tuple(
                 (
                     idx,
-                    ImplicitIndent
-                    if (seg_type == "indent" and is_implicit)
-                    else (Indent if seg_type == "indent" else Dedent),
+                    (
+                        ImplicitIndent
+                        if (seg_type == "indent" and is_implicit)
+                        else (Indent if seg_type == "indent" else Dedent)
+                    ),
                 )
                 for idx, seg_type, is_implicit in rs_match.insert_segments
             )
