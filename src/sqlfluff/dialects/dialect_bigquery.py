@@ -210,7 +210,9 @@ bigquery_dialect.add(
             r"[A-Z_][A-Z0-9_]*",
             IdentifierSegment,
             type="naked_identifier",
-            anti_template=r"^(" + r"|".join(dialect.sets("reserved_keywords")) + r")$",
+            anti_template=r"^("
+            + r"|".join(sorted(dialect.sets("reserved_keywords")))
+            + r")$",
         )
     ),
     QuotedCSIdentifierSegment=TypedParser(
@@ -286,7 +288,9 @@ bigquery_dialect.replace(
             r"[A-Z_][A-Z0-9_]*",
             IdentifierSegment,
             type="naked_identifier",
-            anti_template=r"^(" + r"|".join(dialect.sets("reserved_keywords")) + r")$",
+            anti_template=r"^("
+            + r"|".join(sorted(dialect.sets("reserved_keywords")))
+            + r")$",
             casefold=str.upper,
         )
     ),
