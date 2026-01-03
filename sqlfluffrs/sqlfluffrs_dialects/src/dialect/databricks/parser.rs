@@ -14675,7 +14675,7 @@ pub static REGEX_PATTERNS: &[&str] = &[
     r#"[A-Z_][A-Z0-9_]*"#, // [0]
     r#"^(NOT)$"#, // [1]
     r#"[A-Z0-9_]*[A-Z][A-Z0-9_]*"#, // [2]
-    r#"^(USING|RIGHT|UNION|LATERAL|NATURAL|INNER|ANTI|EXCEPT|JOIN|CROSS|ON|FULL|LEFT|INTERSECT|MINUS|SEMI)$"#, // [3]
+    r#"^(ANTI|CROSS|EXCEPT|FULL|INNER|INTERSECT|JOIN|LATERAL|LEFT|MINUS|NATURAL|ON|RIGHT|SEMI|UNION|USING)$"#, // [3]
     r#"[A-Z0-9_]*"#, // [4]
     r#"\"?[A-Z][A-Z0-9_]*\"?"#, // [5]
     r#"`.+`"#, // [6]
