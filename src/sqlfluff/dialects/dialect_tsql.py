@@ -3299,7 +3299,10 @@ class CreateSequenceOptionsSegment(BaseSegment):
 
 
 class NextValueSequenceSegment(BaseSegment):
-    """Segment to get next value from a sequence."""
+    """Segment to get next value from a sequence.
+
+    https://learn.microsoft.com/en-us/sql/t-sql/functions/next-value-for-transact-sql
+    """
 
     type = "sequence_next_value"
     match_grammar = Sequence(
@@ -3307,6 +3310,11 @@ class NextValueSequenceSegment(BaseSegment):
         "VALUE",
         "FOR",
         Ref("ObjectReferenceSegment"),
+        Sequence(
+            "OVER",
+            Bracketed(Ref("OrderByClauseSegment")),
+            optional=True,
+        ),
     )
 
 
