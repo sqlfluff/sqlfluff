@@ -1,0 +1,2 @@
+SELECT 0x01AF;
+SELECT 0x01af;
