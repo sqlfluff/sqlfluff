@@ -678,7 +678,9 @@ snowflake_dialect.replace(
             r"[a-zA-Z_][a-zA-Z0-9_$]*",
             IdentifierSegment,
             type="naked_identifier",
-            anti_template=r"^(" + r"|".join(dialect.sets("reserved_keywords")) + r")$",
+            anti_template=r"^("
+            + r"|".join(sorted(dialect.sets("reserved_keywords")))
+            + r")$",
             casefold=str.upper,
         )
     ),
