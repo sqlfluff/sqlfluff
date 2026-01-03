@@ -236,18 +236,36 @@ class Linter:
     ) -> tuple[Optional[BaseSegment], list[SQLParseError]]:
         # Use Rust parser if configured (experimental)
         use_rust = config.get_section(["core", "use_rust_parser"])
-        if use_rust in (True, "True", "true", 1):
+
+        # Determine whether to use Rust parser
+        # - "auto": Use if available, fall back silently if not
+        # - True/"True"/"true"/1: Force usage, warn if unavailable
+        # - False/"False"/"false"/0: Never use
+        use_rust_parser = False
+        warn_if_unavailable = False
+
+        if use_rust in ("auto", "Auto", "AUTO"):
+            # Auto mode: try to use Rust, but don't warn if unavailable
+            use_rust_parser = True
+            warn_if_unavailable = False
+        elif use_rust in (True, "True", "true", 1):
+            # Explicit True: use Rust and warn if unavailable
+            use_rust_parser = True
+            warn_if_unavailable = True
+
+        if use_rust_parser:
             try:
                 from sqlfluff.core.parser.rust_parser import RustParser
 
                 parser: Union[Parser, "RustParser"] = RustParser(config=config)
                 linter_logger.info("Using Rust parser (experimental)")
             except ImportError:
-                linter_logger.warning(
-                    "use_rust_parser=True but sqlfluffrs not available. "
-                    "Falling back to Python parser. Build with: "
-                    "cd sqlfluffrs && maturin develop --features python"
-                )
+                if warn_if_unavailable:
+                    linter_logger.warning(
+                        "use_rust_parser=True but sqlfluffrs not available. "
+                        "Falling back to Python parser. Build with: "
+                        "cd sqlfluffrs && maturin develop --features python"
+                    )
                 parser = Parser(config=config)
         else:
             parser = Parser(config=config)
