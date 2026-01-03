@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: e5bb47f90a7fd8fe4554b5ebde6dcc743503041b33066afdf76f9581c7a04dd8
+_hash: 9c3e497417c895b6c6bc59115a299de4e206768b3475a12aaa27a46a51bb529b
 file:
   batch:
   - statement:
@@ -53,7 +53,7 @@ file:
             - keyword: INFINITE
             - end_bracket: )
           - end_bracket: )
-      - statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       create_table_statement:
       - keyword: CREATE
@@ -107,7 +107,7 @@ file:
             - keyword: 'ON'
             - end_bracket: )
           - end_bracket: )
-      - statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       create_table_statement:
       - keyword: CREATE
@@ -156,7 +156,7 @@ file:
             - keyword: WEEKS
             - end_bracket: )
           - end_bracket: )
-      - statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       create_table_statement:
       - keyword: CREATE
@@ -205,7 +205,7 @@ file:
             - keyword: MONTHS
             - end_bracket: )
           - end_bracket: )
-      - statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       create_table_statement:
       - keyword: CREATE
@@ -254,7 +254,7 @@ file:
             - keyword: YEARS
             - end_bracket: )
           - end_bracket: )
-      - statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       create_table_statement:
       - keyword: CREATE
@@ -297,4 +297,4 @@ file:
               - quoted_identifier: '[TEST_HISTORY]'
               end_bracket: )
           - end_bracket: )
-      - statement_terminator: ;
+  - statement_terminator: ;

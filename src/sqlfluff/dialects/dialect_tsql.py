@@ -164,16 +164,16 @@ tsql_dialect.sets("serde_method").update(
 
 tsql_dialect.insert_lexer_matchers(
     [
+        # According to Microsoft spec, subsequent characters in identifiers can include
+        # @, $, #, _ in addition to letters and numbers
+        # https://learn.microsoft.com/en-us/sql/relational-databases/databases/database-identifiers
         RegexLexer(
             "atsign",
-            r"[@][a-zA-Z0-9_]+",
+            r"[@][a-zA-Z0-9_@$#]+",
             CodeSegment,
         ),
-        RegexLexer(
-            "var_prefix",
-            r"[$][a-zA-Z0-9_]+",
-            CodeSegment,
-        ),
+        # Note: $ can only appear in subsequent positions of identifiers, not as prefix
+        # $ACTION is handled separately by ActionParameterSegment parser
         RegexLexer(
             "square_quote",
             r"\[([^\[\]]*)*\]",
@@ -193,7 +193,7 @@ tsql_dialect.insert_lexer_matchers(
         ),
         RegexLexer(
             "hash_prefix",
-            r"[#][#]?[a-zA-Z0-9_]+",
+            r"[#][#]?[a-zA-Z0-9_@$#]+",
             CodeSegment,
         ),
         RegexLexer(
@@ -272,9 +272,12 @@ tsql_dialect.patch_lexer_matchers(
                 WhitespaceSegment,
             ),
         ),
-        RegexLexer(
-            "word", r"[0-9a-zA-Z_#@\p{L}]+", WordSegment
-        ),  # overriding to allow hash mark and at-sign in code
+        # Patch word lexer to allow @, $, # in identifiers (subsequent positions)
+        # According to Microsoft spec, these can appear anywhere in identifier
+        # except $ cannot be first character (first must be letter, _, @, or #)
+        # The special prefix lexers (atsign, hash_prefix) will match first for
+        # @, # prefixed identifiers which have semantic meaning (variables, temp tables)
+        RegexLexer("word", r"[0-9a-zA-Z_#@$\p{L}]+", WordSegment),
     ]
 )
 
@@ -294,12 +297,6 @@ tsql_dialect.add(
         "hash_prefix",
         IdentifierSegment,
         type="hash_identifier",
-        casefold=str.upper,
-    ),
-    VariableIdentifierSegment=TypedParser(
-        "var_prefix",
-        IdentifierSegment,
-        type="variable_identifier",
         casefold=str.upper,
     ),
     BatchDelimiterGrammar=Ref("GoStatementSegment"),
@@ -492,7 +489,6 @@ tsql_dialect.replace(
         Ref("BracketedIdentifierSegment"),
         Ref("HashIdentifierSegment"),
         Ref("ParameterNameSegment"),
-        Ref("VariableIdentifierSegment"),
     ),
     NumericLiteralSegment=OneOf(
         # Try integer first, then fallback to the original numeric
@@ -518,7 +514,9 @@ tsql_dialect.replace(
             Ref("SystemVariableSegment"),
         ],
     ),
-    ParameterNameSegment=RegexParser(r"@[A-Za-z0-9_]+", CodeSegment, type="parameter"),
+    ParameterNameSegment=RegexParser(
+        r"@(?!@)[A-Za-z0-9_@$#]+", CodeSegment, type="parameter"
+    ),
     FunctionParameterGrammar=Sequence(
         Ref("ParameterNameSegment", optional=True),
         Sequence("AS", optional=True),
@@ -740,16 +738,12 @@ class BatchSegment(BaseSegment):
     """A segment representing a GO batch within a file or script."""
 
     type = "batch"
-    match_grammar = Sequence(
-        AnyNumberOf(Ref("DelimiterGrammar")),
-        OneOf(
-            Sequence(
-                Ref("OneOrMoreStatementsGrammar"),
-                Ref("BatchDelimiterGrammar", optional=True),
-            ),
-            Ref("BatchDelimiterGrammar"),
+    match_grammar = OneOf(
+        Sequence(
+            Ref("OneOrMoreStatementsGrammar"),
+            Ref("BatchDelimiterGrammar", optional=True),
         ),
-        AnyNumberOf(Ref("DelimiterGrammar")),
+        Ref("BatchDelimiterGrammar"),
     )
 
 
@@ -860,6 +854,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("OpenSymmetricKeySegment"),
             Ref("CreateLoginStatementSegment"),
             Ref("SetContextInfoSegment"),
+            Ref("CreateFullTextCatalogStatementSegment"),
         ],
         remove=[
             Ref("CreateCastStatementSegment"),
@@ -1084,6 +1079,8 @@ class CreateDatabaseStatementSegment(BaseSegment):
 class AlterDatabaseStatementSegment(BaseSegment):
     """An `ALTER DATABASE` statement."""
 
+    # https://learn.microsoft.com/en-us/sql/t-sql/statements/alter-database-transact-sql
+
     _modify_name = Sequence(
         "MODIFY",
         "NAME",
@@ -1144,6 +1141,24 @@ class AlterDatabaseStatementSegment(BaseSegment):
         OneOf("FULL", "SIMPLE", "BULK_LOGGED"),
     )
 
+    _filestream_option = Sequence(
+        "FILESTREAM",
+        OptionallyBracketed(
+            OneOf(
+                Sequence(
+                    "NON_TRANSACTED_ACCESS",
+                    Ref("EqualsSegment"),
+                    OneOf("OFF", "READ_ONLY", "FULL"),
+                ),
+                Sequence(
+                    "DIRECTORY_NAME",
+                    Ref("EqualsSegment"),
+                    Ref("QuotedLiteralSegment"),
+                ),
+            ),
+        ),
+    )
+
     _set_option = Sequence(
         "SET",
         OneOf(
@@ -1153,12 +1168,15 @@ class AlterDatabaseStatementSegment(BaseSegment):
                         Ref("CompatibilityLevelSegment"),
                         Ref("AutoOptionSegment"),
                         _accelerated_database_recovery,
+                        _filestream_option,
                         # catch-all for all ON | OFF
                         # if needed, more specific grammar can be added
                         Sequence(
                             Ref("NakedIdentifierSegment"),
-                            Ref("EqualsSegment"),
-                            OneOf("ON", "OFF"),
+                            Ref("EqualsSegment", optional=True),
+                            OneOf(
+                                "ON", "OFF", "LOCAL", "NONE", "DISABLED", optional=True
+                            ),
                         ),
                         # catch all for size settings
                         Sequence(
@@ -1834,7 +1852,6 @@ class SelectStatementSegment(BaseSegment):
         insert=[
             Ref("OrderByClauseSegment", optional=True),
             Ref("OptionClauseSegment", optional=True),
-            Ref("DelimiterGrammar", optional=True),
             Ref("ForClauseSegment", optional=True),
         ]
     )
@@ -1896,7 +1913,6 @@ class CreateIndexStatementSegment(BaseSegment):
         Ref("RelationalIndexOptionsSegment", optional=True),
         Ref("OnPartitionOrFilegroupOptionSegment", optional=True),
         Ref("FilestreamOnOptionSegment", optional=True),
-        Ref("DelimiterGrammar", optional=True),
         Dedent,
     )
 
@@ -2843,7 +2859,6 @@ class DropIndexStatementSegment(ansi.DropIndexStatementSegment):
         Ref("IndexReferenceSegment"),
         "ON",
         Ref("TableReferenceSegment"),
-        Ref("DelimiterGrammar", optional=True),
     )
 
 
@@ -2856,7 +2871,6 @@ class DropStatisticsStatementSegment(BaseSegment):
         "DROP",
         OneOf("STATISTICS"),
         Ref("IndexReferenceSegment"),
-        Ref("DelimiterGrammar", optional=True),
     )
 
 
@@ -2880,7 +2894,6 @@ class UpdateStatisticsStatementSegment(BaseSegment):
             ),
             optional=True,
         ),
-        Ref("DelimiterGrammar", optional=True),
         Sequence("WITH", OneOf("FULLSCAN", "RESAMPLE"), optional=True),
     )
 
@@ -3101,7 +3114,6 @@ class DeclareStatementSegment(BaseSegment):
             ),
         ),
         Dedent,
-        Ref("DelimiterGrammar", optional=True),
     )
 
 
@@ -3611,7 +3623,6 @@ class DropFunctionStatementSegment(BaseSegment):
         "FUNCTION",
         Ref("IfExistsGrammar", optional=True),
         Delimited(Ref("FunctionNameSegment")),
-        Ref("DelimiterGrammar", optional=True),
     )
 
 
@@ -3622,7 +3633,6 @@ class ReturnStatementSegment(BaseSegment):
     match_grammar = Sequence(
         "RETURN",
         Ref("ExpressionSegment", optional=True),
-        Ref("DelimiterGrammar", optional=True),
     )
 
 
@@ -3780,7 +3790,6 @@ class SetStatementSegment(BaseSegment):
             ),
         ),
         Dedent,
-        Ref("DelimiterGrammar", optional=True),
     )
 
 
@@ -3886,7 +3895,6 @@ class DropProcedureStatementSegment(BaseSegment):
         OneOf("PROCEDURE", "PROC"),
         Ref("IfExistsGrammar", optional=True),
         Delimited(Ref("ObjectReferenceSegment")),
-        Ref("DelimiterGrammar", optional=True),
     )
 
 
@@ -3937,7 +3945,6 @@ class CreateViewStatementSegment(BaseSegment):
         "AS",
         OptionallyBracketed(Ref("SelectableGrammar")),
         Sequence("WITH", "CHECK", "OPTION", optional=True),
-        Ref("DelimiterGrammar", optional=True),
     )
 
 
@@ -4369,7 +4376,6 @@ class CreateTableStatementSegment(BaseSegment):
         Ref("FilestreamOnOptionSegment", optional=True),
         Ref("TextimageOnOptionSegment", optional=True),
         Ref("TableOptionSegment", optional=True),
-        Ref("DelimiterGrammar", optional=True),
     )
 
 
@@ -4402,7 +4408,6 @@ class CreateTableGraphStatementSegment(BaseSegment):
             ),
         ),
         Ref("OnPartitionOrFilegroupOptionSegment", optional=True),
-        Ref("DelimiterGrammar", optional=True),
     )
 
 
@@ -4455,14 +4460,17 @@ class AlterTableStatementSegment(BaseSegment):
                 Sequence(
                     Sequence(
                         "WITH",
-                        "CHECK",
+                        OneOf("CHECK", "NOCHECK"),
                         optional=True,
                     ),
                     "ADD",
                     Ref("TableConstraintSegment"),
                 ),
+                # See for details on check/nocheck constraints
+                # https://learn.microsoft.com/en-us/sql/relational-databases/tables/disable-foreign-key-constraints-with-insert-and-update-statements
                 Sequence(
-                    "CHECK",
+                    Sequence("WITH", OneOf("CHECK", "NOCHECK"), optional=True),
+                    OneOf("CHECK", "NOCHECK"),
                     "CONSTRAINT",
                     Ref("ObjectReferenceSegment"),
                 ),
@@ -4674,6 +4682,91 @@ class FilegroupClause(BaseSegment):
     )
 
 
+class CreateFullTextCatalogStatementSegment(BaseSegment):
+    """CREATE FULLTEXT CATALOG statement segment.
+
+    https://learn.microsoft.com/en-us/sql/t-sql/statements/create-fulltext-catalog-transact-sql
+    """
+
+    type = "create_fulltext_catalog_statement"
+    match_grammar = Sequence(
+        "CREATE",
+        "FULLTEXT",
+        "CATALOG",
+        Ref("ObjectReferenceSegment"),
+        Sequence(
+            Sequence(
+                "ON",
+                "FILEGROUP",
+                Ref("FilegroupNameSegment"),
+                optional=True,
+            ),
+            Sequence(
+                "IN",
+                "PATH",
+                Ref("QuotedLiteralSegment"),
+                optional=True,
+            ),
+            Sequence(
+                "WITH",
+                "ACCENT_SENSITIVITY",
+                Ref("EqualsSegment"),
+                OneOf("ON", "OFF"),
+                optional=True,
+            ),
+            Sequence(
+                "AS",
+                "DEFAULT",
+                optional=True,
+            ),
+            Sequence(
+                "AUTHORIZATION",
+                Ref("RoleReferenceSegment"),
+                optional=True,
+            ),
+            optional=True,
+        ),
+    )
+
+
+class OpenXmlSegment(BaseSegment):
+    """`OPENXML` segment.
+
+    https://learn.microsoft.com/en-us/sql/t-sql/functions/openxml-transact-sql
+    """
+
+    type = "openxml_segment"
+
+    _xml_schema_declaration = Sequence(
+        Ref("SingleIdentifierGrammar"),
+        Ref("DatatypeSegment"),
+        Ref("QuotedLiteralSegment", optional=True),
+    )
+
+    _with_clause = Sequence(
+        "WITH",
+        OneOf(
+            Bracketed(Delimited(_xml_schema_declaration)),
+            Ref("TableReferenceSegment"),
+        ),
+        optional=True,
+    )
+
+    match_grammar = Sequence(
+        "OPENXML",
+        Bracketed(
+            Sequence(
+                Delimited(
+                    Ref("ParameterNameSegment"),
+                    Ref("QuotedLiteralSegmentOptWithN"),
+                    Ref("NumericLiteralSegment", optional=True),
+                )
+            )
+        ),
+        _with_clause,
+    )
+
+
 class IdentityGrammar(BaseSegment):
     """`IDENTITY (1,1)` in table schemas.
 
@@ -4879,7 +4972,6 @@ class AlterTableSwitchStatementSegment(BaseSegment):
             ),
             optional=True,
         ),
-        Ref("DelimiterGrammar", optional=True),
     )
 
 
@@ -4899,7 +4991,6 @@ class CreateTableAsSelectStatementSegment(BaseSegment):
         "AS",
         OptionallyBracketed(Ref("SelectableGrammar")),
         Ref("OptionClauseSegment", optional=True),
-        Ref("DelimiterGrammar", optional=True),
     )
 
 
@@ -4918,32 +5009,20 @@ class TransactionStatementSegment(BaseSegment):
             Ref("TransactionGrammar"),
             Ref("SingleIdentifierGrammar", optional=True),
             Sequence("WITH", "MARK", Ref("QuotedIdentifierSegment"), optional=True),
-            Ref("DelimiterGrammar", optional=True),
         ),
         Sequence(
             OneOf("COMMIT", "ROLLBACK"),
             Ref("TransactionGrammar", optional=True),
-            OneOf(
-                Ref("SingleIdentifierGrammar"),
-                Ref("VariableIdentifierSegment"),
-                optional=True,
-            ),
-            Ref("DelimiterGrammar", optional=True),
+            Ref("SingleIdentifierGrammar", optional=True),
         ),
         Sequence(
             OneOf("COMMIT", "ROLLBACK"),
             Sequence("WORK", optional=True),
-            Ref("DelimiterGrammar", optional=True),
         ),
         Sequence(
             "SAVE",
             Ref("TransactionGrammar"),
-            OneOf(
-                Ref("SingleIdentifierGrammar"),
-                Ref("VariableIdentifierSegment"),
-                optional=True,
-            ),
-            Ref("DelimiterGrammar", optional=True),
+            Ref("SingleIdentifierGrammar", optional=True),
         ),
     )
 
@@ -4958,7 +5037,6 @@ class BeginEndSegment(BaseSegment):
     type = "begin_end_block"
     match_grammar = Sequence(
         "BEGIN",
-        Ref("DelimiterGrammar", optional=True),
         Indent,
         Ref("OneOrMoreStatementsGrammar"),
         Dedent,
@@ -5021,7 +5099,6 @@ class AtomicBeginEndSegment(BaseSegment):
                 ),
             ),
         ),
-        Ref("DelimiterGrammar", optional=True),
         Indent,
         Ref("OneOrMoreStatementsGrammar"),
         Dedent,
@@ -5039,7 +5116,6 @@ class TryCatchSegment(BaseSegment):
     match_grammar = Sequence(
         "BEGIN",
         "TRY",
-        Ref("DelimiterGrammar", optional=True),
         Indent,
         Ref("OneOrMoreStatementsGrammar"),
         Dedent,
@@ -5047,7 +5123,6 @@ class TryCatchSegment(BaseSegment):
         "TRY",
         "BEGIN",
         "CATCH",
-        Ref("DelimiterGrammar", optional=True),
         Indent,
         # A catch block may be empty
         AnyNumberOf(Ref("StatementAndDelimiterGrammar")),
@@ -5103,7 +5178,7 @@ class OpenRowSetSegment(BaseSegment):
                             Delimited(
                                 AnyNumberOf(
                                     Sequence(
-                                        "DATASOURCE",
+                                        "DATA_SOURCE",
                                         Ref("EqualsSegment"),
                                         Ref("QuotedLiteralSegmentOptWithN"),
                                     ),
@@ -5267,7 +5342,6 @@ class DeleteStatementSegment(BaseSegment):
             Ref("OpenQuerySegment"),
         ),
         Ref("OptionClauseSegment", optional=True),
-        Ref("DelimiterGrammar", optional=True),
     )
 
 
@@ -5292,7 +5366,6 @@ class FromClauseSegment(ansi.FromClauseSegment):
     match_grammar = Sequence(
         "FROM",
         Delimited(Ref("FromExpressionSegment")),
-        Ref("DelimiterGrammar", optional=True),
     )
 
 
@@ -5314,6 +5387,7 @@ class TableExpressionSegment(BaseSegment):
         Ref("FunctionSegment"),
         Ref("OpenRowSetSegment"),
         Ref("OpenJsonSegment"),
+        Ref("OpenXmlSegment"),
         Ref("OpenQuerySegment"),
         Ref("TableReferenceSegment"),
         Ref("StorageLocationSegment"),
@@ -5341,8 +5415,8 @@ class TableExpressionSegment(BaseSegment):
 class GroupByClauseSegment(BaseSegment):
     """A `GROUP BY` clause like in `SELECT`.
 
-    Overriding ANSI to remove Delimited logic which assumes statements have been
-    delimited
+    Overriding ANSI to add T-SQL specific terminators that prevent
+    GROUP BY from consuming subsequent statements when semicolons are omitted.
     """
 
     type = "groupby_clause"
@@ -5350,15 +5424,7 @@ class GroupByClauseSegment(BaseSegment):
         "GROUP",
         "BY",
         Indent,
-        OneOf(
-            Ref("ColumnReferenceSegment"),
-            # Can `GROUP BY 1`
-            Ref("NumericLiteralSegment"),
-            # Can `GROUP BY coalesce(col, 1)`
-            Ref("ExpressionSegment"),
-        ),
-        AnyNumberOf(
-            Ref("CommaSegment"),
+        Delimited(
             OneOf(
                 Ref("ColumnReferenceSegment"),
                 # Can `GROUP BY 1`
@@ -5366,6 +5432,27 @@ class GroupByClauseSegment(BaseSegment):
                 # Can `GROUP BY coalesce(col, 1)`
                 Ref("ExpressionSegment"),
             ),
+            terminators=[
+                # Clauses that can follow GROUP BY
+                "HAVING",
+                "WINDOW",
+                Sequence("ORDER", "BY"),
+                "OPTION",
+                "FOR",
+                # Set operators
+                "UNION",
+                "INTERSECT",
+                "EXCEPT",
+                # Statement-level keywords that start new statements
+                "SELECT",
+                "INSERT",
+                "UPDATE",
+                "DELETE",
+                "MERGE",
+                "WITH",
+                # T-SQL specific: semicolons and statement terminators
+                Ref("DelimiterGrammar"),
+            ],
         ),
         Ref("WithRollupClauseSegment", optional=True),
         Dedent,
@@ -5461,46 +5548,6 @@ class RenameStatementSegment(BaseSegment):
         Ref("ObjectReferenceSegment"),
         "TO",
         Ref("SingleIdentifierGrammar"),
-        Ref("DelimiterGrammar", optional=True),
-    )
-
-
-class DropTableStatementSegment(ansi.DropTableStatementSegment):
-    """A `DROP TABLE` statement.
-
-    Overriding ANSI to add optional delimiter.
-    """
-
-    match_grammar = ansi.DropTableStatementSegment.match_grammar.copy(
-        insert=[
-            Ref("DelimiterGrammar", optional=True),
-        ],
-    )
-
-
-class DropViewStatementSegment(ansi.DropViewStatementSegment):
-    """A `DROP VIEW` statement.
-
-    Overriding ANSI to add optional delimiter.
-    """
-
-    match_grammar = ansi.DropViewStatementSegment.match_grammar.copy(
-        insert=[
-            Ref("DelimiterGrammar", optional=True),
-        ],
-    )
-
-
-class DropUserStatementSegment(ansi.DropUserStatementSegment):
-    """A `DROP USER` statement.
-
-    Overriding ANSI to add optional delimiter.
-    """
-
-    match_grammar = ansi.DropUserStatementSegment.match_grammar.copy(
-        insert=[
-            Ref("DelimiterGrammar", optional=True),
-        ],
     )
 
 
@@ -5527,7 +5574,6 @@ class UpdateStatementSegment(BaseSegment):
         Ref("FromClauseSegment", optional=True),
         Ref("WhereClauseSegment", optional=True),
         Ref("OptionClauseSegment", optional=True),
-        Ref("DelimiterGrammar", optional=True),
     )
 
 
@@ -5597,7 +5643,6 @@ class SetLanguageStatementSegment(BaseSegment):
             Ref("BracketedIdentifierSegment"),
             Ref("NakedIdentifierSegment"),
         ),
-        Ref("DelimiterGrammar", optional=True),
     )
 
 
@@ -5608,7 +5653,6 @@ class PrintStatementSegment(BaseSegment):
     match_grammar = Sequence(
         "PRINT",
         Ref("ExpressionSegment"),
-        Ref("DelimiterGrammar", optional=True),
     )
 
 
@@ -5839,7 +5883,6 @@ class SetExpressionSegment(BaseSegment):
         ),
         Ref("OrderByClauseSegment", optional=True),
         Ref("OptionClauseSegment", optional=True),
-        Ref("DelimiterGrammar", optional=True),
     )
 
 
@@ -6137,7 +6180,6 @@ class ExecuteScriptSegment(BaseSegment):
             _execute_a_characters_string,
             _execute_pass_through_command,
         ),
-        Ref("DelimiterGrammar", optional=True),
     )
 
 
@@ -6160,10 +6202,6 @@ class CreateSchemaStatementSegment(BaseSegment):
         Sequence(
             "AUTHORIZATION",
             Ref("RoleReferenceSegment"),
-            optional=True,
-        ),
-        Ref(
-            "DelimiterGrammar",
             optional=True,
         ),
     )
@@ -7804,8 +7842,14 @@ class CreatePartitionFunctionSegment(BaseSegment):
         ),
         "FOR",
         "VALUES",
-        Bracketed(Delimited(Ref("LiteralGrammar"))),
-        # Bracketed(Delimited("LEFT")),
+        Bracketed(
+            Delimited(
+                OneOf(
+                    Ref("LiteralGrammar"),
+                    Ref("HexadecimalLiteralSegment"),
+                )
+            )
+        ),
     )
 
 

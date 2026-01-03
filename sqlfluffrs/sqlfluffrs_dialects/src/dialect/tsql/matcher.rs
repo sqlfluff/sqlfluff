@@ -359,28 +359,7 @@ pub static TSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
 
     LexMatcher::regex_lexer(
         "atsign",
-        r#"[@][a-zA-Z0-9_]+"#,
-        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
-         quoted_value, escape_replacement, casefold| {
-            Token::code_token_compat(raw, pos_marker, class_types,
-                instance_types, trim_start, trim_chars,
-                quoted_value, escape_replacement, casefold)
-        },
-        None,
-        None,
-        None,
-        None,
-        None,
-        None,
-        CaseFold::None,
-        None,
-        |_| true,
-        None,
-    ),
-
-    LexMatcher::regex_lexer(
-        "var_prefix",
-        r#"[$][a-zA-Z0-9_]+"#,
+        r#"[@][a-zA-Z0-9_@$#]+"#,
         |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
          quoted_value, escape_replacement, casefold| {
             Token::code_token_compat(raw, pos_marker, class_types,
@@ -443,7 +422,7 @@ pub static TSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
 
     LexMatcher::regex_lexer(
         "hash_prefix",
-        r#"[#][#]?[a-zA-Z0-9_]+"#,
+        r#"[#][#]?[a-zA-Z0-9_@$#]+"#,
         |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
          quoted_value, escape_replacement, casefold| {
             Token::code_token_compat(raw, pos_marker, class_types,
@@ -1107,7 +1086,7 @@ pub static TSQL_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
 
     LexMatcher::regex_lexer(
         "word",
-        r#"[0-9a-zA-Z_#@\p{L}]+"#,
+        r#"[0-9a-zA-Z_#@$\p{L}]+"#,
         |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
          quoted_value, escape_replacement, casefold| {
             Token::word_token_compat(raw, pos_marker, class_types,

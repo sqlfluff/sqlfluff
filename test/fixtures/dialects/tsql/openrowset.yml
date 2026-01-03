@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 6fc8649a99294fd5d357b3a42405c8beecca4b0c99fa6981edd1d629bf94995c
+_hash: 27b63180e1dfe30a4061544b4b3a48bd52e78c6e37117f1bbb32d8e308fec2e8
 file:
 - batch:
     statement:
@@ -40,7 +40,7 @@ file:
                 alias_operator:
                   keyword: AS
                 naked_identifier: a
-          statement_terminator: ;
+    statement_terminator: ;
     go_statement:
       keyword: GO
 - batch:
@@ -74,7 +74,7 @@ file:
                 alias_operator:
                   keyword: AS
                 naked_identifier: d
-          statement_terminator: ;
+    statement_terminator: ;
     go_statement:
       keyword: GO
 - batch:
@@ -112,7 +112,7 @@ file:
                 alias_operator:
                   keyword: AS
                 naked_identifier: d
-          statement_terminator: ;
+    statement_terminator: ;
     go_statement:
       keyword: GO
 - batch:
@@ -145,7 +145,7 @@ file:
                 alias_operator:
                   keyword: AS
                 naked_identifier: a
-          statement_terminator: ;
+    statement_terminator: ;
     go_statement:
       keyword: GO
 - batch:
@@ -175,7 +175,7 @@ file:
                 alias_operator:
                   keyword: AS
                 naked_identifier: DATA
-          statement_terminator: ;
+    statement_terminator: ;
     go_statement:
       keyword: GO
 - batch:
@@ -205,7 +205,7 @@ file:
                 alias_operator:
                   keyword: AS
                 naked_identifier: Document
-          statement_terminator: ;
+    statement_terminator: ;
     go_statement:
       keyword: GO
 - batch:
@@ -248,7 +248,7 @@ file:
                 alias_operator:
                   keyword: AS
                 naked_identifier: cars
-          statement_terminator: ;
+    statement_terminator: ;
     go_statement:
       keyword: GO
 - batch:
@@ -275,6 +275,11 @@ file:
                   - start_bracket: (
                   - keyword: BULK
                   - quoted_literal: "'https://pandemicdatalake.blob.core.windows.net/public/curated/covid-19/ecdc_cases/latest/ecdc_cases.parquet'"
+                  - comma: ','
+                  - keyword: DATA_SOURCE
+                  - comparison_operator:
+                      raw_comparison_operator: '='
+                  - quoted_literal: "'MyAzureBlobStorage'"
                   - comma: ','
                   - keyword: FORMAT
                   - comparison_operator:

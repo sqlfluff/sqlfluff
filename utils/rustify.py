@@ -52,7 +52,6 @@ if __name__ == "__main__":
         for builder, file, args in [
             ("build_dialect", "mod", []),
             ("build_lexers", "matcher", [dialect.label.lower()]),
-            # Only use table-driven for ANSI for now
             (
                 "build_parsers",
                 "parser",
@@ -62,11 +61,7 @@ if __name__ == "__main__":
     ]
 
     file_pair_list = [
-        (
-            "utils/build_dialects.py",
-            "sqlfluffrs/sqlfluffrs_dialects/src/dialect/mod.rs",
-            [],
-        ),
+        ("utils/build_dialects.py", "sqlfluffrs/src/dialect/mod.rs", []),
         *dialects_list,
     ]
     parser = argparse.ArgumentParser(

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: f6a989330736d80333ad86ad4a07d6414ba6fe349654aa33da29be950cd336e5
+_hash: 2219075cc577e6730b1c1e0077dc77d3f284825d3a89c0e9d4fe9f223e00bd75
 file:
 - batch:
     statement:
@@ -65,7 +65,7 @@ file:
                 raw_comparison_operator: '='
             - keyword: ROUND_ROBIN
             end_bracket: )
-      - statement_terminator: ;
+    statement_terminator: ;
     go_statement:
       keyword: GO
 - batch:
@@ -137,7 +137,7 @@ file:
                 raw_comparison_operator: '='
             - keyword: REPLICATE
             end_bracket: )
-      - statement_terminator: ;
+    statement_terminator: ;
     go_statement:
       keyword: GO
 - batch:
@@ -217,7 +217,7 @@ file:
                   quoted_identifier: '[Column B]'
                 end_bracket: )
             end_bracket: )
-      - statement_terminator: ;
+    statement_terminator: ;
     go_statement:
       keyword: GO
 - batch:
@@ -302,7 +302,7 @@ file:
                   quoted_identifier: '[Column B]'
                 end_bracket: )
           - end_bracket: )
-      - statement_terminator: ;
+    statement_terminator: ;
     go_statement:
       keyword: GO
 - batch:
@@ -385,7 +385,7 @@ file:
                   quoted_identifier: '[Column B]'
                 end_bracket: )
             end_bracket: )
-      - statement_terminator: ;
+    statement_terminator: ;
     go_statement:
       keyword: GO
 - batch:
@@ -397,7 +397,7 @@ file:
         - quoted_identifier: '[dbo]'
         - dot: .
         - quoted_identifier: '[EC DC]'
-      - statement_terminator: ;
+    statement_terminator: ;
     go_statement:
       keyword: GO
 - batch:
@@ -471,7 +471,7 @@ file:
                   quoted_identifier: '[Column B]'
                 end_bracket: )
             end_bracket: )
-      - statement_terminator: ;
+    statement_terminator: ;
     go_statement:
       keyword: GO
 - batch:
@@ -483,7 +483,7 @@ file:
         - quoted_identifier: '[dbo]'
         - dot: .
         - quoted_identifier: '[EC DC]'
-      - statement_terminator: ;
+    statement_terminator: ;
     go_statement:
       keyword: GO
 - batch:

@@ -199,6 +199,7 @@ oracle_dialect.sets("unreserved_keywords").update(
     [
         "ABSENT",
         "ACCESSIBLE",
+        "AUTHENTICATED",
         "AUTHID",
         "BODY",
         "BULK",
@@ -227,6 +228,7 @@ oracle_dialect.sets("unreserved_keywords").update(
         "INDICES",
         "ISOPEN",
         "KEEP",
+        "LINK",
         "LOOP",
         "MUTABLE",
         "NESTED",
@@ -257,6 +259,7 @@ oracle_dialect.sets("unreserved_keywords").update(
         "REVERSE",
         "ROWTYPE",
         "SHARD_ENABLE",
+        "SHARED",
         "SHARING",
         "SPECIFICATION",
         "SQL_MACRO",
@@ -702,6 +705,17 @@ oracle_dialect.add(
             "JSON",
         ),
     ),
+    DBLinkAuthenticationGrammar=OneOf(
+        Sequence(
+            "AUTHENTICATED",
+            "BY",
+            Ref("RoleReferenceSegment"),
+            "IDENTIFIED",
+            "BY",
+            Ref("SingleIdentifierGrammar"),
+        ),
+        Sequence("WITH", "CREDENTIAL"),
+    ),
 )
 
 oracle_dialect.replace(
@@ -826,6 +840,18 @@ oracle_dialect.replace(
             Ref("LocalAliasSegment"),
             Ref("SqlplusSubstitutionVariableSegment"),
             Ref("ImplicitCursorAttributesGrammar"),
+            Sequence(
+                Ref("ObjectReferenceSegment"),
+                Bracketed(
+                    OneOf(
+                        Ref("ObjectReferenceSegment"),
+                        Ref("SingleQuotedIdentifierSegment"),
+                        Ref("NumericLiteralSegment"),
+                    ),
+                    optional=True,
+                ),
+                Ref("DotSegment", optional=True),
+            ),
             terminators=[Ref("CommaSegment")],
         ),
         Ref("AccessorGrammar", optional=True),
@@ -1164,6 +1190,12 @@ class StatementSegment(ansi.StatementSegment):
             Ref("RaiseStatementSegment"),
             Ref("ReturnStatementSegment"),
             Ref("AlterIndexStatementSegment"),
+            Ref("CreateDatabaseLinkStatementSegment"),
+            Ref("DropDatabaseLinkStatementSegment"),
+            Ref("AlterDatabaseLinkStatementSegment"),
+            Ref("CreateSynonymStatementSegment"),
+            Ref("DropSynonymStatementSegment"),
+            Ref("AlterSynonymStatementSegment"),
         ],
     )
 
@@ -1390,7 +1422,7 @@ class ColumnDefinitionSegment(BaseSegment):
             AnyNumberOf(
                 Sequence(
                     Ref("ColumnConstraintSegment"),
-                    Ref.keyword("ENABLE", optional=True),
+                    OneOf("ENABLE", "DISABLE", optional=True),
                 )
             ),
             Sequence(
@@ -1408,7 +1440,10 @@ class ColumnDefinitionSegment(BaseSegment):
                     optional=True,
                 ),
                 AnyNumberOf(
-                    Ref("ColumnConstraintSegment", optional=True),
+                    Sequence(
+                        Ref("ColumnConstraintSegment"),
+                        OneOf("ENABLE", "DISABLE", optional=True),
+                    )
                 ),
                 Ref("IdentityClauseGrammar", optional=True),
             ),
@@ -2445,7 +2480,14 @@ class AssignmentStatementSegment(BaseSegment):
     match_grammar = Sequence(
         AnyNumberOf(
             Ref("ObjectReferenceSegment"),
-            Bracketed(Ref("ObjectReferenceSegment"), optional=True),
+            Bracketed(
+                OneOf(
+                    Ref("ObjectReferenceSegment"),
+                    Ref("SingleQuotedIdentifierSegment"),
+                    Ref("NumericLiteralSegment"),
+                ),
+                optional=True,
+            ),
             Ref("DotSegment", optional=True),
             Ref("SqlplusVariableGrammar"),
             optional=True,
@@ -3071,4 +3113,173 @@ class DeleteStatementSegment(ansi.DeleteStatementSegment):
 
     match_grammar: Matchable = ansi.DeleteStatementSegment.match_grammar.copy(
         insert=[Ref("ReturningClauseSegment", optional=True)]
+    )
+
+
+class DatabaseLinkReferenceSegment(ansi.ObjectReferenceSegment):
+    """A reference to a database link."""
+
+    type = "database_link_reference"
+    match_grammar: Matchable = Delimited(
+        Ref("SingleIdentifierGrammar"), delimiter=Ref("DotSegment")
+    )
+
+
+class CreateDatabaseLinkStatementSegment(BaseSegment):
+    """A `CREATE DATABASE LINK` statement.
+
+    https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/CREATE-DATABASE-LINK.html
+    """
+
+    type = "create_database_link_statement"
+
+    match_grammar: Matchable = Sequence(
+        "CREATE",
+        Ref.keyword("SHARED", optional=True),
+        Ref.keyword("PUBLIC", optional=True),
+        "DATABASE",
+        "LINK",
+        Ref("IfNotExistsGrammar", optional=True),
+        Ref("DatabaseLinkReferenceSegment"),
+        Sequence(
+            OneOf(
+                Sequence(
+                    "CONNECT",
+                    OneOf(
+                        Sequence(
+                            "TO",
+                            OneOf(
+                                "CURRENT_USER",
+                                Sequence(
+                                    Ref("RoleReferenceSegment"),
+                                    "IDENTIFIED",
+                                    "BY",
+                                    Ref("SingleIdentifierGrammar"),
+                                    Ref("DBLinkAuthenticationGrammar", optional=True),
+                                ),
+                            ),
+                        ),
+                        Sequence("WITH", Ref("SingleIdentifierGrammar")),
+                    ),
+                ),
+                Ref("DBLinkAuthenticationGrammar"),
+            ),
+            optional=True,
+        ),
+        Sequence("USING", Ref("SingleQuotedIdentifierSegment"), optional=True),
+    )
+
+
+class DropDatabaseLinkStatementSegment(BaseSegment):
+    """A `DROP DATABASE LINK` statement.
+
+    https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/DROP-DATABASE-LINK.html
+    """
+
+    type = "drop_database_link_statement"
+
+    match_grammar: Matchable = Sequence(
+        "DROP",
+        Ref.keyword("PUBLIC", optional=True),
+        "DATABASE",
+        "LINK",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("DatabaseLinkReferenceSegment"),
+    )
+
+
+class AlterDatabaseLinkStatementSegment(BaseSegment):
+    """An `ALTER DATABASE LINK` statement.
+
+    https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/ALTER-DATABASE-LINK.html
+    """
+
+    type = "alter_database_link_statement"
+
+    match_grammar: Matchable = Sequence(
+        "ALTER",
+        Ref.keyword("SHARED", optional=True),
+        Ref.keyword("PUBLIC", optional=True),
+        "DATABASE",
+        "LINK",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("DatabaseLinkReferenceSegment"),
+        OneOf(
+            Sequence(
+                "CONNECT",
+                OneOf(
+                    Sequence(
+                        "TO",
+                        Ref("RoleReferenceSegment"),
+                        "IDENTIFIED",
+                        "BY",
+                        Ref("SingleIdentifierGrammar"),
+                        Ref("DBLinkAuthenticationGrammar", optional=True),
+                    ),
+                    Sequence("WITH", Ref("SingleIdentifierGrammar")),
+                ),
+            ),
+            Ref("DBLinkAuthenticationGrammar"),
+        ),
+    )
+
+
+class CreateSynonymStatementSegment(BaseSegment):
+    """A `CREATE SYNONYM` statement.
+
+    https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/CREATE-SYNONYM.html
+    """
+
+    type = "create_synonym_statement"
+
+    match_grammar: Matchable = Sequence(
+        "CREATE",
+        Ref("OrReplaceGrammar", optional=True),
+        OneOf("EDITIONABLE", "NONEDITIONABLE", optional=True),
+        Ref.keyword("PUBLIC", optional=True),
+        "SYNONYM",
+        Ref("IfNotExistsGrammar", optional=True),
+        Ref("ObjectReferenceSegment"),
+        Ref("SharingClauseGrammar", optional=True),
+        "FOR",
+        Ref("ObjectReferenceSegment"),
+        Sequence(
+            Ref("AtSignSegment"), Ref("DatabaseLinkReferenceSegment"), optional=True
+        ),
+    )
+
+
+class DropSynonymStatementSegment(BaseSegment):
+    """A `DROP SYNONYM` statement.
+
+    https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/DROP-SYNONYM.html
+    """
+
+    type = "drop_synonym_statement"
+
+    match_grammar: Matchable = Sequence(
+        "DROP",
+        Ref.keyword("PUBLIC", optional=True),
+        "SYNONYM",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("ObjectReferenceSegment"),
+        Ref.keyword("FORCE", optional=True),
+    )
+
+
+class AlterSynonymStatementSegment(BaseSegment):
+    """An `ALTER SYNONYM` statement.
+
+    https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/ALTER-SYNONYM.html
+    """
+
+    type = "alter_synonym_statement"
+
+    match_grammar: Matchable = Sequence(
+        "ALTER",
+        Ref.keyword("PUBLIC", optional=True),
+        "SYNONYM",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("ObjectReferenceSegment"),
+        OneOf("EDITIONABLE", "NONEDITIONABLE", "COMPILE"),
     )

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: b2e4b59d03d53ffbd43e687665a926bc469f259afa2da1ed083ab44772e6ba44
+_hash: de4d1cd33e3b52354b2bd975c303ffb38057f493c1bb8229abd060e636d2ab21
 file:
   batch:
   - statement:
@@ -80,7 +80,7 @@ file:
               table_expression:
                 table_reference:
                   naked_identifier: TestTable
-          statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       select_statement:
         select_clause:
@@ -103,7 +103,7 @@ file:
               table_expression:
                 table_reference:
                   naked_identifier: GameData
-          statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       select_statement:
         select_clause:
@@ -134,7 +134,7 @@ file:
               table_expression:
                 table_reference:
                   naked_identifier: TestTable2
-          statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       create_table_statement:
       - keyword: CREATE
@@ -219,7 +219,7 @@ file:
                     integer_literal: '100'
                   end_bracket: )
         - end_bracket: )
-      - statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       update_statement:
         keyword: UPDATE
@@ -258,7 +258,7 @@ file:
             comparison_operator:
               raw_comparison_operator: '='
             quoted_literal: "'json'"
-        statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       insert_statement:
       - keyword: INSERT
@@ -336,7 +336,7 @@ file:
         - comma: ','
         - column_reference:
             naked_identifier: Value
-        statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       select_statement:
         select_clause:
@@ -400,7 +400,7 @@ file:
                   - naked_identifier: t2
                   - dot: .
                   - naked_identifier: Name
-          statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       select_statement:
         select_clause:
@@ -503,7 +503,7 @@ file:
               table_expression:
                 table_reference:
                   naked_identifier: USERDATA
-          statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       select_statement:
         select_clause:
@@ -554,7 +554,7 @@ file:
               table_expression:
                 table_reference:
                   naked_identifier: TestTable
-          statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       select_statement:
         select_clause:
@@ -584,7 +584,7 @@ file:
           - comparison_operator:
               raw_comparison_operator: '>'
           - integer_literal: '10'
-        statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       select_statement:
         select_clause:
@@ -630,7 +630,7 @@ file:
                   - naked_identifier: t2
                   - dot: .
                   - naked_identifier: Name
-          statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       create_table_statement:
       - keyword: CREATE
@@ -687,7 +687,7 @@ file:
                     integer_literal: '20'
                   end_bracket: )
         - end_bracket: )
-      - statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       insert_statement:
       - keyword: INSERT
@@ -756,4 +756,4 @@ file:
             comparison_operator:
               raw_comparison_operator: '='
             integer_literal: '1'
-        statement_terminator: ;
+  - statement_terminator: ;

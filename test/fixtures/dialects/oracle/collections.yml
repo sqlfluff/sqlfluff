@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 4699ead08fa070b0eada379fb27af50b081adca4963fa918da87b206d7516b08
+_hash: 52c776d470b9e017d81ecd197a55c922912dc047589aaf26d3e6f09076fc8cb0
 file:
 - statement:
     begin_end_block:
@@ -42,65 +42,49 @@ file:
       - statement_terminator: ;
     - keyword: BEGIN
     - statement:
-        function:
-          function_name:
-            function_name_identifier: city_population
-          function_contents:
-            bracketed:
-              start_bracket: (
-              expression:
-                quoted_literal: "'Smallville'"
-              end_bracket: )
-    - statement:
         assignment_segment_statement:
+          object_reference:
+            naked_identifier: city_population
+          bracketed:
+            start_bracket: (
+            quoted_identifier: "'Smallville'"
+            end_bracket: )
           assignment_operator: :=
           expression:
             numeric_literal: '2000'
     - statement_terminator: ;
     - statement:
-        function:
-          function_name:
-            function_name_identifier: city_population
-          function_contents:
-            bracketed:
-              start_bracket: (
-              expression:
-                quoted_literal: "'Midland'"
-              end_bracket: )
-    - statement:
         assignment_segment_statement:
+          object_reference:
+            naked_identifier: city_population
+          bracketed:
+            start_bracket: (
+            quoted_identifier: "'Midland'"
+            end_bracket: )
           assignment_operator: :=
           expression:
             numeric_literal: '750000'
     - statement_terminator: ;
     - statement:
-        function:
-          function_name:
-            function_name_identifier: city_population
-          function_contents:
-            bracketed:
-              start_bracket: (
-              expression:
-                quoted_literal: "'Megalopolis'"
-              end_bracket: )
-    - statement:
         assignment_segment_statement:
+          object_reference:
+            naked_identifier: city_population
+          bracketed:
+            start_bracket: (
+            quoted_identifier: "'Megalopolis'"
+            end_bracket: )
           assignment_operator: :=
           expression:
             numeric_literal: '1000000'
     - statement_terminator: ;
     - statement:
-        function:
-          function_name:
-            function_name_identifier: city_population
-          function_contents:
-            bracketed:
-              start_bracket: (
-              expression:
-                quoted_literal: "'Smallville'"
-              end_bracket: )
-    - statement:
         assignment_segment_statement:
+          object_reference:
+            naked_identifier: city_population
+          bracketed:
+            start_bracket: (
+            quoted_identifier: "'Smallville'"
+            end_bracket: )
           assignment_operator: :=
           expression:
             numeric_literal: '2001'
@@ -546,33 +530,25 @@ file:
               end_bracket: )
     - statement_terminator: ;
     - statement:
-        function:
-          function_name:
-            function_name_identifier: team
-          function_contents:
-            bracketed:
-              start_bracket: (
-              expression:
-                numeric_literal: '3'
-              end_bracket: )
-    - statement:
         assignment_segment_statement:
+          object_reference:
+            naked_identifier: team
+          bracketed:
+            start_bracket: (
+            numeric_literal: '3'
+            end_bracket: )
           assignment_operator: :=
           expression:
             quoted_literal: "'Pierre'"
     - statement_terminator: ;
     - statement:
-        function:
-          function_name:
-            function_name_identifier: team
-          function_contents:
-            bracketed:
-              start_bracket: (
-              expression:
-                numeric_literal: '4'
-              end_bracket: )
-    - statement:
         assignment_segment_statement:
+          object_reference:
+            naked_identifier: team
+          bracketed:
+            start_bracket: (
+            numeric_literal: '4'
+            end_bracket: )
           assignment_operator: :=
           expression:
             quoted_literal: "'Yvonne'"
@@ -765,17 +741,13 @@ file:
               end_bracket: )
     - statement_terminator: ;
     - statement:
-        function:
-          function_name:
-            function_name_identifier: names
-          function_contents:
-            bracketed:
-              start_bracket: (
-              expression:
-                numeric_literal: '3'
-              end_bracket: )
-    - statement:
         assignment_segment_statement:
+          object_reference:
+            naked_identifier: names
+          bracketed:
+            start_bracket: (
+            numeric_literal: '3'
+            end_bracket: )
           assignment_operator: :=
           expression:
             quoted_literal: "'P Perez'"
@@ -820,6 +792,254 @@ file:
               expression:
                 quoted_literal: "'Current Values:'"
               end_bracket: )
+    - statement_terminator: ;
+    - keyword: END
+- statement_terminator: ;
+- statement_terminator: /
+- statement:
+    begin_end_block:
+    - declare_segment:
+      - keyword: DECLARE
+      - record_type:
+        - keyword: TYPE
+        - naked_identifier: employee_rec_type
+        - keyword: IS
+        - keyword: RECORD
+        - bracketed:
+          - start_bracket: (
+          - naked_identifier: employee_id
+          - data_type:
+              data_type_identifier: NUMBER
+          - comma: ','
+          - naked_identifier: first_name
+          - data_type:
+              data_type_identifier: VARCHAR2
+              bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  numeric_literal: '50'
+                  end_bracket: )
+          - comma: ','
+          - naked_identifier: last_name
+          - data_type:
+              data_type_identifier: VARCHAR2
+              bracketed_arguments:
+                bracketed:
+                  start_bracket: (
+                  numeric_literal: '50'
+                  end_bracket: )
+          - comma: ','
+          - naked_identifier: salary
+          - data_type:
+              data_type_identifier: NUMBER
+          - end_bracket: )
+      - statement_terminator: ;
+      - collection_type:
+        - keyword: TYPE
+        - naked_identifier: employee_array_type
+        - keyword: IS
+        - keyword: TABLE
+        - keyword: OF
+        - data_type:
+            data_type_identifier: employee_rec_type
+        - keyword: INDEX
+        - keyword: BY
+        - data_type:
+            data_type_identifier: PLS_INTEGER
+      - statement_terminator: ;
+      - naked_identifier: l_employees
+      - data_type:
+          data_type_identifier: employee_array_type
+      - statement_terminator: ;
+    - keyword: BEGIN
+    - statement:
+        assignment_segment_statement:
+        - object_reference:
+            naked_identifier: l_employees
+        - bracketed:
+            start_bracket: (
+            numeric_literal: '101'
+            end_bracket: )
+        - dot: .
+        - object_reference:
+            naked_identifier: employee_id
+        - assignment_operator: :=
+        - expression:
+            numeric_literal: '101'
+    - statement_terminator: ;
+    - statement:
+        assignment_segment_statement:
+        - object_reference:
+            naked_identifier: l_employees
+        - bracketed:
+            start_bracket: (
+            numeric_literal: '101'
+            end_bracket: )
+        - dot: .
+        - object_reference:
+            naked_identifier: first_name
+        - assignment_operator: :=
+        - expression:
+            quoted_literal: "'John'"
+    - statement_terminator: ;
+    - statement:
+        assignment_segment_statement:
+        - object_reference:
+            naked_identifier: l_employees
+        - bracketed:
+            start_bracket: (
+            numeric_literal: '101'
+            end_bracket: )
+        - dot: .
+        - object_reference:
+            naked_identifier: last_name
+        - assignment_operator: :=
+        - expression:
+            quoted_literal: "'Doe'"
+    - statement_terminator: ;
+    - statement:
+        assignment_segment_statement:
+        - object_reference:
+            naked_identifier: l_employees
+        - bracketed:
+            start_bracket: (
+            numeric_literal: '101'
+            end_bracket: )
+        - dot: .
+        - object_reference:
+            naked_identifier: salary
+        - assignment_operator: :=
+        - expression:
+            numeric_literal: '50000'
+    - statement_terminator: ;
+    - statement:
+        assignment_segment_statement:
+        - object_reference:
+            naked_identifier: l_employees
+        - bracketed:
+            start_bracket: (
+            numeric_literal: '102'
+            end_bracket: )
+        - dot: .
+        - object_reference:
+            naked_identifier: employee_id
+        - assignment_operator: :=
+        - expression:
+            numeric_literal: '102'
+    - statement_terminator: ;
+    - statement:
+        assignment_segment_statement:
+        - object_reference:
+            naked_identifier: l_employees
+        - bracketed:
+            start_bracket: (
+            numeric_literal: '102'
+            end_bracket: )
+        - dot: .
+        - object_reference:
+            naked_identifier: first_name
+        - assignment_operator: :=
+        - expression:
+            quoted_literal: "'Jane'"
+    - statement_terminator: ;
+    - statement:
+        assignment_segment_statement:
+        - object_reference:
+            naked_identifier: l_employees
+        - bracketed:
+            start_bracket: (
+            numeric_literal: '102'
+            end_bracket: )
+        - dot: .
+        - object_reference:
+            naked_identifier: last_name
+        - assignment_operator: :=
+        - expression:
+            quoted_literal: "'Smith'"
+    - statement_terminator: ;
+    - statement:
+        assignment_segment_statement:
+        - object_reference:
+            naked_identifier: l_employees
+        - bracketed:
+            start_bracket: (
+            numeric_literal: '102'
+            end_bracket: )
+        - dot: .
+        - object_reference:
+            naked_identifier: salary
+        - assignment_operator: :=
+        - expression:
+            numeric_literal: '60000'
+    - statement_terminator: ;
+    - statement:
+        function:
+          function_name:
+            naked_identifier: DBMS_OUTPUT
+            dot: .
+            function_name_identifier: PUT_LINE
+          function_contents:
+            bracketed:
+            - start_bracket: (
+            - expression:
+                quoted_literal: "'Employee 101: '"
+                binary_operator:
+                - pipe: '|'
+                - pipe: '|'
+                object_reference:
+                  naked_identifier: l_employees
+                bracketed:
+                  start_bracket: (
+                  numeric_literal: '101'
+                  end_bracket: )
+                dot: .
+            - expression:
+              - column_reference:
+                  naked_identifier: first_name
+              - binary_operator:
+                - pipe: '|'
+                - pipe: '|'
+              - quoted_literal: "' '"
+              - binary_operator:
+                - pipe: '|'
+                - pipe: '|'
+              - object_reference:
+                  naked_identifier: l_employees
+              - bracketed:
+                  start_bracket: (
+                  numeric_literal: '101'
+                  end_bracket: )
+              - dot: .
+            - expression:
+                column_reference:
+                  naked_identifier: last_name
+            - end_bracket: )
+    - statement_terminator: ;
+    - statement:
+        function:
+          function_name:
+            naked_identifier: DBMS_OUTPUT
+            dot: .
+            function_name_identifier: PUT_LINE
+          function_contents:
+            bracketed:
+            - start_bracket: (
+            - expression:
+                quoted_literal: "'Employee 102 Salary: '"
+                binary_operator:
+                - pipe: '|'
+                - pipe: '|'
+                object_reference:
+                  naked_identifier: l_employees
+                bracketed:
+                  start_bracket: (
+                  numeric_literal: '102'
+                  end_bracket: )
+                dot: .
+            - expression:
+                column_reference:
+                  naked_identifier: salary
+            - end_bracket: )
     - statement_terminator: ;
     - keyword: END
 - statement_terminator: ;

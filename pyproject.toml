@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "sqlfluff"
-version = "4.0.0a1"
+version = "4.0.0a2"
 description = "The SQL Linter for Humans"
 readme = { file = "README.md", content-type = "text/markdown" }
 requires-python = ">=3.9"
@@ -72,7 +72,7 @@ dependencies = [
     "chardet",
     # Click can include breaking changes in minor releases. Make sure to test
     # well before updating upper bound.
-    "click<=8.3.0",
+    "click<8.4.0",
     "colorama>=0.3",
     # Used for diffcover plugin
     "diff-cover>=2.5.0",
@@ -98,7 +98,7 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-rs = ["sqlfluffrs==4.0.0a1"]
+rs = ["sqlfluffrs==4.0.0a2"]
 
 [project.urls]
 Homepage = "https://www.sqlfluff.com"

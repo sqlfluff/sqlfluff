@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 638db1e0154ef3d8bec65d990920856182e86060abb88840829fa15a8c5d2d37
+_hash: ab17c47a4424df40c4ff49f59eff088e48773a0544d96c0089a01c27bab1646c
 file:
   batch:
   - statement:
@@ -42,7 +42,7 @@ file:
             comparison_operator:
               raw_comparison_operator: '='
             quoted_literal: "'drjwelch'"
-        statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       select_statement:
         select_clause:
@@ -80,7 +80,7 @@ file:
             comparison_operator:
               raw_comparison_operator: '='
             quoted_literal: "'drjwelch'"
-        statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       select_statement:
         select_clause:
@@ -130,7 +130,7 @@ file:
                 - quoted_identifier: '[dbo]'
                 - dot: .
                 - quoted_identifier: '[authors]'
-          statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       select_statement:
         select_clause:
@@ -160,7 +160,7 @@ file:
               table_expression:
                 table_reference:
                   naked_identifier: transactions
-          statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       select_statement:
         select_clause:
@@ -189,7 +189,7 @@ file:
             comparison_operator:
               raw_comparison_operator: '='
             integer_literal: '1'
-        statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       select_statement:
         select_clause:
@@ -213,7 +213,7 @@ file:
               table_expression:
                 table_reference:
                   naked_identifier: items
-          statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       select_statement:
         select_clause:
@@ -256,7 +256,7 @@ file:
               table_expression:
                 table_reference:
                   naked_identifier: dual
-          statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       declare_segment:
       - keyword: DECLARE
@@ -273,7 +273,7 @@ file:
               expression:
                 integer_literal: '50'
               end_bracket: )
-      - statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       select_statement:
         select_clause:
@@ -314,4 +314,4 @@ file:
             comparison_operator:
               raw_comparison_operator: '='
             integer_literal: '100'
-        statement_terminator: ;
+  - statement_terminator: ;

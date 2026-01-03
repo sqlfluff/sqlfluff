@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: e2ae210c5d4f27e2e5da725888bea3e6471e2d20da967196553459fadeedfbbb
+_hash: 6ed2f1168010b613d6d1bd4a0204c8b42fa4b763d887fe6666f9d73464fcd254
 file:
   batch:
   - statement:
@@ -31,7 +31,7 @@ file:
                     comma: ','
                     quoted_literal: "'select * from table_name'"
                     end_bracket: )
-          statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       update_statement:
         keyword: UPDATE
@@ -53,7 +53,7 @@ file:
               raw_comparison_operator: '='
             expression:
               quoted_literal: "'ADifferentName'"
-        statement_terminator: ;
+  - statement_terminator: ;
   - statement:
       insert_statement:
         keyword: INSERT
@@ -83,4 +83,4 @@ file:
           comma: ','
           quoted_literal: "'SELECT name FROM joe.titles WHERE name = ''NewTitle'''"
           end_bracket: )
-      - statement_terminator: ;
+  - statement_terminator: ;
