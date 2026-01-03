@@ -255,6 +255,11 @@ test_postgres_datatype:
         B'10101'::bit varying(3),
         B'10101'::bit varying
   configs:
+    layout:
+      type:
+        # https://github.com/sqlfluff/sqlfluff/issues/7302
+        data_type:
+          spacing_within: touch:inline
     core:
       dialect: postgres
 
