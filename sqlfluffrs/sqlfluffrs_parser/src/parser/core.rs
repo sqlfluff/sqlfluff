@@ -4,7 +4,6 @@
 //! including the main entry point for parsing with grammar.
 
 use hashbrown::HashSet;
-use regex::Match;
 
 use crate::parser::table_driven::frame::{TableFrameResult, TableParseFrame};
 use crate::parser::FrameState;
@@ -1529,7 +1528,7 @@ impl<'a> Parser<'a> {
         } else {
             // For non-persisting brackets, return a simple match with indent/dedent
             // but no BracketedSegment wrapper
-            let mut result = MatchResult {
+            MatchResult {
                 matched_slice: bracket_start..bracket_end,
                 child_matches: inner_child_matches,
                 insert_segments: vec![
@@ -1537,8 +1536,7 @@ impl<'a> Parser<'a> {
                     (bracket_end - 1, MetaSegmentType::Dedent, false),
                 ],
                 ..Default::default()
-            };
-            result
+            }
         }
     }
 }

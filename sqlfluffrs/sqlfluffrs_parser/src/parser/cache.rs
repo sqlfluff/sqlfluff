@@ -6,7 +6,7 @@
 use hashbrown::HashMap;
 use std::hash::{Hash, Hasher};
 
-use crate::parser::{MatchResult, Node};
+use crate::parser::MatchResult;
 
 // ============================================================================
 // Table-Driven Parse Cache

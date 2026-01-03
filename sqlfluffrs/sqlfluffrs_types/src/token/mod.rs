@@ -68,6 +68,7 @@ pub struct Token {
     quoted_value: Option<(String, RegexModeGroup)>,
     escape_replacement: Option<(String, String)>,
     pub casefold: CaseFold,
+    #[allow(dead_code)]
     raw_value: String,
     /// Pre-computed index of matching bracket for O(1) lookup during parsing.
     /// For opening brackets like '(', '[', '{', this points to the matching closing bracket.

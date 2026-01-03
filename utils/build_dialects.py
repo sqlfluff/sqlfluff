@@ -74,6 +74,7 @@ pub enum Dialect {{
 }}
 
 impl Dialect {{
+    #[allow(dead_code)]
     pub(crate) fn get_reserved_keywords(&self) -> &'static Vec<String> {{
         match self {{
             {dialect_reserved_keywords},

@@ -422,7 +422,7 @@ impl Parser<'_> {
                 }
             }
 
-            let (matched_idx_val, max_idx_val, current_element_idx_val) = match &frame.context {
+            let (matched_idx_val, max_idx_val, _current_element_idx_val) = match &frame.context {
                 FrameContext::SequenceTableDriven {
                     matched_idx,
                     max_idx,
@@ -1020,58 +1020,6 @@ impl Parser<'_> {
         frame.state = FrameState::Complete(result_match);
 
         Ok(TableFrameResult::Push(frame))
-    }
-
-    /// Helper: Collect transparent tokens between two positions (from .. to), used when allow_gaps==true.
-    ///
-    /// PYTHON PARITY: Only explicitly collect end_of_file tokens. Whitespace, newlines, and comments
-    /// are captured implicitly as trailing segments by apply(), aligning with Python's design.
-    fn table_collect_transparent_between_into_accum(
-        &mut self,
-        accumulated: &mut Vec<MatchResult>,
-        from: usize,
-        to: usize,
-    ) {
-        // Only collect end_of_file explicitly. Other transparent tokens (whitespace, newlines, comments)
-        // will be captured implicitly as trailing segments when apply() is called.
-        for collect_pos in from..to {
-            if collect_pos < self.tokens.len() && !self.tokens[collect_pos].is_code() {
-                // Skip if already collected (by a child or ancestor)
-                if self.collected_transparent_positions.contains(&collect_pos) {
-                    log::debug!(
-                        "SKIPPING already collected position {} in table_collect_transparent_between_into_accum",
-                        collect_pos
-                    );
-                    continue;
-                }
-
-                let tok = &self.tokens[collect_pos];
-                let tok_type = tok.get_type();
-                match &*tok_type {
-                    "end_of_file" => {
-                        log::debug!("COLLECTING EOF at {}: {:?}", collect_pos, tok.raw());
-                        accumulated.push(MatchResult {
-                            matched_slice: collect_pos..collect_pos + 1,
-                            matched_class: None, // Inferred from token type
-                            ..Default::default()
-                        });
-                        self.mark_position_collected(collect_pos);
-                    }
-                    "whitespace" | "newline" | "comment" => {
-                        // PYTHON PARITY: Don't explicitly collect these - they'll be captured
-                        // implicitly as trailing segments by apply()
-                        // However, mark them as collected so they're not captured multiple times
-                        self.mark_position_collected(collect_pos);
-                        log::debug!(
-                            "Marking {} at {} as collected (will be captured as trailing)",
-                            tok_type,
-                            collect_pos
-                        );
-                    }
-                    _ => {}
-                }
-            }
-        }
     }
 
     /// Flush buffered meta segments, positioning them relative to whitespace boundary.

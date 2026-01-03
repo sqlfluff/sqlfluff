@@ -114,8 +114,6 @@ impl<'a> Parser<'a> {
             return transparent_matches;
         }
 
-        let start_pos = self.pos;
-
         while let Some(tok) = self.peek() {
             // Stop at actual code tokens (but collect comments!)
             if tok.is_code() {

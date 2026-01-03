@@ -78,16 +78,6 @@ impl BlockTracker {
             .last()
             .expect("Block stack is empty. Cannot get the top block.")
     }
-
-    /// Check if the block stack is empty.
-    pub fn is_empty(&self) -> bool {
-        self.stack.is_empty()
-    }
-
-    /// Get the size of the stack.
-    pub fn stack_size(&self) -> usize {
-        self.stack.len()
-    }
 }
 
 #[derive(Debug)]
@@ -152,8 +142,11 @@ pub struct SQLLexError {
     pub ignore: bool,
     pub warning: bool,
     pub fatal: bool,
+    #[cfg(feature = "python")]
     code: Option<String>,
+    #[cfg(feature = "python")]
     name: Option<String>,
+    #[cfg(feature = "python")]
     identifier: String,
 }
 
@@ -178,12 +171,16 @@ impl SQLLexError {
             ignore: ignore.unwrap_or(false),
             warning: warning.unwrap_or(false),
             fatal: fatal.unwrap_or(false),
+            #[cfg(feature = "python")]
             code: Some("LXR".to_string()),
+            #[cfg(feature = "python")]
             name: None,
+            #[cfg(feature = "python")]
             identifier: "lexing".to_string(),
         }
     }
 
+    #[cfg(feature = "python")]
     fn source_signature(&self) -> ((String, usize, usize), String) {
         (
             self.check_tuple(),
@@ -193,22 +190,27 @@ impl SQLLexError {
         )
     }
 
+    #[cfg(feature = "python")]
     fn check_tuple(&self) -> (String, usize, usize) {
         (self.rule_code(), self.line_no, self.line_pos)
     }
 
+    #[cfg(feature = "python")]
     fn rule_code(&self) -> String {
         self.code.clone().unwrap_or("????".to_string())
     }
 
+    #[cfg(feature = "python")]
     fn rule_name(&self) -> String {
         self.name.clone().unwrap_or("????".to_string())
     }
 
+    #[cfg(feature = "python")]
     fn ignore_if_in(&mut self, ignore_iterable: &[String]) {
         self.ignore = ignore_iterable.contains(&self.identifier);
     }
 
+    #[cfg(feature = "python")]
     fn warning_if_in(&mut self, warning_iterable: &[String]) {
         self.warning = warning_iterable.contains(&self.rule_code())
             || warning_iterable.contains(&self.rule_name());

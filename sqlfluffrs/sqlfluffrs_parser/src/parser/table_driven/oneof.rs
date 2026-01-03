@@ -416,11 +416,9 @@ impl Parser<'_> {
         _stack: &mut TableParseFrameStack,
     ) -> Result<TableFrameResult, ParseError> {
         let FrameContext::OneOfTableDriven {
-            grammar_id,
             leading_ws,
             post_skip_pos,
             longest_match,
-            max_idx: _,
             ..
         } = &frame.context
         else {
@@ -428,8 +426,6 @@ impl Parser<'_> {
                 "Expected OneOfTableDriven context in combining".to_string(),
             ));
         };
-
-        let inst = self.grammar_ctx.inst(*grammar_id);
 
         log::debug!(
             "OneOf[table] Combining: frame_id={}, has_match={}",

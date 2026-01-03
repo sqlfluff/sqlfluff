@@ -281,7 +281,7 @@ impl MatchResult {
 
     /// Create a MatchResult for a Ref with child matches (lazy evaluation)
     pub fn ref_match(
-        name: String,
+        _name: String,
         segment_type: Option<String>,
         start_idx: usize,
         end_idx: usize,

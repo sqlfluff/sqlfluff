@@ -237,8 +237,6 @@ impl Parser<'_> {
         };
 
         let inst = self.grammar_ctx.inst(*grammar_id);
-        // Extract flags early to avoid borrow checker issues with self later
-        let allow_gaps = inst.flags.allow_gaps();
         let parse_mode = inst.parse_mode;
 
         // Determine which element candidate index we last attempted (stored in

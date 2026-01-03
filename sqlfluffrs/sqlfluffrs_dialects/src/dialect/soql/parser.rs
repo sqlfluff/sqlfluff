@@ -1873,33 +1873,33 @@ pub static INSTRUCTIONS: &[GrammarInst] = &[
     GrammarInst { variant: GrammarVariant::Sequence, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(0), first_child_idx: 717, child_count: 3, min_times: 0, first_terminator_idx: 20, terminator_count: 0, _padding: 0 },
     // [923] OneOf(14 options)
     GrammarInst { variant: GrammarVariant::OneOf, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 720, child_count: 14, min_times: 0, first_terminator_idx: 20, terminator_count: 0, _padding: 0 },
-    // [924] Ref(Last_n_yearsKeywordSegment)
+    // [924] Ref(Next_n_fiscal_yearsKeywordSegment)
     GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 734, child_count: 0, min_times: 0, first_terminator_idx: 20, terminator_count: 0, _padding: 0 },
-    // [925] Ref(Next_n_yearsKeywordSegment)
+    // [925] Ref(Next_n_monthsKeywordSegment)
     GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 734, child_count: 0, min_times: 0, first_terminator_idx: 20, terminator_count: 0, _padding: 0 },
-    // [926] Ref(Next_n_daysKeywordSegment)
+    // [926] Ref(Next_n_yearsKeywordSegment)
     GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 734, child_count: 0, min_times: 0, first_terminator_idx: 20, terminator_count: 0, _padding: 0 },
-    // [927] Ref(Next_n_weeksKeywordSegment)
+    // [927] Ref(Next_n_fiscal_quartersKeywordSegment)
     GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 734, child_count: 0, min_times: 0, first_terminator_idx: 20, terminator_count: 0, _padding: 0 },
-    // [928] Ref(Next_n_fiscal_quartersKeywordSegment)
+    // [928] Ref(Last_n_daysKeywordSegment)
     GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 734, child_count: 0, min_times: 0, first_terminator_idx: 20, terminator_count: 0, _padding: 0 },
-    // [929] Ref(Last_n_monthsKeywordSegment)
+    // [929] Ref(Last_n_fiscal_yearsKeywordSegment)
     GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 734, child_count: 0, min_times: 0, first_terminator_idx: 20, terminator_count: 0, _padding: 0 },
-    // [930] Ref(Last_n_quartersKeywordSegment)
+    // [930] Ref(Last_n_fiscal_quartersKeywordSegment)
     GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 734, child_count: 0, min_times: 0, first_terminator_idx: 20, terminator_count: 0, _padding: 0 },
-    // [931] Ref(Next_n_fiscal_yearsKeywordSegment)
+    // [931] Ref(Next_n_quartersKeywordSegment)
     GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 734, child_count: 0, min_times: 0, first_terminator_idx: 20, terminator_count: 0, _padding: 0 },
-    // [932] Ref(Last_n_weeksKeywordSegment)
+    // [932] Ref(Next_n_weeksKeywordSegment)
     GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 734, child_count: 0, min_times: 0, first_terminator_idx: 20, terminator_count: 0, _padding: 0 },
-    // [933] Ref(Next_n_monthsKeywordSegment)
+    // [933] Ref(Last_n_quartersKeywordSegment)
     GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 734, child_count: 0, min_times: 0, first_terminator_idx: 20, terminator_count: 0, _padding: 0 },
-    // [934] Ref(Last_n_fiscal_yearsKeywordSegment)
+    // [934] Ref(Last_n_monthsKeywordSegment)
     GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 734, child_count: 0, min_times: 0, first_terminator_idx: 20, terminator_count: 0, _padding: 0 },
-    // [935] Ref(Last_n_fiscal_quartersKeywordSegment)
+    // [935] Ref(Next_n_daysKeywordSegment)
     GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 734, child_count: 0, min_times: 0, first_terminator_idx: 20, terminator_count: 0, _padding: 0 },
-    // [936] Ref(Last_n_daysKeywordSegment)
+    // [936] Ref(Last_n_weeksKeywordSegment)
     GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 734, child_count: 0, min_times: 0, first_terminator_idx: 20, terminator_count: 0, _padding: 0 },
-    // [937] Ref(Next_n_quartersKeywordSegment)
+    // [937] Ref(Last_n_yearsKeywordSegment)
     GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 734, child_count: 0, min_times: 0, first_terminator_idx: 20, terminator_count: 0, _padding: 0 },
     // [938] Ref(ColonSegment)
     GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 734, child_count: 0, min_times: 0, first_terminator_idx: 20, terminator_count: 0, _padding: 0 },
@@ -6945,20 +6945,20 @@ pub static STRINGS: &[&str] = &[
     "NEXT_N_QUARTERS", // [709]
     "NEXT_N_WEEKS", // [710]
     "NEXT_N_YEARS", // [711]
-    "Last_n_yearsKeywordSegment", // [712]
-    "Next_n_yearsKeywordSegment", // [713]
-    "Next_n_daysKeywordSegment", // [714]
-    "Next_n_weeksKeywordSegment", // [715]
-    "Next_n_fiscal_quartersKeywordSegment", // [716]
-    "Last_n_monthsKeywordSegment", // [717]
-    "Last_n_quartersKeywordSegment", // [718]
-    "Next_n_fiscal_yearsKeywordSegment", // [719]
-    "Last_n_weeksKeywordSegment", // [720]
-    "Next_n_monthsKeywordSegment", // [721]
-    "Last_n_fiscal_yearsKeywordSegment", // [722]
-    "Last_n_fiscal_quartersKeywordSegment", // [723]
-    "Last_n_daysKeywordSegment", // [724]
-    "Next_n_quartersKeywordSegment", // [725]
+    "Next_n_fiscal_yearsKeywordSegment", // [712]
+    "Next_n_monthsKeywordSegment", // [713]
+    "Next_n_yearsKeywordSegment", // [714]
+    "Next_n_fiscal_quartersKeywordSegment", // [715]
+    "Last_n_daysKeywordSegment", // [716]
+    "Last_n_fiscal_yearsKeywordSegment", // [717]
+    "Last_n_fiscal_quartersKeywordSegment", // [718]
+    "Next_n_quartersKeywordSegment", // [719]
+    "Next_n_weeksKeywordSegment", // [720]
+    "Last_n_quartersKeywordSegment", // [721]
+    "Last_n_monthsKeywordSegment", // [722]
+    "Next_n_daysKeywordSegment", // [723]
+    "Last_n_weeksKeywordSegment", // [724]
+    "Last_n_yearsKeywordSegment", // [725]
     "ColonSegment", // [726]
     "DATEADD", // [727]
     "DatePartFunctionName", // [728]
@@ -9108,7 +9108,7 @@ pub static REGEX_PATTERNS: &[&str] = &[
     r#"[A-Z_][A-Z0-9_]*"#, // [0]
     r#"^(NOT)$"#, // [1]
     r#"[A-Z0-9_]*[A-Z][A-Z0-9_]*"#, // [2]
-    r#"^(CASE|FULL|LAST_MONTH|LAST_WEEK|NEXT_N_DAYS|THIS_FISCAL_QUARTER|NOT|LAST_N_MONTHS|RESPECT|NEXT_N_FISCAL_YEARS|THIS_YEAR|THIS_FISCAL_YEAR|NEXT_N_MONTHS|NEXT_QUARTER|LAST_N_FISCAL_QUARTERS|NEXT_N_QUARTERS|ROWS|NEXT_FISCAL_QUARTER|CROSS|NATURAL|THIS_MONTH|TODAY|LAST_QUARTER|LAST_FISCAL_QUARTER|SET|NEXT_N_FISCAL_QUARTERS|INTERVAL|NEXT_WEEK|SELECT|THIS_WEEK|USING|LAST_N_WEEKS|LAST_N_FISCAL_YEARS|LAST_N_DAYS|LAST_N_YEARS|NEXT_N_YEARS|LAST_FISCAL_YEAR|NEXT_N_WEEKS|UNION|NEXT_YEAR|NEXT_MONTH|INNER|JOIN|NEXT_FISCAL_YEAR|ORDER|NEXT_90_DAYS|LAST_YEAR|IGNORE|OUTER|LAST_90_DAYS|LEFT|YESTERDAY|LAST_N_QUARTERS|TOMORROW|THIS_QUARTER|ON|NULL|PARTITION|RIGHT)$"#, // [3]
+    r#"^(ROWS|TODAY|NOT|LAST_FISCAL_YEAR|UNION|RESPECT|NEXT_QUARTER|THIS_QUARTER|SET|OUTER|NEXT_N_FISCAL_QUARTERS|JOIN|THIS_MONTH|LAST_QUARTER|NEXT_90_DAYS|NEXT_N_FISCAL_YEARS|NULL|NEXT_N_YEARS|NEXT_YEAR|NEXT_MONTH|NEXT_N_QUARTERS|LAST_90_DAYS|THIS_FISCAL_QUARTER|LEFT|LAST_FISCAL_QUARTER|CASE|LAST_N_MONTHS|NEXT_N_DAYS|NEXT_FISCAL_QUARTER|THIS_FISCAL_YEAR|LAST_N_QUARTERS|LAST_YEAR|ORDER|NEXT_N_MONTHS|USING|LAST_N_DAYS|RIGHT|LAST_N_FISCAL_QUARTERS|INTERVAL|THIS_WEEK|THIS_YEAR|YESTERDAY|NATURAL|NEXT_FISCAL_YEAR|TOMORROW|LAST_MONTH|SELECT|INNER|PARTITION|LAST_N_WEEKS|NEXT_WEEK|LAST_WEEK|CROSS|LAST_N_FISCAL_YEARS|ON|NEXT_N_WEEKS|FULL|IGNORE|LAST_N_YEARS)$"#, // [3]
     r#"\"?[A-Z][A-Z0-9_]*\"?"#, // [4]
 ];
 
@@ -9625,20 +9625,20 @@ pub static HINT_STRING_INDICES: &[u32] = &[
     709, // [509]
     710, // [510]
     711, // [511]
-    704, // [512]
-    711, // [513]
-    705, // [514]
-    710, // [515]
-    706, // [516]
-    701, // [517]
-    702, // [518]
-    707, // [519]
-    703, // [520]
-    708, // [521]
-    700, // [522]
-    699, // [523]
-    698, // [524]
-    709, // [525]
+    707, // [512]
+    708, // [513]
+    711, // [514]
+    706, // [515]
+    698, // [516]
+    700, // [517]
+    699, // [518]
+    709, // [519]
+    710, // [520]
+    702, // [521]
+    701, // [522]
+    705, // [523]
+    703, // [524]
+    704, // [525]
     727, // [526]
     730, // [527]
     731, // [528]

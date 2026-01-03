@@ -1,6 +1,6 @@
 use pyo3::exceptions::PyException;
 use pyo3::prelude::*;
-use pyo3::types::{PyDict, PyList, PyTuple};
+use pyo3::types::{PyDict, PyList};
 
 use super::match_result::MatchResult;
 use super::types::NodeTupleValue;
@@ -131,7 +131,7 @@ impl PyNode {
     }
 
     /// Convert to Python dict representation (for debugging/inspection)
-    fn to_dict(&self, py: Python) -> PyResult<PyObject> {
+    fn to_dict(&self, py: Python) -> PyResult<Py<PyAny>> {
         self.to_dict_recursive(py, 0, 100)
     }
 
@@ -143,7 +143,7 @@ impl PyNode {
         code_only: bool,
         show_raw: bool,
         include_meta: bool,
-    ) -> PyResult<PyObject> {
+    ) -> PyResult<Py<PyAny>> {
         let tuple_val = self.0.to_tuple(code_only, show_raw, include_meta);
         self.tuple_value_to_python(py, &tuple_val)
     }
@@ -156,7 +156,7 @@ impl PyNode {
         code_only: bool,
         show_raw: bool,
         include_meta: bool,
-    ) -> PyResult<Option<PyObject>> {
+    ) -> PyResult<Option<Py<PyAny>>> {
         match self.0.as_record(code_only, show_raw, include_meta) {
             Some(yaml_val) => {
                 // Convert serde_yaml::Value to Python object
@@ -193,7 +193,7 @@ impl PyNode {
 }
 
 impl PyNode {
-    fn to_dict_recursive(&self, py: Python, depth: usize, max_depth: usize) -> PyResult<PyObject> {
+    fn to_dict_recursive(&self, py: Python, depth: usize, max_depth: usize) -> PyResult<Py<PyAny>> {
         if depth > max_depth {
             return Ok("...".into_pyobject(py)?.into());
         }
@@ -292,7 +292,7 @@ impl PyNode {
         Ok(dict.into())
     }
 
-    fn tuple_value_to_python(&self, py: Python, val: &NodeTupleValue) -> PyResult<PyObject> {
+    fn tuple_value_to_python(&self, py: Python, val: &NodeTupleValue) -> PyResult<Py<PyAny>> {
         match val {
             NodeTupleValue::Raw(key, s) => Ok((key, s).into_pyobject(py)?.into()),
             NodeTupleValue::Tuple(key, children) => {
@@ -305,7 +305,7 @@ impl PyNode {
         }
     }
 
-    fn yaml_to_python(py: Python, val: &serde_yaml_ng::Value) -> PyResult<PyObject> {
+    fn yaml_to_python(py: Python, val: &serde_yaml_ng::Value) -> PyResult<Py<PyAny>> {
         use serde_yaml_ng::Value;
         match val {
             Value::Null => Ok(py.None()),
