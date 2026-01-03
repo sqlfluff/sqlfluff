@@ -35,7 +35,8 @@ fn bench_simple_select(c: &mut Criterion) {
 
     c.bench_function("baseline/simple_select", |b| {
         b.iter(|| {
-            let mut parser = Parser::new(black_box(&tokens), Dialect::Ansi);
+            let mut parser =
+                Parser::new(black_box(&tokens), Dialect::Ansi, hashbrown::HashMap::new());
             parser.call_rule_as_root().expect("Parse failed")
         })
     });
@@ -47,7 +48,8 @@ fn bench_simple_insert(c: &mut Criterion) {
 
     c.bench_function("baseline/simple_insert", |b| {
         b.iter(|| {
-            let mut parser = Parser::new(black_box(&tokens), Dialect::Ansi);
+            let mut parser =
+                Parser::new(black_box(&tokens), Dialect::Ansi, hashbrown::HashMap::new());
             parser.call_rule_as_root().expect("Parse failed")
         })
     });
@@ -59,7 +61,8 @@ fn bench_simple_update(c: &mut Criterion) {
 
     c.bench_function("baseline/simple_update", |b| {
         b.iter(|| {
-            let mut parser = Parser::new(black_box(&tokens), Dialect::Ansi);
+            let mut parser =
+                Parser::new(black_box(&tokens), Dialect::Ansi, hashbrown::HashMap::new());
             parser.call_rule_as_root().expect("Parse failed")
         })
     });
@@ -90,7 +93,8 @@ fn bench_complex_join(c: &mut Criterion) {
 
     c.bench_function("baseline/complex_join", |b| {
         b.iter(|| {
-            let mut parser = Parser::new(black_box(&tokens), Dialect::Ansi);
+            let mut parser =
+                Parser::new(black_box(&tokens), Dialect::Ansi, hashbrown::HashMap::new());
             parser.call_rule_as_root().expect("Parse failed")
         })
     });
@@ -109,7 +113,8 @@ fn bench_multiple_joins(c: &mut Criterion) {
 
     c.bench_function("baseline/multiple_joins", |b| {
         b.iter(|| {
-            let mut parser = Parser::new(black_box(&tokens), Dialect::Ansi);
+            let mut parser =
+                Parser::new(black_box(&tokens), Dialect::Ansi, hashbrown::HashMap::new());
             parser.call_rule_as_root().expect("Parse failed")
         })
     });
@@ -141,7 +146,8 @@ fn bench_nested_subqueries(c: &mut Criterion) {
 
     c.bench_function("baseline/nested_subqueries", |b| {
         b.iter(|| {
-            let mut parser = Parser::new(black_box(&tokens), Dialect::Ansi);
+            let mut parser =
+                Parser::new(black_box(&tokens), Dialect::Ansi, hashbrown::HashMap::new());
             parser.call_rule_as_root().expect("Parse failed")
         })
     });
@@ -163,7 +169,8 @@ fn bench_deeply_nested(c: &mut Criterion) {
 
     c.bench_function("baseline/deeply_nested", |b| {
         b.iter(|| {
-            let mut parser = Parser::new(black_box(&tokens), Dialect::Ansi);
+            let mut parser =
+                Parser::new(black_box(&tokens), Dialect::Ansi, hashbrown::HashMap::new());
             parser.call_rule_as_root().expect("Parse failed")
         })
     });
@@ -189,7 +196,8 @@ fn bench_window_functions(c: &mut Criterion) {
 
     c.bench_function("baseline/window_functions", |b| {
         b.iter(|| {
-            let mut parser = Parser::new(black_box(&tokens), Dialect::Ansi);
+            let mut parser =
+                Parser::new(black_box(&tokens), Dialect::Ansi, hashbrown::HashMap::new());
             parser.call_rule_as_root().expect("Parse failed")
         })
     });
@@ -223,7 +231,8 @@ fn bench_cte(c: &mut Criterion) {
 
     c.bench_function("baseline/cte", |b| {
         b.iter(|| {
-            let mut parser = Parser::new(black_box(&tokens), Dialect::Ansi);
+            let mut parser =
+                Parser::new(black_box(&tokens), Dialect::Ansi, hashbrown::HashMap::new());
             parser.call_rule_as_root().expect("Parse failed")
         })
     });
@@ -242,7 +251,8 @@ fn bench_recursive_cte(c: &mut Criterion) {
 
     c.bench_function("baseline/recursive_cte", |b| {
         b.iter(|| {
-            let mut parser = Parser::new(black_box(&tokens), Dialect::Ansi);
+            let mut parser =
+                Parser::new(black_box(&tokens), Dialect::Ansi, hashbrown::HashMap::new());
             parser.call_rule_as_root().expect("Parse failed")
         })
     });
@@ -264,7 +274,8 @@ fn bench_large_insert(c: &mut Criterion) {
 
     c.bench_function("baseline/large_insert_100", |b| {
         b.iter(|| {
-            let mut parser = Parser::new(black_box(&tokens), Dialect::Ansi);
+            let mut parser =
+                Parser::new(black_box(&tokens), Dialect::Ansi, hashbrown::HashMap::new());
             parser.call_rule_as_root().expect("Parse failed")
         })
     });
@@ -283,7 +294,8 @@ fn bench_many_columns_select(c: &mut Criterion) {
 
     c.bench_function("baseline/select_100_columns", |b| {
         b.iter(|| {
-            let mut parser = Parser::new(black_box(&tokens), Dialect::Ansi);
+            let mut parser =
+                Parser::new(black_box(&tokens), Dialect::Ansi, hashbrown::HashMap::new());
             parser.call_rule_as_root().expect("Parse failed")
         })
     });
@@ -309,7 +321,8 @@ fn bench_scaling_by_column_count(c: &mut Criterion) {
 
         group.bench_with_input(BenchmarkId::from_parameter(count), &count, |b, _| {
             b.iter(|| {
-                let mut parser = Parser::new(black_box(&tokens), Dialect::Ansi);
+                let mut parser =
+                    Parser::new(black_box(&tokens), Dialect::Ansi, hashbrown::HashMap::new());
                 parser.call_rule_as_root().expect("Parse failed")
             })
         });
@@ -330,7 +343,8 @@ fn bench_scaling_by_join_count(c: &mut Criterion) {
 
         group.bench_with_input(BenchmarkId::from_parameter(count), &count, |b, _| {
             b.iter(|| {
-                let mut parser = Parser::new(black_box(&tokens), Dialect::Ansi);
+                let mut parser =
+                    Parser::new(black_box(&tokens), Dialect::Ansi, hashbrown::HashMap::new());
                 parser.call_rule_as_root().expect("Parse failed")
             })
         });
@@ -351,7 +365,8 @@ fn bench_cache_on_vs_off(c: &mut Criterion) {
 
     group.bench_function("cache_on", |b| {
         b.iter(|| {
-            let mut parser = Parser::new(black_box(&tokens), Dialect::Ansi);
+            let mut parser =
+                Parser::new(black_box(&tokens), Dialect::Ansi, hashbrown::HashMap::new());
             parser.set_cache_enabled(true);
             parser.call_rule_as_root().expect("Parse failed")
         })
@@ -359,7 +374,8 @@ fn bench_cache_on_vs_off(c: &mut Criterion) {
 
     group.bench_function("cache_off", |b| {
         b.iter(|| {
-            let mut parser = Parser::new(black_box(&tokens), Dialect::Ansi);
+            let mut parser =
+                Parser::new(black_box(&tokens), Dialect::Ansi, hashbrown::HashMap::new());
             parser.set_cache_enabled(false);
             parser.call_rule_as_root().expect("Parse failed")
         })
@@ -375,7 +391,8 @@ fn bench_repeated_parsing(c: &mut Criterion) {
 
     c.bench_function("baseline/repeated_parse_with_cache", |b| {
         b.iter(|| {
-            let mut parser = Parser::new(black_box(&tokens), Dialect::Ansi);
+            let mut parser =
+                Parser::new(black_box(&tokens), Dialect::Ansi, hashbrown::HashMap::new());
             parser.set_cache_enabled(true);
             // Parse twice to test cache effectiveness
             let _first = parser.call_rule_as_root().expect("Parse failed");
@@ -393,7 +410,8 @@ fn bench_nested_functions(c: &mut Criterion) {
 
     c.bench_function("baseline/nested_functions", |b| {
         b.iter(|| {
-            let mut parser = Parser::new(black_box(&tokens), Dialect::Ansi);
+            let mut parser =
+                Parser::new(black_box(&tokens), Dialect::Ansi, hashbrown::HashMap::new());
             parser.call_rule_as_root().expect("Parse failed")
         })
     });
@@ -412,7 +430,8 @@ fn bench_complex_where(c: &mut Criterion) {
 
     c.bench_function("baseline/complex_where", |b| {
         b.iter(|| {
-            let mut parser = Parser::new(black_box(&tokens), Dialect::Ansi);
+            let mut parser =
+                Parser::new(black_box(&tokens), Dialect::Ansi, hashbrown::HashMap::new());
             parser.call_rule_as_root().expect("Parse failed")
         })
     });

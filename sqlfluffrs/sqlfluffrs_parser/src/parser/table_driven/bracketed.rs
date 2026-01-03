@@ -1,3 +1,4 @@
+use crate::vdebug;
 use sqlfluffrs_types::{GrammarId, ParseMode};
 
 use crate::parser::{
@@ -13,7 +14,7 @@ impl Parser<'_> {
         parent_terminators: &[GrammarId],
         stack: &mut TableParseFrameStack,
     ) -> Result<TableFrameResult, ParseError> {
-        log::debug!(
+        vdebug!(
             "Bracketed[table] Initial: grammar_id={}, frame_id={}, pos={}",
             grammar_id,
             frame.frame_id,
@@ -31,13 +32,13 @@ impl Parser<'_> {
             reset_terminators,
         );
         let all_children: Vec<GrammarId> = self.grammar_ctx.children(grammar_id).collect();
-        log::debug!(
+        vdebug!(
             "Bracketed[table] children count={}, children={:?}",
             all_children.len(),
             all_children
         );
         if all_children.len() < 2 {
-            log::debug!("Bracketed[table]: Not enough children (need bracket_pairs + elements)");
+            vdebug!("Bracketed[table]: Not enough children (need bracket_pairs + elements)");
             stack.results.insert(
                 frame.frame_id,
                 (MatchResult::empty_at(start_idx), start_idx, None),
@@ -57,7 +58,7 @@ impl Parser<'_> {
             parent_max_idx,
             None, // No override for opening bracket
         );
-        log::debug!(
+        vdebug!(
             "Bracketed[table] pushed open_bracket child grammar_id={} at pos={} frame_id={}",
             open_bracket_id,
             start_idx,
@@ -106,7 +107,7 @@ impl Parser<'_> {
             .map(|(_, id)| id)
             .collect::<Vec<_>>();
 
-        log::debug!(
+        vdebug!(
             "Bracketed[table] WaitingForChild: frame_id={}, child_empty={}, state={:?}, bracket_max_idx={:?}, content_ids_local={:?}, content_ids_frame={:?}, content_idx={}, last_child_frame_id={:?}",
             frame.frame_id,
             child_is_empty,
@@ -122,7 +123,7 @@ impl Parser<'_> {
             BracketedState::MatchingOpen => {
                 if child_is_empty {
                     self.pos = frame.pos;
-                    log::debug!("Bracketed[table] returning Empty (no opening bracket)",);
+                    vdebug!("Bracketed[table] returning Empty (no opening bracket)",);
                     // Transition to Combining to finalize Empty result
                     frame.end_pos = Some(frame.pos);
                     frame.state = FrameState::Combining;
@@ -136,7 +137,7 @@ impl Parser<'_> {
                 // this is here for completeness)
                 let parse_mode = frame.parse_mode_override.unwrap_or(grammar_inst.parse_mode);
 
-                log::debug!(
+                vdebug!(
                     "Bracketed[table] MatchingOpen: grammar_id={}, parse_mode={:?}",
                     frame.grammar_id,
                     parse_mode
@@ -151,8 +152,9 @@ impl Parser<'_> {
                 } else {
                     None
                 };
+                #[cfg(feature = "verbose-debug")]
                 if let Some(close_idx) = computed_bracket_max_idx {
-                    log::debug!(
+                    vdebug!(
                         "Bracketed: Using pre-computed closing bracket at idx={} as max_idx",
                         close_idx
                     );
@@ -162,10 +164,10 @@ impl Parser<'_> {
 
                 // If allow_gaps is false and there's whitespace after opening bracket, fail in STRICT mode
                 if !allow_gaps && parse_mode == ParseMode::Strict {
-                    if let Some(ws_pos) = (content_start_idx..self.tokens.len())
+                    if let Some(_ws_pos) = (content_start_idx..self.tokens.len())
                         .find(|&pos| !self.tokens[pos].is_code())
                     {
-                        log::debug!("Bracketed: allow_gaps=false, found whitespace/newline at {}, failing in STRICT mode", ws_pos);
+                        vdebug!("Bracketed: allow_gaps=false, found whitespace/newline at {}, failing in STRICT mode", _ws_pos);
                         self.pos = frame.pos;
 
                         // Transition to Combining to finalize Empty result
@@ -198,7 +200,7 @@ impl Parser<'_> {
                                     self.mark_position_collected(pos);
                                 }
                                 "whitespace" | "newline" | "comment" => {
-                                    log::debug!(
+                                    vdebug!(
                                         "Bracketed[table]: Skipping explicit collection of {} at {} - will be captured as trailing",
                                         tok.get_type(),
                                         pos
@@ -224,7 +226,7 @@ impl Parser<'_> {
                 // creating granular unparsable sections.
                 if parse_mode == ParseMode::Greedy {
                     *parse_mode_override = Some(ParseMode::Greedy);
-                    log::debug!(
+                    vdebug!(
                         "Bracketed[table]: Setting parse_mode_override=Greedy for content (Bracketed is GREEDY)"
                     );
                 }
@@ -238,10 +240,10 @@ impl Parser<'_> {
                 let content_grammar_id = if content_ids_local.is_empty() {
                     // No elements - skip to closing bracket
                     // update the state in the frame context to MatchingClose
-                    log::debug!("DEBUG: Transitioning to MatchingClose!");
+                    vdebug!("DEBUG: Transitioning to MatchingClose!");
                     *bracket_state = BracketedState::MatchingClose;
                     let parent_limit = frame.parent_max_idx;
-                    log::debug!(
+                    vdebug!(
                         "DEBUG: Creating closing bracket child at pos={}, parent_limit={:?}",
                         self.pos,
                         parent_limit
@@ -263,7 +265,7 @@ impl Parser<'_> {
                     return Ok(TableFrameResult::Done);
                 } else {
                     // Start with the first content element
-                    log::debug!(
+                    vdebug!(
                         "Bracketed[table]: content_ids.len()={}, starting with element 0",
                         content_ids_local.len()
                     );
@@ -335,7 +337,7 @@ impl Parser<'_> {
 
                 let gap_start = *child_end_pos;
                 self.pos = gap_start;
-                log::debug!(
+                vdebug!(
                     "DEBUG: After content, gap_start={}, current_pos={}",
                     gap_start,
                     self.pos
@@ -344,7 +346,7 @@ impl Parser<'_> {
                 if allow_gaps {
                     let code_idx =
                         self.skip_start_index_forward_to_code(gap_start, self.tokens.len());
-                    log::debug!(
+                    vdebug!(
                         "[BRACKET-DEBUG] After content, gap_start={}, code_idx={}, token at gap_start={:?}, token at code_idx={:?}",
                         gap_start, code_idx,
                         self.tokens.get(gap_start).map(|t| t.raw()),
@@ -370,7 +372,7 @@ impl Parser<'_> {
                                 || tok_type == "newline"
                                 || tok_type == "comment"
                             {
-                                log::debug!(
+                                vdebug!(
                                     "Bracketed[table]: Skipping explicit collection of {} at {} - will be captured as trailing",
                                     tok_type,
                                     pos
@@ -380,7 +382,7 @@ impl Parser<'_> {
                     }
                     self.pos = code_idx;
                 }
-                log::debug!(
+                vdebug!(
                     "DEBUG: Checking for more content or closing bracket - self.pos={}, content_idx={}, content_ids.len()={}, tokens.len={}",
                     self.pos,
                     *content_idx,
@@ -394,7 +396,7 @@ impl Parser<'_> {
                     // More content elements remain - parse the next one
                     *content_idx += 1;
                     let next_content_id = content_ids[*content_idx];
-                    log::debug!(
+                    vdebug!(
                         "Attempting MatchingContent: content_idx={}, content_ids.len()={}, child_empty={}, next_content_id={:?}",
                         *content_idx,
                         content_ids.len(),
@@ -436,7 +438,7 @@ impl Parser<'_> {
                 if self.pos >= self.tokens.len()
                     || self.peek().is_some_and(|t| t.get_type() == "end_of_file")
                 {
-                    log::debug!("DEBUG: No closing bracket found!");
+                    vdebug!("DEBUG: No closing bracket found!");
                     if parse_mode == ParseMode::Strict {
                         self.pos = frame.pos;
                         // Transition to Combining to finalize Empty result
@@ -447,7 +449,7 @@ impl Parser<'_> {
                     } else {
                         // GREEDY mode: Create parse error result for unclosed bracket
                         // Python parity: raises SQLParseError which gets caught and converted to violation
-                        log::debug!(
+                        vdebug!(
                             "Bracketed[table] GREEDY mode: No closing bracket found at EOF, creating parse error result"
                         );
 
@@ -474,7 +476,7 @@ impl Parser<'_> {
                     if let Some(expected_close_pos) = *bracket_max_idx {
                         if check_pos != expected_close_pos {
                             if parse_mode == ParseMode::Strict {
-                                log::debug!("Bracketed[table] STRICT mode: content did not end at closing bracket (check_pos={}, expected={}), returning Empty for retry. frame_id={}, frame.pos={}", check_pos, expected_close_pos, frame.frame_id, frame.pos);
+                                vdebug!("Bracketed[table] STRICT mode: content did not end at closing bracket (check_pos={}, expected={}), returning Empty for retry. frame_id={}, frame.pos={}", check_pos, expected_close_pos, frame.frame_id, frame.pos);
                                 self.pos = frame.pos;
                                 // Transition to Combining to finalize Empty result
                                 frame.end_pos = Some(frame.pos);
@@ -483,7 +485,7 @@ impl Parser<'_> {
                                 return Ok(TableFrameResult::Done);
                             } else {
                                 // GREEDY mode: Create unparsable section for tokens between content end and closing bracket
-                                log::debug!(
+                                vdebug!(
                                     "Bracketed[table] GREEDY mode: Creating unparsable section for tokens {}..{} (content ended at {}, closing bracket at {})",
                                     check_pos, expected_close_pos, check_pos, expected_close_pos
                                 );
@@ -505,16 +507,14 @@ impl Parser<'_> {
                                 self.pos = expected_close_pos;
                             }
                         } else {
-                            log::debug!("[BRACKET-DEBUG] Bracketed content ends at expected closing bracket (check_pos == expected_close_pos)");
+                            vdebug!("[BRACKET-DEBUG] Bracketed content ends at expected closing bracket (check_pos == expected_close_pos)");
                         }
                     }
 
-                    log::debug!(
-                        "DEBUG: All content elements parsed, transitioning to MatchingClose!"
-                    );
+                    vdebug!("DEBUG: All content elements parsed, transitioning to MatchingClose!");
                     *bracket_state = BracketedState::MatchingClose;
                     let parent_limit = frame.parent_max_idx;
-                    log::debug!(
+                    vdebug!(
                         "DEBUG: Creating closing bracket child at pos={}, parent_limit={:?}",
                         self.pos,
                         parent_limit
@@ -536,7 +536,7 @@ impl Parser<'_> {
                 }
             }
             BracketedState::MatchingClose => {
-                log::debug!(
+                vdebug!(
                     "DEBUG: Bracketed[table] MatchingClose - child_is_empty={}, child_end_pos={}",
                     child_is_empty,
                     child_end_pos
@@ -558,7 +558,7 @@ impl Parser<'_> {
                         // GREEDY mode: Closing bracket not found - raise parse error
                         // PYTHON PARITY: This matches Python's behavior where Bracketed.match()
                         // raises SQLParseError("Couldn't find closing bracket for opening bracket.")
-                        log::debug!(
+                        vdebug!(
                             "Bracketed[table] GREEDY mode: Couldn't find closing bracket for opening bracket at pos {}, frame_id={}",
                             frame.pos,
                             frame.frame_id
@@ -581,7 +581,7 @@ impl Parser<'_> {
                 } else {
                     frame.accumulated.push(child_match.clone());
                     self.pos = *child_end_pos;
-                    log::debug!(
+                    vdebug!(
                         "Bracketed[table] SUCCESS: {} children, transitioning to Combining at frame_id={}",
                         frame.accumulated.len(),
                         frame.frame_id
@@ -611,8 +611,9 @@ impl Parser<'_> {
         &mut self,
         mut frame: TableParseFrame,
     ) -> Result<TableFrameResult, ParseError> {
+        #[cfg(feature = "verbose-debug")]
         let combine_end = frame.end_pos.unwrap_or(self.pos);
-        log::debug!(
+        vdebug!(
             "🔨 Bracketed combining at pos {}-{} - frame_id={}, accumulated={}",
             frame.pos,
             combine_end.saturating_sub(1),
@@ -642,7 +643,7 @@ impl Parser<'_> {
 
         let end_pos = frame.end_pos.unwrap_or(frame.pos);
         let result_match = if is_complete {
-            log::debug!(
+            vdebug!(
                 "Bracketed combining with COMPLETE state → building MatchResult::bracketed, frame_id={}, bracket_persists={}",
                 frame.frame_id,
                 bracket_persists
@@ -652,13 +653,14 @@ impl Parser<'_> {
             MatchResult::bracketed(frame.pos, end_pos, accumulated, bracket_persists)
         } else {
             // Log the actual state for debugging
+            #[cfg(feature = "verbose-debug")]
             let state_str = if let FrameContext::BracketedTableDriven { state, .. } = &frame.context
             {
                 format!("{:?}", state)
             } else {
                 "Unknown".to_string()
             };
-            log::debug!(
+            vdebug!(
                 "Bracketed combining with INCOMPLETE state ({}) → returning Empty, frame_id={}, accumulated={}",
                 state_str,
                 frame.frame_id,

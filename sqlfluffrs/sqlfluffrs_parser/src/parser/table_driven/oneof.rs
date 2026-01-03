@@ -2,6 +2,7 @@ use crate::parser::{
     table_driven::frame::{TableFrameResult, TableParseFrame, TableParseFrameStack},
     FrameContext, FrameState, MatchResult, ParseError, Parser,
 };
+use crate::vdebug;
 use sqlfluffrs_types::GrammarId;
 
 impl Parser<'_> {
@@ -20,6 +21,7 @@ impl Parser<'_> {
         self.pos = frame.pos;
 
         let grammar_id = frame.grammar_id;
+        #[cfg(feature = "verbose-debug")]
         let child_count = self.grammar_ctx.inst(grammar_id).child_count;
         let allow_gaps = self.grammar_ctx.inst(grammar_id).flags.allow_gaps();
         let reset_terminators = self.grammar_ctx.inst(grammar_id).flags.reset_terminators();
@@ -27,7 +29,7 @@ impl Parser<'_> {
         let optional = self.grammar_ctx.inst(grammar_id).flags.optional();
         let start_pos = frame.pos;
 
-        log::debug!(
+        vdebug!(
             "OneOf[table] Initial: frame_id={}, pos={}, grammar_id={}, children={}",
             frame.frame_id,
             start_pos,
@@ -40,7 +42,7 @@ impl Parser<'_> {
             // Try matching exclude grammar
             if let Ok(exclude_result) = self.parse_table_iterative(exclude_id, parent_terminators) {
                 if !exclude_result.is_empty() {
-                    log::debug!(
+                    vdebug!(
                         "OneOf[table]: exclude grammar matched at pos {}, returning Empty",
                         start_pos
                     );
@@ -51,7 +53,7 @@ impl Parser<'_> {
                     return Ok(TableFrameResult::Done);
                 }
             }
-            log::debug!("OneOf[table]: exclude grammar did not match, continuing");
+            vdebug!("OneOf[table]: exclude grammar did not match, continuing");
         }
 
         // Collect leading transparent tokens if allow_gaps
@@ -79,7 +81,7 @@ impl Parser<'_> {
             frame.parent_max_idx,
         )?;
 
-        log::debug!(
+        vdebug!(
             "OneOf[table]: post_skip_pos={}, max_idx={}, terminators={}",
             post_skip_pos,
             max_idx,
@@ -90,7 +92,7 @@ impl Parser<'_> {
         if parse_mode == sqlfluffrs_types::ParseMode::Greedy
             && self.is_terminated_table_driven(&all_terminators)
         {
-            log::debug!("OneOf[table]: Early termination - at terminator position");
+            vdebug!("OneOf[table]: Early termination - at terminator position");
             if optional {
                 stack.results.insert(
                     frame.frame_id,
@@ -123,14 +125,14 @@ impl Parser<'_> {
             };
             kept_names.push(name);
         }
-        log::debug!(
+        vdebug!(
             "OneOf[table]: kept_children_count={} names={:?}",
             pruned_children.len(),
             kept_names
         );
 
         if pruned_children.is_empty() {
-            log::debug!("OneOf[table]: No children after pruning, returning Empty");
+            vdebug!("OneOf[table]: No children after pruning, returning Empty");
             stack.results.insert(
                 frame.frame_id,
                 (MatchResult::empty_at(post_skip_pos), post_skip_pos, None),
@@ -141,7 +143,7 @@ impl Parser<'_> {
         // Try first child
         let first_child = pruned_children[0];
 
-        log::debug!(
+        vdebug!(
             "OneOf[table]: Trying first of {} pruned children, grammar_id={}",
             pruned_children.len(),
             first_child.0
@@ -182,7 +184,7 @@ impl Parser<'_> {
             Some(max_idx),
         );
 
-        log::debug!(
+        vdebug!(
             "OneOf[table]: Pushing child frame: parent_frame_id={}, child_frame_id={}, child_gid={}",
             frame.frame_id,
             child_frame.frame_id,
@@ -220,52 +222,57 @@ impl Parser<'_> {
         let consumed = *child_end_pos - *post_skip_pos;
         let current_child = current_child_id.expect("current_child_id should be set");
 
-        // Compute values for per-candidate logging
+        // Values needed for logic (always computed)
         let child_end_pos_val = *child_end_pos;
-        let child_consumed = consumed;
-        let child_name = match self.grammar_ctx.variant(current_child) {
-            sqlfluffrs_types::GrammarVariant::Ref => {
-                self.grammar_ctx.ref_name(current_child).to_string()
-            }
-            sqlfluffrs_types::GrammarVariant::StringParser
-            | sqlfluffrs_types::GrammarVariant::TypedParser
-            | sqlfluffrs_types::GrammarVariant::RegexParser => {
-                self.grammar_ctx.template(current_child).to_string()
-            }
-            other => format!("{:?}", other),
-        };
-
         let child_is_clean = if child_match.is_empty() {
             false
         } else {
             !child_match.contains_unparsable()
         };
-        // Collect the raw tokens consumed by this candidate for debugging (bounded)
-        let mut candidate_tokens: Vec<String> = Vec::new();
-        if child_end_pos_val > *post_skip_pos {
-            let start_idx = (*post_skip_pos).min(self.tokens.len());
-            let end_idx = child_end_pos_val.min(self.tokens.len());
-            if start_idx < end_idx {
-                for tok in &self.tokens[start_idx..end_idx] {
-                    candidate_tokens.push(tok.raw().to_string());
+
+        // Expensive debug-only variable collection (gated by verbose-debug feature)
+        #[cfg(feature = "verbose-debug")]
+        {
+            let child_consumed = consumed;
+            let child_name = match self.grammar_ctx.variant(current_child) {
+                sqlfluffrs_types::GrammarVariant::Ref => {
+                    self.grammar_ctx.ref_name(current_child).to_string()
+                }
+                sqlfluffrs_types::GrammarVariant::StringParser
+                | sqlfluffrs_types::GrammarVariant::TypedParser
+                | sqlfluffrs_types::GrammarVariant::RegexParser => {
+                    self.grammar_ctx.template(current_child).to_string()
+                }
+                other => format!("{:?}", other),
+            };
+
+            // Collect the raw tokens consumed by this candidate for debugging (bounded)
+            let mut candidate_tokens: Vec<String> = Vec::new();
+            if child_end_pos_val > *post_skip_pos {
+                let start_idx = (*post_skip_pos).min(self.tokens.len());
+                let end_idx = child_end_pos_val.min(self.tokens.len());
+                if start_idx < end_idx {
+                    for tok in &self.tokens[start_idx..end_idx] {
+                        candidate_tokens.push(tok.raw().to_string());
+                    }
                 }
             }
-        }
 
-        log::debug!(
-            "OneOf[table] WaitingForChild: frame_id={}, child_empty={}, consumed={}, tried={}/{}, candidate_id={}, candidate_name={}, candidate_end_pos={}, candidate_consumed={}, candidate_clean={}, candidate_tokens={:?}",
-            frame.frame_id,
-            child_match.is_empty(),
-            consumed,
-            tried_elements,
-            pruned_children.len(),
-            current_child.0,
-            child_name,
-            child_end_pos_val,
-            child_consumed,
-            child_is_clean,
-            candidate_tokens
-        );
+            vdebug!(
+                "OneOf[table] WaitingForChild: frame_id={}, child_empty={}, consumed={}, tried={}/{}, candidate_id={}, candidate_name={}, candidate_end_pos={}, candidate_consumed={}, candidate_clean={}, candidate_tokens={:?}",
+                frame.frame_id,
+                child_match.is_empty(),
+                consumed,
+                tried_elements,
+                pruned_children.len(),
+                current_child.0,
+                child_name,
+                child_end_pos_val,
+                child_consumed,
+                child_is_clean,
+                candidate_tokens
+            );
+        }
 
         // Update longest match if this is better
         let mut should_early_terminate = false;
@@ -287,7 +294,7 @@ impl Parser<'_> {
 
             if is_better {
                 *longest_match = Some((child_match.clone(), consumed, current_child));
-                log::debug!(
+                vdebug!(
                     "OneOf[table]: longest_match set: child_id={}, consumed={}, match={:?}",
                     current_child.0,
                     consumed,
@@ -305,7 +312,7 @@ impl Parser<'_> {
 
                 // If we've reached the end, consider it terminated
                 if next_code_pos >= self.tokens.len() {
-                    log::debug!("OneOf[table]: Early termination - reached end of tokens");
+                    vdebug!("OneOf[table]: Early termination - reached end of tokens");
                     should_early_terminate = true;
                 } else if !frame.table_terminators.is_empty() {
                     // Check if any terminator matches at this position
@@ -316,7 +323,7 @@ impl Parser<'_> {
                             if next_code_pos < self.tokens.len() {
                                 let tok = &self.tokens[next_code_pos];
                                 if !tok.is_code() {
-                                    log::debug!(
+                                    vdebug!(
                                         "OneOf[table]: Early termination - NONCODE terminator matched non-code token at pos {}",
                                         next_code_pos
                                     );
@@ -330,7 +337,7 @@ impl Parser<'_> {
                         self.pos = next_code_pos;
                         if let Ok(term_result) = self.parse_table_iterative(*terminator_id, &[]) {
                             if !term_result.is_empty() {
-                                log::debug!(
+                                vdebug!(
                                     "OneOf[table]: Early termination - terminator {} matched at pos {}",
                                     terminator_id.0,
                                     next_code_pos
@@ -349,7 +356,7 @@ impl Parser<'_> {
         // Early termination: If last option OR terminated by terminators, go straight to Combining
         let is_last_option = *tried_elements >= pruned_children.len();
         if should_early_terminate || is_last_option {
-            log::debug!(
+            vdebug!(
                 "OneOf[table]: {} - transitioning to Combining (tried {}/{})",
                 if should_early_terminate {
                     "Early termination"
@@ -372,7 +379,7 @@ impl Parser<'_> {
             // and subsequent children skip that whitespace - leading to missing whitespace
             // in the final AST if a later child wins.
             self.collected_transparent_positions = initial_collected_positions.clone();
-            log::debug!(
+            vdebug!(
                 "OneOf[table]: Restored collected_transparent_positions to initial state ({} positions)",
                 self.collected_transparent_positions.len()
             );
@@ -382,7 +389,7 @@ impl Parser<'_> {
             let next_child = pruned_children[*tried_elements];
             *current_child_id = Some(next_child);
 
-            log::debug!(
+            vdebug!(
                 "OneOf[table]: Trying next child grammar_id={}",
                 next_child.0
             );
@@ -427,21 +434,22 @@ impl Parser<'_> {
             ));
         };
 
-        log::debug!(
+        vdebug!(
             "OneOf[table] Combining: frame_id={}, has_match={}",
             frame.frame_id,
             longest_match.is_some()
         );
 
+        #[cfg(feature = "verbose-debug")]
         if let Some((best_node, best_consumed, best_child_id)) = longest_match {
-            log::debug!(
+            vdebug!(
                 "OneOf[table] Combining DEBUG: best_child_id={}, best_consumed={}, best_node={:?}",
                 best_child_id.0,
                 best_consumed,
                 best_node
             );
         } else {
-            log::debug!(
+            vdebug!(
                 "OneOf[table] Combining DEBUG: no match found, frame.accumulated={}",
                 frame.accumulated.len()
             );

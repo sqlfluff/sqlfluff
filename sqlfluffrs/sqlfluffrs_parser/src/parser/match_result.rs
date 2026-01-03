@@ -7,6 +7,7 @@
 //! This eliminates the need for global state tracking of collected whitespace positions,
 //! and makes the parser more functional and composable.
 
+use crate::vdebug;
 use std::ops::Range;
 
 use crate::parser::types::Node;
@@ -609,8 +610,9 @@ impl MatchResult {
     /// into the actual nested Node structure.
     pub fn apply(self, tokens: &[Token]) -> Node {
         // DEBUG: Log apply() entry for all named segments
+        #[cfg(feature = "verbose-debug")]
         if let Some(ref class_name) = self.matched_class {
-            log::debug!(
+            vdebug!(
                 "[APPLY-ENTRY] {}: matched_slice={:?}, child_matches={}, insert_segments={}, child_nodes={}",
                 class_name,
                 self.matched_slice,
@@ -716,7 +718,7 @@ impl MatchResult {
                             if self.matched_class.as_deref() == Some("FromExpressionSegment")
                                 || self.matched_class.as_deref() == Some("BracketedSegment")
                             {
-                                log::debug!(
+                                vdebug!(
                                     "[APPLY-CHILD] Processing child at {}: matched_slice={:?}, matched_class={:?}, current_idx={}",
                                     pos,
                                     child.matched_slice,
@@ -728,14 +730,14 @@ impl MatchResult {
                             // Only add non-empty nodes
                             if !matches!(child_node, Node::Empty) {
                                 if self.matched_class.as_deref() == Some("BracketedSegment") {
-                                    log::debug!(
+                                    vdebug!(
                                         "[APPLY-CHILD] BracketedSegment adding non-empty child node: {:?}",
                                         child_node
                                     );
                                 }
                                 result_nodes.push(child_node);
                             } else if self.matched_class.as_deref() == Some("BracketedSegment") {
-                                log::debug!(
+                                vdebug!(
                                     "[APPLY-CHILD] BracketedSegment child returned Empty! matched_class={:?}",
                                     child.matched_class
                                 );
@@ -744,10 +746,7 @@ impl MatchResult {
                                 current_idx = child.matched_slice.end;
                             }
                             if self.matched_class.as_deref() == Some("FromExpressionSegment") {
-                                log::debug!(
-                                    "[APPLY-CHILD] After child: current_idx={}",
-                                    current_idx
-                                );
+                                vdebug!("[APPLY-CHILD] After child: current_idx={}", current_idx);
                             }
                         }
                         TriggerItem::ChildNode(node) => {
@@ -766,35 +765,12 @@ impl MatchResult {
         // PYTHON PARITY: If we finish processing triggers and there are still tokens
         // left in the matched_slice, add them too (captures trailing whitespace/comments)
         if current_idx < self.matched_slice.end {
-            // DEBUG: Log when we're adding trailing tokens
-            if self.matched_class.as_deref() == Some("FromExpressionSegment")
-                || self.matched_class.as_deref() == Some("UnparsableSegment")
-            {
-                log::debug!(
-                    "[APPLY-DEBUG] {} adding trailing tokens: current_idx={}, matched_slice.end={}, count={}",
-                    self.matched_class.as_deref().unwrap_or("None"),
-                    current_idx,
-                    self.matched_slice.end,
-                    self.matched_slice.end - current_idx
-                );
-            }
 
             for idx in current_idx..self.matched_slice.end {
                 if idx < tokens.len() {
                     let tok = &tokens[idx];
                     let raw = tok.raw().to_string();
                     let tok_type = tok.get_type().to_string();
-
-                    if self.matched_class.as_deref() == Some("FromExpressionSegment")
-                        || self.matched_class.as_deref() == Some("UnparsableSegment")
-                    {
-                        log::debug!(
-                            "[APPLY-DEBUG]   Adding token[{}]: {} {:?}",
-                            idx,
-                            tok_type,
-                            raw
-                        );
-                    }
 
                     result_nodes.push(Node::new_token(tok_type, raw, idx));
                 }
@@ -805,14 +781,14 @@ impl MatchResult {
         if let Some(class_name) = self.matched_class {
             // Create the appropriate wrapper node based on class_name
             if result_nodes.is_empty() {
-                log::debug!(
+                vdebug!(
                     "[APPLY-DEBUG] {} result_nodes is EMPTY - returning Node::Empty",
                     class_name
                 );
                 return Node::Empty;
             }
 
-            log::debug!(
+            vdebug!(
                 "[APPLY-DEBUG] {} wrapping {} nodes",
                 class_name,
                 result_nodes.len()

@@ -1,3 +1,4 @@
+use crate::vdebug;
 use sqlfluffrs_types::{GrammarId, ParseMode};
 
 use crate::parser::{
@@ -27,7 +28,7 @@ impl Parser<'_> {
             .unwrap_or_else(|| self.grammar_ctx.inst(grammar_id).parse_mode);
 
         if frame.parse_mode_override.is_some() {
-            log::debug!(
+            vdebug!(
                 "Sequence[table] Initial: Using parse_mode_override={:?} (native={:?})",
                 parse_mode,
                 self.grammar_ctx.inst(grammar_id).parse_mode
@@ -117,7 +118,7 @@ impl Parser<'_> {
                 // If start_idx == max_idx, there are no tokens to wrap - return Empty
                 // This happens when terminators are found immediately at the start position
                 if start_idx >= max_idx {
-                    log::debug!(
+                    vdebug!(
                         "Sequence[table]: GREEDY mode with no tokens to consume (start_idx={}, max_idx={}), returning Empty",
                         start_idx, max_idx
                     );
@@ -216,7 +217,7 @@ impl Parser<'_> {
                 };
 
                 // Non-meta element - needs actual parsing
-                log::debug!(
+                vdebug!(
                     "DEBUG: Creating FIRST child at pos={}, max_idx={}",
                     first_child_pos,
                     max_idx
@@ -279,7 +280,7 @@ impl Parser<'_> {
         let all_children: Vec<GrammarId> = self.grammar_ctx.children(grammar_id).collect();
 
         // Read current index and first_match for logging (immutable borrow)
-        let (current_element_idx_val, first_match_val) = match &frame.context {
+        let (current_element_idx_val, _first_match_val) = match &frame.context {
             FrameContext::SequenceTableDriven {
                 current_element_idx,
                 first_match,
@@ -288,14 +289,14 @@ impl Parser<'_> {
             _ => unreachable!("Expected SequenceTableDriven context"),
         };
 
-        log::debug!(
+        vdebug!(
             "Sequence[table] WaitingForChild: frame_id={}, child_empty={}, child_end_pos={}, current_idx={}/{}, first_match={}",
             frame.frame_id,
             child_match.is_empty(),
             child_end_pos,
             current_element_idx_val,
             all_children.len(),
-            first_match_val
+            _first_match_val
         );
 
         // Child matched - PYTHON PARITY: Flush any pending meta_buffer BEFORE adding this match
@@ -358,7 +359,7 @@ impl Parser<'_> {
                 // terminator-based max_idx constraint (e.g., TRIM(BOTH FROM 'x')
                 // where FROM inside brackets isn't a terminator).
                 if *matched_idx > *max_idx {
-                    log::debug!(
+                    vdebug!(
                         "Sequence[table]: Child consumed past max_idx ({}->{}), updating max_idx to matched_idx",
                         *max_idx, *matched_idx
                     );
@@ -375,8 +376,9 @@ impl Parser<'_> {
                         .cloned()
                         .collect();
 
+                    #[cfg(feature = "verbose-debug")]
                     let grammar_name = self.grammar_ctx.grammar_id_name(grammar_id);
-                    log::debug!(
+                    vdebug!(
                         "Sequence[table]: About to trim at matched_idx={}, grammar='{}', grammar_id={}, parse_mode={:?}, terminators.len()={}, remaining_children.len()={}",
                         *matched_idx,
                         grammar_name,
@@ -393,7 +395,7 @@ impl Parser<'_> {
                     )?;
                     // Respect original parent max constraint
                     *max_idx = new_max_idx.min(*original_max_idx);
-                    log::debug!(
+                    vdebug!(
                         "Sequence[table]: Trimmed max_idx from {} to {}",
                         new_max_idx,
                         *max_idx
@@ -422,13 +424,12 @@ impl Parser<'_> {
                 }
             }
 
-            let (matched_idx_val, max_idx_val, _current_element_idx_val) = match &frame.context {
+            let (matched_idx_val, max_idx_val) = match &frame.context {
                 FrameContext::SequenceTableDriven {
                     matched_idx,
                     max_idx,
-                    current_element_idx,
                     ..
-                } => (*matched_idx, *max_idx, *current_element_idx),
+                } => (*matched_idx, *max_idx),
                 _ => unreachable!("Expected SequenceTableDriven context"),
             };
 
@@ -517,7 +518,7 @@ impl Parser<'_> {
 
                     // STRICT or nothing matched yet: return Empty
                     if parse_mode == ParseMode::Strict || matched_idx_val == start_idx {
-                        log::debug!(
+                        vdebug!(
                             "Sequence[table]: Ran out of segments at idx {}, mode={:?}, matched_idx={}, start_idx={} - returning Empty",
                             next_start_pos, parse_mode, matched_idx_val, start_idx
                         );
@@ -531,7 +532,7 @@ impl Parser<'_> {
                     }
 
                     // GREEDY modes with partial match: wrap existing matches as UnparsableSegment
-                    log::debug!(
+                    vdebug!(
                         "Sequence[table]: Ran out of segments at idx {} in {:?} mode (matched_idx={}, start_idx={}) - wrapping as UnparsableSegment",
                         next_start_pos, parse_mode, matched_idx_val, start_idx
                     );
@@ -609,8 +610,9 @@ impl Parser<'_> {
                 let child_parent_max = Some(max_idx_val);
 
                 if next_start_pos < self.tokens.len() {
+                    #[cfg(feature = "verbose-debug")]
                     let tok = &self.tokens[next_start_pos];
-                    log::debug!(
+                    vdebug!(
                         "Sequence[table] about to push child {} at pos {} (token='{}', type='{}')",
                         next_child,
                         next_start_pos,
@@ -618,7 +620,7 @@ impl Parser<'_> {
                         tok.get_type()
                     );
                 } else {
-                    log::debug!(
+                    vdebug!(
                         "Sequence[table] about to push child {} at pos {} (EOF)",
                         next_child,
                         next_start_pos
@@ -664,7 +666,7 @@ impl Parser<'_> {
         let corrected_child_end_pos = *child_end_pos;
 
         if self.pos != corrected_child_end_pos {
-            log::debug!(
+            vdebug!(
                 "[SEQUENCE] Adjusting self.pos from {} to child_end_pos {}",
                 self.pos,
                 corrected_child_end_pos
@@ -793,7 +795,7 @@ impl Parser<'_> {
 
             // 1. In STRICT mode, failing to match required element means no match
             if parse_mode == ParseMode::Strict {
-                log::debug!(
+                vdebug!(
                     "Sequence[table]: Required element {} returned Empty in STRICT mode - Sequence fails completely",
                     failed_idx
                 );
@@ -808,7 +810,7 @@ impl Parser<'_> {
 
             // 2. In GREEDY_ONCE_STARTED, if nothing matched yet, no match
             if parse_mode == ParseMode::GreedyOnceStarted && matched_idx == start_idx {
-                log::debug!(
+                vdebug!(
                     "Sequence[table]: Required element {} returned Empty in GREEDY_ONCE_STARTED but nothing matched yet - Sequence fails completely",
                     failed_idx
                 );
@@ -823,7 +825,7 @@ impl Parser<'_> {
 
             // 3. For GREEDY modes with partial match OR GREEDY mode without match:
             //    Return result with UnparsableSegment
-            log::debug!(
+            vdebug!(
                 "Sequence[table]: Required element {} returned Empty in {:?} mode (matched_idx={}, start_idx={}, max_idx={}) - creating UnparsableSegment",
                 failed_idx, parse_mode, matched_idx, start_idx, max_idx
             );
@@ -951,7 +953,7 @@ impl Parser<'_> {
         let inst = self.grammar_ctx.inst(grammar_id);
         let parse_mode = inst.parse_mode;
 
-        log::debug!(
+        vdebug!(
             "Sequence[table] Combining: frame_id={}, accumulated={}, matched_idx={}, max_idx={}, parse_mode={:?}",
             frame.frame_id,
             frame.accumulated.len(),
@@ -959,8 +961,9 @@ impl Parser<'_> {
             max_idx,
             parse_mode
         );
+        #[cfg(feature = "verbose-debug")]
         for (i, child) in frame.accumulated.iter().enumerate() {
-            log::debug!("  Combining accumulated[{}]: {:?}", i, child);
+            vdebug!("  Combining accumulated[{}]: {:?}", i, child);
         }
 
         let (result_match, final_pos) = if frame.accumulated.is_empty() {
@@ -988,7 +991,7 @@ impl Parser<'_> {
                 let _stop_idx = self.skip_stop_index_backward_to_code(max_idx, _idx);
 
                 if _stop_idx > _idx {
-                    log::debug!(
+                    vdebug!(
                         "Sequence[table] Combining: GREEDY mode leftover content from {} to {}, creating UnparsableSegment",
                         _idx,
                         _stop_idx

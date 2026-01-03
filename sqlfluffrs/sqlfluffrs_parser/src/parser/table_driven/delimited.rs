@@ -1,3 +1,4 @@
+use crate::vdebug;
 use sqlfluffrs_types::{GrammarId, ParseMode};
 
 use crate::parser::{
@@ -26,7 +27,7 @@ impl<'a> Parser<'_> {
         let inst = self.grammar_ctx.inst(grammar_id);
         let start_pos = frame.pos;
 
-        log::debug!(
+        vdebug!(
             "Delimited[table] Initial: frame_id={}, pos={}, grammar_id={}, children={}",
             frame.frame_id,
             start_pos,
@@ -37,7 +38,7 @@ impl<'a> Parser<'_> {
         // Get children: [elements_or_oneof, delimiter]
         let all_children: Vec<GrammarId> = self.grammar_ctx.children(grammar_id).collect();
         if all_children.len() != 2 {
-            log::debug!(
+            vdebug!(
                 "Delimited[table]: Expected exactly 2 children (elements + delimiter), got {}",
                 all_children.len()
             );
@@ -54,13 +55,13 @@ impl<'a> Parser<'_> {
         let delimiter_id = all_children[1];
 
         // Get min_delimiters from aux_data
-        let (_delimiter_child_idx, min_delimiters) = self.grammar_ctx.delimited_config(grammar_id);
+        let (_delimiter_child_idx, _min_delimiters) = self.grammar_ctx.delimited_config(grammar_id);
 
-        log::debug!(
+        vdebug!(
             "Delimited[table] elements_id={}, delimiter_id={}, min_delimiters={}",
             elements_id.0,
             delimiter_id.0,
-            min_delimiters
+            _min_delimiters
         );
 
         // CRITICAL: Filter delimiter from terminators to prevent infinite loops!
@@ -116,11 +117,11 @@ impl<'a> Parser<'_> {
             child_terminators.push(GrammarId::NONCODE);
         }
 
-        log::debug!(
+        vdebug!(
             "Delimited[table]: {} all_terminators, {} child_terminators (min_delimiters={})",
             all_terminators.len(),
             child_terminators.len(),
-            min_delimiters
+            _min_delimiters
         );
 
         // Store local terminators for terminator checks at Delimited level
@@ -171,7 +172,7 @@ impl<'a> Parser<'_> {
             Some(max_idx),
         );
 
-        log::debug!(
+        vdebug!(
             "Delimited[table]: Trying elements grammar_id={} with {} child_terminators",
             elements_id.0,
             child_terminators.len()
@@ -221,7 +222,7 @@ impl<'a> Parser<'_> {
         // Get children: [elements_or_oneof, delimiter]
         let all_children: Vec<GrammarId> = self.grammar_ctx.children(*grammar_id).collect();
         if all_children.len() != 2 {
-            log::debug!("Delimited[table]: Expected 2 children (elements + delimiter)");
+            vdebug!("Delimited[table]: Expected 2 children (elements + delimiter)");
             panic!();
         }
 
@@ -237,7 +238,7 @@ impl<'a> Parser<'_> {
         let allow_trailing = inst.flags.allow_trailing();
         let optional_delimiter = inst.flags.optional_delimiter();
 
-        log::debug!(
+        vdebug!(
             "Delimited[table] WaitingForChild: frame_id={}, child_empty={}, state={:?}, delim_count={}, allow_trailing={}, optional_delimiter={}",
             frame.frame_id,
             child_match.is_empty(),
@@ -264,7 +265,7 @@ impl<'a> Parser<'_> {
 
                 // Handle termination or end of input
                 if self.is_at_end() || is_terminated {
-                    log::debug!(
+                    vdebug!(
                         "Delimited[table]: terminator/end at pos {}, matched_idx={}, delimiter_match={}",
                         self.pos,
                         matched_idx,
@@ -306,7 +307,7 @@ impl<'a> Parser<'_> {
                 // With the new structure, OneOf handles trying multiple element candidates,
                 // so if child_match is empty, all element options have failed
                 if child_match.is_empty() {
-                    log::debug!(
+                    vdebug!(
                         "Delimited[table]: element match failed (all candidates exhausted by OneOf), finalizing at pos {}",
                         matched_idx
                     );
@@ -340,7 +341,7 @@ impl<'a> Parser<'_> {
                 }
 
                 // Element matched - process it
-                log::debug!(
+                vdebug!(
                     "Delimited[table]: element matched pos {} -> {}",
                     frame.pos,
                     child_end_pos
@@ -361,7 +362,7 @@ impl<'a> Parser<'_> {
 
                 // If child consumed past max_idx, update it
                 if *matched_idx > *max_idx {
-                    log::debug!(
+                    vdebug!(
                         "Delimited[table]: Child consumed past max_idx ({}->{}), updating",
                         *max_idx,
                         *matched_idx
@@ -410,7 +411,7 @@ impl<'a> Parser<'_> {
                     if optional_delimiter {
                         // Python lines 157-162: If delimiter is optional and failed,
                         // loop again to try matching another element without requiring delimiter
-                        log::debug!(
+                        vdebug!(
                             "Delimited[table]: optional delimiter failed, trying another element"
                         );
                         *delim_state = DelimitedState::MatchingElement;
@@ -443,7 +444,7 @@ impl<'a> Parser<'_> {
                     }
 
                     // Not optional - finalize
-                    log::debug!("Delimited[table]: delimiter failed, finalizing");
+                    vdebug!("Delimited[table]: delimiter failed, finalizing");
 
                     if *delimiter_count < min_delimiters {
                         self.pos = frame.pos;
@@ -467,7 +468,7 @@ impl<'a> Parser<'_> {
                 }
 
                 // Delimiter matched - store it (don't push to accumulated yet!)
-                log::debug!(
+                vdebug!(
                     "Delimited[table]: delimiter matched pos {} -> {}",
                     working_idx,
                     child_end_pos
@@ -488,7 +489,7 @@ impl<'a> Parser<'_> {
 
                 // If child consumed past max_idx, update it
                 if *matched_idx > *max_idx {
-                    log::debug!(
+                    vdebug!(
                         "Delimited[table]: Delimiter consumed past max_idx ({}->{}), updating",
                         *max_idx,
                         *matched_idx
@@ -509,7 +510,7 @@ impl<'a> Parser<'_> {
                 self.pos = saved_pos;
 
                 if is_terminated {
-                    log::debug!("Delimited[table]: terminated after delimiter");
+                    vdebug!("Delimited[table]: terminated after delimiter");
 
                     if allow_trailing {
                         // Include the trailing delimiter
@@ -551,7 +552,7 @@ impl<'a> Parser<'_> {
                         self.skip_start_index_forward_to_code(start_pos, self.tokens.len());
 
                     // Collect transparent tokens (whitespace, newlines, comments) in the skipped range
-                    log::debug!(
+                    vdebug!(
                         "Delimited[table]: collecting transparent after delimiter from {} to {}",
                         start_pos,
                         next_code_pos
@@ -562,18 +563,15 @@ impl<'a> Parser<'_> {
                             // Skip if already collected IN THIS BRANCH
                             // Note: We use mark_position_collected() which integrates with the checkpoint system
                             if self.collected_transparent_positions.contains(&idx) {
-                                log::debug!(
-                                    "Delimited[table]: SKIPPING already collected idx={}",
-                                    idx
-                                );
+                                vdebug!("Delimited[table]: SKIPPING already collected idx={}", idx);
                                 continue;
                             }
                             let tok_type = tok.get_type();
-                            log::debug!("Delimited[table]: CHECKING transparent at idx={}, tok_type='{}', raw='{}'", idx, tok_type, tok.raw());
+                            vdebug!("Delimited[table]: CHECKING transparent at idx={}, tok_type='{}', raw='{}'", idx, tok_type, tok.raw());
                             // PYTHON PARITY: Only collect end_of_file explicitly
                             // Whitespace, newlines, comments captured implicitly by apply()
                             if tok_type == "end_of_file" {
-                                log::debug!("Delimited[table]: COLLECTING EOF at idx={}", idx);
+                                vdebug!("Delimited[table]: COLLECTING EOF at idx={}", idx);
                                 frame.accumulated.push(MatchResult {
                                     matched_slice: idx..idx + 1,
                                     matched_class: None, // Inferred from token type
@@ -584,7 +582,7 @@ impl<'a> Parser<'_> {
                                 || tok_type == "newline"
                                 || tok_type == "comment"
                             {
-                                log::debug!(
+                                vdebug!(
                                     "Delimited[table]: Skipping explicit collection of {} at {} - will be captured as trailing",
                                     tok_type,
                                     idx
@@ -608,7 +606,7 @@ impl<'a> Parser<'_> {
                 self.pos = saved_pos;
 
                 if is_term2 {
-                    log::debug!("Delimited[table]: terminated after delimiter+whitespace");
+                    vdebug!("Delimited[table]: terminated after delimiter+whitespace");
 
                     if allow_trailing {
                         // Include the trailing delimiter
@@ -669,7 +667,7 @@ impl<'a> Parser<'_> {
                     self.tokens.len()
                 };
 
-                log::debug!(
+                vdebug!(
                     "Delimited[table]: Recalculated max_idx from {} to {} at working_idx={}",
                     *max_idx,
                     new_max_idx,
@@ -677,7 +675,7 @@ impl<'a> Parser<'_> {
                 );
                 *max_idx = new_max_idx;
 
-                log::debug!(
+                vdebug!(
                     "Delimited[table]: After delimiter, trying elements_id={} at pos {}, max_idx={}, working_idx={}",
                     elements_id.0,
                     *working_idx,
@@ -727,7 +725,7 @@ impl<'a> Parser<'_> {
             ));
         };
 
-        log::debug!(
+        vdebug!(
             "Delimited[table] Combining: frame_id={}, accumulated={}, delim_count={}",
             frame.frame_id,
             frame.accumulated.len(),
@@ -743,7 +741,7 @@ impl<'a> Parser<'_> {
             (MatchResult::empty_at(frame.pos), frame.pos)
         } else if *delimiter_count < min_delimiters {
             // Not enough delimiters - fail
-            log::debug!(
+            vdebug!(
                 "Delimited[table]: Failed - only {} delimiters, need {}",
                 delimiter_count,
                 min_delimiters

@@ -1,3 +1,4 @@
+use crate::vdebug;
 use sqlfluffrs_types::{GrammarId, GrammarVariant};
 
 use crate::parser::{
@@ -23,7 +24,7 @@ impl Parser<'_> {
         grammar: GrammarId,
         parent_terminators: &[GrammarId],
     ) -> Result<Node, ParseError> {
-        log::debug!(
+        vdebug!(
             "parse_table_iterative: delegating to match_result version for grammar {} at pos {}",
             grammar,
             self.pos
@@ -57,7 +58,7 @@ impl Parser<'_> {
         grammar: GrammarId,
         parent_terminators: &[GrammarId],
     ) -> Result<MatchResult, ParseError> {
-        log::debug!(
+        vdebug!(
             "Starting iterative parse (match_result mode) for grammar: {} at pos {}",
             grammar,
             self.pos
@@ -74,10 +75,10 @@ impl Parser<'_> {
         // Check cache first
         if self.cache_enabled {
             let cache_key = TableCacheKey::new(start_pos, grammar, max_idx, parent_terminators);
-            if let Some((match_result, end_pos, transparent_positions)) =
+            if let Some((match_result, end_pos, _transparent_positions)) =
                 self.table_cache.get(&cache_key)
             {
-                log::debug!(
+                vdebug!(
                     "TableCache HIT for grammar {} at pos {} -> end_pos {}",
                     grammar,
                     start_pos,
@@ -88,8 +89,9 @@ impl Parser<'_> {
                 self.pos = *end_pos;
 
                 // Handle transparent positions from cache
-                if let Some(positions) = transparent_positions {
-                    log::debug!(
+                #[cfg(feature = "verbose-debug")]
+                if let Some(positions) = _transparent_positions {
+                    vdebug!(
                         "TableCache HIT: {} transparent positions for grammar {}",
                         positions.len(),
                         grammar.0
@@ -148,7 +150,7 @@ impl Parser<'_> {
             //     Self::log_frame_debug_info(&frame, &stack, iteration_count);
             // }
 
-            log::debug!(
+            vdebug!(
                 "Processing frame {}: grammar={}, pos={}, state={:?}, stack_size={} (BEFORE pop: {})",
                 frame.frame_id,
                 frame.grammar_id,
@@ -161,7 +163,7 @@ impl Parser<'_> {
             match frame.state {
                 FrameState::Initial => {
                     // Log grammar path when trying a match
-                    log::debug!(
+                    vdebug!(
                         "🔍 Trying match at pos {}: {}",
                         frame.pos,
                         self.build_table_grammar_path(&frame, &stack)
@@ -194,8 +196,9 @@ impl Parser<'_> {
 
                 FrameState::Combining => {
                     // Log that we're combining child results, include range
+                    #[cfg(feature = "verbose-debug")]
                     let combine_end = frame.end_pos.unwrap_or(self.pos);
-                    log::debug!(
+                    vdebug!(
                         "🔨 Combining at pos {}-{}: {}",
                         frame.pos,
                         combine_end.saturating_sub(1),
@@ -223,13 +226,14 @@ impl Parser<'_> {
         }
 
         // Return the result from the initial frame
-        log::debug!("DEBUG: Main loop ended. Stack has {} frames left. Results has {} entries. Looking for frame_id={}",
+        vdebug!("DEBUG: Main loop ended. Stack has {} frames left. Results has {} entries. Looking for frame_id={}",
             stack.len(),
             stack.results.len(),
             initial_frame_id
         );
 
         // Debug: Show what frames are left on the stack
+        #[cfg(feature = "verbose-debug")]
         for (i, frame) in stack.iter().enumerate() {
             let grammar_desc = match self.grammar_ctx.variant(frame.grammar_id) {
                 GrammarVariant::Ref => {
@@ -266,7 +270,7 @@ impl Parser<'_> {
             // Also show which child frame ID we're waiting for
             let waiting_for = get_waiting_for_frame_id(frame);
 
-            log::debug!(
+            vdebug!(
                 "  Stack[{}]: frame_id={}, state={:?}, pos={}, grammar={}, waiting_for={}",
                 i,
                 frame.frame_id,
@@ -277,13 +281,13 @@ impl Parser<'_> {
             );
         }
 
-        log::debug!(
+        vdebug!(
             "Main loop ended. Stack empty. Results has {} entries. Looking for frame_id={}",
             stack.results.len(),
             initial_frame_id
         );
         if let Some((match_result, end_pos, _element_key)) = stack.results.get(&initial_frame_id) {
-            log::debug!(
+            vdebug!(
                 "DEBUG: Found result for frame_id={}, end_pos={}",
                 initial_frame_id,
                 end_pos
@@ -291,19 +295,20 @@ impl Parser<'_> {
             self.pos = *end_pos;
 
             // If the parse failed (returned Empty), provide diagnostic information
+            #[cfg(feature = "verbose-debug")]
             if match_result.is_empty() {
-                log::debug!("\n=== PARSE FAILED ===");
-                log::debug!("Parser stopped at position: {}", end_pos);
-                log::debug!("Total tokens: {}", self.tokens.len());
+                vdebug!("\n=== PARSE FAILED ===");
+                vdebug!("Parser stopped at position: {}", end_pos);
+                vdebug!("Total tokens: {}", self.tokens.len());
 
                 if *end_pos < self.tokens.len() {
-                    log::debug!("\nTokens around failure point:");
+                    vdebug!("\nTokens around failure point:");
                     let start = end_pos.saturating_sub(3);
                     let end = (*end_pos + 4).min(self.tokens.len());
                     for i in start..end {
                         let marker = if i == *end_pos { " <<< HERE" } else { "" };
                         if let Some(tok) = self.tokens.get(i) {
-                            log::debug!(
+                            vdebug!(
                                 "  [{}]: '{}' (type: {}){}",
                                 i,
                                 tok.raw(),
@@ -314,9 +319,9 @@ impl Parser<'_> {
                     }
                 }
 
-                log::debug!("\nGrammar that failed to match:");
-                log::debug!("  {}", grammar);
-                log::debug!("===================\n");
+                vdebug!("\nGrammar that failed to match:");
+                vdebug!("  {}", grammar);
+                vdebug!("===================\n");
             }
 
             // Collect transparent positions that were touched during this parse
@@ -346,7 +351,7 @@ impl Parser<'_> {
             // Empty results didn't actually consume anything, so any whitespace they
             // "collected" while skipping should be available for other parsers.
             if match_result.is_empty() {
-                log::debug!(
+                vdebug!(
                     "parse_table_iterative_match_result: Restoring collected_transparent_positions for Empty result (grammar {})",
                     grammar.0
                 );
@@ -383,7 +388,7 @@ impl Parser<'_> {
         let variant = inst.variant;
         let table_terminators = frame.table_terminators.clone();
 
-        log::debug!(
+        vdebug!(
             "Table-driven Initial: frame_id={}, grammar_id={}, variant={:?}",
             frame.frame_id,
             grammar_id.0,
@@ -426,7 +431,7 @@ impl Parser<'_> {
                 match res {
                     Ok(match_result) => {
                         // Insert result directly so parent frames can pick it up
-                        log::debug!(
+                        vdebug!(
                             "[SYNC INSERT] frame_id={} StringParser result at pos {} -> match={:?}",
                             frame.frame_id,
                             self.pos,
@@ -445,7 +450,7 @@ impl Parser<'_> {
                 let res = self.handle_multi_string_parser_table_driven(grammar_id);
                 match res {
                     Ok(match_result) => {
-                        log::debug!(
+                        vdebug!(
                             "[SYNC INSERT] frame_id={} MultiStringParser result at pos {}",
                             frame.frame_id,
                             self.pos
@@ -462,7 +467,7 @@ impl Parser<'_> {
                 let res = self.handle_regex_parser_table_driven(grammar_id);
                 match res {
                     Ok(match_result) => {
-                        log::debug!(
+                        vdebug!(
                             "[SYNC INSERT] frame_id={} RegexParser result at pos {} -> match={:?}",
                             frame.frame_id,
                             self.pos,
@@ -480,7 +485,7 @@ impl Parser<'_> {
                 let res = self.handle_nothing_table_driven();
                 match res {
                     Ok(match_result) => {
-                        log::debug!(
+                        vdebug!(
                             "[SYNC INSERT] frame_id={} Nothing result at pos {} -> MatchResult",
                             frame.frame_id,
                             self.pos
@@ -497,7 +502,7 @@ impl Parser<'_> {
                 let res = self.handle_empty_table_driven();
                 match res {
                     Ok(match_result) => {
-                        log::debug!(
+                        vdebug!(
                             "[SYNC INSERT] frame_id={} Empty result at pos {} -> MatchResult",
                             frame.frame_id,
                             self.pos
@@ -514,7 +519,7 @@ impl Parser<'_> {
                 let res = self.handle_missing_table_driven();
                 match res {
                     Ok(match_result) => {
-                        log::debug!(
+                        vdebug!(
                             "[SYNC INSERT] frame_id={} Missing result at pos {} -> MatchResult",
                             frame.frame_id,
                             self.pos
@@ -531,7 +536,7 @@ impl Parser<'_> {
                 let res = self.handle_token_table_driven(grammar_id);
                 match res {
                     Ok(match_result) => {
-                        log::debug!(
+                        vdebug!(
                             "[SYNC INSERT] frame_id={} Token result at pos {} -> MatchResult",
                             frame.frame_id,
                             self.pos
@@ -548,7 +553,7 @@ impl Parser<'_> {
                 let res = self.handle_meta_table_driven(grammar_id);
                 match res {
                     Ok(match_result) => {
-                        log::debug!(
+                        vdebug!(
                             "[SYNC INSERT] frame_id={} Meta result at pos {} -> MatchResult",
                             frame.frame_id,
                             self.pos
@@ -565,7 +570,7 @@ impl Parser<'_> {
                 let res = self.handle_noncode_matcher_table_driven();
                 match res {
                     Ok(match_result) => {
-                        log::debug!(
+                        vdebug!(
                             "[SYNC INSERT] frame_id={} NonCodeMatcher result at pos {} -> MatchResult",
                             frame.frame_id,
                             self.pos
@@ -586,7 +591,7 @@ impl Parser<'_> {
                 );
                 match res {
                     Ok(match_result) => {
-                        log::debug!(
+                        vdebug!(
                             "[SYNC INSERT] frame_id={} Anything result at pos {} -> MatchResult",
                             frame.frame_id,
                             self.pos
@@ -608,8 +613,8 @@ impl Parser<'_> {
         mut frame: TableParseFrame,
         stack: &mut TableParseFrameStack,
         iteration_count: usize,
-        child_index: usize,
-        total_children: usize,
+        _child_index: usize,
+        _total_children: usize,
     ) -> Result<TableFrameResult, ParseError> {
         // A child parse just completed - get its result
         let child_frame_id = match &frame.context {
@@ -644,7 +649,7 @@ impl Parser<'_> {
         };
 
         let child = stack.results.get(&child_frame_id).cloned();
-        log::debug!(
+        vdebug!(
             "[RESULT GET] parent_frame_id={}, child_frame_id={}, child_found={}",
             frame.frame_id,
             child_frame_id,
@@ -652,16 +657,16 @@ impl Parser<'_> {
         );
 
         if let Some((child_node, child_end_pos, _child_element_key)) = &child {
-            log::debug!(
+            vdebug!(
                 "[RESULT FOUND] parent_frame_id={}, child_frame_id={}, child_end_pos={}",
                 frame.frame_id,
                 child_frame_id,
                 child_end_pos
             );
-            log::debug!(
+            vdebug!(
                 "Child {} of {} completed (frame_id={}): pos {} -> {}",
-                child_index,
-                total_children,
+                _child_index,
+                _total_children,
                 child_frame_id,
                 frame.pos,
                 child_end_pos
@@ -790,7 +795,7 @@ impl Parser<'_> {
                 } => *last_child_frame_id,
                 _ => None,
             };
-            log::debug!(
+            vdebug!(
                 "Child result not found for frame_id={}, last_child_frame_id={:?}, pushing frame back onto stack",
                 frame.frame_id,
                 last_child_frame_id
@@ -798,7 +803,7 @@ impl Parser<'_> {
 
             // Check if we're in an infinite loop - frame waiting for child that doesn't exist
             if iteration_count > 100 && iteration_count.is_multiple_of(100) {
-                log::debug!(
+                vdebug!(
                     "WARNING: Frame {} waiting for child {:?} but result not found (iteration {})",
                     frame.frame_id,
                     last_child_frame_id,
@@ -809,7 +814,7 @@ impl Parser<'_> {
                 if let Some(child_id) = last_child_frame_id {
                     let child_on_stack = stack.iter().any(|f| f.frame_id == child_id);
                     if child_on_stack {
-                        log::debug!(
+                        vdebug!(
                             "  -> Child frame {} IS on stack (still being processed)",
                             child_id
                         );
@@ -835,7 +840,7 @@ impl Parser<'_> {
         let inst = self.grammar_ctx.inst(grammar_id);
         let variant = inst.variant;
 
-        log::debug!(
+        vdebug!(
             "Table-driven Combining: frame_id={}, grammar_id={}, variant={:?}",
             frame.frame_id,
             grammar_id.0,
@@ -867,15 +872,16 @@ impl Parser<'_> {
         match_result: &MatchResult,
     ) {
         // Log grammar path - different indicator for Empty vs matched nodes
+        #[cfg(feature = "verbose-debug")]
         let end_pos = frame.end_pos.unwrap_or(self.pos);
         if match_result.is_empty() {
-            log::debug!(
+            vdebug!(
                 "❌ No match at pos {}: {}",
                 frame.pos,
                 self.build_table_grammar_path(frame, stack)
             );
         } else {
-            log::debug!(
+            vdebug!(
                 "✅ Match at pos {}-{}: {}",
                 frame.pos,
                 end_pos.saturating_sub(1),
@@ -961,7 +967,7 @@ impl Parser<'_> {
             if let Some((match_result, end_pos, transparent_positions)) =
                 self.table_cache.get(&cache_key)
             {
-                log::debug!(
+                vdebug!(
                     "[LOOP] TableCache HIT for grammar {} at pos {} -> end_pos {} (frame_id={})",
                     frame.grammar_id,
                     frame.pos,
@@ -987,19 +993,20 @@ impl Parser<'_> {
 
     fn handle_table_max_iterations_exceeded(
         &mut self,
-        stack: &mut TableParseFrameStack,
-        max_iterations: usize,
-        frame: &mut TableParseFrame,
+        _stack: &mut TableParseFrameStack,
+        _max_iterations: usize,
+        _frame: &mut TableParseFrame,
     ) {
-        log::debug!("ERROR: Exceeded max iterations ({})", max_iterations);
-        log::debug!("Last frame: {:?}", frame.grammar_id);
-        log::debug!("Stack depth: {}", stack.len());
-        log::debug!("Results count: {}", stack.results.len());
+        vdebug!("ERROR: Exceeded max iterations ({})", _max_iterations);
+        vdebug!("Last frame: {:?}", _frame.grammar_id);
+        vdebug!("Stack depth: {}", _stack.len());
+        vdebug!("Results count: {}", _stack.results.len());
 
         // Print last 20 frames on stack for diagnosis
-        log::debug!("\n=== Last 20 frames on stack ===");
-        for (i, f) in stack.iter().rev().take(20).enumerate() {
-            log::debug!(
+        vdebug!("\n=== Last 20 frames on stack ===");
+        #[cfg(feature = "verbose-debug")]
+        for (i, f) in _stack.iter().rev().take(20).enumerate() {
+            vdebug!(
                 "  [{}] state={:?}, pos={}, grammar={}",
                 i,
                 f.state,
@@ -1051,6 +1058,7 @@ impl Parser<'_> {
     /// Build a grammar path string showing the hierarchy of grammars being parsed.
     /// Supports both Arc<Grammar> and table-driven (GrammarId) frames.
     /// Format: "file -> statement -> select_statement -> ..."
+    #[cfg(feature = "verbose-debug")]
     fn build_table_grammar_path(
         &self,
         frame: &TableParseFrame,
@@ -1086,8 +1094,9 @@ impl Parser<'_> {
     }
 }
 
+#[cfg(feature = "verbose-debug")]
 fn get_waiting_for_frame_id(frame: &TableParseFrame) -> String {
-    let waiting_for = match &frame.context {
+    match &frame.context {
         FrameContext::OneOfTableDriven {
             last_child_frame_id,
             ..
@@ -1113,6 +1122,5 @@ fn get_waiting_for_frame_id(frame: &TableParseFrame) -> String {
             ..
         } => format!("{:?}", last_child_frame_id),
         _ => "None".to_string(),
-    };
-    waiting_for
+    }
 }

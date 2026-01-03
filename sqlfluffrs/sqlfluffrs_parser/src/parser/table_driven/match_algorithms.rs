@@ -2,6 +2,7 @@ use sqlfluffrs_types::{GrammarId, Token};
 
 use crate::parser::{ParseError, Parser};
 
+use crate::vdebug;
 /// Module-level implementations of the table-driven match algorithms.
 ///
 /// These functions implement the matching helpers used by the table-driven
@@ -101,13 +102,13 @@ where
 
     // If a terminator matches immediately, return start_idx and its end_pos
     for term_id in terminators {
-        log::debug!(
+        vdebug!(
             "[GREEDY_MATCH_TABLE] greedy_match_table_driven: checking immediate terminator match for {:?} at {}",
             term_id, start_idx
         );
         if let Ok(end_pos) = try_match(*term_id, start_idx, terminators) {
             if end_pos > start_idx {
-                log::debug!(
+                vdebug!(
                     "[GREEDY_MATCH_TABLE] greedy_match_table_driven: immediate terminator {:?} matched at {}",
                     term_id, start_idx
                 );
@@ -127,7 +128,7 @@ where
         if raw == "(" || raw == "[" || raw == "{" {
             // Check if we have a pre-computed matching bracket index
             if let Some(matching_idx) = token.matching_bracket_idx {
-                log::debug!(
+                vdebug!(
                     "[GREEDY_MATCH_TABLE] greedy_match_table_driven: skipping bracket at {} to {}",
                     i,
                     matching_idx + 1
@@ -139,7 +140,7 @@ where
                 // PYTHON PARITY: No matching closing bracket found - raise parse error
                 // This matches Python's resolve_bracket() behavior which raises
                 // SQLParseError("Couldn't find closing bracket for opening bracket.")
-                log::debug!(
+                vdebug!(
                     "[GREEDY_MATCH_TABLE] greedy_match_table_driven: no matching closing bracket for opening bracket at {}",
                     i
                 );
@@ -153,14 +154,14 @@ where
 
         // Check terminators at this position
         for &term_id in terminators {
-            log::debug!(
+            vdebug!(
                 "[GREEDY_MATCH_TABLE] greedy_match_table_driven: checking terminator {:?} at {}",
                 term_id,
                 i
             );
             if let Ok(end_pos) = try_match(term_id, i, terminators) {
                 if end_pos > i {
-                    log::debug!(
+                    vdebug!(
                         "[GREEDY_MATCH_TABLE] greedy_match_table_driven: terminator {:?} matched at {}",
                         term_id, i
                     );
@@ -173,7 +174,7 @@ where
         }
         i += 1;
     }
-    log::debug!(
+    vdebug!(
         "[GREEDY_MATCH_TABLE] greedy_match_table_driven: returning max_idx={}",
         max_idx
     );

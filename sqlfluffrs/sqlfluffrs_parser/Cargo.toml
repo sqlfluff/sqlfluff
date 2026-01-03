@@ -16,3 +16,4 @@ pyo3 = { version = "0.26.0", optional = true }
 
 [features]
 python = ["pyo3", "sqlfluffrs_types/python", "sqlfluffrs_lexer/python"]
+verbose-debug = []

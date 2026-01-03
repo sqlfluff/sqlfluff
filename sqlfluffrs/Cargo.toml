@@ -21,6 +21,7 @@ members = [
 
 [features]
 unicode = []
+verbose-debug = ["sqlfluffrs_parser/verbose-debug"]
 python = [
     "unicode",
     "pyo3",

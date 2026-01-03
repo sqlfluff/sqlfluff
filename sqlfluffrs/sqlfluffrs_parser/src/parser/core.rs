@@ -3,6 +3,7 @@
 //! This module contains the Parser struct definition and its core methods
 //! including the main entry point for parsing with grammar.
 
+use crate::vdebug;
 use hashbrown::HashSet;
 
 use crate::parser::table_driven::frame::{TableFrameResult, TableParseFrame};
@@ -91,198 +92,6 @@ impl<'a> Parser<'a> {
     pub fn set_cache_enabled(&mut self, enabled: bool) {
         self.cache_enabled = enabled;
     }
-
-    // /// Parse with table-driven grammar (new implementation).
-    // /// This is the entry point for GrammarId-based parsing.
-    // pub fn parse_with_grammar_id(
-    //     &mut self,
-    //     grammar_id: GrammarId,
-    //     parent_terminators: &[GrammarId],
-    // ) -> Result<Node, ParseError> {
-    //     // Must have grammar context to use table-driven approach
-    //     let ctx = self.grammar_ctx.ok_or_else(|| {
-    //         ParseError::new("parse_with_grammar_id requires GrammarContext".to_string())
-    //     })?;
-
-    //     // Get the variant enum for this grammar
-    //     let variant = ctx.variant(grammar_id);
-
-    //     // Dispatch based on variant type
-    //     match variant {
-    //         GrammarVariant::Nothing => self.handle_nothing_table_driven(),
-    //         GrammarVariant::Empty => self.handle_empty_table_driven(),
-    //         GrammarVariant::Missing => self.handle_missing_table_driven(),
-    //         GrammarVariant::Token => self.handle_token_table_driven(grammar_id, ctx),
-    //         GrammarVariant::StringParser => self.handle_string_parser_table_driven(grammar_id, ctx),
-    //         GrammarVariant::TypedParser => self.handle_typed_parser_table_driven(grammar_id, ctx),
-    //         GrammarVariant::MultiStringParser => {
-    //             self.handle_multi_string_parser_table_driven(grammar_id, ctx)
-    //         }
-    //         GrammarVariant::RegexParser => self.handle_regex_parser_table_driven(grammar_id, ctx),
-    //         GrammarVariant::Sequence => {
-    //             self.handle_sequence_table_driven(grammar_id, ctx, parent_terminators)
-    //         }
-    //         GrammarVariant::OneOf => {
-    //             // Synchronous table-driven OneOf implementation (falls back to iterative logic)
-    //             // Use GrammarContext helpers to enumerate children, prune options and try each child
-    //             let inst = ctx.inst(grammar_id);
-
-    //             // Collect leading transparent tokens if allow_gaps
-    //             let leading_ws = if inst.flags.allow_gaps() {
-    //                 self.collect_transparent(true)
-    //             } else {
-    //                 Vec::new()
-    //             };
-    //             let post_skip_pos = self.pos;
-
-    //             // Combine terminators
-    //             let local_terminators: Vec<GrammarId> = ctx.terminators(grammar_id).collect();
-    //             let all_terminators = Self::combine_terminators_table_driven(
-    //                 &local_terminators,
-    //                 parent_terminators,
-    //                 inst.flags.reset_terminators(),
-    //             );
-
-    //             // Parse mode conversion
-    //             let grammar_parse_mode = match inst.parse_mode {
-    //                 sqlfluffrs_types::grammar_inst::ParseMode::Strict => {
-    //                     sqlfluffrs_types::ParseMode::Strict
-    //                 }
-    //                 sqlfluffrs_types::grammar_inst::ParseMode::Greedy => {
-    //                     sqlfluffrs_types::ParseMode::Greedy
-    //                 }
-    //                 sqlfluffrs_types::grammar_inst::ParseMode::GreedyOnceStarted => {
-    //                     sqlfluffrs_types::ParseMode::GreedyOnceStarted
-    //                 }
-    //             };
-
-    //             let max_idx = self.calculate_max_idx_table_driven(
-    //                 post_skip_pos,
-    //                 &all_terminators,
-    //                 grammar_parse_mode,
-    //                 None,
-    //             );
-
-    //             // Early termination check for GREEDY mode
-    //             if grammar_parse_mode == sqlfluffrs_types::ParseMode::Greedy {
-    //                 let element_children: Vec<GrammarId> =
-    //                     ctx.element_children(grammar_id).collect();
-    //                 if self.is_terminated_with_elements_table_driven(
-    //                     &all_terminators,
-    //                     &element_children,
-    //                 ) {
-    //                     if inst.flags.optional() {
-    //                         return Ok(Node::Empty);
-    //                     }
-    //                 }
-    //             }
-
-    //             let all_children: Vec<GrammarId> = ctx.element_children(grammar_id).collect();
-    //             let pruned_children = self.prune_options_table_driven(&all_children);
-
-    //             if pruned_children.is_empty() {
-    //                 return Ok(Node::Empty);
-    //             }
-
-    //             // Try each child and pick the longest (prefer "clean" nodes)
-    //             let mut best: Option<(Node, usize, GrammarId)> = None;
-    //             for &child_id in &pruned_children {
-    //                 self.pos = post_skip_pos;
-    //                 match self.parse_with_grammar_id(child_id, &all_terminators) {
-    //                     Ok(node) if !node.is_empty() => {
-    //                         let end_pos = self.pos;
-    //                         let consumed = end_pos - post_skip_pos;
-    //                         let child_is_clean = Self::is_node_clean(&node);
-
-    //                         let is_better =
-    //                             if let Some((ref current_best, current_consumed, _)) = &best {
-    //                                 let current_is_clean = Self::is_node_clean(current_best);
-    //                                 if child_is_clean && !current_is_clean {
-    //                                     true
-    //                                 } else if !child_is_clean && current_is_clean {
-    //                                     false
-    //                                 } else {
-    //                                     consumed > *current_consumed
-    //                                 }
-    //                             } else {
-    //                                 true
-    //                             };
-
-    //                         if is_better {
-    //                             best = Some((node, consumed, child_id));
-    //                         }
-    //                     }
-    //                     Ok(_) => {}
-    //                     Err(_) => {}
-    //                 }
-    //             }
-
-    //             if let Some((best_node, best_consumed, _best_child)) = best {
-    //                 let final_pos = post_skip_pos + best_consumed;
-    //                 self.pos = final_pos;
-    //                 let result = if !leading_ws.is_empty() {
-    //                     let mut children = leading_ws.clone();
-    //                     children.push(best_node);
-    //                     Node::Sequence { children }
-    //                 } else {
-    //                     best_node
-    //                 };
-    //                 Ok(result)
-    //             } else {
-    //                 // No match
-    //                 Ok(Node::Empty)
-    //             }
-    //         }
-    //         GrammarVariant::Delimited => {
-    //             // NOTE: synchronous delimited table-driven fallback removed. Table-driven
-    //             // composite grammars are handled by the iterative engine via
-    //             // parse_table_driven_iterative in iterative.rs.
-    //             return Err(ParseError::new(
-    //                 "Delimited grammar handling removed".to_string(),
-    //             ));
-    //         }
-    //         GrammarVariant::Bracketed => {
-    //             unimplemented!("Bracketed handler not yet migrated")
-    //         }
-    //         GrammarVariant::AnyNumberOf => {
-    //             unimplemented!("AnyNumberOf handler not yet migrated")
-    //         }
-    //         GrammarVariant::AnySetOf => {
-    //             unimplemented!("AnySetOf handler not yet migrated")
-    //         }
-    //         GrammarVariant::Ref => {
-    //             // self.handle_ref_table_driven(grammar_id, ctx, parent_terminators)
-    //             unimplemented!("Wrong Ref handler was here")
-    //         }
-    //         GrammarVariant::Anything => {
-    //             self.handle_anything_table_driven(grammar_id, ctx, parent_terminators)
-    //         }
-    //         GrammarVariant::Meta => self.handle_meta_table_driven(grammar_id, ctx),
-    //         GrammarVariant::NonCodeMatcher => self.handle_noncode_matcher_table_driven(),
-    //     }
-    // }
-
-    // /// Get the grammar for a rule by name.
-    // /// This is used by the iterative parser to expand Ref nodes into their grammars.
-    // pub fn get_rule_grammar(&self, name: &str) -> Result<Arc<Grammar>, ParseError> {
-    //     // Look up the grammar for the segment
-    //     match self.get_segment_grammar(name) {
-    //         Some(g) => Ok(g.clone()),
-    //         None => Err(ParseError::unknown_segment(
-    //             name.to_string(),
-    //             Some(self.pos),
-    //         )),
-    //     }
-    // }
-
-    // /// Call a grammar rule by name, producing a Node.
-    // pub fn call_rule(
-    //     &mut self,
-    //     name: &str,
-    //     parent_terminators: &[Arc<Grammar>],
-    // ) -> Result<Node, ParseError> {
-    //     self.call_rule_with_type(name, parent_terminators, None)
-    // }
 
     pub fn call_rule(
         &mut self,
@@ -489,7 +298,7 @@ impl<'a> Parser<'a> {
             frame_id,
             positions: Vec::new(),
         });
-        log::debug!(
+        vdebug!(
             "Pushed collection checkpoint for frame_id={}, stack depth={}",
             frame_id,
             self.collection_stack.len()
@@ -504,7 +313,7 @@ impl<'a> Parser<'a> {
             // Record this collection in the current checkpoint
             if let Some(checkpoint) = self.collection_stack.last_mut() {
                 checkpoint.positions.push(pos);
-                log::debug!(
+                vdebug!(
                     "Marked position {} as collected in checkpoint for frame_id={}",
                     pos,
                     checkpoint.frame_id
@@ -522,8 +331,11 @@ impl<'a> Parser<'a> {
         if let Some(checkpoint) = self.collection_stack.last() {
             if checkpoint.frame_id == frame_id {
                 // This frame owns the checkpoint - pop and commit it
+                #[cfg(feature = "verbose-debug")]
                 let checkpoint = self.collection_stack.pop().unwrap();
-                log::debug!(
+                #[cfg(not(feature = "verbose-debug"))]
+                let _ = self.collection_stack.pop();
+                vdebug!(
                     "Committed {} collected positions for frame_id={}, stack depth now={}",
                     checkpoint.positions.len(),
                     frame_id,
@@ -557,7 +369,7 @@ impl<'a> Parser<'a> {
             if checkpoint.frame_id == frame_id {
                 // This frame owns the checkpoint - pop and rollback it
                 let checkpoint = self.collection_stack.pop().unwrap();
-                log::debug!(
+                vdebug!(
                     "Rolling back {} collected positions for frame_id={}, stack depth now={}",
                     checkpoint.positions.len(),
                     frame_id,
@@ -608,7 +420,7 @@ impl<'a> Parser<'a> {
         let token_type = tables.get_string(token_type_id).to_string();
         let raw_class = tables.get_string(raw_class_id).to_string();
 
-        log::debug!(
+        vdebug!(
             "StringParser[table]: pos={}, template='{}', token_type='{}', raw_class='{}'",
             self.pos,
             template,
@@ -619,10 +431,11 @@ impl<'a> Parser<'a> {
         match self.peek() {
             Some(tok) if tok.raw().eq_ignore_ascii_case(&template) && tok.is_code() => {
                 let token_pos = self.pos;
+                #[cfg(feature = "verbose-debug")]
                 let raw = tok.raw().to_string();
                 self.bump();
 
-                log::debug!(
+                vdebug!(
                     "StringParser[table] MATCHED: token='{}' as {} (type={}) at pos={}",
                     raw,
                     raw_class,
@@ -646,7 +459,7 @@ impl<'a> Parser<'a> {
                 })
             }
             _ => {
-                log::debug!(
+                vdebug!(
                     "StringParser[table] NOMATCH: template='{}', token={:?}",
                     template,
                     self.peek().map(|t| t.raw())
@@ -663,7 +476,7 @@ impl<'a> Parser<'a> {
     ) -> Result<TableFrameResult, ParseError> {
         let ctx = &self.grammar_ctx;
         let grammar_id = frame.grammar_id;
-        log::debug!(
+        vdebug!(
             "START TypedParser: frame_id={}, pos={}, grammar_id={:?}",
             frame.frame_id,
             frame.pos,
@@ -685,7 +498,7 @@ impl<'a> Parser<'a> {
 
         self.pos = frame.pos;
 
-        log::debug!(
+        vdebug!(
             "TypedParser[table]: pos={}, template='{}', token_type='{}'",
             self.pos,
             template,
@@ -696,15 +509,19 @@ impl<'a> Parser<'a> {
             Some(tok) if tok.is_type(&[&template]) => {
                 // Capture all token-derived data before mutating self
                 let token_pos = self.pos;
+                #[cfg(feature = "verbose-debug")]
                 let raw = tok.raw().to_string();
+                #[cfg(feature = "verbose-debug")]
                 let token_type_val = tok.token_type.clone();
+                #[cfg(feature = "verbose-debug")]
                 let inst_types = tok.instance_types.clone();
+                #[cfg(feature = "verbose-debug")]
                 let class_types = tok.class_types();
 
                 // Advance position after capturing token data
                 self.bump();
 
-                log::debug!(
+                vdebug!(
                     "TypedParser[table] MATCHED: type='{}', raw='{}' at pos={}",
                     token_type_val,
                     raw,
@@ -712,7 +529,7 @@ impl<'a> Parser<'a> {
                 );
 
                 // Extra debug: show token instance/class types
-                log::debug!(
+                vdebug!(
                     "TypedParser[table] MATCH DETAILS: frame_id={}, grammar_id={:?}, token_idx={}, instance_types={:?}, class_types={:?}",
                     frame.frame_id,
                     grammar_id,
@@ -754,7 +571,7 @@ impl<'a> Parser<'a> {
                     }
                 }
 
-                log::debug!(
+                vdebug!(
                     "TypedParser[table] Built instance_types: {:?} (token_type={}, raw_class={}, class_type={:?}, template={})",
                     instance_types_vec,
                     token_type,
@@ -783,17 +600,19 @@ impl<'a> Parser<'a> {
                 frame.end_pos = Some(self.pos);
                 Ok(TableFrameResult::Push(frame))
             }
-            Some(tok) => {
+            Some(_tok) => {
                 // Include instance and class type diagnostics to help debug why a
                 // typed parser didn't match (e.g. instance_types contains the
                 // expected seg type but token_type differs).
-                let inst_types = tok.instance_types.clone();
-                let class_types = tok.class_types();
-                log::debug!(
+                #[cfg(feature = "verbose-debug")]
+                let inst_types = _tok.instance_types.clone();
+                #[cfg(feature = "verbose-debug")]
+                let class_types = _tok.class_types();
+                vdebug!(
                     "TypedParser[table] NOMATCH: expected type='{}', token_type='{}', raw='{}', instance_types={:?}, class_types={:?}",
                     template,
-                    tok.get_type(),
-                    tok.raw(),
+                    _tok.get_type(),
+                    _tok.raw(),
                     inst_types,
                     class_types
                 );
@@ -803,7 +622,7 @@ impl<'a> Parser<'a> {
             }
 
             None => {
-                log::debug!("TypedParser[table] NOMATCH: EOF at pos={}", self.pos);
+                vdebug!("TypedParser[table] NOMATCH: EOF at pos={}", self.pos);
                 frame.state = FrameState::Complete(MatchResult::empty_at(frame.pos));
                 frame.end_pos = Some(frame.pos);
                 Ok(TableFrameResult::Push(frame))
@@ -854,7 +673,7 @@ impl<'a> Parser<'a> {
             tables.get_string(raw_class_id).to_string()
         };
 
-        log::debug!(
+        vdebug!(
             "MultiStringParser[table]: pos={}, templates={:?}, token_type='{}', raw_class='{}'",
             self.pos,
             templates,
@@ -867,10 +686,11 @@ impl<'a> Parser<'a> {
                 if tok.is_code() && templates.iter().any(|t| tok.raw().eq_ignore_ascii_case(t)) =>
             {
                 let token_pos = self.pos;
+                #[cfg(feature = "verbose-debug")]
                 let raw = tok.raw().to_string();
                 self.bump();
 
-                log::debug!(
+                vdebug!(
                     "MultiStringParser[table] MATCHED: token='{}' as {} (type={}) at pos={}",
                     raw,
                     raw_class,
@@ -891,7 +711,7 @@ impl<'a> Parser<'a> {
                 })
             }
             _ => {
-                log::debug!(
+                vdebug!(
                     "MultiStringParser[table] NOMATCH: templates={:?}, token={:?}",
                     templates,
                     self.peek().map(|t| t.raw())
@@ -1090,7 +910,7 @@ impl<'a> Parser<'a> {
             None
         };
 
-        log::debug!(
+        vdebug!(
             "RegexParser[table]: pos={}, pattern='{}', anti='{}', token_type='{}'",
             self.pos,
             pattern_str,
@@ -1104,9 +924,9 @@ impl<'a> Parser<'a> {
 
                 // Check anti-pattern first (if present, should NOT match)
                 if let Some(ref anti) = anti_pattern {
-                    log::debug!("RegexParser[table] checking anti-pattern against '{}'", raw);
+                    vdebug!("RegexParser[table] checking anti-pattern against '{}'", raw);
                     if anti.is_match(&raw) {
-                        log::debug!("RegexParser[table] anti-pattern matched, returning Empty");
+                        vdebug!("RegexParser[table] anti-pattern matched, returning Empty");
                         return Ok(MatchResult::empty_at(self.pos));
                     }
                 }
@@ -1116,7 +936,7 @@ impl<'a> Parser<'a> {
                     let token_pos = self.pos;
                     self.bump();
 
-                    log::debug!(
+                    vdebug!(
                         "RegexParser[table] MATCHED: token='{}' at pos={}",
                         raw,
                         token_pos
@@ -1137,7 +957,7 @@ impl<'a> Parser<'a> {
                         ..Default::default()
                     })
                 } else {
-                    log::debug!(
+                    vdebug!(
                         "RegexParser[table] NOMATCH: pattern '{}' didn't match token='{}'",
                         pattern_str,
                         raw
@@ -1146,7 +966,7 @@ impl<'a> Parser<'a> {
                 }
             }
             None => {
-                log::debug!("RegexParser[table] NOMATCH: EOF at pos={}", self.pos);
+                vdebug!("RegexParser[table] NOMATCH: EOF at pos={}", self.pos);
                 Ok(MatchResult::empty_at(self.pos))
             }
         }
@@ -1158,19 +978,19 @@ impl<'a> Parser<'a> {
 
     /// Handle Nothing using table-driven approach
     pub(crate) fn handle_nothing_table_driven(&mut self) -> Result<MatchResult, ParseError> {
-        log::debug!("Nothing[table]: pos={}, returning Empty", self.pos);
+        vdebug!("Nothing[table]: pos={}, returning Empty", self.pos);
         Ok(MatchResult::empty_at(self.pos))
     }
 
     /// Handle Empty using table-driven approach
     pub(crate) fn handle_empty_table_driven(&mut self) -> Result<MatchResult, ParseError> {
-        log::debug!("Empty[table]: pos={}, returning Empty", self.pos);
+        vdebug!("Empty[table]: pos={}, returning Empty", self.pos);
         Ok(MatchResult::empty_at(self.pos))
     }
 
     /// Handle Missing using table-driven approach
     pub(crate) fn handle_missing_table_driven(&mut self) -> Result<MatchResult, ParseError> {
-        log::debug!("Missing[table]: encountered at pos={}", self.pos);
+        vdebug!("Missing[table]: encountered at pos={}", self.pos);
         Err(ParseError::with_context(
             "Encountered Missing grammar".into(),
             Some(self.pos),
@@ -1192,7 +1012,7 @@ impl<'a> Parser<'a> {
         // let token_type_id = tables.aux_data[aux_start];
         let token_type = tables.get_string(token_type_id).to_string();
 
-        log::debug!(
+        vdebug!(
             "Token[table]: pos={}, token_type='{}'",
             self.pos,
             token_type
@@ -1201,10 +1021,11 @@ impl<'a> Parser<'a> {
         match self.peek() {
             Some(tok) if tok.is_type(&[&token_type]) => {
                 let token_pos = self.pos;
+                #[cfg(feature = "verbose-debug")]
                 let raw = tok.raw().to_string();
                 self.bump();
 
-                log::debug!(
+                vdebug!(
                     "Token[table] MATCHED: type='{}', raw='{}' at pos={}",
                     token_type,
                     raw,
@@ -1218,24 +1039,26 @@ impl<'a> Parser<'a> {
                     ..Default::default()
                 })
             }
-            Some(tok) => {
+            Some(_tok) => {
                 // Don't return an Err here; return Empty so the table-driven
                 // engine can try other branches instead of aborting the
                 // sequence. Include instance/class types for diagnostics.
-                let inst_types = tok.instance_types.clone();
-                let class_types = tok.class_types();
-                log::debug!(
+                #[cfg(feature = "verbose-debug")]
+                let inst_types = _tok.instance_types.clone();
+                #[cfg(feature = "verbose-debug")]
+                let class_types = _tok.class_types();
+                vdebug!(
                     "Token[table] NOMATCH: expected='{}', token_type='{}', raw='{}', instance_types={:?}, class_types={:?}'",
                     token_type,
-                    tok.get_type(),
-                    tok.raw(),
+                    _tok.get_type(),
+                    _tok.raw(),
                     inst_types,
                     class_types
                 );
                 Ok(MatchResult::empty_at(self.pos))
             }
             None => {
-                log::debug!("Token[table] NOMATCH: EOF at pos={}", self.pos);
+                vdebug!("Token[table] NOMATCH: EOF at pos={}", self.pos);
                 Ok(MatchResult::empty_at(self.pos))
             }
         }
@@ -1254,7 +1077,7 @@ impl<'a> Parser<'a> {
         let token_type_id = tables.aux_data_offsets[grammar_id.get() as usize] as usize;
         let token_type = tables.get_string(token_type_id as u32).to_string();
 
-        log::debug!("Meta[table]: pos={}, token_type='{}'", self.pos, token_type);
+        vdebug!("Meta[table]: pos={}, token_type='{}'", self.pos, token_type);
 
         // Meta creates zero-length inserts. Determine type and is_implicit flag.
         let (meta_type, is_implicit) = match token_type.as_str() {
@@ -1284,7 +1107,7 @@ impl<'a> Parser<'a> {
         &mut self,
     ) -> Result<MatchResult, ParseError> {
         let start_pos = self.pos;
-        log::debug!("NonCodeMatcher[table]: pos={}", start_pos);
+        vdebug!("NonCodeMatcher[table]: pos={}", start_pos);
 
         // Count consecutive non-code tokens
         let mut count = 0;
@@ -1292,21 +1115,25 @@ impl<'a> Parser<'a> {
         while let Some(tok) = self.peek() {
             // Check if this is a code token
             if tok.is_code() {
-                log::debug!(
+                #[cfg(feature = "verbose-debug")]
+                let typ = tok.get_type();
+                vdebug!(
                     "NonCodeMatcher[table]: stopped at code token type='{}' at pos={}",
-                    tok.get_type(),
+                    typ,
                     self.pos
                 );
                 break;
             }
 
             // This is a non-code token - skip it
+            #[cfg(feature = "verbose-debug")]
             let typ = tok.get_type();
+            #[cfg(feature = "verbose-debug")]
             let raw = tok.raw();
             self.bump();
             count += 1;
 
-            log::debug!(
+            vdebug!(
                 "NonCodeMatcher[table]: matched non-code type='{}', raw='{}' at pos={}",
                 typ,
                 raw,
@@ -1315,13 +1142,13 @@ impl<'a> Parser<'a> {
         }
 
         if count == 0 {
-            log::debug!(
+            vdebug!(
                 "NonCodeMatcher[table] NOMATCH: no non-code tokens at pos={}",
                 start_pos
             );
             Ok(MatchResult::empty_at(start_pos))
         } else {
-            log::debug!(
+            vdebug!(
                 "NonCodeMatcher[table] MATCHED: {} non-code tokens from pos {} to {}",
                 count,
                 start_pos,
@@ -1352,7 +1179,7 @@ impl<'a> Parser<'a> {
     ) -> Result<TableFrameResult, ParseError> {
         let start_pos = self.pos;
         let mut child_matches: Vec<MatchResult> = vec![];
-        log::debug!(
+        vdebug!(
             "Anything[table]: pos={}, parent_terminators={}, parent_max_idx={:?}",
             start_pos,
             parent_terminators.len(),
@@ -1369,7 +1196,7 @@ impl<'a> Parser<'a> {
             // Check if we've reached our parent_max_idx boundary
             if let Some(max_idx) = parent_max_idx {
                 if self.pos >= max_idx {
-                    log::debug!(
+                    vdebug!(
                         "Anything[table]: reached parent_max_idx={}, stopping at pos={}",
                         max_idx,
                         self.pos
@@ -1397,7 +1224,7 @@ impl<'a> Parser<'a> {
             }
         }
 
-        log::debug!(
+        vdebug!(
             "Anything[table]: matched {} child_matches, pos {} -> {}",
             child_matches.len(),
             start_pos,

@@ -2,6 +2,7 @@ use crate::parser::{
     table_driven::frame::{TableFrameResult, TableParseFrame, TableParseFrameStack},
     FrameContext, FrameState, MatchResult, ParseError, Parser,
 };
+use crate::vdebug;
 use sqlfluffrs_types::GrammarId;
 
 impl Parser<'_> {
@@ -19,12 +20,13 @@ impl Parser<'_> {
         self.pos = frame.pos;
         let grammar_id = frame.grammar_id;
 
+        #[cfg(feature = "verbose-debug")]
         let child_count = self.grammar_ctx.inst(grammar_id).child_count;
         let reset_terminators = self.grammar_ctx.inst(grammar_id).flags.reset_terminators();
         let parse_mode = self.grammar_ctx.inst(grammar_id).parse_mode;
         let start_pos = frame.pos;
 
-        log::debug!(
+        vdebug!(
             "AnyNumberOf[table] Initial: frame_id={}, pos={}, grammar_id={}, children={}",
             frame.frame_id,
             start_pos,
@@ -33,11 +35,13 @@ impl Parser<'_> {
         );
 
         // Extra debug: build a readable grammar name (works for Ref/String/Regex variants)
+        #[cfg(feature = "verbose-debug")]
         let grammar_name = self.grammar_ctx.grammar_id_name(grammar_id);
 
+        #[cfg(feature = "verbose-debug")]
         if start_pos < self.tokens.len() {
             let tok = &self.tokens[start_pos];
-            log::debug!(
+            vdebug!(
                 "AnyNumberOf[table] Initial: grammar='{}' start_token='{}' token_type='{}' start_pos={}",
                 grammar_name,
                 tok.raw,
@@ -45,21 +49,21 @@ impl Parser<'_> {
                 start_pos
             );
         } else {
-            log::debug!(
+            vdebug!(
                 "AnyNumberOf[table] Initial: grammar='{}' start_token=<EOF>",
                 grammar_name
             );
         }
 
         // Get config from aux_data
-        let (min_times, max_times, max_times_per_element, has_exclude) =
+        let (_min_times, _max_times, _max_times_per_element, has_exclude) =
             self.grammar_ctx.anynumberof_config(grammar_id);
 
-        log::debug!(
+        vdebug!(
             "AnyNumberOf[table]: min_times={}, max_times={:?}, max_times_per_element={:?}, has_exclude={}",
-            min_times,
-            max_times,
-            max_times_per_element,
+            _min_times,
+            _max_times,
+            _max_times_per_element,
             has_exclude
         );
 
@@ -71,7 +75,7 @@ impl Parser<'_> {
                     self.parse_table_iterative(exclude_id, parent_terminators)
                 {
                     if !exclude_result.is_empty() {
-                        log::debug!("AnyNumberOf[table]: Exclude grammar matched, returning Empty");
+                        vdebug!("AnyNumberOf[table]: Exclude grammar matched, returning Empty");
                         stack.results.insert(
                             frame.frame_id,
                             (MatchResult::empty_at(start_pos), start_pos, None),
@@ -87,18 +91,19 @@ impl Parser<'_> {
         let element_ids: Vec<GrammarId> = self.grammar_ctx.element_children(grammar_id).collect();
         let pruned_children = self.prune_options_table_driven(&element_ids);
         // Debug element names for easier tracing
+        #[cfg(feature = "verbose-debug")]
         let element_names: Vec<String> = pruned_children
             .iter()
             .map(|gid| self.grammar_ctx.grammar_id_name(*gid))
             .collect();
-        log::debug!(
+        vdebug!(
             "AnyNumberOf[table] element_ids_count={} names={:?}",
             pruned_children.len(),
             element_names
         );
         // (will log terminators after they are combined below)
         if pruned_children.is_empty() {
-            log::debug!("AnyNumberOf[table]: No elements to match after filtering");
+            vdebug!("AnyNumberOf[table]: No elements to match after filtering");
             stack.results.insert(
                 frame.frame_id,
                 (MatchResult::empty_at(start_pos), start_pos, None),
@@ -123,11 +128,12 @@ impl Parser<'_> {
         let grammar_parse_mode = parse_mode;
 
         // Debug: log pruned_children ids and the combined terminators
+        #[cfg(feature = "verbose-debug")]
         let term_names: Vec<String> = all_terminators
             .iter()
             .map(|gid| self.grammar_ctx.grammar_id_name(*gid))
             .collect();
-        log::debug!(
+        vdebug!(
             "AnyNumberOf[table] pruned_children_ids={:?} all_terminators_count={} names={:?}",
             pruned_children,
             all_terminators.len(),
@@ -147,7 +153,7 @@ impl Parser<'_> {
             frame.parent_max_idx,
         )?;
 
-        log::debug!(
+        vdebug!(
             "AnyNumberOf[table] Initial handler: grammar_id={}, start_pos={}, max_idx={}, parse_mode={:?}, parent_max_idx={:?}",
             grammar_id.0,
             start_pos,
@@ -192,14 +198,15 @@ impl Parser<'_> {
             Some(max_idx),
         );
 
-        log::debug!(
+        vdebug!(
             "AnyNumberOf[table]: Pushing initial child for element 0 gid={} (total candidates={})",
             first_element.0,
             pruned_children_count
         );
         // Debug pushed element name
+        #[cfg(feature = "verbose-debug")]
         let first_name = self.grammar_ctx.grammar_id_name(first_element);
-        log::debug!(
+        vdebug!(
             "AnyNumberOf[table]: pushing first_element name='{}' gid={}",
             first_name,
             first_element.0
@@ -237,12 +244,13 @@ impl Parser<'_> {
         };
 
         let inst = self.grammar_ctx.inst(*grammar_id);
+        #[cfg(feature = "verbose-debug")]
         let parse_mode = inst.parse_mode;
 
         // Determine which element candidate index we last attempted (stored in
         // the parent's FrameState::WaitingForChild). If not present, default
         // to 0 so we try the first element.
-        let (current_element_idx, total_candidates) = match frame.state {
+        let (current_element_idx, _total_candidates) = match frame.state {
             FrameState::WaitingForChild {
                 child_index,
                 total_children,
@@ -250,25 +258,27 @@ impl Parser<'_> {
             _ => (0usize, pruned_children.len()),
         };
 
-        log::debug!(
+        vdebug!(
             "AnyNumberOf[table] WaitingForChild: frame_id={}, child_empty={}, count={}, matched_idx={}, trying_idx={}/{}, tried_elements={}",
             frame.frame_id,
             child_match.is_empty(),
             count,
             matched_idx,
             current_element_idx,
-            total_candidates,
+            _total_candidates,
             tried_elements
         );
 
         // Extra debug: show pruned_children and parent table_terminators for this frame
+        #[cfg(feature = "verbose-debug")]
         let pruned_dbg: Vec<u64> = pruned_children.iter().map(|g| g.0 as u64).collect();
+        #[cfg(feature = "verbose-debug")]
         let table_term_names: Vec<String> = frame
             .table_terminators
             .iter()
             .map(|gid| self.grammar_ctx.grammar_id_name(*gid))
             .collect();
-        log::debug!(
+        vdebug!(
             "AnyNumberOf[table] WaitingForChild DEBUG: pruned_children_ids={:?} table_terminators_count={} names={:?}",
             pruned_dbg,
             frame.table_terminators.len(),
@@ -291,7 +301,7 @@ impl Parser<'_> {
 
             if is_better {
                 *longest_match = Some((child_match.clone(), *child_end_pos, current_candidate));
-                log::debug!(
+                vdebug!(
                     "AnyNumberOf[table]: Updated longest_match: child_id={}, end_pos={}",
                     current_candidate.0,
                     child_end_pos
@@ -306,7 +316,7 @@ impl Parser<'_> {
             let next_element_idx = current_element_idx + 1;
             let next_candidate = pruned_children[next_element_idx];
 
-            log::debug!(
+            vdebug!(
                 "AnyNumberOf[table]: Trying next element candidate idx={} gid={} (for longest_match)",
                 next_element_idx,
                 next_candidate.0
@@ -338,7 +348,7 @@ impl Parser<'_> {
         }
 
         // All element candidates tried for this repetition - use longest_match if any
-        log::debug!(
+        vdebug!(
             "AnyNumberOf[table]: All candidates tried at pos={}, longest_match={:?}, count={}, min_times={}, max_idx={}",
             working_idx,
             longest_match.as_ref().map(|(_, end, gid)| (end, gid.0)),
@@ -381,7 +391,7 @@ impl Parser<'_> {
                             self.mark_position_collected(token_idx);
                         }
                         "whitespace" | "newline" | "comment" => {
-                            log::debug!(
+                            vdebug!(
                                 "AnyNumberOf[table]: Skipping explicit collection of {} at {} - will be captured as trailing",
                                 tok.get_type(),
                                 token_idx
@@ -400,7 +410,7 @@ impl Parser<'_> {
             // Check max_times constraint (total matches across all elements)
             if let Some(max) = max_times {
                 if *count >= max {
-                    log::debug!("AnyNumberOf[table]: Reached max_times={}, finalizing", max);
+                    vdebug!("AnyNumberOf[table]: Reached max_times={}, finalizing", max);
                     frame.end_pos = Some(*matched_idx);
                     frame.state = FrameState::Combining;
                     stack.push(&mut frame);
@@ -415,7 +425,7 @@ impl Parser<'_> {
 
             if let Some(max_per) = max_times_per_element {
                 if *count_for_element > max_per {
-                    log::debug!(
+                    vdebug!(
                         "AnyNumberOf[table]: Element {} exceeded max_times_per_element={}, count={}",
                         element_key,
                         max_per,
@@ -441,7 +451,7 @@ impl Parser<'_> {
             // (like Bracketed) legitimately consumed past the terminator-based
             // max_idx constraint.
             if *matched_idx > *max_idx {
-                log::debug!(
+                vdebug!(
                     "AnyNumberOf[table]: Child consumed past max_idx ({}->{}), updating max_idx to matched_idx",
                     *max_idx, *matched_idx
                 );
@@ -455,7 +465,7 @@ impl Parser<'_> {
                 *working_idx = self.skip_start_index_forward_to_code(*matched_idx, *max_idx);
             }
 
-            log::debug!(
+            vdebug!(
                 "AnyNumberOf[table]: Match #{} (longest), element_key={}, matched_idx={}, working_idx={}",
                 count,
                 element_key,
@@ -465,7 +475,7 @@ impl Parser<'_> {
 
             // Check if we've reached max_idx
             if *matched_idx >= *max_idx {
-                log::debug!(
+                vdebug!(
                     "AnyNumberOf[table]: Reached max_idx={}, matched_idx={}, parent_max_idx={:?}, parse_mode={:?}, finalizing",
                     max_idx,
                     matched_idx,
@@ -486,7 +496,7 @@ impl Parser<'_> {
             let element_ids: Vec<GrammarId> =
                 self.grammar_ctx.element_children(*grammar_id).collect();
             let repruned_children = self.prune_options_table_driven(&element_ids);
-            log::debug!(
+            vdebug!(
                 "AnyNumberOf[table]: After match, re-pruned elements from {} to {}",
                 element_ids.len(),
                 repruned_children.len()
@@ -494,7 +504,7 @@ impl Parser<'_> {
 
             // If all elements pruned, finalize
             if repruned_children.is_empty() {
-                log::debug!("AnyNumberOf[table]: All elements pruned after match, finalizing");
+                vdebug!("AnyNumberOf[table]: All elements pruned after match, finalizing");
                 frame.end_pos = Some(*matched_idx);
                 frame.state = FrameState::Combining;
                 stack.push(&mut frame);
@@ -534,7 +544,7 @@ impl Parser<'_> {
         }
 
         // No match found - finalize based on min_times
-        log::debug!(
+        vdebug!(
             "AnyNumberOf[table]: No match found, finalizing with count={}, min_times={}",
             count,
             inst.min_times
@@ -563,7 +573,7 @@ impl Parser<'_> {
 
         let inst = self.grammar_ctx.inst(*grammar_id);
 
-        log::debug!(
+        vdebug!(
             "AnyNumberOf[table] Combining: frame_id={}, accumulated={}, count={}",
             frame.frame_id,
             frame.accumulated.len(),

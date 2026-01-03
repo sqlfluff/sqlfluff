@@ -3,6 +3,16 @@
 //! This module contains an iterative (non-recursive) parser that uses an
 //! explicit stack of frames to parse SQL grammar without stack overflow risks.
 
+/// Verbose debug logging macro - only compiles logging code when verbose-debug feature is enabled.
+/// This eliminates runtime overhead of debug logging in production builds.
+#[macro_export]
+macro_rules! vdebug {
+    ($($arg:tt)*) => {
+        #[cfg(feature = "verbose-debug")]
+        log::debug!($($arg)*);
+    };
+}
+
 mod cache;
 mod core;
 mod frame;
