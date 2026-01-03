@@ -5162,7 +5162,9 @@ class OpenRowSetSegment(BaseSegment):
                 ),
                 Sequence(
                     "BULK",
-                    Ref("QuotedLiteralSegmentOptWithN"),
+                    OptionallyBracketed(
+                        Delimited(Ref("QuotedLiteralSegmentOptWithN")),
+                    ),
                     Ref("CommaSegment"),
                     OneOf(
                         Sequence(
