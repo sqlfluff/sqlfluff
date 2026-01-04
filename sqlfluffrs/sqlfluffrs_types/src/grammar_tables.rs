@@ -246,7 +246,9 @@ impl GrammarTables {
         if hint_idx == 0 {
             None
         } else {
-            Some(&self.simple_hints[hint_idx as usize])
+            // CRITICAL FIX: Hints are 1-indexed (0 = no hint), so subtract 1
+            // before indexing into simple_hints array which is 0-indexed
+            Some(&self.simple_hints[(hint_idx - 1) as usize])
         }
     }
 
