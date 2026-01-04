@@ -46,7 +46,8 @@ pub struct Parser<'a> {
     pub pruning_complex: std::cell::Cell<usize>, // Options that returned None (complex)
     pub match_attempts: std::cell::Cell<usize>, // Track number of match attempts (like Python's longest_match)
     pub match_successes: std::cell::Cell<usize>, // Track number of successful matches
-    pub terminator_checks: std::cell::Cell<usize>, // Track number of terminator checks
+    pub complete_match_early_exits: std::cell::Cell<usize>, // Track early exits from complete matches
+    pub terminator_checks: std::cell::Cell<usize>,          // Track number of terminator checks
     pub terminator_hits: std::cell::Cell<usize>, // Track number of terminator hits (early exits)
     /// Cache for terminator match results: (position, grammar_id) -> matches
     /// Key insight: the same terminator at the same position will always give the same result.
@@ -88,6 +89,7 @@ impl<'a> Parser<'a> {
             pruning_complex: std::cell::Cell::new(0),
             match_attempts: std::cell::Cell::new(0),
             match_successes: std::cell::Cell::new(0),
+            complete_match_early_exits: std::cell::Cell::new(0),
             terminator_checks: std::cell::Cell::new(0),
             terminator_hits: std::cell::Cell::new(0),
             terminator_match_cache: std::cell::RefCell::new(hashbrown::HashMap::new()),

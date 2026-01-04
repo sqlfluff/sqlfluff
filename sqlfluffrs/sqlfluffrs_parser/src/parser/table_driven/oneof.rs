@@ -141,7 +141,8 @@ impl Parser<'_> {
         }
 
         // Track match attempts (like Python's longest_match - each option is an attempt)
-        self.match_attempts.set(self.match_attempts.get() + pruned_children.len());
+        self.match_attempts
+            .set(self.match_attempts.get() + pruned_children.len());
 
         // Try first child
         let first_child = pruned_children[0];
@@ -275,6 +276,26 @@ impl Parser<'_> {
                 child_is_clean,
                 candidate_tokens
             );
+        }
+
+        // PYTHON PARITY: Check for COMPLETE match first (matched all available segments)
+        // If we matched up to max_idx, we can return immediately without trying other options
+        // This is a major optimization for expressions with many alternatives
+        // See Python's longest_match() lines 245-246
+        if !child_match.is_empty() && child_end_pos_val >= *max_idx {
+            vdebug!(
+                "OneOf[table]: COMPLETE MATCH - child {} matched all segments up to max_idx={}, returning immediately",
+                current_child.0,
+                max_idx
+            );
+            // Track early exit for stats
+            self.complete_match_early_exits
+                .set(self.complete_match_early_exits.get() + 1);
+            *longest_match = Some((child_match.clone(), consumed, current_child));
+            // Skip directly to Combining state
+            frame.state = FrameState::Combining;
+            stack.push(&mut frame);
+            return Ok(TableFrameResult::Done);
         }
 
         // Update longest match if this is better

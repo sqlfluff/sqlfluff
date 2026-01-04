@@ -687,7 +687,14 @@ impl PyParser {
         stats.insert("pruning_complex".to_string(), parser.pruning_complex.get());
         stats.insert("match_attempts".to_string(), parser.match_attempts.get());
         stats.insert("match_successes".to_string(), parser.match_successes.get());
-        stats.insert("terminator_checks".to_string(), parser.terminator_checks.get());
+        stats.insert(
+            "complete_match_early_exits".to_string(),
+            parser.complete_match_early_exits.get(),
+        );
+        stats.insert(
+            "terminator_checks".to_string(),
+            parser.terminator_checks.get(),
+        );
         stats.insert("terminator_hits".to_string(), parser.terminator_hits.get());
 
         Ok((PyMatchResult(match_result), stats))
