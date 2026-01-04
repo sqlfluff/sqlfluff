@@ -67,7 +67,7 @@ impl Parser<'_> {
         // Save and clear checkpoint stack state at the start of this parse session.
         // This is critical for proper whitespace collection when OneOf tries multiple children.
         let saved_checkpoint_stack = std::mem::take(&mut self.collection_stack);
-        let saved_collected_positions = self.collected_transparent_positions.clone();
+        let saved_collected_count = self.collected_transparent_positions.len();
 
         let start_pos = self.pos;
         let max_idx = self.tokens.len();
@@ -355,7 +355,8 @@ impl Parser<'_> {
                     "parse_table_iterative_match_result: Restoring collected_transparent_positions for Empty result (grammar {})",
                     grammar.0
                 );
-                self.collected_transparent_positions = saved_collected_positions;
+                self.collected_transparent_positions
+                    .truncate(saved_collected_count);
             }
 
             // Apply global deduplication to remove sibling duplicates
@@ -369,7 +370,8 @@ impl Parser<'_> {
             ));
             // Restore checkpoint stack and collected positions before returning
             self.collection_stack = saved_checkpoint_stack;
-            self.collected_transparent_positions = saved_collected_positions;
+            self.collected_transparent_positions
+                .truncate(saved_collected_count);
             Err(error)
         }
     }
@@ -977,7 +979,9 @@ impl Parser<'_> {
                 self.pos = *end_pos;
                 if let Some(positions) = transparent_positions {
                     for &pos in positions {
-                        self.collected_transparent_positions.insert(pos);
+                        if !self.collected_transparent_positions.contains(&pos) {
+                            self.collected_transparent_positions.push(pos);
+                        }
                     }
                 }
                 // Insert cached MatchResult directly (no conversion needed)

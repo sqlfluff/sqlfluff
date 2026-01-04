@@ -677,17 +677,12 @@ impl<'a> Parser<'a> {
             self.pos = init_pos;
             return false;
         }
-        // Note: In future, we can use simple_hint matching here like the Arc version
-
-        // Check all terminators - use full parse for multi-token terminators
+        // Check all terminators that might match at current position
         for term_id in pruned_terminators.iter() {
             // Skip NONCODE - already handled above
             if *term_id == GrammarId::NONCODE {
                 continue;
             }
-
-            // TODO: Implement simple_hint check from table
-            // TODO: Implement needs_full_parse check (Sequence with multiple elements)
 
             // For now, do full parse for all terminators (conservative approach)
             let check_pos = self.pos;

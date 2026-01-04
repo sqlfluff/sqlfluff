@@ -255,7 +255,7 @@ impl Parser<'_> {
             leading_transparent,
             child_grammar_id,
             ..
-        } = &frame.context
+        } = &mut frame.context
         else {
             return Err(ParseError::new(
                 "Expected RefTableDriven context in combining".to_string(),
@@ -285,7 +285,7 @@ impl Parser<'_> {
         } else {
             // Wrap child in Ref with lazy evaluation - store child_matches
             // Prepend leading transparent matches to accumulated
-            let mut children: Vec<MatchResult> = leading_transparent.clone();
+            let mut children = std::mem::take(leading_transparent);
             let accumulated = std::mem::take(&mut frame.accumulated);
             children.extend(accumulated);
 

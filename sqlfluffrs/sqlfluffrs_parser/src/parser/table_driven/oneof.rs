@@ -149,9 +149,9 @@ impl Parser<'_> {
             first_child.0
         );
 
-        // Save initial collected positions to restore between child attempts
+        // Save initial collected positions count for O(1) rollback via truncate
         // This ensures each child gets a fresh view of which whitespace to collect
-        let initial_collected_positions = self.collected_transparent_positions.clone();
+        let initial_collected_count = self.collected_transparent_positions.len();
 
         // Store context for WaitingForChild state
         frame.context = FrameContext::OneOfTableDriven {
@@ -164,7 +164,7 @@ impl Parser<'_> {
             max_idx,
             last_child_frame_id: Some(stack.frame_id_counter),
             current_child_id: Some(first_child),
-            initial_collected_positions,
+            initial_collected_count,
         };
 
         frame.state = FrameState::WaitingForChild {
@@ -212,7 +212,7 @@ impl Parser<'_> {
             tried_elements,
             max_idx,
             current_child_id,
-            initial_collected_positions,
+            initial_collected_count,
             ..
         } = &mut frame.context
         else {
@@ -295,10 +295,9 @@ impl Parser<'_> {
             if is_better {
                 *longest_match = Some((child_match.clone(), consumed, current_child));
                 vdebug!(
-                    "OneOf[table]: longest_match set: child_id={}, consumed={}, match={:?}",
+                    "OneOf[table]: longest_match set: child_id={}, consumed={}",
                     current_child.0,
-                    consumed,
-                    child_match
+                    consumed
                 );
 
                 // Python parity: Check for early termination with terminators
@@ -378,9 +377,12 @@ impl Parser<'_> {
             // Without this, the first child collects whitespace, marks it collected,
             // and subsequent children skip that whitespace - leading to missing whitespace
             // in the final AST if a later child wins.
-            self.collected_transparent_positions = initial_collected_positions.clone();
+            // OPTIMIZATION: Use truncate instead of clone for O(1) rollback
+            self.collected_transparent_positions
+                .truncate(*initial_collected_count);
             vdebug!(
-                "OneOf[table]: Restored collected_transparent_positions to initial state ({} positions)",
+                "OneOf[table]: Truncated collected_transparent_positions to {} (was {})",
+                initial_collected_count,
                 self.collected_transparent_positions.len()
             );
 
@@ -422,16 +424,26 @@ impl Parser<'_> {
         mut frame: TableParseFrame,
         _stack: &mut TableParseFrameStack,
     ) -> Result<TableFrameResult, ParseError> {
-        let FrameContext::OneOfTableDriven {
-            leading_ws,
-            post_skip_pos,
-            longest_match,
-            ..
-        } = &frame.context
-        else {
-            return Err(ParseError::new(
-                "Expected OneOfTableDriven context in combining".to_string(),
-            ));
+        // Extract values from context by moving them out
+        let (leading_ws, post_skip_pos, longest_match) = match &mut frame.context {
+            FrameContext::OneOfTableDriven {
+                leading_ws,
+                post_skip_pos,
+                longest_match,
+                ..
+            } => {
+                // Take ownership to avoid clones
+                (
+                    std::mem::take(leading_ws),
+                    *post_skip_pos,
+                    longest_match.take(),
+                )
+            }
+            _ => {
+                return Err(ParseError::new(
+                    "Expected OneOfTableDriven context in combining".to_string(),
+                ));
+            }
         };
 
         vdebug!(
@@ -441,7 +453,7 @@ impl Parser<'_> {
         );
 
         #[cfg(feature = "verbose-debug")]
-        if let Some((best_node, best_consumed, best_child_id)) = longest_match {
+        if let Some((ref best_node, best_consumed, best_child_id)) = longest_match {
             vdebug!(
                 "OneOf[table] Combining DEBUG: best_child_id={}, best_consumed={}, best_node={:?}",
                 best_child_id.0,
@@ -458,19 +470,19 @@ impl Parser<'_> {
         // Build final result
         let (result_match, final_pos, _child_id) =
             if let Some((best_match, best_consumed, best_child_id)) = longest_match {
-                let final_pos = *post_skip_pos + *best_consumed;
+                let final_pos = post_skip_pos + best_consumed;
                 self.pos = final_pos;
 
                 let result = if !leading_ws.is_empty() {
                     // Prepend leading whitespace as MatchResults
-                    let mut children: Vec<MatchResult> = leading_ws.clone();
-                    children.push(best_match.clone());
+                    let mut children = leading_ws;
+                    children.push(best_match);
                     MatchResult::sequence(frame.pos, final_pos, children)
                 } else {
-                    best_match.clone()
+                    best_match
                 };
 
-                (result, final_pos, Some(*best_child_id))
+                (result, final_pos, Some(best_child_id))
             } else {
                 // No match found
                 let final_pos = frame.pos;

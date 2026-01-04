@@ -26,10 +26,10 @@ use sqlfluffrs_types::GrammarId;
 /// much cheaper to hash and compare.
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct TableCacheKey {
-    pos: usize,
-    grammar_id: u32,
-    max_idx: usize,
-    terminators_hash: u64,
+    pub pos: usize,
+    pub grammar_id: u32,
+    pub max_idx: usize,
+    pub terminators_hash: u64,
 }
 
 impl TableCacheKey {
@@ -156,6 +156,11 @@ impl TableParseCache {
 
     pub fn is_empty(&self) -> bool {
         self.cache.is_empty()
+    }
+
+    /// Iterate over cache entries (for analysis/debugging)
+    pub fn iter(&self) -> impl Iterator<Item = (&TableCacheKey, &TableCacheValue)> {
+        self.cache.iter()
     }
 }
 

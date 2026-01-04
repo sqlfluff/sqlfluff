@@ -765,7 +765,6 @@ impl MatchResult {
         // PYTHON PARITY: If we finish processing triggers and there are still tokens
         // left in the matched_slice, add them too (captures trailing whitespace/comments)
         if current_idx < self.matched_slice.end {
-
             for idx in current_idx..self.matched_slice.end {
                 if idx < tokens.len() {
                     let tok = &tokens[idx];

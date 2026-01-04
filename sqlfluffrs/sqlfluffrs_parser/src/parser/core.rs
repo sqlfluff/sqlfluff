@@ -4,7 +4,6 @@
 //! including the main entry point for parsing with grammar.
 
 use crate::vdebug;
-use hashbrown::HashSet;
 
 use crate::parser::table_driven::frame::{TableFrameResult, TableParseFrame};
 use crate::parser::FrameState;
@@ -36,7 +35,7 @@ pub struct Parser<'a> {
     pub dialect: Dialect,
     pub table_cache: TableParseCache, // NEW: Table-driven parser cache
     pub cache_enabled: bool,
-    pub collected_transparent_positions: HashSet<usize>, // Track which token positions have had transparent tokens collected
+    pub collected_transparent_positions: Vec<usize>, // Track which token positions have had transparent tokens collected (Vec for O(1) truncate)
     /// Stack of collection checkpoints for backtracking.
     /// Each checkpoint records which tokens were marked as collected at that point.
     pub collection_stack: Vec<CollectionCheckpoint>,
@@ -72,7 +71,7 @@ impl<'a> Parser<'a> {
             pos: 0,
             dialect,
             table_cache: TableParseCache::new(),
-            collected_transparent_positions: HashSet::new(),
+            collected_transparent_positions: Vec::new(),
             collection_stack: Vec::new(),
             pruning_calls: std::cell::Cell::new(0),
             pruning_total: std::cell::Cell::new(0),
@@ -308,7 +307,10 @@ impl<'a> Parser<'a> {
     /// Mark a token position as collected and record it in the current checkpoint.
     /// Returns true if the position was newly inserted, false if it was already collected.
     pub fn mark_position_collected(&mut self, pos: usize) -> bool {
-        let was_new = self.collected_transparent_positions.insert(pos);
+        let was_new = !self.collected_transparent_positions.contains(&pos);
+        if was_new {
+            self.collected_transparent_positions.push(pos);
+        }
         if was_new {
             // Record this collection in the current checkpoint
             if let Some(checkpoint) = self.collection_stack.last_mut() {
@@ -377,7 +379,13 @@ impl<'a> Parser<'a> {
                 );
                 // Remove all positions that were marked during this checkpoint
                 for pos in checkpoint.positions {
-                    self.collected_transparent_positions.remove(&pos);
+                    if let Some(index) = self
+                        .collected_transparent_positions
+                        .iter()
+                        .position(|&p| p == pos)
+                    {
+                        self.collected_transparent_positions.swap_remove(index);
+                    }
                 }
             } else {
                 // This frame doesn't own a checkpoint (e.g., OneOf, Delimited, Ref)

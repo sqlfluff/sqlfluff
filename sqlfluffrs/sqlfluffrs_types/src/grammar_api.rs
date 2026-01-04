@@ -16,6 +16,18 @@ pub struct GrammarContext<'a> {
 }
 
 impl<'a> GrammarContext<'a> {
+    /// Get the number of grammar instructions in the table
+    #[inline]
+    pub fn len(&self) -> usize {
+        self.tables.instructions.len()
+    }
+
+    /// Check if the grammar table is empty
+    #[inline]
+    pub fn is_empty(&self) -> bool {
+        self.tables.instructions.is_empty()
+    }
+
     /// Get a human-readable name for a GrammarId (Ref, StringParser, TypedParser, RegexParser)
     pub fn grammar_id_name(&self, id: GrammarId) -> String {
         // Handle sentinel values that are not real grammar IDs
