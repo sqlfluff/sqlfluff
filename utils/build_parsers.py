@@ -857,6 +857,9 @@ class TableBuilder:
         self.aux_data.append(token_type_id)
         self.aux_data.append(raw_class_id)
 
+        # Generate hint for StringParser (matches exact string)
+        hint_id = self._add_simple_hint(grammar, parse_context)
+
         comment = f'StringParser("{grammar.template}")'
 
         return GrammarInstData(
@@ -869,7 +872,7 @@ class TableBuilder:
             first_terminator_idx=len(self.terminators),
             terminator_count=0,
             aux_data_offset=aux_offset,
-            simple_hint_idx=0,
+            simple_hint_idx=hint_id,
             comment=comment,
         )
 
@@ -912,6 +915,9 @@ class TableBuilder:
 
         comment = f'TypedParser("{grammar.template}")'
 
+        # Generate hint for TypedParser (matches token type)
+        hint_id = self._add_simple_hint(grammar, parse_context)
+
         return GrammarInstData(
             variant="TypedParser",
             flags=flags,
@@ -922,7 +928,7 @@ class TableBuilder:
             first_terminator_idx=len(self.terminators),
             terminator_count=0,
             aux_data_offset=aux_offset,
-            simple_hint_idx=0,
+            simple_hint_idx=hint_id,
             comment=comment,
         )
 
@@ -951,6 +957,9 @@ class TableBuilder:
 
         comment = f"MultiStringParser({templates_count} templates)"
 
+        # Generate hint for MultiStringParser (matches any of the strings)
+        hint_id = self._add_simple_hint(grammar, parse_context)
+
         return GrammarInstData(
             variant="MultiStringParser",
             flags=flags,
@@ -961,7 +970,7 @@ class TableBuilder:
             first_terminator_idx=len(self.terminators),
             terminator_count=0,
             aux_data_offset=aux_offset,
-            simple_hint_idx=0,
+            simple_hint_idx=hint_id,
             comment=comment,
         )
 
