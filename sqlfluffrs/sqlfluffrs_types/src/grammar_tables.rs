@@ -237,18 +237,20 @@ impl GrammarTables {
     /// Get simple hint for a grammar by its ID
     ///
     /// Returns None if the grammar has no hint (hint_idx = 0).
+    /// Note: hint_idx=0 actually maps to SIMPLE_HINTS[0] which is empty().
     #[inline]
     pub fn get_simple_hint_for_grammar(&self, id: GrammarId) -> Option<&SimpleHintData> {
         if id.get() as usize >= self.simple_hint_indices.len() {
             return None;
         }
-        let hint_idx = self.simple_hint_indices[id.get() as usize];
-        if hint_idx == 0 {
+        let hint_idx = self.simple_hint_indices[id.get() as usize] as usize;
+        if hint_idx >= self.simple_hints.len() {
+            // Out of bounds - this shouldn't happen but handle gracefully
             None
         } else {
-            // CRITICAL FIX: Hints are 1-indexed (0 = no hint), so subtract 1
-            // before indexing into simple_hints array which is 0-indexed
-            Some(&self.simple_hints[(hint_idx - 1) as usize])
+            // hint_idx is a direct index into simple_hints array
+            // SIMPLE_HINTS[0] is reserved for empty hint
+            Some(&self.simple_hints[hint_idx])
         }
     }
 
