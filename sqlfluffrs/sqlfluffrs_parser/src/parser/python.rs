@@ -638,6 +638,101 @@ impl PyParser {
 
         Ok(PyMatchResult(match_result))
     }
+
+    /// Parse SQL from tokens and return MatchResult along with parser statistics.
+    ///
+    /// This is used for comparing Python and Rust parser behavior to verify
+    /// that both parsers are doing equivalent work (pruning, caching, etc.)
+    ///
+    /// Returns a tuple: (PyMatchResult, stats_dict)
+    /// where stats_dict contains:
+    /// - cache_hits: number of cache hits
+    /// - cache_misses: number of cache misses
+    /// - cache_entries: number of cache entries
+    /// - pruning_calls: number of prune_options calls
+    /// - pruning_total: total options considered
+    /// - pruning_kept: options kept after pruning
+    /// - pruning_hinted: options that had hints
+    /// - pruning_complex: options that returned None (complex)
+    pub fn parse_match_result_with_stats(
+        &self,
+        tokens: Vec<PyToken>,
+    ) -> PyResult<(PyMatchResult, std::collections::HashMap<String, usize>)> {
+        // Convert PyToken to internal Token
+        let mut rust_tokens: Vec<Token> = tokens.into_iter().map(|t| t.into()).collect();
+
+        // Compute bracket pairs for the tokens.
+        compute_bracket_pairs(&mut rust_tokens);
+
+        // Create parser
+        let mut parser = Parser::new(&rust_tokens, self.dialect, self.indent_config.clone());
+
+        // Parse and get the MatchResult directly
+        let match_result = parser
+            .call_rule_as_root_match_result()
+            .map_err(|e| PyErr::new::<pyo3::exceptions::PyRuntimeError, _>(e.message))?;
+
+        // Collect statistics
+        let (cache_hits, cache_misses, _) = parser.table_cache.stats();
+        let cache_entries = parser.table_cache.len();
+
+        let mut stats = std::collections::HashMap::new();
+        stats.insert("cache_hits".to_string(), cache_hits);
+        stats.insert("cache_misses".to_string(), cache_misses);
+        stats.insert("cache_entries".to_string(), cache_entries);
+        stats.insert("pruning_calls".to_string(), parser.pruning_calls.get());
+        stats.insert("pruning_total".to_string(), parser.pruning_total.get());
+        stats.insert("pruning_kept".to_string(), parser.pruning_kept.get());
+        stats.insert("pruning_hinted".to_string(), parser.pruning_hinted.get());
+        stats.insert("pruning_complex".to_string(), parser.pruning_complex.get());
+
+        Ok((PyMatchResult(match_result), stats))
+    }
+
+    /// Parse SQL from tokens and return grammar call counts for debugging.
+    ///
+    /// Returns a tuple: (PyMatchResult, grammar_counts_dict)
+    /// where grammar_counts_dict maps grammar names to call counts.
+    ///
+    /// This is used to identify which grammars are called most frequently,
+    /// helping debug performance differences between Python and Rust parsers.
+    pub fn parse_match_result_with_grammar_counts(
+        &self,
+        tokens: Vec<PyToken>,
+    ) -> PyResult<(PyMatchResult, std::collections::HashMap<String, usize>)> {
+        // Convert PyToken to internal Token
+        let mut rust_tokens: Vec<Token> = tokens.into_iter().map(|t| t.into()).collect();
+
+        // Compute bracket pairs for the tokens.
+        compute_bracket_pairs(&mut rust_tokens);
+
+        // Create parser with grammar counting enabled
+        let mut parser = Parser::new(&rust_tokens, self.dialect, self.indent_config.clone());
+
+        // Track grammar calls using cache misses as a proxy
+        // Each unique (grammar_id, pos) pair in the cache represents one grammar call
+        let match_result = parser
+            .call_rule_as_root_match_result()
+            .map_err(|e| PyErr::new::<pyo3::exceptions::PyRuntimeError, _>(e.message))?;
+
+        // Count calls per grammar by iterating cache entries
+        let mut grammar_counts = std::collections::HashMap::new();
+
+        for (key, _result) in parser.table_cache.iter() {
+            let grammar_id = sqlfluffrs_types::GrammarId(key.grammar_id);
+
+            // Skip invalid grammar IDs (can happen during failed parse attempts)
+            if grammar_id.get() as usize >= parser.grammar_ctx.len() {
+                continue;
+            }
+
+            // Use grammar_id_name which handles all variants (Ref, StringParser, etc.)
+            let grammar_name = parser.grammar_ctx.grammar_id_name(grammar_id);
+            *grammar_counts.entry(grammar_name).or_insert(0) += 1;
+        }
+
+        Ok((PyMatchResult(match_result), grammar_counts))
+    }
 }
 
 /// Compute matching bracket indices for all bracket tokens.
