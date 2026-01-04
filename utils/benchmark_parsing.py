@@ -20,8 +20,6 @@ import time
 from pathlib import Path
 from typing import Optional
 
-# Add src to path
-# sys.path.insert(0, str(Path(__file__).parent / "src"))
 from sqlfluff.core.config import FluffConfig
 from sqlfluff.core.linter import Linter
 
@@ -38,7 +36,7 @@ def find_sql_files(
     Returns:
         List of Path objects to SQL files
     """
-    fixtures_dir = Path(__file__).parent / "test" / "fixtures" / "dialects"
+    fixtures_dir = Path(__file__).parent.parent / "test" / "fixtures" / "dialects"
 
     if dialect:
         dialect_dir = fixtures_dir / dialect
@@ -77,7 +75,7 @@ def parse_with_sqlfluff(
         sql_content = sql_file.read_text(encoding="utf-8")
     except Exception as e:
         return {
-            "file": str(sql_file.relative_to(Path(__file__).parent)),
+            "file": str(sql_file.relative_to(Path(__file__).parent.parent)),
             "dialect": dialect,
             "success": False,
             "error": f"Failed to read file: {e}",
@@ -126,7 +124,7 @@ def parse_with_sqlfluff(
         times = [float("inf")]
 
     return {
-        "file": str(sql_file.relative_to(Path(__file__).parent)),
+        "file": str(sql_file.relative_to(Path(__file__).parent.parent)),
         "dialect": dialect,
         "success": success,
         "error": error_msg,
