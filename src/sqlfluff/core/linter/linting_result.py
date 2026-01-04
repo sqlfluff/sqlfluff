@@ -80,8 +80,8 @@ class LintingResult:
 
     def num_violations(
         self,
-        types: Optional[Union[type[SQLBaseError], Iterable[type[SQLBaseError]]]] = None,
-        fixable: Optional[bool] = None,
+        types: type[SQLBaseError] | Iterable[type[SQLBaseError]] | None = None,
+        fixable: bool | None = None,
     ) -> int:
         """Count the number of violations in the result."""
         return sum(
@@ -89,7 +89,7 @@ class LintingResult:
         )
 
     def get_violations(
-        self, rules: Optional[Union[str, tuple[str, ...]]] = None
+        self, rules: str | tuple[str, ...] | None = None
     ) -> list[SQLBaseError]:
         """Return a list of violations in the result."""
         return [v for path in self.paths for v in path.get_violations(rules=rules)]

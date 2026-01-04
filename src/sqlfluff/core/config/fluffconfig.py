@@ -519,7 +519,7 @@ class FluffConfig:
         return dict_diff(self._configs, other._configs, ignore=["dialect_obj"])
 
     def get(
-        self, val: str, section: Union[str, Iterable[str]] = "core", default: Any = None
+        self, val: str, section: str | Iterable[str] = "core", default: Any = None
     ) -> Any:
         """Get a particular value from the config.
 
@@ -554,7 +554,7 @@ class FluffConfig:
 
         return section_dict.get(val, default)
 
-    def get_section(self, section: Union[str, Iterable[str]]) -> Any:
+    def get_section(self, section: str | Iterable[str]) -> Any:
         """Return a whole section of config as a dict.
 
         If the element found at the address is a value and not

@@ -5,7 +5,7 @@ This file provides Python-specific development guidelines for SQLFluff's main so
 ## Python Standards
 
 ### Version Support
-- **Minimum**: Python 3.9
+- **Minimum**: Python 3.10
 - **Recommended for development**: Python 3.12
 - **Maximum tested**: Python 3.13
 
