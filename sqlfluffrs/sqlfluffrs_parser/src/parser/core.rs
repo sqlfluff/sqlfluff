@@ -44,6 +44,14 @@ pub struct Parser<'a> {
     pub pruning_kept: std::cell::Cell<usize>,  // Options kept after pruning
     pub pruning_hinted: std::cell::Cell<usize>, // Options that had hints
     pub pruning_complex: std::cell::Cell<usize>, // Options that returned None (complex)
+    pub match_attempts: std::cell::Cell<usize>, // Track number of match attempts (like Python's longest_match)
+    pub match_successes: std::cell::Cell<usize>, // Track number of successful matches
+    pub terminator_checks: std::cell::Cell<usize>, // Track number of terminator checks
+    pub terminator_hits: std::cell::Cell<usize>, // Track number of terminator hits (early exits)
+    /// Cache for terminator match results: (position, grammar_id) -> matches
+    /// Key insight: the same terminator at the same position will always give the same result.
+    /// This avoids redundant parse_table_iterative calls from nested Delimited grammars.
+    pub terminator_match_cache: std::cell::RefCell<hashbrown::HashMap<(usize, u32), bool>>,
     // Table-driven grammar support
     pub grammar_ctx: GrammarContext<'static>,
     /// Indentation configuration (key -> enabled)
@@ -78,6 +86,11 @@ impl<'a> Parser<'a> {
             pruning_kept: std::cell::Cell::new(0),
             pruning_hinted: std::cell::Cell::new(0),
             pruning_complex: std::cell::Cell::new(0),
+            match_attempts: std::cell::Cell::new(0),
+            match_successes: std::cell::Cell::new(0),
+            terminator_checks: std::cell::Cell::new(0),
+            terminator_hits: std::cell::Cell::new(0),
+            terminator_match_cache: std::cell::RefCell::new(hashbrown::HashMap::new()),
             simple_hint_cache: hashbrown::HashMap::new(),
             cache_enabled: true,
             grammar_ctx,

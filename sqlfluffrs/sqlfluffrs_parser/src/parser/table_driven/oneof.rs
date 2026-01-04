@@ -140,6 +140,9 @@ impl Parser<'_> {
             return Ok(TableFrameResult::Done);
         }
 
+        // Track match attempts (like Python's longest_match - each option is an attempt)
+        self.match_attempts.set(self.match_attempts.get() + pruned_children.len());
+
         // Try first child
         let first_child = pruned_children[0];
 
@@ -470,6 +473,9 @@ impl Parser<'_> {
         // Build final result
         let (result_match, final_pos, _child_id) =
             if let Some((best_match, best_consumed, best_child_id)) = longest_match {
+                // Track successful match (like Python's longest_match returning a match)
+                self.match_successes.set(self.match_successes.get() + 1);
+
                 let final_pos = post_skip_pos + best_consumed;
                 self.pos = final_pos;
 

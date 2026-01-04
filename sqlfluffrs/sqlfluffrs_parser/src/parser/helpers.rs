@@ -620,6 +620,7 @@ impl<'a> Parser<'a> {
                 );
                 if !is_code {
                     log::debug!("  TERMED NONCODE found non-code token at current position");
+                    self.terminator_hits.set(self.terminator_hits.get() + 1);
                     return true;
                 }
             }
@@ -644,6 +645,7 @@ impl<'a> Parser<'a> {
         if self.is_at_end() {
             log::debug!("  TERMED Reached end of file");
             self.pos = init_pos;
+            self.terminator_hits.set(self.terminator_hits.get() + 1);
             return true;
         }
 
@@ -652,6 +654,7 @@ impl<'a> Parser<'a> {
             if tok.get_type() == "end_of_file" {
                 log::debug!("  TERMED Found end_of_file token");
                 self.pos = init_pos;
+                self.terminator_hits.set(self.terminator_hits.get() + 1);
                 return true;
             }
         }
@@ -684,7 +687,21 @@ impl<'a> Parser<'a> {
                 continue;
             }
 
-            // For now, do full parse for all terminators (conservative approach)
+            // Check terminator match cache first - key is (position after skipping transparent, grammar_id)
+            let cache_key = (saved_pos, term_id.0);
+            if let Some(&cached_result) = self.terminator_match_cache.borrow().get(&cache_key) {
+                log::debug!("  TERMCACHE HIT at pos {} for {:?}: {}", saved_pos, term_id, cached_result);
+                if cached_result {
+                    log::debug!("  TERMED Terminator matched (cached): {:?}", term_id);
+                    self.pos = init_pos;
+                    self.terminator_hits.set(self.terminator_hits.get() + 1);
+                    return true;
+                }
+                // Cached false - skip this terminator
+                continue;
+            }
+
+            // Cache miss - do full parse
             let check_pos = self.pos;
             self.pos = saved_pos;
 
@@ -692,13 +709,19 @@ impl<'a> Parser<'a> {
                 let is_empty = node.is_empty();
                 self.pos = check_pos;
 
+                // Cache the result
+                self.terminator_match_cache.borrow_mut().insert(cache_key, !is_empty);
+
                 if !is_empty {
                     log::debug!("  TERMED Terminator matched (table-driven): {:?}", term_id);
                     self.pos = init_pos;
+                    self.terminator_hits.set(self.terminator_hits.get() + 1);
                     return true;
                 }
             } else {
                 self.pos = check_pos;
+                // Cache the failure
+                self.terminator_match_cache.borrow_mut().insert(cache_key, false);
             }
             log::debug!("  Terminator did not match (table-driven): {:?}", term_id);
         }

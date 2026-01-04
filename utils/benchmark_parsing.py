@@ -210,6 +210,7 @@ def compare_results(python_results: list[dict], rust_results: list[dict]) -> Non
     comparisons = []
     for py_r, rust_r in zip(python_results, rust_results):
         if py_r["success"] and rust_r["success"]:
+            time_diff_ms = (rust_r["mean_time"] - py_r["mean_time"]) * 1000
             speedup_pct = (
                 (py_r["mean_time"] - rust_r["mean_time"]) / py_r["mean_time"] * 100
             )
@@ -219,41 +220,49 @@ def compare_results(python_results: list[dict], rust_results: list[dict]) -> Non
                     "dialect": py_r["dialect"],
                     "python_time": py_r["mean_time"],
                     "rust_time": rust_r["mean_time"],
+                    "time_diff_ms": time_diff_ms,
                     "speedup_pct": speedup_pct,
                 }
             )
 
-    # Sort by speedup
-    comparisons.sort(key=lambda x: x["speedup_pct"])
+    # Sort by absolute time difference for true slowdowns
+    # (ignoring FFI overhead on tiny files)
+    # Negative time_diff_ms means Rust is slower
+    comparisons_by_diff = sorted(
+        comparisons, key=lambda x: x["time_diff_ms"], reverse=True
+    )
 
     print(f"\n{'=' * 80}")
-    print("TOP 10 SLOWEST QUERIES (Least Speedup / Potential Regressions)")
+    print("TOP 10 SLOWEST QUERIES (Largest Absolute Slowdown in ms)")
+    print("Note: This filters out FFI overhead on tiny files, showing true slowdowns")
     print(f"{'=' * 80}")
-    print(f"{'File':<50} {'Python':<10} {'Rust':<10} {'Speedup':<10}")
+    print(f"{'File':<50} {'Python':<10} {'Rust':<10} {'Diff (ms)':<12} {'%':<8}")
     print("-" * 80)
 
-    # Show slowest 10 (least speedup, possibly regressions)
-    for comp in comparisons[: min(10, len(comparisons))]:
+    # Show top 10 with largest absolute slowdown (positive time_diff_ms)
+    for comp in comparisons_by_diff[: min(10, len(comparisons_by_diff))]:
         print(
             f"{comp['file'][-47:]:<50} "
             f"{comp['python_time'] * 1000:>8.1f}ms "
             f"{comp['rust_time'] * 1000:>8.1f}ms "
-            f"{comp['speedup_pct']:>+8.1f}%"
+            f"{comp['time_diff_ms']:>+10.1f}ms "
+            f"{comp['speedup_pct']:>+6.1f}%"
         )
 
     print(f"\n{'=' * 80}")
-    print("TOP 10 FASTEST QUERIES (Best Speedup)")
+    print("TOP 10 FASTEST QUERIES (Largest Absolute Speedup in ms)")
     print(f"{'=' * 80}")
-    print(f"{'File':<50} {'Python':<10} {'Rust':<10} {'Speedup':<10}")
+    print(f"{'File':<50} {'Python':<10} {'Rust':<10} {'Diff (ms)':<12} {'%':<8}")
     print("-" * 80)
 
-    # Show fastest 10 (most speedup)
-    for comp in comparisons[-min(10, len(comparisons)) :]:
+    # Show top 10 with largest absolute speedup (negative time_diff_ms)
+    for comp in comparisons_by_diff[-min(10, len(comparisons_by_diff)) :]:
         print(
             f"{comp['file'][-47:]:<50} "
             f"{comp['python_time'] * 1000:>8.1f}ms "
             f"{comp['rust_time'] * 1000:>8.1f}ms "
-            f"{comp['speedup_pct']:>+8.1f}%"
+            f"{comp['time_diff_ms']:>+10.1f}ms "
+            f"{comp['speedup_pct']:>+6.1f}%"
         )
 
     # Dialect breakdown

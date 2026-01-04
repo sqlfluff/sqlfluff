@@ -505,7 +505,8 @@ impl<'a> Parser<'_> {
                 //
                 // Save and restore self.pos to check from pos_before_delimiter
                 let saved_pos = self.pos;
-                self.pos = pos_before_delimiter.unwrap();
+                let check_pos_1 = pos_before_delimiter.unwrap();
+                self.pos = check_pos_1;
                 let is_terminated = self.is_terminated_table_driven(&frame_terminators);
                 self.pos = saved_pos;
 
@@ -595,43 +596,10 @@ impl<'a> Parser<'_> {
                 }
                 self.pos = *working_idx;
 
-                // Check termination again after skipping whitespace
-                // CRITICAL: Check from pos_before_delimiter, not self.pos!
-                // The terminator may include the delimiter itself (e.g., ", TABLE")
-                let term_check_pos = pos_before_delimiter.unwrap_or(*working_idx);
-                let saved_pos = self.pos;
-                self.pos = term_check_pos;
-                let is_term2 =
-                    self.is_at_end() || self.is_terminated_table_driven(&frame_terminators);
-                self.pos = saved_pos;
-
-                if is_term2 {
-                    vdebug!("Delimited[table]: terminated after delimiter+whitespace");
-
-                    if allow_trailing {
-                        // Include the trailing delimiter
-                        if let Some(dm) = delimiter_match.take() {
-                            frame.accumulated.push(dm);
-                            *delimiter_count += 1;
-                        }
-                    } else {
-                        // Don't include the delimiter - backtrack
-                        *matched_idx = pos_before_delimiter.unwrap();
-                        *delimiter_match = None;
-                    }
-
-                    if *delimiter_count < min_delimiters {
-                        frame.end_pos = Some(frame.pos);
-                        frame.state = FrameState::Combining;
-                        stack.push(&mut frame);
-                        return Ok(TableFrameResult::Done);
-                    }
-
-                    frame.end_pos = Some(*matched_idx);
-                    frame.state = FrameState::Combining;
-                    stack.push(&mut frame);
-                    return Ok(TableFrameResult::Done);
-                }
+                // NOTE: The terminator check at pos_before_delimiter was already done above (line 510).
+                // We don't need to check again since pos_before_delimiter hasn't changed.
+                // The previous code had a redundant check here that was always skipped due to
+                // the optimization "if term_check_pos == check_pos_1".
 
                 // NOT terminated - keep the delimiter in delimiter_match for now.
                 // It will be pushed to accumulated ONLY if the next element successfully matches.
