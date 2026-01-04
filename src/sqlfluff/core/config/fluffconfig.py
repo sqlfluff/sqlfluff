@@ -6,7 +6,7 @@ import logging
 from collections.abc import Iterable
 from copy import copy, deepcopy
 from itertools import chain
-from typing import TYPE_CHECKING, Any, Optional, Union
+from typing import TYPE_CHECKING, Any, Optional
 
 import pluggy
 

@@ -13,7 +13,7 @@ of more general wider use - please define it in the specific plugin
 rather than here.
 """
 
-from typing import Optional, TypedDict, Union
+from typing import TypedDict
 
 from sqlfluff.core.plugin.host import get_plugin_manager
 
