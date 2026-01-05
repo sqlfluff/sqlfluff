@@ -136,13 +136,11 @@ def print_results(name: str, results: dict, baseline: Optional[dict] = None):
     if baseline:
         speedup = baseline["avg"] / results["avg"]
         if speedup > 1:
-            print(
-                f"  Speedup: {speedup:6.2f}x faster than {baseline.get('name', 'baseline')}"
-            )
+            baseline_name = baseline.get("name", "baseline")
+            print(f"  Speedup: {speedup:6.2f}x faster than {baseline_name}")
         else:
-            print(
-                f"  Speedup: {1 / speedup:6.2f}x slower than {baseline.get('name', 'baseline')}"
-            )
+            baseline_name = baseline.get("name", "baseline")
+            print(f"  Speedup: {1 / speedup:6.2f}x slower than {baseline_name}")
 
 
 def print_stats(stats: dict):
@@ -258,7 +256,7 @@ def main():
         rs_total = rs_parse["avg"]
         speedup = py_total / rs_total
 
-        print(f"\nTotal time (lex + parse):")
+        print("\nTotal time (lex + parse):")
         print(f"  Python: {py_total:8.2f}ms")
         print(f"  Rust:   {rs_total:8.2f}ms")
 

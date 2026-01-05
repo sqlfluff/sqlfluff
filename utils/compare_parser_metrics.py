@@ -430,7 +430,8 @@ def print_comparison(
         print(" N/A")
 
     print(
-        f"{'Options Kept After Pruning':<35} {fmt(python_metrics.pruning_kept_options)}",
+        f"{'Options Kept After Pruning':<35} "
+        f"{fmt(python_metrics.pruning_kept_options)}",
         end="",
     )
     if rust_metrics:
@@ -440,7 +441,8 @@ def print_comparison(
         print(" N/A")
 
     print(
-        f"{'Pruning Rate (% dropped)':<35} {pct(python_metrics.pruning_rate * 100):>12}",
+        f"{'Pruning Rate (% dropped)':<35} "
+        f"{pct(python_metrics.pruning_rate * 100):>12}",
         end="",
     )
     if rust_metrics:
@@ -483,14 +485,15 @@ def print_comparison(
         print(" N/A")
 
     print(
-        f"{'Match Success Rate':<35} {pct(python_metrics.match_success_rate * 100):>12}",
+        f"{'Match Success Rate':<35} "
+        f"{pct(python_metrics.match_success_rate * 100):>12}",
         end="",
     )
     if rust_metrics:
         diff = (
             rust_metrics.match_success_rate - python_metrics.match_success_rate
         ) * 100
-        print(f" {pct(rust_metrics.match_success_rate * 100):>12} {diff:>+12.1f}pp")
+        print(f" {pct(rust_metrics.match_success_rate * 100):>12} " f"{diff:>+12.1f}pp")
     else:
         print(" N/A")
 
@@ -504,7 +507,8 @@ def print_comparison(
         print(" N/A")
 
     print(
-        f"{'Terminator Hits (early exit)':<35} {fmt(python_metrics.terminator_hits)}",
+        f"{'Terminator Hits (early exit)':<35} "
+        f"{fmt(python_metrics.terminator_hits)}",
         end="",
     )
     if rust_metrics:
@@ -514,14 +518,17 @@ def print_comparison(
         print(" N/A")
 
     print(
-        f"{'Terminator Hit Rate':<35} {pct(python_metrics.terminator_hit_rate * 100):>12}",
+        f"{'Terminator Hit Rate':<35} "
+        f"{pct(python_metrics.terminator_hit_rate * 100):>12}",
         end="",
     )
     if rust_metrics:
         diff = (
             rust_metrics.terminator_hit_rate - python_metrics.terminator_hit_rate
         ) * 100
-        print(f" {pct(rust_metrics.terminator_hit_rate * 100):>12} {diff:>+12.1f}pp")
+        print(
+            f" {pct(rust_metrics.terminator_hit_rate * 100):>12} " f"{diff:>+12.1f}pp"
+        )
     else:
         print(" N/A")
 
@@ -556,11 +563,14 @@ def print_comparison(
         cache_diff = rust_metrics.cache_hit_rate - python_metrics.cache_hit_rate
         if abs(cache_diff) > 0.05:
             if cache_diff > 0:
-                print(f"  ✅ Rust has {cache_diff*100:.1f}pp higher cache hit rate")
+                cache_diff_pct = cache_diff * 100
+                print(f"  ✅ Rust has {cache_diff_pct:.1f}pp higher cache hit rate")
             else:
-                print(f"  ⚠️  Rust has {abs(cache_diff)*100:.1f}pp lower cache hit rate")
+                cache_diff_pct = abs(cache_diff) * 100
+                print(f"  ⚠️  Rust has {cache_diff_pct:.1f}pp lower cache hit rate")
         else:
-            print(f"  ✅ Cache hit rates are similar (diff: {cache_diff*100:.1f}pp)")
+            cache_diff_pct = cache_diff * 100
+            print(f"  ✅ Cache hit rates are similar (diff: {cache_diff_pct:.1f}pp)")
 
         prune_diff = rust_metrics.pruning_rate - python_metrics.pruning_rate
         if abs(prune_diff) > 0.05:
@@ -597,17 +607,21 @@ def print_comparison(
             if abs(match_pct) > 10:
                 if match_diff > 0:
                     print(
-                        f"  ⚠️  Rust makes {match_pct:.1f}% MORE match attempts than Python"
+                        f"  ⚠️  Rust makes {match_pct:.1f}% MORE match "
+                        f"attempts than Python"
                     )
                     print(
-                        "      → Possible missing optimization: early termination or caching"
+                        "      → Possible missing optimization: "
+                        "early termination or caching"
                     )
                 else:
                     print(
-                        f"  ✅ Rust makes {abs(match_pct):.1f}% FEWER match attempts than Python"
+                        f"  ✅ Rust makes {abs(match_pct):.1f}% FEWER match "
+                        f"attempts than Python"
                     )
                     print(
-                        "      → Better pruning or different grammar matching strategy"
+                        "      → Better pruning or different grammar "
+                        "matching strategy"
                     )
 
         # Terminator effectiveness
@@ -617,15 +631,18 @@ def print_comparison(
 
             if abs(py_term_rate - rs_term_rate) > 0.1:
                 if rs_term_rate < py_term_rate:
+                    rate_diff = (py_term_rate - rs_term_rate) * 100
                     print(
-                        f"  ⚠️  Rust terminator hit rate is {(py_term_rate - rs_term_rate)*100:.1f}pp lower"
+                        f"  ⚠️  Rust terminator hit rate is " f"{rate_diff:.1f}pp lower"
                     )
                     print(
-                        "      → Possible issue: terminators not being checked or configured correctly"
+                        "      → Possible issue: terminators not being "
+                        "checked or configured correctly"
                     )
                 else:
+                    rate_diff = (rs_term_rate - py_term_rate) * 100
                     print(
-                        f"  ✅ Rust terminator hit rate is {(rs_term_rate - py_term_rate)*100:.1f}pp higher"
+                        f"  ✅ Rust terminator hit rate is " f"{rate_diff:.1f}pp higher"
                     )
 
         # Cache effectiveness comparison
@@ -645,10 +662,13 @@ def print_comparison(
             if abs(py_cache_per_match - rs_cache_per_match) > 0.05:
                 if rs_cache_per_match < py_cache_per_match:
                     print(
-                        f"  ⚠️  Rust cache efficiency is lower ({rs_cache_per_match:.2f} vs {py_cache_per_match:.2f} hits/attempt)"
+                        f"  ⚠️  Rust cache efficiency is lower "
+                        f"({rs_cache_per_match:.2f} vs "
+                        f"{py_cache_per_match:.2f} hits/attempt)"
                     )
                     print(
-                        "      → Possible issue: different cache key strategy or granularity"
+                        "      → Possible issue: different cache key "
+                        "strategy or granularity"
                     )
 
         # Depth analysis
@@ -658,11 +678,13 @@ def print_comparison(
                 if depth_diff > 0:
                     print(f"  ⚠️  Rust parse depth is {depth_diff} levels deeper")
                     print(
-                        "      → May indicate less efficient recursion or different grammar structure"
+                        "      → May indicate less efficient recursion or "
+                        "different grammar structure"
                     )
                 else:
                     print(
-                        f"  ✅ Rust parse depth is {abs(depth_diff)} levels shallower"
+                        f"  ✅ Rust parse depth is {abs(depth_diff)} "
+                        f"levels shallower"
                     )
 
 
