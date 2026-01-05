@@ -10,7 +10,7 @@ constructs the BaseSegment tree, leveraging proven logic and avoiding
 double-counting issues.
 """
 
-from typing import TYPE_CHECKING, Any, Optional
+from typing import TYPE_CHECKING, Any, Optional, cast
 
 from sqlfluff.core.parser.match_result import MatchResult
 from sqlfluff.core.parser.rsparser_adapter import get_segment_class_by_name
@@ -152,7 +152,7 @@ class RustParser:
             # No code segments - return FileSegment with just non-code
             dialect = self.config.get("dialect_obj")
             file_segment_cls = dialect.get_segment("FileSegment")
-            return file_segment_cls(segments=segments, fname=fname)
+            return cast("BaseSegment", file_segment_cls(segments=segments, fname=fname))
 
         # Extract templated_file from first segment if not provided
         if tf is None and segments:
@@ -518,7 +518,7 @@ class RustParser:
 
     def _extract_tokens_from_segments(
         self, segments: tuple["BaseSegment", ...]
-    ) -> list:
+    ) -> list["RsToken"]:
         """Extract RsToken objects from RawSegments.
 
         This extracts the cached _rstoken attribute from segments that came from
