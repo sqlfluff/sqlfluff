@@ -1,5 +1,7 @@
 use crate::vdebug;
+use smallvec::SmallVec;
 use sqlfluffrs_types::{GrammarId, ParseMode};
+use std::sync::Arc;
 
 use crate::parser::{
     table_driven::frame::{TableFrameResult, TableParseFrame, TableParseFrameStack},
@@ -44,7 +46,7 @@ impl<'a> Parser<'_> {
             );
             stack.results.insert(
                 frame.frame_id,
-                (MatchResult::empty_at(start_pos), start_pos, None),
+                (Arc::new(MatchResult::empty_at(start_pos)), start_pos, None),
             );
             return Ok(TableFrameResult::Done);
         }
@@ -125,7 +127,7 @@ impl<'a> Parser<'_> {
         );
 
         // Store local terminators for terminator checks at Delimited level
-        frame.table_terminators = all_terminators.clone();
+        frame.table_terminators = SmallVec::from_vec(all_terminators.clone());
 
         // Calculate max_idx with terminators
         let grammar_parse_mode = match inst.parse_mode {
@@ -139,6 +141,9 @@ impl<'a> Parser<'_> {
             grammar_parse_mode,
             frame.parent_max_idx,
         )?;
+
+        // Store calculated max_idx in frame for cache consistency
+        frame.calculated_max_idx = Some(max_idx);
 
         // Store context - element_children now just contains the single elements_id
         // (which may be a OneOf internally)
@@ -275,7 +280,9 @@ impl<'a> Parser<'_> {
                     // Determine final position - if we have pending delimiter, use pos before it
                     let final_pos = if allow_trailing && delimiter_match.is_some() {
                         // Include trailing delimiter
-                        frame.accumulated.push(delimiter_match.take().unwrap());
+                        frame
+                            .accumulated
+                            .push(Arc::new(delimiter_match.take().unwrap()));
                         *delimiter_count += 1;
                         *matched_idx
                     } else if delimiter_match.is_some() && pos_before_delimiter.is_some() {
@@ -314,7 +321,9 @@ impl<'a> Parser<'_> {
 
                     // Determine final position
                     let final_pos = if allow_trailing && delimiter_match.is_some() {
-                        frame.accumulated.push(delimiter_match.take().unwrap());
+                        frame
+                            .accumulated
+                            .push(Arc::new(delimiter_match.take().unwrap()));
                         *delimiter_count += 1;
                         *matched_idx
                     } else if delimiter_match.is_some() && pos_before_delimiter.is_some() {
@@ -351,12 +360,12 @@ impl<'a> Parser<'_> {
                 // This matches Python's behavior where delimiter is only added when the
                 // NEXT element successfully matches.
                 if let Some(dm) = delimiter_match.take() {
-                    frame.accumulated.push(dm);
+                    frame.accumulated.push(Arc::new(dm));
                     *delimiter_count += 1;
                 }
 
                 // Add the matched element
-                frame.accumulated.push(child_match.clone());
+                frame.accumulated.push(Arc::new(child_match.clone()));
                 *matched_idx = *child_end_pos;
                 *working_idx = *matched_idx;
 
@@ -387,7 +396,7 @@ impl<'a> Parser<'_> {
                     stack.frame_id_counter,
                     delimiter_id,
                     *working_idx,
-                    frame.table_terminators.clone(),
+                    frame.table_terminators.to_vec(),
                     None, // Don't constrain delimiter by max_idx
                 );
 
@@ -455,7 +464,7 @@ impl<'a> Parser<'_> {
                         // Handle trailing delimiter if allowed and present
                         if allow_trailing {
                             if let Some(dm) = delimiter_match.take() {
-                                frame.accumulated.push(dm);
+                                frame.accumulated.push(Arc::new(dm));
                                 *delimiter_count += 1;
                             }
                         }
@@ -516,7 +525,7 @@ impl<'a> Parser<'_> {
                     if allow_trailing {
                         // Include the trailing delimiter
                         if let Some(dm) = delimiter_match.take() {
-                            frame.accumulated.push(dm);
+                            frame.accumulated.push(Arc::new(dm));
                             *delimiter_count += 1;
                         }
                     } else {
@@ -573,11 +582,11 @@ impl<'a> Parser<'_> {
                             // Whitespace, newlines, comments captured implicitly by apply()
                             if tok_type == "end_of_file" {
                                 vdebug!("Delimited[table]: COLLECTING EOF at idx={}", idx);
-                                frame.accumulated.push(MatchResult {
+                                frame.accumulated.push(Arc::new(MatchResult {
                                     matched_slice: idx..idx + 1,
                                     matched_class: None, // Inferred from token type
                                     ..Default::default()
-                                });
+                                }));
                                 self.mark_position_collected(idx);
                             } else if tok_type == "whitespace"
                                 || tok_type == "newline"
@@ -706,7 +715,7 @@ impl<'a> Parser<'_> {
         // Build final result
         let (result_match, final_pos) = if frame.accumulated.is_empty() {
             // No matches
-            (MatchResult::empty_at(frame.pos), frame.pos)
+            (Arc::new(MatchResult::empty_at(frame.pos)), frame.pos)
         } else if *delimiter_count < min_delimiters {
             // Not enough delimiters - fail
             vdebug!(
@@ -714,12 +723,16 @@ impl<'a> Parser<'_> {
                 delimiter_count,
                 min_delimiters
             );
-            (MatchResult::empty_at(frame.pos), frame.pos)
+            (Arc::new(MatchResult::empty_at(frame.pos)), frame.pos)
         } else {
             // Success - use lazy evaluation - store child_matches
             let accumulated = std::mem::take(&mut frame.accumulated);
             (
-                MatchResult::delimited(frame.pos, *matched_idx, accumulated),
+                Arc::new(MatchResult::delimited(
+                    frame.pos,
+                    *matched_idx,
+                    accumulated.into_vec(),
+                )),
                 *matched_idx,
             )
         };

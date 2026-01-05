@@ -6,6 +6,7 @@ edition = "2021"
 env_logger = "0.11.8"
 log = "0.4.28"
 hashbrown = "0.15.5"
+smallvec = "1.13.2"
 sqlfluffrs_types = { path = "../sqlfluffrs_types" }
 sqlfluffrs_dialects = { path = "../sqlfluffrs_dialects" }
 sqlfluffrs_lexer = { path = "../sqlfluffrs_lexer" }

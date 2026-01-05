@@ -1,5 +1,6 @@
 use crate::vdebug;
 use sqlfluffrs_types::{GrammarId, GrammarVariant};
+use std::sync::Arc;
 
 use crate::parser::{
     cache::TableCacheKey,
@@ -69,41 +70,15 @@ impl Parser<'_> {
         let saved_checkpoint_stack = std::mem::take(&mut self.collection_stack);
         let saved_collected_count = self.collected_transparent_positions.len();
 
-        let start_pos = self.pos;
-        let max_idx = self.tokens.len();
-
-        // Check cache first
-        if self.cache_enabled {
-            let cache_key = TableCacheKey::new(start_pos, grammar, max_idx, parent_terminators);
-            if let Some((match_result, end_pos, _transparent_positions)) =
-                self.table_cache.get(&cache_key)
-            {
-                vdebug!(
-                    "TableCache HIT for grammar {} at pos {} -> end_pos {}",
-                    grammar,
-                    start_pos,
-                    end_pos
-                );
-
-                // Restore parser position
-                self.pos = *end_pos;
-
-                // Handle transparent positions from cache
-                #[cfg(feature = "verbose-debug")]
-                if let Some(positions) = _transparent_positions {
-                    vdebug!(
-                        "TableCache HIT: {} transparent positions for grammar {}",
-                        positions.len(),
-                        grammar.0
-                    );
-                }
-
-                // Restore checkpoint stack before returning
-                self.collection_stack = saved_checkpoint_stack;
-                // Apply global deduplication to remove sibling duplicates
-                return Ok(match_result.clone());
-            }
-        }
+        // DON'T check cache here at the entry point!
+        // Python's cache is checked INSIDE each grammar handler (via longest_match)
+        // AFTER they've calculated their trimmed max_idx based on terminators.
+        // We need to do the same - let the Initial state handler check cache
+        // after calculating max_idx with terminators.
+        //
+        // The issue: Different grammars have different parse modes and terminators.
+        // We can't calculate the "right" max_idx here without knowing which grammar
+        // handler will run and what terminators it will use.
 
         // Stack of parse frames and state
         let mut stack = TableParseFrameStack::new();
@@ -113,11 +88,12 @@ impl Parser<'_> {
             frame_id: initial_frame_id,
             grammar_id: grammar,
             pos: self.pos,
-            table_terminators: parent_terminators.to_vec(),
+            table_terminators: smallvec::SmallVec::from_slice(parent_terminators),
             state: FrameState::Initial,
-            accumulated: vec![],
+            accumulated: smallvec::SmallVec::new(),
             context: FrameContext::None,
-            parent_max_idx: None, // Top-level frame has no parent limit
+            parent_max_idx: None, // No parent constraint at top level - let handler calculate
+            calculated_max_idx: None, // Will be set by handler after calculation
             end_pos: None,
             transparent_positions: None,
             element_key: None,
@@ -324,25 +300,10 @@ impl Parser<'_> {
                 vdebug!("===================\n");
             }
 
-            // Collect transparent positions that were touched during this parse
-            let transparent_positions: Vec<usize> = self
-                .collected_transparent_positions
-                .iter()
-                .filter(|&&pos| pos >= start_pos && pos < *end_pos)
-                .copied()
-                .collect();
-
-            // Store successful parse in table cache (as MatchResult)
-            if self.cache_enabled {
-                let cache_key = TableCacheKey::new(start_pos, grammar, max_idx, parent_terminators);
-                let transparent_opt = if transparent_positions.is_empty() {
-                    None
-                } else {
-                    Some(transparent_positions)
-                };
-                self.table_cache
-                    .put(cache_key, (match_result.clone(), *end_pos, transparent_opt));
-            }
+            // NOTE: We don't cache at this level anymore!
+            // Python's cache happens inside longest_match() which is called AFTER
+            // grammar handlers calculate their trimmed max_idx. Our equivalent is
+            // commit_table_frame_result() which caches WITH the frame's calculated max_idx.
 
             // Restore checkpoint stack before returning
             self.collection_stack = saved_checkpoint_stack;
@@ -360,7 +321,7 @@ impl Parser<'_> {
             }
 
             // Apply global deduplication to remove sibling duplicates
-            Ok(match_result.clone())
+            Ok((**match_result).clone())
         } else {
             // Parse error - don't cache errors for now (to keep it simple)
             let error = ParseError::new(format!(
@@ -441,7 +402,7 @@ impl Parser<'_> {
                         );
                         stack
                             .results
-                            .insert(frame.frame_id, (match_result, self.pos, None));
+                            .insert(frame.frame_id, (Arc::new(match_result), self.pos, None));
                         Ok(TableFrameResult::Done)
                     }
                     Err(e) => Err(e),
@@ -459,7 +420,7 @@ impl Parser<'_> {
                         );
                         stack
                             .results
-                            .insert(frame.frame_id, (match_result, self.pos, None));
+                            .insert(frame.frame_id, (Arc::new(match_result), self.pos, None));
                         Ok(TableFrameResult::Done)
                     }
                     Err(e) => Err(e),
@@ -477,7 +438,7 @@ impl Parser<'_> {
                         );
                         stack
                             .results
-                            .insert(frame.frame_id, (match_result, self.pos, None));
+                            .insert(frame.frame_id, (Arc::new(match_result), self.pos, None));
                         Ok(TableFrameResult::Done)
                     }
                     Err(e) => Err(e),
@@ -494,7 +455,7 @@ impl Parser<'_> {
                         );
                         stack
                             .results
-                            .insert(frame.frame_id, (match_result, self.pos, None));
+                            .insert(frame.frame_id, (Arc::new(match_result), self.pos, None));
                         Ok(TableFrameResult::Done)
                     }
                     Err(e) => Err(e),
@@ -511,7 +472,7 @@ impl Parser<'_> {
                         );
                         stack
                             .results
-                            .insert(frame.frame_id, (match_result, self.pos, None));
+                            .insert(frame.frame_id, (Arc::new(match_result), self.pos, None));
                         Ok(TableFrameResult::Done)
                     }
                     Err(e) => Err(e),
@@ -528,7 +489,7 @@ impl Parser<'_> {
                         );
                         stack
                             .results
-                            .insert(frame.frame_id, (match_result, self.pos, None));
+                            .insert(frame.frame_id, (Arc::new(match_result), self.pos, None));
                         Ok(TableFrameResult::Done)
                     }
                     Err(e) => Err(e),
@@ -545,7 +506,7 @@ impl Parser<'_> {
                         );
                         stack
                             .results
-                            .insert(frame.frame_id, (match_result, self.pos, None));
+                            .insert(frame.frame_id, (Arc::new(match_result), self.pos, None));
                         Ok(TableFrameResult::Done)
                     }
                     Err(e) => Err(e),
@@ -562,7 +523,7 @@ impl Parser<'_> {
                         );
                         stack
                             .results
-                            .insert(frame.frame_id, (match_result, self.pos, None));
+                            .insert(frame.frame_id, (Arc::new(match_result), self.pos, None));
                         Ok(TableFrameResult::Done)
                     }
                     Err(e) => Err(e),
@@ -579,7 +540,7 @@ impl Parser<'_> {
                         );
                         stack
                             .results
-                            .insert(frame.frame_id, (match_result, self.pos, None));
+                            .insert(frame.frame_id, (Arc::new(match_result), self.pos, None));
                         Ok(TableFrameResult::Done)
                     }
                     Err(e) => Err(e),
@@ -600,7 +561,7 @@ impl Parser<'_> {
                         );
                         stack
                             .results
-                            .insert(frame.frame_id, (match_result, self.pos, None));
+                            .insert(frame.frame_id, (Arc::new(match_result), self.pos, None));
                         Ok(TableFrameResult::Done)
                     }
                     Err(e) => Err(e),
@@ -898,9 +859,10 @@ impl Parser<'_> {
         let element_key = frame.element_key;
 
         // This frame is done - insert result
-        stack
-            .results
-            .insert(frame.frame_id, (match_result.clone(), end_pos, element_key));
+        stack.results.insert(
+            frame.frame_id,
+            (Arc::new(match_result.clone()), end_pos, element_key),
+        );
 
         // Cache the result for future reuse
         // Cache non-empty results always, but only cache Empty results when
@@ -913,21 +875,50 @@ impl Parser<'_> {
             if should_cache_empty || should_cache_success {
                 let variant = self.grammar_ctx.variant(frame.grammar_id);
 
-                // Only cache compound grammars that are expensive to re-parse
-                // Skip simple terminals (StringParser, TypedParser, etc.) - they're fast
+                // Cache strategy to match Python behavior:
+                // - Ref: Always cache (deterministic pointer)
+                // - OneOf: Safe to cache (picks best of alternatives, no partial matches)
+                // - Bracketed: Safe to cache (deterministic open/close)
+                // - Delimited: Safe to cache (deterministic delimiter pattern)
+                // - Sequence: NEVER cache (partial GREEDY matches pollute cache)
+                // - AnyNumberOf: NEVER cache (can match N items, then later match N+M)
+                // - AnySetOf: NEVER cache (similar to AnyNumberOf)
+                //
+                // Python avoids these issues by caching at element level (inside longest_match),
+                // not at complete grammar level.
                 let should_cache = matches!(
                     variant,
                     GrammarVariant::Ref
-                        | GrammarVariant::Sequence
                         | GrammarVariant::OneOf
-                        | GrammarVariant::AnyNumberOf
-                        | GrammarVariant::AnySetOf
                         | GrammarVariant::Delimited
                         | GrammarVariant::Bracketed
                 );
 
                 if should_cache {
-                    let max_idx = frame.parent_max_idx.unwrap_or(self.tokens.len());
+                    // Use handler-calculated max_idx if available, otherwise calculate it
+                    // This should match what was used in check_and_handle_table_frame_cache
+                    let max_idx = if let Some(calc_max) = frame.calculated_max_idx {
+                        calc_max
+                    } else {
+                        // Fallback: calculate max_idx ourselves
+                        // CRITICAL: Must use parse_mode_override if present (Bracketed inheritance)
+                        let parse_mode = frame
+                            .parse_mode_override
+                            .unwrap_or_else(|| self.grammar_ctx.inst(frame.grammar_id).parse_mode);
+                        match self.calculate_max_idx_table_driven(
+                            frame.pos,
+                            &frame.table_terminators,
+                            parse_mode,
+                            frame.parent_max_idx,
+                        ) {
+                            Ok(idx) => idx,
+                            Err(_) => {
+                                // If max_idx calculation fails, skip caching
+                                return;
+                            }
+                        }
+                    };
+
                     let cache_key = TableCacheKey::new(
                         frame.pos,
                         frame.grammar_id,
@@ -936,9 +927,11 @@ impl Parser<'_> {
                     );
                     // Get transparent positions for this frame
                     let transparent_opt = frame.transparent_positions.clone();
-                    // Cache as MatchResult (lazy - no Node materialization needed)
-                    self.table_cache
-                        .put(cache_key, (match_result.clone(), end_pos, transparent_opt));
+                    // Cache as Arc<MatchResult> (cheap to clone later)
+                    self.table_cache.put(
+                        cache_key,
+                        (Arc::new(match_result.clone()), end_pos, transparent_opt),
+                    );
                 }
             }
         }
@@ -958,40 +951,69 @@ impl Parser<'_> {
         stack: &mut TableParseFrameStack,
     ) -> Result<TableFrameResult, ParseError> {
         if self.cache_enabled {
-            // Use frame's parent_max_idx if available, otherwise tokens.len()
-            let max_idx = frame.parent_max_idx.unwrap_or(self.tokens.len());
-            let cache_key = TableCacheKey::new(
-                frame.pos,
-                frame.grammar_id,
-                max_idx,
-                &frame.table_terminators,
+            // Only check cache for grammar types we actually cache
+            // This matches the caching strategy in handle_table_frame_complete
+            let variant = self.grammar_ctx.variant(frame.grammar_id);
+            let is_cacheable = matches!(
+                variant,
+                GrammarVariant::Ref
+                    | GrammarVariant::OneOf
+                    | GrammarVariant::Delimited
+                    | GrammarVariant::Bracketed
             );
-            if let Some((match_result, end_pos, transparent_positions)) =
-                self.table_cache.get(&cache_key)
-            {
-                vdebug!(
-                    "[LOOP] TableCache HIT for grammar {} at pos {} -> end_pos {} (frame_id={})",
-                    frame.grammar_id,
+
+            if is_cacheable {
+                // Use handler-calculated max_idx if available (set by handler after calculating)
+                // Otherwise calculate it ourselves (for frames that haven't been processed yet)
+                let max_idx = if let Some(calc_max) = frame.calculated_max_idx {
+                    calc_max
+                } else {
+                    // Calculate max_idx the same way the grammar handler would
+                    // CRITICAL: Must use parse_mode_override if present (Bracketed inheritance)
+                    let parse_mode = frame
+                        .parse_mode_override
+                        .unwrap_or_else(|| self.grammar_ctx.inst(frame.grammar_id).parse_mode);
+                    self.calculate_max_idx_table_driven(
+                        frame.pos,
+                        &frame.table_terminators,
+                        parse_mode,
+                        frame.parent_max_idx,
+                    )?
+                };
+
+                let cache_key = TableCacheKey::new(
                     frame.pos,
-                    end_pos,
-                    frame.frame_id
+                    frame.grammar_id,
+                    max_idx,
+                    &frame.table_terminators,
                 );
-                self.pos = *end_pos;
-                if let Some(positions) = transparent_positions {
-                    for &pos in positions {
-                        if !self.collected_transparent_positions.contains(&pos) {
-                            self.collected_transparent_positions.push(pos);
+                if let Some((match_result, end_pos, transparent_positions)) =
+                    self.table_cache.get(&cache_key)
+                {
+                    vdebug!(
+                        "[LOOP] TableCache HIT for grammar {} at pos {} -> end_pos {} (frame_id={})",
+                        frame.grammar_id,
+                        frame.pos,
+                        end_pos,
+                        frame.frame_id
+                    );
+                    self.pos = *end_pos;
+                    if let Some(positions) = transparent_positions {
+                        for &pos in positions {
+                            if !self.collected_transparent_positions.contains(&pos) {
+                                self.collected_transparent_positions.push(pos);
+                            }
                         }
                     }
+                    // Insert cached MatchResult - match_result is &Rc, clone the Rc (cheap refcount)
+                    stack
+                        .results
+                        .insert(frame.frame_id, (Arc::clone(match_result), *end_pos, None));
+                    return Ok(TableFrameResult::Done);
                 }
-                // Insert cached MatchResult directly (no conversion needed)
-                stack
-                    .results
-                    .insert(frame.frame_id, (match_result.clone(), *end_pos, None));
-                return Ok(TableFrameResult::Done);
             }
         }
-        // Cache miss or cache disabled - push frame back to process normally
+        // Cache miss or cache disabled or non-cacheable grammar - push frame back to process normally
         Ok(TableFrameResult::Push(frame))
     }
 

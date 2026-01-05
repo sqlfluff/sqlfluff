@@ -1,5 +1,7 @@
 use crate::vdebug;
+use smallvec::SmallVec;
 use sqlfluffrs_types::{GrammarId, ParseMode};
+use std::sync::Arc;
 
 use crate::parser::{
     table_driven::frame::{TableFrameResult, TableParseFrame, TableParseFrameStack},
@@ -58,6 +60,9 @@ impl Parser<'_> {
         // If it succeeds, we'll commit to keep them marked.
         self.push_collection_checkpoint(frame.frame_id);
 
+        // Store calculated max_idx in frame for cache consistency
+        frame.calculated_max_idx = Some(max_idx);
+
         // Update frame with Sequence context
         frame.state = FrameState::WaitingForChild {
             child_index: 0,
@@ -74,7 +79,7 @@ impl Parser<'_> {
             optional: self.grammar_ctx.inst(grammar_id).flags.optional(), // Store Sequence-level optional flag
             meta_buffer: Vec::new(), // Buffer for meta elements to flush
         };
-        frame.table_terminators = all_terminators;
+        frame.table_terminators = SmallVec::from_vec(all_terminators);
         let current_frame_id = frame.frame_id; // Save before moving frame
         stack.push(&mut frame);
 
@@ -100,7 +105,7 @@ impl Parser<'_> {
                 self.rollback_collection_checkpoint(current_frame_id);
                 stack.results.insert(
                     current_frame_id,
-                    (MatchResult::empty_at(start_idx), start_idx, None),
+                    (Arc::new(MatchResult::empty_at(start_idx)), start_idx, None),
                 );
                 return Ok(TableFrameResult::Done);
             }
@@ -111,7 +116,7 @@ impl Parser<'_> {
                 self.rollback_collection_checkpoint(current_frame_id);
                 stack.results.insert(
                     current_frame_id,
-                    (MatchResult::empty_at(start_idx), start_idx, None),
+                    (Arc::new(MatchResult::empty_at(start_idx)), start_idx, None),
                 );
                 return Ok(TableFrameResult::Done);
             } else {
@@ -126,7 +131,7 @@ impl Parser<'_> {
                     self.rollback_collection_checkpoint(current_frame_id);
                     stack.results.insert(
                         current_frame_id,
-                        (MatchResult::empty_at(start_idx), start_idx, None),
+                        (Arc::new(MatchResult::empty_at(start_idx)), start_idx, None),
                     );
                     return Ok(TableFrameResult::Done);
                 }
@@ -148,9 +153,10 @@ impl Parser<'_> {
 
                 // Commit checkpoint since we're producing a result (even if unparsable)
                 self.commit_collection_checkpoint(current_frame_id);
-                stack
-                    .results
-                    .insert(current_frame_id, (unparsable_match, max_idx, None));
+                stack.results.insert(
+                    current_frame_id,
+                    (Arc::new(unparsable_match), max_idx, None),
+                );
                 return Ok(TableFrameResult::Done);
             }
         }
@@ -232,9 +238,10 @@ impl Parser<'_> {
                         .map(|f| f.table_terminators.clone())
                         .unwrap_or_default(),
                     state: FrameState::Initial,
-                    accumulated: vec![],
+                    accumulated: smallvec::SmallVec::new(),
                     context: FrameContext::None,
                     parent_max_idx: current_max_idx, // Pass Sequence's max_idx to child!
+                    calculated_max_idx: None,        // Will be set by child's handler
                     end_pos: None,
                     transparent_positions: None,
                     element_key: None,
@@ -338,7 +345,7 @@ impl Parser<'_> {
             }
 
             // NOW add the matched child to accumulated
-            frame.accumulated.push(child_match.clone());
+            frame.accumulated.push(Arc::new(child_match.clone()));
 
             if let FrameContext::SequenceTableDriven {
                 matched_idx,
@@ -526,7 +533,7 @@ impl Parser<'_> {
                         self.rollback_collection_checkpoint(frame.frame_id);
                         stack.results.insert(
                             frame.frame_id,
-                            (MatchResult::empty_at(start_idx), start_idx, None),
+                            (Arc::new(MatchResult::empty_at(start_idx)), start_idx, None),
                         );
                         return Ok(TableFrameResult::Done);
                     }
@@ -593,7 +600,7 @@ impl Parser<'_> {
                     let result = MatchResult {
                         matched_slice: start_idx..matched_idx_val,
                         matched_class: Some("UnparsableSegment".to_string()),
-                        child_matches: frame.accumulated.clone(),
+                        child_matches: frame.accumulated.to_vec(),
                         segment_kwargs,
                         ..Default::default()
                     };
@@ -602,7 +609,7 @@ impl Parser<'_> {
                     self.commit_collection_checkpoint(frame.frame_id);
                     stack
                         .results
-                        .insert(frame.frame_id, (result, matched_idx_val, None));
+                        .insert(frame.frame_id, (Arc::new(result), matched_idx_val, None));
                     return Ok(TableFrameResult::Done);
                 }
 
@@ -631,7 +638,7 @@ impl Parser<'_> {
                     stack.frame_id_counter,
                     next_child,
                     next_start_pos,
-                    frame.table_terminators.clone(),
+                    frame.table_terminators.to_vec(),
                     child_parent_max,
                 );
 
@@ -733,7 +740,7 @@ impl Parser<'_> {
                     stack.frame_id_counter,
                     next_child,
                     next_start_pos,
-                    frame.table_terminators.clone(),
+                    frame.table_terminators.to_vec(),
                     match &frame.context {
                         FrameContext::SequenceTableDriven { max_idx, .. } => Some(*max_idx),
                         _ => None,
@@ -803,7 +810,7 @@ impl Parser<'_> {
                 self.rollback_collection_checkpoint(frame.frame_id);
                 stack.results.insert(
                     frame.frame_id,
-                    (MatchResult::empty_at(start_idx), start_idx, None),
+                    (Arc::new(MatchResult::empty_at(start_idx)), start_idx, None),
                 );
                 return Ok(TableFrameResult::Done);
             }
@@ -818,7 +825,7 @@ impl Parser<'_> {
                 self.rollback_collection_checkpoint(frame.frame_id);
                 stack.results.insert(
                     frame.frame_id,
-                    (MatchResult::empty_at(start_idx), start_idx, None),
+                    (Arc::new(MatchResult::empty_at(start_idx)), start_idx, None),
                 );
                 return Ok(TableFrameResult::Done);
             }
@@ -877,7 +884,7 @@ impl Parser<'_> {
                 self.commit_collection_checkpoint(frame.frame_id);
                 stack
                     .results
-                    .insert(frame.frame_id, (unparsable_match, max_idx, None));
+                    .insert(frame.frame_id, (Arc::new(unparsable_match), max_idx, None));
             } else {
                 // Case 3b: Partial match - return accumulated matches + remaining as UnparsableSegment child
                 // Find where unparsable section starts (skip whitespace forward)
@@ -905,13 +912,13 @@ impl Parser<'_> {
                     };
 
                     // Add the unparsable child to accumulated matches
-                    frame.accumulated.push(unparsable_child);
+                    frame.accumulated.push(Arc::new(unparsable_child));
                 }
 
                 // Build result with all child_matches
                 let result = MatchResult {
                     matched_slice: start_idx..max_idx,
-                    child_matches: frame.accumulated.clone(),
+                    child_matches: frame.accumulated.to_vec(),
                     ..Default::default()
                 };
 
@@ -919,7 +926,7 @@ impl Parser<'_> {
                 self.commit_collection_checkpoint(frame.frame_id);
                 stack
                     .results
-                    .insert(frame.frame_id, (result, max_idx, None));
+                    .insert(frame.frame_id, (Arc::new(result), max_idx, None));
             }
 
             Ok(TableFrameResult::Done)
@@ -969,7 +976,7 @@ impl Parser<'_> {
         let (result_match, final_pos) = if frame.accumulated.is_empty() {
             // Empty result - rollback collected positions
             self.rollback_collection_checkpoint(frame.frame_id);
-            (MatchResult::empty_at(frame.pos), frame.pos)
+            (Arc::new(MatchResult::empty_at(frame.pos)), frame.pos)
         } else {
             // Successful match - commit collected positions
             self.commit_collection_checkpoint(frame.frame_id);
@@ -1000,12 +1007,12 @@ impl Parser<'_> {
                     let mut segment_kwargs = hashbrown::HashMap::new();
                     segment_kwargs.insert("expected".to_string(), "Nothing here.".to_string());
 
-                    accumulated.push(MatchResult {
+                    accumulated.push(Arc::new(MatchResult {
                         matched_slice: _idx.._stop_idx,
                         matched_class: Some("UnparsableSegment".to_string()),
                         segment_kwargs,
                         ..Default::default()
-                    });
+                    }));
 
                     // Match up to the end
                     final_matched_idx = _stop_idx;
@@ -1013,7 +1020,11 @@ impl Parser<'_> {
             }
 
             (
-                MatchResult::sequence(frame.pos, final_matched_idx, accumulated),
+                Arc::new(MatchResult::sequence(
+                    frame.pos,
+                    final_matched_idx,
+                    accumulated.into_vec(),
+                )),
                 final_matched_idx,
             )
         };
@@ -1034,7 +1045,7 @@ impl Parser<'_> {
     /// - `meta_buffer`: The buffered meta grammar IDs to flush
     pub(crate) fn flush_meta_buffer(
         &self,
-        accumulated: &mut Vec<MatchResult>,
+        accumulated: &mut SmallVec<[Arc<MatchResult>; 2]>,
         pre_code_idx: usize,
         post_code_idx: usize,
         meta_buffer: Vec<GrammarId>,
@@ -1180,21 +1191,21 @@ impl Parser<'_> {
             for (meta_type, is_implicit) in meta_types {
                 accumulated.insert(
                     insert_pos,
-                    MatchResult {
+                    Arc::new(MatchResult {
                         matched_slice: meta_idx..meta_idx,
                         insert_segments: vec![(meta_idx, meta_type, is_implicit)],
                         ..Default::default()
-                    },
+                    }),
                 );
             }
         } else {
             // Has dedents - append at end
             for (meta_type, is_implicit) in meta_types {
-                accumulated.push(MatchResult {
+                accumulated.push(Arc::new(MatchResult {
                     matched_slice: meta_idx..meta_idx,
                     insert_segments: vec![(meta_idx, meta_type, is_implicit)],
                     ..Default::default()
-                });
+                }));
             }
         }
     }

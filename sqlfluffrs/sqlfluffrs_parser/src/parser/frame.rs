@@ -1,9 +1,9 @@
-//! Parse frame types and state management for the iterative parser.
-//!
+//! Parse frame types and state management for the iterative parser.//!
 //! This module contains the core types used by the iterative parser to track
 //! parsing state without recursion.
 
 use hashbrown::HashMap;
+use std::sync::Arc;
 
 use super::match_result::MatchResult;
 use sqlfluffrs_types::{GrammarId, ParseMode};
@@ -21,7 +21,7 @@ pub enum FrameState {
     /// Processing results after all children complete
     Combining,
     /// Ready to return result
-    Complete(MatchResult),
+    Complete(Arc<MatchResult>),
 }
 
 /// Additional context data for specific grammar types
@@ -32,9 +32,9 @@ pub enum FrameContext {
     OneOfTableDriven {
         grammar_id: GrammarId,
         pruned_children: Vec<GrammarId>, // Children after simple_hint pruning
-        leading_ws: Vec<MatchResult>,
+        leading_ws: Vec<Arc<MatchResult>>,
         post_skip_pos: usize,
-        longest_match: Option<(MatchResult, usize, GrammarId)>, // (match_result, consumed, child_grammar_id)
+        longest_match: Option<(Arc<MatchResult>, usize, GrammarId)>, // (match_result, consumed, child_grammar_id)
         tried_elements: usize,
         max_idx: usize,
         last_child_frame_id: Option<usize>,
@@ -58,7 +58,7 @@ pub enum FrameContext {
         segment_type: Option<String>,
         saved_pos: usize, // Position before skipping transparent tokens
         last_child_frame_id: Option<usize>,
-        leading_transparent: Vec<MatchResult>,
+        leading_transparent: Vec<Arc<MatchResult>>,
         child_grammar_id: GrammarId, // The actual grammar this Ref resolves to (for casefold lookup)
     },
     DelimitedTableDriven {
@@ -99,7 +99,7 @@ pub enum FrameContext {
         last_child_frame_id: Option<usize>,
         /// Track longest match among element candidates for current repetition
         /// (match_result, end_pos, matched_grammar_id)
-        longest_match: Option<(MatchResult, usize, GrammarId)>,
+        longest_match: Option<(Arc<MatchResult>, usize, GrammarId)>,
         /// Number of elements tried for current repetition
         tried_elements: usize,
     },

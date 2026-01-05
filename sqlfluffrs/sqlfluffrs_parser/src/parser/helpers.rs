@@ -4,6 +4,7 @@
 //! including token navigation, whitespace handling, and terminator checking.
 
 use hashbrown::HashSet;
+use std::sync::Arc;
 
 use super::core::Parser;
 use super::{MatchResult, Node};
@@ -105,9 +106,9 @@ impl<'a> Parser<'a> {
     }
 
     /// Collect all transparent tokens (whitespace, newlines, comments) between code tokens.
-    /// Returns a Vec<MatchResult> with child_matches for each transparent token.
+    /// Returns a Vec<Arc<MatchResult>> with child_matches for each transparent token.
     /// IMPORTANT: Comments are collected here, not skipped! They're part of the AST.
-    pub fn collect_transparent(&mut self, allow_gaps: bool) -> Vec<MatchResult> {
+    pub fn collect_transparent(&mut self, allow_gaps: bool) -> Vec<Arc<MatchResult>> {
         let mut transparent_matches = Vec::new();
 
         if !allow_gaps {
@@ -136,11 +137,11 @@ impl<'a> Parser<'a> {
             );
 
             // Create MatchResult for this token (slice only, data retrieved in apply())
-            let match_result = MatchResult {
+            let match_result = Arc::new(MatchResult {
                 matched_slice: token_pos..token_pos + 1,
                 matched_class: None, // Inferred from token type in apply()
                 ..Default::default()
-            };
+            });
 
             transparent_matches.push(match_result);
 

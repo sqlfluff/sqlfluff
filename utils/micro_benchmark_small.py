@@ -1,8 +1,7 @@
 #!/usr/bin/env python3
-"""
-Micro-benchmark to investigate Rust parser overhead on small SQL files.
-"""
+"""Micro-benchmark to investigate Rust parser overhead on small SQL files."""
 import time
+
 import sqlfluffrs
 from sqlfluff.core import Linter
 from sqlfluff.core.config import FluffConfig
@@ -13,6 +12,7 @@ test_cases = [
     ("test/fixtures/dialects/trino/commit.sql", "trino"),
     ("test/fixtures/dialects/ansi/truncate_table_a.sql", "ansi"),
     ("test/fixtures/dialects/ansi/arithmetic_a.sql", "ansi"),
+    ("test/fixtures/dialects/ansi/expression_recursion.sql", "ansi"),
 ]
 
 
@@ -82,5 +82,6 @@ for filepath, dialect in test_cases:
     # Check if lexing dominates
     lex_overhead = rust_with_lex_time - rust_time
     print(
-        f"  Lex overhead:        {lex_overhead*1000:.3f}ms ({lex_overhead/rust_with_lex_time*100:.1f}%)"
+        f"  Lex overhead:        {lex_overhead*1000:.3f}ms "
+        f"({lex_overhead/rust_with_lex_time*100:.1f}%)"
     )

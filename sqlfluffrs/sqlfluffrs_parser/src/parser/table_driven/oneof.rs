@@ -3,7 +3,9 @@ use crate::parser::{
     FrameContext, FrameState, MatchResult, ParseError, Parser,
 };
 use crate::vdebug;
+use smallvec::SmallVec;
 use sqlfluffrs_types::GrammarId;
+use std::sync::Arc;
 
 impl Parser<'_> {
     // ========================================================================
@@ -48,7 +50,7 @@ impl Parser<'_> {
                     );
                     stack.results.insert(
                         frame.frame_id,
-                        (MatchResult::empty_at(start_pos), start_pos, None),
+                        (Arc::new(MatchResult::empty_at(start_pos)), start_pos, None),
                     );
                     return Ok(TableFrameResult::Done);
                 }
@@ -81,6 +83,9 @@ impl Parser<'_> {
             frame.parent_max_idx,
         )?;
 
+        // Store calculated max_idx in frame for cache consistency
+        frame.calculated_max_idx = Some(max_idx);
+
         vdebug!(
             "OneOf[table]: post_skip_pos={}, max_idx={}, terminators={}",
             post_skip_pos,
@@ -96,7 +101,11 @@ impl Parser<'_> {
             if optional {
                 stack.results.insert(
                     frame.frame_id,
-                    (MatchResult::empty_at(post_skip_pos), post_skip_pos, None),
+                    (
+                        Arc::new(MatchResult::empty_at(post_skip_pos)),
+                        post_skip_pos,
+                        None,
+                    ),
                 );
                 return Ok(TableFrameResult::Done);
             }
@@ -135,7 +144,11 @@ impl Parser<'_> {
             vdebug!("OneOf[table]: No children after pruning, returning Empty");
             stack.results.insert(
                 frame.frame_id,
-                (MatchResult::empty_at(post_skip_pos), post_skip_pos, None),
+                (
+                    Arc::new(MatchResult::empty_at(post_skip_pos)),
+                    post_skip_pos,
+                    None,
+                ),
             );
             return Ok(TableFrameResult::Done);
         }
@@ -177,7 +190,7 @@ impl Parser<'_> {
         };
 
         // CRITICAL: Store terminators in frame for use when trying subsequent children
-        frame.table_terminators = all_terminators.clone();
+        frame.table_terminators = SmallVec::from_vec(all_terminators.clone());
 
         // Create table-driven child frame with filtered terminators
         let mut child_frame = TableParseFrame::new_child(
@@ -225,6 +238,9 @@ impl Parser<'_> {
 
         let consumed = *child_end_pos - *post_skip_pos;
         let current_child = current_child_id.expect("current_child_id should be set");
+
+        // Store the child result for reuse
+        let child_match_rc = Arc::new(child_match.clone());
 
         // Values needed for logic (always computed)
         let child_end_pos_val = *child_end_pos;
@@ -291,7 +307,7 @@ impl Parser<'_> {
             // Track early exit for stats
             self.complete_match_early_exits
                 .set(self.complete_match_early_exits.get() + 1);
-            *longest_match = Some((child_match.clone(), consumed, current_child));
+            *longest_match = Some((child_match_rc, consumed, current_child));
             // Skip directly to Combining state
             frame.state = FrameState::Combining;
             stack.push(&mut frame);
@@ -317,7 +333,7 @@ impl Parser<'_> {
             };
 
             if is_better {
-                *longest_match = Some((child_match.clone(), consumed, current_child));
+                *longest_match = Some((child_match_rc, consumed, current_child));
                 vdebug!(
                     "OneOf[table]: longest_match set: child_id={}, consumed={}",
                     current_child.0,
@@ -430,7 +446,7 @@ impl Parser<'_> {
                 stack.frame_id_counter,
                 next_child,
                 *post_skip_pos,
-                frame.table_terminators.clone(),
+                frame.table_terminators.to_vec(),
                 Some(*max_idx),
             );
 
@@ -503,10 +519,10 @@ impl Parser<'_> {
                 let result = if !leading_ws.is_empty() {
                     // Prepend leading whitespace as MatchResults
                     let mut children = leading_ws;
-                    children.push(best_match);
+                    children.push(Arc::clone(&best_match));
                     MatchResult::sequence(frame.pos, final_pos, children)
                 } else {
-                    best_match
+                    (*best_match).clone()
                 };
 
                 (result, final_pos, Some(best_child_id))
@@ -520,7 +536,7 @@ impl Parser<'_> {
 
         // Transition to Complete
         frame.end_pos = Some(final_pos);
-        frame.state = FrameState::Complete(result_match);
+        frame.state = FrameState::Complete(Arc::new(result_match));
 
         Ok(TableFrameResult::Push(frame))
     }

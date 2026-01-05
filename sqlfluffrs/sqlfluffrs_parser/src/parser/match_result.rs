@@ -9,6 +9,7 @@
 
 use crate::vdebug;
 use std::ops::Range;
+use std::sync::Arc;
 
 use crate::parser::types::Node;
 use hashbrown::HashMap;
@@ -63,8 +64,8 @@ pub struct MatchResult {
     /// Transparent tokens (whitespace/newlines/comments) to insert
     pub insert_transparent: Vec<TransparentInsert>,
 
-    /// Child matches (recursive structure)
-    pub child_matches: Vec<MatchResult>,
+    /// Child matches (recursive structure using Rc for cheap sharing)
+    pub child_matches: Vec<Arc<MatchResult>>,
 
     /// Pre-built child nodes (for Token matches that are already resolved)
     pub child_nodes: Vec<Node>,
@@ -152,7 +153,9 @@ impl MatchResult {
 
         // Recursively deduplicate children first (bottom-up)
         let mut deduped_children = Vec::new();
-        for child in self.child_matches {
+        for child_rc in self.child_matches {
+            // Extract and deduplicate the child
+            let child = Arc::try_unwrap(child_rc).unwrap_or_else(|rc| (*rc).clone());
             let deduped_child = child.global_deduplicate();
             let slice_key = (
                 deduped_child.matched_slice.start,
@@ -162,7 +165,7 @@ impl MatchResult {
             // Only keep this child if we haven't seen this exact slice in a sibling
             if !seen_slices.contains(&slice_key) {
                 seen_slices.insert(slice_key);
-                deduped_children.push(deduped_child);
+                deduped_children.push(Arc::new(deduped_child));
             }
         }
 
@@ -177,7 +180,7 @@ impl MatchResult {
     ///
     /// Additionally, if a child fully spans the parent's range and has no class,
     /// we can flatten it by using its children instead (avoiding redundant wrappers).
-    fn deduplicate_children(children: Vec<MatchResult>) -> Vec<MatchResult> {
+    fn deduplicate_children(children: Vec<Arc<MatchResult>>) -> Vec<Arc<MatchResult>> {
         // PYTHON PARITY: Python doesn't do any deduplication of child_matches.
         // It just uses whatever children are provided. Any deduplication logic
         // here was causing bugs by incorrectly dropping valid segments (like
@@ -258,7 +261,7 @@ impl MatchResult {
     }
 
     /// Create a MatchResult for a Sequence with child matches (lazy evaluation)
-    pub fn sequence(start_idx: usize, end_idx: usize, children: Vec<MatchResult>) -> Self {
+    pub fn sequence(start_idx: usize, end_idx: usize, children: Vec<Arc<MatchResult>>) -> Self {
         let deduped_children = Self::deduplicate_children(children);
 
         // PYTHON PARITY: Keep child matches intact - do NOT flatten meta-only children
@@ -286,7 +289,7 @@ impl MatchResult {
         segment_type: Option<String>,
         start_idx: usize,
         end_idx: usize,
-        children: Vec<MatchResult>,
+        children: Vec<Arc<MatchResult>>,
     ) -> Self {
         let deduped_children = Self::deduplicate_children(children);
 
@@ -339,7 +342,7 @@ impl MatchResult {
     }
 
     /// Create a MatchResult for a DelimitedList with child matches (lazy evaluation)
-    pub fn delimited(start_idx: usize, end_idx: usize, children: Vec<MatchResult>) -> Self {
+    pub fn delimited(start_idx: usize, end_idx: usize, children: Vec<Arc<MatchResult>>) -> Self {
         let deduped_children = Self::deduplicate_children(children);
 
         // PYTHON PARITY: Keep child matches intact - do NOT flatten meta-only children
@@ -367,7 +370,7 @@ impl MatchResult {
     pub fn bracketed(
         start_idx: usize,
         end_idx: usize,
-        children: Vec<MatchResult>,
+        children: Vec<Arc<MatchResult>>,
         bracket_persists: bool,
     ) -> Self {
         let deduped_children = Self::deduplicate_children(children);
@@ -512,8 +515,8 @@ impl MatchResult {
                     child_nodes.extend(m.child_nodes);
                 }
                 _ => {
-                    // Has a class, add as child match
-                    child_matches.push(m);
+                    // Has a class, add as child match (wrapped in Rc)
+                    child_matches.push(Arc::new(m));
                 }
             }
         }
@@ -564,8 +567,8 @@ impl MatchResult {
                     )
                 }
                 Some(_) => {
-                    // Already has a class, make current match a child
-                    (vec![], vec![], vec![self.clone()], vec![])
+                    // Already has a class, make current match a child (wrapped in Rc)
+                    (vec![], vec![], vec![Arc::new(self.clone())], vec![])
                 }
             };
 
@@ -662,11 +665,11 @@ impl MatchResult {
         }
 
         // Add child matches
-        for child in &self.child_matches {
+        for child_rc in &self.child_matches {
             trigger_map
-                .entry(child.matched_slice.start)
+                .entry(child_rc.matched_slice.start)
                 .or_default()
-                .push(TriggerItem::ChildMatch(child.clone()));
+                .push(TriggerItem::ChildMatch((**child_rc).clone()));
         }
 
         // Add pre-built child nodes (keyed by their token_idx if available)

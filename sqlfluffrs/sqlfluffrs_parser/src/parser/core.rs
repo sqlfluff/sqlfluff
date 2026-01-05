@@ -4,6 +4,7 @@
 //! including the main entry point for parsing with grammar.
 
 use crate::vdebug;
+use std::sync::Arc;
 
 use crate::parser::table_driven::frame::{TableFrameResult, TableParseFrame};
 use crate::parser::FrameState;
@@ -33,7 +34,7 @@ pub struct Parser<'a> {
     pub tokens: &'a [Token],
     pub pos: usize, // current position in tokens
     pub dialect: Dialect,
-    pub table_cache: TableParseCache, // NEW: Table-driven parser cache
+    pub table_cache: TableParseCache, // Frame-level cache
     pub cache_enabled: bool,
     pub collected_transparent_positions: Vec<usize>, // Track which token positions have had transparent tokens collected (Vec for O(1) truncate)
     /// Stack of collection checkpoints for backtracking.
@@ -53,6 +54,11 @@ pub struct Parser<'a> {
     /// Key insight: the same terminator at the same position will always give the same result.
     /// This avoids redundant parse_table_iterative calls from nested Delimited grammars.
     pub terminator_match_cache: std::cell::RefCell<hashbrown::HashMap<(usize, u32), bool>>,
+    /// Cache for terminator hash computation: Vec<GrammarId> -> u64
+    /// Many grammars share the same terminators, so we cache the computed hashes.
+    /// OPTIMIZATION: This avoids recomputing the same hash thousands of times in
+    /// expression-heavy queries (arithmetic_a.sql, expression_recursion.sql).
+    pub terminator_hash_cache: std::cell::RefCell<hashbrown::HashMap<Vec<u32>, u64>>,
     // Table-driven grammar support
     pub grammar_ctx: GrammarContext<'static>,
     /// Indentation configuration (key -> enabled)
@@ -93,6 +99,7 @@ impl<'a> Parser<'a> {
             terminator_checks: std::cell::Cell::new(0),
             terminator_hits: std::cell::Cell::new(0),
             terminator_match_cache: std::cell::RefCell::new(hashbrown::HashMap::new()),
+            terminator_hash_cache: std::cell::RefCell::new(hashbrown::HashMap::new()),
             simple_hint_cache: hashbrown::HashMap::new(),
             cache_enabled: true,
             grammar_ctx,
@@ -619,7 +626,7 @@ impl<'a> Parser<'a> {
                     ..Default::default()
                 };
 
-                frame.state = FrameState::Complete(match_result);
+                frame.state = FrameState::Complete(Arc::new(match_result));
                 frame.end_pos = Some(self.pos);
                 Ok(TableFrameResult::Push(frame))
             }
@@ -639,14 +646,14 @@ impl<'a> Parser<'a> {
                     inst_types,
                     class_types
                 );
-                frame.state = FrameState::Complete(MatchResult::empty_at(frame.pos));
+                frame.state = FrameState::Complete(Arc::new(MatchResult::empty_at(frame.pos)));
                 frame.end_pos = Some(frame.pos);
                 Ok(TableFrameResult::Push(frame))
             }
 
             None => {
                 vdebug!("TypedParser[table] NOMATCH: EOF at pos={}", self.pos);
-                frame.state = FrameState::Complete(MatchResult::empty_at(frame.pos));
+                frame.state = FrameState::Complete(Arc::new(MatchResult::empty_at(frame.pos)));
                 frame.end_pos = Some(frame.pos);
                 Ok(TableFrameResult::Push(frame))
             }
@@ -1258,10 +1265,10 @@ impl<'a> Parser<'a> {
         // Python's apply() will use child_matches to reconstruct brackets
         let result = MatchResult {
             matched_slice: start_pos..self.pos,
-            child_matches,
+            child_matches: child_matches.into_iter().map(Arc::new).collect(),
             ..Default::default()
         };
-        frame.state = FrameState::Complete(result);
+        frame.state = FrameState::Complete(Arc::new(result));
         frame.end_pos = Some(self.pos);
 
         Ok(TableFrameResult::Push(frame))
@@ -1288,7 +1295,7 @@ impl<'a> Parser<'a> {
         )? {
             TableFrameResult::Push(f) => {
                 if let FrameState::Complete(match_result) = f.state {
-                    return Ok(match_result);
+                    return Ok((*match_result).clone());
                 }
                 Ok(MatchResult::empty_at(self.pos))
             }
@@ -1319,7 +1326,7 @@ impl<'a> Parser<'a> {
         self.bump();
 
         // Collect nested child matches (for nested brackets inside)
-        let mut inner_child_matches: Vec<MatchResult> = vec![open_bracket_match];
+        let mut inner_child_matches: Vec<Arc<MatchResult>> = vec![Arc::new(open_bracket_match)];
 
         // Match everything until matching close bracket, recursively handling nested brackets
         while !self.is_at_end() {
@@ -1334,7 +1341,7 @@ impl<'a> Parser<'a> {
                     let nested_persists = inner_raw == "(";
                     let nested_match =
                         self.match_bracket_recursively(inner_raw.as_str(), nested_persists);
-                    inner_child_matches.push(nested_match);
+                    inner_child_matches.push(Arc::new(nested_match));
                 } else {
                     // Regular token - just bump
                     self.bump();
@@ -1358,7 +1365,7 @@ impl<'a> Parser<'a> {
             instance_types: Some(vec!["end_bracket".to_string()]),
             ..Default::default()
         };
-        inner_child_matches.push(close_bracket_match);
+        inner_child_matches.push(Arc::new(close_bracket_match));
 
         if persists {
             // Create a BracketedSegment match

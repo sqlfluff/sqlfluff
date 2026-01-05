@@ -1,5 +1,7 @@
 use crate::vdebug;
+use smallvec::SmallVec;
 use sqlfluffrs_types::{GrammarId, ParseMode};
+use std::sync::Arc;
 
 use crate::parser::{
     table_driven::frame::{TableFrameResult, TableParseFrame, TableParseFrameStack},
@@ -41,7 +43,7 @@ impl Parser<'_> {
             vdebug!("Bracketed[table]: Not enough children (need bracket_pairs + elements)");
             stack.results.insert(
                 frame.frame_id,
-                (MatchResult::empty_at(start_idx), start_idx, None),
+                (Arc::new(MatchResult::empty_at(start_idx)), start_idx, None),
             );
             return Ok(TableFrameResult::Done);
         }
@@ -143,7 +145,7 @@ impl Parser<'_> {
                     parse_mode
                 );
 
-                frame.accumulated.push(child_match.clone());
+                frame.accumulated.push(Arc::new(child_match.clone()));
                 let content_start_idx = *child_end_pos;
                 // Compute bracket_max_idx from the opening bracket's token position
                 let computed_bracket_max_idx = if !child_match.matched_slice.is_empty() {
@@ -192,11 +194,11 @@ impl Parser<'_> {
                             // Whitespace, newlines, comments captured implicitly by apply()
                             match &*tok.get_type() {
                                 "end_of_file" => {
-                                    frame.accumulated.push(MatchResult {
+                                    frame.accumulated.push(Arc::new(MatchResult {
                                         matched_slice: pos..pos + 1,
                                         matched_class: None, // Inferred from token type
                                         ..Default::default()
-                                    });
+                                    }));
                                     self.mark_position_collected(pos);
                                 }
                                 "whitespace" | "newline" | "comment" => {
@@ -323,7 +325,7 @@ impl Parser<'_> {
                     if child_match.matched_class.is_some() && !child_match.child_matches.is_empty()
                     {
                         // Has a matched_class and children - add the whole match
-                        frame.accumulated.push(child_match.clone());
+                        frame.accumulated.push(Arc::new(child_match.clone()));
                     } else if !child_match.child_matches.is_empty() {
                         // No matched_class but has children - flatten the children
                         frame
@@ -331,7 +333,7 @@ impl Parser<'_> {
                             .extend(child_match.child_matches.iter().cloned());
                     } else {
                         // Leaf match - add it directly
-                        frame.accumulated.push(child_match.clone());
+                        frame.accumulated.push(Arc::new(child_match.clone()));
                     }
                 }
 
@@ -362,11 +364,11 @@ impl Parser<'_> {
                             // PYTHON PARITY: Only collect end_of_file explicitly
                             // Whitespace, newlines, comments captured implicitly by apply()
                             if tok_type == "end_of_file" {
-                                frame.accumulated.push(MatchResult {
+                                frame.accumulated.push(Arc::new(MatchResult {
                                     matched_slice: pos..pos + 1,
                                     matched_class: None, // Inferred from token type
                                     ..Default::default()
-                                });
+                                }));
                                 self.mark_position_collected(pos);
                             } else if tok_type == "whitespace"
                                 || tok_type == "newline"
@@ -465,7 +467,7 @@ impl Parser<'_> {
                         self.commit_collection_checkpoint(frame.frame_id);
                         stack
                             .results
-                            .insert(frame.frame_id, (error_match, self.pos, None));
+                            .insert(frame.frame_id, (Arc::new(error_match), self.pos, None));
                         return Ok(TableFrameResult::Done);
                     }
                 } else {
@@ -501,7 +503,7 @@ impl Parser<'_> {
                                     segment_kwargs,
                                     ..Default::default()
                                 };
-                                frame.accumulated.push(unparsable_match);
+                                frame.accumulated.push(Arc::new(unparsable_match));
 
                                 // Move position to the closing bracket
                                 self.pos = expected_close_pos;
@@ -575,11 +577,11 @@ impl Parser<'_> {
                         self.commit_collection_checkpoint(frame.frame_id);
                         stack
                             .results
-                            .insert(frame.frame_id, (error_match, self.pos, None));
+                            .insert(frame.frame_id, (Arc::new(error_match), self.pos, None));
                         return Ok(TableFrameResult::Done);
                     }
                 } else {
-                    frame.accumulated.push(child_match.clone());
+                    frame.accumulated.push(Arc::new(child_match.clone()));
                     self.pos = *child_end_pos;
                     vdebug!(
                         "Bracketed[table] SUCCESS: {} children, transitioning to Combining at frame_id={}",
@@ -650,7 +652,7 @@ impl Parser<'_> {
             );
             // Use lazy evaluation - store child_matches instead of building Node
             let accumulated = std::mem::take(&mut frame.accumulated);
-            MatchResult::bracketed(frame.pos, end_pos, accumulated, bracket_persists)
+            MatchResult::bracketed(frame.pos, end_pos, accumulated.into_vec(), bracket_persists)
         } else {
             // Log the actual state for debugging
             #[cfg(feature = "verbose-debug")]
@@ -670,7 +672,7 @@ impl Parser<'_> {
         };
 
         // Transition to Complete state with the final result
-        frame.state = FrameState::Complete(result_match);
+        frame.state = FrameState::Complete(Arc::new(result_match));
         frame.end_pos = Some(end_pos);
 
         Ok(TableFrameResult::Push(frame))
@@ -697,7 +699,7 @@ fn initialize_table_driven_bracketed_frame(
         content_idx: 0,
         parse_mode_override: None, // Will be set when creating content frames
     };
-    frame.table_terminators = all_terminators.to_vec();
+    frame.table_terminators = SmallVec::from_slice(all_terminators);
     stack.push(&mut frame);
 }
 
@@ -714,11 +716,12 @@ fn create_table_driven_child_frame(
         frame_id,
         grammar_id,
         pos: start_idx,
-        table_terminators: terminators.to_vec(),
+        table_terminators: smallvec::SmallVec::from_slice(terminators),
         state: FrameState::Initial,
-        accumulated: vec![],
+        accumulated: smallvec::SmallVec::new(),
         context,
         parent_max_idx, // Propagate parent's limit!
+        calculated_max_idx: None,
         end_pos: None,
         transparent_positions: None,
         element_key: None,

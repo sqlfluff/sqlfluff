@@ -1,4 +1,6 @@
+use smallvec::SmallVec;
 use sqlfluffrs_types::{GrammarId, ParseMode};
+use std::sync::Arc;
 
 use crate::parser::{FrameContext, FrameState, MatchResult};
 
@@ -13,9 +15,9 @@ pub enum TableFrameResult {
 /// Stack structure for managing ParseFrames and related state
 pub struct TableParseFrameStack {
     stack: Vec<TableParseFrame>,
-    /// Results map: frame_id -> (MatchResult, end_pos, element_key)
-    /// MatchResult replaces Node for functional result composition
-    pub results: hashbrown::HashMap<usize, (MatchResult, usize, Option<u64>)>,
+    /// Results map: frame_id -> (Arc<MatchResult>, end_pos, element_key)
+    /// Using Rc to avoid expensive clones of MatchResults
+    pub results: hashbrown::HashMap<usize, (Arc<MatchResult>, usize, Option<u64>)>,
     pub frame_id_counter: usize,
     // Add any additional state fields here as needed
 }
@@ -81,16 +83,23 @@ pub struct TableParseFrame {
     pub pos: usize,
     /// When Some, this frame uses table-driven parsing
     /// Table-driven terminators (parallel to terminators field)
-    pub table_terminators: Vec<GrammarId>,
+    /// SmallVec avoids heap allocation for common case of 0-4 terminators
+    pub table_terminators: SmallVec<[GrammarId; 4]>,
     /// Current state of this frame
     pub state: FrameState,
-    /// Accumulated results (Python parity - stores MatchResult for lazy evaluation)
-    pub accumulated: Vec<MatchResult>,
+    /// Accumulated results (Python parity - stores Arc<MatchResult> for lazy evaluation)
+    /// Using Rc avoids expensive clones of MatchResults
+    /// SmallVec avoids heap allocation for common case of 0-2 accumulated results
+    pub accumulated: SmallVec<[Arc<MatchResult>; 2]>,
     /// Additional context depending on grammar type
     pub context: FrameContext,
     /// Parent's max_idx limit (simulates Python's segments[:max_idx] slicing)
     /// If Some(n), this frame cannot match beyond position n
     pub parent_max_idx: Option<usize>,
+    /// Handler-calculated max_idx after considering terminators and parse mode
+    /// Set by handlers (Sequence, OneOf, etc.) after they calculate their effective max_idx
+    /// Used for cache key to ensure consistency between cache checks and stores
+    pub calculated_max_idx: Option<usize>,
     /// End position for this parse (used when transitioning to Complete state)
     pub end_pos: Option<usize>,
     /// Transparent token positions collected during this parse
@@ -118,11 +127,12 @@ impl TableParseFrame {
             frame_id,
             grammar_id,
             pos,
-            table_terminators,
+            table_terminators: SmallVec::from_vec(table_terminators),
             state: FrameState::Initial,
-            accumulated: vec![],
+            accumulated: SmallVec::new(),
             context: FrameContext::None,
             parent_max_idx,
+            calculated_max_idx: None,
             end_pos: None,
             transparent_positions: None,
             element_key: None,

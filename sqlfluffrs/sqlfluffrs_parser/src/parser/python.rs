@@ -407,7 +407,7 @@ impl PyMatchResult {
         self.0
             .child_matches
             .iter()
-            .map(|m| PyMatchResult(m.clone()))
+            .map(|m| PyMatchResult((**m).clone()))
             .collect()
     }
 

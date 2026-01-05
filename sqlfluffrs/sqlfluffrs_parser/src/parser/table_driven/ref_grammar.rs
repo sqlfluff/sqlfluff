@@ -1,4 +1,5 @@
 use sqlfluffrs_types::GrammarId;
+use std::sync::Arc;
 
 use crate::parser::{
     table_driven::frame::{TableFrameResult, TableParseFrame, TableParseFrameStack},
@@ -54,7 +55,7 @@ impl Parser<'_> {
                 self.rollback_collection_checkpoint(frame.frame_id);
                 stack.results.insert(
                     frame.frame_id,
-                    (MatchResult::empty_at(frame.pos), frame.pos, None),
+                    (Arc::new(MatchResult::empty_at(frame.pos)), frame.pos, None),
                 );
                 return Ok(TableFrameResult::Done);
             }
@@ -73,7 +74,7 @@ impl Parser<'_> {
                     self.rollback_collection_checkpoint(frame.frame_id);
                     stack.results.insert(
                         frame.frame_id,
-                        (MatchResult::empty_at(frame.pos), frame.pos, None),
+                        (Arc::new(MatchResult::empty_at(frame.pos)), frame.pos, None),
                     );
                     return Ok(TableFrameResult::Done);
                 }
@@ -105,7 +106,7 @@ impl Parser<'_> {
                     self.rollback_collection_checkpoint(frame.frame_id);
                     stack.results.insert(
                         frame.frame_id,
-                        (MatchResult::empty_at(start_pos), start_pos, None),
+                        (Arc::new(MatchResult::empty_at(start_pos)), start_pos, None),
                     );
                     return Ok(TableFrameResult::Done);
                 }
@@ -114,7 +115,7 @@ impl Parser<'_> {
 
         // If the explicit child grammar allows gaps, collect leading transparent
         // tokens so child parsing starts at the next non-transparent token.
-        let mut leading_transparent: Vec<MatchResult> = Vec::new();
+        let mut leading_transparent: Vec<Arc<MatchResult>> = Vec::new();
         let child_allows_gaps = self.grammar_ctx.inst(child_grammar_id).flags.allow_gaps();
         if child_allows_gaps {
             let ws = self.collect_transparent(true);
@@ -218,7 +219,7 @@ impl Parser<'_> {
                 frame.accumulated.len(),
                 child_end_pos
             );
-            frame.accumulated.push(child_match.clone());
+            frame.accumulated.push(Arc::new(child_match.clone()));
             self.pos = *child_end_pos;
             frame.end_pos = Some(*child_end_pos);
         } else {
@@ -287,7 +288,7 @@ impl Parser<'_> {
             // Prepend leading transparent matches to accumulated
             let mut children = std::mem::take(leading_transparent);
             let accumulated = std::mem::take(&mut frame.accumulated);
-            children.extend(accumulated);
+            children.extend(accumulated.into_iter());
 
             // Commit collected positions since Ref succeeded
             self.commit_collection_checkpoint(frame.frame_id);
@@ -320,7 +321,7 @@ impl Parser<'_> {
 
         self.pos = final_pos;
         frame.end_pos = Some(final_pos);
-        frame.state = FrameState::Complete(result_match);
+        frame.state = FrameState::Complete(Arc::new(result_match));
 
         Ok(TableFrameResult::Push(frame))
     }

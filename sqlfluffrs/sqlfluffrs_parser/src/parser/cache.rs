@@ -3,87 +3,136 @@
 /// This module implements a memoization cache for parse results to avoid
 /// redundant parsing operations. It's based on the Python implementation's
 /// parse cache which provides 30-50% speedup on complex queries.
+///
+/// IMPORTANT: Only frame-level caching is used:
+/// - Frame-level cache (TableParseCache): Caches complete grammar results
+///
+/// Element-level caching was removed because after Rc/Arc optimization,
+/// the cache overhead (HashMap lookups, key construction) outweighed the
+/// benefits (Arc::clone is just an atomic increment, very cheap).
+/// Element cache had 0.1% hit rate and added 2% overhead.
 use hashbrown::HashMap;
+use sqlfluffrs_types::GrammarId;
 use std::hash::Hash;
+use std::sync::Arc;
 
 use crate::parser::MatchResult;
 
 // ============================================================================
-// Table-Driven Parse Cache
+// Element-Level Parse Cache - REMOVED
+// ============================================================================
+//
+// Element-level caching was removed after analysis showed:
+// - 0.1% hit rate (2 hits out of 1515 operations)
+// - 2% performance overhead
+// - After Arc optimization, cache hits only save Arc::clone() (5-10ns)
+// - HashMap operations cost more than the savings
+//
+// See bench_element_cache.rs example for measurement details.
 // ============================================================================
 
-use sqlfluffrs_types::GrammarId;
+// ============================================================================
+// Table-Driven Parse Cache (Frame-Level)
+// ============================================================================
 
 /// Cache key for table-driven parser memoization
 ///
 /// Components:
 /// - pos: Current position in token stream
 /// - grammar_id: The GrammarId being matched (simple u32)
-/// - max_idx: Maximum index to parse up to (accounts for terminators)
-/// - terminators_hash: Optional hash of terminators (only when non-empty)
+/// - max_idx: Maximum index to parse up to (encodes terminator effects)
 ///
-/// Optimization: We only include terminators_hash when terminators are non-empty.
-/// This provides a middle ground between:
-/// 1. Always including terminators (cache pollution, slower)
-/// 2. Never including terminators (incorrect results in some cases)
-///
-/// Empty terminators are very common and don't affect parsing behavior beyond
-/// max_idx calculation, so omitting the hash in that case dramatically improves
-/// cache hit rates.
+/// PYTHON PARITY: Python's cache key is (raw, loc, type, max_idx).
+/// Terminators are NOT in the cache key! Instead, terminators affect max_idx
+/// calculation via trim_to_terminator(), so their effect is already captured.
+/// This dramatically improves cache hit rates.
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct TableCacheKey {
     pub pos: usize,
     pub grammar_id: u32,
     pub max_idx: usize,
-    pub terminators_hash: Option<u64>,
 }
 
 impl TableCacheKey {
-    pub fn new(
+    /// Create a new cache key.
+    ///
+    /// PYTHON PARITY: terminators and terminator_hash_cache parameters are now
+    /// ignored - we only use (pos, grammar_id, max_idx) just like Python uses
+    /// (raw, loc, type, max_idx). The max_idx already encodes terminator effects.
+    pub fn new_with_cache(
         pos: usize,
         grammar_id: GrammarId,
         max_idx: usize,
-        terminators: &[GrammarId],
+        _terminators: &[GrammarId],
+        _terminator_hash_cache: Option<&std::cell::RefCell<hashbrown::HashMap<Vec<u32>, u64>>>,
     ) -> Self {
-        // Only include terminators_hash when terminators are non-empty
-        let terminators_hash = if terminators.is_empty() {
-            None
-        } else {
-            Some(hash_table_terminators(terminators))
-        };
-
         TableCacheKey {
             pos,
             grammar_id: grammar_id.0,
             max_idx,
-            terminators_hash,
         }
+    }
+
+    /// Create a new cache key without hash caching (for backward compatibility).
+    pub fn new(
+        pos: usize,
+        grammar_id: GrammarId,
+        max_idx: usize,
+        _terminators: &[GrammarId],
+    ) -> Self {
+        Self::new_with_cache(pos, grammar_id, max_idx, _terminators, None)
     }
 }
 
-/// Hash terminators for table cache key
-/// Sorted to be order-insensitive (terminators semantically form a set)
-fn hash_table_terminators(terminators: &[GrammarId]) -> u64 {
-    use std::collections::hash_map::DefaultHasher;
-    use std::hash::{Hash, Hasher};
-
+/// Hash terminators with optional caching.
+/// This is the optimized version that uses a cache to avoid recomputing
+/// the same hash for frequently-used terminator sets.
+fn hash_table_terminators_cached(
+    terminators: &[GrammarId],
+    cache: Option<&std::cell::RefCell<hashbrown::HashMap<Vec<u32>, u64>>>,
+) -> u64 {
     // Collect and sort grammar IDs for order-insensitive hashing
     let mut ids: Vec<u32> = terminators.iter().map(|g| g.0).collect();
     ids.sort_unstable();
 
+    // Check cache if available
+    if let Some(cache_ref) = cache {
+        if let Some(&cached_hash) = cache_ref.borrow().get(&ids) {
+            return cached_hash;
+        }
+    }
+
+    // Compute hash
+    use std::collections::hash_map::DefaultHasher;
+    use std::hash::{Hash, Hasher};
+
     let mut hasher = DefaultHasher::new();
     ids.len().hash(&mut hasher);
-    for id in ids {
+    for id in &ids {
         id.hash(&mut hasher);
     }
-    hasher.finish()
+    let hash = hasher.finish();
+
+    // Store in cache if available
+    if let Some(cache_ref) = cache {
+        cache_ref.borrow_mut().insert(ids, hash);
+    }
+
+    hash
+}
+
+/// Hash terminators for table cache key (legacy version without caching).
+/// Sorted to be order-insensitive (terminators semantically form a set).
+#[allow(dead_code)]
+fn hash_table_terminators(terminators: &[GrammarId]) -> u64 {
+    hash_table_terminators_cached(terminators, None)
 }
 
 /// Cache value for table-driven parser
 /// - MatchResult: The lazy parse result (can be converted to Node via apply())
 /// - usize: End position after parsing
 /// - Option<Vec<usize>>: Transparent token positions collected during parse
-pub type TableCacheValue = (MatchResult, usize, Option<Vec<usize>>);
+pub type TableCacheValue = (Arc<MatchResult>, usize, Option<Vec<usize>>);
 
 /// Parse result cache for table-driven parser
 ///
@@ -110,30 +159,20 @@ impl TableParseCache {
             Some(result) => {
                 self.hits += 1;
                 log::debug!(
-                    "TableCache HIT at pos {} (grammar_id: {}, max_idx: {}, terminators: {})",
+                    "TableCache HIT at pos {} (grammar_id: {}, max_idx: {})",
                     key.pos,
                     key.grammar_id,
                     key.max_idx,
-                    if key.terminators_hash.is_some() {
-                        "yes"
-                    } else {
-                        "no"
-                    }
                 );
                 Some(result)
             }
             None => {
                 self.misses += 1;
                 log::debug!(
-                    "TableCache MISS at pos {} (grammar_id: {}, max_idx: {}, terminators: {})",
+                    "TableCache MISS at pos {} (grammar_id: {}, max_idx: {})",
                     key.pos,
                     key.grammar_id,
                     key.max_idx,
-                    if key.terminators_hash.is_some() {
-                        "yes"
-                    } else {
-                        "no"
-                    }
                 );
                 None
             }
@@ -143,15 +182,10 @@ impl TableParseCache {
     /// Store a result in cache
     pub fn put(&mut self, key: TableCacheKey, result: TableCacheValue) {
         log::debug!(
-            "TableCache INSERT at pos {} (grammar_id: {}, max_idx: {}, terminators: {})",
+            "TableCache INSERT at pos {} (grammar_id: {}, max_idx: {})",
             key.pos,
             key.grammar_id,
             key.max_idx,
-            if key.terminators_hash.is_some() {
-                "yes"
-            } else {
-                "no"
-            }
         );
         self.cache.insert(key, result);
     }

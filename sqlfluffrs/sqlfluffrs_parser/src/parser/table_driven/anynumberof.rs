@@ -3,7 +3,9 @@ use crate::parser::{
     FrameContext, FrameState, MatchResult, ParseError, Parser,
 };
 use crate::vdebug;
+use smallvec::SmallVec;
 use sqlfluffrs_types::GrammarId;
+use std::sync::Arc;
 
 impl Parser<'_> {
     // ========================================================================
@@ -78,7 +80,7 @@ impl Parser<'_> {
                         vdebug!("AnyNumberOf[table]: Exclude grammar matched, returning Empty");
                         stack.results.insert(
                             frame.frame_id,
-                            (MatchResult::empty_at(start_pos), start_pos, None),
+                            (Arc::new(MatchResult::empty_at(start_pos)), start_pos, None),
                         );
                         return Ok(TableFrameResult::Done);
                     }
@@ -106,7 +108,7 @@ impl Parser<'_> {
             vdebug!("AnyNumberOf[table]: No elements to match after filtering");
             stack.results.insert(
                 frame.frame_id,
-                (MatchResult::empty_at(start_pos), start_pos, None),
+                (Arc::new(MatchResult::empty_at(start_pos)), start_pos, None),
             );
             return Ok(TableFrameResult::Done);
         }
@@ -153,6 +155,9 @@ impl Parser<'_> {
             frame.parent_max_idx,
         )?;
 
+        // Store calculated max_idx in frame for cache consistency
+        frame.calculated_max_idx = Some(max_idx);
+
         vdebug!(
             "AnyNumberOf[table] Initial handler: grammar_id={}, start_pos={}, max_idx={}, parse_mode={:?}, parent_max_idx={:?}",
             grammar_id.0,
@@ -185,7 +190,7 @@ impl Parser<'_> {
         // child frames (created during waiting/continuation) reuse the same
         // terminator set. Not setting this caused later child frames to be
         // created without terminators which can change matching behavior.
-        frame.table_terminators = all_terminators.clone();
+        frame.table_terminators = SmallVec::from_vec(all_terminators.clone());
         stack.push(&mut frame);
 
         // Create initial child frame for the first element candidate and
@@ -292,6 +297,7 @@ impl Parser<'_> {
             .unwrap_or(pruned_children[0]);
 
         // Update longest_match if this child is better (like OneOf does)
+        let child_match_rc = Arc::new(child_match.clone());
         if !child_match.is_empty() && *child_end_pos <= *max_idx {
             let is_better = if let Some((_, current_end_pos, _)) = longest_match {
                 *child_end_pos > *current_end_pos
@@ -300,7 +306,7 @@ impl Parser<'_> {
             };
 
             if is_better {
-                *longest_match = Some((child_match.clone(), *child_end_pos, current_candidate));
+                *longest_match = Some((child_match_rc, *child_end_pos, current_candidate));
                 vdebug!(
                     "AnyNumberOf[table]: Updated longest_match: child_id={}, end_pos={}",
                     current_candidate.0,
@@ -334,7 +340,7 @@ impl Parser<'_> {
                 new_child_frame_id,
                 next_candidate,
                 *working_idx,
-                frame.table_terminators.clone(),
+                frame.table_terminators.to_vec(),
                 Some(*max_idx),
             );
 
@@ -383,11 +389,11 @@ impl Parser<'_> {
                     // Whitespace, newlines, comments captured implicitly by apply()
                     match tok.get_type().as_str() {
                         "end_of_file" => {
-                            frame.accumulated.push(MatchResult {
+                            frame.accumulated.push(Arc::new(MatchResult {
                                 matched_slice: token_idx..token_idx + 1,
                                 matched_class: None, // Inferred from token type
                                 ..Default::default()
-                            });
+                            }));
                             self.mark_position_collected(token_idx);
                         }
                         "whitespace" | "newline" | "comment" => {
@@ -440,7 +446,8 @@ impl Parser<'_> {
             }
 
             // Match succeeded - accumulate and increment count
-            frame.accumulated.push(best_match);
+            // Share the Rc instead of cloning MatchResult contents
+            frame.accumulated.push(Arc::clone(&best_match));
             *matched_idx = best_end_pos;
             *working_idx = *matched_idx;
             *count += 1;
@@ -524,7 +531,7 @@ impl Parser<'_> {
                 new_child_frame_id,
                 next_element,
                 *working_idx,
-                frame.table_terminators.clone(),
+                frame.table_terminators.to_vec(),
                 Some(*max_idx),
             );
 
@@ -584,7 +591,7 @@ impl Parser<'_> {
             // Didn't meet min_times
             self.pos = frame.pos;
             frame.end_pos = Some(frame.pos);
-            frame.state = FrameState::Complete(MatchResult::empty_at(frame.pos));
+            frame.state = FrameState::Complete(Arc::new(MatchResult::empty_at(frame.pos)));
             return Ok(TableFrameResult::Push(frame));
         }
 
@@ -592,11 +599,15 @@ impl Parser<'_> {
         let (result_match, final_pos) = {
             // Success - use lazy evaluation - store child_matches
             if frame.accumulated.is_empty() {
-                (MatchResult::empty_at(frame.pos), frame.pos)
+                (Arc::new(MatchResult::empty_at(frame.pos)), frame.pos)
             } else {
                 let accumulated = std::mem::take(&mut frame.accumulated);
                 (
-                    MatchResult::sequence(frame.pos, *matched_idx, accumulated),
+                    Arc::new(MatchResult::sequence(
+                        frame.pos,
+                        *matched_idx,
+                        accumulated.into_vec(),
+                    )),
                     *matched_idx,
                 )
             }
