@@ -575,11 +575,11 @@ def print_comparison(
         prune_diff = rust_metrics.pruning_rate - python_metrics.pruning_rate
         if abs(prune_diff) > 0.05:
             if prune_diff > 0:
-                print(f"  ✅ Rust prunes {prune_diff*100:.1f}pp more options")
+                print(f"  ✅ Rust prunes {prune_diff * 100:.1f}pp more options")
             else:
-                print(f"  ⚠️  Rust prunes {abs(prune_diff)*100:.1f}pp fewer options")
+                print(f"  ⚠️  Rust prunes {abs(prune_diff) * 100:.1f}pp fewer options")
         else:
-            print(f"  ✅ Pruning rates are similar (diff: {prune_diff*100:.1f}pp)")
+            print(f"  ✅ Pruning rates are similar (diff: {prune_diff * 100:.1f}pp)")
 
         # Analysis
         print("\nANALYSIS:")

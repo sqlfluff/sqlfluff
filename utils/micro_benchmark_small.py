@@ -73,15 +73,15 @@ for filepath, dialect in test_cases:
     rust_time = time_rust_parser(sql, dialect)
     rust_with_lex_time = time_rust_with_lex(sql, dialect)
 
-    print(f"  Python:              {py_time*1000:.3f}ms")
-    print(f"  Rust (parse only):   {rust_time*1000:.3f}ms")
-    print(f"  Rust (lex + parse):  {rust_with_lex_time*1000:.3f}ms")
-    print(f"  Speedup (parse):     {py_time/rust_time:.2f}x")
-    print(f"  Speedup (total):     {py_time/rust_with_lex_time:.2f}x")
+    print(f"  Python:              {py_time * 1000:.3f}ms")
+    print(f"  Rust (parse only):   {rust_time * 1000:.3f}ms")
+    print(f"  Rust (lex + parse):  {rust_with_lex_time * 1000:.3f}ms")
+    print(f"  Speedup (parse):     {py_time / rust_time:.2f}x")
+    print(f"  Speedup (total):     {py_time / rust_with_lex_time:.2f}x")
 
     # Check if lexing dominates
     lex_overhead = rust_with_lex_time - rust_time
     print(
-        f"  Lex overhead:        {lex_overhead*1000:.3f}ms "
-        f"({lex_overhead/rust_with_lex_time*100:.1f}%)"
+        f"  Lex overhead:        {lex_overhead * 1000:.3f}ms "
+        f"({lex_overhead / rust_with_lex_time * 100:.1f}%)"
     )
