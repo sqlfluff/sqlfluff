@@ -49,17 +49,14 @@ class KeywordSegment(WordSegment):
         cls,
         token: "RsToken",
         tf: "TemplatedFile",
-        type_override: Optional[str] = None,
     ) -> "KeywordSegment":
         """Create a KeywordSegment from an RSQL token.
 
         KeywordSegment has a restricted __init__ without trim_start,
         so we override from_rstoken to handle this.
         """
-        # Build instance_types, prepending the override type if provided
+        # Build instance_types from token
         instance_types = tuple(token.instance_types)
-        if type_override and type_override not in instance_types:
-            instance_types = (type_override,) + instance_types
 
         segment = cls(
             raw=token.raw,

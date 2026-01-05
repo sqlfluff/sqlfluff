@@ -7,26 +7,6 @@ BaseSegment objects.
 
 from sqlfluff.core.dialects.base import Dialect
 from sqlfluff.core.parser.segments.base import BaseSegment
-from sqlfluff.core.parser.segments.keyword import LiteralKeywordSegment
-from sqlfluff.core.parser.segments.meta import ImplicitIndent
-from sqlfluff.core.parser.segments.raw import RawSegment
-
-
-def _get_segment_type_map(base_class: type) -> dict[str, type[RawSegment]]:
-    """Dynamically create a map of segment types to their subclasses.
-
-    This mirrors the implementation in lexer.py to map token types
-    to their corresponding segment classes (WordSegment, LiteralSegment, etc.).
-    """
-    segment_map = {}
-    for subclass in base_class.__subclasses__():
-        if subclass is LiteralKeywordSegment or subclass is ImplicitIndent:
-            continue
-        if hasattr(subclass, "type") and subclass.type:
-            segment_map[subclass.type] = subclass
-        # Recursively add subclasses of subclasses
-        segment_map.update(_get_segment_type_map(subclass))
-    return segment_map
 
 
 def _is_valid_segment_class(segment_name: str, dialect: Dialect) -> bool:
@@ -57,7 +37,7 @@ def get_segment_class_by_name(
 
     Args:
         segment_name: The segment CLASS name (e.g., "AsAliasOperatorSegment")
-        dialect: The FluffConfig (provides access to dialect)
+        dialect: The dialect instance (provides access to dialect library)
 
     Returns:
         The segment class
@@ -66,19 +46,9 @@ def get_segment_class_by_name(
         ValueError: If the segment class is not found in the dialect,
                     or if the name refers to a grammar instead of a segment class
     """
-    # First check if it's a valid segment class
+    # Check if it's a valid segment class
     if _is_valid_segment_class(segment_name, dialect):
         return dialect.get_segment(segment_name)
 
-    # Not a valid segment class - provide helpful error message
-    if segment_name.endswith("Grammar"):
-        raise ValueError(f"'{segment_name}' is a grammar, not a segment class")
-
-    item = dialect._library.get(segment_name)
-
-    if item is None:
-        raise ValueError(f"Segment '{segment_name}' not found in dialect")
-
-    raise ValueError(
-        f"'{segment_name}' is not a segment class (got {type(item).__name__})"
-    )
+    # Not a valid segment class
+    raise ValueError(f"Segment '{segment_name}' not found or is not a segment class")

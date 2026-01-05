@@ -308,22 +308,15 @@ class RawSegment(BaseSegment):
         cls,
         token: "RsToken",
         tf: "TemplatedFile",
-        type_override: Optional[str] = None,
     ) -> "RawSegment":
         """Create a RawSegment from an RSQL token.
 
         Args:
             token: The Rust token to create the segment from
             tf: The TemplatedFile for position marker reconstruction
-            type_override: If provided, this type is prepended to instance_types.
-                This allows the Rust parser to specify semantic types like
-                'naked_identifier' which affect is_type() checks but still
-                use the correct segment class (e.g., IdentifierSegment).
         """
-        # Build instance_types, prepending the override type if provided
+        # Build instance_types from token
         instance_types = tuple(token.instance_types)
-        if type_override and type_override not in instance_types:
-            instance_types = (type_override,) + instance_types
 
         segment = cls(
             raw=token.raw,
