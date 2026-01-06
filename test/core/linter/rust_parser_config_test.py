@@ -40,37 +40,54 @@ use_rust_parser = auto
 @pytest.mark.skipif(HAS_RUST_PARSER, reason="Rust parser is available")
 def test__linter__use_rust_parser_true_warns(caplog):
     """Test that explicit True warns when Rust parser is unavailable."""
-    config = FluffConfig.from_string(
-        """
+    # Reset any logging configuration from previous tests
+    # (CLI tests may have called setup_logging which sets propagate=False)
+    sqlfluff_logger = logging.getLogger("sqlfluff")
+
+    # Store original state
+    original_propagate = sqlfluff_logger.propagate
+    original_handlers = sqlfluff_logger.handlers[:]
+
+    # Reset to defaults for caplog to work
+    sqlfluff_logger.propagate = True
+    sqlfluff_logger.handlers.clear()
+
+    try:
+        config = FluffConfig.from_string(
+            """
 [sqlfluff]
 dialect = ansi
 
 [sqlfluff:core]
 use_rust_parser = True
 """
-    )
+        )
 
-    with caplog.at_level(logging.WARNING, logger="sqlfluff.linter"):
-        lntr = Linter(config=config)
-        result = lntr.lint_string("SELECT 1")
-        assert result is not None
+        with caplog.at_level(logging.WARNING, logger="sqlfluff.linter"):
+            lntr = Linter(config=config)
+            result = lntr.lint_string("SELECT 1")
+            assert result is not None
 
-    # Check after exiting the context manager
-    # Should have warning about rust_parser not available
-    rust_warnings = [
-        record
-        for record in caplog.records
-        if "use_rust_parser=True but sqlfluffrs not available" in record.message
-    ]
-    assert len(rust_warnings) == 1, (
-        f"Expected 1 warning, got {len(rust_warnings)}:"
-        + f" {[r.message for r in caplog.records]}"
-    )
+        # Check after exiting the context manager
+        # Should have warning about rust_parser not available
+        rust_warnings = [
+            record
+            for record in caplog.records
+            if "use_rust_parser=True but sqlfluffrs not available" in record.message
+        ]
+        assert len(rust_warnings) == 1, (
+            f"Expected 1 warning, got {len(rust_warnings)}:"
+            + f" {[r.message for r in caplog.records]}"
+        )
 
-    # Check warning message content
-    warning_msg = rust_warnings[0].message
-    assert "Falling back to Python parser" in warning_msg
-    assert "maturin develop" in warning_msg
+        # Check warning message content
+        warning_msg = rust_warnings[0].message
+        assert "Falling back to Python parser" in warning_msg
+        assert "maturin develop" in warning_msg
+    finally:
+        # Restore original state
+        sqlfluff_logger.propagate = original_propagate
+        sqlfluff_logger.handlers[:] = original_handlers
 
 
 def test__linter__use_rust_parser_false_no_rust():
