@@ -25,7 +25,7 @@ use_rust_parser = auto
 """
     )
 
-    with caplog.at_level(logging.WARNING):
+    with caplog.at_level(logging.WARNING, logger="sqlfluff.linter"):
         lntr = Linter(config=config)
         result = lntr.lint_string("SELECT 1")
 
@@ -50,7 +50,7 @@ use_rust_parser = True
 """
     )
 
-    with caplog.at_level(logging.WARNING):
+    with caplog.at_level(logging.WARNING, logger="sqlfluff.linter"):
         lntr = Linter(config=config)
         result = lntr.lint_string("SELECT 1")
         assert result is not None
