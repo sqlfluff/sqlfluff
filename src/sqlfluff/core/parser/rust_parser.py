@@ -11,11 +11,12 @@ double-counting issues.
 """
 
 import logging
-from typing import TYPE_CHECKING, Any, Optional, cast
+from typing import TYPE_CHECKING, Any, Optional
 
 from sqlfluff.core.config import FluffConfig
 from sqlfluff.core.parser.match_result import MatchResult
 from sqlfluff.core.parser.segments import (
+    BaseFileSegment,
     BaseSegment,
     Dedent,
     ImplicitIndent,
@@ -97,6 +98,9 @@ try:
 
             # Use the provided config or create one from the dialect.
             self.config = config or FluffConfig.from_kwargs(dialect=dialect)
+            self.RootSegment: type[BaseFileSegment] = self.config.get(
+                "dialect_obj"
+            ).get_root_segment()
 
             # Check if Rust parser is available
             if not _HAS_RUST_PARSER:
@@ -166,12 +170,7 @@ try:
 
             if _start_idx == _end_idx:
                 # No code segments - return FileSegment with just non-code
-                dialect = self.config.get("dialect_obj")
-                file_segment_cls = dialect.get_segment("FileSegment")
-                return cast(
-                    "BaseSegment", file_segment_cls(segments=segments, fname=fname)
-                )
-
+                return self.RootSegment(segments=segments, fname=fname)
             # Extract the original RsToken objects from the RawSegments
             # PYTHON PARITY: Only parse the code portion (segments[_start_idx:_end_idx])
             # Just like Python's match(segments[:_end_idx], _start_idx, ...)
@@ -268,14 +267,10 @@ try:
             else:
                 content = result_segments + _unmatched
 
-            # Wrap in FileSegment following root_parse pattern
-            dialect = self.config.get("dialect_obj")
-            file_segment_cls = dialect.get_segment("FileSegment")
-
             # PYTHON PARITY: Reassemble with leading + content + trailing
             final_segments = segments[:_start_idx] + content + segments[_end_idx:]
 
-            result = file_segment_cls(segments=final_segments, fname=fname)
+            result = self.RootSegment(segments=final_segments, fname=fname)
 
             if parse_statistics:
                 print("Warning: parse_statistics not yet implemented for Rust parser")
