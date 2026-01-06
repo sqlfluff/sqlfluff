@@ -92,7 +92,7 @@ try:
                 ValueError: If both config and dialect are provided
             """
             if config and dialect:
-                raise ValueError(
+                raise ValueError(  # pragma: no cover
                     "RustParser does not support setting both `config` and `dialect`."
                 )
 
@@ -101,13 +101,6 @@ try:
             self.RootSegment: type[BaseFileSegment] = self.config.get(
                 "dialect_obj"
             ).get_root_segment()
-
-            # Check if Rust parser is available
-            if not _HAS_RUST_PARSER:
-                raise ImportError(
-                    "RustParser requires the sqlfluffrs extension. "
-                    "Install it with: pip install sqlfluff[rust]"
-                )
 
             # Extract indentation config and convert boolean values only
             indent_config = self.config.get_section("indentation") or {}
@@ -177,31 +170,36 @@ try:
             tokens = self._extract_tokens_from_segments(segments[_start_idx:_end_idx])
 
             # Parse using Rust parser to get MatchResult
+            # The Rust parser may raise RsParseError for certain parse errors (e.g.,
+            # missing closing brackets in terminators). We catch these and convert to
+            # SQLParseError. Regular parse errors are embedded in the MatchResult.
             try:
                 rs_match_result = self._rs_parser.parse_match_result_from_tokens(tokens)
             except Exception as e:
-                # Check if this is a parse error that should be raised
-                error_str = str(e)
-                if "Couldn't find closing bracket" in error_str:
-                    # Re-raise as SQLParseError with proper location
-                    from sqlfluff.core.errors import SQLParseError
+                # Rust parser raised an exception - convert to SQLParseError
+                from sqlfluff.core.errors import SQLParseError
 
-                    # Try to find a meaningful segment for error location
-                    # Look for any start_bracket in the segments
-                    error_segment = None
-                    for seg in segments[_start_idx:_end_idx]:
-                        if hasattr(seg, "is_type") and seg.is_type("start_bracket"):
-                            error_segment = seg
-                    if error_segment is None and segments[_start_idx:_end_idx]:
-                        # Fall back to first segment
-                        error_segment = segments[_start_idx]
-                    raise SQLParseError(
-                        error_str,
-                        segment=error_segment,
-                    ) from e
-                # Log other errors and return None (like Python parser does)
-                print(f"Rust parser error: {e}")
-                return None
+                error_msg = str(e)
+                error_segment = None
+
+                # Check if exception has a 'pos' attribute (from RsParseError)
+                if hasattr(e, "pos"):
+                    try:
+                        error_pos = int(e.pos)
+                        # Get segment at that position
+                        if error_pos < len(segments[_start_idx:_end_idx]):
+                            error_segment = segments[_start_idx + error_pos]
+                    except (ValueError, TypeError, IndexError):
+                        pass
+
+                # Fall back to first segment if position not found
+                if error_segment is None and segments[_start_idx:_end_idx]:
+                    error_segment = segments[_start_idx]
+
+                raise SQLParseError(
+                    error_msg,
+                    segment=error_segment,
+                ) from e
 
             # Convert RsMatchResult to Python MatchResult
             # This also extracts any parse errors

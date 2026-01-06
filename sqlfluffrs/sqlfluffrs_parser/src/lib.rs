@@ -1,4 +1,4 @@
 pub mod parser;
 
 #[cfg(feature = "python")]
-pub use parser::{PyMatchResult, PyNode, PyParseError, PyParser};
+pub use parser::{PyMatchResult, PyNode, PyParseError, PyParser, RsParseError};

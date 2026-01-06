@@ -11,6 +11,24 @@ use sqlfluffrs_types::token::python::PyToken;
 use sqlfluffrs_types::Token;
 use std::str::FromStr;
 
+// Create a custom Python exception for parse errors with position info
+pyo3::create_exception!(sqlfluffrs, RsParseError, PyException, "Rust parser error with position information");
+
+/// Helper to convert ParseError to Python exception with position attribute
+fn parse_error_to_pyerr(e: ParseError) -> PyErr {
+    Python::attach(|py| {
+        // Create the exception
+        let exc = RsParseError::new_err(e.message.clone());
+
+        // If we have position info, set it as an attribute
+        if let Some(pos) = e.pos {
+            let _ = exc.value(py).setattr("pos", pos);
+        }
+
+        exc
+    })
+}
+
 /// Python-wrapped Node for AST representation
 #[pyclass(name = "RsNode", module = "sqlfluffrs")]
 #[derive(Clone)]
@@ -636,7 +654,7 @@ impl PyParser {
         // Parse and get the MatchResult directly
         let match_result = parser
             .call_rule_as_root_match_result()
-            .map_err(|e| PyErr::new::<pyo3::exceptions::PyRuntimeError, _>(e.message))?;
+            .map_err(parse_error_to_pyerr)?;
 
         Ok(PyMatchResult(match_result))
     }
