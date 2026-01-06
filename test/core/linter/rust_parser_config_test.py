@@ -55,20 +55,22 @@ use_rust_parser = True
         result = lntr.lint_string("SELECT 1")
         assert result is not None
 
-        # Should have warning about rust_parser not available
-        rust_warnings = [
-            record
-            for record in caplog.records
-            if "use_rust_parser=True but sqlfluffrs not available" in record.message
-        ]
-        assert (
-            len(rust_warnings) == 1
-        ), f"Expected 1 warning, got {len(rust_warnings)}: {rust_warnings}"
+    # Check after exiting the context manager
+    # Should have warning about rust_parser not available
+    rust_warnings = [
+        record
+        for record in caplog.records
+        if "use_rust_parser=True but sqlfluffrs not available" in record.message
+    ]
+    assert len(rust_warnings) == 1, (
+        f"Expected 1 warning, got {len(rust_warnings)}:"
+        + f" {[r.message for r in caplog.records]}"
+    )
 
-        # Check warning message content
-        warning_msg = rust_warnings[0].message
-        assert "Falling back to Python parser" in warning_msg
-        assert "maturin develop" in warning_msg
+    # Check warning message content
+    warning_msg = rust_warnings[0].message
+    assert "Falling back to Python parser" in warning_msg
+    assert "maturin develop" in warning_msg
 
 
 def test__linter__use_rust_parser_false_no_rust():
