@@ -61,16 +61,43 @@ use_rust_parser = True
 """
     )
 
-    # The actual test will depend on whether sqlfluffrs is installed
-    # If installed, no warning. If not installed, warning should appear.
-    with caplog.at_level(logging.WARNING):
-        lntr = Linter(config=config)
-        result = lntr.lint_string("SELECT 1")
-        assert result is not None
+    # Mock the import to simulate Rust parser not being available
+    import sys
 
-        # Check if warning appears (will depend on whether Rust parser is available)
-        # We can't assert the exact behavior since it depends on the environment
-        # but we verify that the code runs without error
+    # Save the original module if it exists
+    rust_parser_module = sys.modules.get("sqlfluff.core.parser.rust_parser")
+    if rust_parser_module:
+        del sys.modules["sqlfluff.core.parser.rust_parser"]
+
+    try:
+        # Temporarily block the import by setting to None
+        sys.modules["sqlfluff.core.parser.rust_parser"] = None
+
+        with caplog.at_level(logging.WARNING):
+            lntr = Linter(config=config)
+            result = lntr.lint_string("SELECT 1")
+            assert result is not None
+
+            # Should have warning about rust_parser not available
+            rust_warnings = [
+                record
+                for record in caplog.records
+                if "use_rust_parser=True but sqlfluffrs not available" in record.message
+            ]
+            assert (
+                len(rust_warnings) == 1
+            ), f"Expected 1 warning, got {len(rust_warnings)}: {rust_warnings}"
+
+            # Check warning message content
+            warning_msg = rust_warnings[0].message
+            assert "Falling back to Python parser" in warning_msg
+            assert "maturin develop" in warning_msg
+    finally:
+        # Restore the module
+        if rust_parser_module:
+            sys.modules["sqlfluff.core.parser.rust_parser"] = rust_parser_module
+        elif "sqlfluff.core.parser.rust_parser" in sys.modules:
+            del sys.modules["sqlfluff.core.parser.rust_parser"]
 
 
 def test__linter__use_rust_parser_false_no_rust():

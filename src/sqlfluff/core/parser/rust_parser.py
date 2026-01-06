@@ -23,7 +23,7 @@ from sqlfluff.core.parser.segments import (
     TemplateSegment,
 )
 
-if TYPE_CHECKING:
+if TYPE_CHECKING:  # pragma: no cover
     from sqlfluff.core.dialects.base import Dialect
 
 # Instantiate the parser logger
@@ -54,7 +54,9 @@ def _get_segment_class_by_name(
         return item
 
     # Not a valid segment class
-    raise ValueError(f"Segment '{segment_name}' not found or is not a segment class")
+    raise ValueError(  # pragma: no cover
+        f"Segment '{segment_name}' not found or is not a segment class"
+    )
 
 
 try:
@@ -147,7 +149,7 @@ try:
                 we need to extract the original RsToken objects to pass to the Rust
                 parser directly.
             """
-            if not segments:
+            if not segments:  # pragma: no cover
                 return None
 
             # PYTHON PARITY: Trim non-code from start (like root_parse)
