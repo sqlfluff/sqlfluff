@@ -254,12 +254,12 @@ class Linter:
             warn_if_unavailable = True
 
         if use_rust_parser:
-            try:
-                from sqlfluff.core.parser.rust_parser import RustParser
+            from sqlfluff.core.parser.rust_parser import RustParser
 
+            if RustParser is not None:
                 parser: Union[Parser, "RustParser"] = RustParser(config=config)
                 linter_logger.info("Using Rust parser (experimental)")
-            except ImportError:
+            else:
                 if warn_if_unavailable:
                     linter_logger.warning(
                         "use_rust_parser=True but sqlfluffrs not available. "

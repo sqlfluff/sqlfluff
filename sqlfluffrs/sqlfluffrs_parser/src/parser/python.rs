@@ -383,7 +383,9 @@ impl From<ParseError> for PyParseError {
 ///
 /// This allows Python code to receive match results and apply them using
 /// Python's existing apply() logic, avoiding double-counting issues in Rust.
-#[pyclass(name = "RsMatchResult", module = "sqlfluffrs")]
+///
+/// frozen=true makes this immutable (matches Python's @dataclass(frozen=True))
+#[pyclass(name = "RsMatchResult", module = "sqlfluffrs", frozen)]
 #[derive(Clone)]
 pub struct PyMatchResult(pub MatchResult);
 

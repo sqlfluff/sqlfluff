@@ -16,7 +16,6 @@ import argparse
 import json
 import statistics
 import sys
-import time
 from pathlib import Path
 from typing import Optional
 
@@ -55,14 +54,15 @@ def find_sql_files(
 
 
 def parse_with_sqlfluff(
-    sql_file: Path, use_rust: bool = False, iterations: int = 3
+    sql_file: Path, use_rust: bool = False, iterations: int = 10, warmup: int = 2
 ) -> dict:
     """Parse a SQL file using sqlfluff and measure timing.
 
     Args:
         sql_file: Path to SQL file
         use_rust: Whether to use Rust parser
-        iterations: Number of iterations for stable timing
+        iterations: Number of timed iterations for stable timing
+        warmup: Number of warmup iterations (not timed)
 
     Returns:
         Dict with timing info and status
@@ -79,10 +79,10 @@ def parse_with_sqlfluff(
             "dialect": dialect,
             "success": False,
             "error": f"Failed to read file: {e}",
-            "mean_time": 0,
-            "min_time": 0,
-            "max_time": 0,
-            "stdev": 0,
+            "lexing_times": [],
+            "parsing_times": [],
+            "mean_lexing_time": 0,
+            "mean_parsing_time": 0,
             "iterations": 0,
         }
 
@@ -95,58 +95,77 @@ def parse_with_sqlfluff(
     )
     linter = Linter(config=config)
 
-    times = []
+    lexing_times = []
+    parsing_times = []
     success = True
     error_msg = None
 
+    # Warmup iterations (not timed)
+    for _ in range(warmup):
+        try:
+            linter.parse_string(sql_content, fname=str(sql_file))
+        except Exception:
+            # Ignore warmup errors, will be caught in timed iterations
+            pass
+
+    # Timed iterations
     for _ in range(iterations):
-        start = time.perf_counter()
         try:
             result = linter.parse_string(sql_content, fname=str(sql_file))
-            elapsed = time.perf_counter() - start
-            times.append(elapsed)
+
+            # Extract timing from result.time_dict
+            # time_dict contains: "templating", "lexing", "parsing"
+            lexing_time = result.time_dict.get("lexing", 0)
+            parsing_time = result.time_dict.get("parsing", 0)
+            lexing_times.append(lexing_time)
+            parsing_times.append(parsing_time)
 
             # Check for parse violations
-            if result.tree is None:
+            if not result.parsed_variants or not result.parsed_variants[0].tree:
                 success = False
                 error_msg = "Parse returned None"
             elif result.violations:
                 # Has parse violations but still succeeded
                 pass
         except Exception as e:
-            elapsed = time.perf_counter() - start
-            times.append(elapsed)
             success = False
             error_msg = str(e)[:200]
             break
 
-    if not times:
-        times = [float("inf")]
+    if not lexing_times:
+        lexing_times = [0]
+    if not parsing_times:
+        parsing_times = [0]
 
     return {
         "file": str(sql_file.relative_to(Path(__file__).parent.parent)),
         "dialect": dialect,
         "success": success,
         "error": error_msg,
-        "mean_time": statistics.mean(times),
-        "min_time": min(times),
-        "max_time": max(times),
-        "stdev": statistics.stdev(times) if len(times) > 1 else 0,
-        "iterations": len(times),
+        "lexing_times": lexing_times,
+        "parsing_times": parsing_times,
+        "mean_lexing_time": statistics.mean(lexing_times),
+        "mean_parsing_time": statistics.mean(parsing_times),
+        "mean_total_time": statistics.mean(
+            [lex + parse for lex, parse in zip(lexing_times, parsing_times)]
+        ),
+        "iterations": len(lexing_times),
     }
 
 
 def benchmark_files(
     sql_files: list[Path],
     use_rust: bool = False,
-    iterations: int = 3,
+    iterations: int = 10,
+    warmup: int = 2,
 ) -> list[dict]:
     """Benchmark a list of SQL files.
 
     Args:
         sql_files: List of SQL files to benchmark
         use_rust: Whether to use Rust parser
-        iterations: Number of iterations per file
+        iterations: Number of timed iterations per file
+        warmup: Number of warmup iterations per file
 
     Returns:
         List of benchmark results
@@ -161,7 +180,7 @@ def benchmark_files(
         if i % 10 == 0 or i == len(sql_files):
             print(f"  Progress: {i}/{len(sql_files)} ({i * 100 // len(sql_files)}%)")
 
-        result = parse_with_sqlfluff(sql_file, use_rust, iterations)
+        result = parse_with_sqlfluff(sql_file, use_rust, iterations, warmup)
         results.append(result)
 
     return results
@@ -178,19 +197,44 @@ def compare_results(python_results: list[dict], rust_results: list[dict]) -> Non
     print("COMPARISON: Python vs Rust Parser")
     print("=" * 80)
 
-    # Overall statistics
-    py_times = [r["mean_time"] for r in python_results if r["success"]]
-    rust_times = [r["mean_time"] for r in rust_results if r["success"]]
+    # Overall statistics (convert totals to milliseconds for display)
+    py_lex_times_s = [r["mean_lexing_time"] for r in python_results if r["success"]]
+    rust_lex_times_s = [r["mean_lexing_time"] for r in rust_results if r["success"]]
+    py_parse_times_s = [r["mean_parsing_time"] for r in python_results if r["success"]]
+    rust_parse_times_s = [r["mean_parsing_time"] for r in rust_results if r["success"]]
 
-    py_total = sum(py_times)
-    rust_total = sum(rust_times)
-    speedup = (py_total - rust_total) / py_total * 100 if py_total > 0 else 0
+    py_lex_total_s = sum(py_lex_times_s)
+    rust_lex_total_s = sum(rust_lex_times_s)
+    py_parse_total_s = sum(py_parse_times_s)
+    rust_parse_total_s = sum(rust_parse_times_s)
+
+    lex_speedup = (
+        (py_lex_total_s - rust_lex_total_s) / py_lex_total_s * 100
+        if py_lex_total_s > 0
+        else 0
+    )
+    parse_speedup = (
+        (py_parse_total_s - rust_parse_total_s) / py_parse_total_s * 100
+        if py_parse_total_s > 0
+        else 0
+    )
+
+    # Convert to milliseconds for human-friendly display
+    py_lex_total = py_lex_total_s * 1000
+    rust_lex_total = rust_lex_total_s * 1000
+    py_parse_total = py_parse_total_s * 1000
+    rust_parse_total = rust_parse_total_s * 1000
 
     print("\nOverall Performance:")
-    print(f"  Python total: {py_total:.3f}s")
-    print(f"  Rust total:   {rust_total:.3f}s")
-    print(f"  Speedup:      {speedup:+.1f}%")
-    print(f"  Files tested: {len(py_times)}")
+    print("  Lexing:")
+    print(f"    Python total: {py_lex_total:.3f}ms")
+    print(f"    Rust total:   {rust_lex_total:.3f}ms")
+    print(f"    Speedup:      {lex_speedup:+.1f}%")
+    print("  Parsing:")
+    print(f"    Python total: {py_parse_total:.3f}ms")
+    print(f"    Rust total:   {rust_parse_total:.3f}ms")
+    print(f"    Speedup:      {parse_speedup:+.1f}%")
+    print(f"  Files tested: {len(py_lex_times_s)}")
 
     # Success rates
     py_success = sum(1 for r in python_results if r["success"])
@@ -210,64 +254,97 @@ def compare_results(python_results: list[dict], rust_results: list[dict]) -> Non
     comparisons = []
     for py_r, rust_r in zip(python_results, rust_results):
         if py_r["success"] and rust_r["success"]:
-            time_diff_ms = (rust_r["mean_time"] - py_r["mean_time"]) * 1000
-            speedup_pct = (
-                (py_r["mean_time"] - rust_r["mean_time"]) / py_r["mean_time"] * 100
+            # Convert per-file times to milliseconds for diffs/display
+            py_lex_ms = py_r["mean_lexing_time"] * 1000
+            rust_lex_ms = rust_r["mean_lexing_time"] * 1000
+            py_parse_ms = py_r["mean_parsing_time"] * 1000
+            rust_parse_ms = rust_r["mean_parsing_time"] * 1000
+
+            lex_diff_ms = rust_lex_ms - py_lex_ms
+            lex_speedup_pct = (
+                (py_r["mean_lexing_time"] - rust_r["mean_lexing_time"])
+                / py_r["mean_lexing_time"]
+                * 100
+                if py_r["mean_lexing_time"] > 0
+                else 0
             )
+            parse_diff_ms = rust_parse_ms - py_parse_ms
+            parse_speedup_pct = (
+                (py_r["mean_parsing_time"] - rust_r["mean_parsing_time"])
+                / py_r["mean_parsing_time"]
+                * 100
+                if py_r["mean_parsing_time"] > 0
+                else 0
+            )
+
             comparisons.append(
                 {
                     "file": py_r["file"],
                     "dialect": py_r["dialect"],
-                    "python_time": py_r["mean_time"],
-                    "rust_time": rust_r["mean_time"],
-                    "time_diff_ms": time_diff_ms,
-                    "speedup_pct": speedup_pct,
+                    "python_lex_time": py_lex_ms,
+                    "rust_lex_time": rust_lex_ms,
+                    "python_parse_time": py_parse_ms,
+                    "rust_parse_time": rust_parse_ms,
+                    "lex_diff_ms": lex_diff_ms,
+                    "lex_speedup_pct": lex_speedup_pct,
+                    "parse_diff_ms": parse_diff_ms,
+                    "parse_speedup_pct": parse_speedup_pct,
                 }
             )
 
     # Sort by absolute time difference for true slowdowns
-    # (ignoring FFI overhead on tiny files)
-    # Negative time_diff_ms means Rust is slower
+    # Filter out tiny files where FFI overhead dominates (< 5ms Python parse time)
+    MIN_PARSE_TIME_MS = 5.0
+    significant_comparisons = [
+        c for c in comparisons if c["python_parse_time"] >= MIN_PARSE_TIME_MS
+    ]
+
     comparisons_by_diff = sorted(
-        comparisons, key=lambda x: x["time_diff_ms"], reverse=True
+        significant_comparisons, key=lambda x: x["parse_diff_ms"], reverse=True
     )
 
     print(f"\n{'=' * 80}")
-    print("TOP 10 SLOWEST QUERIES (Largest Absolute Slowdown in ms)")
-    print("Note: This filters out FFI overhead on tiny files, showing true slowdowns")
+    print("TOP 10 SLOWEST PARSING QUERIES (Largest Absolute Slowdown in ms)")
+    print(f"Filtered: Only queries with Python parse time >= {MIN_PARSE_TIME_MS}ms")
+    print("(Excludes trivial queries where FFI overhead dominates)")
     print(f"{'=' * 80}")
-    print(f"{'File':<50} {'Python':<10} {'Rust':<10} {'Diff (ms)':<12} {'%':<8}")
+    print(
+        f"{'File':<50} {'Python (ms)':<12} {'Rust (ms)':<12} {'Diff (ms)':<12} {'%':<8}"
+    )
     print("-" * 80)
 
-    # Show top 10 with largest absolute slowdown (positive time_diff_ms)
+    # Show top 10 with largest absolute slowdown (positive parse_diff_ms)
     for comp in comparisons_by_diff[: min(10, len(comparisons_by_diff))]:
         print(
             f"{comp['file'][-47:]:<50} "
-            f"{comp['python_time'] * 1000:>8.1f}ms "
-            f"{comp['rust_time'] * 1000:>8.1f}ms "
-            f"{comp['time_diff_ms']:>+10.1f}ms "
-            f"{comp['speedup_pct']:>+6.1f}%"
+            f"{comp['python_parse_time']:>10.1f}ms "
+            f"{comp['rust_parse_time']:>10.1f}ms "
+            f"{comp['parse_diff_ms']:>+10.1f}ms "
+            f"{comp['parse_speedup_pct']:>+6.1f}%"
         )
 
     print(f"\n{'=' * 80}")
-    print("TOP 10 FASTEST QUERIES (Largest Absolute Speedup in ms)")
+    print("TOP 10 FASTEST PARSING QUERIES (Largest Absolute Speedup in ms)")
+    print(f"Filtered: Only queries with Python parse time >= {MIN_PARSE_TIME_MS}ms")
     print(f"{'=' * 80}")
-    print(f"{'File':<50} {'Python':<10} {'Rust':<10} {'Diff (ms)':<12} {'%':<8}")
+    print(
+        f"{'File':<50} {'Python (ms)':<12} {'Rust (ms)':<12} {'Diff (ms)':<12} {'%':<8}"
+    )
     print("-" * 80)
 
-    # Show top 10 with largest absolute speedup (negative time_diff_ms)
+    # Show top 10 with largest absolute speedup (negative parse_diff_ms)
     for comp in comparisons_by_diff[-min(10, len(comparisons_by_diff)) :]:
         print(
             f"{comp['file'][-47:]:<50} "
-            f"{comp['python_time'] * 1000:>8.1f}ms "
-            f"{comp['rust_time'] * 1000:>8.1f}ms "
-            f"{comp['time_diff_ms']:>+10.1f}ms "
-            f"{comp['speedup_pct']:>+6.1f}%"
+            f"{comp['python_parse_time']:>10.1f}ms "
+            f"{comp['rust_parse_time']:>10.1f}ms "
+            f"{comp['parse_diff_ms']:>+10.1f}ms "
+            f"{comp['parse_speedup_pct']:>+6.1f}%"
         )
 
     # Dialect breakdown
     print(f"\n{'=' * 80}")
-    print("PERFORMANCE BY DIALECT")
+    print("PARSE PERFORMANCE BY DIALECT")
     print(f"{'=' * 80}")
     print(
         f"{'Dialect':<15} {'Count':<8} {'Python (ms)':<15}"
@@ -284,17 +361,94 @@ def compare_results(python_results: list[dict], rust_results: list[dict]) -> Non
 
     for dialect in sorted(dialect_stats.keys()):
         comps = dialect_stats[dialect]
-        avg_py = statistics.mean([c["python_time"] for c in comps])
-        avg_rust = statistics.mean([c["rust_time"] for c in comps])
-        avg_speedup = statistics.mean([c["speedup_pct"] for c in comps])
+        avg_py = statistics.mean([c["python_parse_time"] for c in comps])
+        avg_rust = statistics.mean([c["rust_parse_time"] for c in comps])
+        avg_speedup = statistics.mean([c["parse_speedup_pct"] for c in comps])
 
         print(
             f"{dialect:<15} "
             f"{len(comps):<8} "
-            f"{avg_py * 1000:>12.1f}ms "
-            f"{avg_rust * 1000:>12.1f}ms "
+            f"{avg_py:>12.1f}ms "
+            f"{avg_rust:>12.1f}ms "
             f"{avg_speedup:>+8.1f}%"
         )
+
+    # FFI overhead analysis
+    print(f"\n{'=' * 80}")
+    print("FFI OVERHEAD ANALYSIS")
+    print(f"{'=' * 80}")
+
+    # Categorize files by Python parse time (actual complexity)
+    tiny_files = [c for c in comparisons if c["python_parse_time"] < 5]
+    small_files = [c for c in comparisons if 5 <= c["python_parse_time"] < 20]
+    medium_files = [c for c in comparisons if 20 <= c["python_parse_time"] < 100]
+    large_files = [c for c in comparisons if c["python_parse_time"] >= 100]
+
+    # Compute stats outside f-strings for clarity and to avoid line length issues
+    tiny_count = len(tiny_files)
+    tiny_diff = (
+        statistics.mean([c["parse_diff_ms"] for c in tiny_files]) if tiny_files else 0
+    )
+    tiny_pct = (
+        statistics.mean([c["parse_speedup_pct"] for c in tiny_files])
+        if tiny_files
+        else 0
+    )
+
+    small_count = len(small_files)
+    small_diff = (
+        statistics.mean([c["parse_diff_ms"] for c in small_files]) if small_files else 0
+    )
+    small_pct = (
+        statistics.mean([c["parse_speedup_pct"] for c in small_files])
+        if small_files
+        else 0
+    )
+
+    medium_count = len(medium_files)
+    medium_diff = (
+        statistics.mean([c["parse_diff_ms"] for c in medium_files])
+        if medium_files
+        else 0
+    )
+    medium_pct = (
+        statistics.mean([c["parse_speedup_pct"] for c in medium_files])
+        if medium_files
+        else 0
+    )
+
+    large_count = len(large_files)
+    large_diff = (
+        statistics.mean([c["parse_diff_ms"] for c in large_files]) if large_files else 0
+    )
+    large_pct = (
+        statistics.mean([c["parse_speedup_pct"] for c in large_files])
+        if large_files
+        else 0
+    )
+
+    print(
+        f"Tiny files (<5ms):          {tiny_count:>4} files,"
+        f" avg Rust diff:     {tiny_diff:+6.2f}ms ({tiny_pct:+5.1f}%)"
+    )
+    print(
+        f"Small files (5-20ms):       {small_count:>4} files,"
+        f" avg Rust diff:     {small_diff:+6.2f}ms ({small_pct:+5.1f}%)"
+    )
+    print(
+        f"Medium files (20-100ms):    {medium_count:>4} files,"
+        f" avg Rust speedup:  {medium_diff:+6.2f}ms ({medium_pct:+5.1f}%)"
+    )
+    print(
+        f"Large files (>100ms):       {large_count:>4} files,"
+        f" avg Rust speedup:  {large_diff:+6.2f}ms ({large_pct:+5.1f}%)"
+    )
+    if tiny_files:
+        print(
+            f"\nNote: {len(tiny_files)} tiny files (<5ms) may show FFI overhead "
+            "dominating."
+        )
+        print("For real-world usage, focus on small/medium/large file performance.")
 
 
 def save_results(results: dict, output_file: Path) -> None:
@@ -331,8 +485,14 @@ def main():
     parser.add_argument(
         "--iterations",
         type=int,
-        default=3,
-        help="Number of iterations per file (default: 3)",
+        default=10,
+        help="Number of timed iterations per file (default: 10)",
+    )
+    parser.add_argument(
+        "--warmup",
+        type=int,
+        default=2,
+        help="Number of warmup iterations per file (default: 2)",
     )
     parser.add_argument(
         "--compare",
@@ -367,10 +527,10 @@ def main():
     if args.compare:
         # Test both parsers
         python_results = benchmark_files(
-            sql_files, use_rust=False, iterations=args.iterations
+            sql_files, use_rust=False, iterations=args.iterations, warmup=args.warmup
         )
         rust_results = benchmark_files(
-            sql_files, use_rust=True, iterations=args.iterations
+            sql_files, use_rust=True, iterations=args.iterations, warmup=args.warmup
         )
 
         compare_results(python_results, rust_results)
@@ -385,13 +545,17 @@ def main():
             )
     elif args.rust_only:
         # Rust parser only
-        results = benchmark_files(sql_files, use_rust=True, iterations=args.iterations)
+        results = benchmark_files(
+            sql_files, use_rust=True, iterations=args.iterations, warmup=args.warmup
+        )
 
         if args.output:
             save_results({"rust": results}, args.output)
     else:
         # Python parser only (default)
-        results = benchmark_files(sql_files, use_rust=False, iterations=args.iterations)
+        results = benchmark_files(
+            sql_files, use_rust=False, iterations=args.iterations, warmup=args.warmup
+        )
 
         if args.output:
             save_results({"python": results}, args.output)

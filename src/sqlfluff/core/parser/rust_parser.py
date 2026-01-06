@@ -11,11 +11,10 @@ double-counting issues.
 """
 
 import logging
-from typing import Any, Optional, cast
+from typing import TYPE_CHECKING, Any, Optional, cast
 
 from sqlfluff.core.config import FluffConfig
 from sqlfluff.core.parser.match_result import MatchResult
-from sqlfluff.core.parser.rsparser_adapter import get_segment_class_by_name
 from sqlfluff.core.parser.segments import (
     BaseSegment,
     Dedent,
@@ -24,8 +23,38 @@ from sqlfluff.core.parser.segments import (
     TemplateSegment,
 )
 
+if TYPE_CHECKING:
+    from sqlfluff.core.dialects.base import Dialect
+
 # Instantiate the parser logger
 parser_logger = logging.getLogger("sqlfluff.parser")
+
+
+def _get_segment_class_by_name(
+    segment_name: str, dialect: "Dialect"
+) -> type[BaseSegment]:
+    """Get a segment class by its exact class name from the dialect.
+
+    Args:
+        segment_name: The segment CLASS name (e.g., "AsAliasOperatorSegment")
+        dialect: The dialect instance (provides access to dialect library)
+
+    Returns:
+        The segment class
+
+    Raises:
+        ValueError: If the segment class is not found in the dialect,
+                    or if the name refers to a grammar instead of a segment class
+    """
+    # Get the item from the dialect library
+    item = dialect.get_segment(segment_name)
+
+    # Verify it's a valid segment class (not a grammar element)
+    if item is not None and isinstance(item, type) and issubclass(item, BaseSegment):
+        return item
+
+    # Not a valid segment class
+    raise ValueError(f"Segment '{segment_name}' not found or is not a segment class")
 
 
 try:
@@ -88,6 +117,9 @@ try:
             self._rs_parser = RsParser(
                 dialect=self.config.get("dialect"), indent_config=indent_config
             )
+
+            # Cache segment class lookups to avoid repeated dialect.get_segment() calls
+            self._segment_class_cache: dict[str, Optional[type["BaseSegment"]]] = {}
 
         def parse(
             self,
@@ -265,8 +297,8 @@ try:
             # Collect parse errors from this match and all children
             parse_errors = []
 
-            # Check if this match has a parse error
-            if hasattr(rs_match, "parse_error") and rs_match.parse_error:
+            # Check if this match has a parse error (avoid hasattr overhead)
+            if rs_match.parse_error:
                 parse_errors.append(rs_match.parse_error)
 
             # Get the matched slice
@@ -274,38 +306,49 @@ try:
             matched_slice = slice(start, stop)
 
             # Convert child matches recursively and collect their errors
+            # Pre-allocate list size for efficiency
             child_matches_list = []
-            for child in rs_match.child_matches:
-                child_match, child_errors = self._convert_rs_match_result(
-                    child, depth + 1
-                )
-                child_matches_list.append(child_match)
-                parse_errors.extend(child_errors)
+            if rs_match.child_matches:
+                for child in rs_match.child_matches:
+                    child_match, child_errors = self._convert_rs_match_result(
+                        child, depth + 1
+                    )
+                    child_matches_list.append(child_match)
+                    if child_errors:
+                        parse_errors.extend(child_errors)
 
-            child_matches = tuple(child_matches_list)
+            child_matches = tuple(child_matches_list) if child_matches_list else ()
 
             # Determine matched_class
             # The Rust parser now includes actual Python class names (from codegen)
             # in matched_class, so we can use them directly without conversion.
             matched_class: type["BaseSegment"] | None = None
             if rs_match.matched_class:
-                # Handle core segment classes that aren't in the dialect library
-                if rs_match.matched_class == "UnparsableSegment":
-                    from sqlfluff.core.parser.segments import UnparsableSegment
-
-                    matched_class = UnparsableSegment
+                # Check cache first
+                cached = self._segment_class_cache.get(rs_match.matched_class)
+                if cached is not None:
+                    matched_class = cached
                 else:
-                    try:
-                        # Try direct lookup first (exact class name from Rust codegen)
-                        matched_class = get_segment_class_by_name(
-                            rs_match.matched_class, self.config.get("dialect_obj")
-                        )
-                    except (ValueError, KeyError):
-                        # Grammar names or unknown classes - these are intermediate
-                        # wrappers that don't need to be resolved to segment classes
-                        matched_class = None
+                    # Handle core segment classes that aren't in the dialect library
+                    if rs_match.matched_class == "UnparsableSegment":
+                        from sqlfluff.core.parser.segments import UnparsableSegment
 
-            # Build segment_kwargs from instance_types if present
+                        matched_class = UnparsableSegment
+                    else:
+                        try:
+                            # Direct lookup first (exact class name from Rust codegen)
+                            matched_class = _get_segment_class_by_name(
+                                rs_match.matched_class, self.config.get("dialect_obj")
+                            )
+                        except (ValueError, KeyError):
+                            # Grammar names or unknown classes - these are intermediate
+                            # wrappers that don't need to be resolved to segment classes
+                            matched_class = None
+
+                    # Cache the result (including None for unresolved classes)
+                    self._segment_class_cache[rs_match.matched_class] = matched_class
+
+            # Build segment_kwargs - optimize by checking first if we need any
             segment_kwargs: dict[str, Any] = {}
             if rs_match.instance_types:
                 segment_kwargs["instance_types"] = tuple(rs_match.instance_types)
