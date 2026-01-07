@@ -12,7 +12,7 @@ double-counting issues.
 
 import functools
 import logging
-from typing import Any, Optional
+from typing import TYPE_CHECKING, Any, Optional
 
 from sqlfluff.core.config import FluffConfig
 from sqlfluff.core.errors import SQLParseError
@@ -26,6 +26,9 @@ from sqlfluff.core.parser.segments import (
     TemplateSegment,
     UnparsableSegment,
 )
+
+if TYPE_CHECKING:
+    from sqlfluff.core.dialects.base import Dialect
 
 # Instantiate the parser logger
 parser_logger = logging.getLogger("sqlfluff.parser")
@@ -225,7 +228,8 @@ try:
                 return UnparsableSegment
 
             # Get the item from the dialect library
-            item = self.config.get("dialect_obj").get_segment(segment_name)
+            dialect: Dialect = self.config.get("dialect_obj")
+            item = dialect.get_segment(segment_name)
 
             # Verify it's a valid segment class (not a grammar element)
             if (
