@@ -576,7 +576,10 @@ impl PyParser {
             .call_rule_as_root_match_result()
             .map_err(parse_error_to_pyerr)?;
 
-        Ok(PyMatchResult(match_result))
+        // Flatten transparent grammar nodes before sending to Python
+        let flattened = match_result.flatten_transparent();
+
+        Ok(PyMatchResult(flattened))
     }
 
     /// Parse SQL from tokens and return MatchResult along with parser statistics.
@@ -612,6 +615,9 @@ impl PyParser {
             .call_rule_as_root_match_result()
             .map_err(|e| PyErr::new::<pyo3::exceptions::PyRuntimeError, _>(e.message))?;
 
+        // Flatten transparent grammar nodes before sending to Python
+        let flattened = match_result.flatten_transparent();
+
         // Collect statistics
         let (cache_hits, cache_misses, _) = parser.table_cache.stats();
         let cache_entries = parser.table_cache.len();
@@ -637,7 +643,7 @@ impl PyParser {
         );
         stats.insert("terminator_hits".to_string(), parser.terminator_hits.get());
 
-        Ok((PyMatchResult(match_result), stats))
+        Ok((PyMatchResult(flattened), stats))
     }
 
     /// Parse SQL from tokens and return grammar call counts for debugging.

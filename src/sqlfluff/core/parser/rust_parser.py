@@ -263,17 +263,6 @@ try:
             start, stop = rs_match.matched_slice
             matched_slice = slice(start, stop)
 
-            # Convert child matches recursively
-            # Pre-allocate list size for efficiency
-            child_matches = (
-                tuple(
-                    self._convert_rs_match_result(child, segments, depth + 1)
-                    for child in rs_match.child_matches
-                )
-                if rs_match.child_matches
-                else ()
-            )
-
             # Determine matched_class
             # The Rust parser now includes actual Python class names (from codegen)
             # in matched_class, so we can use them directly without conversion.
@@ -281,6 +270,18 @@ try:
                 self._get_segment_class_by_name(rs_match.matched_class)
                 if rs_match.matched_class
                 else None
+            )
+
+            # Convert child matches recursively
+            # Note: Transparent grammar nodes are now flattened on the Rust side,
+            # so we don't need to do it here anymore
+            child_matches = (
+                tuple(
+                    self._convert_rs_match_result(child, segments, depth + 1)
+                    for child in rs_match.child_matches
+                )
+                if rs_match.child_matches
+                else ()
             )
 
             # Build segment_kwargs - optimize by checking first if we need any
@@ -311,6 +312,7 @@ try:
                 segment_kwargs["escape_replacements"] = [rs_match.escape_replacement]
 
             # Extract insert_segments (Indent/Dedent meta segments)
+            # Note: These are now pre-flattened on the Rust side
             insert_segments: tuple[tuple[int, type], ...] = ()
             if rs_match.insert_segments:
                 # rs_match.insert_segments now contains

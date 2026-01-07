@@ -173,6 +173,43 @@ impl MatchResult {
         self
     }
 
+    /// Flatten transparent grammar nodes for Python compatibility.
+    ///
+    /// Transparent nodes (those without a matched_class) are intermediate
+    /// grammar constructs that shouldn't appear in the final match tree.
+    /// This method recursively flattens them by promoting their children
+    /// and insert_segments to the parent level.
+    ///
+    /// This eliminates the need to do this filtering on the Python side,
+    /// reducing the amount of data transferred across the FFI boundary.
+    pub fn flatten_transparent(mut self) -> Self {
+        // Recursively flatten children first (bottom-up)
+        let mut flattened_children = Vec::new();
+        let mut promoted_insert_segments = Vec::new();
+
+        for child_rc in self.child_matches {
+            // Extract and flatten the child
+            let child = Arc::try_unwrap(child_rc).unwrap_or_else(|rc| (*rc).clone());
+            let flattened_child = child.flatten_transparent();
+
+            // If the child is transparent (no matched_class), promote its contents
+            if flattened_child.matched_class.is_none() {
+                // Add the child's children directly to our children list
+                flattened_children.extend(flattened_child.child_matches);
+                // Collect insert_segments to promote them
+                promoted_insert_segments.extend(flattened_child.insert_segments);
+            } else {
+                // Real segment - keep it
+                flattened_children.push(Arc::new(flattened_child));
+            }
+        }
+
+        // Merge promoted insert_segments with our own
+        self.insert_segments.extend(promoted_insert_segments);
+        self.child_matches = flattened_children;
+        self
+    }
+
     /// Deduplicate child matches to prevent the same slice appearing multiple times.
     ///
     /// This is needed because nested Ref/Sequence wrappers can create duplicate children.
