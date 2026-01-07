@@ -114,45 +114,6 @@ impl<'a> Parser<'a> {
         self.cache_enabled = enabled;
     }
 
-    pub fn call_rule(
-        &mut self,
-        name: &str,
-        parent_terminators: &[GrammarId],
-    ) -> Result<Node, ParseError> {
-        // Look up the grammar for the segment
-        let grammar = match self.get_segment_grammar(name) {
-            Some(g) => g,
-            None => {
-                return Err(ParseError::unknown_segment(
-                    name.to_string(),
-                    Some(self.pos),
-                ))
-            }
-        };
-
-        // Parse using the grammar
-        let node = self.parse_table_iterative(grammar, parent_terminators)?;
-
-        // If the node is empty, return it as-is without wrapping
-        // This prevents infinite loops when optional segments match nothing
-        if node.is_empty() {
-            return Ok(node);
-        }
-
-        // Use provided segment_type, or infer from Token nodes
-        let final_segment_type = match &node {
-            Node::Token { token_type, .. } => Some(token_type.clone()),
-            _ => None,
-        };
-
-        // Wrap in a Ref node for type clarity
-        let result = Node::new_ref(name.to_string(), final_segment_type, node);
-
-        // Deduplicate whitespace/newline nodes to handle cases where both
-        // parent and child grammars collected the same tokens
-        Ok(result.deduplicate())
-    }
-
     pub fn call_rule_as_root(&mut self) -> Result<Node, ParseError> {
         // Obtain the root grammar for this dialect and dispatch based on its
         // variant (table-driven vs Arc-based). Clone to avoid holding borrows.
@@ -298,13 +259,6 @@ impl<'a> Parser<'a> {
             children.push(node);
         }
         children
-    }
-
-    /// Lookup SegmentDef by name
-    pub fn get_segment_grammar(&self, name: &str) -> Option<GrammarId> {
-        self.dialect
-            .get_segment_grammar(name)
-            .map(|root| root.grammar_id)
     }
 
     /// Push a checkpoint onto the collection stack when starting to process a grammar.

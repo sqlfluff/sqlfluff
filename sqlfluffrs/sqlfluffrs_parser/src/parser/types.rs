@@ -352,18 +352,10 @@ impl Node {
     pub fn get_token_idx(&self) -> Option<usize> {
         match self {
             Node::Token { token_idx: idx, .. }
-            | Node::Whitespace {
-                raw: _,
-                token_idx: idx,
-            }
-            | Node::Newline {
-                raw: _,
-                token_idx: idx,
-            }
-            | Node::EndOfFile {
-                raw: _,
-                token_idx: idx,
-            } => Some(*idx),
+            | Node::Whitespace { token_idx: idx, .. }
+            | Node::Newline { token_idx: idx, .. }
+            | Node::Comment { token_idx: idx, .. }
+            | Node::EndOfFile { token_idx: idx, .. } => Some(*idx),
             _ => None,
         }
     }
@@ -390,9 +382,7 @@ impl Node {
                 .find_map(|child| child.get_end_token_idx()),
 
             Node::Ref { child, .. } => child.get_end_token_idx(),
-
-            // Empty and Meta nodes have no tokens
-            Node::Empty | Node::Meta { .. } => None,
+            _ => self.get_token_idx(),
         }
     }
 
@@ -511,16 +501,7 @@ impl Node {
                 let is_grammar_rule = name.ends_with("Grammar");
                 let is_single_token = matches!(
                     child.as_ref(),
-                    Node::Whitespace {
-                        raw: _,
-                        token_idx: _
-                    } | Node::Newline {
-                        raw: _,
-                        token_idx: _
-                    } | Node::EndOfFile {
-                        raw: _,
-                        token_idx: _
-                    }
+                    Node::Whitespace { .. } | Node::Newline { .. } | Node::EndOfFile { .. }
                 );
                 let is_transparent = is_grammar_rule || is_single_token;
 
@@ -588,24 +569,6 @@ impl Node {
 
     fn find_first_token_idx(&self) -> Option<usize> {
         match self {
-            Node::Whitespace {
-                raw: _,
-                token_idx: idx,
-            }
-            | Node::Newline {
-                raw: _,
-                token_idx: idx,
-            }
-            | Node::Comment {
-                raw: _,
-                token_idx: idx,
-            }
-            | Node::EndOfFile {
-                raw: _,
-                token_idx: idx,
-            }
-            | Node::Token { token_idx: idx, .. } => Some(*idx),
-
             Node::Ref { child, .. } => child.find_first_token_idx(),
 
             Node::Sequence { children }
@@ -616,7 +579,7 @@ impl Node {
                 children,
             } => children.iter().find_map(|c| c.find_first_token_idx()),
 
-            Node::Meta { .. } | Node::Empty => None,
+            _ => self.get_token_idx(),
         }
     }
 
@@ -705,9 +668,7 @@ impl Node {
                 expected_message: _,
                 children: _,
             } => Some("unparsable".to_string()),
-            Node::Ref {
-                segment_type, ..
-            } => segment_type.clone(),
+            Node::Ref { segment_type, .. } => segment_type.clone(),
             Node::Sequence { children: _ } => Some("sequence".to_string()),
             Node::DelimitedList { children: _ } => Some("delimited".to_string()),
             Node::Bracketed { .. } => Some("bracketed".to_string()),
@@ -1182,27 +1143,4 @@ mod tests {
         let val = node.to_tuple(false, false, false);
         assert_eq!(val, NodeTupleValue::Tuple("empty".to_string(), vec![]));
     }
-
-    // #[test]
-    // fn test_simple_hint_with_dialect_ref_comma_segment() {
-    //     use hashbrown::HashSet;
-    //     use serde_yaml_ng::{Mapping, Value};
-    //     use sqlfluffrs_dialects::dialect::ansi::parser::COMMA_SEGMENT;
-
-    //     // Create a Ref grammar for CommaSegment
-    //     let grammar = COMMA_SEGMENT.clone();
-    //     // Get the Ansi dialect
-    //     let mut cache: hashbrown::HashMap<u64, Option<SimpleHint>> = hashbrown::HashMap::new();
-    //     // Get the hint
-    //     let hint = grammar
-    //         .simple_hint(&mut cache)
-    //         .expect("Should return a hint");
-    //     // Should match raw value ","
-    //     let trimmed_upper = " ,".trim().to_uppercase();
-    //     assert!(hint.raw_values.contains(trimmed_upper.as_str()));
-    //     // Should match can_match_token for ","
-    //     let mut token_types = HashSet::new();
-    //     token_types.insert("comma".to_string());
-    //     assert!(hint.can_match_token(&trimmed_upper, &token_types));
-    // }
 }

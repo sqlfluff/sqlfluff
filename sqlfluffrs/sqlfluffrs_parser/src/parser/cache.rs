@@ -59,73 +59,13 @@ impl TableCacheKey {
     /// PYTHON PARITY: terminators and terminator_hash_cache parameters are now
     /// ignored - we only use (pos, grammar_id, max_idx) just like Python uses
     /// (raw, loc, type, max_idx). The max_idx already encodes terminator effects.
-    pub fn new_with_cache(
-        pos: usize,
-        grammar_id: GrammarId,
-        max_idx: usize,
-        _terminators: &[GrammarId],
-        _terminator_hash_cache: Option<&std::cell::RefCell<hashbrown::HashMap<Vec<u32>, u64>>>,
-    ) -> Self {
+    pub fn new(pos: usize, grammar_id: GrammarId, max_idx: usize) -> Self {
         TableCacheKey {
             pos,
             grammar_id: grammar_id.0,
             max_idx,
         }
     }
-
-    /// Create a new cache key without hash caching (for backward compatibility).
-    pub fn new(
-        pos: usize,
-        grammar_id: GrammarId,
-        max_idx: usize,
-        _terminators: &[GrammarId],
-    ) -> Self {
-        Self::new_with_cache(pos, grammar_id, max_idx, _terminators, None)
-    }
-}
-
-/// Hash terminators with optional caching.
-/// This is the optimized version that uses a cache to avoid recomputing
-/// the same hash for frequently-used terminator sets.
-fn hash_table_terminators_cached(
-    terminators: &[GrammarId],
-    cache: Option<&std::cell::RefCell<hashbrown::HashMap<Vec<u32>, u64>>>,
-) -> u64 {
-    // Collect and sort grammar IDs for order-insensitive hashing
-    let mut ids: Vec<u32> = terminators.iter().map(|g| g.0).collect();
-    ids.sort_unstable();
-
-    // Check cache if available
-    if let Some(cache_ref) = cache {
-        if let Some(&cached_hash) = cache_ref.borrow().get(&ids) {
-            return cached_hash;
-        }
-    }
-
-    // Compute hash
-    use std::collections::hash_map::DefaultHasher;
-    use std::hash::{Hash, Hasher};
-
-    let mut hasher = DefaultHasher::new();
-    ids.len().hash(&mut hasher);
-    for id in &ids {
-        id.hash(&mut hasher);
-    }
-    let hash = hasher.finish();
-
-    // Store in cache if available
-    if let Some(cache_ref) = cache {
-        cache_ref.borrow_mut().insert(ids, hash);
-    }
-
-    hash
-}
-
-/// Hash terminators for table cache key (legacy version without caching).
-/// Sorted to be order-insensitive (terminators semantically form a set).
-#[allow(dead_code)]
-fn hash_table_terminators(terminators: &[GrammarId]) -> u64 {
-    hash_table_terminators_cached(terminators, None)
 }
 
 /// Cache value for table-driven parser
@@ -253,7 +193,7 @@ mod tests {
 
         // First parse - should populate cache
         println!("\n=== First Parse (should populate cache) ===");
-        match parser.call_rule("SelectStatementSegment", &[]) {
+        match parser.call_rule_as_root() {
             Ok(_ast) => {
                 println!("✓ Parse successful");
                 parser.print_cache_stats();
@@ -269,7 +209,7 @@ mod tests {
 
         // Second parse - should hit cache heavily
         println!("\n=== Second Parse (should hit cache) ===");
-        match parser.call_rule("SelectStatementSegment", &[]) {
+        match parser.call_rule_as_root() {
             Ok(_ast) => {
                 println!("✓ Parse successful");
                 parser.print_cache_stats();

@@ -552,61 +552,6 @@ impl PyParser {
         })
     }
 
-    /// Parse SQL from tokens (standalone mode)
-    ///
-    /// Takes a list of RsToken objects and returns the parsed AST as RsNode.
-    pub fn parse_from_tokens(&self, tokens: Vec<PyToken>) -> PyResult<PyNode> {
-        // Convert PyToken to internal Token
-        let mut rust_tokens: Vec<Token> = tokens.into_iter().map(|t| t.into()).collect();
-
-        // Compute bracket pairs for the tokens.
-        // When tokens come from Python (lexed by Python lexer), matching_bracket_idx is None.
-        // We need to compute it for the Bracketed grammar to work correctly.
-        compute_bracket_pairs(&mut rust_tokens);
-
-        // Create parser
-        let mut parser = Parser::new(&rust_tokens, self.dialect, self.indent_config.clone());
-
-        // Parse and convert result
-        let node = parser
-            .call_rule_as_root()
-            .map_err(|e| PyErr::new::<pyo3::exceptions::PyRuntimeError, _>(e.message))?;
-
-        Ok(PyNode(node))
-    }
-
-    /// Parse SQL string directly (convenience method)
-    ///
-    /// This is less efficient as it lexes internally. For best performance,
-    /// use parse_from_tokens with tokens from RsLexer.
-    pub fn parse(&self, sql: &str) -> PyResult<PyNode> {
-        // Lex the SQL
-        let lexer = Lexer::new(None, self.dialect.get_lexers().to_vec());
-        let (tokens, violations) =
-            lexer.lex(sqlfluffrs_lexer::LexInput::String(sql.to_string()), true);
-
-        // Check for lex errors
-        if !violations.is_empty() {
-            let error_msg = format!(
-                "Lexing failed with {} errors: {}",
-                violations.len(),
-                violations
-                    .first()
-                    .map(|v| v.description.clone().unwrap_or_default())
-                    .unwrap_or_default()
-            );
-            return Err(PyErr::new::<pyo3::exceptions::PyRuntimeError, _>(error_msg));
-        }
-
-        // Parse
-        let mut parser = Parser::new(&tokens, self.dialect, self.indent_config.clone());
-        let node = parser
-            .call_rule_as_root()
-            .map_err(|e| PyErr::new::<pyo3::exceptions::PyRuntimeError, _>(e.message))?;
-
-        Ok(PyNode(node))
-    }
-
     /// Get dialect name
     #[getter]
     fn dialect(&self) -> String {

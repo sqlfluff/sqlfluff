@@ -919,12 +919,7 @@ impl Parser<'_> {
                         }
                     };
 
-                    let cache_key = TableCacheKey::new(
-                        frame.pos,
-                        frame.grammar_id,
-                        max_idx,
-                        &frame.table_terminators,
-                    );
+                    let cache_key = TableCacheKey::new(frame.pos, frame.grammar_id, max_idx);
                     // Get transparent positions for this frame
                     let transparent_opt = frame.transparent_positions.clone();
                     // Cache as Arc<MatchResult> (cheap to clone later)
@@ -981,12 +976,7 @@ impl Parser<'_> {
                     )?
                 };
 
-                let cache_key = TableCacheKey::new(
-                    frame.pos,
-                    frame.grammar_id,
-                    max_idx,
-                    &frame.table_terminators,
-                );
+                let cache_key = TableCacheKey::new(frame.pos, frame.grammar_id, max_idx);
                 if let Some((match_result, end_pos, transparent_positions)) =
                     self.table_cache.get(&cache_key)
                 {
