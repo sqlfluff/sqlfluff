@@ -79,40 +79,30 @@ impl PyNode {
     }
 
     /// Get token information (for Token nodes)
-    /// Returns (token_type, segment_type, raw, token_idx)
-    fn token_info(&self) -> Option<(String, String, String, usize)> {
+    /// Returns (token_type, raw, token_idx)
+    fn token_info(&self) -> Option<(String, String, usize)> {
         match &self.0 {
             Node::Token {
                 token_type,
-                segment_type,
                 raw,
                 token_idx,
-            } => Some((
-                token_type.clone(),
-                segment_type.clone(),
-                raw.clone(),
-                *token_idx,
-            )),
+            } => Some((token_type.clone(), raw.clone(), *token_idx)),
             Node::Whitespace { raw, token_idx } => Some((
-                "whitespace".to_string(),
                 "whitespace".to_string(),
                 raw.clone(),
                 *token_idx,
             )),
             Node::Newline { raw, token_idx } => Some((
                 "newline".to_string(),
-                "newline".to_string(),
                 raw.clone(),
                 *token_idx,
             )),
             Node::Comment { raw, token_idx } => Some((
                 "comment".to_string(),
-                "comment".to_string(),
                 raw.clone(),
                 *token_idx,
             )),
             Node::EndOfFile { raw, token_idx } => Some((
-                "end_of_file".to_string(),
                 "end_of_file".to_string(),
                 raw.clone(),
                 *token_idx,
@@ -188,9 +178,7 @@ impl PyNode {
     /// Represent node as string
     fn __repr__(&self) -> String {
         match &self.0 {
-            Node::Token {
-                token_type, raw, ..
-            } => {
+            Node::Token { token_type, raw, .. } => {
                 format!("RsNode(Token(type='{}', raw='{}'))", token_type, raw)
             }
             Node::Ref { name, .. } => {
@@ -222,12 +210,10 @@ impl PyNode {
         match &self.0 {
             Node::Token {
                 token_type,
-                segment_type,
                 raw,
                 token_idx,
             } => {
                 dict.set_item("token_type", token_type)?;
-                dict.set_item("segment_type", segment_type)?;
                 dict.set_item("raw", raw)?;
                 dict.set_item("token_idx", token_idx)?;
             }

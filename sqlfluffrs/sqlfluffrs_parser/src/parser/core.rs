@@ -141,12 +141,7 @@ impl<'a> Parser<'a> {
 
         // Use provided segment_type, or infer from Token nodes
         let final_segment_type = match &node {
-            Node::Token {
-                token_type: t,
-                segment_type: _,
-                raw: _,
-                token_idx: _,
-            } => Some(t.clone()),
+            Node::Token { token_type, .. } => Some(token_type.clone()),
             _ => None,
         };
 

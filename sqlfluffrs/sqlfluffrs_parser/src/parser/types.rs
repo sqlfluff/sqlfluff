@@ -28,12 +28,10 @@ pub enum Node {
 
     /// Generic token
     /// - token_type: The semantic token type from lexer (e.g., "naked_identifier", "keyword")
-    /// - segment_type: The base segment type for class lookup (e.g., "identifier", "keyword")
     /// - raw: The actual text content
     /// - token_idx: Position in token array
     Token {
         token_type: String,
-        segment_type: String,
         raw: String,
         token_idx: usize,
     },
@@ -79,16 +77,13 @@ pub enum Node {
 }
 
 impl Node {
-    /// Create a Token node with automatic segment_type mapping.
+    /// Create a Token node.
     ///
-    /// This helper ensures token_type and segment_type are properly set based
-    /// on the semantic token type from the lexer.
+    /// Python will map token_type to the appropriate segment class via
+    /// the segment_types dictionary.
     pub fn new_token(token_type: String, raw: String, token_idx: usize) -> Self {
-        use crate::parser::type_mapping::get_base_segment_type;
-        let segment_type = get_base_segment_type(&token_type);
         Node::Token {
             token_type,
-            segment_type,
             raw,
             token_idx,
         }
@@ -365,12 +360,7 @@ impl Node {
     /// Returns None for complex nodes like Sequence, Ref, etc.
     pub fn get_token_idx(&self) -> Option<usize> {
         match self {
-            Node::Token {
-                token_type: _,
-                segment_type: _,
-                raw: _,
-                token_idx: idx,
-            }
+            Node::Token { token_idx: idx, .. }
             | Node::Whitespace {
                 raw: _,
                 token_idx: idx,
@@ -393,11 +383,7 @@ impl Node {
     pub fn get_end_token_idx(&self) -> Option<usize> {
         match self {
             // Leaf nodes - return their token index
-            Node::Token {
-                token_idx: idx,
-                segment_type: _,
-                ..
-            }
+            Node::Token { token_idx: idx, .. }
             | Node::Whitespace { token_idx: idx, .. }
             | Node::Newline { token_idx: idx, .. }
             | Node::Comment { token_idx: idx, .. }
@@ -686,12 +672,7 @@ impl Node {
                 raw: _,
                 token_idx: _,
             } => true,
-            Node::Token {
-                token_type,
-                segment_type: _,
-                raw: _,
-                token_idx: _,
-            } => {
+            Node::Token { token_type, .. } => {
                 matches!(token_type.as_str(), "whitespace" | "newline")
             }
             _ => false,
@@ -729,12 +710,7 @@ impl Node {
                 raw: _,
                 token_idx: _,
             } => Some("end_of_file".to_string()),
-            Node::Token {
-                token_type,
-                segment_type: _,
-                raw: _,
-                token_idx: _,
-            } => Some(token_type.clone()),
+            Node::Token { token_type, .. } => Some(token_type.clone()),
             Node::Unparsable {
                 expected_message: _,
                 children: _,
@@ -1004,13 +980,11 @@ mod tests {
             children: vec![
                 Node::Token {
                     token_type: "keyword".to_string(),
-                    segment_type: "keyword".to_string(),
                     raw: "SELECT".to_string(),
                     token_idx: 0,
                 },
                 Node::Token {
                     token_type: "naked_identifier".to_string(),
-                    segment_type: "identifier".to_string(),
                     raw: "foo".to_string(),
                     token_idx: 1,
                 },
@@ -1041,7 +1015,6 @@ mod tests {
     fn test_ref_node_as_record() {
         let child = Node::Token {
             token_type: "keyword".to_string(),
-            segment_type: "keyword".to_string(),
             raw: "SELECT".to_string(),
             token_idx: 0,
         };
@@ -1092,13 +1065,11 @@ mod tests {
             children: vec![
                 Node::Token {
                     token_type: "keyword".to_string(),
-                    segment_type: "keyword".to_string(),
                     raw: "SELECT".to_string(),
                     token_idx: 0,
                 },
                 Node::Token {
                     token_type: "naked_identifier".to_string(),
-                    segment_type: "identifier".to_string(),
                     raw: "foo".to_string(),
                     token_idx: 1,
                 },
@@ -1129,7 +1100,6 @@ mod tests {
     fn test_token_node_to_tuple_show_raw() {
         let node = Node::Token {
             token_type: "keyword".to_string(),
-            segment_type: "keyword".to_string(),
             raw: "SELECT".to_string(),
             token_idx: 0,
         };
@@ -1144,7 +1114,6 @@ mod tests {
     fn test_token_node_to_tuple_no_raw() {
         let node = Node::Token {
             token_type: "keyword".to_string(),
-            segment_type: "keyword".to_string(),
             raw: "SELECT".to_string(),
             token_idx: 0,
         };
@@ -1156,13 +1125,11 @@ mod tests {
     fn test_sequence_node_to_tuple() {
         let child1 = Node::Token {
             token_type: "keyword".to_string(),
-            segment_type: "keyword".to_string(),
             raw: "SELECT".to_string(),
             token_idx: 0,
         };
         let child2 = Node::Token {
             token_type: "keyword".to_string(),
-            segment_type: "keyword".to_string(),
             raw: "FROM".to_string(),
             token_idx: 1,
         };
@@ -1186,7 +1153,6 @@ mod tests {
     fn test_ref_node_to_tuple() {
         let child = Node::Token {
             token_type: "keyword".to_string(),
-            segment_type: "keyword".to_string(),
             raw: "SELECT".to_string(),
             token_idx: 0,
         };

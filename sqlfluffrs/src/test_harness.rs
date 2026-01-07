@@ -220,7 +220,6 @@ fn node_to_yaml_value(
 
         Node::Token {
             token_type,
-            segment_type: _,
             raw,
             token_idx: _,
         } => {
