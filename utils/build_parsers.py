@@ -1232,26 +1232,18 @@ class TableBuilder:
         lines.append("pub static INSTRUCTIONS: &[GrammarInst] = &[")
         for i, inst in enumerate(self.instructions):
             # Emit a single-line GrammarInst for more compact generated output.
-            lines.append(f"    // [{i}] {inst.comment}")
-            lines.append(
-                (
-                    "    GrammarInst { variant: GrammarVariant::%s, "
-                    "parse_mode: ParseMode::%s, "
-                    "flags: GrammarFlags::from_bits(%d), "
-                    "first_child_idx: %d, child_count: %d, min_times: %d, "
-                    "first_terminator_idx: %d, terminator_count: %d, _padding: 0 },"
-                )
-                % (
-                    inst.variant,
-                    inst.parse_mode,
-                    inst.flags,
-                    inst.first_child_idx,
-                    inst.child_count,
-                    inst.min_times,
-                    inst.first_terminator_idx,
-                    inst.terminator_count,
-                )
+            inst_line = (
+                f"    GrammarInst {{ variant: GrammarVariant::{inst.variant}, "
+                f"parse_mode: ParseMode::{inst.parse_mode}, "
+                f"flags: GrammarFlags::from_bits({inst.flags}), "
+                f"first_child_idx: {inst.first_child_idx}, "
+                f"child_count: {inst.child_count}, "
+                f"min_times: {inst.min_times}, "
+                f"first_terminator_idx: {inst.first_terminator_idx}, "
+                f"terminator_count: {inst.terminator_count}, "
+                f"_padding: 0 }}, // [{i}] {inst.comment}"
             )
+            lines.append(inst_line)
         lines.append("];")
         lines.append("")
 
@@ -1367,8 +1359,13 @@ class TableBuilder:
 
         # Hint string indices - indices into STRINGS table for hints
         lines.append("pub static HINT_STRING_INDICES: &[u32] = &[")
-        for i, idx in enumerate(self.hint_string_indices):
-            lines.append(f"    {idx}, // [{i}]")
+        # Format with 10 items per line for compactness
+        for line_start in range(0, len(self.hint_string_indices), 10):
+            line_end = min(line_start + 10, len(self.hint_string_indices))
+            indices = ", ".join(
+                str(self.hint_string_indices[i]) for i in range(line_start, line_end)
+            )
+            lines.append(f"    {indices},")
         lines.append("];")
         lines.append("")
 
