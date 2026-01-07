@@ -10,10 +10,12 @@ constructs the BaseSegment tree, leveraging proven logic and avoiding
 double-counting issues.
 """
 
+import functools
 import logging
-from typing import TYPE_CHECKING, Any, Optional
+from typing import Any, Optional
 
 from sqlfluff.core.config import FluffConfig
+from sqlfluff.core.errors import SQLParseError
 from sqlfluff.core.parser.match_result import MatchResult
 from sqlfluff.core.parser.segments import (
     BaseFileSegment,
@@ -22,46 +24,15 @@ from sqlfluff.core.parser.segments import (
     ImplicitIndent,
     Indent,
     TemplateSegment,
+    UnparsableSegment,
 )
-
-if TYPE_CHECKING:  # pragma: no cover
-    from sqlfluff.core.dialects.base import Dialect
 
 # Instantiate the parser logger
 parser_logger = logging.getLogger("sqlfluff.parser")
 
 
-def _get_segment_class_by_name(
-    segment_name: str, dialect: "Dialect"
-) -> type[BaseSegment]:
-    """Get a segment class by its exact class name from the dialect.
-
-    Args:
-        segment_name: The segment CLASS name (e.g., "AsAliasOperatorSegment")
-        dialect: The dialect instance (provides access to dialect library)
-
-    Returns:
-        The segment class
-
-    Raises:
-        ValueError: If the segment class is not found in the dialect,
-                    or if the name refers to a grammar instead of a segment class
-    """
-    # Get the item from the dialect library
-    item = dialect.get_segment(segment_name)
-
-    # Verify it's a valid segment class (not a grammar element)
-    if item is not None and isinstance(item, type) and issubclass(item, BaseSegment):
-        return item
-
-    # Not a valid segment class
-    raise ValueError(  # pragma: no cover
-        f"Segment '{segment_name}' not found or is not a segment class"
-    )
-
-
 try:
-    from sqlfluffrs import RsMatchResult, RsParser, RsToken
+    from sqlfluffrs import RsMatchResult, RsParseError, RsParser, RsToken
 
     _HAS_RUST_PARSER = True
 
@@ -117,9 +88,6 @@ try:
                 dialect=self.config.get("dialect"), indent_config=indent_config
             )
 
-            # Cache segment class lookups to avoid repeated dialect.get_segment() calls
-            self._segment_class_cache: dict[str, Optional[type["BaseSegment"]]] = {}
-
         def parse(
             self,
             segments: tuple["BaseSegment", ...],
@@ -164,6 +132,7 @@ try:
             if _start_idx == _end_idx:
                 # No code segments - return FileSegment with just non-code
                 return self.RootSegment(segments=segments, fname=fname)
+
             # Extract the original RsToken objects from the RawSegments
             # PYTHON PARITY: Only parse the code portion (segments[_start_idx:_end_idx])
             # Just like Python's match(segments[:_end_idx], _start_idx, ...)
@@ -174,174 +143,141 @@ try:
             # missing closing brackets in terminators). We catch these and convert to
             # SQLParseError. Regular parse errors are embedded in the MatchResult.
             try:
-                rs_match_result = self._rs_parser.parse_match_result_from_tokens(tokens)
-            except Exception as e:
-                # Rust parser raised an exception - convert to SQLParseError
-                from sqlfluff.core.errors import SQLParseError
-
-                error_msg = str(e)
-                error_segment = None
-
-                # Check if exception has a 'pos' attribute (from RsParseError)
-                if hasattr(e, "pos"):
-                    try:
-                        error_pos = int(e.pos)
-                        # Get segment at that position
-                        if error_pos < len(segments[_start_idx:_end_idx]):
-                            error_segment = segments[_start_idx + error_pos]
-                    except (ValueError, TypeError, IndexError):
-                        pass
-
-                # Fall back to first segment if position not found
-                if error_segment is None and segments[_start_idx:_end_idx]:
-                    error_segment = segments[_start_idx]
-
-                raise SQLParseError(
-                    error_msg,
-                    segment=error_segment,
+                rs_match = self._rs_parser.parse_match_result_from_tokens(tokens)
+            except RsParseError as e:
+                # Convert Rust parse error to SQLParseError with position info
+                raise SQLParseError.from_rs_parse_error(
+                    e, segments[_start_idx:_end_idx]
                 ) from e
 
             # Convert RsMatchResult to Python MatchResult
-            # This also extracts any parse errors
-            py_match_result, parse_errors = self._convert_rs_match_result(
-                rs_match_result
+            # This also checks for embedded parse errors and raises them
+            match = self._convert_rs_match_result(
+                rs_match, segments[_start_idx:_end_idx]
             )
-
-            # Check for parse errors and raise the first one
-            # (Python parser would have raised during parsing)
-            if parse_errors:
-                error_msg, error_pos = parse_errors[0]
-                # Get the segment at error position for its position marker
-                if error_pos < len(segments[_start_idx:_end_idx]):
-                    error_segment = segments[_start_idx + error_pos]
-                    if (
-                        hasattr(error_segment, "pos_marker")
-                        and error_segment.pos_marker
-                    ):
-                        from sqlfluff.core.errors import SQLParseError
-
-                        raise SQLParseError(
-                            error_msg,
-                            segment=error_segment,
-                        )
+            parser_logger.info("Root Match:\n%s", match.stringify())
 
             # Apply the match result to construct the BaseSegment tree
             # PYTHON PARITY: Pass only the code portion (segments[_start_idx:_end_idx])
             # because match result indices are relative to this trimmed array
-            result_segments = py_match_result.apply(segments[_start_idx:_end_idx])
+            _matched = match.apply(segments[_start_idx:_end_idx])
 
             # PYTHON PARITY: Add back any unmatched segments after the match
             # (relative to the _start_idx:_end_idx range)
-            matched_stop = _start_idx + py_match_result.matched_slice.stop
+            matched_stop = _start_idx + match.matched_slice.stop
             _unmatched = segments[matched_stop:_end_idx]
 
             # PYTHON PARITY: If there are unmatched code segments, wrap them in
             # UnparsableSegment. This matches the logic in FileSegment.root_parse()
-            # lines 98-111.
-            if _unmatched:
-                # Find the first code segment in unmatched
-                _first_code_idx = 0
-                for _first_code_idx in range(len(_unmatched)):
-                    if _unmatched[_first_code_idx].is_code:
+            content: tuple[BaseSegment, ...]
+            if not match:
+                content = (
+                    UnparsableSegment(
+                        segments[_start_idx:_end_idx],
+                        expected=str(self.RootSegment.match_grammar),
+                    ),
+                )
+            elif _unmatched:
+                _idx = 0
+                for idx, seg in enumerate(_unmatched):
+                    if seg.is_code:
+                        _idx = idx
                         break
-
-                # If we found code segments, create an UnparsableSegment
-                if (
-                    _first_code_idx < len(_unmatched)
-                    and _unmatched[_first_code_idx].is_code
-                ):
-                    from sqlfluff.core.parser.segments.base import UnparsableSegment
-
-                    unparsable = UnparsableSegment(
-                        _unmatched[_first_code_idx:],
-                        expected="Nothing else in FileSegment.",
+                else:  # pragma: no cover
+                    _idx = len(_unmatched)
+                content = (
+                    _matched
+                    + _unmatched[:_idx]
+                    + (
+                        UnparsableSegment(
+                            _unmatched[_idx:], expected="Nothing else in FileSegment."
+                        ),
                     )
-                    content = (
-                        result_segments + _unmatched[:_first_code_idx] + (unparsable,)
-                    )
-                else:
-                    # No code segments in unmatched, just add them as-is
-                    content = result_segments + _unmatched
+                )
             else:
-                content = result_segments + _unmatched
+                content = _matched + _unmatched
 
-            # PYTHON PARITY: Reassemble with leading + content + trailing
-            final_segments = segments[:_start_idx] + content + segments[_end_idx:]
+            result = self.RootSegment(
+                segments[:_start_idx] + content + segments[_end_idx:], fname=fname
+            )
 
-            result = self.RootSegment(segments=final_segments, fname=fname)
-
-            if parse_statistics:
+            if parse_statistics:  # pragma: no cover
                 print("Warning: parse_statistics not yet implemented for Rust parser")
 
             return result
 
+        @functools.lru_cache(maxsize=128)
+        def _get_segment_class_by_name(
+            self, segment_name: str
+        ) -> Optional[type[BaseSegment]]:
+            """Get a segment class by its exact class name from the dialect.
+
+            Args:
+                segment_name: The segment CLASS name (e.g., "AsAliasOperatorSegment")
+
+            Returns:
+                The segment class, or None if not found or is a grammar
+
+            Note:
+                Results are cached per parser instance since dialect is fixed.
+            """
+            if segment_name == "UnparsableSegment":
+                return UnparsableSegment
+
+            # Get the item from the dialect library
+            item = self.config.get("dialect_obj").get_segment(segment_name)
+
+            # Verify it's a valid segment class (not a grammar element)
+            if (
+                item is not None
+                and isinstance(item, type)
+                and issubclass(item, BaseSegment)
+            ):
+                return item
+
+            # Not a valid segment class - return None for grammar names
+            return None  # pragma: no cover
+
         def _convert_rs_match_result(
-            self, rs_match: "RsMatchResult", depth: int = 0
-        ) -> tuple[MatchResult, list[tuple[str, int]]]:
+            self,
+            rs_match: "RsMatchResult",
+            segments: tuple["BaseSegment", ...],
+            depth: int = 0,
+        ) -> MatchResult:
             """Convert Rust MatchResult to Python MatchResult.
 
             Args:
                 rs_match: RsMatchResult from Rust parser
+                segments: Segment array for error reporting
                 depth: Current recursion depth for debugging
 
             Returns:
-                Tuple of (Python MatchResult with equivalent structure,
-                list of parse errors). Parse errors are tuples of
-                (error_message, token_position).
+                Python MatchResult with equivalent structure
+
             """
-            # Collect parse errors from this match and all children
-            parse_errors = []
-
-            # Check if this match has a parse error (avoid hasattr overhead)
-            if rs_match.parse_error:
-                parse_errors.append(rs_match.parse_error)
-
             # Get the matched slice
             start, stop = rs_match.matched_slice
             matched_slice = slice(start, stop)
 
-            # Convert child matches recursively and collect their errors
+            # Convert child matches recursively
             # Pre-allocate list size for efficiency
-            child_matches_list = []
-            if rs_match.child_matches:
-                for child in rs_match.child_matches:
-                    child_match, child_errors = self._convert_rs_match_result(
-                        child, depth + 1
-                    )
-                    child_matches_list.append(child_match)
-                    if child_errors:
-                        parse_errors.extend(child_errors)
-
-            child_matches = tuple(child_matches_list) if child_matches_list else ()
+            child_matches = (
+                tuple(
+                    self._convert_rs_match_result(child, segments, depth + 1)
+                    for child in rs_match.child_matches
+                )
+                if rs_match.child_matches
+                else ()
+            )
 
             # Determine matched_class
             # The Rust parser now includes actual Python class names (from codegen)
             # in matched_class, so we can use them directly without conversion.
-            matched_class: type["BaseSegment"] | None = None
-            if rs_match.matched_class:
-                # Check cache first
-                cached = self._segment_class_cache.get(rs_match.matched_class)
-                if cached is not None:
-                    matched_class = cached
-                else:
-                    # Handle core segment classes that aren't in the dialect library
-                    if rs_match.matched_class == "UnparsableSegment":
-                        from sqlfluff.core.parser.segments import UnparsableSegment
-
-                        matched_class = UnparsableSegment
-                    else:
-                        try:
-                            # Direct lookup first (exact class name from Rust codegen)
-                            matched_class = _get_segment_class_by_name(
-                                rs_match.matched_class, self.config.get("dialect_obj")
-                            )
-                        except (ValueError, KeyError):
-                            # Grammar names or unknown classes - these are intermediate
-                            # wrappers that don't need to be resolved to segment classes
-                            matched_class = None
-
-                    # Cache the result (including None for unresolved classes)
-                    self._segment_class_cache[rs_match.matched_class] = matched_class
+            matched_class: type["BaseSegment"] | None = (
+                self._get_segment_class_by_name(rs_match.matched_class)
+                if rs_match.matched_class
+                else None
+            )
 
             # Build segment_kwargs - optimize by checking first if we need any
             segment_kwargs: dict[str, Any] = {}
@@ -365,9 +301,9 @@ try:
                     segment_kwargs["casefold"] = str.lower
 
             # Set quoted_value and escape_replacement for normalization
-            if rs_match.quoted_value:
+            if rs_match.quoted_value:  # pragma: no cover
                 segment_kwargs["quoted_value"] = rs_match.quoted_value
-            if rs_match.escape_replacement:
+            if rs_match.escape_replacement:  # pragma: no cover
                 segment_kwargs["escape_replacements"] = [rs_match.escape_replacement]
 
             # Extract insert_segments (Indent/Dedent meta segments)
@@ -387,15 +323,13 @@ try:
                     for idx, seg_type, is_implicit in rs_match.insert_segments
                 )
 
-            match_result = MatchResult(
+            return MatchResult(
                 matched_slice=matched_slice,
                 matched_class=matched_class,
                 child_matches=child_matches,
                 segment_kwargs=segment_kwargs,
                 insert_segments=insert_segments,
             )
-
-            return match_result, parse_errors
 
         @staticmethod
         def _template_segment_to_rstoken(segment: TemplateSegment) -> "RsToken":
@@ -451,7 +385,7 @@ try:
                 elif isinstance(segment, TemplateSegment):
                     # Template segment - create template placeholder token
                     tokens.append(self._template_segment_to_rstoken(segment))
-                else:
+                else:  # pragma: no cover
                     # Cannot reconstruct RsToken from Python segment
                     raise ValueError(
                         f"Cannot extract RsToken from segment {segment!r}. "

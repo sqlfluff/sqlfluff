@@ -166,6 +166,15 @@ class RsMatchResult:
     escape_replacement: Optional[tuple[str, str]]
     insert_segments: Optional[List[tuple[int, str, bool]]]
 
+class RsParseError(Exception):
+    """Exception raised by Rust parser when parsing fails.
+
+    Attributes:
+        pos: Position index in the segments array where the error occurred
+    """
+
+    pos: int
+
 class RsParser:
     """Rust-based SQL parser."""
 
