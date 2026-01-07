@@ -6,13 +6,17 @@ use super::match_result::MatchResult;
 use super::types::NodeTupleValue;
 use super::{Node, ParseError, Parser};
 use sqlfluffrs_dialects::Dialect;
-use sqlfluffrs_lexer::Lexer;
 use sqlfluffrs_types::token::python::PyToken;
 use sqlfluffrs_types::Token;
 use std::str::FromStr;
 
 // Create a custom Python exception for parse errors with position info
-pyo3::create_exception!(sqlfluffrs, RsParseError, PyException, "Rust parser error with position information");
+pyo3::create_exception!(
+    sqlfluffrs,
+    RsParseError,
+    PyException,
+    "Rust parser error with position information"
+);
 
 /// Helper to convert ParseError to Python exception with position attribute
 fn parse_error_to_pyerr(e: ParseError) -> PyErr {
@@ -87,26 +91,18 @@ impl PyNode {
                 raw,
                 token_idx,
             } => Some((token_type.clone(), raw.clone(), *token_idx)),
-            Node::Whitespace { raw, token_idx } => Some((
-                "whitespace".to_string(),
-                raw.clone(),
-                *token_idx,
-            )),
-            Node::Newline { raw, token_idx } => Some((
-                "newline".to_string(),
-                raw.clone(),
-                *token_idx,
-            )),
-            Node::Comment { raw, token_idx } => Some((
-                "comment".to_string(),
-                raw.clone(),
-                *token_idx,
-            )),
-            Node::EndOfFile { raw, token_idx } => Some((
-                "end_of_file".to_string(),
-                raw.clone(),
-                *token_idx,
-            )),
+            Node::Whitespace { raw, token_idx } => {
+                Some(("whitespace".to_string(), raw.clone(), *token_idx))
+            }
+            Node::Newline { raw, token_idx } => {
+                Some(("newline".to_string(), raw.clone(), *token_idx))
+            }
+            Node::Comment { raw, token_idx } => {
+                Some(("comment".to_string(), raw.clone(), *token_idx))
+            }
+            Node::EndOfFile { raw, token_idx } => {
+                Some(("end_of_file".to_string(), raw.clone(), *token_idx))
+            }
             _ => None,
         }
     }
@@ -115,9 +111,7 @@ impl PyNode {
     fn ref_info(&self) -> Option<(String, Option<String>)> {
         match &self.0 {
             Node::Ref {
-                name,
-                segment_type,
-                ..
+                name, segment_type, ..
             } => Some((name.clone(), segment_type.clone())),
             _ => None,
         }
@@ -173,7 +167,9 @@ impl PyNode {
     /// Represent node as string
     fn __repr__(&self) -> String {
         match &self.0 {
-            Node::Token { token_type, raw, .. } => {
+            Node::Token {
+                token_type, raw, ..
+            } => {
                 format!("RsNode(Token(type='{}', raw='{}'))", token_type, raw)
             }
             Node::Ref { name, .. } => {
