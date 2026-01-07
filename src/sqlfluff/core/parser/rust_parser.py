@@ -27,7 +27,7 @@ from sqlfluff.core.parser.segments import (
     UnparsableSegment,
 )
 
-if TYPE_CHECKING:
+if TYPE_CHECKING:  # pragma: no cover
     from sqlfluff.core.dialects.base import Dialect
 
 # Instantiate the parser logger
