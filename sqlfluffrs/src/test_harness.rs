@@ -269,7 +269,6 @@ fn node_to_yaml_value(
         Node::Ref {
             name: _,
             segment_type,
-            segment_class_name: _,
             child,
         } => {
             // Check if this Ref should be transparent (not add a layer)

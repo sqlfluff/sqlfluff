@@ -112,18 +112,13 @@ impl PyNode {
     }
 
     /// Get ref information (for Ref nodes)
-    fn ref_info(&self) -> Option<(String, Option<String>, Option<String>)> {
+    fn ref_info(&self) -> Option<(String, Option<String>)> {
         match &self.0 {
             Node::Ref {
                 name,
                 segment_type,
-                segment_class_name,
                 ..
-            } => Some((
-                name.clone(),
-                segment_type.clone(),
-                segment_class_name.clone(),
-            )),
+            } => Some((name.clone(), segment_type.clone())),
             _ => None,
         }
     }
@@ -227,12 +222,10 @@ impl PyNode {
             Node::Ref {
                 name,
                 segment_type,
-                segment_class_name,
                 child,
             } => {
                 dict.set_item("name", name)?;
                 dict.set_item("segment_type", segment_type)?;
-                dict.set_item("segment_class_name", segment_class_name)?;
                 let child_node = PyNode((**child).clone());
                 dict.set_item(
                     "child",

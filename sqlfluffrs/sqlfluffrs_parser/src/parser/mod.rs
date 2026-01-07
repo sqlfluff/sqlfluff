@@ -19,7 +19,6 @@ mod frame;
 mod helpers; // Utility methods for Parser
 mod match_result;
 mod table_driven;
-pub(crate) mod type_mapping;
 pub(crate) mod types;
 
 #[cfg(feature = "python")]

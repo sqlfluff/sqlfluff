@@ -59,12 +59,10 @@ pub enum Node {
     /// A reference to another segment (wraps its AST)
     /// - name: The grammar/segment name from the dialect (e.g., "SelectStatementSegment" or "SelectableGrammar")
     /// - segment_type: The segment's type attribute (e.g., "select_statement")
-    /// - segment_class_name: The Python class name to use (e.g., "SelectStatementSegment"), None if grammar-only
     /// - child: The wrapped AST node
     Ref {
         name: String,
         segment_type: Option<String>,
-        segment_class_name: Option<String>,
         child: Box<Node>,
     },
 
@@ -89,17 +87,11 @@ impl Node {
         }
     }
 
-    /// Create a Ref node with automatic segment_class_name determination.
-    ///
-    /// This helper determines whether the name refers to a grammar or segment
-    /// and sets segment_class_name accordingly.
+    /// Create a Ref node.
     pub fn new_ref(name: String, segment_type: Option<String>, child: Node) -> Self {
-        use crate::parser::type_mapping::get_segment_class_name;
-        let segment_class_name = get_segment_class_name(&name);
         Node::Ref {
             name,
             segment_type,
-            segment_class_name,
             child: Box::new(child),
         }
     }
@@ -141,7 +133,6 @@ impl Node {
             }
             Node::Ref {
                 segment_type,
-                segment_class_name: _,
                 child,
                 ..
             } => {
@@ -515,7 +506,6 @@ impl Node {
             Node::Ref {
                 name,
                 segment_type,
-                segment_class_name: _,
                 child,
             } => {
                 let is_grammar_rule = name.ends_with("Grammar");
@@ -716,9 +706,7 @@ impl Node {
                 children: _,
             } => Some("unparsable".to_string()),
             Node::Ref {
-                segment_type,
-                segment_class_name: _,
-                ..
+                segment_type, ..
             } => segment_type.clone(),
             Node::Sequence { children: _ } => Some("sequence".to_string()),
             Node::DelimitedList { children: _ } => Some("delimited".to_string()),
@@ -837,12 +825,10 @@ impl Node {
             Node::Ref {
                 name,
                 segment_type,
-                segment_class_name,
                 child,
             } => Node::Ref {
                 name,
                 segment_type,
-                segment_class_name,
                 child: Box::new(child.deduplicate_impl(seen)),
             },
             Node::Unparsable {
@@ -1021,7 +1007,6 @@ mod tests {
         let node = Node::Ref {
             name: "SelectKeywordSegment".to_string(),
             segment_type: Some("keyword".to_string()),
-            segment_class_name: Some("KeywordSegment".to_string()),
             child: Box::new(child),
         };
         let record = node.as_record(false, true, false).unwrap();
@@ -1159,7 +1144,6 @@ mod tests {
         let node = Node::Ref {
             name: "SelectKeywordSegment".to_string(),
             segment_type: None,
-            segment_class_name: Some("KeywordSegment".to_string()),
             child: Box::new(child),
         };
         let val = node.to_tuple(false, true, false);
