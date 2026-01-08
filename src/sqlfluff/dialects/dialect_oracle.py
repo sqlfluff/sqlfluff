@@ -3,8 +3,6 @@
 This inherits from the ansi dialect.
 """
 
-from typing import cast
-
 from sqlfluff.core.dialects import load_raw_dialect
 from sqlfluff.core.parser import (
     AnyNumberOf,
@@ -219,6 +217,7 @@ oracle_dialect.sets("unreserved_keywords").update(
         "EDITIONING",
         "ELSIF",
         "ERROR",
+        "ERRORS",
         "EXPIRE",
         "EXTERNALLY",
         "FOLLOWS",
@@ -229,6 +228,7 @@ oracle_dialect.sets("unreserved_keywords").update(
         "ISOPEN",
         "KEEP",
         "LINK",
+        "LOG",
         "LOOP",
         "MUTABLE",
         "NESTED",
@@ -252,6 +252,7 @@ oracle_dialect.sets("unreserved_keywords").update(
         "QUOTA",
         "RAISE",
         "RECORD",
+        "REJECT",
         "RELIES_ON",
         "RESULT_CACHE",
         "RETURNING",
@@ -1544,6 +1545,7 @@ class UnorderedSelectStatementSegment(ansi.UnorderedSelectStatementSegment):
             Ref("HierarchicalQueryClauseSegment"),
             Ref("PivotSegment", optional=True),
             Ref("UnpivotSegment", optional=True),
+            "LOG",
         ],
     ).copy(
         insert=[
@@ -1571,9 +1573,12 @@ class SelectStatementSegment(ansi.SelectStatementSegment):
             Ref("ForUpdateGrammar", optional=True),
         ],
         replace_terminators=True,
-        terminators=cast(
-            Sequence, ansi.SelectStatementSegment.match_grammar
-        ).terminators,
+        terminators=[
+            Ref("SetOperatorSegment"),
+            Ref("WithNoSchemaBindingClauseSegment"),
+            Ref("WithDataClauseSegment"),
+            "LOG",
+        ],
     )
 
 
@@ -2708,23 +2713,50 @@ class InsertStatementSegment(BaseSegment):
     match_grammar: Matchable = Sequence(
         "INSERT",
         Ref.keyword("OVERWRITE", optional=True),
-        "INTO",
-        Ref("TableReferenceSegment"),
-        OneOf(
-            Ref("SelectableGrammar"),
+        Ref.keyword("ALL", optional=True),
+        AnyNumberOf(
             Sequence(
-                Ref("BracketedColumnReferenceListGrammar"),
-                Ref("SelectableGrammar"),
-            ),
-            Ref("DefaultValuesGrammar"),
-            Sequence(
-                "VALUES",
-                Ref("SingleIdentifierGrammar"),
-                Bracketed(Ref("SingleIdentifierGrammar"), optional=True),
-                optional=True,
-            ),
+                "INTO",
+                OneOf(
+                    Ref("TableReferenceSegment"),
+                    Bracketed(Ref("SelectableGrammar")),
+                ),
+                Ref("AliasExpressionSegment", optional=True),
+                Bracketed(Delimited(Ref("ColumnReferenceSegment")), optional=True),
+                OneOf(
+                    Sequence(
+                        Sequence("BY", OneOf("NAME", "POSITION"), optional=True),
+                        Ref("SelectableGrammar"),
+                    ),
+                    Sequence(
+                        Ref("BracketedColumnReferenceListGrammar"),
+                        Ref("SelectableGrammar"),
+                    ),
+                    Ref("DefaultValuesGrammar"),
+                    Sequence(
+                        "VALUES",
+                        Ref("SingleIdentifierGrammar"),
+                        Bracketed(Ref("SingleIdentifierGrammar"), optional=True),
+                        optional=True,
+                    ),
+                    Sequence("SET", Delimited(Ref("SetClauseSegment"))),
+                ),
+                Ref("ReturningClauseSegment", optional=True),
+                Sequence(
+                    "LOG",
+                    "ERRORS",
+                    Sequence("INTO", Ref("TableReferenceSegment"), optional=True),
+                    Bracketed(Ref("ExpressionSegment"), optional=True),
+                    Sequence(
+                        "REJECT",
+                        "LIMIT",
+                        OneOf(Ref("NumericLiteralSegment"), "UNLIMITED"),
+                        optional=True,
+                    ),
+                    optional=True,
+                ),
+            )
         ),
-        Ref("ReturningClauseSegment", optional=True),
     )
 
 
@@ -2927,7 +2959,7 @@ class IntoClauseSegment(BaseSegment):
 
     match_grammar = Sequence(
         "INTO",
-        Delimited(Ref("SingleIdentifierGrammar")),
+        Delimited(OneOf(Ref("SingleIdentifierGrammar"), Ref("SqlplusVariableGrammar"))),
     )
 
 
@@ -3085,7 +3117,7 @@ class ReturningClauseSegment(BaseSegment):
         Delimited(
             Sequence(
                 OneOf("OLD", "NEW", optional=True),
-                Ref("SingleIdentifierGrammar"),
+                OneOf(Ref("SingleIdentifierGrammar"), Ref("ExpressionSegment")),
             ),
         ),
         OneOf(Ref("IntoClauseSegment"), Ref("BulkCollectIntoClauseSegment")),
