@@ -5804,12 +5804,8 @@ class TableHintSegment(BaseSegment):
         Sequence(
             "INDEX",
             Ref("EqualsSegment"),
-            OneOf(
-                Bracketed(
-                    OneOf(Ref("IndexReferenceSegment"), Ref("NumericLiteralSegment")),
-                ),
-                Ref("IndexReferenceSegment"),
-                Ref("NumericLiteralSegment"),
+            OptionallyBracketed(
+                OneOf(Ref("IndexReferenceSegment"), Ref("NumericLiteralSegment"))
             ),
         ),
         "KEEPIDENTITY",
