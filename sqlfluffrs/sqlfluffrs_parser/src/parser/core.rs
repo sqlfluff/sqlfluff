@@ -988,7 +988,6 @@ impl<'a> Parser<'a> {
         // Token stores token_type string id in aux_data at the instruction's
         // aux_data_offsets index (the generator emits the type id there).
         let token_type_id = tables.aux_data_offsets[grammar_id.get() as usize];
-        // let token_type_id = tables.aux_data[aux_start];
         let token_type = tables.get_string(token_type_id).to_string();
 
         vdebug!(

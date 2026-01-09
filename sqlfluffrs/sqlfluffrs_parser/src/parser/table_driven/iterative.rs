@@ -121,11 +121,6 @@ impl Parser<'_> {
                 self.handle_table_max_iterations_exceeded(&mut stack, max_iterations, &mut frame);
             }
 
-            // Debug: Show what frame we're processing periodically
-            // if iteration_count.is_multiple_of(5000) {
-            //     Self::log_frame_debug_info(&frame, &stack, iteration_count);
-            // }
-
             vdebug!(
                 "Processing frame {}: grammar={}, pos={}, state={:?}, stack_size={} (BEFORE pop: {})",
                 frame.frame_id,

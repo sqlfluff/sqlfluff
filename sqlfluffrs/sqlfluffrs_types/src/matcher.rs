@@ -237,7 +237,6 @@ impl LexMatcher {
                 .then(|| LexedElement::new(template, self)),
             LexerMode::Regex(regex, is_match_valid) => {
                 if !(is_match_valid)(input) {
-                    // println!("{},{}", self.name, t.elapsed().as_nanos());
                     return None;
                 }
                 regex
@@ -246,7 +245,6 @@ impl LexMatcher {
             }
             LexerMode::FancyRegex(regex, is_match_valid) => {
                 if !(is_match_valid)(input) {
-                    // println!("{},{}", self.name, t.elapsed().as_nanos());
                     return None;
                 }
                 regex
@@ -257,7 +255,6 @@ impl LexMatcher {
             }
             LexerMode::Function(function) => (function)(input).map(|s| LexedElement::new(s, self)),
         };
-        // println!("{},{}", self.name, t.elapsed().as_nanos());
 
         // Handle subdivision and trimming
         if let Some(matched) = matched {
@@ -373,67 +370,3 @@ impl LexMatcher {
 // TODO: implement python passthroughs
 #[cfg(feature = "python")]
 pub mod python {}
-
-#[cfg(test)]
-mod test {
-    // use crate::{dialect::Dialect, token::Token};
-
-    // use super::{LexMatcher};
-
-    // #[test]
-    // fn test_subdivide() {
-    //     let block_comment_matcher = LexMatcher::regex_lexer(
-    //         // Dialect::Ansi,
-    //         "block_comment",
-    //         r#"\/\*([^\*]|\*(?!\/))*\*\/"#,
-    //         Token::comment_token_compat,
-    //         Some(Box::new(LexMatcher::regex_subdivider(
-    //             // Dialect::Ansi,
-    //             "newline",
-    //             r#"\r\n|\n"#,
-    //             Token::newline_token_compat,
-    //             None,
-    //             None,
-    //             None,
-    //             None,
-    //             None,
-    //             None,
-    //             None,
-    //             None,
-    //             |_| true,
-    //             None,
-    //         ))),
-    //         Some(Box::new(LexMatcher::regex_subdivider(
-    //             // Dialect::Ansi,
-    //             "whitespace",
-    //             r#"[^\S\r\n]+"#,
-    //             Token::whitespace_token_compat,
-    //             None,
-    //             None,
-    //             None,
-    //             None,
-    //             None,
-    //             None,
-    //             None,
-    //             None,
-    //             |_| true,
-    //             None,
-    //         ))),
-    //         None,
-    //         None,
-    //         None,
-    //         None,
-    //         None,
-    //         Some(extract_nested_block_comment),
-    //         |input| input.starts_with("/"),
-    //         None,
-    //     );
-
-    //     let (elems, _) = block_comment_matcher
-    //         .scan_match("/*\n)\n*/")
-    //         .expect("should match");
-    //     for elem in elems {
-    //         println!("{}: {}", elem.matcher.name, elem.raw);
-    //     }
-    // }
-}
