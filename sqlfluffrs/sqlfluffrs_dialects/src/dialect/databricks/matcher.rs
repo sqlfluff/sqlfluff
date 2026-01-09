@@ -429,6 +429,28 @@ pub static DATABRICKS_LEXERS: Lazy<Vec<LexMatcher>> = Lazy::new(|| { vec![
     ),
 
     LexMatcher::regex_lexer(
+        "pipeline_parameter",
+        r#"\$\{[A-Za-z_][A-Za-z0-9_]*\}"#,
+        |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,
+         quoted_value, escape_replacement, casefold| {
+            Token::code_token(raw, pos_marker, TokenConfig {
+                class_types, instance_types, trim_start, trim_chars,
+                quoted_value, escape_replacement, casefold,
+            })
+        },
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        |_| true,
+        None,
+    ),
+
+    LexMatcher::regex_lexer(
         "dollar_quote",
         r#"\$(\w*)\$(.*?)\$\1\$"#,
         |raw, pos_marker, class_types, instance_types, trim_start, trim_chars,

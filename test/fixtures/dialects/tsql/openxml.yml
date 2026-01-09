@@ -1,0 +1,226 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 07bbc475c5100814a27b1beb81c08c67147715a2db2540107a25bc35b6c204a3
+file:
+  batch:
+  - statement:
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            column_reference:
+              naked_identifier: col1
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                openxml_segment:
+                  keyword: OPENXML
+                  bracketed:
+                  - start_bracket: (
+                  - parameter: '@iDoc'
+                  - comma: ','
+                  - quoted_literal: "N'root/search'"
+                  - comma: ','
+                  - numeric_literal: '1'
+                  - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            column_reference:
+              naked_identifier: col1
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                openxml_segment:
+                - keyword: OPENXML
+                - bracketed:
+                  - start_bracket: (
+                  - parameter: '@iDoc'
+                  - comma: ','
+                  - quoted_literal: "N'root/search'"
+                  - comma: ','
+                  - numeric_literal: '1'
+                  - end_bracket: )
+                - keyword: WITH
+                - bracketed:
+                  - start_bracket: (
+                  - naked_identifier: CustomerID
+                  - data_type:
+                      keyword: VARCHAR
+                      bracketed_arguments:
+                        bracketed:
+                          start_bracket: (
+                          expression:
+                            integer_literal: '10'
+                          end_bracket: )
+                  - comma: ','
+                  - naked_identifier: ContactName
+                  - data_type:
+                      keyword: VARCHAR
+                      bracketed_arguments:
+                        bracketed:
+                          start_bracket: (
+                          expression:
+                            integer_literal: '20'
+                          end_bracket: )
+                  - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                openxml_segment:
+                - keyword: OPENXML
+                - bracketed:
+                    start_bracket: (
+                    parameter: '@idoc'
+                    comma: ','
+                    quoted_literal: "'/ROOT/Customer/Order/OrderDetail'"
+                    end_bracket: )
+                - keyword: WITH
+                - bracketed:
+                  - start_bracket: (
+                  - naked_identifier: OrderID
+                  - data_type:
+                      keyword: INT
+                  - quoted_literal: "'../@OrderID'"
+                  - comma: ','
+                  - naked_identifier: CustomerID
+                  - data_type:
+                      keyword: VARCHAR
+                      bracketed_arguments:
+                        bracketed:
+                          start_bracket: (
+                          expression:
+                            integer_literal: '10'
+                          end_bracket: )
+                  - quoted_literal: "'../@CustomerID'"
+                  - comma: ','
+                  - naked_identifier: OrderDate
+                  - data_type:
+                      keyword: DATETIME
+                  - quoted_literal: "'../@OrderDate'"
+                  - comma: ','
+                  - naked_identifier: ProdID
+                  - data_type:
+                      keyword: INT
+                  - quoted_literal: "'@ProductID'"
+                  - comma: ','
+                  - naked_identifier: Qty
+                  - data_type:
+                      keyword: INT
+                  - quoted_literal: "'@Quantity'"
+                  - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                openxml_segment:
+                - keyword: OPENXML
+                - bracketed:
+                  - start_bracket: (
+                  - parameter: '@docHandle'
+                  - comma: ','
+                  - quoted_literal: "'/root/Customer/Order'"
+                  - comma: ','
+                  - numeric_literal: '1'
+                  - end_bracket: )
+                - keyword: WITH
+                - table_reference:
+                    naked_identifier: T1
+  - statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                openxml_segment:
+                - keyword: OPENXML
+                - bracketed:
+                  - start_bracket: (
+                  - parameter: '@idoc'
+                  - comma: ','
+                  - quoted_literal: "'/root/Customer/Order'"
+                  - comma: ','
+                  - numeric_literal: '9'
+                  - end_bracket: )
+                - keyword: WITH
+                - bracketed:
+                  - start_bracket: (
+                  - naked_identifier: id
+                  - data_type:
+                      keyword: int
+                  - quoted_literal: "'@mp:id'"
+                  - comma: ','
+                  - naked_identifier: oid
+                  - data_type:
+                      keyword: char
+                      bracketed_arguments:
+                        bracketed:
+                          start_bracket: (
+                          expression:
+                            integer_literal: '5'
+                          end_bracket: )
+                  - comma: ','
+                  - naked_identifier: date
+                  - data_type:
+                      keyword: datetime
+                  - comma: ','
+                  - naked_identifier: amount
+                  - data_type:
+                      keyword: real
+                  - comma: ','
+                  - naked_identifier: parentIDNo
+                  - data_type:
+                      keyword: int
+                  - quoted_literal: "'@mp:parentid'"
+                  - comma: ','
+                  - naked_identifier: parentLocalName
+                  - data_type:
+                      keyword: varchar
+                      bracketed_arguments:
+                        bracketed:
+                          start_bracket: (
+                          expression:
+                            integer_literal: '40'
+                          end_bracket: )
+                  - quoted_literal: "'@mp:parentlocalname'"
+                  - end_bracket: )
+  - statement_terminator: ;

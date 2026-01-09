@@ -852,6 +852,7 @@ class StatementSegment(ansi.StatementSegment):
             Ref("OpenSymmetricKeySegment"),
             Ref("CreateLoginStatementSegment"),
             Ref("SetContextInfoSegment"),
+            Ref("CreateFullTextCatalogStatementSegment"),
         ],
         remove=[
             Ref("CreateCastStatementSegment"),
@@ -1076,6 +1077,8 @@ class CreateDatabaseStatementSegment(BaseSegment):
 class AlterDatabaseStatementSegment(BaseSegment):
     """An `ALTER DATABASE` statement."""
 
+    # https://learn.microsoft.com/en-us/sql/t-sql/statements/alter-database-transact-sql
+
     _modify_name = Sequence(
         "MODIFY",
         "NAME",
@@ -1136,6 +1139,24 @@ class AlterDatabaseStatementSegment(BaseSegment):
         OneOf("FULL", "SIMPLE", "BULK_LOGGED"),
     )
 
+    _filestream_option = Sequence(
+        "FILESTREAM",
+        OptionallyBracketed(
+            OneOf(
+                Sequence(
+                    "NON_TRANSACTED_ACCESS",
+                    Ref("EqualsSegment"),
+                    OneOf("OFF", "READ_ONLY", "FULL"),
+                ),
+                Sequence(
+                    "DIRECTORY_NAME",
+                    Ref("EqualsSegment"),
+                    Ref("QuotedLiteralSegment"),
+                ),
+            ),
+        ),
+    )
+
     _set_option = Sequence(
         "SET",
         OneOf(
@@ -1145,12 +1166,15 @@ class AlterDatabaseStatementSegment(BaseSegment):
                         Ref("CompatibilityLevelSegment"),
                         Ref("AutoOptionSegment"),
                         _accelerated_database_recovery,
+                        _filestream_option,
                         # catch-all for all ON | OFF
                         # if needed, more specific grammar can be added
                         Sequence(
                             Ref("NakedIdentifierSegment"),
-                            Ref("EqualsSegment"),
-                            OneOf("ON", "OFF"),
+                            Ref("EqualsSegment", optional=True),
+                            OneOf(
+                                "ON", "OFF", "LOCAL", "NONE", "DISABLED", optional=True
+                            ),
                         ),
                         # catch all for size settings
                         Sequence(
@@ -4441,14 +4465,17 @@ class AlterTableStatementSegment(BaseSegment):
                 Sequence(
                     Sequence(
                         "WITH",
-                        "CHECK",
+                        OneOf("CHECK", "NOCHECK"),
                         optional=True,
                     ),
                     "ADD",
                     Ref("TableConstraintSegment"),
                 ),
+                # See for details on check/nocheck constraints
+                # https://learn.microsoft.com/en-us/sql/relational-databases/tables/disable-foreign-key-constraints-with-insert-and-update-statements
                 Sequence(
-                    "CHECK",
+                    Sequence("WITH", OneOf("CHECK", "NOCHECK"), optional=True),
+                    OneOf("CHECK", "NOCHECK"),
                     "CONSTRAINT",
                     Ref("ObjectReferenceSegment"),
                 ),
@@ -4657,6 +4684,91 @@ class FilegroupClause(BaseSegment):
     match_grammar = Sequence(
         "ON",
         Ref("FilegroupNameSegment"),
+    )
+
+
+class CreateFullTextCatalogStatementSegment(BaseSegment):
+    """CREATE FULLTEXT CATALOG statement segment.
+
+    https://learn.microsoft.com/en-us/sql/t-sql/statements/create-fulltext-catalog-transact-sql
+    """
+
+    type = "create_fulltext_catalog_statement"
+    match_grammar = Sequence(
+        "CREATE",
+        "FULLTEXT",
+        "CATALOG",
+        Ref("ObjectReferenceSegment"),
+        Sequence(
+            Sequence(
+                "ON",
+                "FILEGROUP",
+                Ref("FilegroupNameSegment"),
+                optional=True,
+            ),
+            Sequence(
+                "IN",
+                "PATH",
+                Ref("QuotedLiteralSegment"),
+                optional=True,
+            ),
+            Sequence(
+                "WITH",
+                "ACCENT_SENSITIVITY",
+                Ref("EqualsSegment"),
+                OneOf("ON", "OFF"),
+                optional=True,
+            ),
+            Sequence(
+                "AS",
+                "DEFAULT",
+                optional=True,
+            ),
+            Sequence(
+                "AUTHORIZATION",
+                Ref("RoleReferenceSegment"),
+                optional=True,
+            ),
+            optional=True,
+        ),
+    )
+
+
+class OpenXmlSegment(BaseSegment):
+    """`OPENXML` segment.
+
+    https://learn.microsoft.com/en-us/sql/t-sql/functions/openxml-transact-sql
+    """
+
+    type = "openxml_segment"
+
+    _xml_schema_declaration = Sequence(
+        Ref("SingleIdentifierGrammar"),
+        Ref("DatatypeSegment"),
+        Ref("QuotedLiteralSegment", optional=True),
+    )
+
+    _with_clause = Sequence(
+        "WITH",
+        OneOf(
+            Bracketed(Delimited(_xml_schema_declaration)),
+            Ref("TableReferenceSegment"),
+        ),
+        optional=True,
+    )
+
+    match_grammar = Sequence(
+        "OPENXML",
+        Bracketed(
+            Sequence(
+                Delimited(
+                    Ref("ParameterNameSegment"),
+                    Ref("QuotedLiteralSegmentOptWithN"),
+                    Ref("NumericLiteralSegment", optional=True),
+                )
+            )
+        ),
+        _with_clause,
     )
 
 
@@ -5071,7 +5183,7 @@ class OpenRowSetSegment(BaseSegment):
                             Delimited(
                                 AnyNumberOf(
                                     Sequence(
-                                        "DATASOURCE",
+                                        "DATA_SOURCE",
                                         Ref("EqualsSegment"),
                                         Ref("QuotedLiteralSegmentOptWithN"),
                                     ),
@@ -5280,6 +5392,7 @@ class TableExpressionSegment(BaseSegment):
         Ref("FunctionSegment"),
         Ref("OpenRowSetSegment"),
         Ref("OpenJsonSegment"),
+        Ref("OpenXmlSegment"),
         Ref("OpenQuerySegment"),
         Ref("TableReferenceSegment"),
         Ref("StorageLocationSegment"),
@@ -5307,8 +5420,8 @@ class TableExpressionSegment(BaseSegment):
 class GroupByClauseSegment(BaseSegment):
     """A `GROUP BY` clause like in `SELECT`.
 
-    Overriding ANSI to remove Delimited logic which assumes statements have been
-    delimited
+    Overriding ANSI to add T-SQL specific terminators that prevent
+    GROUP BY from consuming subsequent statements when semicolons are omitted.
     """
 
     type = "groupby_clause"
@@ -5316,15 +5429,7 @@ class GroupByClauseSegment(BaseSegment):
         "GROUP",
         "BY",
         Indent,
-        OneOf(
-            Ref("ColumnReferenceSegment"),
-            # Can `GROUP BY 1`
-            Ref("NumericLiteralSegment"),
-            # Can `GROUP BY coalesce(col, 1)`
-            Ref("ExpressionSegment"),
-        ),
-        AnyNumberOf(
-            Ref("CommaSegment"),
+        Delimited(
             OneOf(
                 Ref("ColumnReferenceSegment"),
                 # Can `GROUP BY 1`
@@ -5332,6 +5437,27 @@ class GroupByClauseSegment(BaseSegment):
                 # Can `GROUP BY coalesce(col, 1)`
                 Ref("ExpressionSegment"),
             ),
+            terminators=[
+                # Clauses that can follow GROUP BY
+                "HAVING",
+                "WINDOW",
+                Sequence("ORDER", "BY"),
+                "OPTION",
+                "FOR",
+                # Set operators
+                "UNION",
+                "INTERSECT",
+                "EXCEPT",
+                # Statement-level keywords that start new statements
+                "SELECT",
+                "INSERT",
+                "UPDATE",
+                "DELETE",
+                "MERGE",
+                "WITH",
+                # T-SQL specific: semicolons and statement terminators
+                Ref("DelimiterGrammar"),
+            ],
         ),
         Ref("WithRollupClauseSegment", optional=True),
         Dedent,
@@ -7721,8 +7847,14 @@ class CreatePartitionFunctionSegment(BaseSegment):
         ),
         "FOR",
         "VALUES",
-        Bracketed(Delimited(Ref("LiteralGrammar"))),
-        # Bracketed(Delimited("LEFT")),
+        Bracketed(
+            Delimited(
+                OneOf(
+                    Ref("LiteralGrammar"),
+                    Ref("HexadecimalLiteralSegment"),
+                )
+            )
+        ),
     )
 
 
