@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 68811395d1d3624202e31efc50b0b6b375cc7517cbf38a2e7f3e68e25ab80a1c
+_hash: a7aa6c5314e4b9a79c3e46103509cd2f0e0b2e26b1634148d97f8dd3bed12972
 file:
   batch:
   - statement:
@@ -22,7 +22,21 @@ file:
       drop_index_statement:
       - keyword: DROP
       - keyword: INDEX
-      - object_reference:
+      - keyword: IF
+      - keyword: EXISTS
+      - index_reference:
+          naked_identifier: IX_IndexName
+      - keyword: 'ON'
+      - table_reference:
+        - naked_identifier: dbo
+        - dot: .
+        - naked_identifier: TableName
+  - statement_terminator: ;
+  - statement:
+      drop_index_statement:
+      - keyword: DROP
+      - keyword: INDEX
+      - drop_index_dotted_reference:
         - naked_identifier: dbo
         - dot: .
         - naked_identifier: TableName
@@ -33,7 +47,7 @@ file:
       drop_index_statement:
       - keyword: DROP
       - keyword: INDEX
-      - object_reference:
+      - drop_index_dotted_reference:
         - naked_identifier: TableName
         - dot: .
         - naked_identifier: IX_IndexName
@@ -42,7 +56,7 @@ file:
       drop_index_statement:
       - keyword: DROP
       - keyword: INDEX
-      - object_reference:
+      - drop_index_dotted_reference:
         - quoted_identifier: '[dbo]'
         - dot: .
         - quoted_identifier: '[TableName]'
@@ -53,7 +67,7 @@ file:
       drop_index_statement:
       - keyword: DROP
       - keyword: INDEX
-      - object_reference:
+      - drop_index_dotted_reference:
         - quoted_identifier: '[TableName]'
         - dot: .
         - quoted_identifier: '[IX_IndexName]'
@@ -62,7 +76,7 @@ file:
       drop_index_statement:
       - keyword: DROP
       - keyword: INDEX
-      - object_reference:
+      - drop_index_dotted_reference:
         - naked_identifier: MyDB
         - dot: .
         - naked_identifier: dbo
@@ -77,7 +91,7 @@ file:
       - keyword: INDEX
       - keyword: IF
       - keyword: EXISTS
-      - object_reference:
+      - drop_index_dotted_reference:
         - naked_identifier: dbo
         - dot: .
         - naked_identifier: TableName
@@ -90,7 +104,7 @@ file:
       - keyword: INDEX
       - keyword: IF
       - keyword: EXISTS
-      - object_reference:
+      - drop_index_dotted_reference:
         - naked_identifier: TableName
         - dot: .
         - naked_identifier: IX_IndexName
