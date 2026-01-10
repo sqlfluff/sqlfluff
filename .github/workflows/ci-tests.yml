@@ -205,7 +205,7 @@ jobs:
     needs: rs-build-linux
     strategy:
       matrix:
-        python-version: [ "3.9", "3.10", "3.11", "3.12", "3.13" ]
+        python-version: [ "3.10", "3.11", "3.12", "3.13" ]
         include:
           # Default to test without coverage tracking on older python versions.
           # This saves time, as testing without coverage tracking is faster.

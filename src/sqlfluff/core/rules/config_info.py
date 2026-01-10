@@ -13,7 +13,7 @@ of more general wider use - please define it in the specific plugin
 rather than here.
 """
 
-from typing import Optional, TypedDict, Union
+from typing import TypedDict
 
 from sqlfluff.core.plugin.host import get_plugin_manager
 
@@ -35,9 +35,7 @@ class ConfigInfo(TypedDict, total=False):
     """
 
     definition: str
-    # NOTE: This type hint is a bit ugly, but necessary for now.
-    # TODO: Tidy this up when we drop support for 3.9.
-    validation: Optional[Union[list[Union[bool, str, int]], range]]
+    validation: list[bool | str | int] | range | None
 
 
 STANDARD_CONFIG_INFO_DICT: dict[str, ConfigInfo] = {

@@ -8,7 +8,7 @@ name = "sqlfluff"
 version = "4.0.0a2"
 description = "The SQL Linter for Humans"
 readme = { file = "README.md", content-type = "text/markdown" }
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 authors = [{ name = "Alan Cruickshank", email = "alan@designingoverload.com" }]
 license = { file = "LICENSE.md" }
 classifiers = [
@@ -22,7 +22,6 @@ classifiers = [
     "Operating System :: Microsoft :: Windows",
     "Programming Language :: Python",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
