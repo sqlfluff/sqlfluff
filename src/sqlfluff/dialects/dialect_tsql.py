@@ -4641,6 +4641,12 @@ class TableIndexSegment(BaseSegment):
                 Ref("BracketedColumnReferenceListGrammar"),
             ),
         ),
+        Sequence(
+            "INCLUDE",
+            Ref("BracketedColumnReferenceListGrammar"),
+            optional=True,
+        ),
+        Ref("WhereClauseSegment", optional=True),
         Ref("RelationalIndexOptionsSegment", optional=True),
         Ref("OnPartitionOrFilegroupOptionSegment", optional=True),
         Ref("FilestreamOnOptionSegment", optional=True),

@@ -1,0 +1,118 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 40e31c854574c33fdf977195bd19dc4a3980dab8b710c10a0157e24e372fcbdf
+file:
+  batch:
+  - statement:
+      create_table_statement:
+      - keyword: CREATE
+      - keyword: TABLE
+      - table_reference:
+          naked_identifier: T
+      - bracketed:
+          start_bracket: (
+          column_definition:
+            naked_identifier: C
+            data_type:
+              keyword: int
+          comma: ','
+          table_index_segment:
+          - keyword: INDEX
+          - object_reference:
+              naked_identifier: UX_T_C
+          - keyword: UNIQUE
+          - bracketed_index_column_list_grammar:
+              bracketed:
+                start_bracket: (
+                index_column_definition:
+                  naked_identifier: C
+                end_bracket: )
+          - where_clause:
+              keyword: where
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: C
+                  comparison_operator:
+                    raw_comparison_operator: '='
+                  integer_literal: '1'
+                end_bracket: )
+          end_bracket: )
+  - statement:
+      create_table_statement:
+      - keyword: CREATE
+      - keyword: TABLE
+      - table_reference:
+          naked_identifier: T2
+      - bracketed:
+        - start_bracket: (
+        - column_definition:
+            naked_identifier: C
+            data_type:
+              keyword: int
+        - comma: ','
+        - column_definition:
+            naked_identifier: D
+            data_type:
+              keyword: int
+        - comma: ','
+        - table_index_segment:
+          - keyword: INDEX
+          - object_reference:
+              naked_identifier: IX_T2
+          - keyword: UNIQUE
+          - keyword: NONCLUSTERED
+          - bracketed_index_column_list_grammar:
+              bracketed:
+                start_bracket: (
+                index_column_definition:
+                  naked_identifier: C
+                end_bracket: )
+          - keyword: INCLUDE
+          - bracketed:
+              start_bracket: (
+              column_reference:
+                naked_identifier: D
+              end_bracket: )
+          - where_clause:
+              keyword: WHERE
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: C
+                  comparison_operator:
+                    raw_comparison_operator: '>'
+                  integer_literal: '0'
+                end_bracket: )
+        - end_bracket: )
+  - statement:
+      create_table_statement:
+      - keyword: CREATE
+      - keyword: TABLE
+      - table_reference:
+          naked_identifier: T3
+      - bracketed:
+          start_bracket: (
+          column_definition:
+            naked_identifier: C
+            data_type:
+              keyword: int
+          comma: ','
+          table_index_segment:
+          - keyword: INDEX
+          - object_reference:
+              naked_identifier: IX_T3
+          - keyword: UNIQUE
+          - keyword: CLUSTERED
+          - bracketed_index_column_list_grammar:
+              bracketed:
+                start_bracket: (
+                index_column_definition:
+                  naked_identifier: C
+                end_bracket: )
+          end_bracket: )
