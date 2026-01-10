@@ -15,7 +15,63 @@ use crate::{
     regex::RegexModeGroup,
 };
 
-use super::{path::PathStep, SourceFix, Token, TupleSerialisedSegment};
+use super::{path::PathStep, CaseFold, SourceFix, Token, TupleSerialisedSegment};
+
+/// Python wrapper for the CaseFold enum
+#[pyclass(name = "RsCaseFold", module = "sqlfluffrs")]
+#[derive(Debug, Clone, PartialEq)]
+pub struct PyCaseFold(pub CaseFold);
+
+#[pymethods]
+impl PyCaseFold {
+    #[new]
+    fn new() -> Self {
+        PyCaseFold(CaseFold::None)
+    }
+
+    #[staticmethod]
+    fn none() -> Self {
+        PyCaseFold(CaseFold::None)
+    }
+
+    #[staticmethod]
+    fn upper() -> Self {
+        PyCaseFold(CaseFold::Upper)
+    }
+
+    #[staticmethod]
+    fn lower() -> Self {
+        PyCaseFold(CaseFold::Lower)
+    }
+
+    fn __repr__(&self) -> String {
+        match self.0 {
+            CaseFold::None => "RsCaseFold.None".to_string(),
+            CaseFold::Upper => "RsCaseFold.Upper".to_string(),
+            CaseFold::Lower => "RsCaseFold.Lower".to_string(),
+        }
+    }
+
+    fn __str__(&self) -> String {
+        self.__repr__()
+    }
+
+    fn __eq__(&self, other: &Self) -> bool {
+        self.0 == other.0
+    }
+}
+
+impl From<CaseFold> for PyCaseFold {
+    fn from(value: CaseFold) -> Self {
+        PyCaseFold(value)
+    }
+}
+
+impl From<PyCaseFold> for CaseFold {
+    fn from(value: PyCaseFold) -> Self {
+        value.0
+    }
+}
 
 #[pyclass(name = "RsSourceFix")]
 #[repr(transparent)]
@@ -163,8 +219,8 @@ impl PyToken {
 
     #[getter]
     pub fn cache_key(&self) -> String {
-        use std::hash::{Hash, Hasher};
         use std::collections::hash_map::DefaultHasher;
+        use std::hash::{Hash, Hasher};
 
         let mut hasher = DefaultHasher::new();
         self.0.token_type.hash(&mut hasher);
@@ -488,6 +544,45 @@ impl PyToken {
             py,
             tokens.into_iter().map(Into::into).collect::<Vec<PyToken>>(),
         )
+    }
+
+    #[staticmethod]
+    #[pyo3(signature = (source_slice, templated_slice, block_type, _source_str, block_uuid, templated_file))]
+    pub fn template_placeholder_from_slice(
+        source_slice: (usize, usize),
+        templated_slice: (usize, usize),
+        block_type: String,
+        _source_str: String, // Currently unused - extracted from templated_file
+        block_uuid: Option<String>,
+        templated_file: Bound<'_, PyAny>,
+    ) -> PyResult<Self> {
+        use crate::slice::Slice;
+        use crate::templater::templatefile::python::PySqlFluffTemplatedFile;
+
+        // Extract TemplatedFile from Python object
+        let tf: PySqlFluffTemplatedFile = templated_file.extract()?;
+        let tf_arc: Arc<crate::templater::templatefile::TemplatedFile> = tf.into();
+
+        // Parse UUID if provided (Python passes hex string)
+        let uuid = block_uuid.as_ref().and_then(|s| Uuid::parse_str(s).ok());
+
+        // Create template placeholder token using existing constructor
+        let token = Token::template_placeholder_token_from_slice(
+            Slice {
+                start: source_slice.0,
+                stop: source_slice.1,
+            },
+            Slice {
+                start: templated_slice.0,
+                stop: templated_slice.1,
+            },
+            block_type,
+            &tf_arc,
+            uuid,
+            HashSet::new(), // class_types - empty for template placeholders
+        );
+
+        Ok(PyToken(token))
     }
 
     pub fn __repr__(&self) -> String {

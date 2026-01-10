@@ -268,6 +268,10 @@ class BaseSegment(metaclass=SegmentMetaclass):
         s = self.__dict__.copy()
         # Kill the parent ref. It won't pickle well.
         s["_parent"] = None
+        # Remove _rstoken if present - RsToken objects can't be pickled.
+        # This is set by RawSegment.from_rstoken() for efficient round-trip
+        # to the Rust parser, but isn't needed after pickling.
+        s.pop("_rstoken", None)
         return s
 
     def __setstate__(self, state: dict[str, Any]) -> None:

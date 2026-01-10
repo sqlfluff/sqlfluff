@@ -293,7 +293,7 @@ pub mod python {
 
         // #[getter]
         // pub fn templated_file(&self) -> PySqlFluffTemplatedFile {
-        //     dbg!("templated file from PositionMarker");
+
         //     PySqlFluffTemplatedFile(PyTemplatedFile::from(self.0.templated_file.clone()))
         // }
 
@@ -456,14 +456,12 @@ pub mod python {
     impl<'py> FromPyObject<'py> for PySqlFluffPositionMarker {
         fn extract_bound(obj: &pyo3::Bound<'py, pyo3::PyAny>) -> PyResult<Self> {
             let source_slice = obj.getattr("source_slice")?.extract::<Slice>()?;
-            // dbg!(source_slice);
             let templated_slice = obj.getattr("templated_slice")?.extract::<Slice>()?;
-            // dbg!(templated_slice);
             let templated_file: Arc<TemplatedFile> = obj
                 .getattr("templated_file")?
                 .extract::<PySqlFluffTemplatedFile>()?
                 .into();
-            // dbg!(templated_file.clone());
+
             // let working_line_no = obj.getattr("working_line_no")?.extract::<usize>()?;
             // let working_line_pos = obj.getattr("working_line_pos")?.extract::<usize>()?;
 

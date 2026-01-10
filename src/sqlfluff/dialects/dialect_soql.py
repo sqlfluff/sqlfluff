@@ -103,7 +103,7 @@ class DateLiteralNSegment(BaseSegment):
     type = "date_n_literal"
 
     match_grammar = Sequence(
-        OneOf(*date_n_literals),
+        OneOf(*sorted(date_n_literals)),
         Ref("ColonSegment"),
         Ref("NumericLiteralSegment"),
         allow_gaps=False,

@@ -37,7 +37,6 @@ pub mod python {
                 .flatten()
                 .and_then(|x| x.extract::<String>().ok());
 
-            // println!("{:?}", dialect);
             Ok(Self(FluffConfig::new(dialect, true)))
         }
     }

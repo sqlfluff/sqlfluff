@@ -1,4 +1,4 @@
-use crate::regex::RegexModeGroup;
+use crate::{regex::RegexModeGroup, token::CaseFold};
 use hashbrown::HashSet;
 
 /// Configuration for token construction, grouping optional parameters
@@ -10,7 +10,7 @@ pub struct TokenConfig {
     pub trim_chars: Option<Vec<String>>,
     pub quoted_value: Option<(String, RegexModeGroup)>,
     pub escape_replacement: Option<(String, String)>,
-    pub casefold: Option<fn(&str) -> str>,
+    pub casefold: CaseFold,
 }
 
 impl TokenConfig {
@@ -61,8 +61,8 @@ impl TokenConfig {
     }
 
     /// Builder method to add casefold function
-    pub fn casefold(mut self, func: fn(&str) -> str) -> Self {
-        self.casefold = Some(func);
+    pub fn casefold(mut self, func: CaseFold) -> Self {
+        self.casefold = func;
         self
     }
 }
@@ -78,7 +78,7 @@ impl TokenConfig {
         Option<Vec<String>>,
         Option<(String, RegexModeGroup)>,
         Option<(String, String)>,
-        Option<fn(&str) -> str>,
+        CaseFold,
     ) {
         (
             self.class_types,

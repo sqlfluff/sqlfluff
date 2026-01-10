@@ -1,7 +1,7 @@
 """The BracketedSegment."""
 
 from collections.abc import Sequence
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING, Any, Optional
 
 from sqlfluff.core.parser.context import ParseContext
 from sqlfluff.core.parser.markers import PositionMarker
@@ -38,6 +38,36 @@ class BracketedSegment(BaseSegment):
         self.start_bracket = start_bracket
         self.end_bracket = end_bracket
         super().__init__(segments=segments, pos_marker=pos_marker, uuid=uuid)
+
+    @classmethod
+    def from_result_segments(
+        cls,
+        result_segments: tuple[BaseSegment, ...],
+        segment_kwargs: dict[str, Any],
+    ) -> BaseSegment:
+        """Create BracketedSegment from result segments.
+
+        When called from Rust parser, start_bracket and end_bracket won't be in
+        segment_kwargs, so we extract them from the first and last result segments.
+        """
+        # If start_bracket and end_bracket are already provided, use them
+        if "start_bracket" in segment_kwargs and "end_bracket" in segment_kwargs:
+            return cls(segments=result_segments, **segment_kwargs)
+
+        # Otherwise extract from result_segments (Rust parser path)
+        if len(result_segments) < 2:  # pragma: no cover
+            raise ValueError(
+                f"BracketedSegment requires at least 2 child segments "
+                f"(open and close brackets), got {len(result_segments)}"
+            )
+
+        # First segment is start_bracket, last is end_bracket
+        return cls(
+            segments=result_segments,
+            start_bracket=(result_segments[0],),
+            end_bracket=(result_segments[-1],),
+            **segment_kwargs,
+        )
 
     @classmethod
     def simple(
