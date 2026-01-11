@@ -8,8 +8,10 @@ import redirects from './redirects.json'
 const GUIDE: DefaultTheme.NavItemWithLink[] = [
     { text: 'Introduction', link: '/guide/' },
     { text: 'Installation', link: '/guide/install' },
-    { text: 'Quick Start', link: '/guide/quickstart' },
+    { text: 'Basic Usage', link: '/guide/basic-usage' },
+    { text: 'Custom Usage', link: '/guide/custom-usage' },
     { text: 'Why SQLFluff?', link: '/guide/why' },
+    { text: 'Vision', link: '/guide/vision' },
 ]
 
 const CONFIGURATION: DefaultTheme.NavItemWithLink[] = [
