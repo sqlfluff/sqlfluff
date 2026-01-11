@@ -68,7 +68,16 @@ def main():
         print("\n❌ Build failed at dialect documentation generation")
         return exit_code
 
-    # Step 3: Generate API documentation with pydoc-markdown
+    # Step 3: Generate CLI documentation
+    cli_script = script_dir / "generate-cli-docs.py"
+    exit_code = run_command(
+        [sys.executable, str(cli_script)], "Generating CLI documentation"
+    )
+    if exit_code != 0:
+        print("\n❌ Build failed at CLI documentation generation")
+        return exit_code
+
+    # Step 4: Generate API documentation with pydoc-markdown
     pydoc_config = docs_dir / "pydoc-markdown.yml"
     api_output_dir = docs_dir / "reference" / "api"
 
@@ -96,7 +105,7 @@ def main():
         print("   Install with: pip install pydoc-markdown")
         print("   Continuing with other steps...\n")
 
-    # Step 4: Extract redirects from Sphinx conf.py
+    # Step 5: Extract redirects from Sphinx conf.py
     redirects_script = script_dir / "extract-redirects.py"
     exit_code = run_command(
         [sys.executable, str(redirects_script)],
@@ -114,6 +123,7 @@ def main():
     print("\nGenerated files:")
     print(f"  - Rule documentation: {docs_dir / 'reference' / 'rules'}")
     print(f"  - Dialect documentation: {docs_dir / 'reference' / 'dialects'}")
+    print(f"  - CLI documentation: {docs_dir / 'reference' / 'cli'}")
     print(f"  - API documentation: {docs_dir / 'reference' / 'api'}")
     print(f"  - Redirects config: {docs_dir / '.vitepress' / 'redirects.json'}")
     print(
@@ -122,6 +132,7 @@ def main():
     # Break into two lines for readability: label on one line, path on the next
     print("  - Sidebar config (dialects):")
     print(f"    {docs_dir / '.vitepress' / 'sidebar-dialects.json'}")
+    print(f"  - Sidebar config (CLI): {docs_dir / '.vitepress' / 'sidebar-cli.json'}")
 
     return 0
 
