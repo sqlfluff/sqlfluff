@@ -15,20 +15,20 @@ pip install sqlfluff
 echo "  SELECT a  +  b FROM tbl;  " > test.sql
 sqlfluff lint test.sql --dialect ansi
 
-    == [test.sql] FAIL
-    L:   1 | P:   1 | LT01 | Expected only single space before 'SELECT' keyword.
-                           | Found '  '. [layout.spacing]
-    L:   1 | P:   1 | LT02 | First line should not be indented.
-                           | [layout.indent]
-    L:   1 | P:   1 | LT13 | Files must not begin with newlines or whitespace.
-                           | [layout.start_of_file]
-    L:   1 | P:  11 | LT01 | Expected only single space before binary operator '+'.
-                           | Found '  '. [layout.spacing]
-    L:   1 | P:  14 | LT01 | Expected only single space before naked identifier.
-                           | Found '  '. [layout.spacing]
-    L:   1 | P:  27 | LT01 | Unnecessary trailing whitespace at end of file.
-                           | [layout.spacing]
-    L:   1 | P:  27 | LT12 | Files must end with a single trailing newline.
-                           | [layout.end_of_file]
-    All Finished 📜 🎉!
+== [test.sql] FAIL
+L:   1 | P:   1 | LT01 | Expected only single space before 'SELECT' keyword.
+                        | Found '  '. [layout.spacing]
+L:   1 | P:   1 | LT02 | First line should not be indented.
+                        | [layout.indent]
+L:   1 | P:   1 | LT13 | Files must not begin with newlines or whitespace.
+                        | [layout.start_of_file]
+L:   1 | P:  11 | LT01 | Expected only single space before binary operator '+'.
+                        | Found '  '. [layout.spacing]
+L:   1 | P:  14 | LT01 | Expected only single space before naked identifier.
+                        | Found '  '. [layout.spacing]
+L:   1 | P:  27 | LT01 | Unnecessary trailing whitespace at end of file.
+                        | [layout.spacing]
+L:   1 | P:  27 | LT12 | Files must end with a single trailing newline.
+                        | [layout.end_of_file]
+All Finished 📜 🎉!
 ```

@@ -41,13 +41,13 @@ this is done in the wild in one of the following ways:
    [format string syntax](https://docs.python.org/3/library/string.html#formatstrings):
 
     ```python
-      "SELECT {foo} FROM {tbl}".format(foo="bar", tbl="mytable")
+    "SELECT {foo} FROM {tbl}".format(foo="bar", tbl="mytable")
     ```
 
    Which would evaluate to:
 
    ```sql
-      SELECT bar FROM mytable
+    SELECT bar FROM mytable
     ```
 
 2. Using a dedicated templating library such as [jinja2](https://jinja.palletsprojects.com/). This allows
