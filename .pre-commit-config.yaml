@@ -91,5 +91,5 @@ repos:
     rev: v2.4.1
     hooks:
       - id: codespell
-        exclude: (?x)^(test/fixtures/.*|pyproject.toml|docs-vitepress/pnpm-lock.yaml)$
+        exclude: (?x)^(test/fixtures/.*|pyproject.toml|docsv/pnpm-lock.yaml)$
         additional_dependencies: [tomli]
