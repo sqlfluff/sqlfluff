@@ -14,7 +14,7 @@ This POC demonstrates:
 ## Directory Structure
 
 ```
-docs-vitepress/
+docsv/
 ├── .vitepress/
 │   ├── config.ts           # Main VitePress configuration
 │   ├── sidebar-rules.json  # Auto-generated sidebar config for rules
@@ -52,7 +52,7 @@ pip install pydoc-markdown
 ### 2. Install Node.js Dependencies
 
 ```bash
-cd docs-vitepress
+cd docsv
 pnpm install
 ```
 
@@ -63,7 +63,7 @@ pnpm install
 Run the master build script to generate all documentation:
 
 ```bash
-cd docs-vitepress
+cd docsv
 python scripts/generate-all-docs.py
 ```
 
@@ -192,7 +192,7 @@ Or skip API doc generation - the rule docs will still work.
 
 Install Node.js dependencies:
 ```bash
-cd docs-vitepress
+cd docsv
 pnpm install
 ```
 
