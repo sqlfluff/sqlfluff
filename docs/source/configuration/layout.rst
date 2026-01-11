@@ -786,6 +786,25 @@ available:
          [sqlfluff:layout:type:comma]
          line_position = leading
 
+   *  :code:`leading` can be qualified with the :code:`:align-following` modifier
+      - which allows the line position to be aligned with the following element,
+      instead of the configured element itself. For example, when the modifier is
+      added to comma line position:
+
+      .. code-block:: cfg
+
+         [sqlfluff:layout:type:comma]
+         line_position = leading:align-following
+
+      then the following query would be allowed:
+
+      .. code-block:: sql
+
+         SELECT
+            col_a AS a
+          , col_b AS b
+         FROM foo;
+
    *  :code:`alone`, which means if there is a line break on either side,
       then there must be a line break on *both sides* (i.e. that it should
       be the only thing on that line.
