@@ -12,7 +12,7 @@ and moves to building stable and reusable pieces of analytics, more and
 more principles from software engineering are moving in the analytics
 space. One of the best articulations of this is written in the
 [viewpoint section of the docs for the open-source tool dbt](https://docs.getdbt.com/docs/viewpoint). Two of
-the principles mentioned in that article are `quality assurance`_ and
+the principles mentioned in that article are [quality assurance](https://docs.getdbt.com/docs/viewpoint#quality-assurance) and
 [modularity](https://docs.getdbt.com/docs/viewpoint#modularity).
 
 ## Quality assurance
@@ -32,7 +32,7 @@ itself).
 
 ## Modularity
 
-SQL itself doesn't lend itself well to `modularity`_, so to introduce
+SQL itself doesn't lend itself well to [modularity](https://docs.getdbt.com/docs/viewpoint#modularity), so to introduce
 some flexibility and reusability it is often [templated](https://en.wikipedia.org/wiki/Template_processor). Typically
 this is done in the wild in one of the following ways:
 
@@ -59,7 +59,7 @@ this is done in the wild in one of the following ways:
      library like [jinja2](https://jinja.palletsprojects.com/) under the hood themselves.
 
 
-All of these templating tools are great for `modularity`_ but they also
+All of these templating tools are great for [modularity](https://docs.getdbt.com/docs/viewpoint#modularity) but they also
 mean that the SQL files themselves are no longer valid SQL code, because
 they now contain these configured *placeholder* values, intended to
 improve modularity.
@@ -80,31 +80,3 @@ production. This means that you can use *much simpler* dummy values than
 what you would really use. The recommendation is to use *the simplest*
 possible dummy value that still allows your code to evaluate to valid SQL
 so that the configuration values can be as streamlined as possible.
-
-## Vision for SQLFluff
-
-SQLFluff has a few components:
-
-1. A generic parser for SQL which aims to be able to unify SQL written
-   in different dialects into a comparable format. The *parser*.
-2. A mechanism for measuring written SQL against a set of rules, with
-   the added ability to fix any violations found. The *linter*.
-3. An opinionated set of guidelines for how SQL should be structured
-   and formatted. The *rules*.
-
-The core vision for SQLFluff is to be really good at being the *linter*.
-The reasoning for this is outlined in :ref:`why_sqlfluff`.
-
-::: tip NOTE
-Credit [to this article](https://opensource.com/business/16/6/bad-practice-foss-projects-management) for highlighting the importance of a good vision.
-:::
-
-Most of the codebase for SQLFluff is the *parser*, mostly because at
-the point of developing SQLFluff, there didn't appear to be a good
-option for a whitespace-aware parser that could be used instead.
-
-With regards to the *rules*, SQLFluff aims to be opinionated but it
-also accepts that many organisations and groups have pre-existing
-strong conventions around how to write SQL and so ultimately SQLFluff
-should be flexible enough to support whichever rule set a user wishes
-to.
