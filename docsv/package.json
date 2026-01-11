@@ -1,7 +1,7 @@
 {
-    "name": "sqlfluff-docs-vitepress",
+    "name": "sqlfluff-docs",
     "version": "1.0.0",
-    "description": "SQLFluff documentation with VitePress (POC)",
+    "description": "SQLFluff documentation with VitePress",
     "type": "module",
     "scripts": {
         "docs:prebuild": "python scripts/generate-all-docs.py",

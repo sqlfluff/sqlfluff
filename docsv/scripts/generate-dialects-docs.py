@@ -179,7 +179,7 @@ def generate_dialects_documentation(output_dir: Path) -> dict[str, Any]:
 
 def main():
     """Main entry point."""
-    # Get the output directory (docs-vitepress/reference/dialects)
+    # Get the output directory (docsv/reference/dialects)
     script_dir = Path(__file__).parent
     output_dir = script_dir.parent / "reference" / "dialects"
 
