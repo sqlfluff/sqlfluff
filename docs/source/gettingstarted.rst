@@ -78,12 +78,12 @@ same folder that you're currently in with the following content:
     SELECT a+b  AS foo,
     c AS bar from my_table
 
-You can then run :code:`sqlfluff lint test.sql` to lint this
+You can then run :code:`sqlfluff lint test.sql --dialect ansi` to lint this
 file.
 
 .. code-block:: text
 
-    $ sqlfluff lint test.sql
+    $ sqlfluff lint test.sql --dialect ansi
     == [test.sql] FAIL
     L:   1 | P:   1 | LT09 | Select targets should be on a new line unless there is
                            | only one select target.
@@ -127,7 +127,7 @@ error (violation of *LT01*) no longer shows up.
 
 .. code-block:: text
 
-    $ sqlfluff lint test.sql
+    $ sqlfluff lint test.sql --dialect ansi
     == [test.sql] FAIL
     L:   1 | P:   1 | LT09 | Select targets should be on a new line unless there is
                            | only one select target.
@@ -145,8 +145,7 @@ error (violation of *LT01*) no longer shows up.
     L:   2 | P:  10 | CP01 | Keywords must be consistently upper case.
                            | [capitalisation.keywords]
 
-To fix the remaining issues, we're going to use one of the more
-advanced features of *SQLFluff*, which is the *fix* command. This
+To fix the remaining issues, we're going to use the *fix* command. This
 allows more automated fixing of some errors, to save you time in
 sorting out your sql files. Not all rules can be fixed in this way
 and there may be some situations where a fix may not be able to be
@@ -157,8 +156,8 @@ For now, we only want to fix the following rules: *LT02*, *LT12*, *CP01*
 
 .. code-block:: text
 
-    $ sqlfluff fix test.sql --rules LT02,LT12,CP01
-    ==== finding violations ====
+    $ sqlfluff fix test.sql --rules LT02,LT12,CP01 --dialect ansi
+    ==== finding fixable violations ====
     == [test.sql] FAIL
     L:   1 | P:   7 | LT02 | Expected line break and indent of 4 spaces before 'a'.
                            | [layout.indent]
@@ -168,12 +167,8 @@ For now, we only want to fix the following rules: *LT02*, *LT12*, *CP01*
                            | [layout.indent]
     L:   2 | P:  10 | CP01 | Keywords must be consistently upper case.
                            | [capitalisation.keywords]
-    ==== fixing violations ====
+    == [test.sql] FIXED
     4 fixable linting violations found
-    Attempting fixes...
-    Persisting Changes...
-    == [test.sql] PASS
-    Done. Please check your files to confirm.
 
 If we now open up :code:`test.sql`, we'll see the content is
 now different.
@@ -197,19 +192,15 @@ specifying :code:`--rules`.
 
 .. code-block:: text
 
-    $ sqlfluff fix test.sql
-    ==== finding violations ====
+    $ sqlfluff fix test.sql --dialect ansi
+    ==== finding fixable violations ====
     == [test.sql] FAIL
     L:   1 | P:   1 | ST06 | Select wildcards then simple targets before calculations
                            | and aggregates. [structure.column_order]
     L:   2 | P:  10 | LT01 | Expected only single space before 'AS' keyword. Found '
                            | '. [layout.spacing]
-    ==== fixing violations ====
+    == [test.sql] FIXED
     2 fixable linting violations found
-    Attempting fixes...
-    Persisting Changes...
-    == [test.sql] PASS
-    Done. Please check your files to confirm.
 
 If we now open up :code:`test.sql`, we'll see the content has
 been updated again.
