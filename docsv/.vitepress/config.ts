@@ -35,7 +35,7 @@ const DEVELOPMENT: DefaultTheme.NavItemWithLink[] = [
     { text: 'Architecture', link: '/development/architecture' },
     { text: 'Developing Rules', link: '/development/developing-rules' },
     { text: 'Plugins', link: '/development/plugins' },
-    { text: 'Contributing', link: '/development/contributing' },
+    { text: 'Documentation', link: '/development/documentation' },
 ]
 
 const REFERENCES: DefaultTheme.NavItemWithLink[] = [
