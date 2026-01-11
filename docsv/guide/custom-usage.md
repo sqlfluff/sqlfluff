@@ -13,30 +13,30 @@ and place it in the same directory as the current file. In that file
 put the following content:
 
 ```ini
-    [sqlfluff]
-    dialect = ansi
+[sqlfluff]
+dialect = ansi
 
-    [sqlfluff:indentation]
-    tab_space_size = 2
+[sqlfluff:indentation]
+tab_space_size = 2
 
-    [sqlfluff:rules:capitalisation.keywords]
-    capitalisation_policy = lower
+[sqlfluff:rules:capitalisation.keywords]
+capitalisation_policy = lower
 ```
 
 Then rerun the same command as before.
 
 ```bash
-    $ sqlfluff fix test.sql --rules LT02,LT12,CP01,ST06,LT09,LT01
+$ sqlfluff fix test.sql --rules LT02,LT12,CP01,ST06,LT09,LT01
 ```
 
 Then examine the file again, and you'll notice that the
 file has been fixed accordingly.
 
 ```sql
-    select
-      c as bar,
-      a + b as foo
-    from my_table
+select
+    c as bar,
+    a + b as foo
+from my_table
 ```
 
 For a full list of configuration options check out :ref:`defaultconfig`.
