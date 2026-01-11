@@ -120,7 +120,7 @@ class Rule_ST11(BaseRule):
                 else:
                     raise UnqualifiedReferenceError(ref.raw)
             # Remove any quoting characters when returning.
-            yield parts[-2].part.upper().strip("\"'`[]")
+            yield parts[0].part.upper().strip("\"'`[]")
 
     def _extract_references_from_select(
         self, segment: BaseSegment
