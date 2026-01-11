@@ -14,8 +14,8 @@ Documentation takes two forms:
 
 The two are somewhat blurred by the use of [autodoc](https://www.sphinx-doc.org/en/master/usage/extensions/autodoc.html) (and some other custom
 integrations), where documentation is generated directly off [docstrings](https://en.wikipedia.org/wiki/Docstring)
-within the codebase, for example the :ref:`ruleref`, :ref:`cliref` and
-:ref:`dialectref`. To understand more about how the custom integrations
+within the codebase, for example the [Rules Reference](/reference/rules), [CLI Reference](/reference/cli) and
+[Dialect Reference](/reference/dialects). To understand more about how the custom integrations
 we use to generate these docs, see the [generate-auto-docs.py](https://github.com/sqlfluff/sqlfluff/blob/main/docs/generate-auto-docs.py) file.
 
 
@@ -55,14 +55,14 @@ particularly clear in the sphinx docs:
 
   * Docs for all the SQL dialects are auto generated with associated anchors
     to use for referencing. For example to link to the
-    :ref:`postgres_dialect_ref` dialect docs, you can use the |postgresref|.
+    `:ref:postgres_dialect_ref` dialect docs, you can use the |postgresref|.
     Replace the `postgres` portion with the `name` of the
     dialect you want to link to.
 
   * Docs for all the bundled rules and handled using a customer [sphinx](https://www.sphinx-doc.org/en/master/)
-    plugin, which means you can refer to them using their name or code:
-    |LT01ref| resolves to :sqlfluff:ref:`LT01` and |layoutspacingref|
-    resolves to :sqlfluff:ref:`layout.spacing`.
+    plugin, which means you can refer to them using their name or `code:
+    |LT01ref|` resolves to [LT01](/reference/rules/layout#lt01) and `|layoutspacingref|`
+    resolves to [layout.spacing](/reference/rules/layout#lt01).
 
   * Docs for any of the python classes and modules handled using [autodoc](https://www.sphinx-doc.org/en/master/usage/extensions/autodoc.html)
     can be referenced as per their docs, so the

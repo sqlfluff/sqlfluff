@@ -33,7 +33,7 @@ const USAGE_GUIDES: DefaultTheme.NavItemWithLink[] = [
 
 const DEVELOPMENT: DefaultTheme.NavItemWithLink[] = [
     { text: 'Architecture', link: '/development/architecture' },
-    { text: 'Custom Rules', link: '/development/custom-rules' },
+    { text: 'Developing Rules', link: '/development/developing-rules' },
     { text: 'Plugins', link: '/development/plugins' },
     { text: 'Contributing', link: '/development/contributing' },
 ]
