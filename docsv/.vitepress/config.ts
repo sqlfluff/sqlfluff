@@ -1,8 +1,9 @@
 import { defineConfig } from 'vitepress'
 import type { DefaultTheme } from 'vitepress'
 
-// Auto-generated configurations
+// Auto-generated configurations - we don't use them as of now
 import sidebarRules from './sidebar-rules.json'
+import sidebarCli from './sidebar-cli.json'
 import redirects from './redirects.json'
 
 const GUIDE: DefaultTheme.NavItemWithLink[] = [

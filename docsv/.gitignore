@@ -4,4 +4,4 @@ node_modules/
 reference/dialects/*.md
 reference/rules/*.md
 reference/cli/*.md
-.vitepress/sidebar-rules.json
+.vitepress/sidebar-*.json
