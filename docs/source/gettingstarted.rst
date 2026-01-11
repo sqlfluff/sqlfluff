@@ -3,23 +3,22 @@
 Getting Started
 ===============
 
-To get started with *SQLFluff* you'll need python and pip installed
-on your machine, if you're already set up, you can skip straight to
-`Installing sqlfluff`_.
+To get started with *SQLFluff*, you'll need python and pip installed
+on your machine. If you're already set up, you can skip straight to
+`Installing SQLFluff`_.
 
 Installing Python
 -----------------
 
-How to install *python* and *pip* depends on what operating system
+Installing *python* and *pip* depends on what operating system
 you're using. In any case, the python wiki provides up to date
 `instructions for all platforms here`_.
 
 There's a chance that you'll be offered the choice between python
 versions. Support for python 2 was dropped in early 2020, so you
-should always opt for a version number starting with a 3. As for
-more specific options beyond that, *SQLFluff* aims to be compatible
-with all current python versions, and so it's best to pick the most
-recent.
+should always opt for a version number starting with a 3. You can 
+check the `pypi project page`_ to find the python versions that
+*SQLFluff* supports.
 
 You can confirm that python is working as expected by heading to
 your terminal or console of choice and typing :code:`python --version`
@@ -28,21 +27,22 @@ which should give you a sensible read out and not an error.
 .. code-block:: text
 
     $ python --version
-    Python 3.9.1
+    Python 3.13.1
 
 For most people, their installation of python will come with
 :code:`pip` (the python package manager) preinstalled. To confirm
-this you can type :code:`pip --version` similar to python above.
+this, you can type :code:`pip --version` similar to python above.
 
 .. code-block:: text
 
     $ pip --version
-    pip 21.3.1 from ...
+    pip 25.3 from ...
 
-If however, you do have python installed but not :code:`pip`, then
+If, however, you do have python installed but not :code:`pip`, then
 the best instructions for what to do next are `on the python website`_.
 
 .. _`instructions for all platforms here`: https://wiki.python.org/moin/BeginnersGuide/Download
+.. _`pypi project page`: https://pypi.org/project/sqlfluff/
 .. _`on the python website`: https://pip.pypa.io/en/stable/installation/
 
 .. _installingsqlfluff:
@@ -51,7 +51,7 @@ Installing SQLFluff
 -------------------
 
 Assuming that python and pip are already installed, then installing
-*SQLFluff* is straight forward.
+*SQLFluff* is straightforward.
 
 .. code-block:: text
 
@@ -68,7 +68,7 @@ version number.
 Basic Usage
 -----------
 
-To get a feel for how to use *SQLFluff* it helps to have a small
+To get a feel for how to use *SQLFluff*, it helps to have a small
 :code:`.sql` file which has a simple structure and some known
 issues for testing. Create a file called :code:`test.sql` in the
 same folder that you're currently in with the following content:
@@ -78,12 +78,12 @@ same folder that you're currently in with the following content:
     SELECT a+b  AS foo,
     c AS bar from my_table
 
-You can then run :code:`sqlfluff lint test.sql --dialect ansi` to lint this
+You can then run :code:`sqlfluff lint test.sql` to lint this
 file.
 
 .. code-block:: text
 
-    $ sqlfluff lint test.sql --dialect ansi
+    $ sqlfluff lint test.sql
     == [test.sql] FAIL
     L:   1 | P:   1 | LT09 | Select targets should be on a new line unless there is
                            | only one select target.
@@ -107,12 +107,12 @@ file.
     All Finished 📜 🎉!
 
 You'll see that *SQLFluff* has failed the linting check for this file.
-On each of the following lines you can see each of the problems it has
+On each of the following lines, you can see each of the problems it has
 found, with some information about the location and what kind of
-problem there is. One of the errors has been found on *line 1*, *position *
+problem there is. One of the errors has been found on *line 1*, *position 9*
 (as shown by :code:`L:   1 | P:   9`) and it's a problem with rule
 *LT01* (for a full list of rules, see :ref:`ruleref`). From this
-(and the following error) we can see that the problem is that there
+(and the following error), we can see that the problem is that there
 is no space either side of the :code:`+` symbol in :code:`a+b`.
 Head into the file, and correct this issue so that the file now
 looks like this:
@@ -127,7 +127,7 @@ error (violation of *LT01*) no longer shows up.
 
 .. code-block:: text
 
-    $ sqlfluff lint test.sql --dialect ansi
+    $ sqlfluff lint test.sql
     == [test.sql] FAIL
     L:   1 | P:   1 | LT09 | Select targets should be on a new line unless there is
                            | only one select target.
@@ -157,7 +157,7 @@ For now, we only want to fix the following rules: *LT02*, *LT12*, *CP01*
 
 .. code-block:: text
 
-    $ sqlfluff fix test.sql --rules LT02,LT12,CP01 --dialect ansi
+    $ sqlfluff fix test.sql --rules LT02,LT12,CP01
     ==== finding violations ====
     == [test.sql] FAIL
     L:   1 | P:   7 | LT02 | Expected line break and indent of 4 spaces before 'a'.
@@ -170,14 +170,6 @@ For now, we only want to fix the following rules: *LT02*, *LT12*, *CP01*
                            | [capitalisation.keywords]
     ==== fixing violations ====
     4 fixable linting violations found
-    Are you sure you wish to attempt to fix these? [Y/n]
-
-...at this point you'll have to confirm that you want to make the
-changes by pressing :code:`y` on your keyboard...
-
-.. code-block:: text
-
-    Are you sure you wish to attempt to fix these? [Y/n] ...
     Attempting fixes...
     Persisting Changes...
     == [test.sql] PASS
@@ -205,7 +197,7 @@ specifying :code:`--rules`.
 
 .. code-block:: text
 
-    $ sqlfluff fix test.sql --dialect ansi
+    $ sqlfluff fix test.sql
     ==== finding violations ====
     == [test.sql] FAIL
     L:   1 | P:   1 | ST06 | Select wildcards then simple targets before calculations
@@ -214,7 +206,6 @@ specifying :code:`--rules`.
                            | '. [layout.spacing]
     ==== fixing violations ====
     2 fixable linting violations found
-    Are you sure you wish to attempt to fix these? [Y/n] ...
     Attempting fixes...
     Persisting Changes...
     == [test.sql] PASS
@@ -233,24 +224,20 @@ been updated again.
 The SQL statement is now well formatted according to all the
 rules defined in SQLFluff.
 
-The :code:`--rules` argument is optional, and could be useful when
-you or your organisation follows a slightly different convention
-than what we have defined.
-
 Custom Usage
 ------------
 
-So far we've covered the stock settings of *SQLFluff*, but there
-are many different ways that people style their sql, and if you
+So far, we've covered the stock settings of *SQLFluff*, but there
+are many different ways that people style their sql. If you
 or your organisation have different conventions, then many of
 these behaviours can be configured. For example, given the
 example above, what if we actually think that indents should only
 be two spaces, and rather than uppercase keywords, they should
 all be lowercase?
 
-To achieve this we create a configuration file named :code:`.sqlfluff`
-and place it in the same directory as the current file. In that file
-put the following content:
+To achieve this, we can create a configuration file named :code:`.sqlfluff`
+and place it in the same directory as the current file. In that file,
+paste the following content:
 
 .. code-block:: cfg
 
@@ -280,9 +267,9 @@ file has been fixed accordingly.
     from my_table
 
 For a full list of configuration options check out :ref:`defaultconfig`.
-Note that in our example here we've only set a few configuration values
+Note that in our example here, we've only set a few configuration values
 and any other configuration settings remain as per the default config.
-To see how these options apply to specific rules check out the
+To see how these options apply to specific rules, check out the
 "Configuration" section within each rule's documentation in :ref:`ruleref`.
 
 Going further
@@ -290,12 +277,12 @@ Going further
 
 From here, there are several more things to explore.
 
-* To understand how *SQLFluff* is interpreting your file
+* To understand how *SQLFluff* is interpreting your file,
   explore the :code:`parse` command. You can learn more about
   that command and more by running :code:`sqlfluff --help` or
   :code:`sqlfluff parse --help`.
 * To start linting more than just one file at a time, experiment
-  with passing SQLFluff directories rather than just single files.
+  with passing *SQLFluff* directories rather than just single files.
   Try running :code:`sqlfluff lint .` (to lint every sql file in the
   current folder) or :code:`sqlfluff lint path/to/my/sqlfiles`.
 * To find out more about which rules are available, see :ref:`ruleref`.
