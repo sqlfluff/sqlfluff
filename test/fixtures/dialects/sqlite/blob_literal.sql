@@ -1,0 +1,4 @@
+SELECT X'01AF';
+SELECT X'01af';
+SELECT x'01AF';
+SELECT x'01af';
