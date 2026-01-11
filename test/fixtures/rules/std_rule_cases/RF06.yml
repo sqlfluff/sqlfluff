@@ -648,3 +648,13 @@ test_pass_exasol_password_literals:
         prefer_quoted_identifiers: false
     core:
       dialect: exasol
+
+test_snowflake_default_keyword:
+  pass_str: |
+    SELECT
+      foo,
+      "DEFAULT"
+    FROM my_table;
+  configs:
+    core:
+      dialect: snowflake
