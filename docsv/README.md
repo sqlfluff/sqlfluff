@@ -6,10 +6,12 @@ This is a proof of concept (POC) for migrating SQLFluff documentation from Sphin
 
 This POC demonstrates:
 
-1. **Automated Rule Documentation** - Extracts all 69 SQLFluff rules and generates Markdown documentation
-2. **API Documentation** - Uses pydoc-markdown to extract Python docstrings from the API
-3. **Redirect System** - Converts Sphinx redirects to VitePress format for backward compatibility
-4. **Build Pipeline** - Automated script to generate all documentation before VitePress builds
+1. **Automated Rule Documentation** - Extracts all SQLFluff rules and generates Markdown documentation
+2. **Automated Dialect Documentation** - Extracts dialect info
+3. **Automated CLI Documentation** - Extracts CLI commands and options
+4. **API Documentation** - Uses pydoc-markdown to extract Python docstrings from the API
+5. **Redirect System** - Converts Sphinx redirects to VitePress format for backward compatibility
+6. **Build Pipeline** - Automated script to generate all documentation before VitePress builds
 
 ## Directory Structure
 
@@ -21,10 +23,14 @@ docsv/
 │   └── redirects.json      # Auto-generated redirects
 ├── scripts/
 │   ├── generate-rules-docs.py    # Extract and convert rule documentation
+│   ├── generate-dialect-docs.py  # Extract and convert dialect documentation
+│   ├── generate-cli-docs.py      # Extract and convert CLI documentation
 │   ├── extract-redirects.py      # Convert Sphinx redirects to VitePress
 │   └── generate-all-docs.py      # Master build script
 ├── reference/
 │   ├── rules/              # Auto-generated rule docs (by bundle)
+│   ├── dialects/           # Auto-generated dialect docs
+│   └── cli/                # Auto-generated CLI docs
 │   └── api/                # Auto-generated API docs
 ├── public/                 # Static assets
 ├── pydoc-markdown.yml      # Configuration for API doc generation
@@ -35,13 +41,6 @@ docsv/
 ## Setup
 
 ### 1. Install Python Dependencies
-
-Make sure you're in the SQLFluff virtual environment:
-
-```bash
-cd /home/peterbud/dev/sqlfluff
-source .venv/bin/activate
-```
 
 Install pydoc-markdown (for API documentation):
 
@@ -69,6 +68,7 @@ python scripts/generate-all-docs.py
 
 This will:
 - Extract all rules and generate `reference/rules/*.md` files
+- Extract dialect and CLI documentation
 - Generate API documentation with pydoc-markdown
 - Extract redirects from Sphinx `conf.py`
 - Create sidebar configuration
@@ -105,7 +105,7 @@ pnpm run docs:preview
 
 ### Rule Documentation
 
-- ✅ Extracts all 69 rules from SQLFluff using plugin system
+- ✅ Extracts all SQLFluff rules using plugin system
 - ✅ Converts RST docstrings to Markdown
 - ✅ Handles code blocks, **Anti-pattern**/**Best practice** sections
 - ✅ Groups rules by bundle (layout, capitalisation, etc.)
@@ -134,24 +134,13 @@ pnpm run docs:preview
 - ✅ Fast rebuilds with VitePress hot module replacement
 - ✅ Integrated npm scripts for easy workflow
 
-## What's NOT Included (Yet)
-
-This is a POC, so the following are not implemented:
-
-- ❌ Full conversion of 43 RST files to Markdown (only home page created)
-- ❌ Dialect documentation generation
-- ❌ CLI documentation extraction
-- ❌ Custom Vue components for interactive features
-- ❌ Complete styling to match Sphinx theme
-- ❌ Search optimization for large content
-- ❌ GitHub Actions CI/CD pipeline
 
 ## Validation Checklist
 
 To validate this POC:
 
 - [ ] Run `python scripts/generate-all-docs.py` - should complete without errors
-- [ ] Check `reference/rules/` - should have ~9 markdown files (one per bundle)
+- [ ] Check `reference/rules/` - should have ~10 markdown files (one per bundle)
 - [ ] Verify rule documentation has proper formatting and code blocks
 - [ ] Run `npm run docs:dev` - should start dev server
 - [ ] Navigate to rules section - verify layout, links, and anchors work
@@ -164,44 +153,9 @@ To validate this POC:
 If this POC is approved:
 
 1. **Phase 2**: Convert remaining 43 RST files to Markdown (manual + script)
-2. **Phase 3**: Add dialect documentation generation
-3. **Phase 4**: Extract CLI documentation from Click
-4. **Phase 5**: Implement all redirects and test thoroughly
-5. **Phase 6**: Add custom Vue components for enhanced UX
-6. **Phase 7**: Set up deployment pipeline
+4. **Phase 3**: Implement all redirects and test thoroughly
+5. **Phase 4**: Add custom Vue components for enhanced UX
 
-## Troubleshooting
-
-### "ModuleNotFoundError: No module named 'sqlfluff'"
-
-Make sure you're in the SQLFluff virtual environment:
-```bash
-source .venv/bin/activate
-```
-
-### "Command 'pydoc-markdown' not found"
-
-Install pydoc-markdown:
-```bash
-pip install pydoc-markdown
-```
-
-Or skip API doc generation - the rule docs will still work.
-
-### "Cannot find module 'vitepress'"
-
-Install Node.js dependencies:
-```bash
-cd docsv
-pnpm install
-```
-
-### VitePress shows errors about missing files
-
-Make sure to run the generation script first:
-```bash
-python scripts/generate-all-docs.py
-```
 
 ## Feedback
 
@@ -212,9 +166,3 @@ Please test this POC and provide feedback on:
 3. Performance compared to Sphinx
 4. Any missing features critical for migration
 5. Overall approach and architecture
-
----
-
-**Created:** November 18, 2025
-**Status:** Proof of Concept
-**For:** SQLFluff VitePress Migration Analysis

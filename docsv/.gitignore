@@ -5,3 +5,4 @@ reference/dialects/*.md
 reference/rules/*.md
 reference/cli/*.md
 .vitepress/sidebar-*.json
+.vitepress/redirects.json
