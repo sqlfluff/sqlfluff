@@ -93,14 +93,13 @@ class TableBuilder:
         # Per-instruction segment class name index (into strings) or
         # 0xFFFFFFFF if none
         self.segment_class_offsets: List[int] = []
-        # Per-instruction casefold mode (0=None, 1=Upper, 2=Lower) or 0xFF
-        # if unspecified
-        self.casefold_offsets: List[int] = []
-        # Per-instruction trim_chars: offset into trim_chars_data
-        # (0xFFFFFFFF if none)
-        self.trim_chars_offsets: List[int] = []
-        # Per-instruction trim_chars count
-        self.trim_chars_counts: List[int] = []
+        # Sparse casefold entries: list of (grammar_id, mode) tuples
+        # mode: 0=None, 1=Upper, 2=Lower. Only populated for grammars that
+        # specify casefold
+        self.casefold_sparse: List[Tuple[int, int]] = []
+        # Sparse trim_chars entries: list of (grammar_id, offset, count) tuples
+        # Only populated for grammars that actually use trim_chars
+        self.trim_chars_sparse: List[Tuple[int, int, int]] = []
         # Flat array of string indices for trim_chars values
         self.trim_chars_data: List[int] = []
 
@@ -245,11 +244,7 @@ class TableBuilder:
         self.segment_type_offsets.append(0xFFFFFFFF)
         # Reserve a slot for the segment_class offset (default: no class)
         self.segment_class_offsets.append(0xFFFFFFFF)
-        # Reserve a slot for casefold mode (default: unspecified = 0xFF)
-        self.casefold_offsets.append(0xFF)
-        # Reserve slots for trim_chars (default: no trim_chars)
-        self.trim_chars_offsets.append(0xFFFFFFFF)
-        self.trim_chars_counts.append(0)
+        # Note: casefold and trim_chars use sparse storage, no reservation needed
 
         # Convert to GrammarInst (variant-specific logic)
         inst_data = self._convert_to_inst(grammar, parse_context)
@@ -886,26 +881,25 @@ class TableBuilder:
 
         flags = self._build_flags(grammar)
 
-        # Extract casefold and store in casefold_offsets
+        # Extract casefold and store in sparse casefold array
         grammar_id = len(self.instructions) - 1  # Current grammar being built
         casefold_attr = getattr(grammar, "casefold", None)
         if casefold_attr is str.upper:
-            self.casefold_offsets[grammar_id] = 1  # Upper
+            self.casefold_sparse.append((grammar_id, 1))  # Upper
         elif casefold_attr is str.lower:
-            self.casefold_offsets[grammar_id] = 2  # Lower
-        # else: leave as 0xFF (unspecified)
+            self.casefold_sparse.append((grammar_id, 2))  # Lower
 
-        # Extract trim_chars and store in trim_chars arrays
+        # Extract trim_chars and store in sparse trim_chars array
         trim_chars_attr = getattr(grammar, "_trim_chars", None)
         if trim_chars_attr:
-            # Store offset into trim_chars_data
-            self.trim_chars_offsets[grammar_id] = len(self.trim_chars_data)
-            self.trim_chars_counts[grammar_id] = len(trim_chars_attr)
+            # Store sparse entry: (grammar_id, offset, count)
+            offset = len(self.trim_chars_data)
+            count = len(trim_chars_attr)
+            self.trim_chars_sparse.append((grammar_id, offset, count))
             # Add each trim char string to the data array
             for tc in trim_chars_attr:
                 tc_id = self._add_string(tc)
                 self.trim_chars_data.append(tc_id)
-        # else: leave as 0xFFFFFFFF (no trim_chars)
 
         # Store ids in aux_data
         aux_offset = len(self.aux_data)
@@ -989,14 +983,13 @@ class TableBuilder:
 
         flags = self._build_flags(grammar)
 
-        # Extract casefold and store in casefold_offsets
+        # Extract casefold and store in sparse casefold array
         grammar_id = len(self.instructions) - 1  # Current grammar being built
         casefold_attr = getattr(grammar, "casefold", None)
         if casefold_attr is str.upper:
-            self.casefold_offsets[grammar_id] = 1  # Upper
+            self.casefold_sparse.append((grammar_id, 1))  # Upper
         elif casefold_attr is str.lower:
-            self.casefold_offsets[grammar_id] = 2  # Lower
-        # else: leave as 0xFF (unspecified)
+            self.casefold_sparse.append((grammar_id, 2))  # Lower
 
         # Store ids in aux_data
         aux_offset = len(self.aux_data)
@@ -1311,32 +1304,21 @@ class TableBuilder:
         lines.append("];")
         lines.append("")
 
-        # Casefold offsets (indexed by GrammarId)
-        # - 0xFF=unspecified, 0=None, 1=Upper, 2=Lower
-        lines.append("pub static CASEFOLD_OFFSETS: &[u8] = &[")
-        for i in range(0, len(self.casefold_offsets), 32):
-            chunk = self.casefold_offsets[i : i + 32]
-            line = "    " + ", ".join(str(x) for x in chunk) + ","
-            lines.append(line)
+        # Casefold sparse entries (grammar_id, mode)
+        # Sorted by grammar_id for binary search lookup
+        lines.append("pub static CASEFOLD_SPARSE: &[(u32, u8)] = &[")
+        sorted_casefold = sorted(self.casefold_sparse, key=lambda x: x[0])
+        for grammar_id, mode in sorted_casefold:
+            lines.append(f"    ({grammar_id}, {mode}),")
         lines.append("];")
         lines.append("")
 
-        # Trim chars offsets (indexed by GrammarId)
-        # - index into TRIM_CHARS_DATA or 0xFFFFFFFF
-        lines.append("pub static TRIM_CHARS_OFFSETS: &[u32] = &[")
-        for i in range(0, len(self.trim_chars_offsets), 16):
-            chunk = self.trim_chars_offsets[i : i + 16]
-            line = "    " + ", ".join(str(x) for x in chunk) + ","
-            lines.append(line)
-        lines.append("];")
-        lines.append("")
-
-        # Trim chars counts (indexed by GrammarId)
-        lines.append("pub static TRIM_CHARS_COUNTS: &[u8] = &[")
-        for i in range(0, len(self.trim_chars_counts), 32):
-            chunk = self.trim_chars_counts[i : i + 32]
-            line = "    " + ", ".join(str(x) for x in chunk) + ","
-            lines.append(line)
+        # Trim chars sparse entries (grammar_id, data_offset, count)
+        # Sorted by grammar_id for binary search lookup
+        lines.append("pub static TRIM_CHARS_SPARSE: &[(u32, u32, u8)] = &[")
+        sorted_sparse = sorted(self.trim_chars_sparse, key=lambda x: x[0])
+        for grammar_id, offset, count in sorted_sparse:
+            lines.append(f"    ({grammar_id}, {offset}, {count}),")
         lines.append("];")
         lines.append("")
 
@@ -1599,9 +1581,8 @@ def generate_parser_table_driven(dialect: str):
     simple_hint_indices: SIMPLE_HINT_INDICES,
     segment_type_offsets: SEGMENT_TYPE_OFFSETS,
     segment_class_offsets: SEGMENT_CLASS_OFFSETS,
-    casefold_offsets: CASEFOLD_OFFSETS,
-    trim_chars_offsets: TRIM_CHARS_OFFSETS,
-    trim_chars_counts: TRIM_CHARS_COUNTS,
+    casefold_sparse: CASEFOLD_SPARSE,
+    trim_chars_sparse: TRIM_CHARS_SPARSE,
     trim_chars_data: TRIM_CHARS_DATA,
 }};
 """
