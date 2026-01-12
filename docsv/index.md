@@ -26,7 +26,7 @@ features:
     title: Auto-Fix
     details: Automatically fix many linting violations with a single command
   - icon: 📏
-    title: 100+ Rules
+    title: 70+ Rules
     details: Comprehensive linting rules covering style, structure, and best practices
   - icon: 🎨
     title: Configurable
