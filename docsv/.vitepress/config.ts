@@ -23,6 +23,7 @@ const CONFIGURATION: DefaultTheme.NavItemWithLink[] = [
     { text: 'Layout & Formatting', link: '/configuration/layout' },
     { text: 'Templating', link: '/configuration/templating' },
     { text: 'Ignoring Errors', link: '/configuration/ignoring' },
+    { text: "Default Configuration", link: '/configuration/defaults' },
 ]
 
 const USAGE_GUIDES: DefaultTheme.NavItemWithLink[] = [
@@ -79,6 +80,7 @@ export default defineConfig({
                     sidebarRules,
                     sidebarApi,
                     sidebarDialects,
+                    { text: 'Release Notes', link: '/reference/release-notes' },
                 ]
             },
         ],

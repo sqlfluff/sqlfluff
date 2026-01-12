@@ -70,8 +70,7 @@ When setting up a new project with SQLFluff, we recommend keeping your configura
 
 Here is a simple configuration file which would be suitable for a starterproject:
 
-.. literalinclude:: /_partials/starter_config.cfg
-   :language: cfg
+<<< @/../docs/source/_partials/starter_config.cfg{ini}
 
 ### Nesting
 
