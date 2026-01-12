@@ -122,11 +122,9 @@ pub struct GrammarTables {
     /// Per-instruction casefold mode (0xFF=unspecified, 0=None, 1=Upper, 2=Lower)
     pub casefold_offsets: &'static [u8],
 
-    /// Per-instruction trim_chars offsets into trim_chars_data (or 0xFFFFFFFF if none)
-    pub trim_chars_offsets: &'static [u32],
-
-    /// Per-instruction trim_chars counts
-    pub trim_chars_counts: &'static [u8],
+    /// Sparse trim_chars entries: (grammar_id, offset_into_trim_chars_data, count)
+    /// Sorted by grammar_id for binary search. Empty if no grammars use trim_chars.
+    pub trim_chars_sparse: &'static [(u32, u32, u8)],
 
     /// Flat array of string indices for trim_chars values
     pub trim_chars_data: &'static [u32],
@@ -148,8 +146,7 @@ impl GrammarTables {
         segment_type_offsets: &'static [u32],
         segment_class_offsets: &'static [u32],
         casefold_offsets: &'static [u8],
-        trim_chars_offsets: &'static [u32],
-        trim_chars_counts: &'static [u8],
+        trim_chars_sparse: &'static [(u32, u32, u8)],
         trim_chars_data: &'static [u32],
     ) -> Self {
         Self {
@@ -166,8 +163,7 @@ impl GrammarTables {
             segment_type_offsets,
             segment_class_offsets,
             casefold_offsets,
-            trim_chars_offsets,
-            trim_chars_counts,
+            trim_chars_sparse,
             trim_chars_data,
         }
     }
@@ -583,8 +579,7 @@ mod tests {
         static HINT_STRING_INDICES: &[u32] = &[];
         static SIMPLE_HINT_INDICES: &[u32] = &[0, 0, 0]; // One per instruction
         static CASEFOLD_OFFSETS: &[u8] = &[0xFF, 0xFF, 0xFF]; // One per instruction
-        static TRIM_CHARS_OFFSETS: &[u32] = &[0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF]; // One per instruction
-        static TRIM_CHARS_COUNTS: &[u8] = &[0, 0, 0]; // One per instruction
+        static TRIM_CHARS_SPARSE: &[(u32, u32, u8)] = &[]; // No trim_chars in this test
         static TRIM_CHARS_DATA: &[u32] = &[];
 
         let tables = GrammarTables::new(
@@ -601,8 +596,7 @@ mod tests {
             &[], // segment_type_offsets
             &[], // segment_class_offsets
             CASEFOLD_OFFSETS,
-            TRIM_CHARS_OFFSETS,
-            TRIM_CHARS_COUNTS,
+            TRIM_CHARS_SPARSE,
             TRIM_CHARS_DATA,
         );
 
@@ -652,8 +646,7 @@ mod tests {
         static HINT_STRING_INDICES: &[u32] = &[];
         static SIMPLE_HINT_INDICES: &[u32] = &[0, 0]; // One per instruction
         static CASEFOLD_OFFSETS: &[u8] = &[0xFF, 0xFF]; // One per instruction
-        static TRIM_CHARS_OFFSETS: &[u32] = &[0xFFFFFFFF, 0xFFFFFFFF]; // One per instruction
-        static TRIM_CHARS_COUNTS: &[u8] = &[0, 0]; // One per instruction
+        static TRIM_CHARS_SPARSE: &[(u32, u32, u8)] = &[]; // No trim_chars in this test
         static TRIM_CHARS_DATA: &[u32] = &[];
 
         let tables = GrammarTables::new(
@@ -670,8 +663,7 @@ mod tests {
             &[], // segment_type_offsets
             &[], // segment_class_offsets
             CASEFOLD_OFFSETS,
-            TRIM_CHARS_OFFSETS,
-            TRIM_CHARS_COUNTS,
+            TRIM_CHARS_SPARSE,
             TRIM_CHARS_DATA,
         );
 

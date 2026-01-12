@@ -96,11 +96,9 @@ class TableBuilder:
         # Per-instruction casefold mode (0=None, 1=Upper, 2=Lower) or 0xFF
         # if unspecified
         self.casefold_offsets: List[int] = []
-        # Per-instruction trim_chars: offset into trim_chars_data
-        # (0xFFFFFFFF if none)
-        self.trim_chars_offsets: List[int] = []
-        # Per-instruction trim_chars count
-        self.trim_chars_counts: List[int] = []
+        # Sparse trim_chars entries: list of (grammar_id, offset, count) tuples
+        # Only populated for grammars that actually use trim_chars
+        self.trim_chars_sparse: List[Tuple[int, int, int]] = []
         # Flat array of string indices for trim_chars values
         self.trim_chars_data: List[int] = []
 
@@ -247,9 +245,7 @@ class TableBuilder:
         self.segment_class_offsets.append(0xFFFFFFFF)
         # Reserve a slot for casefold mode (default: unspecified = 0xFF)
         self.casefold_offsets.append(0xFF)
-        # Reserve slots for trim_chars (default: no trim_chars)
-        self.trim_chars_offsets.append(0xFFFFFFFF)
-        self.trim_chars_counts.append(0)
+        # Note: trim_chars uses sparse storage, no reservation needed
 
         # Convert to GrammarInst (variant-specific logic)
         inst_data = self._convert_to_inst(grammar, parse_context)
@@ -895,17 +891,17 @@ class TableBuilder:
             self.casefold_offsets[grammar_id] = 2  # Lower
         # else: leave as 0xFF (unspecified)
 
-        # Extract trim_chars and store in trim_chars arrays
+        # Extract trim_chars and store in sparse trim_chars array
         trim_chars_attr = getattr(grammar, "_trim_chars", None)
         if trim_chars_attr:
-            # Store offset into trim_chars_data
-            self.trim_chars_offsets[grammar_id] = len(self.trim_chars_data)
-            self.trim_chars_counts[grammar_id] = len(trim_chars_attr)
+            # Store sparse entry: (grammar_id, offset, count)
+            offset = len(self.trim_chars_data)
+            count = len(trim_chars_attr)
+            self.trim_chars_sparse.append((grammar_id, offset, count))
             # Add each trim char string to the data array
             for tc in trim_chars_attr:
                 tc_id = self._add_string(tc)
                 self.trim_chars_data.append(tc_id)
-        # else: leave as 0xFFFFFFFF (no trim_chars)
 
         # Store ids in aux_data
         aux_offset = len(self.aux_data)
@@ -1321,22 +1317,12 @@ class TableBuilder:
         lines.append("];")
         lines.append("")
 
-        # Trim chars offsets (indexed by GrammarId)
-        # - index into TRIM_CHARS_DATA or 0xFFFFFFFF
-        lines.append("pub static TRIM_CHARS_OFFSETS: &[u32] = &[")
-        for i in range(0, len(self.trim_chars_offsets), 16):
-            chunk = self.trim_chars_offsets[i : i + 16]
-            line = "    " + ", ".join(str(x) for x in chunk) + ","
-            lines.append(line)
-        lines.append("];")
-        lines.append("")
-
-        # Trim chars counts (indexed by GrammarId)
-        lines.append("pub static TRIM_CHARS_COUNTS: &[u8] = &[")
-        for i in range(0, len(self.trim_chars_counts), 32):
-            chunk = self.trim_chars_counts[i : i + 32]
-            line = "    " + ", ".join(str(x) for x in chunk) + ","
-            lines.append(line)
+        # Trim chars sparse entries (grammar_id, data_offset, count)
+        # Sorted by grammar_id for binary search lookup
+        lines.append("pub static TRIM_CHARS_SPARSE: &[(u32, u32, u8)] = &[")
+        sorted_sparse = sorted(self.trim_chars_sparse, key=lambda x: x[0])
+        for grammar_id, offset, count in sorted_sparse:
+            lines.append(f"    ({grammar_id}, {offset}, {count}),")
         lines.append("];")
         lines.append("")
 
@@ -1600,8 +1586,7 @@ def generate_parser_table_driven(dialect: str):
     segment_type_offsets: SEGMENT_TYPE_OFFSETS,
     segment_class_offsets: SEGMENT_CLASS_OFFSETS,
     casefold_offsets: CASEFOLD_OFFSETS,
-    trim_chars_offsets: TRIM_CHARS_OFFSETS,
-    trim_chars_counts: TRIM_CHARS_COUNTS,
+    trim_chars_sparse: TRIM_CHARS_SPARSE,
     trim_chars_data: TRIM_CHARS_DATA,
 }};
 """

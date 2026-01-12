@@ -249,25 +249,34 @@ impl<'a> GrammarContext<'a> {
     /// grammar_id is out of bounds.
     #[inline]
     pub fn trim_chars(&self, id: GrammarId) -> Option<Vec<String>> {
-        let idx = id.get() as usize;
-        if idx >= self.tables.trim_chars_offsets.len() {
+        // Fast path: if no grammars use trim_chars, return None
+        if self.tables.trim_chars_sparse.is_empty() {
             return None;
         }
-        let offset = self.tables.trim_chars_offsets[idx];
-        if offset == 0xFFFFFFFF {
-            return None;
+
+        // Binary search for this grammar_id in the sparse array
+        let target = id.get();
+        let result = self
+            .tables
+            .trim_chars_sparse
+            .binary_search_by_key(&target, |&(gid, _, _)| gid);
+
+        match result {
+            Ok(idx) => {
+                let (_, offset, count) = self.tables.trim_chars_sparse[idx];
+                if count == 0 {
+                    return None;
+                }
+                let start = offset as usize;
+                let mut result = Vec::with_capacity(count as usize);
+                for i in 0..count as usize {
+                    let str_idx = self.tables.trim_chars_data[start + i];
+                    result.push(self.tables.get_string(str_idx).to_string());
+                }
+                Some(result)
+            }
+            Err(_) => None, // Not found
         }
-        let count = self.tables.trim_chars_counts[idx] as usize;
-        if count == 0 {
-            return None;
-        }
-        let start = offset as usize;
-        let mut result = Vec::with_capacity(count);
-        for i in 0..count {
-            let str_idx = self.tables.trim_chars_data[start + i];
-            result.push(self.tables.get_string(str_idx).to_string());
-        }
-        Some(result)
     }
 
     /// Get string template (for StringParser/TypedParser/Token variants)
@@ -608,8 +617,7 @@ mod tests {
         static HINT_STRING_INDICES: &[u32] = &[];
         static SIMPLE_HINT_INDICES: &[u32] = &[0, 0, 0]; // One per instruction
         static CASEFOLD_OFFSETS: &[u8] = &[0xFF, 0xFF, 0xFF]; // One per instruction
-        static TRIM_CHARS_OFFSETS: &[u32] = &[0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF];
-        static TRIM_CHARS_COUNTS: &[u8] = &[0, 0, 0];
+        static TRIM_CHARS_SPARSE: &[(u32, u32, u8)] = &[];
         static TRIM_CHARS_DATA: &[u32] = &[];
 
         let tables = GrammarTables::new(
@@ -626,8 +634,7 @@ mod tests {
             &[], // segment_type_offsets
             &[], // segment_class_offsets
             CASEFOLD_OFFSETS,
-            TRIM_CHARS_OFFSETS,
-            TRIM_CHARS_COUNTS,
+            TRIM_CHARS_SPARSE,
             TRIM_CHARS_DATA,
         );
 
@@ -663,8 +670,7 @@ mod tests {
         static HINT_STRING_INDICES: &[u32] = &[];
         static SIMPLE_HINT_INDICES: &[u32] = &[0, 0, 0, 0]; // One per instruction
         static CASEFOLD_OFFSETS: &[u8] = &[0xFF, 0xFF, 0xFF, 0xFF]; // One per instruction
-        static TRIM_CHARS_OFFSETS: &[u32] = &[0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF];
-        static TRIM_CHARS_COUNTS: &[u8] = &[0, 0, 0, 0];
+        static TRIM_CHARS_SPARSE: &[(u32, u32, u8)] = &[];
         static TRIM_CHARS_DATA: &[u32] = &[];
 
         let tables = GrammarTables::new(
@@ -681,8 +687,7 @@ mod tests {
             &[], // segment_type_offsets
             &[], // segment_class_offsets
             CASEFOLD_OFFSETS,
-            TRIM_CHARS_OFFSETS,
-            TRIM_CHARS_COUNTS,
+            TRIM_CHARS_SPARSE,
             TRIM_CHARS_DATA,
         );
 
