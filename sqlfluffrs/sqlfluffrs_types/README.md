@@ -16,7 +16,7 @@ pub struct GrammarInst {
     pub flags: GrammarFlags,          // Bitflags: optional, allow_gaps, etc.
     pub parse_mode: ParseMode,        // Strict, Greedy, GreedyOnceStarted
     pub first_child_idx: u32,         // → index into child_ids table
-    pub child_count: u16,             
+    pub child_count: u16,
     pub first_terminator_idx: u32,    // → index into terminators table
     pub terminator_count: u16,
     pub template_idx: u32,            // → index into strings table
