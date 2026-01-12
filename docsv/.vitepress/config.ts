@@ -1,10 +1,12 @@
 import { defineConfig } from 'vitepress'
 import type { DefaultTheme } from 'vitepress'
 
-// Auto-generated configurations - we don't use them as of now
+// Auto-generated sidebar and redirect configurations
 import sidebarRules from './sidebar-rules.json'
 import sidebarCli from './sidebar-cli.json'
 import redirects from './redirects.json'
+import sidebarApi from './sidebar-api.json'
+import sidebarDialects from './sidebar-dialects.json'
 
 const GUIDE: DefaultTheme.NavItemWithLink[] = [
     { text: 'Introduction', link: '/guide/' },
@@ -70,7 +72,15 @@ export default defineConfig({
             { text: 'Usage Guides', items: USAGE_GUIDES },
             { text: 'Development', items: DEVELOPMENT },
             { text: 'Configuration', items: CONFIGURATION },
-            { text: 'Reference', items: REFERENCES },
+            {
+                text: 'Reference',
+                items: [
+                    sidebarCli,
+                    sidebarRules,
+                    sidebarApi,
+                    sidebarDialects,
+                ]
+            },
         ],
 
         search: {

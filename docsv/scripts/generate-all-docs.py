@@ -4,8 +4,9 @@
 This script orchestrates the entire documentation generation process:
 1. Rule documentation (generate-rules-docs.py)
 2. Dialect documentation (generate-dialects-docs.py)
-3. API documentation (pydoc-markdown)
-4. Redirect extraction (extract-redirects.py)
+3. CLI documentation (generate-cli-docs.py)
+4. API documentation (generate-api-docs.py)
+5. Redirect extraction (extract-redirects.py)
 """
 
 import subprocess
@@ -77,33 +78,14 @@ def main():
         print("\n❌ Build failed at CLI documentation generation")
         return exit_code
 
-    # Step 4: Generate API documentation with pydoc-markdown
-    pydoc_config = docs_dir / "pydoc-markdown.yml"
-    api_output_dir = docs_dir / "reference" / "api"
-
-    # Check if pydoc-markdown is available
-    try:
-        subprocess.run(["pydoc-markdown", "--version"], check=True, capture_output=True)
-
-        exit_code = run_command(
-            [
-                "pydoc-markdown",
-                "--config",
-                str(pydoc_config),
-                "--render-toc",
-                ">",
-                str(api_output_dir / "simple.md"),
-            ],
-            "Generating API documentation",
-        )
-
-        if exit_code != 0:
-            print("⚠️  API documentation generation had issues, continuing...")
-
-    except FileNotFoundError:
-        print("\n⚠️  pydoc-markdown not found, skipping API docs generation")
-        print("   Install with: pip install pydoc-markdown")
-        print("   Continuing with other steps...\n")
+    # Step 4: Generate API documentation
+    api_script = script_dir / "generate-api-docs.py"
+    exit_code = run_command(
+        [sys.executable, str(api_script)], "Generating API documentation"
+    )
+    if exit_code != 0:
+        print("\n❌ Build failed at API documentation generation")
+        return exit_code
 
     # Step 5: Extract redirects from Sphinx conf.py
     redirects_script = script_dir / "extract-redirects.py"
@@ -133,6 +115,7 @@ def main():
     print("  - Sidebar config (dialects):")
     print(f"    {docs_dir / '.vitepress' / 'sidebar-dialects.json'}")
     print(f"  - Sidebar config (CLI): {docs_dir / '.vitepress' / 'sidebar-cli.json'}")
+    print(f"  - Sidebar config (API): {docs_dir / '.vitepress' / 'sidebar-api.json'}")
 
     return 0
 

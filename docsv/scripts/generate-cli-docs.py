@@ -311,7 +311,7 @@ def generate_sidebar_config(commands: list[dict[str, Any]]) -> dict[str, Any]:
 
     return {
         "text": "CLI Reference",
-        "collapsed": False,
+        "collapsed": True,
         "items": items,
     }
 
