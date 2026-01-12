@@ -52,18 +52,14 @@ if __name__ == "__main__":
         for builder, file, args in [
             ("build_dialect", "mod", []),
             ("build_lexers", "matcher", [dialect.label.lower()]),
-            # ("build_parsers", "parser", [dialect.label.lower()]),
+            (
+                "build_parsers",
+                "parser",
+                ([dialect.label.lower(), "--table-driven"]),
+            ),
         ]
     ]
 
-    file_pair_list = [
-        (
-            "utils/build_dialects.py",
-            "sqlfluffrs/sqlfluffrs_dialects/src/dialect/mod.rs",
-            [],
-        ),
-        *dialects_list,
-    ]
     parser = argparse.ArgumentParser(
         description="Check or build generated Rust output."
     )
@@ -76,7 +72,7 @@ if __name__ == "__main__":
 
     file_pair_list = [
         (Path(build), Path(output), build_args)
-        for build, output, build_args in file_pair_list
+        for build, output, build_args in dialects_list
     ]
 
     if args.action == "build":

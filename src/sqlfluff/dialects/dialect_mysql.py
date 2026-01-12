@@ -304,7 +304,9 @@ mysql_dialect.replace(
             r"([A-Z0-9_]*[A-Z][A-Z0-9_]*)|_",
             IdentifierSegment,
             type="naked_identifier",
-            anti_template=r"^(" + r"|".join(dialect.sets("reserved_keywords")) + r")$",
+            anti_template=r"^("
+            + r"|".join(sorted(dialect.sets("reserved_keywords")))
+            + r")$",
         )
     ),
     LikeGrammar=OneOf("LIKE", "RLIKE", "REGEXP"),
