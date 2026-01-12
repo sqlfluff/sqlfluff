@@ -155,13 +155,9 @@ def generate_dialects_documentation(output_dir: Path) -> dict[str, Any]:
 
     # Generate sidebar configuration
     sidebar_config = {
-        "/reference/dialects/": [
-            {
-                "text": "SQL Dialects",
-                "items": [{"text": "Overview", "link": "/reference/dialects/"}]
-                + sidebar_items,
-            }
-        ]
+        "text": "SQL Dialects",
+        "collapsed": True,
+        "items": [{"text": "Overview", "link": "/reference/dialects/"}] + sidebar_items,
     }
 
     sidebar_file = output_dir.parent.parent / ".vitepress" / "sidebar-dialects.json"

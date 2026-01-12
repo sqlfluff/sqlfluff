@@ -360,15 +360,14 @@ def generate_rules_documentation(output_dir: Path) -> dict[str, Any]:
     print(f"Generated: {output_dir / 'index.md'}")
 
     # Return sidebar configuration
-    sidebar_config = [
-        {
-            "text": "Rules by Category",
-            "items": [
-                {"text": "Overview", "link": "/reference/rules/"},
-                *sidebar_items,
-            ],
-        }
-    ]
+    sidebar_config = {
+        "text": "Rules Reference",
+        "collapsed": True,
+        "items": [
+            {"text": "Overview", "link": "/reference/rules/"},
+            *sidebar_items,
+        ],
+    }
 
     return sidebar_config
 
