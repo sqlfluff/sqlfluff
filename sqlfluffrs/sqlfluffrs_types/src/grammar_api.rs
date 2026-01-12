@@ -230,16 +230,29 @@ impl<'a> GrammarContext<'a> {
     /// grammar_id is out of bounds.
     #[inline]
     pub fn casefold(&self, id: GrammarId) -> Option<crate::token::CaseFold> {
-        let idx = id.get() as usize;
-        if idx >= self.tables.casefold_offsets.len() {
+        // Fast path: if no grammars use casefold, return None
+        if self.tables.casefold_sparse.is_empty() {
             return None;
         }
-        match self.tables.casefold_offsets[idx] {
-            0xFF => None, // Unspecified
-            0 => Some(crate::token::CaseFold::None),
-            1 => Some(crate::token::CaseFold::Upper),
-            2 => Some(crate::token::CaseFold::Lower),
-            _ => None, // Invalid value
+
+        // Binary search for this grammar_id in the sparse array
+        let target = id.get();
+        let result = self
+            .tables
+            .casefold_sparse
+            .binary_search_by_key(&target, |&(grammar_id, _)| grammar_id);
+
+        match result {
+            Ok(idx) => {
+                let (_, mode) = self.tables.casefold_sparse[idx];
+                match mode {
+                    0 => Some(crate::token::CaseFold::None),
+                    1 => Some(crate::token::CaseFold::Upper),
+                    2 => Some(crate::token::CaseFold::Lower),
+                    _ => None, // Invalid value
+                }
+            }
+            Err(_) => None, // Not found
         }
     }
 
@@ -616,7 +629,7 @@ mod tests {
         static SIMPLE_HINTS: &[SimpleHintData] = &[];
         static HINT_STRING_INDICES: &[u32] = &[];
         static SIMPLE_HINT_INDICES: &[u32] = &[0, 0, 0]; // One per instruction
-        static CASEFOLD_OFFSETS: &[u8] = &[0xFF, 0xFF, 0xFF]; // One per instruction
+        static CASEFOLD_SPARSE: &[(u32, u8)] = &[];
         static TRIM_CHARS_SPARSE: &[(u32, u32, u8)] = &[];
         static TRIM_CHARS_DATA: &[u32] = &[];
 
@@ -633,7 +646,7 @@ mod tests {
             SIMPLE_HINT_INDICES,
             &[], // segment_type_offsets
             &[], // segment_class_offsets
-            CASEFOLD_OFFSETS,
+            CASEFOLD_SPARSE,
             TRIM_CHARS_SPARSE,
             TRIM_CHARS_DATA,
         );
@@ -669,7 +682,7 @@ mod tests {
         static SIMPLE_HINTS: &[SimpleHintData] = &[];
         static HINT_STRING_INDICES: &[u32] = &[];
         static SIMPLE_HINT_INDICES: &[u32] = &[0, 0, 0, 0]; // One per instruction
-        static CASEFOLD_OFFSETS: &[u8] = &[0xFF, 0xFF, 0xFF, 0xFF]; // One per instruction
+        static CASEFOLD_SPARSE: &[(u32, u8)] = &[];
         static TRIM_CHARS_SPARSE: &[(u32, u32, u8)] = &[];
         static TRIM_CHARS_DATA: &[u32] = &[];
 
@@ -686,7 +699,7 @@ mod tests {
             SIMPLE_HINT_INDICES,
             &[], // segment_type_offsets
             &[], // segment_class_offsets
-            CASEFOLD_OFFSETS,
+            CASEFOLD_SPARSE,
             TRIM_CHARS_SPARSE,
             TRIM_CHARS_DATA,
         );

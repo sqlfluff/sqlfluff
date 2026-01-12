@@ -93,9 +93,10 @@ class TableBuilder:
         # Per-instruction segment class name index (into strings) or
         # 0xFFFFFFFF if none
         self.segment_class_offsets: List[int] = []
-        # Per-instruction casefold mode (0=None, 1=Upper, 2=Lower) or 0xFF
-        # if unspecified
-        self.casefold_offsets: List[int] = []
+        # Sparse casefold entries: list of (grammar_id, mode) tuples
+        # mode: 0=None, 1=Upper, 2=Lower. Only populated for grammars that
+        # specify casefold
+        self.casefold_sparse: List[Tuple[int, int]] = []
         # Sparse trim_chars entries: list of (grammar_id, offset, count) tuples
         # Only populated for grammars that actually use trim_chars
         self.trim_chars_sparse: List[Tuple[int, int, int]] = []
@@ -243,9 +244,7 @@ class TableBuilder:
         self.segment_type_offsets.append(0xFFFFFFFF)
         # Reserve a slot for the segment_class offset (default: no class)
         self.segment_class_offsets.append(0xFFFFFFFF)
-        # Reserve a slot for casefold mode (default: unspecified = 0xFF)
-        self.casefold_offsets.append(0xFF)
-        # Note: trim_chars uses sparse storage, no reservation needed
+        # Note: casefold and trim_chars use sparse storage, no reservation needed
 
         # Convert to GrammarInst (variant-specific logic)
         inst_data = self._convert_to_inst(grammar, parse_context)
@@ -882,14 +881,13 @@ class TableBuilder:
 
         flags = self._build_flags(grammar)
 
-        # Extract casefold and store in casefold_offsets
+        # Extract casefold and store in sparse casefold array
         grammar_id = len(self.instructions) - 1  # Current grammar being built
         casefold_attr = getattr(grammar, "casefold", None)
         if casefold_attr is str.upper:
-            self.casefold_offsets[grammar_id] = 1  # Upper
+            self.casefold_sparse.append((grammar_id, 1))  # Upper
         elif casefold_attr is str.lower:
-            self.casefold_offsets[grammar_id] = 2  # Lower
-        # else: leave as 0xFF (unspecified)
+            self.casefold_sparse.append((grammar_id, 2))  # Lower
 
         # Extract trim_chars and store in sparse trim_chars array
         trim_chars_attr = getattr(grammar, "_trim_chars", None)
@@ -985,14 +983,13 @@ class TableBuilder:
 
         flags = self._build_flags(grammar)
 
-        # Extract casefold and store in casefold_offsets
+        # Extract casefold and store in sparse casefold array
         grammar_id = len(self.instructions) - 1  # Current grammar being built
         casefold_attr = getattr(grammar, "casefold", None)
         if casefold_attr is str.upper:
-            self.casefold_offsets[grammar_id] = 1  # Upper
+            self.casefold_sparse.append((grammar_id, 1))  # Upper
         elif casefold_attr is str.lower:
-            self.casefold_offsets[grammar_id] = 2  # Lower
-        # else: leave as 0xFF (unspecified)
+            self.casefold_sparse.append((grammar_id, 2))  # Lower
 
         # Store ids in aux_data
         aux_offset = len(self.aux_data)
@@ -1307,13 +1304,12 @@ class TableBuilder:
         lines.append("];")
         lines.append("")
 
-        # Casefold offsets (indexed by GrammarId)
-        # - 0xFF=unspecified, 0=None, 1=Upper, 2=Lower
-        lines.append("pub static CASEFOLD_OFFSETS: &[u8] = &[")
-        for i in range(0, len(self.casefold_offsets), 32):
-            chunk = self.casefold_offsets[i : i + 32]
-            line = "    " + ", ".join(str(x) for x in chunk) + ","
-            lines.append(line)
+        # Casefold sparse entries (grammar_id, mode)
+        # Sorted by grammar_id for binary search lookup
+        lines.append("pub static CASEFOLD_SPARSE: &[(u32, u8)] = &[")
+        sorted_casefold = sorted(self.casefold_sparse, key=lambda x: x[0])
+        for grammar_id, mode in sorted_casefold:
+            lines.append(f"    ({grammar_id}, {mode}),")
         lines.append("];")
         lines.append("")
 
@@ -1585,7 +1581,7 @@ def generate_parser_table_driven(dialect: str):
     simple_hint_indices: SIMPLE_HINT_INDICES,
     segment_type_offsets: SEGMENT_TYPE_OFFSETS,
     segment_class_offsets: SEGMENT_CLASS_OFFSETS,
-    casefold_offsets: CASEFOLD_OFFSETS,
+    casefold_sparse: CASEFOLD_SPARSE,
     trim_chars_sparse: TRIM_CHARS_SPARSE,
     trim_chars_data: TRIM_CHARS_DATA,
 }};
