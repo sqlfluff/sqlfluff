@@ -17,11 +17,24 @@ const GUIDE: DefaultTheme.NavItemWithLink[] = [
     { text: 'Vision', link: '/guide/vision' },
 ]
 
-const CONFIGURATION: DefaultTheme.NavItemWithLink[] = [
+const TEMPLATING: DefaultTheme.SidebarItem = {
+    text: 'Templating',
+    collapsed: true,
+    items: [
+        { text: 'Overview', link: '/configuration/templating/' },
+        { text: 'Jinja', link: '/configuration/templating/jinja' },
+        { text: 'Placeholder', link: '/configuration/templating/placeholder' },
+        { text: 'Python', link: '/configuration/templating/python' },
+        { text: 'dbt', link: '/configuration/templating/dbt' },
+        { text: 'Generic Templater', link: '/configuration/templating/generic' },
+    ]
+}
+
+const CONFIGURATION: DefaultTheme.SidebarItem[] = [
     { text: 'Overview', link: '/configuration/' },
     { text: 'Rules', link: '/configuration/rules' },
     { text: 'Layout & Formatting', link: '/configuration/layout' },
-    { text: 'Templating', link: '/configuration/templating' },
+    TEMPLATING,
     { text: 'Ignoring Errors', link: '/configuration/ignoring' },
     { text: "Default Configuration", link: '/configuration/defaults' },
 ]
@@ -64,7 +77,7 @@ export default defineConfig({
 
         nav: [
             { text: 'Guide', items: GUIDE },
-            { text: 'Configuration', items: CONFIGURATION },
+            { text: 'Configuration', items: CONFIGURATION as DefaultTheme.NavItemWithLink[] },
             { text: 'Reference', items: REFERENCES },
         ],
 

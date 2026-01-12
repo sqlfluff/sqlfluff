@@ -162,4 +162,4 @@ You can use either rule code or rule name for this setting.
 The `[sqlfluff:layout]` section of the config controls the
 treatment of spacing and line breaks across all rules. To understand
 more about this section, see the section of the docs dedicated to
-layout: [Layout Configuration](../configuration/layout.md).
+layout: [Layout Configuration](../configuration/layout).
