@@ -1632,6 +1632,7 @@ def generate_parser_table_driven(dialect: str):
 
 
 if __name__ == "__main__":
+    sys.stdout.reconfigure(newline="\n")  # Force LF line endings
     parser = argparse.ArgumentParser(
         description="Build generated Rust output for a dialect."
     )

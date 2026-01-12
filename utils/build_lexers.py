@@ -2,6 +2,7 @@
 
 import argparse
 import re
+import sys
 from collections.abc import Callable
 from typing import Optional, Union
 
@@ -248,6 +249,7 @@ fn extract_nested_block_comment(input: &str) -> Option<&str> {{
 
 
 if __name__ == "__main__":
+    sys.stdout.reconfigure(newline="\n")  # Force LF line endings
     parser = argparse.ArgumentParser(
         description="Build generated Rust output for a dialect."
     )
