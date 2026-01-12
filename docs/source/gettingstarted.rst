@@ -16,7 +16,7 @@ you're using. In any case, the python wiki provides up to date
 
 There's a chance that you'll be offered the choice between python
 versions. Support for python 2 was dropped in early 2020, so you
-should always opt for a version number starting with a 3. You can 
+should always opt for a version number starting with a 3. You can
 check the `pypi project page`_ to find the python versions that
 *SQLFluff* supports.
 
