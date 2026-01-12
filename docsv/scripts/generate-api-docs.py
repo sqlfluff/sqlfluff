@@ -16,6 +16,35 @@ from pathlib import Path
 from typing import Any, Callable, get_type_hints
 
 from sqlfluff.api import info, simple
+from sqlfluff.core import Lexer, Linter, Parser
+
+
+def clean_rst_markup(text: str) -> str:
+    """Remove RST-style markup from text.
+
+    Args:
+        text: Text containing RST markup
+
+    Returns:
+        Cleaned text
+    """
+    if not text:
+        return text
+
+    # Remove :obj:`type` -> type
+    text = re.sub(r":obj:`([^`]+)`", r"\1", text)
+    # Remove :class:`type` -> type
+    text = re.sub(r":class:`([^`]+)`", r"\1", text)
+    # Remove :func:`func` -> func
+    text = re.sub(r":func:`([^`]+)`", r"\1", text)
+    # Remove :meth:`method` -> method
+    text = re.sub(r":meth:`([^`]+)`", r"\1", text)
+    # Remove :attr:`attr` -> attr
+    text = re.sub(r":attr:`([^`]+)`", r"\1", text)
+    # Remove :mod:`module` -> module
+    text = re.sub(r":mod:`([^`]+)`", r"\1", text)
+
+    return text
 
 
 def parse_param_list(text: str) -> list[dict[str, str]]:
@@ -52,8 +81,9 @@ def parse_param_list(text: str) -> list[dict[str, str]]:
             param_type = match.group(2) or ""
             description = match.group(3).strip()
 
-            # Clean up type annotations like :obj:`str`
-            param_type = re.sub(r":obj:`([^`]+)`", r"\1", param_type)
+            # Clean up RST markup
+            param_type = clean_rst_markup(param_type)
+            description = clean_rst_markup(description)
 
             current_param = {
                 "name": name,
@@ -62,7 +92,7 @@ def parse_param_list(text: str) -> list[dict[str, str]]:
             }
         elif current_param and line.strip():
             # Continuation of previous parameter description
-            current_param["description"] += " " + line.strip()
+            current_param["description"] += " " + clean_rst_markup(line.strip())
 
     # Save last parameter
     if current_param:
@@ -110,12 +140,16 @@ def parse_google_docstring(docstring: str) -> dict[str, Any]:
         if match:
             # Save previous section content
             if current_section == "description":
-                sections["description"] = "\n".join(current_content).strip()
+                sections["description"] = clean_rst_markup(
+                    "\n".join(current_content).strip()
+                )
             elif current_section in ("args", "raises"):
                 # Parse parameter list
                 sections[current_section] = parse_param_list("\n".join(current_content))
             elif current_section in ("returns", "examples", "note"):
-                sections[current_section] = "\n".join(current_content).strip()
+                sections[current_section] = clean_rst_markup(
+                    "\n".join(current_content).strip()
+                )
 
             # Start new section
             current_section = (
@@ -135,11 +169,11 @@ def parse_google_docstring(docstring: str) -> dict[str, Any]:
 
     # Save final section
     if current_section == "description":
-        sections["description"] = "\n".join(current_content).strip()
+        sections["description"] = clean_rst_markup("\n".join(current_content).strip())
     elif current_section in ("args", "raises"):
         sections[current_section] = parse_param_list("\n".join(current_content))
     elif current_section in ("returns", "examples", "note"):
-        sections[current_section] = "\n".join(current_content).strip()
+        sections[current_section] = clean_rst_markup("\n".join(current_content).strip())
 
     return sections
 
@@ -313,22 +347,45 @@ def extract_class_info(cls: type, module_name: str) -> dict[str, Any]:
     except (ValueError, TypeError):
         pass
 
+    # Extract public methods
+    methods = []
+    for name, obj in inspect.getmembers(cls):
+        # Skip private/magic methods except __init__
+        if name.startswith("_"):
+            continue
+
+        # Only process methods
+        if inspect.ismethod(obj) or inspect.isfunction(obj):
+            try:
+                method_info = extract_function_info(obj, module_name)
+                # Add class context
+                method_info["class_name"] = cls.__name__
+                methods.append(method_info)
+            except Exception:
+                # Skip methods that can't be introspected
+                pass
+
     return {
         "name": cls.__name__,
         "module": module_name,
         "type": "class",
         "description": parsed_doc.get("description", ""),
         "params": params,
+        "methods": methods,
         "note": parsed_doc.get("note", ""),
     }
 
 
 def generate_module_markdown(
-    module_name: str, functions: list[dict[str, Any]], classes: list[dict[str, Any]]
+    name: str,
+    module_name: str,
+    functions: list[dict[str, Any]],
+    classes: list[dict[str, Any]],
 ) -> str:
     """Generate markdown content for a module.
 
     Args:
+        name: Display name of the module
         module_name: Name of the module
         functions: List of function information dicts
         classes: List of class information dicts
@@ -336,7 +393,11 @@ def generate_module_markdown(
     Returns:
         Markdown content
     """
-    lines = [f"# {module_name}\n"]
+    lines = [f"# {name}\n"]
+
+    # Add frontmatter for simple and core modules
+    if module_name in ("simple", "core"):
+        lines.insert(0, "---\noutline: [2, 5]\n---\n")
 
     # Add module description based on module
     if module_name == "simple":
@@ -347,6 +408,17 @@ def generate_module_markdown(
     elif module_name == "info":
         lines.append(
             "The info API provides functions to list available rules and dialects.\n"
+        )
+    elif module_name == "core":
+        lines.append(
+            "The simple API presents only a fraction of the functionality present "
+            "within the core SQLFluff library. For more advanced use cases, users can "
+            "import the `Linter()` and `FluffConfig()` classes from `sqlfluff.core`. "
+            "As of version 0.4.0 this is considered as experimental only as the "
+            "internals may change without warning in any future release. If you come "
+            "to rely on the internals of SQLFluff, please post an issue on GitHub to "
+            "share what you're up to. This will help shape a more reliable, tidy and "
+            "well documented public API for use.\n"
         )
 
     # Generate classes section
@@ -370,6 +442,85 @@ def generate_module_markdown(
                     lines.append(f"| {name} | {ptype} | {default} | {desc} |")
                 lines.append("")
 
+            # Add methods section
+            if cls_info.get("methods"):
+                lines.append("#### Methods\n")
+                for method_info in cls_info["methods"]:
+                    lines.append(f"##### `{method_info['name']}`\n")
+
+                    # Signature - format with line breaks for readability
+                    param_parts = []
+                    for param in method_info["params"]:
+                        if param["default"]:
+                            param_parts.append(
+                                f"    {param['name']}={param['default']}"
+                            )
+                        else:
+                            param_parts.append(f"    {param['name']}")
+
+                    if param_parts:
+                        param_str = ",\n".join(param_parts)
+                        signature = f"{method_info['name']}(\n{param_str}\n)"
+                    else:
+                        signature = f"{method_info['name']}()"
+
+                    if method_info["return_type"]:
+                        signature += f" → {method_info['return_type']}"
+
+                    lines.append(f"```python\n{signature}\n```\n")
+
+                    # Description
+                    if method_info["description"]:
+                        lines.append(f"{method_info['description']}\n")
+
+                    # Parameters table
+                    if method_info["params"]:
+                        lines.append("**Parameters:**\n")
+                        lines.append("| Parameter | Type | Default | Description |")
+                        lines.append("|-----------|------|---------|-------------|")
+                        for param in method_info["params"]:
+                            name = f"`{param['name']}`"
+                            ptype = f"`{param['type']}`" if param["type"] else "—"
+                            default = (
+                                f"`{param['default']}`" if param["default"] else "—"
+                            )
+                            desc = param["description"].replace("\n", " ").strip()
+                            lines.append(f"| {name} | {ptype} | {default} | {desc} |")
+                        lines.append("")
+
+                    # Returns
+                    if method_info["returns"] or method_info["return_type"]:
+                        lines.append("**Returns:**\n")
+                        return_desc = method_info["returns"] or "See return type above"
+                        if method_info["return_type"]:
+                            lines.append(
+                                f"`{method_info['return_type']}` — {return_desc}\n"
+                            )
+                        else:
+                            lines.append(f"{return_desc}\n")
+
+                    # Raises
+                    if method_info["raises"]:
+                        lines.append("**Raises:**\n")
+                        for exc in method_info["raises"]:
+                            exc_type = exc.get("type", "Exception")
+                            exc_desc = exc.get("description", "")
+                            lines.append(f"- `{exc_type}`: {exc_desc}")
+                        lines.append("")
+
+                    # Examples
+                    if method_info["examples"]:
+                        lines.append("**Examples:**\n")
+                        examples = method_info["examples"].strip()
+                        if not examples.startswith("```"):
+                            lines.append(f"```python\n{examples}\n```\n")
+                        else:
+                            lines.append(f"{examples}\n")
+
+                    # Note
+                    if method_info["note"]:
+                        lines.append(f"**Note:** {method_info['note']}\n")
+
             if cls_info["note"]:
                 lines.append(f"**Note:** {cls_info['note']}\n")
 
@@ -379,15 +530,20 @@ def generate_module_markdown(
         for func_info in functions:
             lines.append(f"### {func_info['name']}\n")
 
-            # Signature
+            # Signature - format with line breaks for readability
             param_parts = []
             for param in func_info["params"]:
                 if param["default"]:
-                    param_parts.append(f"{param['name']}={param['default']}")
+                    param_parts.append(f"    {param['name']}={param['default']}")
                 else:
-                    param_parts.append(param["name"])
+                    param_parts.append(f"    {param['name']}")
 
-            signature = f"{func_info['name']}({', '.join(param_parts)})"
+            if param_parts:
+                param_str = ",\n".join(param_parts)
+                signature = f"{func_info['name']}(\n{param_str}\n)"
+            else:
+                signature = f"{func_info['name']}()"
+
             if func_info["return_type"]:
                 signature += f" → {func_info['return_type']}"
 
@@ -457,32 +613,19 @@ def generate_index_markdown(modules: list[dict[str, Any]]) -> str:
     """
     lines = [
         "# Python API Reference\n",
-        "SQLFluff provides a Python API for programmatic access to linting, "
-        "fixing, and parsing functionality.\n",
+        "SQLFluff exposes a public api for other python applications to use. ",
+        "A basic example of this usage is given here, with the documentation ",
+        "for each of the methods below.\n",
+        "<<< @/../examples/01_basic_api_usage.py\n",
         "## Modules\n",
         "| Module | Description |",
         "|--------|-------------|",
     ]
 
     for mod in modules:
-        name = f"[`{mod['name']}`](./{mod['name']})"
+        name = f"[`{mod['name']}`](./{mod['module_name']})"
         desc = mod["description"]
         lines.append(f"| {name} | {desc} |")
-
-    lines.append("")
-    lines.append("## Quick Start\n")
-    lines.append("```python")
-    lines.append("from sqlfluff.api import lint, fix, parse")
-    lines.append("")
-    lines.append("# Lint SQL")
-    lines.append('violations = lint("SELECT * FROM tbl", dialect="postgres")')
-    lines.append("")
-    lines.append("# Fix SQL")
-    lines.append('fixed_sql = fix("SELECT * FROM tbl", dialect="postgres")')
-    lines.append("")
-    lines.append("# Parse SQL")
-    lines.append('tree = parse("SELECT * FROM tbl", dialect="postgres")')
-    lines.append("```\n")
 
     return "\n".join(lines)
 
@@ -502,8 +645,10 @@ def generate_sidebar_config(modules: list[dict[str, Any]]) -> dict[str, Any]:
     items.append({"text": "Overview", "link": "/reference/api/"})
 
     # Add all modules
-    for mod in sorted(modules, key=lambda x: x["name"]):
-        items.append({"text": mod["name"], "link": f"/reference/api/{mod['name']}"})
+    for mod in modules:
+        items.append(
+            {"text": mod["name"], "link": f"/reference/api/{mod['module_name']}"}
+        )
 
     return {
         "text": "Python API",
@@ -527,13 +672,22 @@ def main():
     # Define modules to document
     modules_info = [
         {
-            "name": "simple",
+            "name": "Simple API",
             "module": simple,
+            "module_name": "simple",
             "description": "High-level API for linting, fixing, and parsing SQL",
         },
         {
-            "name": "info",
+            "name": "Advanced API",
+            "module": None,  # Use whitelist instead
+            "module_name": "core",
+            "description": "Core classes for parsing and linting",
+            "whitelist": {"Linter": Linter, "Lexer": Lexer, "Parser": Parser},
+        },
+        {
+            "name": "Info",
             "module": info,
+            "module_name": "info",
             "description": "Information about available rules and dialects",
         },
     ]
@@ -547,36 +701,52 @@ def main():
         functions = []
         classes = []
 
-        for name, obj in inspect.getmembers(mod_info["module"]):
-            # Skip private members
-            if name.startswith("_"):
-                continue
+        # If whitelist is provided, only document those members
+        if "whitelist" in mod_info:
+            for name, obj in mod_info["whitelist"].items():
+                if inspect.isfunction(obj):
+                    func_info = extract_function_info(obj, mod_info["name"])
+                    functions.append(func_info)
+                    print(f"    - Function: {name}")
+                elif inspect.isclass(obj):
+                    class_info = extract_class_info(obj, mod_info["name"])
+                    classes.append(class_info)
+                    print(f"    - Class: {name}")
+        else:
+            # Process all public members from the module
+            for name, obj in inspect.getmembers(mod_info["module"]):
+                # Skip private members
+                if name.startswith("_"):
+                    continue
 
-            # Skip imported items (only document items defined in this module)
-            if hasattr(obj, "__module__") and not obj.__module__.startswith(
-                f"sqlfluff.api.{mod_info['name']}"
-            ):
-                continue
+                # Skip imported items (only document items defined in this module)
+                if hasattr(obj, "__module__") and not obj.__module__.startswith(
+                    f"sqlfluff.api.{mod_info['module_name']}"
+                ):
+                    continue
 
-            if inspect.isfunction(obj):
-                func_info = extract_function_info(obj, mod_info["name"])
-                functions.append(func_info)
-                print(f"    - Function: {name}")
-            elif inspect.isclass(obj):
-                class_info = extract_class_info(obj, mod_info["name"])
-                classes.append(class_info)
-                print(f"    - Class: {name}")
+                if inspect.isfunction(obj):
+                    func_info = extract_function_info(obj, mod_info["name"])
+                    functions.append(func_info)
+                    print(f"    - Function: {name}")
+                elif inspect.isclass(obj):
+                    class_info = extract_class_info(obj, mod_info["name"])
+                    classes.append(class_info)
+                    print(f"    - Class: {name}")
 
         # Generate markdown
-        md_content = generate_module_markdown(mod_info["name"], functions, classes)
+        md_content = generate_module_markdown(
+            mod_info["name"], mod_info["module_name"], functions, classes
+        )
 
         # Write to file
-        output_file = output_dir / f"{mod_info['name']}.md"
+        output_file = output_dir / f"{mod_info['module_name']}.md"
         output_file.write_text(md_content)
 
         modules_output.append(
             {
                 "name": mod_info["name"],
+                "module_name": mod_info["module_name"],
                 "description": mod_info["description"],
                 "functions": len(functions),
                 "classes": len(classes),
