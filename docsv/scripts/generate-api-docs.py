@@ -397,7 +397,7 @@ def generate_module_markdown(
 
     # Add frontmatter for simple and core modules
     if module_name in ("simple", "core"):
-        lines.insert(0, "---\noutline: [2, 5]\n---\n")
+        lines.insert(0, "---\noutline: [2, 4]\n---\n")
 
     # Add module description based on module
     if module_name == "simple":
@@ -423,9 +423,9 @@ def generate_module_markdown(
 
     # Generate classes section
     if classes:
-        lines.append("## Classes\n")
+        lines.append("# Classes\n")
         for cls_info in classes:
-            lines.append(f"### {cls_info['name']}\n")
+            lines.append(f"## {cls_info['name']}\n")
 
             if cls_info["description"]:
                 lines.append(f"{cls_info['description']}\n")
@@ -444,9 +444,9 @@ def generate_module_markdown(
 
             # Add methods section
             if cls_info.get("methods"):
-                lines.append("#### Methods\n")
+                lines.append("### Methods\n")
                 for method_info in cls_info["methods"]:
-                    lines.append(f"##### `{method_info['name']}`\n")
+                    lines.append(f"#### `{method_info['name']}`\n")
 
                     # Signature - format with line breaks for readability
                     param_parts = []
