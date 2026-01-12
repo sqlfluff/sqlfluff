@@ -444,7 +444,7 @@ offered by jinja2 (or dbt which relies on it). For simple
 cases, templated elements are handled as you would expect
 by introducing additional indents into the layout.
 
-```SQL+Jinja
+```sql
 SELECT
    a,
    {% for n in ['b', 'c', 'd'] %}
@@ -463,7 +463,7 @@ It's important to note here, that SQLFluff lints the code after
 it has been rendered, and so only has access to code which is
 still present after that process.
 
-```SQL+Jinja
+```sql
 SELECT
    a,
    {% if False %}
@@ -502,7 +502,7 @@ because it makes it harder to line up elements within the affected
 section and outside (in the example below the `SELECT` and
 `FROM` are a good illustration).
 
-```SQL+Jinja
+```sql
 SELECT
    a,
    {% if True %}
@@ -573,7 +573,7 @@ JOIN another_table
 
 By setting your config file to:
 
-```cfg
+```ini
 [sqlfluff:indentation]
 indented_joins = True
 ```
@@ -610,7 +610,7 @@ It's worth noting at this point, that for some users, the additional line
 break after `ON` is unexpected, and this is a good example of an
 implicit indent. By setting your config to:
 
-```cfg
+```ini
 [sqlfluff:indentation]
 indented_using_on = False
 implicit_indents = allow
@@ -706,7 +706,7 @@ The syntax of the section headings here select by *type*, which corresponds
 to the `type` defined in the dialect. For example the following section
 applies to elements of the *type* `comma`, i.e. `,`.
 
-```cfg
+```ini
 [sqlfluff:layout:type:comma]
 spacing_before = touch
 line_position = trailing
@@ -746,7 +746,7 @@ available:
     you (or your organisation) have settled on *leading* commas then
     you should add the following section to your config:
 
-    ```cfg
+    ```ini
     [sqlfluff:layout:type:comma]
     line_position = leading
     ```
@@ -790,7 +790,7 @@ available:
     keywords, but if you (or your organisation) have settled on *alone*
     `WHERE` keywords then you should add the following section to your config:
 
-    ```cfg
+    ```ini
     [sqlfluff:layout:type:where_clause]
     keyword_line_position = alone
     ```
@@ -800,7 +800,7 @@ available:
     a join. If you (or your organisation) have settled on *trailing* `ON`
     keywords then you should add the following section to your config:
 
-    ```cfg
+    ```ini
     [sqlfluff:layout:type:join_on_condition]
     keyword_line_position = trailing
     ```
@@ -809,7 +809,7 @@ available:
     to apply the `leading` directive to the `PARTITION BY` clause you
     would add the following configuration:
 
-    ```cfg
+    ```ini
     [sqlfluff:layout:type:partitionby_clause]
     keyword_line_position = leading
     ```
@@ -817,7 +817,7 @@ available:
   * If you (or your organisation) would prefer to unset the default
     of some options, you may clear it by setting the configuration to `none`.
 
-    ```cfg
+    ```ini
     [sqlfluff:layout:type:where_clause]
     keyword_line_position = none
 
@@ -840,7 +840,7 @@ available:
   For example, to exclude window specifications from the `ORDER BY` clause's
   keyword line position rule, you can configure it as follows:
 
-  ```cfg
+  ```ini
   [sqlfluff:layout:type:orderby_clause]
   keyword_line_position = leading
   keyword_line_position_exclusions = window_specification
@@ -851,7 +851,7 @@ available:
 
   You can also specify multiple exclusions by separating them with commas:
 
-  ```cfg
+  ```ini
   [sqlfluff:layout:type:orderby_clause]
   keyword_line_position = leading
   keyword_line_position_exclusions = window_specification, aggregate_order_by
