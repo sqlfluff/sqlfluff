@@ -46,7 +46,7 @@ const CONFIGURATION_NAV: DefaultTheme.NavItemWithLink[] = [
 ]
 
 const USAGE_GUIDES: DefaultTheme.NavItemWithLink[] = [
-    { text: 'Production Usage', link: '/usage/index' },
+    { text: 'Production Usage', link: '/usage/' },
     { text: 'Team Rollout', link: '/usage/team-rollout' },
     { text: 'CI/CD Integration', link: '/usage/ci-cd' },
     { text: 'Pre-commit', link: '/usage/pre-commit' },
