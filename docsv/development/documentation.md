@@ -14,8 +14,8 @@ Documentation takes two forms:
 
 The two are somewhat blurred by the use of [autodoc](https://www.sphinx-doc.org/en/master/usage/extensions/autodoc.html) (and some other custom
 integrations), where documentation is generated directly off [docstrings](https://en.wikipedia.org/wiki/Docstring)
-within the codebase, for example the [Rules Reference](/reference/rules), [CLI Reference](/reference/cli) and
-[Dialect Reference](/reference/dialects). To understand more about how the custom integrations
+within the codebase, for example the [Rules Reference](/reference/rules/index), [CLI Reference](/reference/cli/index) and
+[Dialect Reference](/reference/dialects/index). To understand more about how the custom integrations
 we use to generate these docs, see the [generate-auto-docs.py](https://github.com/sqlfluff/sqlfluff/blob/main/docs/generate-auto-docs.py) file.
 
 

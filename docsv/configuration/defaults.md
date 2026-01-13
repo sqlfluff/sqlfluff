@@ -1,6 +1,6 @@
 # Default Configuration
 
-The default configuration is as follows, note the [Builtin Ninja Macros](./templating)
+The default configuration is as follows, note the [Builtin Ninja Macros](templating/jinja#builtin-jinja-macro-blocks)
 in section `[sqlfluff:templater:jinja:macros]` as referred to above.
 
 ::: tip NOTE

@@ -67,11 +67,11 @@ From here, there are several more things to explore.
   with passing SQLFluff directories rather than just single files.
   Try running `sqlfluff lint .` (to lint every sql file in the
   current folder) or `sqlfluff lint path/to/my/sqlfiles`.
-* To find out more about which rules are available, see [Rules Reference](/reference/rules).
+* To find out more about which rules are available, see [Rules Reference](/reference/rules/index).
 * To find out more about configuring *SQLFluff* and what other options
   are available, see [Configuration](/configuration/).
 * Once you're ready to start using *SQLFluff* on a project or with the
-  rest of your team, check out [Production Usage](/usage/production).
+  rest of your team, check out [Production Usage](/usage/index).
 
 One last thing to note is that *SQLFluff* is a relatively new project
 and you may find bugs or strange things while using it. If you do find

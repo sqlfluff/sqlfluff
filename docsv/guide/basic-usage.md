@@ -44,7 +44,7 @@ On each of the following lines you can see each of the problems it has
 found, with some information about the location and what kind of
 problem there is. One of the errors has been found on *line 1*, *position *
 (as shown by `L:   1 | P:   9`) and it's a problem with rule
-*LT01* (for a full list of rules, see [Rule Reference](../reference/rules)). From this
+*LT01* (for a full list of rules, see [Rule Reference](../reference/rules/index)). From this
 (and the following error) we can see that the problem is that there
 is no space either side of the `+` symbol in `a+b`.
 Head into the file, and correct this issue so that the file now

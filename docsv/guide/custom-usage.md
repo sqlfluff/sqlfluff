@@ -43,4 +43,4 @@ For a full list of configuration options check out [Default Configuration](../co
 Note that in our example here we've only set a few configuration values
 and any other configuration settings remain as per the default config.
 To see how these options apply to specific rules check out the
-"Configuration" section within each rule's documentation in [Rule Reference](../reference/rules).
+"Configuration" section within each rule's documentation in [Rule Reference](../reference/rules/index).
