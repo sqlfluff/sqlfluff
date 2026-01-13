@@ -2820,14 +2820,15 @@ class MaxDurationSegment(BaseSegment):
     )
 
 
-class DropIndexDottedReferenceSegment(BaseSegment):
-    """A dotted reference for DROP INDEX (table.index or schema.table.index).
+class DropIndexStatementSegment(ansi.DropIndexStatementSegment):
+    """A `DROP INDEX` statement.
 
-    Enforces at least 2 parts (minimum one dot) for the dotted notation syntax.
+    Overriding ANSI to support both T-SQL syntaxes:
+    - DROP INDEX IndexName ON TableName
+    - DROP INDEX [owner_name.]table_or_view_name.index_name
     """
 
-    type = "drop_index_dotted_reference"
-    match_grammar = Sequence(
+    _drop_backward_compatible_index = Sequence(
         Ref("SingleIdentifierGrammar"),
         AnyNumberOf(
             Sequence(
@@ -2835,18 +2836,9 @@ class DropIndexDottedReferenceSegment(BaseSegment):
                 Ref("SingleIdentifierGrammar"),
             ),
             min_times=1,  # Require at least one dot (2+ parts)
-            max_times=3,  # Allow up to 4 parts total
+            max_times=2,  # Allow up to 3 parts total per T-SQL spec
         ),
     )
-
-
-class DropIndexStatementSegment(ansi.DropIndexStatementSegment):
-    """A `DROP INDEX` statement.
-
-    Overriding ANSI to support both T-SQL syntaxes:
-    - DROP INDEX IndexName ON TableName
-    - DROP INDEX [database.][schema.]table.index
-    """
 
     match_grammar = Sequence(
         "DROP",
@@ -2858,7 +2850,7 @@ class DropIndexStatementSegment(ansi.DropIndexStatementSegment):
                 "ON",
                 Ref("TableReferenceSegment"),
             ),
-            Ref("DropIndexDottedReferenceSegment"),
+            _drop_backward_compatible_index,
         ),
     )
 
