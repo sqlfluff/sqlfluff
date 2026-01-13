@@ -1925,7 +1925,7 @@ class CDCSpecificationSegment(BaseSegment):
 
 
 class ApplyChangesIntoStatementSegment(BaseSegment):
-    """A statement ingest CDC data a target table.
+    """A statement to ingest CDC data into a target table.
 
     https://docs.databricks.com/workflows/delta-live-tables/delta-live-tables-cdc.html#sql
     """
