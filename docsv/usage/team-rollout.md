@@ -45,11 +45,11 @@ This step is done by you, or a small group of people who *already*
 
 * Run `sqlfluff lint` on your project with the stock configuration
   to find out how things work *out of the box*.
-* Set up your [Configuration](../configuration) so that things run and that you can get
+* Set up your [Configuration](../configuration/index) so that things run and that you can get
   a readout of the errors which you would want the team to see and
   *not the ones you don't*. Great tools for this are to use
   [`.sqlfluffignore`](../configuration/ignoring#sqlfluffignore), `--exclude-rules` or `--ignore` in the
-  CLI (see [CLI Reference](../reference/cli)).
+  CLI (see [CLI Reference](../reference/cli/index)).
 * Identify which areas of your project are the worst and which are the
   tidiest. In particular, any areas which are particularly tidy
   already will be particularly useful in the next phase.

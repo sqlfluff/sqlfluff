@@ -24,10 +24,10 @@ For example, enforce that keywords are upper case by configuring the rule
 capitalisation_policy = upper
 ```
 
-All possible options for rule sections are documented in [Rules Reference](../reference/rules).
+All possible options for rule sections are documented in [Rules Reference](../reference/rules/index).
 
 For an overview of the most common rule configurations that you may want to
-tweak, see [Default Configuration](../configuration/defaults) (and use [Rules Reference](../reference/rules) to find the
+tweak, see [Default Configuration](../configuration/defaults) (and use [Rules Reference](../reference/rules/index) to find the
 available alternatives).
 
 

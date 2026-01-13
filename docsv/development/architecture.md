@@ -25,7 +25,7 @@ original line location for user feedback.
 Under the hood dbt also uses Jinja, but in *SQLFluff* uses a separate
 mechanism which interfaces directly with the dbt python package.
 
-For more details on how to configure the templater see [Templating Configuration](/configuration/templating).
+For more details on how to configure the templater see [Templating Configuration](../configuration/templating/index).
 
 
 ## Stage 2, the lexer

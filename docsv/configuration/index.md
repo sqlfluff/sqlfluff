@@ -2,7 +2,7 @@
 
 SQLFluff accepts configuration either through the command line or through configuration files. There is *rough* parity between the two approaches with the exception that *templating* configuration must be done via a file, because it otherwise gets slightly complicated.
 
-For details of what's available on the command line check out [CLI Reference](/reference/cli).
+For details of what's available on the command line check out [CLI Reference](../reference/cli/index).
 
 ## Configuration Files
 

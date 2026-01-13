@@ -182,7 +182,7 @@ To upgrade smoothly between versions, we recommend the following sequence:
    rules are currently specified. We recommend primarily using *either*
    `rules` *or* `exclude_rules` rather than both, as detailed
    in [Enabling and Disabling Rules](../configuration/rules#enabling-and-disabling-rules). Using either the `sqlfluff rules` CLI
-   command or the online [Rules Reference](../reference/rules), replace *all references* to legacy
+   command or the online [Rules Reference](../reference/rules/index), replace *all references* to legacy
    rule codes (i.e. codes of the form `L0XX`). Specifically:
 
    * In the `rules` and `exclude_rules` config values. Here,

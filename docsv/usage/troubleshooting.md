@@ -77,10 +77,10 @@ SQLFluff dialect.
 Many of the issues raised on GitHub relate to parsing errors like this, but
 it's also a great way to support the project if you feel able to contribute
 a dialect improvement yourself. We have a short guide on
-[contributing dialect changes](../guides/contributing_dialect_changes.md) to walk you through the process. In the
+[contributing dialect changes](../development/dialect) to walk you through the process. In the
 short term you can also ignore specific files from your overall project so
 that this specific file doesn't become a blocker for the rest.
-See [ignoring files configuration](../configuration/ignoreconfig.md).
+See [ignoring files configuration](../configuration/ignoring).
 
 ### Configuration Issues
 
@@ -89,7 +89,7 @@ because config values haven't been set correctly, it's often due to config
 file discovery (i.e. whether SQLFluff can find your config file, and what
 order it's combining config files).
 
-For a more general guide to this topic see [setting configuration](../configuration/setting_config.md).
+For a more general guide to this topic see [setting configuration](../configuration/index).
 
 To help troubleshoot issues, if you run `sqlfluff` with a more verbose
 logging setting (e.g. `sqlfluff lint /my/model.sql -v`, or `-vv`, or
@@ -103,15 +103,15 @@ can do, both to help narrow down the cause, but also to assist with fixing
 a bug if you have found one, is to isolate SQLFluff from any other tools
 you're using in parallel:
 
-1. If you're using SQLFluff with the [dbt templater](../configuration/templaters.md#dbt), then try and
-   recreate the error with the [jinja templater](../configuration/templaters.md#jinja) to remove the influence
+1. If you're using SQLFluff with the [dbt templater](../configuration/templating/dbt), then try and
+   recreate the error with the [jinja templater](../configuration/templating/jinja) to remove the influence
    of `dbt` and any database connection related issues.
 
 2. If you're getting an error in a remote CI suite (for example on GitHub
    actions, or a server like Jenkins), try and recreate the issue locally
    on your machine using the same tools.
 
-3. If you're [using pre-commit](../production/pre_commit.md), [diff-quality](../production/diff_quality.md) or the
+3. If you're [using pre-commit](../usage/pre-commit), [diff-quality](../usage/diff-quality) or the
    [VSCode extension](https://github.com/sqlfluff/vscode-sqlfluff) try to recreate the issue by running the SQLFluff
    [CLI](../reference/cli/index.md) directly. Often this can make debugging significantly
    easier because some of these tools hide some of the error messages
