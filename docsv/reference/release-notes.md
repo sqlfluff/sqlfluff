@@ -141,7 +141,7 @@ and so may be the case for versions of some plugins. If one of your plugins
 does use imports in this way, a warning will be presented from this version
 onward, recommending that you update your plugin.
 
-See the :ref:`developingpluginsref` section of the docs for an example.
+See the [Developing Plugins](../development/plugins) section of the docs for an example.
 
 ## Upgrading from 1.x to 2.0
 
@@ -151,17 +151,17 @@ Upgrading to 2.0 brings several important breaking changes:
   into groups within similar codes (e.g. an *aliasing* group with codes
   of the format `AL0X`), but also given *names* to allow much clearer
   referencing (e.g. `aliasing.column`).
-* :ref:`ruleconfig` now uses the rule *name* rather than the rule *code* to
+* [Rule Configuration](../configuration/rules) now uses the rule *name* rather than the rule *code* to
   specify the section. Any unrecognised references in config files (whether
   they are references which *do* match existing rules by code or alias, or
   whether the match no rules at all) will raise warnings at runtime.
 * A complete re-write of layout and whitespace handling rules (see
-  :ref:`layoutref`), and with that a change in how layout is configured
-  (see :ref:`layoutconfig`) and the combination of some rules that were
+  [Layout Rules](../configuration/layout) and with that a change in how layout is configured
+  (see [Layout Configuration](../configuration/layout)) and the combination of some rules that were
   previously separate. One example of this is that the legacy rules
   `L001`, `L005`, `L006`, `L008`, `L023`,
   `L024`, `L039`, `L048` & `L071` have been combined
-  simply into :sqlfluff:ref:`LT01`.
+  simply into [Layout Rule LT01](../reference/rules/layout#lt01).
 
 ### Recommended upgrade steps
 
@@ -169,20 +169,20 @@ To upgrade smoothly between versions, we recommend the following sequence:
 
 #. The upgrade path will be simpler if you have a slimmer configuration file.
    Before upgrading, consider removing any sections from your configuration
-   file (often `.sqlfluff`, see :ref:`config`) which match the current
-   :ref:`defaultconfig`. There is no need to respecify defaults in your local
+   file (often `.sqlfluff`, see [Conf](../configuration/index)) which match the current
+   [Default Configuration](../configuration/defaults). There is no need to respecify defaults in your local
    config if they are not different to the stock config.
 
 #. In a local (or other *non-production*) environment, upgrade to SQLFluff
-   2.0.x. We recommend using a `compatible release`_ specifier such
+   2.0.x. We recommend using a [compatible release](https://peps.python.org/pep-0440/#compatible-release) specifier such
    as `~=2.0.0`, to ensure any minor bugfix releases are automatically
    included.
 
 #. Examine your configuration file (as mentioned above), and evaluate how
    rules are currently specified. We recommend primarily using *either*
    `rules` *or* `exclude_rules` rather than both, as detailed
-   in :ref:`ruleselection`. Using either the `sqlfluff rules` CLI
-   command or the online :ref:`ruleref`, replace *all references* to legacy
+   in [Enabling and Disabling Rules](../configuration/rules#enabling-and-disabling-rules). Using either the `sqlfluff rules` CLI
+   command or the online [Rules Reference](../reference/rules), replace *all references* to legacy
    rule codes (i.e. codes of the form `L0XX`). Specifically:
 
    * In the `rules` and `exclude_rules` config values. Here,
@@ -193,11 +193,11 @@ To upgrade smoothly between versions, we recommend the following sequence:
      *will still be understood* here (because they remain valid as aliases
      for those rules) - you may find that some rules no longer exist in
      isolation and so these references may be misleading. e.g. `L005`
-     is now an alias for :sqlfluff:ref:`layout.spacing` but
+     is now an alias for [`layout.spacing`](../reference/rules/layout#lt01) but
      that rule is much more broad ranging than the original scope of
      `L005`, which was only spacing around commas.
 
-   * In :ref:`ruleconfig`. In particular here, legacy references to rule
+   * In [Rule Configuration](../configuration/rules#rule-configuration). In particular here, legacy references to rule
      codes are *no longer valid*, will raise warnings, and until resolved,
      the configuration in those sections will be ignored. The new section
      references should include the rule *name* (e.g.
@@ -208,10 +208,10 @@ To upgrade smoothly between versions, we recommend the following sequence:
      ambiguity of the scenario where both *code-based* and *name-based*
      are both used.
 
-   * Review the :ref:`layoutconfig` documentation, and check whether any
+   * Review the [Configuring Layout](../configuration/layout#configuring-layout) documentation, and check whether any
      indentation or layout configuration should be revised.
 
-#. Check your project for :ref:`in_file_config` which refer to rule codes.
+#. Check your project for [In-File Configuration Directives](../configuration/index#in-file-configuration-directives) which refer to rule codes.
    Alter these in the same manner as described above for configuration files.
 
 #. Test linting your project for unexpected linting issues. Where found,
@@ -219,20 +219,18 @@ To upgrade smoothly between versions, we recommend the following sequence:
    or (if you disagree with the changes) consider changing which rules
    you enable or their configuration accordingly. In particular you may notice:
 
-   * The indentation rule (`L003` as was, now :sqlfluff:ref:`LT02`) has
+   * The indentation rule (`L003` as was, now [LT02](../reference/rules/layout#lt02)) has
      had a significant rewrite, and while much more flexible and accurate, it
-     is also more specific. Note that :ref:`hangingindents` are no longer
+     is also more specific. Note that [hangingindents](../configuration/layout#hanging-indents) are no longer
      supported, and that while not enabled by default, many users may find
-     the enabling :ref:`implicitindents` fits their organisation's style
+     the enabling [implicitindents](../configuration/layout#implicit-indents) fits their organisation's style
      better.
 
-   * The spacing rule (:sqlfluff:ref:`LT01`: :sqlfluff:ref:`layout.spacing`)
+   * The spacing rule ([LT01](../reference/rules/layout#lt01): [layout.spacing](../reference/rules/layout#lt01))
      has a much wider scope, and so may pick up spacing issues that were not
      previously enforced. If you disagree with any of these, you can
      override the `sqlfluff:layout` sections of the config with
      different (or just more liberal settings, like `any`).
-
-.. _`compatible release`: https://peps.python.org/pep-0440/#compatible-release
 
 
 ### Example 2.0 config
@@ -288,7 +286,7 @@ to 2.0.0. In particular, the following config values have changed:
 If any of these values have been set in your config, they will be
 automatically translated to the new values at runtime, and a warning
 will be shown. To silence the warning, update your config file to the
-new values. For more details on configuring layout see :ref:`layoutconfig`.
+new values. For more details on configuring layout see [Configuring Layout](../configuration/layout#configuring-layout).
 
 
 ## Upgrading to 1.3
