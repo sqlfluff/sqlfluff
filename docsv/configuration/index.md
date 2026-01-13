@@ -78,11 +78,11 @@ Here is a simple configuration file which would be suitable for a starterproject
 
 0. *[...and this one doesn't really count]* There's a default config as
    part of the SQLFluff package. You can find this below, in the
-   :ref:`defaultconfig` section.
+   [Default Configuration](../configuration/defaults) section.
 1. It will look in the user's os-specific app config directory.
    On macOS and Unix this is `~/.config/sqlfluff`, Windows is
    `<home>\\AppData\\Local\\sqlfluff\\sqlfluff`, for any of the filenames
-   above in the main :ref:`setting_config` section. If multiple are present, they will
+   above in the main [Setting Configuration](#setting-configuration) section. If multiple are present, they will
    *patch*/*override* each other in the order above.
 2. It will look for the same files in the user's home directory (~).
 3. *[if the current working directory is a subdirectory of the user's home directory (~)]*
@@ -123,6 +123,8 @@ FROM a
 JOIN b USING(c)
 ```
 
-We recommend only using this configuration approach for configuration that applies to one file in isolation. For configuration changes for areas of a project or for whole projects we recommend :ref:`nesting` of configuration files.
+We recommend only using this configuration approach for configuration that applies
+to one file in isolation. For configuration changes for areas of a project or for
+whole projects we recommend [Nesting](#nesting) of configuration files.
 
 This syntax is very similar to the method for [Ignoring Errors & Files](ignoring).

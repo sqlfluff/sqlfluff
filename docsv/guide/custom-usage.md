@@ -39,8 +39,8 @@ select
 from my_table
 ```
 
-For a full list of configuration options check out :ref:`defaultconfig`.
+For a full list of configuration options check out [Default Configuration](../configuration/defaults).
 Note that in our example here we've only set a few configuration values
 and any other configuration settings remain as per the default config.
 To see how these options apply to specific rules check out the
-"Configuration" section within each rule's documentation in :ref:`ruleref`.
+"Configuration" section within each rule's documentation in [Rule Reference](../reference/rules).

@@ -1,7 +1,7 @@
 # Python templater
 
 Uses native Python f-strings. As described in
-:ref:`generic_variable_templating`, an example usage would look be
+[Generic Templating](generic), an example usage would look be
 configured as follows:
 
 If passed the following *.sql* file:
