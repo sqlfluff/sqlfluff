@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: a7aa6c5314e4b9a79c3e46103509cd2f0e0b2e26b1634148d97f8dd3bed12972
+_hash: 857f1ba9b9abc0b380291519e0b5bbcc73814f3dd22973cd9efad1a400d3dfba
 file:
   batch:
   - statement:
@@ -36,54 +36,15 @@ file:
       drop_index_statement:
       - keyword: DROP
       - keyword: INDEX
-      - drop_index_dotted_reference:
-        - naked_identifier: dbo
-        - dot: .
-        - naked_identifier: TableName
-        - dot: .
-        - naked_identifier: IX_IndexName
-  - statement_terminator: ;
-  - statement:
-      drop_index_statement:
-      - keyword: DROP
-      - keyword: INDEX
-      - drop_index_dotted_reference:
-        - naked_identifier: TableName
-        - dot: .
-        - naked_identifier: IX_IndexName
-  - statement_terminator: ;
-  - statement:
-      drop_index_statement:
-      - keyword: DROP
-      - keyword: INDEX
-      - drop_index_dotted_reference:
-        - quoted_identifier: '[dbo]'
-        - dot: .
-        - quoted_identifier: '[TableName]'
-        - dot: .
-        - quoted_identifier: '[IX_IndexName]'
-  - statement_terminator: ;
-  - statement:
-      drop_index_statement:
-      - keyword: DROP
-      - keyword: INDEX
-      - drop_index_dotted_reference:
-        - quoted_identifier: '[TableName]'
-        - dot: .
-        - quoted_identifier: '[IX_IndexName]'
-  - statement_terminator: ;
-  - statement:
-      drop_index_statement:
-      - keyword: DROP
-      - keyword: INDEX
-      - drop_index_dotted_reference:
+      - index_reference:
+          naked_identifier: IX_IndexName
+      - keyword: 'ON'
+      - table_reference:
         - naked_identifier: MyDB
         - dot: .
         - naked_identifier: dbo
         - dot: .
         - naked_identifier: TableName
-        - dot: .
-        - naked_identifier: IX_IndexName
   - statement_terminator: ;
   - statement:
       drop_index_statement:
@@ -91,12 +52,51 @@ file:
       - keyword: INDEX
       - keyword: IF
       - keyword: EXISTS
-      - drop_index_dotted_reference:
+      - index_reference:
+          naked_identifier: IX_IndexName
+      - keyword: 'ON'
+      - table_reference:
+        - naked_identifier: MyDB
+        - dot: .
         - naked_identifier: dbo
         - dot: .
         - naked_identifier: TableName
-        - dot: .
-        - naked_identifier: IX_IndexName
+  - statement_terminator: ;
+  - statement:
+      drop_index_statement:
+      - keyword: DROP
+      - keyword: INDEX
+      - naked_identifier: dbo
+      - dot: .
+      - naked_identifier: TableName
+      - dot: .
+      - naked_identifier: IX_IndexName
+  - statement_terminator: ;
+  - statement:
+      drop_index_statement:
+      - keyword: DROP
+      - keyword: INDEX
+      - naked_identifier: TableName
+      - dot: .
+      - naked_identifier: IX_IndexName
+  - statement_terminator: ;
+  - statement:
+      drop_index_statement:
+      - keyword: DROP
+      - keyword: INDEX
+      - quoted_identifier: '[dbo]'
+      - dot: .
+      - quoted_identifier: '[TableName]'
+      - dot: .
+      - quoted_identifier: '[IX_IndexName]'
+  - statement_terminator: ;
+  - statement:
+      drop_index_statement:
+      - keyword: DROP
+      - keyword: INDEX
+      - quoted_identifier: '[TableName]'
+      - dot: .
+      - quoted_identifier: '[IX_IndexName]'
   - statement_terminator: ;
   - statement:
       drop_index_statement:
@@ -104,8 +104,19 @@ file:
       - keyword: INDEX
       - keyword: IF
       - keyword: EXISTS
-      - drop_index_dotted_reference:
-        - naked_identifier: TableName
-        - dot: .
-        - naked_identifier: IX_IndexName
+      - naked_identifier: dbo
+      - dot: .
+      - naked_identifier: TableName
+      - dot: .
+      - naked_identifier: IX_IndexName
+  - statement_terminator: ;
+  - statement:
+      drop_index_statement:
+      - keyword: DROP
+      - keyword: INDEX
+      - keyword: IF
+      - keyword: EXISTS
+      - naked_identifier: TableName
+      - dot: .
+      - naked_identifier: IX_IndexName
   - statement_terminator: ;
