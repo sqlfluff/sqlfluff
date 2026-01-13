@@ -1315,6 +1315,7 @@ class StatementSegment(sparksql.StatementSegment):
             Ref("MagicCellStatementSegment"),
             # Databricks - Delta Live Tables
             Ref("ApplyChangesIntoStatementSegment"),
+            Ref("CreateFlowStatementSegment"),
         ]
     )
 
@@ -1845,23 +1846,15 @@ class SetVariableStatementSegment(BaseSegment):
     )
 
 
-class ApplyChangesIntoStatementSegment(BaseSegment):
-    """A statement ingest CDC data a target table.
+class CDCSpecificationSegment(BaseSegment):
+    """The segment shared by APPLY CHANGES INTO and CREATE FLOW...AUTO CDC INTO.
 
-    https://docs.databricks.com/workflows/delta-live-tables/delta-live-tables-cdc.html#sql
+    Used for specifying the data location and rules for ingesting a CDC data source
     """
 
-    type = "apply_changes_into_statement"
+    type = "cdc_specification_segment"
 
     match_grammar = Sequence(
-        Sequence(
-            "APPLY",
-            "CHANGES",
-            "INTO",
-        ),
-        Indent,
-        Ref("TableExpressionSegment"),
-        Dedent,
         Ref("FromClauseSegment"),
         Sequence(
             "KEYS",
@@ -1928,4 +1921,59 @@ class ApplyChangesIntoStatementSegment(BaseSegment):
             ),
             optional=True,
         ),
+    )
+
+
+class ApplyChangesIntoStatementSegment(BaseSegment):
+    """A statement ingest CDC data a target table.
+
+    https://docs.databricks.com/workflows/delta-live-tables/delta-live-tables-cdc.html#sql
+    """
+
+    type = "apply_changes_into_statement"
+
+    match_grammar = Sequence(
+        Sequence(
+            "APPLY",
+            "CHANGES",
+            "INTO",
+        ),
+        Indent,
+        Ref("TableExpressionSegment"),
+        Dedent,
+        Ref("CDCSpecificationSegment"),
+    )
+
+
+class FlowReferenceSegment(ObjectReferenceSegment):
+    """A reference to a flow."""
+
+    type = "flow_reference"
+
+
+class CreateFlowStatementSegment(BaseSegment):
+    """A statement for creating a flow to ingest CDC data a target table.
+
+    https://docs.databricks.com/aws/en/ldp/flows
+    https://docs.databricks.com/aws/en/ldp/developer/ldp-sql-ref-apply-changes-into
+    """
+
+    type = "create_flow_statement"
+
+    match_grammar = Sequence(
+        Sequence(
+            "CREATE",
+            "FLOW",
+        ),
+        Ref("FlowReferenceSegment"),
+        Sequence(
+            "AS",
+            "AUTO",
+            "CDC",
+            "INTO",
+        ),
+        Indent,
+        Ref("TableReferenceSegment"),
+        Dedent,
+        Ref("CDCSpecificationSegment"),
     )
