@@ -57,6 +57,7 @@ const DEVELOPMENT: DefaultTheme.NavItemWithLink[] = [
     { text: 'Architecture', link: '/development/architecture' },
     { text: 'Developing Rules', link: '/development/developing-rules' },
     { text: 'Plugins', link: '/development/plugins' },
+    { text: 'Custom Rules', link: '/development/custom-rules' },
     { text: 'Documentation', link: '/development/documentation' },
 ]
 

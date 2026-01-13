@@ -131,7 +131,7 @@ must be able to fully import before any rule implementations are imported.
 More specifically, SQLFluff must be able to both *import* **and**
 *run* any implementations of `get_configs_info()` before any plugin
 rules (i.e. any derivatives of
-:py:class:`BaseRule <sqlfluff.core.rules.base.BaseRule>`) are *imported*.
+`BaseRule`) are *imported*.
 Because of this, we recommend that rules are defined in a
 separate module to the root of the plugin and then only imported *within*
 the `get_rules()` method.
