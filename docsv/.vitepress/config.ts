@@ -39,12 +39,17 @@ const CONFIGURATION: DefaultTheme.SidebarItem[] = [
     { text: "Default Configuration", link: '/configuration/defaults' },
 ]
 
+const CONFIGURATION_NAV: DefaultTheme.NavItemWithLink[] = [
+    { text: 'Overview', link: '/configuration/' },
+    { text: 'Rules', link: '/configuration/rules' },
+    { text: 'Layout & Formatting', link: '/configuration/layout' },
+]
+
 const USAGE_GUIDES: DefaultTheme.NavItemWithLink[] = [
-    { text: 'Production Usage', link: '/usage/production' },
+    { text: 'Team Rollout', link: '/usage/team-rollout' },
     { text: 'CI/CD Integration', link: '/usage/ci-cd' },
     { text: 'Pre-commit', link: '/usage/pre-commit' },
     { text: 'Diff Quality', link: '/usage/diff-quality' },
-    { text: 'Team Rollout', link: '/usage/team-rollout' },
     { text: 'Troubleshooting', link: '/usage/troubleshooting' },
 ]
 
@@ -77,7 +82,7 @@ export default defineConfig({
 
         nav: [
             { text: 'Guide', items: GUIDE },
-            { text: 'Configuration', items: CONFIGURATION as DefaultTheme.NavItemWithLink[] },
+            { text: 'Configuration', items: CONFIGURATION_NAV },
             { text: 'Reference', items: REFERENCES },
         ],
 
