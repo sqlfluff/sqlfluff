@@ -6,4 +6,3 @@ reference/rules/*.md
 reference/cli/*.md
 reference/api/*.md
 .vitepress/sidebar-*.json
-.vitepress/redirects.json

@@ -4,7 +4,6 @@ import type { DefaultTheme } from 'vitepress'
 // Auto-generated sidebar and redirect configurations
 import sidebarRules from './sidebar-rules.json'
 import sidebarCli from './sidebar-cli.json'
-import redirects from './redirects.json'
 import sidebarApi from './sidebar-api.json'
 import sidebarDialects from './sidebar-dialects.json'
 
@@ -129,9 +128,6 @@ export default defineConfig({
             copyright: 'Copyright © 2025 SQLFluff Contributors'
         }
     },
-
-    // Auto-generated redirects from Sphinx conf.py
-    rewrites: redirects as Record<string, string>,
 
     markdown: {
         theme: {

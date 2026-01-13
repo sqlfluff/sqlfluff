@@ -65,10 +65,6 @@ def convert_redirect_to_vitepress(old_path: str, new_path: str) -> tuple[str, st
     while new.startswith("../"):
         new = new[3:]
 
-    # Convert to markdown path
-    if not new.endswith(".md") and not new.endswith("/"):
-        new = new + ".md"
-
     return old, new
 
 
@@ -86,11 +82,7 @@ def generate_vitepress_rewrites(redirects: dict[str, str]) -> dict[str, str]:
     for old_path, new_path in redirects.items():
         old, new = convert_redirect_to_vitepress(old_path, new_path)
 
-        # Skip anchor-only redirects (VitePress handles these differently)
-        if "#" in new_path and new_path.count("/") < 2:
-            print(f"  Skipping anchor redirect: {old} -> {new}")
-            continue
-
+        # Router-based redirects can handle anchor destinations
         rewrites[old] = new
 
     return rewrites

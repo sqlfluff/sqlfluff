@@ -87,15 +87,6 @@ def main():
         print("\n❌ Build failed at API documentation generation")
         return exit_code
 
-    # Step 5: Extract redirects from Sphinx conf.py
-    redirects_script = script_dir / "extract-redirects.py"
-    exit_code = run_command(
-        [sys.executable, str(redirects_script)],
-        "Extracting redirects from Sphinx config",
-    )
-    if exit_code != 0:
-        print("⚠️  Redirect extraction had issues, continuing...")
-
     # Summary
     print("\n" + "╔" + "=" * 58 + "╗")
     print("║" + " " * 20 + "Build Summary" + " " * 25 + "║")
