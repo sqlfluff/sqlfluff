@@ -1952,7 +1952,7 @@ class FlowReferenceSegment(ObjectReferenceSegment):
 
 
 class CreateFlowStatementSegment(BaseSegment):
-    """A statement for creating a flow to ingest CDC data a target table.
+    """A statement for creating a flow to ingest CDC data into a target table.
 
     https://docs.databricks.com/aws/en/ldp/flows
     https://docs.databricks.com/aws/en/ldp/developer/ldp-sql-ref-apply-changes-into
