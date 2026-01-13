@@ -46,6 +46,7 @@ const CONFIGURATION_NAV: DefaultTheme.NavItemWithLink[] = [
 ]
 
 const USAGE_GUIDES: DefaultTheme.NavItemWithLink[] = [
+    { text: 'Production Usage', link: '/usage/index' },
     { text: 'Team Rollout', link: '/usage/team-rollout' },
     { text: 'CI/CD Integration', link: '/usage/ci-cd' },
     { text: 'Pre-commit', link: '/usage/pre-commit' },
@@ -55,6 +56,7 @@ const USAGE_GUIDES: DefaultTheme.NavItemWithLink[] = [
 
 const DEVELOPMENT: DefaultTheme.NavItemWithLink[] = [
     { text: 'Architecture', link: '/development/architecture' },
+    { text: 'Dialect Changes', link: '/development/dialect' },
     { text: 'Developing Rules', link: '/development/developing-rules' },
     { text: 'Plugins', link: '/development/plugins' },
     { text: 'Custom Rules', link: '/development/custom-rules' },
@@ -72,11 +74,11 @@ const REFERENCES: DefaultTheme.NavItemWithLink[] = [
 export default defineConfig({
     title: 'SQLFluff',
     description: 'The SQL Linter for Humans',
+    srcExclude: ['**/README.md',],
 
     head: [
         ['link', { rel: 'icon', href: '/favicon.ico' }]
     ],
-    ignoreDeadLinks: true,
 
     themeConfig: {
         logo: '/logo.svg',
