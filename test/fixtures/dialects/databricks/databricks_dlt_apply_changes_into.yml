@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: b045e6faf0f74c581457e3f8d919938a8ddbe610f4454b06c1b1d2cd06c29ad1
+_hash: c46d6a8b68f920228cba59ba38e7d9572a5aae1ddd92de7780476489f97fa508
 file:
 - statement:
     create_table_statement:
@@ -30,19 +30,15 @@ file:
         keyword: FROM
         from_expression:
           from_expression_element:
-            table_expression:
-              function:
-                function_name:
-                  function_name_identifier: STREAM
-                function_contents:
-                  bracketed:
-                    start_bracket: (
-                    expression:
-                      column_reference:
-                      - naked_identifier: cdc_data
-                      - dot: .
-                      - naked_identifier: users
-                    end_bracket: )
+            keyword: STREAM
+            bracketed:
+              start_bracket: (
+              table_expression:
+                table_reference:
+                - naked_identifier: cdc_data
+                - dot: .
+                - naked_identifier: users
+              end_bracket: )
     - keyword: KEYS
     - bracketed:
         start_bracket: (
@@ -113,19 +109,15 @@ file:
         keyword: FROM
         from_expression:
           from_expression_element:
-            table_expression:
-              function:
-                function_name:
-                  function_name_identifier: STREAM
-                function_contents:
-                  bracketed:
-                    start_bracket: (
-                    expression:
-                      column_reference:
-                      - naked_identifier: cdc_data
-                      - dot: .
-                      - naked_identifier: users
-                    end_bracket: )
+            keyword: STREAM
+            bracketed:
+              start_bracket: (
+              table_expression:
+                table_reference:
+                - naked_identifier: cdc_data
+                - dot: .
+                - naked_identifier: users
+              end_bracket: )
     - keyword: KEYS
     - bracketed:
         start_bracket: (
@@ -187,19 +179,15 @@ file:
         keyword: FROM
         from_expression:
           from_expression_element:
-            table_expression:
-              function:
-                function_name:
-                  function_name_identifier: STREAM
-                function_contents:
-                  bracketed:
-                    start_bracket: (
-                    expression:
-                      column_reference:
-                      - naked_identifier: cdc_data
-                      - dot: .
-                      - naked_identifier: users
-                    end_bracket: )
+            keyword: STREAM
+            bracketed:
+              start_bracket: (
+              table_expression:
+                table_reference:
+                - naked_identifier: cdc_data
+                - dot: .
+                - naked_identifier: users
+              end_bracket: )
     - keyword: KEYS
     - bracketed:
         start_bracket: (
@@ -247,19 +235,15 @@ file:
         keyword: FROM
         from_expression:
           from_expression_element:
-            table_expression:
-              function:
-                function_name:
-                  function_name_identifier: STREAM
-                function_contents:
-                  bracketed:
-                    start_bracket: (
-                    expression:
-                      column_reference:
-                      - naked_identifier: cdc_data
-                      - dot: .
-                      - naked_identifier: users
-                    end_bracket: )
+            keyword: STREAM
+            bracketed:
+              start_bracket: (
+              table_expression:
+                table_reference:
+                - naked_identifier: cdc_data
+                - dot: .
+                - naked_identifier: users
+              end_bracket: )
     - keyword: KEYS
     - bracketed:
         start_bracket: (
@@ -341,19 +325,15 @@ file:
         keyword: FROM
         from_expression:
           from_expression_element:
-            table_expression:
-              function:
-                function_name:
-                  function_name_identifier: STREAM
-                function_contents:
-                  bracketed:
-                    start_bracket: (
-                    expression:
-                      column_reference:
-                      - naked_identifier: cdc_data
-                      - dot: .
-                      - naked_identifier: users
-                    end_bracket: )
+            keyword: STREAM
+            bracketed:
+              start_bracket: (
+              table_expression:
+                table_reference:
+                - naked_identifier: cdc_data
+                - dot: .
+                - naked_identifier: users
+              end_bracket: )
     - keyword: KEYS
     - bracketed:
         start_bracket: (
@@ -390,19 +370,15 @@ file:
         keyword: FROM
         from_expression:
           from_expression_element:
-            table_expression:
-              function:
-                function_name:
-                  function_name_identifier: STREAM
-                function_contents:
-                  bracketed:
-                    start_bracket: (
-                    expression:
-                      column_reference:
-                      - naked_identifier: cdc_data
-                      - dot: .
-                      - naked_identifier: users
-                    end_bracket: )
+            keyword: STREAM
+            bracketed:
+              start_bracket: (
+              table_expression:
+                table_reference:
+                - naked_identifier: cdc_data
+                - dot: .
+                - naked_identifier: users
+              end_bracket: )
     - keyword: KEYS
     - bracketed:
         start_bracket: (
@@ -489,19 +465,15 @@ file:
         keyword: FROM
         from_expression:
           from_expression_element:
-            table_expression:
-              function:
-                function_name:
-                  function_name_identifier: STREAM
-                function_contents:
-                  bracketed:
-                    start_bracket: (
-                    expression:
-                      column_reference:
-                      - naked_identifier: cdc_data
-                      - dot: .
-                      - naked_identifier: users
-                    end_bracket: )
+            keyword: STREAM
+            bracketed:
+              start_bracket: (
+              table_expression:
+                table_reference:
+                - naked_identifier: cdc_data
+                - dot: .
+                - naked_identifier: users
+              end_bracket: )
     - keyword: KEYS
     - bracketed:
         start_bracket: (

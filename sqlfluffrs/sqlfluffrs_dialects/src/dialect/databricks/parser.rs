@@ -4405,28 +4405,28 @@ pub static INSTRUCTIONS: &[GrammarInst] = &[
     GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3447, child_count: 0, min_times: 0, first_terminator_idx: 56, terminator_count: 0, _padding: 0 }, // [4377] Ref(ConvertToDeltaStatementSegment)
     GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3447, child_count: 0, min_times: 0, first_terminator_idx: 56, terminator_count: 0, _padding: 0 }, // [4378] Ref(RestoreTableStatementSegment)
     GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3447, child_count: 0, min_times: 0, first_terminator_idx: 56, terminator_count: 0, _padding: 0 }, // [4379] Ref(ConstraintStatementSegment)
-    GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3447, child_count: 0, min_times: 0, first_terminator_idx: 56, terminator_count: 0, _padding: 0 }, // [4380] Ref(ApplyChangesIntoStatementSegment)
-    GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3447, child_count: 0, min_times: 0, first_terminator_idx: 56, terminator_count: 0, _padding: 0 }, // [4381] Ref(CreateWidgetStatementSegment)
-    GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3447, child_count: 0, min_times: 0, first_terminator_idx: 56, terminator_count: 0, _padding: 0 }, // [4382] Ref(RemoveWidgetStatementSegment)
-    GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3447, child_count: 0, min_times: 0, first_terminator_idx: 56, terminator_count: 0, _padding: 0 }, // [4383] Ref(ReplaceTableStatementSegment)
-    GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3447, child_count: 0, min_times: 0, first_terminator_idx: 56, terminator_count: 0, _padding: 0 }, // [4384] Ref(SetVariableStatementSegment)
-    GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3447, child_count: 0, min_times: 0, first_terminator_idx: 56, terminator_count: 0, _padding: 0 }, // [4385] Ref(AlterCatalogStatementSegment)
-    GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3447, child_count: 0, min_times: 0, first_terminator_idx: 56, terminator_count: 0, _padding: 0 }, // [4386] Ref(CreateCatalogStatementSegment)
-    GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3447, child_count: 0, min_times: 0, first_terminator_idx: 56, terminator_count: 0, _padding: 0 }, // [4387] Ref(DropCatalogStatementSegment)
-    GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3447, child_count: 0, min_times: 0, first_terminator_idx: 56, terminator_count: 0, _padding: 0 }, // [4388] Ref(UseCatalogStatementSegment)
-    GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3447, child_count: 0, min_times: 0, first_terminator_idx: 56, terminator_count: 0, _padding: 0 }, // [4389] Ref(AlterVolumeStatementSegment)
-    GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3447, child_count: 0, min_times: 0, first_terminator_idx: 56, terminator_count: 0, _padding: 0 }, // [4390] Ref(CreateVolumeStatementSegment)
-    GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3447, child_count: 0, min_times: 0, first_terminator_idx: 56, terminator_count: 0, _padding: 0 }, // [4391] Ref(DropVolumeStatementSegment)
-    GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3447, child_count: 0, min_times: 0, first_terminator_idx: 56, terminator_count: 0, _padding: 0 }, // [4392] Ref(CreateDatabaseStatementSegment)
-    GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3447, child_count: 0, min_times: 0, first_terminator_idx: 56, terminator_count: 0, _padding: 0 }, // [4393] Ref(SetTimeZoneStatementSegment)
-    GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3447, child_count: 0, min_times: 0, first_terminator_idx: 56, terminator_count: 0, _padding: 0 }, // [4394] Ref(OptimizeTableStatementSegment)
-    GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3447, child_count: 0, min_times: 0, first_terminator_idx: 56, terminator_count: 0, _padding: 0 }, // [4395] Ref(CreateDatabricksFunctionStatementSegment)
-    GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3447, child_count: 0, min_times: 0, first_terminator_idx: 56, terminator_count: 0, _padding: 0 }, // [4396] Ref(FunctionParameterListGrammarWithComments)
-    GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3447, child_count: 0, min_times: 0, first_terminator_idx: 56, terminator_count: 0, _padding: 0 }, // [4397] Ref(DeclareOrReplaceVariableStatementSegment)
-    GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3447, child_count: 0, min_times: 0, first_terminator_idx: 56, terminator_count: 0, _padding: 0 }, // [4398] Ref(CommentOnStatementSegment)
-    GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3447, child_count: 0, min_times: 0, first_terminator_idx: 56, terminator_count: 0, _padding: 0 }, // [4399] Ref(TagStatementSegment)
-    GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3447, child_count: 0, min_times: 0, first_terminator_idx: 56, terminator_count: 0, _padding: 0 }, // [4400] Ref(UnsetTagStatementSegment)
-    GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3447, child_count: 0, min_times: 0, first_terminator_idx: 56, terminator_count: 0, _padding: 0 }, // [4401] Ref(MagicCellStatementSegment)
+    GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3447, child_count: 0, min_times: 0, first_terminator_idx: 56, terminator_count: 0, _padding: 0 }, // [4380] Ref(CreateWidgetStatementSegment)
+    GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3447, child_count: 0, min_times: 0, first_terminator_idx: 56, terminator_count: 0, _padding: 0 }, // [4381] Ref(RemoveWidgetStatementSegment)
+    GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3447, child_count: 0, min_times: 0, first_terminator_idx: 56, terminator_count: 0, _padding: 0 }, // [4382] Ref(ReplaceTableStatementSegment)
+    GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3447, child_count: 0, min_times: 0, first_terminator_idx: 56, terminator_count: 0, _padding: 0 }, // [4383] Ref(SetVariableStatementSegment)
+    GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3447, child_count: 0, min_times: 0, first_terminator_idx: 56, terminator_count: 0, _padding: 0 }, // [4384] Ref(AlterCatalogStatementSegment)
+    GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3447, child_count: 0, min_times: 0, first_terminator_idx: 56, terminator_count: 0, _padding: 0 }, // [4385] Ref(CreateCatalogStatementSegment)
+    GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3447, child_count: 0, min_times: 0, first_terminator_idx: 56, terminator_count: 0, _padding: 0 }, // [4386] Ref(DropCatalogStatementSegment)
+    GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3447, child_count: 0, min_times: 0, first_terminator_idx: 56, terminator_count: 0, _padding: 0 }, // [4387] Ref(UseCatalogStatementSegment)
+    GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3447, child_count: 0, min_times: 0, first_terminator_idx: 56, terminator_count: 0, _padding: 0 }, // [4388] Ref(AlterVolumeStatementSegment)
+    GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3447, child_count: 0, min_times: 0, first_terminator_idx: 56, terminator_count: 0, _padding: 0 }, // [4389] Ref(CreateVolumeStatementSegment)
+    GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3447, child_count: 0, min_times: 0, first_terminator_idx: 56, terminator_count: 0, _padding: 0 }, // [4390] Ref(DropVolumeStatementSegment)
+    GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3447, child_count: 0, min_times: 0, first_terminator_idx: 56, terminator_count: 0, _padding: 0 }, // [4391] Ref(CreateDatabaseStatementSegment)
+    GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3447, child_count: 0, min_times: 0, first_terminator_idx: 56, terminator_count: 0, _padding: 0 }, // [4392] Ref(SetTimeZoneStatementSegment)
+    GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3447, child_count: 0, min_times: 0, first_terminator_idx: 56, terminator_count: 0, _padding: 0 }, // [4393] Ref(OptimizeTableStatementSegment)
+    GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3447, child_count: 0, min_times: 0, first_terminator_idx: 56, terminator_count: 0, _padding: 0 }, // [4394] Ref(CreateDatabricksFunctionStatementSegment)
+    GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3447, child_count: 0, min_times: 0, first_terminator_idx: 56, terminator_count: 0, _padding: 0 }, // [4395] Ref(FunctionParameterListGrammarWithComments)
+    GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3447, child_count: 0, min_times: 0, first_terminator_idx: 56, terminator_count: 0, _padding: 0 }, // [4396] Ref(DeclareOrReplaceVariableStatementSegment)
+    GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3447, child_count: 0, min_times: 0, first_terminator_idx: 56, terminator_count: 0, _padding: 0 }, // [4397] Ref(CommentOnStatementSegment)
+    GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3447, child_count: 0, min_times: 0, first_terminator_idx: 56, terminator_count: 0, _padding: 0 }, // [4398] Ref(TagStatementSegment)
+    GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3447, child_count: 0, min_times: 0, first_terminator_idx: 56, terminator_count: 0, _padding: 0 }, // [4399] Ref(UnsetTagStatementSegment)
+    GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3447, child_count: 0, min_times: 0, first_terminator_idx: 56, terminator_count: 0, _padding: 0 }, // [4400] Ref(MagicCellStatementSegment)
+    GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3447, child_count: 0, min_times: 0, first_terminator_idx: 56, terminator_count: 0, _padding: 0 }, // [4401] Ref(ApplyChangesIntoStatementSegment)
     GrammarInst { variant: GrammarVariant::Ref, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(4), first_child_idx: 3447, child_count: 0, min_times: 0, first_terminator_idx: 56, terminator_count: 0, _padding: 0 }, // [4402] Ref(DelimiterGrammar)
     GrammarInst { variant: GrammarVariant::StringParser, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(0), first_child_idx: 3447, child_count: 0, min_times: 0, first_terminator_idx: 57, terminator_count: 0, _padding: 0 }, // [4403] StringParser("STATIC")
     GrammarInst { variant: GrammarVariant::StringParser, parse_mode: ParseMode::Strict, flags: GrammarFlags::from_bits(0), first_child_idx: 3447, child_count: 0, min_times: 0, first_terminator_idx: 57, terminator_count: 0, _padding: 0 }, // [4404] StringParser("STATISTICS")
@@ -7459,44 +7459,44 @@ pub static STRINGS: &[&str] = &[
     "convert_to_delta_statement", // [2046]
     "RestoreTableStatementSegment", // [2047]
     "restore_table_statement", // [2048]
-    "ApplyChangesIntoStatementSegment", // [2049]
-    "apply_changes_into_statement", // [2050]
-    "CreateWidgetStatementSegment", // [2051]
-    "create_widget_statement", // [2052]
-    "RemoveWidgetStatementSegment", // [2053]
-    "remove_widget_statement", // [2054]
-    "ReplaceTableStatementSegment", // [2055]
-    "replace_table_statement", // [2056]
-    "SetVariableStatementSegment", // [2057]
-    "set_variable_statement", // [2058]
-    "AlterCatalogStatementSegment", // [2059]
-    "alter_catalog_statement", // [2060]
-    "CreateCatalogStatementSegment", // [2061]
-    "create_catalog_statement", // [2062]
-    "DropCatalogStatementSegment", // [2063]
-    "drop_catalog_statement", // [2064]
-    "UseCatalogStatementSegment", // [2065]
-    "use_catalog_statement", // [2066]
-    "AlterVolumeStatementSegment", // [2067]
-    "alter_volume_statement", // [2068]
-    "CreateVolumeStatementSegment", // [2069]
-    "create_volume_statement", // [2070]
-    "DropVolumeStatementSegment", // [2071]
-    "drop_volume_statement", // [2072]
-    "SetTimeZoneStatementSegment", // [2073]
-    "set_timezone_statement", // [2074]
-    "OptimizeTableStatementSegment", // [2075]
-    "optimize_table_statement", // [2076]
-    "CreateDatabricksFunctionStatementSegment", // [2077]
-    "create_sql_function_statement", // [2078]
-    "DeclareOrReplaceVariableStatementSegment", // [2079]
-    "declare_or_replace_variable_statement", // [2080]
-    "CommentOnStatementSegment", // [2081]
-    "TagStatementSegment", // [2082]
-    "tag_statement", // [2083]
-    "UnsetTagStatementSegment", // [2084]
-    "MagicCellStatementSegment", // [2085]
-    "magic_cell_segment", // [2086]
+    "CreateWidgetStatementSegment", // [2049]
+    "create_widget_statement", // [2050]
+    "RemoveWidgetStatementSegment", // [2051]
+    "remove_widget_statement", // [2052]
+    "ReplaceTableStatementSegment", // [2053]
+    "replace_table_statement", // [2054]
+    "SetVariableStatementSegment", // [2055]
+    "set_variable_statement", // [2056]
+    "AlterCatalogStatementSegment", // [2057]
+    "alter_catalog_statement", // [2058]
+    "CreateCatalogStatementSegment", // [2059]
+    "create_catalog_statement", // [2060]
+    "DropCatalogStatementSegment", // [2061]
+    "drop_catalog_statement", // [2062]
+    "UseCatalogStatementSegment", // [2063]
+    "use_catalog_statement", // [2064]
+    "AlterVolumeStatementSegment", // [2065]
+    "alter_volume_statement", // [2066]
+    "CreateVolumeStatementSegment", // [2067]
+    "create_volume_statement", // [2068]
+    "DropVolumeStatementSegment", // [2069]
+    "drop_volume_statement", // [2070]
+    "SetTimeZoneStatementSegment", // [2071]
+    "set_timezone_statement", // [2072]
+    "OptimizeTableStatementSegment", // [2073]
+    "optimize_table_statement", // [2074]
+    "CreateDatabricksFunctionStatementSegment", // [2075]
+    "create_sql_function_statement", // [2076]
+    "DeclareOrReplaceVariableStatementSegment", // [2077]
+    "declare_or_replace_variable_statement", // [2078]
+    "CommentOnStatementSegment", // [2079]
+    "TagStatementSegment", // [2080]
+    "tag_statement", // [2081]
+    "UnsetTagStatementSegment", // [2082]
+    "MagicCellStatementSegment", // [2083]
+    "magic_cell_segment", // [2084]
+    "ApplyChangesIntoStatementSegment", // [2085]
+    "apply_changes_into_statement", // [2086]
     "STDDEV_POP", // [2087]
     "STDDEV_SAMP", // [2088]
     "STDIN", // [2089]
@@ -8242,8 +8242,8 @@ pub static AUX_DATA_OFFSETS: &[u32] = &[
     1572, 1568, 1977, 1979, 1981, 1983, 1985, 1987, 1989, 1991, 1993, 1995, 1997, 1999, 2001, 1961,
     2003, 1955, 2005, 2007, 2009, 2011, 2013, 2015, 2017, 2019, 2021, 2023, 2025, 2027, 2029, 2031,
     1576, 2033, 2035, 1850, 1852, 2037, 2039, 2041, 2043, 2045, 2047, 905, 2049, 2051, 2053, 2055,
-    2057, 2059, 2061, 2063, 2065, 2067, 2069, 2071, 1967, 2073, 2075, 2077, 838, 2079, 2081, 2082,
-    2084, 2085, 1217, 3802, 3805, 3808, 3811, 3814, 3817, 3820, 0, 1381, 1383, 2091, 3821, 0,
+    2057, 2059, 2061, 2063, 2065, 2067, 2069, 1967, 2071, 2073, 2075, 838, 2077, 2079, 2080, 2082,
+    2083, 2085, 1217, 3802, 3805, 3808, 3811, 3814, 3817, 3820, 0, 1381, 1383, 2091, 3821, 0,
     505, 364, 938, 0, 505, 204, 233, 1793, 3824, 3827, 3830, 3833, 3836, 3839, 3842, 3845,
     2096, 3846, 3849, 3854, 3852, 0, 535, 276, 3859, 3857, 0, 248, 1593, 384, 373, 0,
     2097, 2098, 3862, 3865, 3868, 3871, 3874, 3877, 3880, 3883, 3886, 3889, 2110, 3892, 3895, 3898,
@@ -8566,8 +8566,8 @@ pub static SEGMENT_TYPE_OFFSETS: &[u32] = &[
     1573, 1569, 1978, 1980, 1982, 1984, 1986, 1988, 1990, 1992, 1994, 1996, 1998, 2000, 2002, 1962,
     2004, 1956, 2006, 2008, 2010, 2012, 2014, 2016, 2018, 2020, 2022, 2024, 2026, 2028, 2030, 2032,
     1577, 2034, 2036, 1851, 1853, 2038, 2040, 2042, 2044, 2046, 2048, 906, 2050, 2052, 2054, 2056,
-    2058, 2060, 2062, 2064, 2066, 2068, 2070, 2072, 1968, 2074, 2076, 2078, 839, 2080, 1293, 2083,
-    2083, 2086, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 1382, 4294967295, 4294967295, 4294967295, 4294967295,
+    2058, 2060, 2062, 2064, 2066, 2068, 2070, 1968, 2072, 2074, 2076, 839, 2078, 1293, 2081, 2081,
+    2084, 2086, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 1382, 4294967295, 4294967295, 4294967295, 4294967295,
     4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295,
     480, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 277, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 406, 4294967295, 4294967295,
     4294967295, 2099, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 2110, 4294967295, 4294967295, 4294967295,
@@ -8890,8 +8890,8 @@ pub static SEGMENT_CLASS_OFFSETS: &[u32] = &[
     1572, 1568, 1977, 1979, 1981, 1983, 1985, 1987, 1989, 1991, 1993, 1995, 1997, 1999, 2001, 1961,
     2003, 1955, 2005, 2007, 2009, 2011, 2013, 2015, 2017, 2019, 2021, 2023, 2025, 2027, 2029, 2031,
     1576, 2033, 2035, 1850, 1852, 2037, 2039, 2041, 2043, 2045, 2047, 905, 2049, 2051, 2053, 2055,
-    2057, 2059, 2061, 2063, 2065, 2067, 2069, 2071, 1967, 2073, 2075, 2077, 838, 2079, 2081, 2082,
-    2084, 2085, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 1381, 4294967295, 4294967295, 4294967295, 4294967295,
+    2057, 2059, 2061, 2063, 2065, 2067, 2069, 1967, 2071, 2073, 2075, 838, 2077, 2079, 2080, 2082,
+    2083, 2085, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 1381, 4294967295, 4294967295, 4294967295, 4294967295,
     4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295,
     2096, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 276, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 384, 4294967295, 4294967295,
     4294967295, 2098, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 4294967295, 252, 4294967295, 4294967295, 4294967295,
@@ -10779,9 +10779,9 @@ pub static SIMPLE_HINT_INDICES: &[u32] = &[
     162, 9, 162, 62, 5, 9, 9, 162, 143, 162, 162, 9, 162, 9, 162, 9,
     50, 63, 9, 162, 9, 162, 567, 44, 621, 9, 143, 162, 9, 162, 143, 143,
     143, 9, 888, 44, 124, 124, 220, 156, 350, 825, 825, 210, 1051, 146, 1125, 1162,
-    51, 51, 830, 201, 582, 1163, 559, 559, 709, 428, 1056, 188, 16, 9, 1046, 459,
-    146, 143, 9, 162, 44, 143, 9, 162, 9, 146, 946, 9, 67, 538, 177, 146,
-    147, 848, 549, 443, 224, 1164, 1165, 1166, 1167, 1168, 1168, 194, 240, 240, 1169, 240,
+    51, 51, 830, 201, 582, 1163, 559, 559, 709, 428, 1056, 188, 9, 1046, 459, 146,
+    143, 9, 162, 44, 143, 9, 162, 9, 146, 946, 9, 67, 538, 177, 146, 147,
+    848, 16, 549, 443, 224, 1164, 1165, 1166, 1167, 1168, 1168, 194, 240, 240, 1169, 240,
     240, 132, 503, 240, 240, 112, 126, 106, 240, 1170, 1171, 39, 477, 93, 1172, 250,
     250, 1002, 512, 67, 0, 0, 0, 0, 252, 0, 0, 0, 255, 185, 177, 512,
     512, 252, 1173, 1174, 1175, 1176, 1177, 1178, 1179, 1180, 1181, 1182, 0, 1183, 186, 1184,
