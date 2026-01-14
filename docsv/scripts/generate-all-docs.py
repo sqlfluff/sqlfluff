@@ -6,7 +6,6 @@ This script orchestrates the entire documentation generation process:
 2. Dialect documentation (generate-dialects-docs.py)
 3. CLI documentation (generate-cli-docs.py)
 4. API documentation (generate-api-docs.py)
-5. Redirect extraction (extract-redirects.py)
 """
 
 import subprocess
