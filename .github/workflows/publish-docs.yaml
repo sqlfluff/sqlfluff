@@ -43,10 +43,6 @@ jobs:
         working-directory: docsv
         run: pnpm install --frozen-lockfile
 
-      - name: 🚧 Set up project
-        working-directory: docsv
-        run: pnpm dev:prepare
-
       - name: ⚒️ Build with VitePress
         working-directory: docsv
         run: pnpm run docs:build
