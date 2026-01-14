@@ -45,6 +45,7 @@ test-reports
 
 # Ignore any timing outputs
 /*.csv
+bench_*.json
 
 # Ignore conda environment.yml contributors might be using and direnv config
 environment.yml

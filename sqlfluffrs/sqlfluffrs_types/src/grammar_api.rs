@@ -1,0 +1,730 @@
+//! Ergonomic API for Table-Driven Grammar Access
+//!
+//! This module provides high-level helpers for working with grammar tables
+//! in parser handlers. It abstracts away raw index arithmetic and provides
+//! type-safe, iterator-based access patterns.
+
+use crate::grammar_inst::{GrammarId, GrammarInst, GrammarVariant};
+use crate::grammar_tables::{GrammarInstExt, GrammarTables};
+
+/// Context for grammar table access
+///
+/// Wraps GrammarTables with convenience methods for parser handlers.
+/// Passed to handler functions instead of raw tables.
+pub struct GrammarContext<'a> {
+    tables: &'a GrammarTables,
+}
+
+impl<'a> GrammarContext<'a> {
+    /// Get the number of grammar instructions in the table
+    #[inline]
+    pub fn len(&self) -> usize {
+        self.tables.instructions.len()
+    }
+
+    /// Check if the grammar table is empty
+    #[inline]
+    pub fn is_empty(&self) -> bool {
+        self.tables.instructions.is_empty()
+    }
+
+    /// Get a human-readable name for a GrammarId (Ref, StringParser, TypedParser, RegexParser)
+    pub fn grammar_id_name(&self, id: GrammarId) -> String {
+        // Handle sentinel values that are not real grammar IDs
+        if id == GrammarId::NONCODE {
+            return "NONCODE".to_string();
+        }
+        match self.variant(id) {
+            GrammarVariant::Ref => self.ref_name(id).to_string(),
+            GrammarVariant::StringParser
+            | GrammarVariant::TypedParser
+            | GrammarVariant::RegexParser => self.template(id).to_string(),
+            other => format!("{:?}", other),
+        }
+    }
+
+    /// Generate a Python-compatible repr string for a grammar element.
+    /// Format: "<VariantName: [child_repr, ...]>" for grammars with children
+    /// Format: "<Ref: 'RefName'>" for Ref
+    /// Format: "VariantName" for others
+    pub fn grammar_repr(&self, id: GrammarId) -> String {
+        if id == GrammarId::NONCODE {
+            return "NONCODE".to_string();
+        }
+        let variant = self.variant(id);
+        match variant {
+            GrammarVariant::Ref => {
+                // For Ref, format as <Ref: 'RefName'>
+                let name = self.ref_name(id);
+                format!("<Ref: '{}'>", name)
+            }
+            GrammarVariant::Delimited => {
+                // For Delimited, Python only shows the element children (child 0), not the delimiter (child 1)
+                // Child 0 may be a OneOf wrapping multiple elements, or a single element Ref
+                let children: Vec<GrammarId> = self.children(id).collect();
+                if children.is_empty() {
+                    return "<Delimited: []>".to_string();
+                }
+                let first_child = children[0];
+                let first_child_variant = self.variant(first_child);
+
+                // If first child is OneOf, show its children directly
+                // Otherwise show the first child
+                let child_reprs: Vec<String> = if first_child_variant == GrammarVariant::OneOf {
+                    self.children(first_child)
+                        .map(|child_id| self.grammar_repr(child_id))
+                        .collect()
+                } else {
+                    vec![self.grammar_repr(first_child)]
+                };
+                format!("<Delimited: [{}]>", child_reprs.join(", "))
+            }
+            GrammarVariant::Sequence
+            | GrammarVariant::OneOf
+            | GrammarVariant::AnyNumberOf
+            | GrammarVariant::AnySetOf
+            | GrammarVariant::Bracketed => {
+                // For grammars with children, format as <VariantName: [child_reprs]>
+                let variant_name = format!("{:?}", variant);
+                let children: Vec<GrammarId> = self.children(id).collect();
+                let child_reprs: Vec<String> = children
+                    .iter()
+                    .map(|&child_id| self.grammar_repr(child_id))
+                    .collect();
+                format!("<{}: [{}]>", variant_name, child_reprs.join(", "))
+            }
+            GrammarVariant::StringParser
+            | GrammarVariant::TypedParser
+            | GrammarVariant::RegexParser => {
+                // For parsers, just show the variant name
+                let template = self.template(id);
+                let variant_name = format!("{:?}", variant);
+                format!("<{}: '{}'>", variant_name, template)
+            }
+            _ => format!("{:?}", variant),
+        }
+    }
+
+    /// Create new context from tables
+    pub const fn new(tables: &'a GrammarTables) -> Self {
+        Self { tables }
+    }
+
+    /// Get instruction by ID
+    #[inline]
+    pub fn inst(&self, id: GrammarId) -> &GrammarInst {
+        self.tables.get_inst(id)
+    }
+
+    /// Get instruction variant by ID
+    #[inline]
+    pub fn variant(&self, id: GrammarId) -> GrammarVariant {
+        self.inst(id).variant
+    }
+
+    /// Check if instruction is optional
+    #[inline]
+    pub fn is_optional(&self, id: GrammarId) -> bool {
+        self.inst(id).is_optional()
+    }
+
+    /// Get children as iterator
+    #[inline]
+    pub fn children(&self, id: GrammarId) -> impl Iterator<Item = GrammarId> + '_ {
+        let inst = self.inst(id);
+        inst.children_iter(self.tables.child_ids)
+    }
+
+    /// Get children as slice
+    #[inline]
+    pub fn children_slice(&self, id: GrammarId) -> &[u32] {
+        let inst = self.inst(id);
+        self.tables.get_children(inst)
+    }
+
+    /// Get number of children
+    #[inline]
+    pub fn children_count(&self, id: GrammarId) -> usize {
+        self.inst(id).child_count as usize
+    }
+
+    /// Get terminators as iterator
+    #[inline]
+    pub fn terminators(&self, id: GrammarId) -> impl Iterator<Item = GrammarId> + '_ {
+        let inst = self.inst(id);
+        inst.terminators_iter(self.tables.terminators)
+    }
+
+    /// Get terminators as slice
+    #[inline]
+    pub fn terminators_slice(&self, id: GrammarId) -> &[u32] {
+        let inst = self.inst(id);
+        self.tables.get_terminators(inst)
+    }
+
+    /// Get number of terminators
+    #[inline]
+    pub fn terminators_count(&self, id: GrammarId) -> usize {
+        self.inst(id).terminator_count as usize
+    }
+
+    /// Get Ref name (for Ref variant)
+    #[inline]
+    pub fn ref_name(&self, id: GrammarId) -> &'static str {
+        let inst = self.inst(id);
+        debug_assert_eq!(inst.variant, GrammarVariant::Ref);
+        // For Ref variant the generator stores the string index (name_id)
+        // directly in the AUX_DATA_OFFSETS table (aux_data_offset). Other
+        // variants store a pointer into AUX_DATA at that offset. Use the
+        // instruction variant to disambiguate.
+        let aux_off = self.tables.aux_data_offsets[id.get() as usize] as usize;
+        log::debug!(
+            "GrammarContext.ref_name: id={} aux_offset={}",
+            id.get(),
+            aux_off
+        );
+        // Interpret aux_off as the direct string index for Ref.
+        let name_idx = aux_off as u32;
+        log::debug!(
+            "GrammarContext.ref_name: id={} name_idx={} string='{}'",
+            id.get(),
+            name_idx,
+            self.tables.get_string(name_idx)
+        );
+        self.tables.get_string(name_idx)
+    }
+
+    /// Get segment type for an instruction, if present
+    #[inline]
+    pub fn segment_type(&self, id: GrammarId) -> Option<&'static str> {
+        let idx = id.get() as usize;
+        if idx >= self.tables.segment_type_offsets.len() {
+            return None;
+        }
+        let off = self.tables.segment_type_offsets[idx];
+        if off == 0xFFFFFFFF {
+            None
+        } else {
+            Some(self.tables.get_string(off))
+        }
+    }
+
+    /// Get segment class name for an instruction, if present
+    #[inline]
+    pub fn segment_class(&self, id: GrammarId) -> Option<&'static str> {
+        let idx = id.get() as usize;
+        if idx >= self.tables.segment_class_offsets.len() {
+            return None;
+        }
+        let off = self.tables.segment_class_offsets[idx];
+        if off == 0xFFFFFFFF {
+            None
+        } else {
+            Some(self.tables.get_string(off))
+        }
+    }
+
+    /// Get casefold mode for an instruction, if present
+    ///
+    /// Returns None if the instruction doesn't specify casefold or if the
+    /// grammar_id is out of bounds.
+    #[inline]
+    pub fn casefold(&self, id: GrammarId) -> Option<crate::token::CaseFold> {
+        // Fast path: if no grammars use casefold, return None
+        if self.tables.casefold_sparse.is_empty() {
+            return None;
+        }
+
+        // Binary search for this grammar_id in the sparse array
+        let target = id.get();
+        let result = self
+            .tables
+            .casefold_sparse
+            .binary_search_by_key(&target, |&(grammar_id, _)| grammar_id);
+
+        match result {
+            Ok(idx) => {
+                let (_, mode) = self.tables.casefold_sparse[idx];
+                match mode {
+                    0 => Some(crate::token::CaseFold::None),
+                    1 => Some(crate::token::CaseFold::Upper),
+                    2 => Some(crate::token::CaseFold::Lower),
+                    _ => None, // Invalid value
+                }
+            }
+            Err(_) => None, // Not found
+        }
+    }
+
+    /// Get trim_chars for an instruction, if present
+    ///
+    /// Returns None if the instruction doesn't specify trim_chars or if the
+    /// grammar_id is out of bounds.
+    #[inline]
+    pub fn trim_chars(&self, id: GrammarId) -> Option<Vec<String>> {
+        // Fast path: if no grammars use trim_chars, return None
+        if self.tables.trim_chars_sparse.is_empty() {
+            return None;
+        }
+
+        // Binary search for this grammar_id in the sparse array
+        let target = id.get();
+        let result = self
+            .tables
+            .trim_chars_sparse
+            .binary_search_by_key(&target, |&(gid, _, _)| gid);
+
+        match result {
+            Ok(idx) => {
+                let (_, offset, count) = self.tables.trim_chars_sparse[idx];
+                if count == 0 {
+                    return None;
+                }
+                let start = offset as usize;
+                let mut result = Vec::with_capacity(count as usize);
+                for i in 0..count as usize {
+                    let str_idx = self.tables.trim_chars_data[start + i];
+                    result.push(self.tables.get_string(str_idx).to_string());
+                }
+                Some(result)
+            }
+            Err(_) => None, // Not found
+        }
+    }
+
+    /// Get string template (for StringParser/TypedParser/Token variants)
+    #[inline]
+    pub fn template(&self, id: GrammarId) -> &'static str {
+        // Template index is stored in aux_data at the aux_data_offsets entry.
+        let aux_offset = self.tables.aux_data_offsets[id.get() as usize] as usize;
+        let template_idx = self.tables.aux_data[aux_offset];
+        self.tables.get_string(template_idx)
+    }
+
+    /// Get multiple string templates (for MultiStringParser)
+    #[inline]
+    pub fn templates(&self, id: GrammarId) -> Vec<&'static str> {
+        let inst = self.inst(id);
+        debug_assert_eq!(inst.variant, GrammarVariant::MultiStringParser);
+
+        // The generator stores metadata in aux_data at the instruction's
+        // aux_data_offsets entry. The metadata layout is:
+        // [templates_start, templates_count, token_type_id, raw_class_id]
+        let aux_offset = self.tables.aux_data_offsets[id.get() as usize] as usize;
+        let templates_start = self.tables.aux_data[aux_offset] as usize;
+        let templates_count = self.tables.aux_data[aux_offset + 1] as usize;
+
+        (0..templates_count)
+            .map(|i| {
+                let str_idx = self.tables.aux_data[templates_start + i];
+                self.tables.get_string(str_idx)
+            })
+            .collect()
+    }
+
+    /// Get min_times (for AnyNumberOf/AnySetOf/Delimited)
+    #[inline]
+    pub fn min_times(&self, id: GrammarId) -> usize {
+        self.inst(id).min_times as usize
+    }
+
+    /// Get max_times (for AnyNumberOf/AnySetOf, stored in aux_data)
+    #[inline]
+    pub fn max_times(&self, id: GrammarId) -> Option<usize> {
+        let inst = self.inst(id);
+        // max_times is stored in aux_data at index = first_child_idx
+        // If value is u32::MAX, it means None (unbounded)
+        let max_value = self.tables.get_aux(inst.first_child_idx);
+        if max_value == u32::MAX {
+            None
+        } else {
+            Some(max_value as usize)
+        }
+    }
+
+    /// Get delimiter ID for Delimited variant (returns last child)
+    #[inline]
+    pub fn delimiter(&self, id: GrammarId) -> GrammarId {
+        let inst = self.inst(id);
+        debug_assert_eq!(inst.variant, GrammarVariant::Delimited);
+
+        // Delimiter is the last child
+        let delimiter_idx = (inst.first_child_idx + inst.child_count as u32 - 1) as usize;
+        GrammarId::new(self.tables.child_ids[delimiter_idx])
+    }
+
+    /// Get delimiter child index and min_delimiters from aux_data (for Delimited variant)
+    /// Returns: (delimiter_child_index, min_delimiters)
+    #[inline]
+    pub fn delimited_config(&self, id: GrammarId) -> (usize, usize) {
+        let inst = self.inst(id);
+        debug_assert_eq!(inst.variant, GrammarVariant::Delimited);
+
+        let aux_offset = self.tables.aux_data_offsets[id.get() as usize] as usize;
+        let delimiter_child_idx = self.tables.aux_data[aux_offset] as usize;
+        let min_delimiters = self.tables.aux_data[aux_offset + 1] as usize;
+
+        (delimiter_child_idx, min_delimiters)
+    }
+
+    /// Get bracket pair child indices from aux_data (for Bracketed variant)
+    /// Returns: (start_bracket_child_idx, end_bracket_child_idx)
+    #[inline]
+    pub fn bracketed_config(&self, id: GrammarId) -> (usize, usize) {
+        let inst = self.inst(id);
+        debug_assert_eq!(inst.variant, GrammarVariant::Bracketed);
+
+        let aux_offset = self.tables.aux_data_offsets[id.get() as usize] as usize;
+        let start_bracket_idx = self.tables.aux_data[aux_offset] as usize;
+        let end_bracket_idx = self.tables.aux_data[aux_offset + 1] as usize;
+
+        (start_bracket_idx, end_bracket_idx)
+    }
+
+    /// Get bracket pair GrammarIds (for Bracketed variant)
+    #[inline]
+    pub fn bracket_pair(&self, id: GrammarId) -> (GrammarId, GrammarId) {
+        let inst = self.inst(id);
+        debug_assert_eq!(inst.variant, GrammarVariant::Bracketed);
+
+        let (start_idx, end_idx) = self.bracketed_config(id);
+        let start_id =
+            GrammarId::new(self.tables.child_ids[(inst.first_child_idx as usize) + start_idx]);
+        let end_id =
+            GrammarId::new(self.tables.child_ids[(inst.first_child_idx as usize) + end_idx]);
+
+        (start_id, end_id)
+    }
+
+    /// Get meta type for a non-conditional Meta variant
+    /// Returns: meta_type string (e.g., "indent", "implicit_indent", "dedent")
+    /// For non-conditional Meta, the type string ID is stored directly in aux_data_offsets.
+    #[inline]
+    pub fn meta_type(&self, id: GrammarId) -> &'static str {
+        let inst = self.inst(id);
+        debug_assert_eq!(inst.variant, GrammarVariant::Meta);
+
+        // For non-conditional Meta, aux_data_offsets stores the string ID directly
+        let string_id = self.tables.aux_data_offsets[id.get() as usize];
+        self.tables.get_string(string_id)
+    }
+
+    /// Get conditional configuration from aux_data (for Meta variant with Conditional)
+    /// Returns: (meta_type, config_key, expected_value)
+    /// where meta_type is "indent" or "dedent", config_key is like "indented_joins",
+    /// and expected_value is true/false
+    #[inline]
+    pub fn conditional_config(&self, id: GrammarId) -> (&'static str, &'static str, bool) {
+        let inst = self.inst(id);
+        debug_assert_eq!(inst.variant, GrammarVariant::Meta);
+
+        let aux_offset = self.tables.aux_data_offsets[id.get() as usize] as usize;
+        let meta_type_id = self.tables.aux_data[aux_offset];
+        let config_key_id = self.tables.aux_data[aux_offset + 1];
+        let expected_value_int = self.tables.aux_data[aux_offset + 2];
+
+        let meta_type = self.tables.get_string(meta_type_id);
+        let config_key = self.tables.get_string(config_key_id);
+        let expected_value = expected_value_int != 0;
+
+        (meta_type, config_key, expected_value)
+    }
+
+    /// Get persists flag for Bracketed variant (from aux_data)
+    #[inline]
+    pub fn bracketed_persists(&self, id: GrammarId) -> bool {
+        let inst = self.inst(id);
+        debug_assert_eq!(inst.variant, GrammarVariant::Bracketed);
+
+        let aux_offset = self.tables.aux_data_offsets[id.get() as usize] as usize;
+        // Persists flag is expected at aux_data[aux_offset + 2]
+        self.tables.aux_data[aux_offset + 2] != 0
+    }
+
+    /// Get exclude grammar ID (for variants with HAS_EXCLUDE flag)
+    /// The exclude grammar is always stored as the last child when present
+    #[inline]
+    pub fn exclude(&self, id: GrammarId) -> Option<GrammarId> {
+        let inst = self.inst(id);
+        if inst.flags.has_exclude() {
+            // Exclude ID is the last child
+            let exclude_idx = (inst.first_child_idx + inst.child_count as u32 - 1) as usize;
+            Some(GrammarId::new(self.tables.child_ids[exclude_idx]))
+        } else {
+            None
+        }
+    }
+
+    /// Get AnyNumberOf configuration from aux_data
+    /// Returns: (min_times, max_times, max_times_per_element, has_exclude)
+    /// Note: max_times and max_times_per_element return None if 0xFFFFFFFF (unlimited)
+    #[inline]
+    pub fn anynumberof_config(&self, id: GrammarId) -> (usize, Option<usize>, Option<usize>, bool) {
+        let inst = self.inst(id);
+        debug_assert_eq!(inst.variant, GrammarVariant::AnyNumberOf);
+
+        let aux_offset = self.tables.aux_data_offsets[id.get() as usize] as usize;
+        let min_times = self.tables.aux_data[aux_offset] as usize;
+        let max_times_raw = self.tables.aux_data[aux_offset + 1];
+        let max_per_element_raw = self.tables.aux_data[aux_offset + 2];
+        let has_exclude = self.tables.aux_data[aux_offset + 3] != 0;
+
+        let max_times = if max_times_raw == 0xFFFFFFFF {
+            None
+        } else {
+            Some(max_times_raw as usize)
+        };
+
+        let max_per_element = if max_per_element_raw == 0xFFFFFFFF {
+            None
+        } else {
+            Some(max_per_element_raw as usize)
+        };
+
+        (min_times, max_times, max_per_element, has_exclude)
+    }
+
+    /// Get AnySetOf configuration from aux_data
+    /// Returns: (min_times, max_times, has_exclude)
+    /// Note: AnySetOf has implicit max_times_per_element=1
+    #[inline]
+    pub fn anysetof_config(&self, id: GrammarId) -> (usize, Option<usize>, bool) {
+        let inst = self.inst(id);
+        debug_assert_eq!(inst.variant, GrammarVariant::AnySetOf);
+
+        let aux_offset = self.tables.aux_data_offsets[id.get() as usize] as usize;
+        let min_times = self.tables.aux_data[aux_offset] as usize;
+        let max_times_raw = self.tables.aux_data[aux_offset + 1];
+        let has_exclude = self.tables.aux_data[aux_offset + 2] != 0;
+
+        let max_times = if max_times_raw == 0xFFFFFFFF {
+            None
+        } else {
+            Some(max_times_raw as usize)
+        };
+
+        (min_times, max_times, has_exclude)
+    }
+
+    /// Get OneOf exclude marker from aux_data
+    /// Returns: true if has exclude grammar
+    #[inline]
+    pub fn oneof_has_exclude(&self, id: GrammarId) -> bool {
+        let inst = self.inst(id);
+        debug_assert_eq!(inst.variant, GrammarVariant::OneOf);
+
+        let aux_offset = self.tables.aux_data_offsets[id.get() as usize] as usize;
+        self.tables.aux_data[aux_offset] != 0
+    }
+
+    /// Get element children (excludes exclude grammar if present)
+    /// Returns iterator over element GrammarIds only
+    #[inline]
+    pub fn element_children(&self, id: GrammarId) -> impl Iterator<Item = GrammarId> + 'a {
+        let inst = self.inst(id);
+        let start = inst.first_child_idx as usize;
+        let count = if inst.flags.has_exclude() {
+            // Exclude is last child, so element count is child_count - 1
+            inst.child_count - 1
+        } else {
+            inst.child_count
+        } as usize;
+
+        self.tables.child_ids[start..start + count]
+            .iter()
+            .map(|&id| GrammarId::new(id))
+    }
+
+    /// Access underlying tables (for advanced use)
+    #[inline]
+    pub fn tables(&self) -> &'a GrammarTables {
+        self.tables
+    }
+}
+
+/// Helper functions for common patterns
+pub mod patterns {
+    use super::*;
+
+    /// Check if any child matches a predicate
+    pub fn any_child<F>(ctx: &GrammarContext, id: GrammarId, mut predicate: F) -> bool
+    where
+        F: FnMut(GrammarId) -> bool,
+    {
+        ctx.children(id).any(|child| predicate(child))
+    }
+
+    /// Check if all children match a predicate
+    pub fn all_children<F>(ctx: &GrammarContext, id: GrammarId, mut predicate: F) -> bool
+    where
+        F: FnMut(GrammarId) -> bool,
+    {
+        ctx.children(id).all(|child| predicate(child))
+    }
+
+    /// Find first child matching a predicate
+    pub fn find_child<F>(ctx: &GrammarContext, id: GrammarId, mut predicate: F) -> Option<GrammarId>
+    where
+        F: FnMut(GrammarId) -> bool,
+    {
+        ctx.children(id).find(|&child| predicate(child))
+    }
+
+    /// Collect children matching a predicate
+    pub fn filter_children<F>(
+        ctx: &GrammarContext,
+        id: GrammarId,
+        mut predicate: F,
+    ) -> Vec<GrammarId>
+    where
+        F: FnMut(GrammarId) -> bool,
+    {
+        ctx.children(id).filter(|&child| predicate(child)).collect()
+    }
+
+    /// Count children matching a predicate
+    pub fn count_children<F>(ctx: &GrammarContext, id: GrammarId, mut predicate: F) -> usize
+    where
+        F: FnMut(GrammarId) -> bool,
+    {
+        ctx.children(id).filter(|&child| predicate(child)).count()
+    }
+
+    /// Check if instruction is a specific variant
+    #[inline]
+    pub fn is_variant(ctx: &GrammarContext, id: GrammarId, variant: GrammarVariant) -> bool {
+        ctx.variant(id) == variant
+    }
+
+    /// Check if instruction is a Ref to a specific name
+    pub fn is_ref_to(ctx: &GrammarContext, id: GrammarId, name: &str) -> bool {
+        let inst = ctx.inst(id);
+        if inst.variant != GrammarVariant::Ref {
+            return false;
+        }
+        ctx.ref_name(id) == name
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::grammar_tables::SimpleHintData;
+
+    #[test]
+    fn test_grammar_context() {
+        static INSTRUCTIONS: &[GrammarInst] = &[
+            GrammarInst::new(GrammarVariant::Sequence)
+                .with_children(0, 2)
+                .with_terminators(0, 1),
+            GrammarInst::new(GrammarVariant::Ref).with_children(0, 0), // name_idx = 0
+            GrammarInst::new(GrammarVariant::Token).with_children(1, 0), // type_idx = 1
+        ];
+        static CHILD_IDS: &[u32] = &[1, 2];
+        static TERMINATORS: &[u32] = &[2];
+        static STRINGS: &[&str] = &["SelectStatement", "keyword"];
+        static AUX_DATA: &[u32] = &[];
+        static AUX_DATA_OFFSETS: &[u32] = &[0, 0, 0]; // One per instruction
+        static REGEX_PATTERNS: &[&str] = &[];
+        static SIMPLE_HINTS: &[SimpleHintData] = &[];
+        static HINT_STRING_INDICES: &[u32] = &[];
+        static SIMPLE_HINT_INDICES: &[u32] = &[0, 0, 0]; // One per instruction
+        static CASEFOLD_SPARSE: &[(u32, u8)] = &[];
+        static TRIM_CHARS_SPARSE: &[(u32, u32, u8)] = &[];
+        static TRIM_CHARS_DATA: &[u32] = &[];
+
+        let tables = GrammarTables::new(
+            INSTRUCTIONS,
+            CHILD_IDS,
+            TERMINATORS,
+            STRINGS,
+            AUX_DATA,
+            AUX_DATA_OFFSETS,
+            REGEX_PATTERNS,
+            SIMPLE_HINTS,
+            HINT_STRING_INDICES,
+            SIMPLE_HINT_INDICES,
+            &[], // segment_type_offsets
+            &[], // segment_class_offsets
+            CASEFOLD_SPARSE,
+            TRIM_CHARS_SPARSE,
+            TRIM_CHARS_DATA,
+        );
+
+        let ctx = GrammarContext::new(&tables);
+
+        let seq_id = GrammarId::new(0);
+        assert_eq!(ctx.variant(seq_id), GrammarVariant::Sequence);
+        assert_eq!(ctx.children_count(seq_id), 2);
+        assert_eq!(ctx.terminators_count(seq_id), 1);
+
+        let children: Vec<_> = ctx.children(seq_id).collect();
+        assert_eq!(children, vec![GrammarId::new(1), GrammarId::new(2)]);
+
+        let ref_id = GrammarId::new(1);
+        assert_eq!(ctx.ref_name(ref_id), "SelectStatement");
+    }
+
+    #[test]
+    fn test_pattern_helpers() {
+        static INSTRUCTIONS: &[GrammarInst] = &[
+            GrammarInst::new(GrammarVariant::Sequence).with_children(0, 3),
+            GrammarInst::new(GrammarVariant::Ref),
+            GrammarInst::new(GrammarVariant::Token),
+            GrammarInst::new(GrammarVariant::Ref),
+        ];
+        static CHILD_IDS: &[u32] = &[1, 2, 3];
+        static TERMINATORS: &[u32] = &[];
+        static STRINGS: &[&str] = &[];
+        static AUX_DATA: &[u32] = &[];
+        static AUX_DATA_OFFSETS: &[u32] = &[0, 0, 0, 0]; // One per instruction
+        static REGEX_PATTERNS: &[&str] = &[];
+        static SIMPLE_HINTS: &[SimpleHintData] = &[];
+        static HINT_STRING_INDICES: &[u32] = &[];
+        static SIMPLE_HINT_INDICES: &[u32] = &[0, 0, 0, 0]; // One per instruction
+        static CASEFOLD_SPARSE: &[(u32, u8)] = &[];
+        static TRIM_CHARS_SPARSE: &[(u32, u32, u8)] = &[];
+        static TRIM_CHARS_DATA: &[u32] = &[];
+
+        let tables = GrammarTables::new(
+            INSTRUCTIONS,
+            CHILD_IDS,
+            TERMINATORS,
+            STRINGS,
+            AUX_DATA,
+            AUX_DATA_OFFSETS,
+            REGEX_PATTERNS,
+            SIMPLE_HINTS,
+            HINT_STRING_INDICES,
+            SIMPLE_HINT_INDICES,
+            &[], // segment_type_offsets
+            &[], // segment_class_offsets
+            CASEFOLD_SPARSE,
+            TRIM_CHARS_SPARSE,
+            TRIM_CHARS_DATA,
+        );
+
+        let ctx = GrammarContext::new(&tables);
+        let seq_id = GrammarId::new(0);
+
+        // Test any_child
+        assert!(patterns::any_child(&ctx, seq_id, |id| {
+            ctx.variant(id) == GrammarVariant::Token
+        }));
+
+        // Test all_children
+        assert!(!patterns::all_children(&ctx, seq_id, |id| {
+            ctx.variant(id) == GrammarVariant::Ref
+        }));
+
+        // Test count_children
+        let ref_count =
+            patterns::count_children(&ctx, seq_id, |id| ctx.variant(id) == GrammarVariant::Ref);
+        assert_eq!(ref_count, 2);
+
+        // Test find_child
+        let token_child =
+            patterns::find_child(&ctx, seq_id, |id| ctx.variant(id) == GrammarVariant::Token);
+        assert_eq!(token_child, Some(GrammarId::new(2)));
+    }
+}

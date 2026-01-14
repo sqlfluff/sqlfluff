@@ -1,7 +1,7 @@
 // Wrapper functions that maintain the old TokenGenerator signature for backward compatibility
 // These are used by the generated dialect matcher code
 
-use super::{config::TokenConfig, Token};
+use super::{config::TokenConfig, CaseFold, Token};
 use crate::{marker::PositionMarker, regex::RegexModeGroup};
 use hashbrown::HashSet;
 
@@ -17,7 +17,7 @@ impl Token {
         trim_chars: Option<Vec<String>>,
         quoted_value: Option<(String, RegexModeGroup)>,
         escape_replacement: Option<(String, String)>,
-        casefold: Option<fn(&str) -> str>,
+        casefold: CaseFold,
     ) -> Self {
         Self::whitespace_token(
             raw,
@@ -43,7 +43,7 @@ impl Token {
         trim_chars: Option<Vec<String>>,
         quoted_value: Option<(String, RegexModeGroup)>,
         escape_replacement: Option<(String, String)>,
-        casefold: Option<fn(&str) -> str>,
+        casefold: CaseFold,
     ) -> Self {
         Self::newline_token(
             raw,
@@ -69,7 +69,7 @@ impl Token {
         trim_chars: Option<Vec<String>>,
         quoted_value: Option<(String, RegexModeGroup)>,
         escape_replacement: Option<(String, String)>,
-        casefold: Option<fn(&str) -> str>,
+        casefold: CaseFold,
     ) -> Self {
         Self::comment_token(
             raw,
@@ -95,7 +95,7 @@ impl Token {
         trim_chars: Option<Vec<String>>,
         quoted_value: Option<(String, RegexModeGroup)>,
         escape_replacement: Option<(String, String)>,
-        casefold: Option<fn(&str) -> str>,
+        casefold: CaseFold,
     ) -> Self {
         Self::code_token(
             raw,
@@ -121,7 +121,7 @@ impl Token {
         trim_chars: Option<Vec<String>>,
         quoted_value: Option<(String, RegexModeGroup)>,
         escape_replacement: Option<(String, String)>,
-        casefold: Option<fn(&str) -> str>,
+        casefold: CaseFold,
     ) -> Self {
         Self::symbol_token(
             raw,
@@ -147,7 +147,7 @@ impl Token {
         trim_chars: Option<Vec<String>>,
         quoted_value: Option<(String, RegexModeGroup)>,
         escape_replacement: Option<(String, String)>,
-        casefold: Option<fn(&str) -> str>,
+        casefold: CaseFold,
     ) -> Self {
         Self::identifier_token(
             raw,
@@ -173,7 +173,7 @@ impl Token {
         trim_chars: Option<Vec<String>>,
         quoted_value: Option<(String, RegexModeGroup)>,
         escape_replacement: Option<(String, String)>,
-        casefold: Option<fn(&str) -> str>,
+        casefold: CaseFold,
     ) -> Self {
         Self::literal_token(
             raw,
@@ -199,7 +199,7 @@ impl Token {
         trim_chars: Option<Vec<String>>,
         quoted_value: Option<(String, RegexModeGroup)>,
         escape_replacement: Option<(String, String)>,
-        casefold: Option<fn(&str) -> str>,
+        casefold: CaseFold,
     ) -> Self {
         Self::binary_operator_token(
             raw,
@@ -225,7 +225,7 @@ impl Token {
         trim_chars: Option<Vec<String>>,
         quoted_value: Option<(String, RegexModeGroup)>,
         escape_replacement: Option<(String, String)>,
-        casefold: Option<fn(&str) -> str>,
+        casefold: CaseFold,
     ) -> Self {
         Self::comparison_operator_token(
             raw,
@@ -251,7 +251,7 @@ impl Token {
         trim_chars: Option<Vec<String>>,
         quoted_value: Option<(String, RegexModeGroup)>,
         escape_replacement: Option<(String, String)>,
-        casefold: Option<fn(&str) -> str>,
+        casefold: CaseFold,
     ) -> Self {
         Self::word_token(
             raw,
@@ -277,7 +277,7 @@ impl Token {
         trim_chars: Option<Vec<String>>,
         quoted_value: Option<(String, RegexModeGroup)>,
         escape_replacement: Option<(String, String)>,
-        casefold: Option<fn(&str) -> str>,
+        casefold: CaseFold,
     ) -> Self {
         Self::unlexable_token(
             raw,

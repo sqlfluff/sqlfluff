@@ -309,11 +309,19 @@ class RawSegment(BaseSegment):
         token: "RsToken",
         tf: "TemplatedFile",
     ) -> "RawSegment":
-        """Create a RawSegment from an RSQL token."""
+        """Create a RawSegment from an RSQL token.
+
+        Args:
+            token: The Rust token to create the segment from
+            tf: The TemplatedFile for position marker reconstruction
+        """
+        # Build instance_types from token
+        instance_types = tuple(token.instance_types)
+
         segment = cls(
             raw=token.raw,
             pos_marker=PositionMarker.from_rs_position_marker(token.pos_marker, tf),
-            instance_types=tuple(token.instance_types),
+            instance_types=instance_types,
             trim_start=token.trim_start,
             trim_chars=token.trim_chars,
             source_fixes=token.source_fixes,
@@ -321,6 +329,8 @@ class RawSegment(BaseSegment):
             quoted_value=token.quoted_value,
             escape_replacements=token.escape_replacements,
         )
+        # Cache the original RsToken for efficient round-trip to Rust parser
+        segment._rstoken = token
         return segment
 
 
