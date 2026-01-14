@@ -10,15 +10,26 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 -->
 <!--Start Of Releases (DO NOT DELETE THIS LINE)-->
 
-## [4.0.0a3] - 2026-01-12
+## [4.0.0a3] - 2026-01-14
 
 ## Highlights
 
-## Highlights
+This is an alpha release of SQLFluff 4.0 to continue verification of the rust portions of the codebase.
+In particular to verify the inclusiong of a rust parser. Rust support is still in beta, but from this
+release, users can install `sqlfluff[rs]` to get the parser and lexer running in rust. Current
+implementation does yield noticeable gains on large files and projects - although for small individual
+files, the overhead of moving data into rust means that performance is a tiny bit slower.
 
-> Maintainers: Copy and paste the commentary from the changelog here.
-> Check that the name and tag are correct before releasing.
-> Publishing a GitHub release will trigger the deploy to pypi and dockerhub.
+**We do not recommend that users install this release except for testing and evaluation**.
+
+Big thanks to [@keraion](https://github.com/keraion), who's been leading the way on this effort.
+
+Additionally in this release:
+
+* Several docs improvements
+* Dialect improvements for Databricks, Snowflake, DuckDB, TSQL, BigQuery, Postgres & Oracle.
+
+These will be added to the changelog properly in the full 4.0.0 release.
 
 ## What’s Changed
 
@@ -50,45 +61,12 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 * Docs notes on releasing 4.0 [#7264](https://github.com/sqlfluff/sqlfluff/pull/7264) [@alanmcruickshank](https://github.com/alanmcruickshank)
 * Add instructions for agents [#7261](https://github.com/sqlfluff/sqlfluff/pull/7261) [@peterbud](https://github.com/peterbud)
 * Add support for new duckdb lambda syntax [#7256](https://github.com/sqlfluff/sqlfluff/pull/7256) [@stevenlw-porpoise](https://github.com/stevenlw-porpoise)
-* refactor: Move Rust parts into their own crates [#7229](https://github.com/sqlfluff/sqlfluff/pull/7229) [@keraion](https://github.com/keraion)
-* fix(duckdb): add support for trailing commas in select * rename/exclude/replace commands [#7254](https://github.com/sqlfluff/sqlfluff/pull/7254) [@stevenlw-porpoise](https://github.com/stevenlw-porpoise)
-* Resolve rust templating assertions [#7252](https://github.com/sqlfluff/sqlfluff/pull/7252) [@alanmcruickshank](https://github.com/alanmcruickshank)
-* TSQL: Remove redundant optional DelimiterGrammar from individual statements [#7231](https://github.com/sqlfluff/sqlfluff/pull/7231) [@peterbud](https://github.com/peterbud)
-* Impala: Add INVALIDATE METADATA and REFRESH statements [#7251](https://github.com/sqlfluff/sqlfluff/pull/7251) [@mrebaker](https://github.com/mrebaker)
-* T-SQL: Enhance Alter Database with Set Recovery Options [#7241](https://github.com/sqlfluff/sqlfluff/pull/7241) [@CactusCollider](https://github.com/CactusCollider)
-* TSQL: Add support for variable assignments in SELECT statements [#7222](https://github.com/sqlfluff/sqlfluff/pull/7222) [@peterbud](https://github.com/peterbud)
-* Added alignment_coordinate_space to ALLOWABLE_LAYOUT_CONFIG_KEYS [#7237](https://github.com/sqlfluff/sqlfluff/pull/7237) [@tojnk](https://github.com/tojnk)
-* Support aliasing in Snowflake PIVOT clause [#7245](https://github.com/sqlfluff/sqlfluff/pull/7245) [@robert-norberg](https://github.com/robert-norberg)
-* Fix util script to update Cargo.lock [#7249](https://github.com/sqlfluff/sqlfluff/pull/7249) [@keraion](https://github.com/keraion)
-* Postgres: Implement UTF-8 identifier support [#7242](https://github.com/sqlfluff/sqlfluff/pull/7242) [@adnandaut](https://github.com/adnandaut)
-* TSQL: CreateServerRoleSegment [#7201](https://github.com/sqlfluff/sqlfluff/pull/7201) [@piers-williams](https://github.com/piers-williams)
-* TSQL: Rework DatatypeSegment [#7200](https://github.com/sqlfluff/sqlfluff/pull/7200) [@peterbud](https://github.com/peterbud)
-* Update Datacoves image source in README [#7227](https://github.com/sqlfluff/sqlfluff/pull/7227) [@keraion](https://github.com/keraion)
-* Slightly more obvious logging when rust extensions are used [#7226](https://github.com/sqlfluff/sqlfluff/pull/7226) [@alanmcruickshank](https://github.com/alanmcruickshank)
-* Lock versions of sqlfluffrs to versions of the main package. [#7218](https://github.com/sqlfluff/sqlfluff/pull/7218) [@alanmcruickshank](https://github.com/alanmcruickshank)
-* Improve phrasing of ST11 [#7221](https://github.com/sqlfluff/sqlfluff/pull/7221) [@annebelleo](https://github.com/annebelleo)
-* Another pass on logos [#7219](https://github.com/sqlfluff/sqlfluff/pull/7219) [@alanmcruickshank](https://github.com/alanmcruickshank)
-* Use distinct upload token for rust package deploy [#7216](https://github.com/sqlfluff/sqlfluff/pull/7216) [@alanmcruickshank](https://github.com/alanmcruickshank)
-* Remove checks on Rust release action step [#7215](https://github.com/sqlfluff/sqlfluff/pull/7215) [@alanmcruickshank](https://github.com/alanmcruickshank)
-* DuckDB: Add support for COPY TO statement options [#7209](https://github.com/sqlfluff/sqlfluff/pull/7209) [@tvogels01](https://github.com/tvogels01)
-* TSQL: Add rule to wrap with BEGIN/END for multi-statement procedures [#7202](https://github.com/sqlfluff/sqlfluff/pull/7202) [@peterbud](https://github.com/peterbud)
-* BigQuery: recognize STRUCT and ARRAY data types for CP01/CP05 [#7203](https://github.com/sqlfluff/sqlfluff/pull/7203) [@annebelleo](https://github.com/annebelleo)
-* Docs logos [#7213](https://github.com/sqlfluff/sqlfluff/pull/7213) [@alanmcruickshank](https://github.com/alanmcruickshank)
-* Clickhouse: Adds support for parametric aggregate functions [#7205](https://github.com/sqlfluff/sqlfluff/pull/7205) [@franloza](https://github.com/franloza)
-* TSQL: update OutputClauseSegment to match specification [#7207](https://github.com/sqlfluff/sqlfluff/pull/7207) [@peterbud](https://github.com/peterbud)
-* Write an implementation of the lexer in Rust [#7132](https://github.com/sqlfluff/sqlfluff/pull/7132) [@keraion](https://github.com/keraion)
-* Disregard CV12 when UNNEST is detected in from_expression_element [#7211](https://github.com/sqlfluff/sqlfluff/pull/7211) [@annebelleo](https://github.com/annebelleo)
-* TSQL: Update T-SQL keyword identifier usage [#7191](https://github.com/sqlfluff/sqlfluff/pull/7191) [@peterbud](https://github.com/peterbud)
-* Add the option to require implicit indents [#7197](https://github.com/sqlfluff/sqlfluff/pull/7197) [@WittierDinosaur](https://github.com/WittierDinosaur)
-* Update dbt CI matrix [#7196](https://github.com/sqlfluff/sqlfluff/pull/7196) [@WittierDinosaur](https://github.com/WittierDinosaur)
-* SparkSQL: allow accessing nested array fields for RF01 [#7198](https://github.com/sqlfluff/sqlfluff/pull/7198) [@Ruward](https://github.com/Ruward)
 
 ## New Contributors
 
 * [@serl](https://github.com/serl) made their first contribution in [#7297](https://github.com/sqlfluff/sqlfluff/pull/7297)
 * [@lynndb0](https://github.com/lynndb0) made their first contribution in [#7316](https://github.com/sqlfluff/sqlfluff/pull/7316)
 * [@kyletl](https://github.com/kyletl) made their first contribution in [#7204](https://github.com/sqlfluff/sqlfluff/pull/7204)
-* [@[copilot-swe-agent[bot]](https://github.com/apps/copilot-swe-agent)](https://github.com/[copilot-swe-agent[bot]](https://github.com/apps/copilot-swe-agent)) made their first contribution in [#7352](https://github.com/sqlfluff/sqlfluff/pull/7352)
 
 ## [4.0.0a2] - 2025-11-11
 
