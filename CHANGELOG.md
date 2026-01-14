@@ -33,6 +33,9 @@ These will be added to the changelog properly in the full 4.0.0 release.
 
 ## What’s Changed
 
+* Optimise rust implementation by using sparse representations [#7354](https://github.com/sqlfluff/sqlfluff/pull/7354) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Update .gitattributes to exclude generated Rust code [#7356](https://github.com/sqlfluff/sqlfluff/pull/7356) [@keraion](https://github.com/keraion)
+* docs: Update gettingstarted.rst [#7353](https://github.com/sqlfluff/sqlfluff/pull/7353) [@annebelleo](https://github.com/annebelleo)
 * Sort reserved keywords in anti_template regex for deterministic output [#7339](https://github.com/sqlfluff/sqlfluff/pull/7339) [@keraion](https://github.com/keraion)
 * Initial implementation of the Rust parser [#7342](https://github.com/sqlfluff/sqlfluff/pull/7342) [@keraion](https://github.com/keraion)
 * Add INCLUDE and WHERE clause support to T-SQL inline table indexes [#7352](https://github.com/sqlfluff/sqlfluff/pull/7352) [@[copilot-swe-agent[bot]](https://github.com/apps/copilot-swe-agent)](https://github.com/[copilot-swe-agent[bot]](https://github.com/apps/copilot-swe-agent))
