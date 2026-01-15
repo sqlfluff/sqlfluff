@@ -266,7 +266,7 @@ try:
             # Determine matched_class
             # The Rust parser now includes actual Python class names (from codegen)
             # in matched_class, so we can use them directly without conversion.
-            matched_class: type["BaseSegment"] | None = (
+            matched_class: Optional[type["BaseSegment"]] = (
                 self._get_segment_class_by_name(rs_match.matched_class)
                 if rs_match.matched_class
                 else None
