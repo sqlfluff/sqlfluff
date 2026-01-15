@@ -20,9 +20,9 @@ performance improvements, users can install `sqlfluff[rs]` to get the parser and
 in rust. The current implementation does yield noticeable gains on large files and projects -
 although for small individual files, the overhead of moving data into rust means that
 performance is a tiny bit slower. Functionality has proven fairly stable during pre-release
-testing, and we anticipate that the rust libaries will become defaults from 5.0 onwards.
+testing, and we anticipate that the rust implementations will become defaults from 5.0 onwards.
 
-**We advise testing the rust libraries in a development environment before going direct to production**.
+**We advise testing the rust package in a development environment before going direct to production**.
 
 A massive shout out to [@keraion](https://github.com/keraion), who's been leading the way on this effort.
 
