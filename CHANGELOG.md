@@ -14,11 +14,24 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 
 ## Highlights
 
-## Highlights
+This major release brings support for internal rust optimisations. Rust support is still
+effectively in _beta_ and is available on an **opt in** basis. To take advantage of these
+performance improvements, users can install `sqlfluff[rs]` to get the parser and lexer running
+in rust. The current implementation does yield noticeable gains on large files and projects -
+although for small individual files, the overhead of moving data into rust means that
+performance is a tiny bit slower. Functionality has proven fairly stable during pre-release
+testing, and we anticipate that the rust libaries will become defaults from 5.0 onwards.
 
-> Maintainers: Copy and paste the commentary from the changelog here.
-> Check that the name and tag are correct before releasing.
-> Publishing a GitHub release will trigger the deploy to pypi and dockerhub.
+**We advise testing the rust libraries in a development environment before going direct to production**.
+
+A massive shout out to [@keraion](https://github.com/keraion), who's been leading the way on this effort.
+
+Additionally in this release:
+
+* We drop support for dbt 1.4 and older, and include support for dbt 1.10.
+* We add the capability to force implicit indents.
+* Bufixes for CV12 and RF01.
+* Tons of docs and dialect improvements.
 
 ## What’s Changed
 
@@ -89,14 +102,24 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 
 ## New Contributors
 
-
+* [@serl](https://github.com/serl) made their first contribution in [#7297](https://github.com/sqlfluff/sqlfluff/pull/7297)
+* [@lynndb0](https://github.com/lynndb0) made their first contribution in [#7316](https://github.com/sqlfluff/sqlfluff/pull/7316)
+* [@kyletl](https://github.com/kyletl) made their first contribution in [#7204](https://github.com/sqlfluff/sqlfluff/pull/7204)
+* [@piers-williams](https://github.com/piers-williams) made their first contribution in [#7201](https://github.com/sqlfluff/sqlfluff/pull/7201)
+* [@adnandaut](https://github.com/adnandaut) made their first contribution in [#7242](https://github.com/sqlfluff/sqlfluff/pull/7242)
+* [@robert-norberg](https://github.com/robert-norberg) made their first contribution in [#7245](https://github.com/sqlfluff/sqlfluff/pull/7245)
+* [@tojnk](https://github.com/tojnk) made their first contribution in [#7237](https://github.com/sqlfluff/sqlfluff/pull/7237)
+* [@CactusCollider](https://github.com/CactusCollider) made their first contribution in [#7241](https://github.com/sqlfluff/sqlfluff/pull/7241)
+* [@stevenlw-porpoise](https://github.com/stevenlw-porpoise) made their first contribution in [#7254](https://github.com/sqlfluff/sqlfluff/pull/7254)
+* [@Ruward](https://github.com/Ruward) made their first contribution in [#7198](https://github.com/sqlfluff/sqlfluff/pull/7198)
+* [@tvogels01](https://github.com/tvogels01) made their first contribution in [#7209](https://github.com/sqlfluff/sqlfluff/pull/7209)
 
 ## [4.0.0a3] - 2026-01-14
 
 ## Highlights
 
 This is an alpha release of SQLFluff 4.0 to continue verification of the rust portions of the codebase.
-In particular to verify the inclusiong of a rust parser. Rust support is still in beta, but from this
+In particular to verify the inclusion of a rust parser. Rust support is still in beta, but from this
 release, users can install `sqlfluff[rs]` to get the parser and lexer running in rust. Current
 implementation does yield noticeable gains on large files and projects - although for small individual
 files, the overhead of moving data into rust means that performance is a tiny bit slower.
