@@ -10,6 +10,67 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 -->
 <!--Start Of Releases (DO NOT DELETE THIS LINE)-->
 
+## [4.0.0a3] - 2026-01-14
+
+## Highlights
+
+This is an alpha release of SQLFluff 4.0 to continue verification of the rust portions of the codebase.
+In particular to verify the inclusiong of a rust parser. Rust support is still in beta, but from this
+release, users can install `sqlfluff[rs]` to get the parser and lexer running in rust. Current
+implementation does yield noticeable gains on large files and projects - although for small individual
+files, the overhead of moving data into rust means that performance is a tiny bit slower.
+
+**We do not recommend that users install this release except for testing and evaluation**.
+
+Big thanks to [@keraion](https://github.com/keraion), who's been leading the way on this effort.
+
+Additionally in this release:
+
+* Several docs improvements
+* Dialect improvements for Databricks, Snowflake, DuckDB, TSQL, BigQuery, Postgres & Oracle.
+
+These will be added to the changelog properly in the full 4.0.0 release.
+
+## What’s Changed
+
+* Optimise rust implementation by using sparse representations [#7354](https://github.com/sqlfluff/sqlfluff/pull/7354) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Update .gitattributes to exclude generated Rust code [#7356](https://github.com/sqlfluff/sqlfluff/pull/7356) [@keraion](https://github.com/keraion)
+* docs: Update gettingstarted.rst [#7353](https://github.com/sqlfluff/sqlfluff/pull/7353) [@annebelleo](https://github.com/annebelleo)
+* Sort reserved keywords in anti_template regex for deterministic output [#7339](https://github.com/sqlfluff/sqlfluff/pull/7339) [@keraion](https://github.com/keraion)
+* Initial implementation of the Rust parser [#7342](https://github.com/sqlfluff/sqlfluff/pull/7342) [@keraion](https://github.com/keraion)
+* Add INCLUDE and WHERE clause support to T-SQL inline table indexes [#7352](https://github.com/sqlfluff/sqlfluff/pull/7352) [@[copilot-swe-agent[bot]](https://github.com/apps/copilot-swe-agent)](https://github.com/[copilot-swe-agent[bot]](https://github.com/apps/copilot-swe-agent))
+* docs: Update tox installation command [#7336](https://github.com/sqlfluff/sqlfluff/pull/7336) [@annebelleo](https://github.com/annebelleo)
+* Adds support for associative array of collections in Oracle. [#7330](https://github.com/sqlfluff/sqlfluff/pull/7330) [@joaostorrer](https://github.com/joaostorrer)
+* databricks: support for named parameters [#7204](https://github.com/sqlfluff/sqlfluff/pull/7204) [@kyletl](https://github.com/kyletl)
+* Adds support for `CREATE SYNONYM`, `DROP SYNONYM` and `ALTER SYNONYM` statements in Oracle. [#7291](https://github.com/sqlfluff/sqlfluff/pull/7291) [@joaostorrer](https://github.com/joaostorrer)
+* TSQL: Enhance GROUP BY clause to support T-SQL specific terminators [#7327](https://github.com/sqlfluff/sqlfluff/pull/7327) [@peterbud](https://github.com/peterbud)
+* DuckDB - add support for IN operator on strings, lists, and columns [#7273](https://github.com/sqlfluff/sqlfluff/pull/7273) [@stevenlw-porpoise](https://github.com/stevenlw-porpoise)
+* Postgres: Add support for composite-value expansion [#7322](https://github.com/sqlfluff/sqlfluff/pull/7322) [@annebelleo](https://github.com/annebelleo)
+* TSQL: Change DATASOURCE to DATA_SOURCE in openrowset(bulk...) [#7316](https://github.com/sqlfluff/sqlfluff/pull/7316) [@lynndb0](https://github.com/lynndb0)
+* Postgres: Identify type names for `CREATE TYPE` and `ALTER TYPE` [#7314](https://github.com/sqlfluff/sqlfluff/pull/7314) [@annebelleo](https://github.com/annebelleo)
+* Postgres: add support for RETURNING clause [#7317](https://github.com/sqlfluff/sqlfluff/pull/7317) [@annebelleo](https://github.com/annebelleo)
+* TSQL: add fulltext catalog and openxml plus other fixes [#7311](https://github.com/sqlfluff/sqlfluff/pull/7311) [@nathanthorell](https://github.com/nathanthorell)
+* BigQuery: add support for FORMAT clause [#7310](https://github.com/sqlfluff/sqlfluff/pull/7310) [@annebelleo](https://github.com/annebelleo)
+* BigQuery: explicitly define data types [#7305](https://github.com/sqlfluff/sqlfluff/pull/7305) [@annebelleo](https://github.com/annebelleo)
+* CI: Update macos runners [#7270](https://github.com/sqlfluff/sqlfluff/pull/7270) [@keraion](https://github.com/keraion)
+* chore(snowflake): alter dynamic table (un)set delimited values [#7279](https://github.com/sqlfluff/sqlfluff/pull/7279) [@mrlannigan](https://github.com/mrlannigan)
+* fix(rebreak): unhandled `NotImplementedError` exception [#7285](https://github.com/sqlfluff/sqlfluff/pull/7285) [@peterbud](https://github.com/peterbud)
+* Adds support for `CREATE DATABASE LINK`, `DROP DATABASE LINK` and `ALTER DATABASE LINK` statements in Oracle. [#7284](https://github.com/sqlfluff/sqlfluff/pull/7284) [@joaostorrer](https://github.com/joaostorrer)
+* update duckdb FILTER clause to make WHERE keyword optional [#7271](https://github.com/sqlfluff/sqlfluff/pull/7271) [@stevenlw-porpoise](https://github.com/stevenlw-porpoise)
+* TSQL: allow special characters in variable and table names [#7262](https://github.com/sqlfluff/sqlfluff/pull/7262) [@peterbud](https://github.com/peterbud)
+* Adds support for `ENABLE/DISABLE` clause after constraints in `CREATE TABLE` statements in Oracle. [#7250](https://github.com/sqlfluff/sqlfluff/pull/7250) [@joaostorrer](https://github.com/joaostorrer)
+* Fix click version constraint, bumping to 8.3.x [#7297](https://github.com/sqlfluff/sqlfluff/pull/7297) [@serl](https://github.com/serl)
+* TSQL: new rule to remove empty batches [#7280](https://github.com/sqlfluff/sqlfluff/pull/7280) [@peterbud](https://github.com/peterbud)
+* Docs notes on releasing 4.0 [#7264](https://github.com/sqlfluff/sqlfluff/pull/7264) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Add instructions for agents [#7261](https://github.com/sqlfluff/sqlfluff/pull/7261) [@peterbud](https://github.com/peterbud)
+* Add support for new duckdb lambda syntax [#7256](https://github.com/sqlfluff/sqlfluff/pull/7256) [@stevenlw-porpoise](https://github.com/stevenlw-porpoise)
+
+## New Contributors
+
+* [@serl](https://github.com/serl) made their first contribution in [#7297](https://github.com/sqlfluff/sqlfluff/pull/7297)
+* [@lynndb0](https://github.com/lynndb0) made their first contribution in [#7316](https://github.com/sqlfluff/sqlfluff/pull/7316)
+* [@kyletl](https://github.com/kyletl) made their first contribution in [#7204](https://github.com/sqlfluff/sqlfluff/pull/7204)
+
 ## [4.0.0a2] - 2025-11-11
 
 ## Highlights

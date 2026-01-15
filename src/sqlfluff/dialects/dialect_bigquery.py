@@ -210,7 +210,9 @@ bigquery_dialect.add(
             r"[A-Z_][A-Z0-9_]*",
             IdentifierSegment,
             type="naked_identifier",
-            anti_template=r"^(" + r"|".join(dialect.sets("reserved_keywords")) + r")$",
+            anti_template=r"^("
+            + r"|".join(sorted(dialect.sets("reserved_keywords")))
+            + r")$",
         )
     ),
     QuotedCSIdentifierSegment=TypedParser(
@@ -286,7 +288,9 @@ bigquery_dialect.replace(
             r"[A-Z_][A-Z0-9_]*",
             IdentifierSegment,
             type="naked_identifier",
-            anti_template=r"^(" + r"|".join(dialect.sets("reserved_keywords")) + r")$",
+            anti_template=r"^("
+            + r"|".join(sorted(dialect.sets("reserved_keywords")))
+            + r")$",
             casefold=str.upper,
         )
     ),
@@ -333,6 +337,24 @@ bigquery_dialect.replace(
         ),
         Sequence(Ref("ExpressionSegment"), "HAVING", OneOf("MIN", "MAX")),
         Ref("NamedArgumentSegment"),
+    ),
+    # Extend the ANSI FunctionContentsGrammar to allow a FORMAT clause
+    # after the CAST-style "AS <datatype>" pattern, e.g.:
+    #   CAST(x AS STRING FORMAT 'ASCII')
+    FunctionContentsGrammar=ansi_dialect.get_grammar("FunctionContentsGrammar").copy(
+        insert=[
+            Sequence(
+                Ref("ExpressionSegment"),
+                "AS",
+                Ref("DatatypeSegment"),
+                Sequence(
+                    Ref.keyword("FORMAT"),
+                    Ref("QuotedLiteralSegment"),
+                    Ref("TimeZoneGrammar", optional=True),
+                    optional=True,
+                ),
+            )
+        ]
     ),
     TrimParametersGrammar=Nothing(),
     # BigQuery allows underscore in parameter names, and also anything if quoted in
