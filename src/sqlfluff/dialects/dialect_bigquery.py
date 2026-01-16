@@ -1278,7 +1278,7 @@ class ArrayAggFunctionSegment(BaseSegment):
     Example: ARRAY_AGG(DISTINCT x ORDER BY y LIMIT 10)
     """
 
-    type = "aggregate_function"
+    type = "function_name"
     match_grammar = Sequence(
         StringParser("ARRAY_AGG", CodeSegment, type="function_name_identifier"),
         Bracketed(
@@ -1317,7 +1317,7 @@ class ArrayConcatAggFunctionSegment(BaseSegment):
     Example: ARRAY_CONCAT_AGG(x ORDER BY ARRAY_LENGTH(x) LIMIT 10)
     """
 
-    type = "aggregate_function"
+    type = "function_name"
     match_grammar = Sequence(
         StringParser("ARRAY_CONCAT_AGG", CodeSegment, type="function_name_identifier"),
         Bracketed(
@@ -1355,7 +1355,7 @@ class StringAggFunctionSegment(BaseSegment):
     Example: STRING_AGG(x, ", " ORDER BY y LIMIT 10)
     """
 
-    type = "aggregate_function"
+    type = "function_name"
     match_grammar = Sequence(
         StringParser("STRING_AGG", CodeSegment, type="function_name_identifier"),
         Bracketed(
