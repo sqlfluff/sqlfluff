@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: bd87d557364644981579438211ffea2a7d43de2d5da4907d70f58dca6bc0ee3c
+_hash: 2103a13038debc4d9fb943f16419415b935031d6fdb4497e39c653be44315570
 file:
 - statement:
     select_statement:
@@ -11,7 +11,7 @@ file:
         keyword: SELECT
         select_clause_element:
           function:
-            aggregate_function:
+            function_name:
               function_name_identifier: ARRAY_AGG
               bracketed:
               - start_bracket: (
@@ -40,7 +40,7 @@ file:
         keyword: SELECT
         select_clause_element:
           function:
-            aggregate_function:
+            function_name:
               function_name_identifier: ARRAY_AGG
               bracketed:
               - start_bracket: (
@@ -68,7 +68,7 @@ file:
         keyword: SELECT
         select_clause_element:
           function:
-            aggregate_function:
+            function_name:
               function_name_identifier: ARRAY_AGG
               bracketed:
               - start_bracket: (
@@ -96,7 +96,7 @@ file:
         keyword: SELECT
         select_clause_element:
           function:
-            aggregate_function:
+            function_name:
               function_name_identifier: ARRAY_AGG
               bracketed:
               - start_bracket: (
@@ -121,7 +121,7 @@ file:
         keyword: SELECT
         select_clause_element:
           function:
-            aggregate_function:
+            function_name:
               function_name_identifier: ARRAY_AGG
               bracketed:
               - start_bracket: (
@@ -147,7 +147,7 @@ file:
         keyword: SELECT
         select_clause_element:
           function:
-            aggregate_function:
+            function_name:
               function_name_identifier: ARRAY_AGG
               bracketed:
               - start_bracket: (
@@ -180,7 +180,7 @@ file:
         keyword: SELECT
         select_clause_element:
           function:
-            aggregate_function:
+            function_name:
               function_name_identifier: ARRAY_AGG
               bracketed:
               - start_bracket: (
@@ -223,7 +223,7 @@ file:
         keyword: SELECT
         select_clause_element:
           function:
-            aggregate_function:
+            function_name:
               function_name_identifier: ARRAY_AGG
               bracketed:
               - start_bracket: (

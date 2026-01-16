@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: a421921f3de111459c7ab35956a553336f53f321bad6e010ff7f6be610a37067
+_hash: 8f64ed4194fa1c85b7aac2b31aa32b0b7740dc96314ae8923eb9ffc8e3969904
 file:
 - statement:
     select_statement:
@@ -11,7 +11,7 @@ file:
         keyword: SELECT
         select_clause_element:
           function:
-            aggregate_function:
+            function_name:
               function_name_identifier: ARRAY_CONCAT_AGG
               bracketed:
               - start_bracket: (
@@ -52,7 +52,7 @@ file:
         keyword: SELECT
         select_clause_element:
           function:
-            aggregate_function:
+            function_name:
               function_name_identifier: ARRAY_CONCAT_AGG
               bracketed:
                 start_bracket: (
@@ -78,7 +78,7 @@ file:
         keyword: SELECT
         select_clause_element:
           function:
-            aggregate_function:
+            function_name:
               function_name_identifier: ARRAY_CONCAT_AGG
               bracketed:
                 start_bracket: (
@@ -106,7 +106,7 @@ file:
         keyword: SELECT
         select_clause_element:
           function:
-            aggregate_function:
+            function_name:
               function_name_identifier: ARRAY_CONCAT_AGG
               bracketed:
               - start_bracket: (
@@ -137,7 +137,7 @@ file:
         keyword: SELECT
         select_clause_element:
           function:
-            aggregate_function:
+            function_name:
               function_name_identifier: ARRAY_CONCAT_AGG
               bracketed:
               - start_bracket: (
@@ -179,7 +179,7 @@ file:
         keyword: SELECT
         select_clause_element:
           function:
-            aggregate_function:
+            function_name:
               function_name_identifier: ARRAY_CONCAT_AGG
               bracketed:
               - start_bracket: (
