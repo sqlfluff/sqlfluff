@@ -59,6 +59,16 @@ if __name__ == "__main__":
             ),
         ]
     ]
+    # Also generate the top-level dialect index file which declares all
+    # per-dialect modules. This is produced by utils/build_dialects.py and
+    # must be written to sqlfluffrs/sqlfluffrs_dialects/src/dialect/mod.rs
+    dialects_list.append(
+        (
+            "utils/build_dialects.py",
+            "sqlfluffrs/sqlfluffrs_dialects/src/dialect/mod.rs",
+            [],
+        )
+    )
 
     parser = argparse.ArgumentParser(
         description="Check or build generated Rust output."
