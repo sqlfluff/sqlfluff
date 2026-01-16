@@ -334,24 +334,6 @@ bigquery_dialect.replace(
         Sequence(
             Ref("ExpressionSegment"),
             Sequence(OneOf("IGNORE", "RESPECT"), "NULLS", optional=True),
-            # Support ORDER BY and LIMIT for aggregate functions like ARRAY_AGG
-            # https://cloud.google.com/bigquery/docs/reference/standard-sql/aggregate_functions#array_agg
-            Sequence(
-                "ORDER",
-                "BY",
-                Delimited(
-                    Sequence(
-                        Ref("ExpressionSegment"),
-                        OneOf("ASC", "DESC", optional=True),
-                    ),
-                ),
-                optional=True,
-            ),
-            Sequence(
-                "LIMIT",
-                Ref("NumericLiteralSegment"),
-                optional=True,
-            ),
         ),
         Sequence(Ref("ExpressionSegment"), "HAVING", OneOf("MIN", "MAX")),
         Ref("NamedArgumentSegment"),
@@ -1219,6 +1201,96 @@ class NormalizeFunctionContentsSegment(BaseSegment):
     )
 
 
+class ArrayAggFunctionNameSegment(BaseSegment):
+    """ARRAY_AGG function name segment."""
+
+    type = "function_name"
+    match_grammar = StringParser(
+        "ARRAY_AGG",
+        CodeSegment,
+        type="function_name_identifier",
+    )
+
+
+class StringAggFunctionNameSegment(BaseSegment):
+    """STRING_AGG function name segment."""
+
+    type = "function_name"
+    match_grammar = StringParser(
+        "STRING_AGG",
+        CodeSegment,
+        type="function_name_identifier",
+    )
+
+
+class AggregateFunctionContentsSegment(BaseSegment):
+    """Aggregate function contents with ORDER BY and LIMIT support.
+    
+    Used by ARRAY_AGG which supports both ORDER BY and LIMIT.
+    https://cloud.google.com/bigquery/docs/reference/standard-sql/aggregate_functions#array_agg
+    """
+
+    type = "function_contents"
+
+    match_grammar = Sequence(
+        Bracketed(
+            Ref.keyword("DISTINCT", optional=True),
+            Delimited(
+                Sequence(
+                    Ref("ExpressionSegment"),
+                    Sequence(OneOf("IGNORE", "RESPECT"), "NULLS", optional=True),
+                ),
+            ),
+            Sequence(
+                "ORDER",
+                "BY",
+                Delimited(
+                    Sequence(
+                        Ref("ExpressionSegment"),
+                        OneOf("ASC", "DESC", optional=True),
+                    ),
+                ),
+                optional=True,
+            ),
+            Sequence(
+                "LIMIT",
+                Ref("NumericLiteralSegment"),
+                optional=True,
+            ),
+        ),
+    )
+
+
+class StringAggFunctionContentsSegment(BaseSegment):
+    """STRING_AGG function contents with ORDER BY support.
+    
+    STRING_AGG supports ORDER BY but not LIMIT.
+    https://cloud.google.com/bigquery/docs/reference/standard-sql/aggregate_functions#string_agg
+    """
+
+    type = "function_contents"
+
+    match_grammar = Sequence(
+        Bracketed(
+            Ref.keyword("DISTINCT", optional=True),
+            Delimited(
+                Ref("ExpressionSegment"),
+            ),
+            Sequence(
+                "ORDER",
+                "BY",
+                Delimited(
+                    Sequence(
+                        Ref("ExpressionSegment"),
+                        OneOf("ASC", "DESC", optional=True),
+                    ),
+                ),
+                optional=True,
+            ),
+        ),
+    )
+
+
 class FunctionSegment(ansi.FunctionSegment):
     """A scalar or aggregate function.
 
@@ -1252,6 +1324,20 @@ class FunctionSegment(ansi.FunctionSegment):
                 Ref("DateTimeFunctionContentsSegment"),
             ),
             Sequence(
+                # ARRAY_AGG supports ORDER BY and LIMIT inside the function
+                Ref("ArrayAggFunctionNameSegment"),
+                Ref("AggregateFunctionContentsSegment"),
+                # ARRAY_AGG returns arrays so can have array accessor
+                Ref("ArrayAccessorSegment", optional=True),
+                Ref("PostFunctionGrammar", optional=True),
+            ),
+            Sequence(
+                # STRING_AGG supports ORDER BY (but not LIMIT) inside the function
+                Ref("StringAggFunctionNameSegment"),
+                Ref("StringAggFunctionContentsSegment"),
+                Ref("PostFunctionGrammar", optional=True),
+            ),
+            Sequence(
                 Sequence(
                     Ref(
                         "FunctionNameSegment",
@@ -1259,6 +1345,8 @@ class FunctionSegment(ansi.FunctionSegment):
                             Ref("DatePartFunctionNameSegment"),
                             Ref("NormalizeFunctionNameSegment"),
                             Ref("ValuesClauseSegment"),
+                            Ref("ArrayAggFunctionNameSegment"),
+                            Ref("StringAggFunctionNameSegment"),
                         ),
                     ),
                     Ref("FunctionContentsSegment"),
