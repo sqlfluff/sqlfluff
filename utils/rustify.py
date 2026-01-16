@@ -17,9 +17,24 @@ def check_generated_output(
     with open(output_path, "rb") as f:
         output_bytes = f.read()
     output_hash = hashlib.sha256(output_bytes).hexdigest()
-    result = subprocess.run(
-        [sys.executable, build_path, *build_arg], capture_output=True, check=True
-    )
+    try:
+        result = subprocess.run(
+            [sys.executable, str(build_path), *build_arg],
+            capture_output=True,
+            check=True,
+        )
+    except subprocess.CalledProcessError as exc:
+        # Decode outputs for easier debugging on Windows CI
+        out = exc.stdout.decode("utf-8", errors="replace") if exc.stdout else ""
+        err = exc.stderr.decode("utf-8", errors="replace") if exc.stderr else ""
+        print(f"ERROR: generation script failed: {build_path} args={build_arg}")
+        if out:
+            print("--- STDOUT ---")
+            print(out)
+        if err:
+            print("--- STDERR ---")
+            print(err)
+        raise
     process_hash = hashlib.sha256(result.stdout).hexdigest()
     output_answer = "✅" if output_hash == process_hash else "❌"
     print(f"Matching output of {build_path} to {output_path}: {output_answer}")
@@ -28,9 +43,21 @@ def check_generated_output(
 
 def build_generated_output(build_path: Path, output_path: Path, build_arg: list[str]):
     """Builds rust output from python."""
-    result = subprocess.run(
-        [sys.executable, build_path, *build_arg], capture_output=True, check=True
-    )
+    try:
+        result = subprocess.run(
+            [sys.executable, build_path, *build_arg], capture_output=True, check=True
+        )
+    except subprocess.CalledProcessError as exc:  # pragma: no cover - repro on CI
+        out = exc.stdout.decode("utf-8", errors="replace") if exc.stdout else ""
+        err = exc.stderr.decode("utf-8", errors="replace") if exc.stderr else ""
+        print(f"ERROR: generation script failed: {build_path} args={build_arg}")
+        if out:
+            print("--- STDOUT ---")
+            print(out)
+        if err:
+            print("--- STDERR ---")
+            print(err)
+        raise
     if not output_path.parent.exists():
         output_path.parent.mkdir(0o755, parents=True, exist_ok=True)
     with output_path.open("wb") as f:
