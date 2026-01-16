@@ -1,0 +1,2 @@
+SELECT ARRAY_AGG(x ORDER BY x DESC) AS array_agg
+FROM t

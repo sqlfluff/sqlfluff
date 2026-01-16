@@ -1,0 +1,4 @@
+SELECT
+  ARRAY_TO_STRING(ARRAY_AGG(DISTINCT page LIMIT 50), ' ') AS sample_urls
+FROM
+  table1

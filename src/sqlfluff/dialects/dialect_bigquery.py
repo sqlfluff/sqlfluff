@@ -334,6 +334,24 @@ bigquery_dialect.replace(
         Sequence(
             Ref("ExpressionSegment"),
             Sequence(OneOf("IGNORE", "RESPECT"), "NULLS", optional=True),
+            # Support ORDER BY and LIMIT for aggregate functions like ARRAY_AGG
+            # https://cloud.google.com/bigquery/docs/reference/standard-sql/aggregate_functions#array_agg
+            Sequence(
+                "ORDER",
+                "BY",
+                Delimited(
+                    Sequence(
+                        Ref("ExpressionSegment"),
+                        OneOf("ASC", "DESC", optional=True),
+                    ),
+                ),
+                optional=True,
+            ),
+            Sequence(
+                "LIMIT",
+                Ref("NumericLiteralSegment"),
+                optional=True,
+            ),
         ),
         Sequence(Ref("ExpressionSegment"), "HAVING", OneOf("MIN", "MAX")),
         Ref("NamedArgumentSegment"),

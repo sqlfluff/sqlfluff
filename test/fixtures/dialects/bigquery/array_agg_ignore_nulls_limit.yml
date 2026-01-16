@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: b0ed3d48ffcc434518194fef090800814a0e6788dec765c47eed63240b9d6151
+_hash: 31287cf62de8440518b686f89bc2abe903d8ec4b800c4c74f403d3643f7fb33a
 file:
   statement:
     select_statement:
@@ -12,27 +12,26 @@ file:
         select_clause_element:
           function:
             function_name:
-              function_name_identifier: STRING_AGG
+              function_name_identifier: ARRAY_AGG
             function_contents:
               bracketed:
               - start_bracket: (
               - expression:
                   column_reference:
-                    naked_identifier: a
-              - keyword: ORDER
-              - keyword: BY
-              - expression:
-                  column_reference:
-                    naked_identifier: b
-              - comma: ','
-              - expression:
-                  column_reference:
-                    naked_identifier: c
+                    naked_identifier: cors_origin_value
+              - keyword: IGNORE
+              - keyword: NULLS
+              - keyword: LIMIT
+              - numeric_literal: '5'
               - end_bracket: )
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: sample_cors_origins
       from_clause:
         keyword: FROM
         from_expression:
           from_expression_element:
             table_expression:
               table_reference:
-                naked_identifier: foo
+                naked_identifier: table1
