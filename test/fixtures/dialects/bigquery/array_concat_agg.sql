@@ -1,0 +1,11 @@
+SELECT ARRAY_CONCAT_AGG(x ORDER BY ARRAY_LENGTH(x) LIMIT 2) AS array_concat_agg
+FROM t;
+
+SELECT ARRAY_CONCAT_AGG(x) AS array_concat_agg
+FROM t;
+
+SELECT ARRAY_CONCAT_AGG(x LIMIT 5) AS array_concat_agg
+FROM t;
+
+SELECT ARRAY_CONCAT_AGG(x ORDER BY y) AS array_concat_agg
+FROM t;

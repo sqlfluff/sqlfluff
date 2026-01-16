@@ -1,0 +1,133 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 9abb05f0e5e0eb5e479cddbae34e5c534ceacf9f4543884a04de0cba337cee58
+file:
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          function:
+            aggregate_function:
+              function_name_identifier: ARRAY_CONCAT_AGG
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                    naked_identifier: x
+              - keyword: ORDER
+              - keyword: BY
+              - expression:
+                  function:
+                    function_name:
+                      function_name_identifier: ARRAY_LENGTH
+                    function_contents:
+                      bracketed:
+                        start_bracket: (
+                        expression:
+                          column_reference:
+                            naked_identifier: x
+                        end_bracket: )
+              - keyword: LIMIT
+              - numeric_literal: '2'
+              - end_bracket: )
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: array_concat_agg
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: t
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          function:
+            aggregate_function:
+              function_name_identifier: ARRAY_CONCAT_AGG
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: x
+                end_bracket: )
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: array_concat_agg
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: t
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          function:
+            aggregate_function:
+              function_name_identifier: ARRAY_CONCAT_AGG
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    naked_identifier: x
+                keyword: LIMIT
+                numeric_literal: '5'
+                end_bracket: )
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: array_concat_agg
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: t
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          function:
+            aggregate_function:
+              function_name_identifier: ARRAY_CONCAT_AGG
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                    naked_identifier: x
+              - keyword: ORDER
+              - keyword: BY
+              - expression:
+                  column_reference:
+                    naked_identifier: y
+              - end_bracket: )
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: array_concat_agg
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: t
+- statement_terminator: ;

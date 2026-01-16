@@ -1,0 +1,204 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: a99f5a31ac903744a5dd3eadca420b85d2f6a71ace80bdd8485fd596fcabea31
+file:
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          function:
+            aggregate_function:
+              function_name_identifier: STRING_AGG
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                    naked_identifier: x
+              - comma: ','
+              - expression:
+                  quoted_literal: '", "'
+              - keyword: ORDER
+              - keyword: BY
+              - expression:
+                  column_reference:
+                    naked_identifier: y
+              - keyword: LIMIT
+              - numeric_literal: '10'
+              - end_bracket: )
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: string_agg
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: t
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          function:
+            aggregate_function:
+              function_name_identifier: STRING_AGG
+              bracketed:
+              - start_bracket: (
+              - keyword: DISTINCT
+              - expression:
+                  column_reference:
+                    naked_identifier: x
+              - comma: ','
+              - expression:
+                  quoted_literal: '", "'
+              - keyword: ORDER
+              - keyword: BY
+              - expression:
+                  column_reference:
+                    naked_identifier: y
+              - keyword: LIMIT
+              - numeric_literal: '10'
+              - end_bracket: )
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: string_agg
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: t
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          function:
+            aggregate_function:
+              function_name_identifier: STRING_AGG
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                    naked_identifier: x
+              - comma: ','
+              - expression:
+                  quoted_literal: '", "'
+              - end_bracket: )
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: string_agg
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: t
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          function:
+            aggregate_function:
+              function_name_identifier: STRING_AGG
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                    naked_identifier: x
+              - comma: ','
+              - expression:
+                  quoted_literal: '", "'
+              - keyword: LIMIT
+              - numeric_literal: '5'
+              - end_bracket: )
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: string_agg
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: t
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          function:
+            aggregate_function:
+              function_name_identifier: STRING_AGG
+              bracketed:
+              - start_bracket: (
+              - keyword: DISTINCT
+              - expression:
+                  column_reference:
+                    naked_identifier: x
+              - comma: ','
+              - expression:
+                  quoted_literal: '", "'
+              - end_bracket: )
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: string_agg
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: t
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          function:
+            aggregate_function:
+              function_name_identifier: STRING_AGG
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                    naked_identifier: x
+              - comma: ','
+              - expression:
+                  quoted_literal: '", "'
+              - keyword: ORDER
+              - keyword: BY
+              - expression:
+                  column_reference:
+                    naked_identifier: y
+              - end_bracket: )
+          alias_expression:
+            alias_operator:
+              keyword: AS
+            naked_identifier: string_agg
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: t
+- statement_terminator: ;
