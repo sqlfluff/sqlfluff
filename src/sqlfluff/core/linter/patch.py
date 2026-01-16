@@ -152,6 +152,26 @@ def _iter_templated_patches(
                 # first raw, not the pos marker of the whole thing. That accounts
                 # better for loops.
                 first_segment_pos = first_segment_pos or seg.pos_marker
+                
+                # When insert_buff is empty AND first_segment_pos is a point
+                # (from a zero-width insertion like empty Jinja variables),
+                # use zero-width slices to avoid accidentally deleting literal
+                # content (backticks, dots, etc.) between template sections.
+                if insert_buff:
+                    # We're inserting content, so use the full slice
+                    source_slice_end = max(
+                        first_segment_pos.source_slice.start, source_idx
+                    )
+                elif first_segment_pos.is_point():
+                    # Empty insertion from a point (e.g., undefined Jinja variable)
+                    # Use zero-width slice to avoid deleting literal characters
+                    source_slice_end = source_idx
+                else:
+                    # Legitimate deletion/consumption - use the full slice
+                    source_slice_end = max(
+                        first_segment_pos.source_slice.start, source_idx
+                    )
+                
                 yield FixPatch(
                     # Whether the source slice is zero depends on the start_diff.
                     # A non-zero start diff implies a deletion, or more likely
@@ -160,10 +180,7 @@ def _iter_templated_patches(
                     # should be inserted in both source and template.
                     # The slices must never go backwards so the end of the slice must
                     # be greater than or equal to the start.
-                    source_slice=slice(
-                        source_idx,
-                        max(first_segment_pos.source_slice.start, source_idx),
-                    ),
+                    source_slice=slice(source_idx, source_slice_end),
                     templated_slice=slice(
                         templated_idx,
                         max(first_segment_pos.templated_slice.start, templated_idx),

@@ -1,0 +1,9 @@
+[sqlfluff]
+templater = jinja
+ignore = templating
+fix_even_unparsable = True
+
+[sqlfluff:templater:jinja:context]
+# var1 and var2 are left undefined, causing them to render as empty strings
+# This tests that the fix doesn't accidentally delete backticks and dots 
+# between template variables
