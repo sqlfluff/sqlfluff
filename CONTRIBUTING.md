@@ -216,7 +216,9 @@ for development, and which parts of the test suite you may find most useful.
    As you make changes to a dialect, you will also need to regenerate the Rust
    dialects to keep them in sync. To do this, run `tox -e generate-rs` (if using
    tox), or, with sqlfluff installed in a virtual environment, run
-   `utils/rustify.py build` to resync the languages.
+   `utils/rustify.py build` to resync the languages. The generated Rust files
+   won't be checked in to source control so this is only required if working
+   with the Rust process itself.
 2. Developing for the dbt templater should only require running the dbt test
    suite (see below).
 3. Developing rules and rule plugins there are a couple of scenarios.
