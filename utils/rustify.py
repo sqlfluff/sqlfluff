@@ -65,6 +65,7 @@ def build_generated_output(build_path: Path, output_path: Path, build_arg: list[
 
 
 if __name__ == "__main__":
+    sys.stdout.reconfigure(newline="\n", encoding="utf-8")
     # path goes up two levels once to utils once to the repo root
     # resolve to an absolute path
     os.chdir(Path(__file__).parent.parent.resolve())
