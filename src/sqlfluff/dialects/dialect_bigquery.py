@@ -1205,22 +1205,14 @@ class ArrayAggFunctionNameSegment(BaseSegment):
     """ARRAY_AGG function name segment."""
 
     type = "function_name"
-    match_grammar = StringParser(
-        "ARRAY_AGG",
-        CodeSegment,
-        type="function_name_identifier",
-    )
+    match_grammar = Ref.keyword("ARRAY_AGG")
 
 
 class StringAggFunctionNameSegment(BaseSegment):
     """STRING_AGG function name segment."""
 
     type = "function_name"
-    match_grammar = StringParser(
-        "STRING_AGG",
-        CodeSegment,
-        type="function_name_identifier",
-    )
+    match_grammar = Ref.keyword("STRING_AGG")
 
 
 class AggregateFunctionContentsSegment(BaseSegment):

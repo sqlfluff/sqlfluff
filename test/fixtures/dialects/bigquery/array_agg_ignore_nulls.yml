@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: d84ea4b7940651a8ba4b048d2feedda401b2c99aa093cb3290f5c2bc7ff76a4e
+_hash: 1c51d3fa1442a5751a578d4254eedc07d62c0cffe0ae7c80dec19dc166f2cbd6
 file:
   statement:
     select_statement:
@@ -12,7 +12,7 @@ file:
         select_clause_element:
           function:
             function_name:
-              function_name_identifier: ARRAY_AGG
+              keyword: ARRAY_AGG
             function_contents:
               bracketed:
               - start_bracket: (
