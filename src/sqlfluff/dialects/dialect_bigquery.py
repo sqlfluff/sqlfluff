@@ -1235,12 +1235,8 @@ class AggregateFunctionContentsSegment(BaseSegment):
     match_grammar = Sequence(
         Bracketed(
             Ref.keyword("DISTINCT", optional=True),
-            Delimited(
-                Sequence(
-                    Ref("ExpressionSegment"),
-                    Sequence(OneOf("IGNORE", "RESPECT"), "NULLS", optional=True),
-                ),
-            ),
+            Ref("ExpressionSegment"),
+            Sequence(OneOf("IGNORE", "RESPECT"), "NULLS", optional=True),
             Sequence(
                 "ORDER",
                 "BY",
