@@ -1288,7 +1288,12 @@ class ArrayAggFunctionSegment(BaseSegment):
                 Sequence(
                     "ORDER",
                     "BY",
-                    Ref("FunctionContentsExpressionGrammar"),
+                    Delimited(
+                        Sequence(
+                            Ref("FunctionContentsExpressionGrammar"),
+                            OneOf("ASC", "DESC", optional=True),
+                        ),
+                    ),
                     optional=True,
                 ),
                 Sequence(
@@ -1321,7 +1326,12 @@ class ArrayConcatAggFunctionSegment(BaseSegment):
                 Sequence(
                     "ORDER",
                     "BY",
-                    Ref("FunctionContentsExpressionGrammar"),
+                    Delimited(
+                        Sequence(
+                            Ref("FunctionContentsExpressionGrammar"),
+                            OneOf("ASC", "DESC", optional=True),
+                        ),
+                    ),
                     optional=True,
                 ),
                 Sequence(
@@ -1357,7 +1367,12 @@ class StringAggFunctionSegment(BaseSegment):
                 Sequence(
                     "ORDER",
                     "BY",
-                    Ref("FunctionContentsExpressionGrammar"),
+                    Delimited(
+                        Sequence(
+                            Ref("FunctionContentsExpressionGrammar"),
+                            OneOf("ASC", "DESC", optional=True),
+                        ),
+                    ),
                     optional=True,
                 ),
                 Sequence(

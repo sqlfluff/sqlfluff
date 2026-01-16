@@ -15,3 +15,9 @@ FROM t;
 
 SELECT STRING_AGG(x, ", " ORDER BY y) AS string_agg
 FROM t;
+
+SELECT STRING_AGG(x, ", " ORDER BY LENGTH(x) DESC LIMIT 10) AS string_agg
+FROM t;
+
+SELECT STRING_AGG(x, ", " ORDER BY y, z LIMIT 5) AS string_agg
+FROM t;
