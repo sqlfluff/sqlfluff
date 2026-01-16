@@ -2848,19 +2848,43 @@ class MaxDurationSegment(BaseSegment):
     )
 
 
+class DropIndexDottedReferenceSegment(BaseSegment):
+    """DROP INDEX dotted notation: [owner_name.]table_or_view_name.index_name."""
+
+    type = "drop_index_dotted_reference"
+    match_grammar = Sequence(
+        Ref("SingleIdentifierGrammar"),
+        AnyNumberOf(
+            Sequence(
+                Ref("DotSegment"),
+                Ref("SingleIdentifierGrammar"),
+            ),
+            min_times=1,  # Require at least one dot (2+ parts)
+            max_times=2,  # Allow up to 3 parts total per T-SQL spec
+        ),
+    )
+
+
 class DropIndexStatementSegment(ansi.DropIndexStatementSegment):
     """A `DROP INDEX` statement.
 
-    Overriding ANSI to include required ON clause.
+    Overriding ANSI to support both T-SQL syntaxes:
+    - DROP INDEX IndexName ON TableName
+    - DROP INDEX [owner_name.]table_or_view_name.index_name
     """
 
     match_grammar = Sequence(
         "DROP",
         "INDEX",
         Ref("IfExistsGrammar", optional=True),
-        Ref("IndexReferenceSegment"),
-        "ON",
-        Ref("TableReferenceSegment"),
+        OneOf(
+            Sequence(
+                Ref("IndexReferenceSegment"),
+                "ON",
+                Ref("TableReferenceSegment"),
+            ),
+            Ref("DropIndexDottedReferenceSegment"),
+        ),
     )
 
 
