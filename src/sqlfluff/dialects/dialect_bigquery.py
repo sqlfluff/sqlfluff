@@ -1225,7 +1225,7 @@ class StringAggFunctionNameSegment(BaseSegment):
 
 class AggregateFunctionContentsSegment(BaseSegment):
     """Aggregate function contents with ORDER BY and LIMIT support.
-    
+
     Used by ARRAY_AGG which supports both ORDER BY and LIMIT.
     https://cloud.google.com/bigquery/docs/reference/standard-sql/aggregate_functions#array_agg
     """
@@ -1263,7 +1263,7 @@ class AggregateFunctionContentsSegment(BaseSegment):
 
 class StringAggFunctionContentsSegment(BaseSegment):
     """STRING_AGG function contents with ORDER BY support.
-    
+
     STRING_AGG supports ORDER BY but not LIMIT.
     https://cloud.google.com/bigquery/docs/reference/standard-sql/aggregate_functions#string_agg
     """
