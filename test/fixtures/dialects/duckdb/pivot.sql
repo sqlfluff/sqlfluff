@@ -51,6 +51,19 @@ FROM (PIVOT Cities ON Year USING sum(Population) GROUP BY Country) year_pivot
 JOIN (PIVOT Cities ON Name USING sum(Population) GROUP BY Country) name_pivot
 USING (Country);
 
+-- Test trailing comma
+PIVOT Cities ON Year IN (2000, 2010,) USING sum(Population) GROUP BY Country;
+
+PIVOT cities
+ON country, name,
+USING sum(population);
+
+-- Multiple using expressions
+PIVOT cities
+ON year
+USING sum(population) AS total, max(population) AS max,
+GROUP BY country;
+
 -- Standard PIVOT
 FROM Cities
 PIVOT (
@@ -67,4 +80,13 @@ PIVOT (
     FOR
         Year IN (2000, 2010)
         Country in ('NL', 'US')
+);
+
+FROM Cities
+PIVOT (
+    sum(Population) AS total,
+    count(Population) AS count,
+    FOR
+        Year IN (2000, 2010,)
+        Country in ('NL', 'US',)
 );
