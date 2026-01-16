@@ -132,6 +132,53 @@ class ParallelRunner(BaseRunner):
         super().__init__(linter, config)
         self.processes = processes
 
+    @staticmethod
+    def _render_file_static(
+        args: tuple[str, Linter, FluffConfig],
+    ) -> Union[tuple[str, RenderedFile], None]:
+        """Static helper for multiprocessing."""
+        fname, linter, config = args
+        try:
+            return fname, linter.render_file(fname, config)
+        except SQLFluffSkipFile as s:
+            linter_logger.warning(str(s))
+            return None
+
+    # Overriden from BaseRunner
+    def iter_rendered(self, fnames: list[str]) -> Iterator[tuple[str, RenderedFile]]:
+        """Iterate through rendered files ready for linting."""
+        # DBT itself already does some amount of parallelism, so we delegate to
+        # the parent class.
+        if self.config.get_templater().name == "dbt":
+            for result in super().iter_rendered(fnames):
+                yield result
+            return
+
+        sequenced = list(
+            self.linter.templater.sequence_files(
+                fnames, config=self.config, formatter=self.linter.formatter
+            )
+        )
+        # Prepare arguments for each file
+        args_list = [(fname, self.linter, self.config) for fname in sequenced]
+
+        results: list[tuple[str, RenderedFile]] = []
+        with self._create_pool(
+            self.processes,
+            self._init_global,
+        ) as pool:
+            for r in pool.imap_unordered(
+                self._render_file_static, args_list, chunksize=5
+            ):
+                if r is not None:
+                    results.append(r)
+
+        # Instead of yielding in the loop above (which would double our number
+        # of spawned processes), render everything first (taking the memory hit
+        # of storing all rendered files) then yield.
+        for result in results:
+            yield result
+
     def run(self, fnames: list[str], fix: bool) -> Iterator[LintedFile]:
         """Parallel implementation.
 
