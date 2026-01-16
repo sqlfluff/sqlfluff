@@ -103,6 +103,21 @@ test_allow_unqualified_references_in_sparksql_lambdas:
     core:
       dialect: sparksql
 
+test_allow_unqualified_references_in_vertica_lambdas:
+  pass_str: |
+    select
+        hit_code,
+        array_find(
+            hit_categories_array,
+            e -> e not in (
+                'Apple', 'Banana', 'Cherry', 'Durian', 'Elderberry', 'Fig'
+            )
+        ) > -1 as is_unknown_category_flg
+    from hits
+  configs:
+    core:
+      dialect: vertica
+
 test_pass_databricks_lambdas:
   pass_str: |
     select
