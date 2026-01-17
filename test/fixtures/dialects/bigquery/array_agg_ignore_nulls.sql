@@ -1,2 +1,0 @@
-SELECT ARRAY_AGG(x IGNORE NULLS) AS array_agg
-FROM t
