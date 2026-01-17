@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 2103a13038debc4d9fb943f16419415b935031d6fdb4497e39c653be44315570
+_hash: 5a97baea2ed104e17b84fa9d48bc87b5a053d9705c11b124a46c1a231ed56690
 file:
 - statement:
     select_statement:
@@ -13,6 +13,7 @@ file:
           function:
             function_name:
               function_name_identifier: ARRAY_AGG
+            function_contents:
               bracketed:
               - start_bracket: (
               - keyword: DISTINCT
@@ -42,6 +43,7 @@ file:
           function:
             function_name:
               function_name_identifier: ARRAY_AGG
+            function_contents:
               bracketed:
               - start_bracket: (
               - expression:
@@ -70,6 +72,7 @@ file:
           function:
             function_name:
               function_name_identifier: ARRAY_AGG
+            function_contents:
               bracketed:
               - start_bracket: (
               - expression:
@@ -98,15 +101,17 @@ file:
           function:
             function_name:
               function_name_identifier: ARRAY_AGG
+            function_contents:
               bracketed:
-              - start_bracket: (
-              - keyword: DISTINCT
-              - expression:
+                start_bracket: (
+                keyword: DISTINCT
+                expression:
                   column_reference:
                     naked_identifier: page
-              - keyword: LIMIT
-              - numeric_literal: '50'
-              - end_bracket: )
+                limit_clause:
+                  keyword: LIMIT
+                  numeric_literal: '50'
+                end_bracket: )
       from_clause:
         keyword: FROM
         from_expression:
@@ -123,6 +128,7 @@ file:
           function:
             function_name:
               function_name_identifier: ARRAY_AGG
+            function_contents:
               bracketed:
               - start_bracket: (
               - expression:
@@ -130,8 +136,9 @@ file:
                     naked_identifier: cors_origin_value
               - keyword: IGNORE
               - keyword: NULLS
-              - keyword: LIMIT
-              - numeric_literal: '5'
+              - limit_clause:
+                  keyword: LIMIT
+                  numeric_literal: '5'
               - end_bracket: )
       from_clause:
         keyword: FROM
@@ -149,19 +156,22 @@ file:
           function:
             function_name:
               function_name_identifier: ARRAY_AGG
+            function_contents:
               bracketed:
-              - start_bracket: (
-              - expression:
+                start_bracket: (
+                expression:
                   column_reference:
                     naked_identifier: x
-              - keyword: ORDER
-              - keyword: BY
-              - expression:
-                  column_reference:
-                    naked_identifier: y
-              - keyword: LIMIT
-              - numeric_literal: '10'
-              - end_bracket: )
+                aggregate_order_by:
+                  orderby_clause:
+                  - keyword: ORDER
+                  - keyword: BY
+                  - column_reference:
+                      naked_identifier: y
+                limit_clause:
+                  keyword: LIMIT
+                  numeric_literal: '10'
+                end_bracket: )
           alias_expression:
             alias_operator:
               keyword: AS
@@ -182,29 +192,33 @@ file:
           function:
             function_name:
               function_name_identifier: ARRAY_AGG
+            function_contents:
               bracketed:
-              - start_bracket: (
-              - keyword: DISTINCT
-              - expression:
+                start_bracket: (
+                keyword: DISTINCT
+                expression:
                   column_reference:
                     naked_identifier: x
-              - keyword: ORDER
-              - keyword: BY
-              - expression:
-                  function:
-                    function_name:
-                      function_name_identifier: LENGTH
-                    function_contents:
-                      bracketed:
-                        start_bracket: (
-                        expression:
-                          column_reference:
-                            naked_identifier: x
-                        end_bracket: )
-              - keyword: DESC
-              - keyword: LIMIT
-              - numeric_literal: '5'
-              - end_bracket: )
+                aggregate_order_by:
+                  orderby_clause:
+                  - keyword: ORDER
+                  - keyword: BY
+                  - expression:
+                      function:
+                        function_name:
+                          function_name_identifier: LENGTH
+                        function_contents:
+                          bracketed:
+                            start_bracket: (
+                            expression:
+                              column_reference:
+                                naked_identifier: x
+                            end_bracket: )
+                  - keyword: DESC
+                limit_clause:
+                  keyword: LIMIT
+                  numeric_literal: '5'
+                end_bracket: )
           alias_expression:
             alias_operator:
               keyword: AS
@@ -225,6 +239,7 @@ file:
           function:
             function_name:
               function_name_identifier: ARRAY_AGG
+            function_contents:
               bracketed:
               - start_bracket: (
               - expression:
@@ -232,17 +247,18 @@ file:
                     naked_identifier: x
               - keyword: IGNORE
               - keyword: NULLS
-              - keyword: ORDER
-              - keyword: BY
-              - expression:
-                  column_reference:
-                    naked_identifier: y
-              - comma: ','
-              - expression:
-                  column_reference:
-                    naked_identifier: z
-              - keyword: LIMIT
-              - numeric_literal: '3'
+              - aggregate_order_by:
+                  orderby_clause:
+                  - keyword: ORDER
+                  - keyword: BY
+                  - column_reference:
+                      naked_identifier: y
+                  - comma: ','
+                  - column_reference:
+                      naked_identifier: z
+              - limit_clause:
+                  keyword: LIMIT
+                  numeric_literal: '3'
               - end_bracket: )
           alias_expression:
             alias_operator:

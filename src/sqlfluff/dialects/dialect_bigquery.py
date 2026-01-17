@@ -1213,9 +1213,18 @@ class FunctionSegment(ansi.FunctionSegment):
     match_grammar = Sequence(
         OneOf(
             # BigQuery-specific aggregate functions with special syntax
-            Ref("ArrayAggFunctionSegment"),
-            Ref("ArrayConcatAggFunctionSegment"),
-            Ref("StringAggFunctionSegment"),
+            Sequence(
+                Ref("ArrayAggFunctionNameSegment"),
+                Ref("ArrayAggFunctionContentsSegment")
+            ),
+            Sequence(
+                Ref("ArrayConcatAggFunctionNameSegment"),
+                Ref("ArrayConcatAggFunctionContentsSegment")
+            ),
+            Sequence(
+                Ref("StringAggFunctionNameSegment"),
+                Ref("StringAggFunctionContentsSegment")
+            ),
             Sequence(
                 # BigQuery EXTRACT allows optional TimeZone
                 Ref("ExtractFunctionNameSegment"),
@@ -1235,9 +1244,9 @@ class FunctionSegment(ansi.FunctionSegment):
                     "DatePartFunctionNameSegment",
                     exclude=OneOf(
                         Ref("ExtractFunctionNameSegment"),
-                        Ref("ArrayAggFunctionSegment"),
-                        Ref("ArrayConcatAggFunctionSegment"),
-                        Ref("StringAggFunctionSegment"),
+                        Ref("ArrayAggFunctionNameSegment"),
+                        Ref("ArrayConcatAggFunctionNameSegment"),
+                        Ref("StringAggFunctionNameSegment"),
                     ),
                 ),
                 Ref("DateTimeFunctionContentsSegment"),
@@ -1250,9 +1259,9 @@ class FunctionSegment(ansi.FunctionSegment):
                             Ref("DatePartFunctionNameSegment"),
                             Ref("NormalizeFunctionNameSegment"),
                             Ref("ValuesClauseSegment"),
-                            Ref("ArrayAggFunctionSegment"),
-                            Ref("ArrayConcatAggFunctionSegment"),
-                            Ref("StringAggFunctionSegment"),
+                            Ref("ArrayAggFunctionNameSegment"),
+                            Ref("ArrayConcatAggFunctionNameSegment"),
+                            Ref("StringAggFunctionNameSegment"),
                         ),
                     ),
                     Ref("FunctionContentsSegment"),
@@ -1271,34 +1280,35 @@ class FunctionSegment(ansi.FunctionSegment):
     )
 
 
-class ArrayAggFunctionSegment(BaseSegment):
-    """ARRAY_AGG function with BigQuery-specific syntax.
+class ArrayAggFunctionNameSegment(BaseSegment):
+    """ARRAY_AGG function.
 
     Supports DISTINCT, LIMIT, and ORDER BY clauses.
-    Example: ARRAY_AGG(DISTINCT x ORDER BY y LIMIT 10)
     """
 
     type = "function_name"
+
     match_grammar = Sequence(
         StringParser("ARRAY_AGG", CodeSegment, type="function_name_identifier"),
+    )
+
+
+class ArrayAggFunctionContentsSegment(BaseSegment):
+    """ARRAY_AGG function contents."""
+    
+    type = "function_contents"
+
+    match_grammar = Sequence(
         Bracketed(
             Sequence(
                 Ref.keyword("DISTINCT", optional=True),
-                Delimited(Ref("FunctionContentsExpressionGrammar")),
-                Sequence(
-                    "ORDER",
-                    "BY",
-                    Delimited(
-                        Sequence(
-                            Ref("FunctionContentsExpressionGrammar"),
-                            OneOf("ASC", "DESC", optional=True),
-                        ),
-                    ),
+                Ref("FunctionContentsExpressionGrammar"),
+                Ref(
+                    "AggregateOrderByClause",
                     optional=True,
                 ),
-                Sequence(
-                    "LIMIT",
-                    Ref("NumericLiteralSegment"),
+                Ref(
+                    "LimitClauseSegment",
                     optional=True,
                 ),
             )
@@ -1309,34 +1319,34 @@ class ArrayAggFunctionSegment(BaseSegment):
         allow_gaps=False,
     )
 
-
-class ArrayConcatAggFunctionSegment(BaseSegment):
-    """ARRAY_CONCAT_AGG function with BigQuery-specific syntax.
+class ArrayConcatAggFunctionNameSegment(BaseSegment):
+    """ARRAY_CONCAT_AGG function.
 
     Supports LIMIT and ORDER BY clauses (but not DISTINCT).
-    Example: ARRAY_CONCAT_AGG(x ORDER BY ARRAY_LENGTH(x) LIMIT 10)
     """
 
     type = "function_name"
+
     match_grammar = Sequence(
         StringParser("ARRAY_CONCAT_AGG", CodeSegment, type="function_name_identifier"),
+    )
+
+
+class ArrayConcatAggFunctionContentsSegment(BaseSegment):
+    """ARRAY_CONCAT_AGG function contents."""
+
+    type = "function_contents"
+
+    match_grammar = Sequence(
         Bracketed(
             Sequence(
                 Delimited(Ref("FunctionContentsExpressionGrammar")),
-                Sequence(
-                    "ORDER",
-                    "BY",
-                    Delimited(
-                        Sequence(
-                            Ref("FunctionContentsExpressionGrammar"),
-                            OneOf("ASC", "DESC", optional=True),
-                        ),
-                    ),
+                Ref(
+                    "AggregateOrderByClause",
                     optional=True,
                 ),
-                Sequence(
-                    "LIMIT",
-                    Ref("NumericLiteralSegment"),
+                Ref(
+                    "LimitClauseSegment",
                     optional=True,
                 ),
             )
@@ -1348,36 +1358,35 @@ class ArrayConcatAggFunctionSegment(BaseSegment):
     )
 
 
-class StringAggFunctionSegment(BaseSegment):
-    """STRING_AGG function with BigQuery-specific syntax.
+class StringAggFunctionNameSegment(BaseSegment):
+    """STRING_AGG function.
 
     Supports DISTINCT, LIMIT, and ORDER BY clauses.
-    Example: STRING_AGG(x, ", " ORDER BY y LIMIT 10)
     """
 
     type = "function_name"
+    
     match_grammar = Sequence(
         StringParser("STRING_AGG", CodeSegment, type="function_name_identifier"),
+    )
+
+
+class StringAggFunctionContentsSegment(BaseSegment):
+    """STRING_AGG function contents."""
+
+    type = "function_contents"
+
+    match_grammar = Sequence(
         Bracketed(
             Sequence(
                 Ref.keyword("DISTINCT", optional=True),
-                Ref("FunctionContentsExpressionGrammar"),  # expression
-                Ref("CommaSegment"),
-                Ref("FunctionContentsExpressionGrammar"),  # delimiter
-                Sequence(
-                    "ORDER",
-                    "BY",
-                    Delimited(
-                        Sequence(
-                            Ref("FunctionContentsExpressionGrammar"),
-                            OneOf("ASC", "DESC", optional=True),
-                        ),
-                    ),
+                Delimited(Ref("FunctionContentsExpressionGrammar")),
+                Ref(
+                    "AggregateOrderByClause",
                     optional=True,
                 ),
-                Sequence(
-                    "LIMIT",
-                    Ref("NumericLiteralSegment"),
+                Ref(
+                    "LimitClauseSegment",
                     optional=True,
                 ),
             )
@@ -1387,6 +1396,7 @@ class StringAggFunctionSegment(BaseSegment):
         Ref("PostFunctionGrammar", optional=True),
         allow_gaps=False,
     )
+
 
 
 class FunctionDefinitionGrammar(ansi.FunctionDefinitionGrammar):

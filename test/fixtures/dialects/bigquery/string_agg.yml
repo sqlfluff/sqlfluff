@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 8ec05dc8d62888d365d3a8887f3d893b651a872cc10aae787b964f7c9455876d
+_hash: 150e5cbf6e0d8043285fa28027f8ec5699b90180ba69b9b96e590bbdbf1e293b
 file:
 - statement:
     select_statement:
@@ -13,6 +13,7 @@ file:
           function:
             function_name:
               function_name_identifier: STRING_AGG
+            function_contents:
               bracketed:
               - start_bracket: (
               - expression:
@@ -21,13 +22,15 @@ file:
               - comma: ','
               - expression:
                   quoted_literal: '", "'
-              - keyword: ORDER
-              - keyword: BY
-              - expression:
-                  column_reference:
-                    naked_identifier: y
-              - keyword: LIMIT
-              - numeric_literal: '10'
+              - aggregate_order_by:
+                  orderby_clause:
+                  - keyword: ORDER
+                  - keyword: BY
+                  - column_reference:
+                      naked_identifier: y
+              - limit_clause:
+                  keyword: LIMIT
+                  numeric_literal: '10'
               - end_bracket: )
           alias_expression:
             alias_operator:
@@ -49,6 +52,7 @@ file:
           function:
             function_name:
               function_name_identifier: STRING_AGG
+            function_contents:
               bracketed:
               - start_bracket: (
               - keyword: DISTINCT
@@ -58,13 +62,15 @@ file:
               - comma: ','
               - expression:
                   quoted_literal: '", "'
-              - keyword: ORDER
-              - keyword: BY
-              - expression:
-                  column_reference:
-                    naked_identifier: y
-              - keyword: LIMIT
-              - numeric_literal: '10'
+              - aggregate_order_by:
+                  orderby_clause:
+                  - keyword: ORDER
+                  - keyword: BY
+                  - column_reference:
+                      naked_identifier: y
+              - limit_clause:
+                  keyword: LIMIT
+                  numeric_literal: '10'
               - end_bracket: )
           alias_expression:
             alias_operator:
@@ -86,6 +92,7 @@ file:
           function:
             function_name:
               function_name_identifier: STRING_AGG
+            function_contents:
               bracketed:
               - start_bracket: (
               - expression:
@@ -115,6 +122,7 @@ file:
           function:
             function_name:
               function_name_identifier: STRING_AGG
+            function_contents:
               bracketed:
               - start_bracket: (
               - expression:
@@ -123,8 +131,9 @@ file:
               - comma: ','
               - expression:
                   quoted_literal: '", "'
-              - keyword: LIMIT
-              - numeric_literal: '5'
+              - limit_clause:
+                  keyword: LIMIT
+                  numeric_literal: '5'
               - end_bracket: )
           alias_expression:
             alias_operator:
@@ -146,6 +155,7 @@ file:
           function:
             function_name:
               function_name_identifier: STRING_AGG
+            function_contents:
               bracketed:
               - start_bracket: (
               - keyword: DISTINCT
@@ -176,6 +186,7 @@ file:
           function:
             function_name:
               function_name_identifier: STRING_AGG
+            function_contents:
               bracketed:
               - start_bracket: (
               - expression:
@@ -184,11 +195,12 @@ file:
               - comma: ','
               - expression:
                   quoted_literal: '", "'
-              - keyword: ORDER
-              - keyword: BY
-              - expression:
-                  column_reference:
-                    naked_identifier: y
+              - aggregate_order_by:
+                  orderby_clause:
+                  - keyword: ORDER
+                  - keyword: BY
+                  - column_reference:
+                      naked_identifier: y
               - end_bracket: )
           alias_expression:
             alias_operator:
@@ -210,6 +222,7 @@ file:
           function:
             function_name:
               function_name_identifier: STRING_AGG
+            function_contents:
               bracketed:
               - start_bracket: (
               - expression:
@@ -218,22 +231,25 @@ file:
               - comma: ','
               - expression:
                   quoted_literal: '", "'
-              - keyword: ORDER
-              - keyword: BY
-              - expression:
-                  function:
-                    function_name:
-                      function_name_identifier: LENGTH
-                    function_contents:
-                      bracketed:
-                        start_bracket: (
-                        expression:
-                          column_reference:
-                            naked_identifier: x
-                        end_bracket: )
-              - keyword: DESC
-              - keyword: LIMIT
-              - numeric_literal: '10'
+              - aggregate_order_by:
+                  orderby_clause:
+                  - keyword: ORDER
+                  - keyword: BY
+                  - expression:
+                      function:
+                        function_name:
+                          function_name_identifier: LENGTH
+                        function_contents:
+                          bracketed:
+                            start_bracket: (
+                            expression:
+                              column_reference:
+                                naked_identifier: x
+                            end_bracket: )
+                  - keyword: DESC
+              - limit_clause:
+                  keyword: LIMIT
+                  numeric_literal: '10'
               - end_bracket: )
           alias_expression:
             alias_operator:
@@ -255,6 +271,7 @@ file:
           function:
             function_name:
               function_name_identifier: STRING_AGG
+            function_contents:
               bracketed:
               - start_bracket: (
               - expression:
@@ -263,17 +280,18 @@ file:
               - comma: ','
               - expression:
                   quoted_literal: '", "'
-              - keyword: ORDER
-              - keyword: BY
-              - expression:
-                  column_reference:
-                    naked_identifier: y
-              - comma: ','
-              - expression:
-                  column_reference:
-                    naked_identifier: z
-              - keyword: LIMIT
-              - numeric_literal: '5'
+              - aggregate_order_by:
+                  orderby_clause:
+                  - keyword: ORDER
+                  - keyword: BY
+                  - column_reference:
+                      naked_identifier: y
+                  - comma: ','
+                  - column_reference:
+                      naked_identifier: z
+              - limit_clause:
+                  keyword: LIMIT
+                  numeric_literal: '5'
               - end_bracket: )
           alias_expression:
             alias_operator:

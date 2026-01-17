@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 8f64ed4194fa1c85b7aac2b31aa32b0b7740dc96314ae8923eb9ffc8e3969904
+_hash: 5dbdf17b16aac40ad5558be7de458dcf35101b2d76b16b058829bf4e7dab67eb
 file:
 - statement:
     select_statement:
@@ -13,27 +13,31 @@ file:
           function:
             function_name:
               function_name_identifier: ARRAY_CONCAT_AGG
+            function_contents:
               bracketed:
-              - start_bracket: (
-              - expression:
+                start_bracket: (
+                expression:
                   column_reference:
                     naked_identifier: x
-              - keyword: ORDER
-              - keyword: BY
-              - expression:
-                  function:
-                    function_name:
-                      function_name_identifier: ARRAY_LENGTH
-                    function_contents:
-                      bracketed:
-                        start_bracket: (
-                        expression:
-                          column_reference:
-                            naked_identifier: x
-                        end_bracket: )
-              - keyword: LIMIT
-              - numeric_literal: '2'
-              - end_bracket: )
+                aggregate_order_by:
+                  orderby_clause:
+                  - keyword: ORDER
+                  - keyword: BY
+                  - expression:
+                      function:
+                        function_name:
+                          function_name_identifier: ARRAY_LENGTH
+                        function_contents:
+                          bracketed:
+                            start_bracket: (
+                            expression:
+                              column_reference:
+                                naked_identifier: x
+                            end_bracket: )
+                limit_clause:
+                  keyword: LIMIT
+                  numeric_literal: '2'
+                end_bracket: )
           alias_expression:
             alias_operator:
               keyword: AS
@@ -54,6 +58,7 @@ file:
           function:
             function_name:
               function_name_identifier: ARRAY_CONCAT_AGG
+            function_contents:
               bracketed:
                 start_bracket: (
                 expression:
@@ -80,13 +85,15 @@ file:
           function:
             function_name:
               function_name_identifier: ARRAY_CONCAT_AGG
+            function_contents:
               bracketed:
                 start_bracket: (
                 expression:
                   column_reference:
                     naked_identifier: x
-                keyword: LIMIT
-                numeric_literal: '5'
+                limit_clause:
+                  keyword: LIMIT
+                  numeric_literal: '5'
                 end_bracket: )
           alias_expression:
             alias_operator:
@@ -108,17 +115,19 @@ file:
           function:
             function_name:
               function_name_identifier: ARRAY_CONCAT_AGG
+            function_contents:
               bracketed:
-              - start_bracket: (
-              - expression:
+                start_bracket: (
+                expression:
                   column_reference:
                     naked_identifier: x
-              - keyword: ORDER
-              - keyword: BY
-              - expression:
-                  column_reference:
-                    naked_identifier: y
-              - end_bracket: )
+                aggregate_order_by:
+                  orderby_clause:
+                  - keyword: ORDER
+                  - keyword: BY
+                  - column_reference:
+                      naked_identifier: y
+                end_bracket: )
           alias_expression:
             alias_operator:
               keyword: AS
@@ -139,28 +148,32 @@ file:
           function:
             function_name:
               function_name_identifier: ARRAY_CONCAT_AGG
+            function_contents:
               bracketed:
-              - start_bracket: (
-              - expression:
+                start_bracket: (
+                expression:
                   column_reference:
                     naked_identifier: x
-              - keyword: ORDER
-              - keyword: BY
-              - expression:
-                  function:
-                    function_name:
-                      function_name_identifier: LENGTH
-                    function_contents:
-                      bracketed:
-                        start_bracket: (
-                        expression:
-                          column_reference:
-                            naked_identifier: x
-                        end_bracket: )
-              - keyword: DESC
-              - keyword: LIMIT
-              - numeric_literal: '10'
-              - end_bracket: )
+                aggregate_order_by:
+                  orderby_clause:
+                  - keyword: ORDER
+                  - keyword: BY
+                  - expression:
+                      function:
+                        function_name:
+                          function_name_identifier: LENGTH
+                        function_contents:
+                          bracketed:
+                            start_bracket: (
+                            expression:
+                              column_reference:
+                                naked_identifier: x
+                            end_bracket: )
+                  - keyword: DESC
+                limit_clause:
+                  keyword: LIMIT
+                  numeric_literal: '10'
+                end_bracket: )
           alias_expression:
             alias_operator:
               keyword: AS
@@ -181,23 +194,25 @@ file:
           function:
             function_name:
               function_name_identifier: ARRAY_CONCAT_AGG
+            function_contents:
               bracketed:
-              - start_bracket: (
-              - expression:
+                start_bracket: (
+                expression:
                   column_reference:
                     naked_identifier: x
-              - keyword: ORDER
-              - keyword: BY
-              - expression:
-                  column_reference:
-                    naked_identifier: y
-              - comma: ','
-              - expression:
-                  column_reference:
-                    naked_identifier: z
-              - keyword: LIMIT
-              - numeric_literal: '5'
-              - end_bracket: )
+                aggregate_order_by:
+                  orderby_clause:
+                  - keyword: ORDER
+                  - keyword: BY
+                  - column_reference:
+                      naked_identifier: y
+                  - comma: ','
+                  - column_reference:
+                      naked_identifier: z
+                limit_clause:
+                  keyword: LIMIT
+                  numeric_literal: '5'
+                end_bracket: )
           alias_expression:
             alias_operator:
               keyword: AS
