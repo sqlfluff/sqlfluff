@@ -1215,15 +1215,15 @@ class FunctionSegment(ansi.FunctionSegment):
             # BigQuery-specific aggregate functions with special syntax
             Sequence(
                 Ref("ArrayAggFunctionNameSegment"),
-                Ref("ArrayAggFunctionContentsSegment")
+                Ref("ArrayAggFunctionContentsSegment"),
             ),
             Sequence(
                 Ref("ArrayConcatAggFunctionNameSegment"),
-                Ref("ArrayConcatAggFunctionContentsSegment")
+                Ref("ArrayConcatAggFunctionContentsSegment"),
             ),
             Sequence(
                 Ref("StringAggFunctionNameSegment"),
-                Ref("StringAggFunctionContentsSegment")
+                Ref("StringAggFunctionContentsSegment"),
             ),
             Sequence(
                 # BigQuery EXTRACT allows optional TimeZone
@@ -1295,7 +1295,7 @@ class ArrayAggFunctionNameSegment(BaseSegment):
 
 class ArrayAggFunctionContentsSegment(BaseSegment):
     """ARRAY_AGG function contents."""
-    
+
     type = "function_contents"
 
     match_grammar = Sequence(
@@ -1318,6 +1318,7 @@ class ArrayAggFunctionContentsSegment(BaseSegment):
         Ref("PostFunctionGrammar", optional=True),
         allow_gaps=False,
     )
+
 
 class ArrayConcatAggFunctionNameSegment(BaseSegment):
     """ARRAY_CONCAT_AGG function.
@@ -1365,7 +1366,7 @@ class StringAggFunctionNameSegment(BaseSegment):
     """
 
     type = "function_name"
-    
+
     match_grammar = Sequence(
         StringParser("STRING_AGG", CodeSegment, type="function_name_identifier"),
     )
@@ -1396,7 +1397,6 @@ class StringAggFunctionContentsSegment(BaseSegment):
         Ref("PostFunctionGrammar", optional=True),
         allow_gaps=False,
     )
-
 
 
 class FunctionDefinitionGrammar(ansi.FunctionDefinitionGrammar):
