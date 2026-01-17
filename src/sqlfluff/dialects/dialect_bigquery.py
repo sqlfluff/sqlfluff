@@ -1314,8 +1314,6 @@ class ArrayAggFunctionContentsSegment(BaseSegment):
             )
         ),
         Ref("ArrayAccessorSegment", optional=True),
-        Ref("SemiStructuredAccessorSegment", optional=True),
-        Ref("PostFunctionGrammar", optional=True),
         allow_gaps=False,
     )
 
@@ -1353,8 +1351,6 @@ class ArrayConcatAggFunctionContentsSegment(BaseSegment):
             )
         ),
         Ref("ArrayAccessorSegment", optional=True),
-        Ref("SemiStructuredAccessorSegment", optional=True),
-        Ref("PostFunctionGrammar", optional=True),
         allow_gaps=False,
     )
 
@@ -1392,9 +1388,6 @@ class StringAggFunctionContentsSegment(BaseSegment):
                 ),
             )
         ),
-        Ref("ArrayAccessorSegment", optional=True),
-        Ref("SemiStructuredAccessorSegment", optional=True),
-        Ref("PostFunctionGrammar", optional=True),
         allow_gaps=False,
     )
 
