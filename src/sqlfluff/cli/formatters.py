@@ -17,7 +17,7 @@ from sqlfluff.cli.helpers import (
     wrap_field,
 )
 from sqlfluff.cli.outputstream import OutputStream
-from sqlfluff.core import FluffConfig, Linter, SQLBaseError, TimingSummary
+from sqlfluff.core import FluffConfig, Linter, SQLBaseError, SQLParseError, SQLTemplaterError, TimingSummary
 from sqlfluff.core.linter import FormatterInterface, LintedFile, ParsedString
 from sqlfluff.core.types import Color
 
@@ -418,6 +418,20 @@ class OutputStreamFormatter(FormatterInterface):
 
         return f"== [{self.colorize(filename, Color.light)}] {status_string}"
 
+    def _format_line_and_pos(self, line_no: Optional[int], line_pos: Optional[int]) -> tuple[str, str]:
+        """Format line and position elements for consistent display.
+
+        Args:
+            line_no: Line number (None if not available)
+            line_pos: Position within line (None if not available)
+
+        Returns:
+            tuple: (formatted_line_elem, formatted_pos_elem)
+        """
+        line_elem = "   -" if line_no is None else f"{line_no:4d}"
+        pos_elem = "   -" if line_pos is None else f"{line_pos:4d}"
+        return line_elem, pos_elem
+
     def format_violation(
         self,
         violation: Union[SQLBaseError, dict],
@@ -442,8 +456,7 @@ class OutputStreamFormatter(FormatterInterface):
         line_no: int = v_dict["start_line_no"]
         line_pos: int = v_dict["start_line_pos"]
         warning: bool = v_dict["warning"]
-        line_elem = "   -" if line_no is None else f"{line_no:4d}"
-        pos_elem = "   -" if line_pos is None else f"{line_pos:4d}"
+        line_elem, pos_elem = self._format_line_and_pos(line_no, line_pos)
 
         if warning:
             desc = "WARNING: " + desc  # pragma: no cover
@@ -604,7 +617,7 @@ class OutputStreamFormatter(FormatterInterface):
         )
 
     def print_out_residual_error_counts(
-        self, total_errors: int, num_filtered_errors: int, force_stderr: bool = False
+        self, total_errors: int, num_filtered_errors: int, tmp_prs_errors: Optional[list] = None, force_stderr: bool = False
     ) -> None:
         """Output the residual error totals for the file.
 
@@ -612,6 +625,7 @@ class OutputStreamFormatter(FormatterInterface):
             total_errors (int): The total number of templating & parsing errors.
             num_filtered_errors (int): The number of templating & parsing errors
                 which remain after any noqa and filters applied.
+            tmp_prs_errors (list, optional): List of templating/parsing errors for detailed reporting.
             force_stderr (bool): Whether to force the output onto stderr. By default
                 the output is on stdout if there are no errors, otherwise stderr.
         """
@@ -623,6 +637,26 @@ class OutputStreamFormatter(FormatterInterface):
                 color=self.plain_output,
                 err=True,
             )
+
+            # Show detailed error information for templating/parsing errors
+            if tmp_prs_errors:
+                for error in tmp_prs_errors:
+                    if hasattr(error, 'line_no'):
+                        line_no = error.line_no if error.line_no is not None else 1
+                        line_pos = getattr(error, 'line_pos', 1)
+                        line_elem, pos_elem = self._format_line_and_pos(line_no, line_pos)
+                        rule_code = error.rule_code().rjust(4)
+
+                        error_message = f"L:{line_elem} | P:{pos_elem} | {rule_code} | {error.desc()}"
+
+                        click.echo(
+                            message=self.colorize(
+                                f"  {error_message}", Color.red
+                            ),
+                            color=self.plain_output,
+                            err=True,
+                        )
+
             if num_filtered_errors < total_errors:
                 color = Color.red if num_filtered_errors else Color.green
                 click.echo(
