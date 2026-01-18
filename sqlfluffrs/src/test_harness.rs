@@ -99,8 +99,12 @@ impl FixtureTest {
 
         // Try to parse as a file (top-level rule)
         // FileSegment always has segment_type "file"
-        let ast = match parser.call_rule_as_root() {
-            Ok(node) => node,
+        let ast = match parser.call_rule_as_root_match_result() {
+            Ok(result) => {
+                println!("=== MatchResults ===");
+                println!("{:#?}", result);
+                result.apply(&tokens)
+            }
             Err(e) => {
                 return TestResult {
                     test: self.clone(),
@@ -130,16 +134,16 @@ impl FixtureTest {
         let expected_yaml = fs::read_to_string(&self.yml_path).ok();
 
         // Compare (simple string comparison for now)
-        let success = if let Some(ref expected) = expected_yaml {
+        let (success, error) = if let Some(ref expected) = expected_yaml {
             compare_yaml(&generated_yaml, expected)
         } else {
-            false
+            (false, Some("File Read Error".to_string()))
         };
 
         TestResult {
             test: self.clone(),
             success,
-            error: None,
+            error,
             generated_yaml: Some(generated_yaml),
             expected_yaml,
         }
@@ -218,10 +222,8 @@ fn node_to_yaml_value(
             Ok(Value::Null)
         }
 
-        Node::Token {
-            token_type,
-            raw,
-            token_idx: _,
+        Node::Raw {
+            token: Token, ..
         } => {
             // Filter whitespace tokens in code_only mode
             if code_only && matches!(token_type.as_str(), "whitespace" | "newline") {
@@ -270,6 +272,7 @@ fn node_to_yaml_value(
             name: _,
             segment_type,
             child,
+            ..
         } => {
             // Check if this Ref should be transparent (not add a layer)
 
@@ -400,7 +403,7 @@ fn node_to_yaml_value(
 }
 
 /// Compare two YAML strings (ignoring hash and comments)
-fn compare_yaml(generated: &str, expected: &str) -> bool {
+fn compare_yaml(generated: &str, expected: &str) -> (bool, Option<String>) {
     // Parse both as YAML
     let gen_yaml: Result<Value, _> = serde_yaml_ng::from_str(generated);
     let exp_yaml: Result<Value, _> = serde_yaml_ng::from_str(expected);
@@ -424,9 +427,13 @@ fn compare_yaml(generated: &str, expected: &str) -> bool {
                 exp
             };
 
-            gen_clean == exp_clean
+            if gen_clean == exp_clean {
+                (true, None)
+            } else {
+                (false, Some("YAML Mismatch".to_string()))
+            }
         }
-        _ => false,
+        _ => (false, Some("YAML Parse Error".to_string())),
     }
 }
 
@@ -530,7 +537,7 @@ mod whitespace_tests {
 
     fn collect_token_positions(node: &Node, positions: &mut HashSet<usize>) {
         match node {
-            Node::Token { token_idx, .. }
+            Node::Raw { token_idx, .. }
             | Node::Whitespace { token_idx, .. }
             | Node::Newline { token_idx, .. }
             | Node::Comment { token_idx, .. }

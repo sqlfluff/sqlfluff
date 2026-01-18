@@ -177,30 +177,7 @@ impl<'a> Parser<'a> {
                 continue;
             }
 
-            let tok_type = tok.get_type();
-            let node = if tok_type == "whitespace" {
-                Node::Whitespace {
-                    raw: tok.raw(),
-                    token_idx: token_pos,
-                }
-            } else if tok_type == "newline" {
-                Node::Newline {
-                    raw: tok.raw(),
-                    token_idx: token_pos,
-                }
-            } else if tok_type == "comment" {
-                Node::Comment {
-                    raw: tok.raw(),
-                    token_idx: token_pos,
-                }
-            } else if tok_type == "end_of_file" {
-                Node::EndOfFile {
-                    raw: tok.raw(),
-                    token_idx: token_pos,
-                }
-            } else {
-                Node::new_token(tok.token_type.clone(), tok.raw(), token_pos)
-            };
+            let node = Node::from_token(tok.clone());
 
             log::debug!(
                 "TRANSPARENT collecting token at pos {}: {:?}",

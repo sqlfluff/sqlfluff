@@ -114,6 +114,7 @@ impl<'a> Parser<'a> {
         self.cache_enabled = enabled;
     }
 
+    #[deprecated = "Use call_rule_as_root_match_result()?.apply() instead."]
     pub fn call_rule_as_root(&mut self) -> Result<Node, ParseError> {
         // Obtain the root grammar for this dialect and dispatch based on its
         // variant (table-driven vs Arc-based). Clone to avoid holding borrows.
@@ -137,11 +138,12 @@ impl<'a> Parser<'a> {
             let result = Node::new_ref(
                 "Root".to_string(),
                 Some("file".to_string()),
+                Some("Root".to_string()),
                 Node::Sequence {
                     children: end_nodes,
                 },
             );
-            return Ok(result.deduplicate());
+            return Ok(result);
         }
 
         self.tokens = token_slice;
@@ -176,8 +178,13 @@ impl<'a> Parser<'a> {
                     n = Node::Sequence { children };
                     self.pos += end_len;
                 }
-                let result = Node::new_ref("Root".to_string(), Some("file".to_string()), n);
-                Ok(result.deduplicate())
+                let result = Node::new_ref(
+                    "Root".to_string(),
+                    Some("file".to_string()),
+                    Some("Root".to_string()),
+                    n,
+                );
+                Ok(result)
             }
             Err(e) => Err(e),
         }
@@ -229,33 +236,7 @@ impl<'a> Parser<'a> {
             if token.is_code() {
                 break;
             }
-            let node = match token.get_type().as_str() {
-                "meta" => Node::Meta {
-                    token_type: "meta".to_string(),
-                    token_idx: Some(start_idx + i),
-                },
-                "dedent" => Node::Meta {
-                    token_type: "dedent".to_string(),
-                    token_idx: Some(start_idx + i),
-                },
-                "whitespace" => Node::Whitespace {
-                    raw: token.raw().to_string(),
-                    token_idx: start_idx + i,
-                },
-                "newline" => Node::Newline {
-                    raw: token.raw().to_string(),
-                    token_idx: start_idx + i,
-                },
-                "end_of_file" => Node::EndOfFile {
-                    raw: token.raw().to_string(),
-                    token_idx: start_idx + i,
-                },
-                "comment" => Node::Comment {
-                    raw: token.raw().to_string(),
-                    token_idx: start_idx + i,
-                },
-                other => Node::new_token(other.to_string(), token.raw().to_string(), start_idx + i),
-            };
+            let node = Node::from_token(token.clone());
             children.push(node);
         }
         children

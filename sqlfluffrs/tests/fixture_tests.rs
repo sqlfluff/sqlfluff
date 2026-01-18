@@ -402,7 +402,10 @@ fn test_yaml_output_matches_python() {
     // Parse
     let mut parser =
         sqlfluffrs_parser::parser::Parser::new(&tokens, Dialect::Ansi, hashbrown::HashMap::new());
-    let ast = parser.call_rule_as_root().expect("Parse error");
+    let ast = parser
+        .call_rule_as_root_match_result()
+        .expect("Parse error")
+        .apply(&tokens);
     // Generate YAML
     let generated_yaml = node_to_yaml(&ast, &tokens).expect("YAML generation failed");
     // Read expected YAML
@@ -2249,6 +2252,11 @@ fn test_select_simple_a() {
 
     if let Some(yaml) = &result.generated_yaml {
         println!("\n=== Generated YAML ===");
+        println!("{}", yaml);
+    }
+
+    if let Some(yaml) = &result.expected_yaml {
+        println!("\n=== Expected YAML ===");
         println!("{}", yaml);
     }
 

@@ -37,7 +37,7 @@ fn table_driven_select_parses() {
     fn contains_numeric_one(n: &sqlfluffrs_parser::parser::Node) -> Option<(String, usize)> {
         use sqlfluffrs_parser::parser::Node;
         match n {
-            Node::Token {
+            Node::Raw {
                 token_type,
                 raw,
                 token_idx,

@@ -14,7 +14,7 @@ fn bench_parse_simple_select(c: &mut Criterion) {
     c.bench_function("parse_simple_select", |b| {
         b.iter(|| {
             let mut parser = Parser::new(&tokens, dialect, hashbrown::HashMap::new());
-            let _ast = parser.call_rule_as_root().expect("Parse failed");
+            let _ast = parser.call_rule_as_root_match_result().expect("Parse failed").apply(&tokens);
         });
     });
 }
@@ -28,7 +28,7 @@ fn bench_parse_nested_functions(c: &mut Criterion) {
     c.bench_function("parse_nested_functions", |b| {
         b.iter(|| {
             let mut parser = Parser::new(&tokens, dialect, hashbrown::HashMap::new());
-            let _ast = parser.call_rule_as_root().expect("Parse failed");
+            let _ast = parser.call_rule_as_root_match_result().expect("Parse failed").apply(&tokens);
         });
     });
 }
@@ -42,7 +42,7 @@ fn bench_parse_long_query(c: &mut Criterion) {
     c.bench_function("parse_long_query", |b| {
         b.iter(|| {
             let mut parser = Parser::new(&tokens, dialect, hashbrown::HashMap::new());
-            let _ast = parser.call_rule_as_root().expect("Parse failed");
+            let _ast = parser.call_rule_as_root_match_result().expect("Parse failed").apply(&tokens);
         });
     });
 }
@@ -56,7 +56,7 @@ fn bench_parse_many_columns(c: &mut Criterion) {
     c.bench_function("parse_many_columns", |b| {
         b.iter(|| {
             let mut parser = Parser::new(&tokens, dialect, hashbrown::HashMap::new());
-            let _ast = parser.call_rule_as_root().expect("Parse failed");
+            let _ast = parser.call_rule_as_root_match_result().expect("Parse failed").apply(&tokens);
         });
     });
 }
@@ -70,7 +70,7 @@ fn bench_parse_complex_joins(c: &mut Criterion) {
     c.bench_function("parse_complex_joins", |b| {
         b.iter(|| {
             let mut parser = Parser::new(&tokens, dialect, hashbrown::HashMap::new());
-            let _ast = parser.call_rule_as_root().expect("Parse failed");
+            let _ast = parser.call_rule_as_root_match_result().expect("Parse failed").apply(&tokens);
         });
     });
 }
@@ -97,7 +97,7 @@ fn bench_expression_recursion(c: &mut Criterion) {
     c.bench_function("parse_expression_recursion", |b| {
         b.iter(|| {
             let mut parser = Parser::new(&tokens, dialect, hashbrown::HashMap::new());
-            let _ast = parser.call_rule_as_root().expect("Parse failed");
+            let _ast = parser.call_rule_as_root_match_result().expect("Parse failed").apply(&tokens);
         });
     });
 }
@@ -112,7 +112,7 @@ fn bench_expression_recursion_2(c: &mut Criterion) {
     c.bench_function("parse_expression_recursion_2", |b| {
         b.iter(|| {
             let mut parser = Parser::new(&tokens, dialect, hashbrown::HashMap::new());
-            let _ast = parser.call_rule_as_root().expect("Parse failed");
+            let _ast = parser.call_rule_as_root_match_result().expect("Parse failed").apply(&tokens);
         });
     });
 }

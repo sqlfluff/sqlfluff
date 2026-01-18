@@ -44,17 +44,17 @@ impl PyNode {
     #[getter]
     fn node_type(&self) -> String {
         match &self.0 {
-            Node::Token { .. } => "token".to_string(),
+            Node::Raw { .. } => "token".to_string(),
             Node::Ref { .. } => "ref".to_string(),
             Node::Sequence { .. } => "sequence".to_string(),
             Node::DelimitedList { .. } => "delimited_list".to_string(),
             Node::Bracketed { .. } => "bracketed".to_string(),
-            Node::Meta { .. } => "meta".to_string(),
+            // Node::Meta { .. } => "meta".to_string(),
             Node::Empty => "empty".to_string(),
-            Node::Whitespace { .. } => "whitespace".to_string(),
-            Node::Newline { .. } => "newline".to_string(),
-            Node::Comment { .. } => "comment".to_string(),
-            Node::EndOfFile { .. } => "end_of_file".to_string(),
+            // Node::Whitespace { .. } => "whitespace".to_string(),
+            // Node::Newline { .. } => "newline".to_string(),
+            // Node::Comment { .. } => "comment".to_string(),
+            // Node::EndOfFile { .. } => "end_of_file".to_string(),
             Node::Unparsable { .. } => "unparsable".to_string(),
         }
     }
@@ -77,31 +77,6 @@ impl PyNode {
             Node::Ref { child, .. } => Some(vec![PyNode((**child).clone())]),
             Node::Unparsable { children, .. } => {
                 Some(children.iter().map(|n| PyNode(n.clone())).collect())
-            }
-            _ => None,
-        }
-    }
-
-    /// Get token information (for Token nodes)
-    /// Returns (token_type, raw, token_idx)
-    fn token_info(&self) -> Option<(String, String, usize)> {
-        match &self.0 {
-            Node::Token {
-                token_type,
-                raw,
-                token_idx,
-            } => Some((token_type.clone(), raw.clone(), *token_idx)),
-            Node::Whitespace { raw, token_idx } => {
-                Some(("whitespace".to_string(), raw.clone(), *token_idx))
-            }
-            Node::Newline { raw, token_idx } => {
-                Some(("newline".to_string(), raw.clone(), *token_idx))
-            }
-            Node::Comment { raw, token_idx } => {
-                Some(("comment".to_string(), raw.clone(), *token_idx))
-            }
-            Node::EndOfFile { raw, token_idx } => {
-                Some(("end_of_file".to_string(), raw.clone(), *token_idx))
             }
             _ => None,
         }
@@ -167,10 +142,10 @@ impl PyNode {
     /// Represent node as string
     fn __repr__(&self) -> String {
         match &self.0 {
-            Node::Token {
-                token_type, raw, ..
+            Node::Raw {
+                token, ..
             } => {
-                format!("RsNode(Token(type='{}', raw='{}'))", token_type, raw)
+                format!("RsNode(Token(type='{}', raw='{}'))", token.token_type, token.raw)
             }
             Node::Ref { name, .. } => {
                 format!("RsNode(Ref(name='{}'))", name)
@@ -199,26 +174,17 @@ impl PyNode {
         dict.set_item("node_type", self.node_type())?;
 
         match &self.0 {
-            Node::Token {
-                token_type,
-                raw,
-                token_idx,
+            Node::Raw {
+                token, ..
             } => {
-                dict.set_item("token_type", token_type)?;
-                dict.set_item("raw", raw)?;
-                dict.set_item("token_idx", token_idx)?;
-            }
-            Node::Whitespace { raw, token_idx }
-            | Node::Newline { raw, token_idx }
-            | Node::Comment { raw, token_idx }
-            | Node::EndOfFile { raw, token_idx } => {
-                dict.set_item("raw", raw)?;
-                dict.set_item("token_idx", token_idx)?;
-            }
+                dict.set_item("token_type", &token.token_type)?;
+                dict.set_item("raw", &token.raw)?;
+            },
             Node::Ref {
                 name,
                 segment_type,
                 child,
+                ..
             } => {
                 dict.set_item("name", name)?;
                 dict.set_item("segment_type", segment_type)?;
@@ -271,13 +237,6 @@ impl PyNode {
                     )?)?;
                 }
                 dict.set_item("children", py_children)?;
-            }
-            Node::Meta {
-                token_type,
-                token_idx,
-            } => {
-                dict.set_item("token_type", token_type)?;
-                dict.set_item("token_idx", token_idx)?;
             }
             Node::Empty => {}
         }

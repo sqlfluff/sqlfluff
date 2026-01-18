@@ -12,10 +12,10 @@ use std::ops::Range;
 use std::sync::Arc;
 
 use crate::parser::types::Node;
-use hashbrown::HashMap;
+use hashbrown::{HashMap, HashSet};
 use sqlfluffrs_types::regex::RegexModeGroup;
-use sqlfluffrs_types::token::CaseFold;
-use sqlfluffrs_types::Token;
+use sqlfluffrs_types::token::{self, CaseFold};
+use sqlfluffrs_types::{PositionMarker, Token};
 
 /// Meta-segment types that can be inserted (like Python's Indent/Dedent)
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -27,12 +27,7 @@ pub enum MetaSegmentType {
 /// Describes a transparent token (whitespace/newline/comment/EOF) to insert
 #[derive(Debug, Clone, PartialEq)]
 pub struct TransparentInsert {
-    /// Position in the token array
-    pub token_idx: usize,
-    /// The raw text from the token
-    pub raw: String,
-    /// Type of transparent token
-    pub token_type: TransparentType,
+    pub token: Token,
 }
 
 /// Types of transparent tokens
@@ -122,57 +117,6 @@ impl MatchResult {
         }
     }
 
-    /// Create a match with just transparent tokens (for collecting whitespace without code)
-    pub fn transparent_only(start_idx: usize, transparent: Vec<TransparentInsert>) -> Self {
-        let end_idx = transparent
-            .last()
-            .map(|t| t.token_idx + 1)
-            .unwrap_or(start_idx);
-        MatchResult {
-            matched_slice: start_idx..end_idx,
-            matched_class: None,
-            insert_transparent: transparent,
-            ..Default::default()
-        }
-    }
-
-    /// Recursively deduplicate a MatchResult tree globally.
-    ///
-    /// Removes duplicate slices not just within sibling groups, but across
-    /// the entire tree. This prevents a slice from appearing both as a parent
-    /// and as its own child, which would cause duplicates when Python's apply()
-    /// materializes them. Needed because the table-driven parser can create
-    /// redundant nesting during grammar matching.
-    pub fn global_deduplicate(mut self) -> Self {
-        use std::collections::HashSet;
-
-        // Track all slices we've seen among siblings at this level only
-        // We do NOT mark the parent's slice as seen, because children can
-        // legitimately have the same slice as their parent (wrapping).
-        let mut seen_slices: HashSet<(usize, usize)> = HashSet::new();
-
-        // Recursively deduplicate children first (bottom-up)
-        let mut deduped_children = Vec::new();
-        for child_rc in self.child_matches {
-            // Extract and deduplicate the child
-            let child = Arc::try_unwrap(child_rc).unwrap_or_else(|rc| (*rc).clone());
-            let deduped_child = child.global_deduplicate();
-            let slice_key = (
-                deduped_child.matched_slice.start,
-                deduped_child.matched_slice.end,
-            );
-
-            // Only keep this child if we haven't seen this exact slice in a sibling
-            if !seen_slices.contains(&slice_key) {
-                seen_slices.insert(slice_key);
-                deduped_children.push(Arc::new(deduped_child));
-            }
-        }
-
-        self.child_matches = deduped_children;
-        self
-    }
-
     /// Flatten transparent grammar nodes for Python compatibility.
     ///
     /// Transparent nodes (those without a matched_class) are intermediate
@@ -208,21 +152,6 @@ impl MatchResult {
         self.insert_segments.extend(promoted_insert_segments);
         self.child_matches = flattened_children;
         self
-    }
-
-    /// Deduplicate child matches to prevent the same slice appearing multiple times.
-    ///
-    /// This is needed because nested Ref/Sequence wrappers can create duplicate children.
-    /// We keep the first occurrence of each unique slice and discard duplicates.
-    ///
-    /// Additionally, if a child fully spans the parent's range and has no class,
-    /// we can flatten it by using its children instead (avoiding redundant wrappers).
-    fn deduplicate_children(children: Vec<Arc<MatchResult>>) -> Vec<Arc<MatchResult>> {
-        // PYTHON PARITY: Python doesn't do any deduplication of child_matches.
-        // It just uses whatever children are provided. Any deduplication logic
-        // here was causing bugs by incorrectly dropping valid segments (like
-        // multiple meta segments at the same position).
-        children
     }
 
     pub fn match_token_at(idx: usize, matched_class: Option<String>, token: &Token) -> Self {
@@ -299,13 +228,6 @@ impl MatchResult {
 
     /// Create a MatchResult for a Sequence with child matches (lazy evaluation)
     pub fn sequence(start_idx: usize, end_idx: usize, children: Vec<Arc<MatchResult>>) -> Self {
-        let deduped_children = Self::deduplicate_children(children);
-
-        // PYTHON PARITY: Keep child matches intact - do NOT flatten meta-only children
-        // into parent's insert_segments. Each child's metas should be processed when
-        // that child is applied, preserving the order relative to surrounding content.
-        // Flattening causes metas from different nesting levels to be merged incorrectly.
-
         MatchResult {
             matched_slice: start_idx..end_idx,
             // PYTHON PARITY: Sequence is a grammar construct, not a segment class
@@ -314,8 +236,7 @@ impl MatchResult {
             // 2. Process child_matches (recursively)
             // 3. Return all results unwrapped (no Sequence wrapper in final tree)
             matched_class: None,
-            child_matches: deduped_children,
-            insert_segments: Vec::new(),
+            child_matches: children,
             ..Default::default()
         }
     }
@@ -324,22 +245,16 @@ impl MatchResult {
     pub fn ref_match(
         _name: String,
         segment_type: Option<String>,
+        segment_class: Option<String>,
         start_idx: usize,
         end_idx: usize,
         children: Vec<Arc<MatchResult>>,
     ) -> Self {
-        let deduped_children = Self::deduplicate_children(children);
-
-        // NOTE: Previously we had an optimization that returned the child directly when it
-        // contained an unparsable segment. This was WRONG because it destroyed the segment
-        // hierarchy (losing StatementSegment, SelectStatementSegment, etc. wrappers).
-        // The correct behavior is to ALWAYS wrap with the segment_type if provided,
-        // even when there are unparsable segments inside.
-
         // Only set matched_class if segment_type is explicitly provided from tables
         // Refs without segment_type are grammar-only (not Python segment classes)
         // and should not create a matched_class wrapper
-        let class_name = segment_type;
+        let class_name = segment_class;
+        let class_type = segment_type;
 
         // PYTHON PARITY: If we have a segment class AND a single grammar wrapper child
         // (matched_class=None with insert_segments), lift insert_segments to the parent
@@ -347,11 +262,11 @@ impl MatchResult {
         // are attached to the segment class, not intermediate grammar wrappers.
         // BUT: Only do this if the child doesn't contain an UnparsableSegment, because
         // unwrapping in that case can cause issues with segment boundaries.
-        if class_name.is_some() && deduped_children.len() == 1 {
-            let child = &deduped_children[0];
+        if class_name.is_some() && children.len() == 1 {
+            let child = &children[0];
             // Don't unwrap if the child contains an unparsable - keep structure intact
             if child.matched_class.is_none()
-                && !child.insert_segments.is_empty()
+                // && !child.insert_segments.is_empty()
                 && !child.contains_unparsable()
             {
                 // Lift insert_segments from grammar wrapper to segment class
@@ -360,10 +275,9 @@ impl MatchResult {
                 let unwrapped_children = child.child_matches.clone();
                 return MatchResult {
                     matched_slice: start_idx..end_idx,
-                    matched_class: class_name,
+                    matched_class: class_type,
                     child_matches: unwrapped_children,
                     insert_segments,
-                    parse_error: None,
                     ..Default::default()
                 };
             }
@@ -372,31 +286,7 @@ impl MatchResult {
         MatchResult {
             matched_slice: start_idx..end_idx,
             matched_class: class_name,
-            child_matches: deduped_children,
-            parse_error: None,
-            ..Default::default()
-        }
-    }
-
-    /// Create a MatchResult for a DelimitedList with child matches (lazy evaluation)
-    pub fn delimited(start_idx: usize, end_idx: usize, children: Vec<Arc<MatchResult>>) -> Self {
-        let deduped_children = Self::deduplicate_children(children);
-
-        // PYTHON PARITY: Keep child matches intact - do NOT flatten meta-only children
-        // into parent's insert_segments. Each child's metas should be processed when
-        // that child is applied, preserving the order relative to surrounding content.
-
-        MatchResult {
-            matched_slice: start_idx..end_idx,
-            // PYTHON PARITY: Delimited is a grammar construct, not a segment class
-            // Set matched_class to None so Python's apply() will:
-            // 1. Process insert_segments (creating metas at correct positions)
-            // 2. Process child_matches (recursively)
-            // 3. Return all results unwrapped (no Delimited wrapper in final tree)
-            matched_class: None,
-            child_matches: deduped_children,
-            insert_segments: Vec::new(),
-            parse_error: None,
+            child_matches: children,
             ..Default::default()
         }
     }
@@ -410,8 +300,6 @@ impl MatchResult {
         children: Vec<Arc<MatchResult>>,
         bracket_persists: bool,
     ) -> Self {
-        let deduped_children = Self::deduplicate_children(children);
-
         // Python parity: Insert Indent after opening bracket and Dedent before closing bracket
         // Python code (sequence.py Bracketed.match() lines ~580-582):
         //   insert_segments=(
@@ -419,12 +307,12 @@ impl MatchResult {
         //       (end_match.matched_slice.start, Dedent),
         //   )
         let mut insert_segments = Vec::new();
-        if let Some(first_child) = deduped_children.first() {
+        if let Some(first_child) = children.first() {
             // Indent after opening bracket
             let indent_pos = first_child.matched_slice.end;
             insert_segments.push((indent_pos, MetaSegmentType::Indent, false));
         }
-        if let Some(last_child) = deduped_children.last() {
+        if let Some(last_child) = children.last() {
             // Dedent before closing bracket
             let dedent_pos = last_child.matched_slice.start;
             insert_segments.push((dedent_pos, MetaSegmentType::Dedent, false));
@@ -442,18 +330,12 @@ impl MatchResult {
         MatchResult {
             matched_slice: start_idx..end_idx,
             matched_class,
-            child_matches: deduped_children,
+            child_matches: children,
             segment_kwargs: HashMap::new(),
             insert_segments,
             parse_error: None,
             ..Default::default()
         }
-    }
-
-    /// Bridge method: Convert this MatchResult back to a Node.
-    /// Used during migration when callers still expect Node.
-    pub fn to_node(self, tokens: &[sqlfluffrs_types::Token]) -> Node {
-        self.apply(tokens)
     }
 
     /// Create a MatchResult representing a parse error.
@@ -661,25 +543,35 @@ impl MatchResult {
                 self.child_nodes.len()
             );
         }
+        println!(
+            "[APPLY-ENTRY] matched_slice={:?}, child_matches={}, insert_segments={}, child_nodes={}, instance_types={:?}, matched_class={:?}",
+            self.matched_slice,
+            self.child_matches.len(),
+            self.insert_segments.len(),
+            self.child_nodes.len(),
+            self.instance_types,
+            self.matched_class,
+        );
 
-        // If empty, return Empty node
         if self.matched_slice.is_empty()
             && self.child_matches.is_empty()
             && self.child_nodes.is_empty()
         {
-            // Only meta/transparent inserts - create them as children
-            let mut result = vec![];
-            for insert in &self.insert_transparent {
-                result.push(transparent_to_node(insert));
+            // Build insert nodes functionally from insert_segments
+            let inserts: Vec<Node> = self
+                .insert_segments
+                .iter()
+                .map(|(idx, meta_type, is_implicit)| {
+                    meta_to_node(*idx, meta_type, *is_implicit, tokens)
+                })
+                .collect();
+
+            // If we have inserts and no matched_class, return them wrapped as a Sequence.
+            if !inserts.is_empty() && self.matched_class.is_none() {
+                return Node::Sequence { children: inserts };
             }
-            for (idx, meta_type, is_implicit) in &self.insert_segments {
-                result.push(meta_to_node(*idx, meta_type, *is_implicit));
-            }
-            // If we have inserts but no matched_class, wrap in Sequence
-            if !result.is_empty() && self.matched_class.is_none() {
-                return Node::Sequence { children: result };
-            }
-            return Node::Empty;
+
+            panic!("Tried to apply zero length MatchResult with `matched_class`. This MatchResult is invalid.");
         }
 
         // Build a map of positions to things to insert/apply
@@ -693,13 +585,13 @@ impl MatchResult {
                 .push(TriggerItem::Meta(meta_type.clone(), *is_implicit));
         }
 
-        // Add transparent tokens
-        for insert in &self.insert_transparent {
-            trigger_map
-                .entry(insert.token_idx)
-                .or_default()
-                .push(TriggerItem::Transparent(insert.clone()));
-        }
+        // // Add transparent tokens
+        // for insert in &self.insert_transparent {
+        //     trigger_map
+        //         .entry(insert.token_idx)
+        //         .or_default()
+        //         .push(TriggerItem::Transparent(insert.clone()));
+        // }
 
         // Add child matches
         for child_rc in &self.child_matches {
@@ -733,9 +625,7 @@ impl MatchResult {
                 for idx in current_idx..pos {
                     if idx < tokens.len() {
                         let tok = &tokens[idx];
-                        let raw = tok.raw().to_string();
-                        let tok_type = tok.get_type().to_string();
-                        result_nodes.push(Node::new_token(tok_type, raw, idx));
+                        result_nodes.push(Node::from_token(tok.clone()));
                     }
                 }
                 current_idx = pos;
@@ -746,47 +636,23 @@ impl MatchResult {
                 for trigger in triggers {
                     match trigger {
                         TriggerItem::Meta(meta_type, is_implicit) => {
-                            result_nodes.push(meta_to_node(pos, meta_type, *is_implicit));
+                            result_nodes.push(meta_to_node(pos, meta_type, *is_implicit, tokens));
                         }
                         TriggerItem::Transparent(insert) => {
-                            result_nodes.push(transparent_to_node(insert));
-                            if insert.token_idx >= current_idx {
-                                current_idx = insert.token_idx + 1;
-                            }
+                            result_nodes.push(Node::from_token(insert.token.clone()));
+                            // if insert.token_idx >= current_idx {
+                            //     current_idx = insert.token_idx + 1;
+                            // }
+                            current_idx += 1;
                         }
                         TriggerItem::ChildMatch(child) => {
-                            if self.matched_class.as_deref() == Some("FromExpressionSegment")
-                                || self.matched_class.as_deref() == Some("BracketedSegment")
-                            {
-                                vdebug!(
-                                    "[APPLY-CHILD] Processing child at {}: matched_slice={:?}, matched_class={:?}, current_idx={}",
-                                    pos,
-                                    child.matched_slice,
-                                    child.matched_class,
-                                    current_idx
-                                );
-                            }
                             let child_node = child.clone().apply(tokens);
                             // Only add non-empty nodes
                             if !matches!(child_node, Node::Empty) {
-                                if self.matched_class.as_deref() == Some("BracketedSegment") {
-                                    vdebug!(
-                                        "[APPLY-CHILD] BracketedSegment adding non-empty child node: {:?}",
-                                        child_node
-                                    );
-                                }
                                 result_nodes.push(child_node);
-                            } else if self.matched_class.as_deref() == Some("BracketedSegment") {
-                                vdebug!(
-                                    "[APPLY-CHILD] BracketedSegment child returned Empty! matched_class={:?}",
-                                    child.matched_class
-                                );
                             }
                             if child.matched_slice.end > current_idx {
                                 current_idx = child.matched_slice.end;
-                            }
-                            if self.matched_class.as_deref() == Some("FromExpressionSegment") {
-                                vdebug!("[APPLY-CHILD] After child: current_idx={}", current_idx);
                             }
                         }
                         TriggerItem::ChildNode(node) => {
@@ -808,10 +674,7 @@ impl MatchResult {
             for idx in current_idx..self.matched_slice.end {
                 if idx < tokens.len() {
                     let tok = &tokens[idx];
-                    let raw = tok.raw().to_string();
-                    let tok_type = tok.get_type().to_string();
-
-                    result_nodes.push(Node::new_token(tok_type, raw, idx));
+                    result_nodes.push(Node::from_token(tok.clone()));
                 }
             }
         }
@@ -859,7 +722,7 @@ impl MatchResult {
                     }
                 };
 
-                Node::new_ref(class_name, segment_type, child)
+                Node::new_ref(class_name.clone(), segment_type, Some(class_name), child)
             } else {
                 // Non-segment classes get wrapped in Sequence
                 if result_nodes.len() == 1 {
@@ -875,6 +738,10 @@ impl MatchResult {
             if result_nodes.is_empty() {
                 Node::Empty
             } else if result_nodes.len() == 1 {
+                println!(
+                    "[APPLY-DEBUG] No matched_class, single result node: {:?}, instance_types={:?}",
+                    result_nodes[0], self.instance_types,
+                );
                 result_nodes.into_iter().next().unwrap()
             } else {
                 Node::Sequence {
@@ -894,45 +761,62 @@ enum TriggerItem {
     ChildNode(Node),
 }
 
-/// Convert a transparent insert to a Node
-fn transparent_to_node(insert: &TransparentInsert) -> Node {
-    match insert.token_type {
-        TransparentType::Whitespace => Node::Whitespace {
-            raw: insert.raw.clone(),
-            token_idx: insert.token_idx,
-        },
-        TransparentType::Newline => Node::Newline {
-            raw: insert.raw.clone(),
-            token_idx: insert.token_idx,
-        },
-        TransparentType::Comment => Node::Comment {
-            raw: insert.raw.clone(),
-            token_idx: insert.token_idx,
-        },
-        TransparentType::EndOfFile => Node::EndOfFile {
-            raw: insert.raw.clone(),
-            token_idx: insert.token_idx,
-        },
+// /// Convert a transparent insert to a Node
+// fn transparent_to_node(insert: &TransparentInsert) -> Node {
+//     match insert.token_type {
+//         TransparentType::Whitespace => Node::Whitespace {
+//             raw: insert.raw.clone(),
+//             token_idx: insert.token_idx,
+//         },
+//         TransparentType::Newline => Node::Newline {
+//             raw: insert.raw.clone(),
+//             token_idx: insert.token_idx,
+//         },
+//         TransparentType::Comment => Node::Comment {
+//             raw: insert.raw.clone(),
+//             token_idx: insert.token_idx,
+//         },
+//         TransparentType::EndOfFile => Node::EndOfFile {
+//             raw: insert.raw.clone(),
+//             token_idx: insert.token_idx,
+//         },
+//     }
+// }
+
+fn get_point_pos_at_idx(tokens: &[Token], idx: usize) -> PositionMarker {
+    if idx < tokens.len() {
+        let token = &tokens[idx];
+        token.pos_marker
+            .as_ref()
+            .expect("Tokens passed to .apply() should all have position.")
+            .start_point_marker()
+    } else {
+        // If idx is beyond the end, use the end position of the last token.
+        let last = tokens
+            .last()
+            .expect("No tokens available to determine position.");
+        last.pos_marker.as_ref()
+            .expect("Tokens passed to .apply() should all have position.")
+            .end_point_marker()
     }
 }
 
 /// Convert a meta segment type to a Node
-fn meta_to_node(idx: usize, meta_type: &MetaSegmentType, is_implicit: bool) -> Node {
-    match meta_type {
-        MetaSegmentType::Indent => Node::Meta {
-            token_type: if is_implicit {
-                "implicit_indent"
-            } else {
-                "indent"
-            }
-            .to_string(),
-            token_idx: Some(idx),
-        },
-        MetaSegmentType::Dedent => Node::Meta {
-            token_type: "dedent".to_string(),
-            token_idx: Some(idx),
-        },
-    }
+fn meta_to_node(
+    idx: usize,
+    meta_type: &MetaSegmentType,
+    is_implicit: bool,
+    tokens: &[Token],
+) -> Node {
+    let pos = get_point_pos_at_idx(tokens, idx);
+    let token = match (meta_type, is_implicit) {
+        (MetaSegmentType::Indent, false) => Token::indent_token(pos, false, None, HashSet::new()),
+        (MetaSegmentType::Indent, true) => {
+            Token::implicit_indent_token(pos, true, None, HashSet::new())
+        }
+        (MetaSegmentType::Dedent, _) => Token::dedent_token(pos, false, None, HashSet::new()),
+    };
+    Node::from_token(token)
 }
 
 #[cfg(test)]

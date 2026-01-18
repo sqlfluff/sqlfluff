@@ -24,7 +24,7 @@ fn test_numeric_literal_simple() {
     }
 
     let mut parser = Parser::new(&tokens, dialect, hashbrown::HashMap::new());
-    let _ast = parser.call_rule_as_root().expect("Parse error");
+    let _ast = parser.call_rule_as_root_match_result().expect("Parse error").apply(&tokens);
 
     println!("\n=== Parse successful ===");
 }
@@ -46,7 +46,7 @@ fn test_numeric_literal_comparison() {
     println!("=== Total tokens: {} ===", tokens.len());
 
     let mut parser = Parser::new(&tokens, dialect, hashbrown::HashMap::new());
-    let _ast = parser.call_rule_as_root().expect("Parse error");
+    let _ast = parser.call_rule_as_root_match_result().expect("Parse error").apply(&tokens);
 
     println!("\n=== Parse successful ===");
 }

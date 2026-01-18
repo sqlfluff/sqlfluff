@@ -57,6 +57,7 @@ impl Token {
             casefold,
             raw_value,
             matching_bracket_idx: None, // Will be computed after all tokens are created
+            is_implicit: false,
         }
     }
 
@@ -291,6 +292,24 @@ impl Token {
         Self {
             token_type,
             indent_value: 1,
+            suffix: block_uuid
+                .map(|u| u.as_hyphenated().to_string())
+                .unwrap_or_default(),
+            ..Self::meta_token(pos_marker, is_templated, block_uuid, class_types)
+        }
+    }
+
+    pub fn implicit_indent_token(
+        pos_marker: PositionMarker,
+        is_templated: bool,
+        block_uuid: Option<Uuid>,
+        class_types: HashSet<String>,
+    ) -> Self {
+        let (token_type, class_types) = iter_base_types("indent", class_types);
+        Self {
+            token_type,
+            indent_value: 1,
+            is_implicit: true,
             suffix: block_uuid
                 .map(|u| u.as_hyphenated().to_string())
                 .unwrap_or_default(),

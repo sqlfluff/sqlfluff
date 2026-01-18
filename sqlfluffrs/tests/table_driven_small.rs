@@ -47,7 +47,7 @@ fn parse_and_find(sql: &str, grammar_name: &str, expected: &str) -> bool {
                 children.iter().any(|c| find(c, expected))
             }
             Node::Bracketed { children, .. } => children.iter().any(|c| find(c, expected)),
-            Node::Token { token_type, .. } => token_type == expected,
+            Node::Raw { token_type, .. } => token_type == expected,
             Node::Empty | Node::Meta { .. } => false,
             // Fallback for any other node kinds
             _ => false,

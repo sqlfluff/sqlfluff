@@ -303,9 +303,16 @@ impl Parser<'_> {
             // Refs are just named references - the casefold comes from the RegexParser/TypedParser they point to
             let casefold = self.grammar_ctx.casefold(*child_grammar_id);
 
+            let segment_class = if self.dialect.get_segment_type(name).is_some() {
+                Some(name.clone())
+            } else {
+                None
+            };
+
             let mut result = MatchResult::ref_match(
                 name.clone(),
                 segment_type.clone(),
+                segment_class.clone(),
                 frame.pos,
                 final_pos,
                 children,

@@ -728,7 +728,7 @@ impl<'a> Parser<'_> {
             // Success - use lazy evaluation - store child_matches
             let accumulated = std::mem::take(&mut frame.accumulated);
             (
-                Arc::new(MatchResult::delimited(
+                Arc::new(MatchResult::sequence(
                     frame.pos,
                     *matched_idx,
                     accumulated.into_vec(),

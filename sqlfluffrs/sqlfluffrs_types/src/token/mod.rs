@@ -75,6 +75,7 @@ pub struct Token {
     /// For closing brackets like ')', ']', '}', this points back to the matching opening bracket.
     /// None for non-bracket tokens or unmatched brackets.
     pub matching_bracket_idx: Option<usize>,
+    pub is_implicit: bool,
 }
 
 impl Token {
