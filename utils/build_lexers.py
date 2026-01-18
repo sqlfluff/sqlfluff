@@ -239,13 +239,11 @@ def generate_extract_nested_block_comments(dialect: str):
     Since this function is now shared across all dialects, we just need
     to generate a wrapper that passes the dialect name to the shared implementation.
     """
-    print(
-        f"""
+    print(f"""
 // Wrapper function that passes the dialect name to the shared implementation
 fn extract_nested_block_comment(input: &str) -> Option<&str> {{
     crate::extract_nested_block_comment(input, "{dialect}")
-}}"""
-    )
+}}""")
 
 
 if __name__ == "__main__":
