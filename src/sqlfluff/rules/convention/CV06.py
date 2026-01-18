@@ -252,7 +252,7 @@ class Rule_CV06(BaseRule):
         # Adjust before_segment and anchor_segment for preceding inline
         # comments. Inline comments can contain noqa logic so we need to add the
         # newline after the inline comment.
-        (before_segment, anchor_segment) = self._handle_preceding_inline_comments(
+        before_segment, anchor_segment = self._handle_preceding_inline_comments(
             info.before_segment, info.anchor_segment
         )
 

@@ -94,12 +94,10 @@ def test_rules_std_LT04_and_ST06_interaction_trailing(in_sql, out_sql) -> None:
     Test sql with two newlines with leading commas expecting trailing.
     """
     # Lint expected rules.
-    cfg = FluffConfig.from_string(
-        """[sqlfluff]
+    cfg = FluffConfig.from_string("""[sqlfluff]
 dialect = ansi
 rules = LT04, ST06
-"""
-    )
+""")
     linter = Linter(config=cfg)
 
     # Return linted/fixed file.

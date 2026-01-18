@@ -15,15 +15,13 @@ except ImportError:
 @pytest.mark.skipif(HAS_RUST_PARSER, reason="Rust parser is available")
 def test__linter__use_rust_parser_auto_no_warning(caplog):
     """Test that 'auto' mode doesn't warn when Rust parser is unavailable."""
-    config = FluffConfig.from_string(
-        """
+    config = FluffConfig.from_string("""
 [sqlfluff]
 dialect = ansi
 
 [sqlfluff:core]
 use_rust_parser = auto
-"""
-    )
+""")
 
     with caplog.at_level(logging.WARNING, logger="sqlfluff.linter"):
         lntr = Linter(config=config)
@@ -53,15 +51,13 @@ def test__linter__use_rust_parser_true_warns(caplog):
     sqlfluff_logger.handlers.clear()
 
     try:
-        config = FluffConfig.from_string(
-            """
+        config = FluffConfig.from_string("""
 [sqlfluff]
 dialect = ansi
 
 [sqlfluff:core]
 use_rust_parser = True
-"""
-        )
+""")
 
         with caplog.at_level(logging.WARNING, logger="sqlfluff.linter"):
             lntr = Linter(config=config)
@@ -92,15 +88,13 @@ use_rust_parser = True
 
 def test__linter__use_rust_parser_false_no_rust():
     """Test that False never uses Rust parser."""
-    config = FluffConfig.from_string(
-        """
+    config = FluffConfig.from_string("""
 [sqlfluff]
 dialect = ansi
 
 [sqlfluff:core]
 use_rust_parser = False
-"""
-    )
+""")
 
     lntr = Linter(config=config)
     result = lntr.lint_string("SELECT 1")
@@ -111,12 +105,10 @@ use_rust_parser = False
 
 def test__linter__use_rust_parser_default_is_auto():
     """Test that default config uses 'auto' mode."""
-    config = FluffConfig.from_string(
-        """
+    config = FluffConfig.from_string("""
 [sqlfluff]
 dialect = ansi
-"""
-    )
+""")
 
     use_rust_value = config.get_section(["core", "use_rust_parser"])
     assert use_rust_value == "auto"
