@@ -656,9 +656,7 @@ class OutputStreamFormatter(FormatterInterface):
                         )
                         rule_code = error.rule_code().rjust(4)
 
-                        error_message = (
-                            f"L:{line_elem} | P:{pos_elem}| {rule_code} | {error.desc()}"
-                        )
+                        error_message = f"L:{line_elem} | P:{pos_elem}| {rule_code} | {error.desc()}"  # noqa
 
                         click.echo(
                             message=self.colorize(f"  {error_message}", Color.red),
