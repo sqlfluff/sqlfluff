@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 7f1a70bee1a4410fdc28efbeb09a48884a3abfa293acd6f3609744037f5d23d7
+_hash: e90a718c0d1e95a444ec74ff34034bc4c9e4e74275574c07156ce1f6eaa00bac
 file:
 - statement:
     insert_statement:
@@ -868,56 +868,55 @@ file:
             column_reference:
               naked_identifier: sales_sat
         - end_bracket: )
-- statement:
-    select_statement:
-      select_clause:
-      - keyword: SELECT
-      - select_clause_element:
-          column_reference:
-            naked_identifier: product_id
-      - comma: ','
-      - select_clause_element:
-          column_reference:
-            naked_identifier: customer_id
-      - comma: ','
-      - select_clause_element:
-          column_reference:
-            naked_identifier: weekly_start_date
-      - comma: ','
-      - select_clause_element:
-          column_reference:
-            naked_identifier: sales_sun
-      - comma: ','
-      - select_clause_element:
-          column_reference:
-            naked_identifier: sales_mon
-      - comma: ','
-      - select_clause_element:
-          column_reference:
-            naked_identifier: sales_tue
-      - comma: ','
-      - select_clause_element:
-          column_reference:
-            naked_identifier: sales_wed
-      - comma: ','
-      - select_clause_element:
-          column_reference:
-            naked_identifier: sales_thu
-      - comma: ','
-      - select_clause_element:
-          column_reference:
-            naked_identifier: sales_fri
-      - comma: ','
-      - select_clause_element:
-          column_reference:
-            naked_identifier: sales_sat
-      from_clause:
-        keyword: FROM
-        from_expression:
-          from_expression_element:
-            table_expression:
-              table_reference:
-                naked_identifier: sales_input_table
+    - select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+              naked_identifier: product_id
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: customer_id
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: weekly_start_date
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: sales_sun
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: sales_mon
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: sales_tue
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: sales_wed
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: sales_thu
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: sales_fri
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              naked_identifier: sales_sat
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: sales_input_table
 - statement_terminator: ;
 - statement:
     insert_statement:
@@ -1420,205 +1419,204 @@ file:
             column_reference:
               naked_identifier: hired_date
         - end_bracket: )
-- statement:
-    with_compound_statement:
-      keyword: WITH
-      common_table_expression:
-        naked_identifier: names
-        keyword: AS
-        bracketed:
-          start_bracket: (
-          set_expression:
-          - select_statement:
-              select_clause:
-              - keyword: SELECT
-              - select_clause_element:
-                  numeric_literal: '4'
-                  alias_expression:
-                    naked_identifier: id
-              - comma: ','
-              - select_clause_element:
-                  quoted_literal: "'Ruth'"
-                  alias_expression:
-                    naked_identifier: given_name
-              - comma: ','
-              - select_clause_element:
-                  quoted_literal: "'Fox'"
-                  alias_expression:
-                    naked_identifier: family_name
-              - comma: ','
-              - select_clause_element:
-                  quoted_literal: "'Mrs'"
-                  alias_expression:
-                    naked_identifier: title
-              - comma: ','
-              - select_clause_element:
-                  null_literal: 'NULL'
-                  alias_expression:
-                    naked_identifier: hired_date
-              - comma: ','
-              - select_clause_element:
-                  expression:
-                    data_type:
-                      data_type_identifier: DATE
-                    quoted_literal: "'2009-12-31'"
-                  alias_expression:
-                    naked_identifier: admission_date
-              from_clause:
-                keyword: FROM
-                from_expression:
-                  from_expression_element:
-                    table_expression:
-                      table_reference:
-                        naked_identifier: dual
-          - set_operator:
-            - keyword: UNION
-            - keyword: ALL
-          - select_statement:
-              select_clause:
-              - keyword: SELECT
-              - select_clause_element:
-                  numeric_literal: '5'
-                  alias_expression:
-                    naked_identifier: id
-              - comma: ','
-              - select_clause_element:
-                  quoted_literal: "'Isabelle'"
-                  alias_expression:
-                    naked_identifier: given_name
-              - comma: ','
-              - select_clause_element:
-                  quoted_literal: "'Squirrel'"
-                  alias_expression:
-                    naked_identifier: family_name
-              - comma: ','
-              - select_clause_element:
-                  quoted_literal: "'Miss'"
-                  alias_expression:
-                    naked_identifier: title
-              - comma: ','
-              - select_clause_element:
-                  null_literal: 'NULL'
-                  alias_expression:
-                    naked_identifier: hired_date
-              - comma: ','
-              - select_clause_element:
-                  expression:
-                    data_type:
-                      data_type_identifier: DATE
-                    quoted_literal: "'2014-01-01'"
-                  alias_expression:
-                    naked_identifier: admission_date
-              from_clause:
-                keyword: FROM
-                from_expression:
-                  from_expression_element:
-                    table_expression:
-                      table_reference:
-                        naked_identifier: dual
-          - set_operator:
-            - keyword: UNION
-            - keyword: ALL
-          - select_statement:
-              select_clause:
-              - keyword: SELECT
-              - select_clause_element:
-                  numeric_literal: '6'
-                  alias_expression:
-                    naked_identifier: id
-              - comma: ','
-              - select_clause_element:
-                  quoted_literal: "'Justin'"
-                  alias_expression:
-                    naked_identifier: given_name
-              - comma: ','
-              - select_clause_element:
-                  quoted_literal: "'Frog'"
-                  alias_expression:
-                    naked_identifier: family_name
-              - comma: ','
-              - select_clause_element:
-                  quoted_literal: "'Master'"
-                  alias_expression:
-                    naked_identifier: title
-              - comma: ','
-              - select_clause_element:
-                  null_literal: 'NULL'
-                  alias_expression:
-                    naked_identifier: hired_date
-              - comma: ','
-              - select_clause_element:
-                  expression:
-                    data_type:
-                      data_type_identifier: DATE
-                    quoted_literal: "'2015-04-22'"
-                  alias_expression:
-                    naked_identifier: admission_date
-              from_clause:
-                keyword: FROM
-                from_expression:
-                  from_expression_element:
-                    table_expression:
-                      table_reference:
-                        naked_identifier: dual
-          - set_operator:
-            - keyword: UNION
-            - keyword: ALL
-          - select_statement:
-              select_clause:
-              - keyword: SELECT
-              - select_clause_element:
-                  numeric_literal: '7'
-                  alias_expression:
-                    naked_identifier: id
-              - comma: ','
-              - select_clause_element:
-                  quoted_literal: "'Lisa'"
-                  alias_expression:
-                    naked_identifier: given_name
-              - comma: ','
-              - select_clause_element:
-                  quoted_literal: "'Owl'"
-                  alias_expression:
-                    naked_identifier: family_name
-              - comma: ','
-              - select_clause_element:
-                  quoted_literal: "'Dr'"
-                  alias_expression:
-                    naked_identifier: title
-              - comma: ','
-              - select_clause_element:
-                  expression:
-                    data_type:
-                      data_type_identifier: DATE
-                    quoted_literal: "'2015-01-01'"
-                  alias_expression:
-                    naked_identifier: hired_date
-              - comma: ','
-              - select_clause_element:
-                  null_literal: 'NULL'
-                  alias_expression:
-                    naked_identifier: admission_date
-              from_clause:
-                keyword: FROM
-                from_expression:
-                  from_expression_element:
-                    table_expression:
-                      table_reference:
-                        naked_identifier: dual
-          end_bracket: )
-      select_statement:
-        select_clause:
-          keyword: SELECT
-          select_clause_element:
-            wildcard_expression:
-              wildcard_identifier:
-                star: '*'
-        from_clause:
-          keyword: FROM
-          from_expression:
-            from_expression_element:
-              table_expression:
-                table_reference:
-                  naked_identifier: names
+    - with_compound_statement:
+        keyword: WITH
+        common_table_expression:
+          naked_identifier: names
+          keyword: AS
+          bracketed:
+            start_bracket: (
+            set_expression:
+            - select_statement:
+                select_clause:
+                - keyword: SELECT
+                - select_clause_element:
+                    numeric_literal: '4'
+                    alias_expression:
+                      naked_identifier: id
+                - comma: ','
+                - select_clause_element:
+                    quoted_literal: "'Ruth'"
+                    alias_expression:
+                      naked_identifier: given_name
+                - comma: ','
+                - select_clause_element:
+                    quoted_literal: "'Fox'"
+                    alias_expression:
+                      naked_identifier: family_name
+                - comma: ','
+                - select_clause_element:
+                    quoted_literal: "'Mrs'"
+                    alias_expression:
+                      naked_identifier: title
+                - comma: ','
+                - select_clause_element:
+                    null_literal: 'NULL'
+                    alias_expression:
+                      naked_identifier: hired_date
+                - comma: ','
+                - select_clause_element:
+                    expression:
+                      data_type:
+                        data_type_identifier: DATE
+                      quoted_literal: "'2009-12-31'"
+                    alias_expression:
+                      naked_identifier: admission_date
+                from_clause:
+                  keyword: FROM
+                  from_expression:
+                    from_expression_element:
+                      table_expression:
+                        table_reference:
+                          naked_identifier: dual
+            - set_operator:
+              - keyword: UNION
+              - keyword: ALL
+            - select_statement:
+                select_clause:
+                - keyword: SELECT
+                - select_clause_element:
+                    numeric_literal: '5'
+                    alias_expression:
+                      naked_identifier: id
+                - comma: ','
+                - select_clause_element:
+                    quoted_literal: "'Isabelle'"
+                    alias_expression:
+                      naked_identifier: given_name
+                - comma: ','
+                - select_clause_element:
+                    quoted_literal: "'Squirrel'"
+                    alias_expression:
+                      naked_identifier: family_name
+                - comma: ','
+                - select_clause_element:
+                    quoted_literal: "'Miss'"
+                    alias_expression:
+                      naked_identifier: title
+                - comma: ','
+                - select_clause_element:
+                    null_literal: 'NULL'
+                    alias_expression:
+                      naked_identifier: hired_date
+                - comma: ','
+                - select_clause_element:
+                    expression:
+                      data_type:
+                        data_type_identifier: DATE
+                      quoted_literal: "'2014-01-01'"
+                    alias_expression:
+                      naked_identifier: admission_date
+                from_clause:
+                  keyword: FROM
+                  from_expression:
+                    from_expression_element:
+                      table_expression:
+                        table_reference:
+                          naked_identifier: dual
+            - set_operator:
+              - keyword: UNION
+              - keyword: ALL
+            - select_statement:
+                select_clause:
+                - keyword: SELECT
+                - select_clause_element:
+                    numeric_literal: '6'
+                    alias_expression:
+                      naked_identifier: id
+                - comma: ','
+                - select_clause_element:
+                    quoted_literal: "'Justin'"
+                    alias_expression:
+                      naked_identifier: given_name
+                - comma: ','
+                - select_clause_element:
+                    quoted_literal: "'Frog'"
+                    alias_expression:
+                      naked_identifier: family_name
+                - comma: ','
+                - select_clause_element:
+                    quoted_literal: "'Master'"
+                    alias_expression:
+                      naked_identifier: title
+                - comma: ','
+                - select_clause_element:
+                    null_literal: 'NULL'
+                    alias_expression:
+                      naked_identifier: hired_date
+                - comma: ','
+                - select_clause_element:
+                    expression:
+                      data_type:
+                        data_type_identifier: DATE
+                      quoted_literal: "'2015-04-22'"
+                    alias_expression:
+                      naked_identifier: admission_date
+                from_clause:
+                  keyword: FROM
+                  from_expression:
+                    from_expression_element:
+                      table_expression:
+                        table_reference:
+                          naked_identifier: dual
+            - set_operator:
+              - keyword: UNION
+              - keyword: ALL
+            - select_statement:
+                select_clause:
+                - keyword: SELECT
+                - select_clause_element:
+                    numeric_literal: '7'
+                    alias_expression:
+                      naked_identifier: id
+                - comma: ','
+                - select_clause_element:
+                    quoted_literal: "'Lisa'"
+                    alias_expression:
+                      naked_identifier: given_name
+                - comma: ','
+                - select_clause_element:
+                    quoted_literal: "'Owl'"
+                    alias_expression:
+                      naked_identifier: family_name
+                - comma: ','
+                - select_clause_element:
+                    quoted_literal: "'Dr'"
+                    alias_expression:
+                      naked_identifier: title
+                - comma: ','
+                - select_clause_element:
+                    expression:
+                      data_type:
+                        data_type_identifier: DATE
+                      quoted_literal: "'2015-01-01'"
+                    alias_expression:
+                      naked_identifier: hired_date
+                - comma: ','
+                - select_clause_element:
+                    null_literal: 'NULL'
+                    alias_expression:
+                      naked_identifier: admission_date
+                from_clause:
+                  keyword: FROM
+                  from_expression:
+                    from_expression_element:
+                      table_expression:
+                        table_reference:
+                          naked_identifier: dual
+            end_bracket: )
+        select_statement:
+          select_clause:
+            keyword: SELECT
+            select_clause_element:
+              wildcard_expression:
+                wildcard_identifier:
+                  star: '*'
+          from_clause:
+            keyword: FROM
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                    naked_identifier: names
 - statement_terminator: ;

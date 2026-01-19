@@ -2705,57 +2705,70 @@ class MergeUpdateClauseSegment(BaseSegment):
 class InsertStatementSegment(BaseSegment):
     """An `INSERT` statement.
 
-    https://docs.oracle.com/en/database/oracle/oracle-database/23/sqlrf/INSERT.html
+    https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/INSERT.html
     """
 
     type = "insert_statement"
 
+    _insert_into_clause = Sequence(
+        "INTO",
+        OneOf(
+            Ref("TableReferenceSegment"),
+            Bracketed(Ref("SelectStatementSegment")),
+        ),
+        Ref("AliasExpressionSegment", optional=True),
+        Bracketed(Delimited(Ref("ColumnReferenceSegment")), optional=True),
+    )
+
+    _insert_set_or_values_clause = (
+        Sequence(
+            OneOf(
+                Ref("ValuesClauseSegment"),
+                Sequence("SET", Delimited(Ref("SetClauseSegment"))),
+            ),
+            Ref("ReturningClauseSegment", optional=True),
+            optional=True,
+        ),
+    )
+
+    _error_logging_clause = Sequence(
+        "LOG",
+        "ERRORS",
+        Sequence("INTO", Ref("TableReferenceSegment"), optional=True),
+        Bracketed(Ref("ExpressionSegment"), optional=True),
+        Sequence(
+            "REJECT",
+            "LIMIT",
+            OneOf(Ref("NumericLiteralSegment"), "UNLIMITED"),
+            optional=True,
+        ),
+        optional=True,
+    )
+
+    _by_name_position_subquery_clause = Sequence(
+        Sequence("BY", OneOf("NAME", "POSITION"), optional=True),
+        Ref("SelectableGrammar"),
+    )
+
     match_grammar: Matchable = Sequence(
         "INSERT",
-        Ref.keyword("OVERWRITE", optional=True),
-        Ref.keyword("ALL", optional=True),
-        AnyNumberOf(
+        OneOf(
             Sequence(
-                "INTO",
-                OneOf(
-                    Ref("TableReferenceSegment"),
-                    Bracketed(Ref("SelectableGrammar")),
+                _insert_into_clause,
+                OneOf(*_insert_set_or_values_clause, _by_name_position_subquery_clause),
+                _error_logging_clause,
+            ),
+            Sequence(
+                "ALL",
+                AnyNumberOf(
+                    Sequence(
+                        _insert_into_clause,
+                        *_insert_set_or_values_clause,
+                        _error_logging_clause,
+                    )
                 ),
-                Ref("AliasExpressionSegment", optional=True),
-                Bracketed(Delimited(Ref("ColumnReferenceSegment")), optional=True),
-                OneOf(
-                    Sequence(
-                        Sequence("BY", OneOf("NAME", "POSITION"), optional=True),
-                        Ref("SelectableGrammar"),
-                    ),
-                    Sequence(
-                        Ref("BracketedColumnReferenceListGrammar"),
-                        Ref("SelectableGrammar"),
-                    ),
-                    Ref("DefaultValuesGrammar"),
-                    Sequence(
-                        "VALUES",
-                        Ref("SingleIdentifierGrammar"),
-                        Bracketed(Ref("SingleIdentifierGrammar"), optional=True),
-                        optional=True,
-                    ),
-                    Sequence("SET", Delimited(Ref("SetClauseSegment"))),
-                ),
-                Ref("ReturningClauseSegment", optional=True),
-                Sequence(
-                    "LOG",
-                    "ERRORS",
-                    Sequence("INTO", Ref("TableReferenceSegment"), optional=True),
-                    Bracketed(Ref("ExpressionSegment"), optional=True),
-                    Sequence(
-                        "REJECT",
-                        "LIMIT",
-                        OneOf(Ref("NumericLiteralSegment"), "UNLIMITED"),
-                        optional=True,
-                    ),
-                    optional=True,
-                ),
-            )
+                _by_name_position_subquery_clause,
+            ),
         ),
     )
 
@@ -3312,4 +3325,21 @@ class AlterSynonymStatementSegment(BaseSegment):
         Ref("IfExistsGrammar", optional=True),
         Ref("ObjectReferenceSegment"),
         OneOf("EDITIONABLE", "NONEDITIONABLE", "COMPILE"),
+    )
+
+
+class ValuesClauseSegment(BaseSegment):
+    """A `VALUES` clause like in `INSERT`."""
+
+    type = "values_clause"
+
+    match_grammar: Matchable = Sequence(
+        OneOf("VALUE", "VALUES"),
+        OptionallyBracketed(
+            Delimited(
+                "DEFAULT",
+                Ref("LiteralGrammar"),
+                Ref("ExpressionSegment"),
+            ),
+        ),
     )
