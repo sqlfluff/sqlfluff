@@ -2765,7 +2765,8 @@ class InsertStatementSegment(BaseSegment):
                         _insert_into_clause,
                         *_insert_set_or_values_clause,
                         _error_logging_clause,
-                    )
+                    ),
+                    min_times=1,
                 ),
                 _by_name_position_subquery_clause,
             ),
