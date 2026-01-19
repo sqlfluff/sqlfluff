@@ -641,7 +641,7 @@ class OutputStreamFormatter(FormatterInterface):
                 message=self.colorize(
                     f"  [{total_errors} templating/parsing errors found]", Color.red
                 ),
-                color=self.plain_output,
+                color=not self.plain_output,
                 err=True,
             )
 
