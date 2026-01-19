@@ -7,7 +7,7 @@ import sys
 import time
 from itertools import chain
 from logging import LogRecord
-from typing import Callable, Optional
+from typing import Callable, Optional, Union, cast
 
 import click
 
@@ -26,6 +26,7 @@ from sqlfluff.cli.outputstream import OutputStream, make_output_stream
 from sqlfluff.core import (
     FluffConfig,
     Linter,
+    SQLBaseError,
     SQLFluffUserError,
     SQLLintError,
     SQLParseError,
@@ -846,17 +847,23 @@ def _handle_unparsable(
             for record in path._records:
                 for v_dict in record.get("violations", []):
                     if v_dict.get("code") in ("TMP", "PRS"):
-                        if v_dict["code"] == "TMP":
-                            error = SQLTemplaterError(
-                                description=v_dict["description"],
-                                line_no=v_dict["start_line_no"],
-                                line_pos=v_dict["start_line_pos"],
+                        # Extract and convert values to proper types
+                        code = v_dict["code"]
+                        description = str(cast(str, v_dict["description"]))
+                        line_no = int(cast(Union[str, int], v_dict["start_line_no"]))
+                        line_pos = int(cast(Union[str, int], v_dict["start_line_pos"]))
+
+                        if code == "TMP":
+                            error: SQLBaseError = SQLTemplaterError(
+                                description=description,
+                                line_no=line_no,
+                                line_pos=line_pos,
                             )
                         else:  # PRS
                             error = SQLParseError(
-                                description=v_dict["description"],
-                                line_no=v_dict["start_line_no"],
-                                line_pos=v_dict["start_line_pos"],
+                                description=description,
+                                line_no=line_no,
+                                line_pos=line_pos,
                             )
                         tmp_prs_errors.append(error)
 

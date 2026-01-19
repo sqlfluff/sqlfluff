@@ -662,7 +662,7 @@ class OutputStreamFormatter(FormatterInterface):
 
                         click.echo(
                             message=self.colorize(f"  {error_message}", Color.red),
-                            color=self.plain_output,
+                            color=not self.plain_output,
                             err=True,
                         )
 
