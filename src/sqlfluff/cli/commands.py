@@ -833,35 +833,33 @@ def _handle_unparsable(
         return initial_exit_code
     total_errors, num_filtered_errors = linting_result.count_tmp_prs_errors()
     linting_result.discard_fixes_for_lint_errors_in_files_with_tmp_or_prs_errors()
-    
+
     # Get the actual templating/parsing errors for detailed reporting
     # Get violations using types parameter by accessing files directly
     tmp_prs_errors = []
     for path in linting_result.paths:
         for linted_file in path.files:
-            tmp_prs_errors.extend(
-                linted_file.get_violations(types=TMP_PRS_ERROR_TYPES)
-            )
-        
+            tmp_prs_errors.extend(linted_file.get_violations(types=TMP_PRS_ERROR_TYPES))
+
         # If no files retained, get from records as fallback
-        if not path.files and hasattr(path, '_records'):
+        if not path.files and hasattr(path, "_records"):
             for record in path._records:
-                for v_dict in record.get('violations', []):
-                    if v_dict.get('code') in ('TMP', 'PRS'):
-                        if v_dict['code'] == 'TMP':
+                for v_dict in record.get("violations", []):
+                    if v_dict.get("code") in ("TMP", "PRS"):
+                        if v_dict["code"] == "TMP":
                             error = SQLTemplaterError(
-                                description=v_dict['description'],
-                                line_no=v_dict['start_line_no'],
-                                line_pos=v_dict['start_line_pos']
+                                description=v_dict["description"],
+                                line_no=v_dict["start_line_no"],
+                                line_pos=v_dict["start_line_pos"],
                             )
                         else:  # PRS
                             error = SQLParseError(
-                                description=v_dict['description'],
-                                line_no=v_dict['start_line_no'],
-                                line_pos=v_dict['start_line_pos']
+                                description=v_dict["description"],
+                                line_no=v_dict["start_line_no"],
+                                line_pos=v_dict["start_line_pos"],
                             )
                         tmp_prs_errors.append(error)
-    
+
     formatter.print_out_residual_error_counts(
         total_errors, num_filtered_errors, tmp_prs_errors, force_stderr=True
     )
