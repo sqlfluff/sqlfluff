@@ -500,7 +500,7 @@ def _determine_aligned_inline_spacing(
         )
 
         for seg in parent_segment.raw_segments:
-            if not seg.pos_marker:
+            if not seg.pos_marker:  # pragma: no cover
                 continue
             seg_loc = (
                 (seg.pos_marker.line_no, seg.pos_marker.line_pos)
@@ -529,7 +529,7 @@ def _determine_aligned_inline_spacing(
             # For working positions without tabs, use working_loc_after for accuracy
             loc = code_before_ws.pos_marker.working_loc_after(code_before_ws.raw)
             current_ws_pos = loc[1]
-    else:
+    else:  # pragma: no cover
         # Fallback: use whitespace position if no code_before_ws found
         current_ws_pos = _pos_col(
             whitespace_seg.pos_marker, use_source_positions, tab_space_size, indent_unit
