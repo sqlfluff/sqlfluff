@@ -420,15 +420,12 @@ def test__api__fix_string():
     # Check return types.
     assert isinstance(result, str)
     # Check actual result
-    assert (
-        result
-        == """SELECT
+    assert result == """SELECT
     *,
     1,
     blah AS foo
 FROM mytable
 """
-    )
 
 
 def test__api__fix_string_specific():
@@ -462,12 +459,9 @@ FROM my_schema.my_table
 where processdate ! 3"""
     result = sqlfluff.fix(bad_query, rules=["CP01"], fix_even_unparsable=True)
     # Check fix result: should be fixed because we overrode fix_even_unparsable.
-    assert (
-        result
-        == """SELECT my_col
+    assert result == """SELECT my_col
 FROM my_schema.my_table
 WHERE processdate ! 3"""
-    )
 
 
 def test__api__parse_string():
@@ -496,12 +490,9 @@ def test__api__parse_fail():
         # Check there are two violations in there.
         assert len(err.violations) == 2
         # Check it prints nicely.
-        assert (
-            str(err)
-            == """Found 2 issues while parsing string.
+        assert str(err) == """Found 2 issues while parsing string.
 Line 1, Position 15: Found unparsable section: '+++'
 Line 1, Position 41: Found unparsable section: 'blah'"""
-        )
 
 
 def test__api__config_path():

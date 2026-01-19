@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """Micro-benchmark to investigate Rust parser overhead on small SQL files."""
+
 import time
 
 import sqlfluffrs
