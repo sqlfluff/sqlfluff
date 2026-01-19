@@ -1313,12 +1313,4 @@ mod tests {
             assert_eq!((is_literal, source_slice), (literal_test, out_slice));
         }
     }
-
-    // #[test]
-    // fn test_raw_templater() {
-    //     let mut t = RawTemplater::new();
-    //     let instr = "SELECT * FROM {{blah}}";
-    //     let tf = t.process(instr, "test");
-    //     assert_eq!(instr, &tf.source_str);
-    // }
 }
