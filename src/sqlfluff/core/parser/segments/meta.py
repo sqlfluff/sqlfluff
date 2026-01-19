@@ -242,6 +242,7 @@ class TemplateSegment(MetaSegment):
         code_only: bool = False,
         show_raw: bool = False,
         include_meta: bool = False,
+        include_position: bool = False,
     ) -> TupleSerialisedSegment:
         """Return a tuple structure from this segment.
 
@@ -257,7 +258,7 @@ class TemplateSegment(MetaSegment):
         base_tuple: tuple[str, str] = (self.get_type(), self.source_str)
 
         # Add position as third element only if requested
-        if include_meta and self.pos_marker:
+        if include_position and self.pos_marker:
             pos_dict = self.pos_marker.to_source_dict()
             return cast(TupleSerialisedSegment, base_tuple + (pos_dict,))
         else:
