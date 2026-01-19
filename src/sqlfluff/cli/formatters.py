@@ -648,21 +648,14 @@ class OutputStreamFormatter(FormatterInterface):
             # Show detailed error information for templating/parsing errors
             if tmp_prs_errors:
                 for error in tmp_prs_errors:
-                    if hasattr(error, "line_no"):
-                        line_no = error.line_no if error.line_no is not None else 1
-                        line_pos = getattr(error, "line_pos", 1)
-                        line_elem, pos_elem = self._format_line_and_pos(
-                            line_no, line_pos
-                        )
-                        rule_code = error.rule_code().rjust(4)
-
-                        error_message = f"L:{line_elem} | P:{pos_elem}| {rule_code} | {error.desc()}"  # noqa
-
-                        click.echo(
-                            message=self.colorize(f"  {error_message}", Color.red),
-                            color=not self.plain_output,
-                            err=True,
-                        )
+                    formatted_error = self.format_violation(
+                        violation=error, max_line_length=self.output_line_length
+                    )
+                    click.echo(
+                        message=self.colorize(f"  {formatted_error}", Color.red),
+                        color=not self.plain_output,
+                        err=True,
+                    )
 
             if num_filtered_errors < total_errors:
                 color = Color.red if num_filtered_errors else Color.green
