@@ -581,7 +581,7 @@ def test_delayed_exception():
 
 
 def test__attempt_to_change_templater_warning():
-    """Test warning when changing templater in .sqlfluff file in subdirectory."""
+    """Test that changing templater per-file actually works (no longer warns)."""
     initial_config = FluffConfig(
         configs={"core": {"templater": "jinja", "dialect": "ansi"}}
     )
@@ -589,14 +589,17 @@ def test__attempt_to_change_templater_warning():
     updated_config = FluffConfig(
         configs={"core": {"templater": "python", "dialect": "ansi"}}
     )
-    with fluff_log_catcher(logging.WARNING, "sqlfluff.linter") as caplog:
-        lntr.render_string(
-            in_str="select * from table",
-            fname="test.sql",
-            config=updated_config,
-            encoding="utf-8",
-        )
-    assert "Attempt to set templater to " in caplog.text
+    # The templater should now be changed to python, not warned about
+    result = lntr.render_string(
+        in_str="select * from table",
+        fname="test.sql",
+        config=updated_config,
+        encoding="utf-8",
+    )
+    # Verify the result was successfully rendered
+    assert result.templated_variants
+    # Verify no templater errors occurred
+    assert not result.templater_violations
 
 
 def test_advanced_api_methods():
