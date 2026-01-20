@@ -1,0 +1,284 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 3d5e3e7e446bb59f7fe974bc5c247cb4f1061e02d3d63f1a186c6af6014d67e3
+file:
+- statement:
+    create_flow_statement:
+    - keyword: CREATE
+    - keyword: FLOW
+    - flow_reference:
+        naked_identifier: flowname
+    - keyword: AS
+    - keyword: AUTO
+    - keyword: CDC
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: target
+    - cdc_specification_segment:
+      - from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              keyword: stream
+              bracketed:
+                start_bracket: (
+                table_expression:
+                  table_reference:
+                  - naked_identifier: cdc_data
+                  - dot: .
+                  - naked_identifier: users
+                end_bracket: )
+      - keyword: KEYS
+      - bracketed:
+          start_bracket: (
+          column_reference:
+            naked_identifier: userId
+          end_bracket: )
+      - keyword: APPLY
+      - keyword: AS
+      - keyword: DELETE
+      - keyword: WHEN
+      - column_reference:
+          naked_identifier: operation
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: '"DELETE"'
+      - keyword: APPLY
+      - keyword: AS
+      - keyword: TRUNCATE
+      - keyword: WHEN
+      - column_reference:
+          naked_identifier: operation
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: '"TRUNCATE"'
+      - keyword: SEQUENCE
+      - keyword: BY
+      - column_reference:
+          naked_identifier: sequenceNum
+      - keyword: COLUMNS
+      - star: '*'
+      - keyword: EXCEPT
+      - bracketed:
+        - start_bracket: (
+        - column_reference:
+            naked_identifier: operation
+        - comma: ','
+        - column_reference:
+            naked_identifier: sequenceNum
+        - end_bracket: )
+      - keyword: STORED
+      - keyword: AS
+      - keyword: SCD
+      - keyword: TYPE
+      - numeric_literal: '1'
+- statement_terminator: ;
+- statement:
+    create_flow_statement:
+    - keyword: CREATE
+    - keyword: FLOW
+    - flow_reference:
+        naked_identifier: target_flow
+    - keyword: AS
+    - keyword: AUTO
+    - keyword: CDC
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: target
+    - cdc_specification_segment:
+      - from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              keyword: stream
+              bracketed:
+                start_bracket: (
+                table_expression:
+                  table_reference:
+                  - naked_identifier: cdc_data
+                  - dot: .
+                  - naked_identifier: users
+                end_bracket: )
+      - keyword: KEYS
+      - bracketed:
+          start_bracket: (
+          column_reference:
+            naked_identifier: userId
+          end_bracket: )
+      - keyword: APPLY
+      - keyword: AS
+      - keyword: DELETE
+      - keyword: WHEN
+      - column_reference:
+          naked_identifier: operation
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: '"DELETE"'
+      - keyword: SEQUENCE
+      - keyword: BY
+      - column_reference:
+          naked_identifier: sequenceNum
+      - keyword: COLUMNS
+      - star: '*'
+      - keyword: EXCEPT
+      - bracketed:
+        - start_bracket: (
+        - column_reference:
+            naked_identifier: operation
+        - comma: ','
+        - column_reference:
+            naked_identifier: sequenceNum
+        - end_bracket: )
+      - keyword: STORED
+      - keyword: AS
+      - keyword: SCD
+      - keyword: TYPE
+      - numeric_literal: '2'
+- statement_terminator: ;
+- statement:
+    create_flow_statement:
+    - keyword: CREATE
+    - keyword: FLOW
+    - flow_reference:
+        naked_identifier: target_flow
+    - keyword: AS
+    - keyword: AUTO
+    - keyword: CDC
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: target
+    - cdc_specification_segment:
+      - from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              keyword: stream
+              bracketed:
+                start_bracket: (
+                table_expression:
+                  table_reference:
+                  - naked_identifier: cdc_data
+                  - dot: .
+                  - naked_identifier: users
+                end_bracket: )
+      - keyword: KEYS
+      - bracketed:
+          start_bracket: (
+          column_reference:
+            naked_identifier: userId
+          end_bracket: )
+      - keyword: APPLY
+      - keyword: AS
+      - keyword: DELETE
+      - keyword: WHEN
+      - column_reference:
+          naked_identifier: operation
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: '"DELETE"'
+      - keyword: SEQUENCE
+      - keyword: BY
+      - column_reference:
+          naked_identifier: sequenceNum
+      - keyword: COLUMNS
+      - star: '*'
+      - keyword: EXCEPT
+      - bracketed:
+        - start_bracket: (
+        - column_reference:
+            naked_identifier: operation
+        - comma: ','
+        - column_reference:
+            naked_identifier: sequenceNum
+        - end_bracket: )
+      - keyword: STORED
+      - keyword: AS
+      - keyword: SCD
+      - keyword: TYPE
+      - numeric_literal: '2'
+      - keyword: TRACK
+      - keyword: HISTORY
+      - keyword: 'ON'
+      - star: '*'
+      - keyword: EXCEPT
+      - bracketed:
+          start_bracket: (
+          column_reference:
+            naked_identifier: city
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_flow_statement:
+    - keyword: CREATE
+    - keyword: FLOW
+    - flow_reference:
+        naked_identifier: flow
+    - keyword: AS
+    - keyword: AUTO
+    - keyword: CDC
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: target
+    - cdc_specification_segment:
+      - from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              keyword: stream
+              bracketed:
+                start_bracket: (
+                table_expression:
+                  table_reference:
+                  - naked_identifier: cdc_data
+                  - dot: .
+                  - naked_identifier: users
+                end_bracket: )
+      - keyword: KEYS
+      - bracketed:
+          start_bracket: (
+          column_reference:
+            naked_identifier: userId
+          end_bracket: )
+      - keyword: APPLY
+      - keyword: AS
+      - keyword: DELETE
+      - keyword: WHEN
+      - column_reference:
+          naked_identifier: operation
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - quoted_literal: '"DELETE"'
+      - keyword: SEQUENCE
+      - keyword: BY
+      - column_reference:
+          naked_identifier: sequenceNum
+      - keyword: COLUMNS
+      - star: '*'
+      - keyword: EXCEPT
+      - bracketed:
+        - start_bracket: (
+        - column_reference:
+            naked_identifier: operation
+        - comma: ','
+        - column_reference:
+            naked_identifier: sequenceNum
+        - end_bracket: )
+      - keyword: STORED
+      - keyword: AS
+      - keyword: SCD
+      - keyword: TYPE
+      - numeric_literal: '2'
+      - keyword: TRACK
+      - keyword: HISTORY
+      - keyword: 'ON'
+      - star: '*'
+      - keyword: EXCEPT
+      - bracketed:
+          start_bracket: (
+          column_reference:
+            naked_identifier: city
+          end_bracket: )
+- statement_terminator: ;

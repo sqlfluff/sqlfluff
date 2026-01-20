@@ -239,17 +239,15 @@ def generate_extract_nested_block_comments(dialect: str):
     Since this function is now shared across all dialects, we just need
     to generate a wrapper that passes the dialect name to the shared implementation.
     """
-    print(
-        f"""
+    print(f"""
 // Wrapper function that passes the dialect name to the shared implementation
 fn extract_nested_block_comment(input: &str) -> Option<&str> {{
     crate::extract_nested_block_comment(input, "{dialect}")
-}}"""
-    )
+}}""")
 
 
 if __name__ == "__main__":
-    sys.stdout.reconfigure(newline="\n")  # Force LF line endings
+    sys.stdout.reconfigure(newline="\n", encoding="utf-8")  # Force LF line endings
     parser = argparse.ArgumentParser(
         description="Build generated Rust output for a dialect."
     )
