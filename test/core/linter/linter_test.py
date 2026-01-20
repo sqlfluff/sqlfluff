@@ -602,6 +602,50 @@ def test__attempt_to_change_templater_warning():
     assert not result.templater_violations
 
 
+def test__inline_dialect_config():
+    """Test that inline dialect configuration is respected."""
+    # SQL with T-SQL specific syntax (SELECT TOP)
+    sql = """-- sqlfluff:dialect:tsql
+SELECT TOP 10 * FROM users;
+"""
+    # Create linter without a dialect specified
+    config = FluffConfig.from_kwargs(require_dialect=False)
+    linter = Linter(config=config)
+
+    # Lint the string - should pick up inline dialect
+    result = linter.lint_string(sql)
+
+    # Should parse successfully (no fatal errors)
+    assert not any(v.fatal for v in result.violations)
+    # Verify it was parsed (has a tree)
+    assert result.tree is not None
+
+
+def test__inline_templater_config():
+    """Test that inline templater configuration is respected."""
+    # SQL with placeholder syntax
+    sql = """-- sqlfluff:dialect:ansi
+-- sqlfluff:templater:placeholder
+-- sqlfluff:templater:placeholder:param_style:question_mark
+-- sqlfluff:templater:placeholder:1:'test_value'
+SELECT * FROM table WHERE col = ?;
+"""
+    # Create linter with jinja templater (default)
+    config = FluffConfig(
+        configs={"core": {"templater": "jinja"}}, require_dialect=False
+    )
+    linter = Linter(config=config)
+
+    # Lint the string - should pick up inline templater config
+    result = linter.lint_string(sql)
+
+    # Should parse successfully
+    assert not any(v.fatal for v in result.violations)
+    assert result.tree is not None
+    # Verify placeholder was replaced (no ? in parsed tree)
+    assert "?" not in result.tree.raw
+
+
 def test_advanced_api_methods():
     """Test advanced API methods on segments."""
     # These aren't used by the simple API, which returns
