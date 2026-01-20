@@ -4,6 +4,7 @@ use crate::slice::Slice;
 pub struct SourceFix {
     edit: String,
     source_slice: Slice,
+    #[allow(dead_code)]
     templated_slice: Slice,
 }
 

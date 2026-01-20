@@ -1287,7 +1287,9 @@ def quoted_presenter(dumper, data):
     is_flag=True,
     help=(
         "Include meta segments (indents, dedents and placeholders) in the output. "
-        "This only applies when outputting json or yaml."
+        "When outputting JSON or YAML, this also includes position information for "
+        "each segment with six fields: start_line_no, start_line_pos, start_file_pos, "
+        "end_line_no, end_line_pos, and end_file_pos."
     ),
 )
 @click.option(
@@ -1419,7 +1421,10 @@ def parse(
             if root_variant:
                 assert root_variant.tree
                 segments = root_variant.tree.as_record(
-                    code_only=code_only, show_raw=True, include_meta=include_meta
+                    code_only=code_only,
+                    show_raw=True,
+                    include_meta=include_meta,
+                    include_position=include_meta,
                 )
             else:
                 # Parsing failed - return null for segments.
