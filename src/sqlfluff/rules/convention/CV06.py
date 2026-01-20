@@ -456,6 +456,86 @@ class Rule_CV06(BaseRule):
             )
         return None  # pragma: no cover
 
+    def _handle_unparsable(
+        self, unparsable_segment: BaseSegment, parent_statement: BaseSegment
+    ) -> Optional[LintResult]:
+        """Add a semicolon before an unparsable section within a statement.
+
+        When there's an unparsable section within a statement, it usually means
+        the statement is missing a semicolon before the unparsable content.
+        We need to find the last code segment before the unparsable section
+        and add a semicolon after it.
+        """
+        # Find the last code segment before the unparsable section in the statement
+        anchor_segment = None
+        before_segment = []
+        
+        for seg in parent_statement.segments:
+            if seg is unparsable_segment:
+                break
+            if seg.is_code:
+                anchor_segment = seg
+            elif not seg.is_meta:
+                before_segment.append(seg)
+        
+        if not anchor_segment:
+            # No code segment found before unparsable, cannot fix
+            return None
+        
+        self.logger.debug("Unparsable segment found, adding semicolon after: %s", anchor_segment)
+        
+        # Determine if we need a newline before the semicolon
+        # Check if the statement (up to the unparsable section) is multiline
+        is_one_line = self._is_one_line_statement(parent_statement, anchor_segment)
+        semicolon_newline = self.multiline_newline if not is_one_line else False
+        
+        # Create the fix
+        if not semicolon_newline:
+            # Semicolon on same line
+            fixes = [
+                LintFix.create_after(
+                    self._choose_anchor_segment(
+                        parent_statement,
+                        "create_after",
+                        anchor_segment,
+                        filter_meta=True,
+                    ),
+                    [
+                        SymbolSegment(raw=";", type="statement_terminator"),
+                    ],
+                )
+            ]
+        else:
+            # Semicolon on new line
+            # Adjust before_segment and anchor_segment for inline comments
+            (
+                before_segment,
+                anchor_segment,
+            ) = self._handle_preceding_inline_comments(
+                before_segment, anchor_segment
+            )
+            fixes = [
+                LintFix.create_after(
+                    self._choose_anchor_segment(
+                        parent_statement,
+                        "create_after",
+                        anchor_segment,
+                        filter_meta=True,
+                    ),
+                    [
+                        NewlineSegment(),
+                        SymbolSegment(raw=";", type="statement_terminator"),
+                    ],
+                )
+            ]
+        
+        # Use the anchor_segment as the trigger, not the unparsable segment
+        # This ensures the fix passes the filter
+        return LintResult(
+            anchor=anchor_segment,
+            fixes=fixes,
+        )
+
     def _eval(self, context: RuleContext) -> list[LintResult]:
         """Statements must end with a semi-colon."""
         # Config type hints
@@ -489,10 +569,27 @@ class Rule_CV06(BaseRule):
 
                     if self._is_segment_semicolon(seg):
                         res = self._handle_semicolon(seg, container)
+                # Handle statements containing unparsable sections
+                # This indicates a missing semicolon before the unparsable content
+                elif seg.is_type("statement"):
+                    # Check if this statement contains an unparsable section (recursively)
+                    unparsable_segments = list(seg.recursive_crawl("unparsable"))
+                    if unparsable_segments:
+                        # Get the actual SQL statement (e.g., select_statement)
+                        # which is the direct parent of the unparsable section
+                        for sql_stmt in seg.segments:
+                            if sql_stmt.is_code:
+                                # Check if this code segment contains unparsable
+                                inner_unparsable = list(sql_stmt.recursive_crawl("unparsable"))
+                                if inner_unparsable:
+                                    self.logger.debug("Handling statement with unparsable section")
+                                    res = self._handle_unparsable(inner_unparsable[0], sql_stmt)
+                                    break
                 # Otherwise handle the end of the container separately.
                 # Only check for final semicolon at the file level, not batch level
-                elif (
-                    self.require_final_semicolon
+                if (
+                    not res  # Only if we haven't already created a result
+                    and self.require_final_semicolon
                     and container is context.segment  # Only for file, not batch
                     and idx == len(container.segments) - 1
                 ):
