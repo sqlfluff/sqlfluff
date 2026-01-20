@@ -5,7 +5,6 @@
 NB: This is not part of the core sqlfluff code.
 """
 
-
 # This contains various utility scripts
 
 import os

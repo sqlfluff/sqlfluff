@@ -68,8 +68,7 @@ def generate_dialect_enum():
             for d in dialect_readout()
         ]
     )
-    print(
-        f"""
+    print(f"""
 #[derive(Debug, Eq, PartialEq, Hash, Copy, Clone)]
 pub enum Dialect {{
     {dialects},
@@ -116,8 +115,7 @@ impl FromStr for Dialect {{
             _ => Err(()),
         }}
     }}
-}}"""
-    )
+}}""")
 
 
 if __name__ == "__main__":
