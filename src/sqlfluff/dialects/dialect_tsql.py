@@ -463,7 +463,9 @@ tsql_dialect.replace(
             r"[A-Z_\p{L}][A-Z0-9_@$#\p{L}]*",
             IdentifierSegment,
             type="naked_identifier",
-            anti_template=r"^(" + r"|".join(dialect.sets("reserved_keywords")) + r")$",
+            anti_template=r"^("
+            + r"|".join(sorted(dialect.sets("reserved_keywords")))
+            + r")$",
             casefold=str.upper,
         )
     ),
@@ -531,7 +533,9 @@ tsql_dialect.replace(
             CodeSegment,
             type="function_name_identifier",
             anti_template=r"^("
-            + r"|".join(dialect.sets("reserved_keywords").difference({"UPDATE"}))
+            + r"|".join(
+                sorted(dialect.sets("reserved_keywords").difference({"UPDATE"}))
+            )
             + r")$",
         )
     ),
@@ -546,7 +550,7 @@ tsql_dialect.replace(
                 type="data_type_identifier",
                 # anti_template=r"^(NOT)$",
                 anti_template=r"^("
-                + r"|".join(dialect.sets("reserved_keywords"))
+                + r"|".join(sorted(dialect.sets("reserved_keywords")))
                 + r")$",
                 # TODO - this is a stopgap until we implement explicit data types
             ),
@@ -3299,7 +3303,10 @@ class CreateSequenceOptionsSegment(BaseSegment):
 
 
 class NextValueSequenceSegment(BaseSegment):
-    """Segment to get next value from a sequence."""
+    """Segment to get next value from a sequence.
+
+    https://learn.microsoft.com/en-us/sql/t-sql/functions/next-value-for-transact-sql
+    """
 
     type = "sequence_next_value"
     match_grammar = Sequence(
@@ -3307,6 +3314,11 @@ class NextValueSequenceSegment(BaseSegment):
         "VALUE",
         "FOR",
         Ref("ObjectReferenceSegment"),
+        Sequence(
+            "OVER",
+            Bracketed(Ref("OrderByClauseSegment")),
+            optional=True,
+        ),
     )
 
 

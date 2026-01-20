@@ -1313,6 +1313,9 @@ class StatementSegment(sparksql.StatementSegment):
             Ref("UnsetTagStatementSegment"),
             # Notebook grammar
             Ref("MagicCellStatementSegment"),
+            # Databricks - Delta Live Tables
+            Ref("ApplyChangesIntoStatementSegment"),
+            Ref("CreateFlowStatementSegment"),
         ]
     )
 
@@ -1840,4 +1843,137 @@ class SetVariableStatementSegment(BaseSegment):
             set_bracketed,
         ),
         allow_gaps=True,
+    )
+
+
+class CDCSpecificationSegment(BaseSegment):
+    """The segment shared by APPLY CHANGES INTO and CREATE FLOW...AUTO CDC INTO.
+
+    Used for specifying the data location and rules for ingesting a CDC data source
+    """
+
+    type = "cdc_specification_segment"
+
+    match_grammar = Sequence(
+        Ref("FromClauseSegment"),
+        Sequence(
+            "KEYS",
+            Indent,
+            Ref("BracketedColumnReferenceListGrammar"),
+            Dedent,
+        ),
+        Sequence("IGNORE", "NULL", "UPDATES", optional=True),
+        Ref("WhereClauseSegment", optional=True),
+        AnyNumberOf(
+            Sequence(
+                "APPLY",
+                "AS",
+                OneOf("DELETE", "TRUNCATE"),
+                "WHEN",
+                Ref("ColumnReferenceSegment"),
+                Ref("EqualsSegment"),
+                Ref("QuotedLiteralSegment"),
+            ),
+            # NB: Setting max_times to allow for one instance
+            #     of DELETE and TRUNCATE at most
+            max_times=2,
+        ),
+        Sequence(
+            "SEQUENCE",
+            "BY",
+            Ref("ColumnReferenceSegment"),
+        ),
+        Sequence(
+            "COLUMNS",
+            OneOf(
+                Delimited(
+                    Ref("ColumnReferenceSegment"),
+                ),
+                Sequence(
+                    Ref("StarSegment"),
+                    "EXCEPT",
+                    Ref("BracketedColumnReferenceListGrammar"),
+                ),
+            ),
+            optional=True,
+        ),
+        Sequence(
+            "STORED",
+            "AS",
+            "SCD",
+            "TYPE",
+            Ref("NumericLiteralSegment"),
+            optional=True,
+        ),
+        Sequence(
+            "TRACK",
+            "HISTORY",
+            "ON",
+            OneOf(
+                Delimited(
+                    Ref("ColumnReferenceSegment"),
+                ),
+                Sequence(
+                    Ref("StarSegment"),
+                    "EXCEPT",
+                    Ref("BracketedColumnReferenceListGrammar"),
+                ),
+            ),
+            optional=True,
+        ),
+    )
+
+
+class ApplyChangesIntoStatementSegment(BaseSegment):
+    """A statement to ingest CDC data into a target table.
+
+    https://docs.databricks.com/workflows/delta-live-tables/delta-live-tables-cdc.html#sql
+    """
+
+    type = "apply_changes_into_statement"
+
+    match_grammar = Sequence(
+        Sequence(
+            "APPLY",
+            "CHANGES",
+            "INTO",
+        ),
+        Indent,
+        Ref("TableExpressionSegment"),
+        Dedent,
+        Ref("CDCSpecificationSegment"),
+    )
+
+
+class FlowReferenceSegment(ObjectReferenceSegment):
+    """A reference to a flow."""
+
+    type = "flow_reference"
+
+
+class CreateFlowStatementSegment(BaseSegment):
+    """A statement for creating a flow to ingest CDC data into a target table.
+
+    https://docs.databricks.com/aws/en/ldp/flows
+    https://docs.databricks.com/aws/en/ldp/developer/ldp-sql-ref-apply-changes-into
+    """
+
+    type = "create_flow_statement"
+
+    match_grammar = Sequence(
+        Sequence(
+            "CREATE",
+            "FLOW",
+        ),
+        Ref("FlowReferenceSegment"),
+        Sequence(
+            "AS",
+            "AUTO",
+            "CDC",
+            "INTO",
+        ),
+        Indent,
+        Ref("TableReferenceSegment"),
+        Dedent,
+        Ref("CDCSpecificationSegment"),
     )
