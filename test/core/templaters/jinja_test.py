@@ -1929,7 +1929,10 @@ def test__templater_jinja_dotted_context_config():
 
     t = JinjaTemplater()
     outstr, _ = t.process(
-        in_str="SELECT * FROM `{{ namespace.projectname }}.{{ namespace.env }}_test.table`",
+        in_str=(
+            "SELECT * FROM `{{ namespace.projectname }}."
+            "{{ namespace.env }}_test.table`"
+        ),
         fname="test.sql",
         config=config,
     )
