@@ -366,7 +366,3 @@ impl LexMatcher {
         )
     }
 }
-
-// TODO: implement python passthroughs
-#[cfg(feature = "python")]
-pub mod python {}

@@ -197,8 +197,13 @@ oracle_dialect.sets("unreserved_keywords").update(
     [
         "ABSENT",
         "ACCESSIBLE",
+        "ADMINISTER",
+        "ADVISOR",
+        "ANALYTIC",
+        "ARCHIVE",
         "AUTHENTICATED",
         "AUTHID",
+        "BECOME",
         "BODY",
         "BULK",
         "BULK_EXCEPTIONS",
@@ -209,27 +214,48 @@ oracle_dialect.sets("unreserved_keywords").update(
         "COMPOUND",
         "CONSTANT",
         "CONTAINER",
+        "CONTEXT",
         "CROSSEDITION",
         "CURSOR",
+        "DBA_RECYCLEBIN",
         "DEBUG",
+        "DELEGATE",
         "DIGEST",
+        "DIMENSION",
+        "DIRECTIVE",
+        "DIRECTORIES",
+        "DIRECTORY",
+        "EDITION",
         "EDITIONABLE",
         "EDITIONING",
+        "EDITIONS",
         "ELSIF",
         "ERROR",
         "ERRORS",
+        "EXEMPT",
         "EXPIRE",
         "EXTERNALLY",
+        "FINE",
+        "FLASHBACK",
         "FOLLOWS",
         "FORALL",
         "GLOBALLY",
+        "HIERARCHY",
         "HTTP",
         "INDICES",
+        "INHERITANY",
         "ISOPEN",
+        "JAVA",
+        "JOB",
         "KEEP",
+        "LIBRARY",
         "LINK",
+        "LOCKDOWN",
         "LOG",
+        "LOGMINING",
         "LOOP",
+        "MEASURE",
+        "MINING",
         "MUTABLE",
         "NESTED",
         "NEXTVAL",
@@ -239,31 +265,47 @@ oracle_dialect.sets("unreserved_keywords").update(
         "NONEDITIONABLE",
         "NOTFOUND",
         "OID",
+        "OUTLINE",
         "PACKAGE",
         "PAIRS",
         "PARALLEL_ENABLE",
         "PARENT",
         "PERSISTABLE",
         "PIPELINED",
+        "PLUGGABLE",
         "POLYMORPHIC",
         "PRAGMA",
         "PRECEDES",
+        "PRIVILEGE",
         "PROFILE",
+        "PROGRAM",
+        "PROPERTY",
+        "QUERY",
         "QUOTA",
         "RAISE",
         "RECORD",
+        "REDACTION",
+        "REDEFINE",
+        "REFRESH",
         "REJECT",
         "RELIES_ON",
+        "REMOTE",
+        "RESTRICTED",
         "RESULT_CACHE",
+        "RESUMABLE",
         "RETURNING",
         "REUSE",
         "REVERSE",
+        "REWRITE",
         "ROWTYPE",
+        "SCHEDULER",
         "SHARD_ENABLE",
         "SHARED",
         "SHARING",
+        "SIGN",
         "SPECIFICATION",
         "SQL_MACRO",
+        "SYSGUID",
         "UNLIMITED",
         "VARRAY",
     ]
@@ -3331,6 +3373,236 @@ class AlterSynonymStatementSegment(BaseSegment):
     )
 
 
+class AccessStatementSegment(BaseSegment):
+    """A `GRANT` or `REVOKE` statement.
+
+    https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/GRANT.html
+    https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/REVOKE.html
+    """
+
+    type = "access_statement"
+
+    _privileges = OneOf(
+        "ADMINISTER",
+        "ADVISOR",
+        "ALL",
+        "ALTER",
+        "ANALYZE",
+        "AUDIT",
+        "BACKUP",
+        Sequence("BECOME", "USER"),
+        Sequence("CHANGE", "NOTIFICATION"),
+        "COMMENT",
+        "CREATE",
+        "DEBUG",
+        "DELETE",
+        "DROP",
+        Sequence("ENABLE", "DIAGNOSTICS"),
+        "EXECUTE",
+        "EXEMPT",
+        Sequence(
+            "FLASHBACK",
+            Ref.keyword("ARCHIVE", optional=True),
+            Ref.keyword("ADMINISTER", optional=True),
+        ),
+        "FORCE",
+        "GRANT",
+        "INDEX",
+        "INHERIT",
+        "INSERT",
+        "KEEP",
+        "LOCK",
+        "LOGMINING",
+        "MANAGE",
+        "MERGE",
+        Sequence("ON", "COMMIT", "REFRESH"),
+        "PURGE",
+        Sequence(Ref.keyword("GLOBAL", optional=True), "QUERY", "REWRITE"),
+        "READ",
+        "REDEFINE",
+        "REFERENCES",
+        "RESTRICTED",
+        "RESUMABLE",
+        "SELECT",
+        "SET",
+        "SIGN",
+        Sequence("TABLE", "RETENTION"),
+        "TRANSLATE",
+        "UNDER",
+        "UNLIMITED",
+        "UPDATE",
+        "USE",
+        "WRITE",
+    )
+
+    _object_types = OneOf(
+        Sequence("ACCESS", "POLICY"),
+        Sequence("ANALYTIC", "VIEW"),
+        Sequence("ATTRIBUTE", "DIMENSION"),
+        "CLASS",
+        "CLUSTER",
+        Sequence("CONNECT", "SESSION"),
+        "CONTAINER",
+        "CONTEXT",
+        Sequence(
+            "CUBE", OneOf("DIMENSION", Sequence("BUILD", "PROCESS"), optional=True)
+        ),
+        Sequence("DATABASE", OneOf("LINK", "TRIGGER", optional=True)),
+        Sequence("DATE", "TIME"),
+        "DBA_RECYCLEBIN",
+        "DICTIONARY",
+        "DIMENSION",
+        "DIRECTIVE",
+        "DIRECTORY",
+        "DOMAIN",
+        "EDITION",
+        Sequence("FINE", "GRAINED", "AUDIT", "POLICY"),
+        "HIERARCHY",
+        "INDEX",
+        "INDEXTYPE",
+        Sequence(
+            Ref.keyword("EXTERNAL", optional=True),
+            "JOB",
+            Ref.keyword("RESOURCE", optional=True),
+        ),
+        Sequence("KEY", "MANAGEMENT"),
+        "LIBRARY",
+        Sequence("LOCKDOWN", "PROFILE"),
+        Sequence("MATERIALIZED", "VIEW"),
+        Sequence("MEASURE", "FOLDER"),
+        Sequence("MINING", "MODEL"),
+        Sequence("OBJECT", Ref.keyword("PRIVILEGE", optional=True)),
+        "OPERATOR",
+        "OUTLINE",
+        Sequence("LOCKDOWN", "PROFILE"),
+        Sequence("PLUGGABLE", "DATABASE"),
+        "PRIVILEGE",
+        "PRIVILEGES",
+        "PROCEDURE",
+        "PROFILE",
+        "PROGRAM",
+        Sequence("PROPERTY", "GRAPH"),
+        Sequence("REDACTION", "POLICY"),
+        Sequence(Ref.keyword("REMOTE", optional=True), "PRIVILEGES"),
+        Sequence("RESOURCE", "COST"),
+        "ROLE",
+        Sequence("ROLLBACK", "SEGMENT"),
+        Sequence("ROW", "LEVEL", "SECURITY", "POLICY"),
+        "SCHEDULER",
+        "SEQUENCE",
+        "SESSION",
+        Sequence(
+            "SQL",
+            OneOf(
+                "FIREWALL",
+                Sequence("MANAGEMENT", "OBJECT"),
+                "PROFILE",
+                Sequence("TRANSLATION", "PROFILE"),
+                Sequence("TUNING", "SET"),
+                optional=True,
+            ),
+        ),
+        "SYNONYM",
+        "SYSGUID",
+        "SYSTEM",
+        "TABLE",
+        "TABLESPACE",
+        "TRANSACTION",
+        "TRIGGER",
+        "TYPE",
+        "USER",
+        "VIEW",
+        optional=True,
+    )
+
+    _object_privileges = Sequence(
+        _privileges,
+        OneOf("ANY", "PUBLIC", optional=True),
+        _object_types,
+    )
+
+    _grantee_clause = Delimited(OneOf(Ref("RoleReferenceSegment"), "PUBLIC"))
+
+    _system_schema_privileges_segment = Sequence(
+        Delimited(
+            OneOf(
+                _object_privileges,
+                Ref("RoleReferenceSegment"),
+            )
+        ),
+        Sequence("ON", "SCHEMA", Ref("SchemaReferenceSegment"), optional=True),
+        OneOf("TO", "FROM"),
+        OneOf(
+            _grantee_clause,
+            Sequence(
+                Delimited(Ref("RoleReferenceSegment")),
+                "IDENTIFIED",
+                "BY",
+                Delimited(Ref("SingleIdentifierGrammar")),
+            ),
+        ),
+        Sequence("WITH", OneOf("ADMIN", "DELEGATE"), "OPTION", optional=True),
+    )
+
+    _object_privileges_segment = Sequence(
+        Delimited(
+            Sequence(
+                _object_privileges,
+                Bracketed(Delimited(Ref("ColumnReferenceSegment")), optional=True),
+            )
+        ),
+        "ON",
+        Sequence(
+            OneOf(
+                "USER",
+                "DIRECTORY",
+                "EDITION",
+                Sequence("MINING", "MODEL"),
+                Sequence("JAVA", OneOf("SOURCE", "RESOURCE")),
+                Sequence("SQL", "TRANSLATION", "PROFILE"),
+                optional=True,
+            ),
+            Delimited(
+                Sequence(
+                    Sequence(
+                        Ref("SchemaReferenceSegment"), Ref("DotSegment"), optional=True
+                    ),
+                    Ref("ObjectReferenceSegment"),
+                ),
+            ),
+        ),
+        OneOf("TO", "FROM"),
+        _grantee_clause,
+        Sequence("WITH", "HIERARCHY", "OPTION", optional=True),
+        Sequence("WITH", "GRANT", "OPTION", optional=True),
+        OneOf(Sequence("CASCADE", "CONSTRAINTS"), "FORCE", optional=True),
+    )
+
+    _roles_from_programs_segment = Sequence(
+        Delimited(Ref("RoleReferenceSegment")),
+        OneOf("TO", "FROM"),
+        OneOf("FUNCTION", "PROCEDURE", "PACKAGE"),
+        Sequence(Ref("SchemaReferenceSegment"), Ref("DotSegment"), optional=True),
+        Ref("FunctionNameSegment"),
+    )
+
+    match_grammar: Matchable = Sequence(
+        OneOf("GRANT", "REVOKE"),
+        OneOf(
+            Sequence(
+                OneOf(_system_schema_privileges_segment, _object_privileges_segment),
+                Sequence(
+                    "CONTAINER",
+                    Ref("EqualsSegment"),
+                    OneOf("CURRENT", "ALL"),
+                    optional=True,
+                ),
+            ),
+            _roles_from_programs_segment,
+        ),
+    )
+
+
 class ValuesClauseSegment(BaseSegment):
     """A `VALUES` clause like in `INSERT`."""
 
@@ -3344,5 +3616,3 @@ class ValuesClauseSegment(BaseSegment):
                 Ref("LiteralGrammar"),
                 Ref("ExpressionSegment"),
             ),
-        ),
-    )

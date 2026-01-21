@@ -2016,13 +2016,14 @@ dependencies = [
  "sqlfluffrs_dialects",
  "sqlfluffrs_lexer",
  "sqlfluffrs_parser",
+ "sqlfluffrs_python",
  "sqlfluffrs_types",
  "uuid",
 ]
 
 [[package]]
 name = "sqlfluffrs_dialects"
-version = "0.0.0"
+version = "4.0.0"
 dependencies = [
  "fancy-regex",
  "hashbrown 0.15.5",
@@ -2033,7 +2034,7 @@ dependencies = [
 
 [[package]]
 name = "sqlfluffrs_lexer"
-version = "0.0.0"
+version = "4.0.0"
 dependencies = [
  "env_logger",
  "fancy-regex",
@@ -2045,13 +2046,14 @@ dependencies = [
  "regex",
  "serde",
  "sqlfluffrs_dialects",
+ "sqlfluffrs_python",
  "sqlfluffrs_types",
  "uuid",
 ]
 
 [[package]]
 name = "sqlfluffrs_parser"
-version = "0.0.0"
+version = "4.0.0"
 dependencies = [
  "env_logger",
  "hashbrown 0.15.5",
@@ -2062,21 +2064,34 @@ dependencies = [
  "smallvec",
  "sqlfluffrs_dialects",
  "sqlfluffrs_lexer",
+ "sqlfluffrs_python",
+ "sqlfluffrs_types",
+ "uuid",
+]
+
+[[package]]
+name = "sqlfluffrs_python"
+version = "4.0.0"
+dependencies = [
+ "bincode",
+ "hashbrown 0.15.5",
+ "log",
+ "once_cell",
+ "pyo3",
+ "serde",
  "sqlfluffrs_types",
  "uuid",
 ]
 
 [[package]]
 name = "sqlfluffrs_types"
-version = "0.0.0"
+version = "4.0.0"
 dependencies = [
  "bincode",
  "fancy-regex",
  "hashbrown 0.15.5",
  "log",
  "once_cell",
- "pyo3",
- "pyo3-log",
  "regex",
  "serde",
  "uuid",
