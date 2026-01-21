@@ -86,6 +86,23 @@ duckdb_dialect.sets("unreserved_keywords").update(
     ]
 )
 
+# Add plural datetime units for interval expressions
+# DuckDB supports both singular and plural forms (e.g., DAY and DAYS)
+duckdb_dialect.sets("datetime_units").update(
+    [
+        "DAYS",
+        "HOURS",
+        "MICROSECONDS",
+        "MILLISECONDS",
+        "MINUTES",
+        "MONTHS",
+        "QUARTERS",
+        "SECONDS",
+        "WEEKS",
+        "YEARS",
+    ]
+)
+
 duckdb_dialect.add(
     LambdaArrowSegment=StringParser("->", SymbolSegment, type="lambda_arrow"),
     OrIgnoreGrammar=Sequence("OR", "IGNORE"),
