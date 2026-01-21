@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 83ba31723baa706bf2ad3e738ebc630fa76cb6b7a4090cba8f310fe4c99d3c2e
+_hash: 5d54b54953c0d194abc5acc9fda319c4a3ca3d002a62d160885c46df53f80f8a
 file:
 - statement:
     select_statement:
@@ -106,13 +106,10 @@ file:
             date_part: MILLISECONDS
       - comma: ','
       - select_clause_element:
-          expression:
-            data_type:
-              datetime_type_identifier:
-                keyword: INTERVAL
+          interval_expression:
+            keyword: INTERVAL
             numeric_literal: '1000'
-          alias_expression:
-            naked_identifier: MICROSECOND
+            date_part: MICROSECOND
       - comma: ','
       - select_clause_element:
           interval_expression:
