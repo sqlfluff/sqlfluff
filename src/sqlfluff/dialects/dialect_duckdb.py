@@ -233,6 +233,38 @@ duckdb_dialect.patch_lexer_matchers(
 )
 
 
+class IntervalExpressionSegment(BaseSegment):
+    """An interval expression segment.
+
+    Extends ANSI to support dynamic intervals with parenthesized expressions.
+    https://duckdb.org/docs/stable/sql/data_types/interval
+    """
+
+    type = "interval_expression"
+    match_grammar: Matchable = Sequence(
+        "INTERVAL",
+        OneOf(
+            # The Numeric Version
+            Sequence(
+                Ref("NumericLiteralSegment"),
+                OneOf(Ref("QuotedLiteralSegment"), Ref("DatetimeUnitSegment")),
+            ),
+            # The String version
+            Ref("QuotedLiteralSegment"),
+            # Combine version
+            Sequence(
+                Ref("QuotedLiteralSegment"),
+                OneOf(Ref("QuotedLiteralSegment"), Ref("DatetimeUnitSegment")),
+            ),
+            # Expression version - for dynamic intervals with parenthesized expressions
+            Sequence(
+                Ref("ExpressionSegment"),
+                Ref("DatetimeUnitSegment"),
+            ),
+        ),
+    )
+
+
 class StructTypeSegment(ansi.StructTypeSegment):
     """Expression to construct a STRUCT datatype."""
 
