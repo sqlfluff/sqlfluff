@@ -463,7 +463,9 @@ tsql_dialect.replace(
             r"[A-Z_\p{L}][A-Z0-9_@$#\p{L}]*",
             IdentifierSegment,
             type="naked_identifier",
-            anti_template=r"^(" + r"|".join(dialect.sets("reserved_keywords")) + r")$",
+            anti_template=r"^("
+            + r"|".join(sorted(dialect.sets("reserved_keywords")))
+            + r")$",
             casefold=str.upper,
         )
     ),
@@ -531,7 +533,9 @@ tsql_dialect.replace(
             CodeSegment,
             type="function_name_identifier",
             anti_template=r"^("
-            + r"|".join(dialect.sets("reserved_keywords").difference({"UPDATE"}))
+            + r"|".join(
+                sorted(dialect.sets("reserved_keywords").difference({"UPDATE"}))
+            )
             + r")$",
         )
     ),
@@ -546,7 +550,7 @@ tsql_dialect.replace(
                 type="data_type_identifier",
                 # anti_template=r"^(NOT)$",
                 anti_template=r"^("
-                + r"|".join(dialect.sets("reserved_keywords"))
+                + r"|".join(sorted(dialect.sets("reserved_keywords")))
                 + r")$",
                 # TODO - this is a stopgap until we implement explicit data types
             ),
@@ -3299,7 +3303,10 @@ class CreateSequenceOptionsSegment(BaseSegment):
 
 
 class NextValueSequenceSegment(BaseSegment):
-    """Segment to get next value from a sequence."""
+    """Segment to get next value from a sequence.
+
+    https://learn.microsoft.com/en-us/sql/t-sql/functions/next-value-for-transact-sql
+    """
 
     type = "sequence_next_value"
     match_grammar = Sequence(
@@ -3307,6 +3314,11 @@ class NextValueSequenceSegment(BaseSegment):
         "VALUE",
         "FOR",
         Ref("ObjectReferenceSegment"),
+        Sequence(
+            "OVER",
+            Bracketed(Ref("OrderByClauseSegment")),
+            optional=True,
+        ),
     )
 
 
@@ -4641,6 +4653,12 @@ class TableIndexSegment(BaseSegment):
                 Ref("BracketedColumnReferenceListGrammar"),
             ),
         ),
+        Sequence(
+            "INCLUDE",
+            Ref("BracketedColumnReferenceListGrammar"),
+            optional=True,
+        ),
+        Ref("WhereClauseSegment", optional=True),
         Ref("RelationalIndexOptionsSegment", optional=True),
         Ref("OnPartitionOrFilegroupOptionSegment", optional=True),
         Ref("FilestreamOnOptionSegment", optional=True),
@@ -5415,8 +5433,8 @@ class TableExpressionSegment(BaseSegment):
 class GroupByClauseSegment(BaseSegment):
     """A `GROUP BY` clause like in `SELECT`.
 
-    Overriding ANSI to remove Delimited logic which assumes statements have been
-    delimited
+    Overriding ANSI to add T-SQL specific terminators that prevent
+    GROUP BY from consuming subsequent statements when semicolons are omitted.
     """
 
     type = "groupby_clause"
@@ -5424,15 +5442,7 @@ class GroupByClauseSegment(BaseSegment):
         "GROUP",
         "BY",
         Indent,
-        OneOf(
-            Ref("ColumnReferenceSegment"),
-            # Can `GROUP BY 1`
-            Ref("NumericLiteralSegment"),
-            # Can `GROUP BY coalesce(col, 1)`
-            Ref("ExpressionSegment"),
-        ),
-        AnyNumberOf(
-            Ref("CommaSegment"),
+        Delimited(
             OneOf(
                 Ref("ColumnReferenceSegment"),
                 # Can `GROUP BY 1`
@@ -5440,6 +5450,27 @@ class GroupByClauseSegment(BaseSegment):
                 # Can `GROUP BY coalesce(col, 1)`
                 Ref("ExpressionSegment"),
             ),
+            terminators=[
+                # Clauses that can follow GROUP BY
+                "HAVING",
+                "WINDOW",
+                Sequence("ORDER", "BY"),
+                "OPTION",
+                "FOR",
+                # Set operators
+                "UNION",
+                "INTERSECT",
+                "EXCEPT",
+                # Statement-level keywords that start new statements
+                "SELECT",
+                "INSERT",
+                "UPDATE",
+                "DELETE",
+                "MERGE",
+                "WITH",
+                # T-SQL specific: semicolons and statement terminators
+                Ref("DelimiterGrammar"),
+            ],
         ),
         Ref("WithRollupClauseSegment", optional=True),
         Dedent,
@@ -5793,8 +5824,8 @@ class TableHintSegment(BaseSegment):
         Sequence(
             "INDEX",
             Ref("EqualsSegment"),
-            Bracketed(
-                OneOf(Ref("IndexReferenceSegment"), Ref("NumericLiteralSegment")),
+            OptionallyBracketed(
+                OneOf(Ref("IndexReferenceSegment"), Ref("NumericLiteralSegment"))
             ),
         ),
         "KEEPIDENTITY",

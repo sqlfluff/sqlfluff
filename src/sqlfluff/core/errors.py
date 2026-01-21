@@ -18,7 +18,7 @@ if TYPE_CHECKING:  # pragma: no cover
     from sqlfluff.core.rules import BaseRule, LintFix
 
     try:
-        from sqlfluffrs import RsSQLLexerError
+        from sqlfluffrs import RsParseError, RsSQLLexerError
     except ImportError:
         ...
 
@@ -234,6 +234,30 @@ class SQLParseError(SQLBaseError):
             ignore=ignore,
             fatal=fatal,
             warning=warning,
+        )
+
+    @classmethod
+    def from_rs_parse_error(
+        cls,
+        rs_error: "RsParseError",
+        segments: tuple["BaseSegment", ...],
+    ) -> "SQLParseError":
+        """Convert a Rust RsParseError to SQLParseError.
+
+        Args:
+            rs_error: The RsParseError exception from Rust parser
+            segments: The segment array being parsed
+
+        Returns:
+            SQLParseError with position information extracted from rs_error
+        """
+        error_msg = str(rs_error)
+        error_segment: Optional["BaseSegment"] = None
+        error_segment = segments[(rs_error.pos or 0)]
+
+        return cls(
+            description=error_msg,
+            segment=error_segment,
         )
 
     def __reduce__(

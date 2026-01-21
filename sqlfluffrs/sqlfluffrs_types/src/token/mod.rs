@@ -5,8 +5,6 @@ mod eq;
 pub mod fix;
 mod fmt;
 pub mod path;
-#[cfg(feature = "python")]
-pub mod python;
 
 use std::{
     fmt::Write,
@@ -22,6 +20,14 @@ use crate::{
     marker::PositionMarker,
     regex::{RegexMode, RegexModeGroup},
 };
+
+#[derive(Debug, Clone, PartialEq, Default)]
+pub enum CaseFold {
+    #[default]
+    None,
+    Upper,
+    Lower,
+}
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum TupleSerialisedSegment {
@@ -59,7 +65,8 @@ pub struct Token {
     pub trim_chars: Option<Vec<String>>,
     quoted_value: Option<(String, RegexModeGroup)>,
     escape_replacement: Option<(String, String)>,
-    casefold: Option<fn(&str) -> str>,
+    pub casefold: CaseFold,
+    #[allow(dead_code)]
     raw_value: String,
     /// Pre-computed index of matching bracket for O(1) lookup during parsing.
     /// For opening brackets like '(', '[', '{', this points to the matching closing bracket.
@@ -122,6 +129,16 @@ impl Token {
 
     pub fn raw_upper(&self) -> String {
         self.raw.to_uppercase()
+    }
+
+    /// Get the quoted_value pattern for this token (if any)
+    pub fn quoted_value(&self) -> Option<&(String, RegexModeGroup)> {
+        self.quoted_value.as_ref()
+    }
+
+    /// Get the escape_replacement pattern for this token (if any)
+    pub fn escape_replacement(&self) -> Option<&(String, String)> {
+        self.escape_replacement.as_ref()
     }
 
     pub fn normalize(
@@ -223,6 +240,10 @@ impl Token {
         types.extend(self.instance_types.iter().cloned());
         types.extend(self.class_types.iter().cloned());
         types
+    }
+
+    pub fn preface_modifier(&self) -> String {
+        self.preface_modifier.clone()
     }
 
     pub fn is_type(&self, seg_types: &[&str]) -> bool {

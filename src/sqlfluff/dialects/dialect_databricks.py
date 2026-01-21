@@ -66,6 +66,21 @@ databricks_dialect.insert_lexer_matchers(
 
 
 databricks_dialect.insert_lexer_matchers(
+    # Databricks Pipeline Parameters:
+    # https://docs.databricks.com/en/delta-live-tables/parameters.html
+    # Must come before dollar_quote since both start with $
+    [
+        RegexLexer(
+            "pipeline_parameter",
+            r"\$\{[A-Za-z_][A-Za-z0-9_]*\}",
+            CodeSegment,
+        ),
+    ],
+    before="dollar_quote",
+)
+
+
+databricks_dialect.insert_lexer_matchers(
     # Notebook Cell Delimiter:
     # https://learn.microsoft.com/en-us/azure/databricks/notebooks/notebook-export-import#sql-1
     [
@@ -115,12 +130,31 @@ databricks_dialect.add(
         type="udf_body",
         trim_chars=("$",),
     ),
+    PipelineParameterSegment=TypedParser(
+        "pipeline_parameter",
+        CodeSegment,
+        type="pipeline_parameter",
+    ),
     RightArrowSegment=StringParser("=>", SymbolSegment, type="right_arrow"),
     # https://docs.databricks.com/en/sql/language-manual/sql-ref-principal.html
     PrincipalIdentifierSegment=OneOf(
         Ref("NakedIdentifierSegment"),
         Ref("BackQuotedIdentifierSegment"),
     ),
+)
+
+# Override SingleIdentifierGrammar to include parameterized segments
+databricks_dialect.replace(
+    SingleIdentifierGrammar=sparksql_dialect.get_grammar(
+        "SingleIdentifierGrammar"
+    ).copy(
+        insert=[
+            Ref("ParameterizedSegment"),
+        ]
+    ),
+)
+
+databricks_dialect.add(
     PredictiveOptimizationGrammar=Sequence(
         OneOf("ENABLE", "DISABLE", "INHERIT"),
         "PREDICTIVE",
@@ -265,6 +299,12 @@ databricks_dialect.replace(
             ),
         ],
         at=0,
+    ),
+    # Add ParameterizedSegment to the LiteralGrammar to support named parameters
+    LiteralGrammar=sparksql_dialect.get_grammar("LiteralGrammar").copy(
+        insert=[
+            Ref("ParameterizedSegment"),
+        ]
     ),
     FunctionContentsExpressionGrammar=OneOf(
         Ref("ExpressionSegment"),
@@ -495,6 +535,17 @@ class CatalogReferenceSegment(ansi.ObjectReferenceSegment):
     """
 
     type = "catalog_reference"
+
+    # Allow catalog names to be identifiers or parameters
+    match_grammar: Matchable = OneOf(
+        Delimited(
+            OneOf(Ref("SingleIdentifierGrammar"), Ref("IdentifierClauseSegment")),
+            delimiter=Ref("ObjectReferenceDelimiterGrammar"),
+            terminators=[Ref("ObjectReferenceTerminatorGrammar")],
+            allow_gaps=False,
+        ),
+        Ref("ParameterizedSegment"),
+    )
 
 
 class VolumeReferenceSegment(ansi.ObjectReferenceSegment):
@@ -1218,6 +1269,25 @@ class OptimizeTableStatementSegment(BaseSegment):
     )
 
 
+class LimitClauseSegment(sparksql.LimitClauseSegment):
+    """A `LIMIT` clause like in `SELECT`.
+
+    Enhanced from SparkSQL to support parameterized values.
+    """
+
+    match_grammar = Sequence(
+        "LIMIT",
+        Indent,
+        OneOf(
+            Ref("NumericLiteralSegment"),
+            "ALL",
+            Ref("FunctionSegment"),
+            Ref("ParameterizedSegment"),  # Add support for parameters
+        ),
+        Dedent,
+    )
+
+
 class StatementSegment(sparksql.StatementSegment):
     """Overriding StatementSegment to allow for additional segment parsing."""
 
@@ -1243,6 +1313,9 @@ class StatementSegment(sparksql.StatementSegment):
             Ref("UnsetTagStatementSegment"),
             # Notebook grammar
             Ref("MagicCellStatementSegment"),
+            # Databricks - Delta Live Tables
+            Ref("ApplyChangesIntoStatementSegment"),
+            Ref("CreateFlowStatementSegment"),
         ]
     )
 
@@ -1706,6 +1779,29 @@ class MagicCellStatementSegment(BaseSegment):
     )
 
 
+class ParameterizedSegment(BaseSegment):
+    """Databricks named parameters to prevent SQL Injection.
+
+    Supports both colon-based (:param) and pipeline (${param}) parameters:
+    - Colon syntax:
+      https://docs.databricks.com/aws/en/jobs/parameter-use
+    - Pipeline syntax:
+      https://docs.databricks.com/en/delta-live-tables/parameters.html
+    """
+
+    type = "parameterized_expression"
+    match_grammar = OneOf(
+        # Colon-based parameters: :param_name
+        Sequence(
+            Ref("ColonSegment"),
+            Ref("NakedIdentifierSegment"),
+            allow_gaps=False,
+        ),
+        # Pipeline parameters: ${param_name}
+        Ref("PipelineParameterSegment"),
+    )
+
+
 class SetVariableStatementSegment(BaseSegment):
     """A `SET VARIABLE` statement used to set session variables.
 
@@ -1747,4 +1843,137 @@ class SetVariableStatementSegment(BaseSegment):
             set_bracketed,
         ),
         allow_gaps=True,
+    )
+
+
+class CDCSpecificationSegment(BaseSegment):
+    """The segment shared by APPLY CHANGES INTO and CREATE FLOW...AUTO CDC INTO.
+
+    Used for specifying the data location and rules for ingesting a CDC data source
+    """
+
+    type = "cdc_specification_segment"
+
+    match_grammar = Sequence(
+        Ref("FromClauseSegment"),
+        Sequence(
+            "KEYS",
+            Indent,
+            Ref("BracketedColumnReferenceListGrammar"),
+            Dedent,
+        ),
+        Sequence("IGNORE", "NULL", "UPDATES", optional=True),
+        Ref("WhereClauseSegment", optional=True),
+        AnyNumberOf(
+            Sequence(
+                "APPLY",
+                "AS",
+                OneOf("DELETE", "TRUNCATE"),
+                "WHEN",
+                Ref("ColumnReferenceSegment"),
+                Ref("EqualsSegment"),
+                Ref("QuotedLiteralSegment"),
+            ),
+            # NB: Setting max_times to allow for one instance
+            #     of DELETE and TRUNCATE at most
+            max_times=2,
+        ),
+        Sequence(
+            "SEQUENCE",
+            "BY",
+            Ref("ColumnReferenceSegment"),
+        ),
+        Sequence(
+            "COLUMNS",
+            OneOf(
+                Delimited(
+                    Ref("ColumnReferenceSegment"),
+                ),
+                Sequence(
+                    Ref("StarSegment"),
+                    "EXCEPT",
+                    Ref("BracketedColumnReferenceListGrammar"),
+                ),
+            ),
+            optional=True,
+        ),
+        Sequence(
+            "STORED",
+            "AS",
+            "SCD",
+            "TYPE",
+            Ref("NumericLiteralSegment"),
+            optional=True,
+        ),
+        Sequence(
+            "TRACK",
+            "HISTORY",
+            "ON",
+            OneOf(
+                Delimited(
+                    Ref("ColumnReferenceSegment"),
+                ),
+                Sequence(
+                    Ref("StarSegment"),
+                    "EXCEPT",
+                    Ref("BracketedColumnReferenceListGrammar"),
+                ),
+            ),
+            optional=True,
+        ),
+    )
+
+
+class ApplyChangesIntoStatementSegment(BaseSegment):
+    """A statement to ingest CDC data into a target table.
+
+    https://docs.databricks.com/workflows/delta-live-tables/delta-live-tables-cdc.html#sql
+    """
+
+    type = "apply_changes_into_statement"
+
+    match_grammar = Sequence(
+        Sequence(
+            "APPLY",
+            "CHANGES",
+            "INTO",
+        ),
+        Indent,
+        Ref("TableExpressionSegment"),
+        Dedent,
+        Ref("CDCSpecificationSegment"),
+    )
+
+
+class FlowReferenceSegment(ObjectReferenceSegment):
+    """A reference to a flow."""
+
+    type = "flow_reference"
+
+
+class CreateFlowStatementSegment(BaseSegment):
+    """A statement for creating a flow to ingest CDC data into a target table.
+
+    https://docs.databricks.com/aws/en/ldp/flows
+    https://docs.databricks.com/aws/en/ldp/developer/ldp-sql-ref-apply-changes-into
+    """
+
+    type = "create_flow_statement"
+
+    match_grammar = Sequence(
+        Sequence(
+            "CREATE",
+            "FLOW",
+        ),
+        Ref("FlowReferenceSegment"),
+        Sequence(
+            "AS",
+            "AUTO",
+            "CDC",
+            "INTO",
+        ),
+        Indent,
+        Ref("TableReferenceSegment"),
+        Dedent,
+        Ref("CDCSpecificationSegment"),
     )

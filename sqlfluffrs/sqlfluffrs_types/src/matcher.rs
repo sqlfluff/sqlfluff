@@ -4,7 +4,7 @@ use fancy_regex::{Regex as FancyRegex, RegexBuilder as FancyRegexBuilder};
 use hashbrown::HashSet;
 use regex::{Regex, RegexBuilder};
 
-use crate::{PositionMarker, RegexModeGroup, Token};
+use crate::{token::CaseFold, PositionMarker, RegexModeGroup, Token};
 
 // use sqlfluffrs_dialects::Dialect;
 
@@ -19,7 +19,7 @@ pub type TokenGenerator = fn(
     Option<Vec<String>>,              // trim_chars
     Option<(String, RegexModeGroup)>, // quoted_value
     Option<(String, String)>,         // escape_replacement
-    Option<fn(&str) -> str>,          // casefold
+    CaseFold,                         // casefold
 ) -> Token;
 
 #[derive(Debug, Clone)]
@@ -64,7 +64,7 @@ pub struct LexMatcher {
     pub trim_chars: Option<Vec<String>>,
     pub quoted_value: Option<(String, RegexModeGroup)>,
     pub escape_replacements: Option<(String, String)>,
-    pub casefold: Option<fn(&str) -> str>,
+    pub casefold: CaseFold,
     pub kwarg_type: Option<String>,
 }
 
@@ -86,7 +86,7 @@ impl LexMatcher {
         trim_chars: Option<Vec<String>>,
         quoted_value: Option<(String, RegexModeGroup)>,
         escape_replacements: Option<(String, String)>,
-        casefold: Option<fn(&str) -> str>,
+        casefold: CaseFold,
         kwarg_type: Option<String>,
     ) -> Self {
         Self {
@@ -116,7 +116,7 @@ impl LexMatcher {
         trim_chars: Option<Vec<String>>,
         quoted_value: Option<(String, RegexModeGroup)>,
         escape_replacements: Option<(String, String)>,
-        casefold: Option<fn(&str) -> str>,
+        casefold: CaseFold,
         fallback_lexer: Option<fn(&str) -> Option<&str>>,
         precheck: fn(&str) -> bool,
         kwarg_type: Option<String>,
@@ -165,7 +165,7 @@ impl LexMatcher {
         trim_chars: Option<Vec<String>>,
         quoted_value: Option<(String, RegexModeGroup)>,
         escape_replacements: Option<(String, String)>,
-        casefold: Option<fn(&str) -> str>,
+        casefold: CaseFold,
         fallback_lexer: Option<fn(&str) -> Option<&str>>,
         precheck: fn(&str) -> bool,
         kwarg_type: Option<String>,
@@ -200,7 +200,7 @@ impl LexMatcher {
         trim_chars: Option<Vec<String>>,
         quoted_value: Option<(String, RegexModeGroup)>,
         escape_replacements: Option<(String, String)>,
-        casefold: Option<fn(&str) -> str>,
+        casefold: CaseFold,
         fallback_lexer: Option<fn(&str) -> Option<&str>>,
         precheck: fn(&str) -> bool,
         kwarg_type: Option<String>,
@@ -237,7 +237,6 @@ impl LexMatcher {
                 .then(|| LexedElement::new(template, self)),
             LexerMode::Regex(regex, is_match_valid) => {
                 if !(is_match_valid)(input) {
-                    // println!("{},{}", self.name, t.elapsed().as_nanos());
                     return None;
                 }
                 regex
@@ -246,7 +245,6 @@ impl LexMatcher {
             }
             LexerMode::FancyRegex(regex, is_match_valid) => {
                 if !(is_match_valid)(input) {
-                    // println!("{},{}", self.name, t.elapsed().as_nanos());
                     return None;
                 }
                 regex
@@ -255,11 +253,8 @@ impl LexMatcher {
                     .flatten()
                     .map(|mat| LexedElement::new(mat.as_str(), self))
             }
-            LexerMode::Function(function) => {
-                (function)(input).map(|s| LexedElement::new(s, self))
-            }
+            LexerMode::Function(function) => (function)(input).map(|s| LexedElement::new(s, self)),
         };
-        // println!("{},{}", self.name, t.elapsed().as_nanos());
 
         // Handle subdivision and trimming
         if let Some(matched) = matched {
@@ -358,7 +353,6 @@ impl LexMatcher {
             Some(t) => vec![t],
             None => vec![self.name.clone()],
         };
-
         (self.token_class_func)(
             raw.to_string(),
             pos_marker,
@@ -368,75 +362,7 @@ impl LexMatcher {
             self.trim_chars.clone(),
             self.quoted_value.clone(),
             self.escape_replacements.clone(),
-            self.casefold,
+            self.casefold.clone(),
         )
     }
-}
-
-// TODO: implement python passthroughs
-#[cfg(feature = "python")]
-pub mod python {}
-
-#[cfg(test)]
-mod test {
-    // use crate::{dialect::Dialect, token::Token};
-
-    // use super::{LexMatcher};
-
-    // #[test]
-    // fn test_subdivide() {
-    //     let block_comment_matcher = LexMatcher::regex_lexer(
-    //         // Dialect::Ansi,
-    //         "block_comment",
-    //         r#"\/\*([^\*]|\*(?!\/))*\*\/"#,
-    //         Token::comment_token_compat,
-    //         Some(Box::new(LexMatcher::regex_subdivider(
-    //             // Dialect::Ansi,
-    //             "newline",
-    //             r#"\r\n|\n"#,
-    //             Token::newline_token_compat,
-    //             None,
-    //             None,
-    //             None,
-    //             None,
-    //             None,
-    //             None,
-    //             None,
-    //             None,
-    //             |_| true,
-    //             None,
-    //         ))),
-    //         Some(Box::new(LexMatcher::regex_subdivider(
-    //             // Dialect::Ansi,
-    //             "whitespace",
-    //             r#"[^\S\r\n]+"#,
-    //             Token::whitespace_token_compat,
-    //             None,
-    //             None,
-    //             None,
-    //             None,
-    //             None,
-    //             None,
-    //             None,
-    //             None,
-    //             |_| true,
-    //             None,
-    //         ))),
-    //         None,
-    //         None,
-    //         None,
-    //         None,
-    //         None,
-    //         Some(extract_nested_block_comment),
-    //         |input| input.starts_with("/"),
-    //         None,
-    //     );
-
-    //     let (elems, _) = block_comment_matcher
-    //         .scan_match("/*\n)\n*/")
-    //         .expect("should match");
-    //     for elem in elems {
-    //         println!("{}: {}", elem.matcher.name, elem.raw);
-    //     }
-    // }
 }
