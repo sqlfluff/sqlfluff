@@ -6,7 +6,7 @@ use super::match_result::MatchResult;
 use super::types::NodeTupleValue;
 use super::{Node, ParseError, Parser};
 use sqlfluffrs_dialects::Dialect;
-use sqlfluffrs_types::token::python::PyToken;
+use sqlfluffrs_python::token::PyToken;
 use sqlfluffrs_types::Token;
 use std::str::FromStr;
 

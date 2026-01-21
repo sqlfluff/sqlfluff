@@ -778,12 +778,10 @@ pub mod python {
         types::{PyDict, PyList, PyTuple},
     };
     use sqlfluffrs_dialects::Dialect;
-    use sqlfluffrs_types::config::fluffconfig::python::PyFluffConfig;
-    use sqlfluffrs_types::marker::python::PyPositionMarker;
-    use sqlfluffrs_types::templater::templatefile::python::{
-        PySqlFluffTemplatedFile, PyTemplatedFile,
-    };
-    use sqlfluffrs_types::token::python::PyToken;
+    use sqlfluffrs_python::config::PyFluffConfig;
+    use sqlfluffrs_python::marker::PyPositionMarker;
+    use sqlfluffrs_python::templater::templatefile::{PySqlFluffTemplatedFile, PyTemplatedFile};
+    use sqlfluffrs_python::token::PyToken;
 
     #[derive(FromPyObject)]
     pub enum PyLexInput {

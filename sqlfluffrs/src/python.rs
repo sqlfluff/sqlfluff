@@ -1,12 +1,12 @@
 use pyo3::prelude::*;
 use sqlfluffrs_lexer::{PyLexer, PySQLLexError};
 use sqlfluffrs_parser::{PyMatchResult, PyNode, PyParseError, PyParser, RsParseError};
-use sqlfluffrs_types::templater::{
-    fileslice::python::{PyRawFileSlice, PyTemplatedFileSlice},
-    templatefile::python::PyTemplatedFile,
+use sqlfluffrs_python::marker::PyPositionMarker;
+use sqlfluffrs_python::templater::{
+    fileslice::{PyRawFileSlice, PyTemplatedFileSlice},
+    templatefile::PyTemplatedFile,
 };
-use sqlfluffrs_types::PyPositionMarker;
-use sqlfluffrs_types::{PyCaseFold, PyToken};
+use sqlfluffrs_python::token::{PyCaseFold, PyToken};
 
 /// A Python module implemented in Rust.
 #[pymodule(name = "sqlfluffrs", module = "sqlfluffrs")]
