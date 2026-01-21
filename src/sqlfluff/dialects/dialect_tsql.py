@@ -459,8 +459,14 @@ tsql_dialect.replace(
     # T-SQL allows unreserved keywords as identifiers, so only block reserved keywords
     NakedIdentifierSegment=SegmentGenerator(
         # Generate the anti template from the set of reserved keywords only
+        # Note: @, $, and # are special characters in T-SQL that require brackets:
+        # - @ is reserved for variables/parameters  
+        # - # is reserved for temporary tables
+        # - $ is a special character requiring brackets
+        # These characters CANNOT be used in regular identifiers without brackets.
+        # See: https://learn.microsoft.com/en-us/sql/relational-databases/databases/database-identifiers
         lambda dialect: RegexParser(
-            r"[A-Z_\p{L}][A-Z0-9_@$#\p{L}]*",
+            r"[A-Z_\p{L}][A-Z0-9_\p{L}]*",
             IdentifierSegment,
             type="naked_identifier",
             anti_template=r"^("

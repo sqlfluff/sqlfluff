@@ -82,7 +82,10 @@ test_pass_reference_tsql:
     SELECT
         123 as [I cannot be unquoted],  -- Because spaces
         [I-c@nn0t-be~un-quoted],  -- Because special characters
-        [SELECT]  -- Because keyword
+        [SELECT],  -- Because keyword
+        [ABC#],  -- Because # character requires brackets
+        [ABC@TEST],  -- Because @ character requires brackets
+        [ABC$TEST]  -- Because $ character requires brackets
   configs:
     core:
       dialect: tsql

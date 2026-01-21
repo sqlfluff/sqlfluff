@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: cbb77432a95f03a12ba5dda9a81d5071c31de27432bf9ce05df6e042e73ff2b3
+_hash: 908d3fb5c4bd76716157184d117bd8c99b1357db0bc83e883f1f42cf9ed6152d
 file:
   batch:
   - statement:
@@ -158,16 +158,16 @@ file:
       - keyword: CREATE
       - keyword: TABLE
       - table_reference:
-          naked_identifier: Table$name
+          quoted_identifier: '[Table$name]'
       - bracketed:
         - start_bracket: (
         - column_definition:
-            naked_identifier: Column@name
+            quoted_identifier: '[Column@name]'
             data_type:
               keyword: INT
         - comma: ','
         - column_definition:
-            naked_identifier: Column#test
+            quoted_identifier: '[Column#test]'
             data_type:
               keyword: INT
         - comma: ','
@@ -204,7 +204,7 @@ file:
             from_expression_element:
               table_expression:
                 table_reference:
-                  naked_identifier: Table$name
+                  quoted_identifier: '[Table$name]'
   - statement_terminator: ;
   - statement:
       select_statement:
@@ -212,16 +212,16 @@ file:
         - keyword: SELECT
         - select_clause_element:
             column_reference:
-              naked_identifier: Column@name
+              quoted_identifier: '[Column@name]'
         - comma: ','
         - select_clause_element:
             column_reference:
-              naked_identifier: Column#test
+              quoted_identifier: '[Column#test]'
         from_clause:
           keyword: FROM
           from_expression:
             from_expression_element:
               table_expression:
                 table_reference:
-                  naked_identifier: Table$name
+                  quoted_identifier: '[Table$name]'
   - statement_terminator: ;
