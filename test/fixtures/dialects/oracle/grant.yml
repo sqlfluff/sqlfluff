@@ -1,0 +1,208 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 0ff334ae6013c450641adc5b98bc333cffa65631f1ce7f9fe0d5a4647532db30
+file:
+- statement:
+    access_statement:
+    - keyword: GRANT
+    - keyword: CREATE
+    - keyword: SESSION
+    - keyword: TO
+    - role_reference:
+        naked_identifier: hr
+- statement_terminator: ;
+- statement:
+    access_statement:
+    - keyword: GRANT
+    - keyword: CREATE
+    - keyword: SESSION
+    - keyword: TO
+    - role_reference:
+        naked_identifier: hr
+    - comma: ','
+    - role_reference:
+        naked_identifier: newuser
+    - keyword: IDENTIFIED
+    - keyword: BY
+    - naked_identifier: password1
+    - comma: ','
+    - naked_identifier: password2
+- statement_terminator: ;
+- statement:
+    access_statement:
+    - keyword: GRANT
+    - keyword: CREATE
+    - keyword: ANY
+    - keyword: MATERIALIZED
+    - keyword: VIEW
+    - comma: ','
+    - keyword: ALTER
+    - keyword: ANY
+    - keyword: MATERIALIZED
+    - keyword: VIEW
+    - comma: ','
+    - keyword: DROP
+    - keyword: ANY
+    - keyword: MATERIALIZED
+    - keyword: VIEW
+    - comma: ','
+    - keyword: QUERY
+    - keyword: REWRITE
+    - comma: ','
+    - keyword: GLOBAL
+    - keyword: QUERY
+    - keyword: REWRITE
+    - keyword: TO
+    - role_reference:
+        naked_identifier: dw_manager
+    - keyword: WITH
+    - keyword: ADMIN
+    - keyword: OPTION
+- statement_terminator: ;
+- statement:
+    access_statement:
+    - keyword: GRANT
+    - role_reference:
+        naked_identifier: dw_manager
+    - keyword: TO
+    - role_reference:
+        naked_identifier: sh
+    - keyword: WITH
+    - keyword: ADMIN
+    - keyword: OPTION
+- statement_terminator: ;
+- statement:
+    access_statement:
+    - keyword: GRANT
+    - role_reference:
+        naked_identifier: dw_manager
+    - keyword: TO
+    - role_reference:
+        naked_identifier: sh
+    - keyword: WITH
+    - keyword: DELEGATE
+    - keyword: OPTION
+- statement_terminator: ;
+- statement:
+    access_statement:
+    - keyword: GRANT
+    - keyword: SELECT
+    - keyword: 'ON'
+    - object_reference:
+      - naked_identifier: sh
+      - dot: .
+      - naked_identifier: sales
+    - keyword: TO
+    - role_reference:
+        naked_identifier: warehouse_user
+- statement_terminator: ;
+- statement:
+    access_statement:
+    - keyword: GRANT
+    - role_reference:
+        naked_identifier: warehouse_user
+    - keyword: TO
+    - role_reference:
+        naked_identifier: dw_manager
+- statement_terminator: ;
+- statement:
+    access_statement:
+    - keyword: GRANT
+    - keyword: INHERIT
+    - keyword: PRIVILEGES
+    - keyword: 'ON'
+    - keyword: USER
+    - object_reference:
+        naked_identifier: sh
+    - keyword: TO
+    - role_reference:
+        naked_identifier: hr
+- statement_terminator: ;
+- statement:
+    access_statement:
+    - keyword: GRANT
+    - keyword: READ
+    - keyword: 'ON'
+    - keyword: DIRECTORY
+    - object_reference:
+        naked_identifier: bfile_dir
+    - keyword: TO
+    - role_reference:
+        naked_identifier: hr
+    - keyword: WITH
+    - keyword: GRANT
+    - keyword: OPTION
+- statement_terminator: ;
+- statement:
+    access_statement:
+    - keyword: GRANT
+    - keyword: ALL
+    - keyword: 'ON'
+    - object_reference:
+        naked_identifier: bonuses
+    - keyword: TO
+    - role_reference:
+        naked_identifier: hr
+    - keyword: WITH
+    - keyword: GRANT
+    - keyword: OPTION
+- statement_terminator: ;
+- statement:
+    access_statement:
+    - keyword: GRANT
+    - keyword: SELECT
+    - comma: ','
+    - keyword: UPDATE
+    - keyword: 'ON'
+    - object_reference:
+        naked_identifier: emp_view
+    - keyword: TO
+    - keyword: PUBLIC
+- statement_terminator: ;
+- statement:
+    access_statement:
+    - keyword: GRANT
+    - keyword: SELECT
+    - keyword: 'ON'
+    - object_reference:
+      - naked_identifier: oe
+      - dot: .
+      - naked_identifier: customers_seq
+    - keyword: TO
+    - role_reference:
+        naked_identifier: hr
+- statement_terminator: ;
+- statement:
+    access_statement:
+    - keyword: GRANT
+    - keyword: REFERENCES
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          naked_identifier: employee_id
+        end_bracket: )
+    - comma: ','
+    - keyword: UPDATE
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: employee_id
+      - comma: ','
+      - column_reference:
+          naked_identifier: salary
+      - comma: ','
+      - column_reference:
+          naked_identifier: commission_pct
+      - end_bracket: )
+    - keyword: 'ON'
+    - object_reference:
+      - naked_identifier: hr
+      - dot: .
+      - naked_identifier: employees
+    - keyword: TO
+    - role_reference:
+        naked_identifier: oe
+- statement_terminator: ;
