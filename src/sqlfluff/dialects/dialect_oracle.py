@@ -3616,3 +3616,6 @@ class ValuesClauseSegment(BaseSegment):
                 Ref("LiteralGrammar"),
                 Ref("ExpressionSegment"),
             ),
+        ),
+    )
+
