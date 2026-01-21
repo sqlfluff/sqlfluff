@@ -5,7 +5,7 @@ import logging
 import os
 import time
 from collections.abc import Iterator, Sequence
-from typing import TYPE_CHECKING, Optional, cast
+from typing import TYPE_CHECKING, Optional, Union, cast
 
 import regex
 from tqdm import tqdm
@@ -133,20 +133,16 @@ class Linter:
             try:
                 limit = int(limit)
             except ValueError:
-                raise ValueError(
-                    f"""
+                raise ValueError(f"""
                 large_file_skip_byte_limit parameter from config
                 cannot be converted to integer,
                 current value {limit}, type {type(limit)}
-                """
-                )
+                """)
             except TypeError:
-                raise TypeError(
-                    f"""
+                raise TypeError(f"""
                 failed to get large_file_skip_byte_limit parameter from config,
                 or it is of invalid type {type(limit)}
-                """
-                )
+                """)
             # Get the file size
             file_size = os.path.getsize(fname)
             if file_size > limit:
@@ -234,7 +230,41 @@ class Linter:
         fname: Optional[str] = None,
         parse_statistics: bool = False,
     ) -> tuple[Optional[BaseSegment], list[SQLParseError]]:
-        parser = Parser(config=config)
+        # Use Rust parser if configured (experimental)
+        use_rust = config.get_section(["core", "use_rust_parser"])
+
+        # Determine whether to use Rust parser
+        # - "auto": Use if available, fall back silently if not
+        # - True/"True"/"true"/1: Force usage, warn if unavailable
+        # - False/"False"/"false"/0: Never use
+        use_rust_parser = False
+        warn_if_unavailable = False
+
+        if use_rust in ("auto", "Auto", "AUTO"):
+            # Auto mode: try to use Rust, but don't warn if unavailable
+            use_rust_parser = True
+            warn_if_unavailable = False
+        elif use_rust in (True, "True", "true", 1):
+            # Explicit True: use Rust and warn if unavailable
+            use_rust_parser = True
+            warn_if_unavailable = True
+
+        if use_rust_parser:
+            from sqlfluff.core.parser.rust_parser import RustParser
+
+            if RustParser is not None:
+                parser: Union[Parser, "RustParser"] = RustParser(config=config)
+                linter_logger.info("Using Rust parser (experimental)")
+            else:
+                if warn_if_unavailable:
+                    linter_logger.warning(
+                        "use_rust_parser=True but sqlfluffrs not available. "
+                        "Falling back to Python parser. Build with: "
+                        "cd sqlfluffrs && maturin develop --features python"
+                    )
+                parser = Parser(config=config)
+        else:
+            parser = Parser(config=config)
         violations = []
         # Parse the file and log any problems
         try:
