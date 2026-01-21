@@ -78,10 +78,7 @@ impl Parser<'_> {
                 {
                     if !exclude_result.is_empty() {
                         vdebug!("AnyNumberOf[table]: Exclude grammar matched, returning Empty");
-                        stack.results.insert(
-                            frame.frame_id,
-                            (Arc::new(MatchResult::empty_at(start_pos)), start_pos, None),
-                        );
+                        stack.insert_empty_result(frame.frame_id, start_pos);
                         return Ok(TableFrameResult::Done);
                     }
                 }
@@ -106,10 +103,7 @@ impl Parser<'_> {
         // (will log terminators after they are combined below)
         if pruned_children.is_empty() {
             vdebug!("AnyNumberOf[table]: No elements to match after filtering");
-            stack.results.insert(
-                frame.frame_id,
-                (Arc::new(MatchResult::empty_at(start_pos)), start_pos, None),
-            );
+            stack.insert_empty_result(frame.frame_id, start_pos);
             return Ok(TableFrameResult::Done);
         }
 

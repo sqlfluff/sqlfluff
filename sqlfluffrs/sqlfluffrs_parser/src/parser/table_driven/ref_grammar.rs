@@ -53,10 +53,7 @@ impl Parser<'_> {
                 );
                 // Rollback checkpoint before returning Empty
                 self.rollback_collection_checkpoint(frame.frame_id);
-                stack.results.insert(
-                    frame.frame_id,
-                    (Arc::new(MatchResult::empty_at(frame.pos)), frame.pos, None),
-                );
+                stack.insert_empty_result(frame.frame_id, frame.pos);
                 return Ok(TableFrameResult::Done);
             }
         }
@@ -72,10 +69,7 @@ impl Parser<'_> {
                     );
                     // Rollback checkpoint before returning Empty
                     self.rollback_collection_checkpoint(frame.frame_id);
-                    stack.results.insert(
-                        frame.frame_id,
-                        (Arc::new(MatchResult::empty_at(frame.pos)), frame.pos, None),
-                    );
+                    stack.insert_empty_result(frame.frame_id, frame.pos);
                     return Ok(TableFrameResult::Done);
                 }
             }
@@ -104,10 +98,7 @@ impl Parser<'_> {
                 );
                     // Rollback checkpoint before returning Empty
                     self.rollback_collection_checkpoint(frame.frame_id);
-                    stack.results.insert(
-                        frame.frame_id,
-                        (Arc::new(MatchResult::empty_at(start_pos)), start_pos, None),
-                    );
+                    stack.insert_empty_result(frame.frame_id, start_pos);
                     return Ok(TableFrameResult::Done);
                 }
             }
