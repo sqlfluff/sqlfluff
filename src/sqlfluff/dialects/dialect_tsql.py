@@ -460,7 +460,7 @@ tsql_dialect.replace(
     NakedIdentifierSegment=SegmentGenerator(
         # Generate the anti template from the set of reserved keywords only
         # Note: @, $, and # are special characters in T-SQL that require brackets:
-        # - @ is reserved for variables/parameters  
+        # - @ is reserved for variables/parameters
         # - # is reserved for temporary tables
         # - $ is a special character requiring brackets
         # These characters CANNOT be used in regular identifiers without brackets.
