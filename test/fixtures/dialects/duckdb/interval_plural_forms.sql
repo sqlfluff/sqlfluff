@@ -2,7 +2,7 @@
 -- DuckDB supports both singular and plural forms for interval datetime units
 
 -- Simple interval expressions with both singular and plural
-SELECT 
+SELECT
     INTERVAL 1 DAY,
     INTERVAL 1 DAYS,
     INTERVAL 3 WEEK,
@@ -37,7 +37,7 @@ FROM
     AS dts (start_time);
 
 -- Interval arithmetic with plural forms
-SELECT 
+SELECT
     current_timestamp + INTERVAL 1 DAYS AS tomorrow,
     current_timestamp - INTERVAL 7 DAYS AS last_week,
     current_timestamp + INTERVAL 2 WEEKS AS two_weeks_later,
