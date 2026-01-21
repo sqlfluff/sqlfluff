@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 4fd86cf86d5fb835b936a1b395a37aa7f8dc1eb247d1791af3b8ff65613b54db
+_hash: b50be97c8181d7e2a1b81275a6459cbb5e4972c438f0b777730c9c1472420c98
 file:
 - statement:
     simplified_unpivot:
@@ -29,6 +29,7 @@ file:
     - comma: ','
     - column_reference:
         naked_identifier: jun
+    - comma: ','
     - keyword: INTO
     - keyword: NAME
     - naked_identifier: month
@@ -114,6 +115,7 @@ file:
     - naked_identifier: month_2_sales
     - comma: ','
     - naked_identifier: month_3_sales
+    - comma: ','
 - statement_terminator: ;
 - statement:
     with_compound_statement:
@@ -146,6 +148,7 @@ file:
                     - comma: ','
                     - column_reference:
                         naked_identifier: dept
+                    - comma: ','
                     - end_bracket: )
                 end_bracket: )
           - keyword: INTO
@@ -294,6 +297,48 @@ file:
                   alias_operator:
                     keyword: AS
                   naked_identifier: q2
+              - end_bracket: )
+            - end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: monthly_sales
+          from_unpivot_expression:
+          - keyword: UNPIVOT
+          - keyword: INCLUDE
+          - keyword: NULLS
+          - bracketed:
+            - start_bracket: (
+            - bracketed:
+              - start_bracket: (
+              - naked_identifier: sales
+              - comma: ','
+              - naked_identifier: tax
+              - comma: ','
+              - end_bracket: )
+            - keyword: FOR
+            - naked_identifier: month
+            - keyword: IN
+            - bracketed:
+              - start_bracket: (
+              - naked_identifier: jan
+              - comma: ','
+              - naked_identifier: feb
+              - comma: ','
+              - naked_identifier: mar
+              - comma: ','
               - end_bracket: )
             - end_bracket: )
 - statement_terminator: ;
