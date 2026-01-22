@@ -3618,4 +3618,3 @@ class ValuesClauseSegment(BaseSegment):
             ),
         ),
     )
-
