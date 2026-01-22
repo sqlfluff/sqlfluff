@@ -330,4 +330,17 @@ impl TableParseFrame {
         stack.increment_frame_id_counter();
         stack.push(&mut child_frame);
     }
+
+    pub(crate) fn transition_to_combining(
+        mut self,
+        end_pos: Option<usize>,
+        stack: &mut TableParseFrameStack,
+    ) -> TableFrameResult {
+        if let Some(pos) = end_pos {
+            self.end_pos = Some(pos);
+        }
+        self.state = FrameState::Combining;
+        stack.push(&mut self);
+        TableFrameResult::Done
+    }
 }
