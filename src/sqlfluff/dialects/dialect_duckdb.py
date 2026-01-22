@@ -86,6 +86,26 @@ duckdb_dialect.sets("unreserved_keywords").update(
     ]
 )
 
+# Add plural datetime units for interval expressions
+# DuckDB supports both singular and plural forms (e.g., DAY and DAYS)
+# Note: ANSI has MILLISECOND (singular), PostgreSQL adds MILLISECONDS and
+# MICROSECONDS (both plural). We add the missing MICROSECOND (singular) and
+# all other plural forms (DAYS, HOURS, MINUTES, MONTHS, QUARTERS, SECONDS,
+# WEEKS, YEARS).
+duckdb_dialect.sets("datetime_units").update(
+    [
+        "DAYS",
+        "HOURS",
+        "MICROSECOND",  # Singular form missing from ANSI/PostgreSQL
+        "MINUTES",
+        "MONTHS",
+        "QUARTERS",
+        "SECONDS",
+        "WEEKS",
+        "YEARS",
+    ]
+)
+
 duckdb_dialect.add(
     LambdaArrowSegment=StringParser("->", SymbolSegment, type="lambda_arrow"),
     OrIgnoreGrammar=Sequence("OR", "IGNORE"),
