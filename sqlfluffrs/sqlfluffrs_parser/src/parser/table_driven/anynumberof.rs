@@ -1,6 +1,7 @@
 use crate::parser::{
+    core::Parser,
     table_driven::frame::{TableFrameResult, TableParseFrame, TableParseFrameStack},
-    FrameContext, FrameState, MatchResult, ParseError, Parser,
+    FrameContext, FrameState, MatchResult, ParseError,
 };
 #[cfg(feature = "verbose-debug")]
 use crate::vdebug;
@@ -22,53 +23,51 @@ impl Parser<'_> {
     ) -> Result<TableFrameResult, ParseError> {
         self.pos = frame.pos;
         let grammar_id = frame.grammar_id;
-
-        #[cfg(feature = "verbose-debug")]
-        let child_count = self.grammar_ctx.inst(grammar_id).child_count;
         let reset_terminators = self.grammar_ctx.inst(grammar_id).flags.reset_terminators();
         let parse_mode = self.grammar_ctx.inst(grammar_id).parse_mode;
         let start_pos = frame.pos;
-
-        vdebug!(
-            "AnyNumberOf[table] Initial: frame_id={}, pos={}, grammar_id={}, children={}",
-            frame.frame_id,
-            start_pos,
-            grammar_id.0,
-            child_count
-        );
-
-        // Extra debug: build a readable grammar name (works for Ref/String/Regex variants)
-        #[cfg(feature = "verbose-debug")]
-        let grammar_name = self.grammar_ctx.grammar_id_name(grammar_id);
+        let (_min_times, _max_times, _max_times_per_element, has_exclude) =
+            self.grammar_ctx.anynumberof_config(grammar_id);
 
         #[cfg(feature = "verbose-debug")]
-        if start_pos < self.tokens.len() {
-            let tok = &self.tokens[start_pos];
+        {
+            let child_count = self.grammar_ctx.inst(grammar_id).child_count;
+
             vdebug!(
+                "AnyNumberOf[table] Initial: frame_id={}, pos={}, grammar_id={}, children={}",
+                frame.frame_id,
+                start_pos,
+                grammar_id.0,
+                child_count
+            );
+
+            // Extra debug: build a readable grammar name (works for Ref/String/Regex variants)
+            let grammar_name = self.grammar_ctx.grammar_id_name(grammar_id);
+
+            if start_pos < self.tokens.len() {
+                let tok = &self.tokens[start_pos];
+                vdebug!(
                 "AnyNumberOf[table] Initial: grammar='{}' start_token='{}' token_type='{}' start_pos={}",
                 grammar_name,
                 tok.raw,
                 tok.get_type(),
                 start_pos
             );
-        } else {
+            } else {
+                vdebug!(
+                    "AnyNumberOf[table] Initial: grammar='{}' start_token=<EOF>",
+                    grammar_name
+                );
+            }
+
             vdebug!(
-                "AnyNumberOf[table] Initial: grammar='{}' start_token=<EOF>",
-                grammar_name
+                "AnyNumberOf[table]: min_times={}, max_times={:?}, max_times_per_element={:?}, has_exclude={}",
+                _min_times,
+                _max_times,
+                _max_times_per_element,
+                has_exclude
             );
         }
-
-        // Get config from aux_data
-        let (_min_times, _max_times, _max_times_per_element, has_exclude) =
-            self.grammar_ctx.anynumberof_config(grammar_id);
-
-        vdebug!(
-            "AnyNumberOf[table]: min_times={}, max_times={:?}, max_times_per_element={:?}, has_exclude={}",
-            _min_times,
-            _max_times,
-            _max_times_per_element,
-            has_exclude
-        );
 
         // Check exclude grammar if present
         if has_exclude {
@@ -90,18 +89,20 @@ impl Parser<'_> {
         // Get all element children (excludes exclude grammar via element_children)
         let element_ids: Vec<GrammarId> = self.grammar_ctx.element_children(grammar_id).collect();
         let pruned_children = self.prune_options_table_driven(&element_ids);
-        // Debug element names for easier tracing
         #[cfg(feature = "verbose-debug")]
-        let element_names: Vec<String> = pruned_children
-            .iter()
-            .map(|gid| self.grammar_ctx.grammar_id_name(*gid))
-            .collect();
-        vdebug!(
-            "AnyNumberOf[table] element_ids_count={} names={:?}",
-            pruned_children.len(),
-            element_names
-        );
-        // (will log terminators after they are combined below)
+        {
+            // Debug element names for easier tracing
+            let element_names: Vec<String> = pruned_children
+                .iter()
+                .map(|gid| self.grammar_ctx.grammar_id_name(*gid))
+                .collect();
+            vdebug!(
+                "AnyNumberOf[table] element_ids_count={} names={:?}",
+                pruned_children.len(),
+                element_names
+            );
+        }
+
         if pruned_children.is_empty() {
             vdebug!("AnyNumberOf[table]: No elements to match after filtering");
             stack.insert_empty_result(frame.frame_id, start_pos);
@@ -109,7 +110,6 @@ impl Parser<'_> {
         }
 
         // Initialize option counter for max_times_per_element tracking
-        // TODO: actually prune element_ids
         let pruned_children_count = pruned_children.len();
         let first_element = pruned_children[0];
         let option_counter: hashbrown::HashMap<u64, usize> =
@@ -117,25 +117,26 @@ impl Parser<'_> {
 
         // Combine terminators
         let local_terminators: Vec<GrammarId> = self.grammar_ctx.terminators(grammar_id).collect();
-        let all_terminators = crate::parser::core::Parser::combine_terminators_table_driven(
+        let all_terminators = Parser::combine_terminators_table_driven(
             &local_terminators,
             parent_terminators,
             reset_terminators,
         );
-        let grammar_parse_mode = parse_mode;
 
-        // Debug: log pruned_children ids and the combined terminators
         #[cfg(feature = "verbose-debug")]
-        let term_names: Vec<String> = all_terminators
-            .iter()
-            .map(|gid| self.grammar_ctx.grammar_id_name(*gid))
-            .collect();
-        vdebug!(
-            "AnyNumberOf[table] pruned_children_ids={:?} all_terminators_count={} names={:?}",
-            pruned_children,
-            all_terminators.len(),
-            term_names
-        );
+        {
+            // Debug: log pruned_children ids and the combined terminators
+            let term_names: Vec<String> = all_terminators
+                .iter()
+                .map(|gid| self.grammar_ctx.grammar_id_name(*gid))
+                .collect();
+            vdebug!(
+                "AnyNumberOf[table] pruned_children_ids={:?} all_terminators_count={} names={:?}",
+                pruned_children,
+                all_terminators.len(),
+                term_names
+            );
+        }
 
         // Calculate max_idx using terminators only (match Python behavior)
         // Python's AnyNumberOf uses a simple trim-to-terminator rather than
@@ -146,7 +147,7 @@ impl Parser<'_> {
         let max_idx = self.calculate_max_idx_table_driven(
             start_pos,
             &all_terminators,
-            grammar_parse_mode,
+            parse_mode,
             frame.parent_max_idx,
         )?;
 
@@ -158,7 +159,7 @@ impl Parser<'_> {
             grammar_id.0,
             start_pos,
             max_idx,
-            grammar_parse_mode,
+            parse_mode,
             frame.parent_max_idx
         );
 
@@ -168,7 +169,7 @@ impl Parser<'_> {
         };
 
         // Store context with max_times config and pruned element list
-        frame.context = crate::parser::FrameContext::AnyNumberOfTableDriven {
+        frame.context = FrameContext::AnyNumberOfTableDriven {
             grammar_id,
             pruned_children,
             count: 0,
@@ -198,19 +199,21 @@ impl Parser<'_> {
             Some(max_idx),
         );
 
-        vdebug!(
-            "AnyNumberOf[table]: Pushing initial child for element 0 gid={} (total candidates={})",
-            first_element.0,
-            pruned_children_count
-        );
-        // Debug pushed element name
         #[cfg(feature = "verbose-debug")]
-        let first_name = self.grammar_ctx.grammar_id_name(first_element);
-        vdebug!(
-            "AnyNumberOf[table]: pushing first_element name='{}' gid={}",
-            first_name,
-            first_element.0
-        );
+        {
+            vdebug!(
+                "AnyNumberOf[table]: Pushing initial child for element 0 gid={} (total candidates={})",
+                first_element.0,
+                pruned_children_count
+            );
+            // Debug pushed element name
+            let first_name = self.grammar_ctx.grammar_id_name(first_element);
+            vdebug!(
+                "AnyNumberOf[table]: pushing first_element name='{}' gid={}",
+                first_name,
+                first_element.0
+            );
+        }
 
         // Push parent then child (parent.last_child_frame_id was set in context)
         stack.increment_frame_id_counter();
@@ -241,32 +244,33 @@ impl Parser<'_> {
             .copied()
             .unwrap_or(ctx.pruned_children[0]);
 
-        vdebug!(
-            "AnyNumberOf[table] WaitingForChild: frame_id={}, child_empty={}, count={}, matched_idx={}, trying_idx={}/{}, tried_elements={}",
-            frame.frame_id,
-            child_match.is_empty(),
-            ctx.count,
-            ctx.matched_idx,
-            current_element_idx,
-            ctx.pruned_children.len(),
-            ctx.tried_elements
-        );
+        #[cfg(feature = "verbose-debug")]
+        {
+            vdebug!(
+                "AnyNumberOf[table] WaitingForChild: frame_id={}, child_empty={}, count={}, matched_idx={}, trying_idx={}/{}, tried_elements={}",
+                frame.frame_id,
+                child_match.is_empty(),
+                ctx.count,
+                ctx.matched_idx,
+                current_element_idx,
+                ctx.pruned_children.len(),
+                ctx.tried_elements
+            );
 
-        // Extra debug: show pruned_children and parent table_terminators for this frame
-        #[cfg(feature = "verbose-debug")]
-        let pruned_dbg: Vec<u64> = ctx.pruned_children.iter().map(|g| g.0 as u64).collect();
-        #[cfg(feature = "verbose-debug")]
-        let table_term_names: Vec<String> = frame
-            .table_terminators
-            .iter()
-            .map(|gid| self.grammar_ctx.grammar_id_name(*gid))
-            .collect();
-        vdebug!(
-            "AnyNumberOf[table] WaitingForChild DEBUG: pruned_children_ids={:?} table_terminators_count={} names={:?}",
-            pruned_dbg,
-            frame.table_terminators.len(),
-            table_term_names
-        );
+            // Extra debug: show pruned_children and parent table_terminators for this frame
+            let pruned_dbg: Vec<u64> = ctx.pruned_children.iter().map(|g| g.0 as u64).collect();
+            let table_term_names: Vec<String> = frame
+                .table_terminators
+                .iter()
+                .map(|gid| self.grammar_ctx.grammar_id_name(*gid))
+                .collect();
+            vdebug!(
+                "AnyNumberOf[table] WaitingForChild DEBUG: pruned_children_ids={:?} table_terminators_count={} names={:?}",
+                pruned_dbg,
+                frame.table_terminators.len(),
+                table_term_names
+            );
+        }
 
         // Update longest_match if this child is better
         if !child_match.is_empty() && *child_end_pos <= *ctx.max_idx {
