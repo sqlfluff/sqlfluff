@@ -1,7 +1,6 @@
 use crate::parser::{
-    core::Parser,
     table_driven::frame::{TableFrameResult, TableParseFrame, TableParseFrameStack},
-    FrameContext, FrameState, MatchResult, ParseError,
+    FrameContext, FrameState, MatchResult, ParseError, Parser,
 };
 #[cfg(feature = "verbose-debug")]
 use crate::vdebug;
