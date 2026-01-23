@@ -20,6 +20,7 @@ from sqlfluff.core.parser import (
     Nothing,
     OneOf,
     OptionallyBracketed,
+    ParseMode,
     Ref,
     RegexLexer,
     RegexParser,
@@ -82,6 +83,26 @@ duckdb_dialect.sets("unreserved_keywords").update(
         "STRUCT",
         "VIRTUAL",
         "WRITE_PARTITION_COLUMNS",
+    ]
+)
+
+# Add plural datetime units for interval expressions
+# DuckDB supports both singular and plural forms (e.g., DAY and DAYS)
+# Note: ANSI has MILLISECOND (singular), PostgreSQL adds MILLISECONDS and
+# MICROSECONDS (both plural). We add the missing MICROSECOND (singular) and
+# all other plural forms (DAYS, HOURS, MINUTES, MONTHS, QUARTERS, SECONDS,
+# WEEKS, YEARS).
+duckdb_dialect.sets("datetime_units").update(
+    [
+        "DAYS",
+        "HOURS",
+        "MICROSECOND",  # Singular form missing from ANSI/PostgreSQL
+        "MINUTES",
+        "MONTHS",
+        "QUARTERS",
+        "SECONDS",
+        "WEEKS",
+        "YEARS",
     ]
 )
 
@@ -160,6 +181,25 @@ duckdb_dialect.replace(
         "single_quote", IdentifierSegment, type="quoted_identifier", casefold=str.lower
     ),
     ListComprehensionGrammar=Ref("ListComprehensionExpressionSegment"),
+    # non-ANSI IN operator defined for string, list, and map
+    # https://duckdb.org/docs/stable/sql/expressions/in
+    InOperatorGrammar=Sequence(
+        Ref.keyword("NOT", optional=True),
+        "IN",
+        OneOf(
+            Bracketed(
+                OneOf(
+                    Delimited(Ref("Expression_A_Grammar"), allow_trailing=True),
+                    Ref("SelectableGrammar"),
+                ),
+                parse_mode=ParseMode.GREEDY,
+            ),
+            Ref("FunctionSegment"),
+            Ref("ArrayLiteralSegment"),
+            Ref("QuotedLiteralSegment"),
+            Ref("ColumnReferenceSegment"),
+        ),
+    ),
     ComparisonOperatorGrammar=ansi_dialect.get_grammar(
         "ComparisonOperatorGrammar"
     ).copy(
@@ -211,6 +251,38 @@ duckdb_dialect.patch_lexer_matchers(
         RegexLexer("equals", r"==?", CodeSegment),
     ]
 )
+
+
+class IntervalExpressionSegment(BaseSegment):
+    """An interval expression segment.
+
+    Extends ANSI to support dynamic intervals with parenthesized expressions.
+    https://duckdb.org/docs/stable/sql/data_types/interval
+    """
+
+    type = "interval_expression"
+    match_grammar: Matchable = Sequence(
+        "INTERVAL",
+        OneOf(
+            # The Numeric Version
+            Sequence(
+                Ref("NumericLiteralSegment"),
+                OneOf(Ref("QuotedLiteralSegment"), Ref("DatetimeUnitSegment")),
+            ),
+            # The String version
+            Ref("QuotedLiteralSegment"),
+            # Combine version
+            Sequence(
+                Ref("QuotedLiteralSegment"),
+                OneOf(Ref("QuotedLiteralSegment"), Ref("DatetimeUnitSegment")),
+            ),
+            # Expression version - for dynamic intervals with parenthesized expressions
+            Sequence(
+                Ref("ExpressionSegment"),
+                Ref("DatetimeUnitSegment"),
+            ),
+        ),
+    )
 
 
 class StructTypeSegment(ansi.StructTypeSegment):
@@ -1057,4 +1129,23 @@ class CopyStatementSegment(postgres.CopyStatementSegment):
                 _copy_from_option,
             ),
         ),
+    )
+
+
+class ArrayLiteralSegment(BaseSegment):
+    """An array literal segment.
+
+    An unqualified array literal:
+    e.g. [1, 2, 3]
+
+    DuckDB allows for trailing commas:
+    e.g. [1, 2, 3,]
+    """
+
+    type = "array_literal"
+    match_grammar: Matchable = Bracketed(
+        Delimited(
+            Ref("BaseExpressionElementGrammar"), optional=True, allow_trailing=True
+        ),
+        bracket_type="square",
     )

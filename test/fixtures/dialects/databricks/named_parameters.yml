@@ -1,0 +1,493 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 878fb1dfaefcf3bca473c98f6c0b02563c1608fe614b3cf9bb75de532e732b40
+file:
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: table1
+      where_clause:
+        keyword: WHERE
+        expression:
+          column_reference:
+            naked_identifier: id
+          comparison_operator:
+            raw_comparison_operator: '='
+          parameterized_expression:
+            colon: ':'
+            naked_identifier: param_id
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: users
+      where_clause:
+        keyword: WHERE
+        expression:
+        - column_reference:
+            naked_identifier: name
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - parameterized_expression:
+            colon: ':'
+            naked_identifier: user_name
+        - binary_operator: AND
+        - column_reference:
+            naked_identifier: age
+        - comparison_operator:
+            raw_comparison_operator: '>'
+        - parameterized_expression:
+            colon: ':'
+            naked_identifier: min_age
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          parameterized_expression:
+            colon: ':'
+            naked_identifier: column_name
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: table1
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: CONCAT
+            function_contents:
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  quoted_literal: "'Hello '"
+              - comma: ','
+              - expression:
+                  parameterized_expression:
+                    colon: ':'
+                    naked_identifier: name
+              - end_bracket: )
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: table1
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              naked_identifier: a
+              dot: .
+              star: '*'
+      - comma: ','
+      - select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              naked_identifier: b
+              dot: .
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: table1
+            alias_expression:
+              naked_identifier: a
+          join_clause:
+            keyword: JOIN
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  naked_identifier: table2
+              alias_expression:
+                naked_identifier: b
+            join_on_condition:
+              keyword: 'ON'
+              expression:
+              - column_reference:
+                - naked_identifier: a
+                - dot: .
+                - naked_identifier: id
+              - comparison_operator:
+                  raw_comparison_operator: '='
+              - column_reference:
+                - naked_identifier: b
+                - dot: .
+                - naked_identifier: id
+              - binary_operator: AND
+              - column_reference:
+                - naked_identifier: b
+                - dot: .
+                - naked_identifier: status
+              - comparison_operator:
+                  raw_comparison_operator: '='
+              - parameterized_expression:
+                  colon: ':'
+                  naked_identifier: status
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+            naked_identifier: category
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: COUNT
+            function_contents:
+              bracketed:
+                start_bracket: (
+                star: '*'
+                end_bracket: )
+          alias_expression:
+            alias_operator:
+              keyword: as
+            naked_identifier: cnt
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: products
+      where_clause:
+        keyword: WHERE
+        expression:
+          column_reference:
+            naked_identifier: price
+          comparison_operator:
+            raw_comparison_operator: '>'
+          parameterized_expression:
+            colon: ':'
+            naked_identifier: min_price
+      groupby_clause:
+      - keyword: GROUP
+      - keyword: BY
+      - column_reference:
+          naked_identifier: category
+      having_clause:
+        keyword: HAVING
+        expression:
+          function:
+            function_name:
+              function_name_identifier: COUNT
+            function_contents:
+              bracketed:
+                start_bracket: (
+                star: '*'
+                end_bracket: )
+          comparison_operator:
+            raw_comparison_operator: '>'
+          parameterized_expression:
+            colon: ':'
+            naked_identifier: min_count
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: table1
+      orderby_clause:
+      - keyword: ORDER
+      - keyword: BY
+      - column_reference:
+          parameterized_expression:
+            colon: ':'
+            naked_identifier: sort_column
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: table1
+      limit_clause:
+        keyword: LIMIT
+        parameterized_expression:
+          colon: ':'
+          naked_identifier: max_rows
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: table1
+      where_clause:
+        keyword: WHERE
+        expression:
+          column_reference:
+            naked_identifier: id
+          comparison_operator:
+            raw_comparison_operator: '='
+          parameterized_expression:
+            colon: ':'
+            naked_identifier: param_id_123
+- statement_terminator: ;
+- statement:
+    insert_statement:
+    - keyword: INSERT
+    - keyword: INTO
+    - table_reference:
+        naked_identifier: table1
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          naked_identifier: name
+      - comma: ','
+      - column_reference:
+          naked_identifier: age
+      - end_bracket: )
+    - values_clause:
+        keyword: VALUES
+        bracketed:
+        - start_bracket: (
+        - expression:
+            parameterized_expression:
+              colon: ':'
+              naked_identifier: name
+        - comma: ','
+        - expression:
+            parameterized_expression:
+              colon: ':'
+              naked_identifier: age
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+    update_statement:
+      keyword: UPDATE
+      table_reference:
+        naked_identifier: table1
+      set_clause_list:
+        keyword: SET
+        set_clause:
+          column_reference:
+            naked_identifier: status
+          comparison_operator:
+            raw_comparison_operator: '='
+          parameterized_expression:
+            colon: ':'
+            naked_identifier: new_status
+      where_clause:
+        keyword: WHERE
+        expression:
+          column_reference:
+            naked_identifier: id
+          comparison_operator:
+            raw_comparison_operator: '='
+          parameterized_expression:
+            colon: ':'
+            naked_identifier: target_id
+- statement_terminator: ;
+- statement:
+    delete_statement:
+      keyword: DELETE
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: table1
+      where_clause:
+        keyword: WHERE
+        expression:
+          column_reference:
+            naked_identifier: id
+          comparison_operator:
+            raw_comparison_operator: '='
+          parameterized_expression:
+            colon: ':'
+            naked_identifier: delete_id
+- statement_terminator: ;
+- statement:
+    use_catalog_statement:
+    - keyword: USE
+    - keyword: CATALOG
+    - catalog_reference:
+        parameterized_expression:
+          colon: ':'
+          naked_identifier: catalog_name
+- statement_terminator: ;
+- statement:
+    use_database_statement:
+    - keyword: USE
+    - keyword: SCHEMA
+    - database_reference:
+        identifier_clause_segment:
+          keyword: IDENTIFIER
+          bracketed:
+            start_bracket: (
+            expression:
+              parameterized_expression:
+                colon: ':'
+                naked_identifier: schema_name
+            end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_widget_statement:
+    - keyword: CREATE
+    - keyword: WIDGET
+    - keyword: DROPDOWN
+    - widget_name_identifier: target_catalog
+    - keyword: DEFAULT
+    - quoted_literal: '"catalog_a"'
+    - keyword: CHOICES
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            bracketed:
+              start_bracket: (
+              from_expression_element:
+                table_expression:
+                  values_clause:
+                    keyword: VALUES
+                    bracketed:
+                      start_bracket: (
+                      expression:
+                        quoted_literal: '"catalog_a"'
+                      end_bracket: )
+              end_bracket: )
+- statement_terminator: ;
+- statement:
+    show_statement:
+    - keyword: SHOW
+    - keyword: SCHEMAS
+    - keyword: FROM
+    - database_reference:
+        identifier_clause_segment:
+          keyword: IDENTIFIER
+          bracketed:
+            start_bracket: (
+            expression:
+              parameterized_expression:
+                colon: ':'
+                naked_identifier: target_catalog
+            end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          expression:
+            column_reference:
+              naked_identifier: json_data
+            semi_structured_expression:
+              colon: ':'
+              semi_structured_element: name
+      - comma: ','
+      - select_clause_element:
+          expression:
+            column_reference:
+              naked_identifier: json_data
+            semi_structured_expression:
+            - colon: ':'
+            - semi_structured_element: address
+            - colon: ':'
+            - semi_structured_element: city
+      - comma: ','
+      - select_clause_element:
+          parameterized_expression:
+            colon: ':'
+            naked_identifier: param_value
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                naked_identifier: table1
+      where_clause:
+        keyword: WHERE
+        expression:
+          column_reference:
+            naked_identifier: json_data
+          semi_structured_expression:
+            colon: ':'
+            semi_structured_element: id
+          comparison_operator:
+            raw_comparison_operator: '>'
+          parameterized_expression:
+            colon: ':'
+            naked_identifier: min_id
+- statement_terminator: ;

@@ -117,3 +117,33 @@ BEGIN
   print_names('Current Values:');
 END;
 /
+
+DECLARE
+  TYPE employee_rec_type IS RECORD (
+    employee_id   NUMBER,
+    first_name    VARCHAR2(50),
+    last_name     VARCHAR2(50),
+    salary        NUMBER
+  );
+
+  TYPE employee_array_type IS TABLE OF employee_rec_type INDEX BY PLS_INTEGER;
+
+  l_employees employee_array_type;
+
+BEGIN
+  -- Populate the array
+  l_employees(101).employee_id := 101;
+  l_employees(101).first_name := 'John';
+  l_employees(101).last_name := 'Doe';
+  l_employees(101).salary := 50000;
+
+  l_employees(102).employee_id := 102;
+  l_employees(102).first_name := 'Jane';
+  l_employees(102).last_name := 'Smith';
+  l_employees(102).salary := 60000;
+
+  -- Access and display data
+  DBMS_OUTPUT.PUT_LINE('Employee 101: ' || l_employees(101).first_name || ' ' || l_employees(101).last_name);
+  DBMS_OUTPUT.PUT_LINE('Employee 102 Salary: ' || l_employees(102).salary);
+END;
+/

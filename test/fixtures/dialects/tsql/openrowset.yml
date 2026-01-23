@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: de25d25af6cf45105e558382686794ce8b000f7fe84a85106aed6a058affdba1
+_hash: 8c0f5e3c883c5c84bd50f0e51a21fa281941c9c5ea39746676fb3a63dcc83086
 file:
 - batch:
     statement:
@@ -227,7 +227,12 @@ file:
                   bracketed:
                   - start_bracket: (
                   - keyword: BULK
-                  - quoted_literal: "N'D:\\XChange\\test-csv.csv'"
+                  - bracketed:
+                    - start_bracket: (
+                    - quoted_literal: "N'D:\\XChange\\test-csv.csv'"
+                    - comma: ','
+                    - quoted_literal: "N'D:\\XChange\\test-csv2.csv'"
+                    - end_bracket: )
                   - comma: ','
                   - keyword: FORMATFILE
                   - comparison_operator:
@@ -275,6 +280,11 @@ file:
                   - start_bracket: (
                   - keyword: BULK
                   - quoted_literal: "'https://pandemicdatalake.blob.core.windows.net/public/curated/covid-19/ecdc_cases/latest/ecdc_cases.parquet'"
+                  - comma: ','
+                  - keyword: DATA_SOURCE
+                  - comparison_operator:
+                      raw_comparison_operator: '='
+                  - quoted_literal: "'MyAzureBlobStorage'"
                   - comma: ','
                   - keyword: FORMAT
                   - comparison_operator:

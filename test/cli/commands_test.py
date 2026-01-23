@@ -1271,13 +1271,10 @@ where processdate ! 3
     if fix_even_unparsable:
         with open(fixed_path, "r") as f:
             fixed_sql = f.read()
-            assert (
-                fixed_sql
-                == """SELECT my_col
+            assert fixed_sql == """SELECT my_col
 FROM my_schema.my_table
 WHERE processdate ! 3
 """
-            )
     else:
         assert not os.path.isfile(fixed_path)
 
@@ -2364,12 +2361,10 @@ def test__cli__fix_multiple_errors_quiet_check():
             # Test with the confirmation step.
             "y",
         ],
-        assert_stdout_contains=(
-            """2 fixable linting violations found
+        assert_stdout_contains=("""2 fixable linting violations found
 Are you sure you wish to attempt to fix these? [Y/n] ...
 == [test/fixtures/linter/multiple_sql_errors.sql] FIXED
-All Finished"""
-        ),
+All Finished"""),
     )
 
 

@@ -83,21 +83,10 @@ changes.
 
 #### Requirements
 
-If you plan on working with a particular dbt plugin, you will need
-to ensure your python version is high enough to support it. For example,
-the instructions below use `python3.13`, and we support as low as `python3.9`.
+The simplest way to set up a development environment is to use [`tox`](https://tox.wiki/en/latest/installation.html).
 
-The simplest way to set up a development environment is to use `tox`.
-
-First ensure that you have tox installed:
-```shell
-python3.12 -m pip install -U tox
-```
 **IMPORTANT:** Python 3.9 is the minimum version we support. Feel free
 to test on anything between `python3.9` and `python3.13`.
-
-Note: Unfortunately tox does not currently support setting just a minimum
-Python version (though this may be be coming in tox 4!).
 
 #### Creating a virtual environment
 
@@ -227,7 +216,9 @@ for development, and which parts of the test suite you may find most useful.
    As you make changes to a dialect, you will also need to regenerate the Rust
    dialects to keep them in sync. To do this, run `tox -e generate-rs` (if using
    tox), or, with sqlfluff installed in a virtual environment, run
-   `utils/rustify.py build` to resync the languages.
+   `utils/rustify.py build` to resync the languages. The generated Rust files
+   won't be checked in to source control so this is only required if working
+   with the Rust process itself.
 2. Developing for the dbt templater should only require running the dbt test
    suite (see below).
 3. Developing rules and rule plugins there are a couple of scenarios.

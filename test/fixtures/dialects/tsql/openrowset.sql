@@ -32,7 +32,8 @@ SELECT *
 GO
 
 SELECT *
-FROM OPENROWSET(BULK N'D:\XChange\test-csv.csv',
+FROM OPENROWSET(BULK(N'D:\XChange\test-csv.csv',
+    N'D:\XChange\test-csv2.csv'),
     FORMATFILE = N'D:\XChange\test-csv.fmt',
     FIRSTROW=2,
     FORMAT='CSV') AS cars;
@@ -40,6 +41,7 @@ GO
 
 SELECT TOP 10 *
 from OPENROWSET(BULK 'https://pandemicdatalake.blob.core.windows.net/public/curated/covid-19/ecdc_cases/latest/ecdc_cases.parquet',
+    DATA_SOURCE = 'MyAzureBlobStorage',
     FORMAT = 'PARQUET') as rows
 GO
 

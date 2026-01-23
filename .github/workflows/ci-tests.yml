@@ -45,7 +45,6 @@ jobs:
             "mypy",
             "mypyc",
             "doctests",
-            "check-rs",
           ]
         include:
           # Default to most recent python version
@@ -87,6 +86,10 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: 3.x
+      - name: Generate Rust dialect files
+        run: |
+          pip install -e .
+          python utils/rustify.py build
       - name: Build wheels
         uses: PyO3/maturin-action@v1
         with:
@@ -118,6 +121,10 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: 3.x
+      - name: Generate Rust dialect files
+        run: |
+          pip install -e .
+          python utils/rustify.py build
       - name: Build wheels
         uses: PyO3/maturin-action@v1
         with:
@@ -146,6 +153,10 @@ jobs:
         with:
           python-version: 3.x
           architecture: ${{ matrix.platform.target }}
+      - name: Generate Rust dialect files
+        run: |
+          pip install -e .
+          python utils/rustify.py build
       - name: Build wheels
         uses: PyO3/maturin-action@v1
         with:
@@ -172,6 +183,10 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: 3.x
+      - name: Generate Rust dialect files
+        run: |
+          pip install -e .
+          python utils/rustify.py build
       - name: Build wheels
         uses: PyO3/maturin-action@v1
         with:
@@ -188,6 +203,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: 3.x
+      - name: Generate Rust dialect files
+        run: |
+          pip install -e .
+          python utils/rustify.py build
       - name: Build sdist
         uses: PyO3/maturin-action@v1
         with:

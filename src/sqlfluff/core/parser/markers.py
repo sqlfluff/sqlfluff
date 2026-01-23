@@ -165,6 +165,44 @@ class PositionMarker:
         """Return the line position in the source."""
         return self.source_position()[1]
 
+    def working_visual_column(self, tab_space_size: int = 4) -> int:
+        """Calculate visual column position accounting for tab expansion.
+
+        This calculates the visual column (how it appears on screen) by walking
+        through the line content from the start and expanding tabs to their visual
+        width based on tab stops (multiples of tab_space_size).
+
+        Args:
+            tab_space_size: Number of spaces per tab stop (default 4).
+
+        Returns:
+            Visual column position (0-indexed).
+        """
+        # Get the line content up to this position
+        line_start_idx = 0
+        for newline_idx in self.templated_file._templated_newlines:
+            if newline_idx >= self.templated_slice.start:
+                break
+            line_start_idx = newline_idx + 1
+
+        # Extract content from line start to this position
+        line_content = self.templated_file.templated_str[
+            line_start_idx : self.templated_slice.start
+        ]
+
+        # Calculate visual column by expanding tabs
+        visual_col = 0
+        for char in line_content:
+            if char == "\t":
+                # Move to next tab stop
+                visual_col = ((visual_col // tab_space_size) + 1) * tab_space_size
+            else:
+                # Regular character (excluding newlines which shouldn't be
+                # in line_content)
+                visual_col += 1
+
+        return visual_col
+
     def to_source_string(self) -> str:
         """Make a formatted string of this position."""
         line, pos = self.source_position()
