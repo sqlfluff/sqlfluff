@@ -4550,8 +4550,6 @@ class AlterTableStatementSegment(BaseSegment):
                 ),
                 Sequence(
                     "DROP",
-                    # "CONSTRAINT",
-                    # Ref("IfExistsGrammar", optional=True),
                     Sequence(
                         "CONSTRAINT",
                         Ref("IfExistsGrammar", optional=True),
