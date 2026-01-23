@@ -4393,6 +4393,70 @@ class AlterTableStatementSegment(BaseSegment):
     TODO: Flesh out TSQL-specific functionality
     """
 
+    _on_partitions = Sequence(
+        Sequence(
+            "ON",
+            "PARTITIONS",
+        ),
+        Bracketed(
+            Delimited(
+                Ref("NumericLiteralSegment"),
+            ),
+            Sequence(
+                "TO",
+                Ref("NumericLiteralSegment"),
+                optional=True,
+            ),
+        ),
+        optional=True,
+    )
+
+    _rebuild_table_option = AnyNumberOf(
+        Sequence(
+            "DATA_COMPRESSION",
+            Ref("EqualsSegment"),
+            OneOf(
+                "NONE",
+                "ROW",
+                "PAGE",
+                "COLUMNSTORE",
+                "COLUMNSTORE_ARCHIVE",
+            ),
+            _on_partitions,
+        ),
+        Sequence(
+            "XML_COMPRESSION",
+            Ref("EqualsSegment"),
+            OneOf(
+                "ON",
+                "OFF",
+            ),
+            _on_partitions,
+        ),
+    )
+
+    _single_partition_rebuild_table_option = AnyNumberOf(
+        Sequence(
+            "XML_COMPRESSION",
+            Ref("EqualsSegment"),
+            OneOf(
+                "ON",
+                "OFF",
+            ),
+        ),
+        Sequence(
+            "DATA_COMPRESSION",
+            Ref("EqualsSegment"),
+            OneOf(
+                "NONE",
+                "ROW",
+                "PAGE",
+                "COLUMNSTORE",
+                "COLUMNSTORE_ARCHIVE",
+            ),
+        ),
+    )
+
     type = "alter_table_statement"
     match_grammar = Sequence(
         "ALTER",
@@ -4447,8 +4511,13 @@ class AlterTableStatementSegment(BaseSegment):
                 ),
                 Sequence(
                     "DROP",
-                    "CONSTRAINT",
-                    Ref("IfExistsGrammar", optional=True),
+                    # "CONSTRAINT",
+                    # Ref("IfExistsGrammar", optional=True),
+                    Sequence(
+                        "CONSTRAINT",
+                        Ref("IfExistsGrammar", optional=True),
+                        optional=True
+                    ),
                     Ref("ObjectReferenceSegment"),
                 ),
                 # Rename
@@ -4456,6 +4525,46 @@ class AlterTableStatementSegment(BaseSegment):
                     "RENAME",
                     OneOf("AS", "TO", optional=True),
                     Ref("TableReferenceSegment"),
+                ),
+                Sequence(
+                    "REBUILD",
+                    OneOf(
+                        Sequence(
+                            Sequence(
+                                "PARTITION",
+                                Ref("EqualsSegment"),
+                                "ALL",
+                                optional=True,
+                            ),
+                            Sequence(
+                                "WITH",
+                                Bracketed(
+                                    Delimited(
+                                        _rebuild_table_option,
+                                    )
+                                ),
+                                optional=True,
+                            ),
+                        ),
+                        Sequence(
+                            Sequence(
+                                "PARTITION",
+                                Ref("EqualsSegment"),
+                                Ref("NumericLiteralSegment"),
+                                optional=True,
+                            ),
+                            Sequence(
+                                "WITH",
+                                Bracketed(
+                                    Delimited(
+                                        _single_partition_rebuild_table_option,
+                                    ),
+                                ),
+                                optional=True,
+                            ),
+                        ),
+                        optional=True,
+                    ),
                 ),
                 Sequence(
                     "SET",

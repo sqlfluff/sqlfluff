@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 7cd57536784a7e25f797c84f119bad4adfa89bc17286dd69fb4f44dc67d6841e
+_hash: 486fa3596ddb907518e076390ad52ec74660807067e3c1c74969ee489e50cc5c
 file:
 - batch:
     statement:
@@ -334,6 +334,17 @@ file:
       - keyword: EXISTS
       - object_reference:
           naked_identifier: PK_TransactionHistoryArchive_TransactionID
+  - statement:
+      alter_table_statement:
+      - keyword: ALTER
+      - keyword: TABLE
+      - table_reference:
+        - naked_identifier: Production
+        - dot: .
+        - naked_identifier: Transactionhistoryarchive
+      - keyword: DROP
+      - object_reference:
+          naked_identifier: Pk_transactionhistoryarchive_transactionid
   - statement:
       alter_table_statement:
       - keyword: ALTER
@@ -1112,4 +1123,104 @@ file:
           - column_reference:
               naked_identifier: EndDate
           - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      alter_table_statement:
+      - keyword: ALTER
+      - keyword: TABLE
+      - table_reference:
+          quoted_identifier: '[TestTable]'
+      - keyword: REBUILD
+  - statement_terminator: ;
+  - statement:
+      alter_table_statement:
+      - keyword: ALTER
+      - keyword: TABLE
+      - table_reference:
+          quoted_identifier: '[TestTable]'
+      - keyword: REBUILD
+      - keyword: PARTITION
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - keyword: ALL
+  - statement_terminator: ;
+  - statement:
+      alter_table_statement:
+      - keyword: ALTER
+      - keyword: TABLE
+      - table_reference:
+          quoted_identifier: '[TestTable]'
+      - keyword: REBUILD
+      - keyword: PARTITION
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - numeric_literal: '1'
+  - statement_terminator: ;
+  - statement:
+      alter_table_statement:
+      - keyword: ALTER
+      - keyword: TABLE
+      - table_reference:
+          quoted_identifier: '[TestTable]'
+      - keyword: REBUILD
+      - keyword: WITH
+      - bracketed:
+        - start_bracket: (
+        - keyword: DATA_COMPRESSION
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - keyword: PAGE
+        - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      alter_table_statement:
+      - keyword: ALTER
+      - keyword: TABLE
+      - table_reference:
+          quoted_identifier: '[TestTable]'
+      - keyword: REBUILD
+      - keyword: PARTITION
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - numeric_literal: '1'
+      - keyword: WITH
+      - bracketed:
+        - start_bracket: (
+        - keyword: DATA_COMPRESSION
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - keyword: ROW
+        - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      alter_table_statement:
+      - keyword: ALTER
+      - keyword: TABLE
+      - table_reference:
+          quoted_identifier: '[TestTable]'
+      - keyword: REBUILD
+      - keyword: PARTITION
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - keyword: ALL
+      - keyword: WITH
+      - bracketed:
+        - start_bracket: (
+        - keyword: DATA_COMPRESSION
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - keyword: COLUMNSTORE
+        - keyword: 'ON'
+        - keyword: PARTITIONS
+        - bracketed:
+          - start_bracket: (
+          - numeric_literal: '1'
+          - comma: ','
+          - numeric_literal: '3'
+          - comma: ','
+          - numeric_literal: '5'
+          - keyword: TO
+          - numeric_literal: '6'
+          - end_bracket: )
+        - end_bracket: )
   - statement_terminator: ;
