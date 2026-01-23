@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 8413dc1a1cccde4bbc9f3fb68399299c4e2f2cdc9eb465e5af9b2edd8b3353ac
+_hash: 6e3778852803856767c9138afad61852d7c8db08cc5d855a7b734dec2b1e9333
 file:
 - batch:
     statement:
@@ -1291,21 +1291,34 @@ file:
       - keyword: WITH
       - bracketed:
         - start_bracket: (
+        - keyword: XML_COMPRESSION
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - keyword: 'ON'
+        - on_partitions_clause:
+          - keyword: 'ON'
+          - keyword: PARTITIONS
+          - bracketed:
+              start_bracket: (
+              numeric_literal: '2'
+              end_bracket: )
+        - comma: ','
         - keyword: DATA_COMPRESSION
         - comparison_operator:
             raw_comparison_operator: '='
         - keyword: COLUMNSTORE
-        - keyword: 'ON'
-        - keyword: PARTITIONS
-        - bracketed:
-          - start_bracket: (
-          - numeric_literal: '1'
-          - comma: ','
-          - numeric_literal: '3'
-          - comma: ','
-          - numeric_literal: '5'
-          - keyword: TO
-          - numeric_literal: '6'
-          - end_bracket: )
+        - on_partitions_clause:
+          - keyword: 'ON'
+          - keyword: PARTITIONS
+          - bracketed:
+            - start_bracket: (
+            - numeric_literal: '1'
+            - comma: ','
+            - numeric_literal: '3'
+            - comma: ','
+            - numeric_literal: '5'
+            - keyword: TO
+            - numeric_literal: '6'
+            - end_bracket: )
         - end_bracket: )
   - statement_terminator: ;

@@ -1577,6 +1577,25 @@ class CursorDefinitionSegment(BaseSegment):
         Ref("SelectStatementSegment"),
     )
 
+class OnPartitionsSegment(BaseSegment):
+    """ON PARTITIONS clause for T-SQL statements."""
+    
+    type = "on_partitions"
+    match_grammar = Sequence(
+        "ON",
+        "PARTITIONS",
+        Bracketed(
+            Delimited(
+                Ref("NumericLiteralSegment"),
+            ),
+            Sequence(
+                "TO",
+                Ref("NumericLiteralSegment"),
+                optional=True,
+            ),
+        ),
+    )
+
 
 # Originals
 
@@ -2144,24 +2163,6 @@ class AlterIndexStatementSegment(BaseSegment):
         ),
     )
 
-    _on_partitions = Sequence(
-        Sequence(
-            "ON",
-            "PARTITIONS",
-        ),
-        Bracketed(
-            Delimited(
-                Ref("NumericLiteralSegment"),
-            ),
-            Sequence(
-                "TO",
-                Ref("NumericLiteralSegment"),
-                optional=True,
-            ),
-        ),
-        optional=True,
-    )
-
     _rebuild_index_option = AnyNumberOf(
         Sequence(
             OneOf(
@@ -2214,7 +2215,7 @@ class AlterIndexStatementSegment(BaseSegment):
                 "COLUMNSTORE",
                 "COLUMNSTORE_ARCHIVE",
             ),
-            _on_partitions,
+            Ref("OnPartitionsSegment", optional=True),
         ),
         Sequence(
             "XML_COMPRESSION",
@@ -2223,7 +2224,7 @@ class AlterIndexStatementSegment(BaseSegment):
                 "ON",
                 "OFF",
             ),
-            _on_partitions,
+            Ref("OnPartitionsSegment", optional=True),
         ),
     )
 
@@ -2481,23 +2482,6 @@ class TableOptionSegment(BaseSegment):
         ),
     )
 
-    _on_partitions = Sequence(
-        Sequence(
-            "ON",
-            "PARTITIONS",
-        ),
-        Bracketed(
-            Delimited(
-                Ref("NumericLiteralSegment"),
-            ),
-            Sequence(
-                "TO",
-                Ref("NumericLiteralSegment"),
-                optional=True,
-            ),
-        ),
-        optional=True,
-    )
 
     type = "table_option_statement"
 
@@ -2562,13 +2546,13 @@ class TableOptionSegment(BaseSegment):
                             "ROW",
                             "PAGE",
                         ),
-                        _on_partitions,
+                        Ref("OnPartitionsSegment", optional=True),
                     ),
                     Sequence(
                         "XML_COMPRESSION",
                         Ref("EqualsSegment"),
                         OneOf("ON", "OFF"),
-                        _on_partitions,
+                        Ref("OnPartitionsSegment", optional=True),
                     ),
                     Sequence(
                         "FILETABLE_DIRECTORY",
@@ -4429,24 +4413,6 @@ class AlterTableStatementSegment(BaseSegment):
     TODO: Flesh out TSQL-specific functionality
     """
 
-    _on_partitions = Sequence(
-        Sequence(
-            "ON",
-            "PARTITIONS",
-        ),
-        Bracketed(
-            Delimited(
-                Ref("NumericLiteralSegment"),
-            ),
-            Sequence(
-                "TO",
-                Ref("NumericLiteralSegment"),
-                optional=True,
-            ),
-        ),
-        optional=True,
-    )
-
     _rebuild_table_option = AnyNumberOf(
         Sequence(
             "DATA_COMPRESSION",
@@ -4458,7 +4424,7 @@ class AlterTableStatementSegment(BaseSegment):
                 "COLUMNSTORE",
                 "COLUMNSTORE_ARCHIVE",
             ),
-            _on_partitions,
+            Ref("OnPartitionsSegment", optional=True),
         ),
         Sequence(
             "XML_COMPRESSION",
@@ -4467,7 +4433,7 @@ class AlterTableStatementSegment(BaseSegment):
                 "ON",
                 "OFF",
             ),
-            _on_partitions,
+            Ref("OnPartitionsSegment", optional=True),
         ),
     )
 
@@ -4567,12 +4533,9 @@ class AlterTableStatementSegment(BaseSegment):
                     "REBUILD",
                     OneOf(
                         Sequence(
-                            Sequence(
-                                "PARTITION",
-                                Ref("EqualsSegment"),
-                                "ALL",
-                                optional=True,
-                            ),
+                            "PARTITION",
+                            Ref("EqualsSegment"),
+                            "ALL",
                             Sequence(
                                 "WITH",
                                 Bracketed(
