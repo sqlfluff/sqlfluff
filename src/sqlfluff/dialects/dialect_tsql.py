@@ -1578,21 +1578,24 @@ class CursorDefinitionSegment(BaseSegment):
     )
 
 class OnPartitionsSegment(BaseSegment):
-    """ON PARTITIONS clause for T-SQL statements."""
-    
-    type = "on_partitions"
+    """ON PARTITIONS clause.
+
+    https://docs.microsoft.com/en-us/sql/t-sql/statements/create-index-transact-sql
+    """
+
+    type = "on_partitions_clause"
     match_grammar = Sequence(
         "ON",
         "PARTITIONS",
         Bracketed(
             Delimited(
-                Ref("NumericLiteralSegment"),
-            ),
-            Sequence(
-                "TO",
-                Ref("NumericLiteralSegment"),
-                optional=True,
-            ),
+                OneOf(
+                    Ref("NumericLiteralSegment"),
+                    Sequence(
+                        Ref("NumericLiteralSegment"), "TO", Ref("NumericLiteralSegment")
+                    ),
+                )
+            )
         ),
     )
 
@@ -4102,29 +4105,6 @@ class PartitionClauseSegment(ansi.PartitionClauseSegment):
                 OneOf(
                     Ref("ColumnReferenceSegment"),
                     Ref("ExpressionSegment"),
-                )
-            )
-        ),
-    )
-
-
-class OnPartitionsSegment(BaseSegment):
-    """ON PARTITIONS clause.
-
-    https://docs.microsoft.com/en-us/sql/t-sql/statements/create-index-transact-sql
-    """
-
-    type = "on_partitions_clause"
-    match_grammar = Sequence(
-        "ON",
-        "PARTITIONS",
-        Bracketed(
-            Delimited(
-                OneOf(
-                    Ref("NumericLiteralSegment"),
-                    Sequence(
-                        Ref("NumericLiteralSegment"), "TO", Ref("NumericLiteralSegment")
-                    ),
                 )
             )
         ),
