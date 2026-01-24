@@ -395,9 +395,7 @@ impl Parser<'_> {
                             self.pos,
                             match_result
                         );
-                        stack
-                            .results
-                            .insert(frame.frame_id, (Arc::new(match_result), self.pos, None));
+                        stack.insert_result(frame.frame_id, match_result, self.pos);
                         Ok(TableFrameResult::Done)
                     }
                     Err(e) => Err(e),
@@ -413,9 +411,7 @@ impl Parser<'_> {
                             frame.frame_id,
                             self.pos
                         );
-                        stack
-                            .results
-                            .insert(frame.frame_id, (Arc::new(match_result), self.pos, None));
+                        stack.insert_result(frame.frame_id, match_result, self.pos);
                         Ok(TableFrameResult::Done)
                     }
                     Err(e) => Err(e),
@@ -431,9 +427,7 @@ impl Parser<'_> {
                             self.pos,
                             match_result
                         );
-                        stack
-                            .results
-                            .insert(frame.frame_id, (Arc::new(match_result), self.pos, None));
+                        stack.insert_result(frame.frame_id, match_result, self.pos);
                         Ok(TableFrameResult::Done)
                     }
                     Err(e) => Err(e),
@@ -448,9 +442,7 @@ impl Parser<'_> {
                             frame.frame_id,
                             self.pos
                         );
-                        stack
-                            .results
-                            .insert(frame.frame_id, (Arc::new(match_result), self.pos, None));
+                        stack.insert_result(frame.frame_id, match_result, self.pos);
                         Ok(TableFrameResult::Done)
                     }
                     Err(e) => Err(e),
@@ -465,9 +457,7 @@ impl Parser<'_> {
                             frame.frame_id,
                             self.pos
                         );
-                        stack
-                            .results
-                            .insert(frame.frame_id, (Arc::new(match_result), self.pos, None));
+                        stack.insert_result(frame.frame_id, match_result, self.pos);
                         Ok(TableFrameResult::Done)
                     }
                     Err(e) => Err(e),
@@ -482,9 +472,7 @@ impl Parser<'_> {
                             frame.frame_id,
                             self.pos
                         );
-                        stack
-                            .results
-                            .insert(frame.frame_id, (Arc::new(match_result), self.pos, None));
+                        stack.insert_result(frame.frame_id, match_result, self.pos);
                         Ok(TableFrameResult::Done)
                     }
                     Err(e) => Err(e),
@@ -499,9 +487,7 @@ impl Parser<'_> {
                             frame.frame_id,
                             self.pos
                         );
-                        stack
-                            .results
-                            .insert(frame.frame_id, (Arc::new(match_result), self.pos, None));
+                        stack.insert_result(frame.frame_id, match_result, self.pos);
                         Ok(TableFrameResult::Done)
                     }
                     Err(e) => Err(e),
@@ -516,9 +502,7 @@ impl Parser<'_> {
                             frame.frame_id,
                             self.pos
                         );
-                        stack
-                            .results
-                            .insert(frame.frame_id, (Arc::new(match_result), self.pos, None));
+                        stack.insert_result(frame.frame_id, match_result, self.pos);
                         Ok(TableFrameResult::Done)
                     }
                     Err(e) => Err(e),
@@ -533,9 +517,7 @@ impl Parser<'_> {
                             frame.frame_id,
                             self.pos
                         );
-                        stack
-                            .results
-                            .insert(frame.frame_id, (Arc::new(match_result), self.pos, None));
+                        stack.insert_result(frame.frame_id, match_result, self.pos);
                         Ok(TableFrameResult::Done)
                     }
                     Err(e) => Err(e),
@@ -554,9 +536,7 @@ impl Parser<'_> {
                             frame.frame_id,
                             self.pos
                         );
-                        stack
-                            .results
-                            .insert(frame.frame_id, (Arc::new(match_result), self.pos, None));
+                        stack.insert_result(frame.frame_id, match_result, self.pos);
                         Ok(TableFrameResult::Done)
                     }
                     Err(e) => Err(e),
@@ -854,10 +834,7 @@ impl Parser<'_> {
         let element_key = frame.element_key;
 
         // This frame is done - insert result
-        stack.results.insert(
-            frame.frame_id,
-            (Arc::new(match_result.clone()), end_pos, element_key),
-        );
+        stack.insert_result_with_key(frame.frame_id, match_result.clone(), end_pos, element_key);
 
         // Cache the result for future reuse
         // Cache non-empty results always, but only cache Empty results when
@@ -990,10 +967,8 @@ impl Parser<'_> {
                             }
                         }
                     }
-                    // Insert cached MatchResult - match_result is &Rc, clone the Rc (cheap refcount)
-                    stack
-                        .results
-                        .insert(frame.frame_id, (Arc::clone(match_result), *end_pos, None));
+                    // Insert cached MatchResult - match_result is &Arc, clone the Arc (cheap refcount)
+                    stack.insert_arc_result(frame.frame_id, Arc::clone(match_result), *end_pos);
                     return Ok(TableFrameResult::Done);
                 }
             }
