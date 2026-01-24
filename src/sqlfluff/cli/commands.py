@@ -837,14 +837,18 @@ def _handle_unparsable(
 
     # Get the actual templating/parsing errors for detailed reporting
     # Get violations using types parameter by accessing files directly
-    tmp_prs_errors = []
+    # Now we collect errors by file to preserve file context
+    tmp_prs_errors_by_file = {}
     for path in linting_result.paths:
         for linted_file in path.files:
-            tmp_prs_errors.extend(linted_file.get_violations(types=TMP_PRS_ERROR_TYPES))
+            file_errors = linted_file.get_violations(types=TMP_PRS_ERROR_TYPES)
+            if file_errors:
+                tmp_prs_errors_by_file[linted_file.path] = file_errors
 
         # If no files retained, get from records as fallback
         if not path.files and hasattr(path, "_records"):
             for record in path._records:
+                file_errors = []
                 for v_dict in record.get("violations", []):
                     if v_dict.get("code") in ("TMP", "PRS"):
                         # Extract and convert values to proper types
@@ -865,10 +869,12 @@ def _handle_unparsable(
                                 line_no=line_no,
                                 line_pos=line_pos,
                             )
-                        tmp_prs_errors.append(error)
+                        file_errors.append(error)
+                if file_errors:
+                    tmp_prs_errors_by_file[record["filepath"]] = file_errors
 
     formatter.print_out_residual_error_counts(
-        total_errors, num_filtered_errors, tmp_prs_errors, force_stderr=True
+        total_errors, num_filtered_errors, tmp_prs_errors_by_file, force_stderr=True
     )
     return EXIT_FAIL if num_filtered_errors else EXIT_SUCCESS
 
