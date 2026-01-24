@@ -622,7 +622,7 @@ class OutputStreamFormatter(FormatterInterface):
         self,
         total_errors: int,
         num_filtered_errors: int,
-        tmp_prs_errors: Optional[dict[str, list]] = None,
+        tmp_prs_errors: Optional[dict[str, list[SQLBaseError]]] = None,
         force_stderr: bool = False,
     ) -> None:
         """Output the residual error totals for the file.
@@ -651,7 +651,7 @@ class OutputStreamFormatter(FormatterInterface):
                 for filepath, errors in tmp_prs_errors.items():
                     click.echo(
                         message=self.colorize(f"  == [{filepath}] ==", Color.light),
-                        color=self.plain_output,
+                        color=not self.plain_output,
                         err=True,
                     )
                     for error in errors:

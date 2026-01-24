@@ -837,18 +837,18 @@ def _handle_unparsable(
 
     # Get the actual templating/parsing errors for detailed reporting
     # Get violations using types parameter by accessing files directly
-    # Now we collect errors by file to preserve file context
-    tmp_prs_errors_by_file = {}
+    tmp_prs_errors_by_file: dict[str, list[SQLBaseError]] = {}
     for path in linting_result.paths:
         for linted_file in path.files:
-            file_errors = linted_file.get_violations(types=TMP_PRS_ERROR_TYPES)
-            if file_errors:
-                tmp_prs_errors_by_file[linted_file.path] = file_errors
+            file_errors: list[SQLBaseError] = linted_file.get_violations(
+                types=TMP_PRS_ERROR_TYPES
+            )
+            tmp_prs_errors_by_file.setdefault(linted_file.path, []).extend(file_errors)
 
         # If no files retained, get from records as fallback
         if not path.files and hasattr(path, "_records"):
             for record in path._records:
-                file_errors = []
+                record_errors: list[SQLBaseError] = []
                 for v_dict in record.get("violations", []):
                     if v_dict.get("code") in ("TMP", "PRS"):
                         # Extract and convert values to proper types
@@ -857,8 +857,9 @@ def _handle_unparsable(
                         line_no = int(cast(Union[str, int], v_dict["start_line_no"]))
                         line_pos = int(cast(Union[str, int], v_dict["start_line_pos"]))
 
+                        error: SQLBaseError
                         if code == "TMP":
-                            error: SQLBaseError = SQLTemplaterError(
+                            error = SQLTemplaterError(
                                 description=description,
                                 line_no=line_no,
                                 line_pos=line_pos,
@@ -869,9 +870,9 @@ def _handle_unparsable(
                                 line_no=line_no,
                                 line_pos=line_pos,
                             )
-                        file_errors.append(error)
-                if file_errors:
-                    tmp_prs_errors_by_file[record["filepath"]] = file_errors
+                        record_errors.append(error)
+                if record_errors:
+                    tmp_prs_errors_by_file[record["filepath"]] = record_errors
 
     formatter.print_out_residual_error_counts(
         total_errors, num_filtered_errors, tmp_prs_errors_by_file, force_stderr=True
