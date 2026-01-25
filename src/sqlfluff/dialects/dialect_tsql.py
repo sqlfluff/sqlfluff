@@ -1577,6 +1577,7 @@ class CursorDefinitionSegment(BaseSegment):
         Ref("SelectStatementSegment"),
     )
 
+
 class OnPartitionsSegment(BaseSegment):
     """ON PARTITIONS clause.
 
@@ -1589,13 +1590,15 @@ class OnPartitionsSegment(BaseSegment):
         "PARTITIONS",
         Bracketed(
             Delimited(
-                OneOf(
+                Sequence(
                     Ref("NumericLiteralSegment"),
                     Sequence(
-                        Ref("NumericLiteralSegment"), "TO", Ref("NumericLiteralSegment")
+                        "TO",
+                        Ref("NumericLiteralSegment"),
+                        optional=True,
                     ),
-                )
-            )
+                ),
+            ),
         ),
     )
 
@@ -2484,7 +2487,6 @@ class TableOptionSegment(BaseSegment):
             optional=True,
         ),
     )
-
 
     type = "table_option_statement"
 
@@ -4393,7 +4395,7 @@ class AlterTableStatementSegment(BaseSegment):
     TODO: Flesh out TSQL-specific functionality
     """
 
-    _rebuild_table_option = AnyNumberOf(
+    _rebuild_table_option = Sequence(
         Sequence(
             "DATA_COMPRESSION",
             Ref("EqualsSegment"),
@@ -4405,6 +4407,7 @@ class AlterTableStatementSegment(BaseSegment):
                 "COLUMNSTORE_ARCHIVE",
             ),
             Ref("OnPartitionsSegment", optional=True),
+            optional=True,
         ),
         Sequence(
             "XML_COMPRESSION",
@@ -4414,10 +4417,11 @@ class AlterTableStatementSegment(BaseSegment):
                 "OFF",
             ),
             Ref("OnPartitionsSegment", optional=True),
+            optional=True,
         ),
     )
 
-    _single_partition_rebuild_table_option = AnyNumberOf(
+    _single_partition_rebuild_table_option = Sequence(
         Sequence(
             "XML_COMPRESSION",
             Ref("EqualsSegment"),
@@ -4425,6 +4429,7 @@ class AlterTableStatementSegment(BaseSegment):
                 "ON",
                 "OFF",
             ),
+            optional=True,
         ),
         Sequence(
             "DATA_COMPRESSION",
@@ -4436,6 +4441,7 @@ class AlterTableStatementSegment(BaseSegment):
                 "COLUMNSTORE",
                 "COLUMNSTORE_ARCHIVE",
             ),
+            optional=True,
         ),
     )
 
@@ -4499,7 +4505,7 @@ class AlterTableStatementSegment(BaseSegment):
                     Sequence(
                         "CONSTRAINT",
                         Ref("IfExistsGrammar", optional=True),
-                        optional=True
+                        optional=True,
                     ),
                     Ref("ObjectReferenceSegment"),
                 ),
