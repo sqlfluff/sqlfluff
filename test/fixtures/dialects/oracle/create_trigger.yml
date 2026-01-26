@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: eba8c5409a8d3a0dc5974e0382ba29d7ce64499302085fe3e28253c39aad1136
+_hash: 902b791e01120f3e64d3fab27c1c8bb51cd227a2190d355864611f008e83b957
 file:
   statement:
     create_trigger_statement:
@@ -488,12 +488,19 @@ file:
                               - keyword: INTO
                               - table_reference:
                                   naked_identifier: employee_salaries
-                              - keyword: VALUES
-                              - naked_identifier: salaries
-                              - bracketed:
-                                  start_bracket: (
-                                  naked_identifier: j
-                                  end_bracket: )
+                              - values_clause:
+                                  keyword: VALUES
+                                  expression:
+                                    function:
+                                      function_name:
+                                        function_name_identifier: salaries
+                                      function_contents:
+                                        bracketed:
+                                          start_bracket: (
+                                          expression:
+                                            column_reference:
+                                              naked_identifier: j
+                                          end_bracket: )
                         - statement_terminator: ;
                         - statement:
                             function:

@@ -3,8 +3,6 @@
 This inherits from the ansi dialect.
 """
 
-from typing import cast
-
 from sqlfluff.core.dialects import load_raw_dialect
 from sqlfluff.core.parser import (
     AnyNumberOf,
@@ -233,6 +231,7 @@ oracle_dialect.sets("unreserved_keywords").update(
         "EDITIONS",
         "ELSIF",
         "ERROR",
+        "ERRORS",
         "EXEMPT",
         "EXPIRE",
         "EXTERNALLY",
@@ -252,6 +251,7 @@ oracle_dialect.sets("unreserved_keywords").update(
         "LIBRARY",
         "LINK",
         "LOCKDOWN",
+        "LOG",
         "LOGMINING",
         "LOOP",
         "MEASURE",
@@ -287,6 +287,7 @@ oracle_dialect.sets("unreserved_keywords").update(
         "REDACTION",
         "REDEFINE",
         "REFRESH",
+        "REJECT",
         "RELIES_ON",
         "REMOTE",
         "RESTRICTED",
@@ -1588,6 +1589,7 @@ class UnorderedSelectStatementSegment(ansi.UnorderedSelectStatementSegment):
             Ref("HierarchicalQueryClauseSegment"),
             Ref("PivotSegment", optional=True),
             Ref("UnpivotSegment", optional=True),
+            "LOG",
         ],
     ).copy(
         insert=[
@@ -1615,9 +1617,12 @@ class SelectStatementSegment(ansi.SelectStatementSegment):
             Ref("ForUpdateGrammar", optional=True),
         ],
         replace_terminators=True,
-        terminators=cast(
-            Sequence, ansi.SelectStatementSegment.match_grammar
-        ).terminators,
+        terminators=[
+            Ref("SetOperatorSegment"),
+            Ref("WithNoSchemaBindingClauseSegment"),
+            Ref("WithDataClauseSegment"),
+            "LOG",
+        ],
     )
 
 
@@ -2744,31 +2749,72 @@ class MergeUpdateClauseSegment(BaseSegment):
 class InsertStatementSegment(BaseSegment):
     """An `INSERT` statement.
 
-    https://docs.oracle.com/en/database/oracle/oracle-database/23/sqlrf/INSERT.html
+    https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/INSERT.html
     """
 
     type = "insert_statement"
 
+    _insert_into_clause = Sequence(
+        "INTO",
+        OneOf(
+            Ref("TableReferenceSegment"),
+            Bracketed(Ref("SelectStatementSegment")),
+        ),
+        Ref("AliasExpressionSegment", optional=True),
+        Bracketed(Delimited(Ref("ColumnReferenceSegment")), optional=True),
+    )
+
+    _insert_set_or_values_clause = (
+        Sequence(
+            OneOf(
+                Ref("ValuesClauseSegment"),
+                Sequence("SET", Delimited(Ref("SetClauseSegment"))),
+            ),
+            Ref("ReturningClauseSegment", optional=True),
+            optional=True,
+        ),
+    )
+
+    _error_logging_clause = Sequence(
+        "LOG",
+        "ERRORS",
+        Sequence("INTO", Ref("TableReferenceSegment"), optional=True),
+        Bracketed(Ref("ExpressionSegment"), optional=True),
+        Sequence(
+            "REJECT",
+            "LIMIT",
+            OneOf(Ref("NumericLiteralSegment"), "UNLIMITED"),
+            optional=True,
+        ),
+        optional=True,
+    )
+
+    _by_name_position_subquery_clause = Sequence(
+        Sequence("BY", OneOf("NAME", "POSITION"), optional=True),
+        Ref("SelectableGrammar"),
+    )
+
     match_grammar: Matchable = Sequence(
         "INSERT",
-        Ref.keyword("OVERWRITE", optional=True),
-        "INTO",
-        Ref("TableReferenceSegment"),
         OneOf(
-            Ref("SelectableGrammar"),
             Sequence(
-                Ref("BracketedColumnReferenceListGrammar"),
-                Ref("SelectableGrammar"),
+                _insert_into_clause,
+                OneOf(*_insert_set_or_values_clause, _by_name_position_subquery_clause),
+                _error_logging_clause,
             ),
-            Ref("DefaultValuesGrammar"),
             Sequence(
-                "VALUES",
-                Ref("SingleIdentifierGrammar"),
-                Bracketed(Ref("SingleIdentifierGrammar"), optional=True),
-                optional=True,
+                "ALL",
+                AnyNumberOf(
+                    Sequence(
+                        _insert_into_clause,
+                        *_insert_set_or_values_clause,
+                        _error_logging_clause,
+                    ),
+                    min_times=1,
+                ),
+                _by_name_position_subquery_clause,
             ),
         ),
-        Ref("ReturningClauseSegment", optional=True),
     )
 
 
@@ -2971,7 +3017,7 @@ class IntoClauseSegment(BaseSegment):
 
     match_grammar = Sequence(
         "INTO",
-        Delimited(Ref("SingleIdentifierGrammar")),
+        Delimited(OneOf(Ref("SingleIdentifierGrammar"), Ref("SqlplusVariableGrammar"))),
     )
 
 
@@ -3129,7 +3175,7 @@ class ReturningClauseSegment(BaseSegment):
         Delimited(
             Sequence(
                 OneOf("OLD", "NEW", optional=True),
-                Ref("SingleIdentifierGrammar"),
+                OneOf(Ref("SingleIdentifierGrammar"), Ref("ExpressionSegment")),
             ),
         ),
         OneOf(Ref("IntoClauseSegment"), Ref("BulkCollectIntoClauseSegment")),
@@ -3553,5 +3599,22 @@ class AccessStatementSegment(BaseSegment):
                 ),
             ),
             _roles_from_programs_segment,
+        ),
+    )
+
+
+class ValuesClauseSegment(BaseSegment):
+    """A `VALUES` clause like in `INSERT`."""
+
+    type = "values_clause"
+
+    match_grammar: Matchable = Sequence(
+        OneOf("VALUE", "VALUES"),
+        OptionallyBracketed(
+            Delimited(
+                "DEFAULT",
+                Ref("LiteralGrammar"),
+                Ref("ExpressionSegment"),
+            ),
         ),
     )
