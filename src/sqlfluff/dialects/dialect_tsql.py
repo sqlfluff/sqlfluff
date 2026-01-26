@@ -4395,7 +4395,7 @@ class AlterTableStatementSegment(BaseSegment):
     TODO: Flesh out TSQL-specific functionality
     """
 
-    _rebuild_table_option = Sequence(
+    _rebuild_table_option = OneOf(
         Sequence(
             "DATA_COMPRESSION",
             Ref("EqualsSegment"),
@@ -4407,7 +4407,6 @@ class AlterTableStatementSegment(BaseSegment):
                 "COLUMNSTORE_ARCHIVE",
             ),
             Ref("OnPartitionsSegment", optional=True),
-            optional=True,
         ),
         Sequence(
             "XML_COMPRESSION",
@@ -4417,31 +4416,6 @@ class AlterTableStatementSegment(BaseSegment):
                 "OFF",
             ),
             Ref("OnPartitionsSegment", optional=True),
-            optional=True,
-        ),
-    )
-
-    _single_partition_rebuild_table_option = Sequence(
-        Sequence(
-            "XML_COMPRESSION",
-            Ref("EqualsSegment"),
-            OneOf(
-                "ON",
-                "OFF",
-            ),
-            optional=True,
-        ),
-        Sequence(
-            "DATA_COMPRESSION",
-            Ref("EqualsSegment"),
-            OneOf(
-                "NONE",
-                "ROW",
-                "PAGE",
-                "COLUMNSTORE",
-                "COLUMNSTORE_ARCHIVE",
-            ),
-            optional=True,
         ),
     )
 
@@ -4517,36 +4491,17 @@ class AlterTableStatementSegment(BaseSegment):
                 ),
                 Sequence(
                     "REBUILD",
-                    OneOf(
-                        Sequence(
-                            "PARTITION",
-                            Ref("EqualsSegment"),
-                            "ALL",
-                            Sequence(
-                                "WITH",
-                                Bracketed(
-                                    Delimited(
-                                        _rebuild_table_option,
-                                    )
-                                ),
-                                optional=True,
-                            ),
-                        ),
-                        Sequence(
-                            Sequence(
-                                "PARTITION",
-                                Ref("EqualsSegment"),
-                                Ref("NumericLiteralSegment"),
-                                optional=True,
-                            ),
-                            Sequence(
-                                "WITH",
-                                Bracketed(
-                                    Delimited(
-                                        _single_partition_rebuild_table_option,
-                                    ),
-                                ),
-                                optional=True,
+                    Sequence(
+                        "PARTITION",
+                        Ref("EqualsSegment"),
+                        OneOf("ALL", Ref("NumericLiteralSegment")),
+                        optional=True,
+                    ),
+                    Sequence(
+                        "WITH",
+                        Bracketed(
+                            Delimited(
+                                _rebuild_table_option,
                             ),
                         ),
                         optional=True,

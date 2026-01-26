@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 217ad63323193982d7f52c37a9d1c27d042ba5709a3d2195dba5ebff76337193
+_hash: b3bf9ee53c751b8f799b047c7d7bb3215d83e4bcf8968ee1be3f31aa00d75184
 file:
 - batch:
     statement:
@@ -1255,6 +1255,11 @@ file:
         - comparison_operator:
             raw_comparison_operator: '='
         - keyword: PAGE
+        - comma: ','
+        - keyword: XML_COMPRESSION
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - keyword: 'ON'
         - end_bracket: )
   - statement_terminator: ;
   - statement:
@@ -1295,12 +1300,17 @@ file:
         - comparison_operator:
             raw_comparison_operator: '='
         - keyword: 'ON'
+        - comma: ','
+        - keyword: DATA_COMPRESSION
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - keyword: NONE
         - on_partitions_clause:
           - keyword: 'ON'
           - keyword: PARTITIONS
           - bracketed:
               start_bracket: (
-              numeric_literal: '2'
+              numeric_literal: '4'
               end_bracket: )
         - comma: ','
         - keyword: DATA_COMPRESSION
