@@ -455,8 +455,8 @@ tsql_dialect.add(
     # https://learn.microsoft.com/en-us/sql/t-sql/language-elements/all-transact-sql
     # https://learn.microsoft.com/en-us/sql/t-sql/language-elements/some-any-transact-sql
     # Syntax: scalar_expression comparison_operator { ALL | ANY | SOME } ( subquery )
-    # We use SelectableGrammar which includes SELECT statements and other query expressions
-    # that can be used in a subquery context.
+    # We use SelectableGrammar which includes SELECT statements and other
+    # query expressions that can be used in a subquery context.
     QuantifiedComparisonOperatorGrammar=Sequence(
         Ref("ComparisonOperatorGrammar"),
         OneOf("ALL", "ANY", "SOME"),
