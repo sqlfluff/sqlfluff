@@ -451,20 +451,6 @@ tsql_dialect.add(
     ActionParameterSegment=RegexParser(
         r"\$ACTION", CodeSegment, type="action_parameter"
     ),
-    # Quantified comparison operators for ANY, ALL, SOME
-    # https://learn.microsoft.com/en-us/sql/t-sql/language-elements/all-transact-sql
-    # https://learn.microsoft.com/en-us/sql/t-sql/language-elements/some-any-transact-sql
-    # Syntax: scalar_expression comparison_operator { ALL | ANY | SOME } ( subquery )
-    # We use SelectableGrammar which includes SELECT statements and other
-    # query expressions that can be used in a subquery context.
-    QuantifiedComparisonOperatorGrammar=Sequence(
-        Ref("ComparisonOperatorGrammar"),
-        OneOf("ALL", "ANY", "SOME"),
-        Bracketed(
-            Ref("SelectableGrammar"),
-            parse_mode=ParseMode.GREEDY,
-        ),
-    ),
 )
 
 tsql_dialect.replace(
@@ -725,46 +711,6 @@ tsql_dialect.replace(
             Ref("DivisionAssignmentSegment"),
             Ref("ModulusAssignmentSegment"),
         ]
-    ),
-    # Override Expression_A_Grammar to add support for quantified comparison operators.
-    # We need to completely override because the ANSI grammar has a deeply nested
-    # structure (Sequence -> AnyNumberOf -> OneOf) that cannot be easily modified
-    # using .copy() with insert/before parameters. This is the same approach used
-    # by other dialects (e.g., Vertica) when adding expression-level operators.
-    # If ANSI Expression_A_Grammar changes, this override will need to be updated.
-    Expression_A_Grammar=Sequence(
-        Ref("Tail_Recurse_Expression_A_Grammar"),
-        AnyNumberOf(
-            OneOf(
-                Ref("LikeExpressionGrammar"),
-                Sequence(
-                    Ref("BinaryOperatorGrammar"),
-                    Ref("Tail_Recurse_Expression_A_Grammar"),
-                ),
-                Ref("InOperatorGrammar"),
-                # Add quantified comparison operators (ANY, ALL, SOME)
-                Ref("QuantifiedComparisonOperatorGrammar"),
-                Sequence(
-                    "IS",
-                    Ref.keyword("NOT", optional=True),
-                    Ref("IsClauseGrammar"),
-                ),
-                Ref("IsNullGrammar"),
-                Ref("NotNullGrammar"),
-                Ref("CollateGrammar"),
-                Sequence(
-                    Ref.keyword("NOT", optional=True),
-                    "BETWEEN",
-                    Ref("Expression_B_Grammar"),
-                    "AND",
-                    Ref("Tail_Recurse_Expression_A_Grammar"),
-                ),
-                Sequence(
-                    Ref("PatternMatchingGrammar"),
-                    Ref("Expression_A_Grammar"),
-                ),
-            )
-        ),
     ),
 )
 
