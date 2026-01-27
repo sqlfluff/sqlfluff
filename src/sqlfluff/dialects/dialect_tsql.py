@@ -1578,6 +1578,31 @@ class CursorDefinitionSegment(BaseSegment):
     )
 
 
+class OnPartitionsSegment(BaseSegment):
+    """ON PARTITIONS clause.
+
+    https://docs.microsoft.com/en-us/sql/t-sql/statements/create-index-transact-sql
+    """
+
+    type = "on_partitions_clause"
+    match_grammar = Sequence(
+        "ON",
+        "PARTITIONS",
+        Bracketed(
+            Delimited(
+                Sequence(
+                    Ref("NumericLiteralSegment"),
+                    Sequence(
+                        "TO",
+                        Ref("NumericLiteralSegment"),
+                        optional=True,
+                    ),
+                ),
+            ),
+        ),
+    )
+
+
 # Originals
 
 
@@ -2144,24 +2169,6 @@ class AlterIndexStatementSegment(BaseSegment):
         ),
     )
 
-    _on_partitions = Sequence(
-        Sequence(
-            "ON",
-            "PARTITIONS",
-        ),
-        Bracketed(
-            Delimited(
-                Ref("NumericLiteralSegment"),
-            ),
-            Sequence(
-                "TO",
-                Ref("NumericLiteralSegment"),
-                optional=True,
-            ),
-        ),
-        optional=True,
-    )
-
     _rebuild_index_option = AnyNumberOf(
         Sequence(
             OneOf(
@@ -2214,7 +2221,7 @@ class AlterIndexStatementSegment(BaseSegment):
                 "COLUMNSTORE",
                 "COLUMNSTORE_ARCHIVE",
             ),
-            _on_partitions,
+            Ref("OnPartitionsSegment", optional=True),
         ),
         Sequence(
             "XML_COMPRESSION",
@@ -2223,7 +2230,7 @@ class AlterIndexStatementSegment(BaseSegment):
                 "ON",
                 "OFF",
             ),
-            _on_partitions,
+            Ref("OnPartitionsSegment", optional=True),
         ),
     )
 
@@ -2481,24 +2488,6 @@ class TableOptionSegment(BaseSegment):
         ),
     )
 
-    _on_partitions = Sequence(
-        Sequence(
-            "ON",
-            "PARTITIONS",
-        ),
-        Bracketed(
-            Delimited(
-                Ref("NumericLiteralSegment"),
-            ),
-            Sequence(
-                "TO",
-                Ref("NumericLiteralSegment"),
-                optional=True,
-            ),
-        ),
-        optional=True,
-    )
-
     type = "table_option_statement"
 
     match_grammar = Sequence(
@@ -2562,13 +2551,13 @@ class TableOptionSegment(BaseSegment):
                             "ROW",
                             "PAGE",
                         ),
-                        _on_partitions,
+                        Ref("OnPartitionsSegment", optional=True),
                     ),
                     Sequence(
                         "XML_COMPRESSION",
                         Ref("EqualsSegment"),
                         OneOf("ON", "OFF"),
-                        _on_partitions,
+                        Ref("OnPartitionsSegment", optional=True),
                     ),
                     Sequence(
                         "FILETABLE_DIRECTORY",
@@ -4124,29 +4113,6 @@ class PartitionClauseSegment(ansi.PartitionClauseSegment):
     )
 
 
-class OnPartitionsSegment(BaseSegment):
-    """ON PARTITIONS clause.
-
-    https://docs.microsoft.com/en-us/sql/t-sql/statements/create-index-transact-sql
-    """
-
-    type = "on_partitions_clause"
-    match_grammar = Sequence(
-        "ON",
-        "PARTITIONS",
-        Bracketed(
-            Delimited(
-                OneOf(
-                    Ref("NumericLiteralSegment"),
-                    Sequence(
-                        Ref("NumericLiteralSegment"), "TO", Ref("NumericLiteralSegment")
-                    ),
-                )
-            )
-        ),
-    )
-
-
 class PartitionSchemeNameSegment(BaseSegment):
     """Partition Scheme Name."""
 
@@ -4429,6 +4395,30 @@ class AlterTableStatementSegment(BaseSegment):
     TODO: Flesh out TSQL-specific functionality
     """
 
+    _rebuild_table_option = OneOf(
+        Sequence(
+            "DATA_COMPRESSION",
+            Ref("EqualsSegment"),
+            OneOf(
+                "NONE",
+                "ROW",
+                "PAGE",
+                "COLUMNSTORE",
+                "COLUMNSTORE_ARCHIVE",
+            ),
+            Ref("OnPartitionsSegment", optional=True),
+        ),
+        Sequence(
+            "XML_COMPRESSION",
+            Ref("EqualsSegment"),
+            OneOf(
+                "ON",
+                "OFF",
+            ),
+            Ref("OnPartitionsSegment", optional=True),
+        ),
+    )
+
     type = "alter_table_statement"
     match_grammar = Sequence(
         "ALTER",
@@ -4486,8 +4476,11 @@ class AlterTableStatementSegment(BaseSegment):
                 ),
                 Sequence(
                     "DROP",
-                    "CONSTRAINT",
-                    Ref("IfExistsGrammar", optional=True),
+                    Sequence(
+                        "CONSTRAINT",
+                        Ref("IfExistsGrammar", optional=True),
+                        optional=True,
+                    ),
                     Ref("ObjectReferenceSegment"),
                 ),
                 # Rename
@@ -4495,6 +4488,24 @@ class AlterTableStatementSegment(BaseSegment):
                     "RENAME",
                     OneOf("AS", "TO", optional=True),
                     Ref("TableReferenceSegment"),
+                ),
+                Sequence(
+                    "REBUILD",
+                    Sequence(
+                        "PARTITION",
+                        Ref("EqualsSegment"),
+                        OneOf("ALL", Ref("NumericLiteralSegment")),
+                        optional=True,
+                    ),
+                    Sequence(
+                        "WITH",
+                        Bracketed(
+                            Delimited(
+                                _rebuild_table_option,
+                            ),
+                        ),
+                        optional=True,
+                    ),
                 ),
                 Sequence(
                     "SET",
