@@ -723,8 +723,12 @@ tsql_dialect.replace(
             Ref("ModulusAssignmentSegment"),
         ]
     ),
-    # Override Expression_A_Grammar to add support for quantified comparison operators
-    # Based on ANSI Expression_A_Grammar with QuantifiedComparisonOperatorGrammar added
+    # Override Expression_A_Grammar to add support for quantified comparison operators.
+    # We need to completely override because the ANSI grammar has a deeply nested
+    # structure (Sequence -> AnyNumberOf -> OneOf) that cannot be easily modified
+    # using .copy() with insert/before parameters. This is the same approach used
+    # by other dialects (e.g., Vertica) when adding expression-level operators.
+    # If ANSI Expression_A_Grammar changes, this override will need to be updated.
     Expression_A_Grammar=Sequence(
         Ref("Tail_Recurse_Expression_A_Grammar"),
         AnyNumberOf(
