@@ -1,0 +1,66 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 28e0ae721f78642a6a1004d7d70387094fc1297404bf83cc18ca8452376cc2e4
+file:
+- statement:
+    set_statement:
+    - keyword: SET
+    - keyword: VARIABLE
+    - naked_identifier: my_var
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - numeric_literal: '30'
+- statement_terminator: ;
+- statement:
+    set_statement:
+      keyword: SET
+      parameter: memory_limit
+      comparison_operator:
+        raw_comparison_operator: '='
+      quoted_literal: "'10GB'"
+- statement_terminator: ;
+- statement:
+    set_statement:
+      keyword: SET
+      parameter: threads
+      comparison_operator:
+        raw_comparison_operator: '='
+      numeric_literal: '1'
+- statement_terminator: ;
+- statement:
+    set_statement:
+    - keyword: SET
+    - parameter: threads
+    - keyword: TO
+    - numeric_literal: '1'
+- statement_terminator: ;
+- statement:
+    set_statement:
+    - keyword: SET
+    - keyword: SESSION
+    - parameter: default_collation
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'nocase'"
+- statement_terminator: ;
+- statement:
+    set_statement:
+    - keyword: SET
+    - keyword: GLOBAL
+    - parameter: sort_order
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - quoted_literal: "'desc'"
+- statement_terminator: ;
+- statement:
+    set_statement:
+    - keyword: SET
+    - keyword: GLOBAL
+    - parameter: threads
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - numeric_literal: '4'
+- statement_terminator: ;
