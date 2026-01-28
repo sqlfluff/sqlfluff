@@ -1130,6 +1130,45 @@ class CopyStatementSegment(postgres.CopyStatementSegment):
     )
 
 
+class SetStatementSegment(postgres.SetStatementSegment):
+    """A `SET` Statement.
+
+    DuckDB documentation: https://duckdb.org/docs/sql/statements/set
+    """
+
+    type = "set_statement"
+
+    match_grammar = Sequence(
+        "SET",
+        OneOf(
+            Sequence(
+                "VARIABLE",
+                Ref("NakedIdentifierSegment"),  # variable_name
+                Ref("EqualsSegment"),
+                OneOf(
+                    Ref("LiteralGrammar"),
+                    Ref("NakedIdentifierSegment"),
+                    Ref("QuotedIdentifierSegment"),
+                ),
+            ),
+            Sequence(
+                OneOf("SESSION", "GLOBAL", optional=True),
+                Ref("ParameterNameSegment"),
+                OneOf("TO", Ref("EqualsSegment")),
+                OneOf(
+                    "DEFAULT",
+                    Delimited(
+                        Ref("LiteralGrammar"),
+                        Ref("NakedIdentifierSegment"),
+                        Ref("QuotedIdentifierSegment"),
+                        Ref("OnKeywordAsIdentifierSegment"),
+                    ),
+                ),
+            ),
+        ),
+    )
+
+
 class ArrayLiteralSegment(BaseSegment):
     """An array literal segment.
 
