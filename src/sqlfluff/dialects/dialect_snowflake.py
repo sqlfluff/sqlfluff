@@ -719,6 +719,12 @@ snowflake_dialect.replace(
         ),
         Ref("AliasExpressionSegment", optional=True),
     ),
+    # Snowflake supports DIRECTED joins for enforcing join order.
+    # https://docs.snowflake.com/en/sql-reference/constructs/join
+    JoinKeywordsGrammar=Sequence(
+        Ref.keyword("DIRECTED", optional=True),
+        "JOIN",
+    ),
     SingleIdentifierGrammar=OneOf(
         Ref("NakedIdentifierSegment"),
         Ref("QuotedIdentifierSegment"),
