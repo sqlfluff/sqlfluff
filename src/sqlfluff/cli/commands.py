@@ -577,6 +577,12 @@ def dump_file_payload(filename: Optional[str], payload: str) -> None:
         "found. This is potentially useful during rollout."
     ),
 )
+@click.option(
+    "--recursion-limit",
+    type=int,
+    default=None,
+    help="Set the Python recursion limit before linting.",
+)
 @click.argument("paths", nargs=-1, type=click.Path(allow_dash=True))
 def lint(
     paths: tuple[str],
@@ -584,6 +590,7 @@ def lint(
     write_output: Optional[str],
     annotation_level: str,
     nofail: bool,
+    recursion_limit: Optional[int],
     disregard_sqlfluffignores: bool,
     logger: Optional[logging.Logger] = None,
     bench: bool = False,
@@ -595,6 +602,19 @@ def lint(
     stdin_filename: Optional[str] = None,
     **kwargs,
 ) -> None:
+    # If CLI flag is not set, check config for recursion_limit
+    if recursion_limit is None:
+        config = get_config(
+            extra_config_path, ignore_local_config, require_dialect=False, **kwargs
+        )
+        config_limit = config.get("recursion_limit", section="core", default=None)
+        if config_limit is not None:
+            try:
+                recursion_limit = int(config_limit)
+            except Exception:
+                recursion_limit = None
+    if recursion_limit is not None:
+        sys.setrecursionlimit(recursion_limit)
     """Lint SQL files via passing a list of files or using stdin.
 
     PATH is the path to a sql file or directory to lint. This can be either a
@@ -1062,11 +1082,18 @@ def _paths_fix(
     is_flag=True,
     help="Show lint violations",
 )
+@click.option(
+    "--recursion-limit",
+    type=int,
+    default=None,
+    help="Set the Python recursion limit before fixing.",
+)
 @click.argument("paths", nargs=-1, type=click.Path(allow_dash=True))
 def fix(
     force: bool,
     paths: tuple[str],
     disregard_sqlfluffignores: bool,
+    recursion_limit: Optional[int],
     check: bool = False,
     bench: bool = False,
     quiet: bool = False,
@@ -1081,6 +1108,19 @@ def fix(
     stdin_filename: Optional[str] = None,
     **kwargs,
 ) -> None:
+    # If CLI flag is not set, check config for recursion_limit
+    if recursion_limit is None:
+        config = get_config(
+            extra_config_path, ignore_local_config, require_dialect=False, **kwargs
+        )
+        config_limit = config.get("recursion_limit", section="core", default=None)
+        if config_limit is not None:
+            try:
+                recursion_limit = int(config_limit)
+            except Exception:
+                recursion_limit = None
+    if recursion_limit is not None:
+        sys.setrecursionlimit(recursion_limit)
     """Fix SQL files.
 
     PATH is the path to a sql file or directory to lint. This can be either a
@@ -1166,10 +1206,17 @@ def fix(
     default=None,
     help="An optional suffix to add to fixed files.",
 )
+@click.option(
+    "--recursion-limit",
+    type=int,
+    default=None,
+    help="Set the Python recursion limit before formatting.",
+)
 @click.argument("paths", nargs=-1, type=click.Path(allow_dash=True))
 def cli_format(
     paths: tuple[str],
     disregard_sqlfluffignores: bool,
+    recursion_limit: Optional[int],
     bench: bool = False,
     fixed_suffix: str = "",
     logger: Optional[logging.Logger] = None,
@@ -1181,6 +1228,19 @@ def cli_format(
     stdin_filename: Optional[str] = None,
     **kwargs,
 ) -> None:
+    # If CLI flag is not set, check config for recursion_limit
+    if recursion_limit is None:
+        config = get_config(
+            extra_config_path, ignore_local_config, require_dialect=False, **kwargs
+        )
+        config_limit = config.get("recursion_limit", section="core", default=None)
+        if config_limit is not None:
+            try:
+                recursion_limit = int(config_limit)
+            except Exception:
+                recursion_limit = None
+    if recursion_limit is not None:
+        sys.setrecursionlimit(recursion_limit)
     """Autoformat SQL files.
 
     This effectively force applies `sqlfluff fix` with a known subset of fairly
