@@ -7,7 +7,7 @@ import sys
 import time
 from itertools import chain
 from logging import LogRecord
-from typing import Callable, Optional
+from typing import Callable, Optional, Union, cast
 
 import click
 
@@ -26,14 +26,17 @@ from sqlfluff.cli.outputstream import OutputStream, make_output_stream
 from sqlfluff.core import (
     FluffConfig,
     Linter,
+    SQLBaseError,
     SQLFluffUserError,
     SQLLintError,
+    SQLParseError,
     SQLTemplaterError,
     dialect_readout,
     dialect_selector,
 )
 from sqlfluff.core.config import progress_bar_configuration
 from sqlfluff.core.linter import LintingResult
+from sqlfluff.core.linter.linted_file import TMP_PRS_ERROR_TYPES
 from sqlfluff.core.plugin.host import get_plugin_manager
 from sqlfluff.core.types import Color, FormatType
 
@@ -831,8 +834,48 @@ def _handle_unparsable(
         return initial_exit_code
     total_errors, num_filtered_errors = linting_result.count_tmp_prs_errors()
     linting_result.discard_fixes_for_lint_errors_in_files_with_tmp_or_prs_errors()
+
+    # Get the actual templating/parsing errors for detailed reporting
+    # Get violations using types parameter by accessing files directly
+    tmp_prs_errors_by_file: dict[str, list[SQLBaseError]] = {}
+    for path in linting_result.paths:
+        for linted_file in path.files:
+            file_errors: list[SQLBaseError] = linted_file.get_violations(
+                types=TMP_PRS_ERROR_TYPES
+            )
+            tmp_prs_errors_by_file.setdefault(linted_file.path, []).extend(file_errors)
+
+        # If no files retained, get from records as fallback
+        if not path.files and hasattr(path, "_records"):
+            for record in path._records:
+                record_errors: list[SQLBaseError] = []
+                for v_dict in record.get("violations", []):
+                    if v_dict.get("code") in ("TMP", "PRS"):
+                        # Extract and convert values to proper types
+                        code = v_dict["code"]
+                        description = str(cast(str, v_dict["description"]))
+                        line_no = int(cast(Union[str, int], v_dict["start_line_no"]))
+                        line_pos = int(cast(Union[str, int], v_dict["start_line_pos"]))
+
+                        error: SQLBaseError
+                        if code == "TMP":
+                            error = SQLTemplaterError(
+                                description=description,
+                                line_no=line_no,
+                                line_pos=line_pos,
+                            )
+                        else:  # PRS
+                            error = SQLParseError(
+                                description=description,
+                                line_no=line_no,
+                                line_pos=line_pos,
+                            )
+                        record_errors.append(error)
+                if record_errors:
+                    tmp_prs_errors_by_file[record["filepath"]] = record_errors
+
     formatter.print_out_residual_error_counts(
-        total_errors, num_filtered_errors, force_stderr=True
+        total_errors, num_filtered_errors, tmp_prs_errors_by_file, force_stderr=True
     )
     return EXIT_FAIL if num_filtered_errors else EXIT_SUCCESS
 
