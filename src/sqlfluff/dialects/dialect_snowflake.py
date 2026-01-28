@@ -7755,7 +7755,7 @@ class ShowStatementSegment(BaseSegment):
         "LOCKS",
         "PARAMETERS",
         "FUNCTIONS",
-        Sequence("NETWORK", "POLICIES"),
+        Sequence("NETWORK", OneOf("POLICIES", "RULES")),
         "SHARES",
         "ROLES",
         "GRANTS",
