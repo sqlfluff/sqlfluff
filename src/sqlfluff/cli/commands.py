@@ -5,6 +5,37 @@ import logging
 import os
 import sys
 import time
+from typing import Optional
+# --- Recursion Limit Helper ---
+def apply_recursion_limit(
+    recursion_limit: Optional[int],
+    extra_config_path: Optional[str] = None,
+    ignore_local_config: bool = False,
+    kwargs: Optional[dict] = None,
+    min_limit: int = 100,
+    max_limit: int = 1000000,
+) -> None:
+    """Set the Python recursion limit from CLI flag or config, with validation."""
+    # If CLI flag is not set, check config for recursion_limit
+    if recursion_limit is None:
+        config = get_config(
+            extra_config_path, ignore_local_config, require_dialect=False, **(kwargs or {})
+        )
+        config_limit = config.get("recursion_limit", section="core", default=None)
+        if config_limit is not None:
+            try:
+                recursion_limit = int(config_limit)
+            except ValueError:
+                recursion_limit = None
+    if recursion_limit is not None:
+        try:
+            if not (min_limit <= recursion_limit <= max_limit):
+                raise ValueError(f"recursion_limit must be between {min_limit} and {max_limit}.")
+            sys.setrecursionlimit(recursion_limit)
+        except ValueError as ve:
+            click.echo(f"Invalid recursion_limit: {ve}", err=True)
+        except Exception as e:
+            click.echo(f"Failed to set recursion_limit: {e}", err=True)
 from itertools import chain
 from logging import LogRecord
 from typing import Callable, Optional
@@ -602,19 +633,12 @@ def lint(
     stdin_filename: Optional[str] = None,
     **kwargs,
 ) -> None:
-    # If CLI flag is not set, check config for recursion_limit
-    if recursion_limit is None:
-        config = get_config(
-            extra_config_path, ignore_local_config, require_dialect=False, **kwargs
-        )
-        config_limit = config.get("recursion_limit", section="core", default=None)
-        if config_limit is not None:
-            try:
-                recursion_limit = int(config_limit)
-            except Exception:
-                recursion_limit = None
-    if recursion_limit is not None:
-        sys.setrecursionlimit(recursion_limit)
+    apply_recursion_limit(
+        recursion_limit,
+        extra_config_path=extra_config_path,
+        ignore_local_config=ignore_local_config,
+        kwargs=kwargs,
+    )
     """Lint SQL files via passing a list of files or using stdin.
 
     PATH is the path to a sql file or directory to lint. This can be either a
@@ -1108,19 +1132,12 @@ def fix(
     stdin_filename: Optional[str] = None,
     **kwargs,
 ) -> None:
-    # If CLI flag is not set, check config for recursion_limit
-    if recursion_limit is None:
-        config = get_config(
-            extra_config_path, ignore_local_config, require_dialect=False, **kwargs
-        )
-        config_limit = config.get("recursion_limit", section="core", default=None)
-        if config_limit is not None:
-            try:
-                recursion_limit = int(config_limit)
-            except Exception:
-                recursion_limit = None
-    if recursion_limit is not None:
-        sys.setrecursionlimit(recursion_limit)
+    apply_recursion_limit(
+        recursion_limit,
+        extra_config_path=extra_config_path,
+        ignore_local_config=ignore_local_config,
+        kwargs=kwargs,
+    )
     """Fix SQL files.
 
     PATH is the path to a sql file or directory to lint. This can be either a
@@ -1228,19 +1245,12 @@ def cli_format(
     stdin_filename: Optional[str] = None,
     **kwargs,
 ) -> None:
-    # If CLI flag is not set, check config for recursion_limit
-    if recursion_limit is None:
-        config = get_config(
-            extra_config_path, ignore_local_config, require_dialect=False, **kwargs
-        )
-        config_limit = config.get("recursion_limit", section="core", default=None)
-        if config_limit is not None:
-            try:
-                recursion_limit = int(config_limit)
-            except Exception:
-                recursion_limit = None
-    if recursion_limit is not None:
-        sys.setrecursionlimit(recursion_limit)
+    apply_recursion_limit(
+        recursion_limit,
+        extra_config_path=extra_config_path,
+        ignore_local_config=ignore_local_config,
+        kwargs=kwargs,
+    )
     """Autoformat SQL files.
 
     This effectively force applies `sqlfluff fix` with a known subset of fairly
@@ -1336,6 +1346,12 @@ def quoted_presenter(dumper, data):
 @core_options
 @click.argument("path", nargs=1, type=click.Path(allow_dash=True))
 @click.option(
+    "--recursion-limit",
+    type=int,
+    default=None,
+    help="Set the Python recursion limit before parsing.",
+)
+@click.option(
     "-c",
     "--code-only",
     is_flag=True,
@@ -1399,6 +1415,7 @@ def parse(
     write_output: Optional[str],
     bench: bool,
     nofail: bool,
+    recursion_limit: Optional[int],
     logger: Optional[logging.Logger] = None,
     extra_config_path: Optional[str] = None,
     ignore_local_config: bool = False,
@@ -1406,6 +1423,12 @@ def parse(
     stdin_filename: Optional[str] = None,
     **kwargs,
 ) -> None:
+    apply_recursion_limit(
+        recursion_limit,
+        extra_config_path=extra_config_path,
+        ignore_local_config=ignore_local_config,
+        kwargs=kwargs,
+    )
     """Parse SQL files and just spit out the result.
 
     PATH is the path to a sql file or directory to lint. This can be either a
