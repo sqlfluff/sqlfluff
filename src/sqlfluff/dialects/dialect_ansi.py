@@ -2190,6 +2190,18 @@ ansi_dialect.add(
     # will cause SQLFluff to overflow the stack from recursive function calls.
     # To work around this, the a_expr grammar is reworked a bit into sub-grammars
     # that effectively provide tail recursion.
+    # Quantified comparison operators for ANY, ALL, SOME (ANSI 92 standard)
+    # Syntax: scalar_expression comparison_operator { ALL | ANY | SOME } ( subquery )
+    # We use SelectableGrammar which includes SELECT statements and other
+    # query expressions that can be used in a subquery context.
+    QuantifiedComparisonOperatorGrammar=Sequence(
+        Ref("ComparisonOperatorGrammar"),
+        OneOf("ALL", "ANY", "SOME"),
+        Bracketed(
+            Ref("SelectableGrammar"),
+            parse_mode=ParseMode.GREEDY,
+        ),
+    ),
     Expression_A_Unary_Operator_Grammar=OneOf(
         # This grammar corresponds to the unary operator portion of the initial
         # recursive block on the Cockroach Labs a_expr grammar.  It includes the
@@ -2237,6 +2249,8 @@ ansi_dialect.add(
                     Ref("Tail_Recurse_Expression_A_Grammar"),
                 ),
                 Ref("InOperatorGrammar"),
+                # Quantified comparison operators (ANY, ALL, SOME) - ANSI 92
+                Ref("QuantifiedComparisonOperatorGrammar"),
                 Sequence(
                     "IS",
                     Ref.keyword("NOT", optional=True),
