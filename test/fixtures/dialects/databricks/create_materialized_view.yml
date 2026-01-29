@@ -3,14 +3,14 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: e4693f780a63b6d7b9022f539dabf166678fe8905aef76a9fc9acddd3f29f7e8
+_hash: 81e016a9a7a3cf97a83fb36eff4e6debb60c74711505115cf67d987d439462ad
 file:
 - statement:
     create_materialized_view_statement:
     - keyword: CREATE
     - keyword: MATERIALIZED
     - keyword: VIEW
-    - object_reference:
+    - table_reference:
         naked_identifier: my_mv
     - keyword: AS
     - select_statement:
@@ -35,7 +35,7 @@ file:
     - keyword: REPLACE
     - keyword: MATERIALIZED
     - keyword: VIEW
-    - object_reference:
+    - table_reference:
         naked_identifier: my_mv
     - keyword: AS
     - select_statement:
@@ -64,7 +64,7 @@ file:
     - keyword: IF
     - keyword: NOT
     - keyword: EXISTS
-    - object_reference:
+    - table_reference:
         naked_identifier: my_mv
     - keyword: AS
     - select_statement:
@@ -87,7 +87,7 @@ file:
     - keyword: CREATE
     - keyword: MATERIALIZED
     - keyword: VIEW
-    - object_reference:
+    - table_reference:
         naked_identifier: typed_mv
     - bracketed:
       - start_bracket: (
@@ -156,7 +156,7 @@ file:
     - keyword: CREATE
     - keyword: MATERIALIZED
     - keyword: VIEW
-    - object_reference:
+    - table_reference:
         naked_identifier: sales_mv
     - keyword: COMMENT
     - quoted_literal: "'Materialized view for sales analytics'"
@@ -201,7 +201,7 @@ file:
     - keyword: CREATE
     - keyword: MATERIALIZED
     - keyword: VIEW
-    - object_reference:
+    - table_reference:
         naked_identifier: partitioned_mv
     - keyword: PARTITIONED
     - keyword: BY
@@ -258,7 +258,7 @@ file:
     - keyword: CREATE
     - keyword: MATERIALIZED
     - keyword: VIEW
-    - object_reference:
+    - table_reference:
         naked_identifier: clustered_mv
     - table_cluster_by_clause:
       - keyword: CLUSTER
@@ -296,7 +296,7 @@ file:
     - keyword: CREATE
     - keyword: MATERIALIZED
     - keyword: VIEW
-    - object_reference:
+    - table_reference:
         naked_identifier: props_mv
     - keyword: TBLPROPERTIES
     - bracketed:
@@ -328,7 +328,7 @@ file:
     - keyword: CREATE
     - keyword: MATERIALIZED
     - keyword: VIEW
-    - object_reference:
+    - table_reference:
         naked_identifier: collated_mv
     - keyword: DEFAULT
     - keyword: COLLATION
@@ -358,7 +358,7 @@ file:
     - keyword: CREATE
     - keyword: MATERIALIZED
     - keyword: VIEW
-    - object_reference:
+    - table_reference:
         naked_identifier: hourly_mv
     - keyword: SCHEDULE
     - keyword: EVERY
@@ -417,7 +417,7 @@ file:
     - keyword: CREATE
     - keyword: MATERIALIZED
     - keyword: VIEW
-    - object_reference:
+    - table_reference:
         naked_identifier: daily_mv
     - keyword: SCHEDULE
     - keyword: REFRESH
@@ -445,7 +445,7 @@ file:
     - keyword: CREATE
     - keyword: MATERIALIZED
     - keyword: VIEW
-    - object_reference:
+    - table_reference:
         naked_identifier: weekly_mv
     - keyword: SCHEDULE
     - keyword: EVERY
@@ -472,7 +472,7 @@ file:
     - keyword: CREATE
     - keyword: MATERIALIZED
     - keyword: VIEW
-    - object_reference:
+    - table_reference:
         naked_identifier: cron_mv
     - keyword: SCHEDULE
     - keyword: CRON
@@ -498,7 +498,7 @@ file:
     - keyword: CREATE
     - keyword: MATERIALIZED
     - keyword: VIEW
-    - object_reference:
+    - table_reference:
         naked_identifier: cron_tz_mv
     - keyword: SCHEDULE
     - keyword: CRON
@@ -528,7 +528,7 @@ file:
     - keyword: CREATE
     - keyword: MATERIALIZED
     - keyword: VIEW
-    - object_reference:
+    - table_reference:
         naked_identifier: triggered_mv
     - keyword: TRIGGER
     - keyword: 'ON'
@@ -554,7 +554,7 @@ file:
     - keyword: CREATE
     - keyword: MATERIALIZED
     - keyword: VIEW
-    - object_reference:
+    - table_reference:
         naked_identifier: throttled_mv
     - keyword: TRIGGER
     - keyword: 'ON'
@@ -588,7 +588,7 @@ file:
     - keyword: CREATE
     - keyword: MATERIALIZED
     - keyword: VIEW
-    - object_reference:
+    - table_reference:
         naked_identifier: filtered_mv
     - keyword: WITH
     - keyword: ROW
@@ -627,7 +627,7 @@ file:
     - keyword: REPLACE
     - keyword: MATERIALIZED
     - keyword: VIEW
-    - object_reference:
+    - table_reference:
         naked_identifier: comprehensive_mv
     - bracketed:
       - start_bracket: (
@@ -745,7 +745,7 @@ file:
     - keyword: REPLACE
     - keyword: MATERIALIZED
     - keyword: VIEW
-    - object_reference:
+    - table_reference:
         naked_identifier: pk_mv
     - bracketed:
         start_bracket: (
@@ -782,7 +782,7 @@ file:
     - keyword: REFRESH
     - keyword: MATERIALIZED
     - keyword: VIEW
-    - object_reference:
+    - table_reference:
         naked_identifier: dlt_mv
     - keyword: AS
     - select_statement:
@@ -806,7 +806,7 @@ file:
     - keyword: PRIVATE
     - keyword: MATERIALIZED
     - keyword: VIEW
-    - object_reference:
+    - table_reference:
         naked_identifier: dlt_private_mat_view
     - bracketed:
       - start_bracket: (
@@ -861,7 +861,7 @@ file:
     - keyword: PRIVATE
     - keyword: MATERIALIZED
     - keyword: VIEW
-    - object_reference:
+    - table_reference:
         naked_identifier: dlt_refresh_private_mat_view
     - bracketed:
       - start_bracket: (
