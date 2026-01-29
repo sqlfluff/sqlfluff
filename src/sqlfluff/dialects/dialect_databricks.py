@@ -823,8 +823,8 @@ class CreateMaterializedViewStatementSegment(BaseSegment):
     """A `CREATE MATERIALIZED VIEW` Statement.
 
     Covers both standard Databricks SQL and Lakeflow/DLT syntax:
-    - Standard: https://docs.databricks.com/aws/en/sql/language-manual/sql-ref-syntax-ddl-create-materialized-view
-    - Lakeflow/DLT: https://docs.databricks.com/aws/en/ldp/developer/ldp-sql-ref-create-materialized-view
+    https://docs.databricks.com/aws/en/sql/language-manual/sql-ref-syntax-ddl-create-materialized-view
+    https://docs.databricks.com/aws/en/ldp/developer/ldp-sql-ref-create-materialized-view
     """
 
     type = "create_materialized_view_statement"
@@ -899,7 +899,7 @@ class CreateMaterializedViewStatementSegment(BaseSegment):
         "CREATE",
         # OR REPLACE for standard SQL, OR REFRESH for DLT
         OneOf(Ref("OrReplaceGrammar"), Ref("OrRefreshGrammar"), optional=True),
-        Ref.keyword("PRIVATE", optional=True), # DLT-specific
+        Ref.keyword("PRIVATE", optional=True),  # DLT-specific
         "MATERIALIZED",
         "VIEW",
         Ref("IfNotExistsGrammar", optional=True),
