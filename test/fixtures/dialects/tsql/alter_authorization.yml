@@ -3,11 +3,11 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: eba2f00fa5f0b49b7d217dc70cf45d09929b1fb42a3b1ab3d356f47e2c1ca652
+_hash: 70beb69cd3556399b78b0d4c82bbcfb1650145936b7fb8182c92f98f7136bc8e
 file:
   batch:
   - statement:
-      alter_authorization_staement:
+      alter_authorization_statement:
       - keyword: ALTER
       - keyword: AUTHORIZATION
       - keyword: 'ON'
@@ -19,7 +19,7 @@ file:
           naked_identifier: dbo
   - statement_terminator: ;
   - statement:
-      alter_authorization_staement:
+      alter_authorization_statement:
       - keyword: ALTER
       - keyword: AUTHORIZATION
       - keyword: 'ON'
@@ -33,7 +33,7 @@ file:
           naked_identifier: dbo
   - statement_terminator: ;
   - statement:
-      alter_authorization_staement:
+      alter_authorization_statement:
       - keyword: ALTER
       - keyword: AUTHORIZATION
       - keyword: 'ON'
@@ -47,7 +47,7 @@ file:
           naked_identifier: dbo
   - statement_terminator: ;
   - statement:
-      alter_authorization_staement:
+      alter_authorization_statement:
       - keyword: ALTER
       - keyword: AUTHORIZATION
       - keyword: 'ON'
@@ -61,7 +61,7 @@ file:
       - keyword: OWNER
   - statement_terminator: ;
   - statement:
-      alter_authorization_staement:
+      alter_authorization_statement:
       - keyword: ALTER
       - keyword: AUTHORIZATION
       - keyword: 'ON'
@@ -73,7 +73,7 @@ file:
           naked_identifier: dbo
   - statement_terminator: ;
   - statement:
-      alter_authorization_staement:
+      alter_authorization_statement:
       - keyword: ALTER
       - keyword: AUTHORIZATION
       - keyword: 'ON'
@@ -85,7 +85,7 @@ file:
       - keyword: OWNER
   - statement_terminator: ;
   - statement:
-      alter_authorization_staement:
+      alter_authorization_statement:
       - keyword: ALTER
       - keyword: AUTHORIZATION
       - keyword: 'ON'
@@ -99,7 +99,7 @@ file:
       - keyword: OWNER
   - statement_terminator: ;
   - statement:
-      alter_authorization_staement:
+      alter_authorization_statement:
       - keyword: ALTER
       - keyword: AUTHORIZATION
       - keyword: 'ON'
@@ -113,7 +113,7 @@ file:
       - keyword: OWNER
   - statement_terminator: ;
   - statement:
-      alter_authorization_staement:
+      alter_authorization_statement:
       - keyword: ALTER
       - keyword: AUTHORIZATION
       - keyword: 'ON'
@@ -128,7 +128,7 @@ file:
       - keyword: OWNER
   - statement_terminator: ;
   - statement:
-      alter_authorization_staement:
+      alter_authorization_statement:
       - keyword: ALTER
       - keyword: AUTHORIZATION
       - keyword: 'ON'
@@ -142,7 +142,7 @@ file:
       - keyword: OWNER
   - statement_terminator: ;
   - statement:
-      alter_authorization_staement:
+      alter_authorization_statement:
       - keyword: ALTER
       - keyword: AUTHORIZATION
       - keyword: 'ON'
@@ -156,7 +156,7 @@ file:
       - keyword: OWNER
   - statement_terminator: ;
   - statement:
-      alter_authorization_staement:
+      alter_authorization_statement:
       - keyword: ALTER
       - keyword: AUTHORIZATION
       - keyword: 'ON'
@@ -170,7 +170,7 @@ file:
       - keyword: OWNER
   - statement_terminator: ;
   - statement:
-      alter_authorization_staement:
+      alter_authorization_statement:
       - keyword: ALTER
       - keyword: AUTHORIZATION
       - keyword: 'ON'
@@ -185,7 +185,7 @@ file:
       - keyword: OWNER
   - statement_terminator: ;
   - statement:
-      alter_authorization_staement:
+      alter_authorization_statement:
       - keyword: ALTER
       - keyword: AUTHORIZATION
       - keyword: 'ON'
@@ -200,7 +200,7 @@ file:
       - keyword: OWNER
   - statement_terminator: ;
   - statement:
-      alter_authorization_staement:
+      alter_authorization_statement:
       - keyword: ALTER
       - keyword: AUTHORIZATION
       - keyword: 'ON'
@@ -214,7 +214,7 @@ file:
       - keyword: OWNER
   - statement_terminator: ;
   - statement:
-      alter_authorization_staement:
+      alter_authorization_statement:
       - keyword: ALTER
       - keyword: AUTHORIZATION
       - keyword: 'ON'
@@ -230,7 +230,7 @@ file:
       - keyword: OWNER
   - statement_terminator: ;
   - statement:
-      alter_authorization_staement:
+      alter_authorization_statement:
       - keyword: ALTER
       - keyword: AUTHORIZATION
       - keyword: 'ON'
@@ -245,7 +245,7 @@ file:
       - keyword: OWNER
   - statement_terminator: ;
   - statement:
-      alter_authorization_staement:
+      alter_authorization_statement:
       - keyword: ALTER
       - keyword: AUTHORIZATION
       - keyword: 'ON'
