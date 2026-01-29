@@ -750,25 +750,169 @@ class CreateDatabaseStatementSegment(sparksql.CreateDatabaseStatementSegment):
     )
 
 
-class CreateViewStatementSegment(sparksql.CreateViewStatementSegment):
+class CreateViewStatementSegment(BaseSegment):
     """A `CREATE VIEW` statement.
 
     https://docs.databricks.com/aws/en/sql/language-manual/sql-ref-syntax-ddl-create-view
-    https://docs.databricks.com/aws/en/dlt-ref/dlt-sql-ref-create-materialized-view
+
+    Does not inherit from SparkSQL to properly support Databricks-specific syntax
+    and to be distinct from `CREATE MATERIALIZED VIEW`.
     """
 
-    match_grammar = sparksql.CreateViewStatementSegment.match_grammar.copy(
-        insert=[
+    type = "create_view_statement"
+
+    _schema_binding_clause = Sequence(
+        "WITH",
+        OneOf(
+            "METRICS",
             Sequence(
-                Ref.keyword("PRIVATE", optional=True),
-                Ref.keyword("MATERIALIZED"),
+                "SCHEMA",
+                OneOf(
+                    "BINDING",
+                    "COMPENSATION",
+                    Sequence(
+                        Ref.keyword("TYPE", optional=True),
+                        "EVOLUTION",
+                    ),
+                ),
+            ),
+        ),
+    )
+
+    _view_clauses = AnyNumberOf(
+        Ref("CommentGrammar"),
+        Sequence(
+            "DEFAULT",
+            "COLLATION",
+            Ref("ObjectReferenceSegment"),  # collation_name
+        ),
+        Ref("TablePropertiesGrammar"),
+        Sequence("LANGUAGE", "YAML"),
+        _schema_binding_clause,
+    )
+
+    match_grammar = Sequence(
+        "CREATE",
+        Ref("OrReplaceGrammar", optional=True),
+        Ref.keyword("TEMPORARY", optional=True),
+        "VIEW",
+        Ref("IfNotExistsGrammar", optional=True),
+        Ref("TableReferenceSegment"),
+        Sequence(
+            Bracketed(
+                Delimited(
+                    Sequence(
+                        Ref("ColumnReferenceSegment"),
+                        Ref("CommentGrammar", optional=True),
+                    ),
+                ),
+            ),
+            optional=True,
+        ),
+        _view_clauses,
+        "AS",
+        OneOf(
+            OptionallyBracketed(Ref("SelectableGrammar")),
+            # YAML metric view definition: $$ yaml_string $$
+            Ref("DollarQuotedUDFBody"),
+        ),
+    )
+
+
+class CreateMaterializedViewStatementSegment(BaseSegment):
+    """A `CREATE MATERIALIZED VIEW` Statement.
+
+    Covers both standard Databricks SQL and Lakeflow/DLT syntax:
+    - Standard: https://docs.databricks.com/aws/en/sql/language-manual/sql-ref-syntax-ddl-create-materialized-view
+    - Lakeflow/DLT: https://docs.databricks.com/aws/en/ldp/developer/ldp-sql-ref-create-materialized-view
+    """
+
+    type = "create_materialized_view_statement"
+
+    _schedule = OneOf(
+        Sequence(
+            "SCHEDULE",
+            Ref.keyword("REFRESH", optional=True),
+            OneOf(
+                Sequence(
+                    "EVERY",
+                    Ref("NumericLiteralSegment"),
+                    OneOf("HOUR", "HOURS", "DAY", "DAYS", "WEEK", "WEEKS"),
+                ),
+                Sequence(
+                    "CRON",
+                    Ref("QuotedLiteralSegment"),
+                    Sequence(
+                        "AT",
+                        "TIME",
+                        "ZONE",
+                        Ref("QuotedLiteralSegment"),
+                        optional=True,
+                    ),
+                ),
+            ),
+        ),
+        Sequence(
+            "TRIGGER",
+            "ON",
+            "UPDATE",
+            Sequence(
+                "AT",
+                "MOST",
+                "EVERY",
+                Ref("IntervalExpressionSegment"),
                 optional=True,
             ),
-        ],
-        before=Ref.keyword("MATERIALIZED", optional=True),
-        remove=[
-            Ref.keyword("MATERIALIZED", optional=True),
-        ],
+        ),
+        optional=True,
+    )
+
+    _view_clauses = AnyNumberOf(
+        Ref("PartitionSpecGrammar"),
+        Ref("TableClusterByClauseSegment"),
+        Ref("CommentGrammar"),
+        Sequence(
+            "DEFAULT",
+            "COLLATION",
+            Ref("ObjectReferenceSegment"),
+        ),
+        Ref("TablePropertiesGrammar"),
+        _schedule,
+        Sequence(
+            "WITH",
+            "ROW",
+            "FILTER",
+            Ref("FunctionNameSegment"),
+            Sequence(
+                "ON",
+                Bracketed(
+                    Delimited(
+                        Ref("ColumnReferenceSegment"),
+                    ),
+                ),
+                optional=True,
+            ),
+        ),
+    )
+
+    match_grammar = Sequence(
+        "CREATE",
+        # OR REPLACE for standard SQL, OR REFRESH for DLT
+        OneOf(Ref("OrReplaceGrammar"), Ref("OrRefreshGrammar"), optional=True),
+        Ref.keyword("PRIVATE", optional=True), # DLT-specific
+        "MATERIALIZED",
+        "VIEW",
+        Ref("IfNotExistsGrammar", optional=True),
+        Ref("ObjectReferenceSegment"),
+        Bracketed(
+            Delimited(
+                Ref("ColumnFieldDefinitionSegment"),
+            ),
+            optional=True,
+        ),
+        _view_clauses,
+        "AS",
+        OptionallyBracketed(Ref("SelectableGrammar")),
     )
 
 
@@ -1316,6 +1460,7 @@ class StatementSegment(sparksql.StatementSegment):
             # Databricks - Delta Live Tables
             Ref("ApplyChangesIntoStatementSegment"),
             Ref("CreateFlowStatementSegment"),
+            Ref("CreateMaterializedViewStatementSegment"),
         ]
     )
 
