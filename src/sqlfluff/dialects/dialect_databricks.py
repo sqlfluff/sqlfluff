@@ -903,7 +903,7 @@ class CreateMaterializedViewStatementSegment(BaseSegment):
         "MATERIALIZED",
         "VIEW",
         Ref("IfNotExistsGrammar", optional=True),
-        Ref("ObjectReferenceSegment"),
+        Ref("TableReferenceSegment"),
         Bracketed(
             Delimited(
                 Ref("ColumnFieldDefinitionSegment"),
