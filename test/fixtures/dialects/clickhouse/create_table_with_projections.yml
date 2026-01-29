@@ -1,0 +1,95 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 07d37fd4c5d0d742e5179dab967ed93404f112b4e0d95ae8be6d2a0709c284a2
+file:
+  statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        naked_identifier: test_projections
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          naked_identifier: id
+          data_type:
+            data_type_identifier: UInt64
+      - comma: ','
+      - column_definition:
+          naked_identifier: name
+          data_type:
+            data_type_identifier: String
+      - comma: ','
+      - column_definition:
+          naked_identifier: category
+          data_type:
+            data_type_identifier: String
+      - comma: ','
+      - column_definition:
+          naked_identifier: price
+          data_type:
+            data_type_identifier: Decimal
+            bracketed_arguments:
+              bracketed:
+              - start_bracket: (
+              - data_type:
+                  numeric_literal: '10'
+              - comma: ','
+              - data_type:
+                  numeric_literal: '2'
+              - end_bracket: )
+      - comma: ','
+      - column_definition:
+          naked_identifier: created_date
+          data_type:
+            data_type_identifier: Date
+      - comma: ','
+      - projection_definition:
+          keyword: PROJECTION
+          naked_identifier: proj_simple
+          bracketed:
+            start_bracket: (
+            select_clause:
+            - keyword: SELECT
+            - select_clause_element:
+                column_reference:
+                  naked_identifier: category
+            - comma: ','
+            - select_clause_element:
+                function:
+                  function_name:
+                    function_name_identifier: count
+                  function_contents:
+                    bracketed:
+                      start_bracket: (
+                      expression:
+                        column_reference:
+                          naked_identifier: id
+                      end_bracket: )
+            groupby_clause:
+            - keyword: GROUP
+            - keyword: BY
+            - column_reference:
+                naked_identifier: category
+            end_bracket: )
+      - end_bracket: )
+    - engine:
+        keyword: ENGINE
+        comparison_operator:
+          raw_comparison_operator: '='
+        table_engine_function:
+          function_name:
+            function_name_identifier: MergeTree
+          function_contents:
+            bracketed:
+              start_bracket: (
+              end_bracket: )
+        merge_tree_order_by_clause:
+        - keyword: ORDER
+        - keyword: BY
+        - column_reference:
+            naked_identifier: id
+  statement_terminator: ;
