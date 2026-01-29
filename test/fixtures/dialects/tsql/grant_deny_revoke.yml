@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 66312a5e693507962599d07c4e0de0c145c1e25fa50436c59a28055f2f9bc39a
+_hash: 413ce263830000fca281fa9a7c65221cc0bc17f98328f0dec901d68492ffda21
 file:
 - batch:
   - statement:
@@ -487,6 +487,32 @@ file:
   - statement:
       access_statement:
       - keyword: GRANT
+      - keyword: IMPERSONATE
+      - keyword: 'ON'
+      - keyword: LOGIN
+      - casting_operator: '::'
+      - object_reference:
+          naked_identifier: SomeUser
+      - keyword: TO
+      - role_reference:
+          naked_identifier: AnotherUser
+  - statement_terminator: ;
+  - statement:
+      access_statement:
+      - keyword: GRANT
+      - keyword: CONTROL
+      - keyword: 'ON'
+      - keyword: USER
+      - casting_operator: '::'
+      - object_reference:
+          naked_identifier: SomeUser
+      - keyword: TO
+      - role_reference:
+          naked_identifier: AnotherUser
+  - statement_terminator: ;
+  - statement:
+      access_statement:
+      - keyword: GRANT
       - keyword: SELECT
       - comma: ','
       - keyword: INSERT
@@ -821,6 +847,32 @@ file:
       - keyword: TO
       - role_reference:
           naked_identifier: SomeRole
+  - statement_terminator: ;
+  - statement:
+      access_statement:
+      - keyword: DENY
+      - keyword: IMPERSONATE
+      - keyword: 'ON'
+      - keyword: LOGIN
+      - casting_operator: '::'
+      - object_reference:
+          naked_identifier: SomeUser
+      - keyword: TO
+      - role_reference:
+          naked_identifier: AnotherUser
+  - statement_terminator: ;
+  - statement:
+      access_statement:
+      - keyword: DENY
+      - keyword: CONTROL
+      - keyword: 'ON'
+      - keyword: USER
+      - casting_operator: '::'
+      - object_reference:
+          naked_identifier: SomeUser
+      - keyword: TO
+      - role_reference:
+          naked_identifier: AnotherUser
   - statement_terminator: ;
   - statement:
       access_statement:
@@ -1187,6 +1239,32 @@ file:
       - keyword: TO
       - role_reference:
           naked_identifier: SomeRole
+  - statement_terminator: ;
+  - statement:
+      access_statement:
+      - keyword: REVOKE
+      - keyword: IMPERSONATE
+      - keyword: 'ON'
+      - keyword: LOGIN
+      - casting_operator: '::'
+      - object_reference:
+          naked_identifier: SomeUser
+      - keyword: TO
+      - role_reference:
+          naked_identifier: AnotherUser
+  - statement_terminator: ;
+  - statement:
+      access_statement:
+      - keyword: REVOKE
+      - keyword: CONTROL
+      - keyword: 'ON'
+      - keyword: USER
+      - casting_operator: '::'
+      - object_reference:
+          naked_identifier: SomeUser
+      - keyword: TO
+      - role_reference:
+          naked_identifier: AnotherUser
   - statement_terminator: ;
   - statement:
       access_statement:
