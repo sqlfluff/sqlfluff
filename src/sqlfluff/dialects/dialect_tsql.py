@@ -6672,7 +6672,7 @@ class AlterAuthorizationStatementSegment(BaseSegment):
     https://docs.microsoft.com/en-us/sql/t-sql/statements/alter-authorization-transact-sql
     """
 
-    type = "alter_authorization_staement"
+    type = "alter_authorization_statement"
     match_grammar: Matchable = Sequence(
         "ALTER",
         "AUTHORIZATION",
@@ -6684,7 +6684,7 @@ class AlterAuthorizationStatementSegment(BaseSegment):
 
 
 class AccessStatementSegment(BaseSegment):
-    """A `GRANT`, `DENEY` or `REVOKE` statement.
+    """A `GRANT`, `DENY` or `REVOKE` statement.
 
     https://docs.microsoft.com/en-us/sql/t-sql/statements/grant-transact-sql
     https://docs.microsoft.com/en-us/sql/t-sql/statements/deny-transact-sql
@@ -6829,7 +6829,6 @@ class AccessStatementSegment(BaseSegment):
             Sequence("VIEW", "ANY", "DEFINITION"),
             Sequence("VIEW", "CHANGE", "TRACKING"),
             Sequence("VIEW", "DATABASE", "STATE"),
-            Sequence("VIEW", "DEFINITION"),
             Sequence("VIEW", "DEFINITION"),
             Sequence("VIEW", "SERVER", "STATE"),
         ),
