@@ -1,0 +1,262 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: eba2f00fa5f0b49b7d217dc70cf45d09929b1fb42a3b1ab3d356f47e2c1ca652
+file:
+  batch:
+  - statement:
+      alter_authorization_staement:
+      - keyword: ALTER
+      - keyword: AUTHORIZATION
+      - keyword: 'ON'
+      - securable:
+          object_reference:
+            naked_identifier: SomeObject
+      - keyword: TO
+      - role_reference:
+          naked_identifier: dbo
+  - statement_terminator: ;
+  - statement:
+      alter_authorization_staement:
+      - keyword: ALTER
+      - keyword: AUTHORIZATION
+      - keyword: 'ON'
+      - securable:
+          object_reference:
+          - naked_identifier: dbo
+          - dot: .
+          - naked_identifier: SomeObject
+      - keyword: TO
+      - role_reference:
+          naked_identifier: dbo
+  - statement_terminator: ;
+  - statement:
+      alter_authorization_staement:
+      - keyword: ALTER
+      - keyword: AUTHORIZATION
+      - keyword: 'ON'
+      - securable:
+          keyword: SCHEMA
+          casting_operator: '::'
+          object_reference:
+            naked_identifier: SomeSchema
+      - keyword: TO
+      - role_reference:
+          naked_identifier: dbo
+  - statement_terminator: ;
+  - statement:
+      alter_authorization_staement:
+      - keyword: ALTER
+      - keyword: AUTHORIZATION
+      - keyword: 'ON'
+      - securable:
+          keyword: SCHEMA
+          casting_operator: '::'
+          object_reference:
+            naked_identifier: SomeSchema
+      - keyword: TO
+      - keyword: SCHEMA
+      - keyword: OWNER
+  - statement_terminator: ;
+  - statement:
+      alter_authorization_staement:
+      - keyword: ALTER
+      - keyword: AUTHORIZATION
+      - keyword: 'ON'
+      - securable:
+          object_reference:
+            naked_identifier: SomeObject
+      - keyword: TO
+      - role_reference:
+          naked_identifier: dbo
+  - statement_terminator: ;
+  - statement:
+      alter_authorization_staement:
+      - keyword: ALTER
+      - keyword: AUTHORIZATION
+      - keyword: 'ON'
+      - securable:
+          object_reference:
+            naked_identifier: SomeObject
+      - keyword: TO
+      - keyword: SCHEMA
+      - keyword: OWNER
+  - statement_terminator: ;
+  - statement:
+      alter_authorization_staement:
+      - keyword: ALTER
+      - keyword: AUTHORIZATION
+      - keyword: 'ON'
+      - securable:
+          keyword: OBJECT
+          casting_operator: '::'
+          object_reference:
+            naked_identifier: SomeObject
+      - keyword: TO
+      - keyword: SCHEMA
+      - keyword: OWNER
+  - statement_terminator: ;
+  - statement:
+      alter_authorization_staement:
+      - keyword: ALTER
+      - keyword: AUTHORIZATION
+      - keyword: 'ON'
+      - securable:
+          keyword: ASSEMBLY
+          casting_operator: '::'
+          object_reference:
+            naked_identifier: SomeObject
+      - keyword: TO
+      - keyword: SCHEMA
+      - keyword: OWNER
+  - statement_terminator: ;
+  - statement:
+      alter_authorization_staement:
+      - keyword: ALTER
+      - keyword: AUTHORIZATION
+      - keyword: 'ON'
+      - securable:
+        - keyword: ASYMMETRIC
+        - keyword: KEY
+        - casting_operator: '::'
+        - object_reference:
+            naked_identifier: SomeObject
+      - keyword: TO
+      - keyword: SCHEMA
+      - keyword: OWNER
+  - statement_terminator: ;
+  - statement:
+      alter_authorization_staement:
+      - keyword: ALTER
+      - keyword: AUTHORIZATION
+      - keyword: 'ON'
+      - securable:
+          keyword: CERTIFICATE
+          casting_operator: '::'
+          object_reference:
+            naked_identifier: SomeObject
+      - keyword: TO
+      - keyword: SCHEMA
+      - keyword: OWNER
+  - statement_terminator: ;
+  - statement:
+      alter_authorization_staement:
+      - keyword: ALTER
+      - keyword: AUTHORIZATION
+      - keyword: 'ON'
+      - securable:
+          keyword: TYPE
+          casting_operator: '::'
+          object_reference:
+            naked_identifier: SomeObject
+      - keyword: TO
+      - keyword: SCHEMA
+      - keyword: OWNER
+  - statement_terminator: ;
+  - statement:
+      alter_authorization_staement:
+      - keyword: ALTER
+      - keyword: AUTHORIZATION
+      - keyword: 'ON'
+      - securable:
+          keyword: DATABASE
+          casting_operator: '::'
+          object_reference:
+            naked_identifier: SomeObject
+      - keyword: TO
+      - keyword: SCHEMA
+      - keyword: OWNER
+  - statement_terminator: ;
+  - statement:
+      alter_authorization_staement:
+      - keyword: ALTER
+      - keyword: AUTHORIZATION
+      - keyword: 'ON'
+      - securable:
+        - keyword: FULLTEXT
+        - keyword: CATALOG
+        - casting_operator: '::'
+        - object_reference:
+            naked_identifier: SomeObject
+      - keyword: TO
+      - keyword: SCHEMA
+      - keyword: OWNER
+  - statement_terminator: ;
+  - statement:
+      alter_authorization_staement:
+      - keyword: ALTER
+      - keyword: AUTHORIZATION
+      - keyword: 'ON'
+      - securable:
+        - keyword: FULLTEXT
+        - keyword: STOPLIST
+        - casting_operator: '::'
+        - object_reference:
+            naked_identifier: SomeObject
+      - keyword: TO
+      - keyword: SCHEMA
+      - keyword: OWNER
+  - statement_terminator: ;
+  - statement:
+      alter_authorization_staement:
+      - keyword: ALTER
+      - keyword: AUTHORIZATION
+      - keyword: 'ON'
+      - securable:
+          keyword: ROLE
+          casting_operator: '::'
+          object_reference:
+            naked_identifier: SomeObject
+      - keyword: TO
+      - keyword: SCHEMA
+      - keyword: OWNER
+  - statement_terminator: ;
+  - statement:
+      alter_authorization_staement:
+      - keyword: ALTER
+      - keyword: AUTHORIZATION
+      - keyword: 'ON'
+      - securable:
+        - keyword: SEARCH
+        - keyword: PROPERTY
+        - keyword: LIST
+        - casting_operator: '::'
+        - object_reference:
+            naked_identifier: SomeObject
+      - keyword: TO
+      - keyword: SCHEMA
+      - keyword: OWNER
+  - statement_terminator: ;
+  - statement:
+      alter_authorization_staement:
+      - keyword: ALTER
+      - keyword: AUTHORIZATION
+      - keyword: 'ON'
+      - securable:
+        - keyword: SYMMETRIC
+        - keyword: KEY
+        - casting_operator: '::'
+        - object_reference:
+            naked_identifier: SomeObject
+      - keyword: TO
+      - keyword: SCHEMA
+      - keyword: OWNER
+  - statement_terminator: ;
+  - statement:
+      alter_authorization_staement:
+      - keyword: ALTER
+      - keyword: AUTHORIZATION
+      - keyword: 'ON'
+      - securable:
+        - keyword: XML
+        - keyword: SCHEMA
+        - keyword: COLLECTION
+        - casting_operator: '::'
+        - object_reference:
+            naked_identifier: SomeObject
+      - keyword: TO
+      - keyword: SCHEMA
+      - keyword: OWNER
+  - statement_terminator: ;
