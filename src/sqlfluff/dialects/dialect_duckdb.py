@@ -945,23 +945,21 @@ class SimplifiedUnpivotExpressionSegment(BaseSegment):
         Delimited(
             Sequence(
                 OneOf(
-                    Bracketed(
-                        Delimited(
-                            Ref("ColumnReferenceSegment"),
-                        ),
-                    ),
-                    Ref("ColumnReferenceSegment"),
+                    Ref("ExpressionSegment"),
+                    Bracketed(Delimited(Ref("ExpressionSegment"))),
                 ),
                 Ref("AliasExpressionSegment", optional=True),
             ),
-            Ref("ColumnsExpressionGrammar"),
         ),
-        "INTO",
-        "NAME",
-        Ref("SingleIdentifierGrammar"),
-        "VALUE",
-        Delimited(
+        Sequence(
+            "INTO",
+            "NAME",
             Ref("SingleIdentifierGrammar"),
+            "VALUE",
+            Delimited(
+                Ref("SingleIdentifierGrammar"),
+            ),
+            optional=True,
         ),
         Ref("OrderByClauseSegment", optional=True),
         Ref("LimitClauseSegment", optional=True),
