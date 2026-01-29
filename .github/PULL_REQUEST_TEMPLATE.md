@@ -1,22 +1,33 @@
+<!-- Thank you for contributing! -->
 
-<!--Thanks for adding this feature!-->
+<!-- Please provide a clear and concise title for the Pull Request. -->
 
-<!--Please give the Pull Request a meaningful title for the release notes-->
+## ✨ Summary of the Change
+<!-- Briefly describe what this PR does.
+If it addresses an issue, include: 
+- `Fixes #XXXX` to automatically close the issue when merged.
+- Or use `Progress on #XXXX` if it partially resolves the issue. -->
 
-### Brief summary of the change made
-<!--Please include `fixes #XXXX` to automatically close any corresponding issue when the pull request is merged. Alternatively if not fully closed you can say `makes progress on #XXXX`.-->
+## ⚠️ Side Effects or Considerations
+<!-- Are there any side effects, breaking changes, or important context we should be aware of? 
+Mention anything that reviewers or testers should double-check. -->
 
+## ✅ Checklist
+Please confirm you’ve completed the relevant steps below:
 
-### Are there any other side effects of this change that we should be aware of?
+- [ ] **Tests Added (if applicable)**  
+  - `.yml` rule test cases in `test/fixtures/rules/std_rule_cases`
+  - `.sql` / `.yml` parser test cases in `test/fixtures/dialects`  
+    *(Tip: You can generate YML files using `tox -e generate-fixture-yml`)*
+  - Full autofix test cases in `test/fixtures/linter/autofix`
+  - Other relevant test coverage
 
+- [ ] **Documentation Updated**  
+  *(If the change impacts usage or features, please update relevant docs.)*
 
-### Pull Request checklist
-- [ ] Please confirm you have completed any of the necessary steps below.
+- [ ] **Follow-up Issues Created (if needed)**  
+  *(Open any issues for enhancements or tasks not included in this PR.)*
 
-- Included test cases to demonstrate any code changes, which may be one or more of the following:
-  - `.yml` rule test cases in `test/fixtures/rules/std_rule_cases`.
-  - `.sql`/`.yml` parser test cases in `test/fixtures/dialects` (note YML files can be auto generated with `tox -e generate-fixture-yml`).
-  - Full autofix test cases in `test/fixtures/linter/autofix`.
-  - Other.
-- Added appropriate documentation for the change.
-- Created GitHub issues for any relevant followup/future enhancements if appropriate.
+---
+
+Thanks again for your contribution! 🙌
